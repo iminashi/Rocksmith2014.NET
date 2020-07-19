@@ -61,7 +61,7 @@ namespace Rocksmith2014.XML
         /// <summary>
         /// Creates a new hero levels, initialized from an array.
         /// </summary>
-        /// <param name="levels">An array with three difficulty levels: easy, medium & hard.</param>
+        /// <param name="levels">An array with three difficulty levels: easy, medium and hard.</param>
         public HeroLevels(int[] levels)
         {
             Easy = (byte)levels[0];

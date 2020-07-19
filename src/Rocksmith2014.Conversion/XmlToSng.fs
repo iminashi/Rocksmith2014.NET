@@ -45,3 +45,15 @@ let convertBendValue (xmlBv:XML.BendValue) =
       Unk3 = 0s
       Unk4 = 0y
       Unk5 = 0y }
+
+let convertPhraseIteration index (xml:XML.InstrumentalArrangement) (xmlPi:XML.PhraseIteration) =
+    let endTime =
+        if index = xml.PhraseIterations.Count - 1 then
+            msToSec xml.SongLength
+        else
+            msToSec xml.PhraseIterations.[index + 1].Time
+
+    { PhraseId = xmlPi.PhraseId
+      StartTime = msToSec xmlPi.Time
+      NextPhraseTime = endTime
+      Difficulty = [| int xmlPi.HeroLevels.Easy; int xmlPi.HeroLevels.Medium; int xmlPi.HeroLevels.Hard |] }

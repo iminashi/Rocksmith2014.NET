@@ -4,13 +4,19 @@ open Expecto
 open Rocksmith2014
 open Rocksmith2014.XML
 open Rocksmith2014.Conversion
-//open Rocksmith2014.SNG.Types
+open System.Globalization
+open System
+
+/// Testing function that converts a time in milliseconds into seconds without floating point arithmetic.
+let timeConversion (time:int) =
+    Single.Parse(Utils.TimeCodeToString(time), NumberFormatInfo.InvariantInfo)
 
 let testArr =
     let arr = InstrumentalArrangement()
-    arr.PhraseIterations.Add(PhraseIteration(Time = 0, PhraseId = 1))
-    arr.PhraseIterations.Add(PhraseIteration(Time = 1, PhraseId = 1))
-    arr.PhraseIterations.Add(PhraseIteration(Time = 2, PhraseId = 1))
+    arr.SongLength <- 4784_455
+    arr.PhraseIterations.Add(PhraseIteration(Time = 1000, PhraseId = 1))
+    arr.PhraseIterations.Add(PhraseIteration(Time = 2000, PhraseId = 1))
+    arr.PhraseIterations.Add(PhraseIteration(Time = 3000, PhraseId = 1))
     arr
 
 [<Tests>]
@@ -22,8 +28,8 @@ let sngToXmlConversionTests =
 
       let sng = XmlToSng.convertVocal v
 
-      Expect.equal sng.Time 54.132f "Time is same"
-      Expect.equal sng.Length 22.222f "Length is same"
+      Expect.equal sng.Time (timeConversion v.Time) "Time is same"
+      Expect.equal sng.Length (timeConversion v.Length) "Length is same"
       Expect.equal sng.Lyric v.Lyric "Lyric is same"
       Expect.equal sng.Note (int v.Note) "Note is same"
 
@@ -70,6 +76,25 @@ let sngToXmlConversionTests =
 
         let sng = XmlToSng.convertBendValue bv
 
-        Expect.equal sng.Time 456.465f "Time is same"
+        Expect.equal sng.Time (timeConversion bv.Time) "Time is same"
         Expect.equal sng.Step bv.Step "Step is same"
+
+    testCase "Phrase Iteration" <| fun _ ->
+        let pi = PhraseIteration(2000, 8, [| 88; 99; 77 |])
+
+        let sng = XmlToSng.convertPhraseIteration 1 testArr pi
+
+        Expect.equal sng.StartTime (timeConversion pi.Time) "Start time is same"
+        Expect.equal sng.NextPhraseTime (timeConversion (testArr.PhraseIterations.[2].Time)) "Next phrase time is correct"
+        Expect.equal sng.PhraseId pi.PhraseId "Phrase ID is same"
+        Expect.equal sng.Difficulty.[0] (int pi.HeroLevels.Easy) "Easy difficulty level is same"
+        Expect.equal sng.Difficulty.[1] (int pi.HeroLevels.Medium) "Medium difficulty level is same"
+        Expect.equal sng.Difficulty.[2] (int pi.HeroLevels.Hard) "Hard difficulty level is same"
+
+    testCase "Phrase Iteration (Last)" <| fun _ ->
+        let pi = PhraseIteration(3000, 8, [| 88; 99; 77 |])
+
+        let sng = XmlToSng.convertPhraseIteration (testArr.PhraseIterations.Count - 1) testArr pi
+
+        Expect.equal sng.NextPhraseTime (timeConversion testArr.SongLength) "Next phrase time is equal to song length"
   ]
