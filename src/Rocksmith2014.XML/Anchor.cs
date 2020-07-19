@@ -24,7 +24,7 @@ namespace Rocksmith2014.XML
         /// <summary>
         /// Gets or sets the width of the anchor.
         /// </summary>
-        public byte Width { get; set; }
+        public sbyte Width { get; set; }
 
         /// <summary>
         /// Creates a new anchor.
@@ -37,7 +37,7 @@ namespace Rocksmith2014.XML
         /// <param name="fret">The fret position of the anchor.</param>
         /// <param name="time">The time code of the anchor.</param>
         /// <param name="width">The width of the anchor (default: 4).</param>
-        public Anchor(sbyte fret, int time, byte width = 4)
+        public Anchor(sbyte fret, int time, sbyte width = 4)
         {
             Fret = fret;
             Time = time;
@@ -66,7 +66,7 @@ namespace Rocksmith2014.XML
         {
             Time = Utils.TimeCodeFromFloatString(reader.GetAttribute("time"));
             Fret = sbyte.Parse(reader.GetAttribute("fret"), NumberFormatInfo.InvariantInfo);
-            Width = (byte)float.Parse(reader.GetAttribute("width"), NumberFormatInfo.InvariantInfo);
+            Width = (sbyte)float.Parse(reader.GetAttribute("width"), NumberFormatInfo.InvariantInfo);
 
             reader.ReadStartElement();
         }

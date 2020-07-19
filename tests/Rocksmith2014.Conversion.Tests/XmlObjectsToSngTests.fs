@@ -16,7 +16,7 @@ let testArr =
     arr.SongLength <- 4784_455
     arr.PhraseIterations.Add(PhraseIteration(Time = 1000, PhraseId = 1))
     arr.PhraseIterations.Add(PhraseIteration(Time = 2000, PhraseId = 1))
-    arr.PhraseIterations.Add(PhraseIteration(Time = 3000, PhraseId = 1))
+    arr.PhraseIterations.Add(PhraseIteration(Time = 3000, PhraseId = 77))
     arr.PhraseIterations.Add(PhraseIteration(Time = 7554_100, PhraseId = 2))
     arr.PhraseIterations.Add(PhraseIteration(Time = 7555_000, PhraseId = 3))
 
@@ -26,7 +26,7 @@ let testArr =
 
     let lvl = Level(0y)
     lvl.Anchors.Add(Anchor(8y, 1000))
-    lvl.Anchors.Add(Anchor(7y, 2000))
+    lvl.Anchors.Add(Anchor(7y, 2000, 5y))
 
     arr.Levels.Add(lvl)
     arr
@@ -55,7 +55,7 @@ let sngToXmlConversionTests =
       Expect.equal sng.Solo 1y "Solo is set correctly"
       Expect.equal sng.Disparity 1y "Disparity is set correctly"
       Expect.equal sng.Ignore 1y "Ignore is set correctly"
-      Expect.equal sng.PhraseIterationLinks 3 "Phrase iteration links is set correctly"
+      Expect.equal sng.PhraseIterationLinks 2 "Phrase iteration links is set correctly"
 
     testCase "Chord Template" <| fun _ ->
       let ct = ChordTemplate(Name = "EEE")
@@ -162,7 +162,7 @@ let sngToXmlConversionTests =
         // TODO: Test string mask
 
     testCase "Anchor" <| fun _ ->
-        let a = Anchor(1y, 2000, 5uy)
+        let a = Anchor(1y, 2000, 5y)
         let lvl = 0
         let i = 0
 
@@ -184,4 +184,40 @@ let sngToXmlConversionTests =
         Expect.equal sng.StartTime (timeConversion hs.StartTime) "Start time is same"
         Expect.equal sng.EndTime (timeConversion hs.EndTime) "End time is same"
         // TODO: Test first/last note times
+
+    testCase "Note" <| fun _ ->
+        let note = Note(
+                    Mask = NoteMask.Pluck,
+                    Fret = 12y,
+                    String = 3y,
+                    Time = 5555,
+                    Sustain = 4444,
+                    SlideTo = 14y,
+                    Tap = 2y,
+                    Vibrato = 80uy,
+                    LeftHand = 2y,
+                    BendValues = ResizeArray(seq { BendValue(5556, 1.f) }))
+        testArr.Levels.[0].Notes.Add(note)
+
+        let sng = XmlToSng.convertNote 0 testArr note
+
+        Expect.equal sng.ChordId -1 "Chord ID is -1"
+        Expect.equal sng.ChordNotesId -1 "Chord notes ID is -1"
+        Expect.equal sng.FretId note.Fret "Fret is same"
+        Expect.equal sng.StringIndex note.String "String is same"
+        Expect.equal sng.Time (timeConversion note.Time) "Time is same"
+        Expect.equal sng.Sustain (timeConversion note.Sustain) "Sustain is same"
+        Expect.equal sng.SlideTo note.SlideTo "Slide is same"
+        Expect.equal sng.SlideUnpitchTo note.SlideUnpitchTo "Unpitched slide is same"
+        Expect.equal sng.Tap note.Tap "Tap is same"
+        Expect.equal sng.Slap -1y "Slap is set correctly"
+        Expect.equal sng.Pluck 1y "Pluck is set correctly"
+        Expect.equal sng.Vibrato (int16 note.Vibrato) "Vibrato is same"
+        Expect.equal sng.PickDirection 0y "Pick direction is same"
+        Expect.equal sng.LeftHand note.LeftHand "Left hand is same"
+        Expect.equal sng.AnchorFretId 7y "Anchor fret is correct"
+        Expect.equal sng.AnchorWidth 5y "Anchor width is correct"
+        Expect.equal sng.BendData.Length note.BendValues.Count "Bend value count is correct"
+        Expect.equal sng.MaxBend note.MaxBend "Max bend is same"
+        Expect.equal sng.PhraseId 77 "Phrase ID is correct"
   ]

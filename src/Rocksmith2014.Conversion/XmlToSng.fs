@@ -125,3 +125,81 @@ let convertHandshape (xmlHs:XML.HandShape) =
       EndTime = msToSec xmlHs.EndTime
       FirstNoteTime = -1.f // TODO: Implement
       LastNoteTime = -1.f } // TODO: Implement
+
+let convertNote lvl (xml:XML.InstrumentalArrangement) (xmlNote:XML.Note) =
+    let bendValues =
+        if xmlNote.BendValues |> isNull |> not then
+            xmlNote.BendValues
+            |> Seq.map convertBendValue
+            |> Seq.toArray
+        else
+            [||]
+
+    let maxBend =
+        if bendValues.Length = 0 then
+            0.f
+        else
+            (bendValues |> Array.maxBy (fun b -> b.Step)).Step
+
+    let aFret, aWidth =
+        let a = 
+            xml.Levels.[lvl].Anchors
+            |> Seq.findBack (fun a -> a.Time <= xmlNote.Time)
+        a.Fret, a.Width
+
+    let noteTimes =
+        let c =
+            xml.Levels.[lvl].Chords
+            |> Seq.map (fun c -> c.Time)
+        xml.Levels.[lvl].Notes
+        |> Seq.map (fun n -> n.Time)
+        |> Seq.append c
+        |> Seq.sort
+        |> Seq.toArray
+
+    let phraseIterationId =
+        xml.PhraseIterations
+        |> Seq.findIndexBack (fun pi -> pi.Time <= xmlNote.Time)
+
+    let startTime = xml.PhraseIterations.[phraseIterationId].Time
+    let endTime =
+        if phraseIterationId = xml.PhraseIterations.Count - 1 then
+            xml.SongLength
+        else
+            xml.PhraseIterations.[phraseIterationId + 1].Time
+
+    let notesInPhraseIteration =
+        noteTimes
+        |> Array.filter (fun t -> t >= startTime && t < endTime)
+
+    let this = notesInPhraseIteration |> Array.findIndex (fun t -> t = xmlNote.Time)
+    let prev = int16 (this - 1)
+    let next = if this = notesInPhraseIteration.Length - 1 then -1s else int16 (this + 1)
+
+    { Mask = NoteMask.None // TODO: implement
+      Flags = 0u // TODO: implement
+      Hash = 0u // TODO: implement
+      Time = msToSec xmlNote.Time
+      StringIndex = xmlNote.String
+      FretId = xmlNote.Fret
+      AnchorFretId = aFret
+      AnchorWidth = aWidth
+      ChordId = -1
+      ChordNotesId = -1
+      PhraseId = xml.PhraseIterations.[phraseIterationId].PhraseId
+      PhraseIterationId = phraseIterationId
+      FingerPrintId = [| 99s; 99s|] // TODO: implement
+      NextIterNote = next
+      PrevIterNote = prev
+      ParentPrevNote = 99s // TODO: implement
+      SlideTo = xmlNote.SlideTo
+      SlideUnpitchTo = xmlNote.SlideUnpitchTo
+      LeftHand = xmlNote.LeftHand
+      Tap = xmlNote.Tap
+      PickDirection = if (xmlNote.Mask &&& XML.NoteMask.PickDirection) <> XML.NoteMask.None then 1y else 0y
+      Slap = if xmlNote.IsSlap then 1y else -1y
+      Pluck = if xmlNote.IsPluck then 1y else -1y
+      Vibrato = int16 xmlNote.Vibrato
+      Sustain = msToSec xmlNote.Sustain
+      MaxBend = maxBend
+      BendData = bendValues }

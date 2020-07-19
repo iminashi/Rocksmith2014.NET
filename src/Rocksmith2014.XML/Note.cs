@@ -409,6 +409,11 @@ namespace Rocksmith2014.XML
         public NoteMask Mask { get; set; }
 
         /// <summary>
+        /// Gets the maximum bend value of the note.
+        /// </summary>
+        public float MaxBend => BendValues?.Max(bv => bv.Step) ?? 0.0f;
+
+        /// <summary>
         /// A list of bend values of the note.
         /// </summary>
         public List<BendValue>? BendValues { get; set; }

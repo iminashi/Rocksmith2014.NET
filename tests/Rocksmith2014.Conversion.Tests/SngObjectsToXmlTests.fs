@@ -280,7 +280,7 @@ let sngToXmlConversionTests =
 
       Expect.equal xml.Fret a.FretId "Fret is same"
       Expect.equal xml.Time 5_000 "Time code is same"
-      Expect.equal xml.Width (byte a.Width) "Width is same"
+      Expect.equal xml.Width (sbyte a.Width) "Width is same"
 
     testCase "FingerPrint/HandShape" <| fun _ ->
       let fp =
