@@ -1,5 +1,6 @@
 ﻿module Rocksmith2014.Conversion.XmlToSng
 
+open System
 open Rocksmith2014
 open Rocksmith2014.SNG.Types
 
@@ -171,8 +172,8 @@ let convertNote lvl (xml:XML.InstrumentalArrangement) (xmlNote:XML.Note) =
     let notesInPhraseIteration =
         noteTimes
         |> Array.filter (fun t -> t >= startTime && t < endTime)
-
-    let this = notesInPhraseIteration |> Array.findIndex (fun t -> t = xmlNote.Time)
+    
+    let this = Array.BinarySearch(notesInPhraseIteration, xmlNote.Time)
     let prev = int16 (this - 1)
     let next = if this = notesInPhraseIteration.Length - 1 then -1s else int16 (this + 1)
 
