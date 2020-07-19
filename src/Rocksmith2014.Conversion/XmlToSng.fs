@@ -203,3 +203,16 @@ let convertNote lvl (xml:XML.InstrumentalArrangement) (xmlNote:XML.Note) =
       Sustain = msToSec xmlNote.Sustain
       MaxBend = maxBend
       BendData = bendValues }
+
+let private eventToDNA (event:XML.Event) =
+    match event.Code with
+    | "dna_none" -> Some({ DnaId = 0; Time = msToSec event.Time })
+    | "dna_solo" -> Some({ DnaId = 1; Time = msToSec event.Time })
+    | "dna_riff" -> Some({ DnaId = 2; Time = msToSec event.Time })
+    | "dna_chord" -> Some({ DnaId = 3; Time = msToSec event.Time })
+    | _ -> None
+
+let createDNAs (xml:XML.InstrumentalArrangement) =
+    xml.Events
+    |> Seq.choose eventToDNA
+    |> Seq.toArray

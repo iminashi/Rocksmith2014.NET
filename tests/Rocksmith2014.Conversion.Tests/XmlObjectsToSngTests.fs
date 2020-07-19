@@ -24,6 +24,12 @@ let testArr =
     arr.Sections.Add(Section("2", 4000, 1s))
     arr.Sections.Add(Section("3", 8000_000, 1s))
 
+    arr.Events.Add(Event("e0", 1000))
+    arr.Events.Add(Event("dna_none", 2500))
+    arr.Events.Add(Event("dna_solo", 3500))
+    arr.Events.Add(Event("dna_chord", 4500))
+    arr.Events.Add(Event("dna_riff", 5500))
+
     let lvl = Level(0y)
     lvl.Anchors.Add(Anchor(8y, 1000))
     lvl.Anchors.Add(Anchor(7y, 2000, 5y))
@@ -220,4 +226,10 @@ let sngToXmlConversionTests =
         Expect.equal sng.BendData.Length note.BendValues.Count "Bend value count is correct"
         Expect.equal sng.MaxBend note.MaxBend "Max bend is same"
         Expect.equal sng.PhraseId 77 "Phrase ID is correct"
+
+    testCase "Events to DNAs" <| fun _ ->
+        let dnas = XmlToSng.createDNAs testArr
+
+        Expect.equal dnas.Length 4 "DNA count is correct"
+        Expect.equal dnas.[3].DnaId 2 "Last DNA ID is correct"
   ]
