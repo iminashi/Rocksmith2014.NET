@@ -118,3 +118,10 @@ let convertAnchor index lvl (xml:XML.InstrumentalArrangement) (xmlAnchor:XML.Anc
       FretId = xmlAnchor.Fret
       Width = int xmlAnchor.Width
       PhraseIterationId = piIndex }
+
+let convertHandshape (xmlHs:XML.HandShape) =
+    { ChordId = int xmlHs.ChordId
+      StartTime = msToSec xmlHs.StartTime
+      EndTime = msToSec xmlHs.EndTime
+      FirstNoteTime = -1.f // TODO: Implement
+      LastNoteTime = -1.f } // TODO: Implement

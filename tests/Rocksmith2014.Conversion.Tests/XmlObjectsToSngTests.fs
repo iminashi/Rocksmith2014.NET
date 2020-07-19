@@ -174,4 +174,14 @@ let sngToXmlConversionTests =
         Expect.equal sng.EndTime (timeConversion (testArr.Levels.[lvl].Anchors.[i + 1].Time)) "End time is correct"
         Expect.equal sng.PhraseIterationId 1 "Phrase iteration ID is correct"
         // TODO: Test first/last note times
+
+    testCase "Hand Shape" <| fun _ ->
+        let hs = HandShape(1s, 222, 333)
+
+        let sng = XmlToSng.convertHandshape hs
+
+        Expect.equal sng.ChordId (int hs.ChordId) "Chord ID is same"
+        Expect.equal sng.StartTime (timeConversion hs.StartTime) "Start time is same"
+        Expect.equal sng.EndTime (timeConversion hs.EndTime) "End time is same"
+        // TODO: Test first/last note times
   ]

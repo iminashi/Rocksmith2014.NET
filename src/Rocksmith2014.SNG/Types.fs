@@ -111,16 +111,13 @@ type Phrase =
             writeZeroTerminatedUTF8String 32 this.Name writer
 
     static member Read(reader : BinaryReader) =
-        let solo = reader.ReadSByte()
-        let disp = reader.ReadSByte()
-        let ign = reader.ReadSByte() 
         // Read a single byte of padding
-        reader.ReadSByte() |> ignore
+        let readPadding() = reader.ReadSByte() |> ignore
 
-        { Solo = solo
-          Disparity = disp
-          Ignore = ign
-          MaxDifficulty = reader.ReadInt32()
+        { Solo = reader.ReadSByte()
+          Disparity = reader.ReadSByte()
+          Ignore = reader.ReadSByte() 
+          MaxDifficulty = (readPadding(); reader.ReadInt32())
           PhraseIterationLinks = reader.ReadInt32()
           Name = readZeroTerminatedUTF8String 32 reader }
 
@@ -476,23 +473,21 @@ type Anchor =
             writer.Write this.LastNoteTime
             writer.Write this.FretId
             // Write three bytes of padding
-            writer.Write (0y); writer.Write (0y); writer.Write (0y)
+            writer.Write (0s); writer.Write (0y)
             writer.Write this.Width
             writer.Write this.PhraseIterationId
 
     static member Read(reader : BinaryReader) =
-        let startB = reader.ReadSingle()
-        let endB = reader.ReadSingle()
-        let firstN = reader.ReadSingle()
-        let lastN = reader.ReadSingle()
-        let fret = reader.ReadSByte()
         // Read three bytes of padding
-        reader.ReadSByte() |> ignore; reader.ReadSByte() |> ignore; reader.ReadSByte() |> ignore
+        let readPadding () =
+            reader.ReadInt16() |> ignore; reader.ReadSByte() |> ignore
 
-        { StartTime = startB; EndTime = endB
-          FirstNoteTime = firstN; LastNoteTime = lastN
-          FretId = fret
-          Width = reader.ReadInt32()
+        { StartTime = reader.ReadSingle()
+          EndTime = reader.ReadSingle()
+          FirstNoteTime = reader.ReadSingle()
+          LastNoteTime = reader.ReadSingle()
+          FretId = reader.ReadSByte()
+          Width = (readPadding(); reader.ReadInt32())
           PhraseIterationId = reader.ReadInt32() }
 
 type AnchorExtension =
