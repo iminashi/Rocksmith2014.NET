@@ -69,3 +69,28 @@ let convertEvent (xmlEvent:XML.Event) =
 let convertTone (xmlTone:XML.ToneChange) =
     { Time = msToSec xmlTone.Time
       ToneId = int xmlTone.Id }
+
+let convertSection index (xml:XML.InstrumentalArrangement) (xmlSection:XML.Section) =
+    let endTime =
+        if index = xml.Sections.Count - 1 then
+            xml.SongLength
+        else
+            xml.Sections.[index + 1].Time
+
+    let startPi =
+        xml.PhraseIterations
+        |> Seq.tryFindIndex (fun pi -> pi.Time >= xmlSection.Time)
+        |> Option.defaultValue 0
+
+    let endPi =
+        xml.PhraseIterations
+        |> Seq.tryFindIndexBack (fun pi -> pi.Time < endTime)
+        |> Option.defaultValue 0
+
+    { Name = xmlSection.Name
+      Number = int xmlSection.Number
+      StartTime = msToSec xmlSection.Time
+      EndTime = msToSec endTime
+      StartPhraseIterationId = startPi
+      EndPhraseIterationId = endPi
+      StringMask = Array.zeroCreate 36 } // TODO: Implement

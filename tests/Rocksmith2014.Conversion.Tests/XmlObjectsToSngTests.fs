@@ -17,6 +17,12 @@ let testArr =
     arr.PhraseIterations.Add(PhraseIteration(Time = 1000, PhraseId = 1))
     arr.PhraseIterations.Add(PhraseIteration(Time = 2000, PhraseId = 1))
     arr.PhraseIterations.Add(PhraseIteration(Time = 3000, PhraseId = 1))
+    arr.PhraseIterations.Add(PhraseIteration(Time = 7554_100, PhraseId = 2))
+    arr.PhraseIterations.Add(PhraseIteration(Time = 7555_000, PhraseId = 3))
+
+    arr.Sections.Add(Section("1", 1000, 1s))
+    arr.Sections.Add(Section("2", 4000, 1s))
+    arr.Sections.Add(Section("3", 8000_000, 1s))
     arr
 
 [<Tests>]
@@ -122,4 +128,30 @@ let sngToXmlConversionTests =
 
         Expect.equal sng.ToneId (int tone.Id) "ID is same"
         Expect.equal sng.Time (timeConversion tone.Time) "Time code is same"
+
+    testCase "Section" <| fun _ ->
+        let s = Section("section", 7554_003, 2s)
+
+        let sng = XmlToSng.convertSection 0 testArr s
+
+        Expect.equal sng.Name s.Name "Name is same"
+        Expect.equal sng.StartTime (timeConversion s.Time) "Start time is same"
+        Expect.equal sng.Number (int s.Number) "Number is same"
+        Expect.equal sng.EndTime (timeConversion testArr.Sections.[1].Time) "End time is correct"
+
+    testCase "Section (Last)" <| fun _ ->
+        let s = Section("section", 4000_003, 2s)
+
+        let sng = XmlToSng.convertSection (testArr.Sections.Count - 1) testArr s
+
+        Expect.equal sng.EndTime (timeConversion testArr.SongLength) "End time is same as song length"
+
+    testCase "Section (Phrase Iteration Start/End)" <| fun _ ->
+        let s = Section("section", 1000, 1s)
+
+        let sng = XmlToSng.convertSection 0 testArr s
+
+        Expect.equal sng.StartPhraseIterationId 0 "Start phrase iteration ID is correct"
+        Expect.equal sng.EndPhraseIterationId 2 "End phrase iteration ID is correct"
+        // TODO: Test string mask
   ]

@@ -99,6 +99,10 @@ namespace Rocksmith2014.XML
                     reader.ReadStartElement();
                 }
 
+                // In official files, the hard level is missing when it is the same as Medium
+                if (Hard == 0 && Medium != 0)
+                    Hard = Medium;
+
                 reader.ReadEndElement();
             }
             else
