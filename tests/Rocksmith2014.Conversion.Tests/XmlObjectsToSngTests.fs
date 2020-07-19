@@ -106,4 +106,12 @@ let sngToXmlConversionTests =
 
         Expect.equal sng.LevelBreak (int nld.LevelBreak) "Level break is same"
         Expect.sequenceEqual sng.NLDPhrases phrases "Phrase IDs are same"
+
+    testCase "Event" <| fun _ ->
+        let ev = Event("name", 777_777)
+
+        let sng = XmlToSng.convertEvent ev
+
+        Expect.equal sng.Name ev.Code "Name is same"
+        Expect.equal sng.Time (timeConversion ev.Time) "Time code is same"
   ]

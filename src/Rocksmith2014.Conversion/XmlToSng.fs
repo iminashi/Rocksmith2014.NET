@@ -61,3 +61,7 @@ let convertPhraseIteration index (xml:XML.InstrumentalArrangement) (xmlPi:XML.Ph
 let convertNLD (xmlNLD:XML.NewLinkedDiff) =
     { LevelBreak = int xmlNLD.LevelBreak
       NLDPhrases = Array.ofSeq xmlNLD.PhraseIds }
+
+let convertEvent (xmlEvent:XML.Event) =
+    { Time = msToSec xmlEvent.Time
+      Name = xmlEvent.Code }
