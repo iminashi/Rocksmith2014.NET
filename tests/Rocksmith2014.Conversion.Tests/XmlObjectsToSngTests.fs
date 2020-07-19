@@ -20,6 +20,7 @@ let testArr =
     arr.PhraseIterations.Add(PhraseIteration(Time = 7554_100, PhraseId = 2))
     arr.PhraseIterations.Add(PhraseIteration(Time = 7555_000, PhraseId = 3))
 
+    arr.Tuning.SetTuning(-1s, 2s, 4s, -5s, 3s, -2s)
     arr.Sections.Add(Section("1", 1000, 1s))
     arr.Sections.Add(Section("2", 4000, 1s))
     arr.Sections.Add(Section("3", 8000_000, 1s))
@@ -29,6 +30,8 @@ let testArr =
     arr.Events.Add(Event("dna_solo", 3500))
     arr.Events.Add(Event("dna_chord", 4500))
     arr.Events.Add(Event("dna_riff", 5500))
+
+    arr.Ebeats.Add(Ebeat(1000, 0s))
 
     let lvl = Level(0y)
     lvl.Anchors.Add(Anchor(8y, 1000))
@@ -232,4 +235,14 @@ let sngToXmlConversionTests =
 
         Expect.equal dnas.Length 4 "DNA count is correct"
         Expect.equal dnas.[3].DnaId 2 "Last DNA ID is correct"
+
+    testCase "Meta Data" <| fun _ ->
+        let md = XmlToSng.convertMetaData testArr
+
+        Expect.equal md.MaxScore 10_000.0 "Max score is correct"
+        Expect.equal md.StartTime 1.0f "Start time is correct"
+        Expect.equal md.CapoFretId -1y "Capo fret is correct"
+        Expect.equal md.Part testArr.Part "Part is same"
+        Expect.equal md.SongLength (timeConversion testArr.SongLength) "Song length is same"
+        Expect.sequenceEqual md.Tuning testArr.Tuning.Strings "Tuning is same"
   ]

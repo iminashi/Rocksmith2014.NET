@@ -15,6 +15,25 @@ namespace Rocksmith2014.XML
         /// </summary>
         public readonly short[] Strings = new short[6];
 
+        /// <summary>
+        /// Sets the tuning offset of the strings.
+        /// </summary>
+        /// <param name="lowE">The low E string in standard tuning.</param>
+        /// <param name="A">The A string in standard tuning.</param>
+        /// <param name="D">The D string in standard tuning.</param>
+        /// <param name="G">The G string in standard tuning.</param>
+        /// <param name="B">The B string in standard tuning.</param>
+        /// <param name="highE">The high E string in standard tuning.</param>
+        public void SetTuning(short lowE, short A, short D, short G, short B, short highE)
+        {
+            Strings[0] = lowE;
+            Strings[1] = A;
+            Strings[2] = D;
+            Strings[3] = G;
+            Strings[4] = B;
+            Strings[5] = highE;
+        }
+
         public override string ToString()
             => $"String0: {Strings[0]}, String1: {Strings[1]}, String2: {Strings[2]}, String3: {Strings[3]}, String4: {Strings[4]}, String5: {Strings[5]}";
 

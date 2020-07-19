@@ -216,3 +216,19 @@ let createDNAs (xml:XML.InstrumentalArrangement) =
     xml.Events
     |> Seq.choose eventToDNA
     |> Seq.toArray
+
+let convertMetaData (xml:XML.InstrumentalArrangement) =
+    { MaxScore = 10_000.
+      MaxNotesAndChords = 0. // TODO: Implement
+      MaxNotesAndChordsReal = 0. // TODO: Implement
+      PointsPerNote = 0. // TODO: Implement
+      FirstBeatLength = 0.f // TODO: Implement
+      StartTime = msToSec xml.StartBeat
+      CapoFretId = if xml.Capo <= 0y then -1y else xml.Capo
+      LastConversionDateTime = "N/A" // TODO: Implement
+      Part = xml.Part
+      SongLength = msToSec xml.SongLength
+      Tuning = Array.copy xml.Tuning.Strings
+      Unk11FirstNoteTime = 0.f // TODO: Implement
+      Unk12FirstNoteTime = 0.f // TODO: Implement
+      MaxDifficulty = xml.Levels.Count - 1 }
