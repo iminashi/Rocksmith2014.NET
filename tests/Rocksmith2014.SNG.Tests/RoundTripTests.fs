@@ -77,7 +77,6 @@ let roundTripTests =
     testCase "New Linked Difficulty" <| fun _ ->
       let info =
         { LevelBreak = 16
-          PhraseCount = 4
           NLDPhrases = Array.init 4 id }
       
       testEqual NewLinkedDifficulty.Read info

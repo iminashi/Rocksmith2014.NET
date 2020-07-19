@@ -223,13 +223,11 @@ let sngToXmlConversionTests =
     testCase "New Linked Difficulty" <| fun _ ->
       let nld =
           { LevelBreak = 12
-            PhraseCount = 3
             NLDPhrases = [| 2; 6; 15 |] }
 
       let xml = SngToXml.convertNLD nld
 
       Expect.equal xml.LevelBreak (nld.LevelBreak |> sbyte) "Level break is same"
-      Expect.equal xml.PhraseCount nld.PhraseCount "Phrase count is same"
       Expect.sequenceEqual xml.PhraseIds nld.NLDPhrases "Phrase IDs are same"
     
     testCase "Event" <| fun _ ->

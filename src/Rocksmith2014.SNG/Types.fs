@@ -364,20 +364,17 @@ type PhraseExtraInfo =
 
 type NewLinkedDifficulty =
     { LevelBreak : int32
-      PhraseCount : int32
       NLDPhrases : int32[] }
 
     interface IBinaryWritable with
         member this.Write(writer) =
             writer.Write this.LevelBreak
-            writer.Write this.PhraseCount
+            writer.Write this.NLDPhrases.Length
             this.NLDPhrases |> Array.iter writer.Write
 
     static member Read(reader : BinaryReader) =
-        let lb = reader.ReadInt32()
-        let pc = reader.ReadInt32()
-        let nld = Array.init pc (fun _ -> reader.ReadInt32())
-        { LevelBreak = lb; PhraseCount = pc; NLDPhrases = nld }
+        { LevelBreak = reader.ReadInt32()
+          NLDPhrases = readArray reader (fun r -> r.ReadInt32()) }
 
 type Action = 
     { Time : float32

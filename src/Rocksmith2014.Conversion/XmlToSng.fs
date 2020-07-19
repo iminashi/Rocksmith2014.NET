@@ -57,3 +57,7 @@ let convertPhraseIteration index (xml:XML.InstrumentalArrangement) (xmlPi:XML.Ph
       StartTime = msToSec xmlPi.Time
       NextPhraseTime = endTime
       Difficulty = [| int xmlPi.HeroLevels.Easy; int xmlPi.HeroLevels.Medium; int xmlPi.HeroLevels.Hard |] }
+
+let convertNLD (xmlNLD:XML.NewLinkedDiff) =
+    { LevelBreak = int xmlNLD.LevelBreak
+      NLDPhrases = Array.ofSeq xmlNLD.PhraseIds }

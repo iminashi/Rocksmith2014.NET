@@ -97,4 +97,13 @@ let sngToXmlConversionTests =
         let sng = XmlToSng.convertPhraseIteration (testArr.PhraseIterations.Count - 1) testArr pi
 
         Expect.equal sng.NextPhraseTime (timeConversion testArr.SongLength) "Next phrase time is equal to song length"
+
+    testCase "New Linked Difficulty" <| fun _ ->
+        let phrases = [| 1; 2; 3 |]
+        let nld = NewLinkedDiff(5y, phrases)
+
+        let sng = XmlToSng.convertNLD nld
+
+        Expect.equal sng.LevelBreak (int nld.LevelBreak) "Level break is same"
+        Expect.sequenceEqual sng.NLDPhrases phrases "Phrase IDs are same"
   ]
