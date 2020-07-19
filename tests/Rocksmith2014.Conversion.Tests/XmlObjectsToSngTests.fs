@@ -114,4 +114,12 @@ let sngToXmlConversionTests =
 
         Expect.equal sng.Name ev.Code "Name is same"
         Expect.equal sng.Time (timeConversion ev.Time) "Time code is same"
+
+    testCase "Tone" <| fun _ ->
+        let tone = ToneChange("dist", 456_123, 3uy)
+
+        let sng = XmlToSng.convertTone tone
+
+        Expect.equal sng.ToneId (int tone.Id) "ID is same"
+        Expect.equal sng.Time (timeConversion tone.Time) "Time code is same"
   ]

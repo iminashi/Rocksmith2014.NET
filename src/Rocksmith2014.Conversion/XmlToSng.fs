@@ -65,3 +65,7 @@ let convertNLD (xmlNLD:XML.NewLinkedDiff) =
 let convertEvent (xmlEvent:XML.Event) =
     { Time = msToSec xmlEvent.Time
       Name = xmlEvent.Code }
+
+let convertTone (xmlTone:XML.ToneChange) =
+    { Time = msToSec xmlTone.Time
+      ToneId = int xmlTone.Id }
