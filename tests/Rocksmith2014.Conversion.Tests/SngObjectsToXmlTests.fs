@@ -268,8 +268,8 @@ let sngToXmlConversionTests =
     
     testCase "Anchor" <| fun _ ->
       let a =
-          { StartBeatTime = 5.f
-            EndBeatTime = 6.f
+          { StartTime = 5.f
+            EndTime = 6.f
             FirstNoteTime = 5.f
             LastNoteTime = nanf
             FretId = 14y
@@ -400,8 +400,8 @@ let sngToXmlConversionTests =
     
     testCase "Level" <| fun _ ->
       let a =
-        { StartBeatTime = 10.f
-          EndBeatTime = 11.0f
+        { StartTime = 10.f
+          EndTime = 11.0f
           FirstNoteTime = 10.f
           LastNoteTime = 11.f
           FretId = 4y

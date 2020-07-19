@@ -106,8 +106,8 @@ let roundTripTests =
 
     testCase "Anchor" <| fun _ ->
       let a =
-        { StartBeatTime = 10.0f
-          EndBeatTime = 20.0f
+        { StartTime = 10.0f
+          EndTime = 20.0f
           FirstNoteTime = 11.0f
           LastNoteTime = 17.0f
           FretId = 12y

@@ -49,13 +49,13 @@ let convertBendValue (xmlBv:XML.BendValue) =
 let convertPhraseIteration index (xml:XML.InstrumentalArrangement) (xmlPi:XML.PhraseIteration) =
     let endTime =
         if index = xml.PhraseIterations.Count - 1 then
-            msToSec xml.SongLength
+            xml.SongLength
         else
-            msToSec xml.PhraseIterations.[index + 1].Time
+            xml.PhraseIterations.[index + 1].Time
 
     { PhraseId = xmlPi.PhraseId
       StartTime = msToSec xmlPi.Time
-      NextPhraseTime = endTime
+      NextPhraseTime = msToSec endTime
       Difficulty = [| int xmlPi.HeroLevels.Easy; int xmlPi.HeroLevels.Medium; int xmlPi.HeroLevels.Hard |] }
 
 let convertNLD (xmlNLD:XML.NewLinkedDiff) =
@@ -94,3 +94,27 @@ let convertSection index (xml:XML.InstrumentalArrangement) (xmlSection:XML.Secti
       StartPhraseIterationId = startPi
       EndPhraseIterationId = endPi
       StringMask = Array.zeroCreate 36 } // TODO: Implement
+
+let convertAnchor index lvl (xml:XML.InstrumentalArrangement) (xmlAnchor:XML.Anchor) =
+    let uninitFirstNote = 3.4028234663852886e+38f
+    let uninitLastNote = 1.1754943508222875e-38f
+    
+    let endTime =
+        if index = xml.Levels.[lvl].Anchors.Count - 1 then
+            // Use time of last phrase iteration (should be END)
+            xml.PhraseIterations.[xml.PhraseIterations.Count - 1].Time
+        else
+            xml.Levels.[lvl].Anchors.[index + 1].Time
+
+    let piIndex =
+        xml.PhraseIterations
+        |> Seq.tryFindIndexBack (fun pi -> xmlAnchor.Time >= pi.Time)
+        |> Option.defaultValue 0
+
+    { StartTime = msToSec xmlAnchor.Time
+      EndTime = msToSec endTime
+      FirstNoteTime = uninitFirstNote // TODO: Implement
+      LastNoteTime = uninitLastNote // TODO: Implement
+      FretId = xmlAnchor.Fret
+      Width = int xmlAnchor.Width
+      PhraseIterationId = piIndex }

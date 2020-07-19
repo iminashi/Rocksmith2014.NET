@@ -85,7 +85,7 @@ let convertSection (sngSection:Section) =
     XML.Section(sngSection.Name, secToMs sngSection.StartTime, int16 sngSection.Number)
 
 let convertAnchor (sngAnchor:Anchor) =
-    XML.Anchor(sngAnchor.FretId, secToMs sngAnchor.StartBeatTime, byte sngAnchor.Width)
+    XML.Anchor(sngAnchor.FretId, secToMs sngAnchor.StartTime, byte sngAnchor.Width)
 
 let convertHandShape (fp:FingerPrint) =
     XML.HandShape(int16 fp.ChordId, secToMs fp.StartTime, secToMs fp.EndTime)

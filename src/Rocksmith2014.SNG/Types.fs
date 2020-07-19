@@ -459,8 +459,8 @@ type Section =
           StringMask = Array.init 36 (fun _ -> reader.ReadSByte()) }
 
 type Anchor =
-    { StartBeatTime : float32
-      EndBeatTime : float32
+    { StartTime : float32
+      EndTime : float32
       FirstNoteTime : float32
       LastNoteTime : float32
       FretId : int8
@@ -470,8 +470,8 @@ type Anchor =
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write this.StartBeatTime
-            writer.Write this.EndBeatTime
+            writer.Write this.StartTime
+            writer.Write this.EndTime
             writer.Write this.FirstNoteTime
             writer.Write this.LastNoteTime
             writer.Write this.FretId
@@ -489,7 +489,7 @@ type Anchor =
         // Read three bytes of padding
         reader.ReadSByte() |> ignore; reader.ReadSByte() |> ignore; reader.ReadSByte() |> ignore
 
-        { StartBeatTime = startB; EndBeatTime = endB
+        { StartTime = startB; EndTime = endB
           FirstNoteTime = firstN; LastNoteTime = lastN
           FretId = fret
           Width = reader.ReadInt32()

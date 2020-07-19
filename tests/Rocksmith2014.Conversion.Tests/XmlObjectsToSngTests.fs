@@ -23,6 +23,12 @@ let testArr =
     arr.Sections.Add(Section("1", 1000, 1s))
     arr.Sections.Add(Section("2", 4000, 1s))
     arr.Sections.Add(Section("3", 8000_000, 1s))
+
+    let lvl = Level(0y)
+    lvl.Anchors.Add(Anchor(8y, 1000))
+    lvl.Anchors.Add(Anchor(7y, 2000))
+
+    arr.Levels.Add(lvl)
     arr
 
 [<Tests>]
@@ -154,4 +160,18 @@ let sngToXmlConversionTests =
         Expect.equal sng.StartPhraseIterationId 0 "Start phrase iteration ID is correct"
         Expect.equal sng.EndPhraseIterationId 2 "End phrase iteration ID is correct"
         // TODO: Test string mask
+
+    testCase "Anchor" <| fun _ ->
+        let a = Anchor(1y, 2000, 5uy)
+        let lvl = 0
+        let i = 0
+
+        let sng = XmlToSng.convertAnchor i lvl testArr a
+
+        Expect.equal sng.FretId a.Fret "Fret is same"
+        Expect.equal sng.Width (int a.Width) "Width is same"
+        Expect.equal sng.StartTime (timeConversion a.Time) "Start time is same"
+        Expect.equal sng.EndTime (timeConversion (testArr.Levels.[lvl].Anchors.[i + 1].Time)) "End time is correct"
+        Expect.equal sng.PhraseIterationId 1 "Phrase iteration ID is correct"
+        // TODO: Test first/last note times
   ]
