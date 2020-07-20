@@ -31,8 +31,11 @@ let convertBeat () =
             beatCounter <- beatCounter + 1s
 
         let mask =
-            if xmlBeat.Measure >= 0s then BeatMask.FirstBeatOfMeasure else BeatMask.None
-            ||| if (xmlBeat.Measure % 2s) = 0s then BeatMask.EvenMeasure else BeatMask.None
+            if beatCounter = 0s then
+                BeatMask.FirstBeatOfMeasure
+                ||| if (currentMeasure % 2s) = 0s then BeatMask.EvenMeasure else BeatMask.None
+            else
+                BeatMask.None
 
         { Time = msToSec xmlBeat.Time
           Measure = currentMeasure
@@ -112,15 +115,14 @@ let convertSection index (xml:XML.InstrumentalArrangement) (xmlSection:XML.Secti
         else
             xml.Sections.[index + 1].Time
 
-    let startPi =
-        xml.PhraseIterations
-        |> Seq.tryFindIndex (fun pi -> pi.Time >= xmlSection.Time)
-        |> Option.defaultValue 0
-
+    let startPi = findPhraseIterationId xmlSection.Time xml.PhraseIterations
     let endPi =
-        xml.PhraseIterations
-        |> Seq.tryFindIndexBack (fun pi -> pi.Time < endTime)
-        |> Option.defaultValue 0
+        let rec find index =
+            if index >= xml.PhraseIterations.Count || xml.PhraseIterations.[index].Time >= endTime then
+                index - 1
+            else
+                find (index + 1)
+        find (startPi + 1)
 
     { Name = xmlSection.Name
       Number = int xmlSection.Number
@@ -130,21 +132,16 @@ let convertSection index (xml:XML.InstrumentalArrangement) (xmlSection:XML.Secti
       EndPhraseIterationId = endPi
       StringMask = Array.zeroCreate 36 } // TODO: Implement
 
-let convertAnchor index lvl (xml:XML.InstrumentalArrangement) (xmlAnchor:XML.Anchor) =
+let convertAnchor index (level:XML.Level) (xml:XML.InstrumentalArrangement) (xmlAnchor:XML.Anchor) =
     let uninitFirstNote = 3.4028234663852886e+38f
     let uninitLastNote = 1.1754943508222875e-38f
     
     let endTime =
-        if index = xml.Levels.[lvl].Anchors.Count - 1 then
+        if index = level.Anchors.Count - 1 then
             // Use time of last phrase iteration (should be END)
             xml.PhraseIterations.[xml.PhraseIterations.Count - 1].Time
         else
-            xml.Levels.[lvl].Anchors.[index + 1].Time
-
-    let piIndex =
-        xml.PhraseIterations
-        |> Seq.tryFindIndexBack (fun pi -> xmlAnchor.Time >= pi.Time)
-        |> Option.defaultValue 0
+            level.Anchors.[index + 1].Time
 
     { StartTime = msToSec xmlAnchor.Time
       EndTime = msToSec endTime
@@ -152,7 +149,7 @@ let convertAnchor index lvl (xml:XML.InstrumentalArrangement) (xmlAnchor:XML.Anc
       LastNoteTime = uninitLastNote // TODO: Implement
       FretId = xmlAnchor.Fret
       Width = int xmlAnchor.Width
-      PhraseIterationId = piIndex }
+      PhraseIterationId = findPhraseIterationId xmlAnchor.Time xml.PhraseIterations }
 
 let convertHandshape (xmlHs:XML.HandShape) =
     { ChordId = int xmlHs.ChordId
@@ -183,16 +180,41 @@ let divideNoteTimesPerPhraseIteration (level:XML.Level) (arr:XML.InstrumentalArr
 
 /// Creates an SNG note mask for a single note.
 let createMaskForNote (note:XML.Note) =
-    // TODO: implement
-    NoteMask.Single
-    ||| if note.IsLinkNext then NoteMask.Parent else NoteMask.None
-    ||| if note.Fret = 0y then NoteMask.Open else NoteMask.None
-    ||| if note.IsAccent then NoteMask.Accent else NoteMask.None
+    // TODO: Is the left hand bit ever used?
+
+    // Apply flags from properties not in the XML note mask
+    let baseMask =
+        NoteMask.Single
+        ||| if note.Fret = 0y        then NoteMask.Open           else NoteMask.None
+        ||| if note.Sustain > 0      then NoteMask.Sustain        else NoteMask.None
+        ||| if note.IsSlide          then NoteMask.Slide          else NoteMask.None
+        ||| if note.IsUnpitchedSlide then NoteMask.UnpitchedSlide else NoteMask.None
+        ||| if note.IsTap            then NoteMask.Tap            else NoteMask.None
+        ||| if note.IsVibrato        then NoteMask.Vibrato        else NoteMask.None
+
+    // Apply flags from the XML note mask if needed
+    if note.Mask = XML.NoteMask.None then
+        baseMask
+    else
+        baseMask
+        ||| if note.IsLinkNext      then NoteMask.Parent        else NoteMask.None
+        ||| if note.IsAccent        then NoteMask.Accent        else NoteMask.None
+        ||| if note.IsTremolo       then NoteMask.Tremolo       else NoteMask.None
+        ||| if note.IsFretHandMute  then NoteMask.Mute          else NoteMask.None
+        ||| if note.IsHammerOn      then NoteMask.HammerOn      else NoteMask.None
+        ||| if note.IsHarmonic      then NoteMask.Harmonic      else NoteMask.None
+        ||| if note.IsIgnore        then NoteMask.Ignore        else NoteMask.None
+        ||| if note.IsPalmMute      then NoteMask.PalmMute      else NoteMask.None
+        ||| if note.IsPinchHarmonic then NoteMask.PinchHarmonic else NoteMask.None
+        ||| if note.IsPluck         then NoteMask.Pluck         else NoteMask.None
+        ||| if note.IsPullOff       then NoteMask.PullOff       else NoteMask.None
+        ||| if note.IsRightHand     then NoteMask.RightHand     else NoteMask.None
+        ||| if note.IsSlap          then NoteMask.Slap          else NoteMask.None
      
-/// Returns a function valid for converting notes in a single difficulty level.
+/// Returns a function that is valid for converting notes in a single difficulty level.
 let convertNote () =
     // Dictionary of link-next parent notes in need of a child note.
-    // Mapping: string number -> index of note in phrase iteration
+    // Mapping: string number => index of note in phrase iteration
     let pendingLinkNexts = Dictionary<int8, int16>()
 
     fun (noteTimes:int[][]) (level:XML.Level) (xml:XML.InstrumentalArrangement) (xmlNote:XML.Note) ->
@@ -201,23 +223,23 @@ let convertNote () =
             if pendingLinkNexts.Remove(xmlNote.String, &id) then id else -1s
 
         let bendValues =
-            if xmlNote.BendValues |> isNull |> not then
+            if xmlNote.BendValues |> isNull then
+                [||]
+            else
                 xmlNote.BendValues
                 |> Seq.map convertBendValue
                 |> Seq.toArray
-            else
-                [||]
 
         let anchor = 
             level.Anchors
             |> Seq.findBack (fun a -> a.Time <= xmlNote.Time)
 
-        let phraseIterationId = xml.PhraseIterations |> findPhraseIterationId xmlNote.Time
-        let phraseId = xml.PhraseIterations.[phraseIterationId].PhraseId
+        let piId = xml.PhraseIterations |> findPhraseIterationId xmlNote.Time
+        let phraseId = xml.PhraseIterations.[piId].PhraseId
 
-        let this = int16 (Array.BinarySearch(noteTimes.[phraseIterationId], xmlNote.Time))
+        let this = int16 (Array.BinarySearch(noteTimes.[piId], xmlNote.Time))
         let prev = this - 1s
-        let next = if this = int16 noteTimes.[phraseIterationId].Length - 1s then -1s else this + 1s
+        let next = if this = int16 noteTimes.[piId].Length - 1s then -1s else this + 1s
 
         if xmlNote.IsLinkNext then pendingLinkNexts.Add(xmlNote.String, this)
 
@@ -236,7 +258,7 @@ let convertNote () =
           ChordId = -1
           ChordNotesId = -1
           PhraseId = phraseId
-          PhraseIterationId = phraseIterationId
+          PhraseIterationId = piId
           FingerPrintId = [| 99s; 99s|] // TODO: implement
           NextIterNote = next
           PrevIterNote = prev
