@@ -5,6 +5,28 @@ open Rocksmith2014
 open Rocksmith2014.SNG.Types
 open System.Collections.Generic
 
+/// Represents data that is being accumulated when mapping XML notes/chords into SNG notes.
+type AccuData =
+    { StringMasks : int8[,]
+      ChordNotes : ResizeArray<ChordNote>
+      AnchorExtensions : ResizeArray<AnchorExtension>
+      NotesInPhraseIterationsExclIgnore : uint16[]
+      NotesInPhraseIterationsAll : uint16[] }
+
+    with
+        member this.AddNote(pi:int, ignored:bool) =
+             this.NotesInPhraseIterationsAll.[pi] <- this.NotesInPhraseIterationsAll.[pi] + 1us
+
+             if not ignored then
+                this.NotesInPhraseIterationsExclIgnore.[pi] <- this.NotesInPhraseIterationsExclIgnore.[pi] + 1us
+
+        static member Init(arr:XML.InstrumentalArrangement) =
+              { StringMasks = Array2D.zeroCreate (arr.Sections.Count) 36
+                ChordNotes = ResizeArray()
+                AnchorExtensions = ResizeArray()
+                NotesInPhraseIterationsExclIgnore = Array.zeroCreate (arr.PhraseIterations.Count)
+                NotesInPhraseIterationsAll = Array.zeroCreate (arr.PhraseIterations.Count) }
+
 let msToSec (time:int) = float32 time / 1000.0f
 
 /// Finds the index of the phrase iteration that contains the given time code.
@@ -231,7 +253,15 @@ let createFlag (lastNote:ValueOption<Note>) anchorFret noteFret =
     | ValueSome note ->
         if note.AnchorFretId <> anchorFret && noteFret <> 0y then 1u else 0u
 
-let hashNote (note:Note) = hash note |> uint32
+let hashNote note = hash note |> uint32
+
+type XmlEntity =
+    | XmlNote of XML.Note
+    | XmlChord of XML.Chord
+
+let getTimeCode = function
+    | XmlNote xn -> xn.Time
+    | XmlChord xc -> xc.Time
 
 /// Returns a function that is valid for converting notes in a single difficulty level.
 let convertNote () =
@@ -240,36 +270,31 @@ let convertNote () =
     let pendingLinkNexts = Dictionary<int8, int16>()
     let mutable lastNote : ValueOption<Note> = ValueNone
 
-    fun (noteTimes:int[][]) (fingerPrintMap:Map<int16,Set<int>>) (level:XML.Level) (xml:XML.InstrumentalArrangement) (xmlNote:XML.Note) ->
-        let parentNote =
-            let mutable id = -1s
-            if pendingLinkNexts.Remove(xmlNote.String, &id) then id else -1s
+    fun (noteTimes:int[][])
+        (fingerPrintMap:Map<int16,Set<int>>)
+        (accuData:AccuData)
+        (difficulty:int)
+        (xml:XML.InstrumentalArrangement)
+        (xmlEnt:XmlEntity) ->
 
-        let bendValues =
-            if xmlNote.BendValues |> isNull then
-                [||]
-            else
-                xmlNote.BendValues
-                |> Seq.map convertBendValue
-                |> Seq.toArray
+        let level = xml.Levels.[difficulty]
+        let timeCode = getTimeCode xmlEnt
 
-        let anchor = 
-            level.Anchors
-            |> Seq.findBack (fun a -> a.Time <= xmlNote.Time)
-
-        let piId = xml.PhraseIterations |> findPhraseIterationId xmlNote.Time
+        let piId = xml.PhraseIterations |> findPhraseIterationId timeCode
         let phraseId = xml.PhraseIterations.[piId].PhraseId
-
-        let this = int16 (Array.BinarySearch(noteTimes.[piId], xmlNote.Time))
+        
+        let this = int16 (Array.BinarySearch(noteTimes.[piId], timeCode))
         let prev = this - 1s
         let next = if this = int16 noteTimes.[piId].Length - 1s then -1s else this + 1s
 
-        if xmlNote.IsLinkNext then pendingLinkNexts.Add(xmlNote.String, this)
+        let anchor = 
+            level.Anchors
+            |> Seq.findBack (fun a -> a.Time <= timeCode)
 
         let fingerPrintId =
             let fpOption =
                 fingerPrintMap
-                |> Map.tryPick (fun key set -> if set.Contains(xmlNote.Time) then Some key else None)
+                |> Map.tryPick (fun key set -> if set.Contains(timeCode) then Some key else None)
 
             match fpOption with
             // Arpeggio
@@ -278,47 +303,78 @@ let convertNote () =
             | Some id -> [| id; -1s |]
             | None -> [| -1s; -1s |]
 
-        let mask =
-            createMaskForNote xmlNote
-            ||| if parentNote <> -1s then NoteMask.Child else NoteMask.None
-            //||| if fingerPrintId
-        
+        let data =
+            match xmlEnt with
+            | XmlNote note ->
+                let parentNote =
+                    let mutable id = -1s
+                    if pendingLinkNexts.Remove(note.String, &id) then id else -1s
+
+                let bendValues =
+                    if note.BendValues |> isNull then
+                        [||]
+                    else
+                        note.BendValues
+                        |> Seq.map convertBendValue
+                        |> Seq.toArray
+
+                if note.IsLinkNext then pendingLinkNexts.Add(note.String, this)
+
+                let mask =
+                    createMaskForNote note
+                    ||| if parentNote <> -1s then NoteMask.Child else NoteMask.None
+                    ||| if fingerPrintId.[1] <> -1s then NoteMask.Arpeggio else NoteMask.None
+
+                let pickDir =
+                    if (note.Mask &&& XML.NoteMask.PickDirection) <> XML.NoteMask.None then 1y else 0y
+
+                accuData.AddNote(piId, (mask &&& NoteMask.Ignore) <> NoteMask.None)
+                {| String = note.String; Fret = note.Fret; Mask = mask; ChordId = -1; ChordNoteId = -1; Parent = parentNote;
+                   BendValues = bendValues; SlideTo = note.SlideTo; UnpSlide = note.SlideUnpitchTo;
+                   LeftHand = note.LeftHand; Tap = note.Tap; PickDirection = pickDir;
+                   Slap = if note.IsSlap then 1y else -1y
+                   Pluck = if note.IsPluck then 1y else -1y
+                   Vibrato = int16 note.Vibrato; Sustain = msToSec note.Sustain; MaxBend = note.MaxBend |}
+            
+            | XmlChord xmlChord ->
+                failwith "Not implemented"
+
         let initialNote =
-            { Mask = mask
+            { Mask = data.Mask
               Flags = 0u
               Hash = 0u
-              Time = msToSec xmlNote.Time
-              StringIndex = xmlNote.String
-              FretId = xmlNote.Fret
+              Time = msToSec timeCode
+              StringIndex = data.String
+              FretId = data.Fret
               AnchorFretId = anchor.Fret
               AnchorWidth = anchor.Width
-              ChordId = -1
-              ChordNotesId = -1
+              ChordId = data.ChordId
+              ChordNotesId = data.ChordNoteId
               PhraseId = phraseId
               PhraseIterationId = piId
               FingerPrintId = fingerPrintId
-              NextIterNote = next
-              PrevIterNote = prev
-              ParentPrevNote = parentNote
-              SlideTo = xmlNote.SlideTo
-              SlideUnpitchTo = xmlNote.SlideUnpitchTo
-              LeftHand = xmlNote.LeftHand
-              Tap = xmlNote.Tap
-              PickDirection = if (xmlNote.Mask &&& XML.NoteMask.PickDirection) <> XML.NoteMask.None then 1y else 0y
-              Slap = if xmlNote.IsSlap then 1y else -1y
-              Pluck = if xmlNote.IsPluck then 1y else -1y
-              Vibrato = int16 xmlNote.Vibrato
-              Sustain = msToSec xmlNote.Sustain
-              MaxBend = xmlNote.MaxBend
-              BendData = bendValues }
+              NextIterNote = 0s
+              PrevIterNote = 0s
+              ParentPrevNote = 0s
+              SlideTo = data.SlideTo
+              SlideUnpitchTo = data.UnpSlide
+              LeftHand = data.LeftHand
+              Tap = data.Tap
+              PickDirection = data.PickDirection
+              Slap = data.Slap
+              Pluck = data.Pluck
+              Vibrato = data.Vibrato
+              Sustain = data.Sustain
+              MaxBend = data.MaxBend
+              BendData = data.BendValues }
 
         lastNote <- ValueSome initialNote
         { initialNote with
             Hash = hashNote initialNote
-            Flags = createFlag lastNote anchor.Fret xmlNote.Fret
+            Flags = createFlag lastNote anchor.Fret data.Fret
             NextIterNote = next
             PrevIterNote = prev
-            ParentPrevNote = parentNote }
+            ParentPrevNote = data.Parent }
 
 let private eventToDNA (event:XML.Event) =
     match event.Code with

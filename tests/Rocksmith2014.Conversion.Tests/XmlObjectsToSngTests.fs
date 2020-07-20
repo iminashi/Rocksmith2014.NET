@@ -13,7 +13,7 @@ let timeConversion (time:int) =
 
 let hasFlag mask flag = (mask &&& flag) <> SNG.Types.NoteMask.None
 
-let testArr =
+let createTestArr () =
     let arr = InstrumentalArrangement()
     arr.SongLength <- 4784_455
 
@@ -47,6 +47,8 @@ let testArr =
     arr.Levels.Add(lvl)
     arr
 
+let sharedAccData = XmlToSng.AccuData.Init (createTestArr())
+
 [<Tests>]
 let sngToXmlConversionTests =
   testList "XML Objects → SNG Objects" [
@@ -54,6 +56,7 @@ let sngToXmlConversionTests =
     testCase "Beat (Strong)" <| fun _ ->
       let b = Ebeat(3666, 2s)
       let convert = XmlToSng.convertBeat ()
+      let testArr = createTestArr()
 
       let sng = convert testArr b
 
@@ -67,6 +70,7 @@ let sngToXmlConversionTests =
     testCase "Beat (Weak)" <| fun _ ->
       let b = Ebeat(3666, -1s)
       let convert = XmlToSng.convertBeat ()
+      let testArr = createTestArr()
 
       let sng = convert testArr b
 
@@ -79,6 +83,7 @@ let sngToXmlConversionTests =
       let b3 = Ebeat(3300, 2s)
       let b4 = Ebeat(3400, -1s)
       let convert = XmlToSng.convertBeat ()
+      let testArr = createTestArr()
 
       let sngB0 = convert testArr b0
       let sngB1 = convert testArr b1
@@ -107,6 +112,7 @@ let sngToXmlConversionTests =
 
     testCase "Phrase" <| fun _ ->
       let ph = Phrase("ttt", 15uy, PhraseMask.Disparity ||| PhraseMask.Ignore ||| PhraseMask.Solo)
+      let testArr = createTestArr()
 
       let sng = XmlToSng.convertPhrase 1 testArr ph
 
@@ -153,6 +159,7 @@ let sngToXmlConversionTests =
 
     testCase "Phrase Iteration" <| fun _ ->
         let pi = PhraseIteration(2000, 8, [| 88; 99; 77 |])
+        let testArr = createTestArr()
 
         let sng = XmlToSng.convertPhraseIteration 1 testArr pi
 
@@ -165,6 +172,7 @@ let sngToXmlConversionTests =
 
     testCase "Phrase Iteration (Last)" <| fun _ ->
         let pi = PhraseIteration(3000, 8, [| 88; 99; 77 |])
+        let testArr = createTestArr()
 
         let sng = XmlToSng.convertPhraseIteration (testArr.PhraseIterations.Count - 1) testArr pi
 
@@ -197,6 +205,7 @@ let sngToXmlConversionTests =
 
     testCase "Section" <| fun _ ->
         let s = Section("section", 7554_003, 2s)
+        let testArr = createTestArr()
 
         let sng = XmlToSng.convertSection 0 testArr s
 
@@ -207,6 +216,7 @@ let sngToXmlConversionTests =
 
     testCase "Section (Last)" <| fun _ ->
         let s = Section("section", 4000_003, 2s)
+        let testArr = createTestArr()
 
         let sng = XmlToSng.convertSection (testArr.Sections.Count - 1) testArr s
 
@@ -214,6 +224,7 @@ let sngToXmlConversionTests =
 
     testCase "Section (Phrase Iteration Start/End, 1 Phrase Iteration)" <| fun _ ->
         let s = Section("section", 8000, 1s)
+        let testArr = createTestArr()
 
         let sng = XmlToSng.convertSection 0 testArr s
 
@@ -222,6 +233,7 @@ let sngToXmlConversionTests =
 
     testCase "Section (Phrase Iteration Start/End, 3 Phrase Iterations)" <| fun _ ->
         let s = Section("section", 1000, 1s)
+        let testArr = createTestArr()
 
         let sng = XmlToSng.convertSection 0 testArr s
 
@@ -232,6 +244,7 @@ let sngToXmlConversionTests =
     testCase "Anchor" <| fun _ ->
         let a = Anchor(1y, 2000, 5y)
         let i = 0
+        let testArr = createTestArr()
 
         let sng = XmlToSng.convertAnchor i testArr.Levels.[0] testArr a
 
@@ -263,14 +276,18 @@ let sngToXmlConversionTests =
                         Vibrato = 80uy,
                         LeftHand = 2y,
                         BendValues = ResizeArray(seq { BendValue(5556, 1.f) }))
+        
         let testLevel = Level()
         testLevel.Notes.Add(note)
         testLevel.Anchors.Add(Anchor(7y, 5555, 5y))
+        let testArr = createTestArr()
+        testArr.Levels.[0] <- testLevel
+
         let noteTimes = XmlToSng.createNoteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
-        let convert = XmlToSng.convertNote() piNotes Map.empty
+        let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData
 
-        let sng = convert testLevel testArr note
+        let sng = convert 0 testArr (XmlToSng.XmlNote note)
 
         Expect.equal sng.ChordId -1 "Chord ID is -1"
         Expect.equal sng.ChordNotesId -1 "Chord notes ID is -1"
@@ -302,16 +319,20 @@ let sngToXmlConversionTests =
                          String = 3y,
                          Time = 1500,
                          Sustain = 100)
+
         let testLevel = Level()
         testLevel.Notes.Add(note0)
         testLevel.Notes.Add(note1)
         testLevel.Anchors.Add(Anchor(12y, 1000))
+        let testArr = createTestArr()
+        testArr.Levels.[0] <- testLevel
+
         let noteTimes = XmlToSng.createNoteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
-        let convert = XmlToSng.convertNote() piNotes Map.empty
+        let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData
 
-        let sngNote0 = convert testLevel testArr note0
-        let sngNote1 = convert testLevel testArr note1
+        let sngNote0 = convert 0 testArr (XmlToSng.XmlNote note0)
+        let sngNote1 = convert 0 testArr (XmlToSng.XmlNote note1)
 
         Expect.equal sngNote0.PrevIterNote -1s "Previous note index of first note is -1"
         Expect.equal sngNote0.NextIterNote 1s "Next note index of first note is 1"
@@ -320,7 +341,7 @@ let sngToXmlConversionTests =
         Expect.equal sngNote0.ParentPrevNote -1s "Parent note index of first note is -1"
         Expect.equal sngNote1.ParentPrevNote -1s "Parent note index of second note is -1"
 
-    testCase "Note (Mask 1)" <| fun _ ->
+    testCase "Note (Mask 1/2)" <| fun _ ->
         let note = Note(Mask = (NoteMask.Accent ||| NoteMask.Tremolo ||| NoteMask.FretHandMute ||| NoteMask.HammerOn |||
                                 NoteMask.Harmonic ||| NoteMask.Ignore ||| NoteMask.PalmMute ||| NoteMask.PinchHarmonic |||
                                 NoteMask.Pluck ||| NoteMask.PullOff ||| NoteMask.RightHand ||| NoteMask.Slap),
@@ -328,14 +349,18 @@ let sngToXmlConversionTests =
                         String = 3y,
                         Time = 1000,
                         Sustain = 500)
+
         let testLevel = Level()
         testLevel.Notes.Add(note)
         testLevel.Anchors.Add(Anchor(12y, 1000))
+        let testArr = createTestArr()
+        testArr.Levels.[0] <- testLevel
+
         let noteTimes = XmlToSng.createNoteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
-        let convert = XmlToSng.convertNote() piNotes Map.empty
+        let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData
 
-        let sngNote = convert testLevel testArr note
+        let sngNote = convert 0 testArr (XmlToSng.XmlNote note)
 
         Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Single) "Single note has single flag"
         Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Open) "Open string note has open flag"
@@ -353,7 +378,7 @@ let sngToXmlConversionTests =
         Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.RightHand) "Right hand note has right hand flag"
         Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Slap) "Slapped note has slap flag"
 
-    testCase "Note (Mask 2)" <| fun _ ->
+    testCase "Note (Mask 2/2)" <| fun _ ->
         let note = Note(Mask = NoteMask.None,
                         Fret = 2y,
                         String = 3y,
@@ -362,14 +387,18 @@ let sngToXmlConversionTests =
                         SlideUnpitchTo = 5y,
                         Tap = 1y,
                         Vibrato = 40uy)
+
         let testLevel = Level()
         testLevel.Notes.Add(note)
         testLevel.Anchors.Add(Anchor(12y, 1000))
+        let testArr = createTestArr()
+        testArr.Levels.[0] <- testLevel
+
         let noteTimes = XmlToSng.createNoteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
-        let convert = XmlToSng.convertNote() piNotes Map.empty
+        let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData
 
-        let sngNote = convert testLevel testArr note
+        let sngNote = convert 0 testArr (XmlToSng.XmlNote note)
 
         Expect.isFalse (hasFlag sngNote.Mask SNG.Types.NoteMask.Open) "Non-open string note does not have open flag"
         Expect.isFalse (hasFlag sngNote.Mask SNG.Types.NoteMask.Sustain) "Non-sustained note does not have sustain flag"
@@ -389,16 +418,20 @@ let sngToXmlConversionTests =
                          String = 3y,
                          Time = 1500,
                          Sustain = 100)
+
         let testLevel = Level()
         testLevel.Notes.Add(parent)
         testLevel.Notes.Add(child)
         testLevel.Anchors.Add(Anchor(12y, 1000))
+        let testArr = createTestArr()
+        testArr.Levels.[0] <- testLevel
+
         let noteTimes = XmlToSng.createNoteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
-        let convert = XmlToSng.convertNote() piNotes Map.empty
+        let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData
 
-        let sngParent = convert testLevel testArr parent
-        let sngChild = convert testLevel testArr child
+        let sngParent = convert 0 testArr (XmlToSng.XmlNote parent)
+        let sngChild = convert 0 testArr (XmlToSng.XmlNote child)
 
         Expect.isTrue (hasFlag sngParent.Mask SNG.Types.NoteMask.Parent) "Parent has correct mask set"
         Expect.isTrue (hasFlag sngChild.Mask SNG.Types.NoteMask.Child) "Child has correct mask set"
@@ -406,49 +439,62 @@ let sngToXmlConversionTests =
 
     testCase "Note (Hand Shape ID)" <| fun _ ->
         let note = Note(Mask = NoteMask.LinkNext,
-                          Fret = 12y,
-                          String = 3y,
-                          Time = 1000,
-                          Sustain = 500)
+                        Fret = 12y,
+                        String = 3y,
+                        Time = 1000,
+                        Sustain = 500)
+
         let testLevel = Level()
         testLevel.Notes.Add(note)
         testLevel.Anchors.Add(Anchor(12y, 1000))
         testLevel.HandShapes.Add(HandShape(0s, 1000, 1500))
+        let testArr = createTestArr()
+        testArr.Levels.[0] <- testLevel
+
         let noteTimes = XmlToSng.createNoteTimes testLevel
         let hs = XmlToSng.createFingerprintMap noteTimes testLevel testArr
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
-        let convert = XmlToSng.convertNote() piNotes hs
+        let convert = XmlToSng.convertNote() piNotes hs sharedAccData
 
-        let sng = convert testLevel testArr note
+        let sng = convert 0 testArr (XmlToSng.XmlNote note)
 
         Expect.equal (sng.FingerPrintId.[0]) 0s "Fingerprint ID is correct"
 
     testCase "Note (Hand Shape ID, Arpeggio)" <| fun _ ->
         let note = Note(Mask = NoteMask.LinkNext,
-                          Fret = 12y,
-                          String = 3y,
-                          Time = 1000,
-                          Sustain = 500)
+                        Fret = 12y,
+                        String = 3y,
+                        Time = 1000,
+                        Sustain = 500)
+
         let testLevel = Level()
         testLevel.Notes.Add(note)
         testLevel.Anchors.Add(Anchor(12y, 1000))
         testLevel.HandShapes.Add(HandShape(1s, 1000, 1500))
+        let testArr = createTestArr()
+        testArr.Levels.[0] <- testLevel
+
         let noteTimes = XmlToSng.createNoteTimes testLevel
         let hs = XmlToSng.createFingerprintMap noteTimes testLevel testArr
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
-        let convert = XmlToSng.convertNote() piNotes hs
+        let convert = XmlToSng.convertNote() piNotes hs sharedAccData
 
-        let sng = convert testLevel testArr note
+        let sng = convert 0 testArr (XmlToSng.XmlNote note)
 
         Expect.equal (sng.FingerPrintId.[1]) 1s "Arpeggio fingerprint ID is correct"
+        Expect.isTrue (hasFlag sng.Mask SNG.Types.NoteMask.Arpeggio) "Arpeggio bit is set"
 
     testCase "Events to DNAs" <| fun _ ->
+        let testArr = createTestArr()
+
         let dnas = XmlToSng.createDNAs testArr
 
         Expect.equal dnas.Length 4 "DNA count is correct"
         Expect.equal dnas.[3].DnaId 2 "Last DNA ID is correct"
 
     testCase "Meta Data" <| fun _ ->
+        let testArr = createTestArr()
+
         let md = XmlToSng.convertMetaData testArr
 
         Expect.equal md.MaxScore 10_000.0 "Max score is correct"
