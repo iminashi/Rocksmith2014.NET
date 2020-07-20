@@ -46,6 +46,50 @@ let testArr =
 let sngToXmlConversionTests =
   testList "XML Objects → SNG Objects" [
 
+    testCase "Beat (Strong)" <| fun _ ->
+      let b = Ebeat(3666, 2s)
+      let convert = XmlToSng.convertBeat ()
+
+      let sng = convert testArr b
+
+      Expect.equal sng.Time (timeConversion b.Time) "Time is same"
+      Expect.equal sng.Measure b.Measure "Measure is correct"
+      Expect.equal sng.Beat 0s "Beat is correct"
+      Expect.equal sng.PhraseIteration 2 "Phrase iteration is correct"
+      Expect.isTrue ((sng.Mask &&& SNG.Types.BeatMask.FirstBeatOfMeasure) <> SNG.Types.BeatMask.None) "First beat flag is set"
+      Expect.isTrue ((sng.Mask &&& SNG.Types.BeatMask.EvenMeasure) <> SNG.Types.BeatMask.None) "Even measure flag is set"
+
+    testCase "Beat (Weak)" <| fun _ ->
+      let b = Ebeat(3666, -1s)
+      let convert = XmlToSng.convertBeat ()
+
+      let sng = convert testArr b
+
+      Expect.isTrue ((sng.Mask &&& SNG.Types.BeatMask.FirstBeatOfMeasure) = SNG.Types.BeatMask.None) "First beat flag is not set"
+
+    testCase "Beats" <| fun _ ->
+      let b0 = Ebeat(3000, 1s)
+      let b1 = Ebeat(3100, -1s)
+      let b2 = Ebeat(3200, -1s)
+      let b3 = Ebeat(3300, 2s)
+      let b4 = Ebeat(3400, -1s)
+      let convert = XmlToSng.convertBeat ()
+
+      let sngB0 = convert testArr b0
+      let sngB1 = convert testArr b1
+      let sngB2 = convert testArr b2
+      let sngB3 = convert testArr b3
+      let sngB4 = convert testArr b4
+
+      Expect.isTrue ((sngB0.Mask &&& SNG.Types.BeatMask.FirstBeatOfMeasure) <> SNG.Types.BeatMask.None) "B0: First beat flag is set"
+      Expect.isTrue ((sngB0.Mask &&& SNG.Types.BeatMask.EvenMeasure) = SNG.Types.BeatMask.None) "B0: Even measure flag is not set"
+      Expect.equal sngB1.Beat 1s "B1: Is second beat of measure"
+      Expect.equal sngB2.Measure 1s "B2: Is in measure 1"
+      Expect.equal sngB3.Measure 2s "B2: Is in measure 1"
+      Expect.isTrue ((sngB3.Mask &&& SNG.Types.BeatMask.EvenMeasure) <> SNG.Types.BeatMask.None) "B3: Even measure flag is set"
+      Expect.equal sngB4.Measure 2s "B4: Is in measure 2"
+      Expect.equal sngB4.Beat 1s "B4: Is second beat of measure"
+
     testCase "Vocal" <| fun _ ->
       let v = Vocal(54_132, 22_222, "Hello", 77uy)
 

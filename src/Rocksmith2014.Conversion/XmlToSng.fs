@@ -7,6 +7,39 @@ open System.Collections.Generic
 
 let msToSec (time:int) = float32 time / 1000.0f
 
+/// Finds the index of the phrase iteration that contains the given time code.
+let findPhraseIterationId (time:int) (iterations:ResizeArray<XML.PhraseIteration>) =
+    let rec find index =
+        if index < 0 then
+            -1
+        elif iterations.[index].Time <= time then
+            index
+        else
+            find (index - 1)
+    find (iterations.Count - 1)
+
+/// Returns a function that keeps a track of the current measure and the current beat.
+let convertBeat () =
+    let mutable beatCounter = 0s
+    let mutable currentMeasure = -1s
+
+    fun (xml:XML.InstrumentalArrangement) (xmlBeat:XML.Ebeat) ->
+        if xmlBeat.Measure >= 0s then
+            beatCounter <- 0s
+            currentMeasure <- xmlBeat.Measure
+        else
+            beatCounter <- beatCounter + 1s
+
+        let mask =
+            if xmlBeat.Measure >= 0s then BeatMask.FirstBeatOfMeasure else BeatMask.None
+            ||| if (xmlBeat.Measure % 2s) = 0s then BeatMask.EvenMeasure else BeatMask.None
+
+        { Time = msToSec xmlBeat.Time
+          Measure = currentMeasure
+          Beat = beatCounter
+          PhraseIteration = findPhraseIterationId xmlBeat.Time xml.PhraseIterations
+          Mask = mask }
+
 let convertVocal (xmlVocal:XML.Vocal) =
     { Time = msToSec xmlVocal.Time
       Length = msToSec xmlVocal.Length
@@ -155,18 +188,7 @@ let createMaskForNote (note:XML.Note) =
     ||| if note.IsLinkNext then NoteMask.Parent else NoteMask.None
     ||| if note.Fret = 0y then NoteMask.Open else NoteMask.None
     ||| if note.IsAccent then NoteMask.Accent else NoteMask.None
-
-/// Finds the index of the phrase iteration that contains the given time code.
-let findPhraseIterationId (time:int) (iterations:ResizeArray<XML.PhraseIteration>) =
-    let rec find index =
-        if index < 0 then
-            -1
-        elif iterations.[index].Time <= time then
-            index
-        else
-            find (index - 1)
-    find (iterations.Count - 1)
-        
+     
 /// Returns a function valid for converting notes in a single difficulty level.
 let convertNote () =
     // Dictionary of link-next parent notes in need of a child note.
