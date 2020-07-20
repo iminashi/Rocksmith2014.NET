@@ -2,6 +2,7 @@
 
 open System
 open Rocksmith2014
+open Rocksmith2014.Conversion.Utils
 open Rocksmith2014.SNG.Types
 open System.Collections.Generic
 
@@ -26,8 +27,6 @@ type AccuData =
                 AnchorExtensions = ResizeArray()
                 NotesInPhraseIterationsExclIgnore = Array.zeroCreate (arr.PhraseIterations.Count)
                 NotesInPhraseIterationsAll = Array.zeroCreate (arr.PhraseIterations.Count) }
-
-let msToSec (time:int) = float32 time / 1000.0f
 
 /// Finds the index of the phrase iteration that contains the given time code.
 let findPhraseIterationId (time:int) (iterations:ResizeArray<XML.PhraseIteration>) =
@@ -245,7 +244,42 @@ let createMaskForNote (note:XML.Note) =
         ||| if note.IsPullOff       then NoteMask.PullOff       else NoteMask.None
         ||| if note.IsRightHand     then NoteMask.RightHand     else NoteMask.None
         ||| if note.IsSlap          then NoteMask.Slap          else NoteMask.None
-     
+    
+let isDoubleStop (template:XML.ChordTemplate) =
+    let frets =
+        template.Frets
+        |> Seq.filter (fun f -> f <> -1y)
+        |> Seq.length
+    frets = 2
+
+let isStrum (chord:XML.Chord) =
+    match chord.ChordNotes with
+    | null -> false
+    | cn when cn.Count = 0 -> false
+    | _ -> true
+
+/// Creates an SNG note mask for a chord.
+let createMaskForChord (template:XML.ChordTemplate) (chord:XML.Chord) =
+    // Apply flags from properties not in the XML chord mask
+    let baseMask =
+        NoteMask.Chord
+        ||| if isDoubleStop template then NoteMask.DoubleStop else NoteMask.None
+        ||| if isStrum chord         then NoteMask.Strum      else NoteMask.None
+        ||| if template.IsArpeggio   then NoteMask.Arpeggio   else NoteMask.None
+        // TODO: ChordNotes
+
+    // Apply flags from the XML chord mask if needed
+    if chord.Mask = XML.ChordMask.None then
+        baseMask
+    else
+        baseMask
+        ||| if chord.IsAccent       then NoteMask.Accent       else NoteMask.None
+        ||| if chord.IsFretHandMute then NoteMask.FretHandMute else NoteMask.None
+        ||| if chord.IsHighDensity  then NoteMask.HighDensity  else NoteMask.None
+        ||| if chord.IsIgnore       then NoteMask.Ignore       else NoteMask.None
+        ||| if chord.IsLinkNext     then NoteMask.Parent       else NoteMask.None
+        ||| if chord.IsPalmMute     then NoteMask.PalmMute     else NoteMask.None
+
 let createFlag (lastNote:ValueOption<Note>) anchorFret noteFret =
     match lastNote with
     | ValueNone ->
@@ -298,7 +332,7 @@ let convertNote () =
 
             match fpOption with
             // Arpeggio
-            | Some id when xml.ChordTemplates.[int id].DisplayName.EndsWith("-arp") -> [| -1s; id |]
+            | Some id when xml.ChordTemplates.[int id].IsArpeggio -> [| -1s; id |]
             // Normal handshape
             | Some id -> [| id; -1s |]
             | None -> [| -1s; -1s |]
@@ -322,11 +356,11 @@ let convertNote () =
 
                 let mask =
                     createMaskForNote note
-                    ||| if parentNote <> -1s then NoteMask.Child else NoteMask.None
+                    ||| if parentNote <> -1s        then NoteMask.Child    else NoteMask.None
                     ||| if fingerPrintId.[1] <> -1s then NoteMask.Arpeggio else NoteMask.None
 
                 let pickDir =
-                    if (note.Mask &&& XML.NoteMask.PickDirection) <> XML.NoteMask.None then 1y else 0y
+                    if (note.Mask &&& XML.NoteMask.PickDirection) <> XML.NoteMask.None then 1y else -1y
 
                 {| String = note.String; Fret = note.Fret; Mask = mask; ChordId = -1; ChordNoteId = -1; Parent = parentNote;
                    BendValues = bendValues; SlideTo = note.SlideTo; UnpSlide = note.SlideUnpitchTo;
@@ -335,8 +369,19 @@ let convertNote () =
                    Pluck = if note.IsPluck then 1y else -1y
                    Vibrato = int16 note.Vibrato; Sustain = msToSec note.Sustain; MaxBend = note.MaxBend |}
             
-            | XmlChord xmlChord ->
-                failwith "Not implemented"
+            | XmlChord chord ->
+                let template = xml.ChordTemplates.[int chord.ChordId]
+                let mask = createMaskForChord template chord
+                let sustain =
+                    match chord.ChordNotes with
+                    | null -> 0.f
+                    | cn when cn.Count = 0 -> 0.f
+                    | cn -> msToSec cn.[0].Sustain
+
+                {| String = -1y; Fret = -1y; Mask = mask; ChordId = int chord.ChordId; ChordNoteId = 99999; Parent = -1s;
+                   BendValues = [||]; SlideTo = -1y; UnpSlide = -1y;
+                   LeftHand = -1y; Tap = -1y; PickDirection = -1y; Slap = -1y; Pluck = -1y
+                   Vibrato = 0s; Sustain = sustain; MaxBend = 0.f |}
 
         let initialNote =
             { Mask = data.Mask

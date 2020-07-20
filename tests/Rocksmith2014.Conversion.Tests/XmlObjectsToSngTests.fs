@@ -4,6 +4,7 @@ open Expecto
 open Rocksmith2014
 open Rocksmith2014.XML
 open Rocksmith2014.Conversion
+open Rocksmith2014.Conversion.Utils
 open System.Globalization
 open System
 
@@ -11,15 +12,14 @@ open System
 let timeConversion (time:int) =
     Single.Parse(Utils.TimeCodeToString(time), NumberFormatInfo.InvariantInfo)
 
-let hasFlag mask flag = (mask &&& flag) <> SNG.Types.NoteMask.None
-
 let createTestArr () =
     let arr = InstrumentalArrangement()
     arr.SongLength <- 4784_455
 
-    let f = [| 1y;1y;1y;1y;1y;1y |]
-    arr.ChordTemplates.Add(ChordTemplate("A", "A", f, f))
-    arr.ChordTemplates.Add(ChordTemplate("A", "A-arp", f, f))
+    let f1 = [| 1y;1y;1y;1y;1y;1y |]
+    let f2 = [| 1y;1y;-1y;-1y;-1y;-1y |]
+    arr.ChordTemplates.Add(ChordTemplate("A", "A", f1, f1))
+    arr.ChordTemplates.Add(ChordTemplate("A", "A-arp", f2, f2))
 
     arr.PhraseIterations.Add(PhraseIteration(Time = 1000, PhraseId = 1))
     arr.PhraseIterations.Add(PhraseIteration(Time = 2000, PhraseId = 1))
@@ -301,7 +301,7 @@ let sngToXmlConversionTests =
         Expect.equal sng.Slap -1y "Slap is set correctly"
         Expect.equal sng.Pluck 1y "Pluck is set correctly"
         Expect.equal sng.Vibrato (int16 note.Vibrato) "Vibrato is same"
-        Expect.equal sng.PickDirection 0y "Pick direction is same"
+        Expect.equal sng.PickDirection -1y "Pick direction is correct"
         Expect.equal sng.LeftHand note.LeftHand "Left hand is same"
         Expect.equal sng.AnchorFretId 7y "Anchor fret is correct"
         Expect.equal sng.AnchorWidth 5y "Anchor width is correct"
@@ -362,21 +362,21 @@ let sngToXmlConversionTests =
 
         let sngNote = convert 0 (XmlToSng.XmlNote note)
 
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Single) "Single note has single flag"
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Open) "Open string note has open flag"
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Sustain) "Sustained note has sustain flag"
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Accent) "Accented note has accent flag"
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Tremolo) "Tremolo note has tremolo flag"
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Mute) "Muted note has mute flag"
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.HammerOn) "Hammer-on note has hammer-on flag"
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Harmonic) "Harmonic note has harmonic flag"
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Ignore) "Ignored note has ignore flag"
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.PalmMute) "Palm-muted note has palm-mute flag"
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.PinchHarmonic) "Pinch harmonic note has pinch harmonic flag"
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Pluck) "Plucked note has pluck flag"
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.PullOff) "Pull-off note has pull-off flag"
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.RightHand) "Right hand note has right hand flag"
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Slap) "Slapped note has slap flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Single) "Single note has single flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Open) "Open string note has open flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Sustain) "Sustained note has sustain flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Accent) "Accented note has accent flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Tremolo) "Tremolo note has tremolo flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Mute) "Muted note has mute flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.HammerOn) "Hammer-on note has hammer-on flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Harmonic) "Harmonic note has harmonic flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Ignore) "Ignored note has ignore flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.PalmMute) "Palm-muted note has palm-mute flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.PinchHarmonic) "Pinch harmonic note has pinch harmonic flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Pluck) "Plucked note has pluck flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.PullOff) "Pull-off note has pull-off flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.RightHand) "Right hand note has right hand flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Slap) "Slapped note has slap flag"
 
     testCase "Note (Mask 2/2)" <| fun _ ->
         let note = Note(Mask = NoteMask.None,
@@ -400,12 +400,12 @@ let sngToXmlConversionTests =
 
         let sngNote = convert 0 (XmlToSng.XmlNote note)
 
-        Expect.isFalse (hasFlag sngNote.Mask SNG.Types.NoteMask.Open) "Non-open string note does not have open flag"
-        Expect.isFalse (hasFlag sngNote.Mask SNG.Types.NoteMask.Sustain) "Non-sustained note does not have sustain flag"
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Slide) "Slide note has slide flag"
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.UnpitchedSlide) "Unpitched slide note has unpitched slide flag"
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Tap) "Tapped note has tap flag"
-        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Vibrato) "Vibrato note has vibrato flag"
+        Expect.isFalse (sngNote.Mask ?= SNG.Types.NoteMask.Open) "Non-open string note does not have open flag"
+        Expect.isFalse (sngNote.Mask ?= SNG.Types.NoteMask.Sustain) "Non-sustained note does not have sustain flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Slide) "Slide note has slide flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.UnpitchedSlide) "Unpitched slide note has unpitched slide flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Tap) "Tapped note has tap flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Vibrato) "Vibrato note has vibrato flag"
 
     testCase "Note (Link Next)" <| fun _ ->
         let parent = Note(Mask = NoteMask.LinkNext,
@@ -433,8 +433,8 @@ let sngToXmlConversionTests =
         let sngParent = convert 0 (XmlToSng.XmlNote parent)
         let sngChild = convert 0 (XmlToSng.XmlNote child)
 
-        Expect.isTrue (hasFlag sngParent.Mask SNG.Types.NoteMask.Parent) "Parent has correct mask set"
-        Expect.isTrue (hasFlag sngChild.Mask SNG.Types.NoteMask.Child) "Child has correct mask set"
+        Expect.isTrue (sngParent.Mask ?= SNG.Types.NoteMask.Parent) "Parent has correct mask set"
+        Expect.isTrue (sngChild.Mask ?= SNG.Types.NoteMask.Child) "Child has correct mask set"
         Expect.equal sngChild.ParentPrevNote 0s "Child's parent note index is correct"
 
     testCase "Note (Hand Shape ID)" <| fun _ ->
@@ -482,7 +482,7 @@ let sngToXmlConversionTests =
         let sng = convert 0 (XmlToSng.XmlNote note)
 
         Expect.equal (sng.FingerPrintId.[1]) 1s "Arpeggio fingerprint ID is correct"
-        Expect.isTrue (hasFlag sng.Mask SNG.Types.NoteMask.Arpeggio) "Arpeggio bit is set"
+        Expect.isTrue (sng.Mask ?= SNG.Types.NoteMask.Arpeggio) "Arpeggio bit is set"
 
     testCase "Events to DNAs" <| fun _ ->
         let testArr = createTestArr()
@@ -503,4 +503,82 @@ let sngToXmlConversionTests =
         Expect.equal md.Part testArr.Part "Part is same"
         Expect.equal md.SongLength (timeConversion testArr.SongLength) "Song length is same"
         Expect.sequenceEqual md.Tuning testArr.Tuning.Strings "Tuning is same"
+
+    testCase "Chord" <| fun _ ->
+        let chord = Chord(Time = 1250, ChordId = 0s)
+        let chordNotes = ResizeArray(seq { Note(Sustain = 500); Note(Sustain = 500) })
+        chord.ChordNotes <- chordNotes
+
+        let testLevel = Level()
+        testLevel.Chords.Add(chord)
+        testLevel.Anchors.Add(Anchor(12y, 1000))
+        testLevel.HandShapes.Add(HandShape(1s, 1000, 1500))
+        let testArr = createTestArr()
+        testArr.Levels.[0] <- testLevel
+
+        let noteTimes = XmlToSng.createNoteTimes testLevel
+        let hs = XmlToSng.createFingerprintMap noteTimes testLevel
+        let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
+        let convert = XmlToSng.convertNote() piNotes hs sharedAccData testArr
+
+        let sng = convert 0 (XmlToSng.XmlChord chord)
+
+        Expect.equal sng.ChordId (int chord.ChordId) "Chord ID is same"
+        Expect.equal sng.Sustain (timeConversion chord.ChordNotes.[1].Sustain) "Sustain is same"
+        Expect.isTrue (sng.Mask ?= SNG.Types.NoteMask.Chord) "Chord has chord flag"
+        Expect.isFalse (sng.Mask ?= SNG.Types.NoteMask.DoubleStop) "Double stop flag is not set"
+        Expect.isFalse (sng.Mask ?= SNG.Types.NoteMask.Arpeggio) "Arpeggio flag is not set"
+        Expect.isTrue (sng.Mask ?= SNG.Types.NoteMask.Strum) "Strum flag is set"
+
+    testCase "Chord (Double stop, arpeggio, no chord notes)" <| fun _ ->
+        let chord = Chord(Time = 1250, ChordId = 1s)
+
+        let testLevel = Level()
+        testLevel.Chords.Add(chord)
+        testLevel.Anchors.Add(Anchor(12y, 1000))
+        testLevel.HandShapes.Add(HandShape(1s, 1000, 1500))
+        let testArr = createTestArr()
+        testArr.Levels.[0] <- testLevel
+
+        let noteTimes = XmlToSng.createNoteTimes testLevel
+        let hs = XmlToSng.createFingerprintMap noteTimes testLevel
+        let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
+        let convert = XmlToSng.convertNote() piNotes hs sharedAccData testArr
+
+        let sng = convert 0 (XmlToSng.XmlChord chord)
+
+        Expect.equal sng.ChordId (int chord.ChordId) "Chord ID is same"
+        Expect.isTrue (sng.Mask ?= SNG.Types.NoteMask.Chord) "Chord has chord flag"
+        Expect.isTrue (sng.Mask ?= SNG.Types.NoteMask.DoubleStop) "Double stop flag is set"
+        Expect.isTrue (sng.Mask ?= SNG.Types.NoteMask.Arpeggio) "Arpeggio flag is set"
+        Expect.isFalse (sng.Mask ?= SNG.Types.NoteMask.Strum) "Strum flag is not set"
+
+    testCase "Chord (Mask)" <| fun _ ->
+        let chord = Chord(Mask = (ChordMask.FretHandMute ||| ChordMask.PalmMute ||| ChordMask.Ignore
+                                  ||| ChordMask.HighDensity ||| ChordMask.Accent ||| ChordMask.LinkNext),
+                          Time = 1250,
+                          ChordId = 1s)
+
+        let testLevel = Level()
+        testLevel.Chords.Add(chord)
+        testLevel.Anchors.Add(Anchor(12y, 1000))
+        testLevel.HandShapes.Add(HandShape(1s, 1000, 1500))
+        let testArr = createTestArr()
+        testArr.Levels.[0] <- testLevel
+
+        let noteTimes = XmlToSng.createNoteTimes testLevel
+        let hs = XmlToSng.createFingerprintMap noteTimes testLevel
+        let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
+        let convert = XmlToSng.convertNote() piNotes hs sharedAccData testArr
+
+        let sng = convert 0 (XmlToSng.XmlChord chord)
+
+        Expect.isTrue (sng.Mask ?= SNG.Types.NoteMask.Accent) "Accented chord has accent flag"
+        Expect.isTrue (sng.Mask ?= SNG.Types.NoteMask.FretHandMute) "Fret-hand-muted chord has fret-hand mute flag"
+        Expect.isTrue (sng.Mask ?= SNG.Types.NoteMask.PalmMute) "Palm-muted chord has palm-mute flag"
+        Expect.isTrue (sng.Mask ?= SNG.Types.NoteMask.Ignore) "Ignored chord has ignore flag"
+        Expect.isTrue (sng.Mask ?= SNG.Types.NoteMask.HighDensity) "High-density chord has high-density flag"
+        Expect.isTrue (sng.Mask ?= SNG.Types.NoteMask.Parent) "Link-next chord has parent flag"
+
+    //TODO: Test AccuData
   ]

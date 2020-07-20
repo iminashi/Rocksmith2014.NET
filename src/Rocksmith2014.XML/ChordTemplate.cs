@@ -19,10 +19,19 @@ namespace Rocksmith2014.XML
         /// <summary>
         /// Gets or sets the "display name" of the chord.
         /// <para>
-        /// May contain postfixes "-arp" for arpeggios and "-nop" for double stop panels.
+        /// May contain suffixes "-arp" for arpeggios and "-nop" for double stop panels.
         /// </para>
         /// </summary>
-        public string DisplayName { get; set; } = string.Empty;
+        public string DisplayName
+        {
+            get => displayName;
+            set { displayName = value; IsArpeggio = value.EndsWith("-arp"); }
+        }
+
+        /// <summary>
+        /// Returns true if the display name has a "-arp" suffix.
+        /// </summary>
+        public bool IsArpeggio { get; private set; }
 
         /// <summary>
         /// The fingering of the chord template.
@@ -33,6 +42,8 @@ namespace Rocksmith2014.XML
         /// The frets of the chord template.
         /// </summary>
         public readonly sbyte[] Frets = { -1, -1, -1, -1, -1, -1 };
+
+        private string displayName = string.Empty;
 
         /// <summary>
         /// Creates a new chord template.
