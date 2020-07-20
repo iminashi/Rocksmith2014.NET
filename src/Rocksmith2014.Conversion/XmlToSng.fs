@@ -158,17 +158,17 @@ let convertHandshape (xmlHs:XML.HandShape) =
       FirstNoteTime = -1.f // TODO: Implement
       LastNoteTime = -1.f } // TODO: Implement
 
-let divideNoteTimesPerPhraseIteration (level:XML.Level) (arr:XML.InstrumentalArrangement) =
-    let noteTimes =
-        let chords =
-            level.Chords
-            |> Seq.map (fun c -> c.Time)
-        level.Notes
-        |> Seq.map (fun n -> n.Time)
-        |> Seq.append chords
-        |> Seq.sort
-        |> Seq.toArray
+let createNoteTimes (level:XML.Level) =
+    let chords =
+        level.Chords
+        |> Seq.map (fun c -> c.Time)
+    level.Notes
+    |> Seq.map (fun n -> n.Time)
+    |> Seq.append chords
+    |> Seq.sort
+    |> Seq.toArray
 
+let divideNoteTimesPerPhraseIteration (noteTimes:int[]) (arr:XML.InstrumentalArrangement) =
     arr.PhraseIterations
     |> Seq.mapi (fun i pi ->
         let endTime = if i = arr.PhraseIterations.Count - 1 then arr.SongLength else arr.PhraseIterations.[i + 1].Time
@@ -177,6 +177,19 @@ let divideNoteTimesPerPhraseIteration (level:XML.Level) (arr:XML.InstrumentalArr
         |> Seq.takeWhile (fun t -> t >= pi.Time && t < endTime)
         |> Seq.toArray)
     |> Seq.toArray
+
+let createFingerprintMap (noteTimes:int[]) (level:XML.Level) (arr:XML.InstrumentalArrangement) =
+    let toSet (hs:XML.HandShape) =
+        let times =
+            noteTimes
+            |> Seq.skipWhile (fun t -> t < hs.StartTime)
+            |> Seq.takeWhile (fun t -> t >= hs.StartTime && t < hs.EndTime)
+            |> Set.ofSeq
+        hs.ChordId, times
+    
+    level.HandShapes
+    |> Seq.map toSet
+    |> Map.ofSeq
 
 /// Creates an SNG note mask for a single note.
 let createMaskForNote (note:XML.Note) =
@@ -218,6 +231,8 @@ let createFlag (lastNote:ValueOption<Note>) anchorFret noteFret =
     | ValueSome note ->
         if note.AnchorFretId <> anchorFret && noteFret <> 0y then 1u else 0u
 
+let hashNote (note:Note) = hash note |> uint32
+
 /// Returns a function that is valid for converting notes in a single difficulty level.
 let convertNote () =
     // Dictionary of link-next parent notes in need of a child note.
@@ -225,7 +240,7 @@ let convertNote () =
     let pendingLinkNexts = Dictionary<int8, int16>()
     let mutable lastNote : ValueOption<Note> = ValueNone
 
-    fun (noteTimes:int[][]) (level:XML.Level) (xml:XML.InstrumentalArrangement) (xmlNote:XML.Note) ->
+    fun (noteTimes:int[][]) (fingerPrintMap:Map<int16,Set<int>>) (level:XML.Level) (xml:XML.InstrumentalArrangement) (xmlNote:XML.Note) ->
         let parentNote =
             let mutable id = -1s
             if pendingLinkNexts.Remove(xmlNote.String, &id) then id else -1s
@@ -251,14 +266,27 @@ let convertNote () =
 
         if xmlNote.IsLinkNext then pendingLinkNexts.Add(xmlNote.String, this)
 
+        let fingerPrintId =
+            let fpOption =
+                fingerPrintMap
+                |> Map.tryPick (fun key set -> if set.Contains(xmlNote.Time) then Some key else None)
+
+            match fpOption with
+            // Arpeggio
+            | Some id when xml.ChordTemplates.[int id].DisplayName.EndsWith("-arp") -> [| -1s; id |]
+            // Normal handshape
+            | Some id -> [| id; -1s |]
+            | None -> [| -1s; -1s |]
+
         let mask =
             createMaskForNote xmlNote
             ||| if parentNote <> -1s then NoteMask.Child else NoteMask.None
+            //||| if fingerPrintId
         
-        let note =
+        let initialNote =
             { Mask = mask
-              Flags = createFlag lastNote anchor.Fret xmlNote.Fret
-              Hash = 0u // TODO: implement
+              Flags = 0u
+              Hash = 0u
               Time = msToSec xmlNote.Time
               StringIndex = xmlNote.String
               FretId = xmlNote.Fret
@@ -268,7 +296,7 @@ let convertNote () =
               ChordNotesId = -1
               PhraseId = phraseId
               PhraseIterationId = piId
-              FingerPrintId = [| 99s; 99s|] // TODO: implement
+              FingerPrintId = fingerPrintId
               NextIterNote = next
               PrevIterNote = prev
               ParentPrevNote = parentNote
@@ -284,8 +312,13 @@ let convertNote () =
               MaxBend = xmlNote.MaxBend
               BendData = bendValues }
 
-        lastNote <- ValueSome note
-        note
+        lastNote <- ValueSome initialNote
+        { initialNote with
+            Hash = hashNote initialNote
+            Flags = createFlag lastNote anchor.Fret xmlNote.Fret
+            NextIterNote = next
+            PrevIterNote = prev
+            ParentPrevNote = parentNote }
 
 let private eventToDNA (event:XML.Event) =
     match event.Code with
