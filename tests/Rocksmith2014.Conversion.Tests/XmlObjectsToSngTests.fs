@@ -11,6 +11,8 @@ open System
 let timeConversion (time:int) =
     Single.Parse(Utils.TimeCodeToString(time), NumberFormatInfo.InvariantInfo)
 
+let hasFlag mask flag = (mask &&& flag) <> SNG.Types.NoteMask.None
+
 let testArr =
     let arr = InstrumentalArrangement()
     arr.SongLength <- 4784_455
@@ -195,20 +197,23 @@ let sngToXmlConversionTests =
         // TODO: Test first/last note times
 
     testCase "Note" <| fun _ ->
-        let note = Note(
-                    Mask = NoteMask.Pluck,
-                    Fret = 12y,
-                    String = 3y,
-                    Time = 5555,
-                    Sustain = 4444,
-                    SlideTo = 14y,
-                    Tap = 2y,
-                    Vibrato = 80uy,
-                    LeftHand = 2y,
-                    BendValues = ResizeArray(seq { BendValue(5556, 1.f) }))
-        testArr.Levels.[0].Notes.Add(note)
+        let note = Note(Mask = NoteMask.Pluck,
+                        Fret = 12y,
+                        String = 3y,
+                        Time = 5555,
+                        Sustain = 4444,
+                        SlideTo = 14y,
+                        Tap = 2y,
+                        Vibrato = 80uy,
+                        LeftHand = 2y,
+                        BendValues = ResizeArray(seq { BendValue(5556, 1.f) }))
+        let testLevel = Level()
+        testLevel.Notes.Add(note)
+        testLevel.Anchors.Add(Anchor(7y, 5555, 5y))
+        let noteTimes = XmlToSng.divideNoteTimesPerPhraseIteration testLevel testArr
+        let convert = XmlToSng.convertNote() noteTimes
 
-        let sng = XmlToSng.convertNote 0 testArr note
+        let sng = convert testLevel testArr note
 
         Expect.equal sng.ChordId -1 "Chord ID is -1"
         Expect.equal sng.ChordNotesId -1 "Chord notes ID is -1"
@@ -229,6 +234,76 @@ let sngToXmlConversionTests =
         Expect.equal sng.BendData.Length note.BendValues.Count "Bend value count is correct"
         Expect.equal sng.MaxBend note.MaxBend "Max bend is same"
         Expect.equal sng.PhraseId 77 "Phrase ID is correct"
+        Expect.equal sng.PhraseIterationId 2 "Phrase iteration ID is correct"
+
+    testCase "Note (Next/Previous Note IDs)" <| fun _ ->
+        let note0 = Note(Fret = 12y,
+                         String = 3y,
+                         Time = 1000,
+                         Sustain = 500)
+        let note1 = Note(Fret = 12y,
+                         String = 3y,
+                         Time = 1500,
+                         Sustain = 100)
+        let testLevel = Level()
+        testLevel.Notes.Add(note0)
+        testLevel.Notes.Add(note1)
+        testLevel.Anchors.Add(Anchor(12y, 1000))
+        let noteTimes = XmlToSng.divideNoteTimesPerPhraseIteration testLevel testArr
+        let convert = XmlToSng.convertNote() noteTimes
+
+        let sngNote0 = convert testLevel testArr note0
+        let sngNote1 = convert testLevel testArr note1
+
+        Expect.equal sngNote0.PrevIterNote -1s "Previous note index of first note is -1"
+        Expect.equal sngNote0.NextIterNote 1s "Next note index of first note is 1"
+        Expect.equal sngNote1.PrevIterNote 0s "Previous note index of second note is 0"
+        Expect.equal sngNote1.NextIterNote -1s "Next note index of second note is -1"
+        Expect.equal sngNote0.ParentPrevNote -1s "Parent note index of first note is -1"
+        Expect.equal sngNote1.ParentPrevNote -1s "Parent note index of second note is -1"
+
+    testCase "Note (Mask)" <| fun _ ->
+        let note = Note(Mask = NoteMask.Accent,
+                        Fret = 0y,
+                        String = 3y,
+                        Time = 1000,
+                        Sustain = 500)
+        let testLevel = Level()
+        testLevel.Notes.Add(note)
+        testLevel.Anchors.Add(Anchor(12y, 1000))
+        let noteTimes = XmlToSng.divideNoteTimesPerPhraseIteration testLevel testArr
+        let convert = XmlToSng.convertNote() noteTimes
+
+        let sngNote = convert testLevel testArr note
+
+        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Single) "Single note has single flag"
+        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Open) "Open string note has open flag"
+        Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Accent) "Accented note has accent flag"
+
+    testCase "Note (Link Next)" <| fun _ ->
+        let parent = Note(Mask = NoteMask.LinkNext,
+                          Fret = 12y,
+                          String = 3y,
+                          Time = 1000,
+                          Sustain = 500)
+        let child = Note(Mask = NoteMask.Tremolo,
+                         Fret = 12y,
+                         String = 3y,
+                         Time = 1500,
+                         Sustain = 100)
+        let testLevel = Level()
+        testLevel.Notes.Add(parent)
+        testLevel.Notes.Add(child)
+        testLevel.Anchors.Add(Anchor(12y, 1000))
+        let noteTimes = XmlToSng.divideNoteTimesPerPhraseIteration testLevel testArr
+        let convert = XmlToSng.convertNote() noteTimes
+
+        let sngParent = convert testLevel testArr parent
+        let sngChild = convert testLevel testArr child
+
+        Expect.isTrue (hasFlag sngParent.Mask SNG.Types.NoteMask.Parent) "Parent has correct mask set"
+        Expect.isTrue (hasFlag sngChild.Mask SNG.Types.NoteMask.Child) "Child has correct mask set"
+        Expect.equal sngChild.ParentPrevNote 0s "Child's parent note index is correct"
 
     testCase "Events to DNAs" <| fun _ ->
         let dnas = XmlToSng.createDNAs testArr
