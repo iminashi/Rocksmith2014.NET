@@ -386,7 +386,8 @@ let sngToXmlConversionTests =
                         SlideTo = 5y,
                         SlideUnpitchTo = 5y,
                         Tap = 1y,
-                        Vibrato = 40uy)
+                        Vibrato = 40uy,
+                        BendValues = ResizeArray(seq { BendValue(1000, 1.f) }))
 
         let testLevel = Level()
         testLevel.Notes.Add(note)
@@ -406,6 +407,7 @@ let sngToXmlConversionTests =
         Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.UnpitchedSlide) "Unpitched slide note has unpitched slide flag"
         Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Tap) "Tapped note has tap flag"
         Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Vibrato) "Vibrato note has vibrato flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Bend) "Bend note has bend flag"
 
     testCase "Note (Link Next)" <| fun _ ->
         let parent = Note(Mask = NoteMask.LinkNext,

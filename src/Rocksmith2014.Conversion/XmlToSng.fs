@@ -225,6 +225,7 @@ let createMaskForNote (note:XML.Note) =
         ||| if note.IsUnpitchedSlide then NoteMask.UnpitchedSlide else NoteMask.None
         ||| if note.IsTap            then NoteMask.Tap            else NoteMask.None
         ||| if note.IsVibrato        then NoteMask.Vibrato        else NoteMask.None
+        ||| if note.IsBend           then NoteMask.Bend           else NoteMask.None
 
     // Apply flags from the XML note mask if needed
     if note.Mask = XML.NoteMask.None then
@@ -266,7 +267,7 @@ let createMaskForChord (template:XML.ChordTemplate) (chord:XML.Chord) =
         ||| if isDoubleStop template then NoteMask.DoubleStop else NoteMask.None
         ||| if isStrum chord         then NoteMask.Strum      else NoteMask.None
         ||| if template.IsArpeggio   then NoteMask.Arpeggio   else NoteMask.None
-        // TODO: ChordNotes
+        // TODO: ChordNotes, Sustain
 
     // Apply flags from the XML chord mask if needed
     if chord.Mask = XML.ChordMask.None then
