@@ -211,11 +211,19 @@ let createMaskForNote (note:XML.Note) =
         ||| if note.IsRightHand     then NoteMask.RightHand     else NoteMask.None
         ||| if note.IsSlap          then NoteMask.Slap          else NoteMask.None
      
+let createFlag (lastNote:ValueOption<Note>) anchorFret noteFret =
+    match lastNote with
+    | ValueNone ->
+        if noteFret <> 0y then 1u else 0u
+    | ValueSome note ->
+        if note.AnchorFretId <> anchorFret && noteFret <> 0y then 1u else 0u
+
 /// Returns a function that is valid for converting notes in a single difficulty level.
 let convertNote () =
     // Dictionary of link-next parent notes in need of a child note.
     // Mapping: string number => index of note in phrase iteration
     let pendingLinkNexts = Dictionary<int8, int16>()
+    let mutable lastNote : ValueOption<Note> = ValueNone
 
     fun (noteTimes:int[][]) (level:XML.Level) (xml:XML.InstrumentalArrangement) (xmlNote:XML.Note) ->
         let parentNote =
@@ -246,34 +254,38 @@ let convertNote () =
         let mask =
             createMaskForNote xmlNote
             ||| if parentNote <> -1s then NoteMask.Child else NoteMask.None
+        
+        let note =
+            { Mask = mask
+              Flags = createFlag lastNote anchor.Fret xmlNote.Fret
+              Hash = 0u // TODO: implement
+              Time = msToSec xmlNote.Time
+              StringIndex = xmlNote.String
+              FretId = xmlNote.Fret
+              AnchorFretId = anchor.Fret
+              AnchorWidth = anchor.Width
+              ChordId = -1
+              ChordNotesId = -1
+              PhraseId = phraseId
+              PhraseIterationId = piId
+              FingerPrintId = [| 99s; 99s|] // TODO: implement
+              NextIterNote = next
+              PrevIterNote = prev
+              ParentPrevNote = parentNote
+              SlideTo = xmlNote.SlideTo
+              SlideUnpitchTo = xmlNote.SlideUnpitchTo
+              LeftHand = xmlNote.LeftHand
+              Tap = xmlNote.Tap
+              PickDirection = if (xmlNote.Mask &&& XML.NoteMask.PickDirection) <> XML.NoteMask.None then 1y else 0y
+              Slap = if xmlNote.IsSlap then 1y else -1y
+              Pluck = if xmlNote.IsPluck then 1y else -1y
+              Vibrato = int16 xmlNote.Vibrato
+              Sustain = msToSec xmlNote.Sustain
+              MaxBend = xmlNote.MaxBend
+              BendData = bendValues }
 
-        { Mask = mask
-          Flags = 0u // TODO: implement
-          Hash = 0u // TODO: implement
-          Time = msToSec xmlNote.Time
-          StringIndex = xmlNote.String
-          FretId = xmlNote.Fret
-          AnchorFretId = anchor.Fret
-          AnchorWidth = anchor.Width
-          ChordId = -1
-          ChordNotesId = -1
-          PhraseId = phraseId
-          PhraseIterationId = piId
-          FingerPrintId = [| 99s; 99s|] // TODO: implement
-          NextIterNote = next
-          PrevIterNote = prev
-          ParentPrevNote = parentNote
-          SlideTo = xmlNote.SlideTo
-          SlideUnpitchTo = xmlNote.SlideUnpitchTo
-          LeftHand = xmlNote.LeftHand
-          Tap = xmlNote.Tap
-          PickDirection = if (xmlNote.Mask &&& XML.NoteMask.PickDirection) <> XML.NoteMask.None then 1y else 0y
-          Slap = if xmlNote.IsSlap then 1y else -1y
-          Pluck = if xmlNote.IsPluck then 1y else -1y
-          Vibrato = int16 xmlNote.Vibrato
-          Sustain = msToSec xmlNote.Sustain
-          MaxBend = xmlNote.MaxBend
-          BendData = bendValues }
+        lastNote <- ValueSome note
+        note
 
 let private eventToDNA (event:XML.Event) =
     match event.Code with
