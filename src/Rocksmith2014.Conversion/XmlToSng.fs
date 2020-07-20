@@ -200,7 +200,7 @@ let divideNoteTimesPerPhraseIteration (noteTimes:int[]) (arr:XML.InstrumentalArr
         |> Seq.toArray)
     |> Seq.toArray
 
-let createFingerprintMap (noteTimes:int[]) (level:XML.Level) (arr:XML.InstrumentalArrangement) =
+let createFingerprintMap (noteTimes:int[]) (level:XML.Level) =
     let toSet (hs:XML.HandShape) =
         let times =
             noteTimes
@@ -273,8 +273,8 @@ let convertNote () =
     fun (noteTimes:int[][])
         (fingerPrintMap:Map<int16,Set<int>>)
         (accuData:AccuData)
-        (difficulty:int)
         (xml:XML.InstrumentalArrangement)
+        (difficulty:int)
         (xmlEnt:XmlEntity) ->
 
         let level = xml.Levels.[difficulty]
@@ -311,10 +311,10 @@ let convertNote () =
                     if pendingLinkNexts.Remove(note.String, &id) then id else -1s
 
                 let bendValues =
-                    if note.BendValues |> isNull then
-                        [||]
-                    else
-                        note.BendValues
+                    match note.BendValues with
+                    | null -> [||]
+                    | bendValues ->
+                        bendValues
                         |> Seq.map convertBendValue
                         |> Seq.toArray
 
@@ -328,7 +328,6 @@ let convertNote () =
                 let pickDir =
                     if (note.Mask &&& XML.NoteMask.PickDirection) <> XML.NoteMask.None then 1y else 0y
 
-                accuData.AddNote(piId, (mask &&& NoteMask.Ignore) <> NoteMask.None)
                 {| String = note.String; Fret = note.Fret; Mask = mask; ChordId = -1; ChordNoteId = -1; Parent = parentNote;
                    BendValues = bendValues; SlideTo = note.SlideTo; UnpSlide = note.SlideUnpitchTo;
                    LeftHand = note.LeftHand; Tap = note.Tap; PickDirection = pickDir;
@@ -368,7 +367,9 @@ let convertNote () =
               MaxBend = data.MaxBend
               BendData = data.BendValues }
 
+        accuData.AddNote(piId, (data.Mask &&& NoteMask.Ignore) <> NoteMask.None)
         lastNote <- ValueSome initialNote
+
         { initialNote with
             Hash = hashNote initialNote
             Flags = createFlag lastNote anchor.Fret data.Fret

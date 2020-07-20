@@ -285,9 +285,9 @@ let sngToXmlConversionTests =
 
         let noteTimes = XmlToSng.createNoteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
-        let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData
+        let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData testArr
 
-        let sng = convert 0 testArr (XmlToSng.XmlNote note)
+        let sng = convert 0 (XmlToSng.XmlNote note)
 
         Expect.equal sng.ChordId -1 "Chord ID is -1"
         Expect.equal sng.ChordNotesId -1 "Chord notes ID is -1"
@@ -329,10 +329,10 @@ let sngToXmlConversionTests =
 
         let noteTimes = XmlToSng.createNoteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
-        let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData
+        let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData testArr
 
-        let sngNote0 = convert 0 testArr (XmlToSng.XmlNote note0)
-        let sngNote1 = convert 0 testArr (XmlToSng.XmlNote note1)
+        let sngNote0 = convert 0 (XmlToSng.XmlNote note0)
+        let sngNote1 = convert 0 (XmlToSng.XmlNote note1)
 
         Expect.equal sngNote0.PrevIterNote -1s "Previous note index of first note is -1"
         Expect.equal sngNote0.NextIterNote 1s "Next note index of first note is 1"
@@ -358,9 +358,9 @@ let sngToXmlConversionTests =
 
         let noteTimes = XmlToSng.createNoteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
-        let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData
+        let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData testArr
 
-        let sngNote = convert 0 testArr (XmlToSng.XmlNote note)
+        let sngNote = convert 0 (XmlToSng.XmlNote note)
 
         Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Single) "Single note has single flag"
         Expect.isTrue (hasFlag sngNote.Mask SNG.Types.NoteMask.Open) "Open string note has open flag"
@@ -396,9 +396,9 @@ let sngToXmlConversionTests =
 
         let noteTimes = XmlToSng.createNoteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
-        let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData
+        let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData testArr
 
-        let sngNote = convert 0 testArr (XmlToSng.XmlNote note)
+        let sngNote = convert 0 (XmlToSng.XmlNote note)
 
         Expect.isFalse (hasFlag sngNote.Mask SNG.Types.NoteMask.Open) "Non-open string note does not have open flag"
         Expect.isFalse (hasFlag sngNote.Mask SNG.Types.NoteMask.Sustain) "Non-sustained note does not have sustain flag"
@@ -428,10 +428,10 @@ let sngToXmlConversionTests =
 
         let noteTimes = XmlToSng.createNoteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
-        let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData
+        let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData testArr
 
-        let sngParent = convert 0 testArr (XmlToSng.XmlNote parent)
-        let sngChild = convert 0 testArr (XmlToSng.XmlNote child)
+        let sngParent = convert 0 (XmlToSng.XmlNote parent)
+        let sngChild = convert 0 (XmlToSng.XmlNote child)
 
         Expect.isTrue (hasFlag sngParent.Mask SNG.Types.NoteMask.Parent) "Parent has correct mask set"
         Expect.isTrue (hasFlag sngChild.Mask SNG.Types.NoteMask.Child) "Child has correct mask set"
@@ -452,11 +452,11 @@ let sngToXmlConversionTests =
         testArr.Levels.[0] <- testLevel
 
         let noteTimes = XmlToSng.createNoteTimes testLevel
-        let hs = XmlToSng.createFingerprintMap noteTimes testLevel testArr
+        let hs = XmlToSng.createFingerprintMap noteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
-        let convert = XmlToSng.convertNote() piNotes hs sharedAccData
+        let convert = XmlToSng.convertNote() piNotes hs sharedAccData testArr
 
-        let sng = convert 0 testArr (XmlToSng.XmlNote note)
+        let sng = convert 0 (XmlToSng.XmlNote note)
 
         Expect.equal (sng.FingerPrintId.[0]) 0s "Fingerprint ID is correct"
 
@@ -475,11 +475,11 @@ let sngToXmlConversionTests =
         testArr.Levels.[0] <- testLevel
 
         let noteTimes = XmlToSng.createNoteTimes testLevel
-        let hs = XmlToSng.createFingerprintMap noteTimes testLevel testArr
+        let hs = XmlToSng.createFingerprintMap noteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
-        let convert = XmlToSng.convertNote() piNotes hs sharedAccData
+        let convert = XmlToSng.convertNote() piNotes hs sharedAccData testArr
 
-        let sng = convert 0 testArr (XmlToSng.XmlNote note)
+        let sng = convert 0 (XmlToSng.XmlNote note)
 
         Expect.equal (sng.FingerPrintId.[1]) 1s "Arpeggio fingerprint ID is correct"
         Expect.isTrue (hasFlag sng.Mask SNG.Types.NoteMask.Arpeggio) "Arpeggio bit is set"
