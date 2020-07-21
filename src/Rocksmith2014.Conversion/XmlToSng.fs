@@ -5,6 +5,7 @@ open Rocksmith2014
 open Rocksmith2014.Conversion.Utils
 open Rocksmith2014.SNG.Types
 open System.Collections.Generic
+open Nessos.Streams
 
 /// Represents data that is being accumulated when mapping XML notes/chords into SNG notes.
 type AccuData =
@@ -12,15 +13,20 @@ type AccuData =
       ChordNotes : ResizeArray<ChordNotes>
       ChordNotesMap : Dictionary<int, int>
       AnchorExtensions : ResizeArray<AnchorExtension>
-      NotesInPhraseIterationsExclIgnore : uint16[]
-      NotesInPhraseIterationsAll : uint16[] }
+      NotesInPhraseIterationsExclIgnore : int[]
+      NotesInPhraseIterationsAll : int[] }
 
     with
         member this.AddNote(pi:int, ignored:bool) =
-             this.NotesInPhraseIterationsAll.[pi] <- this.NotesInPhraseIterationsAll.[pi] + 1us
+             this.NotesInPhraseIterationsAll.[pi] <- this.NotesInPhraseIterationsAll.[pi] + 1
 
              if not ignored then
-                this.NotesInPhraseIterationsExclIgnore.[pi] <- this.NotesInPhraseIterationsExclIgnore.[pi] + 1us
+                this.NotesInPhraseIterationsExclIgnore.[pi] <- this.NotesInPhraseIterationsExclIgnore.[pi] + 1
+
+        member this.Reset() =
+            this.AnchorExtensions.Clear()
+            Array.Clear(this.NotesInPhraseIterationsAll, 0, this.NotesInPhraseIterationsAll.Length)
+            Array.Clear(this.NotesInPhraseIterationsExclIgnore, 0, this.NotesInPhraseIterationsExclIgnore.Length)
 
         static member Init(arr:XML.InstrumentalArrangement) =
               { StringMasks = Array2D.zeroCreate (arr.Sections.Count) 36
@@ -426,6 +432,8 @@ let convertNote () =
             | Some id -> [| id; -1s |]
             | None -> [| -1s; -1s |]
 
+        // TODO: String masks for sections
+
         let data =
             match xmlEnt with
             // XML Notes
@@ -551,3 +559,59 @@ let convertMetaData (xml:XML.InstrumentalArrangement) =
       Unk11FirstNoteTime = 0.f // TODO: Implement
       Unk12FirstNoteTime = 0.f // TODO: Implement
       MaxDifficulty = xml.Levels.Count - 1 }
+
+let convertLevel (accuData:AccuData) (xmlArr:XML.InstrumentalArrangement) (xmlLevel:XML.Level) =
+    accuData.Reset()
+
+    let difficulty = int xmlLevel.Difficulty
+
+    let anchors =
+        xmlLevel.Anchors
+        |> Stream.ofResizeArray
+        |> Stream.mapi (fun i a -> convertAnchor i xmlLevel xmlArr a)
+        |> Stream.toArray
+
+    let isArpeggio (hs:XML.HandShape) = xmlArr.ChordTemplates.[int hs.ChordId].IsArpeggio
+
+    let handShapes =
+        xmlLevel.HandShapes
+        |> Stream.ofResizeArray
+        |> Stream.filter (isArpeggio >> not)
+        |> Stream.map convertHandshape
+        |> Stream.toArray
+
+    let arpeggios =
+        xmlLevel.HandShapes
+        |> Stream.ofResizeArray
+        |> Stream.filter isArpeggio
+        |> Stream.map convertHandshape
+        |> Stream.toArray
+
+    let xmlEntities =
+        let chords = xmlLevel.Chords |> Seq.map XmlChord
+
+        xmlLevel.Notes
+        |> Seq.map XmlNote
+        |> Seq.append chords
+        |> Seq.sortBy getTimeCode
+        |> Seq.toArray
+
+    let noteTimes = xmlEntities |> Array.map getTimeCode
+    let piNotes = divideNoteTimesPerPhraseIteration noteTimes xmlArr
+    let fpMap = createFingerprintMap noteTimes xmlLevel
+    let convertNote' = convertNote() piNotes fpMap accuData xmlArr difficulty
+
+    let notes = xmlEntities |> Array.map convertNote'
+
+    { Difficulty = difficulty
+      Anchors = anchors
+      AnchorExtensions = accuData.AnchorExtensions.ToArray()
+      HandShapes = handShapes
+      Arpeggios = arpeggios
+      Notes = notes
+      PhraseCount = xmlArr.Phrases.Count
+      AverageNotesPerIteration = [||] // TODO
+      PhraseIterationCount1 = accuData.NotesInPhraseIterationsExclIgnore.Length
+      NotesInIteration1 = accuData.NotesInPhraseIterationsExclIgnore
+      PhraseIterationCount2 = accuData.NotesInPhraseIterationsAll.Length
+      NotesInIteration2 = accuData.NotesInPhraseIterationsAll }

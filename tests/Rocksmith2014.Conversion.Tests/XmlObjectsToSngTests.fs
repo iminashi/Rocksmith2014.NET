@@ -7,6 +7,7 @@ open Rocksmith2014.Conversion
 open Rocksmith2014.Conversion.Utils
 open System.Globalization
 open System
+open Rocksmith2014.Conversion.XmlToSng
 
 /// Testing function that converts a time in milliseconds into seconds without floating point arithmetic.
 let timeConversion (time:int) =
@@ -649,7 +650,24 @@ let sngToXmlConversionTests =
 
         Expect.equal accuData.AnchorExtensions.Count 1 "Anchor extension was created"
         Expect.equal accuData.AnchorExtensions.[0].BeatTime 1.3f "Time is correct"
-        Expect.equal accuData.AnchorExtensions.[0].FretId note.SlideTo "Time is correct"
+        Expect.equal accuData.AnchorExtensions.[0].FretId note.SlideTo "Fret is correct"
 
-    //TODO: Test AccuData
+    testCase "Level" <| fun _ ->
+        let testArr = createTestArr()
+        testArr.Phrases.Add(Phrase())
+        let testLevel = testArr.Levels.[0]
+        testLevel.HandShapes.Add(HandShape(0s, 1000, 1200))
+        testLevel.HandShapes.Add(HandShape(1s, 1000, 1200))
+        testLevel.Notes.Add(Note(Time = 1100, Sustain = 200, SlideTo = 8y))
+        testLevel.Chords.Add(Chord(Time = 1250, ChordId = 1s))
+        let accuData = AccuData.Init(testArr)
+
+        let sng = XmlToSng.convertLevel accuData testArr testLevel
+
+        Expect.equal sng.Difficulty (int testLevel.Difficulty) "Difficulty is same"
+        Expect.equal sng.Anchors.Length testLevel.Anchors.Count "Anchor count is same"
+        Expect.equal sng.HandShapes.Length 1 "Handshape count is correct"
+        Expect.equal sng.Arpeggios.Length 1 "Arpeggio count is correct"
+        Expect.equal sng.PhraseCount 1 "Phrase count is correct"
+        Expect.equal sng.Notes.Length 2 "Note count is correct"
   ]
