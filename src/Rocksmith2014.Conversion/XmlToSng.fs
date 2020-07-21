@@ -179,16 +179,6 @@ let convertHandshape (xmlHs:XML.HandShape) =
       FirstNoteTime = -1.f // TODO: Implement
       LastNoteTime = -1.f } // TODO: Implement
 
-let createNoteTimes (level:XML.Level) =
-    let chords =
-        level.Chords
-        |> Seq.map (fun c -> c.Time)
-    level.Notes
-    |> Seq.map (fun n -> n.Time)
-    |> Seq.append chords
-    |> Seq.sort
-    |> Seq.toArray
-
 let divideNoteTimesPerPhraseIteration (noteTimes:int[]) (arr:XML.InstrumentalArrangement) =
     arr.PhraseIterations
     |> Seq.mapi (fun i pi ->
@@ -214,8 +204,6 @@ let createFingerprintMap (noteTimes:int[]) (level:XML.Level) =
 
 /// Creates an SNG note mask for a single note.
 let createMaskForNote (note:XML.Note) =
-    // TODO: Is the left hand bit ever used?
-
     // Apply flags from properties not in the XML note mask
     let baseMask =
         NoteMask.Single
@@ -226,6 +214,7 @@ let createMaskForNote (note:XML.Note) =
         ||| if note.IsTap            then NoteMask.Tap            else NoteMask.None
         ||| if note.IsVibrato        then NoteMask.Vibrato        else NoteMask.None
         ||| if note.IsBend           then NoteMask.Bend           else NoteMask.None
+        ||| if note.LeftHand <> -1y  then NoteMask.LeftHand       else NoteMask.None
 
     // Apply flags from the XML note mask if needed
     if note.Mask = XML.NoteMask.None then

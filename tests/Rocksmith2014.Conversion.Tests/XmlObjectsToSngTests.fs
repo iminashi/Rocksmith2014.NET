@@ -49,6 +49,16 @@ let createTestArr () =
 
 let sharedAccData = XmlToSng.AccuData.Init (createTestArr())
 
+let createNoteTimes (level:XML.Level) =
+    let chords =
+        level.Chords
+        |> Seq.map (fun c -> c.Time)
+    level.Notes
+    |> Seq.map (fun n -> n.Time)
+    |> Seq.append chords
+    |> Seq.sort
+    |> Seq.toArray
+
 [<Tests>]
 let sngToXmlConversionTests =
   testList "XML Objects → SNG Objects" [
@@ -283,7 +293,7 @@ let sngToXmlConversionTests =
         let testArr = createTestArr()
         testArr.Levels.[0] <- testLevel
 
-        let noteTimes = XmlToSng.createNoteTimes testLevel
+        let noteTimes = createNoteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
         let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData testArr
 
@@ -327,7 +337,7 @@ let sngToXmlConversionTests =
         let testArr = createTestArr()
         testArr.Levels.[0] <- testLevel
 
-        let noteTimes = XmlToSng.createNoteTimes testLevel
+        let noteTimes = createNoteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
         let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData testArr
 
@@ -356,7 +366,7 @@ let sngToXmlConversionTests =
         let testArr = createTestArr()
         testArr.Levels.[0] <- testLevel
 
-        let noteTimes = XmlToSng.createNoteTimes testLevel
+        let noteTimes = createNoteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
         let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData testArr
 
@@ -387,6 +397,7 @@ let sngToXmlConversionTests =
                         SlideUnpitchTo = 5y,
                         Tap = 1y,
                         Vibrato = 40uy,
+                        LeftHand = 1y,
                         BendValues = ResizeArray(seq { BendValue(1000, 1.f) }))
 
         let testLevel = Level()
@@ -395,7 +406,7 @@ let sngToXmlConversionTests =
         let testArr = createTestArr()
         testArr.Levels.[0] <- testLevel
 
-        let noteTimes = XmlToSng.createNoteTimes testLevel
+        let noteTimes = createNoteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
         let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData testArr
 
@@ -408,6 +419,7 @@ let sngToXmlConversionTests =
         Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Tap) "Tapped note has tap flag"
         Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Vibrato) "Vibrato note has vibrato flag"
         Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.Bend) "Bend note has bend flag"
+        Expect.isTrue (sngNote.Mask ?= SNG.Types.NoteMask.LeftHand) "Note with left hand has left hand flag"
 
     testCase "Note (Link Next)" <| fun _ ->
         let parent = Note(Mask = NoteMask.LinkNext,
@@ -428,7 +440,7 @@ let sngToXmlConversionTests =
         let testArr = createTestArr()
         testArr.Levels.[0] <- testLevel
 
-        let noteTimes = XmlToSng.createNoteTimes testLevel
+        let noteTimes = createNoteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
         let convert = XmlToSng.convertNote() piNotes Map.empty sharedAccData testArr
 
@@ -453,7 +465,7 @@ let sngToXmlConversionTests =
         let testArr = createTestArr()
         testArr.Levels.[0] <- testLevel
 
-        let noteTimes = XmlToSng.createNoteTimes testLevel
+        let noteTimes = createNoteTimes testLevel
         let hs = XmlToSng.createFingerprintMap noteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
         let convert = XmlToSng.convertNote() piNotes hs sharedAccData testArr
@@ -476,7 +488,7 @@ let sngToXmlConversionTests =
         let testArr = createTestArr()
         testArr.Levels.[0] <- testLevel
 
-        let noteTimes = XmlToSng.createNoteTimes testLevel
+        let noteTimes = createNoteTimes testLevel
         let hs = XmlToSng.createFingerprintMap noteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
         let convert = XmlToSng.convertNote() piNotes hs sharedAccData testArr
@@ -518,7 +530,7 @@ let sngToXmlConversionTests =
         let testArr = createTestArr()
         testArr.Levels.[0] <- testLevel
 
-        let noteTimes = XmlToSng.createNoteTimes testLevel
+        let noteTimes = createNoteTimes testLevel
         let hs = XmlToSng.createFingerprintMap noteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
         let convert = XmlToSng.convertNote() piNotes hs sharedAccData testArr
@@ -542,7 +554,7 @@ let sngToXmlConversionTests =
         let testArr = createTestArr()
         testArr.Levels.[0] <- testLevel
 
-        let noteTimes = XmlToSng.createNoteTimes testLevel
+        let noteTimes = createNoteTimes testLevel
         let hs = XmlToSng.createFingerprintMap noteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
         let convert = XmlToSng.convertNote() piNotes hs sharedAccData testArr
@@ -568,7 +580,7 @@ let sngToXmlConversionTests =
         let testArr = createTestArr()
         testArr.Levels.[0] <- testLevel
 
-        let noteTimes = XmlToSng.createNoteTimes testLevel
+        let noteTimes = createNoteTimes testLevel
         let hs = XmlToSng.createFingerprintMap noteTimes testLevel
         let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
         let convert = XmlToSng.convertNote() piNotes hs sharedAccData testArr
