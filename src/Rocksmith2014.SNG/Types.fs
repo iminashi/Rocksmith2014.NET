@@ -146,27 +146,30 @@ type Chord =
 [<Struct>]
 type BendValue =
     { Time : float32
-      Step : float32 
-      Unk3 : int16
-      Unk4 : int8
-      Unk5 : int8 }
+      Step : float32 }
+      // Unknown values:
+      // (int16), always zero
+      // (int8), always zero
+      // (int8), random values, even on unused bend data for chord notes
 
     interface IBinaryWritable with
         member this.Write(writer) =
             writer.Write this.Time
             writer.Write this.Step
-            writer.Write this.Unk3
-            writer.Write this.Unk4
-            writer.Write this.Unk5
+            // Write zero for all unknown values
+            writer.Write 0
 
     static member Read(reader : BinaryReader) =
-        { Time = reader.ReadSingle()
-          Step = reader.ReadSingle()
-          Unk3 = reader.ReadInt16()
-          Unk4 = reader.ReadSByte()
-          Unk5 = reader.ReadSByte() }
+        let time = reader.ReadSingle()
+        let step = reader.ReadSingle()
+        // Read unknown values
+        reader.ReadInt32() |> ignore
 
-    static member Create(time, step) = { Time = time; Step = step; Unk3 = 0s; Unk4 = 0y; Unk5 = 0y}
+        { Time = time; Step = step }
+
+
+    static member Create(time, step) = { Time = time; Step = step }
+    static member Empty = { Time = 0.f; Step = 0.f }
 
 type BendData32 =
     { BendValues : BendValue[]
@@ -181,7 +184,9 @@ type BendData32 =
         { BendValues = Array.init 32 (fun _ -> BendValue.Read reader)
           UsedCount = reader.ReadInt32() }
 
-type ChordNote =
+    static member Empty = { BendValues = Array.replicate 32 BendValue.Empty; UsedCount = 0 }
+
+type ChordNotes =
     { Mask : NoteMask[]
       BendData : BendData32[]
       SlideTo : int8[]
@@ -734,7 +739,7 @@ type SNG =
     { Beats : Beat[]
       Phrases : Phrase[]
       Chords : Chord[]
-      ChordNotes : ChordNote[]
+      ChordNotes : ChordNotes[]
       Vocals : Vocal[]
       SymbolsHeaders : SymbolsHeader[]
       SymbolsTextures : SymbolsTexture[]
@@ -780,7 +785,7 @@ type SNG =
         let beats = read Beat.Read
         let phrases = read Phrase.Read
         let chords = read Chord.Read
-        let chordNotes = read ChordNote.Read
+        let chordNotes = read ChordNotes.Read
         let vocals = read Vocal.Read
 
         { Beats = beats

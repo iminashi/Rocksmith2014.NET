@@ -48,7 +48,7 @@ let roundTripTests =
           SlideUnpitchTo = Array.init 6 sbyte
           Vibrato = Array.init 6 int16 }
       
-      testEqual ChordNote.Read cn
+      testEqual ChordNotes.Read cn
 
     testProp "Vocal" <| testEqual Vocal.Read
     testProp "Symbols Header" <| testEqual SymbolsHeader.Read
@@ -147,7 +147,7 @@ let roundTripTests =
           Vibrato = 80s
           Sustain = 44.0f
           MaxBend = 1.0f
-          BendData = Array.init 2 (fun i -> { Time = 66.66f; Step = 1.f / float32 i; Unk3 = 0s; Unk4 = 0y; Unk5 = 0y }) }
+          BendData = Array.init 2 (fun i -> { Time = 66.66f; Step = 1.f / float32 i }) }
       
       testEqual Note.Read n
 

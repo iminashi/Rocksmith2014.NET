@@ -9,7 +9,8 @@ open System.Collections.Generic
 /// Represents data that is being accumulated when mapping XML notes/chords into SNG notes.
 type AccuData =
     { StringMasks : int8[,]
-      ChordNotes : ResizeArray<ChordNote>
+      ChordNotes : ResizeArray<ChordNotes>
+      ChordNotesMap : Dictionary<int, int>
       AnchorExtensions : ResizeArray<AnchorExtension>
       NotesInPhraseIterationsExclIgnore : uint16[]
       NotesInPhraseIterationsAll : uint16[] }
@@ -25,6 +26,7 @@ type AccuData =
               { StringMasks = Array2D.zeroCreate (arr.Sections.Count) 36
                 ChordNotes = ResizeArray()
                 AnchorExtensions = ResizeArray()
+                ChordNotesMap = Dictionary()
                 NotesInPhraseIterationsExclIgnore = Array.zeroCreate (arr.PhraseIterations.Count)
                 NotesInPhraseIterationsAll = Array.zeroCreate (arr.PhraseIterations.Count) }
 
@@ -100,10 +102,7 @@ let convertChord (xmlChord:XML.ChordTemplate) =
 
 let convertBendValue (xmlBv:XML.BendValue) =
     { Time = msToSec xmlBv.Time
-      Step = xmlBv.Step
-      Unk3 = 0s
-      Unk4 = 0y
-      Unk5 = 0y }
+      Step = xmlBv.Step }
 
 let convertPhraseIteration index (xml:XML.InstrumentalArrangement) (xmlPi:XML.PhraseIteration) =
     let endTime =
@@ -202,6 +201,43 @@ let createFingerprintMap (noteTimes:int[]) (level:XML.Level) =
     |> Seq.map toSet
     |> Map.ofSeq
 
+let xmlCnMask = XML.NoteMask.LinkNext ||| XML.NoteMask.Accent ||| XML.NoteMask.Tremolo 
+                ||| XML.NoteMask.FretHandMute ||| XML.NoteMask.HammerOn ||| XML.NoteMask.Harmonic
+                ||| XML.NoteMask.PalmMute ||| XML.NoteMask.PinchHarmonic ||| XML.NoteMask.Pluck
+                ||| XML.NoteMask.PullOff ||| XML.NoteMask.Slap
+
+let createMaskForChordNote (note:XML.Note) =
+    // Not used for chord notes: Right Hand, Ignore, Left Hand
+    // Supported by the game, although not possible in official files: Tap, Pluck, Slap
+
+    // Apply flags from properties not in the XML note mask
+    let baseMask =
+        NoteMask.None
+        ||| if note.Fret = 0y        then NoteMask.Open           else NoteMask.None
+        ||| if note.Sustain > 0      then NoteMask.Sustain        else NoteMask.None
+        ||| if note.IsSlide          then NoteMask.Slide          else NoteMask.None
+        ||| if note.IsUnpitchedSlide then NoteMask.UnpitchedSlide else NoteMask.None
+        ||| if note.IsVibrato        then NoteMask.Vibrato        else NoteMask.None
+        ||| if note.IsBend           then NoteMask.Bend           else NoteMask.None
+        ||| if note.IsTap            then NoteMask.Tap            else NoteMask.None
+
+    // Apply flags from the XML note mask if needed
+    if (note.Mask &&& xmlCnMask) = XML.NoteMask.None then
+        baseMask
+    else
+        baseMask
+        ||| if note.IsLinkNext      then NoteMask.Parent        else NoteMask.None
+        ||| if note.IsAccent        then NoteMask.Accent        else NoteMask.None
+        ||| if note.IsTremolo       then NoteMask.Tremolo       else NoteMask.None
+        ||| if note.IsFretHandMute  then NoteMask.Mute          else NoteMask.None
+        ||| if note.IsHammerOn      then NoteMask.HammerOn      else NoteMask.None
+        ||| if note.IsHarmonic      then NoteMask.Harmonic      else NoteMask.None
+        ||| if note.IsPalmMute      then NoteMask.PalmMute      else NoteMask.None
+        ||| if note.IsPinchHarmonic then NoteMask.PinchHarmonic else NoteMask.None
+        ||| if note.IsPluck         then NoteMask.Pluck         else NoteMask.None
+        ||| if note.IsPullOff       then NoteMask.PullOff       else NoteMask.None
+        ||| if note.IsSlap          then NoteMask.Slap          else NoteMask.None
+    
 /// Creates an SNG note mask for a single note.
 let createMaskForNote (note:XML.Note) =
     // Apply flags from properties not in the XML note mask
@@ -249,7 +285,7 @@ let isStrum (chord:XML.Chord) =
     | _ -> true
 
 /// Creates an SNG note mask for a chord.
-let createMaskForChord (template:XML.ChordTemplate) sustain (chord:XML.Chord) =
+let createMaskForChord (template:XML.ChordTemplate) sustain chordNoteId (chord:XML.Chord) =
     // Apply flags from properties not in the XML chord mask
     let baseMask =
         NoteMask.Chord
@@ -257,7 +293,7 @@ let createMaskForChord (template:XML.ChordTemplate) sustain (chord:XML.Chord) =
         ||| if isStrum chord         then NoteMask.Strum      else NoteMask.None
         ||| if template.IsArpeggio   then NoteMask.Arpeggio   else NoteMask.None
         ||| if sustain > 0.f         then NoteMask.Sustain    else NoteMask.None
-        // TODO: ChordNotes
+        ||| if chordNoteId <> -1     then NoteMask.ChordNotes else NoteMask.None
 
     // Apply flags from the XML chord mask if needed
     if chord.Mask = XML.ChordMask.None then
@@ -278,7 +314,8 @@ let createFlag (lastNote:ValueOption<Note>) anchorFret noteFret =
     | ValueSome note ->
         if note.AnchorFretId <> anchorFret && noteFret <> 0y then 1u else 0u
 
-let hashNote note = hash note |> uint32
+let private hashNote note = hash note |> uint32
+let private hashChordNotes cn = hash cn
 
 type XmlEntity =
     | XmlNote of XML.Note
@@ -288,19 +325,80 @@ let getTimeCode = function
     | XmlNote xn -> xn.Time
     | XmlChord xc -> xc.Time
 
+let createBendData32 (note:XML.Note) =
+    let usedCount = note.BendValues.Count
+    let bv = Array.init 32 (fun i -> 
+        if i < usedCount then
+            convertBendValue note.BendValues.[i]
+        else
+            BendValue.Empty)
+
+    { BendValues = bv
+      UsedCount = usedCount }
+
+let createChordNotesMask (chordNotes : ResizeArray<XML.Note>) =
+    let masks = Array.zeroCreate<NoteMask> 6
+    for note in chordNotes do
+        let strIndex = int note.String
+
+        masks.[strIndex] <- createMaskForChordNote note
+    masks
+
+let createChordNotes (accuData:AccuData) (chord:XML.Chord) =
+    match chord.ChordNotes with
+    | null -> -1
+    | xmlChordNotes ->
+        // Convert the masks first to check if the chord notes need to be created at all
+        let masks = createChordNotesMask xmlChordNotes
+        if Array.forall (fun m -> m = NoteMask.None) masks then
+            -1
+        else
+            let slideTo = Array.zeroCreate<int8> 6
+            let slideUnpitchTo = Array.zeroCreate<int8> 6
+            let vibrato = Array.zeroCreate<int16> 6
+            let bendDict = Dictionary<int, BendData32>()
+
+            for note in xmlChordNotes do
+                let strIndex = int note.String
+
+                slideTo.[strIndex] <- note.SlideTo
+                slideUnpitchTo.[strIndex] <- note.SlideUnpitchTo
+                vibrato.[strIndex] <- int16 note.Vibrato
+
+                if note.IsBend then
+                    bendDict.Add(strIndex, createBendData32 note)
+
+            let bendData = Array.init<BendData32> 6 (fun i ->
+                if bendDict.ContainsKey(i) then
+                    bendDict.[i]
+                else
+                    BendData32.Empty)
+
+            let chordNotes =
+                { Mask = masks; BendData = bendData; SlideTo = slideTo; SlideUnpitchTo = slideUnpitchTo; Vibrato = vibrato }
+
+            let hash = hashChordNotes chordNotes
+            if accuData.ChordNotesMap.ContainsKey(hash) then
+                accuData.ChordNotesMap.[hash]
+            else
+                let id = accuData.ChordNotes.Count
+                accuData.ChordNotes.Add(chordNotes)
+                accuData.ChordNotesMap.Add(hash, id)
+                id
+
 /// Returns a function that is valid for converting notes in a single difficulty level.
 let convertNote () =
     // Dictionary of link-next parent notes in need of a child note.
     // Mapping: string number => index of note in phrase iteration
     let pendingLinkNexts = Dictionary<int8, int16>()
-    let mutable lastNote : ValueOption<Note> = ValueNone
+    let mutable previousNote : ValueOption<Note> = ValueNone
 
-    fun (noteTimes:int[][])
-        (fingerPrintMap:Map<int16,Set<int>>)
-        (accuData:AccuData)
-        (xml:XML.InstrumentalArrangement)
-        (difficulty:int)
-        (xmlEnt:XmlEntity) ->
+    fun (noteTimes : int[][])
+        (fingerPrintMap : Map<int16,Set<int>>)
+        (accuData : AccuData)
+        (xml : XML.InstrumentalArrangement)
+        (difficulty : int)
+        (xmlEnt : XmlEntity) ->
 
         let level = xml.Levels.[difficulty]
         let timeCode = getTimeCode xmlEnt
@@ -330,6 +428,7 @@ let convertNote () =
 
         let data =
             match xmlEnt with
+            // XML Notes
             | XmlNote note ->
                 let parentNote =
                     let mutable id = -1s
@@ -360,19 +459,22 @@ let convertNote () =
                    Pluck = if note.IsPluck then 1y else -1y
                    Vibrato = int16 note.Vibrato; Sustain = msToSec note.Sustain; MaxBend = note.MaxBend |}
             
+            // XML Chords
             | XmlChord chord ->
+                let chordNoteId = createChordNotes accuData chord
                 let template = xml.ChordTemplates.[int chord.ChordId]
                 let sustain =
                     match chord.ChordNotes with
                     | null -> 0.f
                     | cn when cn.Count = 0 -> 0.f
                     | cn -> msToSec cn.[0].Sustain
-                let mask = createMaskForChord template sustain chord
+                let mask = createMaskForChord template sustain chordNoteId chord
 
-                {| String = -1y; Fret = -1y; Mask = mask; ChordId = int chord.ChordId; ChordNoteId = 99999; Parent = -1s;
-                   BendValues = [||]; SlideTo = -1y; UnpSlide = -1y;
+                {| Mask = mask; ChordId = int chord.ChordId; ChordNoteId = chordNoteId; Sustain = sustain;
+                   // Other values are not applicable to chords
+                   String = -1y; Fret = -1y; Parent = -1s; BendValues = [||]; SlideTo = -1y; UnpSlide = -1y;
                    LeftHand = -1y; Tap = -1y; PickDirection = -1y; Slap = -1y; Pluck = -1y
-                   Vibrato = 0s; Sustain = sustain; MaxBend = 0.f |}
+                   Vibrato = 0s; MaxBend = 0.f |}
 
         let initialNote =
             { Mask = data.Mask
@@ -404,21 +506,21 @@ let convertNote () =
               BendData = data.BendValues }
 
         accuData.AddNote(piId, (data.Mask &&& NoteMask.Ignore) <> NoteMask.None)
-        lastNote <- ValueSome initialNote
+        previousNote <- ValueSome initialNote
 
         { initialNote with
             Hash = hashNote initialNote
-            Flags = createFlag lastNote anchor.Fret data.Fret
+            Flags = createFlag previousNote anchor.Fret data.Fret
             NextIterNote = next
             PrevIterNote = prev
             ParentPrevNote = data.Parent }
 
 let private eventToDNA (event:XML.Event) =
     match event.Code with
-    | "dna_none" -> Some({ DnaId = 0; Time = msToSec event.Time })
-    | "dna_solo" -> Some({ DnaId = 1; Time = msToSec event.Time })
-    | "dna_riff" -> Some({ DnaId = 2; Time = msToSec event.Time })
-    | "dna_chord" -> Some({ DnaId = 3; Time = msToSec event.Time })
+    | "dna_none"  -> Some { DnaId = 0; Time = msToSec event.Time }
+    | "dna_solo"  -> Some { DnaId = 1; Time = msToSec event.Time }
+    | "dna_riff"  -> Some { DnaId = 2; Time = msToSec event.Time }
+    | "dna_chord" -> Some { DnaId = 3; Time = msToSec event.Time }
     | _ -> None
 
 let createDNAs (xml:XML.InstrumentalArrangement) =
