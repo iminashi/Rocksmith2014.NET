@@ -449,6 +449,13 @@ let convertNote () =
                     ||| if parentNote <> -1s        then NoteMask.Child    else NoteMask.None
                     ||| if fingerPrintId.[1] <> -1s then NoteMask.Arpeggio else NoteMask.None
 
+                // Create anchor extension if needed
+                if note.IsSlide then
+                    let ax = 
+                        { BeatTime = msToSec (timeCode + note.Sustain)
+                          FretId = note.SlideTo }
+                    accuData.AnchorExtensions.Add(ax)
+
                 let pickDir =
                     if (note.Mask &&& XML.NoteMask.PickDirection) <> XML.NoteMask.None then 1y else -1y
 
@@ -469,6 +476,7 @@ let convertNote () =
                     | cn when cn.Count = 0 -> 0.f
                     | cn -> msToSec cn.[0].Sustain
                 let mask = createMaskForChord template sustain chordNoteId chord
+                // TODO: Arpeggio flag for a regular chord inside an arpeggio?
 
                 {| Mask = mask; ChordId = int chord.ChordId; ChordNoteId = chordNoteId; Sustain = sustain;
                    // Other values are not applicable to chords

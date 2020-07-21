@@ -633,5 +633,23 @@ let sngToXmlConversionTests =
         Expect.equal accuData.ChordNotes.Count 0 "No chord notes object created"
         Expect.isFalse (sng.Mask ?= SNG.Types.NoteMask.ChordNotes) "Chord notes flag is not set"
 
+    testCase "Anchor extensions are created for slide notes" <| fun _ ->
+        let note = Note(Time = 1100, Sustain = 200, SlideTo = 8y)
+
+        let testArr = createTestArr()
+        let testLevel = Level()
+        testLevel.Notes.Add(note)
+        testLevel.Anchors.Add(Anchor(12y, 1000))
+        testArr.Levels.[0] <- testLevel
+
+        let accuData = XmlToSng.AccuData.Init(testArr)
+        let convert = createNoteConvertFunction accuData testArr testLevel
+
+        let sng = convert 0 (XmlToSng.XmlNote note)
+
+        Expect.equal accuData.AnchorExtensions.Count 1 "Anchor extension was created"
+        Expect.equal accuData.AnchorExtensions.[0].BeatTime 1.3f "Time is correct"
+        Expect.equal accuData.AnchorExtensions.[0].FretId note.SlideTo "Time is correct"
+
     //TODO: Test AccuData
   ]
