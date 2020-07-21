@@ -158,10 +158,11 @@ let convertSection index (xml:XML.InstrumentalArrangement) (xmlSection:XML.Secti
       EndPhraseIterationId = endPi
       StringMask = Array.zeroCreate 36 } // TODO: Implement
 
-let convertAnchor (level:XML.Level) (xml:XML.InstrumentalArrangement) index (xmlAnchor:XML.Anchor) =
+let convertAnchor (noteTimes:int array) (level:XML.Level) (xml:XML.InstrumentalArrangement) index (xmlAnchor:XML.Anchor) =
+    // Uninitialized values found in anchors that have no notes
     let uninitFirstNote = 3.4028234663852886e+38f
     let uninitLastNote = 1.1754943508222875e-38f
-    
+ 
     let endTime =
         if index = level.Anchors.Count - 1 then
             // Use time of last phrase iteration (should be END)
@@ -169,10 +170,21 @@ let convertAnchor (level:XML.Level) (xml:XML.InstrumentalArrangement) index (xml
         else
             level.Anchors.[index + 1].Time
 
+    let notesInAnchor =
+        noteTimes
+        |> Seq.skipWhile (fun t -> t < xmlAnchor.Time)
+        |> Seq.takeWhile (fun t -> t < endTime )
+        |> Seq.toArray
+
+    let firstNoteTime, lastNoteTime =
+        match notesInAnchor with
+        | [||] -> uninitFirstNote, uninitLastNote
+        | arr -> msToSec (Array.head arr), msToSec (Array.last arr)
+
     { StartTime = msToSec xmlAnchor.Time
       EndTime = msToSec endTime
-      FirstNoteTime = uninitFirstNote // TODO: Implement
-      LastNoteTime = uninitLastNote // TODO: Implement
+      FirstNoteTime = firstNoteTime
+      LastNoteTime = lastNoteTime
       FretId = xmlAnchor.Fret
       Width = int xmlAnchor.Width
       PhraseIterationId = findPhraseIterationId xmlAnchor.Time xml.PhraseIterations }
@@ -195,7 +207,7 @@ let divideNoteTimesPerPhraseIteration (noteTimes:int[]) (arr:XML.InstrumentalArr
         let endTime = if i = arr.PhraseIterations.Count - 1 then arr.SongLength else arr.PhraseIterations.[i + 1].Time
         noteTimes
         |> Seq.skipWhile (fun t -> t < pi.Time)
-        |> Seq.takeWhile (fun t -> t >= pi.Time && t < endTime)
+        |> Seq.takeWhile (fun t -> t < endTime)
         |> Seq.toArray)
     |> Seq.toArray
 
@@ -204,7 +216,7 @@ let createFingerprintMap (noteTimes:int[]) (level:XML.Level) =
         let times =
             noteTimes
             |> Seq.skipWhile (fun t -> t < hs.StartTime)
-            |> Seq.takeWhile (fun t -> t >= hs.StartTime && t < hs.EndTime)
+            |> Seq.takeWhile (fun t -> t < hs.EndTime)
             |> Set.ofSeq
         hs.ChordId, times
     
@@ -589,7 +601,7 @@ let convertLevel (accuData:AccuData) (xmlArr:XML.InstrumentalArrangement) (xmlLe
     let anchors =
         xmlLevel.Anchors
         |> Stream.ofResizeArray
-        |> Stream.mapi (convertAnchor xmlLevel xmlArr)
+        |> Stream.mapi (convertAnchor noteTimes xmlLevel xmlArr)
         |> Stream.toArray
 
     let isArpeggio (hs:XML.HandShape) = xmlArr.ChordTemplates.[int hs.ChordId].IsArpeggio

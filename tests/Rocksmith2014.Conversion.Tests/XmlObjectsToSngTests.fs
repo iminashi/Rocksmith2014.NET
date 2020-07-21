@@ -259,18 +259,20 @@ let sngToXmlConversionTests =
         // TODO: Test string mask
 
     testCase "Anchor" <| fun _ ->
-        let a = Anchor(1y, 2000, 5y)
         let i = 0
         let testArr = createTestArr()
+        let a = testArr.Levels.[0].Anchors.[i]
+        let noteTimes = [| 1000; 1500; 2100; 3000 |]
 
-        let sng = XmlToSng.convertAnchor testArr.Levels.[0] testArr i a
+        let sng = XmlToSng.convertAnchor noteTimes testArr.Levels.[0] testArr i a
 
         Expect.equal sng.FretId a.Fret "Fret is same"
         Expect.equal sng.Width (int a.Width) "Width is same"
         Expect.equal sng.StartTime (timeConversion a.Time) "Start time is same"
         Expect.equal sng.EndTime (timeConversion (testArr.Levels.[0].Anchors.[i + 1].Time)) "End time is correct"
-        Expect.equal sng.PhraseIterationId 1 "Phrase iteration ID is correct"
-        // TODO: Test first/last note times
+        Expect.equal sng.PhraseIterationId 0 "Phrase iteration ID is correct"
+        Expect.equal sng.FirstNoteTime 1.f "First note time is correct"
+        Expect.equal sng.LastNoteTime 1.5f "Last note time is correct"
 
     testCase "Hand Shape" <| fun _ ->
         let hs = HandShape(1s, 222, 333)
