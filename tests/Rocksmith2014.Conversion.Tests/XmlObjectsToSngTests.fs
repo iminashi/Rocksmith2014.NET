@@ -263,7 +263,7 @@ let sngToXmlConversionTests =
         let i = 0
         let testArr = createTestArr()
 
-        let sng = XmlToSng.convertAnchor i testArr.Levels.[0] testArr a
+        let sng = XmlToSng.convertAnchor testArr.Levels.[0] testArr i a
 
         Expect.equal sng.FretId a.Fret "Fret is same"
         Expect.equal sng.Width (int a.Width) "Width is same"
@@ -274,13 +274,16 @@ let sngToXmlConversionTests =
 
     testCase "Hand Shape" <| fun _ ->
         let hs = HandShape(1s, 222, 333)
+        let noteTimes = Set(seq { 250; 222; 300; 280 })
+        let fpMap = Map(seq { 1s, noteTimes })
 
-        let sng = XmlToSng.convertHandshape hs
+        let sng = XmlToSng.convertHandshape fpMap hs
 
         Expect.equal sng.ChordId (int hs.ChordId) "Chord ID is same"
         Expect.equal sng.StartTime (timeConversion hs.StartTime) "Start time is same"
         Expect.equal sng.EndTime (timeConversion hs.EndTime) "End time is same"
-        // TODO: Test first/last note times
+        Expect.equal sng.FirstNoteTime 0.222f "First note time is correct"
+        Expect.equal sng.LastNoteTime 0.3f "Last note time is correct"
 
     testCase "Note" <| fun _ ->
         let note = Note(Mask = NoteMask.Pluck,

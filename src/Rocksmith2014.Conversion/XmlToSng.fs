@@ -158,7 +158,7 @@ let convertSection index (xml:XML.InstrumentalArrangement) (xmlSection:XML.Secti
       EndPhraseIterationId = endPi
       StringMask = Array.zeroCreate 36 } // TODO: Implement
 
-let convertAnchor index (level:XML.Level) (xml:XML.InstrumentalArrangement) (xmlAnchor:XML.Anchor) =
+let convertAnchor (level:XML.Level) (xml:XML.InstrumentalArrangement) index (xmlAnchor:XML.Anchor) =
     let uninitFirstNote = 3.4028234663852886e+38f
     let uninitLastNote = 1.1754943508222875e-38f
     
@@ -177,12 +177,17 @@ let convertAnchor index (level:XML.Level) (xml:XML.InstrumentalArrangement) (xml
       Width = int xmlAnchor.Width
       PhraseIterationId = findPhraseIterationId xmlAnchor.Time xml.PhraseIterations }
 
-let convertHandshape (xmlHs:XML.HandShape) =
+let convertHandshape (fingerPrintMap : Map<int16,Set<int>>) (xmlHs:XML.HandShape) =
+    let firstNoteTime, lastNoteTime =
+        match fingerPrintMap |> Map.tryFind xmlHs.ChordId with
+        | Some set when not set.IsEmpty -> msToSec set.MinimumElement, msToSec set.MaximumElement
+        | _ -> -1.f, -1.f
+
     { ChordId = int xmlHs.ChordId
       StartTime = msToSec xmlHs.StartTime
       EndTime = msToSec xmlHs.EndTime
-      FirstNoteTime = -1.f // TODO: Implement
-      LastNoteTime = -1.f } // TODO: Implement
+      FirstNoteTime = firstNoteTime
+      LastNoteTime = lastNoteTime }
 
 let divideNoteTimesPerPhraseIteration (noteTimes:int[]) (arr:XML.InstrumentalArrangement) =
     arr.PhraseIterations
@@ -283,7 +288,7 @@ let isDoubleStop (template:XML.ChordTemplate) =
         |> Seq.filter (fun f -> f <> -1y)
         |> Seq.length
     frets = 2
-
+    
 let isStrum (chord:XML.Chord) =
     match chord.ChordNotes with
     | null -> false
@@ -566,31 +571,8 @@ let convertLevel (accuData:AccuData) (xmlArr:XML.InstrumentalArrangement) (xmlLe
 
     let difficulty = int xmlLevel.Difficulty
 
-    let anchors =
-        xmlLevel.Anchors
-        |> Stream.ofResizeArray
-        |> Stream.mapi (fun i a -> convertAnchor i xmlLevel xmlArr a)
-        |> Stream.toArray
-
-    let isArpeggio (hs:XML.HandShape) = xmlArr.ChordTemplates.[int hs.ChordId].IsArpeggio
-
-    let handShapes =
-        xmlLevel.HandShapes
-        |> Stream.ofResizeArray
-        |> Stream.filter (isArpeggio >> not)
-        |> Stream.map convertHandshape
-        |> Stream.toArray
-
-    let arpeggios =
-        xmlLevel.HandShapes
-        |> Stream.ofResizeArray
-        |> Stream.filter isArpeggio
-        |> Stream.map convertHandshape
-        |> Stream.toArray
-
     let xmlEntities =
         let chords = xmlLevel.Chords |> Seq.map XmlChord
-
         xmlLevel.Notes
         |> Seq.map XmlNote
         |> Seq.append chords
@@ -603,6 +585,29 @@ let convertLevel (accuData:AccuData) (xmlArr:XML.InstrumentalArrangement) (xmlLe
     let convertNote' = convertNote() piNotes fpMap accuData xmlArr difficulty
 
     let notes = xmlEntities |> Array.map convertNote'
+
+    let anchors =
+        xmlLevel.Anchors
+        |> Stream.ofResizeArray
+        |> Stream.mapi (convertAnchor xmlLevel xmlArr)
+        |> Stream.toArray
+
+    let isArpeggio (hs:XML.HandShape) = xmlArr.ChordTemplates.[int hs.ChordId].IsArpeggio
+    let convertHandshape' = convertHandshape fpMap
+
+    let handShapes =
+        xmlLevel.HandShapes
+        |> Stream.ofResizeArray
+        |> Stream.filter (isArpeggio >> not)
+        |> Stream.map convertHandshape'
+        |> Stream.toArray
+
+    let arpeggios =
+        xmlLevel.HandShapes
+        |> Stream.ofResizeArray
+        |> Stream.filter isArpeggio
+        |> Stream.map convertHandshape'
+        |> Stream.toArray
 
     let tryAverage = function
         | [||] -> 0.f
