@@ -543,6 +543,7 @@ let sngToXmlConversionTests =
         Expect.isFalse (sng.Mask ?= SNG.Types.NoteMask.DoubleStop) "Double stop flag is not set"
         Expect.isFalse (sng.Mask ?= SNG.Types.NoteMask.Arpeggio) "Arpeggio flag is not set"
         Expect.isTrue (sng.Mask ?= SNG.Types.NoteMask.Strum) "Strum flag is set"
+        Expect.isTrue (sng.Mask ?= SNG.Types.NoteMask.Sustain) "Sustain flag is set"
 
     testCase "Chord (Double stop, arpeggio, no chord notes)" <| fun _ ->
         let chord = Chord(Time = 1250, ChordId = 1s)

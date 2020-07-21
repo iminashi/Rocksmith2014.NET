@@ -249,14 +249,15 @@ let isStrum (chord:XML.Chord) =
     | _ -> true
 
 /// Creates an SNG note mask for a chord.
-let createMaskForChord (template:XML.ChordTemplate) (chord:XML.Chord) =
+let createMaskForChord (template:XML.ChordTemplate) sustain (chord:XML.Chord) =
     // Apply flags from properties not in the XML chord mask
     let baseMask =
         NoteMask.Chord
         ||| if isDoubleStop template then NoteMask.DoubleStop else NoteMask.None
         ||| if isStrum chord         then NoteMask.Strum      else NoteMask.None
         ||| if template.IsArpeggio   then NoteMask.Arpeggio   else NoteMask.None
-        // TODO: ChordNotes, Sustain
+        ||| if sustain > 0.f         then NoteMask.Sustain    else NoteMask.None
+        // TODO: ChordNotes
 
     // Apply flags from the XML chord mask if needed
     if chord.Mask = XML.ChordMask.None then
@@ -361,12 +362,12 @@ let convertNote () =
             
             | XmlChord chord ->
                 let template = xml.ChordTemplates.[int chord.ChordId]
-                let mask = createMaskForChord template chord
                 let sustain =
                     match chord.ChordNotes with
                     | null -> 0.f
                     | cn when cn.Count = 0 -> 0.f
                     | cn -> msToSec cn.[0].Sustain
+                let mask = createMaskForChord template sustain chord
 
                 {| String = -1y; Fret = -1y; Mask = mask; ChordId = int chord.ChordId; ChordNoteId = 99999; Parent = -1s;
                    BendValues = [||]; SlideTo = -1y; UnpSlide = -1y;
