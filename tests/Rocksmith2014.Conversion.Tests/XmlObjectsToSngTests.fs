@@ -654,7 +654,8 @@ let sngToXmlConversionTests =
 
     testCase "Level" <| fun _ ->
         let testArr = createTestArr()
-        testArr.Phrases.Add(Phrase())
+        testArr.Phrases.Add(Phrase("default", 0uy, PhraseMask.None))
+        testArr.Phrases.Add(Phrase("phrase1", 0uy, PhraseMask.None))
         let testLevel = testArr.Levels.[0]
         testLevel.HandShapes.Add(HandShape(0s, 1000, 1200))
         testLevel.HandShapes.Add(HandShape(1s, 1000, 1200))
@@ -668,6 +669,7 @@ let sngToXmlConversionTests =
         Expect.equal sng.Anchors.Length testLevel.Anchors.Count "Anchor count is same"
         Expect.equal sng.HandShapes.Length 1 "Handshape count is correct"
         Expect.equal sng.Arpeggios.Length 1 "Arpeggio count is correct"
-        Expect.equal sng.PhraseCount 1 "Phrase count is correct"
+        Expect.equal sng.AverageNotesPerIteration.Length testArr.Phrases.Count "Phrase count is correct"
         Expect.equal sng.Notes.Length 2 "Note count is correct"
+        Expect.equal sng.AverageNotesPerIteration.[1] 1.f "Average notes in phrase #2 is one (two notes / two iterations)"
   ]

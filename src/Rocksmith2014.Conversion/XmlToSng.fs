@@ -13,7 +13,7 @@ type AccuData =
       ChordNotes : ResizeArray<ChordNotes>
       ChordNotesMap : Dictionary<int, int>
       AnchorExtensions : ResizeArray<AnchorExtension>
-      NotesInPhraseIterationsExclIgnore : int[]
+      NotesInPhraseIterationsExclIgnored : int[]
       NotesInPhraseIterationsAll : int[] }
 
     with
@@ -21,19 +21,19 @@ type AccuData =
              this.NotesInPhraseIterationsAll.[pi] <- this.NotesInPhraseIterationsAll.[pi] + 1
 
              if not ignored then
-                this.NotesInPhraseIterationsExclIgnore.[pi] <- this.NotesInPhraseIterationsExclIgnore.[pi] + 1
+                this.NotesInPhraseIterationsExclIgnored.[pi] <- this.NotesInPhraseIterationsExclIgnored.[pi] + 1
 
         member this.Reset() =
             this.AnchorExtensions.Clear()
             Array.Clear(this.NotesInPhraseIterationsAll, 0, this.NotesInPhraseIterationsAll.Length)
-            Array.Clear(this.NotesInPhraseIterationsExclIgnore, 0, this.NotesInPhraseIterationsExclIgnore.Length)
+            Array.Clear(this.NotesInPhraseIterationsExclIgnored, 0, this.NotesInPhraseIterationsExclIgnored.Length)
 
         static member Init(arr:XML.InstrumentalArrangement) =
               { StringMasks = Array2D.zeroCreate (arr.Sections.Count) 36
                 ChordNotes = ResizeArray()
                 AnchorExtensions = ResizeArray()
                 ChordNotesMap = Dictionary()
-                NotesInPhraseIterationsExclIgnore = Array.zeroCreate (arr.PhraseIterations.Count)
+                NotesInPhraseIterationsExclIgnored = Array.zeroCreate (arr.PhraseIterations.Count)
                 NotesInPhraseIterationsAll = Array.zeroCreate (arr.PhraseIterations.Count) }
 
 /// Finds the index of the phrase iteration that contains the given time code.
@@ -433,6 +433,7 @@ let convertNote () =
             | None -> [| -1s; -1s |]
 
         // TODO: String masks for sections
+        // TODO: Count notes for easy, medium, hard
 
         let data =
             match xmlEnt with
@@ -603,15 +604,26 @@ let convertLevel (accuData:AccuData) (xmlArr:XML.InstrumentalArrangement) (xmlLe
 
     let notes = xmlEntities |> Array.map convertNote'
 
+    let tryAverage = function
+        | [||] -> 0.f
+        | arr -> arr |> Array.average
+
+    let averageNotes =
+        let piNotes = 
+            accuData.NotesInPhraseIterationsAll 
+            |> Array.indexed
+        Array.init xmlArr.Phrases.Count (fun i ->
+            piNotes
+            |> Array.filter (fun v -> xmlArr.PhraseIterations.[fst v].PhraseId = i)
+            |> Array.map (snd >> float32)
+            |> tryAverage)
+
     { Difficulty = difficulty
       Anchors = anchors
       AnchorExtensions = accuData.AnchorExtensions.ToArray()
       HandShapes = handShapes
       Arpeggios = arpeggios
       Notes = notes
-      PhraseCount = xmlArr.Phrases.Count
-      AverageNotesPerIteration = [||] // TODO
-      PhraseIterationCount1 = accuData.NotesInPhraseIterationsExclIgnore.Length
-      NotesInIteration1 = accuData.NotesInPhraseIterationsExclIgnore
-      PhraseIterationCount2 = accuData.NotesInPhraseIterationsAll.Length
-      NotesInIteration2 = accuData.NotesInPhraseIterationsAll }
+      AverageNotesPerIteration = averageNotes
+      NotesInPhraseIterationsExclIgnored = accuData.NotesInPhraseIterationsExclIgnored
+      NotesInPhraseIterationsAll = accuData.NotesInPhraseIterationsAll }

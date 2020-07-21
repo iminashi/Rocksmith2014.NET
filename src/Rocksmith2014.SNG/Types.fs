@@ -503,7 +503,6 @@ type AnchorExtension =
       // (int16), always zero
       // (int8),  always zero
 
-
     interface IBinaryWritable with
         member this.Write(writer) =
             writer.Write this.BeatTime
@@ -640,12 +639,9 @@ type Level =
       HandShapes : FingerPrint[]
       Arpeggios : FingerPrint[]
       Notes : Note[]
-      PhraseCount : int32
       AverageNotesPerIteration : float32[]
-      PhraseIterationCount1 : int32
-      NotesInIteration1 : int32[]
-      PhraseIterationCount2 : int32
-      NotesInIteration2 : int32[] }
+      NotesInPhraseIterationsExclIgnored : int32[]
+      NotesInPhraseIterationsAll : int32[] }
 
     interface IBinaryWritable with
         member this.Write(writer) =
@@ -655,41 +651,23 @@ type Level =
             writeArray writer this.HandShapes
             writeArray writer this.Arpeggios
             writeArray writer this.Notes
-            writer.Write this.PhraseCount
+            writer.Write this.AverageNotesPerIteration.Length
             this.AverageNotesPerIteration |> Array.iter writer.Write
-            writer.Write this.PhraseIterationCount1
-            this.NotesInIteration1 |> Array.iter writer.Write
-            writer.Write this.PhraseIterationCount2
-            this.NotesInIteration2 |> Array.iter writer.Write
+            writer.Write this.NotesInPhraseIterationsExclIgnored.Length
+            this.NotesInPhraseIterationsExclIgnored |> Array.iter writer.Write
+            writer.Write this.NotesInPhraseIterationsAll.Length
+            this.NotesInPhraseIterationsAll |> Array.iter writer.Write
 
     static member Read(reader : BinaryReader) =
-        let diff = reader.ReadInt32()
-        let anchors = readArray reader Anchor.Read
-        let anchorExts = readArray reader AnchorExtension.Read
-        let handshapes = readArray reader FingerPrint.Read
-        let arpeggios = readArray reader FingerPrint.Read
-        let notes = readArray reader Note.Read
-        let phraseCount = reader.ReadInt32()
-        let avn = Array.init phraseCount (fun _ -> reader.ReadSingle())
-
-        let phraseICount1 = reader.ReadInt32()
-        let npi1 = Array.init phraseICount1 (fun _ -> reader.ReadInt32())
-
-        let phraseICount2 = reader.ReadInt32()
-        let npi2 = Array.init phraseICount2 (fun _ -> reader.ReadInt32())
-
-        { Difficulty = diff
-          Anchors = anchors
-          AnchorExtensions = anchorExts
-          HandShapes = handshapes
-          Arpeggios = arpeggios
-          Notes = notes
-          PhraseCount = phraseCount
-          AverageNotesPerIteration = avn
-          PhraseIterationCount1 = phraseICount1
-          NotesInIteration1 = npi1
-          PhraseIterationCount2 = phraseICount2
-          NotesInIteration2 = npi2 }
+        { Difficulty = reader.ReadInt32()
+          Anchors = readArray reader Anchor.Read
+          AnchorExtensions = readArray reader AnchorExtension.Read
+          HandShapes = readArray reader FingerPrint.Read
+          Arpeggios = readArray reader FingerPrint.Read
+          Notes = readArray reader Note.Read
+          AverageNotesPerIteration = readArray reader (fun r -> reader.ReadSingle())
+          NotesInPhraseIterationsExclIgnored = readArray reader (fun r -> r.ReadInt32())
+          NotesInPhraseIterationsAll = readArray reader (fun r -> r.ReadInt32()) }
 
 type MetaData =
     { MaxScore : float

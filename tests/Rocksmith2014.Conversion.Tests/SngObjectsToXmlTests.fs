@@ -487,12 +487,9 @@ let sngToXmlConversionTests =
             HandShapes = [| fp1 |]
             Arpeggios = [| fp2 |]
             Notes = [| n; c |]
-            PhraseCount = 1
             AverageNotesPerIteration = [| 1.0f |]
-            PhraseIterationCount1 = 1
-            NotesInIteration1 =[| 1 |]
-            PhraseIterationCount2 = 1
-            NotesInIteration2 = [| 1 |] }
+            NotesInPhraseIterationsExclIgnored =[| 1 |]
+            NotesInPhraseIterationsAll = [| 1 |] }
 
       let xml = SngToXml.convertLevel testSng lvl
 
