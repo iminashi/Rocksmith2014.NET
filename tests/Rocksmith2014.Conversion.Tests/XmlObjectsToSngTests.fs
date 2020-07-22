@@ -678,4 +678,5 @@ let sngToXmlConversionTests =
         Expect.equal sng.Notes.Length 2 "Note count is correct"
         Expect.equal sng.AverageNotesPerIteration.[1] 1.f "Average notes in phrase #2 is one (two notes / two iterations)"
         Expect.equal accuData.FirstNoteTime 1100 "First note time is correct"
+        Expect.equal accuData.NoteCounts.Easy 2 "Note count, easy is correct"
   ]

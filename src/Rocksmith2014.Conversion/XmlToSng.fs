@@ -7,6 +7,12 @@ open Rocksmith2014.SNG.Types
 open System.Collections.Generic
 open Nessos.Streams
 
+type NoteCounts = {
+    mutable Easy : int
+    mutable Medium : int
+    mutable Hard : int
+    mutable Ignored : int }
+
 /// Represents data that is being accumulated when mapping XML notes/chords into SNG notes.
 type AccuData =
     { StringMasks : int8[,]
@@ -15,14 +21,24 @@ type AccuData =
       AnchorExtensions : ResizeArray<AnchorExtension>
       NotesInPhraseIterationsExclIgnored : int[]
       NotesInPhraseIterationsAll : int[]
+      NoteCounts : NoteCounts
       mutable FirstNoteTime : int }
 
     with
-        member this.AddNote(pi:int, ignored:bool) =
-             this.NotesInPhraseIterationsAll.[pi] <- this.NotesInPhraseIterationsAll.[pi] + 1
+        member this.AddNote(pi:int, difficulty:byte, heroLeves:XML.HeroLevels, ignored:bool) =
+            this.NotesInPhraseIterationsAll.[pi] <- this.NotesInPhraseIterationsAll.[pi] + 1
 
-             if not ignored then
+            if not ignored then
                 this.NotesInPhraseIterationsExclIgnored.[pi] <- this.NotesInPhraseIterationsExclIgnored.[pi] + 1
+
+            if heroLeves.Easy = difficulty then
+                this.NoteCounts.Easy <- this.NoteCounts.Easy + 1
+            elif heroLeves.Medium = difficulty then
+                this.NoteCounts.Medium <- this.NoteCounts.Medium + 1
+            elif heroLeves.Hard = difficulty then
+                this.NoteCounts.Hard <- this.NoteCounts.Hard + 1
+                if ignored then
+                    this.NoteCounts.Ignored <- this.NoteCounts.Ignored + 1
 
         member this.Reset() =
             this.AnchorExtensions.Clear()
@@ -30,13 +46,14 @@ type AccuData =
             Array.Clear(this.NotesInPhraseIterationsExclIgnored, 0, this.NotesInPhraseIterationsExclIgnored.Length)
 
         static member Init(arr:XML.InstrumentalArrangement) =
-              { StringMasks = Array2D.zeroCreate (arr.Sections.Count) 36
-                ChordNotes = ResizeArray()
-                AnchorExtensions = ResizeArray()
-                ChordNotesMap = Dictionary()
-                NotesInPhraseIterationsExclIgnored = Array.zeroCreate (arr.PhraseIterations.Count)
-                NotesInPhraseIterationsAll = Array.zeroCreate (arr.PhraseIterations.Count)
-                FirstNoteTime = Int32.MaxValue }
+            { StringMasks = Array2D.zeroCreate (arr.Sections.Count) 36
+              ChordNotes = ResizeArray()
+              AnchorExtensions = ResizeArray()
+              ChordNotesMap = Dictionary()
+              NotesInPhraseIterationsExclIgnored = Array.zeroCreate (arr.PhraseIterations.Count)
+              NotesInPhraseIterationsAll = Array.zeroCreate (arr.PhraseIterations.Count)
+              NoteCounts = { Easy = 0; Medium = 0; Hard = 0; Ignored = 0 }
+              FirstNoteTime = Int32.MaxValue }
 
 /// Finds the index of the phrase iteration that contains the given time code.
 let findPhraseIterationId (time:int) (iterations:ResizeArray<XML.PhraseIteration>) =
@@ -430,7 +447,7 @@ let convertNote () =
 
         let piId = xml.PhraseIterations |> findPhraseIterationId timeCode
         let phraseId = xml.PhraseIterations.[piId].PhraseId
-        
+
         let this = int16 (Array.BinarySearch(noteTimes.[piId], timeCode))
         let prev = this - 1s
         let next = if this = int16 noteTimes.[piId].Length - 1s then -1s else this + 1s
@@ -541,7 +558,10 @@ let convertNote () =
               MaxBend = data.MaxBend
               BendData = data.BendValues }
 
-        accuData.AddNote(piId, (data.Mask &&& NoteMask.Ignore) <> NoteMask.None)
+        let isIgnore = (data.Mask &&& NoteMask.Ignore) <> NoteMask.None
+        let heroLevels = xml.PhraseIterations.[piId].HeroLevels
+
+        accuData.AddNote(piId, byte difficulty, heroLevels, isIgnore)
         previousNote <- ValueSome initialNote
 
         { initialNote with
@@ -625,10 +645,6 @@ let convertLevel (accuData:AccuData) (xmlArr:XML.InstrumentalArrangement) (xmlLe
         |> Stream.filter isArpeggio
         |> Stream.map convertHandshape'
         |> Stream.toArray
-
-    let tryAverage = function
-        | [||] -> 0.f
-        | arr -> arr |> Array.average
 
     let averageNotes =
         let piNotes = 
