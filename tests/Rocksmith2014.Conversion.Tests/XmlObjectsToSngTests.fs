@@ -341,7 +341,7 @@ let sngToXmlConversionTests =
         Expect.equal sng.Slap -1y "Slap is set correctly"
         Expect.equal sng.Pluck 1y "Pluck is set correctly"
         Expect.equal sng.Vibrato (int16 note.Vibrato) "Vibrato is same"
-        Expect.equal sng.PickDirection -1y "Pick direction is correct"
+        Expect.equal sng.PickDirection 0y "Pick direction is correct"
         Expect.equal sng.LeftHand note.LeftHand "Left hand is same"
         Expect.equal sng.AnchorFretId 7y "Anchor fret is correct"
         Expect.equal sng.AnchorWidth 5y "Anchor width is correct"

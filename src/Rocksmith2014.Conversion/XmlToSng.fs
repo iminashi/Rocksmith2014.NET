@@ -690,5 +690,5 @@ let convertLevel (accuData:AccuData) (xmlArr:XML.InstrumentalArrangement) (xmlLe
       Arpeggios = arpeggios
       Notes = notes
       AverageNotesPerIteration = averageNotes
-      NotesInPhraseIterationsExclIgnored = accuData.NotesInPhraseIterationsExclIgnored
-      NotesInPhraseIterationsAll = accuData.NotesInPhraseIterationsAll }
+      NotesInPhraseIterationsExclIgnored = Array.copy accuData.NotesInPhraseIterationsExclIgnored
+      NotesInPhraseIterationsAll = Array.copy accuData.NotesInPhraseIterationsAll }
