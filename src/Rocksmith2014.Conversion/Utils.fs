@@ -20,6 +20,13 @@ let mapToResizeArray map array =
     |> Stream.map map
     |> Stream.toResizeArray
 
+/// Maps a ResizeArray into an array using the given map function.
+let mapToArray map resizeArray =
+    resizeArray
+    |> Stream.ofResizeArray
+    |> Stream.map map
+    |> Stream.toArray
+
 let tryAverage = function
     | [||] -> 0.f
     | arr -> arr |> Array.average

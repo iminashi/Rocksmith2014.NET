@@ -8,6 +8,14 @@ open Rocksmith2014.Conversion
 let sngToXmlConversionTests =
   testList "XML Files → SNG Files" [
 
+    testCase "Vocals (Default Font)" <| fun _ ->
+        let xml = Vocals.Load("vocals.xml")
+        
+        let sng = ConvertVocals.xmlToSng None xml
+
+        Expect.equal sng.Vocals.Length xml.Count "Vocal count is same"
+        Expect.equal sng.SymbolDefinitions.Length 192 "Symbol definition count is correct"
+
     testCase "Instrumental" <| fun _ ->
         let xml = InstrumentalArrangement.Load("instrumental.xml")
         

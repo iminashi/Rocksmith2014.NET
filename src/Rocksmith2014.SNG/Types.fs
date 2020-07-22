@@ -150,7 +150,7 @@ type BendValue =
       // Unknown values:
       // (int16), always zero
       // (int8), always zero
-      // (int8), random values, even on unused bend data for chord notes
+      // (int8), often zero, but can be a random value, even in unused bend data for chord notes
 
     interface IBinaryWritable with
         member this.Write(writer) =
@@ -228,18 +228,18 @@ type Vocal =
           Lyric = readZeroTerminatedUTF8String 48 reader }
 
 type SymbolsHeader = 
-    { Unk1ID : int32
-      Unk2 : int32
-      Unk3 : int32
-      Unk4 : int32
-      Unk5 : int32
-      Unk6 : int32
-      Unk7 : int32
-      Unk8 : int32 }
+    { ID : int32
+      Unk2 : int32 // Always zero
+      Unk3 : int32 // Always zero
+      Unk4 : int32 // Always zero
+      Unk5 : int32 // Always zero
+      Unk6 : int32 // Always zero
+      Unk7 : int32 // Always zero
+      Unk8 : int32 } // Always 2
     
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write this.Unk1ID
+            writer.Write this.ID
             writer.Write this.Unk2
             writer.Write this.Unk3
             writer.Write this.Unk4
@@ -249,7 +249,7 @@ type SymbolsHeader =
             writer.Write this.Unk8
     
     static member Read(reader : BinaryReader) =
-        { Unk1ID = reader.ReadInt32()
+        { ID = reader.ReadInt32()
           Unk2 = reader.ReadInt32()
           Unk3 = reader.ReadInt32()
           Unk4 = reader.ReadInt32()
@@ -258,10 +258,12 @@ type SymbolsHeader =
           Unk7 = reader.ReadInt32()
           Unk8 = reader.ReadInt32() }
 
+    static member Default = { ID = 0; Unk2 = 0; Unk3 = 0; Unk4 = 0; Unk5 = 0; Unk6 = 0; Unk7 = 0; Unk8 = 2 }
+
 type SymbolsTexture =
     { Font : string
       FontPathLength : int32 
-      Unk1 : int32
+      // Unknown value (int32): always zero
       Width : int32
       Height : int32 }
 
@@ -269,15 +271,16 @@ type SymbolsTexture =
         member this.Write(writer) =
             writeZeroTerminatedUTF8String 128 this.Font writer
             writer.Write this.FontPathLength
-            writer.Write this.Unk1
+            // Write zero for unknown value
+            writer.Write 0
             writer.Write this.Width
             writer.Write this.Height
 
     static member Read(reader : BinaryReader) =
         { Font = readZeroTerminatedUTF8String 128 reader
           FontPathLength = reader.ReadInt32()
-          Unk1 = reader.ReadInt32()
-          Width = reader.ReadInt32()
+          //Read unknown value before width
+          Width = (reader.ReadInt32() |> ignore; reader.ReadInt32())
           Height = reader.ReadInt32() }
 
 [<Struct>]
@@ -719,6 +722,22 @@ type MetaData =
           Unk12FirstNoteTime = reader.ReadSingle()
           MaxDifficulty = reader.ReadInt32() }
 
+    static member Empty =
+        { MaxScore = 0.
+          MaxNotesAndChords = 0.
+          MaxNotesAndChordsReal = 0.
+          PointsPerNote = 0.
+          FirstBeatLength = 0.f
+          StartTime = 0.f
+          CapoFretId = -1y
+          LastConversionDateTime = String.Empty
+          Part = 0s
+          SongLength = 0.f
+          Tuning = [||]
+          Unk11FirstNoteTime = 0.f
+          Unk12FirstNoteTime = 0.f
+          MaxDifficulty = 0 }
+
 type SNG =
     { Beats : Beat[]
       Phrases : Phrase[]
@@ -790,3 +809,10 @@ type SNG =
           Sections = read Section.Read
           Levels = read Level.Read
           MetaData = MetaData.Read reader }
+
+    static member Empty =
+        { Beats = [||]; Phrases = [||]; Chords = [||]; ChordNotes = [||]
+          Vocals = [||]; SymbolsHeaders = [||]; SymbolsTextures = [||]; SymbolDefinitions = [||]
+          PhraseIterations = [||]; PhraseExtraInfo = [||]; NewLinkedDifficulties = [||]
+          Actions = [||]; Events = [||]; Tones = [||]; DNAs = [||]; Sections = [||]; Levels = [||]
+          MetaData = MetaData.Empty }

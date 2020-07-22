@@ -1,18 +1,18 @@
 ﻿module Rocksmith2014.Conversion.XmlToSng
 
 open System
+open System.Collections.Generic
+open System.Globalization
 open Rocksmith2014
 open Rocksmith2014.Conversion.Utils
 open Rocksmith2014.SNG.Types
-open System.Collections.Generic
 open Nessos.Streams
-open System.Globalization
 
-type NoteCounts = {
-    mutable Easy : int
-    mutable Medium : int
-    mutable Hard : int
-    mutable Ignored : int }
+type NoteCounts =
+    { mutable Easy : int
+      mutable Medium : int
+      mutable Hard : int
+      mutable Ignored : int }
 
 /// Represents data that is being accumulated when mapping XML notes/chords into SNG notes.
 type AccuData =
@@ -97,6 +97,11 @@ let convertVocal (xmlVocal:XML.Vocal) =
       Length = msToSec xmlVocal.Length
       Lyric = xmlVocal.Lyric
       Note = int xmlVocal.Note }
+
+let convertSymbolDefinition (xmlGlyphDef:XML.GlyphDefinition) =
+    { Symbol = xmlGlyphDef.Symbol
+      Outer = { xMin = xmlGlyphDef.OuterXMin; xMax = xmlGlyphDef.OuterXMax; yMin = xmlGlyphDef.OuterYMin; yMax = xmlGlyphDef.OuterYMax }
+      Inner = { xMin = xmlGlyphDef.InnerXMin; xMax = xmlGlyphDef.InnerXMax; yMin = xmlGlyphDef.InnerYMin; yMax = xmlGlyphDef.InnerYMax } }
 
 let convertPhrase (xml:XML.InstrumentalArrangement) phraseId (xmlPhrase:XML.Phrase) =
     let piLinks =

@@ -64,12 +64,11 @@ type Generators() =
     
     static member SymbolsTexture() =
         let genFont = genString 128
-        let genUnk = Arb.Default.Int32() |> Arb.toGen
         let genSize = Gen.choose(256, 2048)
-        let createTexture font unk width height =
-            { Font = font; FontPathLength = font.Length; Unk1 = unk; Width = width; Height = height }
+        let createTexture font width height =
+            { Font = font; FontPathLength = font.Length; Width = width; Height = height }
 
-        createTexture <!> genFont <*> genUnk <*> genSize <*> genSize
+        createTexture <!> genFont <*> genSize <*> genSize
         |> Arb.fromGen
 
     static member Event() =

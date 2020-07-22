@@ -8,6 +8,9 @@ namespace Rocksmith2014.XML
     public sealed class GlyphDefinitions
     {
         [XmlAttribute]
+        public string? Font { get; set; }
+
+        [XmlAttribute]
         public int TextureWidth { get; set; }
 
         [XmlAttribute]
