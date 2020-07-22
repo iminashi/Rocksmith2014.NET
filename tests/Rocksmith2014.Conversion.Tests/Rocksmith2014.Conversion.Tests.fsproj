@@ -7,6 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="instrumental.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="instrumental.sng">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -16,8 +19,11 @@
     <Compile Include="XmlObjectsToSngTests.fs" />
     <Compile Include="SngObjectsToXmlTests.fs" />
     <Compile Include="SngFilesToXmlTests.fs" />
+    <Compile Include="XmlFilesToSngFiles.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
+
+  <ItemGroup />
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Rocksmith2014.Conversion\Rocksmith2014.Conversion.fsproj" />

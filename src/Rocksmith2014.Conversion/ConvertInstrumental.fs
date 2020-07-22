@@ -7,6 +7,7 @@ open Rocksmith2014.Conversion
 open Rocksmith2014.Conversion.Utils
 open System
 open System.IO
+open Nessos.Streams
 
 let sngToXml (sng:SNG) =
     let phrases =
@@ -54,3 +55,86 @@ let convertSngFileToXml fileName platform =
     let xml = SNGFile.readPacked fileName platform |> sngToXml
     let targetFile = Path.ChangeExtension(fileName, "xml")
     xml.Save targetFile
+
+let xmlToSng (arr:InstrumentalArrangement) =
+    let convertBeat = XmlToSng.convertBeat() arr
+    let beats =
+        arr.Ebeats
+        |> Stream.ofResizeArray
+        |> Stream.map convertBeat
+        |> Stream.toArray
+
+    let phrases =
+        arr.Phrases
+        |> Stream.ofResizeArray
+        |> Stream.mapi (XmlToSng.convertPhrase arr)
+        |> Stream.toArray
+
+    let chords =
+        arr.ChordTemplates
+        |> Stream.ofResizeArray
+        |> Stream.map XmlToSng.convertChord
+        |> Stream.toArray
+
+    let phraseIterations =
+        arr.PhraseIterations
+        |> Stream.ofResizeArray
+        |> Stream.mapi (XmlToSng.convertPhraseIteration arr)
+        |> Stream.toArray
+
+    let NLDs =
+        arr.NewLinkedDiffs
+        |> Stream.ofResizeArray
+        |> Stream.map XmlToSng.convertNLD
+        |> Stream.toArray
+
+    let events =
+        arr.Events
+        |> Stream.ofResizeArray
+        |> Stream.map XmlToSng.convertEvent
+        |> Stream.toArray
+
+    let tones =
+        arr.Tones.Changes
+        |> Stream.ofResizeArray
+        |> Stream.map XmlToSng.convertTone
+        |> Stream.toArray
+
+    let DNAs = XmlToSng.createDNAs arr
+
+    let sections =
+        arr.Sections
+        |> Stream.ofResizeArray
+        |> Stream.mapi (XmlToSng.convertSection arr)
+        |> Stream.toArray
+
+    let accuData = XmlToSng.AccuData.Init(arr)
+    let convertLevel = XmlToSng.convertLevel accuData arr
+
+    let levels =
+
+        arr.Levels
+        |> Stream.ofResizeArray
+        |> Stream.map convertLevel
+        |> Stream.toArray
+
+    let metadata = XmlToSng.convertMetaData accuData arr
+
+    { Beats = beats
+      Phrases = phrases
+      Chords = chords
+      ChordNotes = [||]
+      Vocals = [||]
+      SymbolsHeaders = [||]
+      SymbolsTextures = [||]
+      SymbolDefinitions = [||]
+      PhraseIterations = phraseIterations
+      PhraseExtraInfo = [||] // TODO: implement
+      NewLinkedDifficulties = NLDs
+      Actions = [||]
+      Events = events
+      Tones = tones
+      DNAs = DNAs
+      Sections = sections
+      Levels = levels
+      MetaData = metadata }

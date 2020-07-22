@@ -6,6 +6,7 @@ open Rocksmith2014.Conversion.Utils
 open Rocksmith2014.SNG.Types
 open System.Collections.Generic
 open Nessos.Streams
+open System.Globalization
 
 type NoteCounts = {
     mutable Easy : int
@@ -97,7 +98,7 @@ let convertVocal (xmlVocal:XML.Vocal) =
       Lyric = xmlVocal.Lyric
       Note = int xmlVocal.Note }
 
-let convertPhrase phraseId (xml:XML.InstrumentalArrangement) (xmlPhrase:XML.Phrase) =
+let convertPhrase (xml:XML.InstrumentalArrangement) phraseId (xmlPhrase:XML.Phrase) =
     let piLinks =
         xml.PhraseIterations
         |> Seq.filter (fun pi -> pi.PhraseId = phraseId)
@@ -129,7 +130,7 @@ let convertBendValue (xmlBv:XML.BendValue) =
     { Time = msToSec xmlBv.Time
       Step = xmlBv.Step }
 
-let convertPhraseIteration index (xml:XML.InstrumentalArrangement) (xmlPi:XML.PhraseIteration) =
+let convertPhraseIteration (xml:XML.InstrumentalArrangement) index (xmlPi:XML.PhraseIteration) =
     let endTime =
         if index = xml.PhraseIterations.Count - 1 then
             xml.SongLength
@@ -153,7 +154,7 @@ let convertTone (xmlTone:XML.ToneChange) =
     { Time = msToSec xmlTone.Time
       ToneId = int xmlTone.Id }
 
-let convertSection index (xml:XML.InstrumentalArrangement) (xmlSection:XML.Section) =
+let convertSection (xml:XML.InstrumentalArrangement) index (xmlSection:XML.Section) =
     let endTime =
         if index = xml.Sections.Count - 1 then
             xml.SongLength
@@ -469,7 +470,6 @@ let convertNote () =
             | None -> [| -1s; -1s |]
 
         // TODO: String masks for sections
-        // TODO: Count notes for easy, medium, hard
 
         let data =
             match xmlEnt with
@@ -584,20 +584,24 @@ let createDNAs (xml:XML.InstrumentalArrangement) =
     |> Seq.choose eventToDNA
     |> Seq.toArray
 
-let convertMetaData (xml:XML.InstrumentalArrangement) =
-    { MaxScore = 10_000.
-      MaxNotesAndChords = 0. // TODO: Implement
-      MaxNotesAndChordsReal = 0. // TODO: Implement
-      PointsPerNote = 0. // TODO: Implement
-      FirstBeatLength = 0.f // TODO: Implement
+let convertMetaData (accuData:AccuData) (xml:XML.InstrumentalArrangement) =
+    let firstNoteTime = msToSec accuData.FirstNoteTime
+    let conversionDate = DateTime.Now.ToString("mm-d-yy HH:mm", CultureInfo.InvariantCulture)
+    let maxScore = 10_000.
+
+    { MaxScore = maxScore
+      MaxNotesAndChords = float accuData.NoteCounts.Hard
+      MaxNotesAndChordsReal = float (accuData.NoteCounts.Hard - accuData.NoteCounts.Ignored)
+      PointsPerNote = maxScore / float accuData.NoteCounts.Hard
+      FirstBeatLength = msToSec (xml.Ebeats.[1].Time - xml.Ebeats.[0].Time)
       StartTime = msToSec xml.StartBeat
       CapoFretId = if xml.Capo <= 0y then -1y else xml.Capo
-      LastConversionDateTime = "N/A" // TODO: Implement
+      LastConversionDateTime = conversionDate
       Part = xml.Part
       SongLength = msToSec xml.SongLength
       Tuning = Array.copy xml.Tuning.Strings
-      Unk11FirstNoteTime = 0.f // TODO: Implement
-      Unk12FirstNoteTime = 0.f // TODO: Implement
+      Unk11FirstNoteTime = firstNoteTime
+      Unk12FirstNoteTime = firstNoteTime
       MaxDifficulty = xml.Levels.Count - 1 }
 
 let convertLevel (accuData:AccuData) (xmlArr:XML.InstrumentalArrangement) (xmlLevel:XML.Level) =
