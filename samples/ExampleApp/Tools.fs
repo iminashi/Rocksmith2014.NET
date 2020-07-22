@@ -16,6 +16,10 @@ let sngFilters =
     let filter = FileDialogFilter(Extensions = ResizeArray(seq { "sng" }), Name = "SNG Files")
     ResizeArray(seq { filter })
 
+let xmlFilters =
+    let filter = FileDialogFilter(Extensions = ResizeArray(seq { "xml" }), Name = "XML Files")
+    ResizeArray(seq { filter })
+
 let openFileDialogSingle title filters dispatch = 
     Dispatcher.UIThread.InvokeAsync(
         fun () ->
@@ -27,7 +31,8 @@ let openFileDialogSingle title filters dispatch =
                    | _ -> ())
         ) |> ignore
 
-let ofd = openFileDialogSingle "Select File" sngFilters
+let ofdSng = openFileDialogSingle "Select File" sngFilters
+let ofdXml = openFileDialogSingle "Select File" xmlFilters
 
 type State = { Status:string; Platform:Platform }
 
@@ -36,7 +41,8 @@ let init = { Status = ""; Platform = PC }
 type Msg =
     | UnpackFile of file:string
     | ConvertVocals of file:string
-    | ConvertInstrumental of file:string
+    | ConvertInstrumentalSNGtoXML of file:string
+    | ConvertInstrumentalXMLtoSNG of file:string
     | RoundTrip of file:string
     | ChangePlatform of Platform
 
@@ -60,9 +66,15 @@ let update (msg: Msg) (state: State) : State =
             state
         with e -> { state with Status = e.Message }
 
-    | ConvertInstrumental file ->
+    | ConvertInstrumentalSNGtoXML file ->
         try
             Rocksmith2014.Conversion.ConvertInstrumental.convertSngFileToXml file state.Platform
+            state
+        with e -> { state with Status = e.Message }
+
+    | ConvertInstrumentalXMLtoSNG file ->
+        try
+            Rocksmith2014.Conversion.ConvertInstrumental.convertXmlFileToSng file state.Platform
             state
         with e -> { state with Status = e.Message }
 
@@ -93,23 +105,28 @@ let view (state: State) dispatch =
                 ]
             ]
             Button.create [
-                Button.onClick (fun _ ->  ofd (RoundTrip >> dispatch))
+                Button.onClick (fun _ ->  ofdSng (RoundTrip >> dispatch))
                 Button.content "Round-trip Packed File..."
             ]
 
             Button.create [
-                Button.onClick (fun _ -> ofd (UnpackFile >> dispatch))
-                Button.content "Unpack File..."
+                Button.onClick (fun _ -> ofdSng (UnpackFile >> dispatch))
+                Button.content "Unpack SNG File..."
             ]
 
             Button.create [
-                Button.onClick (fun _ -> ofd (ConvertVocals >> dispatch))
+                Button.onClick (fun _ -> ofdSng (ConvertVocals >> dispatch))
                 Button.content "Convert Vocals SNG to XML..."
             ]
             
             Button.create [
-                Button.onClick (fun _ -> ofd (ConvertInstrumental >> dispatch))
+                Button.onClick (fun _ -> ofdSng (ConvertInstrumentalSNGtoXML >> dispatch))
                 Button.content "Convert Instrumental SNG to XML..."
+            ]
+
+            Button.create [
+                Button.onClick (fun _ -> ofdXml (ConvertInstrumentalXMLtoSNG >> dispatch))
+                Button.content "Convert Instrumental XML to SNG..."
             ]
 
             TextBlock.create [

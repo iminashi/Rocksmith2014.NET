@@ -27,6 +27,13 @@ let mapToArray map resizeArray =
     |> Stream.map map
     |> Stream.toArray
 
+/// Maps a ResizeArray into an array using the given map function, with index.
+let mapiToArray map resizeArray =
+    resizeArray
+    |> Stream.ofResizeArray
+    |> Stream.mapi map
+    |> Stream.toArray
+
 let tryAverage = function
     | [||] -> 0.f
     | arr -> arr |> Array.average
