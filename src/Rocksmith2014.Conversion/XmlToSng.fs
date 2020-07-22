@@ -608,7 +608,7 @@ let createDNAs (xml:XML.InstrumentalArrangement) =
 
 let convertMetaData (accuData:AccuData) (xml:XML.InstrumentalArrangement) =
     let firstNoteTime = msToSec accuData.FirstNoteTime
-    let conversionDate = DateTime.Now.ToString("mm-d-yy HH:mm", CultureInfo.InvariantCulture)
+    let conversionDate = DateTime.Now.ToString("MM-d-yy HH:mm", CultureInfo.InvariantCulture)
     let maxScore = 10_000.
 
     { MaxScore = maxScore
