@@ -524,11 +524,12 @@ let convertNote () =
                     accuData.AnchorExtensions.Add(ax)
 
                 let pickDir =
-                    if (note.Mask &&& XML.NoteMask.PickDirection) <> XML.NoteMask.None then 1y else -1y
+                    if (note.Mask &&& XML.NoteMask.PickDirection) <> XML.NoteMask.None then 1y else 0y
 
                 {| String = note.String; Fret = note.Fret; Mask = mask; ChordId = -1; ChordNoteId = -1; Parent = parentNote;
                    BendValues = bendValues; SlideTo = note.SlideTo; UnpSlide = note.SlideUnpitchTo;
-                   LeftHand = note.LeftHand; Tap = note.Tap; PickDirection = pickDir;
+                   LeftHand = note.LeftHand; PickDirection = pickDir;
+                   Tap = if note.Tap > 0y then note.Tap else -1y
                    Slap = if note.IsSlap then 1y else -1y
                    Pluck = if note.IsPluck then 1y else -1y
                    Vibrato = int16 note.Vibrato; Sustain = msToSec note.Sustain; MaxBend = note.MaxBend |}
