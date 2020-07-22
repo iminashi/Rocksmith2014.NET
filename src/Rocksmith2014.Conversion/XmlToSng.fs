@@ -72,6 +72,16 @@ let findPhraseIterationId (time:int) (iterations:ResizeArray<XML.PhraseIteration
             find (index - 1)
     find (iterations.Count - 1)
 
+let findAnchor (time:int) (anchors:ResizeArray<XML.Anchor>) =
+    let rec find index =
+        if index < 0 then
+            failwith "No anchor found for note."
+        elif anchors.[index].Time <= time then
+            anchors.[index]
+        else
+            find (index - 1)
+    find (anchors.Count - 1)
+
 /// Returns a function that keeps a track of the current measure and the current beat.
 let convertBeat () =
     let mutable beatCounter = 0s
@@ -496,7 +506,7 @@ let convertNote () =
             else
                 -1s
 
-        let anchor = level.Anchors.FindLast(fun a -> a.Time <= timeCode)
+        let anchor = findAnchor timeCode level.Anchors
 
         let struct (fingerPrintId, isArpeggio) =
             let hsOption =
