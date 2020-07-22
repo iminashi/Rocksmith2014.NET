@@ -37,3 +37,5 @@ let mapiToArray map resizeArray =
 let tryAverage = function
     | [||] -> 0.f
     | arr -> arr |> Array.average
+
+let inline boolToByte b = if b then 1y else 0y
