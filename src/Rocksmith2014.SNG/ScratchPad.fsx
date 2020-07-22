@@ -75,3 +75,6 @@ let aesCtrTransform (input:Stream) (output:Stream) (key:byte[]) (iv:byte[]) =
         let mask = xorMasks.Dequeue()
         let byte = input.ReadByte() |> byte
         output.WriteByte(byte ^^^ mask)
+
+
+let inline applyFlag condition newFlag baseMask = if condition then baseMask ||| newFlag else baseMask

@@ -66,7 +66,7 @@ type AccuData =
 let findPhraseIterationId (time:int) (iterations:ResizeArray<XML.PhraseIteration>) =
     let rec find index =
         if index < 0 then
-            -1
+            0
         elif iterations.[index].Time <= time then
             index
         else
@@ -95,6 +95,7 @@ let convertBeat () =
         { Time = msToSec xmlBeat.Time
           Measure = currentMeasure
           Beat = beatCounter
+          // TODO: fix this
           PhraseIteration = findPhraseIterationId xmlBeat.Time xml.PhraseIterations
           Mask = mask }
 
@@ -278,7 +279,7 @@ let xmlCnMask = XML.NoteMask.LinkNext ||| XML.NoteMask.Accent ||| XML.NoteMask.T
                 ||| XML.NoteMask.PullOff ||| XML.NoteMask.Slap
 
 let createMaskForChordNote (note:XML.Note) =
-    // Not used for chord notes: Right Hand, Ignore, Left Hand
+    // Not used for chord notes: Single, Ignore, Right Hand, Left Hand, Arpeggio
     // Supported by the game, although not possible in official files: Tap, Pluck, Slap
 
     // Apply flags from properties not in the XML note mask
@@ -310,7 +311,7 @@ let createMaskForChordNote (note:XML.Note) =
         ||| if note.IsSlap          then NoteMask.Slap          else NoteMask.None
     
 /// Creates an SNG note mask for a single note.
-let createMaskForNote (note:XML.Note) =
+let createMaskForNote parentNote isArpeggio (note:XML.Note) =
     // Apply flags from properties not in the XML note mask
     let baseMask =
         NoteMask.Single
@@ -322,6 +323,8 @@ let createMaskForNote (note:XML.Note) =
         ||| if note.IsVibrato        then NoteMask.Vibrato        else NoteMask.None
         ||| if note.IsBend           then NoteMask.Bend           else NoteMask.None
         ||| if note.LeftHand <> -1y  then NoteMask.LeftHand       else NoteMask.None
+        ||| if parentNote <> -1s     then NoteMask.Child          else NoteMask.None
+        ||| if isArpeggio            then NoteMask.Arpeggio       else NoteMask.None
 
     // Apply flags from the XML note mask if needed
     if note.Mask = XML.NoteMask.None then
@@ -356,7 +359,7 @@ let isStrum (chord:XML.Chord) =
     | _ -> true
 
 /// Creates an SNG note mask for a chord.
-let createMaskForChord (template:XML.ChordTemplate) sustain chordNoteId (chord:XML.Chord) =
+let createMaskForChord (template:XML.ChordTemplate) sustain chordNoteId isArpeggio (chord:XML.Chord) =
     // Apply flags from properties not in the XML chord mask
     let baseMask =
         NoteMask.Chord
@@ -365,6 +368,7 @@ let createMaskForChord (template:XML.ChordTemplate) sustain chordNoteId (chord:X
         ||| if template.IsArpeggio   then NoteMask.Arpeggio   else NoteMask.None
         ||| if sustain > 0.f         then NoteMask.Sustain    else NoteMask.None
         ||| if chordNoteId <> -1     then NoteMask.ChordNotes else NoteMask.None
+        ||| if isArpeggio            then NoteMask.Arpeggio   else NoteMask.None
 
     // Apply flags from the XML chord mask if needed
     if chord.Mask = XML.ChordMask.None then
@@ -499,21 +503,21 @@ let convertNote () =
             else
                 -1s
 
-        let anchor = 
+        let anchor =
             level.Anchors
             |> Seq.findBack (fun a -> a.Time <= timeCode)
 
-        let fingerPrintId =
-            let fpOption =
+        let struct (fingerPrintId, isArpeggio) =
+            let hsOption =
                 handShapeMap
                 |> Map.tryPick (fun key set -> if set.Contains(timeCode) then Some key else None)
 
-            match fpOption with
+            match hsOption with
             // Arpeggio
-            | Some id when xml.ChordTemplates.[int id].IsArpeggio -> [| -1s; id |]
+            | Some id when xml.ChordTemplates.[int id].IsArpeggio -> struct ([| -1s; id |], true)
             // Normal handshape
-            | Some id -> [| id; -1s |]
-            | None -> [| -1s; -1s |]
+            | Some id -> struct ([| id; -1s |], false)
+            | None -> struct ([| -1s; -1s |], false)
 
         // TODO: String masks for sections
 
@@ -534,11 +538,7 @@ let convertNote () =
                         |> Seq.toArray
 
                 if note.IsLinkNext then pendingLinkNexts.TryAdd(note.String, this) |> ignore
-
-                let mask =
-                    createMaskForNote note
-                    ||| if parentNote <> -1s        then NoteMask.Child    else NoteMask.None
-                    ||| if fingerPrintId.[1] <> -1s then NoteMask.Arpeggio else NoteMask.None
+                let mask = createMaskForNote parentNote isArpeggio note
 
                 // Create anchor extension if needed
                 if note.IsSlide then
@@ -564,8 +564,8 @@ let convertNote () =
                     | null -> 0.f
                     | cn when cn.Count = 0 -> 0.f
                     | cn -> msToSec cn.[0].Sustain
-                let mask = createMaskForChord template sustain chordNoteId chord
-                // TODO: Arpeggio flag for a regular chord inside an arpeggio?
+                
+                let mask = createMaskForChord template sustain chordNoteId isArpeggio chord
 
                 {| Mask = mask; ChordId = int chord.ChordId; ChordNoteId = chordNoteId; Sustain = sustain;
                    // Other values are not applicable to chords
@@ -654,15 +654,13 @@ let convertLevel (accuData:AccuData) (xmlArr:XML.InstrumentalArrangement) (xmlLe
     let difficulty = int xmlLevel.Difficulty
 
     let xmlEntities =
-        let chords = xmlLevel.Chords |> Seq.map XmlChord
         xmlLevel.Notes
         |> Seq.map XmlNote
-        |> Seq.append chords
+        |> Seq.append (xmlLevel.Chords |> Seq.map XmlChord)
         |> Seq.sortBy getTimeCode
         |> Seq.toArray
 
     let noteTimes = xmlEntities |> Array.map getTimeCode
-    //let piNotes = divideNoteTimesPerPhraseIteration noteTimes xmlArr
     let hsMap = createHandShapeMap noteTimes xmlLevel
     let convertNote' = convertNote() noteTimes hsMap accuData xmlArr difficulty
 
