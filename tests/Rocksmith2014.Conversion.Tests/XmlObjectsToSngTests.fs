@@ -29,6 +29,7 @@ let createTestArr () =
     arr.PhraseIterations.Add(PhraseIteration(Time = 7555_000, PhraseId = 3))
 
     arr.Tuning.SetTuning(-1s, 2s, 4s, -5s, 3s, -2s)
+
     arr.Sections.Add(Section("1", 1000, 1s))
     arr.Sections.Add(Section("2", 4000, 1s))
     arr.Sections.Add(Section("3", 8000_000, 1s))
@@ -40,6 +41,7 @@ let createTestArr () =
     arr.Events.Add(Event("dna_riff", 5500))
 
     arr.Ebeats.Add(Ebeat(1000, 0s))
+    arr.Ebeats.Add(Ebeat(1200, -1s))
 
     let lvl = Level(0y)
     lvl.Anchors.Add(Anchor(8y, 1000))
@@ -144,25 +146,41 @@ let sngToXmlConversionTests =
       let ct = ChordTemplate(Name = "EEE")
       ct.SetFingering(1y,2y,3y,4y,5y,6y)
       ct.SetFrets(1y,2y,3y,4y,5y,6y)
+      let testArr = createTestArr()
 
-      let sng = XmlToSng.convertChord ct
+      let sng = XmlToSng.convertChord testArr ct
 
       Expect.equal sng.Name ct.Name "Name is same"
       Expect.sequenceEqual sng.Fingers ct.Fingers "Fingers are same"
       Expect.sequenceEqual sng.Frets ct.Frets "Fingers are same"
-      // TODO: Test notes
+
+    testCase "Chord Template (MIDI Notes)" <| fun _ ->
+      let ct = ChordTemplate(Name = "EEE")
+      ct.SetFrets(1y,2y,3y,4y,5y,6y)
+      let testArr = createTestArr()
+
+      let sng = XmlToSng.convertChord testArr ct
+
+      Expect.equal sng.Notes.[0] 40 "MIDI note 1 is correct (40 + 1 fret - 1 tuning)"
+      Expect.equal sng.Notes.[1] 49 "MIDI note 2 is correct (45 + 2 fret + 2 tuning)"
+      Expect.equal sng.Notes.[2] 57 "MIDI note 3 is correct (50 + 3 fret + 4 tuning)"
+      Expect.equal sng.Notes.[3] 54 "MIDI note 4 is correct (55 + 4 fret - 5 tuning)"
+      Expect.equal sng.Notes.[4] 67 "MIDI note 5 is correct (59 + 5 fret + 3 tuning)"
+      Expect.equal sng.Notes.[5] 68 "MIDI note 6 is correct (64 + 6 fret - 2 tuning)"
 
     testCase "Chord Template (Arpeggio)" <| fun _ ->
         let ct = ChordTemplate(DisplayName = "E-arp")
+        let testArr = createTestArr()
 
-        let sng = XmlToSng.convertChord ct
+        let sng = XmlToSng.convertChord testArr ct
 
         Expect.equal sng.Mask SNG.Types.ChordMask.Arpeggio "Arpeggio is set"
 
     testCase "Chord Template (Nop)" <| fun _ ->
         let ct = ChordTemplate(DisplayName = "E-nop")
+        let testArr = createTestArr()
 
-        let sng = XmlToSng.convertChord ct
+        let sng = XmlToSng.convertChord testArr ct
 
         Expect.equal sng.Mask SNG.Types.ChordMask.Nop "Nop is set"
 

@@ -73,7 +73,7 @@ let xmlToSng (arr:InstrumentalArrangement) =
     let chords =
         arr.ChordTemplates
         |> Stream.ofResizeArray
-        |> Stream.map XmlToSng.convertChord
+        |> Stream.map (XmlToSng.convertChord arr)
         |> Stream.toArray
 
     let phraseIterations =

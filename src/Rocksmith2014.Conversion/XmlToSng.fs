@@ -111,7 +111,24 @@ let convertPhrase (xml:XML.InstrumentalArrangement) phraseId (xmlPhrase:XML.Phra
       PhraseIterationLinks = piLinks
       Name = xmlPhrase.Name }
 
-let convertChord (xmlChord:XML.ChordTemplate) =
+let standardTuningMidiNotes = [| 40; 45; 50; 55; 59; 64 |];
+
+let private mapToMidiNotes (xml:XML.InstrumentalArrangement) (frets: sbyte array) =
+    Array.init 6 (fun str ->
+        if frets.[str] = -1y then
+            -1
+        else
+            let tuning = xml.Tuning.Strings
+            let fret =
+                if xml.Capo > 0y && frets.[str] = 0y then
+                    int xml.Capo
+                else
+                    int frets.[str]
+            let offset = if xml.ArrangementProperties.PathBass then -12 else 0
+            standardTuningMidiNotes.[str] + int tuning.[str] + fret + offset
+    )
+
+let convertChord (xml:XML.InstrumentalArrangement) (xmlChord:XML.ChordTemplate) =
     let mask =
         if xmlChord.DisplayName.EndsWith("-arp") then
             ChordMask.Arpeggio
@@ -123,7 +140,7 @@ let convertChord (xmlChord:XML.ChordTemplate) =
     { Mask = mask
       Frets = Array.copy xmlChord.Frets
       Fingers = Array.copy xmlChord.Fingers
-      Notes = Array.zeroCreate 6 // TODO: Implement
+      Notes = mapToMidiNotes xml xmlChord.Frets
       Name = xmlChord.Name }
 
 let convertBendValue (xmlBv:XML.BendValue) =
