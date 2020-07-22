@@ -14,7 +14,8 @@ type AccuData =
       ChordNotesMap : Dictionary<int, int>
       AnchorExtensions : ResizeArray<AnchorExtension>
       NotesInPhraseIterationsExclIgnored : int[]
-      NotesInPhraseIterationsAll : int[] }
+      NotesInPhraseIterationsAll : int[]
+      mutable FirstNoteTime : int }
 
     with
         member this.AddNote(pi:int, ignored:bool) =
@@ -34,7 +35,8 @@ type AccuData =
                 AnchorExtensions = ResizeArray()
                 ChordNotesMap = Dictionary()
                 NotesInPhraseIterationsExclIgnored = Array.zeroCreate (arr.PhraseIterations.Count)
-                NotesInPhraseIterationsAll = Array.zeroCreate (arr.PhraseIterations.Count) }
+                NotesInPhraseIterationsAll = Array.zeroCreate (arr.PhraseIterations.Count)
+                FirstNoteTime = Int32.MaxValue }
 
 /// Finds the index of the phrase iteration that contains the given time code.
 let findPhraseIterationId (time:int) (iterations:ResizeArray<XML.PhraseIteration>) =
@@ -595,6 +597,9 @@ let convertLevel (accuData:AccuData) (xmlArr:XML.InstrumentalArrangement) (xmlLe
     let piNotes = divideNoteTimesPerPhraseIteration noteTimes xmlArr
     let fpMap = createFingerprintMap noteTimes xmlLevel
     let convertNote' = convertNote() piNotes fpMap accuData xmlArr difficulty
+
+    if noteTimes.[0] < accuData.FirstNoteTime then
+        accuData.FirstNoteTime <- noteTimes.[0]
 
     let notes = xmlEntities |> Array.map convertNote'
 
