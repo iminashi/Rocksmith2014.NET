@@ -8,6 +8,7 @@ open Rocksmith2014.SNG
 open Rocksmith2014.SNG.Types
 open System.Threading.Tasks
 open Avalonia.Layout
+open System.IO
 
 let private window =
     lazy ((Application.Current.ApplicationLifetime :?> ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime).MainWindow)
@@ -62,19 +63,22 @@ let update (msg: Msg) (state: State) : State =
 
     | ConvertVocals file ->
         try
-            Rocksmith2014.Conversion.ConvertVocals.convertSngFileToXml file state.Platform
+            let target = Path.ChangeExtension(file, "xml")
+            Rocksmith2014.Conversion.ConvertVocals.convertSngFileToXml file target state.Platform
             state
         with e -> { state with Status = e.Message }
 
     | ConvertInstrumentalSNGtoXML file ->
         try
-            Rocksmith2014.Conversion.ConvertInstrumental.convertSngFileToXml file state.Platform
+            let targetFile = Path.ChangeExtension(file, "xml")
+            Rocksmith2014.Conversion.ConvertInstrumental.convertSngFileToXml file targetFile state.Platform
             state
         with e -> { state with Status = e.Message }
 
     | ConvertInstrumentalXMLtoSNG file ->
         try
-            Rocksmith2014.Conversion.ConvertInstrumental.convertXmlFileToSng file state.Platform
+            let targetFile = Path.ChangeExtension(file, "sng")
+            Rocksmith2014.Conversion.ConvertInstrumental.convertXmlFileToSng file targetFile state.Platform
             state
         with e -> { state with Status = e.Message }
 

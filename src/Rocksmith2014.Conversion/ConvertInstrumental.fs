@@ -50,9 +50,8 @@ let sngToXml (sng:SNG) =
 
     arr
 
-let convertSngFileToXml fileName platform =
-    let xml = SNGFile.readPacked fileName platform |> sngToXml
-    let targetFile = Path.ChangeExtension(fileName, "xml")
+let convertSngFileToXml sngFile targetFile platform =
+    let xml = SNGFile.readPacked sngFile platform |> sngToXml
     xml.Save targetFile
 
 let xmlToSng (arr:InstrumentalArrangement) =
@@ -100,7 +99,6 @@ let xmlToSng (arr:InstrumentalArrangement) =
       Levels = levels
       MetaData = metadata }
 
-let convertXmlFileToSng fileName platform =
-    let sng = InstrumentalArrangement.Load(fileName) |> xmlToSng
-    let targetFile = Path.ChangeExtension(fileName, "sng")
+let convertXmlFileToSng xmlFile targetFile platform =
+    let sng = InstrumentalArrangement.Load(xmlFile) |> xmlToSng
     SNGFile.savePacked targetFile platform sng

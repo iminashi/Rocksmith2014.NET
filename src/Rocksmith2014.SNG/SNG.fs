@@ -35,7 +35,7 @@ let pack (input:Stream) (output:Stream) platform =
     payload.Position <- 0L
     Cryptography.encryptSNG payload output platform None
 
-/// Writes the given SNG into the output stream.
+/// Writes the given SNG into the output stream (unpacked/unencrypted).
 let write (output:Stream) (sng:SNG) =
     use writer = new BinaryWriter(output, Encoding.UTF8, true)
     (sng :> IBinaryWritable).Write writer

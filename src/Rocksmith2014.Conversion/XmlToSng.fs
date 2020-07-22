@@ -8,6 +8,8 @@ open Rocksmith2014.Conversion.Utils
 open Rocksmith2014.SNG.Types
 open Nessos.Streams
 
+type HandShapeMap = Map<int16, Set<int>>
+
 type XmlEntity =
     | XmlNote of XmlNote : XML.Note
     | XmlChord of XmlChord : XML.Chord
@@ -235,9 +237,9 @@ let convertAnchor (noteTimes:int array) (level:XML.Level) (xml:XML.InstrumentalA
       Width = int xmlAnchor.Width
       PhraseIterationId = findPhraseIterationId xmlAnchor.Time xml.PhraseIterations }
 
-let convertHandshape (fingerPrintMap : Map<int16,Set<int>>) (xmlHs:XML.HandShape) =
+let convertHandshape (handShapeMap : HandShapeMap) (xmlHs:XML.HandShape) =
     let firstNoteTime, lastNoteTime =
-        match fingerPrintMap |> Map.tryFind xmlHs.ChordId with
+        match handShapeMap |> Map.tryFind xmlHs.ChordId with
         | Some set when not set.IsEmpty -> msToSec set.MinimumElement, msToSec set.MaximumElement
         | _ -> -1.f, -1.f
 
@@ -257,7 +259,7 @@ let convertHandshape (fingerPrintMap : Map<int16,Set<int>>) (xmlHs:XML.HandShape
 //        |> Seq.toArray)
 //    |> Seq.toArray
 
-let createFingerprintMap (noteTimes:int[]) (level:XML.Level) =
+let createHandShapeMap (noteTimes:int[]) (level:XML.Level) : HandShapeMap =
     let toSet (hs:XML.HandShape) =
         let times =
             noteTimes
@@ -434,7 +436,7 @@ let createChordNotes (pendingLinkNexts:Dictionary<int8, int16>) thisId (accuData
                     bendDict.Add(strIndex, createBendData32 note)
 
                 if note.IsLinkNext then
-                    pendingLinkNexts.Add(note.String, thisId)
+                    pendingLinkNexts.TryAdd(note.String, thisId) |> ignore
 
             let bendData = Array.init<BendData32> 6 (fun i ->
                 if bendDict.ContainsKey(i) then
@@ -462,7 +464,7 @@ let convertNote () =
     let mutable previousNote : ValueOption<Note> = ValueNone
 
     fun (noteTimes : int[])
-        (fingerPrintMap : Map<int16,Set<int>>)
+        (handShapeMap : HandShapeMap)
         (accuData : AccuData)
         (xml : XML.InstrumentalArrangement)
         (difficulty : int)
@@ -503,7 +505,7 @@ let convertNote () =
 
         let fingerPrintId =
             let fpOption =
-                fingerPrintMap
+                handShapeMap
                 |> Map.tryPick (fun key set -> if set.Contains(timeCode) then Some key else None)
 
             match fpOption with
@@ -531,7 +533,7 @@ let convertNote () =
                         |> Seq.map convertBendValue
                         |> Seq.toArray
 
-                if note.IsLinkNext then pendingLinkNexts.Add(note.String, this)
+                if note.IsLinkNext then pendingLinkNexts.TryAdd(note.String, this) |> ignore
 
                 let mask =
                     createMaskForNote note
@@ -661,8 +663,8 @@ let convertLevel (accuData:AccuData) (xmlArr:XML.InstrumentalArrangement) (xmlLe
 
     let noteTimes = xmlEntities |> Array.map getTimeCode
     //let piNotes = divideNoteTimesPerPhraseIteration noteTimes xmlArr
-    let fpMap = createFingerprintMap noteTimes xmlLevel
-    let convertNote' = convertNote() noteTimes fpMap accuData xmlArr difficulty
+    let hsMap = createHandShapeMap noteTimes xmlLevel
+    let convertNote' = convertNote() noteTimes hsMap accuData xmlArr difficulty
 
     if noteTimes.[0] < accuData.FirstNoteTime then
         accuData.FirstNoteTime <- noteTimes.[0]
@@ -676,7 +678,7 @@ let convertLevel (accuData:AccuData) (xmlArr:XML.InstrumentalArrangement) (xmlLe
         |> Stream.toArray
 
     let isArpeggio (hs:XML.HandShape) = xmlArr.ChordTemplates.[int hs.ChordId].IsArpeggio
-    let convertHandshape' = convertHandshape fpMap
+    let convertHandshape' = convertHandshape hsMap
 
     let handShapes =
         xmlLevel.HandShapes

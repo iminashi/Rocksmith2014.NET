@@ -28,10 +28,9 @@ let sngToXml (sng:SNG) =
     sng.Vocals
     |> Utils.mapToResizeArray SngToXml.convertVocal
     
-let convertSngFileToXml fileName platform =
-    let vocals = SNGFile.readPacked fileName platform |> sngToXml
-    let target = Path.ChangeExtension(fileName, "xml")
-    Vocals.Save(target, vocals)
+let convertSngFileToXml sngFile targetFile platform =
+    let vocals = SNGFile.readPacked sngFile platform |> sngToXml
+    Vocals.Save(targetFile, vocals)
 
 let extractGlyphData (sng:SNG) =
     let glyphs =

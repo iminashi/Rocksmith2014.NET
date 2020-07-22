@@ -64,7 +64,7 @@ let createNoteTimes (level:XML.Level) =
 
 let createNoteConvertFunction (accuData:XmlToSng.AccuData) (arr:InstrumentalArrangement) (level:Level) =
     let noteTimes = createNoteTimes level
-    let hs = XmlToSng.createFingerprintMap noteTimes level
+    let hs = XmlToSng.createHandShapeMap noteTimes level
     //let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes arr
     XmlToSng.convertNote() noteTimes hs accuData arr
 
