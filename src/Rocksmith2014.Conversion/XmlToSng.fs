@@ -31,36 +31,35 @@ type AccuData =
       NoteCounts : NoteCounts
       mutable FirstNoteTime : int }
 
-    with
-        member this.AddNote(pi:int, difficulty:byte, heroLeves:XML.HeroLevels, ignored:bool) =
-            this.NotesInPhraseIterationsAll.[pi] <- this.NotesInPhraseIterationsAll.[pi] + 1
-
-            if not ignored then
-                this.NotesInPhraseIterationsExclIgnored.[pi] <- this.NotesInPhraseIterationsExclIgnored.[pi] + 1
-
-            if heroLeves.Easy = difficulty then
-                this.NoteCounts.Easy <- this.NoteCounts.Easy + 1
-            elif heroLeves.Medium = difficulty then
-                this.NoteCounts.Medium <- this.NoteCounts.Medium + 1
-            elif heroLeves.Hard = difficulty then
-                this.NoteCounts.Hard <- this.NoteCounts.Hard + 1
-                if ignored then
-                    this.NoteCounts.Ignored <- this.NoteCounts.Ignored + 1
-
-        member this.Reset() =
-            this.AnchorExtensions.Clear()
-            Array.Clear(this.NotesInPhraseIterationsAll, 0, this.NotesInPhraseIterationsAll.Length)
-            Array.Clear(this.NotesInPhraseIterationsExclIgnored, 0, this.NotesInPhraseIterationsExclIgnored.Length)
-
-        static member Init(arr:XML.InstrumentalArrangement) =
-            { StringMasks = Array2D.zeroCreate (arr.Sections.Count) 36
-              ChordNotes = ResizeArray()
-              AnchorExtensions = ResizeArray()
-              ChordNotesMap = Dictionary()
-              NotesInPhraseIterationsExclIgnored = Array.zeroCreate (arr.PhraseIterations.Count)
-              NotesInPhraseIterationsAll = Array.zeroCreate (arr.PhraseIterations.Count)
-              NoteCounts = { Easy = 0; Medium = 0; Hard = 0; Ignored = 0 }
-              FirstNoteTime = Int32.MaxValue }
+    member this.AddNote(pi:int, difficulty:byte, heroLeves:XML.HeroLevels, ignored:bool) =
+        this.NotesInPhraseIterationsAll.[pi] <- this.NotesInPhraseIterationsAll.[pi] + 1
+    
+        if not ignored then
+            this.NotesInPhraseIterationsExclIgnored.[pi] <- this.NotesInPhraseIterationsExclIgnored.[pi] + 1
+    
+        if heroLeves.Easy = difficulty then
+            this.NoteCounts.Easy <- this.NoteCounts.Easy + 1
+        elif heroLeves.Medium = difficulty then
+            this.NoteCounts.Medium <- this.NoteCounts.Medium + 1
+        elif heroLeves.Hard = difficulty then
+            this.NoteCounts.Hard <- this.NoteCounts.Hard + 1
+            if ignored then
+                this.NoteCounts.Ignored <- this.NoteCounts.Ignored + 1
+    
+    member this.Reset() =
+        this.AnchorExtensions.Clear()
+        Array.Clear(this.NotesInPhraseIterationsAll, 0, this.NotesInPhraseIterationsAll.Length)
+        Array.Clear(this.NotesInPhraseIterationsExclIgnored, 0, this.NotesInPhraseIterationsExclIgnored.Length)
+    
+    static member Init(arr:XML.InstrumentalArrangement) =
+        { StringMasks = Array2D.zeroCreate (arr.Sections.Count) 36
+          ChordNotes = ResizeArray()
+          AnchorExtensions = ResizeArray()
+          ChordNotesMap = Dictionary()
+          NotesInPhraseIterationsExclIgnored = Array.zeroCreate (arr.PhraseIterations.Count)
+          NotesInPhraseIterationsAll = Array.zeroCreate (arr.PhraseIterations.Count)
+          NoteCounts = { Easy = 0; Medium = 0; Hard = 0; Ignored = 0 }
+          FirstNoteTime = Int32.MaxValue }
 
 /// Finds the index of the phrase iteration that contains the given time code.
 let findPhraseIterationId (time:int) (iterations:ResizeArray<XML.PhraseIteration>) =
@@ -142,7 +141,7 @@ let private mapToMidiNotes (xml:XML.InstrumentalArrangement) (frets: sbyte array
 
 let convertChord (xml:XML.InstrumentalArrangement) (xmlChord:XML.ChordTemplate) =
     let mask =
-        if xmlChord.DisplayName.EndsWith("-arp") then
+        if xmlChord.IsArpeggio then
             ChordMask.Arpeggio
         elif xmlChord.DisplayName.EndsWith("-nop") then
             ChordMask.Nop
@@ -219,16 +218,12 @@ let convertAnchor (noteTimes:int array) (level:XML.Level) (xml:XML.InstrumentalA
         else
             level.Anchors.[index + 1].Time
 
-    let notesInAnchor =
-        noteTimes
-        |> Seq.skipWhile (fun t -> t < xmlAnchor.Time)
-        |> Seq.takeWhile (fun t -> t < endTime )
-        |> Seq.toArray
+    let notesInAnchor = Array.FindAll(noteTimes, (fun t -> t >= xmlAnchor.Time && t < endTime))
 
-    let firstNoteTime, lastNoteTime =
+    let struct (firstNoteTime, lastNoteTime) =
         match notesInAnchor with
-        | [||] -> uninitFirstNote, uninitLastNote
-        | arr -> msToSec (Array.head arr), msToSec (Array.last arr)
+        | [||] -> struct (uninitFirstNote, uninitLastNote)
+        | arr -> struct (msToSec (Array.head arr), msToSec (Array.last arr))
 
     { StartTime = msToSec xmlAnchor.Time
       EndTime = msToSec endTime
@@ -263,10 +258,8 @@ let convertHandshape (handShapeMap : HandShapeMap) (xmlHs:XML.HandShape) =
 let createHandShapeMap (noteTimes:int[]) (level:XML.Level) : HandShapeMap =
     let toSet (hs:XML.HandShape) =
         let times =
-            noteTimes
-            |> Seq.skipWhile (fun t -> t < hs.StartTime)
-            |> Seq.takeWhile (fun t -> t < hs.EndTime)
-            |> Set.ofSeq
+            Array.FindAll(noteTimes, (fun t -> t >= hs.StartTime && t < hs.EndTime))
+            |> Set.ofArray
         hs.ChordId, times
     
     level.HandShapes
@@ -279,7 +272,7 @@ let xmlCnMask = XML.NoteMask.LinkNext ||| XML.NoteMask.Accent ||| XML.NoteMask.T
                 ||| XML.NoteMask.PullOff ||| XML.NoteMask.Slap
 
 let createMaskForChordNote (note:XML.Note) =
-    // Not used for chord notes: Single, Ignore, Right Hand, Left Hand, Arpeggio
+    // Not used for chord notes: Single, Ignore, Child, Right Hand, Left Hand, Arpeggio
     // Supported by the game, although not possible in official files: Tap, Pluck, Slap
 
     // Apply flags from properties not in the XML note mask
@@ -503,9 +496,7 @@ let convertNote () =
             else
                 -1s
 
-        let anchor =
-            level.Anchors
-            |> Seq.findBack (fun a -> a.Time <= timeCode)
+        let anchor = level.Anchors.FindLast(fun a -> a.Time <= timeCode)
 
         let struct (fingerPrintId, isArpeggio) =
             let hsOption =
@@ -648,18 +639,22 @@ let convertMetaData (accuData:AccuData) (xml:XML.InstrumentalArrangement) =
       Unk12FirstNoteTime = firstNoteTime
       MaxDifficulty = xml.Levels.Count - 1 }
 
+let private createXmlEntityArray (xmlNotes:ResizeArray<XML.Note>) (xmlChords:ResizeArray<XML.Chord>) = 
+    let entityArray = Array.zeroCreate<XmlEntity> (xmlNotes.Count + xmlChords.Count)
+
+    for i = 0 to xmlNotes.Count - 1 do
+        entityArray.[i] <- XmlNote (xmlNotes.[i])
+    for i = 0 to xmlChords.Count - 1 do
+        entityArray.[xmlNotes.Count + i] <- XmlChord (xmlChords.[i])
+
+    Array.sortInPlaceBy getTimeCode entityArray
+    entityArray
+
 let convertLevel (accuData:AccuData) (xmlArr:XML.InstrumentalArrangement) (xmlLevel:XML.Level) =
     accuData.Reset()
 
     let difficulty = int xmlLevel.Difficulty
-
-    let xmlEntities =
-        xmlLevel.Notes
-        |> Seq.map XmlNote
-        |> Seq.append (xmlLevel.Chords |> Seq.map XmlChord)
-        |> Seq.sortBy getTimeCode
-        |> Seq.toArray
-
+    let xmlEntities = createXmlEntityArray xmlLevel.Notes xmlLevel.Chords
     let noteTimes = xmlEntities |> Array.map getTimeCode
     let hsMap = createHandShapeMap noteTimes xmlLevel
     let convertNote' = convertNote() noteTimes hsMap accuData xmlArr difficulty
@@ -678,19 +673,11 @@ let convertLevel (accuData:AccuData) (xmlArr:XML.InstrumentalArrangement) (xmlLe
     let isArpeggio (hs:XML.HandShape) = xmlArr.ChordTemplates.[int hs.ChordId].IsArpeggio
     let convertHandshape' = convertHandshape hsMap
 
-    let handShapes =
-        xmlLevel.HandShapes
-        |> Stream.ofResizeArray
-        |> Stream.filter (isArpeggio >> not)
-        |> Stream.map convertHandshape'
-        |> Stream.toArray
-
-    let arpeggios =
-        xmlLevel.HandShapes
-        |> Stream.ofResizeArray
-        |> Stream.filter isArpeggio
-        |> Stream.map convertHandshape'
-        |> Stream.toArray
+    let arpeggios, handShapes =
+        xmlLevel.HandShapes.ToArray()
+        |> Array.partition isArpeggio
+    let arpeggios = arpeggios |> Array.map convertHandshape'
+    let handShapes = handShapes |> Array.map convertHandshape'
 
     let averageNotes =
         let piNotes = 
