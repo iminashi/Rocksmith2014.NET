@@ -616,7 +616,7 @@ let sngToXmlConversionTests =
         let chord = Chord(Mask = ChordMask.None,
                           Time = 1250,
                           ChordId = 1s)
-        let chordNotes = ResizeArray(seq { Note(Sustain = 500, Vibrato = 80uy); Note(Sustain = 500) })
+        let chordNotes = ResizeArray(seq { Note(String = 0y, Sustain = 500, Vibrato = 80uy); Note(String = 1y, Sustain = 500) })
         chord.ChordNotes <- chordNotes
 
         let testLevel = Level()
@@ -632,13 +632,16 @@ let sngToXmlConversionTests =
         let sng = convert 0 (XmlToSng.XmlChord chord)
 
         Expect.equal accuData.ChordNotes.Count 1 "One chord notes object created"
+        Expect.allEqual accuData.ChordNotes.[0].SlideTo -1y "All slides are -1"
+        Expect.allEqual accuData.ChordNotes.[0].SlideUnpitchTo -1y "All unpitched slides are -1"
+        Expect.equal accuData.ChordNotes.[0].Vibrato.[0] 80s "Vibrato is correct"
         Expect.isTrue (sng.Mask ?= SNG.Types.NoteMask.ChordNotes) "Chord notes flag is set"
 
     testCase "Chord notes are not created when not needed" <| fun _ ->
         let chord = Chord(Mask = ChordMask.None,
                           Time = 1250,
                           ChordId = 1s)
-        // Chord notes have no techniques that would require SNG chord notes
+        // Create chord notes that have no techniques that would require SNG chord notes
         let chordNotes = ResizeArray(seq { Note(Fret = 1y); Note(Fret = 1y) })
         chord.ChordNotes <- chordNotes
 

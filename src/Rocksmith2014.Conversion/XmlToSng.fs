@@ -418,8 +418,8 @@ let createChordNotes (accuData:AccuData) (chord:XML.Chord) =
         if Array.forall (fun m -> m = NoteMask.None) masks then
             -1
         else
-            let slideTo = Array.zeroCreate<int8> 6
-            let slideUnpitchTo = Array.zeroCreate<int8> 6
+            let slideTo = Array.replicate 6 -1y
+            let slideUnpitchTo = Array.replicate 6 -1y
             let vibrato = Array.zeroCreate<int16> 6
             let bendDict = Dictionary<int, BendData32>()
 
