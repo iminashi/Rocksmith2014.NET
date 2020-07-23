@@ -16,8 +16,7 @@ let emptyMetaData =
       Part = 1s
       SongLength = 0.0f
       Tuning = [||]
-      Unk11FirstNoteTime = 10.0f
-      Unk12FirstNoteTime = 10.0f
+      FirstNoteTime = 10.0f
       MaxDifficulty = 29 }
 
 let testSng =

@@ -684,8 +684,8 @@ type MetaData =
       Part : int16
       SongLength : float32
       Tuning : int16[]
-      Unk11FirstNoteTime : float32
-      Unk12FirstNoteTime : float32
+      // First note time appears twice, always the same value
+      FirstNoteTime : float32
       MaxDifficulty : int32 }
 
     interface IBinaryWritable with
@@ -702,8 +702,9 @@ type MetaData =
             writer.Write this.SongLength
             writer.Write this.Tuning.Length
             this.Tuning |> Array.iter writer.Write
-            writer.Write this.Unk11FirstNoteTime
-            writer.Write this.Unk12FirstNoteTime
+            // Write twice
+            writer.Write this.FirstNoteTime
+            writer.Write this.FirstNoteTime
             writer.Write this.MaxDifficulty
 
     static member Read(reader : BinaryReader) =
@@ -718,8 +719,8 @@ type MetaData =
           Part = reader.ReadInt16()
           SongLength = reader.ReadSingle()
           Tuning = readArray reader (fun r -> r.ReadInt16())
-          Unk11FirstNoteTime = reader.ReadSingle()
-          Unk12FirstNoteTime = reader.ReadSingle()
+          // Read twice
+          FirstNoteTime = (reader.ReadSingle() |> ignore; reader.ReadSingle())
           MaxDifficulty = reader.ReadInt32() }
 
     static member Empty =
@@ -734,8 +735,7 @@ type MetaData =
           Part = 0s
           SongLength = 0.f
           Tuning = [||]
-          Unk11FirstNoteTime = 0.f
-          Unk12FirstNoteTime = 0.f
+          FirstNoteTime = 0.f
           MaxDifficulty = 0 }
 
 type SNG =

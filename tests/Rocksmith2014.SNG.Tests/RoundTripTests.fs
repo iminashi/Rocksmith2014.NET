@@ -164,8 +164,7 @@ let roundTripTests =
           Part = 1s
           SongLength = 520.0f
           Tuning = Array.init 6 int16
-          Unk11FirstNoteTime = 15.0f
-          Unk12FirstNoteTime = 15.0f
+          FirstNoteTime = 15.0f
           MaxDifficulty = 22 }
       
       testEqual MetaData.Read md

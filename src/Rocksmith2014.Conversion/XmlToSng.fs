@@ -22,7 +22,7 @@ type NoteCounts =
 
 /// Represents data that is being accumulated when mapping XML notes/chords into SNG notes.
 type AccuData =
-    { StringMasks : int8[,]
+    { StringMasks : int8[][]
       ChordNotes : ResizeArray<ChordNotes>
       ChordNotesMap : Dictionary<int, int>
       AnchorExtensions : ResizeArray<AnchorExtension>
@@ -46,13 +46,13 @@ type AccuData =
             if ignored then
                 this.NoteCounts.Ignored <- this.NoteCounts.Ignored + 1
     
-    member this.Reset() =
+    member this.LevelReset() =
         this.AnchorExtensions.Clear()
         Array.Clear(this.NotesInPhraseIterationsAll, 0, this.NotesInPhraseIterationsAll.Length)
         Array.Clear(this.NotesInPhraseIterationsExclIgnored, 0, this.NotesInPhraseIterationsExclIgnored.Length)
     
     static member Init(arr:XML.InstrumentalArrangement) =
-        { StringMasks = Array2D.zeroCreate (arr.Sections.Count) 36
+        { StringMasks = Array.init (arr.Sections.Count) (fun _ -> Array.zeroCreate 36)
           ChordNotes = ResizeArray()
           AnchorExtensions = ResizeArray()
           ChordNotesMap = Dictionary()
@@ -60,6 +60,16 @@ type AccuData =
           NotesInPhraseIterationsAll = Array.zeroCreate (arr.PhraseIterations.Count)
           NoteCounts = { Easy = 0; Medium = 0; Hard = 0; Ignored = 0 }
           FirstNoteTime = Int32.MaxValue }
+
+let findBeatPhraseIterationId (time:int) (iterations:ResizeArray<XML.PhraseIteration>) =
+    let rec find index =
+        if index < 0 then
+            0
+        elif iterations.[index].Time < time then
+            index
+        else
+            find (index - 1)
+    find (iterations.Count - 1)
 
 /// Finds the index of the phrase iteration that contains the given time code.
 let findPhraseIterationId (time:int) (iterations:ResizeArray<XML.PhraseIteration>) =
@@ -71,6 +81,16 @@ let findPhraseIterationId (time:int) (iterations:ResizeArray<XML.PhraseIteration
         else
             find (index - 1)
     find (iterations.Count - 1)
+
+let findSectionId (time:int) (sections:ResizeArray<XML.Section>) =
+    let rec find index =
+        if index < 0 then
+            0
+        elif sections.[index].Time <= time then
+            index
+        else
+            find (index - 1)
+    find (sections.Count - 1)
 
 let findAnchor (time:int) (anchors:ResizeArray<XML.Anchor>) =
     let rec find index =
@@ -104,8 +124,7 @@ let convertBeat () =
         { Time = msToSec xmlBeat.Time
           Measure = currentMeasure
           Beat = beatCounter
-          // TODO: fix this
-          PhraseIteration = findPhraseIterationId xmlBeat.Time xml.PhraseIterations
+          PhraseIteration = findBeatPhraseIterationId xmlBeat.Time xml.PhraseIterations
           Mask = mask }
 
 let convertVocal (xmlVocal:XML.Vocal) =
@@ -192,7 +211,7 @@ let convertTone (xmlTone:XML.ToneChange) =
     { Time = msToSec xmlTone.Time
       ToneId = int xmlTone.Id }
 
-let convertSection (xml:XML.InstrumentalArrangement) index (xmlSection:XML.Section) =
+let convertSection (stringMasks:int8[][]) (xml:XML.InstrumentalArrangement) index (xmlSection:XML.Section) =
     let endTime =
         if index = xml.Sections.Count - 1 then
             xml.SongLength
@@ -214,7 +233,7 @@ let convertSection (xml:XML.InstrumentalArrangement) index (xmlSection:XML.Secti
       EndTime = msToSec endTime
       StartPhraseIterationId = startPi
       EndPhraseIterationId = endPi
-      StringMask = Array.zeroCreate 36 } // TODO: Implement
+      StringMask = stringMasks.[index] }
 
 let convertAnchor (noteTimes:int array) (level:XML.Level) (xml:XML.InstrumentalArrangement) index (xmlAnchor:XML.Anchor) =
     // Uninitialized values found in anchors that have no notes
@@ -254,16 +273,6 @@ let convertHandshape (handShapeMap : HandShapeMap) (xmlHs:XML.HandShape) =
       EndTime = msToSec xmlHs.EndTime
       FirstNoteTime = firstNoteTime
       LastNoteTime = lastNoteTime }
-
-//let divideNoteTimesPerPhraseIteration (noteTimes:int[]) (arr:XML.InstrumentalArrangement) =
-//    arr.PhraseIterations
-//    |> Seq.mapi (fun i pi ->
-//        let endTime = if i = arr.PhraseIterations.Count - 1 then arr.SongLength else arr.PhraseIterations.[i + 1].Time
-//        noteTimes
-//        |> Seq.skipWhile (fun t -> t < pi.Time)
-//        |> Seq.takeWhile (fun t -> t < endTime)
-//        |> Seq.toArray)
-//    |> Seq.toArray
 
 let createHandShapeMap (noteTimes:int[]) (level:XML.Level) : HandShapeMap =
     let toSet (hs:XML.HandShape) =
@@ -484,6 +493,8 @@ let convertNote () =
         let piId = xml.PhraseIterations |> findPhraseIterationId timeCode
         let phraseIteration = xml.PhraseIterations.[piId]
         let phraseId = phraseIteration.PhraseId
+        let anchor = findAnchor timeCode level.Anchors
+        let sectionId = findSectionId timeCode xml.Sections
 
         let this = int16 index
         let previous =
@@ -506,8 +517,6 @@ let convertNote () =
             else
                 -1s
 
-        let anchor = findAnchor timeCode level.Anchors
-
         let struct (fingerPrintId, isArpeggio) =
             let hsOption =
                 handShapeMap
@@ -519,8 +528,6 @@ let convertNote () =
             // Normal handshape
             | Some id -> struct ([| id; -1s |], false)
             | None -> struct ([| -1s; -1s |], false)
-
-        // TODO: String masks for sections
 
         let data =
             match xmlEnt with
@@ -548,6 +555,9 @@ let convertNote () =
                           FretId = note.SlideTo }
                     accuData.AnchorExtensions.Add(ax)
 
+                let sMask = accuData.StringMasks.[sectionId].[difficulty]
+                accuData.StringMasks.[sectionId].[difficulty] <- sMask ||| (1y <<< int note.String)
+
                 {| String = note.String; Fret = note.Fret; Mask = mask; ChordId = -1; ChordNoteId = -1; Parent = parentNote;
                    BendValues = bendValues; SlideTo = note.SlideTo; UnpSlide = note.SlideUnpitchTo; LeftHand = note.LeftHand
                    PickDirection = if (note.Mask &&& XML.NoteMask.PickDirection) <> XML.NoteMask.None then 1y else 0y
@@ -565,6 +575,13 @@ let convertNote () =
                     | null -> 0.f
                     | cn when cn.Count = 0 -> 0.f
                     | cn -> msToSec cn.[0].Sustain
+
+                match chord.ChordNotes with
+                | null -> ()
+                | chordNotes ->
+                    for cn in chordNotes do
+                        let sMask = accuData.StringMasks.[sectionId].[difficulty]
+                        accuData.StringMasks.[sectionId].[difficulty] <- sMask ||| (1y <<< int cn.String)
                 
                 let mask = createMaskForChord template sustain chordNoteId isArpeggio chord
 
@@ -632,7 +649,7 @@ let createDNAs (xml:XML.InstrumentalArrangement) =
 let convertMetaData (accuData:AccuData) (xml:XML.InstrumentalArrangement) =
     let firstNoteTime = msToSec accuData.FirstNoteTime
     let conversionDate = DateTime.Now.ToString("MM-d-yy HH:mm", CultureInfo.InvariantCulture)
-    let maxScore = 10_000.
+    let maxScore = 100_000.
 
     { MaxScore = maxScore
       MaxNotesAndChords = float accuData.NoteCounts.Hard
@@ -645,8 +662,7 @@ let convertMetaData (accuData:AccuData) (xml:XML.InstrumentalArrangement) =
       Part = xml.Part
       SongLength = msToSec xml.SongLength
       Tuning = Array.copy xml.Tuning.Strings
-      Unk11FirstNoteTime = firstNoteTime
-      Unk12FirstNoteTime = firstNoteTime
+      FirstNoteTime = firstNoteTime
       MaxDifficulty = xml.Levels.Count - 1 }
 
 let private createXmlEntityArray (xmlNotes:ResizeArray<XML.Note>) (xmlChords:ResizeArray<XML.Chord>) = 
@@ -661,7 +677,7 @@ let private createXmlEntityArray (xmlNotes:ResizeArray<XML.Note>) (xmlChords:Res
     entityArray
 
 let convertLevel (accuData:AccuData) (xmlArr:XML.InstrumentalArrangement) (xmlLevel:XML.Level) =
-    accuData.Reset()
+    accuData.LevelReset()
 
     let difficulty = int xmlLevel.Difficulty
     let xmlEntities = createXmlEntityArray xmlLevel.Notes xmlLevel.Chords

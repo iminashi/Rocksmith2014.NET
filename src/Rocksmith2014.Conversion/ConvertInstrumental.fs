@@ -6,7 +6,6 @@ open Rocksmith2014.SNG
 open Rocksmith2014.Conversion
 open Rocksmith2014.Conversion.Utils
 open System
-open System.IO
 
 let sngToXml (sng:SNG) =
     let phrases =
@@ -75,7 +74,7 @@ let xmlToSng (arr:InstrumentalArrangement) =
         arr.Tones.Changes |> mapToArray XmlToSng.convertTone
     let DNAs = XmlToSng.createDNAs arr
     let sections =
-        arr.Sections |> mapiToArray (XmlToSng.convertSection arr)
+        arr.Sections |> mapiToArray (XmlToSng.convertSection accuData.StringMasks arr)
     let levels =
         arr.Levels |> mapToArray convertLevel
     let metadata = XmlToSng.convertMetaData accuData arr

@@ -65,7 +65,6 @@ let createNoteTimes (level:XML.Level) =
 let createNoteConvertFunction (accuData:XmlToSng.AccuData) (arr:InstrumentalArrangement) (level:Level) =
     let noteTimes = createNoteTimes level
     let hs = XmlToSng.createHandShapeMap noteTimes level
-    //let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes arr
     XmlToSng.convertNote() noteTimes hs accuData arr
 
 [<Tests>]
@@ -242,7 +241,7 @@ let sngToXmlConversionTests =
         let s = Section("section", 7554_003, 2s)
         let testArr = createTestArr()
 
-        let sng = XmlToSng.convertSection testArr 0 s
+        let sng = XmlToSng.convertSection sharedAccData.StringMasks testArr 0 s
 
         Expect.equal sng.Name s.Name "Name is same"
         Expect.equal sng.StartTime (timeConversion s.Time) "Start time is same"
@@ -253,7 +252,7 @@ let sngToXmlConversionTests =
         let s = Section("section", 4000_003, 2s)
         let testArr = createTestArr()
 
-        let sng = XmlToSng.convertSection testArr (testArr.Sections.Count - 1) s
+        let sng = XmlToSng.convertSection sharedAccData.StringMasks testArr (testArr.Sections.Count - 1) s
 
         Expect.equal sng.EndTime (timeConversion testArr.SongLength) "End time is same as song length"
 
@@ -261,7 +260,7 @@ let sngToXmlConversionTests =
         let s = Section("section", 8000, 1s)
         let testArr = createTestArr()
 
-        let sng = XmlToSng.convertSection testArr 0 s
+        let sng = XmlToSng.convertSection sharedAccData.StringMasks testArr 0 s
 
         Expect.equal sng.StartPhraseIterationId 2 "Start phrase iteration ID is correct"
         Expect.equal sng.EndPhraseIterationId 2 "End phrase iteration ID is correct"
@@ -270,11 +269,10 @@ let sngToXmlConversionTests =
         let s = Section("section", 1000, 1s)
         let testArr = createTestArr()
 
-        let sng = XmlToSng.convertSection testArr 0 s
+        let sng = XmlToSng.convertSection sharedAccData.StringMasks testArr 0 s
 
         Expect.equal sng.StartPhraseIterationId 0 "Start phrase iteration ID is correct"
         Expect.equal sng.EndPhraseIterationId 2 "End phrase iteration ID is correct"
-        // TODO: Test string mask
 
     testCase "Anchor" <| fun _ ->
         let i = 0
@@ -322,7 +320,6 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Anchors.Add(Anchor(7y, 5555, 5y))
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        //let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
         let convert = XmlToSng.convertNote() noteTimes Map.empty sharedAccData testArr
 
         let sng = convert 0 0 (XmlToSng.XmlNote note)
@@ -363,7 +360,6 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(note1)
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        //let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
         let convert = XmlToSng.convertNote() noteTimes Map.empty sharedAccData testArr
 
         let sngNote0 = convert 0 0 (XmlToSng.XmlNote note0)
@@ -389,7 +385,6 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(note)
         
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        //let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
         let convert = XmlToSng.convertNote() noteTimes Map.empty sharedAccData testArr
 
         let sngNote = convert 0 0 (XmlToSng.XmlNote note)
@@ -426,7 +421,6 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(note)
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        //let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
         let convert = XmlToSng.convertNote() noteTimes Map.empty sharedAccData testArr
 
         let sngNote = convert 0 0 (XmlToSng.XmlNote note)
@@ -457,7 +451,6 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(child)
         
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        //let piNotes = XmlToSng.divideNoteTimesPerPhraseIteration noteTimes testArr
         let convert = XmlToSng.convertNote() noteTimes Map.empty sharedAccData testArr
 
         let sngParent = convert 0 0 (XmlToSng.XmlNote parent)
@@ -515,7 +508,7 @@ let sngToXmlConversionTests =
 
         let md = XmlToSng.convertMetaData sharedAccData testArr
 
-        Expect.equal md.MaxScore 10_000.0 "Max score is correct"
+        Expect.equal md.MaxScore 100_000.0 "Max score is correct"
         Expect.equal md.StartTime 1.0f "Start time is correct"
         Expect.equal md.CapoFretId -1y "Capo fret is correct"
         Expect.equal md.Part testArr.Part "Part is same"
