@@ -275,7 +275,7 @@ let createHandShapeMap (noteTimes: int array) (level: XML.Level) : HandShapeMap 
     |> Seq.map toSet
     |> Map.ofSeq
 
-let xmlCnMask = XML.NoteMask.LinkNext ||| XML.NoteMask.Accent ||| XML.NoteMask.Tremolo 
+let xmlCnMask = XML.NoteMask.LinkNext ||| XML.NoteMask.Accent ||| XML.NoteMask.Tremolo
                 ||| XML.NoteMask.FretHandMute ||| XML.NoteMask.HammerOn ||| XML.NoteMask.Harmonic
                 ||| XML.NoteMask.PalmMute ||| XML.NoteMask.PinchHarmonic ||| XML.NoteMask.Pluck
                 ||| XML.NoteMask.PullOff ||| XML.NoteMask.Slap
@@ -400,7 +400,7 @@ let getTimeCode = function
 
 let createBendData32 (note: XML.Note) =
     let usedCount = note.BendValues.Count
-    let bv = Array.init 32 (fun i -> 
+    let bv = Array.init 32 (fun i ->
         if i < usedCount then
             convertBendValue note.BendValues.[i]
         else
@@ -696,12 +696,12 @@ let convertLevel (accuData: AccuData) (xmlArr: XML.InstrumentalArrangement) (xml
     let handShapes = handShapes |> Array.map convertHandshape'
 
     let averageNotes =
-        let piNotes = 
+        let piNotes =
             accuData.NotesInPhraseIterationsAll 
             |> Array.indexed
-        Array.init xmlArr.Phrases.Count (fun i ->
+        Array.init xmlArr.Phrases.Count (fun phraseId ->
             piNotes
-            |> Array.filter (fun v -> xmlArr.PhraseIterations.[fst v].PhraseId = i)
+            |> Array.filter (fun v -> xmlArr.PhraseIterations.[fst v].PhraseId = phraseId)
             |> Array.map (snd >> float32)
             |> tryAverage)
 

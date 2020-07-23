@@ -102,7 +102,7 @@ let convertNoteMask (sngMask:NoteMask) =
         ||| if sngMask ?= NoteMask.Ignore        then XML.NoteMask.Ignore        else XML.NoteMask.None
         ||| if sngMask ?= NoteMask.Mute          then XML.NoteMask.FretHandMute  else XML.NoteMask.None
         ||| if sngMask ?= NoteMask.PalmMute      then XML.NoteMask.PalmMute      else XML.NoteMask.None
-        ||| if sngMask ?= NoteMask.Parent        then XML.NoteMask.LinkNext      else XML.NoteMask.None        
+        ||| if sngMask ?= NoteMask.Parent        then XML.NoteMask.LinkNext      else XML.NoteMask.None
         ||| if sngMask ?= NoteMask.PinchHarmonic then XML.NoteMask.PinchHarmonic else XML.NoteMask.None
         ||| if sngMask ?= NoteMask.Pluck         then XML.NoteMask.Pluck         else XML.NoteMask.None
         ||| if sngMask ?= NoteMask.PullOff       then XML.NoteMask.PullOff       else XML.NoteMask.None
@@ -147,7 +147,7 @@ let convertChordMask (sngMask:NoteMask) =
         ||| if sngMask ?= NoteMask.HighDensity  then XML.ChordMask.HighDensity  else XML.ChordMask.None
         ||| if sngMask ?= NoteMask.Ignore       then XML.ChordMask.Ignore       else XML.ChordMask.None
         ||| if sngMask ?= NoteMask.PalmMute     then XML.ChordMask.PalmMute     else XML.ChordMask.None
-        ||| if sngMask ?= NoteMask.Parent       then XML.ChordMask.LinkNext     else XML.ChordMask.None    
+        ||| if sngMask ?= NoteMask.Parent       then XML.ChordMask.LinkNext     else XML.ChordMask.None
 
 let convertBendData32 (bd:BendData32) =
     bd.BendValues
@@ -185,7 +185,7 @@ let private convertChordNotes (sng:SNG) (chord:Note) =
     xmlNotes
 
 let convertChord (sng:SNG) (sngNote:Note) =
-    if sngNote.ChordId = -1 then invalidOp "Cannot convert a note into a chord."    
+    if sngNote.ChordId = -1 then invalidOp "Cannot convert a note into a chord."
     
     XML.Chord(Mask = convertChordMask sngNote.Mask,
               Time = secToMs sngNote.Time,

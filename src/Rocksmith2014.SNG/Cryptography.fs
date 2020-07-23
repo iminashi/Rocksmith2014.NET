@@ -54,7 +54,7 @@ let private aesCtrTransformSIMD (input: Stream) (output: Stream) (key: byte[]) (
 
 /// Based on https://stackoverflow.com/a/51188472
 let private aesCtrTransform (input: Stream) (output: Stream) (key: byte[]) (iv: byte[]) =
-    use aes = new AesManaged (Mode = CipherMode.ECB, Padding = PaddingMode.None)   
+    use aes = new AesManaged (Mode = CipherMode.ECB, Padding = PaddingMode.None)
     let blockSize = 16
     let ctr = Array.copy iv
     let counterEncryptor = aes.CreateEncryptor(key, null)
