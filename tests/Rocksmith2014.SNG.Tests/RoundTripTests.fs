@@ -15,7 +15,7 @@ let roundTrip<'a when 'a :> IBinaryWritable> (x: 'a) (read : IBinaryReader -> 'a
     (x :> IBinaryWritable).Write(writer)
 
     stream.Position <- 0L
-    let reader = new LittleEndianBinaryReader(stream)
+    let reader = LittleEndianBinaryReader(stream)
     read reader
 
 /// Does a round-trip on the given value and tests if the result is equal to it.
