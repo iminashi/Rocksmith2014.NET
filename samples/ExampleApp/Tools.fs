@@ -3,11 +3,11 @@
 open Avalonia
 open Avalonia.Controls
 open Avalonia.FuncUI.DSL
+open Avalonia.Layout
 open Avalonia.Threading
 open Rocksmith2014.SNG
-open Rocksmith2014.SNG.Types
+open Rocksmith2014.Conversion
 open System.Threading.Tasks
-open Avalonia.Layout
 open System.IO
 
 let private window =
@@ -64,21 +64,21 @@ let update (msg: Msg) (state: State) : State =
     | ConvertVocals file ->
         try
             let target = Path.ChangeExtension(file, "xml")
-            Rocksmith2014.Conversion.ConvertVocals.convertSngFileToXml file target state.Platform
+            ConvertVocals.sngFileToXml file target state.Platform
             state
         with e -> { state with Status = e.Message }
 
     | ConvertInstrumentalSNGtoXML file ->
         try
             let targetFile = Path.ChangeExtension(file, "xml")
-            Rocksmith2014.Conversion.ConvertInstrumental.convertSngFileToXml file targetFile state.Platform
+            ConvertInstrumental.sngFileToXml file targetFile state.Platform
             state
         with e -> { state with Status = e.Message }
 
     | ConvertInstrumentalXMLtoSNG file ->
         try
             let targetFile = Path.ChangeExtension(file, "sng")
-            Rocksmith2014.Conversion.ConvertInstrumental.convertXmlFileToSng file targetFile state.Platform
+            ConvertInstrumental.xmlFileToSng file targetFile state.Platform
             state
         with e -> { state with Status = e.Message }
 
@@ -140,4 +140,4 @@ let view (state: State) dispatch =
                 TextBlock.text (string state.Status)
             ]
         ]
-    ]       
+    ]

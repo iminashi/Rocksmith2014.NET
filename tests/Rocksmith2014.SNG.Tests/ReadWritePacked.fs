@@ -2,7 +2,6 @@
 
 open Expecto
 open Rocksmith2014.SNG
-open Rocksmith2014.SNG.Types
 
 let testFileLevels = 12
 

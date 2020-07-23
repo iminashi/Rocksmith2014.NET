@@ -1,10 +1,9 @@
 ﻿module Rocksmith2014.Conversion.Tests.SngFilesToXmlTests
 
 open Expecto
-open Rocksmith2014.SNG.Types
-open Rocksmith2014.Conversion
 open Rocksmith2014.SNG
 open Rocksmith2014.XML
+open Rocksmith2014.Conversion
 open System.Globalization
 
 /// Testing function that converts a time in seconds into milliseconds without floating point arithmetic.

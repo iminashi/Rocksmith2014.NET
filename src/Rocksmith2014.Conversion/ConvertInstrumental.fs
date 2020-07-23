@@ -1,6 +1,5 @@
 ﻿module Rocksmith2014.Conversion.ConvertInstrumental
 
-open Rocksmith2014.SNG.Types
 open Rocksmith2014.XML
 open Rocksmith2014.SNG
 open Rocksmith2014.Conversion
@@ -49,10 +48,6 @@ let sngToXml (sng:SNG) =
 
     arr
 
-let convertSngFileToXml sngFile targetFile platform =
-    let xml = SNGFile.readPacked sngFile platform |> sngToXml
-    xml.Save targetFile
-
 let xmlToSng (arr:InstrumentalArrangement) =
     let accuData = XmlToSng.AccuData.Init(arr)
     let convertBeat = XmlToSng.convertBeat() arr
@@ -98,6 +93,10 @@ let xmlToSng (arr:InstrumentalArrangement) =
       Levels = levels
       MetaData = metadata }
 
-let convertXmlFileToSng xmlFile targetFile platform =
+let sngFileToXml sngFile targetFile platform =
+    let xml = SNGFile.readPacked sngFile platform |> sngToXml
+    xml.Save targetFile
+
+let xmlFileToSng xmlFile targetFile platform =
     let sng = InstrumentalArrangement.Load(xmlFile) |> xmlToSng
     SNGFile.savePacked targetFile platform sng

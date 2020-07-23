@@ -1,7 +1,7 @@
 ﻿module Rocksmith2014.SNG.Tests.Generators
 
 open FsCheck
-open Rocksmith2014.SNG.Types
+open Rocksmith2014.SNG
 
 /// Does not generate NaN or infinity floating point values.
 type Overrides() =

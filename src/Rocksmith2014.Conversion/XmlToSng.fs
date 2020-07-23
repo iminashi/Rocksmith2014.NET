@@ -5,7 +5,7 @@ open System.Collections.Generic
 open System.Globalization
 open Rocksmith2014
 open Rocksmith2014.Conversion.Utils
-open Rocksmith2014.SNG.Types
+open Rocksmith2014.SNG
 open Nessos.Streams
 
 type HandShapeMap = Map<int16, Set<int>>

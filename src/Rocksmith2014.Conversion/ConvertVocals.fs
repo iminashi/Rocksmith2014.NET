@@ -1,6 +1,5 @@
 ﻿module Rocksmith2014.Conversion.ConvertVocals
 
-open Rocksmith2014.SNG.Types
 open Rocksmith2014.SNG
 open Rocksmith2014.XML
 open Rocksmith2014.Conversion
@@ -24,15 +23,11 @@ let private defaultSymbols =
 let private defaultHeaders =
     [| SymbolsHeader.Default; { SymbolsHeader.Default with ID = 1 } |]
 
-let sngToXml (sng:SNG) =
+let sngToXml (sng: SNG) =
     sng.Vocals
     |> Utils.mapToResizeArray SngToXml.convertVocal
     
-let convertSngFileToXml sngFile targetFile platform =
-    let vocals = SNGFile.readPacked sngFile platform |> sngToXml
-    Vocals.Save(targetFile, vocals)
-
-let extractGlyphData (sng:SNG) =
+let extractGlyphData (sng: SNG) =
     let glyphs =
         sng.SymbolDefinitions
         |> Utils.mapToResizeArray SngToXml.convertSymbolDefinition
@@ -42,7 +37,7 @@ let extractGlyphData (sng:SNG) =
                      TextureHeight = sng.SymbolsTextures.[0].Height,
                      Glyphs = glyphs)
 
-let xmlToSng (glyphs:GlyphDefinitions option) (xml:ResizeArray<Vocal>) =
+let xmlToSng (glyphs: GlyphDefinitions option) (xml: ResizeArray<Vocal>) =
     let vocals = xml |> Utils.mapToArray XmlToSng.convertVocal
 
     let headers, textures, symbols =
@@ -62,3 +57,7 @@ let xmlToSng (glyphs:GlyphDefinitions option) (xml:ResizeArray<Vocal>) =
                      SymbolsHeaders = headers
                      SymbolsTextures = textures
                      SymbolDefinitions = symbols }
+
+let sngFileToXml sngFile targetFile platform =
+    let vocals = SNGFile.readPacked sngFile platform |> sngToXml
+    Vocals.Save(targetFile, vocals)

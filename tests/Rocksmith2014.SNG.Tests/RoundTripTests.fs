@@ -1,7 +1,7 @@
 ﻿module Rocksmith2014.SNG.Tests.RoundTripTests
 
 open Expecto
-open Rocksmith2014.SNG.Types
+open Rocksmith2014.SNG
 open Rocksmith2014.SNG.Interfaces
 open System.IO
 open Generators

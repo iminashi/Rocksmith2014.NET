@@ -1,7 +1,7 @@
 ﻿module Rocksmith2014.Conversion.Utils
 
 open System
-open Rocksmith2014.SNG.Types
+open Rocksmith2014.SNG
 open Nessos.Streams
 
 /// Converts a floating point number (seconds) into an integer (milliseconds).

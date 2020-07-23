@@ -1,7 +1,7 @@
 ﻿module Rocksmith2014.Conversion.Tests.SngObjectsToXmlTests
 
 open Expecto
-open Rocksmith2014.SNG.Types
+open Rocksmith2014.SNG
 open Rocksmith2014.Conversion
 
 let emptyMetaData =

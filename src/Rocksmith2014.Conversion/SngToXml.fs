@@ -1,7 +1,7 @@
 ﻿module Rocksmith2014.Conversion.SngToXml
 
 open Rocksmith2014
-open Rocksmith2014.SNG.Types
+open Rocksmith2014.SNG
 open Rocksmith2014.Conversion.Utils
 open Nessos.Streams
 
@@ -92,7 +92,7 @@ let convertHandShape (fp:FingerPrint) =
 
 let convertNoteMask (sngMask:NoteMask) =
     // Optimization for notes without techniques
-    if (sngMask &&& noteTechniqueMask) = NoteMask.None then
+    if (sngMask &&& Masks.NoteTechniques) = NoteMask.None then
         XML.NoteMask.None
     else
         XML.NoteMask.None
@@ -138,7 +138,7 @@ let convertNote (sngNote:Note) =
 
 let convertChordMask (sngMask:NoteMask) =
     // Optimization for chords without techniques
-    if (sngMask &&& chordTechniqueMask) = NoteMask.None then
+    if (sngMask &&& Masks.ChordTechniques) = NoteMask.None then
         XML.ChordMask.None
     else
         XML.ChordMask.None
@@ -203,7 +203,7 @@ let convertLevel (sng:SNG) (sngLevel:Level) =
         |> Stream.sortBy (fun hs -> hs.StartTime)
         |> Stream.toResizeArray
 
-    let sngNotes, sngChords = Array.partition (fun n -> n.ChordId = -1) sngLevel.Notes
+    let sngNotes, sngChords = Array.partition (fun (n : Note) -> n.ChordId = -1) sngLevel.Notes
     let notes = sngNotes |> mapToResizeArray convertNote
     let chords = sngChords |> mapToResizeArray (convertChord sng)
 
