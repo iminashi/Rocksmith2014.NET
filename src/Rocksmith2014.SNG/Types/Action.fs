@@ -4,6 +4,7 @@ open Interfaces
 open BinaryHelpers
 open System.IO
 
+/// Leftover from RS1, no equivalent in RS2014 XML.
 type Action = 
     { Time : float32
       ActionName : string }

@@ -3,6 +3,7 @@
 open Interfaces
 open System.IO
 
+/// Leftover from RS1, not used in RS2014.
 type PhraseExtraInfo =
     { PhraseId : int32
       Difficulty : int32

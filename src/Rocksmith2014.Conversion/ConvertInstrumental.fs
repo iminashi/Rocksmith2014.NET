@@ -57,6 +57,9 @@ let xmlToSng (arr:InstrumentalArrangement) =
         arr.Ebeats |> mapToArray convertBeat
     let phrases =
         arr.Phrases |> mapiToArray (XmlToSng.convertPhrase arr)
+    let phraseExtraInfo =
+        if arr.PhraseProperties.Count = 0 then [||]
+        else arr.PhraseProperties |> mapToArray XmlToSng.convertPhraseExtraInfo
     let chords =
         arr.ChordTemplates |> mapToArray (XmlToSng.convertChord arr)
     let phraseIterations =
@@ -83,7 +86,7 @@ let xmlToSng (arr:InstrumentalArrangement) =
       SymbolsTextures = [||]
       SymbolDefinitions = [||]
       PhraseIterations = phraseIterations
-      PhraseExtraInfo = [||] // TODO: implement
+      PhraseExtraInfo = phraseExtraInfo
       NewLinkedDifficulties = NLDs
       Actions = [||]
       Events = events

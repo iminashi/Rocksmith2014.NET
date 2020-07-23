@@ -151,6 +151,13 @@ let convertPhrase (xml:XML.InstrumentalArrangement) phraseId (xmlPhrase:XML.Phra
       PhraseIterationLinks = piLinks
       Name = xmlPhrase.Name }
 
+let convertPhraseExtraInfo (xml:XML.PhraseProperty) =
+    { PhraseId = xml.PhraseId
+      Difficulty = xml.Difficulty
+      Empty = xml.Empty
+      LevelJump = xml.LevelJump
+      Redundant = xml.Redundant }
+
 let standardTuningMidiNotes = [| 40; 45; 50; 55; 59; 64 |];
 
 let private mapToMidiNotes (xml:XML.InstrumentalArrangement) (frets: sbyte array) =

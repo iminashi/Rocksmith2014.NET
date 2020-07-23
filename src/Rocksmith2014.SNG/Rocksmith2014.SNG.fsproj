@@ -13,6 +13,7 @@
     <Compile Include="Types\Masks.fs" />
     <Compile Include="Types\Beat.fs" />
     <Compile Include="Types\Phrase.fs" />
+    <Compile Include="Types\PhraseExtraInfo.fs" />
     <Compile Include="Types\PhraseIteration.fs" />
     <Compile Include="Types\Section.fs" />
     <Compile Include="Types\Chord.fs" />
@@ -21,7 +22,6 @@
     <Compile Include="Types\ChordNotes.fs" />
     <Compile Include="Types\Vocal.fs" />
     <Compile Include="Types\SymbolTypes.fs" />
-    <Compile Include="Types\PhraseExtraInfo.fs" />
     <Compile Include="Types\NewLinkedDifficulty.fs" />
     <Compile Include="Types\Action.fs" />
     <Compile Include="Types\Event.fs" />
