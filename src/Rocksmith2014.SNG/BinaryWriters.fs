@@ -14,41 +14,35 @@ type LittleEndianBinaryWriter(stream: Stream) =
 
         member _.WriteInt16(value) =
             let length = 2
-            let buffer = NativePtr.stackalloc<byte>(length) |> NativePtr.toVoidPtr
-            let bufferSpan = Span<byte>(buffer, length)
-            BinaryPrimitives.WriteInt16LittleEndian(bufferSpan, value)
+            let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
+            BinaryPrimitives.WriteInt16LittleEndian(Span<byte>(buffer, length), value)
             stream.Write(ReadOnlySpan(buffer, length))
 
         member _.WriteInt32(value) =
             let length = 4
-            let buffer = NativePtr.stackalloc<byte>(length) |> NativePtr.toVoidPtr
-            let bufferSpan = Span<byte>(buffer, length)
-            BinaryPrimitives.WriteInt32LittleEndian(bufferSpan, value)
+            let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
+            BinaryPrimitives.WriteInt32LittleEndian(Span<byte>(buffer, length), value)
             stream.Write(ReadOnlySpan(buffer, length))
 
         member _.WriteUInt32(value) =
             let length = 4
-            let buffer = NativePtr.stackalloc<byte>(length) |> NativePtr.toVoidPtr
-            let bufferSpan = Span<byte>(buffer, length)
-            BinaryPrimitives.WriteUInt32LittleEndian(bufferSpan, value)
+            let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
+            BinaryPrimitives.WriteUInt32LittleEndian(Span<byte>(buffer, length), value)
             stream.Write(ReadOnlySpan(buffer, length))
 
         member _.WriteSingle(value) =
             let length = 4
-            let buffer = NativePtr.stackalloc<byte>(length) |> NativePtr.toVoidPtr
-            let bufferSpan = Span<byte>(buffer, length)
-            BinaryPrimitives.WriteInt32LittleEndian(bufferSpan, BitConverter.SingleToInt32Bits(value))
+            let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
+            BinaryPrimitives.WriteInt32LittleEndian(Span<byte>(buffer, length), BitConverter.SingleToInt32Bits(value))
             stream.Write(ReadOnlySpan(buffer, length))
 
         member _.WriteDouble(value) =
             let length = 8
-            let buffer = NativePtr.stackalloc<byte>(length) |> NativePtr.toVoidPtr
-            let bufferSpan = Span<byte>(buffer, length)
-            BinaryPrimitives.WriteInt64LittleEndian(bufferSpan, BitConverter.DoubleToInt64Bits(value))
+            let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
+            BinaryPrimitives.WriteInt64LittleEndian(Span<byte>(buffer, length), BitConverter.DoubleToInt64Bits(value))
             stream.Write(ReadOnlySpan(buffer, length))
 
-        member _.WriteBytes(value) =
-            stream.Write(ReadOnlySpan(value))
+        member _.WriteBytes(value) = stream.Write(ReadOnlySpan(value))
 
 type BigEndianBinaryWriter(stream: Stream) =
     interface IBinaryWriter with
@@ -57,41 +51,36 @@ type BigEndianBinaryWriter(stream: Stream) =
         member _.WriteInt16(value) =
             let length = 2
             let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
-            let bufferSpan = Span<byte>(buffer, length)
-            BinaryPrimitives.WriteInt16BigEndian(bufferSpan, value)
+            BinaryPrimitives.WriteInt16BigEndian(Span<byte>(buffer, length), value)
             stream.Write(ReadOnlySpan(buffer, length))
 
         member _.WriteInt32(value) =
             let length = 4
             let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
-            let bufferSpan = Span<byte>(buffer, length)
-            BinaryPrimitives.WriteInt32BigEndian(bufferSpan, value)
+            BinaryPrimitives.WriteInt32BigEndian(Span<byte>(buffer, length), value)
             stream.Write(ReadOnlySpan(buffer, length))
 
         member _.WriteUInt32(value) =
             let length = 4
             let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
-            let bufferSpan = Span<byte>(buffer, length)
-            BinaryPrimitives.WriteUInt32BigEndian(bufferSpan, value)
+            BinaryPrimitives.WriteUInt32BigEndian(Span<byte>(buffer, length), value)
             stream.Write(ReadOnlySpan(buffer, length))
 
         member _.WriteSingle(value) =
             let length = 4
             let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
-            let bufferSpan = Span<byte>(buffer, length)
-            BinaryPrimitives.WriteInt32BigEndian(bufferSpan, BitConverter.SingleToInt32Bits value)
+            BinaryPrimitives.WriteInt32BigEndian(Span<byte>(buffer, length), BitConverter.SingleToInt32Bits value)
             stream.Write(ReadOnlySpan(buffer, length))
 
         member _.WriteDouble(value) =
             let length = 8
             let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
-            let bufferSpan = Span<byte>(buffer, length)
-            BinaryPrimitives.WriteInt64BigEndian(bufferSpan, BitConverter.DoubleToInt64Bits value)
+            BinaryPrimitives.WriteInt64BigEndian(Span<byte>(buffer, length), BitConverter.DoubleToInt64Bits value)
             stream.Write(ReadOnlySpan(buffer, length))
 
-        member _.WriteBytes(value) =
-            stream.Write(ReadOnlySpan(value))
+        member _.WriteBytes(value) = stream.Write(ReadOnlySpan(value))
 
+/// Returns a binary writer that matches the given platform.
 let getWriter stream platform =
     match platform with
     | PC | Mac -> LittleEndianBinaryWriter(stream) :> IBinaryWriter

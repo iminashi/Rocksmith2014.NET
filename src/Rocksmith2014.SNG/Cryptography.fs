@@ -16,7 +16,7 @@ let private getKey = function
     | Mac -> sngKeyMac
 
 /// Increments a number that is represented as an array of bytes.
-let private increment (arr:byte[]) =
+let private increment (arr: byte[]) =
     let rec inc index =
         arr.[index] <- arr.[index] + 1uy
         if arr.[index] = 0uy && index <> 0 then
@@ -27,7 +27,7 @@ let private increment (arr:byte[]) =
 #nowarn "9"
 
 /// AES CTR encryption utilizing SSE2 intrinsics. Slightly faster than the non SIMD version.
-let private aesCtrTransformSIMD (input:Stream) (output:Stream) (key:byte[]) (iv:byte[]) =
+let private aesCtrTransformSIMD (input: Stream) (output: Stream) (key: byte[]) (iv: byte[]) =
     use aes = new AesManaged (Mode = CipherMode.ECB, Padding = PaddingMode.None)
     let blockSize = 16
     let counterEncryptor = aes.CreateEncryptor(key, null)
@@ -53,7 +53,7 @@ let private aesCtrTransformSIMD (input:Stream) (output:Stream) (key:byte[]) (iv:
                 output.WriteByte(buffer.[i] ^^^ counterModeBlock.[i])
 
 /// Based on https://stackoverflow.com/a/51188472
-let private aesCtrTransform (input:Stream) (output:Stream) (key:byte[]) (iv:byte[]) =
+let private aesCtrTransform (input: Stream) (output: Stream) (key: byte[]) (iv: byte[]) =
     use aes = new AesManaged (Mode = CipherMode.ECB, Padding = PaddingMode.None)   
     let blockSize = 16
     let ctr = Array.copy iv
@@ -70,8 +70,8 @@ let private aesCtrTransform (input:Stream) (output:Stream) (key:byte[]) (iv:byte
             output.WriteByte(buffer.[i] ^^^ counterModeBlock.[i])
 
 /// Decrypts an encrypted SNG from the input stream into the output stream.
-let decryptSNG (input:Stream) (output:Stream) (platform:Platform) =
-    use reader = new BinaryReader(input)
+let decryptSNG (input: Stream) (output: Stream) (platform: Platform) =
+    let reader = BinaryReaders.getReader input platform
     if reader.ReadUInt32() <> 0x4Au then invalidOp "Not a valid SNG file."
     let header = reader.ReadUInt32()
     let iv = reader.ReadBytes(16)
@@ -86,7 +86,7 @@ let decryptSNG (input:Stream) (output:Stream) (platform:Platform) =
     output.Position <- 0L
 
 /// Encrypts a plain SNG from the input stream into the output stream.
-let encryptSNG (input:Stream) (output:Stream) (platform:Platform) (iv:byte[] option) =
+let encryptSNG (input: Stream) (output: Stream) (platform: Platform) (iv: byte[] option) =
     let key = getKey platform
     let iv = iv |> Option.defaultWith (fun _ -> Array.zeroCreate<byte> 16)
 
