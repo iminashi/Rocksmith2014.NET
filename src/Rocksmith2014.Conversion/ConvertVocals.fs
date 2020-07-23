@@ -62,7 +62,7 @@ let sngFileToXml sngFile targetFile platform =
     let vocals = SNGFile.readPacked sngFile platform |> sngToXml
     Vocals.Save(targetFile, vocals)
 
-let xmlFileToSng xmlFile targetFile (customFont:string option) platform =
+let xmlFileToSng xmlFile targetFile (customFont: string option) platform =
     let glyphs =
         customFont
         |> Option.map (fun fn -> 

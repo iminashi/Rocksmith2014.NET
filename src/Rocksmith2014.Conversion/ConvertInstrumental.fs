@@ -6,7 +6,7 @@ open Rocksmith2014.Conversion
 open Rocksmith2014.Conversion.Utils
 open System
 
-let sngToXml (sng:SNG) =
+let sngToXml (sng: SNG) =
     let phrases =
         mapToResizeArray SngToXml.convertPhrase sng.Phrases
     let phraseIterations =
@@ -48,7 +48,7 @@ let sngToXml (sng:SNG) =
 
     arr
 
-let xmlToSng (arr:InstrumentalArrangement) =
+let xmlToSng (arr: InstrumentalArrangement) =
     let accuData = XmlToSng.AccuData.Init(arr)
     let convertBeat = XmlToSng.convertBeat() arr
     let convertLevel = XmlToSng.convertLevel accuData arr
