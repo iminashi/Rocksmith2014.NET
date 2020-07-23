@@ -61,3 +61,15 @@ let xmlToSng (glyphs: GlyphDefinitions option) (xml: ResizeArray<Vocal>) =
 let sngFileToXml sngFile targetFile platform =
     let vocals = SNGFile.readPacked sngFile platform |> sngToXml
     Vocals.Save(targetFile, vocals)
+
+let xmlFileToSng xmlFile targetFile (customFont:string option) platform =
+    let glyphs =
+        customFont
+        |> Option.map (fun fn -> 
+            let g = GlyphDefinitions.Load fn
+            g.Font <- "lyrics.dds"
+            g)
+
+    Vocals.Load xmlFile
+    |> xmlToSng glyphs 
+    |> SNGFile.savePacked targetFile platform
