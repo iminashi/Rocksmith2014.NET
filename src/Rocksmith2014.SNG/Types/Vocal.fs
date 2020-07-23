@@ -1,6 +1,5 @@
 ﻿namespace Rocksmith2014.SNG
 
-open System.IO
 open Interfaces
 open BinaryHelpers
 
@@ -12,12 +11,12 @@ type Vocal =
      
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write this.Time
-            writer.Write this.Note
-            writer.Write this.Length
+            writer.WriteSingle this.Time
+            writer.WriteInt32 this.Note
+            writer.WriteSingle this.Length
             writeZeroTerminatedUTF8String 48 this.Lyric writer
     
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         { Time = reader.ReadSingle()
           Note = reader.ReadInt32()
           Length = reader.ReadSingle()

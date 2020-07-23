@@ -3,7 +3,6 @@
 open Interfaces
 open BinaryHelpers
 open System
-open System.IO
 
 type MetaData =
     { MaxScore : float
@@ -23,31 +22,31 @@ type MetaData =
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write this.MaxScore
-            writer.Write this.MaxNotesAndChords
-            writer.Write this.MaxNotesAndChordsReal
-            writer.Write this.PointsPerNote
-            writer.Write this.FirstBeatLength
-            writer.Write this.StartTime
-            writer.Write this.CapoFretId
+            writer.WriteDouble this.MaxScore
+            writer.WriteDouble this.MaxNotesAndChords
+            writer.WriteDouble this.MaxNotesAndChordsReal
+            writer.WriteDouble this.PointsPerNote
+            writer.WriteSingle this.FirstBeatLength
+            writer.WriteSingle this.StartTime
+            writer.WriteInt8 this.CapoFretId
             writeZeroTerminatedUTF8String 32 this.LastConversionDateTime writer
-            writer.Write this.Part
-            writer.Write this.SongLength
-            writer.Write this.Tuning.Length
-            this.Tuning |> Array.iter writer.Write
+            writer.WriteInt16 this.Part
+            writer.WriteSingle this.SongLength
+            writer.WriteInt32 this.Tuning.Length
+            this.Tuning |> Array.iter writer.WriteInt16
             // Write twice
-            writer.Write this.FirstNoteTime
-            writer.Write this.FirstNoteTime
-            writer.Write this.MaxDifficulty
+            writer.WriteSingle this.FirstNoteTime
+            writer.WriteSingle this.FirstNoteTime
+            writer.WriteInt32 this.MaxDifficulty
 
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         { MaxScore = reader.ReadDouble()
           MaxNotesAndChords = reader.ReadDouble()
           MaxNotesAndChordsReal = reader.ReadDouble()
           PointsPerNote = reader.ReadDouble()
           FirstBeatLength = reader.ReadSingle()
           StartTime = reader.ReadSingle()
-          CapoFretId = reader.ReadSByte()
+          CapoFretId = reader.ReadInt8()
           LastConversionDateTime = readZeroTerminatedUTF8String 32 reader
           Part = reader.ReadInt16()
           SongLength = reader.ReadSingle()

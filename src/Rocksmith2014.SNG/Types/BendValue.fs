@@ -1,7 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
 open Interfaces
-open System.IO
 
 [<Struct>]
 type BendValue =
@@ -14,12 +13,12 @@ type BendValue =
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write this.Time
-            writer.Write this.Step
+            writer.WriteSingle this.Time
+            writer.WriteSingle this.Step
             // Write zero for all unknown values
-            writer.Write 0
+            writer.WriteInt32 0
 
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         let time = reader.ReadSingle()
         let step = reader.ReadSingle()
         // Read unknown values

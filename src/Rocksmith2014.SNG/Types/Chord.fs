@@ -1,6 +1,5 @@
 ﻿namespace Rocksmith2014.SNG
 
-open System.IO
 open Interfaces
 open BinaryHelpers
 
@@ -13,15 +12,15 @@ type Chord =
     
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write (LanguagePrimitives.EnumToValue(this.Mask))
-            this.Frets |> Array.iter writer.Write
-            this.Fingers |> Array.iter writer.Write
-            this.Notes |> Array.iter writer.Write
+            writer.WriteUInt32 (LanguagePrimitives.EnumToValue(this.Mask))
+            this.Frets |> Array.iter writer.WriteInt8
+            this.Fingers |> Array.iter writer.WriteInt8
+            this.Notes |> Array.iter writer.WriteInt32
             writeZeroTerminatedUTF8String 32 this.Name writer
     
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         { Mask = reader.ReadUInt32() |> LanguagePrimitives.EnumOfValue
-          Frets = Array.init 6 (fun _ -> reader.ReadSByte())
-          Fingers = Array.init 6 (fun _ -> reader.ReadSByte())
+          Frets = Array.init 6 (fun _ -> reader.ReadInt8())
+          Fingers = Array.init 6 (fun _ -> reader.ReadInt8())
           Notes = Array.init 6 (fun _ -> reader.ReadInt32())
           Name = readZeroTerminatedUTF8String 32 reader }

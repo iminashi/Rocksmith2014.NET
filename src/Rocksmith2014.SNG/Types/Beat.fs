@@ -1,7 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
 open Interfaces
-open System.IO
 
 type Beat =
     { Time : float32
@@ -12,13 +11,13 @@ type Beat =
     
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write this.Time
-            writer.Write this.Measure
-            writer.Write this.Beat
-            writer.Write this.PhraseIteration
-            writer.Write (LanguagePrimitives.EnumToValue this.Mask)
+            writer.WriteSingle this.Time
+            writer.WriteInt16 this.Measure
+            writer.WriteInt16 this.Beat
+            writer.WriteInt32 this.PhraseIteration
+            writer.WriteInt32 (LanguagePrimitives.EnumToValue this.Mask)
     
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         { Time = reader.ReadSingle()
           Measure = reader.ReadInt16()
           Beat = reader.ReadInt16()

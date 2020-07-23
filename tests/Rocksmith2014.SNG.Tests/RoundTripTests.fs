@@ -3,21 +3,23 @@
 open Expecto
 open Rocksmith2014.SNG
 open Rocksmith2014.SNG.Interfaces
+open Rocksmith2014.SNG.BinaryReaders
+open Rocksmith2014.SNG.BinaryWriters
 open System.IO
 open Generators
 
 /// Writes the value into a memory stream and reads it back with the given function.
-let roundTrip<'a when 'a :> IBinaryWritable> (x:'a) (read : BinaryReader -> 'a) =
+let roundTrip<'a when 'a :> IBinaryWritable> (x: 'a) (read : IBinaryReader -> 'a) =
     use stream = new MemoryStream()
-    use writer = new BinaryWriter(stream)
+    let writer = LittleEndianBinaryWriter(stream)
     (x :> IBinaryWritable).Write(writer)
 
     stream.Position <- 0L
-    use reader = new BinaryReader(stream)
+    let reader = new LittleEndianBinaryReader(stream)
     read reader
 
 /// Does a round-trip on the given value and tests if the result is equal to it.
-let testEqual<'a when 'a : equality and 'a :> IBinaryWritable> (read : BinaryReader -> 'a) (expected:'a) =
+let testEqual<'a when 'a : equality and 'a :> IBinaryWritable> (read: IBinaryReader -> 'a) (expected: 'a) =
     let actual = roundTrip expected read
     Expect.equal actual expected "Equal after round-trip"
 

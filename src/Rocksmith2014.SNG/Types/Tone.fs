@@ -1,7 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
 open Interfaces
-open System.IO
 
 [<Struct>]
 type Tone =
@@ -10,9 +9,9 @@ type Tone =
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write this.Time
-            writer.Write this.ToneId
+            writer.WriteSingle this.Time
+            writer.WriteInt32 this.ToneId
 
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         { Time = reader.ReadSingle()
           ToneId = reader.ReadInt32() }

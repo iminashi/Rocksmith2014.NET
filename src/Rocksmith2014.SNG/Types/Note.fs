@@ -2,7 +2,6 @@
 
 open Interfaces
 open BinaryHelpers
-open System.IO
 
 type Note =
     { Mask : NoteMask
@@ -35,43 +34,43 @@ type Note =
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write(LanguagePrimitives.EnumToValue(this.Mask))
-            writer.Write this.Flags
-            writer.Write this.Hash
-            writer.Write this.Time
-            writer.Write this.StringIndex
-            writer.Write this.FretId
-            writer.Write this.AnchorFretId
-            writer.Write this.AnchorWidth
-            writer.Write this.ChordId
-            writer.Write this.ChordNotesId
-            writer.Write this.PhraseId
-            writer.Write this.PhraseIterationId
-            this.FingerPrintId |> Array.iter writer.Write
-            writer.Write this.NextIterNote
-            writer.Write this.PrevIterNote
-            writer.Write this.ParentPrevNote
-            writer.Write this.SlideTo
-            writer.Write this.SlideUnpitchTo
-            writer.Write this.LeftHand
-            writer.Write this.Tap
-            writer.Write this.PickDirection
-            writer.Write this.Slap
-            writer.Write this.Pluck
-            writer.Write this.Vibrato
-            writer.Write this.Sustain
-            writer.Write this.MaxBend
+            writer.WriteUInt32 (LanguagePrimitives.EnumToValue(this.Mask))
+            writer.WriteUInt32 this.Flags
+            writer.WriteUInt32 this.Hash
+            writer.WriteSingle this.Time
+            writer.WriteInt8 this.StringIndex
+            writer.WriteInt8 this.FretId
+            writer.WriteInt8 this.AnchorFretId
+            writer.WriteInt8 this.AnchorWidth
+            writer.WriteInt32 this.ChordId
+            writer.WriteInt32 this.ChordNotesId
+            writer.WriteInt32 this.PhraseId
+            writer.WriteInt32 this.PhraseIterationId
+            this.FingerPrintId |> Array.iter writer.WriteInt16
+            writer.WriteInt16 this.NextIterNote
+            writer.WriteInt16 this.PrevIterNote
+            writer.WriteInt16 this.ParentPrevNote
+            writer.WriteInt8 this.SlideTo
+            writer.WriteInt8 this.SlideUnpitchTo
+            writer.WriteInt8 this.LeftHand
+            writer.WriteInt8 this.Tap
+            writer.WriteInt8 this.PickDirection
+            writer.WriteInt8 this.Slap
+            writer.WriteInt8 this.Pluck
+            writer.WriteInt16 this.Vibrato
+            writer.WriteSingle this.Sustain
+            writer.WriteSingle this.MaxBend
             writeArray writer this.BendData
 
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         { Mask = LanguagePrimitives.EnumOfValue(reader.ReadUInt32())
           Flags = reader.ReadUInt32()
           Hash = reader.ReadUInt32()
           Time = reader.ReadSingle()
-          StringIndex = reader.ReadSByte()
-          FretId = reader.ReadSByte()
-          AnchorFretId = reader.ReadSByte()
-          AnchorWidth = reader.ReadSByte()
+          StringIndex = reader.ReadInt8()
+          FretId = reader.ReadInt8()
+          AnchorFretId = reader.ReadInt8()
+          AnchorWidth = reader.ReadInt8()
           ChordId = reader.ReadInt32()
           ChordNotesId = reader.ReadInt32()
           PhraseId = reader.ReadInt32()
@@ -80,13 +79,13 @@ type Note =
           NextIterNote = reader.ReadInt16()
           PrevIterNote = reader.ReadInt16()
           ParentPrevNote = reader.ReadInt16()
-          SlideTo = reader.ReadSByte()
-          SlideUnpitchTo = reader.ReadSByte()
-          LeftHand = reader.ReadSByte()
-          Tap = reader.ReadSByte()
-          PickDirection = reader.ReadSByte()
-          Slap = reader.ReadSByte()
-          Pluck = reader.ReadSByte()
+          SlideTo = reader.ReadInt8()
+          SlideUnpitchTo = reader.ReadInt8()
+          LeftHand = reader.ReadInt8()
+          Tap = reader.ReadInt8()
+          PickDirection = reader.ReadInt8()
+          Slap = reader.ReadInt8()
+          Pluck = reader.ReadInt8()
           Vibrato = reader.ReadInt16()
           Sustain = reader.ReadSingle()
           MaxBend = reader.ReadSingle()

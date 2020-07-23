@@ -3,7 +3,7 @@
 open Rocksmith2014.SNG
 open Rocksmith2014.XML
 open Rocksmith2014.Conversion
-open System.IO
+open Rocksmith2014.SNG.BinaryReaders
 open System.Reflection
 open System.Text
 open Microsoft.Extensions.FileProviders
@@ -17,7 +17,7 @@ let private defaultTextures =
 let private defaultSymbols =
     lazy (let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
           use stream = embeddedProvider.GetFileInfo("default_symbols.bin").CreateReadStream()
-          use reader = new BinaryReader(stream)
+          let reader = LittleEndianBinaryReader(stream)
           BinaryHelpers.readArray reader SymbolDefinition.Read)
 
 let private defaultHeaders =

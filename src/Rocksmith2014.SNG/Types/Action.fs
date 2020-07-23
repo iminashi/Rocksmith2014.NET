@@ -2,7 +2,6 @@
 
 open Interfaces
 open BinaryHelpers
-open System.IO
 
 /// Leftover from RS1, no equivalent in RS2014 XML.
 type Action = 
@@ -11,9 +10,9 @@ type Action =
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write this.Time
+            writer.WriteSingle this.Time
             writeZeroTerminatedUTF8String 256 this.ActionName writer
 
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         { Time = reader.ReadSingle()
           ActionName = readZeroTerminatedUTF8String 256 reader }

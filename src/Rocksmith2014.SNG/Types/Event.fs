@@ -2,7 +2,6 @@
 
 open Interfaces
 open BinaryHelpers
-open System.IO
 
 type Event =
     { Time : float32
@@ -10,9 +9,9 @@ type Event =
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write this.Time
+            writer.WriteSingle this.Time
             writeZeroTerminatedUTF8String 256 this.Name writer
 
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         { Time = reader.ReadSingle()
           Name = readZeroTerminatedUTF8String 256 reader }

@@ -1,7 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
 open Interfaces
-open System.IO
 open BinaryHelpers
 
 type NewLinkedDifficulty =
@@ -10,10 +9,10 @@ type NewLinkedDifficulty =
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write this.LevelBreak
-            writer.Write this.NLDPhrases.Length
-            this.NLDPhrases |> Array.iter writer.Write
+            writer.WriteInt32 this.LevelBreak
+            writer.WriteInt32 this.NLDPhrases.Length
+            this.NLDPhrases |> Array.iter writer.WriteInt32
 
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         { LevelBreak = reader.ReadInt32()
           NLDPhrases = readArray reader (fun r -> r.ReadInt32()) }

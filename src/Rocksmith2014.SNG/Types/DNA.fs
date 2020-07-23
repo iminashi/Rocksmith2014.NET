@@ -1,7 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
 open Interfaces
-open System.IO
 
 [<Struct>]
 type DNA =
@@ -10,9 +9,9 @@ type DNA =
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write this.Time
-            writer.Write this.DnaId
+            writer.WriteSingle this.Time
+            writer.WriteInt32 this.DnaId
 
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         { Time = reader.ReadSingle()
           DnaId = reader.ReadInt32() }

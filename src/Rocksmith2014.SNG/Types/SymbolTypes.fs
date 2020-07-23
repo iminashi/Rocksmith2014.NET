@@ -1,7 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
 open Interfaces
-open System.IO
 open BinaryHelpers
 
 type SymbolsHeader = 
@@ -16,16 +15,16 @@ type SymbolsHeader =
     
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write this.ID
-            writer.Write this.Unk2
-            writer.Write this.Unk3
-            writer.Write this.Unk4
-            writer.Write this.Unk5
-            writer.Write this.Unk6
-            writer.Write this.Unk7
-            writer.Write this.Unk8
+            writer.WriteInt32 this.ID
+            writer.WriteInt32 this.Unk2
+            writer.WriteInt32 this.Unk3
+            writer.WriteInt32 this.Unk4
+            writer.WriteInt32 this.Unk5
+            writer.WriteInt32 this.Unk6
+            writer.WriteInt32 this.Unk7
+            writer.WriteInt32 this.Unk8
     
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         { ID = reader.ReadInt32()
           Unk2 = reader.ReadInt32()
           Unk3 = reader.ReadInt32()
@@ -47,13 +46,13 @@ type SymbolsTexture =
     interface IBinaryWritable with
         member this.Write(writer) =
             writeZeroTerminatedUTF8String 128 this.Font writer
-            writer.Write this.FontPathLength
+            writer.WriteInt32 this.FontPathLength
             // Write zero for unknown value
-            writer.Write 0
-            writer.Write this.Width
-            writer.Write this.Height
+            writer.WriteInt32 0
+            writer.WriteInt32 this.Width
+            writer.WriteInt32 this.Height
 
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         { Font = readZeroTerminatedUTF8String 128 reader
           FontPathLength = reader.ReadInt32()
           //Read unknown value before width
@@ -69,12 +68,12 @@ type Rect =
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write this.yMin
-            writer.Write this.xMin
-            writer.Write this.yMax
-            writer.Write this.xMax
+            writer.WriteSingle this.yMin
+            writer.WriteSingle this.xMin
+            writer.WriteSingle this.yMax
+            writer.WriteSingle this.xMax
 
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         { yMin = reader.ReadSingle()
           xMin = reader.ReadSingle()
           yMax = reader.ReadSingle()
@@ -91,7 +90,7 @@ type SymbolDefinition =
             (this.Outer :> IBinaryWritable).Write writer
             (this.Inner :> IBinaryWritable).Write writer
 
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         { Symbol = readZeroTerminatedUTF8String 12 reader
           Outer = Rect.Read reader
           Inner = Rect.Read reader }

@@ -1,7 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
 open Interfaces
-open System.IO
 
 type PhraseIteration =
     { PhraseId : int32
@@ -11,12 +10,12 @@ type PhraseIteration =
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write this.PhraseId
-            writer.Write this.StartTime
-            writer.Write this.NextPhraseTime
-            this.Difficulty |> Array.iter writer.Write
+            writer.WriteInt32 this.PhraseId
+            writer.WriteSingle this.StartTime
+            writer.WriteSingle this.NextPhraseTime
+            this.Difficulty |> Array.iter writer.WriteInt32
 
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         { PhraseId = reader.ReadInt32()
           StartTime = reader.ReadSingle()
           NextPhraseTime = reader.ReadSingle()

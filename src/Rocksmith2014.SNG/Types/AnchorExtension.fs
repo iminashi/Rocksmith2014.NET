@@ -1,7 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
 open Interfaces
-open System.IO
 
 type AnchorExtension =
     { BeatTime : float32
@@ -13,19 +12,19 @@ type AnchorExtension =
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write this.BeatTime
-            writer.Write this.FretId
+            writer.WriteSingle this.BeatTime
+            writer.WriteInt8 this.FretId
             // Write zeros for unknown values
-            writer.Write 0
-            writer.Write 0s
-            writer.Write 0y
+            writer.WriteInt32 0
+            writer.WriteInt16 0s
+            writer.WriteInt8 0y
 
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         let time = reader.ReadSingle()
-        let fret = reader.ReadSByte()
+        let fret = reader.ReadInt8()
 
         // Read unknown values
-        reader.ReadInt32() |> ignore; reader.ReadInt16() |> ignore; reader.ReadSByte() |> ignore
+        reader.ReadInt32() |> ignore; reader.ReadInt16() |> ignore; reader.ReadInt8() |> ignore
 
         { BeatTime = time
           FretId = fret }

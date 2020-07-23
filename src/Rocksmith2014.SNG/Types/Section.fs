@@ -2,7 +2,6 @@
 
 open Interfaces
 open BinaryHelpers
-open System.IO
 
 type Section =
     { Name : string
@@ -16,18 +15,18 @@ type Section =
     interface IBinaryWritable with
         member this.Write(writer) =
             writeZeroTerminatedUTF8String 32 this.Name writer
-            writer.Write this.Number
-            writer.Write this.StartTime
-            writer.Write this.EndTime
-            writer.Write this.StartPhraseIterationId
-            writer.Write this.EndPhraseIterationId
-            this.StringMask |> Array.iter writer.Write
+            writer.WriteInt32 this.Number
+            writer.WriteSingle this.StartTime
+            writer.WriteSingle this.EndTime
+            writer.WriteInt32 this.StartPhraseIterationId
+            writer.WriteInt32 this.EndPhraseIterationId
+            this.StringMask |> Array.iter writer.WriteInt8
 
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         { Name = readZeroTerminatedUTF8String 32 reader
           Number = reader.ReadInt32()
           StartTime = reader.ReadSingle()
           EndTime = reader.ReadSingle()
           StartPhraseIterationId = reader.ReadInt32()
           EndPhraseIterationId = reader.ReadInt32()
-          StringMask = Array.init 36 (fun _ -> reader.ReadSByte()) }
+          StringMask = Array.init 36 (fun _ -> reader.ReadInt8()) }

@@ -1,7 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
 open Interfaces
-open System.IO
 
 type Anchor =
     { StartTime : float32
@@ -15,25 +14,25 @@ type Anchor =
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write this.StartTime
-            writer.Write this.EndTime
-            writer.Write this.FirstNoteTime
-            writer.Write this.LastNoteTime
-            writer.Write this.FretId
+            writer.WriteSingle this.StartTime
+            writer.WriteSingle this.EndTime
+            writer.WriteSingle this.FirstNoteTime
+            writer.WriteSingle this.LastNoteTime
+            writer.WriteInt8 this.FretId
             // Write three bytes of padding
-            writer.Write (0s); writer.Write (0y)
-            writer.Write this.Width
-            writer.Write this.PhraseIterationId
+            writer.WriteInt16 0s; writer.WriteInt8 0y
+            writer.WriteInt32 this.Width
+            writer.WriteInt32 this.PhraseIterationId
 
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         // Read three bytes of padding
         let readPadding () =
-            reader.ReadInt16() |> ignore; reader.ReadSByte() |> ignore
+            reader.ReadInt16() |> ignore; reader.ReadInt8() |> ignore
 
         { StartTime = reader.ReadSingle()
           EndTime = reader.ReadSingle()
           FirstNoteTime = reader.ReadSingle()
           LastNoteTime = reader.ReadSingle()
-          FretId = reader.ReadSByte()
+          FretId = reader.ReadInt8()
           Width = (readPadding(); reader.ReadInt32())
           PhraseIterationId = reader.ReadInt32() }

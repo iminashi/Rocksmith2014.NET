@@ -1,7 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
 open Interfaces
-open System.IO
 
 type FingerPrint =
     { ChordId : int32
@@ -12,13 +11,13 @@ type FingerPrint =
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write this.ChordId
-            writer.Write this.StartTime
-            writer.Write this.EndTime
-            writer.Write this.FirstNoteTime
-            writer.Write this.LastNoteTime
+            writer.WriteInt32 this.ChordId
+            writer.WriteSingle this.StartTime
+            writer.WriteSingle this.EndTime
+            writer.WriteSingle this.FirstNoteTime
+            writer.WriteSingle this.LastNoteTime
 
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         { ChordId = reader.ReadInt32() 
           StartTime = reader.ReadSingle()
           EndTime = reader.ReadSingle()

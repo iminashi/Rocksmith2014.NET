@@ -2,7 +2,6 @@
 
 open Interfaces
 open BinaryHelpers
-open System.IO
 
 type Level =
     { Difficulty : int32
@@ -17,20 +16,20 @@ type Level =
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write(this.Difficulty)
+            writer.WriteInt32 this.Difficulty
             writeArray writer this.Anchors
             writeArray writer this.AnchorExtensions
             writeArray writer this.HandShapes
             writeArray writer this.Arpeggios
             writeArray writer this.Notes
-            writer.Write this.AverageNotesPerIteration.Length
-            this.AverageNotesPerIteration |> Array.iter writer.Write
-            writer.Write this.NotesInPhraseIterationsExclIgnored.Length
-            this.NotesInPhraseIterationsExclIgnored |> Array.iter writer.Write
-            writer.Write this.NotesInPhraseIterationsAll.Length
-            this.NotesInPhraseIterationsAll |> Array.iter writer.Write
+            writer.WriteInt32 this.AverageNotesPerIteration.Length
+            this.AverageNotesPerIteration |> Array.iter writer.WriteSingle
+            writer.WriteInt32 this.NotesInPhraseIterationsExclIgnored.Length
+            this.NotesInPhraseIterationsExclIgnored |> Array.iter writer.WriteInt32
+            writer.WriteInt32 this.NotesInPhraseIterationsAll.Length
+            this.NotesInPhraseIterationsAll |> Array.iter writer.WriteInt32
 
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         { Difficulty = reader.ReadInt32()
           Anchors = readArray reader Anchor.Read
           AnchorExtensions = readArray reader AnchorExtension.Read

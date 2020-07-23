@@ -1,7 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
 open Interfaces
-open System.IO
 open BinaryHelpers
 
 type Phrase =
@@ -15,22 +14,22 @@ type Phrase =
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.Write this.Solo
-            writer.Write this.Disparity
-            writer.Write this.Ignore
+            writer.WriteInt8 this.Solo
+            writer.WriteInt8 this.Disparity
+            writer.WriteInt8 this.Ignore
             // Write a single byte of padding
-            writer.Write 0y
-            writer.Write this.MaxDifficulty
-            writer.Write this.PhraseIterationLinks
+            writer.WriteInt8 0y
+            writer.WriteInt32 this.MaxDifficulty
+            writer.WriteInt32 this.PhraseIterationLinks
             writeZeroTerminatedUTF8String 32 this.Name writer
 
-    static member Read(reader : BinaryReader) =
+    static member Read(reader : IBinaryReader) =
         // Read a single byte of padding
-        let readPadding() = reader.ReadSByte() |> ignore
+        let readPadding() = reader.ReadInt8() |> ignore
 
-        { Solo = reader.ReadSByte()
-          Disparity = reader.ReadSByte()
-          Ignore = reader.ReadSByte() 
+        { Solo = reader.ReadInt8()
+          Disparity = reader.ReadInt8()
+          Ignore = reader.ReadInt8() 
           MaxDifficulty = (readPadding(); reader.ReadInt32())
           PhraseIterationLinks = reader.ReadInt32()
           Name = readZeroTerminatedUTF8String 32 reader }
