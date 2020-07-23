@@ -184,7 +184,8 @@ type BendData32 =
         { BendValues = Array.init 32 (fun _ -> BendValue.Read reader)
           UsedCount = reader.ReadInt32() }
 
-    static member Empty = { BendValues = Array.replicate 32 BendValue.Empty; UsedCount = 0 }
+module BendData32 =
+    let Empty = { BendValues = Array.replicate 32 BendValue.Empty; UsedCount = 0 }
 
 type ChordNotes =
     { Mask : NoteMask[]
@@ -723,7 +724,8 @@ type MetaData =
           FirstNoteTime = (reader.ReadSingle() |> ignore; reader.ReadSingle())
           MaxDifficulty = reader.ReadInt32() }
 
-    static member Empty =
+module MetaData =
+    let Empty =
         { MaxScore = 0.
           MaxNotesAndChords = 0.
           MaxNotesAndChordsReal = 0.
