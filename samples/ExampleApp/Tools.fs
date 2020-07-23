@@ -122,7 +122,7 @@ let view (state: State) dispatch =
             ]
 
             Button.create [
-                Button.onClick (fun _ -> ofdSng (ConvertVocalsXMLtoSNG >> dispatch))
+                Button.onClick (fun _ -> ofdXml (ConvertVocalsXMLtoSNG >> dispatch))
                 Button.content "Convert Vocals XML to SNG..."
             ]
             
