@@ -41,49 +41,47 @@ let init = { Status = ""; Platform = PC }
 
 type Msg =
     | UnpackFile of file:string
-    | ConvertVocals of file:string
+    | ConvertVocalsSNGtoXML of file:string
+    | ConvertVocalsXMLtoSNG of file:string
     | ConvertInstrumentalSNGtoXML of file:string
     | ConvertInstrumentalXMLtoSNG of file:string
     | RoundTrip of file:string
     | ChangePlatform of Platform
 
 let update (msg: Msg) (state: State) : State =
-    match msg with
-    | RoundTrip file ->
-        try
+    try
+        match msg with
+        | RoundTrip file ->
             SNGFile.readPacked file state.Platform
             |> SNGFile.savePacked (file + "re") state.Platform
             state
-        with e -> { state with Status = e.Message }
-
-    | UnpackFile file ->
-        try
+        
+        | UnpackFile file ->
             SNGFile.unpackFile file state.Platform; state
-        with e -> { state with Status = e.Message }
 
-    | ConvertVocals file ->
-        try
+        | ConvertVocalsSNGtoXML file ->
             let target = Path.ChangeExtension(file, "xml")
             ConvertVocals.sngFileToXml file target state.Platform
             state
-        with e -> { state with Status = e.Message }
 
-    | ConvertInstrumentalSNGtoXML file ->
-        try
+        | ConvertVocalsXMLtoSNG file ->
+            let target = Path.ChangeExtension(file, "sng")
+            ConvertVocals.xmlFileToSng file target None state.Platform
+            state
+
+        | ConvertInstrumentalSNGtoXML file ->
             let targetFile = Path.ChangeExtension(file, "xml")
             ConvertInstrumental.sngFileToXml file targetFile state.Platform
             state
-        with e -> { state with Status = e.Message }
 
-    | ConvertInstrumentalXMLtoSNG file ->
-        try
+        | ConvertInstrumentalXMLtoSNG file ->
             let targetFile = Path.ChangeExtension(file, "sng")
             ConvertInstrumental.xmlFileToSng file targetFile state.Platform
             state
-        with e -> { state with Status = e.Message }
 
-    | ChangePlatform platform ->
-        { state with Platform = platform }
+        | ChangePlatform platform -> { state with Platform = platform }
+
+    with e -> { state with Status = e.Message }
 
 let view (state: State) dispatch =
     StackPanel.create [
@@ -119,8 +117,13 @@ let view (state: State) dispatch =
             ]
 
             Button.create [
-                Button.onClick (fun _ -> ofdSng (ConvertVocals >> dispatch))
+                Button.onClick (fun _ -> ofdSng (ConvertVocalsSNGtoXML >> dispatch))
                 Button.content "Convert Vocals SNG to XML..."
+            ]
+
+            Button.create [
+                Button.onClick (fun _ -> ofdSng (ConvertVocalsXMLtoSNG >> dispatch))
+                Button.content "Convert Vocals XML to SNG..."
             ]
             
             Button.create [
