@@ -161,7 +161,7 @@ namespace Rocksmith2014.XML
                 return;
             }
 
-            string countAttr = reader.GetAttribute("count");
+            string? countAttr = reader.GetAttribute("count");
             if (countAttr != null)
             {
                 int count = int.Parse(countAttr, NumberFormatInfo.InvariantInfo);

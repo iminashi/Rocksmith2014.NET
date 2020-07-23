@@ -2,7 +2,7 @@
 
 open Rocksmith2014
 
-let private standardTuningMidiNotes = [| 40; 45; 50; 55; 59; 64 |];
+let private standardTuningMidiNotes = [| 40; 45; 50; 55; 59; 64 |]
 
 let mapToMidiNotes (xml: XML.InstrumentalArrangement) (frets: sbyte array) =
     Array.init 6 (fun str ->

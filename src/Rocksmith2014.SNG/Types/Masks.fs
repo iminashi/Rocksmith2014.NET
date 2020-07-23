@@ -17,7 +17,7 @@ type ChordMask =
 [<Flags>]
 type NoteMask =
     | None           = 0b00000000_00000000_00000000_00000000u
-  //| Unused         = 0b00000000_00000000_00000000_00000001u 
+  //| Unused         = 0b00000000_00000000_00000000_00000001u
     | Chord          = 0b00000000_00000000_00000000_00000010u
     | Open           = 0b00000000_00000000_00000000_00000100u
     // Fret-hand mute for chords.
@@ -62,4 +62,4 @@ module Masks =
     /// Mask bits that need to be considered when converting a chord to XML.
     let ChordTechniques =
             NoteMask.Accent ||| NoteMask.FretHandMute ||| NoteMask.HighDensity
-            ||| NoteMask.Ignore ||| NoteMask.PalmMute ||| NoteMask.Parent      
+            ||| NoteMask.Ignore ||| NoteMask.PalmMute ||| NoteMask.Parent
