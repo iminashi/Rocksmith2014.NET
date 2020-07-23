@@ -13,7 +13,7 @@ let unpackFile fileName platform =
              Path.GetFileNameWithoutExtension(fileName)
              + "_unpacked.sng")
 
-    use out = File.OpenWrite targetFile
+    use out = File.Open(targetFile, FileMode.Create, FileAccess.Write)
     SNG.unpack file out platform
 
 /// Reads an encrypted SNG file. 
@@ -32,7 +32,7 @@ let savePacked fileName platform (sng:SNG) =
     (sng :> IBinaryWritable).Write writer
     memory.Position <- 0L
 
-    use out = File.OpenWrite fileName
+    use out = File.Open(fileName, FileMode.Create, FileAccess.Write)
     SNG.pack memory out platform
 
 /// Reads an unpacked SNG from the given file.
@@ -44,7 +44,7 @@ let readUnpacked fileName =
 
 /// Saves an SNG (plain) with the given filename.
 let saveUnpacked fileName (sng:SNG) =
-    use stream = File.OpenWrite fileName
+    use stream = File.Open(fileName, FileMode.Create, FileAccess.Write)
     use writer = new BinaryWriter(stream)
 
     (sng :> IBinaryWritable).Write writer
