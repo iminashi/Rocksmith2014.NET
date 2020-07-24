@@ -3,7 +3,6 @@
 open Rocksmith2014
 open Rocksmith2014.SNG
 open Rocksmith2014.Conversion.Utils
-open Nessos.Streams
 
 /// Converts an SNG Beat into an XML Ebeat.
 let convertBeat (sngBeat:Beat) =
@@ -130,9 +129,7 @@ let convertNote (sngNote:Note) =
 
     let bendValues =
         sngNote.BendData
-        |> Stream.ofArray
-        |> Stream.map convertBendValue 
-        |> Stream.toResizeArray
+        |> mapToResizeArray convertBendValue
 
     XML.Note(Mask = mask,
              Time = secToMs sngNote.Time,
@@ -163,11 +160,11 @@ let convertChordMask (sngMask:NoteMask) =
 
 /// Converts an SNG BendData32 into a list of XML BendValues.
 let convertBendData32 (bd:BendData32) =
-    bd.BendValues
-    |> Stream.ofArray
-    |> Stream.take bd.UsedCount
-    |> Stream.map convertBendValue
-    |> Stream.toResizeArray
+    if bd.UsedCount = 0 then
+        null
+    else
+        bd.BendValues.[..(bd.UsedCount - 1)]
+        |> mapToResizeArray convertBendValue
 
 /// Creates a list of XML chord notes for an SNG Note.
 let private createChordNotes (sng:SNG) (chord:Note) =
@@ -207,19 +204,24 @@ let convertChord (sng:SNG) (sngNote:Note) =
               ChordId = int16 sngNote.ChordId,
               ChordNotes = if sngNote.Mask ?= NoteMask.Strum then createChordNotes sng sngNote else null)
 
+let private mapFingerPrints (handShapes: FingerPrint array) (arpeggios: FingerPrint array) =
+    let result = ResizeArray<XML.HandShape>(handShapes.Length + arpeggios.Length)
+
+    for i = 0 to handShapes.Length - 1 do
+        result.Add(convertHandShape handShapes.[i])
+    for i = 0 to arpeggios.Length - 1 do
+        result.Add(convertHandShape arpeggios.[i])
+
+    result.Sort(fun hs1 hs2 -> hs1.Time.CompareTo(hs2.Time))
+    result
+
 /// Converts an SNG Level into an XML Level.
-let convertLevel (sng:SNG) (sngLevel:Level) =
+let convertLevel (sng: SNG) (sngLevel: Level) =
     let anchors = sngLevel.Anchors |> mapToResizeArray convertAnchor
 
-    let handShapes =
-        seq { Stream.ofArray sngLevel.HandShapes
-              Stream.ofArray sngLevel.Arpeggios }
-        |> Stream.concat
-        |> Stream.map convertHandShape
-        |> Stream.sortBy (fun hs -> hs.StartTime)
-        |> Stream.toResizeArray
+    let handShapes = mapFingerPrints sngLevel.HandShapes sngLevel.Arpeggios
 
-    let sngNotes, sngChords = Array.partition (fun (n : Note) -> n.ChordId = -1) sngLevel.Notes
+    let sngNotes, sngChords = Array.partition isNote sngLevel.Notes
     let notes = sngNotes |> mapToResizeArray convertNote
     let chords = sngChords |> mapToResizeArray (convertChord sng)
 

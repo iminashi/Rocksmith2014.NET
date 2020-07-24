@@ -2,7 +2,6 @@
 
 open System
 open Rocksmith2014.SNG
-open Nessos.Streams
 open Rocksmith2014
 
 /// Converts a floating point number (seconds) into an integer (milliseconds).
@@ -14,26 +13,23 @@ let msToSec (time: int) = float32 time / 1000.0f
 /// Tests if an SNG note mask has the given flag.
 let inline (?=) (mask:NoteMask) (flag:NoteMask) = (mask &&& flag) <> NoteMask.None
 
+// Returns true if the SNG note is not a chord.
+let isNote (n: Note) = n.ChordId = -1
+
 /// Maps an array into a ResizeArray using the given map function.
-let mapToResizeArray map array =
-    array
-    |> Stream.ofArray
-    |> Stream.map map
-    |> Stream.toResizeArray
+let mapToResizeArray map (array : 'a array) =
+    let ra = ResizeArray(array.Length)
+    for i = 0 to array.Length - 1 do
+        ra.Add(map array.[i])
+    ra
 
 /// Maps a ResizeArray into an array using the given map function.
-let mapToArray map resizeArray =
-    resizeArray
-    |> Stream.ofResizeArray
-    |> Stream.map map
-    |> Stream.toArray
+let mapToArray map (resizeArray: ResizeArray<'a>) =
+    Array.init resizeArray.Count (fun i -> map resizeArray.[i])
 
 /// Maps a ResizeArray into an array using the given map function, with index.
-let mapiToArray map resizeArray =
-    resizeArray
-    |> Stream.ofResizeArray
-    |> Stream.mapi map
-    |> Stream.toArray
+let mapiToArray map (resizeArray: ResizeArray<'a>) =
+    Array.init resizeArray.Count (fun i -> map i resizeArray.[i])
 
 /// Returns the average of the given array, zero for an empty array.
 let tryAverage = function

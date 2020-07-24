@@ -143,7 +143,7 @@ let sngToXmlConversionTests =
 
       let xml = SngToXml.convertBendData32 bd
 
-      Expect.equal xml.Count bd.UsedCount "Count is same"
+      Expect.isNull xml "Null is returned for empty bend data"
 
     testCase "BendData32" <| fun _ ->
       let bd = 

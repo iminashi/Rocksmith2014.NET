@@ -4,7 +4,6 @@ open Rocksmith2014
 open Rocksmith2014.SNG
 open Rocksmith2014.Conversion.XmlToSng
 open Rocksmith2014.Conversion.Utils
-open Nessos.Streams
 open XmlToSngNote
 
 /// Creates an XML entity array from the notes and chords.
@@ -36,9 +35,7 @@ let convertLevel (accuData: AccuData) (xmlArr: XML.InstrumentalArrangement) (xml
 
     let anchors =
         xmlLevel.Anchors
-        |> Stream.ofResizeArray
-        |> Stream.mapi (convertAnchor noteTimes xmlLevel xmlArr)
-        |> Stream.toArray
+        |> mapiToArray (convertAnchor noteTimes xmlLevel xmlArr)
 
     let isArpeggio (hs: XML.HandShape) = xmlArr.ChordTemplates.[int hs.ChordId].IsArpeggio
     let convertHandshape' = convertHandshape hsMap
