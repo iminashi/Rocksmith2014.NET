@@ -8,6 +8,7 @@
     <Compile Include="Utils.fs" />
     <Compile Include="SngToXml.fs" />
     <Compile Include="Midi.fs" />
+    <Compile Include="AccuData.fs" />
     <Compile Include="XmlToSng.fs" />
     <Compile Include="ConvertVocals.fs" />
     <Compile Include="ConvertInstrumental.fs" />

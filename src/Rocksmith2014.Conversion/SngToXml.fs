@@ -55,11 +55,13 @@ let convertPhraseExtraInfo (sngInfo:PhraseExtraInfo) =
 let convertBendValue (sngBend:BendValue) =
     XML.BendValue(secToMs sngBend.Time, sngBend.Step)
 
+/// Converts an SNG Vocal into an XML Vocal.
 let convertVocal (sngVocal:Vocal) =
     let time = secToMs sngVocal.Time
     let length = secToMs sngVocal.Length
     XML.Vocal(time, length, sngVocal.Lyric, byte sngVocal.Note)
 
+/// Converts an SNG SymbolDefinition into an XML GlyphDefinition.
 let convertSymbolDefinition (sngSymbol:SymbolDefinition) =
     XML.GlyphDefinition(
         Symbol = sngSymbol.Symbol,
@@ -72,24 +74,32 @@ let convertSymbolDefinition (sngSymbol:SymbolDefinition) =
         InnerXMin = sngSymbol.Inner.xMin,
         InnerXMax = sngSymbol.Inner.xMax)
 
+ /// Converts an SNG NewLinkedDifficulty into an XML NewLinkedDifficulty.
 let convertNLD (sngNld:NewLinkedDifficulty) =
     XML.NewLinkedDiff(sbyte sngNld.LevelBreak, sngNld.NLDPhrases)
 
+ /// Converts an SNG Event into an XML Event.
 let convertEvent (sngEvent:Event) =
     XML.Event(sngEvent.Name, secToMs sngEvent.Time)
 
+/// Converts an SNG Tone into an XML ToneChange.
 let convertTone (sngTone:Tone) =
+    // TODO: Get tone name from optional manifest file
     XML.ToneChange("N/A", secToMs sngTone.Time, byte sngTone.ToneId)
 
+/// Converts an SNG Section into an XML Section.
 let convertSection (sngSection:Section) =
     XML.Section(sngSection.Name, secToMs sngSection.StartTime, int16 sngSection.Number)
 
+/// Converts an SNG Anchor into an XML Anchor.
 let convertAnchor (sngAnchor:Anchor) =
     XML.Anchor(sngAnchor.FretId, secToMs sngAnchor.StartTime, sbyte sngAnchor.Width)
 
+/// Converts an SNG FingerPrint into an XML HandShape.
 let convertHandShape (fp:FingerPrint) =
     XML.HandShape(int16 fp.ChordId, secToMs fp.StartTime, secToMs fp.EndTime)
 
+/// Converts an SNG NoteMask into an XML NoteMask.
 let convertNoteMask (sngMask:NoteMask) =
     // Optimization for notes without techniques
     if (sngMask &&& Masks.NoteTechniques) = NoteMask.None then
@@ -110,6 +120,7 @@ let convertNoteMask (sngMask:NoteMask) =
         ||| if sngMask ?= NoteMask.Slap          then XML.NoteMask.Slap          else XML.NoteMask.None
         ||| if sngMask ?= NoteMask.Tremolo       then XML.NoteMask.Tremolo       else XML.NoteMask.None
 
+/// Converts an SNG Note into an XML Note.
 let convertNote (sngNote:Note) =
     if sngNote.ChordId <> -1 then invalidOp "Cannot convert a chord into a note."
     
@@ -136,6 +147,7 @@ let convertNote (sngNote:Note) =
              // Default value used for tap in XML is 0, in SNG it is -1
              Tap = if sngNote.Tap < 0y then 0y else sngNote.Tap)
 
+/// Converts an SNG NoteMask into an XML ChordMask.
 let convertChordMask (sngMask:NoteMask) =
     // Optimization for chords without techniques
     if (sngMask &&& Masks.ChordTechniques) = NoteMask.None then
@@ -149,6 +161,7 @@ let convertChordMask (sngMask:NoteMask) =
         ||| if sngMask ?= NoteMask.PalmMute     then XML.ChordMask.PalmMute     else XML.ChordMask.None
         ||| if sngMask ?= NoteMask.Parent       then XML.ChordMask.LinkNext     else XML.ChordMask.None
 
+/// Converts an SNG BendData32 into a list of XML BendValues.
 let convertBendData32 (bd:BendData32) =
     bd.BendValues
     |> Stream.ofArray
@@ -156,7 +169,8 @@ let convertBendData32 (bd:BendData32) =
     |> Stream.map convertBendValue
     |> Stream.toResizeArray
 
-let private convertChordNotes (sng:SNG) (chord:Note) =
+/// Creates a list of XML chord notes for an SNG Note.
+let private createChordNotes (sng:SNG) (chord:Note) =
     let template = sng.Chords.[chord.ChordId]
     let xmlNotes = ResizeArray()
 
@@ -184,14 +198,16 @@ let private convertChordNotes (sng:SNG) (chord:Note) =
             
     xmlNotes
 
+/// Converts an SNG Note into an XML Chord.
 let convertChord (sng:SNG) (sngNote:Note) =
     if sngNote.ChordId = -1 then invalidOp "Cannot convert a note into a chord."
     
     XML.Chord(Mask = convertChordMask sngNote.Mask,
               Time = secToMs sngNote.Time,
               ChordId = int16 sngNote.ChordId,
-              ChordNotes = if sngNote.Mask ?= NoteMask.Strum then convertChordNotes sng sngNote else null)
+              ChordNotes = if sngNote.Mask ?= NoteMask.Strum then createChordNotes sng sngNote else null)
 
+/// Converts an SNG Level into an XML Level.
 let convertLevel (sng:SNG) (sngLevel:Level) =
     let anchors = sngLevel.Anchors |> mapToResizeArray convertAnchor
 

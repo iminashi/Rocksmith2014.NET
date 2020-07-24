@@ -34,8 +34,10 @@ let mapiToArray map resizeArray =
     |> Stream.mapi map
     |> Stream.toArray
 
+/// Returns the average of the given array, zero for an empty array.
 let tryAverage = function
     | [||] -> 0.f
     | arr -> arr |> Array.average
 
+/// Converts a boolean value into a signed byte.
 let inline boolToByte b = if b then 1y else 0y

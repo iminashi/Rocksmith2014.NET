@@ -16,10 +16,12 @@ let writeZeroTerminatedUTF8String length (str: string) (writer: IBinaryWriter) =
     Encoding.UTF8.GetBytes(str.AsSpan(), arr.AsSpan()) |> ignore
     writer.WriteBytes arr
 
+/// Reads an array that is preceded by its length from the IBinaryReader using the given read function.
 let readArray (reader: IBinaryReader) read =
     let length = reader.ReadInt32()
     Array.init length (fun _ -> read reader)
 
+/// Writes an array of elements into the IBinaryWriter preceded by its length.
 let writeArray<'a when 'a :> IBinaryWritable> (writer: IBinaryWriter) (arr: 'a[]) =
     writer.WriteInt32 arr.Length
     arr |> Array.iter (fun e -> e.Write writer)

@@ -6,6 +6,7 @@ open Rocksmith2014.Conversion
 open Rocksmith2014.Conversion.Utils
 open System
 
+/// Converts an SNG arrangement into an InstrumentalArrangement.
 let sngToXml (sng: SNG) =
     let phrases =
         mapToResizeArray SngToXml.convertPhrase sng.Phrases
@@ -48,8 +49,9 @@ let sngToXml (sng: SNG) =
 
     arr
 
+/// Converts an InstrumentalArrangement into SNG.
 let xmlToSng (arr: InstrumentalArrangement) =
-    let accuData = XmlToSng.AccuData.Init(arr)
+    let accuData = AccuData.Init(arr)
     let convertBeat = XmlToSng.convertBeat() arr
     let convertLevel = XmlToSng.convertLevel accuData arr
 
@@ -96,10 +98,12 @@ let xmlToSng (arr: InstrumentalArrangement) =
       Levels = levels
       MetaData = metadata }
 
+/// Converts an SNG instrumental arrangement into an XML file.
 let sngFileToXml sngFile targetFile platform =
     let xml = SNGFile.readPacked sngFile platform |> sngToXml
     xml.Save targetFile
 
+/// Converts an XML instrumental arrangement into an SNG file.
 let xmlFileToSng xmlFile targetFile platform =
     let sng = InstrumentalArrangement.Load(xmlFile) |> xmlToSng
     SNGFile.savePacked targetFile platform sng

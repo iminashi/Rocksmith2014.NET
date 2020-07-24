@@ -8,25 +8,30 @@ open System.Reflection
 open System.Text
 open Microsoft.Extensions.FileProviders
 
+/// The default symbol textures used in SNG files that use the default font.
 let private defaultTextures =
     [| { Font = @"assets\ui\lyrics\lyrics.dds"
          FontPathLength = 27
          Width = 1024
          Height = 512 } |]
 
+/// The default symbol definitions used in SNG files that use the default font.
 let private defaultSymbols =
     lazy (let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
           use stream = embeddedProvider.GetFileInfo("default_symbols.bin").CreateReadStream()
           let reader = LittleEndianBinaryReader(stream)
           BinaryHelpers.readArray reader SymbolDefinition.Read)
 
+/// The headers used in SNG files that use the default font.
 let private defaultHeaders =
     [| SymbolsHeader.Default; { SymbolsHeader.Default with ID = 1 } |]
 
+/// Converts an SNG vocals arrangement into a list of XML vocals.
 let sngToXml (sng: SNG) =
     sng.Vocals
     |> Utils.mapToResizeArray SngToXml.convertVocal
     
+/// Extracts glyph data from the given SNG.
 let extractGlyphData (sng: SNG) =
     let glyphs =
         sng.SymbolDefinitions
@@ -37,6 +42,7 @@ let extractGlyphData (sng: SNG) =
                      TextureHeight = sng.SymbolsTextures.[0].Height,
                      Glyphs = glyphs)
 
+/// Converts a list of XML vocals into SNG.
 let xmlToSng (glyphs: GlyphDefinitions option) (xml: ResizeArray<Vocal>) =
     let vocals = xml |> Utils.mapToArray XmlToSng.convertVocal
 
@@ -58,11 +64,13 @@ let xmlToSng (glyphs: GlyphDefinitions option) (xml: ResizeArray<Vocal>) =
                      SymbolsTextures = textures
                      SymbolDefinitions = symbols }
 
+/// Converts a vocals SNG file into an XML file.
 let sngFileToXml sngFile targetFile platform =
     let vocals = SNGFile.readPacked sngFile platform |> sngToXml
     Vocals.Save(targetFile, vocals)
 
-let xmlFileToSng xmlFile targetFile (customFont: string option) platform =
+/// Converts a vocals XML file into an SNG file.
+let xmlFileToSng xmlFile targetFile customFont platform =
     let glyphs =
         customFont
         |> Option.map (fun fn -> 

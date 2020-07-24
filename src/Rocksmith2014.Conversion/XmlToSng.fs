@@ -14,52 +14,9 @@ type XmlEntity =
     | XmlNote of XmlNote : XML.Note
     | XmlChord of XmlChord : XML.Chord
 
-type NoteCounts =
-    { mutable Easy : int
-      mutable Medium : int
-      mutable Hard : int
-      mutable Ignored : int }
-
-/// Represents data that is being accumulated when mapping XML notes/chords into SNG notes.
-type AccuData =
-    { StringMasks : int8[][]
-      ChordNotes : ResizeArray<ChordNotes>
-      ChordNotesMap : Dictionary<int, int>
-      AnchorExtensions : ResizeArray<AnchorExtension>
-      NotesInPhraseIterationsExclIgnored : int[]
-      NotesInPhraseIterationsAll : int[]
-      NoteCounts : NoteCounts
-      mutable FirstNoteTime : int }
-
-    member this.AddNote(pi: int, difficulty: byte, heroLeves: XML.HeroLevels, ignored: bool) =
-        this.NotesInPhraseIterationsAll.[pi] <- this.NotesInPhraseIterationsAll.[pi] + 1
-    
-        if not ignored then
-            this.NotesInPhraseIterationsExclIgnored.[pi] <- this.NotesInPhraseIterationsExclIgnored.[pi] + 1
-    
-        if heroLeves.Easy = difficulty then
-            this.NoteCounts.Easy <- this.NoteCounts.Easy + 1
-        elif heroLeves.Medium = difficulty then
-            this.NoteCounts.Medium <- this.NoteCounts.Medium + 1
-        elif heroLeves.Hard = difficulty then
-            this.NoteCounts.Hard <- this.NoteCounts.Hard + 1
-            if ignored then
-                this.NoteCounts.Ignored <- this.NoteCounts.Ignored + 1
-    
-    member this.LevelReset() =
-        this.AnchorExtensions.Clear()
-        Array.Clear(this.NotesInPhraseIterationsAll, 0, this.NotesInPhraseIterationsAll.Length)
-        Array.Clear(this.NotesInPhraseIterationsExclIgnored, 0, this.NotesInPhraseIterationsExclIgnored.Length)
-    
-    static member Init(arr: XML.InstrumentalArrangement) =
-        { StringMasks = Array.init (arr.Sections.Count) (fun _ -> Array.zeroCreate 36)
-          ChordNotes = ResizeArray()
-          AnchorExtensions = ResizeArray()
-          ChordNotesMap = Dictionary()
-          NotesInPhraseIterationsExclIgnored = Array.zeroCreate (arr.PhraseIterations.Count)
-          NotesInPhraseIterationsAll = Array.zeroCreate (arr.PhraseIterations.Count)
-          NoteCounts = { Easy = 0; Medium = 0; Hard = 0; Ignored = 0 }
-          FirstNoteTime = Int32.MaxValue }
+let getTimeCode = function
+    | XmlNote xn -> xn.Time
+    | XmlChord xc -> xc.Time
 
 let findBeatPhraseIterationId (time: int) (iterations: ResizeArray<XML.PhraseIteration>) =
     let rec find index =
@@ -394,11 +351,7 @@ let createFlag (previousNote: ValueOption<Note>) anchorFret noteFret =
 let private hashNote note = hash note |> uint32
 let private hashChordNotes cn = hash cn
 
-let getTimeCode = function
-    | XmlNote xn -> xn.Time
-    | XmlChord xc -> xc.Time
-
-let createBendData32 (note: XML.Note) =
+let private createBendData32 (note: XML.Note) =
     let usedCount = note.BendValues.Count
     let bv = Array.init 32 (fun i ->
         if i < usedCount then
@@ -409,7 +362,7 @@ let createBendData32 (note: XML.Note) =
     { BendValues = bv
       UsedCount = usedCount }
 
-let createChordNotesMask (chordNotes: ResizeArray<XML.Note>) =
+let private createChordNotesMask (chordNotes: ResizeArray<XML.Note>) =
     let masks = Array.zeroCreate<NoteMask> 6
     for note in chordNotes do
         let strIndex = int note.String
@@ -417,7 +370,7 @@ let createChordNotesMask (chordNotes: ResizeArray<XML.Note>) =
         masks.[strIndex] <- createMaskForChordNote note
     masks
 
-let createChordNotes (pendingLinkNexts: Dictionary<int8, int16>) thisId (accuData: AccuData) (chord: XML.Chord) =
+let private createChordNotes (pendingLinkNexts: Dictionary<int8, int16>) thisId (accuData: AccuData) (chord: XML.Chord) =
     match chord.ChordNotes with
     | null -> -1
     | xmlChordNotes ->

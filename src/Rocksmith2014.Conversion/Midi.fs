@@ -2,8 +2,10 @@
 
 open Rocksmith2014
 
+/// The MIDI notes for each string in standard tuning.
 let private standardTuningMidiNotes = [| 40; 45; 50; 55; 59; 64 |]
 
+/// Maps the array of frets into an array of MIDI notes.
 let mapToMidiNotes (xml: XML.InstrumentalArrangement) (frets: sbyte array) =
     Array.init 6 (fun str ->
         if frets.[str] = -1y then

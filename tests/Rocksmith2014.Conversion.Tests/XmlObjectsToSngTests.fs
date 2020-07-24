@@ -50,7 +50,7 @@ let createTestArr () =
     arr.Levels.Add(lvl)
     arr
 
-let sharedAccData = XmlToSng.AccuData.Init (createTestArr())
+let sharedAccData = AccuData.Init (createTestArr())
 
 let createNoteTimes (level:XML.Level) =
     let chords =
@@ -62,7 +62,7 @@ let createNoteTimes (level:XML.Level) =
     |> Seq.sort
     |> Seq.toArray
 
-let createNoteConvertFunction (accuData:XmlToSng.AccuData) (arr:InstrumentalArrangement) (level:Level) =
+let createNoteConvertFunction (accuData: AccuData) (arr: InstrumentalArrangement) (level: Level) =
     let noteTimes = createNoteTimes level
     let hs = XmlToSng.createHandShapeMap noteTimes level
     XmlToSng.convertNote() noteTimes hs accuData arr
@@ -603,7 +603,7 @@ let sngToXmlConversionTests =
         let testArr = createTestArr()
         testArr.Levels.[0].Chords.Add(chord)
 
-        let accuData = XmlToSng.AccuData.Init(testArr)
+        let accuData = AccuData.Init(testArr)
         let convert = createNoteConvertFunction accuData testArr (testArr.Levels.[0])
 
         let sng = convert 0 0 (XmlToSng.XmlChord chord)
@@ -625,7 +625,7 @@ let sngToXmlConversionTests =
         let testArr = createTestArr()
         testArr.Levels.[0].Chords.Add(chord)
 
-        let accuData = XmlToSng.AccuData.Init(testArr)
+        let accuData = AccuData.Init(testArr)
         let convert = createNoteConvertFunction accuData testArr (testArr.Levels.[0])
 
         let sng = convert 0 0 (XmlToSng.XmlChord chord)
@@ -639,7 +639,7 @@ let sngToXmlConversionTests =
         let testArr = createTestArr()
         testArr.Levels.[0].Notes.Add(note)
 
-        let accuData = XmlToSng.AccuData.Init(testArr)
+        let accuData = AccuData.Init(testArr)
         let convert = createNoteConvertFunction accuData testArr (testArr.Levels.[0])
 
         let sng = convert 0 0 (XmlToSng.XmlNote note)
