@@ -65,7 +65,7 @@ let createNoteTimes (level:XML.Level) =
 let createNoteConvertFunction (accuData: AccuData) (arr: InstrumentalArrangement) (level: Level) =
     let noteTimes = createNoteTimes level
     let hs = XmlToSng.createHandShapeMap noteTimes level
-    XmlToSng.convertNote() noteTimes hs accuData arr
+    XmlToSngNote.convertNote() noteTimes hs accuData arr
 
 [<Tests>]
 let sngToXmlConversionTests =
@@ -111,6 +111,7 @@ let sngToXmlConversionTests =
 
       Expect.isTrue ((sngB0.Mask &&& SNG.BeatMask.FirstBeatOfMeasure) <> SNG.BeatMask.None) "B0: First beat flag is set"
       Expect.isTrue ((sngB0.Mask &&& SNG.BeatMask.EvenMeasure) = SNG.BeatMask.None) "B0: Even measure flag is not set"
+      Expect.equal sngB0.PhraseIteration 1 "B0: Is in phrase iteration 1"
       Expect.equal sngB1.Beat 1s "B1: Is second beat of measure"
       Expect.equal sngB2.Measure 1s "B2: Is in measure 1"
       Expect.equal sngB3.Measure 2s "B2: Is in measure 1"
@@ -320,7 +321,7 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Anchors.Add(Anchor(7y, 5555, 5y))
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSng.convertNote() noteTimes Map.empty sharedAccData testArr
+        let convert = XmlToSngNote.convertNote() noteTimes Map.empty sharedAccData testArr
 
         let sng = convert 0 0 (XmlToSng.XmlNote note)
 
@@ -360,7 +361,7 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(note1)
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSng.convertNote() noteTimes Map.empty sharedAccData testArr
+        let convert = XmlToSngNote.convertNote() noteTimes Map.empty sharedAccData testArr
 
         let sngNote0 = convert 0 0 (XmlToSng.XmlNote note0)
         let sngNote1 = convert 0 1 (XmlToSng.XmlNote note1)
@@ -385,7 +386,7 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(note)
         
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSng.convertNote() noteTimes Map.empty sharedAccData testArr
+        let convert = XmlToSngNote.convertNote() noteTimes Map.empty sharedAccData testArr
 
         let sngNote = convert 0 0 (XmlToSng.XmlNote note)
 
@@ -421,7 +422,7 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(note)
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSng.convertNote() noteTimes Map.empty sharedAccData testArr
+        let convert = XmlToSngNote.convertNote() noteTimes Map.empty sharedAccData testArr
 
         let sngNote = convert 0 0 (XmlToSng.XmlNote note)
 
@@ -451,7 +452,7 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(child)
         
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSng.convertNote() noteTimes Map.empty sharedAccData testArr
+        let convert = XmlToSngNote.convertNote() noteTimes Map.empty sharedAccData testArr
 
         let sngParent = convert 0 0 (XmlToSng.XmlNote parent)
         let sngChild = convert 0 1 (XmlToSng.XmlNote child)
@@ -506,7 +507,7 @@ let sngToXmlConversionTests =
     testCase "Meta Data" <| fun _ ->
         let testArr = createTestArr()
 
-        let md = XmlToSng.convertMetaData sharedAccData testArr
+        let md = XmlToSng.createMetaData sharedAccData testArr
 
         Expect.equal md.MaxScore 100_000.0 "Max score is correct"
         Expect.equal md.StartTime 1.0f "Start time is correct"
@@ -659,7 +660,7 @@ let sngToXmlConversionTests =
         testLevel.Chords.Add(Chord(Time = 1250, ChordId = 1s))
         let accuData = AccuData.Init(testArr)
 
-        let sng = XmlToSng.convertLevel accuData testArr testLevel
+        let sng = XmlToSngLevel.convertLevel accuData testArr testLevel
 
         Expect.equal sng.Difficulty (int testLevel.Difficulty) "Difficulty is same"
         Expect.equal sng.Anchors.Length testLevel.Anchors.Count "Anchor count is same"
@@ -670,4 +671,24 @@ let sngToXmlConversionTests =
         Expect.equal sng.AverageNotesPerIteration.[1] 1.f "Average notes in phrase #2 is one (two notes / two iterations)"
         Expect.equal accuData.FirstNoteTime 1100 "First note time is correct"
         Expect.equal accuData.NoteCounts.Easy 2 "Note count, easy is correct"
+
+    testCase "Section String Mask" <| fun _ ->
+        let note1 = Note(String = 2y, Fret = 3y, Time = 1750)
+        let note2 = Note(String = 0y, Fret = 3y, Time = 1750)
+        let note3 = Note(String = 5y, Fret = 0y, Time = 4000)
+
+        let testArr = createTestArr()
+        testArr.Levels.[0].Notes.Add(note1)
+        testArr.Levels.[0].Notes.Add(note2)
+        testArr.Levels.[0].Notes.Add(note3)
+        
+        let accuData = AccuData.Init(testArr)
+        let convert = createNoteConvertFunction accuData testArr (testArr.Levels.[0])
+
+        let sng1 = convert 0 0 (XmlToSng.XmlNote note1)
+        let sng2 = convert 0 1 (XmlToSng.XmlNote note2)
+        let sng3 = convert 0 2 (XmlToSng.XmlNote note3)
+
+        Expect.equal accuData.StringMasks.[0].[0] 5y "String mask for section 0, difficulty 0 is 5"
+        Expect.equal accuData.StringMasks.[1].[0] 32y "String mask for section 1, difficulty 0 is 32"
   ]

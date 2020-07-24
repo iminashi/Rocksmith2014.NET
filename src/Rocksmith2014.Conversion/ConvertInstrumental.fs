@@ -53,7 +53,7 @@ let sngToXml (sng: SNG) =
 let xmlToSng (arr: InstrumentalArrangement) =
     let accuData = AccuData.Init(arr)
     let convertBeat = XmlToSng.convertBeat() arr
-    let convertLevel = XmlToSng.convertLevel accuData arr
+    let convertLevel = XmlToSngLevel.convertLevel accuData arr
 
     let beats =
         arr.Ebeats |> mapToArray convertBeat
@@ -77,7 +77,7 @@ let xmlToSng (arr: InstrumentalArrangement) =
         arr.Sections |> mapiToArray (XmlToSng.convertSection accuData.StringMasks arr)
     let levels =
         arr.Levels |> mapToArray convertLevel
-    let metadata = XmlToSng.convertMetaData accuData arr
+    let metadata = XmlToSng.createMetaData accuData arr
 
     { Beats = beats
       Phrases = phrases
