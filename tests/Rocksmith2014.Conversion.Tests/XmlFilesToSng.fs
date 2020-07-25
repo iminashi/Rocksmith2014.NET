@@ -3,6 +3,7 @@
 open Expecto
 open Rocksmith2014.XML
 open Rocksmith2014.Conversion
+open Rocksmith2014.SNG
 
 [<Tests>]
 let sngToXmlConversionTests =
@@ -11,10 +12,35 @@ let sngToXmlConversionTests =
     testCase "Vocals (Default Font)" <| fun _ ->
         let xml = Vocals.Load("vocals.xml")
         
-        let sng = ConvertVocals.xmlToSng None xml
+        let sng = ConvertVocals.xmlToSng DefaultFont xml
 
         Expect.equal sng.Vocals.Length xml.Count "Vocal count is same"
         Expect.equal sng.SymbolDefinitions.Length 192 "Symbol definition count is correct"
+
+    testCase "Vocals (Custom Font)" <| fun _ ->
+        let xml = Vocals.Load("vocals.xml")
+        let customFont = GlyphDefinitions.Load("vocals.glyphs.xml")
+
+        let sng = ConvertVocals.xmlToSng (CustomFont customFont) xml
+
+        Expect.equal sng.Vocals.Length xml.Count "Vocal count is same"
+        Expect.equal sng.SymbolDefinitions.Length customFont.Glyphs.Count "Symbol definition count is correct"
+        Expect.equal sng.SymbolsTextures.[0].Width customFont.TextureWidth "Texture width is correct"
+        Expect.equal sng.SymbolsTextures.[0].Height customFont.TextureHeight "Texture height is correct"
+
+    testCase "Japanese Vocals (Custom Font)" <| fun _ ->
+        let xml = Vocals.Load("jvocals.xml")
+        let customFont = GlyphDefinitions.Load("jvocals.glyphs.xml")
+        ConvertVocals.xmlToSng (CustomFont customFont) xml
+        |> SNGFile.savePacked "jvocals_test.sng" PC
+
+        let sng = SNGFile.readPacked "jvocals_test.sng" PC
+
+        Expect.equal sng.Vocals.Length xml.Count "Vocal count is same"
+        Expect.equal sng.Vocals.[0].Lyric "夏-" "Vocal #1 is correct"
+        Expect.equal sng.Vocals.[9].Lyric "跡+" "Vocal #9 is correct"
+        Expect.equal sng.SymbolDefinitions.Length customFont.Glyphs.Count "Symbol definition count is correct"
+        Expect.equal sng.SymbolDefinitions.[1].Symbol "が" "Symbol #1 is correct"
 
     testCase "Instrumental" <| fun _ ->
         let xml = InstrumentalArrangement.Load("instrumental.xml")

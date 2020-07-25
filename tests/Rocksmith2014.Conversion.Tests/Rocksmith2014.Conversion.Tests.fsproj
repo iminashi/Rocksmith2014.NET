@@ -13,22 +13,31 @@
     <None Include="instrumental_1level_notesonly.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="vocals.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="instrumental.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="instrumental.sng">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="jvocals.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="jvocals.glyphs.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="vocals.sng">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="vocals.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="vocals.glyphs.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Compile Include="XmlObjectsToSngTests.fs" />
     <Compile Include="SngObjectsToXmlTests.fs" />
     <Compile Include="SngFilesToXml.fs" />
-    <Compile Include="XmlFilesToSngF.fs" />
+    <Compile Include="XmlFilesToSng.fs" />
     <Compile Include="InstrumentalConversion.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>

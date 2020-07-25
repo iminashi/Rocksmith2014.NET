@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GlyphDefinitions TextureWidth="512" TextureHeight="512">
+  <GlyphDefinition Symbol=" " InnerYMin="0.0351953134" InnerYMax="0.06636719" InnerXMin="0.015625" InnerXMax="0.02936849" OuterYMin="0.0351953134" OuterYMax="0.06636719" OuterXMin="0.015625" OuterXMax="0.02936849" />
+  <GlyphDefinition Symbol="が" InnerYMin="0.0234375" InnerYMax="0.08203125" InnerXMin="0.062571615" InnerXMax="0.121165365" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.046946615" OuterXMax="0.136790365" />
+  <GlyphDefinition Symbol="ど" InnerYMin="0.025390625" InnerYMax="0.08203125" InnerXMin="0.160227865" InnerXMax="0.21296224" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.144602865" OuterXMax="0.22858724" />
+  <GlyphDefinition Symbol="の" InnerYMin="0.029296875" InnerYMax="0.08203125" InnerXMin="0.24811849" InnerXMax="0.300852865" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.23249349" OuterXMax="0.316477865" />
+  <GlyphDefinition Symbol="も" InnerYMin="0.02734375" InnerYMax="0.08203125" InnerXMin="0.339915365" InnerXMax="0.390696615" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.324290365" OuterXMax="0.406321615" />
+  <GlyphDefinition Symbol="や" InnerYMin="0.025390625" InnerYMax="0.08203125" InnerXMin="0.429759115" InnerXMax="0.484446615" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.414134115" OuterXMax="0.5000716" />
+  <GlyphDefinition Symbol="兵" InnerYMin="0.0234375" InnerYMax="0.083984375" InnerXMin="0.52155596" InnerXMax="0.5781966" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.50593096" OuterXMax="0.5938216" />
+  <GlyphDefinition Symbol="夏" InnerYMin="0.02734375" InnerYMax="0.083984375" InnerXMin="0.613352835" InnerXMax="0.6719466" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.597727835" OuterXMax="0.6875716" />
+  <GlyphDefinition Symbol="夢" InnerYMin="0.0234375" InnerYMax="0.083984375" InnerXMin="0.7051497" InnerXMax="0.761790335" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.6895247" OuterXMax="0.777415335" />
+  <GlyphDefinition Symbol="草" InnerYMin="0.025390625" InnerYMax="0.083984375" InnerXMin="0.7969466" InnerXMax="0.8535872" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.7813216" OuterXMax="0.8692122" />
+  <GlyphDefinition Symbol="跡" InnerYMin="0.0234375" InnerYMax="0.083984375" InnerXMin="0.886790335" InnerXMax="0.9473372" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.871165335" OuterXMax="0.9629622" />
+</GlyphDefinitions>

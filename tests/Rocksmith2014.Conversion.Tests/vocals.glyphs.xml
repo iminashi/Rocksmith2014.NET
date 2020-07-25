@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GlyphDefinitions TextureWidth="512" TextureHeight="512">
+  <GlyphDefinition Symbol=" " InnerYMin="0.0351953134" InnerYMax="0.06636719" InnerXMin="0.015625" InnerXMax="0.02936849" OuterYMin="0.0351953134" OuterYMax="0.06636719" OuterXMin="0.015625" OuterXMax="0.02936849" />
+  <GlyphDefinition Symbol="'" InnerYMin="0.029296875" InnerYMax="0.052734375" InnerXMin="0.06452474" InnerXMax="0.07624349" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.04889974" OuterXMax="0.09186849" />
+  <GlyphDefinition Symbol="," InnerYMin="0.064453125" InnerYMax="0.091796875" InnerXMin="0.113496095" InnerXMax="0.1291211" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.0978710949" OuterXMax="0.1447461" />
+  <GlyphDefinition Symbol="-" InnerYMin="0.0546875" InnerYMax="0.064453125" InnerXMin="0.164420575" InnerXMax="0.1819987" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.148795575" OuterXMax="0.1976237" />
+  <GlyphDefinition Symbol="A" InnerYMin="0.03125" InnerYMax="0.078125" InnerXMin="0.214166671" InnerXMax="0.257135421" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.198541671" OuterXMax="0.272760421" />
+  <GlyphDefinition Symbol="B" InnerYMin="0.03125" InnerYMax="0.078125" InnerXMin="0.29008463" InnerXMax="0.32524088" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.27445963" OuterXMax="0.34086588" />
+  <GlyphDefinition Symbol="E" InnerYMin="0.03125" InnerYMax="0.078125" InnerXMin="0.3625651" InnerXMax="0.3938151" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.3469401" OuterXMax="0.4094401" />
+  <GlyphDefinition Symbol="O" InnerYMin="0.03125" InnerYMax="0.078125" InnerXMin="0.429101557" InnerXMax="0.4720703" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.413476557" OuterXMax="0.4876953" />
+  <GlyphDefinition Symbol="T" InnerYMin="0.03125" InnerYMax="0.078125" InnerXMin="0.505019546" InnerXMax="0.5421289" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.489394546" OuterXMax="0.5577539" />
+  <GlyphDefinition Symbol="Y" InnerYMin="0.03125" InnerYMax="0.078125" InnerXMin="0.572154939" InnerXMax="0.611217439" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.556529939" OuterXMax="0.626842439" />
+  <GlyphDefinition Symbol="a" InnerYMin="0.041015625" InnerYMax="0.078125" InnerXMin="0.642487" InnerXMax="0.671783864" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.626862" OuterXMax="0.687408864" />
+  <GlyphDefinition Symbol="b" InnerYMin="0.02734375" InnerYMax="0.078125" InnerXMin="0.7114714" InnerXMax="0.7446745" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.6958464" OuterXMax="0.7602995" />
+  <GlyphDefinition Symbol="c" InnerYMin="0.041015625" InnerYMax="0.078125" InnerXMin="0.7797591" InnerXMax="0.809056" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.7641341" OuterXMax="0.824681" />
+  <GlyphDefinition Symbol="d" InnerYMin="0.02734375" InnerYMax="0.078125" InnerXMin="0.842916667" InnerXMax="0.8761198" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.827291667" OuterXMax="0.8917448" />
+  <GlyphDefinition Symbol="e" InnerYMin="0.041015625" InnerYMax="0.078125" InnerXMin="0.9131575" InnerXMax="0.9444075" OuterYMin="0" OuterYMax="0.1015625" OuterXMin="0.8975325" OuterXMax="0.9600325" />
+  <GlyphDefinition Symbol="f" InnerYMin="0.12890625" InnerYMax="0.1796875" InnerXMin="0.017578125" InnerXMax="0.04296875" OuterYMin="0.1015625" OuterYMax="0.203125" OuterXMin="0.001953125" OuterXMax="0.05859375" />
+  <GlyphDefinition Symbol="g" InnerYMin="0.142578125" InnerYMax="0.1953125" InnerXMin="0.0713541657" InnerXMax="0.106510416" OuterYMin="0.1015625" OuterYMax="0.203125" OuterXMin="0.0557291657" OuterXMax="0.122135416" />
+  <GlyphDefinition Symbol="h" InnerYMin="0.12890625" InnerYMax="0.1796875" InnerXMin="0.140703127" InnerXMax="0.171953127" OuterYMin="0.1015625" OuterYMax="0.203125" OuterXMin="0.125078127" OuterXMax="0.187578127" />
+  <GlyphDefinition Symbol="i" InnerYMin="0.12890625" InnerYMax="0.1796875" InnerXMin="0.20875" InnerXMax="0.22242187" OuterYMin="0.1015625" OuterYMax="0.203125" OuterXMin="0.193125" OuterXMax="0.23804687" />
+  <GlyphDefinition Symbol="k" InnerYMin="0.126953125" InnerYMax="0.1796875" InnerXMin="0.260358065" InnerXMax="0.2935612" OuterYMin="0.1015625" OuterYMax="0.203125" OuterXMin="0.24473308" OuterXMax="0.3091862" />
+  <GlyphDefinition Symbol="l" InnerYMin="0.12890625" InnerYMax="0.1796875" InnerXMin="0.3282357" InnerXMax="0.3438607" OuterYMin="0.1015625" OuterYMax="0.203125" OuterXMin="0.3126107" OuterXMax="0.3594857" />
+  <GlyphDefinition Symbol="m" InnerYMin="0.142578125" InnerYMax="0.1796875" InnerXMin="0.3785547" InnerXMax="0.429335952" OuterYMin="0.1015625" OuterYMax="0.203125" OuterXMin="0.3629297" OuterXMax="0.444960952" />
+  <GlyphDefinition Symbol="n" InnerYMin="0.142578125" InnerYMax="0.1796875" InnerXMin="0.468170583" InnerXMax="0.499420583" OuterYMin="0.1015625" OuterYMax="0.203125" OuterXMin="0.452545583" OuterXMax="0.5150456" />
+  <GlyphDefinition Symbol="o" InnerYMin="0.142578125" InnerYMax="0.1796875" InnerXMin="0.536276042" InnerXMax="0.569479167" OuterYMin="0.1015625" OuterYMax="0.203125" OuterXMin="0.520651042" OuterXMax="0.585104167" />
+  <GlyphDefinition Symbol="p" InnerYMin="0.142578125" InnerYMax="0.193359375" InnerXMin="0.607382834" InnerXMax="0.640585959" OuterYMin="0.1015625" OuterYMax="0.203125" OuterXMin="0.591757834" OuterXMax="0.656210959" />
+  <GlyphDefinition Symbol="r" InnerYMin="0.142578125" InnerYMax="0.1796875" InnerXMin="0.6776237" InnerXMax="0.7030143" OuterYMin="0.1015625" OuterYMax="0.203125" OuterXMin="0.6619987" OuterXMax="0.7186393" />
+  <GlyphDefinition Symbol="s" InnerYMin="0.142578125" InnerYMax="0.1796875" InnerXMin="0.7313672" InnerXMax="0.760664046" OuterYMin="0.1015625" OuterYMax="0.203125" OuterXMin="0.7157422" OuterXMax="0.776289046" />
+  <GlyphDefinition Symbol="t" InnerYMin="0.1328125" InnerYMax="0.1796875" InnerXMin="0.792584658" InnerXMax="0.8179753" OuterYMin="0.1015625" OuterYMax="0.203125" OuterXMin="0.776959658" OuterXMax="0.8336003" />
+  <GlyphDefinition Symbol="u" InnerYMin="0.142578125" InnerYMax="0.1796875" InnerXMin="0.8531706" InnerXMax="0.8844206" OuterYMin="0.1015625" OuterYMax="0.203125" OuterXMin="0.8375456" OuterXMax="0.9000456" />
+  <GlyphDefinition Symbol="v" InnerYMin="0.142578125" InnerYMax="0.1796875" InnerXMin="0.919082046" InnerXMax="0.9542383" OuterYMin="0.1015625" OuterYMax="0.203125" OuterXMin="0.903457046" OuterXMax="0.9698633" />
+  <GlyphDefinition Symbol="w" InnerYMin="0.244140625" InnerYMax="0.28125" InnerXMin="0.015625" InnerXMax="0.068359375" OuterYMin="0.203125" OuterYMax="0.3046875" OuterXMin="0" OuterXMax="0.083984375" />
+  <GlyphDefinition Symbol="y" InnerYMin="0.244140625" InnerYMax="0.294921875" InnerXMin="0.0991276056" InnerXMax="0.134283856" OuterYMin="0.203125" OuterYMax="0.3046875" OuterXMin="0.0835026056" OuterXMax="0.149908856" />
+  <GlyphDefinition Symbol="z" InnerYMin="0.244140625" InnerYMax="0.28125" InnerXMin="0.167083338" InnerXMax="0.196380213" OuterYMin="0.203125" OuterYMax="0.3046875" OuterXMin="0.151458338" OuterXMax="0.212005213" />
+</GlyphDefinitions>
