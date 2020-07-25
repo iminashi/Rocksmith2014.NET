@@ -10,6 +10,7 @@
     <Compile Include="SngToXml.fs" />
     <Compile Include="AccuData.fs" />
     <Compile Include="XmlToSng.fs" />
+    <Compile Include="NoteFlagFunctions.fs" />
     <Compile Include="XmlToSngNote.fs" />
     <Compile Include="XmlToSngLevel.fs" />
     <Compile Include="ConvertVocals.fs" />

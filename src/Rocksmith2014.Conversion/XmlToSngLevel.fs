@@ -26,7 +26,7 @@ let convertLevel (accuData: AccuData) (xmlArr: XML.InstrumentalArrangement) (xml
     let xmlEntities = createXmlEntityArray xmlLevel.Notes xmlLevel.Chords
     let noteTimes = xmlEntities |> Array.map getTimeCode
     let hsMap = createHandShapeMap noteTimes xmlLevel
-    let convertNote' = convertNote() noteTimes hsMap accuData xmlArr difficulty
+    let convertNote' = convertNote() noteTimes hsMap accuData NoteFlagFunctions.onAnchorChange xmlArr difficulty
 
     if noteTimes.[0] < accuData.FirstNoteTime then
         accuData.FirstNoteTime <- noteTimes.[0]

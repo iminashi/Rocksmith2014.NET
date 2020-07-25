@@ -126,14 +126,6 @@ let private createMaskForChord (template: XML.ChordTemplate) sustain chordNoteId
         ||| if chord.IsLinkNext     then NoteMask.Parent       else NoteMask.None
         ||| if chord.IsPalmMute     then NoteMask.PalmMute     else NoteMask.None
 
-/// Creates a note flag (0 = None, 1 = The note is numbered).
-let private createFlag (previousNote: ValueOption<Note>) anchorFret noteFret =
-    match previousNote with
-    | ValueNone ->
-        if noteFret <> 0y then 1u else 0u
-    | ValueSome note ->
-        if note.AnchorFretId <> anchorFret && noteFret <> 0y then 1u else 0u
-
 /// Creates a BendData32 object for the XML chord note.
 let private createBendData32 (chordNote: XML.Note) =
     let usedCount = chordNote.BendValues.Count
@@ -212,6 +204,7 @@ let convertNote () =
     fun (noteTimes: int[])
         (handShapeMap: HandShapeMap)
         (accuData: AccuData)
+        (flag: NoteFlagger)
         (xml: XML.InstrumentalArrangement)
         (difficulty: int)
         (index: int)
@@ -368,7 +361,7 @@ let convertNote () =
 
         { initialNote with
             Hash = hashNote initialNote
-            Flags = createFlag previousNote anchor.Fret data.Fret
+            Flags = flag previousNote initialNote
             NextIterNote = next
             PrevIterNote = previous
             ParentPrevNote = data.Parent }

@@ -50,6 +50,7 @@ let createTestArr () =
     arr
 
 let sharedAccData = AccuData.Init (createTestArr())
+let flagFunc = NoteFlagFunctions.never
 
 let createNoteTimes (level:XML.Level) =
     let chords =
@@ -64,7 +65,7 @@ let createNoteTimes (level:XML.Level) =
 let createNoteConvertFunction (accuData: AccuData) (arr: InstrumentalArrangement) (level: Level) =
     let noteTimes = createNoteTimes level
     let hs = XmlToSng.createHandShapeMap noteTimes level
-    XmlToSngNote.convertNote() noteTimes hs accuData arr
+    XmlToSngNote.convertNote() noteTimes hs accuData NoteFlagFunctions.onAnchorChange arr
 
 [<Tests>]
 let sngToXmlConversionTests =
@@ -320,7 +321,7 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Anchors.Add(Anchor(7y, 5555, 5y))
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSngNote.convertNote() noteTimes Map.empty sharedAccData testArr
+        let convert = XmlToSngNote.convertNote() noteTimes Map.empty sharedAccData flagFunc testArr
 
         let sng = convert 0 0 (XmlToSng.XmlNote note)
 
@@ -360,7 +361,7 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(note1)
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSngNote.convertNote() noteTimes Map.empty sharedAccData testArr
+        let convert = XmlToSngNote.convertNote() noteTimes Map.empty sharedAccData flagFunc testArr
 
         let sngNote0 = convert 0 0 (XmlToSng.XmlNote note0)
         let sngNote1 = convert 0 1 (XmlToSng.XmlNote note1)
@@ -385,7 +386,7 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(note)
         
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSngNote.convertNote() noteTimes Map.empty sharedAccData testArr
+        let convert = XmlToSngNote.convertNote() noteTimes Map.empty sharedAccData flagFunc testArr
 
         let sngNote = convert 0 0 (XmlToSng.XmlNote note)
 
@@ -421,7 +422,7 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(note)
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSngNote.convertNote() noteTimes Map.empty sharedAccData testArr
+        let convert = XmlToSngNote.convertNote() noteTimes Map.empty sharedAccData flagFunc testArr
 
         let sngNote = convert 0 0 (XmlToSng.XmlNote note)
 
@@ -451,7 +452,7 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(child)
         
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSngNote.convertNote() noteTimes Map.empty sharedAccData testArr
+        let convert = XmlToSngNote.convertNote() noteTimes Map.empty sharedAccData flagFunc testArr
 
         let sngParent = convert 0 0 (XmlToSng.XmlNote parent)
         let sngChild = convert 0 1 (XmlToSng.XmlNote child)

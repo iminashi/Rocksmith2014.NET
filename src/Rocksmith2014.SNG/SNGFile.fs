@@ -27,7 +27,7 @@ let readPacked fileName platform =
     SNG.Read reader
 
 /// Saves an SNG (packed/encrypted) with the given filename.
-let savePacked fileName platform (sng:SNG) =
+let savePacked fileName platform (sng: SNG) =
     use memory = SNG.MemoryManager.GetStream()
     let writer = BinaryWriters.getWriter memory platform
     (sng :> IBinaryWritable).Write writer
@@ -44,7 +44,7 @@ let readUnpacked fileName =
     SNG.Read reader
 
 /// Saves an SNG (plain) with the given filename.
-let saveUnpacked fileName (sng:SNG) =
+let saveUnpacked fileName (sng: SNG) =
     use stream = File.Open(fileName, FileMode.Create, FileAccess.Write)
     let writer = LittleEndianBinaryWriter(stream)
 
