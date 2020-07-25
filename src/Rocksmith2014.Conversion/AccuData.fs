@@ -31,9 +31,11 @@ type AccuData =
     
         if heroLeves.Easy = difficulty then
             this.NoteCounts.Easy <- this.NoteCounts.Easy + 1
-        elif heroLeves.Medium = difficulty then
+
+        if heroLeves.Medium = difficulty then
             this.NoteCounts.Medium <- this.NoteCounts.Medium + 1
-        elif heroLeves.Hard = difficulty then
+
+        if heroLeves.Hard = difficulty then
             this.NoteCounts.Hard <- this.NoteCounts.Hard + 1
             if ignored then
                 this.NoteCounts.Ignored <- this.NoteCounts.Ignored + 1

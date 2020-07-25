@@ -7,6 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="instrumental_1level_notesonly.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="vocals.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -23,10 +26,9 @@
     <Compile Include="SngObjectsToXmlTests.fs" />
     <Compile Include="SngFilesToXmlTests.fs" />
     <Compile Include="XmlFilesToSngFiles.fs" />
+    <Compile Include="InstrumentalConversionTest.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
-
-  <ItemGroup />
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Rocksmith2014.Conversion\Rocksmith2014.Conversion.fsproj" />

@@ -4,7 +4,6 @@ open Expecto
 open Rocksmith2014
 open Rocksmith2014.XML
 open Rocksmith2014.Conversion
-open Rocksmith2014.Conversion.XmlToSng
 open Rocksmith2014.Conversion.Utils
 open System.Globalization
 open System
