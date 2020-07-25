@@ -355,6 +355,21 @@
     <ebeat time="119.500" measure="74" />
     <ebeat time="119.999" />
   </ebeats>
+  <tonebase>Tone_1</tonebase>
+  <tonea>Tone_1</tonea>
+  <toneb>Tone_2</toneb>
+  <tonec>Tone_3</tonec>
+  <toned />
+  <tones count="8">
+    <tone time="42.956" id="1" name="Tone_1" />
+    <tone time="52.676" id="0" name="Tone_2" />
+    <tone time="61.348" id="2" name="Tone_3" />
+    <tone time="78.579" id="1" name="Tone_1" />
+    <tone time="88.302" id="0" name="Tone_2" />
+    <tone time="97.299" id="2" name="Tone_3" />
+    <tone time="104.640" id="1" name="Tone_1" />
+    <tone time="114.397" id="0" name="Tone_2" />
+  </tones>
   <sections count="2">
     <section name="riff" number="1" startTime="11.500" />
     <section name="noguitar" number="1" startTime="25.000" />
