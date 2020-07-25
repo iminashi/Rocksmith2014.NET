@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Conversion.Tests.XmlFilesToSngFiles
+﻿module Rocksmith2014.Conversion.Tests.XmlFilesToSng
 
 open Expecto
 open Rocksmith2014.XML
@@ -6,7 +6,7 @@ open Rocksmith2014.Conversion
 
 [<Tests>]
 let sngToXmlConversionTests =
-  testList "XML Files → SNG Files" [
+  testList "XML Files → SNG" [
 
     testCase "Vocals (Default Font)" <| fun _ ->
         let xml = Vocals.Load("vocals.xml")

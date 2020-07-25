@@ -8,7 +8,7 @@ open Rocksmith2014.Conversion
 
 [<Tests>]
 let sngToXmlConversionTests =
-  testList "XML Files → SNG Files" [
+  testList "XML Files → SNG" [
 
     testCase "Instrumental Conversion (Notes Only)" <| fun _ ->
         let xml = InstrumentalArrangement.Load("instrumental_1level_notesonly.xml")
@@ -38,4 +38,30 @@ let sngToXmlConversionTests =
         Expect.equal sng.Levels.[0].Notes.[11].SlideUnpitchTo 14y "Note #11 has unpitched slide to fret 14"
         Expect.isTrue (sng.Levels.[0].Notes.[15].Mask ?= SNG.NoteMask.Parent) "Note #15 has parent bit set"
         Expect.equal sng.Levels.[0].Notes.[16].Vibrato 80s "Note #16 has vibrato set to 80"
+
+    testCase "Instrumental Conversion (Chords Only)" <| fun _ ->
+        let xml = InstrumentalArrangement.Load("instrumental_1level_chordsonly.xml")
+        
+        let sng = ConvertInstrumental.xmlToSng xml
+
+        // Test note counts
+        Expect.equal sng.MetaData.MaxNotesAndChords 8.0 "Total number of notes is 8"
+        Expect.equal sng.MetaData.MaxNotesAndChordsReal 7.0 "Total number of notes - ignored notes is 7"
+        Expect.equal sng.Levels.[0].NotesInPhraseIterationsAll.[1] 7 "Number of notes in phrase iteration #1 is 7"
+        Expect.equal sng.Levels.[0].NotesInPhraseIterationsAll.[2] 1 "Number of notes in phrase iteration #2 is 1"
+        Expect.equal sng.Levels.[0].NotesInPhraseIterationsExclIgnored.[2] 0 "Number of notes (excluding ignored) in phrase iteration #2 is 0"
+
+        // Test chord notes
+        Expect.equal sng.ChordNotes.Length 2 "Number of chord notes generated is 2"
+        Expect.isTrue (sng.ChordNotes.[0].Mask.[3] ?= SNG.NoteMask.Open) "Chord notes #0 has open bit set on string 3"
+        Expect.isTrue (sng.ChordNotes.[0].Mask.[4] ?= SNG.NoteMask.Open) "Chord notes #0 has open bit set on string 4"
+        Expect.isTrue (sng.ChordNotes.[1].Mask.[2] ?= SNG.NoteMask.Sustain) "Chord notes #1 has sustain bit set on string 2"
+
+        // Test various properties of the chords
+        Expect.equal sng.Levels.[0].Notes.[0].FingerPrintId.[0] 0s "Chord #0 is inside hand shape (Chord ID 0)"
+        Expect.isTrue (sng.Levels.[0].Notes.[0].Mask ?= SNG.NoteMask.Strum) "Chord #0 has strum bit set"
+        Expect.isFalse (sng.Levels.[0].Notes.[2].Mask ?= SNG.NoteMask.Strum) "Chord #2 does not have strum bit set"
+        Expect.isTrue (sng.Levels.[0].Notes.[4].Mask ?= SNG.NoteMask.DoubleStop) "Chord #4 has double stop bit set"
+        Expect.equal sng.Levels.[0].Notes.[6].Sustain 0.750f "Chord #6 has 0.75s sustain"
+        Expect.isTrue (sng.Levels.[0].Notes.[7].Mask ?= SNG.NoteMask.Ignore) "Chord #7 has ignore bit set"
   ]

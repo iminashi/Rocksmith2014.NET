@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Conversion.Tests.SngFilesToXmlTests
+﻿module Rocksmith2014.Conversion.Tests.SngFilesToXml
 
 open Expecto
 open Rocksmith2014.SNG
@@ -12,7 +12,7 @@ let timeConversion (time:float32) =
 
 [<Tests>]
 let sngToXmlConversionTests =
-  testList "SNG Files → XML Files" [
+  testList "SNG Files → XML" [
 
     testCase "Vocals" <| fun _ ->
       let sng = SNGFile.readPacked "vocals.sng" PC
