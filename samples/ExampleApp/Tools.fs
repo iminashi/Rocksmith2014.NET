@@ -9,6 +9,7 @@ open Rocksmith2014.SNG
 open Rocksmith2014.Conversion
 open System.Threading.Tasks
 open System.IO
+open System
 
 let private window =
     lazy ((Application.Current.ApplicationLifetime :?> ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime).MainWindow)
@@ -32,8 +33,20 @@ let openFileDialogSingle title filters dispatch =
                    | _ -> ())
         ) |> ignore
 
+let openFileDialogMulti title filters dispatch = 
+    Dispatcher.UIThread.InvokeAsync(
+        fun () ->
+            OpenFileDialog(Title = title, AllowMultiple = true, Filters = filters)
+               .ShowAsync(window.Force())
+               .ContinueWith(fun (t: Task<string[]>) -> 
+                   match t.Result with
+                   | null | [||] -> ()
+                   | files -> files |> dispatch)
+        ) |> ignore
+
 let ofdSng = openFileDialogSingle "Select File" sngFilters
 let ofdXml = openFileDialogSingle "Select File" xmlFilters
+let ofdMultiXml = openFileDialogMulti "Select Files" xmlFilters
 
 type State = { Status:string; Platform:Platform }
 
@@ -45,8 +58,17 @@ type Msg =
     | ConvertVocalsXMLtoSNG of file:string
     | ConvertInstrumentalSNGtoXML of file:string
     | ConvertInstrumentalXMLtoSNG of file:string
+    | BatchConvertToSng of files:string array
     | RoundTrip of file:string
     | ChangePlatform of Platform
+
+let convertFileToSng platform (fileName: string) =
+    let target = Path.ChangeExtension(fileName, "sng")
+    if fileName.Contains("vocal", StringComparison.OrdinalIgnoreCase) ||
+       fileName.Contains("lyric", StringComparison.OrdinalIgnoreCase) then
+        ConvertVocals.xmlFileToSng fileName target None platform
+    else
+        ConvertInstrumental.xmlFileToSng fileName target platform
 
 let update (msg: Msg) (state: State) : State =
     try
@@ -79,6 +101,11 @@ let update (msg: Msg) (state: State) : State =
             ConvertInstrumental.xmlFileToSng file targetFile state.Platform
             state
 
+        | BatchConvertToSng files ->
+            files
+            |> Array.Parallel.iter (convertFileToSng state.Platform)
+            state
+
         | ChangePlatform platform -> { state with Platform = platform }
 
     with e -> { state with Status = e.Message }
@@ -106,6 +133,7 @@ let view (state: State) dispatch =
                     ]
                 ]
             ]
+
             Button.create [
                 Button.onClick (fun _ ->  ofdSng (RoundTrip >> dispatch))
                 Button.content "Round-trip Packed File..."
@@ -134,6 +162,11 @@ let view (state: State) dispatch =
             Button.create [
                 Button.onClick (fun _ -> ofdXml (ConvertInstrumentalXMLtoSNG >> dispatch))
                 Button.content "Convert Instrumental XML to SNG..."
+            ]
+
+            Button.create [
+                Button.onClick (fun _ -> ofdMultiXml (BatchConvertToSng >> dispatch))
+                Button.content "Batch Convert to SNG..."
             ]
 
             TextBlock.create [
