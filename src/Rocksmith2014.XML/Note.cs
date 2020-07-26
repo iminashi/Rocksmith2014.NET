@@ -409,9 +409,9 @@ namespace Rocksmith2014.XML
         public NoteMask Mask { get; set; }
 
         /// <summary>
-        /// Gets the maximum bend value of the note.
+        /// Gets or sets the maximum bend value of the note.
         /// </summary>
-        public float MaxBend => BendValues?.Max(bv => bv.Step) ?? 0.0f;
+        public float MaxBend { get; set; }
 
         /// <summary>
         /// A list of bend values of the note.
@@ -462,6 +462,9 @@ namespace Rocksmith2014.XML
                         break;
                     case "tap":
                         Tap = sbyte.Parse(reader.Value, NumberFormatInfo.InvariantInfo);
+                        break;
+                    case "bend":
+                        MaxBend = float.Parse(reader.Value, NumberFormatInfo.InvariantInfo);
                         break;
 
                     case "linkNext":
@@ -549,7 +552,7 @@ namespace Rocksmith2014.XML
                 writer.WriteAttributeString("accent", "0");
 
             if (IsBend)
-                writer.WriteAttributeString("bend", BendValues!.Max(b => b.Step).ToString(NumberFormatInfo.InvariantInfo));
+                writer.WriteAttributeString("bend", MaxBend.ToString(NumberFormatInfo.InvariantInfo));
             else if (!InstrumentalArrangement.UseAbridgedXml)
                 writer.WriteAttributeString("bend", "0");
 

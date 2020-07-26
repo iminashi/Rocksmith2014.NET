@@ -142,73 +142,67 @@ let private createBendData32 (chordNote: XML.Note) =
 let private createChordNotesMask (chordNotes: ResizeArray<XML.Note>) =
     let masks = Array.zeroCreate<NoteMask> 6
     for note in chordNotes do
-        let strIndex = int note.String
-
-        masks.[strIndex] <- createMaskForChordNote note
+        masks.[int note.String] <- createMaskForChordNote note
     masks
 
 /// Creates chord notes for the chord and returns the ID number for them.
 let private createChordNotes (pendingLinkNexts: Dictionary<int8, int16>) thisId (accuData: AccuData) (chord: XML.Chord) =
-    match chord.ChordNotes with
-    | null -> -1
-    | xmlChordNotes ->
-        // Convert the masks first to check if the chord notes need to be created at all
-        let masks = createChordNotesMask xmlChordNotes
-        if Array.forall (fun m -> m = NoteMask.None) masks then
-            -1
-        else
-            let slideTo = Array.replicate 6 -1y
-            let slideUnpitchTo = Array.replicate 6 -1y
-            let vibrato = Array.zeroCreate<int16> 6
-            let bendDict = Dictionary<int, BendData32>()
+    // Convert the masks first to check if the chord notes need to be created at all
+    let masks = createChordNotesMask chord.ChordNotes
 
-            for note in xmlChordNotes do
-                let strIndex = int note.String
-
-                slideTo.[strIndex] <- note.SlideTo
-                slideUnpitchTo.[strIndex] <- note.SlideUnpitchTo
-                vibrato.[strIndex] <- int16 note.Vibrato
-
-                if note.IsBend then
-                    bendDict.Add(strIndex, createBendData32 note)
-
-                if note.IsLinkNext then
-                    pendingLinkNexts.TryAdd(note.String, thisId) |> ignore
-
-            let bendData = Array.init<BendData32> 6 (fun i ->
-                if bendDict.ContainsKey(i) then
-                    bendDict.[i]
-                else
-                    BendData32.Empty)
-
-            let chordNotes =
-                { Mask = masks; BendData = bendData; SlideTo = slideTo; SlideUnpitchTo = slideUnpitchTo; Vibrato = vibrato }
-
-            let hash = hashChordNotes chordNotes
-            if accuData.ChordNotesMap.ContainsKey(hash) then
-                accuData.ChordNotesMap.[hash]
+    if Array.forall (fun m -> m = NoteMask.None) masks then
+        -1
+    else
+        let slideTo = Array.replicate 6 -1y
+        let slideUnpitchTo = Array.replicate 6 -1y
+        let vibrato = Array.zeroCreate<int16> 6
+        let bendDict = Dictionary<int, BendData32>()
+    
+        for note in chord.ChordNotes do
+            let strIndex = int note.String
+    
+            slideTo.[strIndex] <- note.SlideTo
+            slideUnpitchTo.[strIndex] <- note.SlideUnpitchTo
+            vibrato.[strIndex] <- int16 note.Vibrato
+    
+            if note.IsBend then
+                bendDict.Add(strIndex, createBendData32 note)
+    
+            if note.IsLinkNext then
+                pendingLinkNexts.TryAdd(note.String, thisId) |> ignore
+    
+        let bendData = Array.init<BendData32> 6 (fun i ->
+            if bendDict.ContainsKey(i) then
+                bendDict.[i]
             else
-                let id = accuData.ChordNotes.Count
-                accuData.ChordNotes.Add(chordNotes)
-                accuData.ChordNotesMap.Add(hash, id)
-                id
+                BendData32.Empty)
+    
+        let chordNotes =
+            { Mask = masks; BendData = bendData; SlideTo = slideTo; SlideUnpitchTo = slideUnpitchTo; Vibrato = vibrato }
+    
+        let hash = hashChordNotes chordNotes
+        if accuData.ChordNotesMap.ContainsKey(hash) then
+            accuData.ChordNotesMap.[hash]
+        else
+            let id = accuData.ChordNotes.Count
+            accuData.ChordNotes.Add(chordNotes)
+            accuData.ChordNotesMap.Add(hash, id)
+            id
 
 /// Returns a function that is valid for converting notes in a single difficulty level.
-let convertNote () =
+let convertNote (noteTimes: int[])
+                (handShapeMap: HandShapeMap)
+                (accuData: AccuData)
+                (flag: NoteFlagger)
+                (xml: XML.InstrumentalArrangement)
+                (difficulty: int) =
     // Dictionary of link-next parent notes in need of a child note.
     // Mapping: string number => index of note in phrase iteration
     let pendingLinkNexts = Dictionary<int8, int16>()
     // The previous converted note
     let mutable previousNote : ValueOption<Note> = ValueNone
 
-    fun (noteTimes: int[])
-        (handShapeMap: HandShapeMap)
-        (accuData: AccuData)
-        (flag: NoteFlagger)
-        (xml: XML.InstrumentalArrangement)
-        (difficulty: int)
-        (index: int)
-        (xmlEnt: XmlEntity) ->
+    fun (index: int) (xmlEnt: XmlEntity) ->
 
         let level = xml.Levels.[difficulty]
         let timeCode = getTimeCode xmlEnt
@@ -267,10 +261,7 @@ let convertNote () =
                 let bendValues =
                     match note.BendValues with
                     | null -> [||]
-                    | bendValues ->
-                        bendValues
-                        |> Seq.map convertBendValue
-                        |> Seq.toArray
+                    | bendValues -> bendValues |> mapToArray convertBendValue
 
                 // Using TryAdd because of possible link next errors in CDLC
                 if note.IsLinkNext then pendingLinkNexts.TryAdd(note.String, this) |> ignore
@@ -299,7 +290,6 @@ let convertNote () =
         
             // XML Chords
             | XmlChord chord ->
-                let chordNoteId = createChordNotes pendingLinkNexts this accuData chord
                 let template = xml.ChordTemplates.[int chord.ChordId]
                 let sustain =
                     match chord.ChordNotes with
@@ -307,13 +297,16 @@ let convertNote () =
                     | cn when cn.Count = 0 -> 0.f
                     | cn -> msToSec cn.[0].Sustain
 
-                match chord.ChordNotes with
-                | null -> ()
-                | chordNotes ->
-                    for cn in chordNotes do
-                        // Update the string mask for this chord's section/difficulty
-                        let sMask = accuData.StringMasks.[sectionId].[difficulty]
-                        accuData.StringMasks.[sectionId].[difficulty] <- sMask ||| (1y <<< int cn.String)
+                let chordNoteId =
+                    match chord.ChordNotes with
+                    | null -> -1
+                    | chordNotes ->
+                        for cn in chordNotes do
+                            // Update the string mask for this chord's section/difficulty
+                            let sMask = accuData.StringMasks.[sectionId].[difficulty]
+                            accuData.StringMasks.[sectionId].[difficulty] <- sMask ||| (1y <<< int cn.String)
+
+                        createChordNotes pendingLinkNexts this accuData chord
             
                 let mask = createMaskForChord template sustain chordNoteId isArpeggio chord
 

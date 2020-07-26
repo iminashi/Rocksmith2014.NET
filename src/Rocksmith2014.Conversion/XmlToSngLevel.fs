@@ -7,16 +7,21 @@ open Rocksmith2014.Conversion.Utils
 open XmlToSngNote
 
 /// Creates an XML entity array from the notes and chords.
-let private createXmlEntityArray (xmlNotes: ResizeArray<XML.Note>) (xmlChords: ResizeArray<XML.Chord>) = 
-    let entityArray = Array.zeroCreate<XmlEntity> (xmlNotes.Count + xmlChords.Count)
+let private createXmlEntityArray (xmlNotes: ResizeArray<XML.Note>) (xmlChords: ResizeArray<XML.Chord>) =
+    if xmlChords.Count = 0 then
+        Array.init xmlNotes.Count (fun i -> XmlNote xmlNotes.[i])
+    elif xmlNotes.Count = 0 then
+        Array.init xmlChords.Count (fun i -> XmlChord xmlChords.[i])
+    else
+        let entityArray = Array.zeroCreate<XmlEntity> (xmlNotes.Count + xmlChords.Count)
 
-    for i = 0 to xmlNotes.Count - 1 do
-        entityArray.[i] <- XmlNote (xmlNotes.[i])
-    for i = 0 to xmlChords.Count - 1 do
-        entityArray.[xmlNotes.Count + i] <- XmlChord (xmlChords.[i])
+        for i = 0 to xmlNotes.Count - 1 do
+            entityArray.[i] <- XmlNote (xmlNotes.[i])
+        for i = 0 to xmlChords.Count - 1 do
+            entityArray.[xmlNotes.Count + i] <- XmlChord (xmlChords.[i])
 
-    Array.sortInPlaceBy getTimeCode entityArray
-    entityArray
+        Array.sortInPlaceBy getTimeCode entityArray
+        entityArray
 
 /// Converts am XML level into an SNG level.
 let convertLevel (accuData: AccuData) (xmlArr: XML.InstrumentalArrangement) (xmlLevel: XML.Level) =
@@ -26,7 +31,7 @@ let convertLevel (accuData: AccuData) (xmlArr: XML.InstrumentalArrangement) (xml
     let xmlEntities = createXmlEntityArray xmlLevel.Notes xmlLevel.Chords
     let noteTimes = xmlEntities |> Array.map getTimeCode
     let hsMap = createHandShapeMap noteTimes xmlLevel
-    let convertNote' = convertNote() noteTimes hsMap accuData NoteFlagFunctions.onAnchorChange xmlArr difficulty
+    let convertNote' = convertNote noteTimes hsMap accuData NoteFlagFunctions.onAnchorChange xmlArr difficulty
 
     if noteTimes.[0] < accuData.FirstNoteTime then
         accuData.FirstNoteTime <- noteTimes.[0]
