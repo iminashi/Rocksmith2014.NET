@@ -31,7 +31,7 @@ let sngToXml (sng: SNG) =
 
     let arr = InstrumentalArrangement(
                 Part = sng.MetaData.Part,
-                Capo = sng.MetaData.CapoFretId,
+                Capo = Math.Max(sng.MetaData.CapoFretId, 0y),
                 LastConversionDateTime = sng.MetaData.LastConversionDateTime,
                 SongLength = Utils.secToMs sng.MetaData.SongLength,
                 Ebeats = beats,
