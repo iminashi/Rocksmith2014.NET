@@ -3,6 +3,7 @@
 open Interfaces
 open BinaryHelpers
 
+[<Struct>]
 type NewLinkedDifficulty =
     { LevelBreak : int32
       NLDPhrases : int32[] }

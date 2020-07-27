@@ -3,6 +3,7 @@
 open Interfaces
 open BinaryHelpers
 
+[<Struct>]
 type Event =
     { Time : float32
       Name : string }

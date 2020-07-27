@@ -2,6 +2,7 @@
 
 open Interfaces
 
+[<Struct>]
 type AnchorExtension =
     { BeatTime : float32
       FretId : int8 }
