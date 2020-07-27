@@ -41,7 +41,7 @@ let sngToXmlConversionTests =
         let xml = ConvertInstrumental.sngToXml sng
 
         Expect.equal xml.Part sng.MetaData.Part "Same part"
-        Expect.equal xml.Capo sng.MetaData.CapoFretId "Same capo"
+        Expect.equal xml.Capo 0y "Capo fret -1 in SNG is 0 in XML"
         Expect.equal xml.LastConversionDateTime sng.MetaData.LastConversionDateTime "Same last conversion date"
         Expect.sequenceEqual xml.Tuning.Strings sng.MetaData.Tuning "Same tuning"
         Expect.equal xml.SongLength (timeConversion sng.MetaData.SongLength) "Same song length"
