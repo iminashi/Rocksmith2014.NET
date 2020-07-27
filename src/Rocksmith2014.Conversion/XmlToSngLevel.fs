@@ -40,7 +40,7 @@ let convertLevel (accuData: AccuData) (xmlArr: XML.InstrumentalArrangement) (xml
 
     let anchors =
         xmlLevel.Anchors
-        |> mapiToArray (convertAnchor noteTimes xmlLevel xmlArr)
+        |> mapiToArray (convertAnchor notes xmlLevel xmlArr)
 
     let isArpeggio (hs: XML.HandShape) = xmlArr.ChordTemplates.[int hs.ChordId].IsArpeggio
     let convertHandshape' = convertHandshape hsMap
