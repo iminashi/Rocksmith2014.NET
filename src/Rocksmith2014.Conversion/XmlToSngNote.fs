@@ -200,7 +200,7 @@ let convertNote (noteTimes: int[])
     // Mapping: string number => index of note in phrase iteration
     let pendingLinkNexts = Dictionary<int8, int16>()
     // The previous converted note
-    let mutable previousNote : ValueOption<Note> = ValueNone
+    let mutable previousNote : Note option = None
 
     fun (index: int) (xmlEnt: XmlEntity) ->
 
@@ -350,7 +350,7 @@ let convertNote (noteTimes: int[])
         let heroLevels = phraseIteration.HeroLevels
 
         accuData.AddNote(piId, byte difficulty, heroLevels, isIgnore)
-        previousNote <- ValueSome initialNote
+        previousNote <- Some initialNote
 
         { initialNote with
             Hash = hashNote initialNote

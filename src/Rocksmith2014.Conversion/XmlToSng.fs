@@ -8,7 +8,7 @@ open Rocksmith2014.SNG
 
 type HandShapeMap = Map<int16, Set<int>>
 
-type NoteFlagger = ValueOption<Note> -> Note -> uint32
+type NoteFlagger = Note option -> Note -> uint32
 
 type XmlEntity =
     | XmlNote of XmlNote : XML.Note
