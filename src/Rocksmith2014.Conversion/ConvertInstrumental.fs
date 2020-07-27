@@ -49,6 +49,13 @@ let sngToXml (sng: SNG) =
 
     arr
 
+/// Adds the string masks from a section to the one before it.
+let processStringMasks (stringMasks: int8[][]) (maxDiff: int) =
+    for s = 0 to stringMasks.Length - 2 do
+        for d = 0 to maxDiff - 1 do
+            let mask = stringMasks.[s].[d]
+            stringMasks.[s].[d] <- mask ||| stringMasks.[s + 1].[d]
+
 /// Converts an InstrumentalArrangement into SNG.
 let xmlToSng (arr: InstrumentalArrangement) =
     let accuData = AccuData.Init(arr)
@@ -73,10 +80,14 @@ let xmlToSng (arr: InstrumentalArrangement) =
     let tones =
         arr.Tones.Changes |> mapToArray XmlToSng.convertTone
     let DNAs = XmlToSng.createDNAs arr
-    let sections =
-        arr.Sections |> mapiToArray (XmlToSng.convertSection accuData.StringMasks arr)
     let levels =
         arr.Levels |> mapToArray convertLevel
+
+    // For whatever reason, the string masks from a section need to be included in the section before it
+    processStringMasks accuData.StringMasks arr.Levels.Count
+
+    let sections =
+        arr.Sections |> mapiToArray (XmlToSng.convertSection accuData.StringMasks arr)
     let metadata = XmlToSng.createMetaData accuData arr
 
     { Beats = beats
