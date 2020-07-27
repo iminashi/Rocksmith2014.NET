@@ -352,8 +352,8 @@ let sngToXmlConversionTests =
       Expect.isTrue xml.IsPinchHarmonic "Pinch harmonic is same"
       Expect.isTrue xml.IsTremolo "Tremolo is same"
       Expect.isTrue xml.IsRightHand "Right hand is same"
+      Expect.equal xml.MaxBend n.MaxBend "Max bend is same"
       Expect.equal xml.BendValues.Count n.BendData.Length "Bend value count is same"
-      // TODO: Test for pick direction?
 
     testCase "Chord" <| fun _ ->
       let c =

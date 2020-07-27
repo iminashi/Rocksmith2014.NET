@@ -140,6 +140,7 @@ let convertNote (sngNote:Note) =
              SlideTo = sngNote.SlideTo,
              SlideUnpitchTo = sngNote.SlideUnpitchTo,
              LeftHand = sngNote.LeftHand,
+             MaxBend = sngNote.MaxBend,
              BendValues = bendValues,
              // Default value used for tap in XML is 0, in SNG it is -1
              Tap = if sngNote.Tap < 0y then 0y else sngNote.Tap)
