@@ -161,7 +161,7 @@ let private findFirstAndLast (notes: Note array) startTime endTime =
     | firstIndex ->
         let lastIndex =
             let i = Array.FindIndex(notes, firstIndex, (fun n -> n.Time >= endTime))
-            if i = -1 then firstIndex else i - 1
+            if i = -1 then notes.Length - 1 else i - 1
         Some (firstIndex, lastIndex)
 
 /// Converts an XML Anchor into an SNG Anchor.
@@ -214,29 +214,19 @@ let convertAnchor (notes: Note array) (level: XML.Level) (xml: XML.InstrumentalA
       PhraseIterationId = findPhraseIterationId xmlAnchor.Time xml.PhraseIterations }
 
 /// Converts an XML HandShape into an SNG FingerPrint.
-let convertHandshape (handShapeMap: HandShapeMap) (xmlHs: XML.HandShape) =
+let convertHandshape (notes: Note array) (xmlHs: XML.HandShape) =
+    let startTime = msToSec xmlHs.StartTime
+    let endTime = msToSec xmlHs.EndTime
     let firstNoteTime, lastNoteTime =
-        match handShapeMap |> Map.tryFind xmlHs.ChordId with
-        | Some set when not set.IsEmpty -> msToSec set.MinimumElement, msToSec set.MaximumElement
-        | _ -> -1.f, -1.f
+        match findFirstAndLast notes startTime endTime with
+        | None -> -1.f, -1.f
+        | Some (f, l) -> notes.[f].Time, notes.[l].Time      
 
     { ChordId = int xmlHs.ChordId
       StartTime = msToSec xmlHs.StartTime
       EndTime = msToSec xmlHs.EndTime
       FirstNoteTime = firstNoteTime
       LastNoteTime = lastNoteTime }
-
-/// Creates a map of hand shapes that contains the times of all the notes inside the hand shape.
-let createHandShapeMap (noteTimes: int array) (level: XML.Level) : HandShapeMap =
-    let toSet (hs:XML.HandShape) =
-        let times =
-            Array.FindAll(noteTimes, (fun t -> t >= hs.StartTime && t < hs.EndTime))
-            |> Set.ofArray
-        hs.ChordId, times
-
-    level.HandShapes
-    |> Seq.map toSet
-    |> Map.ofSeq
 
 /// Creates a DNA from an XML event.
 let private eventToDNA (event: XML.Event) =

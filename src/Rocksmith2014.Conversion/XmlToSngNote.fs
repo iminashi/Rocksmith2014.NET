@@ -191,7 +191,6 @@ let private createChordNotes (pendingLinkNexts: Dictionary<int8, int16>) thisId 
 
 /// Returns a function that is valid for converting notes in a single difficulty level.
 let convertNote (noteTimes: int[])
-                (handShapeMap: HandShapeMap)
                 (accuData: AccuData)
                 (flag: NoteFlagger)
                 (xml: XML.InstrumentalArrangement)
@@ -239,16 +238,16 @@ let convertNote (noteTimes: int[])
                 -1s
 
         let struct (fingerPrintId, isArpeggio) =
-            let hsOption =
-                handShapeMap
-                |> Map.tryPick (fun key set -> if set.Contains(timeCode) then Some key else None)
+            // TODO: Fix this
+            let hsId =
+                level.HandShapes.FindIndex(fun hs -> timeCode >= hs.StartTime && timeCode < hs.EndTime)
 
-            match hsOption with
+            match hsId with
+            | -1 -> struct ([| -1s; -1s |], false)
             // Arpeggio
-            | Some id when xml.ChordTemplates.[int id].IsArpeggio -> struct ([| -1s; id |], true)
+            | id when xml.ChordTemplates.[int level.HandShapes.[id].ChordId].IsArpeggio -> struct ([| -1s; int16 id |], true)
             // Normal handshape
-            | Some id -> struct ([| id; -1s |], false)
-            | None -> struct ([| -1s; -1s |], false)
+            | id -> struct ([| int16 id; -1s |], false)
 
         let data =
             match xmlEnt with

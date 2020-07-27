@@ -30,8 +30,7 @@ let convertLevel (accuData: AccuData) (xmlArr: XML.InstrumentalArrangement) (xml
     let difficulty = int xmlLevel.Difficulty
     let xmlEntities = createXmlEntityArray xmlLevel.Notes xmlLevel.Chords
     let noteTimes = xmlEntities |> Array.map getTimeCode
-    let hsMap = createHandShapeMap noteTimes xmlLevel
-    let convertNote' = convertNote noteTimes hsMap accuData NoteFlagFunctions.onAnchorChange xmlArr difficulty
+    let convertNote' = convertNote noteTimes accuData NoteFlagFunctions.onAnchorChange xmlArr difficulty
 
     if noteTimes.[0] < accuData.FirstNoteTime then
         accuData.FirstNoteTime <- noteTimes.[0]
@@ -43,7 +42,7 @@ let convertLevel (accuData: AccuData) (xmlArr: XML.InstrumentalArrangement) (xml
         |> mapiToArray (convertAnchor notes xmlLevel xmlArr)
 
     let isArpeggio (hs: XML.HandShape) = xmlArr.ChordTemplates.[int hs.ChordId].IsArpeggio
-    let convertHandshape' = convertHandshape hsMap
+    let convertHandshape' = convertHandshape notes
 
     let arpeggios, handShapes =
         xmlLevel.HandShapes.ToArray()
