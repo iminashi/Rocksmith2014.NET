@@ -9,7 +9,7 @@ open System.Globalization
 open System
 
 /// Testing function that converts a time in milliseconds into seconds without floating point arithmetic.
-let timeConversion (time:int) =
+let convertTime (time:int) =
     Single.Parse(Utils.TimeCodeToString(time), NumberFormatInfo.InvariantInfo)
 
 let createTestArr () =
@@ -79,7 +79,7 @@ let sngToXmlConversionTests =
 
       let sng = convert testArr b
 
-      Expect.equal sng.Time (timeConversion b.Time) "Time is same"
+      Expect.equal sng.Time (convertTime b.Time) "Time is same"
       Expect.equal sng.Measure b.Measure "Measure is correct"
       Expect.equal sng.Beat 0s "Beat is correct"
       Expect.equal sng.PhraseIteration 2 "Phrase iteration is correct"
@@ -125,8 +125,8 @@ let sngToXmlConversionTests =
 
       let sng = XmlToSng.convertVocal v
 
-      Expect.equal sng.Time (timeConversion v.Time) "Time is same"
-      Expect.equal sng.Length (timeConversion v.Length) "Length is same"
+      Expect.equal sng.Time (convertTime v.Time) "Time is same"
+      Expect.equal sng.Length (convertTime v.Length) "Length is same"
       Expect.equal sng.Lyric v.Lyric "Lyric is same"
       Expect.equal sng.Note (int v.Note) "Note is same"
 
@@ -190,7 +190,7 @@ let sngToXmlConversionTests =
 
         let sng = XmlToSng.convertBendValue bv
 
-        Expect.equal sng.Time (timeConversion bv.Time) "Time is same"
+        Expect.equal sng.Time (convertTime bv.Time) "Time is same"
         Expect.equal sng.Step bv.Step "Step is same"
 
     testCase "Phrase Iteration" <| fun _ ->
@@ -199,8 +199,8 @@ let sngToXmlConversionTests =
 
         let sng = XmlToSng.convertPhraseIteration testArr 1 pi
 
-        Expect.equal sng.StartTime (timeConversion pi.Time) "Start time is same"
-        Expect.equal sng.NextPhraseTime (timeConversion (testArr.PhraseIterations.[2].Time)) "Next phrase time is correct"
+        Expect.equal sng.StartTime (convertTime pi.Time) "Start time is same"
+        Expect.equal sng.NextPhraseTime (convertTime (testArr.PhraseIterations.[2].Time)) "Next phrase time is correct"
         Expect.equal sng.PhraseId pi.PhraseId "Phrase ID is same"
         Expect.equal sng.Difficulty.[0] (int pi.HeroLevels.Easy) "Easy difficulty level is same"
         Expect.equal sng.Difficulty.[1] (int pi.HeroLevels.Medium) "Medium difficulty level is same"
@@ -212,7 +212,7 @@ let sngToXmlConversionTests =
 
         let sng = XmlToSng.convertPhraseIteration testArr (testArr.PhraseIterations.Count - 1) pi
 
-        Expect.equal sng.NextPhraseTime (timeConversion testArr.SongLength) "Next phrase time is equal to song length"
+        Expect.equal sng.NextPhraseTime (convertTime testArr.SongLength) "Next phrase time is equal to song length"
 
     testCase "New Linked Difficulty" <| fun _ ->
         let phrases = [| 1; 2; 3 |]
@@ -229,7 +229,7 @@ let sngToXmlConversionTests =
         let sng = XmlToSng.convertEvent ev
 
         Expect.equal sng.Name ev.Code "Name is same"
-        Expect.equal sng.Time (timeConversion ev.Time) "Time code is same"
+        Expect.equal sng.Time (convertTime ev.Time) "Time code is same"
 
     testCase "Tone" <| fun _ ->
         let tone = ToneChange("dist", 456_123, 3uy)
@@ -237,7 +237,7 @@ let sngToXmlConversionTests =
         let sng = XmlToSng.convertTone tone
 
         Expect.equal sng.ToneId (int tone.Id) "ID is same"
-        Expect.equal sng.Time (timeConversion tone.Time) "Time code is same"
+        Expect.equal sng.Time (convertTime tone.Time) "Time code is same"
 
     testCase "Section" <| fun _ ->
         let s = Section("section", 7554_003, 2s)
@@ -246,9 +246,9 @@ let sngToXmlConversionTests =
         let sng = XmlToSng.convertSection sharedAccData.StringMasks testArr 0 s
 
         Expect.equal sng.Name s.Name "Name is same"
-        Expect.equal sng.StartTime (timeConversion s.Time) "Start time is same"
+        Expect.equal sng.StartTime (convertTime s.Time) "Start time is same"
         Expect.equal sng.Number (int s.Number) "Number is same"
-        Expect.equal sng.EndTime (timeConversion testArr.Sections.[1].Time) "End time is correct"
+        Expect.equal sng.EndTime (convertTime testArr.Sections.[1].Time) "End time is correct"
 
     testCase "Section (Last)" <| fun _ ->
         let s = Section("section", 4000_003, 2s)
@@ -256,7 +256,7 @@ let sngToXmlConversionTests =
 
         let sng = XmlToSng.convertSection sharedAccData.StringMasks testArr (testArr.Sections.Count - 1) s
 
-        Expect.equal sng.EndTime (timeConversion testArr.SongLength) "End time is same as song length"
+        Expect.equal sng.EndTime (convertTime testArr.SongLength) "End time is same as song length"
 
     testCase "Section (Phrase Iteration Start/End, 1 Phrase Iteration)" <| fun _ ->
         let s = Section("section", 8000, 1s)
@@ -287,8 +287,8 @@ let sngToXmlConversionTests =
 
         Expect.equal sng.FretId a.Fret "Fret is same"
         Expect.equal sng.Width (int a.Width) "Width is same"
-        Expect.equal sng.StartTime (timeConversion a.Time) "Start time is same"
-        Expect.equal sng.EndTime (timeConversion (testArr.Levels.[0].Anchors.[i + 1].Time)) "End time is correct"
+        Expect.equal sng.StartTime (convertTime a.Time) "Start time is same"
+        Expect.equal sng.EndTime (convertTime (testArr.Levels.[0].Anchors.[i + 1].Time)) "End time is correct"
         Expect.equal sng.PhraseIterationId 0 "Phrase iteration ID is correct"
         //Expect.equal sng.FirstNoteTime 1.f "First note time is correct"
         //Expect.equal sng.LastNoteTime 1.5f "Last note time is correct"
@@ -300,8 +300,8 @@ let sngToXmlConversionTests =
         let sng = XmlToSng.convertHandshape noteTimes hs
 
         Expect.equal sng.ChordId (int hs.ChordId) "Chord ID is same"
-        Expect.equal sng.StartTime (timeConversion hs.StartTime) "Start time is same"
-        Expect.equal sng.EndTime (timeConversion hs.EndTime) "End time is same"
+        Expect.equal sng.StartTime (convertTime hs.StartTime) "Start time is same"
+        Expect.equal sng.EndTime (convertTime hs.EndTime) "End time is same"
         Expect.equal sng.FirstNoteTime 0.222f "First note time is correct"
         Expect.equal sng.LastNoteTime 0.3f "Last note time is correct"
 
@@ -330,8 +330,8 @@ let sngToXmlConversionTests =
         Expect.equal sng.ChordNotesId -1 "Chord notes ID is -1"
         Expect.equal sng.FretId note.Fret "Fret is same"
         Expect.equal sng.StringIndex note.String "String is same"
-        Expect.equal sng.Time (timeConversion note.Time) "Time is same"
-        Expect.equal sng.Sustain (timeConversion note.Sustain) "Sustain is same"
+        Expect.equal sng.Time (convertTime note.Time) "Time is same"
+        Expect.equal sng.Sustain (convertTime note.Sustain) "Sustain is same"
         Expect.equal sng.SlideTo note.SlideTo "Slide is same"
         Expect.equal sng.SlideUnpitchTo note.SlideUnpitchTo "Unpitched slide is same"
         Expect.equal sng.Tap note.Tap "Tap is same"
@@ -520,7 +520,7 @@ let sngToXmlConversionTests =
         Expect.equal md.StartTime 1.0f "Start time is correct"
         Expect.equal md.CapoFretId -1y "Capo fret is correct"
         Expect.equal md.Part testArr.Part "Part is same"
-        Expect.equal md.SongLength (timeConversion testArr.SongLength) "Song length is same"
+        Expect.equal md.SongLength (convertTime testArr.SongLength) "Song length is same"
         Expect.sequenceEqual md.Tuning testArr.Tuning.Strings "Tuning is same"
 
     testCase "Chord" <| fun _ ->
@@ -535,7 +535,7 @@ let sngToXmlConversionTests =
         let sng = convert 0 (XmlToSng.XmlChord chord)
 
         Expect.equal sng.ChordId (int chord.ChordId) "Chord ID is same"
-        Expect.equal sng.Sustain (timeConversion chord.ChordNotes.[1].Sustain) "Sustain is same"
+        Expect.equal sng.Sustain (convertTime chord.ChordNotes.[1].Sustain) "Sustain is same"
         Expect.isTrue (sng.Mask ?= SNG.NoteMask.Chord) "Chord has chord flag"
         Expect.isFalse (sng.Mask ?= SNG.NoteMask.DoubleStop) "Double stop flag is not set"
         Expect.isFalse (sng.Mask ?= SNG.NoteMask.Arpeggio) "Arpeggio flag is not set"

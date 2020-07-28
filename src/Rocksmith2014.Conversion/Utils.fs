@@ -73,6 +73,7 @@ let findFingerPrintId time (fingerPrints: FingerPrint array) =
         id <- id + 1
     if id = fingerPrints.Length then -1 else id
 
+/// Finds the index of the first note that is equal or greater than the given time.
 let findIndex startIndex time (noteTimes: int array) =
     let mutable index = startIndex
     while index <> noteTimes.Length && not (noteTimes.[index] >= time) do

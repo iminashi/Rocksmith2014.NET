@@ -7,7 +7,7 @@ open Rocksmith2014.Conversion
 open System.Globalization
 
 /// Testing function that converts a time in seconds into milliseconds without floating point arithmetic.
-let timeConversion (time:float32) =
+let convertTime (time:float32) =
     Utils.TimeCodeFromFloatString (time.ToString(NumberFormatInfo.InvariantInfo))
 
 [<Tests>]
@@ -23,8 +23,8 @@ let sngToXmlConversionTests =
       for i = 0 to xml.Count - 1 do
         Expect.equal xml.[i].Lyric sng.Vocals.[i].Lyric (sprintf "Lyric #%i is same" i)
         Expect.equal xml.[i].Note (sng.Vocals.[i].Note |> byte) (sprintf "Note #%i is same" i)
-        Expect.equal xml.[i].Time (sng.Vocals.[i].Time |> timeConversion) (sprintf "Time #%i is same" i)
-        Expect.equal xml.[i].Length (sng.Vocals.[i].Length |> timeConversion) (sprintf "Length #%i is same" i)
+        Expect.equal xml.[i].Time (sng.Vocals.[i].Time |> convertTime) (sprintf "Time #%i is same" i)
+        Expect.equal xml.[i].Length (sng.Vocals.[i].Length |> convertTime) (sprintf "Length #%i is same" i)
 
     testCase "Extract Glyphs" <| fun _ ->
        let sng = SNGFile.readPacked "vocals.sng" PC
@@ -44,7 +44,7 @@ let sngToXmlConversionTests =
         Expect.equal xml.Capo 0y "Capo fret -1 in SNG is 0 in XML"
         Expect.equal xml.LastConversionDateTime sng.MetaData.LastConversionDateTime "Same last conversion date"
         Expect.sequenceEqual xml.Tuning.Strings sng.MetaData.Tuning "Same tuning"
-        Expect.equal xml.SongLength (timeConversion sng.MetaData.SongLength) "Same song length"
+        Expect.equal xml.SongLength (convertTime sng.MetaData.SongLength) "Same song length"
         Expect.equal xml.Phrases.Count sng.Phrases.Length "Same phrase count"
         Expect.equal xml.PhraseIterations.Count sng.PhraseIterations.Length "Same phrase iteration count"
         Expect.equal xml.NewLinkedDiffs.Count sng.NewLinkedDifficulties.Length "Same new linked difficulties count"
