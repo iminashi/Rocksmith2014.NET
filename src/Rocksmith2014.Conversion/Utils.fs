@@ -41,14 +41,10 @@ let inline boolToByte b = if b then 1y else 0y
 
 /// Finds the index of the phrase iteration that contains the given time code.
 let findPiId inclusive (time: int) (iterations: ResizeArray<XML.PhraseIteration>) =
-    let rec find index =
-        if index <= 0 then
-            0
-        elif (inclusive && iterations.[index].Time = time) || iterations.[index].Time < time then
-            index
-        else
-            find (index - 1)
-    find (iterations.Count - 1)
+    let mutable id = iterations.Count - 1
+    while id > 0 && not ((inclusive && iterations.[id].Time = time) || iterations.[id].Time < time) do
+        id <- id - 1
+    id
 
 // Beats on the same time code as a phrase iteration belong to the previous phrase iteration
 let findBeatPhraseIterationId time iterations = findPiId false time iterations
@@ -56,14 +52,10 @@ let findBeatPhraseIterationId time iterations = findPiId false time iterations
 let findPhraseIterationId time iterations = findPiId true time iterations
 
 let findSectionId (time: int) (sections: ResizeArray<XML.Section>) =
-    let rec find index =
-        if index <= 0 then
-            0
-        elif sections.[index].Time <= time then
-            index
-        else
-            find (index - 1)
-    find (sections.Count - 1)
+    let mutable id = sections.Count - 1
+    while id > 0 && not (sections.[id].Time <= time) do
+        id <- id - 1
+    id
 
 let findAnchor (time: int) (anchors: ResizeArray<XML.Anchor>) =
     let rec find index =
@@ -74,3 +66,27 @@ let findAnchor (time: int) (anchors: ResizeArray<XML.Anchor>) =
         else
             find (index - 1)
     find (anchors.Count - 1)
+
+let findFingerPrintId time (fingerPrints: FingerPrint array) =
+    let mutable id = 0
+    while id <> fingerPrints.Length && not (time >= fingerPrints.[id].StartTime && time < fingerPrints.[id].EndTime) do
+        id <- id + 1
+    if id = fingerPrints.Length then -1 else id
+
+let findIndex startIndex time (noteTimes: int array) =
+    let mutable index = startIndex
+    while index <> noteTimes.Length && not (noteTimes.[index] >= time) do
+        index <- index + 1
+    if index = noteTimes.Length then -1 else index
+
+/// Finds the indexes of the first and last notes in the given time range.
+let findFirstAndLastTime (noteTimes: int array) startTime endTime =
+    let firstIndex = findIndex 0 startTime noteTimes
+    match firstIndex with
+    | -1 -> None
+    | index when noteTimes.[index] >= endTime -> None
+    | firstIndex ->
+        let lastIndex =
+            let i = findIndex firstIndex endTime noteTimes
+            if i = -1 then noteTimes.Length - 1 else i - 1
+        Some (firstIndex, lastIndex)

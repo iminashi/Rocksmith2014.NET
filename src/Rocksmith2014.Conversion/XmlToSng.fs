@@ -152,20 +152,8 @@ let convertSection (stringMasks: int8[][]) (xml: XML.InstrumentalArrangement) in
       EndPhraseIterationId = endPi
       StringMask = stringMasks.[index] }
 
-/// Finds the indexes of the first and last notes in the given time range.
-let private findFirstAndLast (notes: Note array) startTime endTime =
-    let firstIndex = Array.FindIndex(notes, (fun n -> n.Time >= startTime))
-    match firstIndex with
-    | -1 -> None
-    | index when notes.[index].Time >= endTime -> None
-    | firstIndex ->
-        let lastIndex =
-            let i = Array.FindIndex(notes, firstIndex, (fun n -> n.Time >= endTime))
-            if i = -1 then notes.Length - 1 else i - 1
-        Some (firstIndex, lastIndex)
-
 /// Converts an XML Anchor into an SNG Anchor.
-let convertAnchor (notes: Note array) (level: XML.Level) (xml: XML.InstrumentalArrangement) index (xmlAnchor: XML.Anchor) =
+let convertAnchor (notes: Note array) (noteTimes: int array) (level: XML.Level) (xml: XML.InstrumentalArrangement) index (xmlAnchor: XML.Anchor) =
     // Uninitialized values found in anchors that have no notes
     let uninitFirstNote = 3.4028234663852886e+38f
     let uninitLastNote = 1.1754943508222875e-38f
@@ -177,10 +165,15 @@ let convertAnchor (notes: Note array) (level: XML.Level) (xml: XML.InstrumentalA
             xml.PhraseIterations.[xml.PhraseIterations.Count - 1].Time
         else
             level.Anchors.[index + 1].Time
-        |> msToSec
+
+    // It is likely impossible to get identical values when testing an official file SNG -> XML -> SNG
+    // Cases like these can be found:
+    //
+    // Note without any sustain: lastNoteTime = note.Time + 9ms
+    // Note with unpitched slide: lastNoteTime = note.Time + note.Sustain + 100ms
 
     let firstNoteTime, lastNoteTime =
-        match findFirstAndLast notes startTime endTime with
+        match findFirstAndLastTime noteTimes xmlAnchor.Time endTime with
         | None -> uninitFirstNote, uninitLastNote
         | Some (firstIndex, lastIndex) ->
             let firstNote = notes.[firstIndex]
@@ -190,7 +183,7 @@ let convertAnchor (notes: Note array) (level: XML.Level) (xml: XML.InstrumentalA
                     firstNote.Time
                 else
                     let prev = notes.[firstIndex - 1]
-                    // If this anchor is at the end of a slide note, use the start time
+                    // If this anchor is at the end of a slide note, use the time where the target note would be
                     if prev.Mask ?= NoteMask.Slide && prev.Time + prev.Sustain - startTime < 0.001f then
                         startTime
                     else
@@ -198,7 +191,7 @@ let convertAnchor (notes: Note array) (level: XML.Level) (xml: XML.InstrumentalA
                     
             let lastNoteTime =
                 // The sustain of the last note is included, unless it is a slide
-                if lastNote.Mask ?= NoteMask.Slide || lastNote.Mask ?= NoteMask.UnpitchedSlide then
+                if lastNote.Mask ?= NoteMask.Slide then
                     lastNote.Time
                 else
                     lastNote.Time + lastNote.Sustain
@@ -206,7 +199,7 @@ let convertAnchor (notes: Note array) (level: XML.Level) (xml: XML.InstrumentalA
             firstNoteTime, lastNoteTime
 
     { StartTime = startTime
-      EndTime = endTime
+      EndTime = msToSec endTime
       FirstNoteTime = firstNoteTime
       LastNoteTime = lastNoteTime
       FretId = xmlAnchor.Fret
@@ -214,13 +207,11 @@ let convertAnchor (notes: Note array) (level: XML.Level) (xml: XML.InstrumentalA
       PhraseIterationId = findPhraseIterationId xmlAnchor.Time xml.PhraseIterations }
 
 /// Converts an XML HandShape into an SNG FingerPrint.
-let convertHandshape (notes: Note array) (xmlHs: XML.HandShape) =
-    let startTime = msToSec xmlHs.StartTime
-    let endTime = msToSec xmlHs.EndTime
+let convertHandshape (noteTimes: int array) (xmlHs: XML.HandShape) =
     let firstNoteTime, lastNoteTime =
-        match findFirstAndLast notes startTime endTime with
+        match findFirstAndLastTime noteTimes xmlHs.StartTime xmlHs.EndTime with
         | None -> -1.f, -1.f
-        | Some (f, l) -> notes.[f].Time, notes.[l].Time      
+        | Some (f, l) -> msToSec noteTimes.[f], msToSec noteTimes.[l]
 
     { ChordId = int xmlHs.ChordId
       StartTime = msToSec xmlHs.StartTime

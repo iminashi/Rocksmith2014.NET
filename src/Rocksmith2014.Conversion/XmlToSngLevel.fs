@@ -30,7 +30,17 @@ let convertLevel (accuData: AccuData) (xmlArr: XML.InstrumentalArrangement) (xml
     let difficulty = int xmlLevel.Difficulty
     let xmlEntities = createXmlEntityArray xmlLevel.Notes xmlLevel.Chords
     let noteTimes = xmlEntities |> Array.map getTimeCode
-    let convertNote' = convertNote noteTimes accuData NoteFlagFunctions.onAnchorChange xmlArr difficulty
+    let isArpeggio (hs: XML.HandShape) = xmlArr.ChordTemplates.[int hs.ChordId].IsArpeggio
+    let convertHandshape' = convertHandshape noteTimes
+
+    let arpeggios, handShapes =
+        xmlLevel.HandShapes.ToArray()
+        |> Array.partition isArpeggio
+    let arpeggios = arpeggios |> Array.map convertHandshape'
+    let handShapes = handShapes |> Array.map convertHandshape'
+    let fingerPrints = [| handShapes; arpeggios |]
+
+    let convertNote' = convertNote noteTimes fingerPrints accuData NoteFlagFunctions.onAnchorChange xmlArr difficulty
 
     if noteTimes.[0] < accuData.FirstNoteTime then
         accuData.FirstNoteTime <- noteTimes.[0]
@@ -39,16 +49,7 @@ let convertLevel (accuData: AccuData) (xmlArr: XML.InstrumentalArrangement) (xml
 
     let anchors =
         xmlLevel.Anchors
-        |> mapiToArray (convertAnchor notes xmlLevel xmlArr)
-
-    let isArpeggio (hs: XML.HandShape) = xmlArr.ChordTemplates.[int hs.ChordId].IsArpeggio
-    let convertHandshape' = convertHandshape notes
-
-    let arpeggios, handShapes =
-        xmlLevel.HandShapes.ToArray()
-        |> Array.partition isArpeggio
-    let arpeggios = arpeggios |> Array.map convertHandshape'
-    let handShapes = handShapes |> Array.map convertHandshape'
+        |> mapiToArray (convertAnchor notes noteTimes xmlLevel xmlArr)
 
     let averageNotes =
         let piNotes =

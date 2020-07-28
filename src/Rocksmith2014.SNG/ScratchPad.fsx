@@ -78,3 +78,16 @@ let aesCtrTransform (input:Stream) (output:Stream) (key:byte[]) (iv:byte[]) =
 
 
 let inline applyFlag condition newFlag baseMask = if condition then baseMask ||| newFlag else baseMask
+
+
+let findIndex startIndex time (noteTimes: int array) =
+    let mutable index = startIndex
+    while index <> noteTimes.Length && not (noteTimes.[index] >= time) do
+        index <- index + 1
+    if index = noteTimes.Length then -1 else index
+
+//let findNoteIndex startIndex time (notes: Note array) =
+//    let mutable index = startIndex
+//    while index <> notes.Length && not (notes.[index].Time >= time) do
+//        index <- index + 1
+//    if index = notes.Length then -1 else index

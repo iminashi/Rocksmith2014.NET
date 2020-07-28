@@ -191,6 +191,7 @@ let private createChordNotes (pendingLinkNexts: Dictionary<int8, int16>) thisId 
 
 /// Returns a function that is valid for converting notes in a single difficulty level.
 let convertNote (noteTimes: int[])
+                (fingerPrints: FingerPrint[][])
                 (accuData: AccuData)
                 (flag: NoteFlagger)
                 (xml: XML.InstrumentalArrangement)
@@ -205,8 +206,9 @@ let convertNote (noteTimes: int[])
 
         let level = xml.Levels.[difficulty]
         let timeCode = getTimeCode xmlEnt
+        let timeSeconds = msToSec timeCode
 
-        let piId = xml.PhraseIterations |> findPhraseIterationId timeCode
+        let piId = findPhraseIterationId timeCode xml.PhraseIterations
         let phraseIteration = xml.PhraseIterations.[piId]
         let phraseId = phraseIteration.PhraseId
         let anchor = findAnchor timeCode level.Anchors
@@ -237,17 +239,10 @@ let convertNote (noteTimes: int[])
             else
                 -1s
 
-        let struct (fingerPrintId, isArpeggio) =
-            // TODO: Fix this
-            let hsId =
-                level.HandShapes.FindIndex(fun hs -> timeCode >= hs.StartTime && timeCode < hs.EndTime)
-
-            match hsId with
-            | -1 -> struct ([| -1s; -1s |], false)
-            // Arpeggio
-            | id when xml.ChordTemplates.[int level.HandShapes.[id].ChordId].IsArpeggio -> struct ([| -1s; int16 id |], true)
-            // Normal handshape
-            | id -> struct ([| int16 id; -1s |], false)
+        let fingerPrintIds =
+            [| int16 (findFingerPrintId timeSeconds fingerPrints.[0])
+               int16 (findFingerPrintId timeSeconds fingerPrints.[1]) |]
+        let isArpeggio = fingerPrintIds.[1] <> -1s
 
         let data =
             match xmlEnt with
@@ -320,7 +315,7 @@ let convertNote (noteTimes: int[])
             { Mask = data.Mask
               Flags = 0u
               Hash = 0u
-              Time = msToSec timeCode
+              Time = timeSeconds
               StringIndex = data.String
               FretId = data.Fret
               AnchorFretId = anchor.Fret
@@ -329,7 +324,7 @@ let convertNote (noteTimes: int[])
               ChordNotesId = data.ChordNoteId
               PhraseId = phraseId
               PhraseIterationId = piId
-              FingerPrintId = fingerPrintId
+              FingerPrintId = fingerPrintIds
               NextIterNote = 0s
               PrevIterNote = 0s
               ParentPrevNote = 0s
@@ -347,13 +342,14 @@ let convertNote (noteTimes: int[])
 
         let isIgnore = (data.Mask &&& NoteMask.Ignore) <> NoteMask.None
         let heroLevels = phraseIteration.HeroLevels
+        let flags = flag previousNote initialNote
 
         accuData.AddNote(piId, byte difficulty, heroLevels, isIgnore)
         previousNote <- Some initialNote
 
         { initialNote with
             Hash = hashNote initialNote
-            Flags = flag previousNote initialNote
+            Flags = flags
             NextIterNote = next
             PrevIterNote = previous
             ParentPrevNote = data.Parent }

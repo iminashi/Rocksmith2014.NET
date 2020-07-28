@@ -62,9 +62,11 @@ let createNoteTimes (level:XML.Level) =
     |> Seq.sort
     |> Seq.toArray
 
+let emptyFp: SNG.FingerPrint[][] = [| [||]; [||] |]
+
 let createNoteConvertFunction (accuData: AccuData) (arr: InstrumentalArrangement) (level: Level) =
     let noteTimes = createNoteTimes level
-    XmlToSngNote.convertNote noteTimes accuData NoteFlagFunctions.onAnchorChange arr
+    XmlToSngNote.convertNote noteTimes emptyFp accuData NoteFlagFunctions.onAnchorChange arr
 
 [<Tests>]
 let sngToXmlConversionTests =
@@ -279,8 +281,9 @@ let sngToXmlConversionTests =
         let testArr = createTestArr()
         let a = testArr.Levels.[0].Anchors.[i]
         let notes = [||]
+        let noteTimes = [||]
 
-        let sng = XmlToSng.convertAnchor notes testArr.Levels.[0] testArr i a
+        let sng = XmlToSng.convertAnchor notes noteTimes testArr.Levels.[0] testArr i a
 
         Expect.equal sng.FretId a.Fret "Fret is same"
         Expect.equal sng.Width (int a.Width) "Width is same"
@@ -292,16 +295,15 @@ let sngToXmlConversionTests =
 
     testCase "Hand Shape" <| fun _ ->
         let hs = HandShape(1s, 222, 333)
-        //let noteTimes = Set(seq { 250; 222; 300; 280 })
-        let notes = [||]
+        let noteTimes = [| 222; 250; 280; 300 |]
 
-        let sng = XmlToSng.convertHandshape notes hs
+        let sng = XmlToSng.convertHandshape noteTimes hs
 
         Expect.equal sng.ChordId (int hs.ChordId) "Chord ID is same"
         Expect.equal sng.StartTime (timeConversion hs.StartTime) "Start time is same"
         Expect.equal sng.EndTime (timeConversion hs.EndTime) "End time is same"
-        //Expect.equal sng.FirstNoteTime 0.222f "First note time is correct"
-        //Expect.equal sng.LastNoteTime 0.3f "Last note time is correct"
+        Expect.equal sng.FirstNoteTime 0.222f "First note time is correct"
+        Expect.equal sng.LastNoteTime 0.3f "Last note time is correct"
 
     testCase "Note" <| fun _ ->
         let note = Note(Mask = NoteMask.Pluck,
@@ -320,7 +322,7 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Anchors.Add(Anchor(7y, 5555, 5y))
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSngNote.convertNote noteTimes sharedAccData flagFunc testArr 0
+        let convert = XmlToSngNote.convertNote noteTimes emptyFp sharedAccData flagFunc testArr 0
 
         let sng = convert 0 (XmlToSng.XmlNote note)
 
@@ -360,7 +362,7 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(note1)
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSngNote.convertNote noteTimes sharedAccData flagFunc testArr 0
+        let convert = XmlToSngNote.convertNote noteTimes emptyFp sharedAccData flagFunc testArr 0
 
         let sngNote0 = convert 0 (XmlToSng.XmlNote note0)
         let sngNote1 = convert 1 (XmlToSng.XmlNote note1)
@@ -385,7 +387,7 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(note)
         
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSngNote.convertNote noteTimes sharedAccData flagFunc testArr 0
+        let convert = XmlToSngNote.convertNote noteTimes emptyFp sharedAccData flagFunc testArr 0
 
         let sngNote = convert 0 (XmlToSng.XmlNote note)
 
@@ -421,7 +423,7 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(note)
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSngNote.convertNote noteTimes sharedAccData flagFunc testArr 0
+        let convert = XmlToSngNote.convertNote noteTimes emptyFp sharedAccData flagFunc testArr 0
 
         let sngNote = convert 0 (XmlToSng.XmlNote note)
 
@@ -451,7 +453,7 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(child)
         
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSngNote.convertNote noteTimes sharedAccData flagFunc testArr 0
+        let convert = XmlToSngNote.convertNote noteTimes emptyFp sharedAccData flagFunc testArr 0
 
         let sngParent = convert 0 (XmlToSng.XmlNote parent)
         let sngChild = convert 1 (XmlToSng.XmlNote child)
@@ -465,32 +467,40 @@ let sngToXmlConversionTests =
                         String = 3y,
                         Time = 1000,
                         Sustain = 500)
+        let hs = HandShape(0s, 1000, 1500)
 
         let testArr = createTestArr()
         testArr.Levels.[0].Notes.Add(note)
-        testArr.Levels.[0].HandShapes.Add(HandShape(0s, 1000, 1500))
+        testArr.Levels.[0].HandShapes.Add(hs)
 
-        let convert = createNoteConvertFunction sharedAccData testArr (testArr.Levels.[0]) 0
+        let noteTimes = createNoteTimes testArr.Levels.[0]
+        let fp = XmlToSng.convertHandshape noteTimes hs
+        let convert = XmlToSngNote.convertNote noteTimes [| [| fp |]; [||] |] sharedAccData flagFunc testArr 0
 
         let sng = convert 0 (XmlToSng.XmlNote note)
 
         Expect.equal (sng.FingerPrintId.[0]) 0s "Fingerprint ID is correct"
+        Expect.equal (sng.FingerPrintId.[1]) -1s "Arpeggio ID is -1"
 
     testCase "Note (Hand Shape ID, Arpeggio)" <| fun _ ->
         let note = Note(Fret = 12y,
                         String = 3y,
                         Time = 1000,
                         Sustain = 500)
+        let hs = HandShape(1s, 1000, 1500)
 
         let testArr = createTestArr()
         testArr.Levels.[0].Notes.Add(note)
-        testArr.Levels.[0].HandShapes.Add(HandShape(1s, 1000, 1500))
+        testArr.Levels.[0].HandShapes.Add(hs)
 
-        let convert = createNoteConvertFunction sharedAccData testArr (testArr.Levels.[0]) 0
+        let noteTimes = createNoteTimes testArr.Levels.[0]
+        let fp = XmlToSng.convertHandshape noteTimes hs
+        let convert = XmlToSngNote.convertNote noteTimes [| [||]; [| fp |] |] sharedAccData flagFunc testArr 0
 
         let sng = convert 0 (XmlToSng.XmlNote note)
 
         Expect.equal (sng.FingerPrintId.[1]) 0s "Arpeggio fingerprint ID is correct"
+        Expect.equal (sng.FingerPrintId.[0]) -1s "Fingerprint ID is -1"
         Expect.isTrue (sng.Mask ?= SNG.NoteMask.Arpeggio) "Arpeggio bit is set"
 
     testCase "Events to DNAs" <| fun _ ->
