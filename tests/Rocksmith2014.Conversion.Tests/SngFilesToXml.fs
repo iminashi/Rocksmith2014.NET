@@ -1,6 +1,7 @@
 ﻿module Rocksmith2014.Conversion.Tests.SngFilesToXml
 
 open Expecto
+open Rocksmith2014.Common
 open Rocksmith2014.SNG
 open Rocksmith2014.XML
 open Rocksmith2014.Conversion

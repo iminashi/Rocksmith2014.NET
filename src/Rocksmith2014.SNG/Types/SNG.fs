@@ -3,8 +3,8 @@
 open Interfaces
 open BinaryHelpers
 open BinaryWriters
-open Microsoft.IO
 open System.IO
+open Rocksmith2014.Common
 
 type SNG =
     { Beats : Beat[]
@@ -86,11 +86,9 @@ module SNG =
           Actions = [||]; Events = [||]; Tones = [||]; DNAs = [||]; Sections = [||]; Levels = [||]
           MetaData = MetaData.Empty }
 
-    let MemoryManager = RecyclableMemoryStreamManager()
-    
     /// Decrypts and unpacks an SNG from the input stream into the output stream.
     let unpack (input: Stream) (output: Stream) platform =
-        use decrypted = MemoryManager.GetStream()
+        use decrypted = MemoryStreamPool.Default.GetStream()
         let reader = BinaryReaders.getReader decrypted platform
     
         Cryptography.decryptSNG input decrypted platform
@@ -106,7 +104,7 @@ module SNG =
         writer.WriteInt32 0x4A
         writer.WriteInt32 header
     
-        use payload = MemoryManager.GetStream()
+        use payload = MemoryStreamPool.Default.GetStream()
         // Write the uncompressed length
         (BinaryWriters.getWriter payload platform).WriteInt32 (input.Length |> int32)
         Compression.zip input payload

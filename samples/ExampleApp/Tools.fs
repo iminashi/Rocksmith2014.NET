@@ -5,6 +5,7 @@ open Avalonia.Controls
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Threading
+open Rocksmith2014.Common
 open Rocksmith2014.SNG
 open Rocksmith2014.Conversion
 open System.Threading.Tasks

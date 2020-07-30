@@ -3,6 +3,7 @@
 open System.IO
 open Interfaces
 open Rocksmith2014.SNG.BinaryReaders
+open Rocksmith2014.Common
 open BinaryWriters
 
 /// Unpacks the given encrypted SNG file and saves it with an "_unpacked.sng" postfix.
@@ -20,7 +21,7 @@ let unpackFile fileName platform =
 /// Reads an encrypted SNG file. 
 let readPacked fileName platform =
     use file = File.OpenRead fileName
-    use memory = SNG.MemoryManager.GetStream()
+    use memory = MemoryStreamPool.Default.GetStream()
     let reader = BinaryReaders.getReader memory platform
 
     SNG.unpack file memory platform
@@ -28,7 +29,7 @@ let readPacked fileName platform =
 
 /// Saves an SNG (packed/encrypted) with the given filename.
 let savePacked fileName platform (sng: SNG) =
-    use memory = SNG.MemoryManager.GetStream()
+    use memory = MemoryStreamPool.Default.GetStream()
     let writer = BinaryWriters.getWriter memory platform
     (sng :> IBinaryWritable).Write writer
     memory.Position <- 0L

@@ -191,7 +191,7 @@ let convertAnchor (notes: Note array) (noteTimes: int array) (level: XML.Level) 
                     
             let lastNoteTime =
                 // The sustain of the last note is included, unless it is a slide
-                if lastNote.Mask ?= NoteMask.Slide then
+                if lastNote.Mask ?= NoteMask.Slide || lastNote.Mask ?= NoteMask.Parent then
                     lastNote.Time
                 else
                     lastNote.Time + lastNote.Sustain
@@ -211,7 +211,8 @@ let convertHandshape (noteTimes: int array) (xmlHs: XML.HandShape) =
     let firstNoteTime, lastNoteTime =
         match findFirstAndLastTime noteTimes xmlHs.StartTime xmlHs.EndTime with
         | None -> -1.f, -1.f
-        | Some (f, l) -> msToSec noteTimes.[f], msToSec noteTimes.[l]
+        // In official files, the sustain may be included in the last note time
+        | Some (first, last) -> msToSec noteTimes.[first], msToSec noteTimes.[last]
 
     { ChordId = int xmlHs.ChordId
       StartTime = msToSec xmlHs.StartTime

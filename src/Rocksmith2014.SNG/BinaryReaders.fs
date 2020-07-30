@@ -5,6 +5,7 @@ open System.IO
 open System.Buffers.Binary
 open Microsoft.FSharp.NativeInterop
 open Interfaces
+open Rocksmith2014.Common
 
 #nowarn "9"
 

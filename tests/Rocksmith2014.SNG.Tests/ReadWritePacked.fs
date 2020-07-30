@@ -1,6 +1,7 @@
 ﻿module Rocksmith2014.SNG.Tests.ReadWritePacked
 
 open Expecto
+open Rocksmith2014.Common
 open Rocksmith2014.SNG
 
 let testFileLevels = 12

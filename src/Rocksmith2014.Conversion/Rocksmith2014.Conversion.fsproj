@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Rocksmith2014.Common\Rocksmith2014.Common.fsproj" />
     <ProjectReference Include="..\Rocksmith2014.SNG\Rocksmith2014.SNG.fsproj" />
     <ProjectReference Include="..\Rocksmith2014.XML\Rocksmith2014.XML.csproj" />
   </ItemGroup>
