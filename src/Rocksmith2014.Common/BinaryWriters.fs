@@ -1,11 +1,10 @@
-﻿module Rocksmith2014.SNG.BinaryWriters
+﻿module Rocksmith2014.Common.BinaryWriters
 
 open System
 open System.IO
 open System.Buffers.Binary
 open Microsoft.FSharp.NativeInterop
 open Interfaces
-open Rocksmith2014.Common
 
 #nowarn "9"
 

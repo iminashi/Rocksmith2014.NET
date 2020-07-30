@@ -1,8 +1,8 @@
 ﻿module Rocksmith2014.SNG.SNGFile
 
 open System.IO
-open Interfaces
-open Rocksmith2014.SNG.BinaryReaders
+open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common.BinaryReaders
 open Rocksmith2014.Common
 open BinaryWriters
 

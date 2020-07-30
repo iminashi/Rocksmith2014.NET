@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Interfaces
+open Rocksmith2014.Common.Interfaces
 open BinaryHelpers
 
 /// Leftover from RS1, no equivalent in RS2014 XML.

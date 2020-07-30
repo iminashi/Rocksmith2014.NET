@@ -5,12 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Interfaces.fs" />
-    <Compile Include="BinaryReaders.fs" />
-    <Compile Include="BinaryWriters.fs" />
     <Compile Include="BinaryHelpers.fs" />
     <Compile Include="Cryptography.fs" />
-    <Compile Include="Compression.fs" />
     <Compile Include="Types\Masks.fs" />
     <Compile Include="Types\Beat.fs" />
     <Compile Include="Types\Phrase.fs" />
@@ -37,10 +33,6 @@
     <Compile Include="Types\SNG.fs" />
     <Compile Include="SNGFile.fs" />
     <None Include="ScratchPad.fsx" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="SharpZipLib" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup>

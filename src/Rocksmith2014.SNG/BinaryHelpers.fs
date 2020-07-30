@@ -2,7 +2,7 @@
 
 open System
 open System.Text
-open Interfaces
+open Rocksmith2014.Common.Interfaces
 
 let readZeroTerminatedUTF8String length (reader: IBinaryReader) =
     let arr = reader.ReadBytes length

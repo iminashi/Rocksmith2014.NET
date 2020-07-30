@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Interfaces
+open Rocksmith2014.Common.Interfaces
 
 type PhraseIteration =
     { PhraseId : int32

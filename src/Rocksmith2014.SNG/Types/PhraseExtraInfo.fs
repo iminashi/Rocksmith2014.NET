@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Interfaces
+open Rocksmith2014.Common.Interfaces
 
 /// Leftover from RS1, not used in RS2014.
 type PhraseExtraInfo =

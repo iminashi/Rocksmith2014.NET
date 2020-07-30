@@ -3,7 +3,7 @@
 open Rocksmith2014.SNG
 open Rocksmith2014.XML
 open Rocksmith2014.Conversion
-open Rocksmith2014.SNG.BinaryReaders
+open Rocksmith2014.Common.BinaryReaders
 open System.Reflection
 open System.Text
 open Microsoft.Extensions.FileProviders
@@ -22,10 +22,10 @@ module ConvertVocals =
 
     /// The default symbol definitions used in SNG files that use the default font.
     let private defaultSymbols =
-        lazy (let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
-              use stream = embeddedProvider.GetFileInfo("default_symbols.bin").CreateReadStream()
-              let reader = LittleEndianBinaryReader(stream)
-              BinaryHelpers.readArray reader SymbolDefinition.Read)
+        lazy let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
+             use stream = embeddedProvider.GetFileInfo("default_symbols.bin").CreateReadStream()
+             let reader = LittleEndianBinaryReader(stream)
+             BinaryHelpers.readArray reader SymbolDefinition.Read
 
     /// The headers used in SNG files that use the default font.
     let private defaultHeaders =

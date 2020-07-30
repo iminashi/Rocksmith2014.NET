@@ -1,16 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="MemoryStreamPool.fs" />
     <Compile Include="Platform.fs" />
+    <Compile Include="Interfaces.fs" />
+    <Compile Include="BinaryReaders.fs" />
+    <Compile Include="BinaryWriters.fs" />
+    <Compile Include="Compression.fs" />
+    <Compile Include="MemoryStreamPool.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.3.5" />
+    <PackageReference Include="SharpZipLib" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup>
