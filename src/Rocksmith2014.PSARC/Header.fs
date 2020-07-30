@@ -42,4 +42,3 @@ module Header =
               TOCEntries = reader.ReadUInt32()
               BlockSizeAlloc = reader.ReadUInt32()
               ArchiveFlags = reader.ReadUInt32() }
-        

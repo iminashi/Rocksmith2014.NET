@@ -11,7 +11,3 @@ let zip (inStream: Stream) (outStream: Stream) =
 let unzip (inStream: Stream) (outStream: Stream) =
     use inflateStream = new InflaterInputStream(inStream)
     inflateStream.CopyTo(outStream)
-
-//let unzipPart (inStream: Stream) (outStream: Stream) (length: int) =
-//    use inflateStream = new InflaterInputStream(inStream)
-//    inflateStream.Cop

@@ -8,6 +8,7 @@ open Avalonia.Threading
 open Rocksmith2014.Common
 open Rocksmith2014.SNG
 open Rocksmith2014.Conversion
+open Rocksmith2014.PSARC
 open System.Threading.Tasks
 open System.IO
 open System
@@ -21,6 +22,10 @@ let sngFilters =
 
 let xmlFilters =
     let filter = FileDialogFilter(Extensions = ResizeArray(seq { "xml" }), Name = "XML Files")
+    ResizeArray(seq { filter })
+
+let psarcFilters =
+    let filter = FileDialogFilter(Extensions = ResizeArray(seq { "psarc" }), Name = "PSARC Files")
     ResizeArray(seq { filter })
 
 let openFileDialogSingle title filters dispatch = 
@@ -47,6 +52,7 @@ let openFileDialogMulti title filters dispatch =
 
 let ofdSng = openFileDialogSingle "Select File" sngFilters
 let ofdXml = openFileDialogSingle "Select File" xmlFilters
+let ofdPsarc = openFileDialogSingle "Select File" psarcFilters
 let ofdMultiXml = openFileDialogMulti "Select Files" xmlFilters
 
 type State = { Status:string; Platform:Platform }
@@ -60,6 +66,7 @@ type Msg =
     | ConvertInstrumentalSNGtoXML of file:string
     | ConvertInstrumentalXMLtoSNG of file:string
     | BatchConvertToSng of files:string array
+    | UnpackPSARC of file:string
     | RoundTrip of file:string
     | ChangePlatform of Platform
 
@@ -105,6 +112,14 @@ let update (msg: Msg) (state: State) : State =
         | BatchConvertToSng files ->
             files
             |> Array.Parallel.iter (convertFileToSng state.Platform)
+            state
+
+        | UnpackPSARC file ->
+            let dir = Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file))
+            Directory.CreateDirectory(dir) |> ignore
+            use psarcFile = File.OpenRead(file)
+            PSARC.read psarcFile
+            |> PSARC.extractFiles dir
             state
 
         | ChangePlatform platform -> { state with Platform = platform }
@@ -168,6 +183,11 @@ let view (state: State) dispatch =
             Button.create [
                 Button.onClick (fun _ -> ofdMultiXml (BatchConvertToSng >> dispatch))
                 Button.content "Batch Convert to SNG..."
+            ]
+
+            Button.create [
+                Button.onClick (fun _ -> ofdPsarc (UnpackPSARC >> dispatch))
+                Button.content "Unpack PSARC File..."
             ]
 
             TextBlock.create [
