@@ -30,13 +30,18 @@ module Header =
 
     let read (reader: IBinaryReader) =
         let magic = Encoding.ASCII.GetString(reader.ReadBytes(4))
+        let versionMaj, versionMin = reader.ReadUInt16(), reader.ReadUInt16()
+        let compressionMethod = Encoding.ASCII.GetString(reader.ReadBytes(4))
+
         if magic <> "PSAR" then
             failwith "PSARC header magic check failed."
+        elif compressionMethod <> "zlib" then
+            failwith "Unsupported compression type."
         else
             { Magic = magic
-              VersionMajor = reader.ReadUInt16()
-              VersionMinor = reader.ReadUInt16()
-              CompressionMethod = Encoding.ASCII.GetString(reader.ReadBytes(4))
+              VersionMajor = versionMaj
+              VersionMinor = versionMin
+              CompressionMethod = compressionMethod
               TOCLength = reader.ReadUInt32()
               TOCEntrySize = reader.ReadUInt32()
               TOCEntries = reader.ReadUInt32()

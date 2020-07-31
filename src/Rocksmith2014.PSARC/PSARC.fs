@@ -5,11 +5,10 @@ open System.IO
 open Rocksmith2014.Common.BinaryReaders
 open Rocksmith2014.Common.Interfaces
 open Rocksmith2014.Common
-open System.Buffers
 
 type PSARC =
     { Header : Header
-      Manifest : Entry
+      Manifest : ResizeArray<string>
       TOC : ResizeArray<Entry>
       Stream : Stream
       zBlocksSizeList : uint32[] }
@@ -28,8 +27,7 @@ module PSARC =
                   NameDigest = reader.ReadBytes(16)
                   zIndexBegin = reader.ReadUInt32()
                   Length = reader.ReadUInt40()
-                  Offset = reader.ReadUInt40() 
-                  Name = "" }
+                  Offset = reader.ReadUInt40() }
             toc.Add(entry)
 
         let tocChunkSize = int (header.TOCEntries * header.TOCEntrySize)
@@ -46,15 +44,17 @@ module PSARC =
 
         toc, zLengths
 
-    let inflateEntry (entry: Entry) (psarc: PSARC) (output: Stream) =
+    let private inflateInternal (entry: Entry)
+                                (blockSizeList: uint32[])
+                                (blockSize: int)
+                                (psarcStream: Stream)
+                                (output: Stream) =
         let mutable zChunkID = int entry.zIndexBegin
-        let blockSize = int psarc.Header.BlockSizeAlloc
-        let input = psarc.Stream
-        input.Position <- int64 entry.Offset
-        let reader = BigEndianBinaryReader(input) :> IBinaryReader
-        
+        psarcStream.Position <- int64 entry.Offset
+        let reader = BigEndianBinaryReader(psarcStream) :> IBinaryReader
+    
         while output.Length < int64 entry.Length do
-            match int psarc.zBlocksSizeList.[zChunkID] with
+            match int blockSizeList.[zChunkID] with
             | 0 ->
                 // Raw, full cluster used
                 output.Write(reader.ReadBytes(blockSize), 0, blockSize)
@@ -74,6 +74,9 @@ module PSARC =
         output.Position <- 0L
         output.Flush()
 
+    let inflateEntry (entry: Entry) (psarc: PSARC) (output: Stream) =
+        inflateInternal entry psarc.zBlocksSizeList (int psarc.Header.BlockSizeAlloc) psarc.Stream output
+
     let read (stream: Stream) = 
         let reader = BigEndianBinaryReader(stream) :> IBinaryReader
         let header = Header.read reader
@@ -92,29 +95,23 @@ module PSARC =
             else
                 parseTOC header reader
 
-        let psarc = 
-            { Header = header
-              Manifest = toc.[0]
-              TOC = toc
-              Stream = stream
-              zBlocksSizeList = zLengths }
+        let mani = toc.[0]
+        toc.RemoveAt(0)
+        use data = MemoryStreamPool.Default.GetStream()
+        inflateInternal mani zLengths (int header.BlockSizeAlloc) stream data
+        use mReader = new StreamReader(data, true)
+        let manifest = ResizeArray(mReader.ReadToEnd().Split('\n'))
 
-        if header.CompressionMethod <> "zlib" then
-            failwith "Unsupported compression type."
-        else
-            toc.RemoveAt(0)
-            use data = MemoryStreamPool.Default.GetStream()
-            inflateEntry psarc.Manifest psarc data
-            use mReader = new StreamReader(data, true)
-            let lines = mReader.ReadToEnd().Split('\n')
-
-            for i = 0 to lines.Length - 1 do
-                toc.[i] <- { toc.[i] with Name = lines.[i] }
-        psarc
+        { Header = header
+          Manifest = manifest
+          TOC = toc
+          Stream = stream
+          zBlocksSizeList = zLengths }
 
     let extractFiles (baseDirectory: string) (psarc: PSARC) =
         for entry in psarc.TOC do
-            let path = Path.Combine(baseDirectory, entry.Name.Replace('/', '\\'))
+            let name = psarc.Manifest.[entry.ID - 1]
+            let path = Path.Combine(baseDirectory, name.Replace('/', '\\'))
             Directory.CreateDirectory(Path.GetDirectoryName(path)) |> ignore
             use file = File.Create(path)
             inflateEntry entry psarc file

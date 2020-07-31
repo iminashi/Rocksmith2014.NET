@@ -11,7 +11,7 @@ let someTests =
     testCase "Can read PSARC with encrypted TOC" <| fun _ ->
         use file = File.OpenRead("test_p.psarc")
         use psarc = PSARC.read file
-        Expect.equal psarc.TOC.[0].Name "gfxassets/album_art/album_testtest_64.dds" "First file name is correct"
+        Expect.equal psarc.Manifest.[0] "gfxassets/album_art/album_testtest_64.dds" "First file name is correct"
 
     testCase "Can extract all files from PSARC" <| fun _ ->
         use file = File.OpenRead("test_p.psarc")
