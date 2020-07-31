@@ -56,11 +56,20 @@ let processStringMasks (stringMasks: int8[][]) (maxDiff: int) =
             let mask = stringMasks.[s].[d]
             stringMasks.[s].[d] <- mask ||| stringMasks.[s + 1].[d]
 
+let createPhraseIterationTimesArray (xml: InstrumentalArrangement) =
+    Array.init (xml.PhraseIterations.Count + 1) (fun i ->
+        if i = xml.PhraseIterations.Count then
+            // Use song length as a sentinel
+            xml.SongLength
+        else
+            xml.PhraseIterations.[i].Time)
+
 /// Converts an InstrumentalArrangement into SNG.
 let xmlToSng (arr: InstrumentalArrangement) =
     let accuData = AccuData.Init(arr)
+    let piTimes = createPhraseIterationTimesArray arr
     let convertBeat = XmlToSng.convertBeat() arr
-    let convertLevel = XmlToSngLevel.convertLevel accuData arr
+    let convertLevel = XmlToSngLevel.convertLevel accuData piTimes arr
 
     let beats =
         arr.Ebeats |> mapToArray convertBeat
@@ -72,7 +81,7 @@ let xmlToSng (arr: InstrumentalArrangement) =
     let chords =
         arr.ChordTemplates |> mapToArray (XmlToSng.convertChord arr)
     let phraseIterations =
-        arr.PhraseIterations |> mapiToArray (XmlToSng.convertPhraseIteration arr)
+        arr.PhraseIterations |> mapiToArray (XmlToSng.convertPhraseIteration piTimes)
     let NLDs =
         arr.NewLinkedDiffs |> mapToArray XmlToSng.convertNLD
     let events =

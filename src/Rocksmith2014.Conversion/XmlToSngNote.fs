@@ -89,11 +89,10 @@ let private createMaskForNote parentNote isArpeggio (note: XML.Note) =
 
 /// Returns true if the double stop bit should be set.
 let private isDoubleStop (template: XML.ChordTemplate) =
-    let frets =
-        template.Frets
-        |> Seq.filter (fun f -> f <> -1y)
-        |> Seq.length
-    frets = 2
+    template.Frets
+    |> Seq.filter (fun f -> f <> -1y)
+    |> Seq.length
+    |> (=) 2
 
 /// Returns true if the strum bit should be set.
 let private isStrum (chord: XML.Chord) =
@@ -191,6 +190,7 @@ let private createChordNotes (pendingLinkNexts: Dictionary<int8, int16>) thisId 
 
 /// Returns a function that is valid for converting notes in a single difficulty level.
 let convertNote (noteTimes: int[])
+                (piTimes: int[])
                 (fingerPrints: FingerPrint[][])
                 (accuData: AccuData)
                 (flag: NoteFlagger)
@@ -226,18 +226,10 @@ let convertNote (noteTimes: int[])
 
         // The index of the next note in the same phrase iteration
         let next =
-            if index < noteTimes.Length - 1 then
-                let endTime =
-                    if piId = xml.PhraseIterations.Count - 1 then
-                        xml.SongLength
-                    else
-                        xml.PhraseIterations.[piId + 1].Time
-                if noteTimes.[index + 1] < endTime then
-                    this + 1s
-                else
-                    -1s
-            else
+            if index = noteTimes.Length - 1 || noteTimes.[index + 1] >= piTimes.[piId + 1] then
                 -1s
+            else
+                this + 1s
 
         let fingerPrintIds =
             [| int16 (findFingerPrintId timeSeconds fingerPrints.[0])

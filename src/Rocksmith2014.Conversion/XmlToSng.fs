@@ -6,8 +6,6 @@ open Rocksmith2014
 open Rocksmith2014.Conversion.Utils
 open Rocksmith2014.SNG
 
-type HandShapeMap = Map<int16, Set<int>>
-
 type NoteFlagger = Note option -> Note -> uint32
 
 type XmlEntity =
@@ -100,16 +98,10 @@ let convertBendValue (xmlBv: XML.BendValue) =
       Step = xmlBv.Step }
 
 /// Converts an XML PhraseIteration into an SNG PhraseIteration.
-let convertPhraseIteration (xml: XML.InstrumentalArrangement) index (xmlPi: XML.PhraseIteration) =
-    let endTime =
-        if index = xml.PhraseIterations.Count - 1 then
-            xml.SongLength
-        else
-            xml.PhraseIterations.[index + 1].Time
-
+let convertPhraseIteration (piTimes: int[]) index (xmlPi: XML.PhraseIteration) =
     { PhraseId = xmlPi.PhraseId
       StartTime = msToSec xmlPi.Time
-      NextPhraseTime = msToSec endTime
+      NextPhraseTime = msToSec (piTimes.[index + 1])
       Difficulty = [| int xmlPi.HeroLevels.Easy; int xmlPi.HeroLevels.Medium; int xmlPi.HeroLevels.Hard |] }
 
 /// Converts an XML NewLinkedDifficulty into an SNG NewLinkedDifficulty.

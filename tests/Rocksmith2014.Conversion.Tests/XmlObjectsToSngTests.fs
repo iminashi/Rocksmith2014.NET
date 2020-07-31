@@ -66,7 +66,8 @@ let emptyFp: SNG.FingerPrint[][] = [| [||]; [||] |]
 
 let createNoteConvertFunction (accuData: AccuData) (arr: InstrumentalArrangement) (level: Level) =
     let noteTimes = createNoteTimes level
-    XmlToSngNote.convertNote noteTimes emptyFp accuData NoteFlagFunctions.onAnchorChange arr
+    let piTimes = ConvertInstrumental.createPhraseIterationTimesArray arr
+    XmlToSngNote.convertNote noteTimes piTimes emptyFp accuData NoteFlagFunctions.onAnchorChange arr
 
 [<Tests>]
 let sngToXmlConversionTests =
@@ -194,10 +195,11 @@ let sngToXmlConversionTests =
         Expect.equal sng.Step bv.Step "Step is same"
 
     testCase "Phrase Iteration" <| fun _ ->
-        let pi = PhraseIteration(2000, 8, [| 88; 99; 77 |])
         let testArr = createTestArr()
+        let pi = testArr.PhraseIterations.[1]
+        let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
 
-        let sng = XmlToSng.convertPhraseIteration testArr 1 pi
+        let sng = XmlToSng.convertPhraseIteration piTimes 1 pi
 
         Expect.equal sng.StartTime (convertTime pi.Time) "Start time is same"
         Expect.equal sng.NextPhraseTime (convertTime (testArr.PhraseIterations.[2].Time)) "Next phrase time is correct"
@@ -207,10 +209,11 @@ let sngToXmlConversionTests =
         Expect.equal sng.Difficulty.[2] (int pi.HeroLevels.Hard) "Hard difficulty level is same"
 
     testCase "Phrase Iteration (Last)" <| fun _ ->
-        let pi = PhraseIteration(3000, 8, [| 88; 99; 77 |])
         let testArr = createTestArr()
+        let pi = testArr.PhraseIterations.[testArr.PhraseIterations.Count - 1]
+        let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
 
-        let sng = XmlToSng.convertPhraseIteration testArr (testArr.PhraseIterations.Count - 1) pi
+        let sng = XmlToSng.convertPhraseIteration piTimes (testArr.PhraseIterations.Count - 1) pi
 
         Expect.equal sng.NextPhraseTime (convertTime testArr.SongLength) "Next phrase time is equal to song length"
 
@@ -322,7 +325,8 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Anchors.Add(Anchor(7y, 5555, 5y))
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSngNote.convertNote noteTimes emptyFp sharedAccData flagFunc testArr 0
+        let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
+        let convert = XmlToSngNote.convertNote noteTimes piTimes emptyFp sharedAccData flagFunc testArr 0
 
         let sng = convert 0 (XmlToSng.XmlNote note)
 
@@ -362,7 +366,8 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(note1)
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSngNote.convertNote noteTimes emptyFp sharedAccData flagFunc testArr 0
+        let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
+        let convert = XmlToSngNote.convertNote noteTimes piTimes emptyFp sharedAccData flagFunc testArr 0
 
         let sngNote0 = convert 0 (XmlToSng.XmlNote note0)
         let sngNote1 = convert 1 (XmlToSng.XmlNote note1)
@@ -387,7 +392,8 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(note)
         
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSngNote.convertNote noteTimes emptyFp sharedAccData flagFunc testArr 0
+        let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
+        let convert = XmlToSngNote.convertNote noteTimes piTimes emptyFp sharedAccData flagFunc testArr 0
 
         let sngNote = convert 0 (XmlToSng.XmlNote note)
 
@@ -423,7 +429,8 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(note)
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSngNote.convertNote noteTimes emptyFp sharedAccData flagFunc testArr 0
+        let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
+        let convert = XmlToSngNote.convertNote noteTimes piTimes emptyFp sharedAccData flagFunc testArr 0
 
         let sngNote = convert 0 (XmlToSng.XmlNote note)
 
@@ -453,7 +460,8 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].Notes.Add(child)
         
         let noteTimes = createNoteTimes testArr.Levels.[0]
-        let convert = XmlToSngNote.convertNote noteTimes emptyFp sharedAccData flagFunc testArr 0
+        let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
+        let convert = XmlToSngNote.convertNote noteTimes piTimes emptyFp sharedAccData flagFunc testArr 0
 
         let sngParent = convert 0 (XmlToSng.XmlNote parent)
         let sngChild = convert 1 (XmlToSng.XmlNote child)
@@ -474,8 +482,9 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].HandShapes.Add(hs)
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
+        let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
         let fp = XmlToSng.convertHandshape noteTimes hs
-        let convert = XmlToSngNote.convertNote noteTimes [| [| fp |]; [||] |] sharedAccData flagFunc testArr 0
+        let convert = XmlToSngNote.convertNote noteTimes piTimes [| [| fp |]; [||] |] sharedAccData flagFunc testArr 0
 
         let sng = convert 0 (XmlToSng.XmlNote note)
 
@@ -494,8 +503,9 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].HandShapes.Add(hs)
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
+        let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
         let fp = XmlToSng.convertHandshape noteTimes hs
-        let convert = XmlToSngNote.convertNote noteTimes [| [||]; [| fp |] |] sharedAccData flagFunc testArr 0
+        let convert = XmlToSngNote.convertNote noteTimes piTimes [| [||]; [| fp |] |] sharedAccData flagFunc testArr 0
 
         let sng = convert 0 (XmlToSng.XmlNote note)
 
@@ -658,6 +668,7 @@ let sngToXmlConversionTests =
 
     testCase "Level" <| fun _ ->
         let testArr = createTestArr()
+        let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
         testArr.Phrases.Add(Phrase("default", 0uy, PhraseMask.None))
         testArr.Phrases.Add(Phrase("phrase1", 0uy, PhraseMask.None))
         let testLevel = testArr.Levels.[0]
@@ -667,7 +678,7 @@ let sngToXmlConversionTests =
         testLevel.Chords.Add(Chord(Time = 1250, ChordId = 1s))
         let accuData = AccuData.Init(testArr)
 
-        let sng = XmlToSngLevel.convertLevel accuData testArr testLevel
+        let sng = XmlToSngLevel.convertLevel accuData piTimes testArr testLevel
 
         Expect.equal sng.Difficulty (int testLevel.Difficulty) "Difficulty is same"
         Expect.equal sng.Anchors.Length testLevel.Anchors.Count "Anchor count is same"

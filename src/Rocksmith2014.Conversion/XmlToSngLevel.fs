@@ -24,7 +24,7 @@ let private createXmlEntityArray (xmlNotes: ResizeArray<XML.Note>) (xmlChords: R
         entityArray
 
 /// Converts am XML level into an SNG level.
-let convertLevel (accuData: AccuData) (xmlArr: XML.InstrumentalArrangement) (xmlLevel: XML.Level) =
+let convertLevel (accuData: AccuData) (piTimes: int[]) (xmlArr: XML.InstrumentalArrangement) (xmlLevel: XML.Level) =
     accuData.LevelReset()
 
     let difficulty = int xmlLevel.Difficulty
@@ -40,7 +40,7 @@ let convertLevel (accuData: AccuData) (xmlArr: XML.InstrumentalArrangement) (xml
     let handShapes = handShapes |> Array.map convertHandshape'
     let fingerPrints = [| handShapes; arpeggios |]
 
-    let convertNote' = convertNote noteTimes fingerPrints accuData NoteFlagFunctions.onAnchorChange xmlArr difficulty
+    let convertNote' = convertNote noteTimes piTimes fingerPrints accuData NoteFlagFunctions.onAnchorChange xmlArr difficulty
 
     if noteTimes.[0] < accuData.FirstNoteTime then
         accuData.FirstNoteTime <- noteTimes.[0]
