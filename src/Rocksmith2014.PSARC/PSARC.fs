@@ -13,13 +13,14 @@ type PSARC =
       Stream : Stream
       zBlocksSizeList : uint32[] }
 
+    member this.GetName(entry: Entry) = this.Manifest.[entry.ID - 1]
+
     interface IDisposable with
         member this.Dispose() = this.Stream.Dispose()
 
 module PSARC =
     let private parseTOC (header: Header) (reader: IBinaryReader) =
         let tocFiles = int header.TOCEntries
-        let tocSize = int (header.TOCLength - 32u)
         let toc = ResizeArray<Entry>(tocFiles)
         for i = 0 to tocFiles - 1 do
             let entry =
@@ -32,15 +33,15 @@ module PSARC =
 
         let tocChunkSize = int (header.TOCEntries * header.TOCEntrySize)
         let bNum = int <| Math.Log(float header.BlockSizeAlloc, 256.0)
+        let tocSize = int (header.TOCLength - 32u)
         let zNum = (tocSize - tocChunkSize) / bNum
-        let zLengths = Array.zeroCreate<uint32> zNum
-        for i = 0 to zNum - 1 do
-            zLengths.[i] <-
-                match bNum with
-                | 2 -> uint32 (reader.ReadUInt16())
-                | 3 -> reader.ReadUInt24()
-                | 4 -> reader.ReadUInt32()
-                | _ -> failwith "Unexpected bNum"
+        let read = 
+            match bNum with
+            | 2 -> fun _ -> uint32 (reader.ReadUInt16()) // 64KB
+            | 3 -> fun _ -> reader.ReadUInt24() // 16MB
+            | 4 -> fun _ -> reader.ReadUInt32() // 4GB
+            | _ -> failwith "Unexpected bNum"
+        let zLengths = Array.init zNum read
 
         toc, zLengths
 
@@ -63,7 +64,7 @@ module PSARC =
 
                 // Check for zlib header
                 if array.[0] = 0x78uy && array.[1] = 0xDAuy then
-                    use memory = MemoryStreamPool.Default.GetStream(array)
+                    use memory = new MemoryStream(array)
                     Compression.unzip memory output
                 else
                     // Uncompressed
@@ -95,10 +96,9 @@ module PSARC =
             else
                 parseTOC header reader
 
-        let mani = toc.[0]
-        toc.RemoveAt(0)
         use data = MemoryStreamPool.Default.GetStream()
-        inflateInternal mani zLengths (int header.BlockSizeAlloc) stream data
+        inflateInternal toc.[0] zLengths (int header.BlockSizeAlloc) stream data
+        toc.RemoveAt(0)
         use mReader = new StreamReader(data, true)
         let manifest = ResizeArray(mReader.ReadToEnd().Split('\n'))
 
@@ -110,8 +110,7 @@ module PSARC =
 
     let extractFiles (baseDirectory: string) (psarc: PSARC) =
         for entry in psarc.TOC do
-            let name = psarc.Manifest.[entry.ID - 1]
-            let path = Path.Combine(baseDirectory, name.Replace('/', '\\'))
+            let path = Path.Combine(baseDirectory, psarc.GetName(entry).Replace('/', '\\'))
             Directory.CreateDirectory(Path.GetDirectoryName(path)) |> ignore
             use file = File.Create(path)
             inflateEntry entry psarc file
