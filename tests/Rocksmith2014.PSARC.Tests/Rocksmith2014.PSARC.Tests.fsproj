@@ -7,14 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="test_edit_p.psarc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="test_p.psarc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Compile Include="ReadTests.fs" />
+    <Compile Include="EditTests.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
-
-  <ItemGroup />
 
   <ItemGroup>
     <PackageReference Include="Expecto" Version="9.0.2" />

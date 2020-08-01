@@ -3,32 +3,31 @@
 open Rocksmith2014.Common.Interfaces
 open System.Text
 
-type Header =
-    { Magic : string
-      VersionMajor : uint16
-      VersionMinor : uint16
-      CompressionMethod : string
-      TOCLength : uint32
-      TOCEntrySize : uint32
-      TOCEntries : uint32
-      BlockSizeAlloc : uint32
-      ArchiveFlags : uint32 }
+type internal Header() =
+    member val Magic = "PSAR"
+    member val VersionMajor = 1us with get, set
+    member val VersionMinor = 4us with get, set
+    member val CompressionMethod = "zlib"
+    member val TOCLength = 0u with get, set
+    member val TOCEntrySize = 30u with get, set
+    member val TOCEntries = 0u with get, set
+    member val BlockSizeAlloc = 65536u with get, set
+    member val ArchiveFlags = 0u with get, set
 
     member this.IsEncrypted = this.ArchiveFlags = 4u
 
-module Header =
-    let Default =
-        { Magic = "PSAR"
-          VersionMajor = 1us
-          VersionMinor = 4us
-          CompressionMethod = "zlib"
-          TOCLength = 0u
-          TOCEntrySize = 30u
-          TOCEntries = 0u
-          BlockSizeAlloc = 65536u
-          ArchiveFlags = 0u }
+    member this.Write (writer: IBinaryWriter) =
+        writer.WriteBytes (Encoding.ASCII.GetBytes(this.Magic))
+        writer.WriteUInt16 this.VersionMajor
+        writer.WriteUInt16 this.VersionMinor
+        writer.WriteBytes (Encoding.ASCII.GetBytes(this.CompressionMethod))
+        writer.WriteUInt32 this.TOCLength
+        writer.WriteUInt32 this.TOCEntrySize
+        writer.WriteUInt32 this.TOCEntries
+        writer.WriteUInt32 this.BlockSizeAlloc
+        writer.WriteUInt32 this.ArchiveFlags
 
-    let read (reader: IBinaryReader) =
+    static member Read (reader: IBinaryReader) =
         let magic = Encoding.ASCII.GetString(reader.ReadBytes(4))
         let versionMaj, versionMin = reader.ReadUInt16(), reader.ReadUInt16()
         let compressionMethod = Encoding.ASCII.GetString(reader.ReadBytes(4))
@@ -38,12 +37,10 @@ module Header =
         elif compressionMethod <> "zlib" then
             failwith "Unsupported compression type."
         else
-            { Magic = magic
-              VersionMajor = versionMaj
-              VersionMinor = versionMin
-              CompressionMethod = compressionMethod
-              TOCLength = reader.ReadUInt32()
-              TOCEntrySize = reader.ReadUInt32()
-              TOCEntries = reader.ReadUInt32()
-              BlockSizeAlloc = reader.ReadUInt32()
-              ArchiveFlags = reader.ReadUInt32() }
+            Header(VersionMajor = versionMaj,
+                   VersionMinor = versionMin,
+                   TOCLength = reader.ReadUInt32(),
+                   TOCEntrySize = reader.ReadUInt32(),
+                   TOCEntries = reader.ReadUInt32(),
+                   BlockSizeAlloc = reader.ReadUInt32(),
+                   ArchiveFlags = reader.ReadUInt32())

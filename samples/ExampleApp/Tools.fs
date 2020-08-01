@@ -118,8 +118,8 @@ let update (msg: Msg) (state: State) : State =
             let dir = Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file))
             Directory.CreateDirectory(dir) |> ignore
             use psarcFile = File.OpenRead(file)
-            PSARC.read psarcFile
-            |> PSARC.extractFiles dir
+            use psarc = PSARC.Read psarcFile
+            psarc.ExtractFiles dir
             state
 
         | ChangePlatform platform -> { state with Platform = platform }

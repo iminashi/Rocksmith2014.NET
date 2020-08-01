@@ -10,16 +10,17 @@ let someTests =
 
     testCase "Can read PSARC with encrypted TOC" <| fun _ ->
         use file = File.OpenRead("test_p.psarc")
-        use psarc = PSARC.read file
+        use psarc = PSARC.Read file
         Expect.equal psarc.Manifest.[0] "gfxassets/album_art/album_testtest_64.dds" "First file name is correct"
 
     testCase "Can extract all files from PSARC" <| fun _ ->
         use file = File.OpenRead("test_p.psarc")
-        use psarc = PSARC.read file
+        use psarc = PSARC.Read file
         let tempPath = Path.Combine(Path.GetTempPath(), "extractTest")
         Directory.CreateDirectory(tempPath) |> ignore
+        // TODO: Clean temp directory
         
-        PSARC.extractFiles tempPath psarc
+        psarc.ExtractFiles tempPath
 
         let fileCount = Directory.EnumerateFiles(tempPath, "*.*", SearchOption.AllDirectories) |> Seq.length
         Expect.equal fileCount psarc.TOC.Count "All files were extracted"
