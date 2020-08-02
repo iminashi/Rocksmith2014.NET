@@ -85,7 +85,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         use writer = new BinaryWriter(memory, Encoding.ASCII, true)
         for i = 0 to manifest.Length - 1 do
             if i <> 0 then writer.Write('\n')
-            writer.Write(manifest.[i])
+            writer.Write(Encoding.ASCII.GetBytes(manifest.[i]))
         memory
 
     let getName (entry: Entry) = manifest.[entry.ID - 1]
@@ -102,8 +102,8 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             let entry = entries.[i]
             let zList = ResizeArray<byte[]>()
             let zBegin = uint32 zLengths.Count
-            entry.Data.Position <- 0L
             let doZip = shouldZip entry
+            entry.Data.Position <- 0L
 
             while entry.Data.Position < entry.Data.Length do
                 let size = Math.Min(int entry.Data.Length, blockSize)
@@ -116,7 +116,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                         use zStream = new MemoryStream()
                         Compression.zip pStream zStream
                         let packedSize = int zStream.Length
-                        if packedSize <= blockSize then
+                        if packedSize < blockSize then
                             zStream.ToArray(), packedSize
                         else
                             array, bytesRead
@@ -136,7 +136,38 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
             deflatedData.Add((e, zList))
 
-        deflatedData, zLengths
+        deflatedData, zLengths.ToArray()
+
+    let updateToc (dataEntries: ResizeArray<Entry * ResizeArray<byte[]>>) (blockTable: uint32[]) bNum =
+        use tocData = MemoryStreamPool.Default.GetStream()
+        let tocWriter = BigEndianBinaryWriter(tocData) :> IBinaryWriter
+        toc.Clear()
+
+        let mutable offset = uint64 header.TOCLength
+        for i = 0 to dataEntries.Count - 1 do
+            let protoEntry = fst dataEntries.[i]
+            let entry = { protoEntry with Offset = offset }
+            offset <- offset + uint64 ((snd dataEntries.[i]) |> Seq.sumBy (fun a -> a.Length))
+            // Don't add the manifest to the TOC
+            if i <> 0 then
+                toc.Add(entry)
+            entry.Write tocWriter
+
+        // Update and write the block sizes table
+        blockSizeTable <-
+            blockTable
+            |> Array.map (fun z -> if z = header.BlockSizeAlloc then 0u else z)
+        let write =
+            match bNum with
+            | 2 -> fun v -> tocWriter.WriteUInt16(uint16 v)
+            | 3 -> fun v -> tocWriter.WriteUInt24(v)
+            | 4 -> fun v -> tocWriter.WriteUInt32(v)
+            | _ -> failwith "Unexpected bNum."
+
+        blockSizeTable |> Array.iter write
+
+        tocData.Position <- 0L
+        Cryptography.encrypt tocData source tocData.Length
 
     member val Manifest = manifest.ToImmutableArray()
     member val TOC = toc.AsReadOnly()
@@ -178,42 +209,17 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         let dataEntries, blockTable = deflateEntries editList
 
         source.Position <- 0L
+        source.SetLength 0L
         let writer = BigEndianBinaryWriter(source) :> IBinaryWriter
 
         // Update header
         let bNum = int <| Math.Log(float header.BlockSizeAlloc, 256.0)
-        header.TOCLength <- uint (32 + dataEntries.Count * int header.TOCEntrySize + blockTable.Count * bNum)
+        header.TOCLength <- uint (32 + dataEntries.Count * int header.TOCEntrySize + blockTable.Length * bNum)
         header.TOCEntries <- uint dataEntries.Count
         header.Write writer 
 
         // Update and write TOC entries
-        toc.Clear()
-        let mutable offset = uint64 header.TOCLength
-        for i = 0 to dataEntries.Count - 1 do
-            let protoEntry = fst dataEntries.[i]
-            let entry = { protoEntry with Offset = offset }
-            offset <- offset + entry.Length
-            // Don't add the manifest to the TOC
-            if i <> 0 then
-                toc.Add(entry)
-            entry.Write writer
-
-        // Update and write the block sizes table
-        blockSizeTable <-
-            blockTable
-            |> Seq.map(fun z -> if z = header.BlockSizeAlloc then 0u else z)
-            |> Seq.toArray
-        let write =
-            match bNum with
-            | 2 -> fun v -> writer.WriteUInt16(uint16 v)
-            | 3 -> fun v -> writer.WriteUInt24(v)
-            | 4 -> fun v -> writer.WriteUInt32(v)
-            | _ -> failwith "Unexpected bNum."
-
-        blockSizeTable |> Seq.iter write
-
-        // Encrypt TOC
-        // TODO
+        updateToc dataEntries blockTable bNum
 
         // Write the data to the source stream
         let mutable zCounter = 0
@@ -223,8 +229,6 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                 source.Write(data.[j], 0, int blockTable.[zCounter])
                 zCounter <- zCounter + 1
 
-        let last = toc.[toc.Count - 1]
-        source.SetLength(int64 (last.Offset + last.Length))
         source.Flush()
 
         // Ensure that all entries that were inflated are disposed

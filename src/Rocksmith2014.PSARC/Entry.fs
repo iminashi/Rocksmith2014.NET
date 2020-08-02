@@ -13,9 +13,8 @@ type Entry =
     member this.Write (writer: IBinaryWriter) =
         writer.WriteBytes this.NameDigest
         writer.WriteUInt32 this.zIndexBegin
-        writer.WriteUInt64 this.Length
-        writer.WriteUInt64 this.Offset
-        writer.WriteInt32 this.ID
+        writer.WriteUInt40 this.Length
+        writer.WriteUInt40 this.Offset
 
 type NamedEntry =
     { Name: string

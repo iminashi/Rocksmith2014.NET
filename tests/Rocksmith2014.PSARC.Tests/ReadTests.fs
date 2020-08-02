@@ -4,6 +4,12 @@ open Expecto
 open System.IO
 open Rocksmith2014.PSARC
 
+let rec cleanDirectory (path: string) =
+    Directory.EnumerateFiles path |> Seq.iter File.Delete
+    let subDirs = Directory.EnumerateDirectories path
+    subDirs |> Seq.iter cleanDirectory
+    subDirs |> Seq.iter Directory.Delete
+
 [<Tests>]
 let someTests =
   testList "Read and Extract Files" [
@@ -18,10 +24,10 @@ let someTests =
         use psarc = PSARC.Read file
         let tempPath = Path.Combine(Path.GetTempPath(), "extractTest")
         Directory.CreateDirectory(tempPath) |> ignore
-        // TODO: Clean temp directory
         
         psarc.ExtractFiles tempPath
 
         let fileCount = Directory.EnumerateFiles(tempPath, "*.*", SearchOption.AllDirectories) |> Seq.length
         Expect.equal fileCount psarc.TOC.Count "All files were extracted"
+        cleanDirectory tempPath
   ]
