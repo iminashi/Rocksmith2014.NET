@@ -25,8 +25,6 @@ let private createXmlEntityArray (xmlNotes: ResizeArray<XML.Note>) (xmlChords: R
 
 /// Converts am XML level into an SNG level.
 let convertLevel (accuData: AccuData) (piTimes: int[]) (xmlArr: XML.InstrumentalArrangement) (xmlLevel: XML.Level) =
-    accuData.LevelReset()
-
     let difficulty = int xmlLevel.Difficulty
     let xmlEntities = createXmlEntityArray xmlLevel.Notes xmlLevel.Chords
     let noteTimes = xmlEntities |> Array.map getTimeCode
@@ -42,9 +40,6 @@ let convertLevel (accuData: AccuData) (piTimes: int[]) (xmlArr: XML.Instrumental
 
     let convertNote' = convertNote noteTimes piTimes fingerPrints accuData NoteFlagFunctions.onAnchorChange xmlArr difficulty
 
-    if noteTimes.[0] < accuData.FirstNoteTime then
-        accuData.FirstNoteTime <- noteTimes.[0]
-
     let notes = xmlEntities |> Array.mapi convertNote'
 
     let anchors =
@@ -53,7 +48,7 @@ let convertLevel (accuData: AccuData) (piTimes: int[]) (xmlArr: XML.Instrumental
 
     let averageNotes =
         let piNotes =
-            accuData.NotesInPhraseIterationsAll 
+            accuData.NotesInPhraseIterationsAll.[difficulty]
             |> Array.indexed
         Array.init xmlArr.Phrases.Count (fun phraseId ->
             piNotes
@@ -63,10 +58,10 @@ let convertLevel (accuData: AccuData) (piTimes: int[]) (xmlArr: XML.Instrumental
 
     { Difficulty = difficulty
       Anchors = anchors
-      AnchorExtensions = accuData.AnchorExtensions.ToArray()
+      AnchorExtensions = accuData.AnchorExtensions.[difficulty].ToArray()
       HandShapes = handShapes
       Arpeggios = arpeggios
       Notes = notes
       AverageNotesPerIteration = averageNotes
-      NotesInPhraseIterationsExclIgnored = Array.copy accuData.NotesInPhraseIterationsExclIgnored
-      NotesInPhraseIterationsAll = Array.copy accuData.NotesInPhraseIterationsAll }
+      NotesInPhraseIterationsExclIgnored = accuData.NotesInPhraseIterationsExclIgnored.[difficulty]
+      NotesInPhraseIterationsAll = accuData.NotesInPhraseIterationsAll.[difficulty] }

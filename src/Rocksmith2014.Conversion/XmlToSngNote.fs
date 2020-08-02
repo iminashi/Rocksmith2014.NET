@@ -180,13 +180,14 @@ let private createChordNotes (pendingLinkNexts: Dictionary<int8, int16>) thisId 
             { Mask = masks; BendData = bendData; SlideTo = slideTo; SlideUnpitchTo = slideUnpitchTo; Vibrato = vibrato }
     
         let hash = hashChordNotes chordNotes
-        if accuData.ChordNotesMap.ContainsKey(hash) then
-            accuData.ChordNotesMap.[hash]
-        else
-            let id = accuData.ChordNotes.Count
-            accuData.ChordNotes.Add(chordNotes)
-            accuData.ChordNotesMap.Add(hash, id)
-            id
+        lock accuData.ChordNotesMap (fun _ ->
+            if accuData.ChordNotesMap.ContainsKey(hash) then
+                accuData.ChordNotesMap.[hash]
+            else
+                let id = accuData.ChordNotes.Count
+                accuData.ChordNotes.Add(chordNotes)
+                accuData.ChordNotesMap.Add(hash, id)
+                id)
 
 /// Returns a function that is valid for converting notes in a single difficulty level.
 let convertNote (noteTimes: int[])
@@ -258,7 +259,7 @@ let convertNote (noteTimes: int[])
                     let ax = 
                         { BeatTime = msToSec (timeCode + note.Sustain)
                           FretId = note.SlideTo }
-                    accuData.AnchorExtensions.Add(ax)
+                    accuData.AnchorExtensions.[difficulty].Add(ax)
 
                 // Update the string mask for this note's section/difficulty
                 let sMask = accuData.StringMasks.[sectionId].[difficulty]

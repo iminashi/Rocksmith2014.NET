@@ -228,8 +228,7 @@ let createDNAs (xml: XML.InstrumentalArrangement) =
     |> Seq.toArray
 
 /// Creates an SNG MetaData from the XML arrangement.
-let createMetaData (accuData:AccuData) (xml:XML.InstrumentalArrangement) =
-    let firstNoteTime = msToSec accuData.FirstNoteTime
+let createMetaData (accuData: AccuData) firstNoteTime (xml: XML.InstrumentalArrangement) =
     let conversionDate = DateTime.Now.ToString("MM-d-yy HH:mm", CultureInfo.InvariantCulture)
     let maxScore = 100_000.
 

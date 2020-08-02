@@ -90,14 +90,23 @@ let xmlToSng (arr: InstrumentalArrangement) =
         arr.Tones.Changes |> mapToArray XmlToSng.convertTone
     let DNAs = XmlToSng.createDNAs arr
     let levels =
-        arr.Levels |> mapToArray convertLevel
+        //arr.Levels |> mapToArray convertLevel
+        arr.Levels.ToArray()
+        |> Array.Parallel.map convertLevel
 
     // For whatever reason, the string masks from a section need to be included in the section before it
     processStringMasks accuData.StringMasks arr.Levels.Count
 
+    let firstNoteTime = 
+        let mutable time = Single.MaxValue
+        for level in levels do
+            if level.Notes.Length > 0 && level.Notes.[0].Time < time then
+                time <- level.Notes.[0].Time
+        time
+
     let sections =
         arr.Sections |> mapiToArray (XmlToSng.convertSection accuData.StringMasks arr)
-    let metadata = XmlToSng.createMetaData accuData arr
+    let metadata = XmlToSng.createMetaData accuData firstNoteTime arr
 
     { Beats = beats
       Phrases = phrases

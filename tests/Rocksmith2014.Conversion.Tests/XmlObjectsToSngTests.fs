@@ -524,7 +524,7 @@ let sngToXmlConversionTests =
     testCase "Meta Data" <| fun _ ->
         let testArr = createTestArr()
 
-        let md = XmlToSng.createMetaData sharedAccData testArr
+        let md = XmlToSng.createMetaData sharedAccData 10.f testArr
 
         Expect.equal md.MaxScore 100_000.0 "Max score is correct"
         Expect.equal md.StartTime 1.0f "Start time is correct"
@@ -662,9 +662,9 @@ let sngToXmlConversionTests =
 
         let sng = convert 0 (XmlToSng.XmlNote note)
 
-        Expect.equal accuData.AnchorExtensions.Count 1 "Anchor extension was created"
-        Expect.equal accuData.AnchorExtensions.[0].BeatTime 1.3f "Time is correct"
-        Expect.equal accuData.AnchorExtensions.[0].FretId note.SlideTo "Fret is correct"
+        Expect.equal accuData.AnchorExtensions.[0].Count 1 "Anchor extension was created"
+        Expect.equal accuData.AnchorExtensions.[0].[0].BeatTime 1.3f "Time is correct"
+        Expect.equal accuData.AnchorExtensions.[0].[0].FretId note.SlideTo "Fret is correct"
 
     testCase "Level" <| fun _ ->
         let testArr = createTestArr()
@@ -687,7 +687,6 @@ let sngToXmlConversionTests =
         Expect.equal sng.AverageNotesPerIteration.Length testArr.Phrases.Count "Phrase count is correct"
         Expect.equal sng.Notes.Length 2 "Note count is correct"
         Expect.equal sng.AverageNotesPerIteration.[1] 1.f "Average notes in phrase #2 is one (two notes / two iterations)"
-        Expect.equal accuData.FirstNoteTime 1100 "First note time is correct"
         Expect.equal accuData.NoteCounts.Easy 2 "Note count, easy is correct"
 
     testCase "Section String Mask" <| fun _ ->
