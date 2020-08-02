@@ -11,6 +11,8 @@ let copyToMemory (fileName: string) =
     memory.Position <- 0L
     memory
 
+let options = { Mode = InMemory; EncyptTOC = true }
+
 [<Tests>]
 let someTests =
   testList "Edit Files" [
@@ -20,7 +22,7 @@ let someTests =
         use psarc = PSARC.Read memory
         let oldManifest = psarc.Manifest
 
-        psarc.Edit(InMemory, ignore)
+        psarc.Edit(options, ignore)
 
         Expect.sequenceEqual psarc.Manifest oldManifest "Manifest is unchanged"
 
@@ -30,7 +32,7 @@ let someTests =
         let oldManifest = psarc.Manifest
         let oldToc = psarc.TOC
 
-        psarc.Edit(InMemory, ignore)
+        psarc.Edit(options, ignore)
         memory.Position <- 0L
         let psarc2 = PSARC.Read memory
 
@@ -45,7 +47,7 @@ let someTests =
         let oldSize = memory.Length
 
         // Remove all files ending in "wem" from the archive
-        psarc.Edit(InMemory, (fun files -> files.RemoveAll(fun x -> x.Name.EndsWith("wem")) |> ignore))
+        psarc.Edit(options, (fun files -> files.RemoveAll(fun x -> x.Name.EndsWith("wem")) |> ignore))
         memory.Position <- 0L
         let psarc2 = PSARC.Read memory
 

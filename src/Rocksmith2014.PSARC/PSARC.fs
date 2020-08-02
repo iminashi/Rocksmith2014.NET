@@ -11,6 +11,10 @@ open Rocksmith2014.Common.BinaryWriters
 
 type EditMode = InMemory | TempFiles
 
+type EditOptions =
+    { Mode: EditMode
+      EncyptTOC: bool }
+
 type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, blockSizeTable: uint32[]) =
     static let getZType (header: Header) =
         int <| Math.Log(float header.BlockSizeAlloc, 256.0)
@@ -147,7 +151,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         protoEntries, deflatedData, zLengths.ToArray()
 
     /// Updates the table of contents with the given proto-entries and block size table.
-    let updateToc (protoEntries: ResizeArray<Entry * int64>) (blockTable: uint32[]) zType =
+    let updateToc (protoEntries: ResizeArray<Entry * int64>) (blockTable: uint32[]) zType encrypt =
         use tocData = MemoryStreamPool.Default.GetStream()
         let tocWriter = BigEndianBinaryWriter(tocData) :> IBinaryWriter
         
@@ -177,7 +181,10 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         blockSizeTable |> Array.iter write
         
         tocData.Position <- 0L
-        Cryptography.encrypt tocData source tocData.Length
+        if encrypt then
+            Cryptography.encrypt tocData source tocData.Length
+        else
+            tocData.CopyTo source
 
     /// Gets the manifest.
     member val Manifest = manifest.ToImmutableArray()
@@ -197,11 +204,11 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             inflateEntry entry file
 
     /// Edits the contents of the PSARC with the given edit function.
-    member _.Edit (mode: EditMode, editFunc: ResizeArray<NamedEntry> -> unit) =
+    member _.Edit (options: EditOptions, editFunc: ResizeArray<NamedEntry> -> unit) =
         // Map the table of contents to entry names and data
         let namedEntries =
             let getTargetStream =
-                match mode with
+                match options.Mode with
                 | InMemory -> fun () -> MemoryStreamPool.Default.GetStream() :> Stream
                 | TempFiles -> fun () -> File.OpenWrite(Path.GetTempFileName()) :> Stream
 
@@ -231,11 +238,11 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         let zType = getZType header
         header.TOCLength <- uint (Header.Length + protoEntries.Count * int header.TOCEntrySize + blockTable.Length * zType)
         header.TOCEntries <- uint protoEntries.Count
-        header.ArchiveFlags <- 4u
+        header.ArchiveFlags <- if options.EncyptTOC then 4u else 0u
         header.Write writer 
 
         // Update and write TOC entries
-        updateToc protoEntries blockTable zType
+        updateToc protoEntries blockTable zType options.EncyptTOC
 
         // Write the data to the source stream
         for dataEntry in data do
@@ -250,14 +257,15 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     static member CreateEmpty(stream) = new PSARC(stream, Header(), ResizeArray(), [||])
 
     /// Creates a new PSARC into the given stream using the creation function.
-    static member Create(stream, createFun) =
-        using (PSARC.CreateEmpty(stream)) (fun psarc -> psarc.Edit(InMemory, createFun))
+    static member Create(stream, encrypt, createFun) =
+        let options = { Mode = InMemory; EncyptTOC = encrypt }
+        using (PSARC.CreateEmpty(stream)) (fun psarc -> psarc.Edit(options, createFun))
 
     /// Packs all the files in the directory and subdirectories into a PSARC file with the given filename.
-    static member PackDirectory(path, targetFile) =
+    static member PackDirectory(path, targetFile, encrypt) =
         use file = File.Open(targetFile, FileMode.Create, FileAccess.ReadWrite)
         let sourceFiles = Directory.EnumerateFiles(path, "*.*",SearchOption.AllDirectories)
-        PSARC.Create(file, (fun packFiles ->
+        PSARC.Create(file, encrypt, (fun packFiles ->
             for f in sourceFiles do
                 let p = Path.GetRelativePath(path, f)
                 let name = p.Replace('\\', '/')
@@ -267,7 +275,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     static member Read (input: Stream) = 
         let reader = BigEndianBinaryReader(input) :> IBinaryReader
         let header = Header.Read reader
-        let tocSize = int (header.TOCLength - 32u)
+        let tocSize = int header.TOCLength - Header.Length
 
         let toc, zLengths =
             if header.IsEncrypted then

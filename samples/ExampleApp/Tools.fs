@@ -12,6 +12,7 @@ open Rocksmith2014.PSARC
 open System.Threading.Tasks
 open System.IO
 open System
+open System.Diagnostics
 
 let private window =
     lazy ((Application.Current.ApplicationLifetime :?> ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime).MainWindow)
@@ -139,12 +140,14 @@ let update (msg: Msg) (state: State) : State =
         | TouchPSARC file ->
             use psarcFile = File.Open(file, FileMode.Open, FileAccess.ReadWrite)
             use psarc = PSARC.Read psarcFile
-            psarc.Edit(InMemory, ignore)
+            psarc.Edit({ Mode = InMemory; EncyptTOC = true }, ignore)
             state
 
         | PackDirectoryPSARC path ->
-            PSARC.PackDirectory(path, path + ".psarc")
-            state
+            let sw = Stopwatch.StartNew()
+            PSARC.PackDirectory(path, path + ".psarc", true)
+            sw.Stop()
+            { state with Status = sprintf "Elapsed: %A" sw.Elapsed }
 
         | ChangePlatform platform -> { state with Platform = platform }
 
@@ -225,7 +228,7 @@ let view (state: State) dispatch =
             ]
 
             TextBlock.create [
-                TextBlock.fontSize 28.0
+                TextBlock.fontSize 26.0
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
                 TextBlock.text (string state.Status)
