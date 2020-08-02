@@ -12,28 +12,22 @@ open Rocksmith2014.Common.BinaryWriters
 type EditMode = InMemory | TempFiles
 
 type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, blockSizeTable: uint32[]) =
+    static let getZType (header: Header) =
+        int <| Math.Log(float header.BlockSizeAlloc, 256.0)
+
     static let parseTOC (header: Header) (reader: IBinaryReader) =
-        let tocFileCount = int header.TOCEntries
-        let toc = ResizeArray<Entry>(tocFileCount)
-        for i = 0 to tocFileCount - 1 do
-            let entry =
-                { ID = i
-                  NameDigest = reader.ReadBytes(16)
-                  zIndexBegin = reader.ReadUInt32()
-                  Length = reader.ReadUInt40()
-                  Offset = reader.ReadUInt40() }
-            toc.Add(entry)
+        let toc = Seq.init (int header.TOCEntries) (Entry.Read reader) |> ResizeArray
 
         let tocChunkSize = int (header.TOCEntries * header.TOCEntrySize)
-        let bNum = int <| Math.Log(float header.BlockSizeAlloc, 256.0)
+        let zType = getZType header
         let tocSize = int (header.TOCLength - 32u)
-        let zNum = (tocSize - tocChunkSize) / bNum
+        let zNum = (tocSize - tocChunkSize) / zType
         let read = 
-            match bNum with
+            match zType with
             | 2 -> fun _ -> uint32 (reader.ReadUInt16()) // 64KB
             | 3 -> fun _ -> reader.ReadUInt24() // 16MB
             | 4 -> fun _ -> reader.ReadUInt32() // 4GB
-            | _ -> failwith "Unexpected bNum"
+            | _ -> failwith "Unexpected zType"
         let zLengths = Array.init zNum read
 
         toc, zLengths
@@ -42,12 +36,12 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     let inflateEntry (entry: Entry) (output: Stream) =
         let blockSize = int header.BlockSizeAlloc
-        let mutable zChunkID = int entry.zIndexBegin
+        let mutable zIndex = int entry.zIndexBegin
         source.Position <- int64 entry.Offset
         let reader = BigEndianBinaryReader(source) :> IBinaryReader
     
         while output.Length < int64 entry.Length do
-            match int blockSizeTable.[zChunkID] with
+            match int blockSizeTable.[zIndex] with
             | 0 ->
                 // Raw, full cluster used
                 output.Write(reader.ReadBytes(blockSize), 0, blockSize)
@@ -62,7 +56,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                     // Uncompressed
                     output.Write(array, 0, array.Length)
 
-            zChunkID <- zChunkID + 1
+            zIndex <- zIndex + 1
 
         output.Position <- 0L
         output.Flush()
@@ -138,7 +132,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
         deflatedData, zLengths.ToArray()
 
-    let updateToc (dataEntries: ResizeArray<Entry * ResizeArray<byte[]>>) (blockTable: uint32[]) bNum =
+    let updateToc (dataEntries: ResizeArray<Entry * ResizeArray<byte[]>>) (blockTable: uint32[]) zType =
         use tocData = MemoryStreamPool.Default.GetStream()
         let tocWriter = BigEndianBinaryWriter(tocData) :> IBinaryWriter
         toc.Clear()
@@ -158,11 +152,11 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             blockTable
             |> Array.map (fun z -> if z = header.BlockSizeAlloc then 0u else z)
         let write =
-            match bNum with
+            match zType with
             | 2 -> fun v -> tocWriter.WriteUInt16(uint16 v)
             | 3 -> fun v -> tocWriter.WriteUInt24(v)
             | 4 -> fun v -> tocWriter.WriteUInt32(v)
-            | _ -> failwith "Unexpected bNum."
+            | _ -> failwith "Unexpected zType."
 
         blockSizeTable |> Array.iter write
 
@@ -213,13 +207,13 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         let writer = BigEndianBinaryWriter(source) :> IBinaryWriter
 
         // Update header
-        let bNum = int <| Math.Log(float header.BlockSizeAlloc, 256.0)
-        header.TOCLength <- uint (32 + dataEntries.Count * int header.TOCEntrySize + blockTable.Length * bNum)
+        let zType = getZType header
+        header.TOCLength <- uint (32 + dataEntries.Count * int header.TOCEntrySize + blockTable.Length * zType)
         header.TOCEntries <- uint dataEntries.Count
         header.Write writer 
 
         // Update and write TOC entries
-        updateToc dataEntries blockTable bNum
+        updateToc dataEntries blockTable zType
 
         // Write the data to the source stream
         let mutable zCounter = 0

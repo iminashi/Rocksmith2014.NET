@@ -16,6 +16,13 @@ type Entry =
         writer.WriteUInt40 this.Length
         writer.WriteUInt40 this.Offset
 
+    static member Read (reader: IBinaryReader) index =
+        { ID = index
+          NameDigest = reader.ReadBytes(16)
+          zIndexBegin = reader.ReadUInt32()
+          Length = reader.ReadUInt40()
+          Offset = reader.ReadUInt40() }
+
 type NamedEntry =
     { Name: string
       Data: Stream }
