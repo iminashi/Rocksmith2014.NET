@@ -50,10 +50,22 @@ let openFileDialogMulti title filters dispatch =
                    | files -> files |> dispatch)
         ) |> ignore
 
+let openFolderDialog title dispatch = 
+    Dispatcher.UIThread.InvokeAsync(
+        fun () ->
+            OpenFolderDialog(Title = title)
+               .ShowAsync(window.Force())
+               .ContinueWith(fun (t: Task<string>) -> 
+                   match t.Result with
+                   | null -> ()
+                   | file -> file |> dispatch)
+        ) |> ignore
+
 let ofdSng = openFileDialogSingle "Select File" sngFilters
 let ofdXml = openFileDialogSingle "Select File" xmlFilters
 let ofdPsarc = openFileDialogSingle "Select File" psarcFilters
 let ofdMultiXml = openFileDialogMulti "Select Files" xmlFilters
+let ofod = openFolderDialog "Select Folder"
 
 type State = { Status:string; Platform:Platform }
 
@@ -67,7 +79,9 @@ type Msg =
     | ConvertInstrumentalXMLtoSNG of file:string
     | BatchConvertToSng of files:string array
     | UnpackPSARC of file:string
-    | RoundTrip of file:string
+    | PackDirectoryPSARC of path:string
+    | TouchPSARC of file:string
+    //| RoundTrip of file:string
     | ChangePlatform of Platform
 
 let convertFileToSng platform (fileName: string) =
@@ -81,10 +95,10 @@ let convertFileToSng platform (fileName: string) =
 let update (msg: Msg) (state: State) : State =
     try
         match msg with
-        | RoundTrip file ->
-            SNGFile.readPacked file state.Platform
-            |> SNGFile.savePacked (file + "re") state.Platform
-            state
+        //| RoundTrip file ->
+        //    SNGFile.readPacked file state.Platform
+        //    |> SNGFile.savePacked (file + "re") state.Platform
+        //    state
         
         | UnpackFile file ->
             SNGFile.unpackFile file state.Platform; state
@@ -122,6 +136,16 @@ let update (msg: Msg) (state: State) : State =
             psarc.ExtractFiles dir
             state
 
+        | TouchPSARC file ->
+            use psarcFile = File.Open(file, FileMode.Open, FileAccess.ReadWrite)
+            use psarc = PSARC.Read psarcFile
+            psarc.Edit(InMemory, ignore)
+            state
+
+        | PackDirectoryPSARC path ->
+            PSARC.PackDirectory(path, path + ".psarc")
+            state
+
         | ChangePlatform platform -> { state with Platform = platform }
 
     with e -> { state with Status = e.Message }
@@ -150,10 +174,10 @@ let view (state: State) dispatch =
                 ]
             ]
 
-            Button.create [
-                Button.onClick (fun _ ->  ofdSng (RoundTrip >> dispatch))
-                Button.content "Round-trip Packed File..."
-            ]
+            //Button.create [
+            //    Button.onClick (fun _ ->  ofdSng (RoundTrip >> dispatch))
+            //    Button.content "Round-trip Packed SNG File..."
+            //]
 
             Button.create [
                 Button.onClick (fun _ -> ofdSng (UnpackFile >> dispatch))
@@ -186,8 +210,18 @@ let view (state: State) dispatch =
             ]
 
             Button.create [
+                Button.onClick (fun _ -> ofdPsarc (TouchPSARC >> dispatch))
+                Button.content "Touch PSARC File..."
+            ]
+
+            Button.create [
                 Button.onClick (fun _ -> ofdPsarc (UnpackPSARC >> dispatch))
                 Button.content "Unpack PSARC File..."
+            ]
+
+            Button.create [
+                Button.onClick (fun _ -> ofod (PackDirectoryPSARC >> dispatch))
+                Button.content "Pack a Directory into PSARC File..."
             ]
 
             TextBlock.create [

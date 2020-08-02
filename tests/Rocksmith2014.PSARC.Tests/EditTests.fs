@@ -20,7 +20,7 @@ let someTests =
         use psarc = PSARC.Read memory
         let oldManifest = psarc.Manifest
 
-        psarc.Edit(InMemory, (fun files -> ()))
+        psarc.Edit(InMemory, ignore)
 
         Expect.sequenceEqual psarc.Manifest oldManifest "Manifest is unchanged"
 
@@ -28,12 +28,15 @@ let someTests =
         use memory = copyToMemory "test_edit_p.psarc"
         let psarc = PSARC.Read memory
         let oldManifest = psarc.Manifest
+        let oldToc = psarc.TOC
 
-        psarc.Edit(InMemory, (fun files -> ()))
+        psarc.Edit(InMemory, ignore)
         memory.Position <- 0L
         let psarc2 = PSARC.Read memory
 
         Expect.sequenceEqual psarc2.Manifest oldManifest "Manifest is unchanged"
+        for i = 0 to psarc2.TOC.Count - 1 do
+            Expect.equal psarc2.TOC.[i].Length oldToc.[i].Length "File length is same"
 
     testCase "Can remove files" <| fun _ ->
         use memory = copyToMemory "test_edit_p.psarc"

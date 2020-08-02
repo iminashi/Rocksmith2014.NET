@@ -4,6 +4,9 @@ open Rocksmith2014.Common.Interfaces
 open System.Text
 
 type internal Header() =
+    /// The length of a header in bytes.
+    static member Length = 32
+
     member val Magic = "PSAR"
     member val VersionMajor = 1us with get, set
     member val VersionMinor = 4us with get, set

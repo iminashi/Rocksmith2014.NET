@@ -3,6 +3,10 @@
 open System.IO
 open Rocksmith2014.Common.Interfaces
 
+type NamedEntry =
+    { Name: string
+      Data: Stream }
+
 type Entry =
     { NameDigest : byte[]
       zIndexBegin : uint32
@@ -23,6 +27,10 @@ type Entry =
           Length = reader.ReadUInt40()
           Offset = reader.ReadUInt40() }
 
-type NamedEntry =
-    { Name: string
-      Data: Stream }
+    /// Creates a "proto-entry" (no offset) from the given named entry.
+    static member CreateProto (nEntry: NamedEntry) zBegin id =
+        { NameDigest = Cryptography.md5Hash nEntry.Name
+          zIndexBegin = zBegin
+          Length = uint64 nEntry.Data.Length
+          Offset = 0UL // Will be set later
+          ID = id }
