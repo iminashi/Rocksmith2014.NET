@@ -95,6 +95,18 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     let getName (entry: Entry) = manifest.[entry.ID - 1]
 
+    let addPlainData blockSize (deflatedData: ResizeArray<Stream>) (zLengths: ResizeArray<uint32>) (data: Stream) =
+        deflatedData.Add(data)
+        if data.Length <= int64 blockSize then
+            zLengths.Add(uint32 data.Length)
+        else
+            // Calculate the number of blocks needed
+            let blockCount = int (data.Length / int64 blockSize)
+            let lastBlockSize = data.Length - int64 (blockCount * blockSize)
+            for _ = 1 to blockCount do zLengths.Add(uint32 blockSize)
+            if lastBlockSize <> 0L then zLengths.Add(uint32 lastBlockSize)
+        data.Length
+
     /// Deflates the data in the given named entries.
     let deflateEntries (entries: ResizeArray<NamedEntry>) =
         let deflatedData = ResizeArray<Stream>()
@@ -105,72 +117,34 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         // Add the manifest as the first entry
         entries.Insert(0, { Name = String.Empty; Data = createManifestData() })
 
-        for i = 0 to entries.Count - 1 do
-            let entry = entries.[i]
-            let zBegin = uint32 zLengths.Count
-            let usePlainData = usePlain entry
-            let proto = Entry.CreateProto entry zBegin i
+        for entry in entries do
+            let proto = Entry.CreateProto entry (uint32 zLengths.Count)
 
             let totalLength =
-                if usePlainData then
-                    deflatedData.Add(entry.Data)
-                    if entry.Data.Length <= int64 blockSize then
-                        zLengths.Add(uint32 entry.Data.Length)
-                    else
-                        // Calculate the number of blocks needed
-                        let blockCount = int (entry.Data.Length / int64 blockSize)
-                        let lastBlockSize = entry.Data.Length - int64 (blockCount * blockSize)
-                        for _ = 1 to blockCount do zLengths.Add(uint32 blockSize)
-                        if lastBlockSize <> 0L then zLengths.Add(uint32 lastBlockSize)
-                    entry.Data.Length
+                if usePlain entry then
+                    addPlainData blockSize deflatedData zLengths entry.Data
                 else
-                    let mutable zSize = 0L
-                    entry.Data.Position <- 0L
-                    while entry.Data.Position < entry.Data.Length do
-                        let size = Math.Min(int (entry.Data.Length - entry.Data.Position), blockSize)
-                        let array = Array.zeroCreate<byte> size
-                        let bytesRead = entry.Data.Read(array, 0, size)
-                        let pStream = new MemoryStream(array)
-                        let zStream = MemoryStreamPool.Default.GetStream()
-
-                        let data, length =
-                            Compression.zip pStream zStream
-                            let packedSize = int zStream.Length
-                            if packedSize < blockSize then
-                                pStream.Dispose()
-                                zStream, packedSize
-                            else
-                                // Edge case: the size of the zipped data is equal to, or greater than the block size
-                                assert (bytesRead = int pStream.Length)
-                                zStream.Dispose()
-                                pStream, bytesRead
-                        deflatedData.Add(data)
-                        zLengths.Add(uint32 length)
-                        zSize <- zSize + int64 length
-                    // The original data is no longer needed
-                    entry.Data.Dispose()
-                    zSize
+                    using entry.Data (Compression.blockZip blockSize deflatedData zLengths)
 
             protoEntries.Add(proto, totalLength)
 
-        protoEntries, deflatedData, zLengths.ToArray()
+        protoEntries.ToArray(), deflatedData, zLengths.ToArray()
 
     /// Updates the table of contents with the given proto-entries and block size table.
-    let updateToc (protoEntries: ResizeArray<Entry * int64>) (blockTable: uint32[]) zType encrypt =
+    let updateToc (protoEntries: (Entry * int64)[]) (blockTable: uint32[]) zType encrypt =
         use tocData = MemoryStreamPool.Default.GetStream()
         let tocWriter = BigEndianBinaryWriter(tocData) :> IBinaryWriter
         
         // Update and write the table of contents
         toc.Clear()
         let mutable offset = uint64 header.TOCLength
-        for i = 0 to protoEntries.Count - 1 do
-            let protoEntry = fst protoEntries.[i]
-            let entry = { protoEntry with Offset = offset }
-            offset <- offset + ((snd >> uint64) protoEntries.[i])
+        protoEntries |> Array.iteri (fun i e ->
+            let entry = { fst e with Offset = offset; ID = i }
+            offset <- offset + (e |> (snd >> uint64))
             // Don't add the manifest to the TOC
             if i <> 0 then
                 toc.Add(entry)
-            entry.Write tocWriter
+            entry.Write tocWriter)
 
         // Update and write the block sizes table
         blockSizeTable <-
@@ -192,10 +166,10 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             tocData.CopyTo source
 
     /// Gets the manifest.
-    member _.Manifest with get () = manifest.ToImmutableArray()
+    member _.Manifest = manifest.ToImmutableArray()
 
     /// Gets the table of contents.
-    member _.TOC with get () = toc.AsReadOnly() 
+    member _.TOC = toc.AsReadOnly() 
 
     /// Inflates the given entry into the output stream.
     member _.InflateEntry (entry: Entry, output: Stream) = inflateEntry entry output
@@ -216,7 +190,6 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                 match options.Mode with
                 | InMemory -> fun () -> MemoryStreamPool.Default.GetStream() :> Stream
                 | TempFiles -> fun () -> File.OpenWrite(Path.GetTempFileName()) :> Stream
-
             toc
             |> Seq.map (fun e -> 
                 let data = getTargetStream ()
@@ -226,7 +199,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             |> Seq.toArray
 
         // Call the edit function that mutates the resize array
-        let editList = ResizeArray<NamedEntry>(namedEntries)
+        let editList = ResizeArray(namedEntries)
         editFunc editList
 
         // Update the manifest
@@ -241,8 +214,8 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
         // Update header
         let zType = getZType header
-        header.TOCLength <- uint (Header.Length + protoEntries.Count * int header.TOCEntrySize + blockTable.Length * zType)
-        header.TOCEntries <- uint protoEntries.Count
+        header.TOCLength <- uint (Header.Length + protoEntries.Length * int header.TOCEntrySize + blockTable.Length * zType)
+        header.TOCEntries <- uint protoEntries.Length
         header.ArchiveFlags <- if options.EncyptTOC then 4u else 0u
         header.Write writer 
 
@@ -270,11 +243,10 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     /// Packs all the files in the directory and subdirectories into a PSARC file with the given filename.
     static member PackDirectory(path, targetFile, encrypt) =
         use file = File.Open(targetFile, FileMode.Create, FileAccess.ReadWrite)
-        let sourceFiles = Directory.EnumerateFiles(path, "*.*",SearchOption.AllDirectories)
+        let sourceFiles = Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories)
         PSARC.Create(file, encrypt, (fun packFiles ->
             for f in sourceFiles do
-                let p = Path.GetRelativePath(path, f)
-                let name = p.Replace('\\', '/')
+                let name = Path.GetRelativePath(path, f).Replace('\\', '/')
                 packFiles.Add( { Name = name; Data = File.OpenRead(f) })))
 
     /// Initializes a PSARC from the input stream. 

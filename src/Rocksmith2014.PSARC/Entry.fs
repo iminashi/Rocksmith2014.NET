@@ -27,10 +27,10 @@ type Entry =
           Length = reader.ReadUInt40()
           Offset = reader.ReadUInt40() }
 
-    /// Creates a "proto-entry" (no offset) from the given named entry.
-    static member CreateProto (nEntry: NamedEntry) zBegin id =
+    /// Creates a "proto-entry" (no offset or ID) from the given named entry.
+    static member CreateProto (nEntry: NamedEntry) zBegin =
         { NameDigest = Cryptography.md5Hash nEntry.Name
           zIndexBegin = zBegin
           Length = uint64 nEntry.Data.Length
-          Offset = 0UL // Will be set later
-          ID = id }
+          // Will be set later:
+          Offset = 0UL; ID = 0 }
