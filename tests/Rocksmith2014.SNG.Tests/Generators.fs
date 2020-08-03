@@ -7,7 +7,7 @@ open Rocksmith2014.SNG
 type Overrides() =
     static member Float32() =
         Arb.Default.Float32()
-        |> Arb.filter (fun f -> not <| System.Single.IsNaN(f) && not <| System.Single.IsInfinity(f)) 
+        |> Arb.filter (fun f -> not <| System.Single.IsNaN(f) && not <| System.Single.IsInfinity(f))
 
     static member Float() =
         Arb.Default.Float()
