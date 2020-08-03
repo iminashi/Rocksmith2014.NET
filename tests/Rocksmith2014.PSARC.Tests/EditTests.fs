@@ -66,4 +66,17 @@ let someTests =
         Expect.equal psarc.Manifest.Length (oldManifest.Length + 1) "Manifest size is correct"
         Expect.equal psarc.Manifest.[psarc.Manifest.Length - 1] fileToAdd.Name "Name in manifest is correct"
         Expect.isFalse fileToAdd.Data.CanRead "Data stream has been disposed"
+
+    testCase "Can reorder files" <| fun _ ->
+        use memory = copyToMemory "test_edit_p.psarc"
+        let psarc = PSARC.Read memory
+        let oldManifest = psarc.Manifest
+
+        psarc.Edit(options, (fun files ->
+            let f = files.[0]
+            files.RemoveAt(0)
+            files.Add(f)))
+
+        Expect.equal psarc.Manifest.Length oldManifest.Length "Manifest size is same"
+        Expect.equal psarc.Manifest.[psarc.Manifest.Length - 1] oldManifest.[0] "First file is now last"
   ]
