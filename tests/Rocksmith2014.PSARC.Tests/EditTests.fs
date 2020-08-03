@@ -53,4 +53,17 @@ let someTests =
 
         Expect.equal psarc2.Manifest.Length (oldManifest.Length - 2) "Manifest size is correct"
         Expect.isTrue (memory.Length < oldSize) "Size is smaller"
+
+    testCase "Can add file" <| fun _ ->
+        use memory = copyToMemory "test_edit_p.psarc"
+        let psarc = PSARC.Read memory
+        let oldManifest = psarc.Manifest
+
+        let fileToAdd = { Name = "test/test.dll"; Data = File.OpenRead("Rocksmith2014.PSARC.dll") }
+
+        psarc.Edit(options, (fun files -> files.Add(fileToAdd)))
+
+        Expect.equal psarc.Manifest.Length (oldManifest.Length + 1) "Manifest size is correct"
+        Expect.equal psarc.Manifest.[psarc.Manifest.Length - 1] fileToAdd.Name "Name in manifest is correct"
+        Expect.isFalse fileToAdd.Data.CanRead "Data stream has been disposed"
   ]

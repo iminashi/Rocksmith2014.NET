@@ -66,9 +66,12 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         output.Position <- 0L
         output.Flush()
 
-    /// Returns true if the given named entry should be zipped.
-    let shouldZip (entry: NamedEntry) =
-        not (entry.Name.EndsWith(".wem") || entry.Name.EndsWith(".sng") || entry.Name.EndsWith("appid"))
+    /// Returns true if the given named entry should not be zipped.
+    let usePlain (entry: NamedEntry) =
+        // WEM -> Packed vorbis data, zipping usually pointless
+        // SNG -> Already zlib packed
+        // AppId -> Very small file (6-7 bytes), unpacked in official files
+        entry.Name.EndsWith(".wem") || entry.Name.EndsWith(".sng") || entry.Name.EndsWith("appid")
 
     let mutable manifest =
         if toc.Count > 1 then
@@ -105,11 +108,11 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         for i = 0 to entries.Count - 1 do
             let entry = entries.[i]
             let zBegin = uint32 zLengths.Count
-            let doZip = shouldZip entry
-            entry.Data.Position <- 0L
+            let usePlainData = usePlain entry
+            let proto = Entry.CreateProto entry zBegin i
 
             let totalLength =
-                if not doZip then
+                if usePlainData then
                     deflatedData.Add(entry.Data)
                     if entry.Data.Length <= int64 blockSize then
                         zLengths.Add(uint32 entry.Data.Length)
@@ -122,6 +125,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                     entry.Data.Length
                 else
                     let mutable zSize = 0L
+                    entry.Data.Position <- 0L
                     while entry.Data.Position < entry.Data.Length do
                         let size = Math.Min(int (entry.Data.Length - entry.Data.Position), blockSize)
                         let array = Array.zeroCreate<byte> size
@@ -143,9 +147,10 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                         deflatedData.Add(data)
                         zLengths.Add(uint32 length)
                         zSize <- zSize + int64 length
+                    // The original data is no longer needed
+                    entry.Data.Dispose()
                     zSize
-            
-            let proto = Entry.CreateProto entry zBegin i
+
             protoEntries.Add(proto, totalLength)
 
         protoEntries, deflatedData, zLengths.ToArray()
@@ -187,10 +192,10 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             tocData.CopyTo source
 
     /// Gets the manifest.
-    member val Manifest = manifest.ToImmutableArray()
+    member _.Manifest with get () = manifest.ToImmutableArray()
 
     /// Gets the table of contents.
-    member val TOC = toc.AsReadOnly()
+    member _.TOC with get () = toc.AsReadOnly() 
 
     /// Inflates the given entry into the output stream.
     member _.InflateEntry (entry: Entry, output: Stream) = inflateEntry entry output
@@ -251,6 +256,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         source.Flush()
 
         // Ensure that all entries that were inflated are disposed
+        // If the user removed any entries, their data will be disposed of here
         namedEntries |> Array.iter (fun e -> e.Data.Dispose())
 
     /// Creates a new empty PSARC using the given stream.
