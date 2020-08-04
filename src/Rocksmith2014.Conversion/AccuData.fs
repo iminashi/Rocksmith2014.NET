@@ -6,11 +6,14 @@ open Rocksmith2014
 open System.Threading
 
 /// The note count for each hero level and the number of ignored notes in the hard level.
-type NoteCounts() =
+type NoteCountsMutable() =
     [<DefaultValue>] val mutable Easy : int
     [<DefaultValue>] val mutable Medium : int
     [<DefaultValue>] val mutable Hard : int
     [<DefaultValue>] val mutable Ignored : int
+
+    member this.AsImmutable() =
+        { Easy = this.Easy; Medium = this.Medium; Hard = this.Hard; Ignored = this.Ignored;  }
 
 /// Represents data that is being accumulated when mapping XML notes/chords into SNG notes.
 type AccuData =
@@ -20,7 +23,7 @@ type AccuData =
       AnchorExtensions : ResizeArray<AnchorExtension>[]
       NotesInPhraseIterationsExclIgnored : int[][]
       NotesInPhraseIterationsAll : int[][]
-      NoteCounts : NoteCounts }
+      NoteCounts : NoteCountsMutable }
 
     member this.AddNote(pi: int, difficulty: byte, heroLeves: XML.HeroLevels, ignored: bool) =
         let d = int difficulty
@@ -47,4 +50,4 @@ type AccuData =
           ChordNotesMap = Dictionary()
           NotesInPhraseIterationsExclIgnored = Array.init arr.Levels.Count (fun _ -> Array.zeroCreate (arr.PhraseIterations.Count))
           NotesInPhraseIterationsAll = Array.init arr.Levels.Count (fun _ -> Array.zeroCreate (arr.PhraseIterations.Count))
-          NoteCounts = NoteCounts() }
+          NoteCounts = NoteCountsMutable() }

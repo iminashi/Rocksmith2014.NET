@@ -12,6 +12,8 @@ let private psarcKey =
 // Disable unsafe code warning
 #nowarn "9"
 
+// At the moment, .NET Core does not support AES CFB, so it is implemented here via ECB.
+
 /// AES CFB decryption utilizing SSE2 intrinsics.
 let private aesCfbDecryptSIMD (input: Stream) (output: Stream) (key: byte[]) length =
     use aes = new AesManaged (Mode = CipherMode.ECB, Padding = PaddingMode.None)

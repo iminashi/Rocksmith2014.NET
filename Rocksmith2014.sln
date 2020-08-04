@@ -29,7 +29,11 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.PSARC", "src\
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.PSARC.Tests", "tests\Rocksmith2014.PSARC.Tests\Rocksmith2014.PSARC.Tests.fsproj", "{30FD24D0-BD9A-449C-A8A0-F08C39645AAA}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Rocksmith2014.Common.Tests", "tests\Rocksmith2014.Common.Tests\Rocksmith2014.Common.Tests.fsproj", "{67218DB9-3DD8-4127-8F0B-D869E7B5B295}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.Common.Tests", "tests\Rocksmith2014.Common.Tests\Rocksmith2014.Common.Tests.fsproj", "{67218DB9-3DD8-4127-8F0B-D869E7B5B295}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.DLCProject", "src\Rocksmith2014.DLCProject\Rocksmith2014.DLCProject.fsproj", "{D62B658B-1850-44FF-B181-235164280F0D}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Rocksmith2014.DLCProject.Tests", "tests\Rocksmith2014.DLCProject.Tests\Rocksmith2014.DLCProject.Tests.fsproj", "{1FF97A3D-347C-4B81-8064-0DF60DA43544}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +85,14 @@ Global
 		{67218DB9-3DD8-4127-8F0B-D869E7B5B295}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{67218DB9-3DD8-4127-8F0B-D869E7B5B295}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{67218DB9-3DD8-4127-8F0B-D869E7B5B295}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D62B658B-1850-44FF-B181-235164280F0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D62B658B-1850-44FF-B181-235164280F0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D62B658B-1850-44FF-B181-235164280F0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D62B658B-1850-44FF-B181-235164280F0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FF97A3D-347C-4B81-8064-0DF60DA43544}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FF97A3D-347C-4B81-8064-0DF60DA43544}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FF97A3D-347C-4B81-8064-0DF60DA43544}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FF97A3D-347C-4B81-8064-0DF60DA43544}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -97,6 +109,8 @@ Global
 		{3885CBE8-EDA4-463A-9CB4-0BD0123A0143} = {D205B519-E450-49DC-AE3A-C73C88DD7FE3}
 		{30FD24D0-BD9A-449C-A8A0-F08C39645AAA} = {0FF21B35-CA73-45A8-939A-F14614C11471}
 		{67218DB9-3DD8-4127-8F0B-D869E7B5B295} = {0FF21B35-CA73-45A8-939A-F14614C11471}
+		{D62B658B-1850-44FF-B181-235164280F0D} = {D205B519-E450-49DC-AE3A-C73C88DD7FE3}
+		{1FF97A3D-347C-4B81-8064-0DF60DA43544} = {0FF21B35-CA73-45A8-939A-F14614C11471}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0B1D2436-1840-458A-B570-F533FC009333}

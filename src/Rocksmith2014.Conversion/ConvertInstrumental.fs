@@ -125,7 +125,8 @@ let xmlToSng (arr: InstrumentalArrangement) =
       DNAs = DNAs
       Sections = sections
       Levels = levels
-      MetaData = metadata }
+      MetaData = metadata
+      NoteCounts = accuData.NoteCounts.AsImmutable() }
 
 /// Converts an SNG instrumental arrangement into an XML file.
 let sngFileToXml sngFile targetFile platform =

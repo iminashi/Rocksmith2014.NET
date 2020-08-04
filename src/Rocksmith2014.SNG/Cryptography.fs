@@ -27,6 +27,8 @@ let private increment (arr: byte[]) =
 // Disable unsafe code warning
 #nowarn "9"
 
+// At the moment, .NET Core does not support AES CTR, so it is implemented here via ECB.
+
 /// AES CTR encryption utilizing SSE2 intrinsics. Slightly faster than the non SIMD version.
 let private aesCtrTransformSIMD (input: Stream) (output: Stream) (key: byte[]) (iv: byte[]) =
     use aes = new AesManaged (Mode = CipherMode.ECB, Padding = PaddingMode.None)

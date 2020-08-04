@@ -51,7 +51,8 @@ let testSng =
       DNAs = [||]
       Sections = [||]
       Levels = [||]
-      MetaData = emptyMetaData }
+      MetaData = emptyMetaData
+      NoteCounts = NoteCounts.Empty }
     
 
 [<Tests>]

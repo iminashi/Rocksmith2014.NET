@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Tone.fs" />
+    <Compile Include="Arrangement.fs" />
+    <Compile Include="DLCProject.fs" />
+    <Compile Include="Manifest\ArrangementProperties.fs" />
+    <Compile Include="Manifest\ChordTemplate.fs" />
+    <Compile Include="Manifest\Phrase.fs" />
+    <Compile Include="Manifest\PhraseIteration.fs" />
+    <Compile Include="Manifest\Section.fs" />
+    <Compile Include="Manifest\Tuning.fs" />
+    <Compile Include="Manifest\Attributes.fs" />
+    <Compile Include="Manifest\Manifest.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FSharp.SystemTextJson" Version="0.12.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Rocksmith2014.SNG\Rocksmith2014.SNG.fsproj" />
+    <ProjectReference Include="..\Rocksmith2014.XML\Rocksmith2014.XML.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="4.7.2" />
+  </ItemGroup>
+
+</Project>

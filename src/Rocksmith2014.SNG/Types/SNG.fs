@@ -6,6 +6,10 @@ open Rocksmith2014.Common
 open BinaryHelpers
 open System.IO
 
+type NoteCounts =
+    { Easy : int; Medium : int; Hard : int; Ignored : int }
+
+    static member Empty = { Easy = 0; Medium = 0; Hard = 0; Ignored = 0 }
 
 type SNG =
     { Beats : Beat[]
@@ -25,7 +29,8 @@ type SNG =
       DNAs : DNA[]
       Sections : Section[]
       Levels : Level[]
-      MetaData : MetaData }
+      MetaData : MetaData
+      NoteCounts : NoteCounts }
 
     interface IBinaryWritable with
         member this.Write(writer) =
@@ -77,7 +82,8 @@ type SNG =
           DNAs = read DNA.Read
           Sections = read Section.Read
           Levels = read Level.Read
-          MetaData = MetaData.Read reader }
+          MetaData = MetaData.Read reader
+          NoteCounts = NoteCounts.Empty }
 
 module SNG =
     let Empty =
@@ -85,7 +91,7 @@ module SNG =
           Vocals = [||]; SymbolsHeaders = [||]; SymbolsTextures = [||]; SymbolDefinitions = [||]
           PhraseIterations = [||]; PhraseExtraInfo = [||]; NewLinkedDifficulties = [||]
           Actions = [||]; Events = [||]; Tones = [||]; DNAs = [||]; Sections = [||]; Levels = [||]
-          MetaData = MetaData.Empty }
+          MetaData = MetaData.Empty; NoteCounts = NoteCounts.Empty }
 
     /// Decrypts and unpacks an SNG from the input stream into the output stream.
     let unpack (input: Stream) (output: Stream) platform =
