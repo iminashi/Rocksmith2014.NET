@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="RouteMask.fs" />
     <Compile Include="Tone.fs" />
     <Compile Include="Arrangement.fs" />
     <Compile Include="DLCProject.fs" />

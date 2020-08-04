@@ -6,7 +6,7 @@ open Rocksmith2014.DLCProject.Manifest
 open System
 
 let project =
-    { DLCKey = "some_test"
+    { DLCKey = "SomeTest"
       AppID = 248750
       ArtistName = "Artist"
       ArtistNameSort = "artist"

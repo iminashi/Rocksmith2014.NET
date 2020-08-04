@@ -2,11 +2,16 @@
 
 open System
 
-type ArrangementName = Lead | Combo | Bass
+type ArrangementName =
+    | Lead = 0
+    | Combo = 1
+    | Rhythm = 2
+    | Bass = 3
 
 type Instrumental =
     { XML : string
       ArrangementName : ArrangementName
+      RouteMask : RouteMask
       ScrollSpeed : int
       MasterID : int
       PersistentID : Guid }
