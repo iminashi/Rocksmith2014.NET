@@ -15,6 +15,6 @@ type DLCProject =
       AlbumArtFile : string
       AudioFile : string
       AudioPreviewFile : string
-      TuningPitch : float
+      CentOffset : float
       Arrangements : Arrangement list
       Tones : Tone list }

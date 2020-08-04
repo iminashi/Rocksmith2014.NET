@@ -20,7 +20,7 @@ let project =
       AlbumArtFile = "cover.dds"
       AudioFile = "audio.wem"
       AudioPreviewFile = "audio_preview.wem"
-      TuningPitch = 440.0
+      CentOffset = 0.0
       Arrangements = []
       Tones = [] }
 

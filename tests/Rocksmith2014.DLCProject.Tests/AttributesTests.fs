@@ -21,7 +21,7 @@ let testProject =
       AlbumArtFile = "cover.dds"
       AudioFile = "audio.wem"
       AudioPreviewFile = "audio_preview.wem"
-      TuningPitch = 440.0
+      CentOffset = 0.0
       Arrangements = []
       Tones = [] }
 
@@ -32,14 +32,14 @@ let someTests =
     testCase "Partition is set correctly" <| fun _ ->
         let sng = SNG.Empty
         let lead1 =
-            { XML = "some_lead1.xml"
+            { XML = "instrumental.xml"
               ArrangementName = ArrangementName.Lead
               RouteMask = RouteMask.Lead
               ScrollSpeed = 13
               MasterID = 12345
               PersistentID = Guid.NewGuid() }
         let lead2 =
-            { XML = "some_lead2.xml"
+            { XML = "instrumental.xml"
               ArrangementName = ArrangementName.Lead
               RouteMask = RouteMask.Lead
               ScrollSpeed = 13

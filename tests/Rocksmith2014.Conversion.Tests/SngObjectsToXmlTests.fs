@@ -193,7 +193,7 @@ let sngToXmlConversionTests =
       let pi =
           { PhraseId = 44
             StartTime = 44.217f
-            NextPhraseTime = 45.001f
+            EndTime = 45.001f
             Difficulty = [| 5; 8; 13 |] }
 
       let xml = SngToXml.convertPhraseIteration pi

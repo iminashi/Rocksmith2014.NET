@@ -101,7 +101,7 @@ let convertBendValue (xmlBv: XML.BendValue) =
 let convertPhraseIteration (piTimes: int[]) index (xmlPi: XML.PhraseIteration) =
     { PhraseId = xmlPi.PhraseId
       StartTime = msToSec xmlPi.Time
-      NextPhraseTime = msToSec (piTimes.[index + 1])
+      EndTime = msToSec (piTimes.[index + 1])
       Difficulty = [| int xmlPi.HeroLevels.Easy; int xmlPi.HeroLevels.Medium; int xmlPi.HeroLevels.Hard |] }
 
 /// Converts an XML NewLinkedDifficulty into an SNG NewLinkedDifficulty.

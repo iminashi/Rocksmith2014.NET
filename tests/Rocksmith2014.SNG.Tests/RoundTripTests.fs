@@ -69,7 +69,7 @@ let roundTripTests =
       let pi =
         { PhraseId = 42
           StartTime = 10.111f
-          NextPhraseTime = 20.222f
+          EndTime = 20.222f
           Difficulty = Array.init 3 id }
       
       testEqual PhraseIteration.Read pi

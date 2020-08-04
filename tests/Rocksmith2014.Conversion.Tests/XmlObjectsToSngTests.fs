@@ -202,7 +202,7 @@ let sngToXmlConversionTests =
         let sng = XmlToSng.convertPhraseIteration piTimes 1 pi
 
         Expect.equal sng.StartTime (convertTime pi.Time) "Start time is same"
-        Expect.equal sng.NextPhraseTime (convertTime (testArr.PhraseIterations.[2].Time)) "Next phrase time is correct"
+        Expect.equal sng.EndTime (convertTime (testArr.PhraseIterations.[2].Time)) "Next phrase time is correct"
         Expect.equal sng.PhraseId pi.PhraseId "Phrase ID is same"
         Expect.equal sng.Difficulty.[0] (int pi.HeroLevels.Easy) "Easy difficulty level is same"
         Expect.equal sng.Difficulty.[1] (int pi.HeroLevels.Medium) "Medium difficulty level is same"
@@ -215,7 +215,7 @@ let sngToXmlConversionTests =
 
         let sng = XmlToSng.convertPhraseIteration piTimes (testArr.PhraseIterations.Count - 1) pi
 
-        Expect.equal sng.NextPhraseTime (convertTime testArr.MetaData.SongLength) "Next phrase time is equal to song length"
+        Expect.equal sng.EndTime (convertTime testArr.MetaData.SongLength) "Next phrase time is equal to song length"
 
     testCase "New Linked Difficulty" <| fun _ ->
         let phrases = [| 1; 2; 3 |]
