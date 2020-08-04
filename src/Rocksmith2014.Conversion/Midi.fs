@@ -6,17 +6,17 @@ open Rocksmith2014
 let private standardTuningMidiNotes = [| 40; 45; 50; 55; 59; 64 |]
 
 /// Maps the array of frets into an array of MIDI notes.
-let mapToMidiNotes (xml: XML.InstrumentalArrangement) (frets: sbyte array) =
+let mapToMidiNotes (metaData: XML.MetaData) (frets: sbyte array) =
     Array.init 6 (fun str ->
         if frets.[str] = -1y then
             -1
         else
-            let tuning = xml.Tuning.Strings
+            let tuning = metaData.Tuning.Strings
             let fret =
-                if xml.Capo > 0y && frets.[str] = 0y then
-                    int xml.Capo
+                if metaData.Capo > 0y && frets.[str] = 0y then
+                    int metaData.Capo
                 else
                     int frets.[str]
-            let offset = if xml.ArrangementProperties.PathBass then -12 else 0
+            let offset = if metaData.ArrangementProperties.PathBass then -12 else 0
             standardTuningMidiNotes.[str] + int tuning.[str] + fret + offset
     )

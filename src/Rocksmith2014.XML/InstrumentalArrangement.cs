@@ -26,107 +26,19 @@ namespace Rocksmith2014.XML
         public List<RSXmlComment> XmlComments { get; } = new List<RSXmlComment>();
 
         /// <summary>
+        /// Meta data about the arrangement.
+        /// </summary>
+        public MetaData MetaData = new MetaData();
+
+        /// <summary>
         /// The version of the file. Default: 8
         /// </summary>
         public byte Version { get; set; } = 8;
 
         /// <summary>
-        /// The name of the arrangement: Lead, Rhythm, Combo or Bass.
-        /// </summary>
-        public string? Arrangement { get; set; }
-
-        /// <summary>
-        /// The part number in a similarly named arrangements (e.g. 2 in "Combo 2").
-        /// </summary>
-        public short Part { get; set; }
-
-        /// <summary>
-        /// The tuning offset in cents from 440Hz.
-        /// </summary>
-        public int CentOffset { get; set; }
-
-        /// <summary>
-        /// The length of the arrangement in milliseconds.
-        /// </summary>
-        public int SongLength { get; set; }
-
-        /// <summary>
-        /// The average tempo of the arrangement in beats per minute.
-        /// </summary>
-        public float AverageTempo { get; set; } = 120.000f;
-
-        /// <summary>
-        /// The tuning of the arrangement.
-        /// </summary>
-        public Tuning Tuning { get; set; } = new Tuning();
-
-        /// <summary>
-        /// The fret where the capo is set. 0 for no capo.
-        /// </summary>
-        public sbyte Capo { get; set; }
-
-        /// <summary>
-        /// The title of the arrangement.
-        /// </summary>
-        public string? Title { get; set; }
-
-        /// <summary>
-        /// The title of the arrangement when sorting.
-        /// </summary>
-        public string? TitleSort { get; set; }
-
-        /// <summary>
-        /// The artist name.
-        /// </summary>
-        public string? ArtistName { get; set; }
-
-        /// <summary>
-        /// The artist name when sorting.
-        /// </summary>
-        public string? ArtistNameSort { get; set; }
-
-        /// <summary>
-        /// The album name. Not displayed in the game.
-        /// </summary>
-        public string? AlbumName { get; set; }
-
-        /// <summary>
-        /// The album name when sorting. Not used by the game.
-        /// </summary>
-        public string? AlbumNameSort { get; set; }
-
-        /// <summary>
-        /// The year the album/song was released.
-        /// </summary>
-        public int AlbumYear { get; set; }
-
-        /// <summary>
-        /// Path to the image file for the album art.
-        /// </summary>
-        public string? AlbumArt { get; set; }
-
-        // Other metadata:
-        //
-        // Offset - Start beat * -1. Handled automatically.
-        // WaveFilePath - Used only in official files.
-        // InternalName - Used only in official files.
-        // CrowdSpeed - Completely purposeless since it does not have an equivalent in the SNG files or manifest files.
-        //              The crowd speed is controlled with events e0, e1 and e2.
-
-        /// <summary>
         /// Gets the time code for the first beat in the song.
         /// </summary>
         public int StartBeat => Ebeats.Count > 0 ? Ebeats[0].Time : 0;
-
-        /// <summary>
-        /// Contains various metadata about the arrangement.
-        /// </summary>
-        public ArrangementProperties ArrangementProperties { get; set; } = new ArrangementProperties();
-
-        /// <summary>
-        /// The date the arrangement was converted into SNG (or XML).
-        /// </summary>
-        public string? LastConversionDateTime { get; set; }
 
         /// <summary>
         /// A list of phrases in the arrangement.
@@ -310,61 +222,61 @@ namespace Rocksmith2014.XML
                 switch (reader.LocalName)
                 {
                     case "title":
-                        Title = reader.ReadElementContentAsString();
+                        MetaData.Title = reader.ReadElementContentAsString();
                         break;
                     case "arrangement":
-                        Arrangement = reader.ReadElementContentAsString();
+                        MetaData.Arrangement = reader.ReadElementContentAsString();
                         break;
                     case "part":
-                        Part = short.Parse(reader.ReadElementContentAsString(), NumberFormatInfo.InvariantInfo);
+                        MetaData.Part = short.Parse(reader.ReadElementContentAsString(), NumberFormatInfo.InvariantInfo);
                         break;
                     case "centOffset":
-                        CentOffset = int.Parse(reader.ReadElementContentAsString(), NumberFormatInfo.InvariantInfo);
+                        MetaData.CentOffset = int.Parse(reader.ReadElementContentAsString(), NumberFormatInfo.InvariantInfo);
                         break;
                     case "songLength":
-                        SongLength = Utils.TimeCodeFromFloatString(reader.ReadElementContentAsString());
+                        MetaData.SongLength = Utils.TimeCodeFromFloatString(reader.ReadElementContentAsString());
                         break;
                     case "songNameSort":
-                        TitleSort = reader.ReadElementContentAsString();
+                        MetaData.TitleSort = reader.ReadElementContentAsString();
                         break;
                     case "averageTempo":
-                        AverageTempo = float.Parse(reader.ReadElementContentAsString(), NumberFormatInfo.InvariantInfo);
+                        MetaData.AverageTempo = float.Parse(reader.ReadElementContentAsString(), NumberFormatInfo.InvariantInfo);
                         break;
                     case "tuning":
-                        ((IXmlSerializable)Tuning).ReadXml(reader);
+                        ((IXmlSerializable)MetaData.Tuning).ReadXml(reader);
                         break;
                     case "capo":
-                        Capo = sbyte.Parse(reader.ReadElementContentAsString(), NumberFormatInfo.InvariantInfo);
+                        MetaData.Capo = sbyte.Parse(reader.ReadElementContentAsString(), NumberFormatInfo.InvariantInfo);
                         break;
 
                     case "artistName":
-                        ArtistName = reader.ReadElementContentAsString();
+                        MetaData.ArtistName = reader.ReadElementContentAsString();
                         break;
                     case "artistNameSort":
-                        ArtistNameSort = reader.ReadElementContentAsString();
+                        MetaData.ArtistNameSort = reader.ReadElementContentAsString();
                         break;
                     case "albumName":
-                        AlbumName = reader.ReadElementContentAsString();
+                        MetaData.AlbumName = reader.ReadElementContentAsString();
                         break;
                     case "albumNameSort":
-                        AlbumNameSort = reader.ReadElementContentAsString();
+                        MetaData.AlbumNameSort = reader.ReadElementContentAsString();
                         break;
                     case "albumYear":
                         string content = reader.ReadElementContentAsString();
                         if (!string.IsNullOrEmpty(content))
-                            AlbumYear = int.Parse(content, NumberFormatInfo.InvariantInfo);
+                            MetaData.AlbumYear = int.Parse(content, NumberFormatInfo.InvariantInfo);
                         break;
                     case "albumArt":
-                        AlbumArt = reader.ReadElementContentAsString();
+                        MetaData.AlbumArt = reader.ReadElementContentAsString();
                         break;
 
                     case "arrangementProperties":
-                        ArrangementProperties = new ArrangementProperties();
-                        ((IXmlSerializable)ArrangementProperties).ReadXml(reader);
+                        MetaData.ArrangementProperties = new ArrangementProperties();
+                        ((IXmlSerializable)MetaData.ArrangementProperties).ReadXml(reader);
                         break;
 
                     case "lastConversionDateTime":
-                        LastConversionDateTime = reader.ReadElementContentAsString();
+                        MetaData.LastConversionDateTime = reader.ReadElementContentAsString();
                         break;
 
                     case "phrases":
@@ -445,56 +357,56 @@ namespace Rocksmith2014.XML
                 }
             }
 
-            writer.WriteElementString("title", Title);
-            writer.WriteElementString("arrangement", Arrangement);
-            writer.WriteElementString("part", Part.ToString(NumberFormatInfo.InvariantInfo));
+            writer.WriteElementString("title", MetaData.Title);
+            writer.WriteElementString("arrangement", MetaData.Arrangement);
+            writer.WriteElementString("part", MetaData.Part.ToString(NumberFormatInfo.InvariantInfo));
             writer.WriteElementString("offset", (StartBeat / -1000f).ToString("F3", NumberFormatInfo.InvariantInfo));
-            writer.WriteElementString("centOffset", CentOffset.ToString(NumberFormatInfo.InvariantInfo));
-            writer.WriteElementString("songLength", Utils.TimeCodeToString(SongLength));
+            writer.WriteElementString("centOffset", MetaData.CentOffset.ToString(NumberFormatInfo.InvariantInfo));
+            writer.WriteElementString("songLength", Utils.TimeCodeToString(MetaData.SongLength));
 
-            if (TitleSort != null)
+            if (MetaData.TitleSort != null)
             {
-                writer.WriteElementString("songNameSort", TitleSort);
+                writer.WriteElementString("songNameSort", MetaData.TitleSort);
             }
 
             writer.WriteElementString("startBeat", Utils.TimeCodeToString(StartBeat));
-            writer.WriteElementString("averageTempo", AverageTempo.ToString("F3", NumberFormatInfo.InvariantInfo));
+            writer.WriteElementString("averageTempo", MetaData.AverageTempo.ToString("F3", NumberFormatInfo.InvariantInfo));
 
-            if (Tuning != null)
+            if (MetaData.Tuning != null)
             {
                 writer.WriteStartElement("tuning");
-                ((IXmlSerializable)Tuning).WriteXml(writer);
+                ((IXmlSerializable)MetaData.Tuning).WriteXml(writer);
                 writer.WriteEndElement();
             }
 
-            writer.WriteElementString("capo", Capo.ToString(NumberFormatInfo.InvariantInfo));
+            writer.WriteElementString("capo", MetaData.Capo.ToString(NumberFormatInfo.InvariantInfo));
 
-            writer.WriteElementString("artistName", ArtistName);
-            if (ArtistNameSort != null)
+            writer.WriteElementString("artistName", MetaData.ArtistName);
+            if (MetaData.ArtistNameSort != null)
             {
-                writer.WriteElementString("artistNameSort", ArtistNameSort);
+                writer.WriteElementString("artistNameSort", MetaData.ArtistNameSort);
             }
 
-            writer.WriteElementString("albumName", AlbumName);
-            if (AlbumNameSort != null)
+            writer.WriteElementString("albumName", MetaData.AlbumName);
+            if (MetaData.AlbumNameSort != null)
             {
-                writer.WriteElementString("albumNameSort", AlbumNameSort);
+                writer.WriteElementString("albumNameSort", MetaData.AlbumNameSort);
             }
 
-            writer.WriteElementString("albumYear", AlbumYear.ToString(NumberFormatInfo.InvariantInfo));
+            writer.WriteElementString("albumYear", MetaData.AlbumYear.ToString(NumberFormatInfo.InvariantInfo));
 
-            if (AlbumArt != null)
+            if (MetaData.AlbumArt != null)
             {
-                writer.WriteElementString("albumArt", AlbumArt);
+                writer.WriteElementString("albumArt", MetaData.AlbumArt);
             }
 
             writer.WriteElementString("crowdSpeed", "1");
 
             writer.WriteStartElement("arrangementProperties");
-            ((IXmlSerializable)ArrangementProperties).WriteXml(writer);
+            ((IXmlSerializable)MetaData.ArrangementProperties).WriteXml(writer);
             writer.WriteEndElement();
 
-            writer.WriteElementString("lastConversionDateTime", LastConversionDateTime);
+            writer.WriteElementString("lastConversionDateTime", MetaData.LastConversionDateTime);
 
             Utils.SerializeWithCount(Phrases, "phrases", "phrase", writer);
             Utils.SerializeWithCount(PhraseIterations, "phraseIterations", "phraseIteration", writer);

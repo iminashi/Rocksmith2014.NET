@@ -29,11 +29,14 @@ let sngToXml (sng: SNG) =
     let phraseProperties =
         mapToResizeArray SngToXml.convertPhraseExtraInfo sng.PhraseExtraInfo
 
+    let metaData = MetaData(
+                    Part = sng.MetaData.Part,
+                    Capo = Math.Max(sng.MetaData.CapoFretId, 0y),
+                    LastConversionDateTime = sng.MetaData.LastConversionDateTime,
+                    SongLength = Utils.secToMs sng.MetaData.SongLength)
+
     let arr = InstrumentalArrangement(
-                Part = sng.MetaData.Part,
-                Capo = Math.Max(sng.MetaData.CapoFretId, 0y),
-                LastConversionDateTime = sng.MetaData.LastConversionDateTime,
-                SongLength = Utils.secToMs sng.MetaData.SongLength,
+                MetaData = metaData,
                 Ebeats = beats,
                 Phrases = phrases,
                 PhraseIterations = phraseIterations,
@@ -44,7 +47,7 @@ let sngToXml (sng: SNG) =
                 ChordTemplates = chordTemplates,
                 Levels = levels,
                 TranscriptionTrack = Level())
-    Array.Copy (sng.MetaData.Tuning, arr.Tuning.Strings, 6)
+    Array.Copy (sng.MetaData.Tuning, arr.MetaData.Tuning.Strings, 6)
     arr.Tones.Changes <- tones
 
     arr
@@ -60,7 +63,7 @@ let createPhraseIterationTimesArray (xml: InstrumentalArrangement) =
     Array.init (xml.PhraseIterations.Count + 1) (fun i ->
         if i = xml.PhraseIterations.Count then
             // Use song length as a sentinel
-            xml.SongLength
+            xml.MetaData.SongLength
         else
             xml.PhraseIterations.[i].Time)
 

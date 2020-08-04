@@ -89,7 +89,7 @@ let convertChord (xml:XML.InstrumentalArrangement) (xmlChord:XML.ChordTemplate) 
     { Mask = mask
       Frets = Array.copy xmlChord.Frets
       Fingers = Array.copy xmlChord.Fingers
-      Notes = Midi.mapToMidiNotes xml xmlChord.Frets
+      Notes = Midi.mapToMidiNotes xml.MetaData xmlChord.Frets
       Name = xmlChord.Name }
 
 /// Converts an XML BendValue into an SNG BendValue.
@@ -123,7 +123,7 @@ let convertTone (xmlTone: XML.ToneChange) =
 let convertSection (stringMasks: int8[][]) (xml: XML.InstrumentalArrangement) index (xmlSection: XML.Section) =
     let endTime =
         if index = xml.Sections.Count - 1 then
-            xml.SongLength
+            xml.MetaData.SongLength
         else
             xml.Sections.[index + 1].Time
 
@@ -238,10 +238,10 @@ let createMetaData (accuData: AccuData) firstNoteTime (xml: XML.InstrumentalArra
       PointsPerNote = maxScore / float accuData.NoteCounts.Hard
       FirstBeatLength = msToSec (xml.Ebeats.[1].Time - xml.Ebeats.[0].Time)
       StartTime = msToSec xml.StartBeat
-      CapoFretId = if xml.Capo <= 0y then -1y else xml.Capo
+      CapoFretId = if xml.MetaData.Capo <= 0y then -1y else xml.MetaData.Capo
       LastConversionDateTime = conversionDate
-      Part = xml.Part
-      SongLength = msToSec xml.SongLength
-      Tuning = Array.copy xml.Tuning.Strings
+      Part = xml.MetaData.Part
+      SongLength = msToSec xml.MetaData.SongLength
+      Tuning = Array.copy xml.MetaData.Tuning.Strings
       FirstNoteTime = firstNoteTime
       MaxDifficulty = xml.Levels.Count - 1 }

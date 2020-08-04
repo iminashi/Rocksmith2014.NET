@@ -14,7 +14,7 @@ let convertTime (time:int) =
 
 let createTestArr () =
     let arr = InstrumentalArrangement()
-    arr.SongLength <- 4784_455
+    arr.MetaData.SongLength <- 4784_455
 
     let f1 = [| 1y;1y;1y;1y;1y;1y |]
     let f2 = [| 1y;1y;-1y;-1y;-1y;-1y |]
@@ -27,7 +27,7 @@ let createTestArr () =
     arr.PhraseIterations.Add(PhraseIteration(Time = 7554_100, PhraseId = 2))
     arr.PhraseIterations.Add(PhraseIteration(Time = 7555_000, PhraseId = 3))
 
-    arr.Tuning.SetTuning(-1s, 2s, 4s, -5s, 3s, -2s)
+    arr.MetaData.Tuning.SetTuning(-1s, 2s, 4s, -5s, 3s, -2s)
 
     arr.Sections.Add(Section("1", 1000, 1s))
     arr.Sections.Add(Section("2", 4000, 1s))
@@ -215,7 +215,7 @@ let sngToXmlConversionTests =
 
         let sng = XmlToSng.convertPhraseIteration piTimes (testArr.PhraseIterations.Count - 1) pi
 
-        Expect.equal sng.NextPhraseTime (convertTime testArr.SongLength) "Next phrase time is equal to song length"
+        Expect.equal sng.NextPhraseTime (convertTime testArr.MetaData.SongLength) "Next phrase time is equal to song length"
 
     testCase "New Linked Difficulty" <| fun _ ->
         let phrases = [| 1; 2; 3 |]
@@ -259,7 +259,7 @@ let sngToXmlConversionTests =
 
         let sng = XmlToSng.convertSection sharedAccData.StringMasks testArr (testArr.Sections.Count - 1) s
 
-        Expect.equal sng.EndTime (convertTime testArr.SongLength) "End time is same as song length"
+        Expect.equal sng.EndTime (convertTime testArr.MetaData.SongLength) "End time is same as song length"
 
     testCase "Section (Phrase Iteration Start/End, 1 Phrase Iteration)" <| fun _ ->
         let s = Section("section", 8000, 1s)
@@ -529,9 +529,9 @@ let sngToXmlConversionTests =
         Expect.equal md.MaxScore 100_000.0 "Max score is correct"
         Expect.equal md.StartTime 1.0f "Start time is correct"
         Expect.equal md.CapoFretId -1y "Capo fret is correct"
-        Expect.equal md.Part testArr.Part "Part is same"
-        Expect.equal md.SongLength (convertTime testArr.SongLength) "Song length is same"
-        Expect.sequenceEqual md.Tuning testArr.Tuning.Strings "Tuning is same"
+        Expect.equal md.Part testArr.MetaData.Part "Part is same"
+        Expect.equal md.SongLength (convertTime testArr.MetaData.SongLength) "Song length is same"
+        Expect.sequenceEqual md.Tuning testArr.MetaData.Tuning.Strings "Tuning is same"
 
     testCase "Chord" <| fun _ ->
         let chord = Chord(Time = 1250, ChordId = 0s,
