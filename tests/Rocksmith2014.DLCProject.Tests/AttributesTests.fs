@@ -27,7 +27,7 @@ let testProject =
 
 [<Tests>]
 let someTests =
-  testList "Manifest Tests" [
+  testList "Attribute Tests" [
 
     testCase "Partition is set correctly" <| fun _ ->
         let sng = SNG.Empty
