@@ -1,10 +1,10 @@
 ﻿module AttributesTests
 
 open Expecto
-open Rocksmith2014.DLCProject
-open Rocksmith2014.DLCProject.Manifest
-open System
 open Rocksmith2014.SNG
+open Rocksmith2014.DLCProject
+open Rocksmith2014.DLCProject.Manifest.AttributesCreation
+open System
 
 let testProject =
     { DLCKey = "SomeTest"
@@ -48,11 +48,11 @@ let someTests =
 
         let project = { testProject with Arrangements = [ Instrumental lead1; Instrumental lead2 ] }
 
-        let header1 = SongHeader(project, lead1, sng)
-        let attr1 = SongAttributes(project, lead1, header1, sng)
-        let header2 = SongHeader(project, lead2, sng)
-        let attr2 = SongAttributes(project, lead2, header2, sng)
+        //let header1 = createAttributesHeader project (InstrumentalConversion (lead1, sng))
+        let attr1 = createAttributes project (InstrumentalConversion (lead1, sng))
+        //let header2 = createAttributesHeader project (InstrumentalConversion (lead2, sng))
+        let attr2 = createAttributes project (InstrumentalConversion (lead2, sng))
 
-        Expect.equal attr1.SongPartition 1 "Partition for first lead arrangement is 1"
-        Expect.equal attr2.SongPartition 2 "Partition for second lead arrangement is 2"
+        Expect.equal attr1.SongPartition (Nullable(1)) "Partition for first lead arrangement is 1"
+        Expect.equal attr2.SongPartition (Nullable(2)) "Partition for second lead arrangement is 2"
   ]

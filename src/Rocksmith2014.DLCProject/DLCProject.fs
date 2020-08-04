@@ -1,5 +1,7 @@
 ﻿namespace Rocksmith2014.DLCProject
 
+open Rocksmith2014.Common.Attributes
+
 type DLCProject =
     { DLCKey : string
       AppID : int

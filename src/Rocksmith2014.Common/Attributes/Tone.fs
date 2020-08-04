@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.DLCProject
+﻿namespace Rocksmith2014.Common.Attributes
 
 open System.Collections.Generic
 

@@ -6,16 +6,9 @@
 
   <ItemGroup>
     <Compile Include="RouteMask.fs" />
-    <Compile Include="Tone.fs" />
     <Compile Include="Arrangement.fs" />
     <Compile Include="DLCProject.fs" />
-    <Compile Include="Manifest\ArrangementProperties.fs" />
-    <Compile Include="Manifest\ChordTemplate.fs" />
-    <Compile Include="Manifest\Phrase.fs" />
-    <Compile Include="Manifest\PhraseIteration.fs" />
-    <Compile Include="Manifest\Section.fs" />
-    <Compile Include="Manifest\Tuning.fs" />
-    <Compile Include="Manifest\Attributes.fs" />
+    <Compile Include="Manifest\AttributesCreation.fs" />
     <Compile Include="Manifest\Manifest.fs" />
   </ItemGroup>
 

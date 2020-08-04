@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.DLCProject.Manifest
+﻿namespace Rocksmith2014.Common.Attributes
 
 type ArrangementProperties =
     { represent : byte

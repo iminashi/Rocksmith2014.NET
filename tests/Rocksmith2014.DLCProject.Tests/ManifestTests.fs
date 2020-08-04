@@ -3,6 +3,7 @@
 open Expecto
 open Rocksmith2014.DLCProject
 open Rocksmith2014.DLCProject.Manifest
+open Rocksmith2014.DLCProject.Manifest.AttributesCreation
 open System
 
 let project =
@@ -36,7 +37,7 @@ let someTests =
               MasterID = 123456
               PersistentID = Guid.NewGuid() }
 
-        let attr = VocalsAttributes(project, Vocals arr)
+        let attr = createAttributes project (VocalsConversion arr)
         let jsonString =
             Manifest.create [ attr ]
             |> Manifest.toJson
@@ -44,14 +45,15 @@ let someTests =
         Expect.isNotEmpty jsonString "JSON string is not empty"
 
     testCase "Can be read from JSON" <| fun _ ->
-        let arr =
-            { XML = "lyrics.xml"
-              Japanese = false
-              CustomFont = None
-              MasterID = 123456
-              PersistentID = Guid.NewGuid() }
+        let attr =
+             { XML = "lyrics.xml"
+               Japanese = false
+               CustomFont = None
+               MasterID = 123456
+               PersistentID = Guid.NewGuid() }
+            |> VocalsConversion
+            |> createAttributes project
 
-        let attr = VocalsAttributes(project, Vocals arr)
         let jsonString =
             Manifest.create [ attr ]
             |> Manifest.toJson

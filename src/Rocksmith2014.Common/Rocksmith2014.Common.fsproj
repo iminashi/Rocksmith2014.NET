@@ -11,6 +11,14 @@
     <Compile Include="BinaryReaders.fs" />
     <Compile Include="BinaryWriters.fs" />
     <Compile Include="Compression.fs" />
+    <Compile Include="Attributes\Tone.fs" />
+    <Compile Include="Attributes\ArrangementProperties.fs" />
+    <Compile Include="Attributes\ChordTemplate.fs" />
+    <Compile Include="Attributes\Phrase.fs" />
+    <Compile Include="Attributes\PhraseIteration.fs" />
+    <Compile Include="Attributes\Section.fs" />
+    <Compile Include="Attributes\Tuning.fs" />
+    <Compile Include="Attributes\Attributes.fs" />
   </ItemGroup>
 
   <ItemGroup>

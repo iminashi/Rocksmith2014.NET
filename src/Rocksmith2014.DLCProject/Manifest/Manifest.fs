@@ -3,6 +3,7 @@
 open System
 open System.Text.Json
 open System.Text.Json.Serialization
+open Rocksmith2014.Common.Attributes
 
 type Manifest =
     { Entries : Map<string, AttributesContainer>
@@ -11,7 +12,7 @@ type Manifest =
       InsertRoot : string }
 
 module Manifest =
-    let private createInternal (attrs: AttributesBase list) modelName iterationVersion insertRoot =
+    let private createInternal (attrs: Attributes list) modelName iterationVersion insertRoot =
         let entries =
             attrs
             |> List.map (fun a -> a.PersistentID, { Attributes = a })
@@ -21,10 +22,10 @@ module Manifest =
           IterationVersion = iterationVersion |> Option.toNullable
           InsertRoot = insertRoot }
 
-    let create (attrs: AttributesBase list) =
+    let create (attrs: Attributes list) =
         createInternal attrs (Some "RSEnumerable_Song") (Some 2) "Static.Songs.Entries"
 
-    let createHeader (attrs: AttributesBase list) =
+    let createHeader (attrs: Attributes list) =
         createInternal attrs None None "Static.Songs.Headers"
 
     let toJson (manifest: Manifest) =
