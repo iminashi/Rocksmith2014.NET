@@ -1,7 +1,20 @@
-﻿namespace Rocksmith2014.XML
+﻿using System;
+using System.Globalization;
+using System.Xml;
+using System.Xml.Serialization;
+
+namespace Rocksmith2014.XML
 {
     public sealed class MetaData
     {
+        // Other metadata that is included here:
+        //
+        // Offset - Start beat * -1. Handled automatically.
+        // WaveFilePath - Used only in official files.
+        // InternalName - Used only in official files.
+        // CrowdSpeed - Completely purposeless since it does not have an equivalent in the SNG files or manifest files.
+        //              The crowd speed is controlled with events e0, e1 and e2.
+
         /// <summary>
         /// The name of the arrangement: Lead, Rhythm, Combo or Bass.
         /// </summary>
@@ -87,12 +100,91 @@
         /// </summary>
         public string? LastConversionDateTime { get; set; }
 
-        // Other metadata:
-        //
-        // Offset - Start beat * -1. Handled automatically.
-        // WaveFilePath - Used only in official files.
-        // InternalName - Used only in official files.
-        // CrowdSpeed - Completely purposeless since it does not have an equivalent in the SNG files or manifest files.
-        //              The crowd speed is controlled with events e0, e1 and e2.
+        /// <summary>
+        /// Reads only the meta data from a Rocksmith 2014 instrumental XML file.
+        /// </summary>
+        /// <param name="fileName">The file name.</param>
+        /// <returns>Meta data read from the file.</returns>
+        public static MetaData Read(string fileName)
+        {
+            using XmlReader reader = XmlReader.Create(fileName);
+
+            reader.MoveToContent();
+
+            if (reader.LocalName != "song")
+                throw new InvalidOperationException("Expected root node of the XML file to be \"song\", instead found: " + reader.LocalName);
+
+            var metaData = new MetaData();
+
+            while (reader.Read())
+            {
+                if (reader.NodeType == XmlNodeType.Element)
+                {
+                    switch (reader.Name)
+                    {
+                        case "title":
+                            metaData.Title = reader.ReadElementContentAsString();
+                            break;
+                        case "arrangement":
+                            metaData.Arrangement = reader.ReadElementContentAsString();
+                            break;
+                        case "part":
+                            metaData.Part = short.Parse(reader.ReadElementContentAsString(), NumberFormatInfo.InvariantInfo);
+                            break;
+                        case "centOffset":
+                            metaData.CentOffset = int.Parse(reader.ReadElementContentAsString(), NumberFormatInfo.InvariantInfo);
+                            break;
+                        case "songLength":
+                            metaData.SongLength = Utils.TimeCodeFromFloatString(reader.ReadElementContentAsString());
+                            break;
+                        case "songNameSort":
+                            metaData.TitleSort = reader.ReadElementContentAsString();
+                            break;
+                        case "averageTempo":
+                            metaData.AverageTempo = float.Parse(reader.ReadElementContentAsString(), NumberFormatInfo.InvariantInfo);
+                            break;
+                        case "tuning":
+                            ((IXmlSerializable)metaData.Tuning).ReadXml(reader);
+                            break;
+                        case "capo":
+                            metaData.Capo = sbyte.Parse(reader.ReadElementContentAsString(), NumberFormatInfo.InvariantInfo);
+                            break;
+                        case "artistName":
+                            metaData.ArtistName = reader.ReadElementContentAsString();
+                            break;
+                        case "artistNameSort":
+                            metaData.ArtistNameSort = reader.ReadElementContentAsString();
+                            break;
+                        case "albumName":
+                            metaData.AlbumName = reader.ReadElementContentAsString();
+                            break;
+                        case "albumNameSort":
+                            metaData.AlbumNameSort = reader.ReadElementContentAsString();
+                            break;
+                        case "albumYear":
+                            string content = reader.ReadElementContentAsString();
+                            if (!string.IsNullOrEmpty(content))
+                                metaData.AlbumYear = int.Parse(content, NumberFormatInfo.InvariantInfo);
+                            break;
+                        case "albumArt":
+                            metaData.AlbumArt = reader.ReadElementContentAsString();
+                            break;
+                        case "arrangementProperties":
+                            metaData.ArrangementProperties = new ArrangementProperties();
+                            ((IXmlSerializable)metaData.ArrangementProperties).ReadXml(reader);
+                            break;
+                        case "lastConversionDateTime":
+                            metaData.LastConversionDateTime = reader.ReadElementContentAsString();
+                            break;
+                        // The meta data should come before the sections.
+                        case "phrases":
+                        case "phraseIterations":
+                            return metaData;
+                    }
+                }
+            }
+
+            return metaData;
+        }
     }
 }
