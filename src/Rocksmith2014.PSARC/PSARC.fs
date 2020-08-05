@@ -176,7 +176,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     /// Extracts all the files from the PSARC into the given directory.
     member _.ExtractFiles (baseDirectory: string) =
         for entry in toc do
-            let path = Path.Combine(baseDirectory, (getName entry).Replace('/', '\\'))
+            let path = Path.Combine(baseDirectory, Utils.fixDirSeparator (getName entry))
             Directory.CreateDirectory(Path.GetDirectoryName path) |> ignore
             using (File.Create path) (inflateEntry entry)
 

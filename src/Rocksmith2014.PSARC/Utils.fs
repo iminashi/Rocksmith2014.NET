@@ -19,3 +19,6 @@ let getFileStreamForRead (fileName: string) =
         FileShare.Read,
         4096,
         FileOptions.SequentialScan)
+
+let fixDirSeparator (path: string) =
+    if Path.DirectorySeparatorChar = '/' then path else path.Replace('/', '\\')
