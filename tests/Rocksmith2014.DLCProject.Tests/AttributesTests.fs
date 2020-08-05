@@ -68,6 +68,13 @@ let someTests =
 
         let attr = createAttributes project (InstrumentalConversion (testLead, testSng))
 
-        Expect.isNonEmpty attr.Sections "Sections array is not empty"
+        Expect.equal attr.Sections.Length testSng.Sections.Length "Section count is same"
         Expect.equal attr.Sections.[0].UIName "$[34298] Riff [1]" "UI name is correct"
+
+    testCase "Phrases are created" <| fun _ ->
+        let project = { testProject with Arrangements = [ Instrumental testLead ] }
+
+        let attr = createAttributes project (InstrumentalConversion (testLead, testSng))
+
+        Expect.equal attr.Phrases.Length testSng.Phrases.Length "Phrase count is same"
   ]

@@ -120,7 +120,7 @@ let sngToXmlConversionTests =
             Disparity = 1y
             Ignore = 1y
             MaxDifficulty = 25
-            PhraseIterationLinks = 7
+            IterationCount = 7
             Name = "thelittleguitarthatcould" }
 
       let xml = SngToXml.convertPhrase p

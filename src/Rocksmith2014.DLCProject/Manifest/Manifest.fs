@@ -4,6 +4,7 @@ open System
 open System.Text.Json
 open System.Text.Json.Serialization
 open Rocksmith2014.Common.Attributes
+open System.IO
 
 type Manifest =
     { Entries : Map<string, AttributesContainer>
@@ -28,12 +29,19 @@ module Manifest =
     let createHeader (attrs: Attributes list) =
         createInternal attrs None None "Static.Songs.Headers"
 
+    let private options =
+        let o = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
+        o.Converters.Add(JsonFSharpConverter())
+        o
+
     let toJson (manifest: Manifest) =
-        let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
-        options.Converters.Add(JsonFSharpConverter())
         JsonSerializer.Serialize(manifest, options)
 
+    let toJsonStream (output: Stream) (manifest: Manifest) =
+        JsonSerializer.SerializeAsync(output, manifest, options)
+
     let fromJson (str: string) =
-        let options = JsonSerializerOptions(IgnoreNullValues = true)
-        options.Converters.Add(JsonFSharpConverter())
         JsonSerializer.Deserialize<Manifest>(str, options)
+
+    let fromJsonStream (input: Stream) =
+        JsonSerializer.DeserializeAsync<Manifest>(input, options)

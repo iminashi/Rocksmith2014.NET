@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.Common.Attributes
 
 type Phrase =
-    { MaxDifficulty : byte
+    { MaxDifficulty : int8
       Name : string
-      IterationCount : int16 }
+      IterationCount : int32 }

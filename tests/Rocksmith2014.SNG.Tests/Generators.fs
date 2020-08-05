@@ -42,7 +42,7 @@ type Generators() =
               Disparity = disp
               Ignore = ign
               MaxDifficulty = diff
-              PhraseIterationLinks = pil
+              IterationCount = pil
               Name = name }
 
         createPhrase <!> genSByte <*> genSByte <*> genSByte <*> genDiff <*> genPiL <*> genName

@@ -142,7 +142,7 @@ let sngToXmlConversionTests =
       Expect.equal sng.Solo 1y "Solo is set correctly"
       Expect.equal sng.Disparity 1y "Disparity is set correctly"
       Expect.equal sng.Ignore 1y "Ignore is set correctly"
-      Expect.equal sng.PhraseIterationLinks 2 "Phrase iteration links is set correctly"
+      Expect.equal sng.IterationCount 2 "Phrase iteration links is set correctly"
 
     testCase "Chord Template" <| fun _ ->
       let ct = ChordTemplate(Name = "EEE")

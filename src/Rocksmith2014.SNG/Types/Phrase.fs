@@ -9,7 +9,7 @@ type Phrase =
       Ignore : int8
       // 1 byte padding
       MaxDifficulty : int32
-      PhraseIterationLinks : int32
+      IterationCount : int32
       Name : string }
 
     interface IBinaryWritable with
@@ -20,7 +20,7 @@ type Phrase =
             // Write a single byte of padding
             writer.WriteInt8 0y
             writer.WriteInt32 this.MaxDifficulty
-            writer.WriteInt32 this.PhraseIterationLinks
+            writer.WriteInt32 this.IterationCount
             writeZeroTerminatedUTF8String 32 this.Name writer
 
     static member Read(reader : IBinaryReader) =
@@ -31,5 +31,5 @@ type Phrase =
           Disparity = reader.ReadInt8()
           Ignore = reader.ReadInt8() 
           MaxDifficulty = (readPadding(); reader.ReadInt32())
-          PhraseIterationLinks = reader.ReadInt32()
+          IterationCount = reader.ReadInt32()
           Name = readZeroTerminatedUTF8String 32 reader }

@@ -141,6 +141,13 @@ let private convertSections (sng: SNG) =
           EndPhraseIterationIndex = s.EndPhraseIterationId
           IsSolo = s.Name.Contains("solo", StringComparison.OrdinalIgnoreCase) })
 
+let private convertPhrases (sng: SNG) =
+    sng.Phrases
+    |> Array.map (fun p ->
+        { MaxDifficulty = int8 p.MaxDifficulty
+          Name = p.Name
+          IterationCount = p.IterationCount })
+
 let private createDVD (arrangement: Arrangement) =
     // TODO
     Array.replicate 20 2.f
@@ -224,7 +231,7 @@ let private initSongComplete (xmlMetaData: XML.MetaData) (project: DLCProject) (
     attr.LastConversionDateTime <- sng.MetaData.LastConversionDateTime
     attr.MaxPhraseDifficulty <- sng.Levels.Length |> Nullable
     attr.PhraseIterations <- convertPhraseIterations sng
-    attr.Phrases <- [||] // TODO
+    attr.Phrases <- convertPhrases sng
     attr.Score_MaxNotes <- sng.NoteCounts.Hard |> float32 |> Nullable
     attr.Score_PNV <- (100000.f / float32 sng.NoteCounts.Hard) |> Nullable
     attr.Sections <- convertSections sng

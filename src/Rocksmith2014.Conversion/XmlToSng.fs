@@ -65,7 +65,7 @@ let convertPhrase (xml: XML.InstrumentalArrangement) phraseId (xmlPhrase: XML.Ph
       Disparity = boolToByte xmlPhrase.IsDisparity
       Ignore = boolToByte xmlPhrase.IsIgnore
       MaxDifficulty = int xmlPhrase.MaxDifficulty
-      PhraseIterationLinks = piLinks
+      IterationCount = piLinks
       Name = xmlPhrase.Name }
 
 /// Converts an XML PhraseProperty into an SNG PhraseExtraInfo.
