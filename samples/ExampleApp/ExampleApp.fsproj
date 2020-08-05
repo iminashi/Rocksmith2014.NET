@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Rocksmith2014.Conversion\Rocksmith2014.Conversion.fsproj" />
+    <ProjectReference Include="..\..\src\Rocksmith2014.DLCProject\Rocksmith2014.DLCProject.fsproj" />
     <ProjectReference Include="..\..\src\Rocksmith2014.PSARC\Rocksmith2014.PSARC.fsproj" />
   </ItemGroup>
 

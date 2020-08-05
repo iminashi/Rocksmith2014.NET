@@ -82,7 +82,7 @@ let private convertPhraseIterations (sng: SNG) =
 let private convertChordTemplates (sng: SNG) =
     sng.Chords
     |> Seq.indexed
-    |> Seq.filter(fun (_, c) -> not <| String.IsNullOrEmpty c.Name)
+    |> Seq.filter(fun (_, c) -> (not <| String.IsNullOrEmpty c.Name) && (c.Mask <> ChordMask.Arpeggio))
     |> Seq.map (fun (id, c) ->
         { ChordId = int16 id
           ChordName = c.Name
@@ -91,8 +91,8 @@ let private convertChordTemplates (sng: SNG) =
     |> Seq.toArray
 
 let private getSectionUIName (name: string) =
-    let i = name.IndexOf(' ')
-    let n = if i > 0 then name.Substring(0, i) else name
+    // Official files may have names like "riff 1" or "solo7"
+    let n = name |> String.filter Char.IsLetter
 
     match n with
     | "fadein"     -> "$[34276] Fade In [1]"
@@ -126,8 +126,7 @@ let private getSectionUIName (name: string) =
     | "verse"      -> "$[34304] Verse [1]"
     | "tapping"    -> "$[34305] Tapping [1]"
     | "noguitar"   -> "$[6091] No Guitar [1]"
-    // Use riff for unknown section names
-    | _            -> "$[34298] Riff [1]"
+    | _            -> failwith "Unknown section name."
 
 let private convertSections (sng: SNG) =
     sng.Sections
@@ -151,6 +150,42 @@ let private convertPhrases (sng: SNG) =
 let private createDVD (arrangement: Arrangement) =
     // TODO
     Array.replicate 20 2.f
+
+let private createChordMap (sng: SNG) =
+    // Structure:
+    //
+    // "Difficulty level" : {
+    //      "Phrase iteration index" : [
+    //          Chord ID of a chord included in the manifest, i.e. a chord that has a name and not an arpeggio.
+    //      ]
+    //  }
+    //
+    // The way this section is generated for official files seems to be pretty buggy:
+    //
+    // -For a particular difficulty level, the chord IDs of the last phrase iteration are repeated for every phrase iteration.
+    // -Some phrase iterations that have no chords or notes in that difficulty level are included.
+    // -Empty arrays may be included.
+    // -Chord IDs may not be sorted.
+
+    let chords = Dictionary<string, Dictionary<string, int array>>()
+
+    for lvl = 0 to sng.Levels.Length - 1 do
+        let diffIds = Dictionary<string, int array>()
+        for i = 0 to sng.PhraseIterations.Length - 1 do
+            let pi = sng.PhraseIterations.[i]
+            let chordIds = 
+                sng.Levels.[lvl].HandShapes
+                |> Seq.filter (fun x -> 
+                   (not <| String.IsNullOrEmpty sng.Chords.[x.ChordId].Name) && (x.StartTime >= pi.StartTime && x.StartTime < pi.EndTime))
+                |> Seq.map (fun x -> x.ChordId)
+                |> SortedSet
+            if chordIds.Count > 0 then
+                diffIds.Add(i.ToString(), chordIds |> Seq.toArray)
+
+        if diffIds.Count > 0 then
+            chords.Add(lvl.ToString(), diffIds)
+            
+    chords
 
 let private initBase dlcKey (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
     attr.AlbumArt <- sprintf "urn:image:dds:album_%s" dlcKey
@@ -226,10 +261,10 @@ let private initSongComplete (xmlMetaData: XML.MetaData) (project: DLCProject) (
 
     //attr.ArrangementProperties : ArrangementProperties = // TODO
     attr.ArrangementType <- instrumental.ArrangementName |> LanguagePrimitives.EnumToValue |> Nullable
-    attr.Chords <- Dictionary() // TODO
+    attr.Chords <- createChordMap sng
     attr.ChordTemplates <- convertChordTemplates sng
     attr.LastConversionDateTime <- sng.MetaData.LastConversionDateTime
-    attr.MaxPhraseDifficulty <- sng.Levels.Length |> Nullable
+    attr.MaxPhraseDifficulty <- (sng.Levels.Length - 1) |> Nullable
     attr.PhraseIterations <- convertPhraseIterations sng
     attr.Phrases <- convertPhrases sng
     attr.Score_MaxNotes <- sng.NoteCounts.Hard |> float32 |> Nullable
@@ -251,15 +286,15 @@ let private initSongComplete (xmlMetaData: XML.MetaData) (project: DLCProject) (
     attr
 
 type AttributesConversion =
-| VocalsConversion of Vocals
-| InstrumentalConversion of inst: Instrumental * sng: SNG
+| FromVocals of Vocals
+| FromInstrumental of inst: Instrumental * sng: SNG
 
 let private create isHeader (project: DLCProject) (conversion: AttributesConversion) =
     let attributes = Attributes()
     let dlcKey = project.DLCKey.ToLowerInvariant()
 
     match conversion with
-    | VocalsConversion v ->
+    | FromVocals v ->
         let arr = Vocals v
         let attr =
             initBase dlcKey project arr attributes
@@ -268,10 +303,11 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
             attr
         else
             initAttributesCommon dlcKey project arr attr |> ignore
+            // Attribute unique to vocals
             attr.InputEvent <- "Play_Tone_Standard_Mic"
             attr
 
-    | InstrumentalConversion (inst, sng) ->
+    | FromInstrumental (inst, sng) ->
         let arr = Instrumental inst
         let xmlMetaData = XML.MetaData.Read(inst.XML)
 
@@ -280,6 +316,7 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
             |> initSongCommon xmlMetaData project inst sng
 
         if isHeader then
+            // Attributes unique to header
             attr.Representative <- xmlMetaData.ArrangementProperties.Represent |> bti |> Nullable
             attr.RouteMask <- inst.RouteMask |> LanguagePrimitives.EnumToValue |> Nullable
             attr

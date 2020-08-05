@@ -48,8 +48,8 @@ let someTests =
 
         let project = { testProject with Arrangements = [ Instrumental testLead; Instrumental lead2 ] }
 
-        let attr1 = createAttributes project (InstrumentalConversion (testLead, testSng))
-        let attr2 = createAttributes project (InstrumentalConversion (lead2, testSng))
+        let attr1 = createAttributes project (FromInstrumental (testLead, testSng))
+        let attr2 = createAttributes project (FromInstrumental (lead2, testSng))
 
         Expect.equal attr1.SongPartition (Nullable(1)) "Partition for first lead arrangement is 1"
         Expect.equal attr2.SongPartition (Nullable(2)) "Partition for second lead arrangement is 2"
@@ -58,7 +58,7 @@ let someTests =
         let project = { testProject with Arrangements = [ Instrumental testLead ] }
         let emptyNameId = testSng.Chords |> Array.findIndex (fun c -> String.IsNullOrEmpty c.Name)
 
-        let attr = createAttributes project (InstrumentalConversion (testLead, testSng))
+        let attr = createAttributes project (FromInstrumental (testLead, testSng))
 
         Expect.isNonEmpty attr.ChordTemplates "Chord templates array is not empty"
         Expect.isFalse (attr.ChordTemplates |> Array.exists (fun (c: Attributes.ChordTemplate) -> c.ChordId = int16 emptyNameId)) "Chord template with empty name is removed"
@@ -66,7 +66,7 @@ let someTests =
     testCase "Sections are created" <| fun _ ->
         let project = { testProject with Arrangements = [ Instrumental testLead ] }
 
-        let attr = createAttributes project (InstrumentalConversion (testLead, testSng))
+        let attr = createAttributes project (FromInstrumental (testLead, testSng))
 
         Expect.equal attr.Sections.Length testSng.Sections.Length "Section count is same"
         Expect.equal attr.Sections.[0].UIName "$[34298] Riff [1]" "UI name is correct"
@@ -74,7 +74,14 @@ let someTests =
     testCase "Phrases are created" <| fun _ ->
         let project = { testProject with Arrangements = [ Instrumental testLead ] }
 
-        let attr = createAttributes project (InstrumentalConversion (testLead, testSng))
+        let attr = createAttributes project (FromInstrumental (testLead, testSng))
 
         Expect.equal attr.Phrases.Length testSng.Phrases.Length "Phrase count is same"
+
+    testCase "Chords are created" <| fun _ ->
+        let project = { testProject with Arrangements = [ Instrumental testLead ] }
+
+        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+
+        Expect.isNonEmpty attr.Chords "Chords map is not empty"
   ]

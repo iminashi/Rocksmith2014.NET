@@ -37,7 +37,7 @@ let someTests =
               MasterID = 123456
               PersistentID = Guid.NewGuid() }
 
-        let attr = createAttributes project (VocalsConversion arr)
+        let attr = createAttributes project (FromVocals arr)
         let jsonString =
             Manifest.create [ attr ]
             |> Manifest.toJson
@@ -51,7 +51,7 @@ let someTests =
                CustomFont = None
                MasterID = 123456
                PersistentID = Guid.NewGuid() }
-            |> VocalsConversion
+            |> FromVocals
             |> createAttributes project
 
         let jsonString =

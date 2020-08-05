@@ -9,10 +9,32 @@ open Rocksmith2014.Common
 open Rocksmith2014.SNG
 open Rocksmith2014.Conversion
 open Rocksmith2014.PSARC
+open Rocksmith2014.DLCProject.Manifest
+open Rocksmith2014.XML
+open Rocksmith2014.DLCProject
 open System.Threading.Tasks
 open System.IO
 open System
 open System.Diagnostics
+
+let project = 
+    { DLCKey = "dummy"
+      AppID = 123456
+      ArtistName = "Artist"
+      ArtistNameSort = "Artist"
+      JapaneseArtistName = None
+      JapaneseTitle = None
+      Title = "Title"
+      TitleSort = "Title"
+      AlbumName = "Album"
+      AlbumNameSort = "Album"
+      Year = 1999
+      AlbumArtFile = "cover.dds"
+      AudioFile = "audio.wem"
+      AudioPreviewFile = "preview.wem"
+      CentOffset = 0.
+      Arrangements = []
+      Tones = [] }
 
 let private window =
     lazy ((Application.Current.ApplicationLifetime :?> ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime).MainWindow)
@@ -82,6 +104,7 @@ type Msg =
     | UnpackPSARC of file:string
     | PackDirectoryPSARC of path:string
     | TouchPSARC of file:string
+    | CreateManifest of file:string
     //| RoundTrip of file:string
     | ChangePlatform of Platform
 
@@ -148,6 +171,28 @@ let update (msg: Msg) (state: State) : State =
             PSARC.PackDirectory(path, path + ".psarc", true)
             sw.Stop()
             { state with Status = sprintf "Elapsed: %A" sw.Elapsed }
+
+        | CreateManifest file ->
+            let arrangement =
+                { XML = file
+                  ArrangementName = ArrangementName.Combo
+                  RouteMask = RouteMask.Lead
+                  ScrollSpeed = 13
+                  MasterID = 12345
+                  PersistentID = Guid.NewGuid() }
+
+            let project = { project with Arrangements = [ Instrumental arrangement ] }
+
+            let xml = InstrumentalArrangement.Load file
+            let sng = ConvertInstrumental.xmlToSng xml
+            let attr = AttributesCreation.createAttributes project (AttributesCreation.FromInstrumental (arrangement, sng))
+            use target = File.Create(Path.ChangeExtension(file, "json"))
+            Manifest.create [ attr ]
+            |> Manifest.toJsonStream target
+            |> Async.AwaitTask
+            |> Async.RunSynchronously
+
+            state
 
         | ChangePlatform platform -> { state with Platform = platform }
 
@@ -225,6 +270,11 @@ let view (state: State) dispatch =
             Button.create [
                 Button.onClick (fun _ -> ofod (PackDirectoryPSARC >> dispatch))
                 Button.content "Pack a Directory into PSARC File..."
+            ]
+
+            Button.create [
+                Button.onClick (fun _ -> ofdXml (CreateManifest >> dispatch))
+                Button.content "Create Manifest from XML File..."
             ]
 
             TextBlock.create [
