@@ -138,7 +138,7 @@ let private convertSections (sng: SNG) =
           EndTime = s.EndTime
           StartPhraseIterationIndex = s.StartPhraseIterationId
           EndPhraseIterationIndex = s.EndPhraseIterationId
-          IsSolo = s.Name.Contains("solo", StringComparison.OrdinalIgnoreCase) })
+          IsSolo = s.Name.StartsWith("solo", StringComparison.Ordinal) })
 
 let private convertPhrases (sng: SNG) =
     sng.Phrases
@@ -150,6 +150,42 @@ let private convertPhrases (sng: SNG) =
 let private createDVD (arrangement: Arrangement) =
     // TODO
     Array.replicate 20 2.f
+
+let private convertArrangementProperties (arrProps: XML.ArrangementProperties) (instrumental: Instrumental) =
+    let btb b = if b then 1uy else 0uy
+
+    { represent = btb arrProps.Represent
+      bonusArr = btb arrProps.BonusArrangement
+      standardTuning = btb arrProps.StandardTuning
+      nonStandardChords = btb arrProps.NonStandardChords
+      barreChords = btb arrProps.BarreChords
+      powerChords = btb arrProps.PowerChords
+      dropDPower = btb arrProps.DropDPower
+      openChords = btb arrProps.OpenChords
+      fingerPicking = btb arrProps.FingerPicking
+      pickDirection = btb arrProps.PickDirection
+      doubleStops = btb arrProps.DoubleStops
+      palmMutes = btb arrProps.PalmMutes
+      harmonics = btb arrProps.Harmonics
+      pinchHarmonics = btb arrProps.PinchHarmonics
+      hopo = btb arrProps.Hopo
+      tremolo = btb arrProps.Tremolo
+      slides = btb arrProps.Slides
+      unpitchedSlides = btb arrProps.UnpitchedSlides
+      bends = btb arrProps.Bends
+      tapping = btb arrProps.Tapping
+      vibrato = btb arrProps.Vibrato
+      fretHandMutes = btb arrProps.FretHandMutes
+      slapPop = btb arrProps.SlapPop
+      twoFingerPicking = btb arrProps.TwoFingerPicking
+      fifthsAndOctaves = btb arrProps.FifthsAndOctaves
+      syncopation = btb arrProps.Syncopation
+      bassPick = btb arrProps.BassPick
+      sustain = btb arrProps.Sustain
+      pathLead = if instrumental.RouteMask = RouteMask.Lead then 1uy else 0uy
+      pathRhythm = if instrumental.RouteMask = RouteMask.Rhythm then 1uy else 0uy
+      pathBass = if instrumental.RouteMask = RouteMask.Bass then 1uy else 0uy
+      routeMask = instrumental.RouteMask |> LanguagePrimitives.EnumToValue |> byte }
 
 let private createChordMap (sng: SNG) =
     // Structure:
@@ -165,7 +201,6 @@ let private createChordMap (sng: SNG) =
     // -For a particular difficulty level, the chord IDs of the last phrase iteration are repeated for every phrase iteration.
     // -Some phrase iterations that have no chords or notes in that difficulty level are included.
     // -Empty arrays may be included.
-    // -Chord IDs may not be sorted.
 
     let chords = Dictionary<string, Dictionary<string, int array>>()
 
@@ -178,9 +213,9 @@ let private createChordMap (sng: SNG) =
                 |> Seq.filter (fun x -> 
                    (not <| String.IsNullOrEmpty sng.Chords.[x.ChordId].Name) && (x.StartTime >= pi.StartTime && x.StartTime < pi.EndTime))
                 |> Seq.map (fun x -> x.ChordId)
-                |> SortedSet
+                |> Set.ofSeq
             if chordIds.Count > 0 then
-                diffIds.Add(i.ToString(), chordIds |> Seq.toArray)
+                diffIds.Add(i.ToString(), chordIds |> Set.toArray)
 
         if diffIds.Count > 0 then
             chords.Add(lvl.ToString(), diffIds)
@@ -211,10 +246,10 @@ let private initAttributesCommon dlcKey (project: DLCProject) (arrangement: Arra
     attr.PreviewBankPath <- sprintf "song_%s_preview.bnk" dlcKey
     attr.RelativeDifficulty <- Nullable(0) // Always zero
     attr.ShowlightsXML <- sprintf "urn:application:xml:%s_showlights" dlcKey
-    attr.SongAsset <- sprintf "urn:application:musicgame-song:%s_%s" dlcKey "jvocals/vocals" // TODO
+    attr.SongAsset <- sprintf "urn:application:musicgame-song:%s_%s" dlcKey "something" // TODO
     attr.SongBank <- sprintf "song_%s.bnk" dlcKey
     attr.SongEvent <- sprintf "Play_%s" project.DLCKey
-    attr.SongXml <- sprintf "urn:application:xml:%s_%s" dlcKey "jvocals/vocals" // TODO
+    attr.SongXml <- sprintf "urn:application:xml:%s_%s" dlcKey "something" // TODO
 
     attr
 
@@ -259,7 +294,7 @@ let private initSongComplete (xmlMetaData: XML.MetaData) (project: DLCProject) (
 
         getPartition project.Arrangements 1
 
-    //attr.ArrangementProperties : ArrangementProperties = // TODO
+    attr.ArrangementProperties <- Some (convertArrangementProperties xmlMetaData.ArrangementProperties instrumental)
     attr.ArrangementType <- instrumental.ArrangementName |> LanguagePrimitives.EnumToValue |> Nullable
     attr.Chords <- createChordMap sng
     attr.ChordTemplates <- convertChordTemplates sng

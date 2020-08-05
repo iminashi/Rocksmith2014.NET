@@ -9,11 +9,11 @@ type Attributes() =
     member val AlbumName : string = null with get, set
     
     member val AlbumNameSort : string = null with get, set
-    
-    member val ArrangementProperties : ArrangementProperties option = None with get, set
 
     member val ArrangementName : string = "" with get, set
     
+    member val ArrangementProperties : ArrangementProperties option = None with get, set
+
     // Always zero
     member val ArrangementSort : Nullable<int> = Nullable() with get, set
     

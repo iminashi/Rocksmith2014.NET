@@ -175,7 +175,7 @@ let update (msg: Msg) (state: State) : State =
         | CreateManifest file ->
             let arrangement =
                 { XML = file
-                  ArrangementName = ArrangementName.Combo
+                  ArrangementName = ArrangementName.Lead
                   RouteMask = RouteMask.Lead
                   ScrollSpeed = 13
                   MasterID = 12345

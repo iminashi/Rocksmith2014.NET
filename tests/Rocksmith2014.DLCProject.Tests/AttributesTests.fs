@@ -84,4 +84,16 @@ let someTests =
         let attr = createAttributes project (FromInstrumental (testLead, testSng))
 
         Expect.isNonEmpty attr.Chords "Chords map is not empty"
+
+    testCase "Arrangement properties are set" <| fun _ ->
+        let project = { testProject with Arrangements = [ Instrumental testLead ] }
+
+        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+
+        match attr.ArrangementProperties with
+        | Some ap ->
+            Expect.equal ap.standardTuning 1uy "Standard tuning is set"
+            Expect.equal ap.openChords 1uy "Open chords is set"
+            Expect.equal ap.unpitchedSlides 1uy "Unpitched slides is set"
+        | None -> failwith "Arrangement properties do not exist"
   ]
