@@ -222,6 +222,79 @@ let private createChordMap (sng: SNG) =
             
     chords
 
+let private getTechniques (sng: SNG) (note: Note) =
+    let hasFlag (n: Note) f = (n.Mask &&& f) <> NoteMask.None
+
+    //let isPowerChord note =
+    //    if hasFlag note NoteMask.DoubleStop then
+    //        let s1 = Array.findIndex (fun x -> x >= 0y) sng.Chords.[note.ChordId].Frets
+    //        let s2 = Array.findIndexBack (fun x -> x >= 0y) sng.Chords.[note.ChordId].Frets
+    //        let f1 = Array.find (fun x -> x >= 0y) sng.Chords.[note.ChordId].Frets
+    //        let f2 = Array.findBack (fun x -> x >= 0y) sng.Chords.[note.ChordId].Frets
+    //        // Root on D string or lower
+    //        s1 <= 2 && s1 + 1 = s2 && f1 + 2y = f2
+    //    else
+    //        false
+
+    if note.Mask = NoteMask.None then
+        Seq.empty
+    else
+        seq { if hasFlag note NoteMask.Accent then yield 0
+              if hasFlag note NoteMask.Bend then yield 1
+              if hasFlag note NoteMask.Mute then yield 2
+              if hasFlag note NoteMask.HammerOn then yield 3
+              if hasFlag note NoteMask.Harmonic then yield 4
+              if hasFlag note NoteMask.PinchHarmonic then yield 5
+              if hasFlag note NoteMask.HammerOn || hasFlag note NoteMask.PullOff then yield 6
+              if hasFlag note NoteMask.PalmMute then yield 7
+              if hasFlag note NoteMask.Pluck then yield 8
+              if hasFlag note NoteMask.PullOff then yield 9
+              if hasFlag note NoteMask.Slap then yield 10
+              if hasFlag note NoteMask.Slide then yield 11
+              if hasFlag note NoteMask.UnpitchedSlide then yield 12
+              if hasFlag note NoteMask.Sustain then yield 13
+              if hasFlag note NoteMask.Tap then yield 14
+              if hasFlag note NoteMask.Tremolo then yield 15
+              if hasFlag note NoteMask.Vibrato then yield 16
+              // Pre-bend ?
+              if hasFlag note NoteMask.Bend && note.BendData.[0].Time = note.Time && note.BendData.[0].Step > 0.f then yield 29
+              // Arpeggio ?
+              if hasFlag note NoteMask.Arpeggio then yield 33
+              // Seems to be two string power chord ?
+              if hasFlag note NoteMask.DoubleStop then yield 35 }
+
+              // Others:
+              // 30 (pre-)bend + vibrato ?
+              // 36 ??
+              // 37 syncopation ??
+              // 38 syncopation ??
+              // 40 double stop bend or quarter step bend ?
+              // 43 ??
+              // 44 ??
+              // 46 bend down ?
+
+let private createTechniqueMap (sng: SNG) =
+    // In official files, the techniques of the last phrase iteration in a difficulty level seem to be included in the first phrase iteration in the next level?
+
+    let techniques = Dictionary<string, Dictionary<string, int array>>()
+
+    for lvl = 0 to sng.Levels.Length - 1 do
+        let diffIds = Dictionary<string, int array>()
+        for i = 0 to sng.PhraseIterations.Length - 1 do
+            let pi = sng.PhraseIterations.[i]
+            let techIds = 
+                sng.Levels.[lvl].Notes
+                |> Seq.filter (fun x -> (x.Time > pi.StartTime && x.Time <= pi.EndTime)) // Weird division into phrase iterations
+                |> Seq.collect (getTechniques sng)
+                |> Set.ofSeq
+            if techIds.Count > 0 then
+                diffIds.Add(i.ToString(), techIds |> Set.toArray)
+
+        if diffIds.Count > 0 then
+            techniques.Add(lvl.ToString(), diffIds)
+            
+    techniques
+
 let private initBase dlcKey (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
     attr.AlbumArt <- sprintf "urn:image:dds:album_%s" dlcKey
     attr.ArrangementName <- getName arrangement true
@@ -260,7 +333,6 @@ let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Inst
     attr.AlbumNameSort <- project.AlbumNameSort
     attr.ArtistName <- project.ArtistName
     attr.ArtistNameSort <- project.ArtistNameSort
-    attr.BassPick <- if xmlMetaData.ArrangementProperties.BassPick then Nullable(1) else Nullable()
     attr.CentOffset <- project.CentOffset |> Nullable
     attr.DNA_Chords <- Nullable(0.f) // TODO
     attr.DNA_Riffs <- Nullable(0.f) // TODO
@@ -309,7 +381,7 @@ let private initSongComplete (xmlMetaData: XML.MetaData) (project: DLCProject) (
     attr.SongOffset <- -sng.MetaData.StartTime |> Nullable
     attr.SongPartition <- partition |> Nullable
     attr.TargetScore <- 100000 |> Nullable
-    attr.Techniques <- Dictionary() // TODO
+    attr.Techniques <- createTechniqueMap sng
     attr.Tone_A <- "" // TODO
     attr.Tone_B <- "" // TODO
     attr.Tone_Base <- "" // TODO
@@ -352,6 +424,7 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
 
         if isHeader then
             // Attributes unique to header
+            attr.BassPick <- if xmlMetaData.ArrangementProperties.BassPick then Nullable(1) else Nullable()
             attr.Representative <- xmlMetaData.ArrangementProperties.Represent |> bti |> Nullable
             attr.RouteMask <- inst.RouteMask |> LanguagePrimitives.EnumToValue |> Nullable
             attr

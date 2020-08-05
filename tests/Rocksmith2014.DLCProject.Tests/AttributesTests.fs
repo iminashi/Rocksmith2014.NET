@@ -85,6 +85,13 @@ let someTests =
 
         Expect.isNonEmpty attr.Chords "Chords map is not empty"
 
+    testCase "Techniques are created" <| fun _ ->
+        let project = { testProject with Arrangements = [ Instrumental testLead ] }
+
+        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+
+        Expect.isNonEmpty attr.Techniques "Technique map is not empty"
+
     testCase "Arrangement properties are set" <| fun _ ->
         let project = { testProject with Arrangements = [ Instrumental testLead ] }
 
