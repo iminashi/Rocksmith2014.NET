@@ -7,6 +7,8 @@ type NamedEntry =
     { Name: string
       Data: Stream }
 
+    static member Dispose(e) = e.Data.Dispose()
+
 type Entry =
     { NameDigest : byte[]
       zIndexBegin : uint32

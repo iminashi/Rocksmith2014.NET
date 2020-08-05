@@ -142,8 +142,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             let entry = { fst e with Offset = offset; ID = i }
             offset <- offset + (e |> (snd >> uint64))
             // Don't add the manifest to the TOC
-            if i <> 0 then
-                toc.Add(entry)
+            if i <> 0 then toc.Add entry
             entry.Write tocWriter)
 
         // Update and write the block sizes table
@@ -152,9 +151,9 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             |> Array.map (fun x -> if x = header.BlockSizeAlloc then 0u else x)
         let write =
             match zType with
-            | 2 -> fun v -> tocWriter.WriteUInt16(uint16 v)
-            | 3 -> fun v -> tocWriter.WriteUInt24(v)
-            | 4 -> fun v -> tocWriter.WriteUInt32(v)
+            | 2 -> (uint16 >> tocWriter.WriteUInt16)
+            | 3 -> tocWriter.WriteUInt24
+            | 4 -> tocWriter.WriteUInt32
             | _ -> failwith "Unexpected zType."
 
         blockSizeTable |> Array.iter write
@@ -179,8 +178,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         for entry in toc do
             let path = Path.Combine(baseDirectory, (getName entry).Replace('/', '\\'))
             Directory.CreateDirectory(Path.GetDirectoryName path) |> ignore
-            use file = File.Create path
-            inflateEntry entry file
+            using (File.Create path) (inflateEntry entry)
 
     /// Edits the contents of the PSARC with the given edit function.
     member _.Edit (options: EditOptions, editFunc: ResizeArray<NamedEntry> -> unit) =
@@ -190,13 +188,11 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                 match options.Mode with
                 | InMemory -> fun () -> MemoryStreamPool.Default.GetStream() :> Stream
                 | TempFiles -> Utils.getTempFileStream
-            toc
-            |> Seq.map (fun e -> 
+            toc.ToArray()
+            |> Array.map (fun e -> 
                 let data = getTargetStream ()
                 inflateEntry e data
-                { Name = getName e
-                  Data = data })
-            |> Seq.toArray
+                { Name = getName e; Data = data })
 
         // Call the edit function that mutates the resize array
         let editList = ResizeArray(namedEntries)
@@ -230,7 +226,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
         // Ensure that all entries that were inflated are disposed
         // If the user removed any entries, their data will be disposed of here
-        namedEntries |> Array.iter (fun e -> e.Data.Dispose())
+        namedEntries |> Array.iter NamedEntry.Dispose
 
     /// Creates a new empty PSARC using the given stream.
     static member CreateEmpty(stream) = new PSARC(stream, Header(), ResizeArray(), [||])
