@@ -189,7 +189,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             let getTargetStream =
                 match options.Mode with
                 | InMemory -> fun () -> MemoryStreamPool.Default.GetStream() :> Stream
-                | TempFiles -> fun () -> File.OpenWrite(Path.GetTempFileName()) :> Stream
+                | TempFiles -> Utils.getTempFileStream
             toc
             |> Seq.map (fun e -> 
                 let data = getTargetStream ()
@@ -247,7 +247,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         PSARC.Create(file, encrypt, (fun packFiles ->
             for f in sourceFiles do
                 let name = Path.GetRelativePath(path, f).Replace('\\', '/')
-                packFiles.Add({ Name = name; Data = File.OpenRead(f) })))
+                packFiles.Add({ Name = name; Data = Utils.getFileStreamForRead f })))
 
     /// Initializes a PSARC from the input stream. 
     static member Read (input: Stream) = 
