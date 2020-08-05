@@ -103,4 +103,11 @@ let someTests =
             Expect.equal ap.openChords 1uy "Open chords is set"
             Expect.equal ap.unpitchedSlides 1uy "Unpitched slides is set"
         | None -> failwith "Arrangement properties do not exist"
+
+    testCase "DNA riffs is set" <| fun _ ->
+        let project = { testProject with Arrangements = [ Instrumental testLead ] }
+
+        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+
+        Expect.isGreaterThan attr.DNA_Riffs.Value 0. "DNA riffs is greater than zero"
   ]

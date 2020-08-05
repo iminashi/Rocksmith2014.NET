@@ -37,11 +37,11 @@ type Attributes() =
     
     member val DLCKey : string = "" with get, set
     
-    member val DNA_Chords : Nullable<float32> = Nullable() with get, set 
+    member val DNA_Chords : Nullable<float> = Nullable() with get, set 
     
-    member val DNA_Riffs : Nullable<float32> = Nullable() with get, set 
+    member val DNA_Riffs : Nullable<float> = Nullable() with get, set 
     
-    member val DNA_Solo : Nullable<float32> = Nullable() with get, set 
+    member val DNA_Solo : Nullable<float> = Nullable() with get, set 
 
     member val DynamicVisualDensity : float32 array = null with get, set
 

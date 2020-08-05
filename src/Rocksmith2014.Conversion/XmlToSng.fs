@@ -215,10 +215,10 @@ let convertHandshape (noteTimes: int array) (xmlHs: XML.HandShape) =
 /// Creates a DNA from an XML event.
 let private eventToDNA (event: XML.Event) =
     match event.Code with
-    | "dna_none"  -> Some { DnaId = 0; Time = msToSec event.Time }
-    | "dna_solo"  -> Some { DnaId = 1; Time = msToSec event.Time }
-    | "dna_riff"  -> Some { DnaId = 2; Time = msToSec event.Time }
-    | "dna_chord" -> Some { DnaId = 3; Time = msToSec event.Time }
+    | "dna_none"  -> Some { DnaId = DNA.None; Time = msToSec event.Time }
+    | "dna_solo"  -> Some { DnaId = DNA.Solo; Time = msToSec event.Time }
+    | "dna_riff"  -> Some { DnaId = DNA.Riff; Time = msToSec event.Time }
+    | "dna_chord" -> Some { DnaId = DNA.Chord; Time = msToSec event.Time }
     | _ -> None
 
 /// Creates DNAs for the XML arrangement.

@@ -32,6 +32,30 @@ let private getJapaneseVocal = function
     | Vocals v when v.Japanese -> Nullable(true)
     | _ -> Nullable()
 
+/// Calculates the sum of all ranges of DNAId -> DNA None (or the end of the song).
+let private getDNATime (sng: SNG) dnaId =
+    let rec getTotal i time =
+        // Find the index of a DNA with the given ID
+        let di = Array.FindIndex(sng.DNAs, i, (fun x -> x.DnaId = dnaId))
+        match di with
+        | -1 -> time
+        | next ->
+            // Find the index of the next DNA None
+            let ni = Array.FindIndex(sng.DNAs, next, (fun x -> x.DnaId = DNA.None))
+            match ni with 
+            | -1 ->
+                time + (sng.MetaData.SongLength - sng.DNAs.[next].Time)
+            | none ->
+                // Find the next DNA ID -> DNA None range
+                time + getTotal none (sng.DNAs.[none].Time - sng.DNAs.[next].Time)
+        
+    getTotal 0 0.f |> float
+
+let private calculateDNAs (sng: SNG) =
+    Math.Round(getDNATime sng DNA.Chord, 3),
+    Math.Round(getDNATime sng DNA.Riff, 3),
+    Math.Round(getDNATime sng DNA.Solo, 3)
+
 let private calculateDifficulties (metaData: XML.MetaData) (sng: SNG) =
     let arrProp = metaData.ArrangementProperties
     let techCoeff = bti arrProp.NonStandardChords +
@@ -236,7 +260,7 @@ let private getTechniques (sng: SNG) (note: Note) =
     //    else
     //        false
 
-    if note.Mask = NoteMask.None then
+    if note.Mask = NoteMask.None || note.Mask = NoteMask.Single then
         Seq.empty
     else
         seq { if hasFlag note NoteMask.Accent then yield 0
@@ -264,6 +288,7 @@ let private getTechniques (sng: SNG) (note: Note) =
               if hasFlag note NoteMask.DoubleStop then yield 35 }
 
               // Others:
+              // 28 ??
               // 30 (pre-)bend + vibrato ?
               // 36 ??
               // 37 syncopation ??
@@ -327,25 +352,26 @@ let private initAttributesCommon dlcKey (project: DLCProject) (arrangement: Arra
     attr
 
 let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Instrumental) (sng: SNG) (attr: Attributes) =
-    let dHard, dMedium, dEasy = calculateDifficulties xmlMetaData sng
+    let diffHard, diffMed, diffEasy = calculateDifficulties xmlMetaData sng
+    let dnaChords, dnaRiffs, dnaSolo = calculateDNAs sng
 
     attr.AlbumName <- project.AlbumName
     attr.AlbumNameSort <- project.AlbumNameSort
     attr.ArtistName <- project.ArtistName
     attr.ArtistNameSort <- project.ArtistNameSort
     attr.CentOffset <- project.CentOffset |> Nullable
-    attr.DNA_Chords <- Nullable(0.f) // TODO
-    attr.DNA_Riffs <- Nullable(0.f) // TODO
-    attr.DNA_Solo <- Nullable(0.f) // TODO
+    attr.DNA_Chords <- dnaChords |> Nullable
+    attr.DNA_Riffs <- dnaRiffs |> Nullable
+    attr.DNA_Solo <- dnaSolo |> Nullable
     attr.EasyMastery <- Math.Round(float sng.NoteCounts.Easy / float sng.NoteCounts.Hard, 9) |> Nullable
     attr.MediumMastery <- Math.Round(float sng.NoteCounts.Medium / float sng.NoteCounts.Hard, 9) |> Nullable
     attr.NotesEasy <- float32 sng.NoteCounts.Easy |> Nullable
     attr.NotesHard <- float32 sng.NoteCounts.Hard |> Nullable
     attr.NotesMedium <- float32 sng.NoteCounts.Medium |> Nullable
-    attr.SongDiffEasy <- dEasy |> Nullable
-    attr.SongDiffHard <- dHard |> Nullable
-    attr.SongDiffMed <- dMedium |> Nullable
-    attr.SongDifficulty <- dHard |> Nullable
+    attr.SongDiffEasy <- diffEasy |> Nullable
+    attr.SongDiffHard <- diffHard |> Nullable
+    attr.SongDiffMed <- diffMed |> Nullable
+    attr.SongDifficulty <- diffHard |> Nullable
     attr.SongLength <- sng.MetaData.SongLength |> Nullable
     attr.SongName <- project.Title
     attr.SongNameSort <- project.TitleSort
