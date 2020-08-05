@@ -90,6 +90,57 @@ let private convertChordTemplates (sng: SNG) =
           Frets = c.Frets })
     |> Seq.toArray
 
+let private getSectionUIName (name: string) =
+    let i = name.IndexOf(' ')
+    let n = if i > 0 then name.Substring(0, i) else name
+
+    match n with
+    | "fadein"     -> "$[34276] Fade In [1]"
+    | "fadeout"    -> "$[34277] Fade Out [1]"
+    | "buildup"    -> "$[34278] Buildup [1]"
+    | "chorus"     -> "$[34279] Chorus [1]"
+    | "hook"       -> "$[34280] Hook [1]"
+    | "head"       -> "$[34281] Head [1]"
+    | "bridge"     -> "$[34282] Bridge [1]"
+    | "ambient"    -> "$[34283] Ambient [1]"
+    | "breakdown"  -> "$[34284] Breakdown [1]"
+    | "interlude"  -> "$[34285] Interlude [1]"
+    | "intro"      -> "$[34286] Intro [1]"
+    | "melody"     -> "$[34287] Melody [1]"
+    | "modbridge"  -> "$[34288] Modulated Bridge [1]"
+    | "modchorus"  -> "$[34289] Modulated Chorus [1]"
+    | "modverse"   -> "$[34290] Modulated Verse [1]"
+    | "outro"      -> "$[34291] Outro [1]"
+    | "postbrdg"   -> "$[34292] Post Bridge [1]"
+    | "postchorus" -> "$[34293] Post Chorus [1]"
+    | "postvs"     -> "$[34294] Post Verse [1]"
+    | "prebrdg"    -> "$[34295] Pre Bridge [1]"
+    | "prechorus"  -> "$[34296] Pre Chorus [1]"
+    | "preverse"   -> "$[34297] Pre Verse [1]"
+    | "riff"       -> "$[34298] Riff [1]"
+    | "silence"    -> "$[34299] Silence [1]"
+    | "solo"       -> "$[34300] Solo [1]"
+    | "transition" -> "$[34301] Transition [1]"
+    | "vamp"       -> "$[34302] Vamp [1]"
+    | "variation"  -> "$[34303] Variation [1]"
+    | "verse"      -> "$[34304] Verse [1]"
+    | "tapping"    -> "$[34305] Tapping [1]"
+    | "noguitar"   -> "$[6091] No Guitar [1]"
+    // Use riff for unknown section names
+    | _            -> "$[34298] Riff [1]"
+
+let private convertSections (sng: SNG) =
+    sng.Sections
+    |> Array.map (fun s ->
+        { Name = s.Name
+          UIName = getSectionUIName s.Name
+          Number = s.Number
+          StartTime = s.StartTime
+          EndTime = s.EndTime
+          StartPhraseIterationIndex = s.StartPhraseIterationId
+          EndPhraseIterationIndex = s.EndPhraseIterationId
+          IsSolo = s.Name.Contains("solo", StringComparison.OrdinalIgnoreCase) })
+
 let private createDVD (arrangement: Arrangement) =
     // TODO
     Array.replicate 20 2.f
@@ -176,7 +227,7 @@ let private initSongComplete (xmlMetaData: XML.MetaData) (project: DLCProject) (
     attr.Phrases <- [||] // TODO
     attr.Score_MaxNotes <- sng.NoteCounts.Hard |> float32 |> Nullable
     attr.Score_PNV <- (100000.f / float32 sng.NoteCounts.Hard) |> Nullable
-    attr.Sections <- [||] // TODO
+    attr.Sections <- convertSections sng
     attr.SongAverageTempo <- xmlMetaData.AverageTempo |> Nullable
     attr.SongOffset <- -sng.MetaData.StartTime |> Nullable
     attr.SongPartition <- partition |> Nullable

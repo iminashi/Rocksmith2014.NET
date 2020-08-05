@@ -28,50 +28,46 @@ let testProject =
       Arrangements = []
       Tones = [] }
 
+let testArr = InstrumentalArrangement.Load("instrumental.xml")
+let testSng = ConvertInstrumental.xmlToSng testArr
+
+let testLead =
+    { XML = "instrumental.xml"
+      ArrangementName = ArrangementName.Lead
+      RouteMask = RouteMask.Lead
+      ScrollSpeed = 13
+      MasterID = 12345
+      PersistentID = Guid.NewGuid() }
+
 [<Tests>]
 let someTests =
   testList "Attribute Tests" [
 
     testCase "Partition is set correctly" <| fun _ ->
-        let sng = SNG.Empty
-        let lead1 =
-            { XML = "instrumental.xml"
-              ArrangementName = ArrangementName.Lead
-              RouteMask = RouteMask.Lead
-              ScrollSpeed = 13
-              MasterID = 12345
-              PersistentID = Guid.NewGuid() }
-        let lead2 =
-            { XML = "instrumental.xml"
-              ArrangementName = ArrangementName.Lead
-              RouteMask = RouteMask.Lead
-              ScrollSpeed = 13
-              MasterID = 12346
-              PersistentID = Guid.NewGuid() }
+        let lead2 = { testLead with MasterID = 12346; PersistentID = Guid.NewGuid() }
 
-        let project = { testProject with Arrangements = [ Instrumental lead1; Instrumental lead2 ] }
+        let project = { testProject with Arrangements = [ Instrumental testLead; Instrumental lead2 ] }
 
-        let attr1 = createAttributes project (InstrumentalConversion (lead1, sng))
-        let attr2 = createAttributes project (InstrumentalConversion (lead2, sng))
+        let attr1 = createAttributes project (InstrumentalConversion (testLead, testSng))
+        let attr2 = createAttributes project (InstrumentalConversion (lead2, testSng))
 
         Expect.equal attr1.SongPartition (Nullable(1)) "Partition for first lead arrangement is 1"
         Expect.equal attr2.SongPartition (Nullable(2)) "Partition for second lead arrangement is 2"
 
     testCase "Chord templates are created" <| fun _ ->
-        let arr = InstrumentalArrangement.Load("instrumental.xml")
-        let sng = ConvertInstrumental.xmlToSng arr
-        let lead =
-            { XML = "instrumental.xml"
-              ArrangementName = ArrangementName.Lead
-              RouteMask = RouteMask.Lead
-              ScrollSpeed = 13
-              MasterID = 12345
-              PersistentID = Guid.NewGuid() }
-        let project = { testProject with Arrangements = [ Instrumental lead ] }
-        let emptyNameId = sng.Chords |> Array.findIndex (fun c -> String.IsNullOrEmpty c.Name)
+        let project = { testProject with Arrangements = [ Instrumental testLead ] }
+        let emptyNameId = testSng.Chords |> Array.findIndex (fun c -> String.IsNullOrEmpty c.Name)
 
-        let attr = createAttributes project (InstrumentalConversion (lead, sng))
+        let attr = createAttributes project (InstrumentalConversion (testLead, testSng))
 
-        Expect.isGreaterThan attr.ChordTemplates.Length 0 "Chord templates are not empty"
+        Expect.isNonEmpty attr.ChordTemplates "Chord templates array is not empty"
         Expect.isFalse (attr.ChordTemplates |> Array.exists (fun (c: Attributes.ChordTemplate) -> c.ChordId = int16 emptyNameId)) "Chord template with empty name is removed"
+
+    testCase "Sections are created" <| fun _ ->
+        let project = { testProject with Arrangements = [ Instrumental testLead ] }
+
+        let attr = createAttributes project (InstrumentalConversion (testLead, testSng))
+
+        Expect.isNonEmpty attr.Sections "Sections array is not empty"
+        Expect.equal attr.Sections.[0].UIName "$[34298] Riff [1]" "UI name is correct"
   ]

@@ -3,9 +3,9 @@
 type Section =
     { Name : string
       UIName : string
-      Number : int16
+      Number : int32
       StartTime : float32
       EndTime : float32
-      StartPhraseIterationIndex : int16
-      EndPhraseIterationIndex : int16
+      StartPhraseIterationIndex : int32
+      EndPhraseIterationIndex : int32
       IsSolo : bool }
