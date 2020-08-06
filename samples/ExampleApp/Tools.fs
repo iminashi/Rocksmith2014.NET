@@ -189,8 +189,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             let t () = async {
                 use target = File.Create(Path.ChangeExtension(file, "json"))
                 do! Manifest.create [ attr ]
-                    |> Manifest.toJsonStream target
-                    |> Async.AwaitTask }
+                    |> Manifest.toJsonStream target }
 
             state, Cmd.OfAsync.attempt t () Error
 
@@ -217,7 +216,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                     |> Seq.map (fun x -> async {
                         use mem = MemoryStreamPool.Default.GetStream()
                         do! psarc.InflateFile(x, mem)
-                        let! manifest = Manifest.fromJsonStream(mem).AsTask()
+                        let! manifest = Manifest.fromJsonStream(mem)
                         return {| File = x; Manifest = manifest |} })
                     |> Async.Sequential
 

@@ -15,8 +15,8 @@ let convertTime (time:float32) =
 let sngToXmlConversionTests =
   testList "SNG Files → XML" [
 
-    testCase "Vocals" <| fun _ ->
-      let sng = SNG.readPackedFile "vocals.sng" PC |> Async.RunSynchronously
+    testAsync "Vocals" {
+      let! sng = SNG.readPackedFile "vocals.sng" PC
 
       let xml = ConvertVocals.sngToXml sng
 
@@ -25,19 +25,19 @@ let sngToXmlConversionTests =
         Expect.equal xml.[i].Lyric sng.Vocals.[i].Lyric (sprintf "Lyric #%i is same" i)
         Expect.equal xml.[i].Note (sng.Vocals.[i].Note |> byte) (sprintf "Note #%i is same" i)
         Expect.equal xml.[i].Time (sng.Vocals.[i].Time |> convertTime) (sprintf "Time #%i is same" i)
-        Expect.equal xml.[i].Length (sng.Vocals.[i].Length |> convertTime) (sprintf "Length #%i is same" i)
+        Expect.equal xml.[i].Length (sng.Vocals.[i].Length |> convertTime) (sprintf "Length #%i is same" i) }
 
-    testCase "Extract Glyphs" <| fun _ ->
-       let sng = SNG.readPackedFile "vocals.sng" PC |> Async.RunSynchronously
+    testAsync "Extract Glyphs" {
+       let! sng = SNG.readPackedFile "vocals.sng" PC
 
        let xml = ConvertVocals.extractGlyphData sng
 
        Expect.equal xml.Glyphs.Count sng.SymbolDefinitions.Length "Same glyph count"
        Expect.equal xml.TextureWidth sng.SymbolsTextures.[0].Width "Same texture width"
-       Expect.equal xml.TextureHeight sng.SymbolsTextures.[0].Height "Same texture height"
+       Expect.equal xml.TextureHeight sng.SymbolsTextures.[0].Height "Same texture height" }
 
-    testCase "Instrumental" <| fun _ ->
-        let sng = SNG.readPackedFile "instrumental.sng" PC |> Async.RunSynchronously
+    testAsync "Instrumental" {
+        let! sng = SNG.readPackedFile "instrumental.sng" PC
 
         let xml = ConvertInstrumental.sngToXml None sng
 
@@ -56,5 +56,5 @@ let sngToXmlConversionTests =
         Expect.equal xml.Events.Count sng.Events.Length "Same event count"
         Expect.equal xml.Levels.Count sng.Levels.Length "Same level count"
         if sng.PhraseExtraInfo.Length > 0 then
-            Expect.equal xml.PhraseProperties.Count sng.PhraseExtraInfo.Length "Same phrase property count"
+            Expect.equal xml.PhraseProperties.Count sng.PhraseExtraInfo.Length "Same phrase property count" }
   ]
