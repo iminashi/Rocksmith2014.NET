@@ -127,7 +127,7 @@ let update (msg: Msg) (state: State) : State =
         //    state
         
         | UnpackFile file ->
-            SNGFile.unpackFile file state.Platform; state
+            SNG.unpackFile file state.Platform; state
 
         | ConvertVocalsSNGtoXML file ->
             let target = Path.ChangeExtension(file, "xml")
@@ -207,7 +207,7 @@ let update (msg: Msg) (state: State) : State =
             sngs
             |> Seq.iter (fun s ->
                 let targetFile = Path.Combine(targetDirectory, Path.ChangeExtension(Path.GetFileName s, "xml"))
-                let sng = using (MemoryStreamPool.Default.GetStream()) (fun data -> psarc.InflateFile(s, data); SNGFile.readStream data PC)
+                let sng = using (MemoryStreamPool.Default.GetStream()) (fun data -> psarc.InflateFile(s, data); SNG.fromStream data PC)
 
                 if s.Contains "vocals" then
                     let vocals = ConvertVocals.sngToXml sng

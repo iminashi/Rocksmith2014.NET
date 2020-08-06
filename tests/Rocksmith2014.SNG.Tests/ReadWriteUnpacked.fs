@@ -7,7 +7,7 @@ open System.IO
 let testFileLevels = 12
 
 let testRead file expectedLevels =
-    let sng = SNGFile.readUnpacked file
+    let sng = SNG.readUnpackedFile file
     Expect.equal sng.Levels.Length expectedLevels (sprintf "Read %i levels" expectedLevels)
 
 [<Tests>]
@@ -18,8 +18,8 @@ let readWriteTests =
       testRead "unpacked.sng" testFileLevels
 
     testCase "Can write unpacked SNG file" <| fun _ ->
-      let sng = SNGFile.readUnpacked "unpacked.sng"
-      SNGFile.saveUnpacked "test_write_unpacked.sng" sng
+      let sng = SNG.readUnpackedFile "unpacked.sng"
+      SNG.saveUnpackedFile "test_write_unpacked.sng" sng
 
       testRead "test_write_unpacked.sng" testFileLevels
       Expect.equal (FileInfo("test_write_unpacked.sng").Length) (FileInfo("unpacked.sng").Length) "Same size file written"

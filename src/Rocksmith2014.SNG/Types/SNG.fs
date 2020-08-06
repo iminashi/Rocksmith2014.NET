@@ -1,6 +1,7 @@
 ﻿namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common.BinaryReaders
 open Rocksmith2014.Common.BinaryWriters
 open Rocksmith2014.Common
 open BinaryHelpers
@@ -104,7 +105,7 @@ module SNG =
         Compression.unzip decrypted output
         output.Position <- 0L
     
-    /// Packs and decrypts an SNG from the input stream into the output stream.
+    /// Packs and encrypts an SNG from the input stream into the output stream.
     let pack (input: Stream) (output: Stream) platform =
         let header = 3
         let writer = BinaryWriters.getWriter output platform
@@ -122,4 +123,57 @@ module SNG =
     /// Writes the given SNG into the output stream (unpacked/unencrypted).
     let write (output: Stream) (sng: SNG) =
         let writer = LittleEndianBinaryWriter(output)
+        (sng :> IBinaryWritable).Write writer
+
+    /// Unpacks the given encrypted SNG file and saves it with an "_unpacked.sng" postfix.
+    let unpackFile fileName platform =
+        use file = File.OpenRead fileName
+        let targetFile =
+            Path.Combine
+                (Path.GetDirectoryName(fileName),
+                 Path.GetFileNameWithoutExtension(fileName)
+                 + "_unpacked.sng")
+    
+        use out = File.Open(targetFile, FileMode.Create, FileAccess.Write)
+        unpack file out platform
+    
+    /// Reads an SNG from the stream.
+    let fromStream (input: Stream) platform =
+        use memory = MemoryStreamPool.Default.GetStream()
+        let reader = BinaryReaders.getReader memory platform
+    
+        unpack input memory platform
+        SNG.Read reader
+    
+    /// Reads an encrypted SNG file. 
+    let readPackedFile fileName platform =
+        use file = File.OpenRead fileName
+        use memory = MemoryStreamPool.Default.GetStream()
+        let reader = BinaryReaders.getReader memory platform
+    
+        unpack file memory platform
+        SNG.Read reader
+    
+    /// Saves an SNG (packed/encrypted) with the given filename.
+    let savePackedFile fileName platform (sng: SNG) =
+        use memory = MemoryStreamPool.Default.GetStream()
+        let writer = BinaryWriters.getWriter memory platform
+        (sng :> IBinaryWritable).Write writer
+        memory.Position <- 0L
+    
+        use out = File.Open(fileName, FileMode.Create, FileAccess.Write)
+        pack memory out platform
+    
+    /// Reads an unpacked SNG from the given file.
+    let readUnpackedFile fileName =
+        use stream = File.OpenRead fileName
+        let reader = LittleEndianBinaryReader(stream)
+    
+        SNG.Read reader
+    
+    /// Saves an SNG (plain) with the given filename.
+    let saveUnpackedFile fileName (sng: SNG) =
+        use stream = File.Open(fileName, FileMode.Create, FileAccess.Write)
+        let writer = LittleEndianBinaryWriter(stream)
+    
         (sng :> IBinaryWritable).Write writer

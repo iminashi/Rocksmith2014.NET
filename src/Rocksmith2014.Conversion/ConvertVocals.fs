@@ -71,7 +71,7 @@ module ConvertVocals =
 
     /// Converts a vocals SNG file into an XML file.
     let sngFileToXml sngFile targetFile platform =
-        let vocals = SNGFile.readPacked sngFile platform |> sngToXml
+        let vocals = SNG.readPackedFile sngFile platform |> sngToXml
         Vocals.Save(targetFile, vocals)
 
     /// Converts a vocals XML file into an SNG file.
@@ -83,4 +83,4 @@ module ConvertVocals =
 
         Vocals.Load xmlFile
         |> xmlToSng glyphs 
-        |> SNGFile.savePacked targetFile platform
+        |> SNG.savePackedFile targetFile platform

@@ -31,7 +31,6 @@
     <Compile Include="Types\Level.fs" />
     <Compile Include="Types\MetaData.fs" />
     <Compile Include="Types\SNG.fs" />
-    <Compile Include="SNGFile.fs" />
     <None Include="ScratchPad.fsx" />
   </ItemGroup>
 

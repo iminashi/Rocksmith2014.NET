@@ -33,9 +33,9 @@ let sngToXmlConversionTests =
         let xml = Vocals.Load("jvocals.xml")
         let customFont = GlyphDefinitions.Load("jvocals.glyphs.xml")
         ConvertVocals.xmlToSng (CustomFont customFont) xml
-        |> SNGFile.savePacked "jvocals_test.sng" PC
+        |> SNG.savePackedFile "jvocals_test.sng" PC
 
-        let sng = SNGFile.readPacked "jvocals_test.sng" PC
+        let sng = SNG.readPackedFile "jvocals_test.sng" PC
 
         Expect.equal sng.Vocals.Length xml.Count "Vocal count is same"
         Expect.equal sng.Vocals.[0].Lyric "夏-" "Vocal #1 is correct"

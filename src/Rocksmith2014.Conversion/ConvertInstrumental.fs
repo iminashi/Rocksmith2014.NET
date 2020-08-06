@@ -197,10 +197,10 @@ let xmlToSng (arr: InstrumentalArrangement) =
 
 /// Converts an SNG instrumental arrangement into an XML file.
 let sngFileToXml sngFile targetFile platform =
-    let xml = SNGFile.readPacked sngFile platform |> sngToXml None
+    let xml = SNG.readPackedFile sngFile platform |> sngToXml None
     xml.Save targetFile
 
 /// Converts an XML instrumental arrangement into an SNG file.
 let xmlFileToSng xmlFile targetFile platform =
     let sng = InstrumentalArrangement.Load(xmlFile) |> xmlToSng
-    SNGFile.savePacked targetFile platform sng
+    SNG.savePackedFile targetFile platform sng

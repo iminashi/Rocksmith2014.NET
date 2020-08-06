@@ -7,12 +7,12 @@ open Rocksmith2014.SNG
 let testFileLevels = 12
 
 let testRead file platform =
-    let sng = SNGFile.readPacked file platform
+    let sng = SNG.readPackedFile file platform
     Expect.equal sng.Levels.Length testFileLevels (sprintf "Read %i levels" testFileLevels)
 
 let testWrite source target platform =
-    SNGFile.readPacked source platform
-    |> SNGFile.savePacked target platform
+    SNG.readPackedFile source platform
+    |> SNG.savePackedFile target platform
 
 [<Tests>]
 let readWriteTests =
