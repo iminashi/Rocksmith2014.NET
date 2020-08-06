@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.DLCProject
 
-open Rocksmith2014.Common.Attributes
+open Rocksmith2014.Common.Manifest
 
 type DLCProject =
     { DLCKey : string

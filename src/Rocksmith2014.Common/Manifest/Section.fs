@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.Common.Attributes
+﻿namespace Rocksmith2014.Common.Manifest
 
 type Section =
     { Name : string

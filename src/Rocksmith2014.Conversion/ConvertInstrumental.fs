@@ -2,12 +2,49 @@
 
 open Rocksmith2014.XML
 open Rocksmith2014.SNG
+open Rocksmith2014.Common
 open Rocksmith2014.Conversion
 open Rocksmith2014.Conversion.Utils
 open System
 
+let private convertArrProps (arrProps: Manifest.ArrangementProperties) =
+    let btb b = b = 1uy
+
+    ArrangementProperties(
+        Represent = btb arrProps.represent,
+        BonusArrangement = btb arrProps.bonusArr,
+        StandardTuning = btb arrProps.standardTuning,
+        NonStandardChords = btb arrProps.nonStandardChords,
+        BarreChords = btb arrProps.barreChords,
+        PowerChords = btb arrProps.powerChords,
+        DropDPower = btb arrProps.dropDPower,
+        OpenChords = btb arrProps.openChords,
+        FingerPicking = btb arrProps.fingerPicking,
+        PickDirection = btb arrProps.pickDirection,
+        DoubleStops = btb arrProps.doubleStops,
+        PalmMutes = btb arrProps.palmMutes,
+        Harmonics = btb arrProps.harmonics,
+        PinchHarmonics = btb arrProps.pinchHarmonics,
+        Hopo = btb arrProps.hopo,
+        Tremolo = btb arrProps.tremolo,
+        Slides = btb arrProps.slides,
+        UnpitchedSlides = btb arrProps.unpitchedSlides,
+        Bends = btb arrProps.bends,
+        Tapping = btb arrProps.tapping,
+        Vibrato = btb arrProps.vibrato,
+        FretHandMutes = btb arrProps.fretHandMutes,
+        SlapPop = btb arrProps.slapPop,
+        TwoFingerPicking = btb arrProps.twoFingerPicking,
+        FifthsAndOctaves = btb arrProps.fifthsAndOctaves,
+        Syncopation = btb arrProps.syncopation,
+        BassPick = btb arrProps.bassPick,
+        Sustain = btb arrProps.sustain,
+        PathLead = btb arrProps.pathLead,
+        PathRhythm = btb arrProps.pathRhythm,
+        PathBass = btb arrProps.pathBass)
+
 /// Converts an SNG arrangement into an InstrumentalArrangement.
-let sngToXml (sng: SNG) =
+let sngToXml (attr: Manifest.Attributes option) (sng: SNG) =
     let phrases =
         mapToResizeArray SngToXml.convertPhrase sng.Phrases
     let phraseIterations =
@@ -19,7 +56,7 @@ let sngToXml (sng: SNG) =
     let beats =
         mapToResizeArray SngToXml.convertBeat sng.Beats
     let tones =
-        mapToResizeArray SngToXml.convertTone sng.Tones
+        mapToResizeArray (SngToXml.convertTone attr) sng.Tones
     let sections =
         mapToResizeArray SngToXml.convertSection sng.Sections
     let events =
@@ -29,11 +66,35 @@ let sngToXml (sng: SNG) =
     let phraseProperties =
         mapToResizeArray SngToXml.convertPhraseExtraInfo sng.PhraseExtraInfo
 
-    let metaData = MetaData(
-                    Part = sng.MetaData.Part,
-                    Capo = Math.Max(sng.MetaData.CapoFretId, 0y),
-                    LastConversionDateTime = sng.MetaData.LastConversionDateTime,
-                    SongLength = Utils.secToMs sng.MetaData.SongLength)
+    let metaData =
+        match attr with
+        | Some attr ->
+            let m = MetaData(Arrangement = attr.ArrangementName,
+                             CentOffset = int (attr.CentOffset.GetValueOrDefault()),
+                             AverageTempo = attr.SongAverageTempo.GetValueOrDefault(),
+                             Title = attr.SongName,
+                             TitleSort = attr.SongNameSort,
+                             ArtistName = attr.ArtistName,
+                             ArtistNameSort = attr.ArtistNameSort,
+                             AlbumName = attr.AlbumName,
+                             AlbumNameSort = attr.AlbumNameSort,
+                             AlbumYear = attr.SongYear.GetValueOrDefault())
+            match attr.Tuning with
+            | Some tuning ->
+                m.Tuning.SetTuning(tuning.string0, tuning.string1, tuning.string2, tuning.string3, tuning.string4, tuning.string5)
+            | None -> ()
+            match attr.ArrangementProperties with
+            | Some arrProps ->
+                m.ArrangementProperties <- convertArrProps arrProps
+            | None -> ()
+                
+            m
+        | None -> MetaData()
+
+    metaData.Part <- sng.MetaData.Part
+    metaData.Capo <- Math.Max(sng.MetaData.CapoFretId, 0y)
+    metaData.LastConversionDateTime <- sng.MetaData.LastConversionDateTime
+    metaData.SongLength <- Utils.secToMs sng.MetaData.SongLength
 
     let arr = InstrumentalArrangement(
                 MetaData = metaData,
@@ -133,7 +194,7 @@ let xmlToSng (arr: InstrumentalArrangement) =
 
 /// Converts an SNG instrumental arrangement into an XML file.
 let sngFileToXml sngFile targetFile platform =
-    let xml = SNGFile.readPacked sngFile platform |> sngToXml
+    let xml = SNGFile.readPacked sngFile platform |> sngToXml None
     xml.Save targetFile
 
 /// Converts an XML instrumental arrangement into an SNG file.

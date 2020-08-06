@@ -61,7 +61,7 @@ let someTests =
         let attr = createAttributes project (FromInstrumental (testLead, testSng))
 
         Expect.isNonEmpty attr.ChordTemplates "Chord templates array is not empty"
-        Expect.isFalse (attr.ChordTemplates |> Array.exists (fun (c: Attributes.ChordTemplate) -> c.ChordId = int16 emptyNameId)) "Chord template with empty name is removed"
+        Expect.isFalse (attr.ChordTemplates |> Array.exists (fun (c: Manifest.ChordTemplate) -> c.ChordId = int16 emptyNameId)) "Chord template with empty name is removed"
 
     testCase "Sections are created" <| fun _ ->
         let project = { testProject with Arrangements = [ Instrumental testLead ] }
@@ -110,4 +110,14 @@ let someTests =
         let attr = createAttributes project (FromInstrumental (testLead, testSng))
 
         Expect.isGreaterThan attr.DNA_Riffs.Value 0. "DNA riffs is greater than zero"
+
+    testCase "Tone names are set" <| fun _ ->
+        let project = { testProject with Arrangements = [ Instrumental testLead ] }
+
+        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+
+        Expect.equal attr.Tone_Base "Tone_1" "Base tone name is correct"
+        Expect.equal attr.Tone_A "Tone_1" "Tone A name is correct"
+        Expect.equal attr.Tone_B "Tone_2" "Tone B name is correct"
+        Expect.equal attr.Tone_C "Tone_3" "Tone C name is correct"
   ]

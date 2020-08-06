@@ -3,6 +3,7 @@
 open Expecto
 open Rocksmith2014.SNG
 open Rocksmith2014.Conversion
+open Rocksmith2014.Common
 
 let emptyMetaData =
     { MaxScore = 0.0
@@ -231,9 +232,7 @@ let sngToXmlConversionTests =
       Expect.sequenceEqual xml.PhraseIds nld.NLDPhrases "Phrase IDs are same"
     
     testCase "Event" <| fun _ ->
-      let e =
-          { Time = 1750.735f
-            Name = "wedge_cutoff" }
+      let e = { Time = 1750.735f; Name = "wedge_cutoff" }
 
       let xml = SngToXml.convertEvent e
 
@@ -241,14 +240,14 @@ let sngToXmlConversionTests =
       Expect.equal xml.Time 1750_735 "Time code is same"
     
     testCase "Tone" <| fun _ ->
-      let t =
-          { Time = 4568.0f
-            ToneId = 2 }
+      let t = { Time = 4568.0f; ToneId = 2 }
+      let attr = Manifest.Attributes(Tone_C = "tone_c")
 
-      let xml = SngToXml.convertTone t
+      let xml = SngToXml.convertTone (Some attr) t
 
       Expect.equal xml.Id (t.ToneId |> byte) "Tone ID is same"
       Expect.equal xml.Time 4568_000 "Time code is same"
+      Expect.equal xml.Name attr.Tone_C "Tone name is correct"
 
     testCase "Section" <| fun _ ->
       let s =

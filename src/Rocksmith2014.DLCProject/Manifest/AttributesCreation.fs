@@ -3,7 +3,7 @@
 open Rocksmith2014.DLCProject
 open Rocksmith2014
 open Rocksmith2014.SNG
-open Rocksmith2014.Common.Attributes
+open Rocksmith2014.Common.Manifest
 open System
 open System.Collections.Generic
 
@@ -380,7 +380,12 @@ let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Inst
 
     attr
 
-let private initSongComplete (xmlMetaData: XML.MetaData) (project: DLCProject) (instrumental: Instrumental) (sng: SNG) (attr: Attributes) =
+let private initSongComplete (xmlMetaData: XML.MetaData)
+                             (xmlToneInfo: XML.ToneInfo)
+                             (project: DLCProject)
+                             (instrumental: Instrumental)
+                             (sng: SNG)
+                             (attr: Attributes) =
     let partition =
         let rec getPartition list part =
             match list with
@@ -391,6 +396,14 @@ let private initSongComplete (xmlMetaData: XML.MetaData) (project: DLCProject) (
             | [] -> part
 
         getPartition project.Arrangements 1
+
+    let tones = 
+        let toneNamesUsed =
+            seq { xmlToneInfo.BaseToneName; yield! xmlToneInfo.Names |> Seq.filter (isNull >> not) }
+            |> Set.ofSeq
+        project.Tones
+        |> List.filter (fun t -> toneNamesUsed.Contains t.Name)
+        |> List.toArray
 
     attr.ArrangementProperties <- Some (convertArrangementProperties xmlMetaData.ArrangementProperties instrumental)
     attr.ArrangementType <- instrumental.ArrangementName |> LanguagePrimitives.EnumToValue |> Nullable
@@ -408,13 +421,13 @@ let private initSongComplete (xmlMetaData: XML.MetaData) (project: DLCProject) (
     attr.SongPartition <- partition |> Nullable
     attr.TargetScore <- 100000 |> Nullable
     attr.Techniques <- createTechniqueMap sng
-    attr.Tone_A <- "" // TODO
-    attr.Tone_B <- "" // TODO
-    attr.Tone_Base <- "" // TODO
-    attr.Tone_C <- "" // TODO
-    attr.Tone_D <- "" // TODO
+    attr.Tone_A <- xmlToneInfo.Names.[0]
+    attr.Tone_B <- xmlToneInfo.Names.[1]
+    attr.Tone_Base <- xmlToneInfo.BaseToneName
+    attr.Tone_C <- xmlToneInfo.Names.[2]
+    attr.Tone_D <- xmlToneInfo.Names.[3]
     attr.Tone_Multiplayer <- String.Empty
-    attr.Tones <- [||] // TODO
+    attr.Tones <- tones
 
     attr
 
@@ -455,9 +468,10 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
             attr.RouteMask <- inst.RouteMask |> LanguagePrimitives.EnumToValue |> Nullable
             attr
         else
+            let toneInfo = XML.InstrumentalArrangement.ReadToneNames(inst.XML)
             attr
             |> initAttributesCommon dlcKey project arr
-            |> initSongComplete xmlMetaData project inst sng
+            |> initSongComplete xmlMetaData toneInfo project inst sng
 
 let createAttributes = create false
 let createAttributesHeader = create true

@@ -3,7 +3,7 @@
 open System
 open System.Text.Json
 open System.Text.Json.Serialization
-open Rocksmith2014.Common.Attributes
+open Rocksmith2014.Common.Manifest
 open System.IO
 
 type Manifest =

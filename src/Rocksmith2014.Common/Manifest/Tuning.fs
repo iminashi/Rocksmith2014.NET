@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.Common.Attributes
+﻿namespace Rocksmith2014.Common.Manifest
 
 type Tuning =
     { string0 : int16

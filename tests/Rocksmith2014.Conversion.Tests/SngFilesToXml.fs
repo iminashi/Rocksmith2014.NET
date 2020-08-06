@@ -39,7 +39,7 @@ let sngToXmlConversionTests =
     testCase "Instrumental" <| fun _ ->
         let sng = SNGFile.readPacked "instrumental.sng" PC
 
-        let xml = ConvertInstrumental.sngToXml sng
+        let xml = ConvertInstrumental.sngToXml None sng
 
         Expect.equal xml.MetaData.Part sng.MetaData.Part "Same part"
         Expect.equal xml.MetaData.Capo 0y "Capo fret -1 in SNG is 0 in XML"
