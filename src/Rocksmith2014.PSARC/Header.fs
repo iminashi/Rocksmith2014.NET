@@ -20,10 +20,10 @@ type internal Header() =
     member this.IsEncrypted = this.ArchiveFlags = 4u
 
     member this.Write (writer: IBinaryWriter) =
-        writer.WriteBytes (Encoding.ASCII.GetBytes(this.Magic))
+        writer.WriteBytes "PSAR"B
         writer.WriteUInt16 this.VersionMajor
         writer.WriteUInt16 this.VersionMinor
-        writer.WriteBytes (Encoding.ASCII.GetBytes(this.CompressionMethod))
+        writer.WriteBytes "zlib"B
         writer.WriteUInt32 this.TOCLength
         writer.WriteUInt32 this.TOCEntrySize
         writer.WriteUInt32 this.TOCEntries
@@ -32,7 +32,8 @@ type internal Header() =
 
     static member Read (reader: IBinaryReader) =
         let magic = Encoding.ASCII.GetString(reader.ReadBytes(4))
-        let versionMaj, versionMin = reader.ReadUInt16(), reader.ReadUInt16()
+        let versionMaj = reader.ReadUInt16()
+        let versionMin = reader.ReadUInt16()
         let compressionMethod = Encoding.ASCII.GetString(reader.ReadBytes(4))
 
         if magic <> "PSAR" then

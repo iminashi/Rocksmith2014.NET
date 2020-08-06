@@ -26,8 +26,8 @@ let getFileStreamForPSARC (fileName: string) =
         FileMode.Open,
         FileAccess.ReadWrite,
         FileShare.None,
-        4096,
-        FileOptions.RandomAccess ||| FileOptions.Asynchronous)
+        65536,
+        FileOptions.Asynchronous)
 
 let fixDirSeparator (path: string) =
     if Path.DirectorySeparatorChar = '/' then path else path.Replace('/', '\\')

@@ -27,19 +27,18 @@ let blockZip blockSize (deflatedData: ResizeArray<Stream>) (zLengths: ResizeArra
         let pStream = new MemoryStream(buffer)
         let zStream = MemoryStreamPool.Default.GetStream()
     
-        let! data, length =
-            async {
-                do! zip pStream zStream
-                let packedSize = int zStream.Length
-                if packedSize < blockSize then
-                    do! pStream.DisposeAsync()
-                    return zStream, packedSize
-                else
-                    // Edge case: the size of the zipped data is equal to, or greater than the block size
-                    assert (bytesRead = int pStream.Length)
-                    do! zStream.DisposeAsync()
-                    return pStream, bytesRead
-            }
+        let! data, length = async {
+            do! zip pStream zStream
+            let packedSize = int zStream.Length
+            if packedSize < blockSize then
+                do! pStream.DisposeAsync()
+                return zStream, packedSize
+            else
+                // Edge case: the size of the zipped data is equal to, or greater than the block size
+                assert (bytesRead = int pStream.Length)
+                do! zStream.DisposeAsync()
+                return pStream, bytesRead }
+
         deflatedData.Add data
         zLengths.Add(uint32 length)
         totalSize <- totalSize + int64 length

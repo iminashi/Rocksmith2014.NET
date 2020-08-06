@@ -39,6 +39,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         toc, zLengths
 
     let mutable blockSizeTable = blockSizeTable
+    let buffer = ArrayPool<byte>.Shared.Rent (int header.BlockSizeAlloc)
 
     let inflateEntry (entry: Entry) (output: Stream) = async {
         let blockSize = int header.BlockSizeAlloc
@@ -49,21 +50,18 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             match int blockSizeTable.[zIndex] with
             | 0 ->
                 // Raw, full cluster used
-                let buffer = ArrayPool<byte>.Shared.Rent blockSize
                 let! bytesRead = source.ReadAsync(buffer.AsMemory(0, blockSize))
                 do! output.WriteAsync(ReadOnlyMemory(buffer, 0, blockSize))
-                ArrayPool.Shared.Return buffer
             | size ->
-                let array = Array.zeroCreate<byte> size
-                let! bytesRead = source.AsyncRead(array)
+                let! bytesRead = source.ReadAsync(buffer.AsMemory(0, size))
 
                 // Check for zlib header
-                if array.[0] = 0x78uy && array.[1] = 0xDAuy then
-                    use memory = new MemoryStream(array)
+                if buffer.[0] = 0x78uy && buffer.[1] = 0xDAuy then
+                    use memory = new MemoryStream(buffer, 0, size)
                     do! Compression.unzip memory output
                 else
                     // Uncompressed
-                    do! output.AsyncWrite(array)
+                    do! output.AsyncWrite(buffer, 0, size)
 
             zIndex <- zIndex + 1
 
@@ -90,11 +88,10 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     /// Creates the data for the manifest.
     let createManifestData () =
-        let memory = new MemoryStream()
-        use writer = new BinaryWriter(memory, Encoding.ASCII, true)
+        let memory = MemoryStreamPool.Default.GetStream()
         for i = 0 to manifest.Length - 1 do
-            if i <> 0 then writer.Write('\n')
-            writer.Write(Encoding.ASCII.GetBytes(manifest.[i]))
+            if i <> 0 then memory.WriteByte(0x0Auy) // Write newline '\n'
+            memory.Write(ReadOnlySpan(Encoding.ASCII.GetBytes(manifest.[i])))
         memory
 
     let getName (entry: Entry) = manifest.[entry.ID - 1]
@@ -129,9 +126,9 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                     async { return addPlainData blockSize deflatedData zLengths entry.Data }
                 else
                     async {
-                        let! l = Compression.blockZip blockSize deflatedData zLengths entry.Data
+                        let! length = Compression.blockZip blockSize deflatedData zLengths entry.Data
                         do! entry.Data.DisposeAsync()
-                        return l }
+                        return length }
 
             protoEntries.Add(proto, totalLength)
 
@@ -201,8 +198,8 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                 match options.Mode with
                 | InMemory -> fun () -> MemoryStreamPool.Default.GetStream() :> Stream
                 | TempFiles -> Utils.getTempFileStream
-            toc.ToArray()
-            |> Array.map (fun e -> async {
+            toc
+            |> Seq.map (fun e -> async {
                 let data = getTargetStream ()
                 do! inflateEntry e data
                 return { Name = getName e; Data = data } })
@@ -287,4 +284,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         |> PSARC.Read
 
     // IDisposable implementation.
-    interface IDisposable with member _.Dispose() = source.Dispose()
+    interface IDisposable with
+        member _.Dispose() =
+            source.Dispose()
+            ArrayPool.Shared.Return buffer
