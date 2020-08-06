@@ -40,7 +40,7 @@ let someTests =
         let attr = createAttributes project (FromVocals arr)
         let jsonString =
             Manifest.create [ attr ]
-            |> Manifest.toJson
+            |> Manifest.toJsonString
 
         Expect.isNotEmpty jsonString "JSON string is not empty"
 
@@ -56,9 +56,9 @@ let someTests =
 
         let jsonString =
             Manifest.create [ attr ]
-            |> Manifest.toJson
+            |> Manifest.toJsonString
 
-        let mani = Manifest.fromJson jsonString
+        let mani = Manifest.fromJsonString jsonString
 
         Expect.isTrue (mani.Entries.ContainsKey attr.PersistentID) "Manifest contains same key"
   ]

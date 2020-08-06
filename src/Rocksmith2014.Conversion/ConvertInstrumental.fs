@@ -79,10 +79,6 @@ let sngToXml (attr: Manifest.Attributes option) (sng: SNG) =
                              AlbumName = attr.AlbumName,
                              AlbumNameSort = attr.AlbumNameSort,
                              AlbumYear = attr.SongYear.GetValueOrDefault())
-            match attr.Tuning with
-            | Some tuning ->
-                m.Tuning.SetTuning(tuning.string0, tuning.string1, tuning.string2, tuning.string3, tuning.string4, tuning.string5)
-            | None -> ()
             match attr.ArrangementProperties with
             | Some arrProps ->
                 m.ArrangementProperties <- convertArrProps arrProps
@@ -110,6 +106,13 @@ let sngToXml (attr: Manifest.Attributes option) (sng: SNG) =
                 TranscriptionTrack = Level())
     Array.Copy (sng.MetaData.Tuning, arr.MetaData.Tuning.Strings, 6)
     arr.Tones.Changes <- tones
+
+    attr |> Option.iter (fun attr ->
+        if not <| String.IsNullOrWhiteSpace attr.Tone_Base then arr.Tones.BaseToneName <- attr.Tone_Base
+        if not <| String.IsNullOrWhiteSpace attr.Tone_A then arr.Tones.Names.[0] <- attr.Tone_A
+        if not <| String.IsNullOrWhiteSpace attr.Tone_B then arr.Tones.Names.[1] <- attr.Tone_B
+        if not <| String.IsNullOrWhiteSpace attr.Tone_C then arr.Tones.Names.[2] <- attr.Tone_C
+        if not <| String.IsNullOrWhiteSpace attr.Tone_D then arr.Tones.Names.[3] <- attr.Tone_D)
 
     arr
 

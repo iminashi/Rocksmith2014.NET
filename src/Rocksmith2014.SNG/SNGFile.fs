@@ -18,6 +18,13 @@ let unpackFile fileName platform =
     use out = File.Open(targetFile, FileMode.Create, FileAccess.Write)
     SNG.unpack file out platform
 
+let readStream (input: Stream) platform =
+    use memory = MemoryStreamPool.Default.GetStream()
+    let reader = BinaryReaders.getReader memory platform
+
+    SNG.unpack input memory platform
+    SNG.Read reader
+
 /// Reads an encrypted SNG file. 
 let readPacked fileName platform =
     use file = File.OpenRead fileName

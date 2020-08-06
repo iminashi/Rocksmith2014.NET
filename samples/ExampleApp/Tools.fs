@@ -4,6 +4,7 @@ open Avalonia
 open Avalonia.Controls
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
+open Avalonia.Media
 open Avalonia.Threading
 open Rocksmith2014.Common
 open Rocksmith2014.SNG
@@ -105,6 +106,7 @@ type Msg =
     | PackDirectoryPSARC of path:string
     | TouchPSARC of file:string
     | CreateManifest of file:string
+    | ExtractSNGtoXML of file:string
     //| RoundTrip of file:string
     | ChangePlatform of Platform
 
@@ -155,14 +157,12 @@ let update (msg: Msg) (state: State) : State =
         | UnpackPSARC file ->
             let dir = Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file))
             Directory.CreateDirectory(dir) |> ignore
-            use psarcFile = File.OpenRead(file)
-            use psarc = PSARC.Read psarcFile
+            use psarc = PSARC.ReadFile file
             psarc.ExtractFiles dir
             state
 
         | TouchPSARC file ->
-            use psarcFile = File.Open(file, FileMode.Open, FileAccess.ReadWrite)
-            use psarc = PSARC.Read psarcFile
+            use psarc = PSARC.ReadFile file
             psarc.Edit({ Mode = InMemory; EncyptTOC = true }, ignore)
             state
 
@@ -192,6 +192,41 @@ let update (msg: Msg) (state: State) : State =
             |> Async.AwaitTask
             |> Async.RunSynchronously
 
+            state
+
+        | ExtractSNGtoXML file ->
+            let targetDirectory = Path.Combine(Path.GetDirectoryName(file), "xml")
+            Directory.CreateDirectory(targetDirectory) |> ignore
+            use psarc = PSARC.ReadFile file
+            let sngs =
+                psarc.Manifest
+                |> Seq.filter (fun n -> n.EndsWith "sng")
+            let manifests =
+                psarc.Manifest
+                |> Seq.filter (fun n -> n.EndsWith "json")
+            sngs
+            |> Seq.iter (fun s ->
+                let targetFile = Path.Combine(targetDirectory, Path.ChangeExtension(Path.GetFileName s, "xml"))
+                let sng = using (MemoryStreamPool.Default.GetStream()) (fun data -> psarc.InflateFile(s, data); SNGFile.readStream data PC)
+
+                if s.Contains "vocals" then
+                    let vocals = ConvertVocals.sngToXml sng
+                    Vocals.Save(targetFile, vocals)
+                else
+                    let attributes =
+                        manifests
+                        |> Seq.tryFind (fun m -> m.Contains(Path.GetFileNameWithoutExtension s))
+                        |> Option.map (fun m ->
+                            use mData = MemoryStreamPool.Default.GetStream()
+                            psarc.InflateFile(m, mData)
+                            Manifest.fromJsonStream(mData).AsTask()
+                            |> Async.AwaitTask
+                            |> Async.RunSynchronously
+                            |> Manifest.getSingletonAttributes
+                        )
+                    let xml = ConvertInstrumental.sngToXml attributes sng
+                    xml.Save targetFile
+                )
             state
 
         | ChangePlatform platform -> { state with Platform = platform }
@@ -277,8 +312,14 @@ let view (state: State) dispatch =
                 Button.content "Create Manifest from XML File..."
             ]
 
+            Button.create [
+                Button.onClick (fun _ -> ofdPsarc (ExtractSNGtoXML >> dispatch))
+                Button.content "Convert SNG to XML from PSARC..."
+            ]
+
             TextBlock.create [
                 TextBlock.fontSize 26.0
+                TextBlock.textWrapping TextWrapping.Wrap
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
                 TextBlock.text (string state.Status)

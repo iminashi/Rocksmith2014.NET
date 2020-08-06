@@ -24,7 +24,8 @@ let private getPersistentId (arr: Arrangement) =
 
 let private getName (arr: Arrangement) generic =
     match arr with
-    | Vocals v -> if v.Japanese && not generic then "JVocals" else "Vocals"
+    | Vocals v when v.Japanese && not generic -> "JVocals"
+    | Vocals -> "Vocals"
     | Showlights -> "Showlights"
     | Instrumental i -> i.ArrangementName.ToString()
 

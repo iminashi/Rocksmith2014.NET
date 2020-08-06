@@ -173,6 +173,11 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     /// Inflates the given entry into the output stream.
     member _.InflateEntry (entry: Entry, output: Stream) = inflateEntry entry output
 
+    /// Inflates the entry with the given file name into the output stream.
+    member _.InflateFile (name: string, output: Stream) =
+        let entry = toc.[Array.IndexOf(manifest, name)]
+        inflateEntry entry output
+
     /// Extracts all the files from the PSARC into the given directory.
     member _.ExtractFiles (baseDirectory: string) =
         for entry in toc do
@@ -254,7 +259,6 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         let toc, zLengths =
             if header.IsEncrypted then
                 use decStream = MemoryStreamPool.Default.GetStream()
-
                 Cryptography.decrypt input decStream header.TOCLength
 
                 if decStream.Length <> int64 tocSize then failwith "TOC decryption failed: Incorrect TOC size."
@@ -264,6 +268,11 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                 readTOC header reader
 
         new PSARC(input, header, toc, zLengths)
+
+    /// Initializes a PSARC from a file with the given name. 
+    static member ReadFile (fileName: string) =
+        File.Open(fileName, FileMode.Open, FileAccess.ReadWrite)
+        |> PSARC.Read
 
     // IDisposable implementation.
     interface IDisposable with member _.Dispose() = source.Dispose()

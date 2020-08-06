@@ -31,8 +31,8 @@ type Tone =
       ToneDescriptors : string array 
       NameSeparator : string
       IsCustom : bool 
-      Volume : float32
-      MacVolume : float32 option
+      Volume : string
+      MacVolume : string
       Key : string
       Name : string
       SortOrder : float32 }
