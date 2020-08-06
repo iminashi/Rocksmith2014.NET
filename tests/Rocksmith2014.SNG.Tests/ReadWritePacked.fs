@@ -7,12 +7,12 @@ open Rocksmith2014.SNG
 let testFileLevels = 12
 
 let testRead file platform =
-    let sng = SNG.readPackedFile file platform
+    let sng = SNG.readPackedFile file platform |> Async.RunSynchronously
     Expect.equal sng.Levels.Length testFileLevels (sprintf "Read %i levels" testFileLevels)
 
 let testWrite source target platform =
-    SNG.readPackedFile source platform
-    |> SNG.savePackedFile target platform
+    let sng = SNG.readPackedFile source platform |> Async.RunSynchronously
+    SNG.savePackedFile target platform sng |> Async.RunSynchronously
 
 [<Tests>]
 let readWriteTests =

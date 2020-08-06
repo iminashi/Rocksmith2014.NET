@@ -9,7 +9,7 @@ let getTempFileStream () =
         FileAccess.ReadWrite,
         FileShare.None,
         4096,
-        FileOptions.DeleteOnClose) :> Stream
+        FileOptions.DeleteOnClose ||| FileOptions.Asynchronous) :> Stream
 
 let getFileStreamForRead (fileName: string) =
     new FileStream(
@@ -18,7 +18,16 @@ let getFileStreamForRead (fileName: string) =
         FileAccess.Read,
         FileShare.Read,
         4096,
-        FileOptions.SequentialScan)
+        FileOptions.SequentialScan ||| FileOptions.Asynchronous)
+
+let getFileStreamForPSARC (fileName: string) =
+    new FileStream(
+        fileName,
+        FileMode.Open,
+        FileAccess.ReadWrite,
+        FileShare.None,
+        4096,
+        FileOptions.RandomAccess ||| FileOptions.Asynchronous)
 
 let fixDirSeparator (path: string) =
     if Path.DirectorySeparatorChar = '/' then path else path.Replace('/', '\\')

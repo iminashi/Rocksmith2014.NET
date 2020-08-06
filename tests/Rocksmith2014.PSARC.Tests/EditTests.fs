@@ -22,9 +22,9 @@ let someTests =
         use psarc = PSARC.Read memory
         let oldManifest = psarc.Manifest
 
-        psarc.Edit(options, ignore)
+        psarc.Edit(options, ignore) |> Async.RunSynchronously
 
-        Expect.sequenceEqual psarc.Manifest oldManifest "Manifest is unchanged"
+        Expect.sequenceContainsOrder psarc.Manifest oldManifest "Manifest is unchanged"
 
     testCase "Can be read after editing" <| fun _ ->
         use memory = copyToMemory "test_edit_p.psarc"
@@ -32,7 +32,7 @@ let someTests =
         let oldManifest = psarc.Manifest
         let oldToc = psarc.TOC
 
-        psarc.Edit(options, ignore)
+        psarc.Edit(options, ignore) |> Async.RunSynchronously
         memory.Position <- 0L
         let psarc2 = PSARC.Read memory
 
@@ -47,7 +47,7 @@ let someTests =
         let oldSize = memory.Length
 
         // Remove all files ending in "wem" from the archive
-        psarc.Edit(options, (fun files -> files.RemoveAll(fun x -> x.Name.EndsWith "wem") |> ignore))
+        psarc.Edit(options, (fun files -> files.RemoveAll(fun x -> x.Name.EndsWith "wem") |> ignore)) |> Async.RunSynchronously
         memory.Position <- 0L
         let psarc2 = PSARC.Read memory
 
@@ -61,7 +61,7 @@ let someTests =
 
         let fileToAdd = { Name = "test/test.dll"; Data = File.OpenRead("Rocksmith2014.PSARC.dll") }
 
-        psarc.Edit(options, (fun files -> files.Add fileToAdd))
+        psarc.Edit(options, (fun files -> files.Add fileToAdd)) |> Async.RunSynchronously
 
         Expect.equal psarc.Manifest.Length (oldManifest.Length + 1) "Manifest size is correct"
         Expect.equal psarc.Manifest.[psarc.Manifest.Length - 1] fileToAdd.Name "Name in manifest is correct"
@@ -72,7 +72,7 @@ let someTests =
         let psarc = PSARC.Read memory
         let oldManifest = psarc.Manifest
 
-        psarc.Edit(options, (fun files -> let f = files.[0] in files.RemoveAt 0; files.Add f))
+        psarc.Edit(options, (fun files -> let f = files.[0] in files.RemoveAt 0; files.Add f)) |> Async.RunSynchronously
 
         Expect.equal psarc.Manifest.Length oldManifest.Length "Manifest size is same"
         Expect.equal psarc.Manifest.[psarc.Manifest.Length - 1] oldManifest.[0] "First file is now last"

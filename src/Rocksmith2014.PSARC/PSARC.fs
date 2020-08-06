@@ -8,6 +8,7 @@ open Rocksmith2014.Common
 open Rocksmith2014.Common.Interfaces
 open Rocksmith2014.Common.BinaryReaders
 open Rocksmith2014.Common.BinaryWriters
+open System.Buffers
 
 type EditMode = InMemory | TempFiles
 
@@ -39,32 +40,35 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     let mutable blockSizeTable = blockSizeTable
 
-    let inflateEntry (entry: Entry) (output: Stream) =
+    let inflateEntry (entry: Entry) (output: Stream) = async {
         let blockSize = int header.BlockSizeAlloc
         let mutable zIndex = int entry.zIndexBegin
         source.Position <- int64 entry.Offset
-        let reader = BigEndianBinaryReader(source) :> IBinaryReader
-    
+
         while output.Length < int64 entry.Length do
             match int blockSizeTable.[zIndex] with
             | 0 ->
                 // Raw, full cluster used
-                output.Write(reader.ReadBytes(blockSize), 0, blockSize)
-            | size -> 
-                let array = reader.ReadBytes(size)
+                let buffer = ArrayPool<byte>.Shared.Rent blockSize
+                let! bytesRead = source.ReadAsync(buffer.AsMemory(0, blockSize))
+                do! output.WriteAsync(ReadOnlyMemory(buffer, 0, blockSize))
+                ArrayPool.Shared.Return buffer
+            | size ->
+                let array = Array.zeroCreate<byte> size
+                let! bytesRead = source.AsyncRead(array)
 
                 // Check for zlib header
                 if array.[0] = 0x78uy && array.[1] = 0xDAuy then
                     use memory = new MemoryStream(array)
-                    Compression.unzip memory output
+                    do! Compression.unzip memory output
                 else
                     // Uncompressed
-                    output.Write(array, 0, array.Length)
+                    do! output.AsyncWrite(array)
 
             zIndex <- zIndex + 1
 
         output.Position <- 0L
-        output.Flush()
+        do! output.FlushAsync() }
 
     /// Returns true if the given named entry should not be zipped.
     let usePlain (entry: NamedEntry) =
@@ -77,8 +81,8 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         if toc.Count > 1 then
             // Initialize the manifest if a TOC was given in the constructor
             use data = MemoryStreamPool.Default.GetStream()
-            inflateEntry toc.[0] data
-            toc.RemoveAt(0)
+            inflateEntry toc.[0] data |> Async.RunSynchronously
+            toc.RemoveAt 0
             use mReader = new StreamReader(data, true)
             mReader.ReadToEnd().Split('\n')
         else
@@ -96,7 +100,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     let getName (entry: Entry) = manifest.[entry.ID - 1]
 
     let addPlainData blockSize (deflatedData: ResizeArray<Stream>) (zLengths: ResizeArray<uint32>) (data: Stream) =
-        deflatedData.Add(data)
+        deflatedData.Add data
         if data.Length <= int64 blockSize then
             zLengths.Add(uint32 data.Length)
         else
@@ -108,7 +112,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         data.Length
 
     /// Deflates the data in the given named entries.
-    let deflateEntries (entries: ResizeArray<NamedEntry>) =
+    let deflateEntries (entries: ResizeArray<NamedEntry>) = async {
         let deflatedData = ResizeArray<Stream>()
         let protoEntries = ResizeArray<Entry * int64>()
         let blockSize = int header.BlockSizeAlloc
@@ -120,15 +124,18 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         for entry in entries do
             let proto = Entry.CreateProto entry (uint32 zLengths.Count)
 
-            let totalLength =
+            let! totalLength =
                 if usePlain entry then
-                    addPlainData blockSize deflatedData zLengths entry.Data
+                    async { return addPlainData blockSize deflatedData zLengths entry.Data }
                 else
-                    using entry.Data (Compression.blockZip blockSize deflatedData zLengths)
+                    async {
+                        let! l = Compression.blockZip blockSize deflatedData zLengths entry.Data
+                        do! entry.Data.DisposeAsync()
+                        return l }
 
             protoEntries.Add(proto, totalLength)
 
-        protoEntries.ToArray(), deflatedData, zLengths.ToArray()
+        return protoEntries.ToArray(), deflatedData, zLengths.ToArray() }
 
     /// Updates the table of contents with the given proto-entries and block size table.
     let updateToc (protoEntries: (Entry * int64)[]) (blockTable: uint32[]) zType encrypt =
@@ -179,25 +186,27 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         inflateEntry entry output
 
     /// Extracts all the files from the PSARC into the given directory.
-    member _.ExtractFiles (baseDirectory: string) =
+    member _.ExtractFiles (baseDirectory: string) = async {
         for entry in toc do
             let path = Path.Combine(baseDirectory, Utils.fixDirSeparator (getName entry))
             Directory.CreateDirectory(Path.GetDirectoryName path) |> ignore
-            using (File.Create path) (inflateEntry entry)
+            use file = File.Create path
+            do! inflateEntry entry file }
 
     /// Edits the contents of the PSARC with the given edit function.
-    member _.Edit (options: EditOptions, editFunc: ResizeArray<NamedEntry> -> unit) =
+    member _.Edit (options: EditOptions, editFunc: ResizeArray<NamedEntry> -> unit) = async {
         // Map the table of contents to entry names and data
-        let namedEntries =
+        let! namedEntries =
             let getTargetStream =
                 match options.Mode with
                 | InMemory -> fun () -> MemoryStreamPool.Default.GetStream() :> Stream
                 | TempFiles -> Utils.getTempFileStream
             toc.ToArray()
-            |> Array.map (fun e -> 
+            |> Array.map (fun e -> async {
                 let data = getTargetStream ()
-                inflateEntry e data
-                { Name = getName e; Data = data })
+                do! inflateEntry e data
+                return { Name = getName e; Data = data } })
+            |> Async.Sequential
 
         // Call the edit function that mutates the resize array
         let editList = ResizeArray(namedEntries)
@@ -207,7 +216,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         manifest <- editList |> Seq.map (fun e -> e.Name) |> Array.ofSeq
         
         // Deflate entries
-        let protoEntries, data, blockTable = deflateEntries editList
+        let! protoEntries, data, blockTable = deflateEntries editList
 
         source.Position <- 0L
         source.SetLength 0L
@@ -225,30 +234,33 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
         // Write the data to the source stream
         for dataEntry in data do
-            using dataEntry (fun d -> d.Position <- 0L; d.CopyTo source)
-
-        source.Flush()
+            dataEntry.Position <- 0L
+            do! dataEntry.CopyToAsync(source)
+            do! dataEntry.DisposeAsync()
+            
+        do! source.FlushAsync()
 
         // Ensure that all entries that were inflated are disposed
         // If the user removed any entries, their data will be disposed of here
-        namedEntries |> Array.iter NamedEntry.Dispose
+        namedEntries |> Array.iter NamedEntry.Dispose }
 
     /// Creates a new empty PSARC using the given stream.
     static member CreateEmpty(stream) = new PSARC(stream, Header(), ResizeArray(), [||])
 
     /// Creates a new PSARC into the given stream using the creation function.
-    static member Create(stream, encrypt, createFun) =
+    static member Create(stream, encrypt, createFun) = async {
         let options = { Mode = InMemory; EncyptTOC = encrypt }
-        using (PSARC.CreateEmpty(stream)) (fun psarc -> psarc.Edit(options, createFun))
+        let psarc = PSARC.CreateEmpty(stream)
+        do! psarc.Edit(options, createFun) }
 
     /// Packs all the files in the directory and subdirectories into a PSARC file with the given filename.
-    static member PackDirectory(path, targetFile, encrypt) =
+    static member PackDirectory(path, targetFile, encrypt) = async {
         use file = File.Open(targetFile, FileMode.Create, FileAccess.ReadWrite)
         let sourceFiles = Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories)
-        PSARC.Create(file, encrypt, (fun packFiles ->
+        do! PSARC.Create(file, encrypt, (fun packFiles ->
             for f in sourceFiles do
                 let name = Path.GetRelativePath(path, f).Replace('\\', '/')
-                packFiles.Add({ Name = name; Data = Utils.getFileStreamForRead f })))
+                packFiles.Add({ Name = name; Data = Utils.getFileStreamForRead f }))) }
 
     /// Initializes a PSARC from the input stream. 
     static member Read (input: Stream) = 
@@ -271,7 +283,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     /// Initializes a PSARC from a file with the given name. 
     static member ReadFile (fileName: string) =
-        File.Open(fileName, FileMode.Open, FileAccess.ReadWrite)
+        Utils.getFileStreamForPSARC fileName
         |> PSARC.Read
 
     // IDisposable implementation.

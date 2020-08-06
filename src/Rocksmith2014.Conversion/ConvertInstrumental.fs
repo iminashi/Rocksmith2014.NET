@@ -196,9 +196,10 @@ let xmlToSng (arr: InstrumentalArrangement) =
       NoteCounts = accuData.NoteCounts.AsImmutable() }
 
 /// Converts an SNG instrumental arrangement into an XML file.
-let sngFileToXml sngFile targetFile platform =
-    let xml = SNG.readPackedFile sngFile platform |> sngToXml None
-    xml.Save targetFile
+let sngFileToXml sngFile targetFile platform = async {
+    let! sng = SNG.readPackedFile sngFile platform
+    let xml = sngToXml None sng
+    xml.Save targetFile }
 
 /// Converts an XML instrumental arrangement into an SNG file.
 let xmlFileToSng xmlFile targetFile platform =

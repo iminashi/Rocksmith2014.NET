@@ -16,7 +16,7 @@ let sngToXmlConversionTests =
   testList "SNG Files → XML" [
 
     testCase "Vocals" <| fun _ ->
-      let sng = SNG.readPackedFile "vocals.sng" PC
+      let sng = SNG.readPackedFile "vocals.sng" PC |> Async.RunSynchronously
 
       let xml = ConvertVocals.sngToXml sng
 
@@ -28,7 +28,7 @@ let sngToXmlConversionTests =
         Expect.equal xml.[i].Length (sng.Vocals.[i].Length |> convertTime) (sprintf "Length #%i is same" i)
 
     testCase "Extract Glyphs" <| fun _ ->
-       let sng = SNG.readPackedFile "vocals.sng" PC
+       let sng = SNG.readPackedFile "vocals.sng" PC |> Async.RunSynchronously
 
        let xml = ConvertVocals.extractGlyphData sng
 
@@ -37,7 +37,7 @@ let sngToXmlConversionTests =
        Expect.equal xml.TextureHeight sng.SymbolsTextures.[0].Height "Same texture height"
 
     testCase "Instrumental" <| fun _ ->
-        let sng = SNG.readPackedFile "instrumental.sng" PC
+        let sng = SNG.readPackedFile "instrumental.sng" PC |> Async.RunSynchronously
 
         let xml = ConvertInstrumental.sngToXml None sng
 

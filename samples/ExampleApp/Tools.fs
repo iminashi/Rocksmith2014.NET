@@ -16,7 +16,7 @@ open Rocksmith2014.DLCProject
 open System.Threading.Tasks
 open System.IO
 open System
-open System.Diagnostics
+open Elmish
 
 let project = 
     { DLCKey = "dummy"
@@ -93,7 +93,7 @@ let ofod = openFolderDialog "Select Folder"
 
 type State = { Status:string; Platform:Platform }
 
-let init = { Status = ""; Platform = PC }
+let init () = { Status = ""; Platform = PC }, Cmd.none
 
 type Msg =
     | UnpackFile of file:string
@@ -107,8 +107,8 @@ type Msg =
     | TouchPSARC of file:string
     | CreateManifest of file:string
     | ExtractSNGtoXML of file:string
-    //| RoundTrip of file:string
     | ChangePlatform of Platform
+    | Error of ex:Exception
 
 let convertFileToSng platform (fileName: string) =
     let target = Path.ChangeExtension(fileName, "sng")
@@ -118,59 +118,59 @@ let convertFileToSng platform (fileName: string) =
     else
         ConvertInstrumental.xmlFileToSng fileName target platform
 
-let update (msg: Msg) (state: State) : State =
+let update (msg: Msg) (state: State) : State * Cmd<Msg> =
     try
-        match msg with
-        //| RoundTrip file ->
-        //    SNGFile.readPacked file state.Platform
-        //    |> SNGFile.savePacked (file + "re") state.Platform
-        //    state
-        
+        match msg with      
         | UnpackFile file ->
-            SNG.unpackFile file state.Platform; state
+            let t () = SNG.unpackFile file state.Platform
+            state, Cmd.OfAsync.attempt t () Error
 
         | ConvertVocalsSNGtoXML file ->
             let target = Path.ChangeExtension(file, "xml")
-            ConvertVocals.sngFileToXml file target state.Platform
-            state
+            let t () = ConvertVocals.sngFileToXml file target state.Platform
+            state, Cmd.OfAsync.attempt t () Error
 
         | ConvertVocalsXMLtoSNG file ->
             let target = Path.ChangeExtension(file, "sng")
-            ConvertVocals.xmlFileToSng file target None state.Platform
-            state
+            let t () = ConvertVocals.xmlFileToSng file target None state.Platform
+            state, Cmd.OfAsync.attempt t () Error
 
         | ConvertInstrumentalSNGtoXML file ->
             let targetFile = Path.ChangeExtension(file, "xml")
-            ConvertInstrumental.sngFileToXml file targetFile state.Platform
-            state
+            let t () = ConvertInstrumental.sngFileToXml file targetFile state.Platform
+            state, Cmd.OfAsync.attempt t () Error
 
         | ConvertInstrumentalXMLtoSNG file ->
             let targetFile = Path.ChangeExtension(file, "sng")
-            ConvertInstrumental.xmlFileToSng file targetFile state.Platform
-            state
+            let t () = ConvertInstrumental.xmlFileToSng file targetFile state.Platform
+            state, Cmd.OfAsync.attempt t () Error
 
         | BatchConvertToSng files ->
-            files
-            |> Array.Parallel.iter (convertFileToSng state.Platform)
-            state
+            let t () = 
+                files
+                |> Array.map (convertFileToSng state.Platform)
+                |> Async.Parallel
+                |> Async.Ignore
+            state, Cmd.OfAsync.attempt t () Error
 
         | UnpackPSARC file ->
             let dir = Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file))
             Directory.CreateDirectory(dir) |> ignore
-            use psarc = PSARC.ReadFile file
-            psarc.ExtractFiles dir
-            state
+            let t () = async {
+                use psarc = PSARC.ReadFile file
+                do! psarc.ExtractFiles dir }
+            state, Cmd.OfAsync.attempt t () Error
 
         | TouchPSARC file ->
-            use psarc = PSARC.ReadFile file
-            psarc.Edit({ Mode = InMemory; EncyptTOC = true }, ignore)
-            state
+            let t () = async {
+                use psarc = PSARC.ReadFile file
+                do! psarc.Edit({ Mode = InMemory; EncyptTOC = true }, ignore) }
+            state, Cmd.OfAsync.attempt t () Error
 
         | PackDirectoryPSARC path ->
-            let sw = Stopwatch.StartNew()
-            PSARC.PackDirectory(path, path + ".psarc", true)
-            sw.Stop()
-            { state with Status = sprintf "Elapsed: %A" sw.Elapsed }
+            let t () = PSARC.PackDirectory(path, path + ".psarc", true)
+
+            state, Cmd.OfAsync.attempt t () Error
 
         | CreateManifest file ->
             let arrangement =
@@ -186,52 +186,63 @@ let update (msg: Msg) (state: State) : State =
             let xml = InstrumentalArrangement.Load file
             let sng = ConvertInstrumental.xmlToSng xml
             let attr = AttributesCreation.createAttributes project (AttributesCreation.FromInstrumental (arrangement, sng))
-            use target = File.Create(Path.ChangeExtension(file, "json"))
-            Manifest.create [ attr ]
-            |> Manifest.toJsonStream target
-            |> Async.AwaitTask
-            |> Async.RunSynchronously
+            let t () = async {
+                use target = File.Create(Path.ChangeExtension(file, "json"))
+                do! Manifest.create [ attr ]
+                    |> Manifest.toJsonStream target
+                    |> Async.AwaitTask }
 
-            state
+            state, Cmd.OfAsync.attempt t () Error
 
-        | ExtractSNGtoXML file ->
+        | ExtractSNGtoXML file -> 
             let targetDirectory = Path.Combine(Path.GetDirectoryName(file), "xml")
             Directory.CreateDirectory(targetDirectory) |> ignore
-            use psarc = PSARC.ReadFile file
-            let sngs =
-                psarc.Manifest
-                |> Seq.filter (fun n -> n.EndsWith "sng")
-            let manifests =
-                psarc.Manifest
-                |> Seq.filter (fun n -> n.EndsWith "json")
-            sngs
-            |> Seq.iter (fun s ->
-                let targetFile = Path.Combine(targetDirectory, Path.ChangeExtension(Path.GetFileName s, "xml"))
-                let sng = using (MemoryStreamPool.Default.GetStream()) (fun data -> psarc.InflateFile(s, data); SNG.fromStream data PC)
 
-                if s.Contains "vocals" then
-                    let vocals = ConvertVocals.sngToXml sng
-                    Vocals.Save(targetFile, vocals)
-                else
-                    let attributes =
-                        manifests
-                        |> Seq.tryFind (fun m -> m.Contains(Path.GetFileNameWithoutExtension s))
-                        |> Option.map (fun m ->
-                            use mData = MemoryStreamPool.Default.GetStream()
-                            psarc.InflateFile(m, mData)
-                            Manifest.fromJsonStream(mData).AsTask()
-                            |> Async.AwaitTask
-                            |> Async.RunSynchronously
-                            |> Manifest.getSingletonAttributes
-                        )
-                    let xml = ConvertInstrumental.sngToXml attributes sng
-                    xml.Save targetFile
-                )
-            state
+            let t () = async {
+                use psarc = PSARC.ReadFile file
 
-        | ChangePlatform platform -> { state with Platform = platform }
+                let! sngs =
+                    psarc.Manifest
+                    |> Seq.filter (fun x -> x.EndsWith "sng")
+                    |> Seq.map (fun x -> async {
+                        use mem = MemoryStreamPool.Default.GetStream()
+                        do! psarc.InflateFile(x, mem)
+                        let! sng = SNG.fromStream mem PC
+                        return {| File = x; SNG = sng |} })
+                    |> Async.Sequential
 
-    with e -> { state with Status = e.Message }
+                let! manifests =
+                    psarc.Manifest
+                    |> Seq.filter (fun x -> x.EndsWith "json")
+                    |> Seq.map (fun x -> async {
+                        use mem = MemoryStreamPool.Default.GetStream()
+                        do! psarc.InflateFile(x, mem)
+                        let! manifest = Manifest.fromJsonStream(mem).AsTask()
+                        return {| File = x; Manifest = manifest |} })
+                    |> Async.Sequential
+
+                return sngs
+                |> Array.Parallel.iter (fun s ->
+                    let targetFile = Path.Combine(targetDirectory, Path.ChangeExtension(Path.GetFileName s.File, "xml"))
+                    if s.File.Contains "vocals" then
+                        let vocals = ConvertVocals.sngToXml s.SNG
+                        Vocals.Save(targetFile, vocals)
+                    else
+                        let attributes =
+                            manifests
+                            |> Seq.tryFind (fun m -> m.File.Contains(Path.GetFileNameWithoutExtension s.File))
+                            |> Option.map (fun m -> Manifest.getSingletonAttributes m.Manifest)
+                        let xml = ConvertInstrumental.sngToXml attributes s.SNG
+                        xml.Save targetFile
+                    )
+                }
+            state, Cmd.OfAsync.attempt t () Error
+
+        | ChangePlatform platform -> { state with Platform = platform }, Cmd.none
+
+        | Error e -> { state with Status = e.Message }, Cmd.none
+
+    with e -> { state with Status = e.Message }, Cmd.none
 
 let view (state: State) dispatch =
     StackPanel.create [
@@ -256,11 +267,6 @@ let view (state: State) dispatch =
                     ]
                 ]
             ]
-
-            //Button.create [
-            //    Button.onClick (fun _ ->  ofdSng (RoundTrip >> dispatch))
-            //    Button.content "Round-trip Packed SNG File..."
-            //]
 
             Button.create [
                 Button.onClick (fun _ -> ofdSng (UnpackFile >> dispatch))

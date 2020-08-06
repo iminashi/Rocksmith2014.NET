@@ -70,9 +70,10 @@ module ConvertVocals =
                          SymbolDefinitions = symbols }
 
     /// Converts a vocals SNG file into an XML file.
-    let sngFileToXml sngFile targetFile platform =
-        let vocals = SNG.readPackedFile sngFile platform |> sngToXml
-        Vocals.Save(targetFile, vocals)
+    let sngFileToXml sngFile targetFile platform = async {
+        let! sng = SNG.readPackedFile sngFile platform
+        let vocals = sngToXml sng
+        Vocals.Save(targetFile, vocals) }
 
     /// Converts a vocals XML file into an SNG file.
     let xmlFileToSng xmlFile targetFile customFont platform =

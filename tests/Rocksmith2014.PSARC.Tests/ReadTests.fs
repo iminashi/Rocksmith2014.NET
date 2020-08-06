@@ -25,7 +25,7 @@ let someTests =
         let tempPath = Path.Combine(Path.GetTempPath(), "extractTest")
         Directory.CreateDirectory(tempPath) |> ignore
         
-        psarc.ExtractFiles tempPath
+        psarc.ExtractFiles tempPath |> Async.RunSynchronously
 
         let fileCount = Directory.EnumerateFiles(tempPath, "*.*", SearchOption.AllDirectories) |> Seq.length
         Expect.equal fileCount psarc.TOC.Count "All files were extracted"
