@@ -14,6 +14,7 @@ type Set =
 type Property =
     { [<XmlAttribute("name")>]
       Name: string
+
       [<XmlElement("set")>]
       Set: Set }
 
@@ -21,12 +22,16 @@ type Property =
 type Entity =
     { [<XmlAttribute("id")>]
       Id: string
+
       [<XmlAttribute("modelName")>]
       ModelName: string
+
       [<XmlAttribute("name")>]
       Name: string
+
       [<XmlAttribute("iterations")>]
       Iterations: int
+
       [<XmlArray("properties"); XmlArrayItem(ElementName = "property")>] 
       Properties: Property array }
 
