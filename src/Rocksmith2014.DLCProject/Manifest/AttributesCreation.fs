@@ -7,6 +7,16 @@ open Rocksmith2014.Common.Manifest
 open System
 open System.Collections.Generic
 
+// There are two "iteration versions" of the attributes, version 2 and 3:
+//
+// Differences in version 3:
+// -The attributes are sorted differently (e.g. arrangement properties are sorted alphabetically)
+// -Whitespace differences
+// -Chords section is (at least partially) fixed
+// -The way DNA times are calculated seems to be different:
+//    *Version 2: Sum of all regions of DNA ID to DNA None (or the end of the song)
+//    *Version 3: Sum of all regions of DNA ID to different DNA ID (or the END phrase)
+
 let private bti b = if b then 1 else 0
 
 let private getMasterId = function
@@ -236,7 +246,7 @@ let private createChordMap (sng: SNG) =
     //      ]
     //  }
     //
-    // The way this section is generated for official files seems to be pretty buggy:
+    // In iteration version 2, the way this section is generated for official files is very broken:
     //
     // -For a particular difficulty level, the chord IDs of the last phrase iteration are repeated for every phrase iteration.
     // -Some phrase iterations that have no chords or notes in that difficulty level are included.
@@ -265,23 +275,28 @@ let private createChordMap (sng: SNG) =
 let private getTechniques (sng: SNG) (note: Note) =
     let hasFlag (n: Note) f = (n.Mask &&& f) <> NoteMask.None
 
-    //let isPowerChord note =
-    //    if hasFlag note NoteMask.DoubleStop then
-    //        let s1 = Array.findIndex (fun x -> x >= 0y) sng.Chords.[note.ChordId].Frets
-    //        let s2 = Array.findIndexBack (fun x -> x >= 0y) sng.Chords.[note.ChordId].Frets
-    //        let f1 = Array.find (fun x -> x >= 0y) sng.Chords.[note.ChordId].Frets
-    //        let f2 = Array.findBack (fun x -> x >= 0y) sng.Chords.[note.ChordId].Frets
-    //        // Root on D string or lower
-    //        s1 <= 2 && s1 + 1 = s2 && f1 + 2y = f2
-    //    else
-    //        false
+    let isPowerChord note =
+        if hasFlag note NoteMask.DoubleStop then
+            let s1 = Array.findIndex (fun x -> x >= 0y) sng.Chords.[note.ChordId].Frets
+            let s2 = Array.findIndexBack (fun x -> x >= 0y) sng.Chords.[note.ChordId].Frets
+            let f1 = Array.find (fun x -> x >= 0y) sng.Chords.[note.ChordId].Frets
+            let f2 = Array.findBack (fun x -> x >= 0y) sng.Chords.[note.ChordId].Frets
+            // Root on D string or lower
+            s1 <= 2 && s1 + 1 = s2 && f1 + 2y = f2
+        else
+            false
+
+    let isChord note =
+        hasFlag note NoteMask.Chord
+        && not (hasFlag note NoteMask.Sustain)
+        && (sng.Chords.[note.ChordId].Frets |> Array.filter (fun f -> f >= 0y)).Length >= 3
 
     if note.Mask = NoteMask.None || note.Mask = NoteMask.Single then
         Seq.empty
     else
         seq { if hasFlag note NoteMask.Accent then yield 0
               if hasFlag note NoteMask.Bend then yield 1
-              if hasFlag note NoteMask.Mute then yield 2
+              if hasFlag note NoteMask.FretHandMute then yield 2
               if hasFlag note NoteMask.HammerOn then yield 3
               if hasFlag note NoteMask.Harmonic then yield 4
               if hasFlag note NoteMask.PinchHarmonic then yield 5
@@ -292,27 +307,27 @@ let private getTechniques (sng: SNG) (note: Note) =
               if hasFlag note NoteMask.Slap then yield 10
               if hasFlag note NoteMask.Slide then yield 11
               if hasFlag note NoteMask.UnpitchedSlide then yield 12
-              if hasFlag note NoteMask.Sustain then yield 13
+              if hasFlag note NoteMask.Single && hasFlag note NoteMask.Sustain then yield 13
               if hasFlag note NoteMask.Tap then yield 14
               if hasFlag note NoteMask.Tremolo then yield 15
               if hasFlag note NoteMask.Vibrato then yield 16
-              // Pre-bend ?
-              if hasFlag note NoteMask.Bend && note.BendData.[0].Time = note.Time && note.BendData.[0].Step > 0.f then yield 29
-              // Arpeggio ?
-              if hasFlag note NoteMask.Arpeggio then yield 33
-              // Seems to be two string power chord ?
-              if hasFlag note NoteMask.DoubleStop then yield 35 }
+              // Bend with multiple steps ?
+              if hasFlag note NoteMask.Bend && (note.BendData |> Array.forall (fun bv -> bv.Step = note.BendData.[0].Step) |> not) then yield 29
+              // Two string power chord
+              if isPowerChord note then yield 35
+              // Chord with three or more strings (no sustain) ?
+              if isChord note then yield 38 }
 
               // Others:
               // 28 ??
-              // 30 (pre-)bend + vibrato ?
+              // 30 ??
+              // 33 power chord inversion ?
               // 36 ??
-              // 37 syncopation ??
-              // 38 syncopation ??
-              // 40 double stop bend or quarter step bend ?
+              // 37 barre (three or more strings) ?
+              // 40 ??
               // 43 ??
-              // 44 ??
-              // 46 bend down ?
+              // 44 chord slide ??
+              // 46 ??
 
 let private createTechniqueMap (sng: SNG) =
     // In official files, the techniques of the last phrase iteration in a difficulty level seem to be included in the first phrase iteration in the next level?
@@ -321,7 +336,7 @@ let private createTechniqueMap (sng: SNG) =
 
     for lvl = 0 to sng.Levels.Length - 1 do
         let diffIds = Dictionary<string, int array>()
-        for i = 0 to sng.PhraseIterations.Length - 1 do
+        for i = 0 to sng.PhraseIterations.Length - 2 do
             let pi = sng.PhraseIterations.[i]
             let techIds = 
                 sng.Levels.[lvl].Notes
@@ -437,11 +452,11 @@ let private initSongComplete (xmlMetaData: XML.MetaData)
     attr.SongPartition <- partition |> Nullable
     attr.TargetScore <- 100000 |> Nullable
     attr.Techniques <- createTechniqueMap sng
-    attr.Tone_A <- xmlToneInfo.Names.[0]
-    attr.Tone_B <- xmlToneInfo.Names.[1]
-    attr.Tone_Base <- xmlToneInfo.BaseToneName
-    attr.Tone_C <- xmlToneInfo.Names.[2]
-    attr.Tone_D <- xmlToneInfo.Names.[3]
+    attr.Tone_A <- if isNull xmlToneInfo.Names.[0] then String.Empty else xmlToneInfo.Names.[0]
+    attr.Tone_B <- if isNull xmlToneInfo.Names.[1] then String.Empty else xmlToneInfo.Names.[1]
+    attr.Tone_Base <- if isNull xmlToneInfo.BaseToneName then String.Empty else xmlToneInfo.BaseToneName
+    attr.Tone_C <- if isNull xmlToneInfo.Names.[2] then String.Empty else xmlToneInfo.Names.[2]
+    attr.Tone_D <- if isNull xmlToneInfo.Names.[3] then String.Empty else xmlToneInfo.Names.[3]
     attr.Tone_Multiplayer <- String.Empty
     attr.Tones <- tones
 
@@ -458,8 +473,7 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
     match conversion with
     | FromVocals v ->
         let arr = Vocals v
-        let attr =
-            initBase dlcKey project arr attributes
+        let attr = initBase dlcKey project arr attributes
 
         if isHeader then
             attr
