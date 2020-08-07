@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<game>
+  <entitySet>
+    <entity id="2b689bf502f744d39aced3f4728aa6b0" modelName="RSEnumerable_Song" name="Test_Lead" iterations="0">
+      <properties>
+        <property name="Header">
+          <set value="urn:database:hsan-db:songs_dlc_test" />
+        </property>
+        <property name="Manifest">
+          <set value="urn:database:json-db:test_lead" />
+        </property>
+        <property name="SngAsset">
+          <set value="urn:application:musicgame-song:test_lead" />
+        </property>
+        <property name="AlbumArtSmall">
+          <set value="urn:image:dds:album_test_64" />
+        </property>
+        <property name="AlbumArtMedium">
+          <set value="urn:image:dds:album_test_128" />
+        </property>
+        <property name="AlbumArtLarge">
+          <set value="urn:image:dds:album_test_256" />
+        </property>
+        <property name="LyricArt">
+          <set value="" />
+        </property>
+        <property name="ShowLightsXMLAsset">
+          <set value="urn:application:xml:test_showlights" />
+        </property>
+        <property name="SoundBank">
+          <set value="urn:audio:wwise-sound-bank:song_test" />
+        </property>
+        <property name="PreviewSoundBank">
+          <set value="urn:audio:wwise-sound-bank:song_test_preview" />
+        </property>
+      </properties>
+    </entity>
+  </entitySet>
+</game>

@@ -10,6 +10,7 @@
     <Compile Include="DLCProject.fs" />
     <Compile Include="Manifest\AttributesCreation.fs" />
     <Compile Include="Manifest\Manifest.fs" />
+    <Compile Include="XBlock\XBlock.fs" />
   </ItemGroup>
 
   <ItemGroup>

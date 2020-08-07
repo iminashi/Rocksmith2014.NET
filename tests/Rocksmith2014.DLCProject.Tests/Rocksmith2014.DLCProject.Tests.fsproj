@@ -7,11 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="test.xblock">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="instrumental.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Compile Include="AttributesTests.fs" />
     <Compile Include="ManifestTests.fs" />
+    <Compile Include="XblockTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
