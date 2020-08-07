@@ -9,10 +9,10 @@ open System.Text
 type Graph = { Items: ResizeArray<GraphItem> }
 
 [<Literal>]
-let CanonicalXBlock = "/gameXblocks/nsongs"
+let private CanonicalXBlock = "/gamexblocks/nsongs"
 
 [<Literal>]
-let CanonicalXmlSong = "/songs/arr"
+let private CanonicalXmlSong = "/songs/arr"
 
 let private rand = Random()
 let private zeroes = Array.zeroCreate<byte> 8
