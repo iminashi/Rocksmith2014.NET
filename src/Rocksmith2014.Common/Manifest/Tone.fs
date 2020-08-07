@@ -30,7 +30,7 @@ type Tone =
     { GearList : Gear
       ToneDescriptors : string array 
       NameSeparator : string
-      IsCustom : bool 
+      IsCustom : bool
       Volume : string
       MacVolume : string
       Key : string

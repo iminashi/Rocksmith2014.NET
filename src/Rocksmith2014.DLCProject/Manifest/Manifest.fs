@@ -51,8 +51,6 @@ module Manifest =
     let fromJsonStream (input: Stream) =
         JsonSerializer.DeserializeAsync<Manifest>(input, options)
 
-    let fromJsonFile (path: string) =
-        async {
-            use file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan ||| FileOptions.Asynchronous)
-            return! fromJsonStream(file).AsTask() |> Async.AwaitTask
-        }
+    let fromJsonFile (path: string) = async {
+        use file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan ||| FileOptions.Asynchronous)
+        return! fromJsonStream(file) }

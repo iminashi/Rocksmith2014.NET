@@ -172,9 +172,24 @@ let private convertPhrases (sng: SNG) =
           Name = p.Name
           IterationCount = p.IterationCount })
 
-let private createDVD (arrangement: Arrangement) =
-    // TODO
-    Array.replicate 20 2.f
+let private createDynamicVisualDensity (levels: int) (arrangement: Arrangement) =
+    match arrangement with
+    | Vocals -> Array.replicate 20 2.f
+
+    | Instrumental inst ->
+        let floorLimit = 0.5 // Fastest allowed speed
+        let beginSpeed = 5.0
+        let endSpeed = Math.Min(beginSpeed, Math.Max(floorLimit, float inst.ScrollSpeed / 10.0))
+        let maxLevel = Math.Min(levels, 20) - 1
+        let factor = if maxLevel > 0 then Math.Pow(endSpeed / beginSpeed, 1. / float maxLevel) else 1.
+
+        Array.init 20 (fun i ->
+            if i >= maxLevel then
+                float32 endSpeed
+            else
+                float32 <| Math.Round(beginSpeed * Math.Pow(factor, float i), 1))
+
+    | Showlights -> failwith "I am Error."
 
 let private convertArrangementProperties (arrProps: XML.ArrangementProperties) (instrumental: Instrumental) =
     let btb b = if b then 1uy else 0uy
@@ -335,10 +350,10 @@ let private initBase dlcKey (project: DLCProject) (arrangement: Arrangement) (at
 
     attr
 
-let private initAttributesCommon dlcKey (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
+let private initAttributesCommon dlcKey levels (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
     attr.ArrangementSort <- 0 |> Nullable // Always zero
     attr.BlockAsset <- sprintf "urn:emergent-world:%s" dlcKey
-    attr.DynamicVisualDensity <- createDVD arrangement
+    attr.DynamicVisualDensity <- createDynamicVisualDensity levels arrangement
     attr.FullName <- sprintf "%s_%s" project.DLCKey (getName arrangement false)
     attr.MasterID_PS3 <- -1 |> Nullable
     attr.MasterID_XBox360 <- -1 |> Nullable
@@ -449,7 +464,7 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
         if isHeader then
             attr
         else
-            initAttributesCommon dlcKey project arr attr |> ignore
+            initAttributesCommon dlcKey 0 project arr attr |> ignore
             // Attribute unique to vocals
             attr.InputEvent <- "Play_Tone_Standard_Mic"
             attr
@@ -471,7 +486,7 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
         else
             let toneInfo = XML.InstrumentalArrangement.ReadToneNames(inst.XML)
             attr
-            |> initAttributesCommon dlcKey project arr
+            |> initAttributesCommon dlcKey sng.Levels.Length project arr
             |> initSongComplete xmlMetaData toneInfo project inst sng
 
 let createAttributes = create false

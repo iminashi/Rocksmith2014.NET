@@ -4,17 +4,15 @@ open System
 open System.IO
 open System.Collections.Immutable
 open System.Text
+open System.Buffers
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Interfaces
 open Rocksmith2014.Common.BinaryReaders
 open Rocksmith2014.Common.BinaryWriters
-open System.Buffers
 
 type EditMode = InMemory | TempFiles
 
-type EditOptions =
-    { Mode: EditMode
-      EncyptTOC: bool }
+type EditOptions = { Mode: EditMode; EncyptTOC: bool }
 
 type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, blockSizeTable: uint32[]) =
     static let getZType (header: Header) =
