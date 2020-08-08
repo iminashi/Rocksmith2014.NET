@@ -21,6 +21,8 @@ type Property =
       [<XmlElement("set")>]
       Set: Set }
 
+    static member Create(name, value) = { Name = name; Set = { Value = value } }
+
 [<XmlRoot("entity"); CLIMutable>]
 type Entity =
     { [<XmlAttribute("id")>]
@@ -57,25 +59,25 @@ let create (platform: Platform) (project: DLCProject) =
 
                 let properties = [|
                     match platform with
-                    | PC | Mac -> { Name = "Header"; Set = { Value = sprintf "urn:database:hsan-db:songs_dlc_%s" dlcName } }
-                    { Name = "Manifest"; Set = { Value = sprintf "urn:database:json-db:%s_%s" dlcName fileName } }
-                    { Name = "SngAsset"; Set = { Value = sprintf "urn:application:musicgame-song:%s_%s" dlcName fileName } }
-                    { Name = "AlbumArtSmall"; Set = { Value = sprintf "urn:image:dds:album_%s_64" dlcName } }
-                    { Name = "AlbumArtMedium"; Set = { Value = sprintf "urn:image:dds:album_%s_128" dlcName } }
-                    { Name = "AlbumArtLarge"; Set = { Value = sprintf "urn:image:dds:album_%s_256" dlcName } }
+                    | PC | Mac -> Property.Create("Header", sprintf "urn:database:hsan-db:songs_dlc_%s" dlcName)
+                    Property.Create("Manifest", sprintf "urn:database:json-db:%s_%s" dlcName fileName)
+                    Property.Create("SngAsset", sprintf "urn:application:musicgame-song:%s_%s" dlcName fileName)
+                    Property.Create("AlbumArtSmall", sprintf "urn:image:dds:album_%s_64" dlcName)
+                    Property.Create("AlbumArtMedium", sprintf "urn:image:dds:album_%s_128" dlcName)
+                    Property.Create("AlbumArtLarge", sprintf "urn:image:dds:album_%s_256" dlcName)
                     let lyricArt = 
                         match arr with
                         | Vocals { CustomFont = Some _ } -> sprintf "urn:image:dds:lyrics_%s" dlcName
                         | _ -> String.Empty
-                    { Name = "LyricArt"; Set = { Value = lyricArt } }
-                    { Name = "ShowLightsXMLAsset"; Set = { Value = sprintf "urn:application:xml:%s_showlights" dlcName } }
-                    { Name = "SoundBank"; Set = { Value = sprintf "urn:audio:wwise-sound-bank:song_%s" dlcName } }
-                    { Name = "PreviewSoundBank"; Set = { Value = sprintf "urn:audio:wwise-sound-bank:song_%s_preview" dlcName } } |]
+                    Property.Create("LyricArt", lyricArt)
+                    Property.Create("ShowLightsXMLAsset", sprintf "urn:application:xml:%s_showlights" dlcName)
+                    Property.Create("SoundBank", sprintf "urn:audio:wwise-sound-bank:song_%s" dlcName)
+                    Property.Create("PreviewSoundBank", sprintf "urn:audio:wwise-sound-bank:song_%s_preview" dlcName) |]
 
                 let entity =
                     { Id = (Arrangement.getPersistentId arr).ToString("N")
                       ModelName = "RSEnumerable_Song"
-                      Name = sprintf "%s_%s" project.DLCKey fileName
+                      Name = sprintf "%s_%s" project.DLCKey (Arrangement.getName arr false)
                       Iterations = 0
                       Properties = properties }
                 entity::state)

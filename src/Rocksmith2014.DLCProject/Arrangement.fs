@@ -41,3 +41,10 @@ module Arrangement =
         | Vocals v -> v.PersistentID
         | Instrumental i -> i.PersistentID
         | Showlights -> failwith "No"
+
+    let getName (arr: Arrangement) generic =
+        match arr with
+        | Vocals v when v.Japanese && not generic -> "JVocals"
+        | Vocals -> "Vocals"
+        | Showlights -> "Showlights"
+        | Instrumental i -> i.ArrangementName.ToString()

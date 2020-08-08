@@ -20,13 +20,6 @@ open System.Collections.Generic
 
 let private bti b = if b then 1 else 0
 
-let private getName (arr: Arrangement) generic =
-    match arr with
-    | Vocals v when v.Japanese && not generic -> "JVocals"
-    | Vocals -> "Vocals"
-    | Showlights -> "Showlights"
-    | Instrumental i -> i.ArrangementName.ToString()
-
 let private getJapaneseVocal = function
     | Vocals v when v.Japanese -> Nullable(true)
     | _ -> Nullable()
@@ -333,7 +326,7 @@ let private createTechniqueMap (sng: SNG) =
 
 let private initBase name dlcKey (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
     attr.AlbumArt <- sprintf "urn:image:dds:album_%s" dlcKey
-    attr.ArrangementName <- getName arrangement true
+    attr.ArrangementName <- Arrangement.getName arrangement true
     attr.DLCKey <- project.DLCKey
     attr.JapaneseArtistName <- Option.toObj project.JapaneseArtistName
     attr.JapaneseSongName <- Option.toObj project.JapaneseTitle
@@ -349,7 +342,7 @@ let private initAttributesCommon name dlcKey levels (project: DLCProject) (arran
     attr.ArrangementSort <- 0 |> Nullable // Always zero
     attr.BlockAsset <- sprintf "urn:emergent-world:%s" dlcKey
     attr.DynamicVisualDensity <- createDynamicVisualDensity levels arrangement
-    attr.FullName <- sprintf "%s_%s" project.DLCKey (getName arrangement false)
+    attr.FullName <- sprintf "%s_%s" project.DLCKey (Arrangement.getName arrangement false)
     attr.MasterID_PS3 <- -1 |> Nullable
     attr.MasterID_XBox360 <- -1 |> Nullable
     attr.PreviewBankPath <- sprintf "song_%s_preview.bnk" dlcKey
