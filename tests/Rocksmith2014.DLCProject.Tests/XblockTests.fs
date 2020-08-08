@@ -1,13 +1,46 @@
 ﻿module XblockTests
 
 open Expecto
+open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open Rocksmith2014.DLCProject.XBlock
+open System
 open System.IO
+
+let vocals =
+    { XML = "vocals.xml"
+      Japanese = true
+      CustomFont = Some "font.dds"
+      MasterID = 123456
+      PersistentID = Guid.NewGuid() }
+
+let testProject =
+    { DLCKey = "SomeTest"
+      AppID = 248750
+      ArtistName = "Artist"
+      ArtistNameSort = "artist"
+      JapaneseArtistName = None
+      JapaneseTitle = None
+      Title = "Title"
+      TitleSort = "title"
+      AlbumName = "Album"
+      AlbumNameSort = "album"
+      Year = 2020
+      AlbumArtFile = "cover.dds"
+      AudioFile = "audio.wem"
+      AudioPreviewFile = "audio_preview.wem"
+      CentOffset = 0.0
+      Arrangements = [ Vocals vocals ]
+      Tones = [] }
 
 [<Tests>]
 let someTests =
   testList "XBlock Tests" [
+
+    testCase "Can be created" <| fun _ ->
+        let x = XBlock.create PC testProject
+
+        Expect.isNonEmpty x.EntitySet "Entity set has been populated"
 
     testCase "Can be serialized" <| fun _ ->
         let set = { Value = "urn:database:hsan-db:songs_dlc_test" }

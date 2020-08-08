@@ -30,3 +30,14 @@ type Arrangement =
     | Instrumental of Instrumental
     | Vocals of Vocals
     | Showlights of Showlights
+
+module Arrangement =
+    let getMasterId = function
+        | Vocals v -> v.MasterID
+        | Instrumental i -> i.MasterID
+        | Showlights -> failwith "No"
+
+    let getPersistentId = function
+        | Vocals v -> v.PersistentID
+        | Instrumental i -> i.PersistentID
+        | Showlights -> failwith "No"

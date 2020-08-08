@@ -20,19 +20,6 @@ open System.Collections.Generic
 
 let private bti b = if b then 1 else 0
 
-let private getMasterId = function
-    | Vocals v -> v.MasterID
-    | Instrumental i -> i.MasterID
-    | Showlights -> failwith "No"
-
-let private getPersistentId (arr: Arrangement) =
-    let id =
-        match arr with
-        | Vocals v -> v.PersistentID
-        | Instrumental i -> i.PersistentID
-        | Showlights -> failwith "No"
-    id.ToString("N").ToUpperInvariant()
-
 let private getName (arr: Arrangement) generic =
     match arr with
     | Vocals v when v.Japanese && not generic -> "JVocals"
@@ -352,8 +339,8 @@ let private initBase name dlcKey (project: DLCProject) (arrangement: Arrangement
     attr.JapaneseSongName <- Option.toObj project.JapaneseTitle
     attr.JapaneseVocal <- getJapaneseVocal arrangement
     attr.ManifestUrn <- sprintf "urn:database:json-db:%s_%s" dlcKey name
-    attr.MasterID_RDV <- getMasterId arrangement
-    attr.PersistentID <- getPersistentId arrangement
+    attr.MasterID_RDV <- Arrangement.getMasterId arrangement
+    attr.PersistentID <- (Arrangement.getPersistentId arrangement).ToString("N").ToUpperInvariant()
     attr.SongKey <- project.DLCKey
 
     attr
