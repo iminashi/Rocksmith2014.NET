@@ -17,6 +17,7 @@ let create (platform: Platform) (project: DLCProject) =
     let dlcName = project.DLCKey.ToLower()
 
     let items = ResizeArray<GraphItem>()
+    let partition = Partitioner.create project
 
     let xbl = GraphItem.normal dlcName canonicalXBlock "xblock" [ Tag.EmergentWorld; Tag.XWorld ]
     items.Add(xbl)
@@ -29,7 +30,7 @@ let create (platform: Platform) (project: DLCProject) =
             items.Add(sl)
 
         | _ ->
-            let name = "" // TODO
+            let name = partition arrangement |> snd
 
             let json =
                 let canonical = sprintf "/manifests/songs_dlc_%s" dlcName

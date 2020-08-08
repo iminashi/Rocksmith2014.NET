@@ -53,6 +53,7 @@ let someTests =
 
         Expect.equal attr1.SongPartition (Nullable(1)) "Partition for first lead arrangement is 1"
         Expect.equal attr2.SongPartition (Nullable(2)) "Partition for second lead arrangement is 2"
+        Expect.equal attr2.SongAsset "urn:application:musicgame-song:sometest_lead2" "Song asset is correct"
 
     testCase "Chord templates are created" <| fun _ ->
         let project = { testProject with Arrangements = [ Instrumental testLead ] }

@@ -5,9 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="res\rsenumerable_root.flat" />
+    <EmbeddedResource Include="res\rsenumerable_song.flat" />
     <Compile Include="RouteMask.fs" />
     <Compile Include="Arrangement.fs" />
     <Compile Include="DLCProject.fs" />
+    <Compile Include="Partitioner.fs" />
     <Compile Include="AggregateGraph\Tags.fs" />
     <Compile Include="AggregateGraph\GraphItem.fs" />
     <Compile Include="AggregateGraph\AggregateGraph.fs" />
@@ -18,15 +21,12 @@
 
   <ItemGroup>
     <PackageReference Include="FSharp.SystemTextJson" Version="0.12.12" />
+    <PackageReference Update="FSharp.Core" Version="4.7.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Rocksmith2014.SNG\Rocksmith2014.SNG.fsproj" />
     <ProjectReference Include="..\Rocksmith2014.XML\Rocksmith2014.XML.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="4.7.2" />
   </ItemGroup>
 
 </Project>

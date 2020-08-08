@@ -27,10 +27,10 @@ let private getMasterId = function
 let private getPersistentId (arr: Arrangement) =
     let id =
         match arr with
-        | Vocals v -> v.PersistentID.ToString()
-        | Instrumental i -> i.PersistentID.ToString()
+        | Vocals v -> v.PersistentID
+        | Instrumental i -> i.PersistentID
         | Showlights -> failwith "No"
-    id.Replace("-", "").ToUpperInvariant()
+    id.ToString("N").ToUpperInvariant()
 
 let private getName (arr: Arrangement) generic =
     match arr with
@@ -351,21 +351,21 @@ let private createTechniqueMap (sng: SNG) =
             
     techniques
 
-let private initBase dlcKey (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
+let private initBase name dlcKey (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
     attr.AlbumArt <- sprintf "urn:image:dds:album_%s" dlcKey
     attr.ArrangementName <- getName arrangement true
     attr.DLCKey <- project.DLCKey
     attr.JapaneseArtistName <- Option.toObj project.JapaneseArtistName
     attr.JapaneseSongName <- Option.toObj project.JapaneseTitle
     attr.JapaneseVocal <- getJapaneseVocal arrangement
-    attr.ManifestUrn <- sprintf "urn:database:json-db:%s_%s" dlcKey "something" // TODO
+    attr.ManifestUrn <- sprintf "urn:database:json-db:%s_%s" dlcKey name
     attr.MasterID_RDV <- getMasterId arrangement
     attr.PersistentID <- getPersistentId arrangement
     attr.SongKey <- project.DLCKey
 
     attr
 
-let private initAttributesCommon dlcKey levels (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
+let private initAttributesCommon name dlcKey levels (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
     attr.ArrangementSort <- 0 |> Nullable // Always zero
     attr.BlockAsset <- sprintf "urn:emergent-world:%s" dlcKey
     attr.DynamicVisualDensity <- createDynamicVisualDensity levels arrangement
@@ -375,14 +375,14 @@ let private initAttributesCommon dlcKey levels (project: DLCProject) (arrangemen
     attr.PreviewBankPath <- sprintf "song_%s_preview.bnk" dlcKey
     attr.RelativeDifficulty <- Nullable(0) // Always zero
     attr.ShowlightsXML <- sprintf "urn:application:xml:%s_showlights" dlcKey
-    attr.SongAsset <- sprintf "urn:application:musicgame-song:%s_%s" dlcKey "something" // TODO
+    attr.SongAsset <- sprintf "urn:application:musicgame-song:%s_%s" dlcKey name
     attr.SongBank <- sprintf "song_%s.bnk" dlcKey
     attr.SongEvent <- sprintf "Play_%s" project.DLCKey
-    attr.SongXml <- sprintf "urn:application:xml:%s_%s" dlcKey "something" // TODO
+    attr.SongXml <- sprintf "urn:application:xml:%s_%s" dlcKey name
 
     attr
 
-let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Instrumental) (sng: SNG) (attr: Attributes) =
+let private initSongCommon xmlMetaData (project: DLCProject) (sng: SNG) (attr: Attributes) =
     let diffHard, diffMed, diffEasy = calculateDifficulties xmlMetaData sng
     let dnaChords, dnaRiffs, dnaSolo = calculateDNAs sng
 
@@ -411,23 +411,13 @@ let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Inst
 
     attr
 
-let private initSongComplete (xmlMetaData: XML.MetaData)
+let private initSongComplete partition
+                             (xmlMetaData: XML.MetaData)
                              (xmlToneInfo: XML.ToneInfo)
                              (project: DLCProject)
                              (instrumental: Instrumental)
                              (sng: SNG)
                              (attr: Attributes) =
-    let partition =
-        let rec getPartition list part =
-            match list with
-            | (Instrumental head)::_ when head = instrumental -> part
-            | (Instrumental head)::tail when head.ArrangementName = instrumental.ArrangementName ->
-                getPartition tail (part + 1)
-            | _::t ->  getPartition t part
-            | [] -> part
-
-        getPartition project.Arrangements 1
-
     let tones = 
         let toneNamesUsed =
             seq { xmlToneInfo.BaseToneName; yield! xmlToneInfo.Names |> Seq.filter (isNull >> not) }
@@ -469,27 +459,30 @@ type AttributesConversion =
 let private create isHeader (project: DLCProject) (conversion: AttributesConversion) =
     let attributes = Attributes()
     let dlcKey = project.DLCKey.ToLowerInvariant()
+    let partition = Partitioner.create project
 
     match conversion with
     | FromVocals v ->
         let arr = Vocals v
-        let attr = initBase dlcKey project arr attributes
+        let name = partition arr |> snd
+        let attr = initBase name dlcKey project arr attributes
 
         if isHeader then
             attr
         else
-            initAttributesCommon dlcKey 0 project arr attr |> ignore
+            initAttributesCommon name dlcKey 0 project arr attr |> ignore
             // Attribute unique to vocals
             attr.InputEvent <- "Play_Tone_Standard_Mic"
             attr
 
     | FromInstrumental (inst, sng) ->
         let arr = Instrumental inst
+        let part, name = partition arr
         let xmlMetaData = XML.MetaData.Read(inst.XML)
 
         let attr =
-            initBase dlcKey project arr attributes
-            |> initSongCommon xmlMetaData project inst sng
+            initBase name dlcKey project arr attributes
+            |> initSongCommon xmlMetaData project sng
 
         if isHeader then
             // Attributes unique to header
@@ -500,8 +493,8 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
         else
             let toneInfo = XML.InstrumentalArrangement.ReadToneNames(inst.XML)
             attr
-            |> initAttributesCommon dlcKey sng.Levels.Length project arr
-            |> initSongComplete xmlMetaData toneInfo project inst sng
+            |> initAttributesCommon name dlcKey sng.Levels.Length project arr
+            |> initSongComplete part xmlMetaData toneInfo project inst sng
 
 let createAttributes = create false
 let createAttributesHeader = create true
