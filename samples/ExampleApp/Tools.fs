@@ -10,9 +10,10 @@ open Rocksmith2014.Common
 open Rocksmith2014.SNG
 open Rocksmith2014.Conversion
 open Rocksmith2014.PSARC
-open Rocksmith2014.DLCProject.Manifest
 open Rocksmith2014.XML
 open Rocksmith2014.DLCProject
+open Rocksmith2014.DLCProject.DDS
+open Rocksmith2014.DLCProject.Manifest
 open System.Threading.Tasks
 open System.IO
 open System
@@ -20,7 +21,6 @@ open Elmish
 
 let project = 
     { DLCKey = "dummy"
-      AppID = 123456
       ArtistName = "Artist"
       ArtistNameSort = "Artist"
       JapaneseArtistName = None
@@ -34,8 +34,7 @@ let project =
       AudioFile = "audio.wem"
       AudioPreviewFile = "preview.wem"
       CentOffset = 0.
-      Arrangements = []
-      Tones = [] }
+      Arrangements = [] }
 
 let private window =
     lazy ((Application.Current.ApplicationLifetime :?> ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime).MainWindow)
@@ -88,6 +87,7 @@ let openFolderDialog title dispatch =
 let ofdSng = openFileDialogSingle "Select File" sngFilters
 let ofdXml = openFileDialogSingle "Select File" xmlFilters
 let ofdPsarc = openFileDialogSingle "Select File" psarcFilters
+let ofdAll = openFileDialogSingle "Select File" null
 let ofdMultiXml = openFileDialogMulti "Select Files" xmlFilters
 let ofod = openFolderDialog "Select Folder"
 
@@ -108,6 +108,7 @@ type Msg =
     | CreateManifest of file:string
     | ExtractSNGtoXML of file:string
     | ChangePlatform of Platform
+    | ConvertToDDS of file:string
     | Error of ex:Exception
 
 let convertFileToSng platform (fileName: string) =
@@ -178,6 +179,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                   ArrangementName = ArrangementName.Lead
                   RouteMask = RouteMask.Lead
                   ScrollSpeed = 13
+                  Tones = []
                   MasterID = 12345
                   PersistentID = Guid.NewGuid() }
 
@@ -236,6 +238,12 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                     )
                 }
             state, Cmd.OfAsync.attempt t () Error
+
+        | ConvertToDDS file ->
+            let target = Path.ChangeExtension(file, "dds")
+            let options = { Resize = Resize(64,64); Compression = DXT1 }
+            DDS.convertToDDS file target options
+            state, Cmd.none
 
         | ChangePlatform platform -> { state with Platform = platform }, Cmd.none
 
@@ -320,6 +328,11 @@ let view (state: State) dispatch =
             Button.create [
                 Button.onClick (fun _ -> ofdPsarc (ExtractSNGtoXML >> dispatch))
                 Button.content "Convert SNG to XML from PSARC..."
+            ]
+
+            Button.create [
+                Button.onClick (fun _ -> ofdAll (ConvertToDDS >> dispatch))
+                Button.content "Convert an image to DDS..."
             ]
 
             TextBlock.create [

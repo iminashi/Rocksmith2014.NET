@@ -16,7 +16,6 @@ let vocals =
 
 let testProject =
     { DLCKey = "SomeTest"
-      AppID = 248750
       ArtistName = "Artist"
       ArtistNameSort = "artist"
       JapaneseArtistName = None
@@ -30,8 +29,7 @@ let testProject =
       AudioFile = "audio.wem"
       AudioPreviewFile = "audio_preview.wem"
       CentOffset = 0.0
-      Arrangements = [ Vocals vocals ]
-      Tones = [] }
+      Arrangements = [ Vocals vocals ] }
 
 [<Tests>]
 let someTests =

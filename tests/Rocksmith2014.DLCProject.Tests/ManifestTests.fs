@@ -8,7 +8,6 @@ open System
 
 let project =
     { DLCKey = "SomeTest"
-      AppID = 248750
       ArtistName = "Artist"
       ArtistNameSort = "artist"
       JapaneseArtistName = None
@@ -22,8 +21,7 @@ let project =
       AudioFile = "audio.wem"
       AudioPreviewFile = "audio_preview.wem"
       CentOffset = 0.0
-      Arrangements = []
-      Tones = [] }
+      Arrangements = [] }
 
 [<Tests>]
 let someTests =

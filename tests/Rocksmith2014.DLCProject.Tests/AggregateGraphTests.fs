@@ -17,7 +17,6 @@ let sl = { XML = "showlights.xml" }
 
 let project =
     { DLCKey = "SomeTest"
-      AppID = 248750
       ArtistName = "Artist"
       ArtistNameSort = "artist"
       JapaneseArtistName = None
@@ -31,8 +30,7 @@ let project =
       AudioFile = "audio.wem"
       AudioPreviewFile = "audio_preview.wem"
       CentOffset = 0.0
-      Arrangements = [ Vocals vocals; Showlights sl ]
-      Tones = [] }
+      Arrangements = [ Vocals vocals; Showlights sl ] }
 
 [<Tests>]
 let someTests =

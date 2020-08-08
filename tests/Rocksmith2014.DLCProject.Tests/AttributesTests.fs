@@ -11,7 +11,6 @@ open Rocksmith2014.Common
 
 let testProject =
     { DLCKey = "SomeTest"
-      AppID = 248750
       ArtistName = "Artist"
       ArtistNameSort = "artist"
       JapaneseArtistName = None
@@ -25,8 +24,7 @@ let testProject =
       AudioFile = "audio.wem"
       AudioPreviewFile = "audio_preview.wem"
       CentOffset = 0.0
-      Arrangements = []
-      Tones = [] }
+      Arrangements = [] }
 
 let testArr = InstrumentalArrangement.Load("instrumental.xml")
 let testSng = ConvertInstrumental.xmlToSng testArr
@@ -36,6 +34,7 @@ let testLead =
       ArrangementName = ArrangementName.Lead
       RouteMask = RouteMask.Lead
       ScrollSpeed = 13
+      Tones = []
       MasterID = 12345
       PersistentID = Guid.NewGuid() }
 
