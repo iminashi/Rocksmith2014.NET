@@ -3,7 +3,6 @@
 open Expecto
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
-open Rocksmith2014.DLCProject.XBlock
 open System.IO
 open System
 

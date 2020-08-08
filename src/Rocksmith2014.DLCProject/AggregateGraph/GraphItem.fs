@@ -41,8 +41,11 @@ module GraphItem =
     let llid name canonical extension tags =
         let path = sprintf "%s/%s.%s" canonical name extension
         make name canonical tags path (Some path)
+
+    /// Creates a graph item for a DDS image.
+    let dds name canonical = llid name canonical "dds" [ Tag.DDS; Tag.Image ]
     
-    /// Creates a graph item for BNK files.
+    /// Creates a graph item for a BNK file.
     let bnk name platform =
         let canonical = sprintf "/audio/%s" (Platform.getPath platform 0)
         let rp = sprintf "%s/%s.bnk" canonical name
