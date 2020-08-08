@@ -15,7 +15,7 @@ let private canonicalXmlSong = "/songs/arr"
 let private canonicalAlbumArt = "/gfxassets/album_art"
 
 let create (platform: Platform) (project: DLCProject) =
-    let dlcName = project.DLCKey.ToLower()
+    let dlcName = project.DLCKey.ToLowerInvariant()
     let partition = Partitioner.create project
 
     let items = [

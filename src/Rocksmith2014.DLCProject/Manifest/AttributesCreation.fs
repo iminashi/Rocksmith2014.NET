@@ -311,23 +311,23 @@ let private getTechniques (sng: SNG) (note: Note) =
               if hasFlag note NoteMask.Tap then yield 14
               if hasFlag note NoteMask.Tremolo then yield 15
               if hasFlag note NoteMask.Vibrato then yield 16
-              // Bend with multiple steps ?
+              // 29: Bend with multiple steps
               if hasFlag note NoteMask.Bend && (note.BendData |> Array.forall (fun bv -> bv.Step = note.BendData.[0].Step) |> not) then yield 29
-              // Two string power chord
+              // 35: Two string power chord
               if isPowerChord note then yield 35
-              // Chord with three or more strings (no sustain) ?
+              // 38: Chord (with three or more strings, no sustain?)
               if isChord note then yield 38 }
 
               // Others:
               // 28 ??
-              // 30 ??
+              // 30 oblique bend ?
               // 33 power chord inversion ?
               // 36 ??
-              // 37 barre (three or more strings) ?
-              // 40 ??
-              // 43 ??
-              // 44 chord slide ??
-              // 46 ??
+              // 37 barre (three or more strings?)
+              // 40 HOPO inside hand shape
+              // 43 chord HOPO
+              // 44 chord slide ?
+              // 46 chord bend
 
 let private createTechniqueMap (sng: SNG) =
     // In official files, the techniques of the last phrase iteration in a difficulty level seem to be included in the first phrase iteration in the next level?
