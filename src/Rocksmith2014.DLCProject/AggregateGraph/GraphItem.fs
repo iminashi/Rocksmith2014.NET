@@ -37,7 +37,7 @@ module GraphItem =
         let path = sprintf "%s/%s.%s" canonical name extension
         make name canonical tags path None
     
-    /// Creates a graph item with an LLID when relative path and logical paths are identical.
+    /// Creates a graph item with an LLID when the relative and logical paths are identical.
     let llid name canonical extension tags =
         let path = sprintf "%s/%s.%s" canonical name extension
         make name canonical tags path (Some path)

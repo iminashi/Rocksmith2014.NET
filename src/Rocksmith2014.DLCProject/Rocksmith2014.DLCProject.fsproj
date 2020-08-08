@@ -14,6 +14,7 @@
     <Compile Include="AggregateGraph\Tags.fs" />
     <Compile Include="AggregateGraph\GraphItem.fs" />
     <Compile Include="AggregateGraph\AggregateGraph.fs" />
+    <Compile Include="Manifest\Techniques.fs" />
     <Compile Include="Manifest\AttributesCreation.fs" />
     <Compile Include="Manifest\Manifest.fs" />
     <Compile Include="XBlock\XBlock.fs" />
