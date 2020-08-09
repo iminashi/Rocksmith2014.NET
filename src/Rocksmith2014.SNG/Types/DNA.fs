@@ -17,14 +17,7 @@ type DNA =
           DnaId = reader.ReadInt32() }
 
 module DNA =
-    [<Literal>]
-    let None = 0
-
-    [<Literal>]
-    let Solo = 1
-
-    [<Literal>]
-    let Riff = 2
-
-    [<Literal>]
-    let Chord = 3
+    let [<Literal>] None = 0
+    let [<Literal>] Solo = 1
+    let [<Literal>] Riff = 2
+    let [<Literal>] Chord = 3
