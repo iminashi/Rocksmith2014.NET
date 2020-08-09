@@ -19,6 +19,7 @@ open System.Collections.Generic
 //    *Version 3: Sum of all regions of DNA ID to different DNA ID (or the END phrase)
 
 let private bti b = if b then 1 else 0
+let private btb b = if b then 1uy else 0uy
 
 let private getJapaneseVocal = function
     | Vocals v when v.Japanese -> Nullable(true)
@@ -183,8 +184,6 @@ let private createDynamicVisualDensity (levels: int) (arrangement: Arrangement) 
     | Showlights -> failwith "I am Error."
 
 let private convertArrangementProperties (arrProps: XML.ArrangementProperties) (instrumental: Instrumental) =
-    let btb b = if b then 1uy else 0uy
-
     { represent = btb arrProps.Represent
       bonusArr = btb arrProps.BonusArrangement
       standardTuning = btb arrProps.StandardTuning
@@ -258,52 +257,139 @@ let private getTechniques (sng: SNG) (note: Note) =
         Seq.empty
     else
         let isHopo = hasFlag note NoteMask.HammerOn || hasFlag note NoteMask.PullOff
-        seq { if hasFlag note NoteMask.Accent then yield 0
-              if hasFlag note NoteMask.Bend then yield 1
-              if hasFlag note NoteMask.FretHandMute then yield 2
-              if hasFlag note NoteMask.HammerOn then yield 3
-              if hasFlag note NoteMask.Harmonic then yield 4
-              if hasFlag note NoteMask.PinchHarmonic then yield 5
-              if isHopo then yield 6
-              if hasFlag note NoteMask.PalmMute then yield 7
-              if hasFlag note NoteMask.Pluck then yield 8
-              if hasFlag note NoteMask.PullOff then yield 9
-              if hasFlag note NoteMask.Slap then yield 10
-              if hasFlag note NoteMask.Slide then yield 11
-              if hasFlag note NoteMask.UnpitchedSlide then yield 12
-              if hasFlag note NoteMask.Single && hasFlag note NoteMask.Sustain then yield 13
-              if hasFlag note NoteMask.Tap then yield 14
-              if hasFlag note NoteMask.Tremolo then yield 15
-              if hasFlag note NoteMask.Vibrato then yield 16
-              // 29: Bend with multiple steps (bend & release ?)
-              if isComplexBend note then yield 29
-              // 30: Oblique bend
-              if isObliqueBend sng note then yield 30
-              // 35: Two string power chord
-              if isPowerChord sng note then yield 35
-              // 38: Chord (with three or more strings, no sustain?)
-              if isChord sng note then yield 38
-              // 40: HOPO inside hand shape
-              if isHopo && note.FingerPrintId.[0] <> -1s then yield 40
-              // 43: chord hammer-on (or pull-off?)
-              if isChordHammerOn sng note then yield 43
-              // 46: Chord with bend
-              if isChordBend sng note then yield 46 }
+        let isPower = isPowerChord sng note
 
-              // Others:
-              // 28 pick scratch
-              // 31 complex bend (wide vibrato) ?
-              // 33 non-power chord double stop (on low strings?)
-              // 34 "chord with string skipping" (or hybrid picked chord) ?
-              // 36 drop-D power chord ?
-              // 37 barre chord (three or more strings?)
-              // 41 chord unpitched slide ?
-              // 42 chord tremolo ?
-              // 44 chord or double stop slide ?
-              // 45 double stop tremolo ?
+        // Some technique numbers don't seem to match the description in the lesson technique database.
+        // The technique database has 45 as chord + fret hand mute, but that is already tech #2.
+
+        // This method will miss some techniques when they are on chord notes, otherwise it should be pretty complete.
+
+        seq { // 0: Accent
+              if hasFlag note NoteMask.Accent then 0
+
+              // 1: Bend
+              if hasFlag note NoteMask.Bend then 1
+
+              // 2: Fret-hand mute (chords only)
+              if hasFlag note NoteMask.FretHandMute then 2
+
+              // 3: Hammer-on
+              if hasFlag note NoteMask.HammerOn then 3
+
+              // 4: Harmonic
+              if hasFlag note NoteMask.Harmonic then 4
+
+              // 5: Pinch harmonic
+              if hasFlag note NoteMask.PinchHarmonic then 5
+
+              // 6: HOPO (not in technique database)
+              if isHopo then 6
+
+              // 7: Palm mute
+              if hasFlag note NoteMask.PalmMute then 7
+
+              // 8: Pluck aka Pop
+              if hasFlag note NoteMask.Pluck then 8
+
+              // 9: Pull-off
+              if hasFlag note NoteMask.PullOff then 9
+
+              // 10: Slap
+              if hasFlag note NoteMask.Slap then 10
+
+              // 11: Slide
+              if hasFlag note NoteMask.Slide then 11
+
+              // 12: Unpitched slide
+              if hasFlag note NoteMask.UnpitchedSlide then 12
+
+              // 13: Sustain (single notes)
+              if hasFlag note NoteMask.Single && hasFlag note NoteMask.Sustain then 13
+
+              // 14: Tap
+              if hasFlag note NoteMask.Tap then 14
+
+              // 15: Tremolo
+              if hasFlag note NoteMask.Tremolo then 15
+
+              // 16: Vibrato
+              if hasFlag note NoteMask.Vibrato then 16
+
+              // 26: Tremolo + bend
+              if hasFlag note (NoteMask.Bend ||| NoteMask.Tremolo) then 26
+
+              // 27: Tremolo + slide
+              if hasFlag note (NoteMask.Tremolo ||| NoteMask.Slide) then 27
+
+              // 28: Tremolo + vibrato (used on pick scratches)
+              if hasFlag note (NoteMask.Tremolo ||| NoteMask.Vibrato) then 28
+
+              // 29: Pre-bend
+              if isPreBend note then 29
+
+              // 30: Oblique bend (compound bend in technique database)
+              if isObliqueBend sng note then 30
+
+              // 31: Compound bend (oblique bend in technique database)
+              if isCompoundBend note then 31
+
+              // 33: Double stop with adjacent strings
+              if not isPower && isDoubleStopAdjacentStrings sng note then 33
+
+              // 34: Double stop with nonadjacent strings
+              if not isPower && isDoubleStopNonAdjacentStrings sng note then 33
+
+              // 35: Two string power chord
+              if isPower then 35
+
+              // 36: Drop-D power chord (not in technique database)
+              if isDropDPower sng note then 36
+
+              // 37: Barre chord
+              if isBarre sng note then 37
+
+              // 38: Chord (with three or more strings, no sustain)
+              if isChord note then 38
+
+              // 40: Double stop HOPO (actually HOPO inside hand shape)
+              if isHopo && note.FingerPrintId.[0] <> -1s then 40
+
+              // 41: Chord slide (chord HOPO in technique database)
+              if isChordSlide sng note then 41
+
+              // 42: Chord tremolo (double stop slide in technique database)
+              if isChordTremolo sng note then 41
+
+              // 43: Chord HOPO (chord slide in technique database) 
+              if isChordHammerOn sng note then 43
+
+              // 44: Double stop slide (chord tremolo in technique database)
+              if isDoubleStopSlide sng note then 44
+
+              // 45: Double stop tremolo (double stop bend in technique database)
+              if isDoubleStopTremolo sng note then 45
+
+              // 46: Double stop bend (double stop tremolo in technique database)
+              if isDoubleStopBend sng note then 46 }
+
+              // Not used:
+              // 17: Palm mute + accent
+              // 18: Palm mute + harmonic
+              // 19: Palm mute + hammer-on
+              // 20: Palm mute + pull off
+              // 21: Fret hand mute + accent
+              // 22: Fret hand mute + pop
+              // 23: Fret hand mute + slap
+              // 24: Harmonic + pop
+              // 25: Harmonic + slap
+              // 32: Arpeggio
+              // 39: Unknown (not included in technique database, but could be "non-standard chord")
 
 let private createTechniqueMap (sng: SNG) =
-    // In official files, the techniques of the last phrase iteration in a difficulty level seem to be included in the first phrase iteration in the next level?
+    // The structure of the map is the same as the chord map, but with technique IDs instead of chord IDs.
+
+    // In official files, the techniques of the last phrase iteration in a difficulty level seem to be missing,
+    // Or they are included in the first phrase iteration in the next level.
 
     let techniques = Dictionary<string, Dictionary<string, int array>>()
 
@@ -313,7 +399,7 @@ let private createTechniqueMap (sng: SNG) =
             let pi = sng.PhraseIterations.[i]
             let techIds = 
                 sng.Levels.[lvl].Notes
-                |> Seq.filter (fun x -> (x.Time > pi.StartTime && x.Time <= pi.EndTime)) // Weird division into phrase iterations
+                |> Seq.filter (fun x -> (x.Time > pi.StartTime && x.Time <= pi.EndTime)) // Weird division into phrase iterations intentional
                 |> Seq.collect (getTechniques sng)
                 |> Set.ofSeq
             if techIds.Count > 0 then
