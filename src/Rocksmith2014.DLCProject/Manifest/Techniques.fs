@@ -30,12 +30,11 @@ let isChord note =
     && not (hasFlag note NoteMask.DoubleStop)
 
 let isBarre sng note =
-    if hasFlag note NoteMask.Chord && not (hasFlag note NoteMask.DoubleStop) then
-        sng.Chords.[note.ChordId].Fingers
-        |> Array.countBy id
-        |> Array.exists (fun (fret, count) -> fret <> -1y && count >= 3)
-    else
-        false
+    hasFlag note NoteMask.Chord && not (hasFlag note NoteMask.DoubleStop)
+    &&
+    sng.Chords.[note.ChordId].Fingers
+    |> Array.countBy id
+    |> Array.exists (fun (finger, count) -> finger <> -1y && count >= 3)
 
 let isObliqueBend sng note =
     hasFlag note NoteMask.ChordNotes
