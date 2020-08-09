@@ -41,6 +41,8 @@ let someTests =
 
         Expect.isNonEmpty x.EntitySet "Entity set has been populated"
 
+    // TODO: Test entity set contents
+
     testCase "Can be serialized" <| fun _ ->
         let set = { Value = "urn:database:hsan-db:songs_dlc_test" }
         let property =

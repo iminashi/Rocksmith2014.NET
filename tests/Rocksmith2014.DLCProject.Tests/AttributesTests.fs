@@ -92,6 +92,8 @@ let someTests =
 
         Expect.isNonEmpty attr.Techniques "Technique map is not empty"
 
+    // TODO: Test techniques
+
     testCase "Arrangement properties are set" <| fun _ ->
         let project = { testProject with Arrangements = [ Instrumental testLead ] }
 

@@ -49,11 +49,10 @@ let create (platform: Platform) (project: DLCProject) =
     let dlcName = project.DLCKey.ToLowerInvariant()
     let partition = Partitioner.create project
 
-    let entitySet =
-        ([], project.Arrangements)
-        ||> List.fold (fun state arr ->
+    let entitySet = [|
+        for arr in project.Arrangements do
             match arr with
-            | Showlights -> state
+            | Showlights -> ()
             | arr ->
                 let fileName = partition arr |> snd
 
@@ -74,15 +73,13 @@ let create (platform: Platform) (project: DLCProject) =
                     Property.Create("SoundBank", sprintf "urn:audio:wwise-sound-bank:song_%s" dlcName)
                     Property.Create("PreviewSoundBank", sprintf "urn:audio:wwise-sound-bank:song_%s_preview" dlcName) |]
 
-                let entity =
-                    { Id = (Arrangement.getPersistentId arr).ToString("N")
-                      ModelName = "RSEnumerable_Song"
-                      Name = sprintf "%s_%s" project.DLCKey (Arrangement.getName arr false)
-                      Iterations = 0
-                      Properties = properties }
-                entity::state)
+                { Id = (Arrangement.getPersistentId arr).ToString("N")
+                  ModelName = "RSEnumerable_Song"
+                  Name = sprintf "%s_%s" project.DLCKey (Arrangement.getName arr false)
+                  Iterations = 0
+                  Properties = properties } |]
 
-    { EntitySet = entitySet |> List.toArray }
+    { EntitySet = entitySet }
 
 let serialize (output: Stream) (game: Game) =
     let ns = XmlSerializerNamespaces()
