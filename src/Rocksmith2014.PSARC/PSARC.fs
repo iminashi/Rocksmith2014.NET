@@ -71,7 +71,8 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         // WEM -> Packed vorbis data, zipping usually pointless
         // SNG -> Already zlib packed
         // AppId -> Very small file (6-7 bytes), unpacked in official files
-        entry.Name.EndsWith(".wem") || entry.Name.EndsWith(".sng") || entry.Name.EndsWith("appid")
+        // 7z -> Already compressed (found in cache.psarc)
+        entry.Name.EndsWith(".wem") || entry.Name.EndsWith(".sng") || entry.Name.EndsWith("appid") || entry.Name.EndsWith("7z")
 
     let mutable manifest =
         if toc.Count > 1 then
