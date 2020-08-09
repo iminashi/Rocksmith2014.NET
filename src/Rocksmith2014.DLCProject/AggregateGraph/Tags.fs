@@ -1,75 +1,29 @@
 ﻿namespace Rocksmith2014.DLCProject
 
 module TagType =
-    [<Literal>]
-    let Tag = "tag"
-
-    [<Literal>]
-    let LLID = "llid"
-
-    [<Literal>]
-    let Canonical = "canonical"
-
-    [<Literal>]
-    let Name = "name"
-
-    [<Literal>]
-    let RelPath = "relpath"
-
-    [<Literal>]
-    let LogPath = "logpath"
+    let [<Literal>] Tag = "tag"
+    let [<Literal>] LLID = "llid"
+    let [<Literal>] Canonical = "canonical"
+    let [<Literal>] Name = "name"
+    let [<Literal>] RelPath = "relpath"
+    let [<Literal>] LogPath = "logpath"
 
 module Tag =
-    [<Literal>]
-    let Database = "database"
-    
-    [<Literal>]
-    let JsonDB = "json-db"
-
-    [<Literal>]
-    let HsonDB = "hson-db"
-    
-    [<Literal>]
-    let HsanDB = "hsan-db"
-    
-    [<Literal>]
-    let Application = "application"
-    
-    [<Literal>]
-    let MusicgameSong = "musicgame-song"
-    
-    [<Literal>]
-    let DDS = "dds"
-    
-    [<Literal>]
-    let Image = "image"
-
-    [<Literal>]
-    let XML = "xml"
-    
-    [<Literal>]
-    let Audio = "audio"
-
-    [<Literal>]
-    let WwiseSoundBank = "wwise-sound-bank"
-
-    [<Literal>]
-    let DX9 = "dx9"
-
-    [<Literal>]
-    let MacOS = "macos"
-
-    [<Literal>]
-    let Xbox360 = "xbox360"
-
-    [<Literal>]
-    let PS3 = "ps3"
-
-    [<Literal>]
-    let EmergentWorld = "emergent-world"
-
-    [<Literal>]
-    let XWorld = "x-world"
-
-    [<Literal>]
-    let GamebryoSceneGraph = "gamebryo-scenegraph"
+    let [<Literal>] Database = "database"
+    let [<Literal>] JsonDB = "json-db"
+    let [<Literal>] HsonDB = "hson-db"
+    let [<Literal>] HsanDB = "hsan-db"
+    let [<Literal>] Application = "application"
+    let [<Literal>] MusicgameSong = "musicgame-song"
+    let [<Literal>] DDS = "dds"
+    let [<Literal>] Image = "image"
+    let [<Literal>] XML = "xml"
+    let [<Literal>] Audio = "audio"
+    let [<Literal>] WwiseSoundBank = "wwise-sound-bank"
+    let [<Literal>] DX9 = "dx9"
+    let [<Literal>] MacOS = "macos"
+    let [<Literal>] Xbox360 = "xbox360"
+    let [<Literal>] PS3 = "ps3"
+    let [<Literal>] EmergentWorld = "emergent-world"
+    let [<Literal>] XWorld = "x-world"
+    let [<Literal>] GamebryoSceneGraph = "gamebryo-scenegraph"
