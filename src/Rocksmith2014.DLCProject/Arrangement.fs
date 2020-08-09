@@ -1,7 +1,6 @@
 ﻿namespace Rocksmith2014.DLCProject
 
 open System
-open Rocksmith2014.Common.Manifest
 
 type ArrangementName =
     | Lead = 0
@@ -14,7 +13,6 @@ type Instrumental =
       ArrangementName : ArrangementName
       RouteMask : RouteMask
       ScrollSpeed : int
-      Tones : Tone list
       MasterID : int
       PersistentID : Guid }
 

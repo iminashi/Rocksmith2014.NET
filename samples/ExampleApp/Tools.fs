@@ -34,7 +34,8 @@ let project =
       AudioFile = "audio.wem"
       AudioPreviewFile = "preview.wem"
       CentOffset = 0.
-      Arrangements = [] }
+      Arrangements = []
+      Tones = [] }
 
 let private window =
     lazy ((Application.Current.ApplicationLifetime :?> ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime).MainWindow)
@@ -179,7 +180,6 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                   ArrangementName = ArrangementName.Lead
                   RouteMask = RouteMask.Lead
                   ScrollSpeed = 13
-                  Tones = []
                   MasterID = 12345
                   PersistentID = Guid.NewGuid() }
 

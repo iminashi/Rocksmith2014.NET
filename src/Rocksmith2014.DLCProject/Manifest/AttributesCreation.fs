@@ -387,9 +387,17 @@ let private initSongCommon xmlMetaData (project: DLCProject) (sng: SNG) (attr: A
 let private initSongComplete partition
                              (xmlMetaData: XML.MetaData)
                              (xmlToneInfo: XML.ToneInfo)
+                             (project: DLCProject)
                              (instrumental: Instrumental)
                              (sng: SNG)
                              (attr: Attributes) =
+    let tones = 
+        let toneNamesUsed =
+            seq { xmlToneInfo.BaseToneName; yield! xmlToneInfo.Names |> Seq.filter (isNull >> not) }
+            |> Set.ofSeq
+        project.Tones
+        |> List.filter (fun t -> toneNamesUsed.Contains t.Name)
+        |> List.toArray
 
     attr.ArrangementProperties <- Some (convertArrangementProperties xmlMetaData.ArrangementProperties instrumental)
     attr.ArrangementType <- instrumental.ArrangementName |> LanguagePrimitives.EnumToValue |> Nullable
@@ -413,7 +421,7 @@ let private initSongComplete partition
     attr.Tone_C <- if isNull xmlToneInfo.Names.[2] then String.Empty else xmlToneInfo.Names.[2]
     attr.Tone_D <- if isNull xmlToneInfo.Names.[3] then String.Empty else xmlToneInfo.Names.[3]
     attr.Tone_Multiplayer <- String.Empty
-    attr.Tones <- instrumental.Tones |> List.toArray
+    attr.Tones <- tones
 
     attr
 
@@ -459,7 +467,7 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
             let toneInfo = XML.InstrumentalArrangement.ReadToneNames(inst.XML)
             attr
             |> initAttributesCommon name dlcKey sng.Levels.Length project arr
-            |> initSongComplete part xmlMetaData toneInfo inst sng
+            |> initSongComplete part xmlMetaData toneInfo project inst sng
 
 let createAttributes = create false
 let createAttributesHeader = create true

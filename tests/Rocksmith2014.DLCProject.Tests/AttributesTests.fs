@@ -24,7 +24,8 @@ let testProject =
       AudioFile = "audio.wem"
       AudioPreviewFile = "audio_preview.wem"
       CentOffset = 0.0
-      Arrangements = [] }
+      Arrangements = []
+      Tones = [] }
 
 let testArr = InstrumentalArrangement.Load("instrumental.xml")
 let testSng = ConvertInstrumental.xmlToSng testArr
@@ -34,7 +35,6 @@ let testLead =
       ArrangementName = ArrangementName.Lead
       RouteMask = RouteMask.Lead
       ScrollSpeed = 13
-      Tones = []
       MasterID = 12345
       PersistentID = Guid.NewGuid() }
 

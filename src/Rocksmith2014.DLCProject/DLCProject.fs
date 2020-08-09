@@ -1,5 +1,7 @@
 ﻿namespace Rocksmith2014.DLCProject
 
+open Rocksmith2014.Common.Manifest
+
 type DLCProject =
     { DLCKey : string
       //AppID : int = 221680 
@@ -17,4 +19,5 @@ type DLCProject =
       AudioFile : string
       AudioPreviewFile : string
       CentOffset : float
-      Arrangements : Arrangement list }
+      Arrangements : Arrangement list
+      Tones : Tone list}

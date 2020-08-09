@@ -29,7 +29,8 @@ let testProject =
       AudioFile = "audio.wem"
       AudioPreviewFile = "audio_preview.wem"
       CentOffset = 0.0
-      Arrangements = [ Vocals vocals ] }
+      Arrangements = [ Vocals vocals ]
+      Tones = [] }
 
 [<Tests>]
 let someTests =
