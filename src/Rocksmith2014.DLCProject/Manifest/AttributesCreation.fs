@@ -337,7 +337,7 @@ let private getTechniques (sng: SNG) (note: Note) =
               if not isPower && isDoubleStopAdjacentStrings sng note then 33
 
               // 34: Double stop with nonadjacent strings
-              if not isPower && isDoubleStopNonAdjacentStrings sng note then 33
+              if not isPower && isDoubleStopNonAdjacentStrings sng note then 34
 
               // 35: Two string power chord
               if isPower then 35
@@ -358,7 +358,7 @@ let private getTechniques (sng: SNG) (note: Note) =
               if isChordSlide sng note then 41
 
               // 42: Chord tremolo (double stop slide in technique database)
-              if isChordTremolo sng note then 41
+              if isChordTremolo sng note then 42
 
               // 43: Chord HOPO (chord slide in technique database) 
               if isChordHammerOn sng note then 43
