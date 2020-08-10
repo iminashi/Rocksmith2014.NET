@@ -315,6 +315,21 @@ let private getTechniques (sng: SNG) (note: Note) =
               // 16: Vibrato
               if hasFlag note NoteMask.Vibrato then 16
 
+              // 17: Palm mute + accent
+              if hasFlag note (NoteMask.PalmMute ||| NoteMask.Accent) then 17
+
+              // 18: Palm mute + harmonic
+              if hasFlag note (NoteMask.PalmMute ||| NoteMask.Harmonic) then 18
+
+              // 19: Palm mute + hammer-on
+              if hasFlag note (NoteMask.PalmMute ||| NoteMask.HammerOn) then 19
+
+              // 20: Palm mute + pull off
+              if hasFlag note (NoteMask.PalmMute ||| NoteMask.PullOff) then 20
+
+              // 21: Fret hand mute + accent
+              if hasFlag note (NoteMask.FretHandMute ||| NoteMask.Accent) then 21
+
               // 26: Tremolo + bend
               if hasFlag note (NoteMask.Bend ||| NoteMask.Tremolo) then 26
 
@@ -373,13 +388,8 @@ let private getTechniques (sng: SNG) (note: Note) =
               if isDoubleStopBend sng note then 46 }
 
               // Not used:
-              // 17: Palm mute + accent
-              // 18: Palm mute + harmonic
-              // 19: Palm mute + hammer-on
-              // 20: Palm mute + pull off
-              // 21: Fret hand mute + accent
               // 22: Fret hand mute + pop
-              // 23: Fret hand mute + slap
+              // 23: Fret hand mute + slap (found in "Living in America", but not included in the tech map)
               // 24: Harmonic + pop
               // 25: Harmonic + slap
               // 32: Arpeggio
