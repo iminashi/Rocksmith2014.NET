@@ -160,5 +160,5 @@ let someTests =
     test "Palm Mute + Harmonic" {
         Expect.contains firstLevel.["28"] 4 "Phrase iteration 28 contains harmonic"
         Expect.contains firstLevel.["28"] 7 "Phrase iteration 28 contains palm mute"
-        Expect.contains firstLevel.["28"] 18 "Phrase iteration 28 contains palm mute + accent" }
+        Expect.contains firstLevel.["28"] 18 "Phrase iteration 28 contains palm mute + harmonic" }
   ]
