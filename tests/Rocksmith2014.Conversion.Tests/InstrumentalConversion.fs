@@ -61,8 +61,8 @@ let sngToXmlConversionTests =
 
         // Test various properties of the chords
         Expect.equal level.Notes.[0].FingerPrintId.[0] 0s "Chord #0 is inside hand shape (Chord ID 0)"
-        Expect.isTrue (level.Notes.[0].Mask ?= SNG.NoteMask.Strum) "Chord #0 has strum bit set"
-        Expect.isFalse (level.Notes.[2].Mask ?= SNG.NoteMask.Strum) "Chord #2 does not have strum bit set"
+        Expect.isTrue (level.Notes.[0].Mask ?= SNG.NoteMask.ChordPanel) "Chord #0 has chord panel bit set"
+        Expect.isFalse (level.Notes.[2].Mask ?= SNG.NoteMask.ChordPanel) "Chord #2 does not have chord panel bit set"
         Expect.isTrue (level.Notes.[4].Mask ?= SNG.NoteMask.DoubleStop) "Chord #4 has double stop bit set"
         Expect.equal level.Notes.[6].Sustain 0.750f "Chord #6 has 0.75s sustain"
         Expect.isTrue (level.Notes.[7].Mask ?= SNG.NoteMask.Ignore) "Chord #7 has ignore bit set"

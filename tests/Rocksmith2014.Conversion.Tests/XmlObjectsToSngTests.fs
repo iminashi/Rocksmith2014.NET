@@ -549,7 +549,7 @@ let sngToXmlConversionTests =
         Expect.isTrue (sng.Mask ?= SNG.NoteMask.Chord) "Chord has chord flag"
         Expect.isFalse (sng.Mask ?= SNG.NoteMask.DoubleStop) "Double stop flag is not set"
         Expect.isFalse (sng.Mask ?= SNG.NoteMask.Arpeggio) "Arpeggio flag is not set"
-        Expect.isTrue (sng.Mask ?= SNG.NoteMask.Strum) "Strum flag is set"
+        Expect.isTrue (sng.Mask ?= SNG.NoteMask.ChordPanel) "Chord panel flag is set"
         Expect.isTrue (sng.Mask ?= SNG.NoteMask.Sustain) "Sustain flag is set"
         Expect.isTrue (sng.Mask ?= SNG.NoteMask.ChordNotes) "Chord notes flag is set"
 
@@ -565,7 +565,7 @@ let sngToXmlConversionTests =
         Expect.isTrue (sng.Mask ?= SNG.NoteMask.Chord) "Chord has chord flag"
         Expect.isTrue (sng.Mask ?= SNG.NoteMask.DoubleStop) "Double stop flag is set"
         Expect.isTrue (sng.Mask ?= SNG.NoteMask.Arpeggio) "Arpeggio flag is set"
-        Expect.isFalse (sng.Mask ?= SNG.NoteMask.Strum) "Strum flag is not set"
+        Expect.isFalse (sng.Mask ?= SNG.NoteMask.ChordPanel) "Chord panel flag is not set"
         Expect.isFalse (sng.Mask ?= SNG.NoteMask.ChordNotes) "Chord notes flag is not set"
 
     testCase "Chord (Mask)" <| fun _ ->

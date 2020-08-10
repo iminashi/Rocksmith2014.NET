@@ -94,11 +94,10 @@ let private isDoubleStop (template: XML.ChordTemplate) =
     |> Seq.length
     |> (=) 2
 
-/// Returns true if the strum bit should be set.
-let private isStrum (chord: XML.Chord) =
+/// Returns true if the chord panel bit should be set.
+let private showChordPanel (chord: XML.Chord) =
     match chord.ChordNotes with
-    | null -> false
-    | cn when cn.Count = 0 -> false
+    | cn when isNull cn || cn.Count = 0 -> false
     | _ -> true
 
 /// Creates an SNG note mask for a chord.
@@ -107,7 +106,7 @@ let private createMaskForChord (template: XML.ChordTemplate) sustain chordNoteId
     let baseMask =
         NoteMask.Chord
         ||| if isDoubleStop template then NoteMask.DoubleStop else NoteMask.None
-        ||| if isStrum chord         then NoteMask.Strum      else NoteMask.None
+        ||| if showChordPanel chord  then NoteMask.ChordPanel else NoteMask.None
         ||| if template.IsArpeggio   then NoteMask.Arpeggio   else NoteMask.None
         ||| if sustain > 0.f         then NoteMask.Sustain    else NoteMask.None
         ||| if chordNoteId <> -1     then NoteMask.ChordNotes else NoteMask.None

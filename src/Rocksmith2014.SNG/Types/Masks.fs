@@ -50,7 +50,7 @@ type NoteMask =
     | Child          = 0b00010000_00000000_00000000_00000000u
     | Arpeggio       = 0b00100000_00000000_00000000_00000000u
   //| Unused         = 0b01000000_00000000_00000000_00000000u
-    | Strum          = 0b10000000_00000000_00000000_00000000u
+    | ChordPanel     = 0b10000000_00000000_00000000_00000000u
 
 module Masks =
     /// Mask bits that need to be considered when converting a note to XML.

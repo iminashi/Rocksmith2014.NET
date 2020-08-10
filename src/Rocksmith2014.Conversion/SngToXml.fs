@@ -210,7 +210,7 @@ let convertChord (sng: SNG) (sngNote: Note) =
     XML.Chord(Mask = convertChordMask sngNote.Mask,
               Time = secToMs sngNote.Time,
               ChordId = int16 sngNote.ChordId,
-              ChordNotes = if sngNote.Mask ?= NoteMask.Strum then createChordNotes sng sngNote else null)
+              ChordNotes = if sngNote.Mask ?= NoteMask.ChordPanel then createChordNotes sng sngNote else null)
 
 let private mapFingerPrints (handShapes: FingerPrint array) (arpeggios: FingerPrint array) =
     let result = ResizeArray<XML.HandShape>(handShapes.Length + arpeggios.Length)

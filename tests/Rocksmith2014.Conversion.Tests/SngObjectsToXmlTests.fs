@@ -358,7 +358,7 @@ let sngToXmlConversionTests =
     testCase "Chord" <| fun _ ->
       let c =
           { Mask = NoteMask.Chord ||| NoteMask.Parent ||| NoteMask.Accent ||| NoteMask.FretHandMute |||
-                   NoteMask.HighDensity ||| NoteMask.Ignore ||| NoteMask.PalmMute ||| NoteMask.Strum
+                   NoteMask.HighDensity ||| NoteMask.Ignore ||| NoteMask.PalmMute ||| NoteMask.ChordPanel
             Flags = 0u
             Hash = 1234u
             Time = 66.66f

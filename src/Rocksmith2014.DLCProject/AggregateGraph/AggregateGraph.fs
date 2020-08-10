@@ -7,12 +7,9 @@ open System.Text
 
 type Graph = { Items: GraphItem list }
 
-[<Literal>]
-let private canonicalXBlock = "/gamexblocks/nsongs"
-[<Literal>]
-let private canonicalXmlSong = "/songs/arr"
-[<Literal>]
-let private canonicalAlbumArt = "/gfxassets/album_art"
+let [<Literal>] private canonicalXBlock = "/gamexblocks/nsongs"
+let [<Literal>] private canonicalXmlSong = "/songs/arr"
+let [<Literal>] private canonicalAlbumArt = "/gfxassets/album_art"
 
 let create (platform: Platform) (project: DLCProject) =
     let dlcName = project.DLCKey.ToLowerInvariant()
