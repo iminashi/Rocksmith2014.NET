@@ -393,7 +393,7 @@ let private getTechniques (sng: SNG) (note: Note) =
               // 24: Harmonic + pop
               // 25: Harmonic + slap
               // 32: Arpeggio
-              // 39: Unknown (not included in technique database, but could be "non-standard chord")
+              // 39: Unknown (not included in technique database, but could be "chord zone" or "non-standard chord")
 
 let private createTechniqueMap (sng: SNG) =
     // The structure of the map is the same as the chord map, but with technique IDs instead of chord IDs.

@@ -18,7 +18,7 @@ let private isDropTuning (tuning: int16 array) =
     tuning.[0] = tuning.[1] - 2s && tuning.[0] = tuning.[2] - 2s
 
 let isDropDPower sng note =
-    hasFlag note (NoteMask.Chord)
+    hasFlag note NoteMask.Chord
     && isDropTuning sng.MetaData.Tuning
     &&
     let frets = sng.Chords.[note.ChordId].Frets
@@ -60,18 +60,14 @@ let isChordHammerOn sng note =
     |> Array.exists (fun x -> (x &&& NoteMask.HammerOn) <> NoteMask.None)
 
 let isDoubleStopAdjacentStrings sng note =
-    hasFlag note (NoteMask.ChordNotes ||| NoteMask.DoubleStop)
+    hasFlag note NoteMask.DoubleStop
     &&
     let s1 = Array.findIndex (fun x -> x >= 0y) sng.Chords.[note.ChordId].Frets
     let s2 = Array.findIndexBack (fun x -> x >= 0y) sng.Chords.[note.ChordId].Frets
     s1 + 1 = s2
 
 let isDoubleStopNonAdjacentStrings sng note =
-    hasFlag note (NoteMask.ChordNotes ||| NoteMask.DoubleStop)
-    &&
-    let s1 = Array.findIndex (fun x -> x >= 0y) sng.Chords.[note.ChordId].Frets
-    let s2 = Array.findIndexBack (fun x -> x >= 0y) sng.Chords.[note.ChordId].Frets
-    s1 + 1 <> s2
+    hasFlag note NoteMask.DoubleStop && not <| isDoubleStopAdjacentStrings sng note
 
 let isChordSlide sng note =
     hasFlag note NoteMask.ChordNotes && not (hasFlag note NoteMask.DoubleStop)

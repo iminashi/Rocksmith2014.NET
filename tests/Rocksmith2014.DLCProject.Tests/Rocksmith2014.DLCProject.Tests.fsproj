@@ -15,12 +15,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="Tech_Test.sng">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="test.xblock">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="instrumental.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Compile Include="AttributesTechniquesTests.fs" />
     <Compile Include="AttributesTests.fs" />
     <Compile Include="ManifestTests.fs" />
     <Compile Include="XblockTests.fs" />
