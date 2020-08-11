@@ -20,19 +20,17 @@ open System
 open Elmish
 
 let project = 
-    { DLCKey = "dummy"
-      ArtistName = "Artist"
-      ArtistNameSort = "Artist"
+    { Version = 1.
+      DLCKey = "dummy"
+      ArtistName = SortableString.makeSimple "Artist"
       JapaneseArtistName = None
       JapaneseTitle = None
-      Title = "Title"
-      TitleSort = "Title"
-      AlbumName = "Album"
-      AlbumNameSort = "Album"
+      Title = SortableString.makeSimple "Title"
+      AlbumName = SortableString.makeSimple "Album"
       Year = 1999
       AlbumArtFile = "cover.dds"
-      AudioFile = "audio.wem"
-      AudioPreviewFile = "preview.wem"
+      AudioFile = { Path = "audio.wem"; Volume = 12. }
+      AudioPreviewFile = { Path = "preview.wem"; Volume = 12. }
       CentOffset = 0.
       Arrangements = []
       Tones = [] }

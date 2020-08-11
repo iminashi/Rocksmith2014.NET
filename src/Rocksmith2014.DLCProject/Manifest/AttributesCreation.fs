@@ -312,10 +312,10 @@ let private initSongCommon xmlMetaData (project: DLCProject) (sng: SNG) (attr: A
     let diffHard, diffMed, diffEasy = calculateDifficulties xmlMetaData sng
     let dnaChords, dnaRiffs, dnaSolo = calculateDNAs sng
 
-    attr.AlbumName <- project.AlbumName
-    attr.AlbumNameSort <- project.AlbumNameSort
-    attr.ArtistName <- project.ArtistName
-    attr.ArtistNameSort <- project.ArtistNameSort
+    attr.AlbumName <- project.AlbumName.Value
+    attr.AlbumNameSort <- project.AlbumName.SortValue
+    attr.ArtistName <- project.ArtistName.Value
+    attr.ArtistNameSort <- project.ArtistName.SortValue
     attr.CentOffset <- project.CentOffset |> Nullable
     attr.DNA_Chords <- dnaChords |> Nullable
     attr.DNA_Riffs <- dnaRiffs |> Nullable
@@ -330,8 +330,8 @@ let private initSongCommon xmlMetaData (project: DLCProject) (sng: SNG) (attr: A
     attr.SongDiffMed <- diffMed |> Nullable
     attr.SongDifficulty <- diffHard |> Nullable
     attr.SongLength <- sng.MetaData.SongLength |> Nullable
-    attr.SongName <- project.Title
-    attr.SongNameSort <- project.TitleSort
+    attr.SongName <- project.Title.Value
+    attr.SongNameSort <- project.Title.SortValue
     attr.SongYear <- project.Year |> Nullable
     attr.Tuning <- Tuning.FromArray(xmlMetaData.Tuning.Strings) |> Some
 

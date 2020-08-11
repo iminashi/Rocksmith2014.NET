@@ -24,19 +24,17 @@ let lead =
       PersistentID = Guid.NewGuid() }
 
 let project =
-    { DLCKey = "SomeTest"
-      ArtistName = "Artist"
-      ArtistNameSort = "artist"
+    { Version = 1.
+      DLCKey = "SomeTest"
+      ArtistName = SortableString.makeSimple "Artist"
       JapaneseArtistName = None
       JapaneseTitle = None
-      Title = "Title"
-      TitleSort = "title"
-      AlbumName = "Album"
-      AlbumNameSort = "album"
+      Title = SortableString.makeSimple "Title"
+      AlbumName = SortableString.makeSimple "Album"
       Year = 2020
       AlbumArtFile = "cover.dds"
-      AudioFile = "audio.wem"
-      AudioPreviewFile = "audio_preview.wem"
+      AudioFile = { Path = "audio.wem"; Volume = 1. }
+      AudioPreviewFile = { Path = "audio_preview.wem"; Volume = 1. }
       CentOffset = 0.0
       Arrangements = [ Vocals vocals; Showlights sl; Instrumental lead ]
       Tones = [] }
