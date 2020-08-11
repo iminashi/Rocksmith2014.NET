@@ -52,7 +52,7 @@ let someTests =
         Expect.contains firstLevel.["2"] 9 "Phrase iteration 2 contains pull-off"
         Expect.contains firstLevel.["2"] 6 "Phrase iteration 2 contains HOPO" }
 
-    test "Harmonic, P.Harmonic, Slap, Pop" {
+    test "Harmonic, Pinch Harmonic, Slap, Pop" {
         Expect.contains firstLevel.["3"] 4 "Phrase iteration 3 contains harmonic"
         Expect.contains firstLevel.["3"] 5 "Phrase iteration 3 contains pinch harmonic"
         Expect.contains firstLevel.["3"] 10 "Phrase iteration 3 contains slap"
