@@ -126,7 +126,7 @@ module SNG =
         (sng :> IBinaryWritable).Write writer
 
     /// Unpacks the given encrypted SNG file and saves it with an "_unpacked.sng" postfix.
-    let unpackFile fileName platform =
+    let unpackFile fileName platform = async {
         use file = File.OpenRead fileName
         let targetFile =
             Path.Combine
@@ -135,7 +135,7 @@ module SNG =
                  + "_unpacked.sng")
     
         use out = File.Open(targetFile, FileMode.Create, FileAccess.Write)
-        unpack file out platform
+        do! unpack file out platform }
     
     /// Reads an SNG from the stream.
     let fromStream (input: Stream) platform = async {
