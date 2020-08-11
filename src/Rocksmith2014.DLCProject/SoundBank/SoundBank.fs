@@ -15,7 +15,7 @@ module private HierarchyID =
 let private rand = Random()
 
 let private fnvHash (str: string) =
-    let bytes = str.ToLower().ToCharArray();
+    let bytes = str.ToLower().ToCharArray()
     let mutable hash = 2166136261u
 
     for i = 0 to str.Length - 1 do
@@ -343,7 +343,7 @@ let readVolume path platform =
     if file.Position >= file.Length then
         Error "Could not find HIRC section."
     else
-        // Read section length
+        // Read HIRC section length
         reader.ReadUInt32() |> ignore
 
         let objCount = reader.ReadUInt32()
@@ -355,7 +355,7 @@ let readVolume path platform =
             objIndex <- objIndex + 1u
 
         if objIndex = objCount then
-            Error "Could not find Sound SFX object."
+            Error "Could not find SFX object."
         else
             // Skip 46 bytes to get to the parameter count
             file.Position <- file.Position + 46L
