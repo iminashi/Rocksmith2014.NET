@@ -19,14 +19,13 @@ let create (platform: Platform) (project: DLCProject) =
         yield GraphItem.normal dlcName canonicalXBlock "xblock" [ Tag.EmergentWorld; Tag.XWorld ]
 
         for arrangement in project.Arrangements do
+            let name = sprintf "%s_%s" dlcName (partition arrangement |> snd)
+
             match arrangement with 
             | Showlights ->
-                let name = sprintf "%s_showlights" dlcName
                 yield GraphItem.llid name canonicalXmlSong "xml" [ Tag.Application; Tag.XML ]
 
             | _ ->
-                let name = partition arrangement |> snd
-
                 let canonical = sprintf "/manifests/songs_dlc_%s" dlcName
                 yield GraphItem.normal name canonical "json" [ Tag.Database; Tag.JsonDB ]
 

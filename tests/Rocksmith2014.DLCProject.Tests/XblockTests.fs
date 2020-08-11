@@ -20,7 +20,7 @@ let lead =
       RouteMask = RouteMask.Lead
       ScrollSpeed = 13
       MasterID = 987654
-      PersistentID = Guid.NewGuid()}
+      PersistentID = Guid.NewGuid() }
 
 let testProject =
     { DLCKey = "SomeTest"
@@ -56,7 +56,7 @@ let someTests =
 
         Expect.isNonEmpty x.EntitySet "Entity set has been populated" }
 
-    test "Entity Set Contents is Correct" {
+    test "Entity set contents is correct" {
         let x = XBlock.create PC testProject
         let entitySet = x.EntitySet
 
