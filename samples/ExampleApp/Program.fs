@@ -13,7 +13,7 @@ type MainWindow() as this =
     do
         base.Title <- "TestApp"
         base.Width <- 800.0
-        base.Height <- 600.0
+        base.Height <- 700.0
         
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
         //this.VisualRoot.VisualRoot.Renderer.DrawDirtyRects <- true

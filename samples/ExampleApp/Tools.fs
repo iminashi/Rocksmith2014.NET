@@ -97,7 +97,8 @@ type State = { Status:string; Platform:Platform }
 let init () = { Status = ""; Platform = PC }, Cmd.none
 
 type Msg =
-    | UnpackFile of file:string
+    | UnpackSNGFile of file:string
+    | PackSNGFile of file:string
     | ConvertVocalsSNGtoXML of file:string
     | ConvertVocalsXMLtoSNG of file:string
     | ConvertInstrumentalSNGtoXML of file:string
@@ -125,8 +126,16 @@ let convertFileToSng platform (fileName: string) =
 let update (msg: Msg) (state: State) : State * Cmd<Msg> =
     try
         match msg with      
-        | UnpackFile file ->
+        | UnpackSNGFile file ->
             let t () = SNG.unpackFile file state.Platform
+            state, Cmd.OfAsync.attempt t () Error
+
+        | PackSNGFile file ->
+            let t () = async {
+                use plain = File.OpenRead file
+                let targetPath = file.Replace("_unpacked", "")
+                use target = File.Create targetPath
+                do! SNG.pack plain target state.Platform }
             state, Cmd.OfAsync.attempt t () Error
 
         | ConvertVocalsSNGtoXML file ->
@@ -292,9 +301,21 @@ let view (state: State) dispatch =
                 ]
             ]
 
+            TextBlock.create [
+                TextBlock.fontSize 18.0
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.text "SNG"
+            ]
+
             Button.create [
-                Button.onClick (fun _ -> ofdSng (UnpackFile >> dispatch))
-                Button.content "Unpack SNG File..."
+                Button.onClick (fun _ -> ofdSng (UnpackSNGFile >> dispatch))
+                Button.content "Unpack File..."
+            ]
+
+            Button.create [
+                Button.onClick (fun _ -> ofdSng (PackSNGFile >> dispatch))
+                Button.content "Pack File..."
             ]
 
             Button.create [
@@ -322,6 +343,13 @@ let view (state: State) dispatch =
                 Button.content "Batch Convert to SNG..."
             ]
 
+            TextBlock.create [
+                TextBlock.fontSize 18.0
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.text "PSARC"
+            ]
+
             Button.create [
                 Button.onClick (fun _ -> ofdPsarc (TouchPSARC >> dispatch))
                 Button.content "Touch PSARC File..."
@@ -329,7 +357,7 @@ let view (state: State) dispatch =
 
             Button.create [
                 Button.onClick (fun _ -> ofdPsarc (UnpackPSARC >> dispatch))
-                Button.content "Unpack PSARC File..."
+                Button.content "Unpack File..."
             ]
 
             Button.create [
@@ -338,18 +366,25 @@ let view (state: State) dispatch =
             ]
 
             Button.create [
+                Button.onClick (fun _ -> ofdPsarc (ExtractSNGtoXML >> dispatch))
+                Button.content "Convert SNG to XML from PSARC..."
+            ]
+
+            TextBlock.create [
+                TextBlock.fontSize 18.0
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.text "Misc."
+            ]
+
+            Button.create [
                 Button.onClick (fun _ -> ofdXml (CreateManifest >> dispatch))
                 Button.content "Create Manifest from XML File..."
             ]
 
             Button.create [
-                Button.onClick (fun _ -> ofdPsarc (ExtractSNGtoXML >> dispatch))
-                Button.content "Convert SNG to XML from PSARC..."
-            ]
-
-            Button.create [
                 Button.onClick (fun _ -> ofdAll (ConvertToDDS >> dispatch))
-                Button.content "Convert an image to DDS..."
+                Button.content "Convert an Image to DDS..."
             ]
 
             Button.create [
@@ -363,7 +398,7 @@ let view (state: State) dispatch =
             ]
 
             TextBlock.create [
-                TextBlock.fontSize 26.0
+                TextBlock.fontSize 22.0
                 TextBlock.textWrapping TextWrapping.Wrap
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
