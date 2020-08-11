@@ -40,17 +40,15 @@ let project =
 let private window =
     lazy ((Application.Current.ApplicationLifetime :?> ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime).MainWindow)
 
-let sngFilters =
-    let filter = FileDialogFilter(Extensions = ResizeArray(seq { "sng" }), Name = "SNG Files")
+let createFilters (extensions: string seq) name =
+    let filter = FileDialogFilter(Extensions = ResizeArray(extensions), Name = name)
     ResizeArray(seq { filter })
 
-let xmlFilters =
-    let filter = FileDialogFilter(Extensions = ResizeArray(seq { "xml" }), Name = "XML Files")
-    ResizeArray(seq { filter })
-
-let psarcFilters =
-    let filter = FileDialogFilter(Extensions = ResizeArray(seq { "psarc" }), Name = "PSARC Files")
-    ResizeArray(seq { filter })
+let sngFilters = createFilters (seq { "sng" }) "SNG Files"
+let xmlFilters = createFilters (seq { "xml" }) "XML Files"
+let psarcFilters = createFilters (seq { "psarc" }) "PSARC Files"
+let wemFilters = createFilters (seq { "wem" }) "WWise Audio Files"
+let bnkFilters = createFilters (seq { "bnk" }) "Sound Bank Files"
 
 let openFileDialogSingle title filters dispatch = 
     Dispatcher.UIThread.InvokeAsync(
@@ -88,6 +86,8 @@ let openFolderDialog title dispatch =
 let ofdSng = openFileDialogSingle "Select File" sngFilters
 let ofdXml = openFileDialogSingle "Select File" xmlFilters
 let ofdPsarc = openFileDialogSingle "Select File" psarcFilters
+let ofdWem = openFileDialogSingle "Select File" wemFilters
+let ofdBnk = openFileDialogSingle "Select File" bnkFilters
 let ofdAll = openFileDialogSingle "Select File" null
 let ofdMultiXml = openFileDialogMulti "Select Files" xmlFilters
 let ofod = openFolderDialog "Select Folder"
@@ -110,6 +110,8 @@ type Msg =
     | ExtractSNGtoXML of file:string
     | ChangePlatform of Platform
     | ConvertToDDS of file:string
+    | GenerateSoundBank of file:string
+    | ReadVolume of file:string
     | Error of ex:Exception
 
 let convertFileToSng platform (fileName: string) =
@@ -245,6 +247,21 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             DDS.convertToDDS file target options
             state, Cmd.none
 
+        | GenerateSoundBank file ->
+            let target = Path.ChangeExtension(file, "bnk")
+            use targetFile = File.Create(target)
+            use audio = File.OpenRead(file)
+            let wemName = SoundBank.generate "test" audio targetFile -2.5f false PC
+            state, Cmd.none
+
+        | ReadVolume file ->
+            let message =
+                match SoundBank.readVolume file PC with
+                | Result.Error err -> err
+                | Result.Ok vol -> sprintf "Volume: %f dB" vol
+
+            { state with Status = message }, Cmd.none
+
         | ChangePlatform platform -> { state with Platform = platform }, Cmd.none
 
         | Error e -> { state with Status = e.Message }, Cmd.none
@@ -333,6 +350,16 @@ let view (state: State) dispatch =
             Button.create [
                 Button.onClick (fun _ -> ofdAll (ConvertToDDS >> dispatch))
                 Button.content "Convert an image to DDS..."
+            ]
+
+            Button.create [
+                Button.onClick (fun _ -> ofdWem (GenerateSoundBank >> dispatch))
+                Button.content "Generate Sound Bank..."
+            ]
+
+            Button.create [
+                Button.onClick (fun _ -> ofdBnk (ReadVolume >> dispatch))
+                Button.content "Read Volume from Sound Bank..."
             ]
 
             TextBlock.create [

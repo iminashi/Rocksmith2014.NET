@@ -15,6 +15,7 @@
   <ItemGroup>
     <EmbeddedResource Include="res\rsenumerable_root.flat" />
     <EmbeddedResource Include="res\rsenumerable_song.flat" />
+    <Compile Include="SoundBank\SoundBank.fs" />
     <Compile Include="DDS\DDS.fs" />
     <Compile Include="RouteMask.fs" />
     <Compile Include="Arrangement.fs" />
