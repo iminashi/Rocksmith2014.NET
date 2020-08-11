@@ -61,5 +61,5 @@ module Masks =
 
     /// Mask bits that need to be considered when converting a chord to XML.
     let ChordTechniques =
-            NoteMask.Accent ||| NoteMask.FretHandMute ||| NoteMask.HighDensity
-            ||| NoteMask.Ignore ||| NoteMask.PalmMute ||| NoteMask.Parent
+        NoteMask.Accent ||| NoteMask.FretHandMute ||| NoteMask.HighDensity
+        ||| NoteMask.Ignore ||| NoteMask.PalmMute ||| NoteMask.Parent
