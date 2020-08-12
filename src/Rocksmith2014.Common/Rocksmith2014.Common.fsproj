@@ -19,11 +19,13 @@
     <Compile Include="Manifest\Section.fs" />
     <Compile Include="Manifest\Tuning.fs" />
     <Compile Include="Manifest\Attributes.fs" />
+    <Compile Include="Profile\Profile.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FSharp.Control.FusionTasks" Version="2.0.2" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.3.5" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="SharpZipLib" Version="1.2.0" />
   </ItemGroup>
 

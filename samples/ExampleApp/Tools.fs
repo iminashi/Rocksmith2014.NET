@@ -45,7 +45,7 @@ let createFilters (extensions: string seq) name =
 let sngFilters = createFilters (seq { "sng" }) "SNG Files"
 let xmlFilters = createFilters (seq { "xml" }) "XML Files"
 let psarcFilters = createFilters (seq { "psarc" }) "PSARC Files"
-let wemFilters = createFilters (seq { "wem" }) "WWise Audio Files"
+let wemFilters = createFilters (seq { "wem" }) "Wwise Audio Files"
 let bnkFilters = createFilters (seq { "bnk" }) "Sound Bank Files"
 
 let openFileDialogSingle title filters dispatch = 
@@ -111,6 +111,8 @@ type Msg =
     | ConvertToDDS of file:string
     | GenerateSoundBank of file:string
     | ReadVolume of file:string
+    | DecryptProfile of file:string
+    | ImportTones of file:string
     | Error of ex:Exception
 
 let convertFileToSng platform (fileName: string) =
@@ -269,6 +271,23 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
 
             { state with Status = message }, Cmd.none
 
+        | DecryptProfile file ->
+            let t () = async {
+                use profFile = File.OpenRead(file)
+                use targetFile = File.Create(file + ".json")
+                do! Profile.decryptProfile profFile targetFile }
+            state, Cmd.OfAsync.attempt t () Error
+
+        | ImportTones file ->
+            let result = Profile.importTones file
+            match result with
+            | Result.Ok tones ->
+                let msg = sprintf "%i custom tones found." tones.Length
+                { state with Status = msg }, Cmd.none
+            | Result.Error msg ->
+                { state with Status = msg }, Cmd.none
+            
+
         | ChangePlatform platform -> { state with Platform = platform }, Cmd.none
 
         | Error e -> { state with Status = e.Message }, Cmd.none
@@ -393,6 +412,16 @@ let view (state: State) dispatch =
             Button.create [
                 Button.onClick (fun _ -> ofdBnk (ReadVolume >> dispatch))
                 Button.content "Read Volume from Sound Bank..."
+            ]
+
+            Button.create [
+                Button.onClick (fun _ -> ofdAll (DecryptProfile >> dispatch))
+                Button.content "Decrypt Profile..."
+            ]
+
+            Button.create [
+                Button.onClick (fun _ -> ofdAll (ImportTones >> dispatch))
+                Button.content "Import Tones from Profile..."
             ]
 
             TextBlock.create [

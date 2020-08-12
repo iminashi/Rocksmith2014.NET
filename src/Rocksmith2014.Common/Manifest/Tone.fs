@@ -1,30 +1,31 @@
 ﻿namespace Rocksmith2014.Common.Manifest
 
 open System.Collections.Generic
+open System
 
-type Pedal =
-    { Type : string
-      KnobValues : Dictionary<string, float32>
-      Key : string
-      Category : string
-      Skin : string option
-      SkinIndex : float32 option }
+type Pedal() =
+    member val Type : string = null with get, set
+    member val KnobValues : Dictionary<string, float32> = null with get, set
+    member val Key : string = null with get, set
+    member val Category : string = null with get, set
+    member val Skin : string = null with get, set
+    member val SkinIndex : Nullable<float32> = Nullable() with get, set
 
 type Gear =
-    { Rack1 : Pedal option
-      Rack2 : Pedal option
-      Rack3 : Pedal option
-      Rack4 : Pedal option
+    { Rack1 : Pedal
+      Rack2 : Pedal
+      Rack3 : Pedal
+      Rack4 : Pedal
       Amp : Pedal
       Cabinet : Pedal
-      PrePedal1 : Pedal option
-      PrePedal2 : Pedal option
-      PrePedal3 : Pedal option
-      PrePedal4 : Pedal option
-      PostPedal1 : Pedal option
-      PostPedal2 : Pedal option
-      PostPedal3 : Pedal option
-      PostPedal4 : Pedal option }
+      PrePedal1 : Pedal
+      PrePedal2 : Pedal
+      PrePedal3 : Pedal
+      PrePedal4 : Pedal
+      PostPedal1 : Pedal
+      PostPedal2 : Pedal
+      PostPedal3 : Pedal
+      PostPedal4 : Pedal }
 
 type Tone =
     { GearList : Gear
@@ -35,4 +36,4 @@ type Tone =
       MacVolume : string
       Key : string
       Name : string
-      SortOrder : float32 }
+      SortOrder : Nullable<float32> }

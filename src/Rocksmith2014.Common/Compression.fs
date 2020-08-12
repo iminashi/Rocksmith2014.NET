@@ -6,14 +6,17 @@ open ICSharpCode.SharpZipLib.Zip.Compression.Streams
 open ICSharpCode.SharpZipLib.Zip.Compression
 
 /// Zips the data from the input stream into the output stream in zlib format, using the best compression.
-let zip (inStream: Stream) (outStream: Stream) = async {
-    use zipStream = new DeflaterOutputStream(outStream, Deflater(Deflater.BEST_COMPRESSION), IsStreamOwner = false)
-    do! inStream.CopyToAsync(zipStream, 65536) }
+let zip (input: Stream) (output: Stream) = async {
+    use zipStream = new DeflaterOutputStream(output, Deflater(Deflater.BEST_COMPRESSION), IsStreamOwner = false)
+    do! input.CopyToAsync(zipStream, 65536) }
 
 /// Unzips zlib data from the input stream into the output stream.
-let unzip (inStream: Stream) (outStream: Stream) = async {
-    use inflateStream = new InflaterInputStream(inStream, IsStreamOwner = false)
-    do! inflateStream.CopyToAsync(outStream, 65536) }
+let unzip (input: Stream) (output: Stream) = async {
+    use inflateStream = new InflaterInputStream(input, IsStreamOwner = false)
+    do! inflateStream.CopyToAsync(output, 65536) }
+
+/// Returns an inflate stream for the input stream.
+let getInflateStream (input: Stream) = new InflaterInputStream(input, IsStreamOwner = false)
 
 /// Divides the input stream into zipped blocks with the maximum block size.
 let blockZip blockSize (deflatedData: ResizeArray<Stream>) (zLengths: ResizeArray<uint32>) (input: Stream) = async {
