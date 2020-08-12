@@ -13,8 +13,8 @@ let create (project: DLCProject) =
     fun (arrangement: Arrangement) ->
         match arrangement with
         | Vocals v when v.Japanese -> 1, "jvocals"
-        | Vocals -> 1, "vocals"
-        | Showlights -> 1, "showlights"
+        | Vocals _ -> 1, "vocals"
+        | Showlights _ -> 1, "showlights"
         | Instrumental inst ->
             let name = inst.ArrangementName.ToString().ToLowerInvariant()
             let group = groups.[inst.ArrangementName]

@@ -35,16 +35,16 @@ module Arrangement =
     let getMasterId = function
         | Vocals v -> v.MasterID
         | Instrumental i -> i.MasterID
-        | Showlights -> failwith "No"
+        | Showlights _ -> failwith "No"
 
     let getPersistentId = function
         | Vocals v -> v.PersistentID
         | Instrumental i -> i.PersistentID
-        | Showlights -> failwith "No"
+        | Showlights _ -> failwith "No"
 
     let getName (arr: Arrangement) generic =
         match arr with
         | Vocals v when v.Japanese && not generic -> "JVocals"
-        | Vocals -> "Vocals"
-        | Showlights -> "Showlights"
+        | Vocals _ -> "Vocals"
+        | Showlights _ -> "Showlights"
         | Instrumental i -> i.ArrangementName.ToString()

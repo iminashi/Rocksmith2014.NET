@@ -166,7 +166,7 @@ let private convertPhrases (sng: SNG) =
 
 let private createDynamicVisualDensity (levels: int) (arrangement: Arrangement) =
     match arrangement with
-    | Vocals -> Array.replicate 20 2.f
+    | Vocals _ -> Array.replicate 20 2.f
 
     | Instrumental inst ->
         let floorLimit = 0.5 // Fastest allowed speed
@@ -181,7 +181,7 @@ let private createDynamicVisualDensity (levels: int) (arrangement: Arrangement) 
             else
                 float32 <| Math.Round(beginSpeed * Math.Pow(factor, float i), 1))
 
-    | Showlights -> failwith "I am Error."
+    | Showlights _ -> failwith "I am Error."
 
 let private convertArrangementProperties (arrProps: XML.ArrangementProperties) (instrumental: Instrumental) =
     { represent = btb arrProps.Represent

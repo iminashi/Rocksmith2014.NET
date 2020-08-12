@@ -22,7 +22,7 @@ let create (platform: Platform) (project: DLCProject) =
             let name = sprintf "%s_%s" dlcName (partition arrangement |> snd)
 
             match arrangement with 
-            | Showlights ->
+            | Showlights _ ->
                 yield GraphItem.llid name canonicalXmlSong "xml" [ Tag.Application; Tag.XML ]
 
             | _ ->

@@ -52,7 +52,7 @@ let create (platform: Platform) (project: DLCProject) =
     let entitySet = [|
         for arr in project.Arrangements do
             match arr with
-            | Showlights -> ()
+            | Showlights _ -> ()
             | arr ->
                 let fileName = partition arr |> snd
 
