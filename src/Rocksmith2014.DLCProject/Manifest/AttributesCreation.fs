@@ -2,7 +2,6 @@
 
 open Rocksmith2014
 open Rocksmith2014.DLCProject
-open Rocksmith2014.DLCProject.Manifest.Techniques
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.SNG
 open System
@@ -245,10 +244,10 @@ let private createChordMap (sng: SNG) =
                 |> Seq.map (fun x -> x.ChordId)
                 |> Set.ofSeq
             if chordIds.Count > 0 then
-                diffIds.Add(i.ToString(), chordIds |> Set.toArray)
+                diffIds.Add(string i, chordIds |> Set.toArray)
 
         if diffIds.Count > 0 then
-            chords.Add(lvl.ToString(), diffIds)
+            chords.Add(string lvl, diffIds)
             
     chords
 
@@ -270,10 +269,10 @@ let private createTechniqueMap (sng: SNG) =
                 |> Seq.collect (Techniques.getTechniques sng)
                 |> Set.ofSeq
             if techIds.Count > 0 then
-                diffIds.Add(i.ToString(), techIds |> Set.toArray)
+                diffIds.Add(string i, techIds |> Set.toArray)
 
         if diffIds.Count > 0 then
-            techniques.Add(lvl.ToString(), diffIds)
+            techniques.Add(string lvl, diffIds)
             
     techniques
 

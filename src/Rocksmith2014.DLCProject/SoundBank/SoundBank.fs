@@ -325,7 +325,7 @@ let generate name (audioStream: Stream) (output: Stream) volume isPreview (platf
     output.Flush()
     output.Position <- 0L
 
-    fileID.ToString()
+    string fileID
 
 let readVolume path platform =
     use file = File.OpenRead(path)
