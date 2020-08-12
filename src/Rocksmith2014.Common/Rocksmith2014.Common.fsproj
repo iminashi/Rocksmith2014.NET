@@ -11,6 +11,7 @@
     <Compile Include="BinaryReaders.fs" />
     <Compile Include="BinaryWriters.fs" />
     <Compile Include="Compression.fs" />
+    <Compile Include="Manifest\ToneDescriptors.fs" />
     <Compile Include="Manifest\Tone.fs" />
     <Compile Include="Manifest\ArrangementProperties.fs" />
     <Compile Include="Manifest\ChordTemplate.fs" />
