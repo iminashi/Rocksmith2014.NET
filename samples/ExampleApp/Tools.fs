@@ -22,11 +22,11 @@ open Elmish
 let project = 
     { Version = 1.
       DLCKey = "dummy"
-      ArtistName = SortableString.makeSimple "Artist"
+      ArtistName = SortableString.Create "Artist"
       JapaneseArtistName = None
       JapaneseTitle = None
-      Title = SortableString.makeSimple "Title"
-      AlbumName = SortableString.makeSimple "Album"
+      Title = SortableString.Create "Title"
+      AlbumName = SortableString.Create "Album"
       Year = 1999
       AlbumArtFile = "cover.dds"
       AudioFile = { Path = "audio.wem"; Volume = 12. }

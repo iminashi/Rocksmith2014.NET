@@ -7,7 +7,11 @@ type AudioFile = { Path : string; Volume : float }
 type SortableString =
     { Value: string; SortValue: string }
 
-    static member makeSimple(value) = { Value = value; SortValue = value }
+    static member Create(value, ?sort) =
+        let sort = defaultArg sort null
+        { Value = value
+          SortValue = if String.IsNullOrWhiteSpace sort then value else sort }
+
     static member Empty = { Value = String.Empty; SortValue = String.Empty }
 
 type DLCProject =
@@ -38,8 +42,8 @@ type DLCProject =
           AlbumName = SortableString.Empty
           Year = DateTime.Now.Year
           AlbumArtFile = String.Empty
-          AudioFile = { Path = String.Empty; Volume = -7. }
-          AudioPreviewFile = { Path = String.Empty; Volume = -8. }
+          AudioFile = { Path = String.Empty; Volume = -8. }
+          AudioPreviewFile = { Path = String.Empty; Volume = -7. }
           CentOffset = 0.
           Arrangements = []
           Tones = [] }
