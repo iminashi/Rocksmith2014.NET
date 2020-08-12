@@ -10,6 +10,7 @@
     <Compile Include="Generators.fs" />
     <Compile Include="BigEndianBinaryReadWrite.fs" />
     <Compile Include="LittleEndianBinaryReadWrite.fs" />
+    <Compile Include="ToneDescriptorTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

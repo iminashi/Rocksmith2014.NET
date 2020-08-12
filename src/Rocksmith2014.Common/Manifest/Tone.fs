@@ -39,5 +39,5 @@ type Tone =
       SortOrder : Nullable<float32> }
 
     override this.ToString() =
-        let description = ToneDescriptor.convertUINames this.ToneDescriptors
+        let description = ToneDescriptor.combineUINames this.ToneDescriptors
         sprintf "%s (%s), Volume: %s" this.Key description this.Volume
