@@ -18,7 +18,7 @@ namespace Rocksmith2014.XML
         None = 0,
 
         /// <summary>
-        /// A disparity phrase. Purpose unknown.
+        /// Signifies that the phrases that have this name are not all exactly identical.
         /// </summary>
         Disparity = 1 << 0,
 
