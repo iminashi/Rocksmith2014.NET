@@ -16,9 +16,9 @@ let vocals =
 
 let lead =
     { XML = "lead.xml"
-      ArrangementName = ArrangementName.Lead
+      Name = ArrangementName.Lead
       RouteMask = RouteMask.Lead
-      ArrangementOrdering = ArrangementOrdering.Main
+      Priority = ArrangementPriority.Main
       CentOffset = 0
       Tuning = [||]
       ScrollSpeed = 1.3

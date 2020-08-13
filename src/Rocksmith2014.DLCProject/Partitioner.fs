@@ -6,8 +6,8 @@ open System
 let create (project: DLCProject) =
     let groups =
         project.Arrangements
-        |> List.choose (function Instrumental i -> Some i | _ -> None)
-        |> List.groupBy (fun a -> a.ArrangementName)
+        |> List.choose Arrangement.pickInstrumental
+        |> List.groupBy (fun a -> a.Name)
         |> Map.ofList
 
     fun (arrangement: Arrangement) ->
@@ -16,8 +16,8 @@ let create (project: DLCProject) =
         | Vocals _ -> 1, "vocals"
         | Showlights _ -> 1, "showlights"
         | Instrumental inst ->
-            let name = inst.ArrangementName.ToString().ToLowerInvariant()
-            let group = groups.[inst.ArrangementName]
+            let name = inst.Name.ToString().ToLowerInvariant()
+            let group = groups.[inst.Name]
             let part = 1 + (group |> List.findIndex (fun x -> Object.ReferenceEquals(x, inst)))
             if part = 1 then
                 part, name

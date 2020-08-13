@@ -353,7 +353,7 @@ let private initSongComplete partition
         |> List.toArray
 
     attr.ArrangementProperties <- Some (convertArrangementProperties xmlMetaData.ArrangementProperties instrumental)
-    attr.ArrangementType <- instrumental.ArrangementName |> LanguagePrimitives.EnumToValue |> Nullable
+    attr.ArrangementType <- instrumental.Name |> LanguagePrimitives.EnumToValue |> Nullable
     attr.Chords <- createChordMap sng
     attr.ChordTemplates <- convertChordTemplates sng
     attr.LastConversionDateTime <- sng.MetaData.LastConversionDateTime

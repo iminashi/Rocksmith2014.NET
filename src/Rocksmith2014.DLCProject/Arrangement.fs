@@ -8,16 +8,16 @@ type ArrangementName =
     | Rhythm = 2
     | Bass = 3
 
-type ArrangementOrdering =
+type ArrangementPriority =
     | Main = 0
     | Alternative = 1
     | Bonus = 2
 
 type Instrumental =
     { XML : string
-      ArrangementName : ArrangementName
+      Name : ArrangementName
       RouteMask : RouteMask
-      ArrangementOrdering : ArrangementOrdering
+      Priority : ArrangementPriority
       ScrollSpeed : float
       BassPicked : bool
       Tuning : int16 array
@@ -56,9 +56,12 @@ module Arrangement =
         | Vocals v when v.Japanese && not generic -> "JVocals"
         | Vocals _ -> "Vocals"
         | Showlights _ -> "Showlights"
-        | Instrumental i -> i.ArrangementName.ToString()
+        | Instrumental i -> i.Name.ToString()
 
     let getFile = function
         | Vocals v -> v.XML
         | Instrumental i -> i.XML
         | Showlights s -> s.XML
+
+    let pickInstrumental = function Instrumental i -> Some i | _ -> None
+    

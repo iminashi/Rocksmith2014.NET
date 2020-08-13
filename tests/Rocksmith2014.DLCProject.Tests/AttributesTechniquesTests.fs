@@ -9,9 +9,9 @@ open Rocksmith2014.Common
 
 let testLead =
     { XML = "instrumental.xml"
-      ArrangementName = ArrangementName.Lead
+      Name = ArrangementName.Lead
       RouteMask = RouteMask.Lead
-      ArrangementOrdering = ArrangementOrdering.Main
+      Priority = ArrangementPriority.Main
       CentOffset = 0
       Tuning = [||]
       ScrollSpeed = 1.3

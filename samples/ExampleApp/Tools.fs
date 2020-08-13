@@ -187,9 +187,9 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
         | CreateManifest file ->
             let arrangement =
                 { XML = file
-                  ArrangementName = ArrangementName.Lead
+                  Name = ArrangementName.Lead
                   RouteMask = RouteMask.Lead
-                  ArrangementOrdering = ArrangementOrdering.Main
+                  Priority = ArrangementPriority.Main
                   CentOffset = 0
                   Tuning = [||]
                   ScrollSpeed = 1.3
