@@ -1,0 +1,68 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Audio\Types.fs" />
+    <Compile Include="Audio\AudioFader.fs" />
+    <Compile Include="Audio\Audio.fs" />
+    <Page Include="Styles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <AvaloniaResource Include="placeholder.png" />
+    <AvaloniaResource Include="**\*.xaml" />
+    <Compile Include="Media.fs" />
+    <Compile Include="Extensions.fs" />
+    <Compile Include="Dialogs.fs" />
+    <Compile Include="Configuration.fs" />
+    <Compile Include="MainView.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Desktop" Version="0.9.12" />
+    <PackageReference Include="JaggerJo.Avalonia.FuncUI" Version="0.4.1" />
+    <PackageReference Include="JaggerJo.Avalonia.FuncUI.DSL" Version="0.4.3" />
+    <PackageReference Include="JaggerJo.Avalonia.FuncUI.Elmish" Version="0.4.0" />
+    <PackageReference Include="Live.Avalonia" Version="1.0.1" />
+    <PackageReference Include="NAudio" Version="1.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove=".template.config\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Rocksmith2014.DLCProject\Rocksmith2014.DLCProject.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="4.7.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Watch Include="**\*.fs" />
+    <Watch Include="**\*.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Watch Remove="Audio\Audio.fs" />
+    <Watch Remove="Audio\AudioFader.fs" />
+    <Watch Remove="Audio\Types.fs" />
+    <Watch Remove="Configuration.fs" />
+    <Watch Remove="Dialogs.fs" />
+    <Watch Remove="Extensions.fs" />
+    <Watch Remove="Media.fs" />
+  </ItemGroup>
+</Project>
