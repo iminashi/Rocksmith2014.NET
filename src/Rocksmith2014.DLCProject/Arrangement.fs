@@ -57,3 +57,8 @@ module Arrangement =
         | Vocals _ -> "Vocals"
         | Showlights _ -> "Showlights"
         | Instrumental i -> i.ArrangementName.ToString()
+
+    let getFile = function
+        | Vocals v -> v.XML
+        | Instrumental i -> i.XML
+        | Showlights s -> s.XML

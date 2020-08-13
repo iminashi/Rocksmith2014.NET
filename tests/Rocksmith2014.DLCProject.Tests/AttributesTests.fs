@@ -10,7 +10,7 @@ open Rocksmith2014.Conversion
 open Rocksmith2014.Common
 
 let testProject =
-    { Version = 1.
+    { Version = "1.0"
       DLCKey = "SomeTest"
       ArtistName = SortableString.Create "Artist"
       JapaneseArtistName = None

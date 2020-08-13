@@ -20,7 +20,7 @@ open System
 open Elmish
 
 let project = 
-    { Version = 1.
+    { Version = "1.0"
       DLCKey = "dummy"
       ArtistName = SortableString.Create "Artist"
       JapaneseArtistName = None

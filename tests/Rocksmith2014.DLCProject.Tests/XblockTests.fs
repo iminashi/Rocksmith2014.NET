@@ -27,7 +27,7 @@ let lead =
       PersistentID = Guid.NewGuid() }
 
 let testProject =
-    { Version = 1.
+    { Version = "1.0"
       DLCKey = "SomeTest"
       ArtistName = SortableString.Create "Artist"
       JapaneseArtistName = None

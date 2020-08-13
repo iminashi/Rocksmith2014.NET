@@ -7,7 +7,7 @@ open Rocksmith2014.DLCProject.Manifest.AttributesCreation
 open System
 
 let project =
-    { Version = 1.
+    { Version = "1.0"
       DLCKey = "SomeTest"
       ArtistName = SortableString.Create "Artist"
       JapaneseArtistName = None

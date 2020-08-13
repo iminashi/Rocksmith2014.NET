@@ -19,7 +19,7 @@ type SortableString =
     static member Empty = { Value = String.Empty; SortValue = String.Empty }
 
 type DLCProject =
-    { Version: float
+    { Version: string
       DLCKey : string
       //AppID : int = 221680 
       ArtistName : SortableString
@@ -35,7 +35,7 @@ type DLCProject =
       Tones : Tone list }
 
     static member Empty =
-        { Version = 1.
+        { Version = "1.0"
           DLCKey = String.Empty
           ArtistName = SortableString.Empty
           JapaneseArtistName = None
