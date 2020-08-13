@@ -209,7 +209,7 @@ let private convertArrangementProperties (arrProps: XML.ArrangementProperties) (
       twoFingerPicking = btb arrProps.TwoFingerPicking
       fifthsAndOctaves = btb arrProps.FifthsAndOctaves
       syncopation = btb arrProps.Syncopation
-      bassPick = btb arrProps.BassPick
+      bassPick = btb instrumental.BassPicked
       sustain = btb arrProps.Sustain
       pathLead = if instrumental.RouteMask = RouteMask.Lead then 1uy else 0uy
       pathRhythm = if instrumental.RouteMask = RouteMask.Rhythm then 1uy else 0uy
@@ -412,7 +412,7 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
 
         if isHeader then
             // Attributes unique to header
-            attr.BassPick <- if xmlMetaData.ArrangementProperties.BassPick then Nullable(1) else Nullable()
+            attr.BassPick <- if inst.BassPicked then Nullable(1) else Nullable()
             attr.Representative <- xmlMetaData.ArrangementProperties.Represent |> bti |> Nullable
             attr.RouteMask <- inst.RouteMask |> LanguagePrimitives.EnumToValue |> Nullable
             attr

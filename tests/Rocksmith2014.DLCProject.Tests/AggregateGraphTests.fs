@@ -23,6 +23,7 @@ let lead =
       CentOffset = 0
       Tuning = [||]
       ScrollSpeed = 1.3
+      BassPicked = false
       MasterID = 987654
       PersistentID = Guid.NewGuid() }
 

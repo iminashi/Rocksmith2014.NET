@@ -193,6 +193,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                   CentOffset = 0
                   Tuning = [||]
                   ScrollSpeed = 1.3
+                  BassPicked = false
                   MasterID = 12345
                   PersistentID = Guid.NewGuid() }
 

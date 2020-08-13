@@ -19,6 +19,7 @@ type Instrumental =
       RouteMask : RouteMask
       ArrangementOrdering : ArrangementOrdering
       ScrollSpeed : float
+      BassPicked : bool
       Tuning : int16 array
       CentOffset : int
       MasterID : int
