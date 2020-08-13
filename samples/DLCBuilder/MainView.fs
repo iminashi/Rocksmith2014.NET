@@ -134,8 +134,11 @@ let update (msg: Msg) (state: State) =
 
         let shouldInclude state arr =
             match arr with
+            // Allow only one show lights arrangement
             | Showlights _ when state |> List.exists (function Showlights _ -> true | _ -> false) -> false
-            | Instrumental _ when (state |> List.choose (function Instrumental _ -> Some 1 | _ -> None)).Length = 5 -> false
+            // Allow max five instrumental arrangements
+            | Instrumental _ when (state |> List.choose Arrangement.pickInstrumental).Length = 5 -> false
+            // Allow max two instrumental arrangements
             | Vocals _ when (state |> List.choose (function Vocals _ -> Some 1 | _ -> None)).Length = 2 -> false
             | _ -> true
 
@@ -246,7 +249,7 @@ let view (state: State) (dispatch) =
                                 Grid.column 1
                                 Grid.row 0
                                 TextBox.horizontalAlignment HorizontalAlignment.Left
-                                TextBox.width 60.
+                                TextBox.width 65.
                                 TextBox.watermark "Version"
                                 TextBox.text state.Project.Version
                                 ToolTip.tip "Version"
@@ -325,7 +328,7 @@ let view (state: State) (dispatch) =
                                 Grid.column 1
                                 Grid.row 3
                                 TextBox.horizontalAlignment HorizontalAlignment.Left
-                                TextBox.width 60.
+                                TextBox.width 65.
                                 TextBox.watermark "Year"
                                 TextBox.text (string state.Project.Year)
                                 ToolTip.tip "Year"
@@ -377,6 +380,7 @@ let view (state: State) (dispatch) =
                                 Grid.column 1
                                 Grid.row 5
                                 NumericUpDown.margin (2.0, 2.0, 2.0, 2.0)
+                                NumericUpDown.width 65.
                                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                                 NumericUpDown.value state.Project.AudioFile.Volume
                                 NumericUpDown.formatString "F1"
@@ -414,6 +418,7 @@ let view (state: State) (dispatch) =
                                 Grid.column 1
                                 Grid.row 6
                                 NumericUpDown.margin (2.0, 2.0, 2.0, 2.0)
+                                NumericUpDown.width 65.
                                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                                 NumericUpDown.value state.Project.AudioPreviewFile.Volume
                                 NumericUpDown.formatString "F1"
@@ -527,21 +532,21 @@ let view (state: State) (dispatch) =
                                 StackPanel.children [
                                     TextBlock.create [
                                         TextBlock.verticalAlignment VerticalAlignment.Center
-                                        TextBlock.text "Ordering: "
+                                        TextBlock.text "Priority: "
                                         TextBlock.horizontalAlignment HorizontalAlignment.Center
                                     ]
                                     RadioButton.create [
-                                        RadioButton.groupName "Ordering"
+                                        RadioButton.groupName "Priority"
                                         RadioButton.content "Main"
                                         RadioButton.isChecked (i.Priority = ArrangementPriority.Main)
                                     ]
                                     RadioButton.create [
-                                        RadioButton.groupName "Ordering"
+                                        RadioButton.groupName "Priority"
                                         RadioButton.content "Alternative"
                                         RadioButton.isChecked (i.Priority = ArrangementPriority.Alternative)
                                     ]
                                     RadioButton.create [
-                                        RadioButton.groupName "Ordering"
+                                        RadioButton.groupName "Priority"
                                         RadioButton.content "Bonus"
                                         RadioButton.isChecked (i.Priority = ArrangementPriority.Bonus)
                                     ]
@@ -553,7 +558,7 @@ let view (state: State) (dispatch) =
                                 StackPanel.children [
                                     TextBlock.create [
                                         TextBlock.verticalAlignment VerticalAlignment.Center
-                                        TextBlock.text "Route: "
+                                        TextBlock.text "Path: "
                                         TextBlock.horizontalAlignment HorizontalAlignment.Center
                                     ]
                                     RadioButton.create [
