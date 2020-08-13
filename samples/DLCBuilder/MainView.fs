@@ -23,16 +23,19 @@ type State =
       Config : Configuration
       CoverArt : Bitmap option
       SelectedArrangement : Arrangement option
+      SelectedTone : Tone option
       ShowSortFields : bool
       ShowJapaneseFields : bool }
 
 let init () =
     let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
     let coverArt = new Bitmap(assets.Open(new Uri("avares://DLCBuilder/placeholder.png")))
+
     { Project = DLCProject.Empty
-      Config = Configuration.Empty
+      Config = Configuration.Default
       CoverArt = Some coverArt
       SelectedArrangement = None
+      SelectedTone = None
       ShowSortFields = false
       ShowJapaneseFields = false }, Cmd.none
 
@@ -44,17 +47,20 @@ type Msg =
     | AddCoverArt of fileName : string option
     | AddAudioFile of fileName : string option
     | ArrangementSelected of selected : Arrangement option
+    | ToneSelected of selected : Tone option
     | DeleteArrangement
+    | DeleteTone
     | ImportTones
     | CreatePreviewAudio
     | ShowSortFields of shown : bool
     | ShowJapaneseFields of shown : bool
 
 let private loadArrangement (fileName: string) =
-    use reader = XmlReader.Create(fileName)
-    reader.MoveToContent() |> ignore
+    let rootName =
+        using (XmlReader.Create(fileName))
+              (fun reader -> reader.MoveToContent() |> ignore; reader.LocalName)
 
-    match reader.LocalName with
+    match rootName with
     | "song" ->
         let metadata = MetaData.Read fileName
         let arr =
@@ -84,8 +90,8 @@ let private loadArrangement (fileName: string) =
             fileName.Contains("jlyric", StringComparison.OrdinalIgnoreCase)
         // Try to find custom font for Japanese vocals
         let customFont =
-            let lyricFile = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(fileName), "lyrics.dds")
-            if isJapanese && System.IO.File.Exists lyricFile then Some lyricFile else None
+            let lyricFile = IO.Path.Combine(IO.Path.GetDirectoryName(fileName), "lyrics.dds")
+            if isJapanese && IO.File.Exists lyricFile then Some lyricFile else None
         let arr =
             { XML = fileName
               Japanese = isJapanese
@@ -171,12 +177,21 @@ let update (msg: Msg) (state: State) =
 
     | ArrangementSelected selected -> { state with SelectedArrangement = selected }, Cmd.none
 
+    | ToneSelected selected -> { state with SelectedTone = selected }, Cmd.none
+
     | DeleteArrangement ->
         let arrangements =
             match state.SelectedArrangement with
             | None -> state.Project.Arrangements
             | Some selected -> List.remove selected state.Project.Arrangements
         { state with Project = { state.Project with Arrangements = arrangements } }, Cmd.none
+
+    | DeleteTone ->
+        let tones =
+            match state.SelectedTone with
+            | None -> state.Project.Tones
+            | Some selected -> List.remove selected state.Project.Tones
+        { state with Project = { state.Project with Tones = tones } }, Cmd.none
 
     | ImportTones ->
         let result = Profile.importTones state.Config.ProfilePath
@@ -211,6 +226,216 @@ let update (msg: Msg) (state: State) =
         
     | AddArrangements None | AddCoverArt None | AddAudioFile None ->
         state, Cmd.none
+
+let instrumentalDetailsView (state: State) (i: Instrumental) =
+    Grid.create [
+        //Grid.showGridLines true
+        Grid.margin (0.0, 4.0)
+        Grid.columnDefinitions "*,3*"
+        Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*"
+        Grid.children [
+            TextBlock.create [
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text "Name: "
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+            ]
+
+            ComboBox.create [
+                Grid.column 1
+                ComboBox.horizontalAlignment HorizontalAlignment.Left
+                ComboBox.margin 4.
+                ComboBox.width 100.
+                ComboBox.dataItems (Enum.GetNames(typeof<ArrangementName>))
+                ComboBox.selectedItem (string i.Name)
+            ]
+
+            TextBlock.create [
+                Grid.row 1
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text "Priority: "
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+            ]
+
+            StackPanel.create [
+                Grid.column 1
+                Grid.row 1
+                StackPanel.orientation Orientation.Horizontal
+                StackPanel.margin 4.
+                StackPanel.children [
+                    RadioButton.create [
+                        RadioButton.margin (4.0, 0.0)
+                        RadioButton.groupName "Priority"
+                        RadioButton.content "Main"
+                        RadioButton.isChecked (i.Priority = ArrangementPriority.Main)
+                    ]
+                    RadioButton.create [
+                        RadioButton.groupName "Priority"
+                        RadioButton.content "Alternative"
+                        RadioButton.isChecked (i.Priority = ArrangementPriority.Alternative)
+                    ]
+                    RadioButton.create [
+                        RadioButton.margin (4.0, 0.0)
+                        RadioButton.groupName "Priority"
+                        RadioButton.content "Bonus"
+                        RadioButton.isChecked (i.Priority = ArrangementPriority.Bonus)
+                    ]
+                ]
+            ]
+
+            TextBlock.create [
+                Grid.row 2
+                TextBlock.isVisible (i.Name = ArrangementName.Combo)
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text "Path: "
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+            ]
+
+            StackPanel.create [
+                Grid.column 1
+                Grid.row 2
+                StackPanel.orientation Orientation.Horizontal
+                StackPanel.isVisible (i.Name = ArrangementName.Combo)
+                StackPanel.children [
+                    RadioButton.create [
+                        RadioButton.groupName "RouteMask"
+                        RadioButton.content "Lead"
+                        RadioButton.isChecked (i.RouteMask = RouteMask.Lead)
+                    ]
+                    RadioButton.create [
+                        RadioButton.groupName "RouteMask"
+                        RadioButton.content "Rhythm"
+                        RadioButton.isChecked (i.RouteMask = RouteMask.Rhythm)
+                    ]
+                ]
+            ]
+
+            TextBlock.create [
+                Grid.row 3
+                TextBlock.isVisible (i.Name = ArrangementName.Bass)
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text "Picked: "
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+            ]
+
+            CheckBox.create [
+                Grid.column 1
+                Grid.row 3
+                CheckBox.margin 4.
+                CheckBox.isVisible (i.Name = ArrangementName.Bass)
+                CheckBox.isChecked (i.BassPicked)
+            ]
+
+            TextBlock.create [
+                Grid.row 4
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text "Tuning: "
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+            ]
+
+            StackPanel.create [
+                Grid.column 1
+                Grid.row 4
+                StackPanel.orientation Orientation.Horizontal
+                StackPanel.children [
+                    TextBox.create [
+                        TextBox.width 30.
+                        TextBox.text (string i.Tuning.[0])
+                    ]
+                    TextBox.create [
+                        TextBox.width 30.
+                        TextBox.text (string i.Tuning.[1])
+                    ]
+                    TextBox.create [
+                        TextBox.width 30.
+                        TextBox.text (string i.Tuning.[2])
+                    ]
+                    TextBox.create [
+                        TextBox.width 30.
+                        TextBox.text (string i.Tuning.[3])
+                    ]
+                    TextBox.create [
+                        TextBox.width 30.
+                        TextBox.text (string i.Tuning.[4])
+                    ]
+                    TextBox.create [
+                        TextBox.width 30.
+                        TextBox.text (string i.Tuning.[5])
+                    ]
+                ]
+            ]
+
+            TextBlock.create [
+                Grid.row 5
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text "Cent Offset: "
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+            ]
+
+            TextBox.create [
+                Grid.column 1
+                Grid.row 5
+                TextBox.horizontalAlignment HorizontalAlignment.Left
+                TextBox.width 60.
+                TextBox.text (string i.CentOffset)
+            ]
+
+            TextBlock.create [
+                Grid.row 6
+                TextBlock.isVisible state.Config.ShowAdvanced
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text "Scroll Speed: "
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+            ]
+
+            NumericUpDown.create [
+                Grid.column 1
+                Grid.row 6
+                NumericUpDown.margin 4.
+                NumericUpDown.isVisible state.Config.ShowAdvanced
+                NumericUpDown.horizontalAlignment HorizontalAlignment.Left
+                NumericUpDown.increment 0.1
+                NumericUpDown.width 65.
+                NumericUpDown.maximum 5.0
+                NumericUpDown.minimum 0.5
+                NumericUpDown.formatString "F1"
+                NumericUpDown.value i.ScrollSpeed
+            ]
+
+            TextBlock.create [
+                Grid.row 7
+                TextBlock.isVisible state.Config.ShowAdvanced
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text "Master ID: "
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+            ]
+
+            TextBox.create [
+                Grid.column 1
+                Grid.row 7
+                TextBox.isVisible state.Config.ShowAdvanced
+                TextBox.horizontalAlignment HorizontalAlignment.Stretch
+                //TextBox.width 240.
+                TextBox.text (string i.MasterID)
+            ]
+
+            TextBlock.create [
+                Grid.row 8
+                TextBlock.isVisible state.Config.ShowAdvanced
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text "Persistent ID: "
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+            ]
+
+            TextBox.create [
+                Grid.column 1
+                Grid.row 8
+                TextBox.isVisible state.Config.ShowAdvanced
+                TextBox.horizontalAlignment HorizontalAlignment.Stretch
+                //TextBox.width 240.
+                TextBox.text (i.PersistentID.ToString("N"))
+            ]
+        ]
+    ]
 
 let view (state: State) (dispatch) =
     Grid.create [
@@ -370,7 +595,7 @@ let view (state: State) (dispatch) =
                                     TextBox.create [
                                         TextBox.margin (4.0, 4.0, 0.0, 4.0)
                                         TextBox.watermark "Audio File"
-                                        TextBox.text (System.IO.Path.GetFileName state.Project.AudioFile.Path)
+                                        TextBox.text (IO.Path.GetFileName state.Project.AudioFile.Path)
                                         ToolTip.tip "Audio File"
                                     ]
                                 ]
@@ -473,7 +698,7 @@ let view (state: State) (dispatch) =
                 DockPanel.children [
                     Button.create [
                         DockPanel.dock Dock.Top
-                        Button.margin (5.0)
+                        Button.margin 5.0
                         Button.padding (15.0, 5.0)
                         Button.horizontalAlignment HorizontalAlignment.Left
                         Button.content "Add Arrangement"
@@ -481,6 +706,7 @@ let view (state: State) (dispatch) =
                     ]
 
                     ListBox.create [
+                        ListBox.margin 2.
                         ListBox.dataItems state.Project.Arrangements
                         match state.SelectedArrangement with
                         | Some a -> ListBox.selectedItem a
@@ -500,182 +726,26 @@ let view (state: State) (dispatch) =
                 StackPanel.margin 8.
                 StackPanel.children [
                     match state.SelectedArrangement with
+                    | None ->
+                        TextBlock.create [
+                            TextBlock.text "Select an arrangement to edit its details"
+                            TextBlock.horizontalAlignment HorizontalAlignment.Center
+                        ]
                     | Some arr ->
                         TextBlock.create [
                             TextBlock.fontSize 17.
                             TextBlock.text (Arrangement.getName arr false)
                             TextBlock.horizontalAlignment HorizontalAlignment.Center
                         ]
+
                         TextBlock.create [
                             TextBlock.text (System.IO.Path.GetFileName (Arrangement.getFile arr))
                             TextBlock.horizontalAlignment HorizontalAlignment.Center
                         ]
-                        match arr with
-                        | Instrumental i ->
-                            StackPanel.create [
-                                StackPanel.orientation Orientation.Horizontal
-                                StackPanel.children [
-                                    TextBlock.create [
-                                        TextBlock.verticalAlignment VerticalAlignment.Center
-                                        TextBlock.text "Name: "
-                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                                    ]
-                                    ComboBox.create [
-                                        ComboBox.width 100.
-                                        ComboBox.dataItems (Enum.GetNames(typeof<ArrangementName>))
-                                        ComboBox.selectedItem (string i.Name)
-                                    ]
-                                ]
-                            ]
-                            StackPanel.create [
-                                StackPanel.orientation Orientation.Horizontal
-                                StackPanel.children [
-                                    TextBlock.create [
-                                        TextBlock.verticalAlignment VerticalAlignment.Center
-                                        TextBlock.text "Priority: "
-                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                                    ]
-                                    RadioButton.create [
-                                        RadioButton.groupName "Priority"
-                                        RadioButton.content "Main"
-                                        RadioButton.isChecked (i.Priority = ArrangementPriority.Main)
-                                    ]
-                                    RadioButton.create [
-                                        RadioButton.groupName "Priority"
-                                        RadioButton.content "Alternative"
-                                        RadioButton.isChecked (i.Priority = ArrangementPriority.Alternative)
-                                    ]
-                                    RadioButton.create [
-                                        RadioButton.groupName "Priority"
-                                        RadioButton.content "Bonus"
-                                        RadioButton.isChecked (i.Priority = ArrangementPriority.Bonus)
-                                    ]
-                                ]
-                            ]
-                            StackPanel.create [
-                                StackPanel.orientation Orientation.Horizontal
-                                StackPanel.isVisible (i.Name = ArrangementName.Combo)
-                                StackPanel.children [
-                                    TextBlock.create [
-                                        TextBlock.verticalAlignment VerticalAlignment.Center
-                                        TextBlock.text "Path: "
-                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                                    ]
-                                    RadioButton.create [
-                                        RadioButton.groupName "RouteMask"
-                                        RadioButton.content "Lead"
-                                        RadioButton.isChecked (i.RouteMask = RouteMask.Lead)
-                                    ]
-                                    RadioButton.create [
-                                        RadioButton.groupName "RouteMask"
-                                        RadioButton.content "Rhythm"
-                                        RadioButton.isChecked (i.RouteMask = RouteMask.Rhythm)
-                                    ]
-                                ]
-                            ]
-                            CheckBox.create [
-                                CheckBox.content "Picked"
-                                CheckBox.isVisible (i.Name = ArrangementName.Bass)
-                                CheckBox.isChecked (i.BassPicked)
-                            ]
-                            StackPanel.create [
-                                StackPanel.orientation Orientation.Horizontal
-                                StackPanel.children [
-                                    TextBlock.create [
-                                        TextBlock.verticalAlignment VerticalAlignment.Center
-                                        TextBlock.text "Tuning: "
-                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                                    ]
-                                    TextBox.create [
-                                        TextBox.width 30.
-                                        TextBox.text (string i.Tuning.[0])
-                                    ]
-                                    TextBox.create [
-                                        TextBox.width 30.
-                                        TextBox.text (string i.Tuning.[1])
-                                    ]
-                                    TextBox.create [
-                                        TextBox.width 30.
-                                        TextBox.text (string i.Tuning.[2])
-                                    ]
-                                    TextBox.create [
-                                        TextBox.width 30.
-                                        TextBox.text (string i.Tuning.[3])
-                                    ]
-                                    TextBox.create [
-                                        TextBox.width 30.
-                                        TextBox.text (string i.Tuning.[4])
-                                    ]
-                                    TextBox.create [
-                                        TextBox.width 30.
-                                        TextBox.text (string i.Tuning.[5])
-                                    ]
-                                ]
-                            ]
-                            StackPanel.create [
-                                StackPanel.orientation Orientation.Horizontal
-                                StackPanel.children [
-                                    TextBlock.create [
-                                        TextBlock.verticalAlignment VerticalAlignment.Center
-                                        TextBlock.text "Cent Offset: "
-                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                                    ]
-                                    TextBox.create [
-                                        TextBox.width 30.
-                                        TextBox.text (string i.CentOffset)
-                                    ]
-                                ]
-                            ]
-                            StackPanel.create [
-                                StackPanel.orientation Orientation.Horizontal
-                                StackPanel.isVisible state.Config.ShowAdvanced
-                                StackPanel.children [
-                                    TextBlock.create [
-                                        TextBlock.verticalAlignment VerticalAlignment.Center
-                                        TextBlock.text "Scroll Speed: "
-                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                                    ]
-                                    NumericUpDown.create [
-                                        NumericUpDown.increment 0.1
-                                        NumericUpDown.width 65.
-                                        NumericUpDown.maximum 5.0
-                                        NumericUpDown.minimum 0.5
-                                        NumericUpDown.formatString "F1"
-                                        NumericUpDown.value i.ScrollSpeed
-                                    ]
-                                ]
-                            ]
-                            StackPanel.create [
-                                StackPanel.orientation Orientation.Horizontal
-                                StackPanel.isVisible state.Config.ShowAdvanced
-                                StackPanel.children [
-                                    TextBlock.create [
-                                        TextBlock.verticalAlignment VerticalAlignment.Center
-                                        TextBlock.text "Master ID: "
-                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                                    ]
-                                    TextBox.create [
-                                        TextBox.width 150.
-                                        TextBox.text (string i.MasterID)
-                                    ]
-                                ]
-                            ]
-                            StackPanel.create [
-                                StackPanel.orientation Orientation.Horizontal
-                                StackPanel.isVisible state.Config.ShowAdvanced
-                                StackPanel.children [
-                                    TextBlock.create [
-                                        TextBlock.verticalAlignment VerticalAlignment.Center
-                                        TextBlock.text "Persistent ID: "
-                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                                    ]
-                                    TextBox.create [
-                                        TextBox.width 250.
-                                        TextBox.text (i.PersistentID.ToString("N"))
-                                    ]
-                                ]
-                            ]
 
+                        match arr with
+                        | Showlights _ -> ()
+                        | Instrumental i -> instrumentalDetailsView state i
                         | Vocals v ->
                             CheckBox.create [
                                 CheckBox.content "Japanese"
@@ -698,14 +768,6 @@ let view (state: State) (dispatch) =
                                     ]
                                 ]
                             ]
-
-                        | Showlights _ -> ()
-
-                    | None ->
-                        TextBlock.create [
-                            TextBlock.text "Select an arrangement to edit its details"
-                            TextBlock.horizontalAlignment HorizontalAlignment.Center
-                        ]
                 ]
             ]
 
@@ -715,7 +777,7 @@ let view (state: State) (dispatch) =
                 DockPanel.children [
                     Button.create [
                         DockPanel.dock Dock.Top
-                        Button.margin (5.0)
+                        Button.margin 5.0
                         Button.padding (15.0, 5.0)
                         Button.horizontalAlignment HorizontalAlignment.Left
                         Button.content "Import Tones"
@@ -723,7 +785,17 @@ let view (state: State) (dispatch) =
                     ]
 
                     ListBox.create [
+                        ListBox.margin 2.
                         ListBox.dataItems state.Project.Tones
+                        match state.SelectedTone with
+                        | Some t -> ListBox.selectedItem t
+                        | None -> ()
+                        ListBox.onSelectedItemChanged (fun item ->
+                            match item with
+                            | :? Tone as t -> dispatch (ToneSelected (Some t))
+                            | _ ->  dispatch (ToneSelected None)
+                        )
+                        ListBox.onKeyDown (fun k -> if k.Key = Key.Delete then dispatch DeleteTone)
                     ]
                 ]
             ]

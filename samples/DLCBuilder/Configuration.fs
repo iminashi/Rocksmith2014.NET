@@ -9,7 +9,7 @@ type Configuration =
       CharterName : string
       ShowAdvanced : bool }
 
-    static member Empty =
+    static member Default =
         { ProfilePath = String.Empty
           TestFolderPath = String.Empty
           ProjectsFolderPath = String.Empty
