@@ -10,6 +10,7 @@
     <Compile Include="Interfaces.fs" />
     <Compile Include="BinaryReaders.fs" />
     <Compile Include="BinaryWriters.fs" />
+    <Compile Include="RandomGenerator.fs" />
     <Compile Include="Compression.fs" />
     <Compile Include="Manifest\ToneDescriptors.fs" />
     <Compile Include="Manifest\Tone.fs" />

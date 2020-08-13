@@ -12,8 +12,6 @@ module private HierarchyID =
     let [<Literal>] Event = 4y
     let [<Literal>] ActorMixer = 7y
 
-let private rand = Random()
-
 let private fnvHash (str: string) =
     let bytes = str.ToLower().ToCharArray()
     let mutable hash = 2166136261u
@@ -86,7 +84,7 @@ let private hierarchySound id fileId mixerId volume isPreview platform =
     let languageSpecific = 0y // Sound SFX
     let overrideParent = 0y
     let numFX = 0y
-    let parentBusID = rand.Next() |> uint32
+    let parentBusID = RandomGenerator.next() |> uint32
     let directParentID = match platform with PC | Mac -> 65536u
     let unkID1 = if isPreview then 4178100890u else 0u
     let mixerID = uint32 mixerId
@@ -279,7 +277,7 @@ let private writeHierarchy output (writer: IBinaryWriter) id (hierarchy: Stream)
 
 let private hierarchy bankId soundId fileId name volume isPreview platform =
     let mixerID = 650605636u
-    let actionID = rand.Next() |> uint32
+    let actionID = RandomGenerator.next() |> uint32
     let numObjects = 4u
 
     use memory = new MemoryStream()
@@ -301,9 +299,9 @@ let private writeChunk (writer: IBinaryWriter) name (data: byte array) =
     writer.WriteBytes data
 
 let generate name (audioStream: Stream) (output: Stream) volume isPreview (platform: Platform) =
-    let soundbankID = rand.Next() |> uint32
-    let fileID = rand.Next()
-    let soundID = rand.Next()
+    let soundbankID = RandomGenerator.next() |> uint32
+    let fileID = RandomGenerator.next()
+    let soundID = RandomGenerator.next()
 
     let audioReader = BinaryReaders.getReader audioStream platform
     let dataLength = if isPreview then 72000 else 51200

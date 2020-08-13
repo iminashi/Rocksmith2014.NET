@@ -19,6 +19,7 @@
     <Compile Include="DDS\DDS.fs" />
     <Compile Include="RouteMask.fs" />
     <Compile Include="Arrangement.fs" />
+    <Compile Include="StringValidator.fs" />
     <Compile Include="DLCProject.fs" />
     <Compile Include="Partitioner.fs" />
     <Compile Include="AggregateGraph\Tags.fs" />

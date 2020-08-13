@@ -18,7 +18,6 @@ let project =
       AlbumArtFile = "cover.dds"
       AudioFile = { Path = "audio.wem"; Volume = 1. }
       AudioPreviewFile = { Path = "audio_preview.wem"; Volume = 1. }
-      CentOffset = 0.0
       Arrangements = []
       Tones = [] }
 

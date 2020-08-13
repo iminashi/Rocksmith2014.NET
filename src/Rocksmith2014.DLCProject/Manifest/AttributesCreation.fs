@@ -170,7 +170,7 @@ let private createDynamicVisualDensity (levels: int) (arrangement: Arrangement) 
     | Instrumental inst ->
         let floorLimit = 0.5 // Fastest allowed speed
         let beginSpeed = 5.0
-        let endSpeed = Math.Min(beginSpeed, Math.Max(floorLimit, float inst.ScrollSpeed / 10.0))
+        let endSpeed = Math.Min(beginSpeed, Math.Max(floorLimit, inst.ScrollSpeed))
         let maxLevel = Math.Min(levels, 20) - 1
         let factor = if maxLevel > 0 then Math.Pow(endSpeed / beginSpeed, 1. / float maxLevel) else 1.
 
@@ -307,7 +307,7 @@ let private initAttributesCommon name dlcKey levels (project: DLCProject) (arran
 
     attr
 
-let private initSongCommon xmlMetaData (project: DLCProject) (sng: SNG) (attr: Attributes) =
+let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Instrumental) (sng: SNG) (attr: Attributes) =
     let diffHard, diffMed, diffEasy = calculateDifficulties xmlMetaData sng
     let dnaChords, dnaRiffs, dnaSolo = calculateDNAs sng
 
@@ -315,7 +315,7 @@ let private initSongCommon xmlMetaData (project: DLCProject) (sng: SNG) (attr: A
     attr.AlbumNameSort <- project.AlbumName.SortValue
     attr.ArtistName <- project.ArtistName.Value
     attr.ArtistNameSort <- project.ArtistName.SortValue
-    attr.CentOffset <- project.CentOffset |> Nullable
+    attr.CentOffset <- instrumental.CentOffset |> float |> Nullable
     attr.DNA_Chords <- dnaChords |> Nullable
     attr.DNA_Riffs <- dnaRiffs |> Nullable
     attr.DNA_Solo <- dnaSolo |> Nullable
@@ -332,6 +332,7 @@ let private initSongCommon xmlMetaData (project: DLCProject) (sng: SNG) (attr: A
     attr.SongName <- project.Title.Value
     attr.SongNameSort <- project.Title.SortValue
     attr.SongYear <- project.Year |> Nullable
+    // TODO: get from arrangement
     attr.Tuning <- Tuning.FromArray(xmlMetaData.Tuning.Strings) |> Some
 
     attr
@@ -407,7 +408,7 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
 
         let attr =
             initBase name dlcKey project arr attributes
-            |> initSongCommon xmlMetaData project sng
+            |> initSongCommon xmlMetaData project inst sng
 
         if isHeader then
             // Attributes unique to header

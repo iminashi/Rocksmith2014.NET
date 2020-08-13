@@ -11,7 +11,10 @@ let testLead =
     { XML = "instrumental.xml"
       ArrangementName = ArrangementName.Lead
       RouteMask = RouteMask.Lead
-      ScrollSpeed = 13
+      ArrangementOrdering = ArrangementOrdering.Main
+      CentOffset = 0
+      Tuning = [||]
+      ScrollSpeed = 1.3
       MasterID = 12345
       PersistentID = Guid.NewGuid() }
 
@@ -27,7 +30,6 @@ let testProject =
       AlbumArtFile = "cover.dds"
       AudioFile = { Path = "audio.wem"; Volume = 12. }
       AudioPreviewFile = { Path = "audio_preview.wem"; Volume = 12. }
-      CentOffset = 0.0
       Arrangements = [ Instrumental testLead ]
       Tones = [] }
 

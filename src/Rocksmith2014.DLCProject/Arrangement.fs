@@ -8,11 +8,19 @@ type ArrangementName =
     | Rhythm = 2
     | Bass = 3
 
+type ArrangementOrdering =
+    | Main = 0
+    | Alternative = 1
+    | Bonus = 2
+
 type Instrumental =
     { XML : string
       ArrangementName : ArrangementName
       RouteMask : RouteMask
-      ScrollSpeed : int
+      ArrangementOrdering : ArrangementOrdering
+      ScrollSpeed : float
+      Tuning : int16 array
+      CentOffset : int
       MasterID : int
       PersistentID : Guid }
 

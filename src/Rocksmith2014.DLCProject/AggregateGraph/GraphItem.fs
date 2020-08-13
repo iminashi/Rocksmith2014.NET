@@ -15,10 +15,9 @@ type GraphItem =
 
 module GraphItem =
     let private lineTemplate = "<urn:uuid:{0}> <http://emergent.net/aweb/1.0/{1}> \"{2}\"."
-    let private rand = Random()
     let private zeroes = Array.zeroCreate<byte> 8
     
-    let private newLLID () = Guid(rand.Next(), 0s, 0s, zeroes)
+    let private newLLID () = Guid(RandomGenerator.next(), 0s, 0s, zeroes)
     
     let private getPlatformTag = function
         | PC -> Tag.DX9

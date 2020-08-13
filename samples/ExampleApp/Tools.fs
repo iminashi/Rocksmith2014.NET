@@ -31,7 +31,6 @@ let project =
       AlbumArtFile = "cover.dds"
       AudioFile = { Path = "audio.wem"; Volume = 12. }
       AudioPreviewFile = { Path = "preview.wem"; Volume = 12. }
-      CentOffset = 0.
       Arrangements = []
       Tones = [] }
 
@@ -190,7 +189,10 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                 { XML = file
                   ArrangementName = ArrangementName.Lead
                   RouteMask = RouteMask.Lead
-                  ScrollSpeed = 13
+                  ArrangementOrdering = ArrangementOrdering.Main
+                  CentOffset = 0
+                  Tuning = [||]
+                  ScrollSpeed = 1.3
                   MasterID = 12345
                   PersistentID = Guid.NewGuid() }
 

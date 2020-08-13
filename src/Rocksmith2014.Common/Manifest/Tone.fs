@@ -40,4 +40,4 @@ type Tone =
 
     override this.ToString() =
         let description = ToneDescriptor.combineUINames this.ToneDescriptors
-        sprintf "%s (%s), Volume: %s" this.Key description this.Volume
+        sprintf "%s (%s)" this.Key description
