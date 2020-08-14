@@ -271,7 +271,7 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
         //Grid.showGridLines true
         Grid.margin (0.0, 4.0)
         Grid.columnDefinitions "*,3*"
-        Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*"
+        Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*,*"
         Grid.children [
             TextBlock.create [
                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -488,6 +488,21 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
                         (fun (a:Instrumental) -> { a with PersistentID = perID }) |> EditInstrumental |> dispatch
                 )
             ]
+
+            Button.create [
+                Grid.columnSpan 2
+                Grid.row 9
+                Button.horizontalAlignment HorizontalAlignment.Center
+                Button.isVisible state.Config.ShowAdvanced
+                Button.content "Generate New Arrangement Identification"
+                Button.onClick (fun _ -> 
+                    fun (a: Instrumental) ->
+                        { a with MasterID = RandomGenerator.next()
+                                 PersistentID = Guid.NewGuid() }
+                    |> EditInstrumental |> dispatch
+                )
+                ToolTip.tip "Generates new identification IDs for this arrangement.\nThe in-game stats for the arrangement will be reset."
+            ]
         ]
     ]
 
@@ -545,49 +560,49 @@ let vocalsDetailsView state dispatch v =
                 ]
             ]
 
-            TextBlock.create [
-                Grid.row 2
-                TextBlock.isVisible state.Config.ShowAdvanced
-                TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Master ID: "
-            ]
+            //TextBlock.create [
+            //    Grid.row 2
+            //    TextBlock.isVisible state.Config.ShowAdvanced
+            //    TextBlock.verticalAlignment VerticalAlignment.Center
+            //    TextBlock.horizontalAlignment HorizontalAlignment.Center
+            //    TextBlock.text "Master ID: "
+            //]
 
-            TextBox.create [
-                Grid.column 1
-                Grid.row 2
-                TextBox.isVisible state.Config.ShowAdvanced
-                TextBox.horizontalAlignment HorizontalAlignment.Stretch
-                TextBox.text (string v.MasterID)
-                TextBox.onLostFocus (fun arg ->
-                    let txtBox = arg.Source :?> TextBox
-                    let success, masterID = Int32.TryParse(txtBox.Text)
-                    if success then
-                        (fun (a:Vocals) -> { a with MasterID = masterID }) |> EditVocals |> dispatch
-                )
-            ]
+            //TextBox.create [
+            //    Grid.column 1
+            //    Grid.row 2
+            //    TextBox.isVisible state.Config.ShowAdvanced
+            //    TextBox.horizontalAlignment HorizontalAlignment.Stretch
+            //    TextBox.text (string v.MasterID)
+            //    TextBox.onLostFocus (fun arg ->
+            //        let txtBox = arg.Source :?> TextBox
+            //        let success, masterID = Int32.TryParse(txtBox.Text)
+            //        if success then
+            //            (fun (a:Vocals) -> { a with MasterID = masterID }) |> EditVocals |> dispatch
+            //    )
+            //]
 
-            TextBlock.create [
-                Grid.row 3
-                TextBlock.isVisible state.Config.ShowAdvanced
-                TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Persistent ID: "
-            ]
+            //TextBlock.create [
+            //    Grid.row 3
+            //    TextBlock.isVisible state.Config.ShowAdvanced
+            //    TextBlock.verticalAlignment VerticalAlignment.Center
+            //    TextBlock.horizontalAlignment HorizontalAlignment.Center
+            //    TextBlock.text "Persistent ID: "
+            //]
 
-            TextBox.create [
-                Grid.column 1
-                Grid.row 3
-                TextBox.isVisible state.Config.ShowAdvanced
-                TextBox.horizontalAlignment HorizontalAlignment.Stretch
-                TextBox.text (v.PersistentID.ToString("N"))
-                TextBox.onLostFocus (fun arg ->
-                    let txtBox = arg.Source :?> TextBox
-                    let success, perID = Guid.TryParse(txtBox.Text)
-                    if success then
-                        (fun (a:Vocals) -> { a with PersistentID = perID }) |> EditVocals |> dispatch
-                )
-            ]
+            //TextBox.create [
+            //    Grid.column 1
+            //    Grid.row 3
+            //    TextBox.isVisible state.Config.ShowAdvanced
+            //    TextBox.horizontalAlignment HorizontalAlignment.Stretch
+            //    TextBox.text (v.PersistentID.ToString("N"))
+            //    TextBox.onLostFocus (fun arg ->
+            //        let txtBox = arg.Source :?> TextBox
+            //        let success, perID = Guid.TryParse(txtBox.Text)
+            //        if success then
+            //            (fun (a:Vocals) -> { a with PersistentID = perID }) |> EditVocals |> dispatch
+            //    )
+            //]
         ]
     ]
 
@@ -868,10 +883,14 @@ let view (state: State) dispatch =
                         | None -> ()
                         ListBox.onSelectedItemChanged ((fun item ->
                             match item with
-                            | :? Arrangement as arr -> dispatch (ArrangementSelected (Some arr))
+                            | :? Arrangement as arr ->
+                                dispatch (ArrangementSelected (Some arr))
                             | null when state.Project.Arrangements.Length = 0 -> dispatch (ArrangementSelected None)
                             | _ -> ()), SubPatchOptions.OnChangeOf(state))
-                        ListBox.onKeyDown (fun k -> if k.Key = Key.Delete then dispatch DeleteArrangement)
+                        ListBox.onKeyDown (fun k ->
+                            if k.Key = Key.Delete then
+                                k.Handled <- true
+                                dispatch DeleteArrangement)
                     ]
                 ]
             ]
