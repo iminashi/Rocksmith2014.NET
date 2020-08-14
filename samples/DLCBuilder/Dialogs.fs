@@ -15,6 +15,7 @@ let private createFilters name (extensions : string seq) =
 let audioFileFilters = createFilters "Audio Files" (seq { "wav"; "wem" })
 let xmlFileFilter = createFilters "Rocksmith Arrangement Files" (seq { "xml" })
 let imgFileFilter = createFilters "Images" (seq { "png"; "jpg" })
+let ddsFileFilter = createFilters "DDS Texture Files" (seq { "dds" })
 
 /// Shows an open folder dialog.
 let openFolderDialog title directory =

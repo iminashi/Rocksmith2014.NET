@@ -3,7 +3,7 @@
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
-open Rocksmith2014.XML
+open Rocksmith2014
 open Elmish
 open System.Xml
 open System
@@ -43,9 +43,11 @@ type Msg =
     | SelectOpenArrangement
     | SelectCoverArt
     | SelectAudioFile
+    | SelectCustomFont
     | AddArrangements of files : string[] option
     | AddCoverArt of fileName : string option
     | AddAudioFile of fileName : string option
+    | AddCustomFontFile of fileName : string option
     | ArrangementSelected of selected : Arrangement option
     | ToneSelected of selected : Tone option
     | DeleteArrangement
@@ -55,6 +57,7 @@ type Msg =
     | ShowSortFields of shown : bool
     | ShowJapaneseFields of shown : bool
     | EditInstrumental of edit : (Instrumental -> Instrumental)
+    | EditVocals of edit : (Vocals -> Vocals)
 
 let private loadArrangement (fileName: string) =
     let rootName =
@@ -63,7 +66,7 @@ let private loadArrangement (fileName: string) =
 
     match rootName with
     | "song" ->
-        let metadata = MetaData.Read fileName
+        let metadata = XML.MetaData.Read fileName
         let arr =
             { XML = fileName
               Name = ArrangementName.Parse(metadata.Arrangement)
@@ -130,6 +133,17 @@ let update (msg: Msg) (state: State) =
     | SelectAudioFile ->
         let dialog = Dialogs.openFileDialog "Select Audio File" Dialogs.audioFileFilters
         state, Cmd.OfAsync.perform dialog None AddAudioFile
+
+    | SelectCustomFont ->
+        let dialog = Dialogs.openFileDialog "Select Custom Font Texture" Dialogs.ddsFileFilter
+        state, Cmd.OfAsync.perform dialog None AddCustomFontFile
+
+    | AddCustomFontFile (Some fileName) ->
+        match state.SelectedArrangement with
+        | Some (Vocals arr as old) ->
+            let updated = Vocals ({ arr with CustomFont = Some fileName})
+            updateArrangement old updated state
+        | _ -> state, Cmd.none
 
     | AddAudioFile (Some fileName) ->
         let audioFile = { state.Project.AudioFile with Path = fileName }
@@ -241,8 +255,15 @@ let update (msg: Msg) (state: State) =
             let updated = Instrumental (edit arr)
             updateArrangement old updated state
         | _ -> state, Cmd.none
+
+    | EditVocals edit ->
+        match state.SelectedArrangement with
+        | Some (Vocals arr as old) ->
+            let updated = Vocals (edit arr)
+            updateArrangement old updated state
+        | _ -> state, Cmd.none
         
-    | AddArrangements None | AddCoverArt None | AddAudioFile None ->
+    | AddArrangements None | AddCoverArt None | AddAudioFile None | AddCustomFontFile None ->
         state, Cmd.none
 
 let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
@@ -473,23 +494,28 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
 let vocalsDetailsView state dispatch v =
     Grid.create [
         Grid.columnDefinitions "*,3*"
-        Grid.rowDefinitions "*,*"
+        Grid.rowDefinitions "*,*,*,*"
         Grid.margin (0.0, 4.0)
         //Grid.showGridLines true
         Grid.children [
             TextBlock.create [
                 TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
                 TextBlock.text "Japanese: "
             ]
             CheckBox.create [
                 Grid.column 1
-                CheckBox.isChecked (v.Japanese)
+                CheckBox.margin 4.0
+                CheckBox.isChecked v.Japanese
+                CheckBox.onChecked (fun _ -> (fun v -> { v with Japanese = true }) |> EditVocals |> dispatch)
+                CheckBox.onUnchecked (fun _ -> (fun v -> { v with Japanese = false }) |> EditVocals |> dispatch)
             ]
 
             // Custom font
             TextBlock.create [
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
                 TextBlock.text "Custom Font: "
             ]
             DockPanel.create [
@@ -499,12 +525,68 @@ let vocalsDetailsView state dispatch v =
                     Button.create [
                         DockPanel.dock Dock.Right
                         Button.margin (0.0, 4.0, 4.0, 4.0)
-                        Button.content "..."
+                        Button.content "X"
+                        Button.isVisible (Option.isSome v.CustomFont)
+                        Button.onClick (fun _ -> (fun v -> { v with CustomFont = None }) |> EditVocals |> dispatch)
+                        ToolTip.tip "Click to remove the custom font from the arrangement."
                     ]
-                    TextBox.create [
-                        TextBox.text (defaultArg v.CustomFont String.Empty)
+                    Button.create [
+                        DockPanel.dock Dock.Right
+                        Button.margin (0.0, 4.0, 4.0, 4.0)
+                        Button.content "..."
+                        Button.onClick (fun _ -> SelectCustomFont |> dispatch)
+                        ToolTip.tip "Click to select a custom font file."
+                    ]
+                    TextBlock.create [
+                        TextBlock.verticalAlignment VerticalAlignment.Center
+                        TextBlock.horizontalAlignment HorizontalAlignment.Center
+                        TextBlock.text (v.CustomFont |> Option.map IO.Path.GetFileName |> Option.defaultValue "None")
                     ]
                 ]
+            ]
+
+            TextBlock.create [
+                Grid.row 2
+                TextBlock.isVisible state.Config.ShowAdvanced
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.text "Master ID: "
+            ]
+
+            TextBox.create [
+                Grid.column 1
+                Grid.row 2
+                TextBox.isVisible state.Config.ShowAdvanced
+                TextBox.horizontalAlignment HorizontalAlignment.Stretch
+                TextBox.text (string v.MasterID)
+                TextBox.onLostFocus (fun arg ->
+                    let txtBox = arg.Source :?> TextBox
+                    let success, masterID = Int32.TryParse(txtBox.Text)
+                    if success then
+                        (fun (a:Vocals) -> { a with MasterID = masterID }) |> EditVocals |> dispatch
+                )
+            ]
+
+            TextBlock.create [
+                Grid.row 3
+                TextBlock.isVisible state.Config.ShowAdvanced
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.text "Persistent ID: "
+            ]
+
+            TextBox.create [
+                Grid.column 1
+                Grid.row 3
+                TextBox.isVisible state.Config.ShowAdvanced
+                TextBox.horizontalAlignment HorizontalAlignment.Stretch
+                TextBox.text (v.PersistentID.ToString("N"))
+                TextBox.onLostFocus (fun arg ->
+                    let txtBox = arg.Source :?> TextBox
+                    let success, perID = Guid.TryParse(txtBox.Text)
+                    if success then
+                        (fun (a:Vocals) -> { a with PersistentID = perID }) |> EditVocals |> dispatch
+                )
             ]
         ]
     ]
