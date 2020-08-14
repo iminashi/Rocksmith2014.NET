@@ -58,6 +58,7 @@ type Msg =
     | ShowJapaneseFields of shown : bool
     | EditInstrumental of edit : (Instrumental -> Instrumental)
     | EditVocals of edit : (Vocals -> Vocals)
+    | EditProject of edit : (DLCProject -> DLCProject)
 
 let private loadArrangement (fileName: string) =
     let rootName =
@@ -262,6 +263,9 @@ let update (msg: Msg) (state: State) =
             let updated = Vocals (edit arr)
             updateArrangement old updated state
         | _ -> state, Cmd.none
+
+    | EditProject edit ->
+        { state with Project = edit state.Project }, Cmd.none
         
     | AddArrangements None | AddCoverArt None | AddAudioFile None | AddCustomFontFile None ->
         state, Cmd.none
@@ -637,6 +641,9 @@ let view (state: State) dispatch =
                                 TextBox.watermark "DLC Key"
                                 TextBox.text state.Project.DLCKey
                                 ToolTip.tip "DLC Key"
+                                // Cannot filter pasted text: https://github.com/AvaloniaUI/Avalonia/issues/2611
+                                TextBox.onTextInput (fun e -> e.Text <- StringValidator.dlcKey e.Text)
+                                TextBox.onTextChanged (fun e -> (fun p -> { p with DLCKey = StringValidator.dlcKey e }) |> EditProject |> dispatch)
                             ]
 
                             TextBox.create [
@@ -647,6 +654,7 @@ let view (state: State) dispatch =
                                 TextBox.watermark "Version"
                                 TextBox.text state.Project.Version
                                 ToolTip.tip "Version"
+                                TextBox.onTextChanged (fun e -> (fun p -> { p with Version = e }) |> EditProject |> dispatch)
                             ]
 
                             TextBox.create [
@@ -655,6 +663,7 @@ let view (state: State) dispatch =
                                 TextBox.watermark "Artist Name"
                                 TextBox.text state.Project.ArtistName.Value
                                 ToolTip.tip "Artist Name"
+                                TextBox.onTextChanged (fun e -> (fun p -> { p with ArtistName = { p.ArtistName with Value = StringValidator.field e } }) |> EditProject |> dispatch)
                             ]
 
                             TextBox.create [
@@ -664,6 +673,11 @@ let view (state: State) dispatch =
                                 TextBox.text state.Project.ArtistName.SortValue
                                 TextBox.isVisible state.ShowSortFields
                                 ToolTip.tip "Artist Name Sort"
+                                TextBox.onLostFocus (fun e -> 
+                                    let txtBox = e.Source :?> TextBox
+                                    let validValue = StringValidator.sortField txtBox.Text
+                                    txtBox.Text <- validValue
+                                    (fun p -> { p with ArtistName = { p.ArtistName with SortValue = validValue } }) |> EditProject |> dispatch)
                             ]
 
                             TextBox.create [
@@ -673,6 +687,7 @@ let view (state: State) dispatch =
                                 TextBox.text (defaultArg state.Project.JapaneseArtistName String.Empty)
                                 TextBox.isVisible (state.ShowJapaneseFields)
                                 ToolTip.tip "Japanese Artist Name"
+                                TextBox.onTextChanged (fun e -> (fun p -> { p with JapaneseArtistName = Option.ofString (StringValidator.field e) }) |> EditProject |> dispatch)
                             ]
 
                             TextBox.create [
@@ -681,6 +696,7 @@ let view (state: State) dispatch =
                                 TextBox.watermark "Title"
                                 TextBox.text state.Project.Title.Value
                                 ToolTip.tip "Title"
+                                TextBox.onTextChanged (fun e -> (fun p -> { p with Title = { p.Title with Value = StringValidator.field e } }) |> EditProject |> dispatch)
                             ]
 
                             TextBox.create [
@@ -690,6 +706,11 @@ let view (state: State) dispatch =
                                 TextBox.text state.Project.Title.SortValue
                                 TextBox.isVisible state.ShowSortFields
                                 ToolTip.tip "Title Sort"
+                                TextBox.onLostFocus (fun e -> 
+                                    let txtBox = e.Source :?> TextBox
+                                    let validValue = StringValidator.sortField txtBox.Text
+                                    txtBox.Text <- validValue
+                                    (fun p -> { p with Title = { p.Title with SortValue = validValue } }) |> EditProject |> dispatch)
                             ]
 
                             TextBox.create [
@@ -699,6 +720,7 @@ let view (state: State) dispatch =
                                 TextBox.text (defaultArg state.Project.JapaneseTitle String.Empty)
                                 TextBox.isVisible (state.ShowJapaneseFields)
                                 ToolTip.tip "Japanese Title"
+                                TextBox.onTextChanged (fun e -> (fun p -> { p with JapaneseTitle = Option.ofString (StringValidator.field e) }) |> EditProject |> dispatch)
                             ]
 
                             TextBox.create [
@@ -707,6 +729,7 @@ let view (state: State) dispatch =
                                 TextBox.watermark "Album Name"
                                 TextBox.text state.Project.AlbumName.Value
                                 ToolTip.tip "Album Name"
+                                TextBox.onTextChanged (fun e -> (fun p -> { p with AlbumName = { p.AlbumName with Value = StringValidator.field e } }) |> EditProject |> dispatch)
                             ]
 
                             TextBox.create [
@@ -716,6 +739,11 @@ let view (state: State) dispatch =
                                 TextBox.text state.Project.AlbumName.SortValue
                                 TextBox.isVisible state.ShowSortFields
                                 ToolTip.tip "Album Name Sort"
+                                TextBox.onLostFocus (fun e -> 
+                                    let txtBox = e.Source :?> TextBox
+                                    let validValue = StringValidator.sortField txtBox.Text
+                                    txtBox.Text <- validValue
+                                    (fun p -> { p with AlbumName = { p.AlbumName with SortValue = validValue } }) |> EditProject |> dispatch)
                             ]
 
                             TextBox.create [
@@ -726,6 +754,7 @@ let view (state: State) dispatch =
                                 TextBox.watermark "Year"
                                 TextBox.text (string state.Project.Year)
                                 ToolTip.tip "Year"
+                                TextBox.onTextChanged (fun e -> (fun p -> { p with Year = int e }) |> EditProject |> dispatch)
                             ]
 
                             StackPanel.create [
@@ -776,8 +805,11 @@ let view (state: State) dispatch =
                                 NumericUpDown.margin (2.0, 2.0, 2.0, 2.0)
                                 NumericUpDown.width 65.
                                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
+                                NumericUpDown.minimum -45.
+                                NumericUpDown.maximum 45.
                                 NumericUpDown.value state.Project.AudioFile.Volume
                                 NumericUpDown.formatString "F1"
+                                NumericUpDown.onValueChanged (fun v -> (fun p -> { p with AudioFile = { p.AudioFile with Volume = v } }) |> EditProject |> dispatch)
                                 ToolTip.tip "Audio Volume (dB)"
                             ]
                 
@@ -814,8 +846,11 @@ let view (state: State) dispatch =
                                 NumericUpDown.margin (2.0, 2.0, 2.0, 2.0)
                                 NumericUpDown.width 65.
                                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
+                                NumericUpDown.minimum -45.
+                                NumericUpDown.maximum 45.
                                 NumericUpDown.value state.Project.AudioPreviewFile.Volume
                                 NumericUpDown.formatString "F1"
+                                NumericUpDown.onValueChanged (fun v -> (fun p -> { p with AudioPreviewFile = { p.AudioPreviewFile with Volume = v } }) |> EditProject |> dispatch)
                                 ToolTip.tip "Preview Audio Volume (dB)"
                             ]
 
