@@ -192,7 +192,7 @@ let update (msg: Msg) (state: State) =
             { state with
                 Project = { state.Project with
                                 DLCKey = DLCKey.create state.Config.CharterName md.ArtistName md.Title
-                                ArtistName = SortableString.Create (md.ArtistName, md.ArtistNameSort)
+                                ArtistName = SortableString.Create (md.ArtistName) // Ignore the sort value from the XML
                                 Title = SortableString.Create (md.Title, md.TitleSort)
                                 AlbumName = SortableString.Create (md.AlbumName, md.AlbumNameSort)
                                 Year = md.AlbumYear
@@ -419,8 +419,8 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                 NumericUpDown.width 65.
                 NumericUpDown.value (float i.CentOffset)
-                NumericUpDown.minimum -500.0
-                NumericUpDown.maximum 500.0
+                NumericUpDown.minimum -5000.0
+                NumericUpDown.maximum 5000.0
                 NumericUpDown.increment 1.0
                 NumericUpDown.formatString "F0"
                 NumericUpDown.onValueChanged (fun value -> (fun a -> { a with CentOffset = int value }) |> EditInstrumental |> dispatch)

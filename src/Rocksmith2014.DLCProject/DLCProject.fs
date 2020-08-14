@@ -13,7 +13,10 @@ type SortableString =
         let sort = defaultArg sort null
         { Value = value
           SortValue =
-            if String.IsNullOrWhiteSpace sort then value else sort
+            if String.IsNullOrWhiteSpace sort then
+                StringValidator.removeArticles value
+            else
+                sort
             |> StringValidator.sortField }
 
     static member Empty = { Value = String.Empty; SortValue = String.Empty }
