@@ -55,6 +55,8 @@ type Msg =
     | ShowSortFields of shown : bool
     | ShowJapaneseFields of shown : bool
     | ArrangementPriorityChanged of priority : ArrangementPriority
+    | ArrangementNameChanged of name : ArrangementName
+    | RouteMaskChanged of mask : RouteMask
 
 let private loadArrangement (fileName: string) =
     let rootName =
@@ -109,6 +111,13 @@ let private loadArrangement (fileName: string) =
         Ok (arr, None)
 
     | _ -> Error "Not a Rocksmith 2014 arrangement."
+
+let private updateArrangement old updated state =
+    let arrangements =
+        state.Project.Arrangements
+        |> List.update old updated
+    { state with Project = { state.Project with Arrangements = arrangements }
+                 SelectedArrangement = Some updated }, Cmd.none
 
 let update (msg: Msg) (state: State) =
     match msg with
@@ -232,11 +241,27 @@ let update (msg: Msg) (state: State) =
         match state.SelectedArrangement with
         | Some (Instrumental arr as old) ->
             let updated = Instrumental { arr with Priority = priority }
-            let arrangements =
-                state.Project.Arrangements
-                |> List.update old updated
-            { state with Project = { state.Project with Arrangements = arrangements }
-                         SelectedArrangement = Some updated }, Cmd.none
+            updateArrangement old updated state
+        | _ -> state, Cmd.none
+
+    | ArrangementNameChanged name ->
+        match state.SelectedArrangement with
+        | Some (Instrumental arr as old) ->
+            let routeMask =
+                match name with
+                | ArrangementName.Lead -> RouteMask.Lead
+                | ArrangementName.Rhythm | ArrangementName.Combo -> RouteMask.Rhythm
+                | ArrangementName.Bass -> RouteMask.Bass
+                | _ -> failwith "Unlikely failure."
+            let updated = Instrumental { arr with Name = name; RouteMask = routeMask }
+            updateArrangement old updated state
+        | _ -> state, Cmd.none
+
+    | RouteMaskChanged mask ->
+        match state.SelectedArrangement with
+        | Some (Instrumental arr as old) ->
+            let updated = Instrumental { arr with RouteMask = mask }
+            updateArrangement old updated state
         | _ -> state, Cmd.none
         
     | AddArrangements None | AddCoverArt None | AddAudioFile None ->
@@ -260,8 +285,13 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
                 ComboBox.horizontalAlignment HorizontalAlignment.Left
                 ComboBox.margin 4.
                 ComboBox.width 100.
-                ComboBox.dataItems (Enum.GetNames(typeof<ArrangementName>))
-                ComboBox.selectedItem (string i.Name)
+                ComboBox.dataItems (Enum.GetValues(typeof<ArrangementName>))
+                ComboBox.selectedItem i.Name
+                ComboBox.onSelectedItemChanged (fun item ->
+                    match item with
+                    | :? ArrangementName as item -> item |> ArrangementNameChanged |> dispatch
+                    | _ -> ()
+                )
             ]
 
             TextBlock.create [
@@ -311,18 +341,22 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
             StackPanel.create [
                 Grid.column 1
                 Grid.row 2
+                StackPanel.margin 4.
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.isVisible (i.Name = ArrangementName.Combo)
                 StackPanel.children [
                     RadioButton.create [
+                        RadioButton.margin (4.0, 0.0)
                         RadioButton.groupName "RouteMask"
                         RadioButton.content "Lead"
                         RadioButton.isChecked (i.RouteMask = RouteMask.Lead)
+                        RadioButton.onChecked (fun _ -> RouteMask.Lead |> RouteMaskChanged |> dispatch)
                     ]
                     RadioButton.create [
                         RadioButton.groupName "RouteMask"
                         RadioButton.content "Rhythm"
                         RadioButton.isChecked (i.RouteMask = RouteMask.Rhythm)
+                        RadioButton.onChecked (fun _ -> RouteMask.Rhythm |> RouteMaskChanged |> dispatch)
                     ]
                 ]
             ]
