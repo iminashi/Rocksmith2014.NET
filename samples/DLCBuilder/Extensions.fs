@@ -21,6 +21,12 @@ module List =
         | h::tail when Object.ReferenceEquals(h, item) -> tail
         | h::tail -> h::(remove item tail)
 
+    let rec update (oldItem : 'a) (newItem : 'a) (list : 'a list) =
+        match list with
+        | [] -> []
+        | h::tail when Object.ReferenceEquals(h, oldItem) -> newItem::tail
+        | h::tail -> h::(update oldItem newItem tail)
+
 [<AutoOpen>]
 module General =
     let dispose<'a when 'a :> IDisposable> (x: 'a) = x.Dispose() 

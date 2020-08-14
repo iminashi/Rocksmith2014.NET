@@ -1,4 +1,4 @@
-﻿module DLCBuilder.MainView
+﻿module DLCBuilder.Main
 
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
@@ -54,6 +54,7 @@ type Msg =
     | CreatePreviewAudio
     | ShowSortFields of shown : bool
     | ShowJapaneseFields of shown : bool
+    | ArrangementPriorityChanged of priority : ArrangementPriority
 
 let private loadArrangement (fileName: string) =
     let rootName =
@@ -138,14 +139,16 @@ let update (msg: Msg) (state: State) =
             files
             |> Array.map loadArrangement
 
-        let shouldInclude state arr =
+        let shouldInclude arrangements arr =
             match arr with
             // Allow only one show lights arrangement
-            | Showlights _ when state |> List.exists (function Showlights _ -> true | _ -> false) -> false
+            | Showlights _ when arrangements |> List.exists (function Showlights _ -> true | _ -> false) -> false
+
             // Allow max five instrumental arrangements
-            | Instrumental _ when (state |> List.choose Arrangement.pickInstrumental).Length = 5 -> false
+            | Instrumental _ when (arrangements |> List.choose Arrangement.pickInstrumental).Length = 5 -> false
+
             // Allow max two instrumental arrangements
-            | Vocals _ when (state |> List.choose (function Vocals _ -> Some 1 | _ -> None)).Length = 2 -> false
+            | Vocals _ when (arrangements |> List.choose (function Vocals _ -> Some 1 | _ -> None)).Length = 2 -> false
             | _ -> true
 
         let arrangements =
@@ -184,7 +187,8 @@ let update (msg: Msg) (state: State) =
             match state.SelectedArrangement with
             | None -> state.Project.Arrangements
             | Some selected -> List.remove selected state.Project.Arrangements
-        { state with Project = { state.Project with Arrangements = arrangements } }, Cmd.none
+        { state with Project = { state.Project with Arrangements = arrangements }
+                     SelectedArrangement = None }, Cmd.none
 
     | DeleteTone ->
         let tones =
@@ -223,11 +227,22 @@ let update (msg: Msg) (state: State) =
 
     | ShowJapaneseFields shown ->
         { state with ShowJapaneseFields = shown }, Cmd.none
+
+    | ArrangementPriorityChanged priority ->
+        match state.SelectedArrangement with
+        | Some (Instrumental arr as old) ->
+            let updated = Instrumental { arr with Priority = priority }
+            let arrangements =
+                state.Project.Arrangements
+                |> List.update old updated
+            { state with Project = { state.Project with Arrangements = arrangements }
+                         SelectedArrangement = Some updated }, Cmd.none
+        | _ -> state, Cmd.none
         
     | AddArrangements None | AddCoverArt None | AddAudioFile None ->
         state, Cmd.none
 
-let instrumentalDetailsView (state: State) (i: Instrumental) =
+let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
     Grid.create [
         //Grid.showGridLines true
         Grid.margin (0.0, 4.0)
@@ -267,17 +282,20 @@ let instrumentalDetailsView (state: State) (i: Instrumental) =
                         RadioButton.groupName "Priority"
                         RadioButton.content "Main"
                         RadioButton.isChecked (i.Priority = ArrangementPriority.Main)
+                        RadioButton.onChecked (fun _ -> ArrangementPriority.Main |> ArrangementPriorityChanged |> dispatch)
                     ]
                     RadioButton.create [
                         RadioButton.groupName "Priority"
                         RadioButton.content "Alternative"
                         RadioButton.isChecked (i.Priority = ArrangementPriority.Alternative)
+                        RadioButton.onChecked (fun _ -> ArrangementPriority.Alternative |> ArrangementPriorityChanged |> dispatch)
                     ]
                     RadioButton.create [
                         RadioButton.margin (4.0, 0.0)
                         RadioButton.groupName "Priority"
                         RadioButton.content "Bonus"
                         RadioButton.isChecked (i.Priority = ArrangementPriority.Bonus)
+                        RadioButton.onChecked (fun _ -> ArrangementPriority.Bonus |> ArrangementPriorityChanged |> dispatch)
                     ]
                 ]
             ]
@@ -431,13 +449,51 @@ let instrumentalDetailsView (state: State) (i: Instrumental) =
                 Grid.row 8
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
-                //TextBox.width 240.
                 TextBox.text (i.PersistentID.ToString("N"))
             ]
         ]
     ]
 
-let view (state: State) (dispatch) =
+let vocalsDetailsView state dispatch v =
+    Grid.create [
+        Grid.columnDefinitions "*,3*"
+        Grid.rowDefinitions "*,*"
+        Grid.margin (0.0, 4.0)
+        //Grid.showGridLines true
+        Grid.children [
+            TextBlock.create [
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text "Japanese: "
+            ]
+            CheckBox.create [
+                Grid.column 1
+                CheckBox.isChecked (v.Japanese)
+            ]
+
+            // Custom font
+            TextBlock.create [
+                Grid.row 1
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text "Custom Font: "
+            ]
+            DockPanel.create [
+                Grid.column 1
+                Grid.row 1
+                DockPanel.children [
+                    Button.create [
+                        DockPanel.dock Dock.Right
+                        Button.margin (0.0, 4.0, 4.0, 4.0)
+                        Button.content "..."
+                    ]
+                    TextBox.create [
+                        TextBox.text (defaultArg v.CustomFont String.Empty)
+                    ]
+                ]
+            ]
+        ]
+    ]
+
+let view (state: State) dispatch =
     Grid.create [
         Grid.columnDefinitions "2*,*,2*"
         Grid.rowDefinitions "*,*"
@@ -711,11 +767,11 @@ let view (state: State) (dispatch) =
                         match state.SelectedArrangement with
                         | Some a -> ListBox.selectedItem a
                         | None -> ()
-                        ListBox.onSelectedItemChanged (fun item ->
+                        ListBox.onSelectedItemChanged ((fun item ->
                             match item with
                             | :? Arrangement as arr -> dispatch (ArrangementSelected (Some arr))
-                            | _ ->  dispatch (ArrangementSelected None)
-                        )
+                            | null when state.Project.Arrangements.Length = 0 -> dispatch (ArrangementSelected None)
+                            | _ -> ()), SubPatchOptions.OnChangeOf(state))
                         ListBox.onKeyDown (fun k -> if k.Key = Key.Delete then dispatch DeleteArrangement)
                     ]
                 ]
@@ -731,43 +787,25 @@ let view (state: State) (dispatch) =
                             TextBlock.text "Select an arrangement to edit its details"
                             TextBlock.horizontalAlignment HorizontalAlignment.Center
                         ]
+
                     | Some arr ->
+                        // Arrangement name
                         TextBlock.create [
                             TextBlock.fontSize 17.
                             TextBlock.text (Arrangement.getName arr false)
                             TextBlock.horizontalAlignment HorizontalAlignment.Center
                         ]
 
+                        // Arrangement filename
                         TextBlock.create [
-                            TextBlock.text (System.IO.Path.GetFileName (Arrangement.getFile arr))
+                            TextBlock.text (IO.Path.GetFileName (Arrangement.getFile arr))
                             TextBlock.horizontalAlignment HorizontalAlignment.Center
                         ]
 
                         match arr with
                         | Showlights _ -> ()
-                        | Instrumental i -> instrumentalDetailsView state i
-                        | Vocals v ->
-                            CheckBox.create [
-                                CheckBox.content "Japanese"
-                                CheckBox.isChecked (v.Japanese)
-                            ]
-                            StackPanel.create [
-                                StackPanel.orientation Orientation.Horizontal
-                                StackPanel.children [
-                                    TextBlock.create [
-                                        TextBlock.verticalAlignment VerticalAlignment.Center
-                                        TextBlock.text "Custom Font: "
-                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                                    ]
-                                    TextBox.create [
-                                        TextBox.width 150.
-                                        TextBox.text (defaultArg v.CustomFont String.Empty)
-                                    ]
-                                    Button.create [
-                                        Button.content "..."
-                                    ]
-                                ]
-                            ]
+                        | Instrumental i -> instrumentalDetailsView state dispatch i
+                        | Vocals v -> vocalsDetailsView state dispatch v
                 ]
             ]
 
@@ -793,8 +831,7 @@ let view (state: State) (dispatch) =
                         ListBox.onSelectedItemChanged (fun item ->
                             match item with
                             | :? Tone as t -> dispatch (ToneSelected (Some t))
-                            | _ ->  dispatch (ToneSelected None)
-                        )
+                            | _ ->  dispatch (ToneSelected None))
                         ListBox.onKeyDown (fun k -> if k.Key = Key.Delete then dispatch DeleteTone)
                     ]
                 ]

@@ -26,7 +26,7 @@
     <Compile Include="Extensions.fs" />
     <Compile Include="Dialogs.fs" />
     <Compile Include="Configuration.fs" />
-    <Compile Include="MainView.fs" />
+    <Compile Include="Main.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
@@ -63,6 +63,7 @@
     <Watch Remove="Configuration.fs" />
     <Watch Remove="Dialogs.fs" />
     <Watch Remove="Extensions.fs" />
+    <Watch Remove="Main.fs" />
     <Watch Remove="Media.fs" />
   </ItemGroup>
 </Project>
