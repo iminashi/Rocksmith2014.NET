@@ -54,9 +54,7 @@ type Msg =
     | CreatePreviewAudio
     | ShowSortFields of shown : bool
     | ShowJapaneseFields of shown : bool
-    | ArrangementPriorityChanged of priority : ArrangementPriority
-    | ArrangementNameChanged of name : ArrangementName
-    | RouteMaskChanged of mask : RouteMask
+    | EditInstrumental of edit : (Instrumental -> Instrumental)
 
 let private loadArrangement (fileName: string) =
     let rootName =
@@ -237,30 +235,10 @@ let update (msg: Msg) (state: State) =
     | ShowJapaneseFields shown ->
         { state with ShowJapaneseFields = shown }, Cmd.none
 
-    | ArrangementPriorityChanged priority ->
+    | EditInstrumental edit ->
         match state.SelectedArrangement with
         | Some (Instrumental arr as old) ->
-            let updated = Instrumental { arr with Priority = priority }
-            updateArrangement old updated state
-        | _ -> state, Cmd.none
-
-    | ArrangementNameChanged name ->
-        match state.SelectedArrangement with
-        | Some (Instrumental arr as old) ->
-            let routeMask =
-                match name with
-                | ArrangementName.Lead -> RouteMask.Lead
-                | ArrangementName.Rhythm | ArrangementName.Combo -> RouteMask.Rhythm
-                | ArrangementName.Bass -> RouteMask.Bass
-                | _ -> failwith "Unlikely failure."
-            let updated = Instrumental { arr with Name = name; RouteMask = routeMask }
-            updateArrangement old updated state
-        | _ -> state, Cmd.none
-
-    | RouteMaskChanged mask ->
-        match state.SelectedArrangement with
-        | Some (Instrumental arr as old) ->
-            let updated = Instrumental { arr with RouteMask = mask }
+            let updated = Instrumental (edit arr)
             updateArrangement old updated state
         | _ -> state, Cmd.none
         
@@ -289,7 +267,16 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
                 ComboBox.selectedItem i.Name
                 ComboBox.onSelectedItemChanged (fun item ->
                     match item with
-                    | :? ArrangementName as item -> item |> ArrangementNameChanged |> dispatch
+                    | :? ArrangementName as item ->
+                        fun (a:Instrumental) ->
+                            let routeMask =
+                                match item with
+                                | ArrangementName.Lead -> RouteMask.Lead
+                                | ArrangementName.Rhythm | ArrangementName.Combo -> RouteMask.Rhythm
+                                | ArrangementName.Bass -> RouteMask.Bass
+                                | _ -> failwith "Unlikely failure."
+                            { a with Name = item; RouteMask = routeMask }
+                        |> EditInstrumental |> dispatch
                     | _ -> ()
                 )
             ]
@@ -307,26 +294,14 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.margin 4.
                 StackPanel.children [
-                    RadioButton.create [
-                        RadioButton.margin (4.0, 0.0)
-                        RadioButton.groupName "Priority"
-                        RadioButton.content "Main"
-                        RadioButton.isChecked (i.Priority = ArrangementPriority.Main)
-                        RadioButton.onChecked (fun _ -> ArrangementPriority.Main |> ArrangementPriorityChanged |> dispatch)
-                    ]
-                    RadioButton.create [
-                        RadioButton.groupName "Priority"
-                        RadioButton.content "Alternative"
-                        RadioButton.isChecked (i.Priority = ArrangementPriority.Alternative)
-                        RadioButton.onChecked (fun _ -> ArrangementPriority.Alternative |> ArrangementPriorityChanged |> dispatch)
-                    ]
-                    RadioButton.create [
-                        RadioButton.margin (4.0, 0.0)
-                        RadioButton.groupName "Priority"
-                        RadioButton.content "Bonus"
-                        RadioButton.isChecked (i.Priority = ArrangementPriority.Bonus)
-                        RadioButton.onChecked (fun _ -> ArrangementPriority.Bonus |> ArrangementPriorityChanged |> dispatch)
-                    ]
+                    for priority in [ ArrangementPriority.Main; ArrangementPriority.Alternative; ArrangementPriority.Bonus ] ->
+                        RadioButton.create [
+                            RadioButton.margin (2.0, 0.0)
+                            RadioButton.groupName "Priority"
+                            RadioButton.content (string priority)
+                            RadioButton.isChecked (i.Priority = priority)
+                            RadioButton.onChecked (fun _ -> (fun a -> { a with Priority = priority }) |> EditInstrumental |> dispatch)
+                        ]
                 ]
             ]
 
@@ -345,19 +320,14 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.isVisible (i.Name = ArrangementName.Combo)
                 StackPanel.children [
-                    RadioButton.create [
-                        RadioButton.margin (4.0, 0.0)
-                        RadioButton.groupName "RouteMask"
-                        RadioButton.content "Lead"
-                        RadioButton.isChecked (i.RouteMask = RouteMask.Lead)
-                        RadioButton.onChecked (fun _ -> RouteMask.Lead |> RouteMaskChanged |> dispatch)
-                    ]
-                    RadioButton.create [
-                        RadioButton.groupName "RouteMask"
-                        RadioButton.content "Rhythm"
-                        RadioButton.isChecked (i.RouteMask = RouteMask.Rhythm)
-                        RadioButton.onChecked (fun _ -> RouteMask.Rhythm |> RouteMaskChanged |> dispatch)
-                    ]
+                    for mask in [ RouteMask.Lead; RouteMask.Rhythm ] ->
+                        RadioButton.create [
+                            RadioButton.margin (2.0, 0.0)
+                            RadioButton.groupName "RouteMask"
+                            RadioButton.content (string mask)
+                            RadioButton.isChecked (i.RouteMask = mask)
+                            RadioButton.onChecked (fun _ -> (fun a -> { a with RouteMask = mask }) |> EditInstrumental |> dispatch)
+                        ]
                 ]
             ]
 
@@ -389,30 +359,11 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
                 Grid.row 4
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.children [
-                    TextBox.create [
-                        TextBox.width 30.
-                        TextBox.text (string i.Tuning.[0])
-                    ]
-                    TextBox.create [
-                        TextBox.width 30.
-                        TextBox.text (string i.Tuning.[1])
-                    ]
-                    TextBox.create [
-                        TextBox.width 30.
-                        TextBox.text (string i.Tuning.[2])
-                    ]
-                    TextBox.create [
-                        TextBox.width 30.
-                        TextBox.text (string i.Tuning.[3])
-                    ]
-                    TextBox.create [
-                        TextBox.width 30.
-                        TextBox.text (string i.Tuning.[4])
-                    ]
-                    TextBox.create [
-                        TextBox.width 30.
-                        TextBox.text (string i.Tuning.[5])
-                    ]
+                    for str in 0..5 ->
+                        TextBox.create [
+                            TextBox.width 30.
+                            TextBox.text (string i.Tuning.[str])
+                        ]
                 ]
             ]
 
