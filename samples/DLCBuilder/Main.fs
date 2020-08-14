@@ -344,7 +344,9 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
                 Grid.row 3
                 CheckBox.margin 4.
                 CheckBox.isVisible (i.Name = ArrangementName.Bass)
-                CheckBox.isChecked (i.BassPicked)
+                CheckBox.isChecked i.BassPicked
+                CheckBox.onChecked (fun _ -> (fun a -> { a with BassPicked = true }) |> EditInstrumental |> dispatch)
+                CheckBox.onUnchecked (fun _ -> (fun a -> { a with BassPicked = false }) |> EditInstrumental |> dispatch)
             ]
 
             TextBlock.create [
@@ -363,6 +365,17 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
                         TextBox.create [
                             TextBox.width 30.
                             TextBox.text (string i.Tuning.[str])
+                            TextBox.onLostFocus (fun arg ->
+                                let txtBox = arg.Source :?> TextBox
+                                let success, newTuning = Int16.TryParse(txtBox.Text)
+                                if success then
+                                    fun a ->
+                                        let tuning =
+                                            a.Tuning
+                                            |> Array.mapi (fun i old -> if i = str then newTuning else old)
+                                        { a with Tuning = tuning }
+                                    |> EditInstrumental |> dispatch
+                            )
                         ]
                 ]
             ]
@@ -747,6 +760,7 @@ let view (state: State) dispatch =
                     ]
 
                     ListBox.create [
+                        ListBox.virtualizationMode ItemVirtualizationMode.None
                         ListBox.margin 2.
                         ListBox.dataItems state.Project.Arrangements
                         match state.SelectedArrangement with
