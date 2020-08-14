@@ -387,12 +387,18 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
 
-            TextBox.create [
+            NumericUpDown.create [
                 Grid.column 1
                 Grid.row 5
-                TextBox.horizontalAlignment HorizontalAlignment.Left
-                TextBox.width 60.
-                TextBox.text (string i.CentOffset)
+                NumericUpDown.margin 4.
+                NumericUpDown.horizontalAlignment HorizontalAlignment.Left
+                NumericUpDown.width 65.
+                NumericUpDown.value (float i.CentOffset)
+                NumericUpDown.minimum -500.0
+                NumericUpDown.maximum 500.0
+                NumericUpDown.increment 1.0
+                NumericUpDown.formatString "F0"
+                NumericUpDown.onValueChanged (fun value -> (fun a -> { a with CentOffset = int value }) |> EditInstrumental |> dispatch)
             ]
 
             TextBlock.create [
@@ -415,6 +421,7 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
                 NumericUpDown.minimum 0.5
                 NumericUpDown.formatString "F1"
                 NumericUpDown.value i.ScrollSpeed
+                NumericUpDown.onValueChanged (fun value -> (fun a -> { a with ScrollSpeed = value }) |> EditInstrumental |> dispatch)
             ]
 
             TextBlock.create [
@@ -430,8 +437,13 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
                 Grid.row 7
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
-                //TextBox.width 240.
                 TextBox.text (string i.MasterID)
+                TextBox.onLostFocus (fun arg ->
+                    let txtBox = arg.Source :?> TextBox
+                    let success, masterID = Int32.TryParse(txtBox.Text)
+                    if success then
+                        (fun (a:Instrumental) -> { a with MasterID = masterID }) |> EditInstrumental |> dispatch
+                )
             ]
 
             TextBlock.create [
@@ -448,6 +460,12 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
                 TextBox.text (i.PersistentID.ToString("N"))
+                TextBox.onLostFocus (fun arg ->
+                    let txtBox = arg.Source :?> TextBox
+                    let success, perID = Guid.TryParse(txtBox.Text)
+                    if success then
+                        (fun (a:Instrumental) -> { a with PersistentID = perID }) |> EditInstrumental |> dispatch
+                )
             ]
         ]
     ]
