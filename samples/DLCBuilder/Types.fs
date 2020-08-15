@@ -28,6 +28,11 @@ module Types =
         | SelectImportTones of tones : Tone array
         | SelectPreviewStart of audioLength : TimeSpan
 
+    type PreviewAudioCreation =
+        | SetupStartTime
+        | CreateFile
+        | FileCreated of path : string
+
     type State =
         { Project : DLCProject
           Config : Configuration
@@ -54,8 +59,7 @@ module Types =
     | DeleteArrangement
     | DeleteTone
     | ImportProfileTones
-    | CreatePreviewAudio
-    | CreatePreviewAudioFile
+    | CreatePreviewAudio of PreviewAudioCreation
     | PreviewAudioStartChanged of time : float
     | ShowSortFields of shown : bool
     | ShowJapaneseFields of shown : bool

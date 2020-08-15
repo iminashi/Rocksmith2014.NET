@@ -9,8 +9,14 @@ let view dispatch msg =
         StackPanel.spacing 8.
         StackPanel.children [
             TextBlock.create [
+                TextBlock.fontSize 18.
+                TextBlock.text "Error"
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+            ]
+            TextBlock.create [
                 TextBlock.fontSize 16.
                 TextBlock.text msg
+                TextBlock.margin 10.0
             ]
             Button.create [
                 Button.fontSize 18.

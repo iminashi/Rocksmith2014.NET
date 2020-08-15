@@ -9,12 +9,18 @@ let view state dispatch (audioLength: TimeSpan) =
     StackPanel.create [
         StackPanel.spacing 8.
         StackPanel.children [
+            TextBlock.create [
+                TextBlock.fontSize 18.
+                TextBlock.text "Preview Audio"
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+            ]
+
             StackPanel.create [
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.spacing 8.
                 StackPanel.children [
                     TextBlock.create [
-                        TextBlock.text "Preview Start Time: "
+                        TextBlock.text "Start Time: "
                         Button.verticalAlignment VerticalAlignment.Center
                     ]
                     NumericUpDown.create [
@@ -27,6 +33,7 @@ let view state dispatch (audioLength: TimeSpan) =
                     ]
                 ]
             ]
+
             StackPanel.create [
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.spacing 8.
@@ -36,7 +43,7 @@ let view state dispatch (audioLength: TimeSpan) =
                         Button.padding (50., 10.)
                         Button.horizontalAlignment HorizontalAlignment.Center
                         Button.content "Create"
-                        Button.onClick (fun _ -> CreatePreviewAudioFile |> dispatch)
+                        Button.onClick (fun _ -> (CreatePreviewAudio CreateFile) |> dispatch)
                     ]
                     Button.create [
                         Button.fontSize 16.

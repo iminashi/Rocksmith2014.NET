@@ -33,3 +33,4 @@ let createPreview (sourceFile: string) (startOffset: TimeSpan) =
     let previewSection = getPreviewSection startOffset audio
     let preview = fade fadeIn fadeOut (28L * 1000L<ms>) previewSection
     WaveFileWriter.CreateWaveFile16(targetFile, preview)
+    targetFile

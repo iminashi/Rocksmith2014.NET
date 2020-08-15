@@ -209,9 +209,8 @@ let view state dispatch =
                     ]
         
                     Button.create [
-                        let previewExists =
-                            if String.IsNullOrWhiteSpace state.Project.AudioFile.Path then false
-                            else IO.File.Exists(IO.Path.Combine(IO.Path.GetDirectoryName(state.Project.AudioFile.Path), IO.Path.GetFileNameWithoutExtension(state.Project.AudioFile.Path) + "_preview.wav"))
+                        let previewExists = IO.File.Exists state.Project.AudioPreviewFile.Path
+
                         Grid.column 0
                         Grid.row 6
                         Button.horizontalAlignment HorizontalAlignment.Center
@@ -230,8 +229,8 @@ let view state dispatch =
                                 ]
                             ]
                         )
-                        Button.isEnabled (state.Project.AudioFile.Path.EndsWith(".wav"))
-                        Button.onClick (fun _ -> dispatch CreatePreviewAudio)
+                        Button.isEnabled (state.Project.AudioFile.Path.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+                        Button.onClick (fun _ -> dispatch (CreatePreviewAudio SetupStartTime))
                         ToolTip.tip (if previewExists then "Preview audio file exists, click to create a new one." else "Preview audio file does not exist, click to create one.")
                     ]
 

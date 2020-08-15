@@ -76,10 +76,12 @@ let private loadArrangement (fileName: string) =
         let isJapanese =
             fileName.Contains("jvocal", StringComparison.OrdinalIgnoreCase) ||
             fileName.Contains("jlyric", StringComparison.OrdinalIgnoreCase)
+
         // Try to find custom font for Japanese vocals
         let customFont =
-            let lyricFile = IO.Path.Combine(IO.Path.GetDirectoryName(fileName), "lyrics.dds")
+            let lyricFile = IO.Path.Combine(IO.Path.GetDirectoryName fileName, "lyrics.dds")
             if isJapanese && IO.File.Exists lyricFile then Some lyricFile else None
+
         let arr =
             { XML = fileName
               Japanese = isJapanese
@@ -160,7 +162,14 @@ let update (msg: Msg) (state: State) =
 
     | AddAudioFile (Some fileName) ->
         let audioFile = { state.Project.AudioFile with Path = fileName }
-        { state with Project = { state.Project with AudioFile = audioFile } }, Cmd.none
+        let previewPath =
+            let path = IO.Path.Combine(IO.Path.GetDirectoryName fileName, IO.Path.GetFileNameWithoutExtension fileName + "_preview.wav")
+            if IO.File.Exists path then
+                path
+            else
+                String.Empty
+        let previewFile = { state.Project.AudioPreviewFile with Path = previewPath }
+        { state with Project = { state.Project with AudioFile = audioFile; AudioPreviewFile = previewFile } }, Cmd.none
 
     | AddCoverArt (Some fileName) ->
         state.CoverArt |> Option.iter dispose
@@ -240,15 +249,19 @@ let update (msg: Msg) (state: State) =
     | PreviewAudioStartChanged time ->
         { state with PreviewStartTime = TimeSpan.FromSeconds time }, Cmd.none
 
-    | CreatePreviewAudioFile ->
-        let task () = async { do Audio.Tools.createPreview state.Project.AudioFile.Path state.PreviewStartTime }
-        { state with Overlay = NoOverlay }, Cmd.OfAsync.attempt task () ErrorOccurred
-
-    | CreatePreviewAudio ->
+    | CreatePreviewAudio (SetupStartTime) ->
         let totalLength = Audio.Tools.getLength state.Project.AudioFile.Path
         // Remove the length of the preview from the total length
         let length = totalLength - TimeSpan.FromSeconds 28.
         { state with Overlay = SelectPreviewStart length }, Cmd.none
+
+    | CreatePreviewAudio (CreateFile) ->
+        let task () = async { return Audio.Tools.createPreview state.Project.AudioFile.Path state.PreviewStartTime }
+        { state with Overlay = NoOverlay }, Cmd.OfAsync.either task () (FileCreated >> CreatePreviewAudio) ErrorOccurred
+
+    | CreatePreviewAudio (FileCreated previewPath) ->
+        let previewFile = { state.Project.AudioPreviewFile with Path = previewPath }
+        { state with Project = { state.Project with AudioPreviewFile = previewFile } }, Cmd.none
 
     | ShowSortFields shown ->
         { state with ShowSortFields = shown }, Cmd.none
@@ -357,14 +370,25 @@ let view (state: State) dispatch =
                         Grid.column 1
                         Grid.row 1
                         DockPanel.children [
-                            Button.create [
+                            StackPanel.create [
                                 DockPanel.dock Dock.Top
-                                Button.margin 5.0
-                                Button.padding (15.0, 5.0)
-                                Button.horizontalAlignment HorizontalAlignment.Left
-                                Button.content "From Profile"
-                                Button.onClick (fun _ -> dispatch ImportProfileTones)
-                                Button.isEnabled ((not <| String.IsNullOrWhiteSpace state.Config.ProfilePath) && IO.File.Exists state.Config.ProfilePath)
+                                StackPanel.orientation Orientation.Horizontal
+                                StackPanel.spacing 4.
+                                StackPanel.margin 5.
+                                StackPanel.children [
+                                    Button.create [
+                                        Button.padding (15.0, 5.0)
+                                        Button.horizontalAlignment HorizontalAlignment.Left
+                                        Button.content "From Profile"
+                                        Button.onClick (fun _ -> dispatch ImportProfileTones)
+                                        Button.isEnabled (IO.File.Exists state.Config.ProfilePath)
+                                    ]
+                                    Button.create [
+                                        Button.padding (15.0, 5.0)
+                                        Button.horizontalAlignment HorizontalAlignment.Left
+                                        Button.content "Import"
+                                    ]
+                                ]
                             ]
 
                             ListBox.create [
