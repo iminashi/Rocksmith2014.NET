@@ -25,7 +25,9 @@ let init () =
       SelectedArrangement = None
       SelectedTone = None
       ShowSortFields = false
-      ShowJapaneseFields = false }, Cmd.none
+      ShowJapaneseFields = false
+      Overlay = NoOverlay
+      ImportTones = [] }, Cmd.none
 
 let private loadArrangement (fileName: string) =
     let rootName =
@@ -102,6 +104,35 @@ let private updateArrangement old updated state =
 
 let update (msg: Msg) (state: State) =
     match msg with
+    | ImportTonesChanged item ->
+        if isNull item then state, Cmd.none
+        else
+            let tones = [ item :?> Tone ]
+                //items
+                //|> Seq.cast<Tone>
+                //|> Seq.toList
+            { state with ImportTones = tones }, Cmd.none
+
+    | ImportSelectedTones ->
+        let importedTones =
+            state.ImportTones
+            |> List.map (fun x ->
+                if isNull x.ToneDescriptors || x.ToneDescriptors.Length = 0 then
+                    let descs =
+                        ToneDescriptor.getDescriptionsOrDefault x.Name
+                        |> Array.map (fun x -> x.UIName)
+                    { x with ToneDescriptors = descs; SortOrder = Nullable(); NameSeparator = " - " }
+                else
+                    { x with SortOrder = Nullable(); NameSeparator = " - " })
+        let tones =
+            state.Project.Tones
+            |> List.append importedTones
+        { state with Project = { state.Project with Tones = tones }
+                     Overlay = NoOverlay }, Cmd.none
+
+    | CloseOverlay ->
+        {state with Overlay = NoOverlay }, Cmd.none
+
     | SelectOpenArrangement ->
         let dialog = Dialogs.openMultiFileDialog "Select Arrangement" Dialogs.xmlFileFilter
         state, Cmd.OfAsync.perform dialog None AddArrangements
@@ -198,25 +229,13 @@ let update (msg: Msg) (state: State) =
             | Some selected -> List.remove selected state.Project.Tones
         { state with Project = { state.Project with Tones = tones } }, Cmd.none
 
-    | ImportTones ->
+    | ImportProfileTones ->
         let result = Profile.importTones state.Config.ProfilePath
         match result with
         | Ok toneArray ->
-            let tones =
-                // TODO: Display UI to select tones
-                toneArray.[0..3]
-                |> Array.toList
-                |> List.map (fun x ->
-                    if isNull x.ToneDescriptors || x.ToneDescriptors.Length = 0 then
-                        let descs =
-                            ToneDescriptor.getDescriptionsOrDefault x.Name
-                            |> Array.map (fun x -> x.UIName)
-                        { x with ToneDescriptors = descs; SortOrder = Nullable(); NameSeparator = " - " }
-                    else
-                        { x with SortOrder = Nullable(); NameSeparator = " - " })
-            { state with Project = { state.Project with Tones = tones } }, Cmd.none
-        | Error _ ->
-            state, Cmd.none
+            { state with Overlay = SelectImportTones toneArray; ImportTones = [] }, Cmd.none
+        | Error msg ->
+            { state with Overlay = ErrorMessage msg }, Cmd.none
 
     | CreatePreviewAudio ->
         // TODO: UI to select preview start time
@@ -251,115 +270,192 @@ let update (msg: Msg) (state: State) =
 
 let view (state: State) dispatch =
     Grid.create [
-        Grid.columnDefinitions "2*,*,2*"
-        Grid.rowDefinitions "3*,2*"
-        Grid.showGridLines true
         Grid.children [
-            ProjectDetails.view state dispatch
+            Grid.create [
+                Grid.columnDefinitions "2*,*,2*"
+                Grid.rowDefinitions "3*,2*"
+                //Grid.showGridLines true
+                Grid.children [
+                    ProjectDetails.view state dispatch
 
-            DockPanel.create [
-                Grid.column 1
-                DockPanel.children [
-                    Button.create [
-                        DockPanel.dock Dock.Top
-                        Button.margin 5.0
-                        Button.padding (15.0, 5.0)
-                        Button.horizontalAlignment HorizontalAlignment.Left
-                        Button.content "Add Arrangement"
-                        Button.onClick (fun _ -> dispatch SelectOpenArrangement)
-                    ]
+                    DockPanel.create [
+                        Grid.column 1
+                        DockPanel.children [
+                            Button.create [
+                                DockPanel.dock Dock.Top
+                                Button.margin 5.0
+                                Button.padding (15.0, 5.0)
+                                Button.horizontalAlignment HorizontalAlignment.Left
+                                Button.content "Add Arrangement"
+                                Button.onClick (fun _ -> dispatch SelectOpenArrangement)
+                            ]
 
-                    ListBox.create [
-                        ListBox.virtualizationMode ItemVirtualizationMode.None
-                        ListBox.margin 2.
-                        ListBox.dataItems state.Project.Arrangements
-                        match state.SelectedArrangement with
-                        | Some a -> ListBox.selectedItem a
-                        | None -> ()
-                        ListBox.onSelectedItemChanged ((fun item ->
-                            match item with
-                            | :? Arrangement as arr ->
-                                dispatch (ArrangementSelected (Some arr))
-                            | null when state.Project.Arrangements.Length = 0 -> dispatch (ArrangementSelected None)
-                            | _ -> ()), SubPatchOptions.OnChangeOf(state))
-                        ListBox.onKeyDown (fun k ->
-                            if k.Key = Key.Delete then
-                                k.Handled <- true
-                                dispatch DeleteArrangement)
-                    ]
-                ]
-            ]
-
-            StackPanel.create [
-                Grid.column 2
-                StackPanel.margin 8.
-                StackPanel.children [
-                    match state.SelectedArrangement with
-                    | None ->
-                        TextBlock.create [
-                            TextBlock.text "Select an arrangement to edit its details"
-                            TextBlock.horizontalAlignment HorizontalAlignment.Center
+                            ListBox.create [
+                                ListBox.virtualizationMode ItemVirtualizationMode.None
+                                ListBox.margin 2.
+                                ListBox.dataItems state.Project.Arrangements
+                                match state.SelectedArrangement with
+                                | Some a -> ListBox.selectedItem a
+                                | None -> ()
+                                ListBox.onSelectedItemChanged ((fun item ->
+                                    match item with
+                                    | :? Arrangement as arr ->
+                                        dispatch (ArrangementSelected (Some arr))
+                                    | null when state.Project.Arrangements.Length = 0 -> dispatch (ArrangementSelected None)
+                                    | _ -> ()), SubPatchOptions.OnChangeOf(state))
+                                ListBox.onKeyDown (fun k ->
+                                    if k.Key = Key.Delete then
+                                        k.Handled <- true
+                                        dispatch DeleteArrangement)
+                            ]
                         ]
+                    ]
 
-                    | Some arr ->
-                        // Arrangement name
-                        TextBlock.create [
-                            TextBlock.fontSize 17.
-                            TextBlock.text (Arrangement.getName arr false)
-                            TextBlock.horizontalAlignment HorizontalAlignment.Center
+                    StackPanel.create [
+                        Grid.column 2
+                        StackPanel.margin 8.
+                        StackPanel.children [
+                            match state.SelectedArrangement with
+                            | None ->
+                                TextBlock.create [
+                                    TextBlock.text "Select an arrangement to edit its details"
+                                    TextBlock.horizontalAlignment HorizontalAlignment.Center
+                                ]
+
+                            | Some arr ->
+                                // Arrangement name
+                                TextBlock.create [
+                                    TextBlock.fontSize 17.
+                                    TextBlock.text (Arrangement.getName arr false)
+                                    TextBlock.horizontalAlignment HorizontalAlignment.Center
+                                ]
+
+                                // Arrangement filename
+                                TextBlock.create [
+                                    TextBlock.text (IO.Path.GetFileName (Arrangement.getFile arr))
+                                    TextBlock.horizontalAlignment HorizontalAlignment.Center
+                                ]
+
+                                match arr with
+                                | Showlights _ -> ()
+                                | Instrumental i -> InstrumentalDetails.view state dispatch i
+                                | Vocals v -> VocalsDetails.view state dispatch v
                         ]
+                    ]
 
-                        // Arrangement filename
-                        TextBlock.create [
-                            TextBlock.text (IO.Path.GetFileName (Arrangement.getFile arr))
-                            TextBlock.horizontalAlignment HorizontalAlignment.Center
+                    DockPanel.create [
+                        Grid.column 1
+                        Grid.row 1
+                        DockPanel.children [
+                            Button.create [
+                                DockPanel.dock Dock.Top
+                                Button.margin 5.0
+                                Button.padding (15.0, 5.0)
+                                Button.horizontalAlignment HorizontalAlignment.Left
+                                Button.content "From Profile"
+                                Button.onClick (fun _ -> dispatch ImportProfileTones)
+                                Button.isEnabled ((not <| String.IsNullOrWhiteSpace state.Config.ProfilePath) && IO.File.Exists state.Config.ProfilePath)
+                            ]
+
+                            ListBox.create [
+                                ListBox.margin 2.
+                                ListBox.dataItems state.Project.Tones
+                                match state.SelectedTone with
+                                | Some t -> ListBox.selectedItem t
+                                | None -> ()
+                                ListBox.onSelectedItemChanged (fun item ->
+                                    match item with
+                                    | :? Tone as t -> dispatch (ToneSelected (Some t))
+                                    | _ ->  dispatch (ToneSelected None))
+                                ListBox.onKeyDown (fun k -> if k.Key = Key.Delete then dispatch DeleteTone)
+                            ]
                         ]
-
-                        match arr with
-                        | Showlights _ -> ()
-                        | Instrumental i -> InstrumentalDetails.view state dispatch i
-                        | Vocals v -> VocalsDetails.view state dispatch v
-                ]
-            ]
-
-            DockPanel.create [
-                Grid.column 1
-                Grid.row 1
-                DockPanel.children [
-                    Button.create [
-                        DockPanel.dock Dock.Top
-                        Button.margin 5.0
-                        Button.padding (15.0, 5.0)
-                        Button.horizontalAlignment HorizontalAlignment.Left
-                        Button.content "Import Tones"
-                        Button.onClick (fun _ -> dispatch ImportTones)
                     ]
 
-                    ListBox.create [
-                        ListBox.margin 2.
-                        ListBox.dataItems state.Project.Tones
-                        match state.SelectedTone with
-                        | Some t -> ListBox.selectedItem t
-                        | None -> ()
-                        ListBox.onSelectedItemChanged (fun item ->
-                            match item with
-                            | :? Tone as t -> dispatch (ToneSelected (Some t))
-                            | _ ->  dispatch (ToneSelected None))
-                        ListBox.onKeyDown (fun k -> if k.Key = Key.Delete then dispatch DeleteTone)
+                    StackPanel.create [
+                        Grid.column 2
+                        Grid.row 1
+                        StackPanel.margin 8.
+                        StackPanel.children [
+                            TextBlock.create [
+                                TextBlock.text "Select a tone to edit its details"
+                                TextBlock.horizontalAlignment HorizontalAlignment.Center
+                            ]
+                        ]
                     ]
                 ]
             ]
 
-            StackPanel.create [
-                Grid.column 2
-                Grid.row 1
-                StackPanel.margin 8.
-                StackPanel.children [
-                    TextBlock.create [
-                        TextBlock.text "Select a tone to edit its details"
-                        TextBlock.horizontalAlignment HorizontalAlignment.Center
+            match state.Overlay with
+            | NoOverlay -> ()
+            | _ ->
+                DockPanel.create [
+                    DockPanel.background "#77000000"
+                    DockPanel.children [
+                        Border.create [
+                            Border.padding 20.0
+                            Border.cornerRadius 5.0
+                            Border.horizontalAlignment HorizontalAlignment.Center
+                            Border.verticalAlignment VerticalAlignment.Center
+                            Border.background "#444444"
+                            Border.child (
+                                match state.Overlay with
+                                | ErrorMessage msg ->
+                                    StackPanel.create [
+                                        StackPanel.spacing 8.
+                                        StackPanel.children [
+                                            TextBlock.create [
+                                                TextBlock.fontSize 16.
+                                                TextBlock.text msg
+                                            ]
+                                            Button.create [
+                                                Button.fontSize 18.
+                                                Button.padding (80., 10.)
+                                                Button.horizontalAlignment HorizontalAlignment.Center
+                                                Button.content "OK"
+                                                Button.onClick (fun _ -> CloseOverlay |> dispatch)
+                                            ]
+                                        ]
+                                    ]
+                                | SelectImportTones tones ->
+                                    StackPanel.create [
+                                        StackPanel.spacing 8.
+                                        StackPanel.children [
+                                            ListBox.create [
+                                                ListBox.name "tonesListBox"
+                                                ListBox.dataItems tones
+                                                // Multiple selection mode is broken in Avalonia 0.9
+                                                // https://github.com/AvaloniaUI/Avalonia/issues/3497
+                                                ListBox.selectionMode SelectionMode.Single
+                                                ListBox.maxHeight 300.
+                                                ListBox.onSelectedItemChanged (ImportTonesChanged >> dispatch)
+                                            ]
+                                            StackPanel.create [
+                                                StackPanel.orientation Orientation.Horizontal
+                                                StackPanel.spacing 8.
+                                                StackPanel.children [
+                                                    Button.create [
+                                                        Button.fontSize 16.
+                                                        Button.padding (50., 10.)
+                                                        Button.horizontalAlignment HorizontalAlignment.Center
+                                                        Button.content "Import"
+                                                        Button.onClick (fun _ -> ImportSelectedTones |> dispatch)
+                                                    ]
+                                                    Button.create [
+                                                        Button.fontSize 16.
+                                                        Button.padding (50., 10.)
+                                                        Button.horizontalAlignment HorizontalAlignment.Center
+                                                        Button.content "Cancel"
+                                                        Button.onClick (fun _ -> CloseOverlay |> dispatch)
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                | NoOverlay -> failwith "This can not happen."
+                            )
+                        ]
                     ]
                 ]
-            ]
         ]
     ]

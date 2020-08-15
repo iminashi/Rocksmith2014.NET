@@ -4,6 +4,7 @@ open Rocksmith2014.DLCProject
 open Rocksmith2014.Common.Manifest
 open Avalonia.Media.Imaging
 open System
+open System.Collections
 
 [<AutoOpen>]
 module Types =
@@ -21,6 +22,11 @@ module Types =
               CharterName = String.Empty
               ShowAdvanced = true }
 
+    type OverlayContents =
+        | NoOverlay
+        | ErrorMessage of message : string
+        | SelectImportTones of tones : Tone array
+
     type State =
         { Project : DLCProject
           Config : Configuration
@@ -28,7 +34,9 @@ module Types =
           SelectedArrangement : Arrangement option
           SelectedTone : Tone option
           ShowSortFields : bool
-          ShowJapaneseFields : bool }
+          ShowJapaneseFields : bool
+          Overlay : OverlayContents
+          ImportTones : Tone list }
 
     type Msg =
     | SelectOpenArrangement
@@ -43,10 +51,13 @@ module Types =
     | ToneSelected of selected : Tone option
     | DeleteArrangement
     | DeleteTone
-    | ImportTones
+    | ImportProfileTones
     | CreatePreviewAudio
     | ShowSortFields of shown : bool
     | ShowJapaneseFields of shown : bool
     | EditInstrumental of edit : (Instrumental -> Instrumental)
     | EditVocals of edit : (Vocals -> Vocals)
     | EditProject of edit : (DLCProject -> DLCProject)
+    | CloseOverlay
+    | ImportTonesChanged of item : obj
+    | ImportSelectedTones
