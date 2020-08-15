@@ -22,6 +22,8 @@ type Instrumental =
       BassPicked : bool
       Tuning : int16 array
       CentOffset : int
+      BaseTone : string
+      Tones : string list
       MasterID : int
       PersistentID : Guid }
 

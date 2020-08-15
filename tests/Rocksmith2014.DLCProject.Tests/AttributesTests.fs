@@ -34,6 +34,8 @@ let testLead =
       Priority = ArrangementPriority.Main
       CentOffset = 0
       Tuning = [||]
+      BaseTone = "Base_Tone"
+      Tones = []
       ScrollSpeed = 1.3
       BassPicked = false
       MasterID = 12345
@@ -117,7 +119,7 @@ let someTests =
 
         let attr = createAttributes project (FromInstrumental (testLead, testSng))
 
-        Expect.equal attr.Tone_Base "Tone_1" "Base tone name is correct"
+        Expect.equal testLead.BaseTone "Base_Tone" "Base tone name is correct"
         Expect.equal attr.Tone_A "Tone_1" "Tone A name is correct"
         Expect.equal attr.Tone_B "Tone_2" "Tone B name is correct"
         Expect.equal attr.Tone_C "Tone_3" "Tone C name is correct"

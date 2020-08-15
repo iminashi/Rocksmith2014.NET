@@ -68,9 +68,19 @@ let private loadArrangement (fileName: string) =
     match rootName with
     | "song" ->
         let metadata = XML.MetaData.Read fileName
+        let toneInfo = XML.InstrumentalArrangement.ReadToneNames fileName
+        let baseTone =
+            if isNull toneInfo.BaseToneName then
+                metadata.Arrangement + "_Base"
+            else
+                toneInfo.BaseToneName
+        let tones =
+            toneInfo.Names
+            |> Array.filter (isNull >> not)
+            |> Array.toList
         let arr =
             { XML = fileName
-              Name = ArrangementName.Parse(metadata.Arrangement)
+              Name = ArrangementName.Parse metadata.Arrangement
               Priority =
                 if metadata.ArrangementProperties.Represent then ArrangementPriority.Main
                 elif metadata.ArrangementProperties.BonusArrangement then ArrangementPriority.Bonus
@@ -82,6 +92,8 @@ let private loadArrangement (fileName: string) =
                 elif metadata.ArrangementProperties.PathLead then RouteMask.Lead
                 else RouteMask.Rhythm
               ScrollSpeed = 1.3
+              BaseTone = baseTone
+              Tones = tones
               BassPicked = metadata.ArrangementProperties.BassPick
               MasterID = RandomGenerator.next()
               PersistentID = Guid.NewGuid() }
@@ -192,7 +204,7 @@ let update (msg: Msg) (state: State) =
             { state with
                 Project = { state.Project with
                                 DLCKey = DLCKey.create state.Config.CharterName md.ArtistName md.Title
-                                ArtistName = SortableString.Create (md.ArtistName) // Ignore the sort value from the XML
+                                ArtistName = SortableString.Create md.ArtistName // Ignore the sort value from the XML
                                 Title = SortableString.Create (md.Title, md.TitleSort)
                                 AlbumName = SortableString.Create (md.AlbumName, md.AlbumNameSort)
                                 Year = md.AlbumYear
@@ -275,7 +287,7 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
         //Grid.showGridLines true
         Grid.margin (0.0, 4.0)
         Grid.columnDefinitions "*,3*"
-        Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*,*"
+        Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*,*,*,*"
         Grid.children [
             TextBlock.create [
                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -428,6 +440,37 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
 
             TextBlock.create [
                 Grid.row 6
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text "Base Tone: "
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+            ]
+
+            TextBox.create [
+                Grid.column 1
+                Grid.row 6
+                TextBox.horizontalAlignment HorizontalAlignment.Stretch
+                TextBox.text i.BaseTone
+            ]
+
+            TextBlock.create [
+                Grid.row 7
+                TextBlock.isVisible (i.Tones.Length > 0)
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text "Tones: "
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+            ]
+
+            TextBlock.create [
+                Grid.column 1
+                Grid.row 7
+                TextBlock.isVisible (i.Tones.Length > 0)
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text (String.Join(", ", i.Tones))
+                TextBlock.horizontalAlignment HorizontalAlignment.Left
+            ]
+
+            TextBlock.create [
+                Grid.row 8
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text "Scroll Speed: "
@@ -436,7 +479,7 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
 
             NumericUpDown.create [
                 Grid.column 1
-                Grid.row 6
+                Grid.row 8
                 NumericUpDown.margin 4.
                 NumericUpDown.isVisible state.Config.ShowAdvanced
                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
@@ -450,7 +493,7 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
             ]
 
             TextBlock.create [
-                Grid.row 7
+                Grid.row 9
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text "Master ID: "
@@ -459,7 +502,7 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
 
             TextBox.create [
                 Grid.column 1
-                Grid.row 7
+                Grid.row 9
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
                 TextBox.text (string i.MasterID)
@@ -472,7 +515,7 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
             ]
 
             TextBlock.create [
-                Grid.row 8
+                Grid.row 10
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text "Persistent ID: "
@@ -481,7 +524,7 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
 
             TextBox.create [
                 Grid.column 1
-                Grid.row 8
+                Grid.row 10
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
                 TextBox.text (i.PersistentID.ToString("N"))
@@ -495,7 +538,7 @@ let instrumentalDetailsView (state: State) dispatch (i: Instrumental) =
 
             Button.create [
                 Grid.columnSpan 2
-                Grid.row 9
+                Grid.row 11
                 Button.horizontalAlignment HorizontalAlignment.Center
                 Button.isVisible state.Config.ShowAdvanced
                 Button.content "Generate New Arrangement Identification"
@@ -613,7 +656,7 @@ let vocalsDetailsView state dispatch v =
 let view (state: State) dispatch =
     Grid.create [
         Grid.columnDefinitions "2*,*,2*"
-        Grid.rowDefinitions "*,*"
+        Grid.rowDefinitions "3*,2*"
         //Grid.showGridLines true
         Grid.children [
             DockPanel.create [

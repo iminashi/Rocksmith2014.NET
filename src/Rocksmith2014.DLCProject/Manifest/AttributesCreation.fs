@@ -346,7 +346,7 @@ let private initSongComplete partition
                              (attr: Attributes) =
     let tones = 
         let toneNamesUsed =
-            seq { xmlToneInfo.BaseToneName; yield! xmlToneInfo.Names |> Seq.filter (isNull >> not) }
+            seq { instrumental.BaseTone; yield! xmlToneInfo.Names |> Seq.filter (isNull >> not) }
             |> Set.ofSeq
         project.Tones
         |> List.filter (fun t -> toneNamesUsed.Contains t.Name)
@@ -370,7 +370,7 @@ let private initSongComplete partition
     attr.Techniques <- createTechniqueMap sng
     attr.Tone_A <- if isNull xmlToneInfo.Names.[0] then String.Empty else xmlToneInfo.Names.[0]
     attr.Tone_B <- if isNull xmlToneInfo.Names.[1] then String.Empty else xmlToneInfo.Names.[1]
-    attr.Tone_Base <- if isNull xmlToneInfo.BaseToneName then String.Empty else xmlToneInfo.BaseToneName
+    attr.Tone_Base <- instrumental.BaseTone
     attr.Tone_C <- if isNull xmlToneInfo.Names.[2] then String.Empty else xmlToneInfo.Names.[2]
     attr.Tone_D <- if isNull xmlToneInfo.Names.[3] then String.Empty else xmlToneInfo.Names.[3]
     attr.Tone_Multiplayer <- String.Empty
