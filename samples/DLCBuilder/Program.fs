@@ -30,7 +30,6 @@ type MainWindow() as this =
         Elmish.Program.mkProgram Main.init Main.update Main.view
         |> Program.withHost this
         |> Program.run
-
         
 type App() =
     inherit Application()

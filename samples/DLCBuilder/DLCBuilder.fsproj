@@ -25,7 +25,10 @@
     <Compile Include="Media.fs" />
     <Compile Include="Extensions.fs" />
     <Compile Include="Dialogs.fs" />
-    <Compile Include="Configuration.fs" />
+    <Compile Include="Types.fs" />
+    <Compile Include="Views\ProjectDetails.fs" />
+    <Compile Include="Views\InstrumentalDetails.fs" />
+    <Compile Include="Views\VocalsDetails.fs" />
     <Compile Include="Main.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
@@ -60,10 +63,13 @@
     <Watch Remove="Audio\Audio.fs" />
     <Watch Remove="Audio\AudioFader.fs" />
     <Watch Remove="Audio\Types.fs" />
-    <Watch Remove="Configuration.fs" />
     <Watch Remove="Dialogs.fs" />
     <Watch Remove="Extensions.fs" />
     <Watch Remove="Main.fs" />
     <Watch Remove="Media.fs" />
+    <Watch Remove="Types.fs" />
+    <Watch Remove="Views\InstrumentalDetails.fs" />
+    <Watch Remove="Views\ProjectDetails.fs" />
+    <Watch Remove="Views\VocalsDetails.fs" />
   </ItemGroup>
 </Project>
