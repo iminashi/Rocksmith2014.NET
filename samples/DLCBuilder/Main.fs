@@ -12,6 +12,7 @@ open Avalonia.Media.Imaging
 open Avalonia.Input
 open Avalonia.Platform
 open Avalonia.Controls
+open Avalonia.Controls.Shapes
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 
@@ -27,7 +28,8 @@ let init () =
       ShowSortFields = false
       ShowJapaneseFields = false
       Overlay = NoOverlay
-      ImportTones = [] }, Cmd.none
+      ImportTones = []
+      PreviewStartTime = TimeSpan() }, Cmd.none
 
 let private loadArrangement (fileName: string) =
     let rootName =
@@ -167,9 +169,7 @@ let update (msg: Msg) (state: State) =
                      Project = { state.Project with AlbumArtFile = fileName } }, Cmd.none
 
     | AddArrangements (Some files) ->
-        let results =
-            files
-            |> Array.map loadArrangement
+        let results = Array.map loadArrangement files
 
         let shouldInclude arrangements arr =
             match arr with
@@ -237,10 +237,18 @@ let update (msg: Msg) (state: State) =
         | Error msg ->
             { state with Overlay = ErrorMessage msg }, Cmd.none
 
+    | PreviewAudioStartChanged time ->
+        { state with PreviewStartTime = TimeSpan.FromSeconds time }, Cmd.none
+
+    | CreatePreviewAudioFile ->
+        let task () = async { do Audio.Tools.createPreview state.Project.AudioFile.Path state.PreviewStartTime }
+        { state with Overlay = NoOverlay }, Cmd.OfAsync.attempt task () ErrorOccurred
+
     | CreatePreviewAudio ->
-        // TODO: UI to select preview start time
-        Audio.Tools.createPreview state.Project.AudioFile.Path (TimeSpan.FromSeconds 22.)
-        state, Cmd.none
+        let totalLength = Audio.Tools.getLength state.Project.AudioFile.Path
+        // Remove the length of the preview from the total length
+        let length = totalLength - TimeSpan.FromSeconds 28.
+        { state with Overlay = SelectPreviewStart length }, Cmd.none
 
     | ShowSortFields shown ->
         { state with ShowSortFields = shown }, Cmd.none
@@ -262,9 +270,11 @@ let update (msg: Msg) (state: State) =
             updateArrangement old updated state
         | _ -> state, Cmd.none
 
-    | EditProject edit ->
-        { state with Project = edit state.Project }, Cmd.none
-        
+    | EditProject edit -> { state with Project = edit state.Project }, Cmd.none
+
+    | ErrorOccurred e -> { state with Overlay = ErrorMessage e.Message }, Cmd.none
+    
+    // When the user canceled any of the dialogs
     | AddArrangements None | AddCoverArt None | AddAudioFile None | AddCustomFontFile None ->
         state, Cmd.none
 
@@ -302,7 +312,7 @@ let view (state: State) dispatch =
                                     | :? Arrangement as arr ->
                                         dispatch (ArrangementSelected (Some arr))
                                     | null when state.Project.Arrangements.Length = 0 -> dispatch (ArrangementSelected None)
-                                    | _ -> ()), SubPatchOptions.OnChangeOf(state))
+                                    | _ -> ()), SubPatchOptions.OnChangeOf state)
                                 ListBox.onKeyDown (fun k ->
                                     if k.Key = Key.Delete then
                                         k.Handled <- true
@@ -389,9 +399,12 @@ let view (state: State) dispatch =
             match state.Overlay with
             | NoOverlay -> ()
             | _ ->
-                DockPanel.create [
-                    DockPanel.background "#77000000"
-                    DockPanel.children [
+                Grid.create [
+                    Grid.children [
+                        Rectangle.create [
+                            Rectangle.fill "#77000000"
+                            Rectangle.onTapped (fun _ -> CloseOverlay |> dispatch)
+                        ]
                         Border.create [
                             Border.padding 20.0
                             Border.cornerRadius 5.0
@@ -400,59 +413,10 @@ let view (state: State) dispatch =
                             Border.background "#444444"
                             Border.child (
                                 match state.Overlay with
-                                | ErrorMessage msg ->
-                                    StackPanel.create [
-                                        StackPanel.spacing 8.
-                                        StackPanel.children [
-                                            TextBlock.create [
-                                                TextBlock.fontSize 16.
-                                                TextBlock.text msg
-                                            ]
-                                            Button.create [
-                                                Button.fontSize 18.
-                                                Button.padding (80., 10.)
-                                                Button.horizontalAlignment HorizontalAlignment.Center
-                                                Button.content "OK"
-                                                Button.onClick (fun _ -> CloseOverlay |> dispatch)
-                                            ]
-                                        ]
-                                    ]
-                                | SelectImportTones tones ->
-                                    StackPanel.create [
-                                        StackPanel.spacing 8.
-                                        StackPanel.children [
-                                            ListBox.create [
-                                                ListBox.name "tonesListBox"
-                                                ListBox.dataItems tones
-                                                // Multiple selection mode is broken in Avalonia 0.9
-                                                // https://github.com/AvaloniaUI/Avalonia/issues/3497
-                                                ListBox.selectionMode SelectionMode.Single
-                                                ListBox.maxHeight 300.
-                                                ListBox.onSelectedItemChanged (ImportTonesChanged >> dispatch)
-                                            ]
-                                            StackPanel.create [
-                                                StackPanel.orientation Orientation.Horizontal
-                                                StackPanel.spacing 8.
-                                                StackPanel.children [
-                                                    Button.create [
-                                                        Button.fontSize 16.
-                                                        Button.padding (50., 10.)
-                                                        Button.horizontalAlignment HorizontalAlignment.Center
-                                                        Button.content "Import"
-                                                        Button.onClick (fun _ -> ImportSelectedTones |> dispatch)
-                                                    ]
-                                                    Button.create [
-                                                        Button.fontSize 16.
-                                                        Button.padding (50., 10.)
-                                                        Button.horizontalAlignment HorizontalAlignment.Center
-                                                        Button.content "Cancel"
-                                                        Button.onClick (fun _ -> CloseOverlay |> dispatch)
-                                                    ]
-                                                ]
-                                            ]
-                                        ]
-                                    ]
                                 | NoOverlay -> failwith "This can not happen."
+                                | ErrorMessage msg -> ErrorMessage.view dispatch msg
+                                | SelectPreviewStart audioLength -> SelectPreviewStart.view state dispatch audioLength
+                                | SelectImportTones tones -> SelectImportTones.view state dispatch tones                                    
                             )
                         ]
                     ]

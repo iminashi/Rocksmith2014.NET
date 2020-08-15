@@ -26,6 +26,7 @@ module Types =
         | NoOverlay
         | ErrorMessage of message : string
         | SelectImportTones of tones : Tone array
+        | SelectPreviewStart of audioLength : TimeSpan
 
     type State =
         { Project : DLCProject
@@ -36,7 +37,8 @@ module Types =
           ShowSortFields : bool
           ShowJapaneseFields : bool
           Overlay : OverlayContents
-          ImportTones : Tone list }
+          ImportTones : Tone list
+          PreviewStartTime : TimeSpan }
 
     type Msg =
     | SelectOpenArrangement
@@ -53,6 +55,8 @@ module Types =
     | DeleteTone
     | ImportProfileTones
     | CreatePreviewAudio
+    | CreatePreviewAudioFile
+    | PreviewAudioStartChanged of time : float
     | ShowSortFields of shown : bool
     | ShowJapaneseFields of shown : bool
     | EditInstrumental of edit : (Instrumental -> Instrumental)
@@ -61,3 +65,4 @@ module Types =
     | CloseOverlay
     | ImportTonesChanged of item : obj
     | ImportSelectedTones
+    | ErrorOccurred of e : exn

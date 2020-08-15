@@ -19,6 +19,10 @@ let private fade fadeIn fadeOut audioLength (sampleProvider : ISampleProvider) =
 let private getPreviewSection (offset : TimeSpan) (file : ISampleProvider) =
     file.Skip(offset).Take(TimeSpan.FromSeconds 28.)
 
+/// Returns the total length of the given wave file.
+let getLength (fileName : string) =
+    using (getAudioReader fileName) (fun reader -> reader.TotalTime)
+
 /// Creates a preview audio file .
 let createPreview (sourceFile: string) (startOffset: TimeSpan) =
     let targetFile = Path.Combine(Path.GetDirectoryName(sourceFile), Path.GetFileNameWithoutExtension(sourceFile) + "_preview.wav")

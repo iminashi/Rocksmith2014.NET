@@ -29,6 +29,9 @@
     <Compile Include="Views\ProjectDetails.fs" />
     <Compile Include="Views\InstrumentalDetails.fs" />
     <Compile Include="Views\VocalsDetails.fs" />
+    <Compile Include="Views\SelectPreviewStart.fs" />
+    <Compile Include="Views\ErrorMessage.fs" />
+    <Compile Include="Views\SelectImportTones.fs" />
     <Compile Include="Main.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
@@ -68,8 +71,11 @@
     <Watch Remove="Main.fs" />
     <Watch Remove="Media.fs" />
     <Watch Remove="Types.fs" />
+    <Watch Remove="Views\ErrorMessage.fs" />
     <Watch Remove="Views\InstrumentalDetails.fs" />
     <Watch Remove="Views\ProjectDetails.fs" />
+    <Watch Remove="Views\SelectImportTones.fs" />
+    <Watch Remove="Views\SelectPreviewStart.fs" />
     <Watch Remove="Views\VocalsDetails.fs" />
   </ItemGroup>
 </Project>
