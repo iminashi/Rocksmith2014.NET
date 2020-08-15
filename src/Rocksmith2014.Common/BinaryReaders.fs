@@ -5,7 +5,6 @@ open System.IO
 open System.Buffers.Binary
 open Microsoft.FSharp.NativeInterop
 open Interfaces
-open System.Buffers
 
 #nowarn "9"
 
@@ -30,7 +29,9 @@ type LittleEndianBinaryReader(stream: Stream) =
         member _.ReadUInt24() =
             let length = 4
             let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
-            let bytesRead = stream.Read(Span<byte>(buffer, 3))
+            let span = Span<byte>(buffer, length)
+            let bytesRead = stream.Read(span.Slice(0,3))
+            span.[3] <- 0uy
             BinaryPrimitives.ReadUInt32LittleEndian(ReadOnlySpan(buffer, length))
 
         member _.ReadInt32() =
@@ -48,7 +49,9 @@ type LittleEndianBinaryReader(stream: Stream) =
         member _.ReadUInt40() =
             let length = 8
             let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
-            let bytesRead = stream.Read(Span<byte>(buffer, 5))
+            let span = Span<byte>(buffer, length)
+            let bytesRead = stream.Read(span.Slice(0, 5))
+            span.[5] <- 0uy; span.[6] <- 0uy; span.[7] <- 0uy
             BinaryPrimitives.ReadUInt64LittleEndian(ReadOnlySpan(buffer, length))
 
         member _.ReadUInt64() =
@@ -98,6 +101,7 @@ type BigEndianBinaryReader(stream: Stream) =
             let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
             let span = Span<byte>(buffer, length)
             let bytesRead = stream.Read(span.Slice(1, 3))
+            span.[0] <- 0uy
             BinaryPrimitives.ReadUInt32BigEndian(ReadOnlySpan(buffer, length))
 
         member _.ReadInt32() =
@@ -117,6 +121,7 @@ type BigEndianBinaryReader(stream: Stream) =
              let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
              let span = Span<byte>(buffer, length)
              let bytesRead = stream.Read(span.Slice(3, 5))
+             span.[0] <- 0uy; span.[1] <- 0uy; span.[2] <- 0uy
              BinaryPrimitives.ReadUInt64BigEndian(ReadOnlySpan(buffer, length))
 
         member _.ReadUInt64() =
