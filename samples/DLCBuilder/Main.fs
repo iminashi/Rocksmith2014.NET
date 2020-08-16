@@ -15,6 +15,30 @@ open Avalonia.Controls
 open Avalonia.Controls.Shapes
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
+open System.Text.Json
+open System.Text.Json.Serialization
+
+let private configFilePath =
+    let appData = IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
+    IO.Path.Combine(appData, "config.json")
+
+let private loadConfig () = async {
+    if not <| IO.File.Exists configFilePath then
+        return Configuration.Default
+    else
+        try
+            use file = IO.File.OpenRead configFilePath
+            let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
+            options.Converters.Add(JsonFSharpConverter())
+            return! JsonSerializer.DeserializeAsync<Configuration>(file, options)
+        with _ -> return Configuration.Default }
+
+let private saveConfig (config: Configuration) = async {
+    IO.Directory.CreateDirectory(IO.Path.GetDirectoryName configFilePath) |> ignore
+    use file = IO.File.Create configFilePath
+    let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
+    options.Converters.Add(JsonFSharpConverter())
+    do! JsonSerializer.SerializeAsync(file, config, options) }
 
 let init () =
     let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
@@ -29,7 +53,7 @@ let init () =
       ShowJapaneseFields = false
       Overlay = NoOverlay
       ImportTones = []
-      PreviewStartTime = TimeSpan() }, Cmd.none
+      PreviewStartTime = TimeSpan() }, Cmd.OfAsync.perform loadConfig () SetConfiguration
 
 let private loadArrangement (fileName: string) =
     let rootName =
@@ -134,8 +158,7 @@ let update (msg: Msg) (state: State) =
         { state with Project = { state.Project with Tones = tones }
                      Overlay = NoOverlay }, Cmd.none
 
-    | CloseOverlay ->
-        {state with Overlay = NoOverlay }, Cmd.none
+    | CloseOverlay -> {state with Overlay = NoOverlay }, Cmd.none
 
     | SelectOpenArrangement ->
         let dialog = Dialogs.openMultiFileDialog "Select Arrangement" Dialogs.xmlFileFilter
@@ -152,6 +175,33 @@ let update (msg: Msg) (state: State) =
     | SelectCustomFont ->
         let dialog = Dialogs.openFileDialog "Select Custom Font Texture" Dialogs.ddsFileFilter
         state, Cmd.OfAsync.perform dialog None AddCustomFontFile
+
+    | SelectProfilePath ->
+        let dialog = Dialogs.openFileDialog "Select Game Profile" Dialogs.profileFilter
+        state, Cmd.OfAsync.perform dialog None AddProfilePath
+
+    | SelectTestFolderPath ->
+        let dialog = Dialogs.openFolderDialog "Select Test Folder"
+        state, Cmd.OfAsync.perform dialog None AddTestFolderPath
+
+    | SelectProjectsFolderPath ->
+        let dialog = Dialogs.openFolderDialog "Select Projects Base Folder"
+        state, Cmd.OfAsync.perform dialog None AddProjectsFolderPath
+
+    | AddProjectsFolderPath (Some path) ->
+        let config = { state.Config with ProjectsFolderPath = path }
+        { state with Config = config }, Cmd.none
+
+    | AddTestFolderPath (Some path) ->
+        let config = { state.Config with TestFolderPath = path }
+        { state with Config = config }, Cmd.none
+
+    | AddProfilePath (Some path) ->
+        if not <| path.EndsWith("_PRFLDB", StringComparison.OrdinalIgnoreCase) then
+            state, Cmd.none
+        else
+            let config = { state.Config with ProfilePath = path }
+            { state with Config = config }, Cmd.none
 
     | AddCustomFontFile (Some fileName) ->
         match state.SelectedArrangement with
@@ -263,11 +313,16 @@ let update (msg: Msg) (state: State) =
         let previewFile = { state.Project.AudioPreviewFile with Path = previewPath }
         { state with Project = { state.Project with AudioPreviewFile = previewFile } }, Cmd.none
 
-    | ShowSortFields shown ->
-        { state with ShowSortFields = shown }, Cmd.none
+    | ShowSortFields shown -> { state with ShowSortFields = shown }, Cmd.none
+    
+    | ShowJapaneseFields shown -> { state with ShowJapaneseFields = shown }, Cmd.none
 
-    | ShowJapaneseFields shown ->
-        { state with ShowJapaneseFields = shown }, Cmd.none
+    | ShowConfigEditor -> { state with Overlay = ConfigEditor }, Cmd.none
+    
+    | SaveConfiguration ->
+        { state with Overlay = NoOverlay }, Cmd.OfAsync.attempt saveConfig state.Config ErrorOccurred
+
+    | SetConfiguration config -> { state with Config = config }, Cmd.none
 
     | EditInstrumental edit ->
         match state.SelectedArrangement with
@@ -284,11 +339,13 @@ let update (msg: Msg) (state: State) =
         | _ -> state, Cmd.none
 
     | EditProject edit -> { state with Project = edit state.Project }, Cmd.none
-
+    | EditConfig edit -> { state with Config = edit state.Config }, Cmd.none
+    
     | ErrorOccurred e -> { state with Overlay = ErrorMessage e.Message }, Cmd.none
     
     // When the user canceled any of the dialogs
-    | AddArrangements None | AddCoverArt None | AddAudioFile None | AddCustomFontFile None ->
+    | AddArrangements None | AddCoverArt None | AddAudioFile None | AddCustomFontFile None
+    | AddProfilePath None | AddTestFolderPath None | AddProjectsFolderPath None ->
         state, Cmd.none
 
 let view (state: State) dispatch =
@@ -440,7 +497,8 @@ let view (state: State) dispatch =
                                 | NoOverlay -> failwith "This can not happen."
                                 | ErrorMessage msg -> ErrorMessage.view dispatch msg
                                 | SelectPreviewStart audioLength -> SelectPreviewStart.view state dispatch audioLength
-                                | SelectImportTones tones -> SelectImportTones.view state dispatch tones                                    
+                                | SelectImportTones tones -> SelectImportTones.view state dispatch tones
+                                | ConfigEditor -> ConfigEditor.view state dispatch
                             )
                         ]
                     ]

@@ -23,15 +23,16 @@ module Types =
               ShowAdvanced = true }
 
     type OverlayContents =
-        | NoOverlay
-        | ErrorMessage of message : string
-        | SelectImportTones of tones : Tone array
-        | SelectPreviewStart of audioLength : TimeSpan
+    | NoOverlay
+    | ErrorMessage of message : string
+    | SelectImportTones of tones : Tone array
+    | SelectPreviewStart of audioLength : TimeSpan
+    | ConfigEditor
 
     type PreviewAudioCreation =
-        | SetupStartTime
-        | CreateFile
-        | FileCreated of path : string
+    | SetupStartTime
+    | CreateFile
+    | FileCreated of path : string
 
     type State =
         { Project : DLCProject
@@ -50,10 +51,16 @@ module Types =
     | SelectCoverArt
     | SelectAudioFile
     | SelectCustomFont
+    | SelectProfilePath
+    | SelectTestFolderPath
+    | SelectProjectsFolderPath
     | AddArrangements of files : string[] option
     | AddCoverArt of fileName : string option
     | AddAudioFile of fileName : string option
     | AddCustomFontFile of fileName : string option
+    | AddProfilePath of path : string option
+    | AddTestFolderPath of path : string option
+    | AddProjectsFolderPath of path : string option
     | ArrangementSelected of selected : Arrangement option
     | ToneSelected of selected : Tone option
     | DeleteArrangement
@@ -66,7 +73,11 @@ module Types =
     | EditInstrumental of edit : (Instrumental -> Instrumental)
     | EditVocals of edit : (Vocals -> Vocals)
     | EditProject of edit : (DLCProject -> DLCProject)
+    | EditConfig of edit : (Configuration -> Configuration)
     | CloseOverlay
     | ImportTonesChanged of item : obj
     | ImportSelectedTones
+    | ShowConfigEditor
+    | SaveConfiguration
+    | SetConfiguration of config : Configuration
     | ErrorOccurred of e : exn

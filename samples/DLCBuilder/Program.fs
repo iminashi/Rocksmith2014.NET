@@ -23,12 +23,17 @@ type MainWindow() as this =
         base.Title <- "DLCBuilder"
         base.Width <- 1000.0
         base.Height <- 800.0
+
+        let closed _ =
+            let sub dispatch = this.Closing.Add(fun _ -> dispatch SaveConfiguration)
+            Cmd.ofSub sub
         
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
         //this.VisualRoot.VisualRoot.Renderer.DrawDirtyRects <- true
 
         Elmish.Program.mkProgram Main.init Main.update Main.view
         |> Program.withHost this
+        |> Program.withSubscription closed
         |> Program.run
         
 type App() =

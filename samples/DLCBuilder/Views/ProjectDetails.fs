@@ -258,6 +258,13 @@ let view state dispatch =
                                 Button.padding (15., 8.)
                                 Button.margin 4.
                                 Button.fontSize 16.
+                                Button.content "Configuration"
+                                Button.onClick (fun _ -> ShowConfigEditor |> dispatch)
+                            ]
+                            Button.create [
+                                Button.padding (15., 8.)
+                                Button.margin 4.
+                                Button.fontSize 16.
                                 Button.content "Build Test"
                             ]
                             Button.create [

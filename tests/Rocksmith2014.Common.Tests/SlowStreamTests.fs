@@ -14,7 +14,7 @@ type SlowStream() =
     let mutable index = 0
 
     override _.Read(buffer: Span<byte>) =
-        if index < 40 then
+        if index < data.Length then
             buffer.[0] <- data.[index]
             index <- index + 1
             1
@@ -22,7 +22,7 @@ type SlowStream() =
             0
 
     override _.Read(buffer, offset, _count) =
-        if index < 40 then
+        if index < data.Length then
             buffer.[offset] <- data.[index]
             index <- index + 1
             1
@@ -33,7 +33,7 @@ type SlowStream() =
     override _.get_CanRead() = true
     override _.get_CanWrite() = false
     override _.get_CanSeek() = false
-    override _.get_Length() = int64 data.Length
+    override _.get_Length() = data.LongLength
     override _.get_Position() = int64 index
     override _.set_Position(pos) = index <- int pos
     override _.SetLength(_length) = ()
