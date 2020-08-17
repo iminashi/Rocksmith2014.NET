@@ -273,24 +273,6 @@ let view state dispatch =
                                 Button.fontSize 16.
                                 Button.content "Build Release"
                             ]
-                            StackPanel.create [
-                                StackPanel.orientation Orientation.Horizontal
-                                StackPanel.children [
-                                    TextBlock.create [
-                                        TextBlock.verticalAlignment VerticalAlignment.Center
-                                        TextBlock.text "Platforms: "
-                                    ]
-                                    CheckBox.create [
-                                        CheckBox.margin 2.
-                                        CheckBox.content "PC"
-                                        CheckBox.isChecked true
-                                    ]
-                                    CheckBox.create [
-                                        CheckBox.margin 2.
-                                        CheckBox.content "Mac"
-                                    ]
-                                ]
-                            ]
                         ]
                     ]
                 ]
