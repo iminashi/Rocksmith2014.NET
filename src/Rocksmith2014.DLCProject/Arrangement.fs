@@ -42,6 +42,35 @@ type Arrangement =
     | Vocals of Vocals
     | Showlights of Showlights
 
+    override this.ToString() =
+        match this with
+        | Instrumental inst ->
+            let prefix =
+                match inst.Priority with
+                | ArrangementPriority.Main -> String.Empty
+                | ArrangementPriority.Alternative -> "Alt. "
+                | ArrangementPriority.Bonus -> "Bonus "
+                | _ -> failwith "Impossible."
+            let extra =
+                if inst.Name = ArrangementName.Combo then
+                    sprintf " (%s)" (string inst.RouteMask)
+                else
+                    String.Empty
+            sprintf "%s%s%s" prefix (string inst.Name) extra
+
+        | Vocals v ->
+            let prefix =
+                if v.Japanese then "Japanese "
+                else String.Empty
+            let extra =
+                match v.CustomFont with
+                | Some _ -> " (Custom Font)"
+                | None -> String.Empty
+            sprintf "%sVocals%s" prefix extra
+
+        | Showlights _ -> "Show Lights"
+
+
 module Arrangement =
     let getMasterId = function
         | Vocals v -> v.MasterID
