@@ -15,30 +15,6 @@ open Avalonia.Controls
 open Avalonia.Controls.Shapes
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
-open System.Text.Json
-open System.Text.Json.Serialization
-
-let private configFilePath =
-    let appData = IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
-    IO.Path.Combine(appData, "config.json")
-
-let private loadConfig () = async {
-    if not <| IO.File.Exists configFilePath then
-        return Configuration.Default
-    else
-        try
-            use file = IO.File.OpenRead configFilePath
-            let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
-            options.Converters.Add(JsonFSharpConverter())
-            return! JsonSerializer.DeserializeAsync<Configuration>(file, options)
-        with _ -> return Configuration.Default }
-
-let private saveConfig (config: Configuration) = async {
-    IO.Directory.CreateDirectory(IO.Path.GetDirectoryName configFilePath) |> ignore
-    use file = IO.File.Create configFilePath
-    let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
-    options.Converters.Add(JsonFSharpConverter())
-    do! JsonSerializer.SerializeAsync(file, config, options) }
 
 let init () =
     let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
@@ -53,7 +29,7 @@ let init () =
       ShowJapaneseFields = false
       Overlay = NoOverlay
       ImportTones = []
-      PreviewStartTime = TimeSpan() }, Cmd.OfAsync.perform loadConfig () SetConfiguration
+      PreviewStartTime = TimeSpan() }, Cmd.OfAsync.perform Configuration.load () SetConfiguration
 
 let private loadArrangement (fileName: string) =
     let rootName =
@@ -320,7 +296,7 @@ let update (msg: Msg) (state: State) =
     | ShowConfigEditor -> { state with Overlay = ConfigEditor }, Cmd.none
     
     | SaveConfiguration ->
-        { state with Overlay = NoOverlay }, Cmd.OfAsync.attempt saveConfig state.Config ErrorOccurred
+        { state with Overlay = NoOverlay }, Cmd.OfAsync.attempt Configuration.save state.Config ErrorOccurred
 
     | SetConfiguration config -> { state with Config = config }, Cmd.none
 

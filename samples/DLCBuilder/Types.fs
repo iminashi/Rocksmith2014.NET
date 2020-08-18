@@ -1,30 +1,12 @@
 ﻿namespace DLCBuilder
 
 open Rocksmith2014.DLCProject
-open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Avalonia.Media.Imaging
 open System
-open System.Collections
 
 [<AutoOpen>]
 module Types =
-    type Configuration =
-        { ReleasePlatforms : Platform list
-          ProfilePath : string
-          TestFolderPath : string
-          ProjectsFolderPath : string
-          CharterName : string
-          ShowAdvanced : bool }
-    
-        static member Default =
-            { ReleasePlatforms = [ PC; Mac ]
-              ProfilePath = String.Empty
-              TestFolderPath = String.Empty
-              ProjectsFolderPath = String.Empty
-              CharterName = String.Empty
-              ShowAdvanced = true }
-
     type OverlayContents =
     | NoOverlay
     | ErrorMessage of message : string

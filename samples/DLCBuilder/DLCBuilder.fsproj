@@ -25,6 +25,7 @@
     <Compile Include="Media.fs" />
     <Compile Include="Extensions.fs" />
     <Compile Include="Dialogs.fs" />
+    <Compile Include="Configuration.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="Views\ProjectDetails.fs" />
     <Compile Include="Views\InstrumentalDetails.fs" />
@@ -67,6 +68,7 @@
     <Watch Remove="Audio\Audio.fs" />
     <Watch Remove="Audio\AudioFader.fs" />
     <Watch Remove="Audio\Types.fs" />
+    <Watch Remove="Configuration.fs" />
     <Watch Remove="Dialogs.fs" />
     <Watch Remove="Extensions.fs" />
     <Watch Remove="Main.fs" />
