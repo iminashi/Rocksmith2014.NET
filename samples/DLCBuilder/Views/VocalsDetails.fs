@@ -16,7 +16,7 @@ let view state dispatch (v: Vocals) =
             TextBlock.create [
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Japanese: "
+                TextBlock.text "Japanese:"
             ]
             CheckBox.create [
                 Grid.column 1
@@ -31,7 +31,7 @@ let view state dispatch (v: Vocals) =
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Custom Font: "
+                TextBlock.text "Custom Font:"
             ]
             DockPanel.create [
                 Grid.column 1

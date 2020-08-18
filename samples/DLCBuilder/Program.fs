@@ -22,7 +22,7 @@ type MainWindow() as this =
     do
         base.Title <- "DLCBuilder"
         base.Width <- 1000.0
-        base.Height <- 800.0
+        base.Height <- 850.0
 
         let closed _ =
             let sub dispatch = this.Closing.Add(fun _ -> dispatch SaveConfiguration)

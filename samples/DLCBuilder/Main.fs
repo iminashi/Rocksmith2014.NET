@@ -106,6 +106,13 @@ let private updateArrangement old updated state =
     { state with Project = { state.Project with Arrangements = arrangements }
                  SelectedArrangement = Some updated }, Cmd.none
 
+let private updateTone old updated state =
+    let tones =
+        state.Project.Tones
+        |> List.update old updated
+    { state with Project = { state.Project with Tones = tones } 
+                 SelectedTone = Some updated }, Cmd.none
+
 let update (msg: Msg) (state: State) =
     match msg with
     | ImportTonesChanged item ->
@@ -314,6 +321,13 @@ let update (msg: Msg) (state: State) =
             updateArrangement old updated state
         | _ -> state, Cmd.none
 
+    | EditTone edit ->
+        match state.SelectedTone with
+        | Some old ->
+            let updated = edit old
+            updateTone old updated state
+        | _ -> state, Cmd.none
+
     | EditProject edit -> { state with Project = edit state.Project }, Cmd.none
     | EditConfig edit -> { state with Config = edit state.Config }, Cmd.none
     
@@ -430,10 +444,11 @@ let view (state: State) dispatch =
                                 match state.SelectedTone with
                                 | Some t -> ListBox.selectedItem t
                                 | None -> ()
-                                ListBox.onSelectedItemChanged (fun item ->
+                                ListBox.onSelectedItemChanged ((fun item ->
                                     match item with
                                     | :? Tone as t -> dispatch (ToneSelected (Some t))
-                                    | _ ->  dispatch (ToneSelected None))
+                                    | null when state.Project.Tones.Length = 0 -> dispatch (ToneSelected None)
+                                    | _ -> ()), SubPatchOptions.OnChangeOf state)
                                 ListBox.onKeyDown (fun k -> if k.Key = Key.Delete then dispatch DeleteTone)
                             ]
                         ]
@@ -444,10 +459,13 @@ let view (state: State) dispatch =
                         Grid.row 1
                         StackPanel.margin 8.
                         StackPanel.children [
-                            TextBlock.create [
-                                TextBlock.text "Select a tone to edit its details"
-                                TextBlock.horizontalAlignment HorizontalAlignment.Center
-                            ]
+                            match state.SelectedTone with
+                            | None ->
+                                TextBlock.create [
+                                    TextBlock.text "Select a tone to edit its details"
+                                    TextBlock.horizontalAlignment HorizontalAlignment.Center
+                                ]
+                            | Some tone -> ToneDetails.view state dispatch tone
                         ]
                     ]
                 ]

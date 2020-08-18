@@ -2,7 +2,10 @@
 
 open System
 
-type ToneDescriptor = { Name : string; Aliases : string list; UIName : string }
+type ToneDescriptor =
+    { Name : string; Aliases : string list; UIName : string }
+
+    override this.ToString() = this.Name
 
 module ToneDescriptor =
     let all = [|
@@ -137,6 +140,11 @@ module ToneDescriptor =
         { Name = "** Ukulele"
           Aliases = [ "uke" ]
           UIName = "$[27204]UKULELE" } |]
+
+    let uiNameToDesc =
+        all
+        |> Array.map (fun x -> x.UIName, x)
+        |> dict
 
     let tryInfer (name: string) =
         Array.FindAll(all, (fun x ->

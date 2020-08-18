@@ -28,6 +28,7 @@ let view state dispatch (tones: Tone array) =
                         Button.horizontalAlignment HorizontalAlignment.Center
                         Button.content "Import"
                         Button.onClick (fun _ -> ImportSelectedTones |> dispatch)
+                        Button.isDefault true
                     ]
                     Button.create [
                         Button.fontSize 16.

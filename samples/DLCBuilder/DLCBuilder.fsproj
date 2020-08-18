@@ -30,6 +30,7 @@
     <Compile Include="Views\ProjectDetails.fs" />
     <Compile Include="Views\InstrumentalDetails.fs" />
     <Compile Include="Views\VocalsDetails.fs" />
+    <Compile Include="Views\ToneDetails.fs" />
     <Compile Include="Views\SelectPreviewStart.fs" />
     <Compile Include="Views\ErrorMessage.fs" />
     <Compile Include="Views\SelectImportTones.fs" />
@@ -80,6 +81,7 @@
     <Watch Remove="Views\ProjectDetails.fs" />
     <Watch Remove="Views\SelectImportTones.fs" />
     <Watch Remove="Views\SelectPreviewStart.fs" />
+    <Watch Remove="Views\ToneDetails.fs" />
     <Watch Remove="Views\VocalsDetails.fs" />
   </ItemGroup>
 </Project>

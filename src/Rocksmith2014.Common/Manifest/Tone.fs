@@ -44,4 +44,4 @@ type Tone =
                 String.Empty
             else
                 " (" + ToneDescriptor.combineUINames this.ToneDescriptors + ")"
-        sprintf "%s%s" this.Key description
+        sprintf "%s%s" this.Name description

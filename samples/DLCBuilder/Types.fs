@@ -57,6 +57,7 @@ module Types =
     | ShowJapaneseFields of shown : bool
     | EditInstrumental of edit : (Instrumental -> Instrumental)
     | EditVocals of edit : (Vocals -> Vocals)
+    | EditTone of edit : (Tone -> Tone)
     | EditProject of edit : (DLCProject -> DLCProject)
     | EditConfig of edit : (Configuration -> Configuration)
     | CloseOverlay

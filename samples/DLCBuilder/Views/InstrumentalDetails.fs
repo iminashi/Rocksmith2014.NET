@@ -1,11 +1,11 @@
 ﻿module DLCBuilder.InstrumentalDetails
 
 open Avalonia.FuncUI.DSL
+open Avalonia.Layout
 open Avalonia.Controls
+open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open System
-open Avalonia.Layout
-open Rocksmith2014.Common
 
 let view (state: State) dispatch (i: Instrumental) =
     Grid.create [
@@ -152,7 +152,6 @@ let view (state: State) dispatch (i: Instrumental) =
             NumericUpDown.create [
                 Grid.column 1
                 Grid.row 5
-                NumericUpDown.margin 4.
                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                 NumericUpDown.width 65.
                 NumericUpDown.value (float i.CentOffset)
@@ -205,7 +204,6 @@ let view (state: State) dispatch (i: Instrumental) =
             NumericUpDown.create [
                 Grid.column 1
                 Grid.row 8
-                NumericUpDown.margin 4.
                 NumericUpDown.isVisible state.Config.ShowAdvanced
                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                 NumericUpDown.increment 0.1
