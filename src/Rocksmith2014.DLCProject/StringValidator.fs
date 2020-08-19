@@ -23,3 +23,6 @@ let removeArticles (input: string) =
         input.Substring("a ".Length)
     else
         input
+
+let toneName (input: string) =
+    input.Replace("\"", "")

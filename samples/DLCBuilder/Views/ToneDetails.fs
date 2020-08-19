@@ -3,11 +3,21 @@
 open Avalonia.Controls
 open Avalonia.Controls.Primitives
 open Avalonia.FuncUI.DSL
-open Avalonia.FuncUI
 open Avalonia.Layout
 open Rocksmith2014.Common.Manifest
+open Rocksmith2014.DLCProject
 
 let view state dispatch (tone: Tone) =
+    let keys =
+        state.Project.Arrangements
+        |> List.collect (fun x ->
+            [ match x with
+              | Instrumental i ->
+                  yield i.BaseTone
+                  yield! i.Tones
+              | _ -> () ])
+        |> List.distinct
+
     Grid.create [
         Grid.columnDefinitions "*,3*"
         Grid.rowDefinitions "*,*,*,*"
@@ -21,18 +31,39 @@ let view state dispatch (tone: Tone) =
             TextBox.create [
                 Grid.column 1
                 TextBox.text tone.Name
-                TextBox.onTextChanged (fun name -> (fun (t:Tone) -> { t with Name = name }) |> EditTone |> dispatch)
+                TextBox.onTextInput (fun arg -> arg.Text <- StringValidator.toneName arg.Text)
+                TextBox.onTextChanged (fun name -> (fun (t:Tone) -> { t with Name = StringValidator.toneName name }) |> EditTone |> dispatch)
             ]
 
             TextBlock.create [
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.text "Key:"
+            ]
+            ComboBox.create [
+                Grid.row 1
+                Grid.column 1
+                ComboBox.margin 4.
+                ComboBox.dataItems keys
+                ComboBox.selectedItem tone.Key
+                ComboBox.onSelectedItemChanged (fun item ->
+                    match item with
+                    | :? string as key ->
+                        (fun t -> { t with Key = key }) |> EditTone |> dispatch
+                    | _ -> ()
+                )
+            ]
+
+            TextBlock.create [
+                Grid.row 2
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
                 TextBlock.text "Description:"
             ]
             StackPanel.create [
                 Grid.column 1
-                Grid.row 1
+                Grid.row 2
                 StackPanel.children [
                     UniformGrid.create [
                         UniformGrid.columns tone.ToneDescriptors.Length
@@ -79,14 +110,14 @@ let view state dispatch (tone: Tone) =
             ]
 
             TextBlock.create [
-                Grid.row 2
+                Grid.row 3
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
                 TextBlock.text "Volume:"
             ]
             NumericUpDown.create [
                 Grid.column 1
-                Grid.row 2
+                Grid.row 3
                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                 NumericUpDown.width 75.
                 NumericUpDown.value (float tone.Volume)
