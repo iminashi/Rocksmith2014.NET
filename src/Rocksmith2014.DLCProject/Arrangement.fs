@@ -56,12 +56,19 @@ type Arrangement =
                     sprintf " (%s)" (string inst.RouteMask)
                 else
                     String.Empty
-            sprintf "%s%s%s" prefix (string inst.Name) extra
+            let tuning =
+                let roots = [| "E"; "F"; "F#"; "G"; "Ab"; "A"; "Bb"; "B"; "C"; "C#"; "D"; "Eb" |]
+                let first = inst.Tuning.[0]
+                if first > -11s && first < 3s && inst.Tuning |> Array.forall ((=) first) then
+                    let i = int (first + 12s) % 12
+                    " [" + roots.[i] + " Standard]"
+                else
+                    String.Empty
+            sprintf "%s%s%s%s" prefix (string inst.Name) extra tuning
 
         | Vocals v ->
             let prefix =
-                if v.Japanese then "Japanese "
-                else String.Empty
+                if v.Japanese then "Japanese " else String.Empty
             let extra =
                 match v.CustomFont with
                 | Some _ -> " (Custom Font)"

@@ -3,6 +3,7 @@
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Controls
+open Avalonia.Media
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open System
@@ -46,8 +47,8 @@ let view (state: State) dispatch (i: Instrumental) =
             TextBlock.create [
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Priority:"
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.text "Priority:"
             ]
 
             StackPanel.create [
@@ -71,8 +72,8 @@ let view (state: State) dispatch (i: Instrumental) =
                 Grid.row 2
                 TextBlock.isVisible (i.Name = ArrangementName.Combo)
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Path:"
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.text "Path:"
             ]
 
             StackPanel.create [
@@ -97,8 +98,8 @@ let view (state: State) dispatch (i: Instrumental) =
                 Grid.row 3
                 TextBlock.isVisible (i.Name = ArrangementName.Bass)
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Picked:"
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.text "Picked:"
             ]
 
             CheckBox.create [
@@ -114,8 +115,8 @@ let view (state: State) dispatch (i: Instrumental) =
             TextBlock.create [
                 Grid.row 4
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Tuning:"
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.text "Tuning:"
             ]
 
             StackPanel.create [
@@ -145,8 +146,8 @@ let view (state: State) dispatch (i: Instrumental) =
             TextBlock.create [
                 Grid.row 5
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Cent Offset:"
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.text "Cent Offset:"
             ]
 
             NumericUpDown.create [
@@ -165,8 +166,8 @@ let view (state: State) dispatch (i: Instrumental) =
             TextBlock.create [
                 Grid.row 6
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Base Tone:"
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.text "Base Tone:"
             ]
 
             TextBox.create [
@@ -181,13 +182,14 @@ let view (state: State) dispatch (i: Instrumental) =
                 Grid.row 7
                 TextBlock.isVisible (i.Tones.Length > 0)
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Tones:"
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.text "Tones:"
             ]
 
             TextBlock.create [
                 Grid.column 1
                 Grid.row 7
+                TextBlock.textWrapping TextWrapping.Wrap
                 TextBlock.isVisible (i.Tones.Length > 0)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text (String.Join(", ", i.Tones))
@@ -198,8 +200,8 @@ let view (state: State) dispatch (i: Instrumental) =
                 Grid.row 8
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Scroll Speed:"
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.text "Scroll Speed:"
             ]
 
             NumericUpDown.create [
@@ -220,8 +222,8 @@ let view (state: State) dispatch (i: Instrumental) =
                 Grid.row 9
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Master ID:"
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.text "Master ID:"
             ]
 
             TextBox.create [
@@ -242,8 +244,8 @@ let view (state: State) dispatch (i: Instrumental) =
                 Grid.row 10
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Persistent ID:"
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.text "Persistent ID:"
             ]
 
             TextBox.create [
