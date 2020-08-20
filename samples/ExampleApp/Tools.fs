@@ -256,8 +256,9 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             state, Cmd.OfAsync.attempt t () Error
 
         | ConvertToDDS file ->
-            let target = Path.ChangeExtension(file, "dds")
-            let options = { Resize = Resize(64,64); Compression = DXT1 }
+            let targetPath = Path.ChangeExtension(file, "dds")
+            use target = File.Create targetPath
+            let options = { Resize = Resize(256,256); Compression = DXT1 }
             DDS.convertToDDS file target options
             state, Cmd.none
 

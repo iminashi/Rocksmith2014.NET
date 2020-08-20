@@ -22,7 +22,7 @@ let private generateShowLights (targetFile: string) =
     ShowLights.Save(targetFile, sl)
     PSARC.Utils.getFileStreamForRead targetFile
 
-let private build (platform: Platform) (targetFile: string) (sngs: (Arrangement * SNG) list) (project: DLCProject) = async {
+let private build (platform: Platform) (targetFile: string) (sngs: (Arrangement * SNG) list) (coverArt: MemoryStream array) (project: DLCProject) = async {
     let key = project.DLCKey.ToLowerInvariant()
     let projectPath = Path.GetDirectoryName project.AudioFile.Path
     let partition = Partitioner.create project
@@ -145,12 +145,10 @@ let private build (platform: Platform) (targetFile: string) (sngs: (Arrangement 
         createEntries project.AudioPreviewFile true
 
     let gfxEntries =
-        [ { Name = sprintf "gfxassets/album_art/album_%s_64.dds" key
-            Data = PSARC.Utils.getFileStreamForRead (Path.Combine(projectPath, "cover_64.dds")) }
-          { Name = sprintf "gfxassets/album_art/album_%s_128.dds" key
-            Data = PSARC.Utils.getFileStreamForRead (Path.Combine(projectPath, "cover_128.dds")) }
-          { Name = sprintf "gfxassets/album_art/album_%s_256.dds" key
-            Data = PSARC.Utils.getFileStreamForRead (Path.Combine(projectPath, "cover_256.dds")) }]
+        [ 64; 128; 256 ]
+        |> List.mapi (fun i size ->
+            { Name = sprintf "gfxassets/album_art/album_%s_%i.dds" key size
+              Data = coverArt.[i] })
 
     use psarcFile =
         let fn = targetFile + (Platform.getPath platform 2) + ".psarc"
@@ -158,24 +156,22 @@ let private build (platform: Platform) (targetFile: string) (sngs: (Arrangement 
 
     do! PSARC.Create(psarcFile, true,
                     (fun entries ->
-                        entries.AddRange manifestEntries
                         entries.AddRange sngEntries
-                        entries.AddRange audioEntries
-                        entries.AddRange gfxEntries
-                        entries.Add headerEntry
                         entries.Add slEntry
+                        entries.Add headerEntry
+                        entries.AddRange manifestEntries
+                        entries.AddRange gfxEntries
                         entries.Add xBlockEntry
-                        entries.Add graphEntry
-                        entries.AddRange fontEntry
                         entries.AddRange flatModelEntries
+                        entries.Add graphEntry
+                        entries.AddRange audioEntries
+                        entries.AddRange fontEntry
                         entries.Add appIdEntry)
                     ) }
 
 let buildPackages (targetFile: string) (platforms: Platform list) (project: DLCProject) = async {
     let key = project.DLCKey.ToLowerInvariant()
-
-    DDS.createCoverArtImages (Path.GetDirectoryName project.AlbumArtFile) project.AlbumArtFile
-
+    let coverArt = DDS.createCoverArtImages (Path.GetDirectoryName project.AlbumArtFile) project.AlbumArtFile
     let sngs =
         project.Arrangements
         |> List.choose (fun arr ->
@@ -203,7 +199,7 @@ let buildPackages (targetFile: string) (platforms: Platform list) (project: DLCP
             | Showlights _ -> None)
 
     do! platforms
-        |> List.map (fun plat -> build plat targetFile sngs project)
+        |> List.map (fun plat -> build plat targetFile sngs coverArt project)
         |> Async.Parallel
         |> Async.Ignore }
     

@@ -389,6 +389,8 @@ let update (msg: Msg) (state: State) =
         let task () = PackageBuilder.buildPackages path [ state.CurrentPlatform ] state.Project
         { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
 
+    // TODO: Validate project properties and file paths before build
+
     | BuildRelease ->
         let releaseDir = IO.Path.GetDirectoryName (Option.get state.OpenProjectFile)
         let fn =
