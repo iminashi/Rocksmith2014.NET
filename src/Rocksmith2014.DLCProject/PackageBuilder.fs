@@ -22,11 +22,14 @@ let private generateShowLights (targetFile: string) =
     ShowLights.Save(targetFile, sl)
     PSARC.Utils.getFileStreamForRead targetFile
 
-let private build (platform: Platform) (targetFile: string) (sngs: (Arrangement * SNG) list) (coverArt: MemoryStream array) (project: DLCProject) = async {
+let private build (platform: Platform)
+                  (targetFile: string)
+                  (sngs: (Arrangement * SNG) list)
+                  (coverArt: MemoryStream array)
+                  (project: DLCProject) = async {
     let key = project.DLCKey.ToLowerInvariant()
-    let projectPath = Path.GetDirectoryName project.AudioFile.Path
     let partition = Partitioner.create project
-    let getName arr =
+    let getManifestName arr =
         let name = partition arr |> snd
         sprintf "manifests/songs_dlc_%s/%s_%s.json" key key name
     let sngMap = sngs |> dict
@@ -35,9 +38,9 @@ let private build (platform: Platform) (targetFile: string) (sngs: (Arrangement 
         project.Arrangements
         |> List.choose (function
             | Instrumental i as arr ->
-                Some(getName arr, createAttributes project (FromInstrumental(i, sngMap.[arr])))
+                Some(getManifestName arr, createAttributes project (FromInstrumental(i, sngMap.[arr])))
             | Vocals v as arr ->
-                Some(getName arr, createAttributes project (FromVocals v))
+                Some(getManifestName arr, createAttributes project (FromVocals v))
             | Showlights _ -> None)
        |> List.map (fun m -> async {
            let data = MemoryStreamPool.Default.GetStream()
@@ -72,32 +75,21 @@ let private build (platform: Platform) (targetFile: string) (sngs: (Arrangement 
         |> Async.Parallel
 
     let slEntry =
-        let sl =
-            project.Arrangements
-            |> List.tryPick (function Showlights s -> Some s.XML | _ -> None)
+        let slFile = (List.pick Arrangement.pickShowlights project.Arrangements).XML
         let data =
-            match sl with
-            | Some sl -> PSARC.Utils.getFileStreamForRead sl
-            | None ->
-                let slFile = Path.Combine(projectPath, "auto_showlights.xml")
-                if File.Exists slFile then
-                    PSARC.Utils.getFileStreamForRead slFile
-                else
-                    generateShowLights slFile
+            if File.Exists slFile then PSARC.Utils.getFileStreamForRead slFile
+            else generateShowLights slFile
         { Name = sprintf "songs/arr/%s_showlights.xml" key
           Data = data }
 
     let fontEntry =
-        let font =
-            project.Arrangements
-            |> List.tryPick (fun a ->
-                match a with
-                | Vocals { CustomFont = Some _ as font } -> font
-                | _ -> None)
-        match font with
-        | None -> []
-        | Some f -> [ { Name = sprintf "assets/ui/lyrics/%s/lyrics_%s.dds" key key
-                        Data = PSARC.Utils.getFileStreamForRead f } ]
+        project.Arrangements
+        |> List.tryPick (function
+            | Vocals { CustomFont = Some _ as font } -> font
+            | _ -> None)
+        |> Option.map (fun f -> { Name = sprintf "assets/ui/lyrics/%s/lyrics_%s.dds" key key
+                                  Data = PSARC.Utils.getFileStreamForRead f })
+        |> Option.toList
 
     let flatModelEntries =
         let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
@@ -170,6 +162,17 @@ let private build (platform: Platform) (targetFile: string) (sngs: (Arrangement 
                     ) }
 
 let buildPackages (targetFile: string) (platforms: Platform list) (project: DLCProject) = async {
+    // Check if a show lights arrangement is included
+    let project =
+        if project.Arrangements |> List.tryPick Arrangement.pickShowlights |> Option.isSome then
+            project
+        else
+            // Insert an automatically generated show lights arrangement
+            let projectPath = Path.GetDirectoryName project.AudioFile.Path
+            let sl = Showlights { XML = Path.Combine(projectPath, "auto_showlights.xml") }
+            let arrangements = sl::project.Arrangements
+            { project with Arrangements = arrangements }
+
     let key = project.DLCKey.ToLowerInvariant()
     let coverArt = DDS.createCoverArtImages (Path.GetDirectoryName project.AlbumArtFile) project.AlbumArtFile
     let sngs =
@@ -186,7 +189,7 @@ let buildPackages (targetFile: string) (platforms: Platform list) (project: DLCP
                     match v.CustomFont with
                     | Some f ->
                         let glyphs = 
-                            (Path.GetFileNameWithoutExtension f + "_glyphs.xml")
+                            Path.ChangeExtension(f, ".glyphs.xml")
                             |> GlyphDefinitions.Load
                         let assetPath =
                             sprintf "assets/ui/lyrics/%s/lyrics_%s.dds" key key
