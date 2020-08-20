@@ -345,11 +345,11 @@ let private initSongComplete partition
                              (sng: SNG)
                              (attr: Attributes) =
     let tones = 
-        let toneNamesUsed =
+        let toneKeysUsed =
             seq { instrumental.BaseTone; yield! xmlToneInfo.Names |> Seq.filter (isNull >> not) }
             |> Set.ofSeq
         project.Tones
-        |> List.filter (fun t -> toneNamesUsed.Contains t.Name)
+        |> List.filter (fun t -> toneKeysUsed.Contains t.Key)
         |> List.toArray
 
     attr.ArrangementProperties <- Some (convertArrangementProperties xmlMetaData.ArrangementProperties instrumental)

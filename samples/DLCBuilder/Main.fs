@@ -5,6 +5,7 @@ open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open Rocksmith2014
 open Elmish
+open System.Runtime.InteropServices
 open System.Xml
 open System
 open Avalonia
@@ -31,6 +32,7 @@ let init () =
       Overlay = NoOverlay
       ImportTones = []
       PreviewStartTime = TimeSpan()
+      CurrentPlatform = if RuntimeInformation.IsOSPlatform OSPlatform.OSX then Mac else PC
       OpenProjectFile = None }, Cmd.OfAsync.perform Configuration.load () SetConfiguration
 
 let private loadArrangement (fileName: string) =
@@ -379,6 +381,21 @@ let update (msg: Msg) (state: State) =
 
     | EditProject edit -> { state with Project = edit state.Project }, Cmd.none
     | EditConfig edit -> { state with Config = edit state.Config }, Cmd.none
+
+    | BuildTest ->
+        let testDir = state.Config.TestFolderPath
+        let path = IO.Path.Combine(testDir, state.Project.DLCKey.ToLowerInvariant())
+        let task () = PackageBuilder.buildPackages path [ state.CurrentPlatform ] state.Project
+        state, Cmd.OfAsync.attempt task () ErrorOccurred
+
+    | BuildRelease ->
+        let releaseDir = IO.Path.GetDirectoryName (Option.get state.OpenProjectFile)
+        let fn =
+            sprintf "%s_%s_v%s" state.Project.ArtistName.Value state.Project.Title.Value (state.Project.Version.Replace('.', '_'))
+            |> StringValidator.fileName
+        let path = IO.Path.Combine(releaseDir, fn)
+        let task () = PackageBuilder.buildPackages path state.Config.ReleasePlatforms state.Project
+        state, Cmd.OfAsync.attempt task () ErrorOccurred
    
     | ErrorOccurred e -> { state with Overlay = ErrorMessage e.Message }, Cmd.none
     

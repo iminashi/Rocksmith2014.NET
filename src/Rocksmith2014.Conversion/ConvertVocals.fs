@@ -10,7 +10,7 @@ open Microsoft.Extensions.FileProviders
 
 type FontOption =
     | DefaultFont
-    | CustomFont of glyphDefinitions: GlyphDefinitions
+    | CustomFont of glyphDefinitions : GlyphDefinitions * assetPath : string
 
 module ConvertVocals =
     /// The default symbol textures used in SNG files that use the default font.
@@ -54,11 +54,10 @@ module ConvertVocals =
             match font with
             | DefaultFont -> defaultHeaders, defaultTextures, defaultSymbols.Value
 
-            | CustomFont glyphs ->
-                let fontName = "placeholder.dds"
+            | CustomFont (glyphs, assetPath) ->
                 [| SymbolsHeader.Default |],
-                [| { Font = fontName
-                     FontPathLength = Encoding.UTF8.GetByteCount(fontName)
+                [| { Font = assetPath
+                     FontPathLength = Encoding.UTF8.GetByteCount(assetPath)
                      Width = glyphs.TextureWidth
                      Height = glyphs.TextureHeight } |],
                 glyphs.Glyphs
@@ -79,7 +78,7 @@ module ConvertVocals =
     let xmlFileToSng xmlFile targetFile customFont platform =
         let glyphs =
             match customFont with
-            | Some fileName -> CustomFont (GlyphDefinitions.Load fileName)
+            | Some fileName -> CustomFont ((GlyphDefinitions.Load fileName), "placeholder.dds")
             | None -> DefaultFont
 
         Vocals.Load xmlFile

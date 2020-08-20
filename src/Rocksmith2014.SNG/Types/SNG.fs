@@ -120,11 +120,6 @@ module SNG =
         payload.Position <- 0L
         Cryptography.encryptSNG payload output platform None }
     
-    /// Writes the given SNG into the output stream (unpacked/unencrypted).
-    let write (output: Stream) (sng: SNG) =
-        let writer = LittleEndianBinaryWriter(output)
-        (sng :> IBinaryWritable).Write writer
-
     /// Unpacks the given encrypted SNG file and saves it with an "_unpacked.sng" postfix.
     let unpackFile fileName platform = async {
         use file = File.OpenRead fileName
@@ -153,16 +148,20 @@ module SNG =
     
         do! unpack file memory platform
         return SNG.Read reader }
-    
-    /// Saves an SNG (packed/encrypted) with the given filename.
-    let savePackedFile fileName platform (sng: SNG) = async {
+
+    /// Saves an SNG (packed/encrypted) into the given stream.
+    let savePacked (output: Stream) platform (sng: SNG) = async {
         use memory = MemoryStreamPool.Default.GetStream()
         let writer = BinaryWriters.getWriter memory platform
         (sng :> IBinaryWritable).Write writer
         memory.Position <- 0L
     
+        do! pack memory output platform }
+    
+    /// Saves an SNG (packed/encrypted) with the given filename.
+    let savePackedFile fileName platform (sng: SNG) = async {
         use out = File.Open(fileName, FileMode.Create, FileAccess.Write)
-        do! pack memory out platform }
+        do! savePacked out platform sng }
     
     /// Reads an unpacked SNG from the given file.
     let readUnpackedFile fileName =

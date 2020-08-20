@@ -1,6 +1,7 @@
 ﻿namespace DLCBuilder
 
 open Rocksmith2014.DLCProject
+open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Avalonia.Media.Imaging
 open System
@@ -30,7 +31,8 @@ module Types =
           Overlay : OverlayContents
           ImportTones : Tone list
           PreviewStartTime : TimeSpan
-          OpenProjectFile : string option }
+          OpenProjectFile : string option
+          CurrentPlatform : Platform }
 
     type Msg =
     | SelectOpenArrangement
@@ -72,4 +74,6 @@ module Types =
     | SaveConfiguration
     | SetConfiguration of config : Configuration
     | ProjectLoaded of project : DLCProject * fileName : string
+    | BuildTest
+    | BuildRelease
     | ErrorOccurred of e : exn

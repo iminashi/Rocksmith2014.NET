@@ -299,12 +299,14 @@ let view state dispatch =
                                         Button.margin 4.
                                         Button.fontSize 16.
                                         Button.content "Build Test"
+                                        Button.onClick (fun _ -> BuildTest |> dispatch)
                                     ]
                                     Button.create [
                                         Button.padding (15., 8.)
                                         Button.margin 4.
                                         Button.fontSize 16.
                                         Button.content "Build Release"
+                                        Button.onClick (fun _ -> BuildRelease |> dispatch)
                                     ]
                                 ]
                             ]
