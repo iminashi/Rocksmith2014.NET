@@ -32,7 +32,8 @@ module Types =
           ImportTones : Tone list
           PreviewStartTime : TimeSpan
           OpenProjectFile : string option
-          CurrentPlatform : Platform }
+          CurrentPlatform : Platform
+          BuildInProgress : bool }
 
     type Msg =
     | SelectOpenArrangement
@@ -76,4 +77,5 @@ module Types =
     | ProjectLoaded of project : DLCProject * fileName : string
     | BuildTest
     | BuildRelease
+    | BuildComplete of unit
     | ErrorOccurred of e : exn

@@ -32,6 +32,7 @@ let init () =
       Overlay = NoOverlay
       ImportTones = []
       PreviewStartTime = TimeSpan()
+      BuildInProgress = false
       CurrentPlatform = if RuntimeInformation.IsOSPlatform OSPlatform.OSX then Mac else PC
       OpenProjectFile = None }, Cmd.OfAsync.perform Configuration.load () SetConfiguration
 
@@ -386,7 +387,7 @@ let update (msg: Msg) (state: State) =
         let testDir = state.Config.TestFolderPath
         let path = IO.Path.Combine(testDir, state.Project.DLCKey.ToLowerInvariant())
         let task () = PackageBuilder.buildPackages path [ state.CurrentPlatform ] state.Project
-        state, Cmd.OfAsync.attempt task () ErrorOccurred
+        { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
 
     | BuildRelease ->
         let releaseDir = IO.Path.GetDirectoryName (Option.get state.OpenProjectFile)
@@ -395,7 +396,9 @@ let update (msg: Msg) (state: State) =
             |> StringValidator.fileName
         let path = IO.Path.Combine(releaseDir, fn)
         let task () = PackageBuilder.buildPackages path state.Config.ReleasePlatforms state.Project
-        state, Cmd.OfAsync.attempt task () ErrorOccurred
+        { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
+
+    | BuildComplete _ -> { state with BuildInProgress = false }, Cmd.none
    
     | ErrorOccurred e -> { state with Overlay = ErrorMessage e.Message }, Cmd.none
     

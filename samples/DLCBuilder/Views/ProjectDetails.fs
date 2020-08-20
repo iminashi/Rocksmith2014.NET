@@ -299,6 +299,7 @@ let view state dispatch =
                                         Button.margin 4.
                                         Button.fontSize 16.
                                         Button.content "Build Test"
+                                        Button.isEnabled ((not state.BuildInProgress) && (not (String.IsNullOrWhiteSpace state.Config.TestFolderPath)))
                                         Button.onClick (fun _ -> BuildTest |> dispatch)
                                     ]
                                     Button.create [
@@ -306,6 +307,7 @@ let view state dispatch =
                                         Button.margin 4.
                                         Button.fontSize 16.
                                         Button.content "Build Release"
+                                        Button.isEnabled (not state.BuildInProgress)
                                         Button.onClick (fun _ -> BuildRelease |> dispatch)
                                     ]
                                 ]
