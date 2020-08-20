@@ -23,9 +23,8 @@ let convertToDDS (sourceFile: string) (targetFile: string) (options: DDSOptions)
 
     image.Write targetFile
 
-let createCoverArtImages (sourceFile: string) =
-    let dir = Path.GetDirectoryName(sourceFile)
-    [| Path.Combine(dir, "cover_64.dds"), Resize(64, 64)
-       Path.Combine(dir, "cover_128.dds"), Resize(128, 128)
-       Path.Combine(dir, "cover_256.dds"), Resize(256, 256) |]
+let createCoverArtImages (targetDir: string) (sourceFile: string) =
+    [| Path.Combine(targetDir, "cover_64.dds"), Resize(64, 64)
+       Path.Combine(targetDir, "cover_128.dds"), Resize(128, 128)
+       Path.Combine(targetDir, "cover_256.dds"), Resize(256, 256) |]
     |> Array.Parallel.iter (fun (target, size) -> convertToDDS sourceFile target { Compression = DXT1; Resize = size })

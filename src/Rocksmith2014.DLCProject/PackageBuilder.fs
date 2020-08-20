@@ -3,6 +3,7 @@
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open Rocksmith2014.DLCProject.Manifest
+open Rocksmith2014.DLCProject.Manifest.AttributesCreation
 open Rocksmith2014.XML
 open Rocksmith2014.SNG
 open Rocksmith2014.PSARC
@@ -21,28 +22,19 @@ let private build (platform: Platform) (targetFile: string) (sngs: (Arrangement 
     let! manifestEntries =
         project.Arrangements
         |> List.choose (fun arr ->
-            let fn =
+            let name =
                 let name = partition arr |> snd
                 sprintf "manifests/songs_dlc_%s/%s_%s.json" key key name
             match arr with
             | Instrumental i ->
-                let manifest =
-                    AttributesCreation.createAttributes project (AttributesCreation.FromInstrumental(i, sngMap.[arr]))
-                    |> List.singleton
-                    |> Manifest.create
-                Some(fn, manifest)
+                Some(name, createAttributes project (FromInstrumental(i, sngMap.[arr])))
             | Vocals v ->
-                let manifest =
-                    AttributesCreation.createAttributes project (AttributesCreation.FromVocals v)
-                    |> List.singleton
-                    |> Manifest.create
-                Some(fn, manifest)
+                Some(name, createAttributes project (FromVocals v))
             | Showlights _ -> None)
        |> List.map (fun m -> async {
            let data = MemoryStreamPool.Default.GetStream()
-           do! m |> snd |> Manifest.toJsonStream data
-           return { Name = fst m; Data = data }
-       })
+           do! m |> snd |> List.singleton |> Manifest.create |> Manifest.toJsonStream data
+           return { Name = fst m; Data = data } })
        |> Async.Parallel
 
     let! headerEntry = async {
@@ -51,17 +43,14 @@ let private build (platform: Platform) (targetFile: string) (sngs: (Arrangement 
             |> List.choose (fun arr ->
                 match arr with
                 | Instrumental i ->
-                    AttributesCreation.createAttributesHeader project (AttributesCreation.FromInstrumental(i, sngMap.[arr]))
-                    |> Some
+                    Some (createAttributesHeader project (FromInstrumental(i, sngMap.[arr])))
                 | Vocals v ->
-                    AttributesCreation.createAttributesHeader project (AttributesCreation.FromVocals v)
-                    |> Some
+                    Some (createAttributesHeader project (FromVocals v))
                 | Showlights _ -> None)
             |> Manifest.createHeader
         let data = MemoryStreamPool.Default.GetStream()
         do! Manifest.toJsonStream data header
-        return { Name = sprintf "manifests/songs_dlc_%s/songs_dlc_%s.hsan" key key
-                 Data = data } }
+        return { Name = sprintf "manifests/songs_dlc_%s/songs_dlc_%s.hsan" key key; Data = data } }
 
     let! sngEntries =
         sngs
@@ -80,20 +69,19 @@ let private build (platform: Platform) (targetFile: string) (sngs: (Arrangement 
             project.Arrangements
             |> List.pick (function Showlights s -> Some s.XML | _ -> None)
         { Name = sprintf "songs/arr/%s_showlights.xml" key
-          Data = File.OpenRead sl }
+          Data = PSARC.Utils.getFileStreamForRead sl }
 
     let fontEntry =
         let font =
             project.Arrangements
             |> List.tryPick (fun a ->
                 match a with
-                | Vocals { CustomFont = Some f } -> Some f
+                | Vocals { CustomFont = Some _ as font } -> font
                 | _ -> None)
         match font with
         | None -> []
-        | Some f -> [
-            { Name = sprintf "assets/ui/lyrics/%s/lyrics_%s.dds" key key
-              Data = File.OpenRead f } ]
+        | Some f -> [ { Name = sprintf "assets/ui/lyrics/%s/lyrics_%s.dds" key key
+                        Data = PSARC.Utils.getFileStreamForRead f } ]
 
     let flatModelEntries =
         let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
@@ -121,14 +109,14 @@ let private build (platform: Platform) (targetFile: string) (sngs: (Arrangement 
         { Name = sprintf "%s_aggregategraph.nt" key; Data = data }
 
     let audioEntries =
-        let generateEntries (audioFile: AudioFile) isPreview =
+        let createEntries (audioFile: AudioFile) isPreview =
             let path =
                 if audioFile.Path.EndsWith(".wem", StringComparison.OrdinalIgnoreCase) then
                     audioFile.Path
                 else
                     Path.ChangeExtension(audioFile.Path, "wem")
             let bankData = MemoryStreamPool.Default.GetStream()
-            let audio = File.OpenRead path
+            let audio = PSARC.Utils.getFileStreamForRead path
             let bankName = if isPreview then project.DLCKey + "_Preview" else project.DLCKey
             let audioName = SoundBank.generate bankName audio bankData (float32 audioFile.Volume) isPreview platform
             [ { Name = sprintf "audio/%s/song_%s%s.bnk" (Platform.getPath platform 0) key (if isPreview then "_preview" else "")
@@ -136,18 +124,18 @@ let private build (platform: Platform) (targetFile: string) (sngs: (Arrangement 
               { Name = sprintf "audio/%s/%s.wem" (Platform.getPath platform 0) audioName
                 Data = audio } ]
 
-        generateEntries project.AudioFile false
+        createEntries project.AudioFile false
         @
-        generateEntries project.AudioPreviewFile true
+        createEntries project.AudioPreviewFile true
 
     let gfxEntries =
         let dir = Path.GetDirectoryName project.AlbumArtFile
         [ { Name = sprintf "gfxassets/album_art/album_%s_64.dds" key
-            Data = File.OpenRead(Path.Combine(dir, "cover_64.dds")) }
+            Data = PSARC.Utils.getFileStreamForRead (Path.Combine(dir, "cover_64.dds")) }
           { Name = sprintf "gfxassets/album_art/album_%s_128.dds" key
-            Data = File.OpenRead(Path.Combine(dir, "cover_128.dds")) }
+            Data = PSARC.Utils.getFileStreamForRead (Path.Combine(dir, "cover_128.dds")) }
           { Name = sprintf "gfxassets/album_art/album_%s_256.dds" key
-            Data = File.OpenRead(Path.Combine(dir, "cover_256.dds")) }]
+            Data = PSARC.Utils.getFileStreamForRead (Path.Combine(dir, "cover_256.dds")) }]
 
     use psarcFile =
         let fn = targetFile + (Platform.getPath platform 2) + ".psarc"
@@ -171,18 +159,18 @@ let private build (platform: Platform) (targetFile: string) (sngs: (Arrangement 
 let buildPackages (targetFile: string) (platforms: Platform list) (project: DLCProject) = async {
     let key = project.DLCKey.ToLowerInvariant()
 
-    DDS.createCoverArtImages project.AlbumArtFile
+    DDS.createCoverArtImages (Path.GetDirectoryName project.AlbumArtFile) project.AlbumArtFile
 
     let sngs =
         project.Arrangements
         |> List.choose (fun arr ->
             match arr with
             | Instrumental i ->
-                let xml = InstrumentalArrangement.Load i.XML
-                let sng = ConvertInstrumental.xmlToSng xml
+                let sng =
+                    InstrumentalArrangement.Load i.XML
+                    |> ConvertInstrumental.xmlToSng
                 Some(arr, sng)
             | Vocals v ->
-                let xml = Vocals.Load v.XML
                 let customFont =
                     match v.CustomFont with
                     | Some f ->
@@ -193,7 +181,9 @@ let buildPackages (targetFile: string) (platforms: Platform list) (project: DLCP
                             sprintf "assets/ui/lyrics/%s/lyrics_%s.dds" key key
                         FontOption.CustomFont (glyphs, assetPath)
                     | None -> FontOption.DefaultFont
-                let sng = ConvertVocals.xmlToSng customFont xml
+                let sng =
+                    Vocals.Load v.XML
+                    |> ConvertVocals.xmlToSng customFont
                 Some(arr, sng)
             | Showlights _ -> None)
 
