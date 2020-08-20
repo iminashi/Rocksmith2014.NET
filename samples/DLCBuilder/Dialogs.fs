@@ -14,7 +14,7 @@ let private createFilters name (extensions : string seq) =
 
 let audioFileFilters = createFilters "Audio Files" (seq { "wav"; "wem" })
 let xmlFileFilter = createFilters "Rocksmith Arrangement Files" (seq { "xml" })
-let imgFileFilter = createFilters "Images" (seq { "png"; "jpg" })
+let imgFileFilter = createFilters "Images" (seq { "png"; "jpg"; "dds" })
 let ddsFileFilter = createFilters "DDS Texture Files" (seq { "dds" })
 let profileFilter = createFilters "_PRFLDB Files" (seq { "*" })
 let projectFilter = createFilters "Project Files" (seq { "rs2dlc" })

@@ -236,7 +236,12 @@ let update (msg: Msg) (state: State) =
 
     | AddCoverArt (Some fileName) ->
         state.CoverArt |> Option.iter dispose
-        let bm = new Bitmap(fileName)
+        
+        let bm =
+            if fileName.EndsWith("dds", StringComparison.OrdinalIgnoreCase) then
+                Utils.avaloniaBitmapFromDDS fileName
+            else
+                new Bitmap(fileName)
         { state with CoverArt = Some bm
                      Project = { state.Project with AlbumArtFile = fileName } }, Cmd.none
 
