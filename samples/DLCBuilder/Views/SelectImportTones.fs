@@ -4,6 +4,7 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Controls
 open Avalonia.Layout
 open Rocksmith2014.Common.Manifest
+open Avalonia.FuncUI.Types
 
 let view state dispatch (tones: Tone array) =
     StackPanel.create [
@@ -40,4 +41,4 @@ let view state dispatch (tones: Tone array) =
                 ]
             ]
         ]
-    ]
+    ] :> IView

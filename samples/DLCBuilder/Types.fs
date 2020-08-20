@@ -29,7 +29,8 @@ module Types =
           ShowJapaneseFields : bool
           Overlay : OverlayContents
           ImportTones : Tone list
-          PreviewStartTime : TimeSpan }
+          PreviewStartTime : TimeSpan
+          OpenProjectFile : string option }
 
     type Msg =
     | SelectOpenArrangement
@@ -70,5 +71,5 @@ module Types =
     | ShowConfigEditor
     | SaveConfiguration
     | SetConfiguration of config : Configuration
-    | ProjectLoaded of project : DLCProject
+    | ProjectLoaded of project : DLCProject * fileName : string
     | ErrorOccurred of e : exn

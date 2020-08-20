@@ -20,7 +20,7 @@ open Avalonia.Controls
 type MainWindow() as this =
     inherit HostWindow()
     do
-        base.Title <- "DLCBuilder"
+        base.Title <- "Rocksmith 2014 DLC Builder"
         base.Width <- 1000.0
         base.Height <- 850.0
 

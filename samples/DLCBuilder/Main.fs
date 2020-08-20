@@ -30,7 +30,8 @@ let init () =
       ShowJapaneseFields = false
       Overlay = NoOverlay
       ImportTones = []
-      PreviewStartTime = TimeSpan() }, Cmd.OfAsync.perform Configuration.load () SetConfiguration
+      PreviewStartTime = TimeSpan()
+      OpenProjectFile = None }, Cmd.OfAsync.perform Configuration.load () SetConfiguration
 
 let private loadArrangement (fileName: string) =
     let rootName =
@@ -174,13 +175,20 @@ let update (msg: Msg) (state: State) =
 
     | SelectSaveProjectTarget ->
         let intialFileName =
-            let fn =
-                sprintf "%s_%s" state.Project.ArtistName.Value state.Project.Title.Value
-                |> StringValidator.fileName
-            sprintf "%s.rs2dlc" fn
-            |> Some
+            state.OpenProjectFile
+            |> Option.map IO.Path.GetFileName
+            |> Option.orElse
+                (let fn =
+                    sprintf "%s_%s" state.Project.ArtistName.Value state.Project.Title.Value
+                    |> StringValidator.fileName
+                sprintf "%s.rs2dlc" fn
+                |> Some)
+        let initialDir =
+            state.OpenProjectFile
+            |> Option.map IO.Path.GetDirectoryName
+            |> Option.orElse (Option.ofString state.Config.ProjectsFolderPath)
         let dialog = Dialogs.saveFileDialog "Select Target" Dialogs.projectFilter intialFileName
-        state, Cmd.OfAsync.perform dialog None SaveProject
+        state, Cmd.OfAsync.perform dialog initialDir SaveProject
 
     | SelectOpenProjectFile ->
         let dialog = Dialogs.openFileDialog "Select Project File" Dialogs.projectFilter
@@ -211,9 +219,13 @@ let update (msg: Msg) (state: State) =
     | AddAudioFile (Some fileName) ->
         let audioFile = { state.Project.AudioFile with Path = fileName }
         let previewPath =
-            let path = IO.Path.Combine(IO.Path.GetDirectoryName fileName, IO.Path.GetFileNameWithoutExtension fileName + "_preview.wav")
-            if IO.File.Exists path then
-                path
+            let previewPath =
+                let dir = IO.Path.GetDirectoryName fileName
+                let fn = IO.Path.GetFileNameWithoutExtension fileName
+                let ext = IO.Path.GetExtension fileName
+                IO.Path.Combine(dir, sprintf "%s_preview%s" fn ext)
+            if IO.File.Exists previewPath then
+                previewPath
             else
                 String.Empty
         let previewFile = { state.Project.AudioPreviewFile with Path = previewPath }
@@ -328,7 +340,21 @@ let update (msg: Msg) (state: State) =
 
     | OpenProject (Some fileName) ->
         let task() = DLCProject.load fileName
-        state, Cmd.OfAsync.either task () ProjectLoaded ErrorOccurred
+        state, Cmd.OfAsync.either task () (fun p -> ProjectLoaded(p, fileName)) ErrorOccurred
+
+    | ProjectLoaded (project, fileName) ->
+        state.CoverArt |> Option.iter dispose
+        let bm =
+            if IO.File.Exists project.AlbumArtFile then
+                new Bitmap(project.AlbumArtFile)
+            else
+                loadPlaceHolderAlbumArt()
+
+        { state with CoverArt = Some bm
+                     Project = project
+                     OpenProjectFile = Some fileName
+                     SelectedArrangement = None
+                     SelectedTone = None }, Cmd.none
 
     | EditInstrumental edit ->
         match state.SelectedArrangement with
@@ -353,17 +379,7 @@ let update (msg: Msg) (state: State) =
 
     | EditProject edit -> { state with Project = edit state.Project }, Cmd.none
     | EditConfig edit -> { state with Config = edit state.Config }, Cmd.none
-
-    | ProjectLoaded project ->
-        state.CoverArt |> Option.iter dispose
-        let bm =
-            if IO.File.Exists project.AlbumArtFile then
-                new Bitmap(project.AlbumArtFile)
-            else
-                loadPlaceHolderAlbumArt()
-
-        { state with CoverArt = Some bm; Project = project }, Cmd.none
-    
+   
     | ErrorOccurred e -> { state with Overlay = ErrorMessage e.Message }, Cmd.none
     
     // When the user canceled any of the dialogs

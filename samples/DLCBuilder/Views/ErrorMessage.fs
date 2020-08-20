@@ -3,6 +3,7 @@
 open Avalonia.FuncUI.DSL
 open Avalonia.Controls
 open Avalonia.Layout
+open Avalonia.FuncUI.Types
 
 let view dispatch msg =
     StackPanel.create [
@@ -26,4 +27,4 @@ let view dispatch msg =
                 Button.onClick (fun _ -> CloseOverlay |> dispatch)
             ]
         ]
-    ]
+    ] :> IView

@@ -56,17 +56,61 @@ type DLCProject =
           Tones = [] }
 
 module DLCProject =
+    let private toAbsolutePath (baseDir: string) (fileName: string) =
+        if String.IsNullOrWhiteSpace fileName then
+            fileName
+        else
+            Path.Combine(baseDir, fileName)
+
+    let private toAbsolutePaths (baseDir: string) (project: DLCProject) =
+        let abs = toAbsolutePath baseDir
+        let arrangements =
+            project.Arrangements
+            |> List.map (fun x ->
+                match x with
+                | Instrumental i -> Instrumental { i with XML = abs i.XML }
+                | Vocals v -> Vocals { v with XML = abs v.XML; CustomFont = Option.map abs v.CustomFont }
+                | Showlights s -> Showlights { s with XML = abs s.XML })
+
+        { project with Arrangements = arrangements
+                       AlbumArtFile = abs project.AlbumArtFile
+                       AudioFile = { project.AudioFile with Path = abs project.AudioFile.Path }
+                       AudioPreviewFile = { project.AudioPreviewFile with Path = abs project.AudioPreviewFile.Path } }
+
+    let private toRelativePath (relativeTo: string) (path: string) =
+        if String.IsNullOrWhiteSpace path then
+            path
+        else
+            Path.GetRelativePath(relativeTo, path)
+
+    let private toRelativePaths (path: string) (project: DLCProject) =
+        let rel = toRelativePath path
+        let arrangements =
+            project.Arrangements
+            |> List.map (fun x ->
+                match x with
+                | Instrumental i -> Instrumental { i with XML = rel i.XML }
+                | Vocals v -> Vocals { v with XML = rel v.XML; CustomFont = Option.map rel v.CustomFont }
+                | Showlights s -> Showlights { s with XML = rel s.XML })
+
+        { project with Arrangements = arrangements
+                       AlbumArtFile = rel project.AlbumArtFile
+                       AudioFile = { project.AudioFile with Path = rel project.AudioFile.Path }
+                       AudioPreviewFile = { project.AudioPreviewFile with Path = rel project.AudioPreviewFile.Path } }
+
     let save (fileName: string) (project: DLCProject) = async {
         use file = File.Create fileName
         let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
         options.Converters.Add(JsonFSharpConverter())
-        do! JsonSerializer.SerializeAsync(file, project, options) }
+        let p = toRelativePaths (Path.GetDirectoryName fileName) project
+        do! JsonSerializer.SerializeAsync(file, p, options) }
 
     let load (fileName: string) = async {
         let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
         options.Converters.Add(JsonFSharpConverter())
         use file = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan ||| FileOptions.Asynchronous)
-        return! JsonSerializer.DeserializeAsync<DLCProject>(file, options) }
+        let! project = JsonSerializer.DeserializeAsync<DLCProject>(file, options)
+        return toAbsolutePaths (Path.GetDirectoryName fileName) project  }
 
 module DLCKey =
     let create (charterName: string) (artist: string) (title: string) =

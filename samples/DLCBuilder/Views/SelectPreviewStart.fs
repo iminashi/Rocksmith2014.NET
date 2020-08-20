@@ -4,6 +4,7 @@ open System
 open Avalonia.FuncUI.DSL
 open Avalonia.Controls
 open Avalonia.Layout
+open Avalonia.FuncUI.Types
 
 let view state dispatch (audioLength: TimeSpan) =
     StackPanel.create [
@@ -55,4 +56,4 @@ let view state dispatch (audioLength: TimeSpan) =
                 ]
             ]
         ]
-    ]
+    ] :> IView
