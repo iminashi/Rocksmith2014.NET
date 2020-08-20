@@ -17,7 +17,7 @@ open System
 let private build (platform: Platform)
                   (targetFile: string)
                   (sngs: (Arrangement * SNG) list)
-                  (coverArt: MemoryStream array)
+                  (coverArt: string array)
                   (project: DLCProject) = async {
     let key = project.DLCKey.ToLowerInvariant()
     let partition = Partitioner.create project
@@ -69,7 +69,7 @@ let private build (platform: Platform)
     let slEntry =
         let slFile = (List.pick Arrangement.pickShowlights project.Arrangements).XML
         let data =
-            if File.Exists slFile then PSARC.Utils.getFileStreamForRead slFile
+            if File.Exists slFile then Utils.getFileStreamForRead slFile
             else ShowLightGenerator.generate slFile
         { Name = sprintf "songs/arr/%s_showlights.xml" key
           Data = data }
@@ -80,7 +80,7 @@ let private build (platform: Platform)
             | Vocals { CustomFont = Some _ as font } -> font
             | _ -> None)
         |> Option.map (fun f -> { Name = sprintf "assets/ui/lyrics/%s/lyrics_%s.dds" key key
-                                  Data = PSARC.Utils.getFileStreamForRead f })
+                                  Data = Utils.getFileStreamForRead f })
         |> Option.toList
 
     let flatModelEntries =
@@ -92,20 +92,17 @@ let private build (platform: Platform)
 
     let xBlockEntry =
         let data = MemoryStreamPool.Default.GetStream()
-        XBlock.create platform project
-        |> XBlock.serialize data
+        XBlock.create platform project |> XBlock.serialize data
         { Name = sprintf "gamexblocks/nsongs/%s.xblock" key; Data = data }
 
     let appIdEntry =
         let data = MemoryStreamPool.Default.GetStream()
-        use writer = new StreamWriter(data, Encoding.ASCII, 7, true)
-        writer.Write("221680")
+        data.Write(ReadOnlySpan(Encoding.ASCII.GetBytes("221680")))
         { Name = "appid.appid"; Data = data }
 
     let graphEntry =
         let data = MemoryStreamPool.Default.GetStream()
-        AggregateGraph.create platform project
-        |> AggregateGraph.serialize data
+        AggregateGraph.create platform project |> AggregateGraph.serialize data
         { Name = sprintf "%s_aggregategraph.nt" key; Data = data }
 
     let audioEntries =
@@ -116,7 +113,7 @@ let private build (platform: Platform)
                 else
                     Path.ChangeExtension(audioFile.Path, "wem")
             let bankData = MemoryStreamPool.Default.GetStream()
-            let audio = PSARC.Utils.getFileStreamForRead path
+            let audio = Utils.getFileStreamForRead path
             let bankName = if isPreview then project.DLCKey + "_Preview" else project.DLCKey
             let audioName = SoundBank.generate bankName audio bankData (float32 audioFile.Volume) isPreview platform
             [ { Name = sprintf "audio/%s/song_%s%s.bnk" (Platform.getPath platform Platform.Path.Audio) key (if isPreview then "_preview" else "")
@@ -132,11 +129,11 @@ let private build (platform: Platform)
         [ 64; 128; 256 ]
         |> List.mapi (fun i size ->
             { Name = sprintf "gfxassets/album_art/album_%s_%i.dds" key size
-              Data = coverArt.[i] })
+              Data = Utils.getFileStreamForRead coverArt.[i] })
 
     use psarcFile =
         let fn = targetFile + (Platform.getPath platform Platform.Path.PackageSuffix) + ".psarc"
-        File.Create(fn)
+        Utils.createFileStreamForPSARC fn
 
     do! PSARC.Create(psarcFile, true,
                     (fun entries ->
@@ -196,5 +193,6 @@ let buildPackages (targetFile: string) (platforms: Platform list) (project: DLCP
     do! platforms
         |> List.map (fun plat -> build plat targetFile sngs coverArt project)
         |> Async.Parallel
-        |> Async.Ignore }
+        |> Async.Ignore
+    coverArt |> Array.iter File.Delete }
     

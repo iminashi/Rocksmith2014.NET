@@ -20,10 +20,19 @@ let getFileStreamForRead (fileName: string) =
         4096,
         FileOptions.SequentialScan ||| FileOptions.Asynchronous)
 
-let getFileStreamForPSARC (fileName: string) =
+let openFileStreamForPSARC (fileName: string) =
     new FileStream(
         fileName,
         FileMode.Open,
+        FileAccess.ReadWrite,
+        FileShare.None,
+        65536,
+        FileOptions.Asynchronous)
+
+let createFileStreamForPSARC (fileName: string) =
+    new FileStream(
+        fileName,
+        FileMode.Create,
         FileAccess.ReadWrite,
         FileShare.None,
         65536,
