@@ -261,17 +261,41 @@ let view state dispatch =
                                 Button.content "Configuration"
                                 Button.onClick (fun _ -> ShowConfigEditor |> dispatch)
                             ]
-                            Button.create [
-                                Button.padding (15., 8.)
-                                Button.margin 4.
-                                Button.fontSize 16.
-                                Button.content "Build Test"
+                            StackPanel.create [
+                                StackPanel.orientation Orientation.Horizontal
+                                StackPanel.children [
+                                    Button.create [
+                                        Button.padding (15., 8.)
+                                        Button.margin 4.
+                                        Button.fontSize 16.
+                                        Button.content "Open Project"
+                                        Button.onClick (fun _ -> SelectOpenProjectFile |> dispatch)
+                                    ]
+                                    Button.create [
+                                        Button.padding (15., 8.)
+                                        Button.margin 4.
+                                        Button.fontSize 16.
+                                        Button.content "Save Project"
+                                        Button.onClick (fun _ -> SelectSaveProjectTarget |> dispatch)
+                                    ]
+                                ]
                             ]
-                            Button.create [
-                                Button.padding (15., 8.)
-                                Button.margin 4.
-                                Button.fontSize 16.
-                                Button.content "Build Release"
+                            StackPanel.create [
+                                StackPanel.orientation Orientation.Horizontal
+                                StackPanel.children [
+                                    Button.create [
+                                        Button.padding (15., 8.)
+                                        Button.margin 4.
+                                        Button.fontSize 16.
+                                        Button.content "Build Test"
+                                    ]
+                                    Button.create [
+                                        Button.padding (15., 8.)
+                                        Button.margin 4.
+                                        Button.fontSize 16.
+                                        Button.content "Build Release"
+                                    ]
+                                ]
                             ]
                         ]
                     ]

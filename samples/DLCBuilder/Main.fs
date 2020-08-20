@@ -16,13 +16,14 @@ open Avalonia.Controls.Shapes
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 
-let init () =
+let private loadPlaceHolderAlbumArt () =
     let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
-    let coverArt = new Bitmap(assets.Open(new Uri("avares://DLCBuilder/placeholder.png")))
+    new Bitmap(assets.Open(new Uri("avares://DLCBuilder/placeholder.png")))
 
+let init () =
     { Project = DLCProject.Empty
       Config = Configuration.Default
-      CoverArt = Some coverArt
+      CoverArt = Some (loadPlaceHolderAlbumArt())
       SelectedArrangement = None
       SelectedTone = None
       ShowSortFields = false
@@ -171,6 +172,20 @@ let update (msg: Msg) (state: State) =
         let dialog = Dialogs.openFolderDialog "Select Projects Base Folder"
         state, Cmd.OfAsync.perform dialog None AddProjectsFolderPath
 
+    | SelectSaveProjectTarget ->
+        let intialFileName =
+            let fn =
+                sprintf "%s_%s" state.Project.ArtistName.Value state.Project.Title.Value
+                |> StringValidator.fileName
+            sprintf "%s.rs2dlc" fn
+            |> Some
+        let dialog = Dialogs.saveFileDialog "Select Target" Dialogs.projectFilter intialFileName
+        state, Cmd.OfAsync.perform dialog None SaveProject
+
+    | SelectOpenProjectFile ->
+        let dialog = Dialogs.openFileDialog "Select Project File" Dialogs.projectFilter
+        state, Cmd.OfAsync.perform dialog None OpenProject
+
     | AddProjectsFolderPath (Some path) ->
         let config = { state.Config with ProjectsFolderPath = path }
         { state with Config = config }, Cmd.none
@@ -307,6 +322,14 @@ let update (msg: Msg) (state: State) =
 
     | SetConfiguration config -> { state with Config = config }, Cmd.none
 
+    | SaveProject (Some target) ->
+        let task() = DLCProject.save target state.Project
+        state, Cmd.OfAsync.attempt task () ErrorOccurred
+
+    | OpenProject (Some fileName) ->
+        let task() = DLCProject.load fileName
+        state, Cmd.OfAsync.either task () ProjectLoaded ErrorOccurred
+
     | EditInstrumental edit ->
         match state.SelectedArrangement with
         | Some (Instrumental arr as old) ->
@@ -330,12 +353,23 @@ let update (msg: Msg) (state: State) =
 
     | EditProject edit -> { state with Project = edit state.Project }, Cmd.none
     | EditConfig edit -> { state with Config = edit state.Config }, Cmd.none
+
+    | ProjectLoaded project ->
+        state.CoverArt |> Option.iter dispose
+        let bm =
+            if IO.File.Exists project.AlbumArtFile then
+                new Bitmap(project.AlbumArtFile)
+            else
+                loadPlaceHolderAlbumArt()
+
+        { state with CoverArt = Some bm; Project = project }, Cmd.none
     
     | ErrorOccurred e -> { state with Overlay = ErrorMessage e.Message }, Cmd.none
     
     // When the user canceled any of the dialogs
     | AddArrangements None | AddCoverArt None | AddAudioFile None | AddCustomFontFile None
-    | AddProfilePath None | AddTestFolderPath None | AddProjectsFolderPath None ->
+    | AddProfilePath None | AddTestFolderPath None | AddProjectsFolderPath None
+    | SaveProject None | OpenProject None ->
         state, Cmd.none
 
 let view (state: State) dispatch =

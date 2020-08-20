@@ -39,6 +39,10 @@ module Types =
     | SelectProfilePath
     | SelectTestFolderPath
     | SelectProjectsFolderPath
+    | SelectSaveProjectTarget
+    | SelectOpenProjectFile
+    | OpenProject of fileName : string option
+    | SaveProject of fileName : string option
     | AddArrangements of files : string[] option
     | AddCoverArt of fileName : string option
     | AddAudioFile of fileName : string option
@@ -66,4 +70,5 @@ module Types =
     | ShowConfigEditor
     | SaveConfiguration
     | SetConfiguration of config : Configuration
+    | ProjectLoaded of project : DLCProject
     | ErrorOccurred of e : exn
