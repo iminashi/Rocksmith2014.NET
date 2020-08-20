@@ -103,4 +103,3 @@ module Arrangement =
 
     let pickInstrumental = function Instrumental i -> Some i | _ -> None
     let pickShowlights = function Showlights s -> Some s | _ -> None
-    

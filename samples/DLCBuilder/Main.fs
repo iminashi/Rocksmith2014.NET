@@ -402,7 +402,8 @@ let update (msg: Msg) (state: State) =
 
     | BuildComplete _ -> { state with BuildInProgress = false }, Cmd.none
    
-    | ErrorOccurred e -> { state with Overlay = ErrorMessage e.Message }, Cmd.none
+    | ErrorOccurred e -> { state with Overlay = ErrorMessage e.Message
+                                      BuildInProgress = false }, Cmd.none
     
     // When the user canceled any of the dialogs
     | AddArrangements None | AddCoverArt None | AddAudioFile None | AddCustomFontFile None
