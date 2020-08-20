@@ -25,7 +25,7 @@ let convertToDDS (sourceFile: string) (output: Stream) (options: DDSOptions) =
     image.Format <- MagickFormat.Dds
     image.Write output
 
-let createCoverArtImages (targetDir: string) (sourceFile: string) =
+let createCoverArtImages (sourceFile: string) =
     [| Resize(64, 64); Resize(128, 128); Resize(256, 256) |]
     |> Array.Parallel.map (fun size ->
         let data = MemoryStreamPool.Default.GetStream()

@@ -174,7 +174,7 @@ let buildPackages (targetFile: string) (platforms: Platform list) (project: DLCP
             { project with Arrangements = arrangements }
 
     let key = project.DLCKey.ToLowerInvariant()
-    let coverArt = DDS.createCoverArtImages (Path.GetDirectoryName project.AlbumArtFile) project.AlbumArtFile
+    let coverArt = DDS.createCoverArtImages project.AlbumArtFile
     let sngs =
         project.Arrangements
         |> List.choose (fun arr ->
