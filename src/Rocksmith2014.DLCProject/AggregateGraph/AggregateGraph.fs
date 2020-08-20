@@ -29,7 +29,7 @@ let create (platform: Platform) (project: DLCProject) =
                 let canonical = sprintf "/manifests/songs_dlc_%s" dlcName
                 yield GraphItem.normal name canonical "json" [ Tag.Database; Tag.JsonDB ]
 
-                let canonical = sprintf "/songs/bin/%s" (Platform.getPath platform 1)
+                let canonical = sprintf "/songs/bin/%s" (Platform.getPath platform Platform.Path.SNG)
                 yield GraphItem.llid name canonical "sng" [ Tag.Application; Tag.MusicgameSong ]
 
         let name = sprintf "songs_dlc_%s" dlcName

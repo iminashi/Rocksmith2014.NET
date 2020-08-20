@@ -46,7 +46,7 @@ module GraphItem =
     
     /// Creates a graph item for a BNK file.
     let bnk name platform =
-        let canonical = sprintf "/audio/%s" (Platform.getPath platform 0)
+        let canonical = sprintf "/audio/%s" (Platform.getPath platform Platform.Path.Audio)
         let rp = sprintf "%s/%s.bnk" canonical name
         let lp = sprintf "/audio/%s.bnk" name |> Some
         make name canonical [ Tag.Audio; Tag.WwiseSoundBank; getPlatformTag platform ] rp lp

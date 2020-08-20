@@ -14,14 +14,6 @@ open System.Reflection
 open System.Text
 open System
 
-let private generateShowLights (targetFile: string) =
-    // TODO: Actually generate show lights
-    let sl = ResizeArray<ShowLight>()
-    sl.Add(ShowLight(10_000, 25uy))
-    sl.Add(ShowLight(10_000, 42uy))
-    ShowLights.Save(targetFile, sl)
-    PSARC.Utils.getFileStreamForRead targetFile
-
 let private build (platform: Platform)
                   (targetFile: string)
                   (sngs: (Arrangement * SNG) list)
@@ -69,7 +61,7 @@ let private build (platform: Platform)
             do! SNG.savePacked data platform sng
             let name =
                 let part = partition arr |> snd
-                sprintf "songs/bin/%s/%s_%s.sng" (Platform.getPath platform 1) key part
+                sprintf "songs/bin/%s/%s_%s.sng" (Platform.getPath platform Platform.Path.SNG) key part
             return { Name = name; Data = data }
         })
         |> Async.Parallel
@@ -78,7 +70,7 @@ let private build (platform: Platform)
         let slFile = (List.pick Arrangement.pickShowlights project.Arrangements).XML
         let data =
             if File.Exists slFile then PSARC.Utils.getFileStreamForRead slFile
-            else generateShowLights slFile
+            else ShowLightGenerator.generate slFile
         { Name = sprintf "songs/arr/%s_showlights.xml" key
           Data = data }
 
@@ -127,9 +119,9 @@ let private build (platform: Platform)
             let audio = PSARC.Utils.getFileStreamForRead path
             let bankName = if isPreview then project.DLCKey + "_Preview" else project.DLCKey
             let audioName = SoundBank.generate bankName audio bankData (float32 audioFile.Volume) isPreview platform
-            [ { Name = sprintf "audio/%s/song_%s%s.bnk" (Platform.getPath platform 0) key (if isPreview then "_preview" else "")
+            [ { Name = sprintf "audio/%s/song_%s%s.bnk" (Platform.getPath platform Platform.Path.Audio) key (if isPreview then "_preview" else "")
                 Data = bankData }
-              { Name = sprintf "audio/%s/%s.wem" (Platform.getPath platform 0) audioName
+              { Name = sprintf "audio/%s/%s.wem" (Platform.getPath platform Platform.Path.Audio) audioName
                 Data = audio } ]
 
         createEntries project.AudioFile false
@@ -143,7 +135,7 @@ let private build (platform: Platform)
               Data = coverArt.[i] })
 
     use psarcFile =
-        let fn = targetFile + (Platform.getPath platform 2) + ".psarc"
+        let fn = targetFile + (Platform.getPath platform Platform.Path.PackageSuffix) + ".psarc"
         File.Create(fn)
 
     do! PSARC.Create(psarcFile, true,

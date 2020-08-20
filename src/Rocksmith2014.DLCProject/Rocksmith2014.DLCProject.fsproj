@@ -29,6 +29,7 @@
     <Compile Include="Manifest\AttributesCreation.fs" />
     <Compile Include="Manifest\Manifest.fs" />
     <Compile Include="XBlock\XBlock.fs" />
+    <Compile Include="ShowLightGenerator.fs" />
     <Compile Include="PackageBuilder.fs" />
   </ItemGroup>
 
