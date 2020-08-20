@@ -14,22 +14,30 @@ open System.Reflection
 open System.Text
 open System
 
+let private generateShowLights (targetFile: string) =
+    // TODO: Actually generate show lights
+    let sl = ResizeArray<ShowLight>()
+    sl.Add(ShowLight(10_000, 25uy))
+    sl.Add(ShowLight(10_000, 42uy))
+    ShowLights.Save(targetFile, sl)
+    PSARC.Utils.getFileStreamForRead targetFile
+
 let private build (platform: Platform) (targetFile: string) (sngs: (Arrangement * SNG) list) (project: DLCProject) = async {
-    let partition = Partitioner.create project
-    let sngMap = sngs |> dict
     let key = project.DLCKey.ToLowerInvariant()
+    let projectPath = Path.GetDirectoryName project.AudioFile.Path
+    let partition = Partitioner.create project
+    let getName arr =
+        let name = partition arr |> snd
+        sprintf "manifests/songs_dlc_%s/%s_%s.json" key key name
+    let sngMap = sngs |> dict
 
     let! manifestEntries =
         project.Arrangements
-        |> List.choose (fun arr ->
-            let name =
-                let name = partition arr |> snd
-                sprintf "manifests/songs_dlc_%s/%s_%s.json" key key name
-            match arr with
-            | Instrumental i ->
-                Some(name, createAttributes project (FromInstrumental(i, sngMap.[arr])))
-            | Vocals v ->
-                Some(name, createAttributes project (FromVocals v))
+        |> List.choose (function
+            | Instrumental i as arr ->
+                Some(getName arr, createAttributes project (FromInstrumental(i, sngMap.[arr])))
+            | Vocals v as arr ->
+                Some(getName arr, createAttributes project (FromVocals v))
             | Showlights _ -> None)
        |> List.map (fun m -> async {
            let data = MemoryStreamPool.Default.GetStream()
@@ -40,9 +48,8 @@ let private build (platform: Platform) (targetFile: string) (sngs: (Arrangement 
     let! headerEntry = async {
         let header =
             project.Arrangements
-            |> List.choose (fun arr ->
-                match arr with
-                | Instrumental i ->
+            |> List.choose (function
+                | Instrumental i as arr ->
                     Some (createAttributesHeader project (FromInstrumental(i, sngMap.[arr])))
                 | Vocals v ->
                     Some (createAttributesHeader project (FromVocals v))
@@ -57,19 +64,28 @@ let private build (platform: Platform) (targetFile: string) (sngs: (Arrangement 
         |> List.map (fun (arr, sng) -> async {
             let data = MemoryStreamPool.Default.GetStream()
             do! SNG.savePacked data platform sng
-            let fn =
-                let name = partition arr |> snd
-                sprintf "songs/bin/%s/%s_%s.sng" (Platform.getPath platform 1) key name
-            return { Name = fn; Data = data }
+            let name =
+                let part = partition arr |> snd
+                sprintf "songs/bin/%s/%s_%s.sng" (Platform.getPath platform 1) key part
+            return { Name = name; Data = data }
         })
         |> Async.Parallel
 
     let slEntry =
         let sl =
             project.Arrangements
-            |> List.pick (function Showlights s -> Some s.XML | _ -> None)
+            |> List.tryPick (function Showlights s -> Some s.XML | _ -> None)
+        let data =
+            match sl with
+            | Some sl -> PSARC.Utils.getFileStreamForRead sl
+            | None ->
+                let slFile = Path.Combine(projectPath, "auto_showlights.xml")
+                if File.Exists slFile then
+                    PSARC.Utils.getFileStreamForRead slFile
+                else
+                    generateShowLights slFile
         { Name = sprintf "songs/arr/%s_showlights.xml" key
-          Data = PSARC.Utils.getFileStreamForRead sl }
+          Data = data }
 
     let fontEntry =
         let font =
@@ -129,13 +145,12 @@ let private build (platform: Platform) (targetFile: string) (sngs: (Arrangement 
         createEntries project.AudioPreviewFile true
 
     let gfxEntries =
-        let dir = Path.GetDirectoryName project.AlbumArtFile
         [ { Name = sprintf "gfxassets/album_art/album_%s_64.dds" key
-            Data = PSARC.Utils.getFileStreamForRead (Path.Combine(dir, "cover_64.dds")) }
+            Data = PSARC.Utils.getFileStreamForRead (Path.Combine(projectPath, "cover_64.dds")) }
           { Name = sprintf "gfxassets/album_art/album_%s_128.dds" key
-            Data = PSARC.Utils.getFileStreamForRead (Path.Combine(dir, "cover_128.dds")) }
+            Data = PSARC.Utils.getFileStreamForRead (Path.Combine(projectPath, "cover_128.dds")) }
           { Name = sprintf "gfxassets/album_art/album_%s_256.dds" key
-            Data = PSARC.Utils.getFileStreamForRead (Path.Combine(dir, "cover_256.dds")) }]
+            Data = PSARC.Utils.getFileStreamForRead (Path.Combine(projectPath, "cover_256.dds")) }]
 
     use psarcFile =
         let fn = targetFile + (Platform.getPath platform 2) + ".psarc"
