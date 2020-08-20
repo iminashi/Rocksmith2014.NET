@@ -22,7 +22,7 @@ let sngToXmlConversionTests =
         let xml = Vocals.Load("vocals.xml")
         let customFont = GlyphDefinitions.Load("vocals.glyphs.xml")
 
-        let sng = ConvertVocals.xmlToSng (CustomFont customFont) xml
+        let sng = ConvertVocals.xmlToSng (CustomFont (customFont, "nothing")) xml
 
         Expect.equal sng.Vocals.Length xml.Count "Vocal count is same"
         Expect.equal sng.SymbolDefinitions.Length customFont.Glyphs.Count "Symbol definition count is correct"
@@ -32,7 +32,7 @@ let sngToXmlConversionTests =
     testCase "Japanese Vocals (Custom Font)" <| fun _ ->
         let xml = Vocals.Load("jvocals.xml")
         let customFont = GlyphDefinitions.Load("jvocals.glyphs.xml")
-        ConvertVocals.xmlToSng (CustomFont customFont) xml
+        ConvertVocals.xmlToSng (CustomFont (customFont, "nothing")) xml
         |> SNG.savePackedFile "jvocals_test.sng" PC
         |> Async.RunSynchronously
 
