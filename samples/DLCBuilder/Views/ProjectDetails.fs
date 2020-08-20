@@ -273,9 +273,20 @@ let view state dispatch =
                                     ]
                                     Button.create [
                                         Button.padding (15., 8.)
-                                        Button.margin 4.
+                                        Button.margin (4., 4., 0., 4.)
                                         Button.fontSize 16.
                                         Button.content "Save Project"
+                                        Button.onClick ((fun _ ->
+                                            match state.OpenProjectFile with
+                                            | Some _ as fn -> SaveProject fn |> dispatch
+                                            | None -> SelectSaveProjectTarget |> dispatch),
+                                            SubPatchOptions.OnChangeOf state.OpenProjectFile)
+                                    ]
+                                    Button.create [
+                                        Button.padding (8., 8.)
+                                        Button.margin (0., 4., 4., 4.)
+                                        Button.fontSize 16.
+                                        Button.content "..."
                                         Button.onClick (fun _ -> SelectSaveProjectTarget |> dispatch)
                                     ]
                                 ]
