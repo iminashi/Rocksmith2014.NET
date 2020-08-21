@@ -36,6 +36,12 @@ let init () =
       CurrentPlatform = if RuntimeInformation.IsOSPlatform OSPlatform.OSX then Mac else PC
       OpenProjectFile = None }, Cmd.OfAsync.perform Configuration.load () SetConfiguration
 
+let private arrangementSorter (arr: Arrangement) =
+    match arr with
+    | Instrumental i -> 0, (LanguagePrimitives.EnumToValue i.RouteMask) + (LanguagePrimitives.EnumToValue i.Priority)
+    | Vocals v -> 1, if v.Japanese then 1 else 0
+    | Showlights _ -> 2, 0
+
 let private loadArrangement (fileName: string) =
     let rootName =
         using (XmlReader.Create(fileName))
@@ -266,6 +272,7 @@ let update (msg: Msg) (state: State) =
                 match elem with
                 | Ok (arr, _) when shouldInclude state arr -> arr::state
                 | _ -> state)
+            |> List.sortBy arrangementSorter
 
         let metadata = 
             if state.Project.ArtistName = SortableString.Empty then

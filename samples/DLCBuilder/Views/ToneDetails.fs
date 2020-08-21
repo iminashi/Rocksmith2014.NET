@@ -45,6 +45,7 @@ let view state dispatch (tone: Tone) =
                 Grid.row 1
                 Grid.column 1
                 ComboBox.margin 4.
+                ComboBox.minHeight 26.
                 ComboBox.dataItems keys
                 ComboBox.selectedItem tone.Key
                 ComboBox.onSelectedItemChanged (fun item ->
@@ -94,7 +95,10 @@ let view state dispatch (tone: Tone) =
                                 Button.isEnabled (tone.ToneDescriptors.Length < 3)
                                 Button.margin 4.
                                 Button.content "+"
-                                Button.onClick (fun _ -> (fun t -> { t with ToneDescriptors = t.ToneDescriptors |> Array.append [| ToneDescriptor.all.[0].UIName |] }) |> EditTone |> dispatch)
+                                Button.onClick (fun _ ->
+                                    fun t ->
+                                        { t with ToneDescriptors = t.ToneDescriptors |> Array.append [| ToneDescriptor.all.[0].UIName |] }
+                                    |> EditTone |> dispatch)
                                 ToolTip.tip "Click to add a description part."
                             ]
                             Button.create [
