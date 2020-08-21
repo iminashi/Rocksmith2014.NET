@@ -18,6 +18,7 @@ let private build (platform: Platform)
                   (targetFile: string)
                   (sngs: (Arrangement * SNG) list)
                   (coverArt: string array)
+                  (author: string)
                   (project: DLCProject) = async {
     let key = project.DLCKey.ToLowerInvariant()
     let partition = Partitioner.create project
@@ -69,8 +70,7 @@ let private build (platform: Platform)
     let slEntry =
         let slFile = (List.pick Arrangement.pickShowlights project.Arrangements).XML
         let data = Utils.getFileStreamForRead slFile
-        { Name = sprintf "songs/arr/%s_showlights.xml" key
-          Data = data }
+        { Name = sprintf "songs/arr/%s_showlights.xml" key; Data = data }
 
     let fontEntry =
         project.Arrangements
@@ -95,7 +95,7 @@ let private build (platform: Platform)
 
     let appIdEntry =
         let data = MemoryStreamPool.Default.GetStream()
-        data.Write(ReadOnlySpan(Encoding.ASCII.GetBytes("221680")))
+        data.Write(ReadOnlySpan(Encoding.ASCII.GetBytes("248750")))
         { Name = "appid.appid"; Data = data }
 
     let graphEntry =
@@ -129,6 +129,13 @@ let private build (platform: Platform)
             { Name = sprintf "gfxassets/album_art/album_%s_%i.dds" key size
               Data = Utils.getFileStreamForRead coverArt.[i] })
 
+    let toolkitEntry =
+        let text = sprintf "Toolkit version: 9.9.9.9\nPackage Author: %s\nPackage Version: %s\nPackage Comment: Remastered" author project.Version
+        let data = MemoryStreamPool.Default.GetStream()
+        use writer = new StreamWriter(data, Encoding.UTF8, 64, true)
+        writer.Write(text)
+        { Name = "toolkit.version"; Data = data }
+
     use psarcFile =
         let fn = targetFile + (Platform.getPath platform Platform.Path.PackageSuffix) + ".psarc"
         Utils.createFileStreamForPSARC fn
@@ -145,6 +152,7 @@ let private build (platform: Platform)
                         entries.Add graphEntry
                         entries.AddRange audioEntries
                         entries.AddRange fontEntry
+                        entries.Add toolkitEntry
                         entries.Add appIdEntry)
                     ) }
 
@@ -155,7 +163,7 @@ let private setupInstrumental (arr: InstrumentalArrangement) =
     // TODO: Compatibility fix for "high-density"
     arr
 
-let buildPackages (targetFile: string) (platforms: Platform list) (project: DLCProject) = async {
+let buildPackages (targetFile: string) (platforms: Platform list) (author: string) (project: DLCProject) = async {
     let key = project.DLCKey.ToLowerInvariant()
     let coverArt = DDS.createCoverArtImages project.AlbumArtFile
     let sngs =
@@ -214,7 +222,7 @@ let buildPackages (targetFile: string) (platforms: Platform list) (project: DLCP
             { project with Arrangements = arrangements }
 
     do! platforms
-        |> List.map (fun plat -> build plat targetFile sngs coverArt project)
+        |> List.map (fun plat -> build plat targetFile sngs coverArt author project)
         |> Async.Parallel
         |> Async.Ignore
     coverArt |> Array.iter File.Delete }

@@ -36,8 +36,7 @@ let init () =
       CurrentPlatform = if RuntimeInformation.IsOSPlatform OSPlatform.OSX then Mac else PC
       OpenProjectFile = None }, Cmd.OfAsync.perform Configuration.load () SetConfiguration
 
-let private arrangementSorter (arr: Arrangement) =
-    match arr with
+let private arrangementSorter = function
     | Instrumental i -> (LanguagePrimitives.EnumToValue i.RouteMask), (LanguagePrimitives.EnumToValue i.Priority)
     | Vocals v -> 5, if v.Japanese then 1 else 0
     | Showlights _ -> 6, 0
@@ -408,7 +407,7 @@ let update (msg: Msg) (state: State) =
     | BuildTest ->
         let testDir = state.Config.TestFolderPath
         let path = IO.Path.Combine(testDir, state.Project.DLCKey.ToLowerInvariant())
-        let task () = PackageBuilder.buildPackages path [ state.CurrentPlatform ] state.Project
+        let task () = PackageBuilder.buildPackages path [ state.CurrentPlatform ] state.Config.CharterName state.Project
         { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
 
     // TODO: Validate project properties and file paths before build
@@ -422,7 +421,7 @@ let update (msg: Msg) (state: State) =
             sprintf "%s_%s_v%s" state.Project.ArtistName.Value state.Project.Title.Value (state.Project.Version.Replace('.', '_'))
             |> StringValidator.fileName
         let path = IO.Path.Combine(releaseDir, fn)
-        let task () = PackageBuilder.buildPackages path state.Config.ReleasePlatforms state.Project
+        let task () = PackageBuilder.buildPackages path state.Config.ReleasePlatforms state.Config.CharterName state.Project
         { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
 
     | BuildComplete _ -> { state with BuildInProgress = false }, Cmd.none

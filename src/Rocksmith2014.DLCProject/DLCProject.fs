@@ -27,7 +27,6 @@ type SortableString =
 type DLCProject =
     { Version: string
       DLCKey : string
-      //AppID : int = 221680 
       ArtistName : SortableString
       JapaneseArtistName : string option
       JapaneseTitle : string option
