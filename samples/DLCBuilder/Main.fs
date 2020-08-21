@@ -307,12 +307,15 @@ let update (msg: Msg) (state: State) =
         { state with Project = { state.Project with Tones = tones } }, Cmd.none
 
     | ImportProfileTones ->
-        let result = Profile.importTones state.Config.ProfilePath
-        match result with
-        | Ok toneArray ->
-            { state with Overlay = SelectImportTones toneArray; ImportTones = [] }, Cmd.none
-        | Error msg ->
-            { state with Overlay = ErrorMessage msg }, Cmd.none
+        if String.IsNullOrWhiteSpace state.Config.ProfilePath then
+            state, Cmd.none
+        else
+            let result = Profile.importTones state.Config.ProfilePath
+            match result with
+            | Ok toneArray ->
+                { state with Overlay = SelectImportTones toneArray; ImportTones = [] }, Cmd.none
+            | Error msg ->
+                { state with Overlay = ErrorMessage msg }, Cmd.none
 
     | PreviewAudioStartChanged time ->
         { state with PreviewStartTime = TimeSpan.FromSeconds time }, Cmd.none
@@ -517,6 +520,7 @@ let view (state: State) dispatch =
                                         Button.content "From Profile"
                                         Button.onClick (fun _ -> dispatch ImportProfileTones)
                                         Button.isEnabled (IO.File.Exists state.Config.ProfilePath)
+                                        ToolTip.tip "Imports a tone from your Rocksmith profile (Ctrl+P)"
                                     ]
                                     Button.create [
                                         Button.padding (15.0, 5.0)

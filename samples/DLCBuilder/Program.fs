@@ -24,6 +24,16 @@ type MainWindow() as this =
         base.Width <- 1000.0
         base.Height <- 850.0
 
+        let handleHotkeys dispatch (event : KeyEventArgs) =
+                    match event.KeyModifiers, event.Key with
+                    | KeyModifiers.Control, Key.O -> dispatch SelectOpenProjectFile
+                    | KeyModifiers.Control, Key.S -> dispatch ProjectSaveOrSaveAs
+                    | KeyModifiers.Control, Key.P -> dispatch ImportProfileTones
+                    | _ -> ()
+
+        let hotKeysSub _initialModel =
+                    Cmd.ofSub (fun dispatch -> this.KeyDown.Add(handleHotkeys dispatch))
+
         let closed _ =
             let sub dispatch = this.Closing.Add(fun _ -> dispatch SaveConfiguration)
             Cmd.ofSub sub
@@ -34,6 +44,7 @@ type MainWindow() as this =
         Elmish.Program.mkProgram Main.init Main.update Main.view
         |> Program.withHost this
         |> Program.withSubscription closed
+        |> Program.withSubscription hotKeysSub
         |> Program.run
         
 type App() =

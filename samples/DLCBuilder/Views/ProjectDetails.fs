@@ -297,6 +297,7 @@ let view state dispatch =
                                         Button.fontSize 16.
                                         Button.content "..."
                                         Button.onClick (fun _ -> ProjectSaveAs |> dispatch)
+                                        ToolTip.tip "Save Project As"
                                     ]
                                 ]
                             ]

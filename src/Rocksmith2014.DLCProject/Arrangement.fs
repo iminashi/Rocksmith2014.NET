@@ -54,6 +54,8 @@ type Arrangement =
             let extra =
                 if inst.Name = ArrangementName.Combo then
                     sprintf " (%s)" (string inst.RouteMask)
+                elif inst.RouteMask = RouteMask.Bass && inst.BassPicked then
+                    " (Picked)"
                 else
                     String.Empty
             let tuning =
