@@ -38,9 +38,9 @@ let init () =
 
 let private arrangementSorter (arr: Arrangement) =
     match arr with
-    | Instrumental i -> 0, (LanguagePrimitives.EnumToValue i.RouteMask) + (LanguagePrimitives.EnumToValue i.Priority)
-    | Vocals v -> 1, if v.Japanese then 1 else 0
-    | Showlights _ -> 2, 0
+    | Instrumental i -> (LanguagePrimitives.EnumToValue i.RouteMask), (LanguagePrimitives.EnumToValue i.Priority)
+    | Vocals v -> 5, if v.Japanese then 1 else 0
+    | Showlights _ -> 6, 0
 
 let private loadArrangement (fileName: string) =
     let rootName =
