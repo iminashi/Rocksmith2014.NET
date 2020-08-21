@@ -156,11 +156,17 @@ let private build (platform: Platform)
                         entries.Add appIdEntry)
                     ) }
 
-let private setupInstrumental (arr: InstrumentalArrangement) =
+let private setupInstrumental (inst: Instrumental) (arr: InstrumentalArrangement) =
     // Set up correct tone IDs
     for i = 0 to arr.Tones.Changes.Count - 1 do
         arr.Tones.Changes.[i].Id <- byte <| Array.IndexOf(arr.Tones.Names, arr.Tones.Changes.[i].Name)
+    
+    // Copy the tuning in case it was edited
+    Array.Copy(inst.Tuning, arr.MetaData.Tuning.Strings, 6)
+
     // TODO: Compatibility fix for "high-density"
+    // TODO: Generate DD levels
+
     arr
 
 let buildPackages (targetFile: string) (platforms: Platform list) (author: string) (project: DLCProject) = async {
@@ -173,7 +179,7 @@ let buildPackages (targetFile: string) (platforms: Platform list) (author: strin
             | Instrumental i ->
                 let sng =
                     InstrumentalArrangement.Load i.XML
-                    |> setupInstrumental
+                    |> setupInstrumental i
                     |> ConvertInstrumental.xmlToSng
                 Some(arr, sng)
             | Vocals v ->
