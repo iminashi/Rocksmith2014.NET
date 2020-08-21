@@ -126,6 +126,7 @@ let view state dispatch (tone: Tone) =
                 NumericUpDown.increment 0.1
                 NumericUpDown.formatString "F1"
                 NumericUpDown.onValueChanged (fun value -> (fun (t:Tone) -> { t with Volume = sprintf "%.3f" value }) |> EditTone |> dispatch)
+                ToolTip.tip "Lower value = louder volume"
             ]
         ]
     ]
