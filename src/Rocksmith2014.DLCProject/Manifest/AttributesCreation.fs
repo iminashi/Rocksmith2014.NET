@@ -183,7 +183,7 @@ let private createDynamicVisualDensity (levels: int) (arrangement: Arrangement) 
     | Showlights _ -> failwith "I am Error."
 
 let private convertArrangementProperties (arrProps: XML.ArrangementProperties) (instrumental: Instrumental) =
-    { represent = btb arrProps.Represent
+    { represent = btb (instrumental.Priority = ArrangementPriority.Main)
       bonusArr = btb arrProps.BonusArrangement
       standardTuning = btb arrProps.StandardTuning
       nonStandardChords = btb arrProps.NonStandardChords
@@ -295,8 +295,8 @@ let private initAttributesCommon name dlcKey levels (project: DLCProject) (arran
     attr.BlockAsset <- sprintf "urn:emergent-world:%s" dlcKey
     attr.DynamicVisualDensity <- createDynamicVisualDensity levels arrangement
     attr.FullName <- sprintf "%s_%s" project.DLCKey (Arrangement.getName arrangement false)
-    attr.MasterID_PS3 <- -1 |> Nullable
-    attr.MasterID_XBox360 <- -1 |> Nullable
+    attr.MasterID_PS3 <- Nullable(-1)
+    attr.MasterID_XBox360 <- Nullable(-1)
     attr.PreviewBankPath <- sprintf "song_%s_preview.bnk" dlcKey
     attr.RelativeDifficulty <- Nullable(0) // Always zero
     attr.ShowlightsXML <- sprintf "urn:application:xml:%s_showlights" dlcKey
@@ -332,8 +332,7 @@ let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Inst
     attr.SongName <- project.Title.Value
     attr.SongNameSort <- project.Title.SortValue
     attr.SongYear <- project.Year |> Nullable
-    // TODO: get from arrangement
-    attr.Tuning <- Tuning.FromArray(xmlMetaData.Tuning.Strings) |> Some
+    attr.Tuning <- Tuning.FromArray(instrumental.Tuning) |> Some
 
     attr
 
@@ -366,7 +365,7 @@ let private initSongComplete partition
     attr.SongAverageTempo <- xmlMetaData.AverageTempo |> Nullable
     attr.SongOffset <- -sng.MetaData.StartTime |> Nullable
     attr.SongPartition <- partition |> Nullable
-    attr.TargetScore <- 100000 |> Nullable
+    attr.TargetScore <- Nullable(100000)
     attr.Techniques <- createTechniqueMap sng
     attr.Tone_A <- if isNull xmlToneInfo.Names.[0] then String.Empty else xmlToneInfo.Names.[0]
     attr.Tone_B <- if isNull xmlToneInfo.Names.[1] then String.Empty else xmlToneInfo.Names.[1]
@@ -413,7 +412,7 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
         if isHeader then
             // Attributes unique to header
             attr.BassPick <- if inst.BassPicked then Nullable(1) else Nullable()
-            attr.Representative <- xmlMetaData.ArrangementProperties.Represent |> bti |> Nullable
+            attr.Representative <- if inst.Priority = ArrangementPriority.Main then Nullable(1) else Nullable(0)
             attr.RouteMask <- inst.RouteMask |> LanguagePrimitives.EnumToValue |> Nullable
             attr
         else

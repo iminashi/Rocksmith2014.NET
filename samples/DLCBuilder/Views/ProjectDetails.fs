@@ -86,7 +86,7 @@ let view state dispatch =
                         Grid.row 1
                         TextBox.watermark "Japanese Artist Name"
                         TextBox.text (defaultArg state.Project.JapaneseArtistName String.Empty)
-                        TextBox.isVisible (state.ShowJapaneseFields)
+                        TextBox.isVisible state.ShowJapaneseFields
                         ToolTip.tip "Japanese Artist Name"
                         TextBox.onTextChanged (fun e -> (fun p -> { p with JapaneseArtistName = Option.ofString (StringValidator.field e) }) |> EditProject |> dispatch)
                     ]
@@ -119,7 +119,7 @@ let view state dispatch =
                         Grid.row 2
                         TextBox.watermark "Japanese Title"
                         TextBox.text (defaultArg state.Project.JapaneseTitle String.Empty)
-                        TextBox.isVisible (state.ShowJapaneseFields)
+                        TextBox.isVisible state.ShowJapaneseFields
                         ToolTip.tip "Japanese Title"
                         TextBox.onTextChanged (fun e -> (fun p -> { p with JapaneseTitle = Option.ofString (StringValidator.field e) }) |> EditProject |> dispatch)
                     ]
