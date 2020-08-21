@@ -195,7 +195,21 @@ let buildPackages (targetFile: string) (platforms: Platform list) (project: DLCP
             let slFile = Path.Combine(projectPath, "auto_showlights.xml")
             let sl = Showlights { XML = slFile }
             if not <| File.Exists slFile then
-                ShowLightGenerator.generate slFile
+                let slGenFile =
+                    let leadFile =
+                        sngs
+                        |> List.tryFind (fun x ->
+                            match fst x with
+                            | Instrumental i -> i.RouteMask = RouteMask.Lead
+                            | _ -> false)
+                        |> Option.map snd
+                    match leadFile with
+                    | Some f -> f
+                    | None ->
+                        sngs
+                        |> List.find (fun x -> match fst x with | Instrumental _ -> true | _ -> false)
+                        |> snd
+                ShowLightGenerator.generate slFile slGenFile
             let arrangements = sl::project.Arrangements
             { project with Arrangements = arrangements }
 

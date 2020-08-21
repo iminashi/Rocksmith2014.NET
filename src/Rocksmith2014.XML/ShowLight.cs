@@ -10,6 +10,14 @@ namespace Rocksmith2014.XML
     /// </summary>
     public sealed class ShowLight : IHasTimeCode, IXmlSerializable
     {
+        public const byte FogMin = 24;
+        public const byte FogMax = 35;
+        public const byte BeamOff = 42;
+        public const byte BeamMin = 48;
+        public const byte BeamMax = 59;
+        public const byte LasersOff = 66;
+        public const byte LasersOn = 67;
+
         /// <summary>
         /// The time code of the show light.
         /// </summary>
