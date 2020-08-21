@@ -5,6 +5,9 @@ open System
 module Option =
     let ofString s = if String.IsNullOrWhiteSpace s then None else Some s
 
+module String =
+    let notEmpty = (String.IsNullOrWhiteSpace >> not)
+
 module List =
     let removeAt index (list: 'a list) =
         let rec remove current list =

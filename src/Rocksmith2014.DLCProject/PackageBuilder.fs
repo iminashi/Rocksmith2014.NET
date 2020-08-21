@@ -68,9 +68,7 @@ let private build (platform: Platform)
 
     let slEntry =
         let slFile = (List.pick Arrangement.pickShowlights project.Arrangements).XML
-        let data =
-            if File.Exists slFile then Utils.getFileStreamForRead slFile
-            else ShowLightGenerator.generate slFile
+        let data = Utils.getFileStreamForRead slFile
         { Name = sprintf "songs/arr/%s_showlights.xml" key
           Data = data }
 
@@ -150,18 +148,14 @@ let private build (platform: Platform)
                         entries.Add appIdEntry)
                     ) }
 
-let buildPackages (targetFile: string) (platforms: Platform list) (project: DLCProject) = async {
-    // Check if a show lights arrangement is included
-    let project =
-        if project.Arrangements |> List.tryPick Arrangement.pickShowlights |> Option.isSome then
-            project
-        else
-            // Insert an automatically generated show lights arrangement
-            let projectPath = Path.GetDirectoryName project.AudioFile.Path
-            let sl = Showlights { XML = Path.Combine(projectPath, "auto_showlights.xml") }
-            let arrangements = sl::project.Arrangements
-            { project with Arrangements = arrangements }
+let private setupInstrumental (arr: InstrumentalArrangement) =
+    // Set up correct tone IDs
+    for i = 0 to arr.Tones.Changes.Count - 1 do
+        arr.Tones.Changes.[i].Id <- byte <| Array.IndexOf(arr.Tones.Names, arr.Tones.Changes.[i].Name)
+    // TODO: Compatibility fix for "high-density"
+    arr
 
+let buildPackages (targetFile: string) (platforms: Platform list) (project: DLCProject) = async {
     let key = project.DLCKey.ToLowerInvariant()
     let coverArt = DDS.createCoverArtImages project.AlbumArtFile
     let sngs =
@@ -171,6 +165,7 @@ let buildPackages (targetFile: string) (platforms: Platform list) (project: DLCP
             | Instrumental i ->
                 let sng =
                     InstrumentalArrangement.Load i.XML
+                    |> setupInstrumental
                     |> ConvertInstrumental.xmlToSng
                 Some(arr, sng)
             | Vocals v ->
@@ -189,6 +184,20 @@ let buildPackages (targetFile: string) (platforms: Platform list) (project: DLCP
                     |> ConvertVocals.xmlToSng customFont
                 Some(arr, sng)
             | Showlights _ -> None)
+
+    // Check if a show lights arrangement is included
+    let project =
+        if project.Arrangements |> List.tryPick Arrangement.pickShowlights |> Option.isSome then
+            project
+        else
+            // Insert an automatically generated show lights arrangement
+            let projectPath = Path.GetDirectoryName project.AudioFile.Path
+            let slFile = Path.Combine(projectPath, "auto_showlights.xml")
+            let sl = Showlights { XML = slFile }
+            if not <| File.Exists slFile then
+                ShowLightGenerator.generate slFile
+            let arrangements = sl::project.Arrangements
+            { project with Arrangements = arrangements }
 
     do! platforms
         |> List.map (fun plat -> build plat targetFile sngs coverArt project)

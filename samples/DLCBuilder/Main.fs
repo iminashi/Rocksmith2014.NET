@@ -47,7 +47,7 @@ let private loadArrangement (fileName: string) =
         let toneInfo = XML.InstrumentalArrangement.ReadToneNames fileName
         let baseTone =
             if isNull toneInfo.BaseToneName then
-                metadata.Arrangement + "_Base"
+                metadata.Arrangement.ToLowerInvariant() + "_base"
             else
                 toneInfo.BaseToneName
         let tones =
@@ -397,7 +397,10 @@ let update (msg: Msg) (state: State) =
     // TODO: Validate project properties and file paths before build
 
     | BuildRelease ->
-        let releaseDir = IO.Path.GetDirectoryName (Option.get state.OpenProjectFile)
+        let releaseDir =
+            state.OpenProjectFile
+            |> Option.map IO.Path.GetDirectoryName
+            |> Option.defaultWith (fun _ -> IO.Path.GetDirectoryName state.Project.AudioFile.Path)
         let fn =
             sprintf "%s_%s_v%s" state.Project.ArtistName.Value state.Project.Title.Value (state.Project.Version.Replace('.', '_'))
             |> StringValidator.fileName

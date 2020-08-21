@@ -11,6 +11,12 @@ open System
 open Media
 
 let view state dispatch =
+    let canBuild =
+        not state.BuildInProgress
+        && state.Project.Arrangements.Length > 0
+        && String.notEmpty state.Project.DLCKey
+        && String.notEmpty state.Project.AudioFile.Path
+
     DockPanel.create [
         Grid.rowSpan 2
         DockPanel.margin (8.0, 8.0, 0.0, 8.0)
@@ -299,7 +305,7 @@ let view state dispatch =
                                         Button.margin 4.
                                         Button.fontSize 16.
                                         Button.content "Build Test"
-                                        Button.isEnabled ((not state.BuildInProgress) && (not (String.IsNullOrWhiteSpace state.Config.TestFolderPath)))
+                                        Button.isEnabled (canBuild && (not (String.IsNullOrWhiteSpace state.Config.TestFolderPath)))
                                         Button.onClick (fun _ -> BuildTest |> dispatch)
                                     ]
                                     Button.create [
@@ -307,7 +313,7 @@ let view state dispatch =
                                         Button.margin 4.
                                         Button.fontSize 16.
                                         Button.content "Build Release"
-                                        Button.isEnabled (not state.BuildInProgress)
+                                        Button.isEnabled canBuild
                                         Button.onClick (fun _ -> BuildRelease |> dispatch)
                                     ]
                                 ]
