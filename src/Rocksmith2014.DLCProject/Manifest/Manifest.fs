@@ -5,6 +5,7 @@ open System.Text.Json
 open System.Text.Json.Serialization
 open Rocksmith2014.Common.Manifest
 open System.IO
+open System.Text.Encodings.Web
 
 type Manifest =
     { Entries : Map<string, AttributesContainer>
@@ -35,7 +36,9 @@ module Manifest =
         |> fun x -> (snd x.[0]).Attributes
 
     let private options =
-        let o = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
+        let o = JsonSerializerOptions(WriteIndented = true,
+                                      IgnoreNullValues = true,
+                                      Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping)
         o.Converters.Add(JsonFSharpConverter())
         o
 
