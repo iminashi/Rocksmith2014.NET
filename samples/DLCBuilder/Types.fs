@@ -43,7 +43,7 @@ module Types =
     | SelectProfilePath
     | SelectTestFolderPath
     | SelectProjectsFolderPath
-    | SelectSaveProjectTarget
+    | ProjectSaveAs
     | SelectOpenProjectFile
     | OpenProject of fileName : string option
     | SaveProject of fileName : string option
@@ -72,6 +72,7 @@ module Types =
     | ImportTonesChanged of item : obj
     | ImportSelectedTones
     | ShowConfigEditor
+    | ProjectSaveOrSaveAs
     | SaveConfiguration
     | SetConfiguration of config : Configuration
     | ProjectLoaded of project : DLCProject * fileName : string

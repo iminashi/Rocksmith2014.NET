@@ -254,69 +254,70 @@ let view state dispatch =
                         ToolTip.tip "Preview Audio Volume (dB)"
                     ]
 
-                    StackPanel.create [
-                        StackPanel.verticalAlignment VerticalAlignment.Center
-                        StackPanel.horizontalAlignment HorizontalAlignment.Center
+                    Grid.create [
                         Grid.columnSpan 2
                         Grid.row 7
-                        StackPanel.children [
+                        Grid.verticalAlignment VerticalAlignment.Center
+                        Grid.horizontalAlignment HorizontalAlignment.Center
+                        Grid.columnDefinitions "*,*"
+                        Grid.rowDefinitions "*,*,*"
+                        Grid.children [
                             Button.create [
+                                Grid.columnSpan 2
                                 Button.padding (15., 8.)
                                 Button.margin 4.
                                 Button.fontSize 16.
                                 Button.content "Configuration"
                                 Button.onClick (fun _ -> ShowConfigEditor |> dispatch)
                             ]
+
+                            Button.create [
+                                Grid.row 1
+                                Button.padding (15., 8.)
+                                Button.margin 4.
+                                Button.fontSize 16.
+                                Button.content "Open Project"
+                                Button.onClick (fun _ -> SelectOpenProjectFile |> dispatch)
+                            ]
                             StackPanel.create [
+                                Grid.column 1
+                                Grid.row 1
                                 StackPanel.orientation Orientation.Horizontal
                                 StackPanel.children [
-                                    Button.create [
-                                        Button.padding (15., 8.)
-                                        Button.margin 4.
-                                        Button.fontSize 16.
-                                        Button.content "Open Project"
-                                        Button.onClick (fun _ -> SelectOpenProjectFile |> dispatch)
-                                    ]
                                     Button.create [
                                         Button.padding (15., 8.)
                                         Button.margin (4., 4., 0., 4.)
                                         Button.fontSize 16.
                                         Button.content "Save Project"
-                                        Button.onClick ((fun _ ->
-                                            match state.OpenProjectFile with
-                                            | Some _ as fn -> SaveProject fn |> dispatch
-                                            | None -> SelectSaveProjectTarget |> dispatch),
-                                            SubPatchOptions.OnChangeOf state.OpenProjectFile)
+                                        Button.onClick (fun _ -> ProjectSaveOrSaveAs |> dispatch)
                                     ]
                                     Button.create [
                                         Button.padding (8., 8.)
                                         Button.margin (0., 4., 4., 4.)
                                         Button.fontSize 16.
                                         Button.content "..."
-                                        Button.onClick (fun _ -> SelectSaveProjectTarget |> dispatch)
+                                        Button.onClick (fun _ -> ProjectSaveAs |> dispatch)
                                     ]
                                 ]
                             ]
-                            StackPanel.create [
-                                StackPanel.orientation Orientation.Horizontal
-                                StackPanel.children [
-                                    Button.create [
-                                        Button.padding (15., 8.)
-                                        Button.margin 4.
-                                        Button.fontSize 16.
-                                        Button.content "Build Test"
-                                        Button.isEnabled (canBuild && (not (String.IsNullOrWhiteSpace state.Config.TestFolderPath)))
-                                        Button.onClick (fun _ -> BuildTest |> dispatch)
-                                    ]
-                                    Button.create [
-                                        Button.padding (15., 8.)
-                                        Button.margin 4.
-                                        Button.fontSize 16.
-                                        Button.content "Build Release"
-                                        Button.isEnabled canBuild
-                                        Button.onClick (fun _ -> BuildRelease |> dispatch)
-                                    ]
-                                ]
+                            Button.create [
+                                Grid.row 2
+                                Button.padding (15., 8.)
+                                Button.margin 4.
+                                Button.fontSize 16.
+                                Button.content "Build Test"
+                                Button.isEnabled (canBuild && (not (String.IsNullOrWhiteSpace state.Config.TestFolderPath)))
+                                Button.onClick (fun _ -> BuildTest |> dispatch)
+                            ]
+                            Button.create [
+                                Grid.column 1
+                                Grid.row 2
+                                Button.padding (15., 8.)
+                                Button.margin 4.
+                                Button.fontSize 16.
+                                Button.content "Build Release"
+                                Button.isEnabled canBuild
+                                Button.onClick (fun _ -> BuildRelease |> dispatch)
                             ]
                         ]
                     ]

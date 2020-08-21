@@ -176,7 +176,7 @@ let update (msg: Msg) (state: State) =
         let dialog = Dialogs.openFolderDialog "Select Projects Base Folder"
         state, Cmd.OfAsync.perform dialog None AddProjectsFolderPath
 
-    | SelectSaveProjectTarget ->
+    | ProjectSaveAs ->
         let intialFileName =
             state.OpenProjectFile
             |> Option.map IO.Path.GetFileName
@@ -190,7 +190,7 @@ let update (msg: Msg) (state: State) =
             state.OpenProjectFile
             |> Option.map IO.Path.GetDirectoryName
             |> Option.orElse (Option.ofString state.Config.ProjectsFolderPath)
-        let dialog = Dialogs.saveFileDialog "Select Target" Dialogs.projectFilter intialFileName
+        let dialog = Dialogs.saveFileDialog "Save Project As" Dialogs.projectFilter intialFileName
         state, Cmd.OfAsync.perform dialog initialDir SaveProject
 
     | SelectOpenProjectFile ->
@@ -345,6 +345,13 @@ let update (msg: Msg) (state: State) =
     | SaveProject (Some target) ->
         let task() = DLCProject.save target state.Project
         state, Cmd.OfAsync.attempt task () ErrorOccurred
+
+    | ProjectSaveOrSaveAs ->
+        let msg =
+            match state.OpenProjectFile with
+            | Some _ as fn -> SaveProject fn
+            | None -> ProjectSaveAs
+        state, Cmd.ofMsg msg
 
     | OpenProject (Some fileName) ->
         let task() = DLCProject.load fileName
