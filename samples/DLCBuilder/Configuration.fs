@@ -11,7 +11,8 @@ type Configuration =
       TestFolderPath : string
       ProjectsFolderPath : string
       CharterName : string
-      ShowAdvanced : bool }
+      ShowAdvanced : bool
+      Locale : Locale }
 
     static member Default =
         { ReleasePlatforms = [ PC; Mac ]
@@ -19,7 +20,8 @@ type Configuration =
           TestFolderPath = String.Empty
           ProjectsFolderPath = String.Empty
           CharterName = String.Empty
-          ShowAdvanced = false  }
+          ShowAdvanced = false
+          Locale = Locales.English }
 
 module Configuration =
     type Dto() =
@@ -30,6 +32,7 @@ module Configuration =
         member val ProjectsFolderPath : string = String.Empty with get, set
         member val CharterName : string = String.Empty with get, set
         member val ShowAdvanced : bool = false with get, set
+        member val Locale : string = "en" with get, set
 
     let private configFilePath =
         let appData = IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
@@ -48,7 +51,8 @@ module Configuration =
           TestFolderPath = dto.TestFolderPath
           ProjectsFolderPath = dto.ProjectsFolderPath
           CharterName = dto.CharterName
-          ShowAdvanced = dto.ShowAdvanced }
+          ShowAdvanced = dto.ShowAdvanced
+          Locale = Locales.fromShortName dto.Locale }
 
     let private toDto (config: Configuration) =
         Dto(ReleasePC = (config.ReleasePlatforms |> List.contains PC),
@@ -57,7 +61,8 @@ module Configuration =
             TestFolderPath = config.TestFolderPath,
             ProjectsFolderPath = config.ProjectsFolderPath,
             CharterName = config.CharterName,
-            ShowAdvanced = config.ShowAdvanced)
+            ShowAdvanced = config.ShowAdvanced,
+            Locale = config.Locale.ShortName)
     
     let load () = async {
         if not <| File.Exists configFilePath then

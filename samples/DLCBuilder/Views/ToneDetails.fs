@@ -26,7 +26,7 @@ let view state dispatch (tone: Tone) =
             TextBlock.create [
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Name:"
+                TextBlock.text (state.Localization.GetString "name")
             ]
             TextBox.create [
                 Grid.column 1
@@ -39,7 +39,7 @@ let view state dispatch (tone: Tone) =
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Key:"
+                TextBlock.text (state.Localization.GetString "key")
             ]
             ComboBox.create [
                 Grid.row 1
@@ -60,7 +60,7 @@ let view state dispatch (tone: Tone) =
                 Grid.row 2
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Description:"
+                TextBlock.text (state.Localization.GetString "description")
             ]
             StackPanel.create [
                 Grid.column 1
@@ -99,14 +99,14 @@ let view state dispatch (tone: Tone) =
                                     fun t ->
                                         { t with ToneDescriptors = t.ToneDescriptors |> Array.append [| ToneDescriptor.all.[0].UIName |] }
                                     |> EditTone |> dispatch)
-                                ToolTip.tip "Click to add a description part."
+                                ToolTip.tip (state.Localization.GetString "addDescriptionToolTip")
                             ]
                             Button.create [
                                 Button.isEnabled (tone.ToneDescriptors.Length > 1)
                                 Button.margin 4.
                                 Button.content "-"
                                 Button.onClick (fun _ -> (fun t -> { t with ToneDescriptors = t.ToneDescriptors.[1..] }) |> EditTone |> dispatch)
-                                ToolTip.tip "Click to remove a description part."
+                                ToolTip.tip (state.Localization.GetString "removeDescriptionToolTip")
                             ]
                         ]
                     ]
@@ -117,7 +117,7 @@ let view state dispatch (tone: Tone) =
                 Grid.row 3
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Volume:"
+                TextBlock.text (state.Localization.GetString "volume")
             ]
             NumericUpDown.create [
                 Grid.column 1
@@ -130,7 +130,7 @@ let view state dispatch (tone: Tone) =
                 NumericUpDown.increment 0.1
                 NumericUpDown.formatString "F1"
                 NumericUpDown.onValueChanged (fun value -> (fun (t:Tone) -> { t with Volume = sprintf "%.3f" value }) |> EditTone |> dispatch)
-                ToolTip.tip "Lower value = louder volume"
+                ToolTip.tip (state.Localization.GetString "toneVolumeToolTip")
             ]
         ]
     ]

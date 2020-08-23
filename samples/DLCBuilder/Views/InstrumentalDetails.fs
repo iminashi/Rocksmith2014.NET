@@ -17,7 +17,7 @@ let view (state: State) dispatch (i: Instrumental) =
         Grid.children [
             TextBlock.create [
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Name:"
+                TextBlock.text (state.Localization.GetString "name")
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
 
@@ -37,7 +37,7 @@ let view (state: State) dispatch (i: Instrumental) =
                                 | ArrangementName.Lead -> RouteMask.Lead
                                 | ArrangementName.Rhythm | ArrangementName.Combo -> RouteMask.Rhythm
                                 | ArrangementName.Bass -> RouteMask.Bass
-                                | _ -> failwith "Unlikely failure."
+                                | _ -> failwith "Impossible failure."
                             { a with Name = item; RouteMask = routeMask }
                         |> EditInstrumental |> dispatch
                     | _ -> ()
@@ -48,7 +48,7 @@ let view (state: State) dispatch (i: Instrumental) =
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Priority:"
+                TextBlock.text (state.Localization.GetString "priority")
             ]
 
             StackPanel.create [
@@ -73,7 +73,7 @@ let view (state: State) dispatch (i: Instrumental) =
                 TextBlock.isVisible (i.Name = ArrangementName.Combo)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Path:"
+                TextBlock.text (state.Localization.GetString "path")
             ]
 
             StackPanel.create [
@@ -99,7 +99,7 @@ let view (state: State) dispatch (i: Instrumental) =
                 TextBlock.isVisible (i.Name = ArrangementName.Bass)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Picked:"
+                TextBlock.text (state.Localization.GetString "picked")
             ]
 
             CheckBox.create [
@@ -116,7 +116,7 @@ let view (state: State) dispatch (i: Instrumental) =
                 Grid.row 4
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Tuning:"
+                TextBlock.text (state.Localization.GetString "tuning")
             ]
 
             StackPanel.create [
@@ -147,7 +147,7 @@ let view (state: State) dispatch (i: Instrumental) =
                 Grid.row 5
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Cent Offset:"
+                TextBlock.text (state.Localization.GetString "centOffset")
             ]
 
             NumericUpDown.create [
@@ -167,7 +167,7 @@ let view (state: State) dispatch (i: Instrumental) =
                 Grid.row 6
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Base Tone:"
+                TextBlock.text (state.Localization.GetString "baseTone")
             ]
 
             TextBox.create [
@@ -183,7 +183,7 @@ let view (state: State) dispatch (i: Instrumental) =
                 TextBlock.isVisible (i.Tones.Length > 0)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Tones:"
+                TextBlock.text (state.Localization.GetString "tones")
             ]
 
             TextBlock.create [
@@ -201,7 +201,7 @@ let view (state: State) dispatch (i: Instrumental) =
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Scroll Speed:"
+                TextBlock.text (state.Localization.GetString "scrollSpeed")
             ]
 
             NumericUpDown.create [
@@ -223,7 +223,7 @@ let view (state: State) dispatch (i: Instrumental) =
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Master ID:"
+                TextBlock.text (state.Localization.GetString "masterID")
             ]
 
             TextBox.create [
@@ -245,7 +245,7 @@ let view (state: State) dispatch (i: Instrumental) =
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Persistent ID:"
+                TextBlock.text (state.Localization.GetString "persistentID")
             ]
 
             TextBox.create [
@@ -267,14 +267,14 @@ let view (state: State) dispatch (i: Instrumental) =
                 Grid.row 11
                 Button.horizontalAlignment HorizontalAlignment.Center
                 Button.isVisible state.Config.ShowAdvanced
-                Button.content "Generate New Arrangement Identification"
+                Button.content (state.Localization.GetString "generateNewArrIDs")
                 Button.onClick (fun _ -> 
                     fun (a: Instrumental) ->
                         { a with MasterID = RandomGenerator.next()
                                  PersistentID = Guid.NewGuid() }
                     |> EditInstrumental |> dispatch
                 )
-                ToolTip.tip "Generates new identification IDs for this arrangement.\nThe in-game stats for the arrangement will be reset."
+                ToolTip.tip (state.Localization.GetString "generateNewArrIDsToolTip")
             ]
         ]
     ]

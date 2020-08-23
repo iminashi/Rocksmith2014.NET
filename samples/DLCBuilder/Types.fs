@@ -33,7 +33,8 @@ module Types =
           PreviewStartTime : TimeSpan
           OpenProjectFile : string option
           CurrentPlatform : Platform
-          BuildInProgress : bool }
+          BuildInProgress : bool
+          Localization : Localization }
 
     type Msg =
     | SelectOpenArrangement
@@ -82,4 +83,5 @@ module Types =
     | BuildRelease
     | BuildComplete of unit
     | ShowImportToneSelector of tones : Tone array
+    | ChangeLocale of locale : Locale
     | ErrorOccurred of e : exn

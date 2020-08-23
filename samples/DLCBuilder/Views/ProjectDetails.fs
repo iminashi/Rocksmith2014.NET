@@ -28,7 +28,7 @@ let view state dispatch =
                 Image.height 200.
                 Image.onTapped (fun _ -> dispatch SelectCoverArt)
                 Image.cursor (Cursor(StandardCursorType.Hand))
-                ToolTip.tip "Click to select a cover art file.\nThe image should be a square, preferably 512x512."
+                ToolTip.tip (state.Localization.GetString "selectCoverArtToolTip")
             ]
 
             Grid.create [
@@ -39,9 +39,9 @@ let view state dispatch =
                     TextBox.create [
                         Grid.column 0
                         Grid.row 0
-                        TextBox.watermark "DLC Key"
+                        TextBox.watermark (state.Localization.GetString "dlcKey")
                         TextBox.text state.Project.DLCKey
-                        ToolTip.tip "DLC Key"
+                        ToolTip.tip (state.Localization.GetString "dlcKey")
                         // Cannot filter pasted text: https://github.com/AvaloniaUI/Avalonia/issues/2611
                         TextBox.onTextInput (fun e -> e.Text <- StringValidator.dlcKey e.Text)
                         TextBox.onTextChanged (fun e -> (fun p -> { p with DLCKey = StringValidator.dlcKey e }) |> EditProject |> dispatch)
@@ -52,28 +52,28 @@ let view state dispatch =
                         Grid.row 0
                         TextBox.horizontalAlignment HorizontalAlignment.Left
                         TextBox.width 65.
-                        TextBox.watermark "Version"
+                        TextBox.watermark (state.Localization.GetString "version")
                         TextBox.text state.Project.Version
-                        ToolTip.tip "Version"
+                        ToolTip.tip (state.Localization.GetString "version")
                         TextBox.onTextChanged (fun e -> (fun p -> { p with Version = e }) |> EditProject |> dispatch)
                     ]
 
                     TextBox.create [
                         Grid.column 0
                         Grid.row 1
-                        TextBox.watermark "Artist Name"
+                        TextBox.watermark (state.Localization.GetString "artistName")
                         TextBox.text state.Project.ArtistName.Value
-                        ToolTip.tip "Artist Name"
+                        ToolTip.tip (state.Localization.GetString "artistName")
                         TextBox.onTextChanged (fun e -> (fun p -> { p with ArtistName = { p.ArtistName with Value = StringValidator.field e } }) |> EditProject |> dispatch)
                     ]
 
                     TextBox.create [
                         Grid.column 0
                         Grid.row 1
-                        TextBox.watermark "Artist Name Sort"
+                        TextBox.watermark (state.Localization.GetString "artistNameSort")
                         TextBox.text state.Project.ArtistName.SortValue
                         TextBox.isVisible state.ShowSortFields
-                        ToolTip.tip "Artist Name Sort"
+                        ToolTip.tip (state.Localization.GetString "artistNameSort")
                         TextBox.onLostFocus (fun e -> 
                             let txtBox = e.Source :?> TextBox
                             let validValue = StringValidator.sortField txtBox.Text
@@ -84,29 +84,29 @@ let view state dispatch =
                     TextBox.create [
                         Grid.column 0
                         Grid.row 1
-                        TextBox.watermark "Japanese Artist Name"
+                        TextBox.watermark (state.Localization.GetString "japaneseArtistName")
                         TextBox.text (defaultArg state.Project.JapaneseArtistName String.Empty)
                         TextBox.isVisible state.ShowJapaneseFields
-                        ToolTip.tip "Japanese Artist Name"
+                        ToolTip.tip (state.Localization.GetString "japaneseArtistName")
                         TextBox.onTextChanged (fun e -> (fun p -> { p with JapaneseArtistName = Option.ofString (StringValidator.field e) }) |> EditProject |> dispatch)
                     ]
 
                     TextBox.create [
                         Grid.column 0
                         Grid.row 2
-                        TextBox.watermark "Title"
+                        TextBox.watermark (state.Localization.GetString "title")
                         TextBox.text state.Project.Title.Value
-                        ToolTip.tip "Title"
+                        ToolTip.tip (state.Localization.GetString "title")
                         TextBox.onTextChanged (fun e -> (fun p -> { p with Title = { p.Title with Value = StringValidator.field e } }) |> EditProject |> dispatch)
                     ]
 
                     TextBox.create [
                         Grid.column 0
                         Grid.row 2
-                        TextBox.watermark "Title Sort"
+                        TextBox.watermark (state.Localization.GetString "titleSort")
                         TextBox.text state.Project.Title.SortValue
                         TextBox.isVisible state.ShowSortFields
-                        ToolTip.tip "Title Sort"
+                        ToolTip.tip (state.Localization.GetString "titleSort")
                         TextBox.onLostFocus (fun e -> 
                             let txtBox = e.Source :?> TextBox
                             let validValue = StringValidator.sortField txtBox.Text
@@ -117,29 +117,29 @@ let view state dispatch =
                     TextBox.create [
                         Grid.column 0
                         Grid.row 2
-                        TextBox.watermark "Japanese Title"
+                        TextBox.watermark (state.Localization.GetString "japaneseTitle")
                         TextBox.text (defaultArg state.Project.JapaneseTitle String.Empty)
                         TextBox.isVisible state.ShowJapaneseFields
-                        ToolTip.tip "Japanese Title"
+                        ToolTip.tip (state.Localization.GetString "japaneseTitle")
                         TextBox.onTextChanged (fun e -> (fun p -> { p with JapaneseTitle = Option.ofString (StringValidator.field e) }) |> EditProject |> dispatch)
                     ]
 
                     TextBox.create [
                         Grid.column 0
                         Grid.row 3
-                        TextBox.watermark "Album Name"
+                        TextBox.watermark (state.Localization.GetString "albumName")
                         TextBox.text state.Project.AlbumName.Value
-                        ToolTip.tip "Album Name"
+                        ToolTip.tip (state.Localization.GetString "albumName")
                         TextBox.onTextChanged (fun e -> (fun p -> { p with AlbumName = { p.AlbumName with Value = StringValidator.field e } }) |> EditProject |> dispatch)
                     ]
 
                     TextBox.create [
                         Grid.column 0
                         Grid.row 3
-                        TextBox.watermark "Album Name Sort"
+                        TextBox.watermark (state.Localization.GetString "albumNameSort")
                         TextBox.text state.Project.AlbumName.SortValue
                         TextBox.isVisible state.ShowSortFields
-                        ToolTip.tip "Album Name Sort"
+                        ToolTip.tip (state.Localization.GetString "albumNameSort")
                         TextBox.onLostFocus (fun e -> 
                             let txtBox = e.Source :?> TextBox
                             let validValue = StringValidator.sortField txtBox.Text
@@ -152,9 +152,9 @@ let view state dispatch =
                         Grid.row 3
                         TextBox.horizontalAlignment HorizontalAlignment.Left
                         TextBox.width 65.
-                        TextBox.watermark "Year"
+                        TextBox.watermark (state.Localization.GetString "year")
                         TextBox.text (string state.Project.Year)
-                        ToolTip.tip "Year"
+                        ToolTip.tip (state.Localization.GetString "year")
                         TextBox.onTextChanged (fun e -> (fun p -> { p with Year = int e }) |> EditProject |> dispatch)
                     ]
 
@@ -165,17 +165,18 @@ let view state dispatch =
                         StackPanel.horizontalAlignment HorizontalAlignment.Center
                         StackPanel.children [
                             CheckBox.create [
-                                CheckBox.content "Show Sort Fields"
-                                CheckBox.isChecked (state.ShowSortFields)
+                                CheckBox.content (state.Localization.GetString "showSortFields")
+                                CheckBox.isChecked state.ShowSortFields
                                 CheckBox.onChecked (fun _ -> dispatch (ShowSortFields true))
                                 CheckBox.onUnchecked (fun _ -> dispatch (ShowSortFields false))
                             ]
                             CheckBox.create [
-                                  CheckBox.content "Show Japanese Fields"
-                                  CheckBox.isChecked (state.ShowJapaneseFields)
-                                  CheckBox.onChecked (fun _ -> dispatch (ShowJapaneseFields true))
-                                  CheckBox.onUnchecked (fun _ -> dispatch (ShowJapaneseFields false))
-                              ]
+                                CheckBox.margin (8., 0.,0., 0.)
+                                CheckBox.content (state.Localization.GetString "showJapaneseFields")
+                                CheckBox.isChecked state.ShowJapaneseFields
+                                CheckBox.onChecked (fun _ -> dispatch (ShowJapaneseFields true))
+                                CheckBox.onUnchecked (fun _ -> dispatch (ShowJapaneseFields false))
+                            ]
                         ]
                     ]
 
@@ -189,13 +190,13 @@ let view state dispatch =
                                 Button.padding (10.0, 0.0)
                                 Button.content "..."
                                 Button.onClick (fun _ -> dispatch SelectAudioFile)
-                                ToolTip.tip "Select Audio File"
+                                ToolTip.tip (state.Localization.GetString "selectAudioFile")
                             ]
                             TextBox.create [
                                 TextBox.margin (4.0, 4.0, 0.0, 4.0)
-                                TextBox.watermark "Audio File"
+                                TextBox.watermark (state.Localization.GetString "audioFile")
                                 TextBox.text (IO.Path.GetFileName state.Project.AudioFile.Path)
-                                ToolTip.tip "Audio File"
+                                ToolTip.tip (state.Localization.GetString "audioFile")
                             ]
                         ]
                     ]
@@ -211,7 +212,7 @@ let view state dispatch =
                         NumericUpDown.value state.Project.AudioFile.Volume
                         NumericUpDown.formatString "F1"
                         NumericUpDown.onValueChanged (fun v -> (fun p -> { p with AudioFile = { p.AudioFile with Volume = v } }) |> EditProject |> dispatch)
-                        ToolTip.tip "Audio Volume (dB)"
+                        ToolTip.tip (state.Localization.GetString "audioVolumeToolTip")
                     ]
         
                     Button.create [
@@ -227,17 +228,19 @@ let view state dispatch =
                                     Path.create [
                                         Path.fill Brushes.Gray
                                         Path.data (if previewExists then Icons.check else Icons.x)
+                                        Path.horizontalAlignment HorizontalAlignment.Center
+                                        Path.margin (0., 0., 4., 0.)
                                     ]
                                     TextBlock.create [
                                         TextBlock.verticalAlignment VerticalAlignment.Center
-                                        TextBlock.text " Create Preview Audio"
+                                        TextBlock.text (state.Localization.GetString "createPreviewAudio")
                                     ]
                                 ]
                             ]
                         )
                         Button.isEnabled (state.Project.AudioFile.Path.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
                         Button.onClick (fun _ -> dispatch (CreatePreviewAudio SetupStartTime))
-                        ToolTip.tip (if previewExists then "Preview audio file exists, click to create a new one." else "Preview audio file does not exist, click to create one.")
+                        ToolTip.tip (if previewExists then state.Localization.GetString "previewAudioExistsToolTip" else state.Localization.GetString "previewAudioDoesNotExistToolTip")
                     ]
 
                     NumericUpDown.create [
@@ -251,7 +254,7 @@ let view state dispatch =
                         NumericUpDown.value state.Project.AudioPreviewFile.Volume
                         NumericUpDown.formatString "F1"
                         NumericUpDown.onValueChanged (fun v -> (fun p -> { p with AudioPreviewFile = { p.AudioPreviewFile with Volume = v } }) |> EditProject |> dispatch)
-                        ToolTip.tip "Preview Audio Volume (dB)"
+                        ToolTip.tip (state.Localization.GetString "previewAudioVolumeToolTip")
                     ]
 
                     Grid.create [
@@ -267,7 +270,7 @@ let view state dispatch =
                                 Button.padding (15., 8.)
                                 Button.margin 4.
                                 Button.fontSize 16.
-                                Button.content "Configuration"
+                                Button.content (state.Localization.GetString "configuration")
                                 Button.onClick (fun _ -> ShowConfigEditor |> dispatch)
                             ]
 
@@ -276,7 +279,7 @@ let view state dispatch =
                                 Button.padding (15., 8.)
                                 Button.margin 4.
                                 Button.fontSize 16.
-                                Button.content "Open Project"
+                                Button.content (state.Localization.GetString "openProject")
                                 Button.onClick (fun _ -> SelectOpenProjectFile |> dispatch)
                             ]
                             StackPanel.create [
@@ -288,7 +291,7 @@ let view state dispatch =
                                         Button.padding (15., 8.)
                                         Button.margin (4., 4., 0., 4.)
                                         Button.fontSize 16.
-                                        Button.content "Save Project"
+                                        Button.content (state.Localization.GetString "saveProject")
                                         Button.onClick (fun _ -> ProjectSaveOrSaveAs |> dispatch)
                                     ]
                                     Button.create [
@@ -297,7 +300,7 @@ let view state dispatch =
                                         Button.fontSize 16.
                                         Button.content "..."
                                         Button.onClick (fun _ -> ProjectSaveAs |> dispatch)
-                                        ToolTip.tip "Save Project As"
+                                        ToolTip.tip (state.Localization.GetString "saveProjectAs")
                                     ]
                                 ]
                             ]
@@ -306,7 +309,7 @@ let view state dispatch =
                                 Button.padding (15., 8.)
                                 Button.margin 4.
                                 Button.fontSize 16.
-                                Button.content "Build Test"
+                                Button.content (state.Localization.GetString "buildTest")
                                 Button.isEnabled (canBuild && (not (String.IsNullOrWhiteSpace state.Config.TestFolderPath)))
                                 Button.onClick (fun _ -> BuildTest |> dispatch)
                             ]
@@ -316,7 +319,7 @@ let view state dispatch =
                                 Button.padding (15., 8.)
                                 Button.margin 4.
                                 Button.fontSize 16.
-                                Button.content "Build Release"
+                                Button.content (state.Localization.GetString "buildRelease")
                                 Button.isEnabled canBuild
                                 Button.onClick (fun _ -> BuildRelease |> dispatch)
                             ]

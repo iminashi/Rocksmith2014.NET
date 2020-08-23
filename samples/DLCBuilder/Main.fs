@@ -34,14 +34,15 @@ let init () =
       PreviewStartTime = TimeSpan()
       BuildInProgress = false
       CurrentPlatform = if RuntimeInformation.IsOSPlatform OSPlatform.OSX then Mac else PC
-      OpenProjectFile = None }, Cmd.OfAsync.perform Configuration.load () SetConfiguration
+      OpenProjectFile = None
+      Localization = Localization(Locales.English) }, Cmd.OfAsync.perform Configuration.load () SetConfiguration
 
 let private arrangementSorter = function
     | Instrumental i -> (LanguagePrimitives.EnumToValue i.RouteMask), (LanguagePrimitives.EnumToValue i.Priority)
     | Vocals v -> 5, if v.Japanese then 1 else 0
     | Showlights _ -> 6, 0
 
-let private loadArrangement (fileName: string) =
+let private loadArrangement state (fileName: string) =
     let rootName =
         using (XmlReader.Create(fileName))
               (fun reader -> reader.MoveToContent() |> ignore; reader.LocalName)
@@ -107,7 +108,7 @@ let private loadArrangement (fileName: string) =
             |> Arrangement.Showlights
         Ok (arr, None)
 
-    | _ -> Error "Not a Rocksmith 2014 arrangement."
+    | _ -> Error (state.Localization.GetString("unknownArrangementError"))
 
 let private updateArrangement old updated state =
     let arrangements =
@@ -154,35 +155,35 @@ let update (msg: Msg) (state: State) =
     | CloseOverlay -> {state with Overlay = NoOverlay }, Cmd.none
 
     | SelectOpenArrangement ->
-        let dialog = Dialogs.openMultiFileDialog "Select Arrangement" Dialogs.xmlFileFilter
+        let dialog = Dialogs.openMultiFileDialog (state.Localization.GetString("selectArrangement")) Dialogs.xmlFileFilter
         state, Cmd.OfAsync.perform dialog None AddArrangements
 
     | SelectCoverArt ->
-        let dialog = Dialogs.openFileDialog "Select Cover Art" Dialogs.imgFileFilter
+        let dialog = Dialogs.openFileDialog (state.Localization.GetString("selectCoverArt")) Dialogs.imgFileFilter
         state, Cmd.OfAsync.perform dialog None AddCoverArt
 
     | SelectAudioFile ->
-        let dialog = Dialogs.openFileDialog "Select Audio File" Dialogs.audioFileFilters
+        let dialog = Dialogs.openFileDialog (state.Localization.GetString("selectAudioFile")) Dialogs.audioFileFilters
         state, Cmd.OfAsync.perform dialog None AddAudioFile
 
     | SelectCustomFont ->
-        let dialog = Dialogs.openFileDialog "Select Custom Font Texture" Dialogs.ddsFileFilter
+        let dialog = Dialogs.openFileDialog (state.Localization.GetString("selectCustomFont")) Dialogs.ddsFileFilter
         state, Cmd.OfAsync.perform dialog None AddCustomFontFile
 
     | SelectProfilePath ->
-        let dialog = Dialogs.openFileDialog "Select Game Profile" Dialogs.profileFilter
+        let dialog = Dialogs.openFileDialog (state.Localization.GetString("selectProfile")) Dialogs.profileFilter
         state, Cmd.OfAsync.perform dialog None AddProfilePath
 
     | SelectTestFolderPath ->
-        let dialog = Dialogs.openFolderDialog "Select Test Folder"
+        let dialog = Dialogs.openFolderDialog (state.Localization.GetString("selectTestFolder"))
         state, Cmd.OfAsync.perform dialog None AddTestFolderPath
 
     | SelectProjectsFolderPath ->
-        let dialog = Dialogs.openFolderDialog "Select Projects Base Folder"
+        let dialog = Dialogs.openFolderDialog (state.Localization.GetString("selectProjectFolder"))
         state, Cmd.OfAsync.perform dialog None AddProjectsFolderPath
 
     | SelectToneImportFile ->
-        let dialog = Dialogs.openFileDialog "Select PSARC to Import Tones From" Dialogs.psarcFilter
+        let dialog = Dialogs.openFileDialog (state.Localization.GetString("selectImportToneFile")) Dialogs.psarcFilter
         state, Cmd.OfAsync.perform dialog None ImportTonesFromPSARC
 
     | ImportTonesFromPSARC (Some fileName) ->
@@ -202,7 +203,7 @@ let update (msg: Msg) (state: State) =
 
     | ShowImportToneSelector tones ->
         if tones.Length = 0 then
-            { state with Overlay = ErrorMessage "Could not find any tones." }, Cmd.none
+            { state with Overlay = ErrorMessage (state.Localization.GetString("couldNotFindTonesError")) }, Cmd.none
         else
             { state with Overlay = ImportToneSelector tones; ImportTones = [] }, Cmd.none
 
@@ -220,11 +221,11 @@ let update (msg: Msg) (state: State) =
             state.OpenProjectFile
             |> Option.map IO.Path.GetDirectoryName
             |> Option.orElse (Option.ofString state.Config.ProjectsFolderPath)
-        let dialog = Dialogs.saveFileDialog "Save Project As" Dialogs.projectFilter intialFileName
+        let dialog = Dialogs.saveFileDialog (state.Localization.GetString("saveProjectAs")) Dialogs.projectFilter intialFileName
         state, Cmd.OfAsync.perform dialog initialDir SaveProject
 
     | SelectOpenProjectFile ->
-        let dialog = Dialogs.openFileDialog "Select Project File" Dialogs.projectFilter
+        let dialog = Dialogs.openFileDialog (state.Localization.GetString("selectProjectFile")) Dialogs.projectFilter
         state, Cmd.OfAsync.perform dialog None OpenProject
 
     | AddProjectsFolderPath (Some path) ->
@@ -271,7 +272,7 @@ let update (msg: Msg) (state: State) =
                      Project = { state.Project with AlbumArtFile = fileName } }, Cmd.none
 
     | AddArrangements (Some files) ->
-        let results = Array.map loadArrangement files
+        let results = Array.map (loadArrangement state) files
 
         let shouldInclude arrangements arr =
             match arr with
@@ -358,7 +359,8 @@ let update (msg: Msg) (state: State) =
     | SaveConfiguration ->
         { state with Overlay = NoOverlay }, Cmd.OfAsync.attempt Configuration.save state.Config ErrorOccurred
 
-    | SetConfiguration config -> { state with Config = config }, Cmd.none
+    | SetConfiguration config -> { state with Config = config
+                                              Localization = Localization(config.Locale) }, Cmd.none
 
     | SaveProject (Some target) ->
         let task() = DLCProject.save target state.Project
@@ -437,6 +439,10 @@ let update (msg: Msg) (state: State) =
    
     | ErrorOccurred e -> { state with Overlay = ErrorMessage e.Message
                                       BuildInProgress = false }, Cmd.none
+
+    | ChangeLocale newLocale ->
+        { state with Config = { state.Config with Locale = newLocale }
+                     Localization = Localization(newLocale) }, Cmd.none
     
     // When the user canceled any of the dialogs
     | AddArrangements None | AddCoverArt None | AddAudioFile None | AddCustomFontFile None
@@ -462,7 +468,7 @@ let view (state: State) dispatch =
                                 Button.margin 5.0
                                 Button.padding (15.0, 5.0)
                                 Button.horizontalAlignment HorizontalAlignment.Left
-                                Button.content "Add Arrangement"
+                                Button.content (state.Localization.GetString("addArrangement"))
                                 Button.onClick (fun _ -> dispatch SelectOpenArrangement)
                             ]
 
@@ -494,7 +500,7 @@ let view (state: State) dispatch =
                             match state.SelectedArrangement with
                             | None ->
                                 TextBlock.create [
-                                    TextBlock.text "Select an arrangement to edit its details"
+                                    TextBlock.text (state.Localization.GetString("selectArrangementPrompt"))
                                     TextBlock.horizontalAlignment HorizontalAlignment.Center
                                 ]
 
@@ -532,15 +538,15 @@ let view (state: State) dispatch =
                                     Button.create [
                                         Button.padding (15.0, 5.0)
                                         Button.horizontalAlignment HorizontalAlignment.Left
-                                        Button.content "From Profile"
+                                        Button.content (state.Localization.GetString("fromProfile"))
                                         Button.onClick (fun _ -> dispatch ImportProfileTones)
                                         Button.isEnabled (IO.File.Exists state.Config.ProfilePath)
-                                        ToolTip.tip "Imports a tone from your Rocksmith profile (Ctrl+P)"
+                                        ToolTip.tip (state.Localization.GetString("profileImportToolTip"))
                                     ]
                                     Button.create [
                                         Button.padding (15.0, 5.0)
                                         Button.horizontalAlignment HorizontalAlignment.Left
-                                        Button.content "Import"
+                                        Button.content (state.Localization.GetString("import"))
                                         Button.onClick (fun _ -> dispatch SelectToneImportFile)
                                     ]
                                 ]
@@ -570,7 +576,7 @@ let view (state: State) dispatch =
                             match state.SelectedTone with
                             | None ->
                                 TextBlock.create [
-                                    TextBlock.text "Select a tone to edit its details"
+                                    TextBlock.text(state.Localization.GetString("selectTonePrompt"))
                                     TextBlock.horizontalAlignment HorizontalAlignment.Center
                                 ]
                             | Some tone -> ToneDetails.view state dispatch tone
@@ -597,7 +603,7 @@ let view (state: State) dispatch =
                             Border.child (
                                 match state.Overlay with
                                 | NoOverlay -> failwith "This can not happen."
-                                | ErrorMessage msg -> ErrorMessage.view dispatch msg
+                                | ErrorMessage msg -> ErrorMessage.view state dispatch msg
                                 | SelectPreviewStart audioLength -> SelectPreviewStart.view state dispatch audioLength
                                 | ImportToneSelector tones -> SelectImportTones.view state dispatch tones
                                 | ConfigEditor -> ConfigEditor.view state dispatch

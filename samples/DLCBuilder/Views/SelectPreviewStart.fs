@@ -12,7 +12,7 @@ let view state dispatch (audioLength: TimeSpan) =
         StackPanel.children [
             TextBlock.create [
                 TextBlock.fontSize 18.
-                TextBlock.text "Preview Audio"
+                TextBlock.text (state.Localization.GetString "previewAudio")
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
 
@@ -21,7 +21,7 @@ let view state dispatch (audioLength: TimeSpan) =
                 StackPanel.spacing 8.
                 StackPanel.children [
                     TextBlock.create [
-                        TextBlock.text "Start Time: "
+                        TextBlock.text (state.Localization.GetString "startTime")
                         Button.verticalAlignment VerticalAlignment.Center
                     ]
                     NumericUpDown.create [
@@ -43,14 +43,14 @@ let view state dispatch (audioLength: TimeSpan) =
                         Button.fontSize 16.
                         Button.padding (50., 10.)
                         Button.horizontalAlignment HorizontalAlignment.Center
-                        Button.content "Create"
+                        Button.content (state.Localization.GetString "create")
                         Button.onClick (fun _ -> (CreatePreviewAudio CreateFile) |> dispatch)
                     ]
                     Button.create [
                         Button.fontSize 16.
                         Button.padding (50., 10.)
                         Button.horizontalAlignment HorizontalAlignment.Center
-                        Button.content "Cancel"
+                        Button.content (state.Localization.GetString "cancel")
                         Button.onClick (fun _ -> CloseOverlay |> dispatch)
                     ]
                 ]

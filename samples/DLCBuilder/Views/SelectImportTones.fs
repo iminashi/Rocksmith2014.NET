@@ -13,7 +13,7 @@ let view state dispatch (tones: Tone array) =
             TextBlock.create [
                 TextBlock.fontSize 16.
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Select Tone to Import"
+                TextBlock.text (state.Localization.GetString "selectImportTone")
             ]
             ListBox.create [
                 ListBox.name "tonesListBox"
@@ -32,7 +32,7 @@ let view state dispatch (tones: Tone array) =
                         Button.fontSize 16.
                         Button.padding (50., 10.)
                         Button.horizontalAlignment HorizontalAlignment.Center
-                        Button.content "Import"
+                        Button.content (state.Localization.GetString "import")
                         Button.onClick (fun _ -> ImportSelectedTones |> dispatch)
                         Button.isDefault true
                     ]
@@ -40,7 +40,7 @@ let view state dispatch (tones: Tone array) =
                         Button.fontSize 16.
                         Button.padding (50., 10.)
                         Button.horizontalAlignment HorizontalAlignment.Center
-                        Button.content "Cancel"
+                        Button.content (state.Localization.GetString "cancel")
                         Button.onClick (fun _ -> CloseOverlay |> dispatch)
                     ]
                 ]

@@ -9,23 +9,39 @@ open Rocksmith2014.Common
 let view state dispatch =
     Grid.create [
         Grid.columnDefinitions "*,*"
-        Grid.rowDefinitions "*,*,*,*,*,*,*,*"
+        Grid.rowDefinitions "*,*,*,*,*,*,*,*,*"
         Grid.children [
             TextBlock.create [
                 Grid.columnSpan 2
                 TextBlock.fontSize 16.
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Configuration"
+                TextBlock.text (state.Localization.GetString "configuration")
             ]
             TextBlock.create [
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Release Platforms"
+                TextBlock.text (state.Localization.GetString "language")
+            ]
+            ComboBox.create [
+                Grid.column 1
+                Grid.row 1
+                ComboBox.margin 2.
+                ComboBox.dataItems [ Locales.English; Locales.Finnish ]
+                ComboBox.selectedItem state.Config.Locale
+                ComboBox.onSelectedItemChanged (fun item ->
+                    match item with
+                    | :? Locale as l -> l |> ChangeLocale |> dispatch
+                    | _ -> ())
+            ]
+            TextBlock.create [
+                Grid.row 2
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text (state.Localization.GetString "releasePlatforms")
             ]
             StackPanel.create [
                 Grid.column 1
-                Grid.row 1
+                Grid.row 2
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.children [
                     CheckBox.create [
@@ -48,27 +64,27 @@ let view state dispatch =
             ]
 
             TextBlock.create [
-                Grid.row 2
+                Grid.row 3
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Charter Name"
+                TextBlock.text (state.Localization.GetString "charterName")
             ]
             TextBox.create [
                 Grid.column 1
-                Grid.row 2
+                Grid.row 3
                 TextBox.margin (0., 4.)
                 TextBox.text state.Config.CharterName
                 TextBox.onTextChanged (fun name -> (fun c -> { c with CharterName = name }) |> EditConfig |> dispatch)
             ]
 
             TextBlock.create [
-                Grid.row 3
+                Grid.row 4
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Profile Path"
+                TextBlock.text (state.Localization.GetString "profilePath")
             ]
 
             StackPanel.create [
                 Grid.column 1
-                Grid.row 3
+                Grid.row 4
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.children [
                     TextBox.create [
@@ -86,14 +102,14 @@ let view state dispatch =
             ]
 
             TextBlock.create [
-                Grid.row 4
+                Grid.row 5
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Test Folder"
+                TextBlock.text (state.Localization.GetString "testFolder")
             ]
 
             StackPanel.create [
                 Grid.column 1
-                Grid.row 4
+                Grid.row 5
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.children [
                     TextBox.create [
@@ -111,13 +127,13 @@ let view state dispatch =
             ]
 
             TextBlock.create [
-                Grid.row 5
+                Grid.row 6
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Projects Folder"
+                TextBlock.text (state.Localization.GetString "projectsFolder")
             ]
             StackPanel.create [
                 Grid.column 1
-                Grid.row 5
+                Grid.row 6
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.children [
                     TextBox.create [
@@ -135,14 +151,14 @@ let view state dispatch =
             ]
 
             TextBlock.create [
-                Grid.row 6
+                Grid.row 7
                 TextBlock.margin (0., 0., 4., 0.)
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Show Advanced Features"
+                TextBlock.text (state.Localization.GetString "showAdvancedFeatures")
             ]
             CheckBox.create [
                 Grid.column 1
-                Grid.row 6
+                Grid.row 7
                 CheckBox.isChecked state.Config.ShowAdvanced
                 CheckBox.onChecked (fun _ -> (fun c -> { c with ShowAdvanced = true }) |> EditConfig |> dispatch)
                 CheckBox.onUnchecked (fun _ -> (fun c -> { c with ShowAdvanced = false }) |> EditConfig |> dispatch)
@@ -150,12 +166,12 @@ let view state dispatch =
 
             Button.create [
                 Grid.columnSpan 2
-                Grid.row 7
+                Grid.row 8
                 Button.margin 4.
                 Button.fontSize 16.
                 Button.padding (50., 10.)
                 Button.horizontalAlignment HorizontalAlignment.Center
-                Button.content "Close"
+                Button.content (state.Localization.GetString "close")
                 Button.onClick (fun _ -> SaveConfiguration |> dispatch)
             ]
         ]

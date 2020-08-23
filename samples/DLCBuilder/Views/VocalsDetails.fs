@@ -16,7 +16,7 @@ let view state dispatch (v: Vocals) =
             TextBlock.create [
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Japanese:"
+                TextBlock.text (state.Localization.GetString "japanese")
             ]
             CheckBox.create [
                 Grid.column 1
@@ -31,7 +31,7 @@ let view state dispatch (v: Vocals) =
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Custom Font:"
+                TextBlock.text (state.Localization.GetString "customFont")
             ]
             DockPanel.create [
                 Grid.column 1
@@ -43,14 +43,14 @@ let view state dispatch (v: Vocals) =
                         Button.content "X"
                         Button.isVisible (Option.isSome v.CustomFont)
                         Button.onClick (fun _ -> (fun v -> { v with CustomFont = None }) |> EditVocals |> dispatch)
-                        ToolTip.tip "Click to remove the custom font from the arrangement."
+                        ToolTip.tip (state.Localization.GetString "removeCustomFontToolTip")
                     ]
                     Button.create [
                         DockPanel.dock Dock.Right
                         Button.margin (0.0, 4.0, 4.0, 4.0)
                         Button.content "..."
                         Button.onClick (fun _ -> SelectCustomFont |> dispatch)
-                        ToolTip.tip "Click to select a custom font file."
+                        ToolTip.tip (state.Localization.GetString "selectCustomFontToolTip")
                     ]
                     TextBlock.create [
                         TextBlock.verticalAlignment VerticalAlignment.Center

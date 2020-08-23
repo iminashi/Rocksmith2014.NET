@@ -15,6 +15,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="i18n\fi.json" />
+    <EmbeddedResource Include="i18n\default.json" />
     <Compile Include="Audio\Types.fs" />
     <Compile Include="Audio\AudioFader.fs" />
     <Compile Include="Audio\Audio.fs" />
@@ -23,6 +25,7 @@
     </Page>
     <AvaloniaResource Include="placeholder.png" />
     <AvaloniaResource Include="**\*.xaml" />
+    <Compile Include="Localization.fs" />
     <Compile Include="Media.fs" />
     <Compile Include="Extensions.fs" />
     <Compile Include="Dialogs.fs" />
@@ -75,6 +78,7 @@
     <Watch Remove="Configuration.fs" />
     <Watch Remove="Dialogs.fs" />
     <Watch Remove="Extensions.fs" />
+    <Watch Remove="Localization.fs" />
     <Watch Remove="Main.fs" />
     <Watch Remove="Media.fs" />
     <Watch Remove="Types.fs" />
