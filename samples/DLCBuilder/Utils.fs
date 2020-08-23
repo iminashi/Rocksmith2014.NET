@@ -1,12 +1,13 @@
 ﻿module DLCBuilder.Utils
 
 open Pfim
+open System
 open System.Runtime.InteropServices
 open Avalonia.Platform
 open Avalonia.Media.Imaging
 open Avalonia
 
-let avaloniaBitmapFromDDS (fileName: string) =
+let private avaloniaBitmapFromDDS (fileName: string) =
     use image = Pfim.FromFile fileName
     let pxFormat, data, stride =
         match image.Format with
@@ -29,3 +30,9 @@ let avaloniaBitmapFromDDS (fileName: string) =
     let bm = new Bitmap(pxFormat, addr, PixelSize(image.Width, image.Height), Vector(96., 96.), stride)
     pinnedArray.Free()
     bm
+    
+let loadBitmap (fileName: string) =
+    if fileName.EndsWith("dds", StringComparison.OrdinalIgnoreCase) then
+        avaloniaBitmapFromDDS fileName
+    else
+        new Bitmap(fileName)
