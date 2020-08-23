@@ -10,6 +10,11 @@ let view state dispatch (tones: Tone array) =
     StackPanel.create [
         StackPanel.spacing 8.
         StackPanel.children [
+            TextBlock.create [
+                TextBlock.fontSize 16.
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.text "Select Tone to Import"
+            ]
             ListBox.create [
                 ListBox.name "tonesListBox"
                 ListBox.dataItems tones

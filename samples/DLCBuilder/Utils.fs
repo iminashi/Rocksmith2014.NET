@@ -6,6 +6,9 @@ open System.Runtime.InteropServices
 open Avalonia.Platform
 open Avalonia.Media.Imaging
 open Avalonia
+open Rocksmith2014.PSARC
+open Rocksmith2014.Common
+open Rocksmith2014.DLCProject.Manifest
 
 let private avaloniaBitmapFromDDS (fileName: string) =
     use image = Pfim.FromFile fileName
@@ -36,3 +39,26 @@ let loadBitmap (fileName: string) =
         avaloniaBitmapFromDDS fileName
     else
         new Bitmap(fileName)
+
+let importTonesFromPSARC (psarcPath: string) = async {
+    use psarc = PSARC.ReadFile psarcPath
+    let! jsons =
+        psarc.Manifest
+        |> Seq.filter (fun x -> x.EndsWith("json"))
+        |> Seq.map (fun x -> async {
+            let data = MemoryStreamPool.Default.GetStream()
+            do! psarc.InflateFile(x, data)
+            return data })
+        |> Async.Sequential
+
+    let! manifests =
+        jsons
+        |> Array.map (fun x -> async { return! Manifest.fromJsonStream x })
+        |> Async.Parallel
+        
+    return
+        manifests
+        |> Array.map Manifest.getSingletonAttributes
+        |> Array.choose (fun x -> Option.ofObj x.Tones)
+        |> Array.concat
+        |> Array.distinctBy (fun x -> x.Key) }

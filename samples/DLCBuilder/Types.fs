@@ -11,7 +11,7 @@ module Types =
     type OverlayContents =
     | NoOverlay
     | ErrorMessage of message : string
-    | SelectImportTones of tones : Tone array
+    | ImportToneSelector of tones : Tone array
     | SelectPreviewStart of audioLength : TimeSpan
     | ConfigEditor
 
@@ -43,6 +43,7 @@ module Types =
     | SelectProfilePath
     | SelectTestFolderPath
     | SelectProjectsFolderPath
+    | SelectToneImportFile
     | ProjectSaveAs
     | SelectOpenProjectFile
     | OpenProject of fileName : string option
@@ -54,6 +55,7 @@ module Types =
     | AddProfilePath of path : string option
     | AddTestFolderPath of path : string option
     | AddProjectsFolderPath of path : string option
+    | ImportTonesFromPSARC of fileName : string option
     | ArrangementSelected of selected : Arrangement option
     | ToneSelected of selected : Tone option
     | DeleteArrangement
@@ -79,4 +81,5 @@ module Types =
     | BuildTest
     | BuildRelease
     | BuildComplete of unit
+    | ShowImportToneSelector of tones : Tone array
     | ErrorOccurred of e : exn

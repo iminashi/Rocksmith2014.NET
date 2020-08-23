@@ -18,6 +18,7 @@ let imgFileFilter = createFilters "Images" (seq { "png"; "jpg"; "dds" })
 let ddsFileFilter = createFilters "DDS Texture Files" (seq { "dds" })
 let profileFilter = createFilters "_PRFLDB Files" (seq { "*" })
 let projectFilter = createFilters "Project Files" (seq { "rs2dlc" })
+let psarcFilter = createFilters "PSARC Files" (seq { "psarc" })
 
 /// Shows an open folder dialog.
 let openFolderDialog title directory =

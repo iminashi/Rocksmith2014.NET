@@ -181,6 +181,31 @@ let update (msg: Msg) (state: State) =
         let dialog = Dialogs.openFolderDialog "Select Projects Base Folder"
         state, Cmd.OfAsync.perform dialog None AddProjectsFolderPath
 
+    | SelectToneImportFile ->
+        let dialog = Dialogs.openFileDialog "Select PSARC to Import Tones From" Dialogs.psarcFilter
+        state, Cmd.OfAsync.perform dialog None ImportTonesFromPSARC
+
+    | ImportTonesFromPSARC (Some fileName) ->
+        let task () = Utils.importTonesFromPSARC fileName
+        state, Cmd.OfAsync.either task () ShowImportToneSelector ErrorOccurred
+
+    | ImportProfileTones ->
+        if String.IsNullOrWhiteSpace state.Config.ProfilePath then
+            state, Cmd.none
+        else
+            let result = Profile.importTones state.Config.ProfilePath
+            match result with
+            | Ok toneArray ->
+                state, Cmd.ofMsg (ShowImportToneSelector toneArray)
+            | Error msg ->
+                { state with Overlay = ErrorMessage msg }, Cmd.none
+
+    | ShowImportToneSelector tones ->
+        if tones.Length = 0 then
+            { state with Overlay = ErrorMessage "Could not find any tones." }, Cmd.none
+        else
+            { state with Overlay = ImportToneSelector tones; ImportTones = [] }, Cmd.none
+
     | ProjectSaveAs ->
         let intialFileName =
             state.OpenProjectFile
@@ -307,17 +332,6 @@ let update (msg: Msg) (state: State) =
             | Some selected -> List.remove selected state.Project.Tones
         { state with Project = { state.Project with Tones = tones } }, Cmd.none
 
-    | ImportProfileTones ->
-        if String.IsNullOrWhiteSpace state.Config.ProfilePath then
-            state, Cmd.none
-        else
-            let result = Profile.importTones state.Config.ProfilePath
-            match result with
-            | Ok toneArray ->
-                { state with Overlay = SelectImportTones toneArray; ImportTones = [] }, Cmd.none
-            | Error msg ->
-                { state with Overlay = ErrorMessage msg }, Cmd.none
-
     | PreviewAudioStartChanged time ->
         { state with PreviewStartTime = TimeSpan.FromSeconds time }, Cmd.none
 
@@ -427,7 +441,7 @@ let update (msg: Msg) (state: State) =
     // When the user canceled any of the dialogs
     | AddArrangements None | AddCoverArt None | AddAudioFile None | AddCustomFontFile None
     | AddProfilePath None | AddTestFolderPath None | AddProjectsFolderPath None
-    | SaveProject None | OpenProject None ->
+    | SaveProject None | OpenProject None | ImportTonesFromPSARC None ->
         state, Cmd.none
 
 let view (state: State) dispatch =
@@ -527,6 +541,7 @@ let view (state: State) dispatch =
                                         Button.padding (15.0, 5.0)
                                         Button.horizontalAlignment HorizontalAlignment.Left
                                         Button.content "Import"
+                                        Button.onClick (fun _ -> dispatch SelectToneImportFile)
                                     ]
                                 ]
                             ]
@@ -584,7 +599,7 @@ let view (state: State) dispatch =
                                 | NoOverlay -> failwith "This can not happen."
                                 | ErrorMessage msg -> ErrorMessage.view dispatch msg
                                 | SelectPreviewStart audioLength -> SelectPreviewStart.view state dispatch audioLength
-                                | SelectImportTones tones -> SelectImportTones.view state dispatch tones
+                                | ImportToneSelector tones -> SelectImportTones.view state dispatch tones
                                 | ConfigEditor -> ConfigEditor.view state dispatch
                             )
                         ]
