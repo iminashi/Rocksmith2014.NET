@@ -21,7 +21,7 @@ type MainWindow() as this =
     inherit HostWindow()
     do
         base.Title <- "Rocksmith 2014 DLC Builder"
-        base.Width <- 1000.0
+        base.Width <- 1100.0
         base.Height <- 850.0
         base.MinWidth <- 900.0
         base.MinHeight <- 650.0

@@ -108,7 +108,7 @@ let private loadArrangement state (fileName: string) =
             |> Arrangement.Showlights
         Ok (arr, None)
 
-    | _ -> Error (state.Localization.GetString("unknownArrangementError"))
+    | _ -> Error (state.Localization.GetString "unknownArrangementError")
 
 let private updateArrangement old updated state =
     let arrangements =
@@ -155,35 +155,35 @@ let update (msg: Msg) (state: State) =
     | CloseOverlay -> {state with Overlay = NoOverlay }, Cmd.none
 
     | SelectOpenArrangement ->
-        let dialog = Dialogs.openMultiFileDialog (state.Localization.GetString("selectArrangement")) (Dialogs.xmlFileFilter state.Localization)
+        let dialog = Dialogs.openMultiFileDialog (state.Localization.GetString "selectArrangement") (Dialogs.xmlFileFilter state.Localization)
         state, Cmd.OfAsync.perform dialog None AddArrangements
 
     | SelectCoverArt ->
-        let dialog = Dialogs.openFileDialog (state.Localization.GetString("selectCoverArt")) (Dialogs.imgFileFilter state.Localization)
+        let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectCoverArt") (Dialogs.imgFileFilter state.Localization)
         state, Cmd.OfAsync.perform dialog None AddCoverArt
 
     | SelectAudioFile ->
-        let dialog = Dialogs.openFileDialog (state.Localization.GetString("selectAudioFile")) (Dialogs.audioFileFilters state.Localization)
+        let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectAudioFile") (Dialogs.audioFileFilters state.Localization)
         state, Cmd.OfAsync.perform dialog None AddAudioFile
 
     | SelectCustomFont ->
-        let dialog = Dialogs.openFileDialog (state.Localization.GetString("selectCustomFont")) (Dialogs.ddsFileFilter state.Localization)
+        let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectCustomFont") (Dialogs.ddsFileFilter state.Localization)
         state, Cmd.OfAsync.perform dialog None AddCustomFontFile
 
     | SelectProfilePath ->
-        let dialog = Dialogs.openFileDialog (state.Localization.GetString("selectProfile")) (Dialogs.profileFilter state.Localization)
+        let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectProfile") (Dialogs.profileFilter state.Localization)
         state, Cmd.OfAsync.perform dialog None AddProfilePath
 
     | SelectTestFolderPath ->
-        let dialog = Dialogs.openFolderDialog (state.Localization.GetString("selectTestFolder"))
+        let dialog = Dialogs.openFolderDialog (state.Localization.GetString "selectTestFolder")
         state, Cmd.OfAsync.perform dialog None AddTestFolderPath
 
     | SelectProjectsFolderPath ->
-        let dialog = Dialogs.openFolderDialog (state.Localization.GetString("selectProjectFolder"))
+        let dialog = Dialogs.openFolderDialog (state.Localization.GetString "selectProjectFolder")
         state, Cmd.OfAsync.perform dialog None AddProjectsFolderPath
 
     | SelectToneImportFile ->
-        let dialog = Dialogs.openFileDialog (state.Localization.GetString("selectImportToneFile")) (Dialogs.psarcFilter state.Localization)
+        let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectImportToneFile") (Dialogs.psarcFilter state.Localization)
         state, Cmd.OfAsync.perform dialog None ImportTonesFromPSARC
 
     | ImportTonesFromPSARC (Some fileName) ->
@@ -203,7 +203,7 @@ let update (msg: Msg) (state: State) =
 
     | ShowImportToneSelector tones ->
         if tones.Length = 0 then
-            { state with Overlay = ErrorMessage (state.Localization.GetString("couldNotFindTonesError")) }, Cmd.none
+            { state with Overlay = ErrorMessage (state.Localization.GetString "couldNotFindTonesError") }, Cmd.none
         else
             { state with Overlay = ImportToneSelector tones; ImportTones = [] }, Cmd.none
 
@@ -221,11 +221,11 @@ let update (msg: Msg) (state: State) =
             state.OpenProjectFile
             |> Option.map IO.Path.GetDirectoryName
             |> Option.orElse (Option.ofString state.Config.ProjectsFolderPath)
-        let dialog = Dialogs.saveFileDialog (state.Localization.GetString("saveProjectAs")) (Dialogs.projectFilter state.Localization) intialFileName
+        let dialog = Dialogs.saveFileDialog (state.Localization.GetString "saveProjectAs") (Dialogs.projectFilter state.Localization) intialFileName
         state, Cmd.OfAsync.perform dialog initialDir SaveProject
 
     | SelectOpenProjectFile ->
-        let dialog = Dialogs.openFileDialog (state.Localization.GetString("selectProjectFile")) (Dialogs.projectFilter state.Localization)
+        let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectProjectFile") (Dialogs.projectFilter state.Localization)
         state, Cmd.OfAsync.perform dialog None OpenProject
 
     | AddProjectsFolderPath (Some path) ->
@@ -468,7 +468,7 @@ let view (state: State) dispatch =
                                 Button.margin 5.0
                                 Button.padding (15.0, 5.0)
                                 Button.horizontalAlignment HorizontalAlignment.Left
-                                Button.content (state.Localization.GetString("addArrangement"))
+                                Button.content (state.Localization.GetString "addArrangement")
                                 Button.onClick (fun _ -> dispatch SelectOpenArrangement)
                             ]
 
@@ -500,7 +500,7 @@ let view (state: State) dispatch =
                             match state.SelectedArrangement with
                             | None ->
                                 TextBlock.create [
-                                    TextBlock.text (state.Localization.GetString("selectArrangementPrompt"))
+                                    TextBlock.text (state.Localization.GetString "selectArrangementPrompt")
                                     TextBlock.horizontalAlignment HorizontalAlignment.Center
                                 ]
 
@@ -538,15 +538,15 @@ let view (state: State) dispatch =
                                     Button.create [
                                         Button.padding (15.0, 5.0)
                                         Button.horizontalAlignment HorizontalAlignment.Left
-                                        Button.content (state.Localization.GetString("fromProfile"))
+                                        Button.content (state.Localization.GetString "fromProfile")
                                         Button.onClick (fun _ -> dispatch ImportProfileTones)
                                         Button.isEnabled (IO.File.Exists state.Config.ProfilePath)
-                                        ToolTip.tip (state.Localization.GetString("profileImportToolTip"))
+                                        ToolTip.tip (state.Localization.GetString "profileImportToolTip")
                                     ]
                                     Button.create [
                                         Button.padding (15.0, 5.0)
                                         Button.horizontalAlignment HorizontalAlignment.Left
-                                        Button.content (state.Localization.GetString("import"))
+                                        Button.content (state.Localization.GetString "import")
                                         Button.onClick (fun _ -> dispatch SelectToneImportFile)
                                     ]
                                 ]
@@ -576,7 +576,7 @@ let view (state: State) dispatch =
                             match state.SelectedTone with
                             | None ->
                                 TextBlock.create [
-                                    TextBlock.text(state.Localization.GetString("selectTonePrompt"))
+                                    TextBlock.text(state.Localization.GetString "selectTonePrompt")
                                     TextBlock.horizontalAlignment HorizontalAlignment.Center
                                 ]
                             | Some tone -> ToneDetails.view state dispatch tone

@@ -13,6 +13,11 @@ module ToneDescriptor =
           Aliases = [ "acoustic"; "acc"; "12str" ]
           UIName = "$[35721]ACOUSTIC" }
 
+        // Extra from the localization file
+        { Name = "Banjo"
+          Aliases = [ "banjo" ]
+          UIName = "$[27201]BANJO" }
+
         { Name = "Bass"
           Aliases = [ "bass" ]
           UIName = "$[35715]BASS" }
@@ -25,11 +30,17 @@ module ToneDescriptor =
           Aliases = [ "clean" ]
           UIName = "$[35720]CLEAN" }
 
+        // Extra from the localization file
+        { Name = "Crunch"
+          Aliases = [ "crunch" ]
+          UIName = "$[27156]CRUNCH" }
+
         { Name = "Delay"
           Aliases = [ "delay" ]
           UIName = "$[35753]DELAY" }
 
-        { Name = "Direct *"
+        // Unused in official content
+        { Name = "Direct"
           Aliases = [ "direct" ]
           UIName = "$[35752]DIRECT" }
 
@@ -41,9 +52,15 @@ module ToneDescriptor =
           Aliases = [ "echo" ]
           UIName = "$[35754]ECHO" }
 
-        { Name = "Effect *"
+        // Unused in official content
+        { Name = "Effect"
           Aliases = [ "effect" ]
           UIName = "$[35733]EFFECT" }
+
+        // Extra from the localization file
+        { Name = "Emulated"
+          Aliases = [ "emu" ]
+          UIName = "$[27119]EMULATED" }
 
         { Name = "Filter"
           Aliases = [ "filter"; "wah"; "talk" ]
@@ -69,6 +86,11 @@ module ToneDescriptor =
           Aliases = [ "low" ]
           UIName = "$[35732]LOW OUTPUT" }
 
+        // Extra from the localization file
+        { Name = "Mandolin"
+          Aliases = [ "mandolin" ]
+          UIName = "$[27202]MANDOLIN" }
+
         { Name = "Multi Effect"
           Aliases = [ "multi" ]
           UIName = "$[35751]MULTI-EFFECT" }
@@ -84,6 +106,11 @@ module ToneDescriptor =
         { Name = "Phaser"
           Aliases = [ "phase" ]
           UIName = "$[35730]PHASER" }
+
+        // Extra from the localization file
+        { Name = "Piano"
+          Aliases = [ "piano" ]
+          UIName = "$[29495]PIANO" }
 
         { Name = "Processed"
           Aliases = [ "synth"; "sustain" ]
@@ -105,41 +132,19 @@ module ToneDescriptor =
           Aliases = [ "trem" ]
           UIName = "$[35727]TREMOLO" }
 
+        // Extra from the localization file
+        { Name = "Ukulele"
+          Aliases = [ "uke" ]
+          UIName = "$[27204]UKULELE" }
+
         { Name = "Vibrato"
           Aliases = [ "vib" ]
           UIName = "$[35728]VIBRATO" }
 
-        { Name = "Vocal *"
+        // Unused in official content
+        { Name = "Vocal"
           Aliases = [ "vocal"; "vox" ]
-          UIName = "$[35718]VOCAL" }
-
-        { Name = "** Crunch"
-          Aliases = [ "crunch" ]
-          UIName = "$[27156]CRUNCH" }
-
-        { Name = "** Emulated"
-          Aliases = [ "emu" ]
-          UIName = "$[27119]EMULATED" }
-
-        { Name = "** Slap Bass"
-          Aliases = [ "slap" ]
-          UIName = "$[27151]SLAP_BASS" }
-
-        { Name = "** Banjo"
-          Aliases = [ "banjo" ]
-          UIName = "$[27201]BANJO" }
-
-        { Name = "** Mandolin"
-          Aliases = [ "mandolin" ]
-          UIName = "$[27202]MANDOLIN" }
-
-        { Name = "** Piano"
-          Aliases = [ "piano" ]
-          UIName = "$[29495]PIANO" }
-
-        { Name = "** Ukulele"
-          Aliases = [ "uke" ]
-          UIName = "$[27204]UKULELE" } |]
+          UIName = "$[35718]VOCAL" } |]
 
     let uiNameToDesc =
         all
@@ -157,10 +162,7 @@ module ToneDescriptor =
         else descs
 
     let private uiNameToName (uiName: string) =
-        let desc = 
-            all
-            |> Array.find (fun x -> x.UIName = uiName)
-        desc.Name.Trim([| '*'; ' ' |])
+        Array.find (fun x -> x.UIName = uiName) all
 
     let combineUINames (uiNames: string array) =
         let names = 

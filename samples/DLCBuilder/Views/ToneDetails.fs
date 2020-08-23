@@ -3,9 +3,43 @@
 open Avalonia.Controls
 open Avalonia.Controls.Primitives
 open Avalonia.FuncUI.DSL
+open Avalonia.FuncUI.Components
 open Avalonia.Layout
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
+
+// TODO: Fix this
+let createDescriptionTemplate state =
+    DataTemplateView<ToneDescriptor>.create (fun desc ->
+        TextBlock.create [
+            TextBlock.text (state.Localization.GetString desc.Name)
+        ])
+
+let createDescriptors state dispatch tone =
+    UniformGrid.create [
+        UniformGrid.columns tone.ToneDescriptors.Length
+        UniformGrid.children [
+            for i = 0 to tone.ToneDescriptors.Length - 1 do
+                yield ComboBox.create [
+                    ComboBox.margin 4.
+                    ComboBox.dataItems ToneDescriptor.all
+                    ComboBox.itemTemplate (createDescriptionTemplate state)
+                    ComboBox.selectedItem (ToneDescriptor.uiNameToDesc.[tone.ToneDescriptors.[i]])
+                    ComboBox.onSelectedItemChanged (fun item ->
+                        match item with
+                        | :? ToneDescriptor as td ->
+                            fun t ->
+                                let updated =
+                                    t.ToneDescriptors
+                                    |> Array.mapi (fun j x -> if j = i then td.UIName else x)
+                                { t with ToneDescriptors = updated }
+                            |> EditTone |> dispatch
+                        | _ -> ()
+                    )
+                    ToolTip.tip (state.Localization.GetString "toneDescriptorToolTip")
+                ]
+        ]
+    ]
 
 let view state dispatch (tone: Tone) =
     let keys =
@@ -66,29 +100,8 @@ let view state dispatch (tone: Tone) =
                 Grid.column 1
                 Grid.row 2
                 StackPanel.children [
-                    UniformGrid.create [
-                        UniformGrid.columns tone.ToneDescriptors.Length
-                        UniformGrid.children [
-                            for i = 0 to tone.ToneDescriptors.Length - 1 do
-                                yield ComboBox.create [
-                                    ComboBox.margin 4.
-                                    ComboBox.dataItems ToneDescriptor.all
-                                    ComboBox.selectedItem (ToneDescriptor.uiNameToDesc.[tone.ToneDescriptors.[i]])
-                                    ComboBox.onSelectedItemChanged (fun item ->
-                                        match item with
-                                        | :? ToneDescriptor as td ->
-                                            fun t ->
-                                                let updated =
-                                                    t.ToneDescriptors
-                                                    |> Array.mapi (fun j x -> if j = i then td.UIName else x)
-                                                { t with ToneDescriptors = updated }
-                                            |> EditTone |> dispatch
-                                        | _ -> ()
-                                    )
-                                ]
-                        ]
-                    ]
-                    StackPanel.create [
+                    yield createDescriptors state dispatch tone
+                    yield StackPanel.create [
                         StackPanel.orientation Orientation.Horizontal
                         StackPanel.children [
                             Button.create [
