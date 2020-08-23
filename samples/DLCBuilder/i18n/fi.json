@@ -79,5 +79,12 @@
   "projectsFolder": "Projektikansio",
   "showAdvancedFeatures": "Edistyneet ominaisuudet",
   "close": "Sulje",
-  "language": "Kieli"
+  "language": "Kieli",
+  "audioFiles": "Äänitiedostot",
+  "rocksmithArrangementFiles": "Rocksmith sovitukset",
+  "imageFiles": "Kuvatiedostot",
+  "ddsTextureFiles": "DDS tekstuurit",
+  "profileFiles": "_PRFLDB tiedostot",
+  "projectFiles": "Projektitiedostot",
+  "psarcFiles": "PSARC tiedostot"
 }

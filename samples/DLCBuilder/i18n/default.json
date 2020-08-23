@@ -79,5 +79,12 @@
   "projectsFolder": "Projects Folder",
   "showAdvancedFeatures": "Show Advanced Features",
   "close": "Close",
-  "language": "Language"
+  "language": "Language",
+  "audioFiles": "Audio Files",
+  "rocksmithArrangementFiles": "Rocksmith Arrangement Files",
+  "imageFiles": "Image Files",
+  "ddsTextureFiles": "DDS Texture Files",
+  "profileFiles": "_PRFLDB Files",
+  "projectFiles": "Project Files",
+  "psarcFiles": "PSARC Files"
 }

@@ -12,13 +12,13 @@ let private createFilters name (extensions : string seq) =
     let filter = FileDialogFilter(Extensions = List(extensions), Name = name)
     List(seq { filter })
 
-let audioFileFilters = createFilters "Audio Files" (seq { "wav"; "wem" })
-let xmlFileFilter = createFilters "Rocksmith Arrangement Files" (seq { "xml" })
-let imgFileFilter = createFilters "Images" (seq { "png"; "jpg"; "dds" })
-let ddsFileFilter = createFilters "DDS Texture Files" (seq { "dds" })
-let profileFilter = createFilters "_PRFLDB Files" (seq { "*" })
-let projectFilter = createFilters "Project Files" (seq { "rs2dlc" })
-let psarcFilter = createFilters "PSARC Files" (seq { "psarc" })
+let audioFileFilters (loc:Localization) = createFilters (loc.GetString "audioFiles") (seq { "wav"; "wem" })
+let xmlFileFilter (loc:Localization) = createFilters (loc.GetString "rocksmithArrangementFiles") (seq { "xml" })
+let imgFileFilter (loc:Localization) = createFilters (loc.GetString "imageFiles") (seq { "png"; "jpg"; "dds" })
+let ddsFileFilter (loc:Localization) = createFilters (loc.GetString "ddsTextureFiles") (seq { "dds" })
+let profileFilter (loc:Localization) = createFilters (loc.GetString "profileFiles") (seq { "*" })
+let projectFilter (loc:Localization) = createFilters (loc.GetString "projectFiles") (seq { "rs2dlc" })
+let psarcFilter (loc:Localization) = createFilters (loc.GetString "psarcFiles") (seq { "psarc" })
 
 /// Shows an open folder dialog.
 let openFolderDialog title directory =
