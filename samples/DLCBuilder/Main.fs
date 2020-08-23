@@ -595,7 +595,7 @@ let view (state: State) dispatch =
                             Rectangle.onTapped (fun _ -> CloseOverlay |> dispatch)
                         ]
                         Border.create [
-                            Border.padding 20.0
+                            Border.padding (20., 10.)
                             Border.cornerRadius 5.0
                             Border.horizontalAlignment HorizontalAlignment.Center
                             Border.verticalAlignment VerticalAlignment.Center

@@ -13,7 +13,7 @@ type Locale =
 
 module Locales =
     let English = { Name = "English"; ShortName = "en" }
-    let Finnish = { Name = "Finnish"; ShortName = "fi" }
+    let Finnish = { Name = "Suomi"; ShortName = "fi" }
 
     let fromShortName name = 
         match name with
