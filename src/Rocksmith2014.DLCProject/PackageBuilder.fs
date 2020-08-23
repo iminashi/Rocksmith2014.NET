@@ -153,7 +153,8 @@ let private setupInstrumental (inst: Instrumental) (xml: InstrumentalArrangement
     // Copy the tuning in case it was edited
     Array.Copy(inst.Tuning, xml.MetaData.Tuning.Strings, 6)
 
-    // TODO: Compatibility fix for "high-density"
+    if xml.Version < 8uy then xml.FixHighDensity()
+
     // TODO: Generate DD levels
 
     xml

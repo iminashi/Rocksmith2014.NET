@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -198,6 +199,76 @@ namespace Rocksmith2014.XML
             }
 
             return tones;
+        }
+
+        public void FixHighDensity()
+        {
+            static void removeHighDensity(Chord chord, bool removeChordNotes)
+            {
+                if (chord.IsHighDensity)
+                {
+                    chord.IsHighDensity = false;
+                    if (removeChordNotes)
+                    {
+                        // Set the chord as ignored if it has any harmonics in it
+                        if (chord.ChordNotes?.Count > 0 && chord.ChordNotes.Any(cn => cn.IsHarmonic))
+                            chord.IsIgnore = true;
+
+                        chord.ChordNotes = null;
+                    }
+                }
+            }
+
+            // Make sure that the version of the XML file is 8
+            Version = 8;
+
+            foreach (var level in Levels)
+            {
+                foreach (var hs in level.HandShapes)
+                {
+                    var chordsInHs =
+                        from chord in level.Chords
+                        where chord.Time >= hs.StartTime && chord.Time < hs.EndTime
+                        select chord;
+
+                    bool startsWithMute = false;
+                    int chordNum = 0;
+
+                    foreach (var chord in chordsInHs)
+                    {
+                        chordNum++;
+
+                        if (chordNum == 1)
+                        {
+                            // If the handshape starts with a fret hand mute, we need to be careful
+                            if (chord.IsFretHandMute)
+                            {
+                                startsWithMute = true;
+                                // Frethand-muted chords without techniques should not have chord notes
+                                if (chord.ChordNotes?.All(cn => cn.Sustain == 0) == true)
+                                    chord.ChordNotes = null;
+                            }
+                            else
+                            {
+                                // Do not remove the chord notes even if the first chord somehow has "high density"
+                                removeHighDensity(chord, false);
+                                continue;
+                            }
+                        }
+
+                        if (startsWithMute && !chord.IsFretHandMute)
+                        {
+                            // Do not remove the chord notes on the first non-muted chord after muted chord(s)
+                            removeHighDensity(chord, false);
+                            startsWithMute = false;
+                        }
+                        else
+                        {
+                            removeHighDensity(chord, true);
+                        }
+                    }
+                }
+            }
         }
 
         #region IXmlSerializable Implementation
