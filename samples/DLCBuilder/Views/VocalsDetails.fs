@@ -55,7 +55,10 @@ let view state dispatch (v: Vocals) =
                     TextBlock.create [
                         TextBlock.verticalAlignment VerticalAlignment.Center
                         TextBlock.horizontalAlignment HorizontalAlignment.Center
-                        TextBlock.text (v.CustomFont |> Option.map Path.GetFileName |> Option.defaultValue "None")
+                        TextBlock.text (
+                            v.CustomFont
+                            |> Option.map Path.GetFileName
+                            |> Option.defaultValue (state.Localization.GetString "none"))
                     ]
                 ]
             ]

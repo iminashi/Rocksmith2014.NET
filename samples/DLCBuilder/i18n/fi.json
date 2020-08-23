@@ -47,7 +47,7 @@
   "path": "Polku",
   "picked": "Plektra",
   "tuning": "Viritys",
-  "centOffset": "Poikkeama senteissä",
+  "centOffset": "Poikkeama",
   "baseTone": "Perusäänensävy",
   "tones": "Äänensävyt",
   "scrollSpeed": "Vieritysnopeus",
@@ -86,5 +86,9 @@
   "ddsTextureFiles": "DDS tekstuurit",
   "profileFiles": "_PRFLDB tiedostot",
   "projectFiles": "Projektitiedostot",
-  "psarcFiles": "PSARC tiedostot"
+  "psarcFiles": "PSARC tiedostot",
+  "Main": "Ensisijainen",
+  "Alternative": "Vaihtoehtoinen",
+  "Bonus": "Bonus",
+  "none": "Ei käytössä"
 }

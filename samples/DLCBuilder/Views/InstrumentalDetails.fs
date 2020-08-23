@@ -8,7 +8,7 @@ open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open System
 
-let view (state: State) dispatch (i: Instrumental) =
+let view state dispatch (i: Instrumental) =
     Grid.create [
         //Grid.showGridLines true
         Grid.margin (0.0, 4.0)
@@ -61,7 +61,7 @@ let view (state: State) dispatch (i: Instrumental) =
                         RadioButton.create [
                             RadioButton.margin (2.0, 0.0)
                             RadioButton.groupName "Priority"
-                            RadioButton.content (string priority)
+                            RadioButton.content (state.Localization.GetString(string priority))
                             RadioButton.isChecked (i.Priority = priority)
                             RadioButton.onChecked (fun _ -> (fun a -> { a with Priority = priority }) |> EditInstrumental |> dispatch)
                         ]

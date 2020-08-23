@@ -86,5 +86,9 @@
   "ddsTextureFiles": "DDS Texture Files",
   "profileFiles": "_PRFLDB Files",
   "projectFiles": "Project Files",
-  "psarcFiles": "PSARC Files"
+  "psarcFiles": "PSARC Files",
+  "Main": "Main",
+  "Alternative": "Alternative",
+  "Bonus": "Bonus",
+  "none": "None"
 }

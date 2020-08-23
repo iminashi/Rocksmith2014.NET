@@ -8,15 +8,13 @@ open System.Text.Json
 type Locale =
     { Name : string; ShortName : string }
 
-    override this.ToString() =
-        this.Name
+    override this.ToString() = this.Name
 
 module Locales =
     let English = { Name = "English"; ShortName = "en" }
     let Finnish = { Name = "Suomi"; ShortName = "fi" }
 
-    let fromShortName name = 
-        match name with
+    let fromShortName = function
         | "en" -> English
         | "fi" -> Finnish
         | _ -> English
@@ -26,8 +24,8 @@ type Localization(locale: Locale) =
 
     static let loadDictionary name =
         let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
-        use defLoc = embeddedProvider.GetFileInfo(name).CreateReadStream()
-        JsonSerializer.DeserializeAsync<Dictionary<string, string>>(defLoc).AsAsync()
+        use json = embeddedProvider.GetFileInfo(name).CreateReadStream()
+        JsonSerializer.DeserializeAsync<Dictionary<string, string>>(json).AsAsync()
         |> Async.RunSynchronously
 
     static let defaultDictionary: Dictionary<string, string> = loadDictionary "i18n/default.json"
