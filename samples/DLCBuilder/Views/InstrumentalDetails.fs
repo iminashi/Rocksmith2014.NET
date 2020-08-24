@@ -32,6 +32,7 @@ let view state dispatch (i: Instrumental) =
                     match item with
                     | :? ArrangementName as item ->
                         fun (a:Instrumental) ->
+                            // TODO: Change priority if needed
                             let routeMask =
                                 match item with
                                 | ArrangementName.Lead -> RouteMask.Lead
@@ -64,6 +65,15 @@ let view state dispatch (i: Instrumental) =
                             RadioButton.content (state.Localization.GetString(string priority))
                             RadioButton.isChecked (i.Priority = priority)
                             RadioButton.onChecked (fun _ -> (fun a -> { a with Priority = priority }) |> EditInstrumental |> dispatch)
+                            RadioButton.isEnabled (
+                                // Disable the main option if a main arrangement of the type already exists
+                                not (priority = ArrangementPriority.Main
+                                     &&
+                                     state.Project.Arrangements
+                                     |> List.exists (function
+                                         | Instrumental other -> i.Name = other.Name && other.Priority = ArrangementPriority.Main
+                                         | _ -> false))
+                            )
                         ]
                 ]
             ]
