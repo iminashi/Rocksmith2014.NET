@@ -87,7 +87,7 @@ let private build platform targetFile sngs coverArt author project = async {
 
     let appIdEntry =
         let data = MemoryStreamPool.Default.GetStream()
-        data.Write(ReadOnlySpan(Encoding.ASCII.GetBytes("248750")))
+        data.Write(ReadOnlySpan("248750"B))
         entry "appid.appid" data
 
     let graphEntry =
