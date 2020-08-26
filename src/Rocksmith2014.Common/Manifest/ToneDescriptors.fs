@@ -39,7 +39,7 @@ module ToneDescriptor =
           Aliases = [ "delay" ]
           UIName = "$[35753]DELAY" }
 
-        // Unused in official content
+        // (Likely) unused in official content
         { Name = "Direct"
           Aliases = [ "direct" ]
           UIName = "$[35752]DIRECT" }
@@ -52,9 +52,8 @@ module ToneDescriptor =
           Aliases = [ "echo" ]
           UIName = "$[35754]ECHO" }
 
-        // Unused in official content
         { Name = "Effect"
-          Aliases = [ "effect" ]
+          Aliases = [ "effect"; "pitch" ]
           UIName = "$[35733]EFFECT" }
 
         // Extra from the localization file
@@ -141,7 +140,7 @@ module ToneDescriptor =
           Aliases = [ "vib" ]
           UIName = "$[35728]VIBRATO" }
 
-        // Unused in official content
+        // (Likely) unused in official content
         { Name = "Vocal"
           Aliases = [ "vocal"; "vox" ]
           UIName = "$[35718]VOCAL" } |]
