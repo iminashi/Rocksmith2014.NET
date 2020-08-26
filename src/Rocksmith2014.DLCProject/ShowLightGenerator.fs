@@ -103,7 +103,21 @@ let private validateShowLights (slList: ResizeArray<ShowLight>) =
 
     slList
 
-let generate (targetFile: string) (sng: SNG) =
+let generate (targetFile: string) (sngs: (Arrangement * SNG) list) =
+    // Select an instrumental arrangement to generate the show lights from
+    let sng =
+        let leadFile =
+            sngs
+            |> List.tryFind (fun x ->
+                match fst x with
+                | Instrumental i -> i.RouteMask = RouteMask.Lead
+                | _ -> false)
+            |> Option.map snd
+        leadFile |> Option.defaultWith (fun _ ->
+            sngs
+            |> List.find (fun x -> match fst x with | Instrumental _ -> true | _ -> false)
+            |> snd)
+
     let showlights =
         generateFogNotes sng
         |> Seq.append (generateBeamNotes sng)
