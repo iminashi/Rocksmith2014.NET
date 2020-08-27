@@ -14,11 +14,10 @@ open System.Reflection
 open System.Text
 open System
 
-let private build platform targetFile sngs coverArt author project = async {
+let private build platform targetFile sngs coverArt author partition project = async {
     let readFile = Utils.getFileStreamForRead
     let entry name data = { Name = name; Data = data }
     let key = project.DLCKey.ToLowerInvariant()
-    let partition = Partitioner.create project
     let getManifestName arr =
         let name = partition arr |> snd
         sprintf "manifests/songs_dlc_%s/%s_%s.json" key key name
@@ -145,7 +144,9 @@ let private build platform targetFile sngs coverArt author project = async {
                         entries.Add appIdEntry)
                     ) }
 
-let private setupInstrumental (inst: Instrumental) (xml: InstrumentalArrangement) =
+let private setupInstrumental part (inst: Instrumental) (xml: InstrumentalArrangement) =
+    xml.MetaData.Part <- int16 part
+
     // Set up correct tone IDs
     for i = 0 to xml.Tones.Changes.Count - 1 do
         xml.Tones.Changes.[i].Id <- byte <| Array.IndexOf(xml.Tones.Names, xml.Tones.Changes.[i].Name)
@@ -162,14 +163,16 @@ let private setupInstrumental (inst: Instrumental) (xml: InstrumentalArrangement
 let buildPackages (targetFile: string) (platforms: Platform list) (author: string) (project: DLCProject) = async {
     let key = project.DLCKey.ToLowerInvariant()
     let coverArt = DDS.createCoverArtImages project.AlbumArtFile
+    let partition = Partitioner.create project
     let sngs =
         project.Arrangements
         |> List.choose (fun arr ->
             match arr with
             | Instrumental i ->
+                let part = partition arr |> fst
                 let sng =
                     InstrumentalArrangement.Load i.XML
-                    |> setupInstrumental i
+                    |> setupInstrumental part i
                     |> ConvertInstrumental.xmlToSng
                 Some(arr, sng)
             | Vocals v ->
@@ -204,7 +207,7 @@ let buildPackages (targetFile: string) (platforms: Platform list) (author: strin
             { project with Arrangements = arrangements }
 
     do! platforms
-        |> List.map (fun plat -> build plat targetFile sngs coverArt author project)
+        |> List.map (fun plat -> build plat targetFile sngs coverArt author partition project)
         |> Async.Parallel
         |> Async.Ignore
     coverArt |> Array.iter File.Delete }

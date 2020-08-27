@@ -103,9 +103,7 @@ let private loadArrangement state (fileName: string) =
         Ok (arr, None)
 
     | "showlights" ->
-        let arr =
-            { XML = fileName }
-            |> Arrangement.Showlights
+        let arr = Arrangement.Showlights { XML = fileName }
         Ok (arr, None)
 
     | _ -> Error (state.Localization.GetString "unknownArrangementError")
