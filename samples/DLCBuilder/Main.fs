@@ -290,7 +290,19 @@ let update (msg: Msg) (state: State) =
             (state.Project.Arrangements, results)
             ||> Array.fold (fun state elem ->
                 match elem with
-                | Ok (arr, _) when shouldInclude state arr -> arr::state
+                | Ok (arr, _) when shouldInclude state arr ->
+                    let arr =
+                        // Prevent multiple main arrangements of the same type
+                        match arr with
+                        | Instrumental inst when state |> List.exists (function
+                                | Instrumental x ->
+                                    inst.RouteMask = x.RouteMask
+                                    && x.Priority = ArrangementPriority.Main
+                                    && inst.Priority = ArrangementPriority.Main
+                                | _ -> false) ->
+                            Instrumental { inst with Priority = ArrangementPriority.Alternative }
+                        | _ -> arr
+                    arr::state
                 | _ -> state)
             |> List.sortBy arrangementSorter
 
