@@ -394,7 +394,7 @@ let update (msg: Msg) (state: State) =
     | EditInstrumental edit ->
         match state.SelectedArrangement with
         | Some (Instrumental arr as old) ->
-            let updated = Instrumental (edit arr)
+            let updated = Instrumental (edit state arr)
             updateArrangement old updated state
         | _ -> state, Cmd.none
 

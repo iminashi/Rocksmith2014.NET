@@ -66,7 +66,7 @@ module Types =
     | PreviewAudioStartChanged of time : float
     | ShowSortFields of shown : bool
     | ShowJapaneseFields of shown : bool
-    | EditInstrumental of edit : (Instrumental -> Instrumental)
+    | EditInstrumental of edit : (State -> Instrumental -> Instrumental)
     | EditVocals of edit : (Vocals -> Vocals)
     | EditTone of edit : (Tone -> Tone)
     | EditProject of edit : (DLCProject -> DLCProject)

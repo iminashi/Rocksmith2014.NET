@@ -9,6 +9,15 @@ open Rocksmith2014.DLCProject
 open System
 
 let view state dispatch (i: Instrumental) =
+    let fixPriority state routeMask arr =
+        if arr.Priority = ArrangementPriority.Main
+           && state.Project.Arrangements |> List.exists (function
+                | Instrumental is when is <> arr -> is.RouteMask = routeMask && is.Priority = ArrangementPriority.Main
+                | _ -> false) then
+            ArrangementPriority.Alternative
+        else
+            arr.Priority
+
     Grid.create [
         //Grid.showGridLines true
         Grid.margin (0.0, 4.0)
@@ -30,16 +39,16 @@ let view state dispatch (i: Instrumental) =
                 ComboBox.selectedItem i.Name
                 ComboBox.onSelectedItemChanged (fun item ->
                     match item with
-                    | :? ArrangementName as item ->
-                        fun (a:Instrumental) ->
-                            // TODO: Change priority if needed
+                    | :? ArrangementName as name ->
+                        fun state (a:Instrumental) ->
                             let routeMask =
-                                match item with
+                                match name with
                                 | ArrangementName.Lead -> RouteMask.Lead
                                 | ArrangementName.Rhythm | ArrangementName.Combo -> RouteMask.Rhythm
                                 | ArrangementName.Bass -> RouteMask.Bass
                                 | _ -> failwith "Impossible failure."
-                            { a with Name = item; RouteMask = routeMask }
+                            let priority = fixPriority state routeMask a
+                            { a with Name = name; RouteMask = routeMask; Priority = priority }
                         |> EditInstrumental |> dispatch
                     | _ -> ()
                 )
@@ -64,14 +73,14 @@ let view state dispatch (i: Instrumental) =
                             RadioButton.groupName "Priority"
                             RadioButton.content (state.Localization.GetString(string priority))
                             RadioButton.isChecked (i.Priority = priority)
-                            RadioButton.onChecked (fun _ -> (fun a -> { a with Priority = priority }) |> EditInstrumental |> dispatch)
+                            RadioButton.onChecked (fun _ -> (fun _ a -> { a with Priority = priority }) |> EditInstrumental |> dispatch)
                             RadioButton.isEnabled (
                                 // Disable the main option if a main arrangement of the type already exists
                                 not (priority = ArrangementPriority.Main
                                      &&
                                      state.Project.Arrangements
                                      |> List.exists (function
-                                         | Instrumental other -> i.Name = other.Name && other.Priority = ArrangementPriority.Main
+                                         | Instrumental other -> i.RouteMask = other.RouteMask && other.Priority = ArrangementPriority.Main
                                          | _ -> false))
                             )
                         ]
@@ -99,7 +108,11 @@ let view state dispatch (i: Instrumental) =
                             RadioButton.groupName "RouteMask"
                             RadioButton.content (string mask)
                             RadioButton.isChecked (i.RouteMask = mask)
-                            RadioButton.onChecked (fun _ -> (fun a -> { a with RouteMask = mask }) |> EditInstrumental |> dispatch)
+                            RadioButton.onChecked (fun _ ->
+                                fun state a ->
+                                    let priority = fixPriority state mask a
+                                    { a with RouteMask = mask; Priority = priority }
+                                |> EditInstrumental |> dispatch)
                         ]
                 ]
             ]
@@ -118,8 +131,8 @@ let view state dispatch (i: Instrumental) =
                 CheckBox.margin 4.
                 CheckBox.isVisible (i.Name = ArrangementName.Bass)
                 CheckBox.isChecked i.BassPicked
-                CheckBox.onChecked (fun _ -> (fun a -> { a with BassPicked = true }) |> EditInstrumental |> dispatch)
-                CheckBox.onUnchecked (fun _ -> (fun a -> { a with BassPicked = false }) |> EditInstrumental |> dispatch)
+                CheckBox.onChecked (fun _ -> (fun _ a -> { a with BassPicked = true }) |> EditInstrumental |> dispatch)
+                CheckBox.onUnchecked (fun _ -> (fun _ a -> { a with BassPicked = false }) |> EditInstrumental |> dispatch)
             ]
 
             TextBlock.create [
@@ -142,7 +155,7 @@ let view state dispatch (i: Instrumental) =
                                 let txtBox = arg.Source :?> TextBox
                                 let success, newTuning = Int16.TryParse(txtBox.Text)
                                 if success then
-                                    fun a ->
+                                    fun _ a ->
                                         let tuning =
                                             a.Tuning
                                             |> Array.mapi (fun i old -> if i = str then newTuning else old)
@@ -170,7 +183,7 @@ let view state dispatch (i: Instrumental) =
                 NumericUpDown.maximum 5000.0
                 NumericUpDown.increment 1.0
                 NumericUpDown.formatString "F0"
-                NumericUpDown.onValueChanged (fun value -> (fun a -> { a with CentOffset = int value }) |> EditInstrumental |> dispatch)
+                NumericUpDown.onValueChanged (fun value -> (fun _ a -> { a with CentOffset = int value }) |> EditInstrumental |> dispatch)
             ]
 
             TextBlock.create [
@@ -185,7 +198,7 @@ let view state dispatch (i: Instrumental) =
                 Grid.row 6
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
                 TextBox.text i.BaseTone
-                TextBox.onTextChanged (fun text -> (fun a -> { a with BaseTone = text }) |> EditInstrumental |> dispatch)
+                TextBox.onTextChanged (fun text -> (fun _ a -> { a with BaseTone = text }) |> EditInstrumental |> dispatch)
             ]
 
             TextBlock.create [
@@ -225,7 +238,7 @@ let view state dispatch (i: Instrumental) =
                 NumericUpDown.minimum 0.5
                 NumericUpDown.formatString "F1"
                 NumericUpDown.value i.ScrollSpeed
-                NumericUpDown.onValueChanged (fun value -> (fun a -> { a with ScrollSpeed = value }) |> EditInstrumental |> dispatch)
+                NumericUpDown.onValueChanged (fun value -> (fun _ a -> { a with ScrollSpeed = value }) |> EditInstrumental |> dispatch)
             ]
 
             TextBlock.create [
@@ -246,7 +259,7 @@ let view state dispatch (i: Instrumental) =
                     let txtBox = arg.Source :?> TextBox
                     let success, masterID = Int32.TryParse(txtBox.Text)
                     if success then
-                        (fun (a:Instrumental) -> { a with MasterID = masterID }) |> EditInstrumental |> dispatch
+                        (fun _ (a:Instrumental) -> { a with MasterID = masterID }) |> EditInstrumental |> dispatch
                 )
             ]
 
@@ -268,7 +281,7 @@ let view state dispatch (i: Instrumental) =
                     let txtBox = arg.Source :?> TextBox
                     let success, perID = Guid.TryParse(txtBox.Text)
                     if success then
-                        (fun (a:Instrumental) -> { a with PersistentID = perID }) |> EditInstrumental |> dispatch
+                        (fun _ (a:Instrumental) -> { a with PersistentID = perID }) |> EditInstrumental |> dispatch
                 )
             ]
 
@@ -279,7 +292,7 @@ let view state dispatch (i: Instrumental) =
                 Button.isVisible state.Config.ShowAdvanced
                 Button.content (state.Localization.GetString "generateNewArrIDs")
                 Button.onClick (fun _ -> 
-                    fun (a: Instrumental) ->
+                    fun _ (a: Instrumental) ->
                         { a with MasterID = RandomGenerator.next()
                                  PersistentID = Guid.NewGuid() }
                     |> EditInstrumental |> dispatch

@@ -53,7 +53,7 @@ type Arrangement =
                 | _ -> failwith "Impossible."
             let extra =
                 if inst.Name = ArrangementName.Combo then
-                    sprintf " (%s)" (string inst.RouteMask)
+                    " (Combo)"
                 elif inst.RouteMask = RouteMask.Bass && inst.BassPicked then
                     " (Picked)"
                 else
@@ -66,7 +66,7 @@ type Arrangement =
                     " [" + roots.[i] + " Standard]"
                 else
                     String.Empty
-            sprintf "%s%s%s%s" prefix (string inst.Name) extra tuning
+            sprintf "%s%s%s%s" prefix (string inst.RouteMask) extra tuning
 
         | Vocals v ->
             let prefix =
