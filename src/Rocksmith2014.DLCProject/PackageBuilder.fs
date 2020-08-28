@@ -31,10 +31,10 @@ let private build platform targetFile sngs coverArt author partition project = a
             | Vocals v as arr ->
                 Some(getManifestName arr, createAttributes project (FromVocals v))
             | Showlights _ -> None)
-       |> List.map (fun m -> async {
+       |> List.map (fun (name, attr) -> async {
            let data = MemoryStreamPool.Default.GetStream()
-           do! [ snd m ] |> Manifest.create |> Manifest.toJsonStream data
-           return entry (fst m) data })
+           do! [ attr ] |> Manifest.create |> Manifest.toJsonStream data
+           return entry name data })
        |> Async.Parallel
 
     let! headerEntry = async {
