@@ -121,13 +121,12 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             let proto = Entry.CreateProto entry (uint32 zLengths.Count)
 
             let! totalLength =
-                if usePlain entry then
-                    async { return addPlainData blockSize deflatedData zLengths entry.Data }
-                else
-                    async {
-                        let! length = Compression.blockZip blockSize deflatedData zLengths entry.Data
-                        do! entry.Data.DisposeAsync()
-                        return length }
+                if usePlain entry then async {
+                    return addPlainData blockSize deflatedData zLengths entry.Data }
+                else async {
+                    let! length = Compression.blockZip blockSize deflatedData zLengths entry.Data
+                    do! entry.Data.DisposeAsync()
+                    return length }
 
             protoEntries.Add(proto, totalLength)
 
@@ -209,7 +208,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         editFunc editList
 
         // Update the manifest
-        manifest <- editList |> Seq.map (fun e -> e.Name) |> Array.ofSeq
+        manifest <- Array.init editList.Count (fun i -> editList.[i].Name)
         
         // Deflate entries
         let! protoEntries, data, blockTable = deflateEntries editList
