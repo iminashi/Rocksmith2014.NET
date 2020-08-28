@@ -21,7 +21,7 @@ let projectFilter (loc:Localization) = createFilters (loc.GetString "projectFile
 let psarcFilter (loc:Localization) = createFilters (loc.GetString "psarcFiles") (seq { "psarc" })
 
 let toneImportFilter (loc:Localization) =
-    List(seq { FileDialogFilter(Extensions = List(seq { "xml" }), Name = loc.GetString "toneXmlFiles")
+    List(seq { FileDialogFilter(Extensions = List(seq { "tone2014.xml" }), Name = loc.GetString "toneXmlFiles")
                FileDialogFilter(Extensions = List(seq { "psarc" }), Name = loc.GetString "psarcFiles") })
 
 /// Shows an open folder dialog.

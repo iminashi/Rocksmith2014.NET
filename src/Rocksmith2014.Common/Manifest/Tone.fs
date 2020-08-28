@@ -55,22 +55,21 @@ type Tone =
                 let cat = pedal.Item "Category"
                 let skin = pedal.Item "Skin"
                 let skinIndex = pedal.Item "SkinIndex"
-                let knobValues =
-                    (pedal.Item "KnobValues").ChildNodes
-                    |> Seq.cast<XmlNode>
-                    |> Seq.map (fun node ->
-                        let key = (node.Item ("Key", "http://schemas.microsoft.com/2003/10/Serialization/Arrays")).InnerText
-                        let value = (node.Item ("Value", "http://schemas.microsoft.com/2003/10/Serialization/Arrays")).InnerText
-                        key, float32 value)
-                    |> dict
-                    |> Dictionary
+                let knobValues = Dictionary<string, float32>()
+
+                (pedal.Item "KnobValues").ChildNodes
+                |> Seq.cast<XmlNode>
+                |> Seq.iter (fun node ->
+                    let key = (node.Item ("Key", "http://schemas.microsoft.com/2003/10/Serialization/Arrays")).InnerText
+                    let value = (node.Item ("Value", "http://schemas.microsoft.com/2003/10/Serialization/Arrays")).InnerText
+                    knobValues.Add(key, float32 value))
         
                 Pedal(Category = (if cat.IsEmpty then null else cat.InnerText),
                       Type = (pedal.Item "Type").InnerText,
                       Key = (pedal.Item "PedalKey").InnerText,
                       KnobValues = knobValues,
-                      Skin = (if not <| isNull skin then skin.InnerText else null),
-                      SkinIndex = (if not <| isNull skinIndex then Nullable(float32 skin.InnerText) else Nullable()))
+                      Skin = (if isNull skin then null else skin.InnerText),
+                      SkinIndex = (if isNull skinIndex then Nullable() else Nullable(float32 skin.InnerText)))
         
         let getGearList (gearList: XmlElement) =
             let getPedal = getPedal gearList
