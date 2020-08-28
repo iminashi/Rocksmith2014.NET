@@ -181,11 +181,15 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfAsync.perform dialog None AddProjectsFolderPath
 
     | SelectToneImportFile ->
-        let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectImportToneFile") (Dialogs.psarcFilter state.Localization)
-        state, Cmd.OfAsync.perform dialog None ImportTonesFromPSARC
+        let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectImportToneFile") (Dialogs.toneImportFilter state.Localization)
+        state, Cmd.OfAsync.perform dialog None ImportTonesFromFile
 
-    | ImportTonesFromPSARC (Some fileName) ->
-        let task () = Utils.importTonesFromPSARC fileName
+    | ImportTonesFromFile (Some fileName) ->
+        let task () =
+            if fileName.EndsWith("psarc", StringComparison.OrdinalIgnoreCase) then
+                Utils.importTonesFromPSARC fileName
+            else
+                async { return [| Tone.ImportFromXml fileName |] }
         state, Cmd.OfAsync.either task () ShowImportToneSelector ErrorOccurred
 
     | ImportProfileTones ->
@@ -200,10 +204,10 @@ let update (msg: Msg) (state: State) =
                 { state with Overlay = ErrorMessage msg }, Cmd.none
 
     | ShowImportToneSelector tones ->
-        if tones.Length = 0 then
-            { state with Overlay = ErrorMessage (state.Localization.GetString "couldNotFindTonesError") }, Cmd.none
-        else
-            { state with Overlay = ImportToneSelector tones; ImportTones = [] }, Cmd.none
+        match tones.Length with
+        | 0 -> { state with Overlay = ErrorMessage (state.Localization.GetString "couldNotFindTonesError") }, Cmd.none
+        | 1 -> { state with Project = { state.Project with Tones = tones.[0]::state.Project.Tones } }, Cmd.none
+        | _ -> { state with Overlay = ImportToneSelector tones; ImportTones = [] }, Cmd.none
 
     | ProjectSaveAs ->
         let intialFileName =
@@ -457,7 +461,7 @@ let update (msg: Msg) (state: State) =
     // When the user canceled any of the dialogs
     | AddArrangements None | AddCoverArt None | AddAudioFile None | AddCustomFontFile None
     | AddProfilePath None | AddTestFolderPath None | AddProjectsFolderPath None
-    | SaveProject None | OpenProject None | ImportTonesFromPSARC None ->
+    | SaveProject None | OpenProject None | ImportTonesFromFile None ->
         state, Cmd.none
 
 let view (state: State) dispatch =

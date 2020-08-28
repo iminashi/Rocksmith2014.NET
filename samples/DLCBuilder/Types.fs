@@ -56,7 +56,7 @@ module Types =
     | AddProfilePath of path : string option
     | AddTestFolderPath of path : string option
     | AddProjectsFolderPath of path : string option
-    | ImportTonesFromPSARC of fileName : string option
+    | ImportTonesFromFile of fileName : string option
     | ArrangementSelected of selected : Arrangement option
     | ToneSelected of selected : Tone option
     | DeleteArrangement
