@@ -95,4 +95,7 @@ let encryptSNG (input: Stream) (output: Stream) (platform: Platform) (iv: byte[]
 
     output.Write(iv, 0, iv.Length)
 
-    aesCtrTransform input output key iv
+    if Sse2.IsSupported then
+        aesCtrTransformSIMD input output key iv
+    else
+        aesCtrTransform input output key iv

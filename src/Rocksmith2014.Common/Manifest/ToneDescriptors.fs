@@ -164,7 +164,4 @@ module ToneDescriptor =
         Array.find (fun x -> x.UIName = uiName) all
 
     let combineUINames (uiNames: string array) =
-        let names = 
-            uiNames
-            |> Array.map uiNameToName
-        String.Join(" ", names)
+        String.Join(" ", Array.map uiNameToName uiNames)
