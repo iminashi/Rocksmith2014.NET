@@ -48,17 +48,15 @@ type Tone =
         sprintf "%s%s" this.Name description
 
     static member ImportFromXml(fileName: string) =
-        let getPedal (pedal: XmlElement) =
+        let getPedal (gearList: XmlElement) (name: string) =
+            let pedal = gearList.Item name
             if pedal.IsEmpty then Unchecked.defaultof<Pedal>
             else
                 let cat = pedal.Item "Category"
-                let typ = pedal.Item "Type"
-                let key = pedal.Item "PedalKey"
                 let skin = pedal.Item "Skin"
                 let skinIndex = pedal.Item "SkinIndex"
-                let knobValues = pedal.Item "KnobValues"
-                let knobs =
-                    knobValues.ChildNodes
+                let knobValues =
+                    (pedal.Item "KnobValues").ChildNodes
                     |> Seq.cast<XmlNode>
                     |> Seq.map (fun node ->
                         let key = (node.Item ("Key", "http://schemas.microsoft.com/2003/10/Serialization/Arrays")).InnerText
@@ -66,45 +64,31 @@ type Tone =
                         key, float32 value)
                     |> dict
                     |> Dictionary
-                printfn "%A" knobs
         
                 Pedal(Category = (if cat.IsEmpty then null else cat.InnerText),
-                      Type = typ.InnerText,
-                      Key = key.InnerText,
-                      KnobValues = knobs,
+                      Type = (pedal.Item "Type").InnerText,
+                      Key = (pedal.Item "PedalKey").InnerText,
+                      KnobValues = knobValues,
                       Skin = (if not <| isNull skin then skin.InnerText else null),
                       SkinIndex = (if not <| isNull skinIndex then Nullable(float32 skin.InnerText) else Nullable()))
         
         let getGearList (gearList: XmlElement) =
-            let amp = gearList.Item "Amp"
-            let cab = gearList.Item "Cabinet"
-            let r1 = gearList.Item "Rack1"
-            let r2 = gearList.Item "Rack2"
-            let r3 = gearList.Item "Rack3"
-            let r4 = gearList.Item "Rack4"
-            let pre1 = gearList.Item "PrePedal1"
-            let pre2 = gearList.Item "PrePedal2"
-            let pre3 = gearList.Item "PrePedal3"
-            let pre4 = gearList.Item "PrePedal4"
-            let post1 = gearList.Item "PostPedal1"
-            let post2 = gearList.Item "PostPedal2"
-            let post3 = gearList.Item "PostPedal3"
-            let post4 = gearList.Item "PostPedal4"
+            let getPedal = getPedal gearList
         
-            { Rack1 = getPedal r1
-              Rack2 = getPedal r2
-              Rack3 = getPedal r3
-              Rack4 = getPedal r4
-              Amp = getPedal amp
-              Cabinet = getPedal cab
-              PrePedal1 = getPedal pre1
-              PrePedal2 = getPedal pre2
-              PrePedal3 = getPedal pre3
-              PrePedal4 = getPedal pre4
-              PostPedal1 = getPedal post1
-              PostPedal2 = getPedal post2
-              PostPedal3 = getPedal post3
-              PostPedal4 = getPedal post4 }
+            { Rack1 = getPedal "Rack1"
+              Rack2 = getPedal "Rack2"
+              Rack3 = getPedal "Rack3"
+              Rack4 = getPedal "Rack4"
+              Amp = getPedal "Amp"
+              Cabinet = getPedal "Cabinet"
+              PrePedal1 = getPedal "PrePedal1"
+              PrePedal2 = getPedal "PrePedal2"
+              PrePedal3 = getPedal "PrePedal3"
+              PrePedal4 = getPedal "PrePedal4"
+              PostPedal1 = getPedal "PostPedal1"
+              PostPedal2 = getPedal "PostPedal2"
+              PostPedal3 = getPedal "PostPedal3"
+              PostPedal4 = getPedal "PostPedal4" }
 
         let getDescriptors (descs: XmlElement) =
             descs.ChildNodes
@@ -119,16 +103,13 @@ type Tone =
         if docEl.Name <> "Tone2014" then
             failwith "Not a valid tone XML file."
         else
-            let gearList = getGearList (docEl.Item "GearList")
-            let isCustom = (docEl.Item "IsCustom").InnerText
             let macVol = docEl.Item "MacVolume"
             let sortOrder = docEl.Item "SortOrder"
-            let toneDesc = getDescriptors (docEl.Item "ToneDescriptors")
 
-            { GearList = gearList
-              ToneDescriptors = toneDesc
+            { GearList = getGearList (docEl.Item "GearList")
+              ToneDescriptors = getDescriptors (docEl.Item "ToneDescriptors")
               NameSeparator = (docEl.Item "NameSeparator").InnerText
-              IsCustom = Boolean.Parse(isCustom)
+              IsCustom = Boolean.Parse((docEl.Item "IsCustom").InnerText)
               Volume = (docEl.Item "Volume").InnerText
               MacVolume = if isNull macVol then null else macVol.InnerText
               Key = (docEl.Item "Key").InnerText
