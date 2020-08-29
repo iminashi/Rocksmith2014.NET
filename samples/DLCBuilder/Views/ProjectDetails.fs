@@ -186,7 +186,9 @@ let view state dispatch =
                         DockPanel.children [
                             Button.create [
                                 DockPanel.dock Dock.Right
-                                Button.content "conv"
+                                Button.content "wem"
+                                Button.margin (0.0, 4.0, 4.0, 4.0)
+                                Button.isEnabled (not state.BuildInProgress)
                                 Button.onClick (fun _ -> dispatch ConvertToWem)
                             ]
                             Button.create [

@@ -274,7 +274,7 @@ let update (msg: Msg) (state: State) =
                 IO.Path.Combine (IO.Path.GetDirectoryName audioFile, 
                                  IO.Path.GetFileNameWithoutExtension audioFile)
             let task () = async { Wwise.convertToWem audioFile target }
-            state, Cmd.OfAsync.attempt task () ErrorOccurred
+            { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
         else
             state, Cmd.none
 

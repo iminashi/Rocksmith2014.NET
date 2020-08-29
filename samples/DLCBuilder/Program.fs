@@ -39,7 +39,7 @@ type MainWindow() as this =
         let closed _ =
             let sub dispatch = this.Closing.Add(fun _ -> dispatch SaveConfiguration)
             Cmd.ofSub sub
-        
+       
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
         //this.VisualRoot.VisualRoot.Renderer.DrawDirtyRects <- true
 
@@ -81,5 +81,6 @@ module Program =
         AppBuilder
             .Configure<App>()
             .UsePlatformDetect()
+            //.With(AvaloniaNativePlatformOptions(UseGpu = false))
             .UseSkia()
             .StartWithClassicDesktopLifetime(args)

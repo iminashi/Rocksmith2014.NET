@@ -22,13 +22,13 @@ let private getCLIPath() =
             let wwiseRoot = Environment.GetEnvironmentVariable "WWISEROOT"
             if String.IsNullOrEmpty wwiseRoot then
                 failwith "Failed to read WWISEROOT environment variable."
-            elif not <| wwiseRoot.Contains "2019" then
+            elif not <| wwiseRoot.Contains("2019", StringComparison.Ordinal) then
                 failwith "Wwise version must be 2019."
             Path.Combine(wwiseRoot, @"Authoring\x64\Release\bin\WwiseConsole.exe")
         elif RuntimeInformation.IsOSPlatform OSPlatform.OSX then
             let wwiseAppPath =
                 Directory.EnumerateDirectories("/Applications/Audiokinetic")
-                |> Seq.tryFind (fun x -> x.Contains("2019"))
+                |> Seq.tryFind (fun x -> x.Contains("2019", StringComparison.Ordinal))
                 |> Option.defaultWith (fun _ -> failwith "Could not find Wwise 2019 installation in path /Applications/Audiokinetic/")
             Path.Combine(wwiseAppPath, "Wwise.app/Contents/Tools/WwiseConsole.sh")
         else
@@ -91,14 +91,17 @@ let private copyWemFiles (destPath: string) (templateDir: string) =
 let convertToWem (sourcePath: string) (destPath: string) =
     let cliPath = getCLIPath()
     let templateDir = loadTemplate sourcePath
-
+    
     let template = Path.Combine(templateDir, "Template.wproj")
-    let args = sprintf "generate-soundbank \"%s\" --platform \"Windows\" --language \"English(US)\"" template
-
-    let startInfo = ProcessStartInfo(FileName = cliPath, Arguments = args)
+    let args = sprintf "generate-soundbank \"%s\" --platform \"Windows\" --language \"English(US)\" --no-decode --quiet" template
+    
+    let startInfo = ProcessStartInfo(FileName = cliPath, Arguments = args, CreateNoWindow = true, RedirectStandardOutput = true)
     use wwiseCli = new Process(StartInfo = startInfo)
     wwiseCli.Start() |> ignore
+    let output = wwiseCli.StandardOutput.ReadToEnd()
     wwiseCli.WaitForExit()
-
+    
+    if output.Length > 0 then failwith output
+    
     copyWemFiles destPath templateDir
     cleanDirectory templateDir
