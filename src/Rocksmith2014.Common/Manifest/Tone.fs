@@ -69,7 +69,7 @@ type Tone =
                       Key = (pedal.Item "PedalKey").InnerText,
                       KnobValues = knobValues,
                       Skin = (if isNull skin then null else skin.InnerText),
-                      SkinIndex = (if isNull skinIndex then Nullable() else Nullable(float32 skin.InnerText)))
+                      SkinIndex = (if not (isNull skinIndex || skinIndex.IsEmpty) then Nullable(float32 skin.InnerText) else Nullable()))
         
         let getGearList (gearList: XmlElement) =
             let getPedal = getPedal gearList
