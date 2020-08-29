@@ -51,6 +51,7 @@ type Arrangement =
                 | ArrangementPriority.Alternative -> "Alt. "
                 | ArrangementPriority.Bonus -> "Bonus "
                 | _ -> failwith "Impossible."
+
             let extra =
                 if inst.Name = ArrangementName.Combo then
                     " (Combo)"

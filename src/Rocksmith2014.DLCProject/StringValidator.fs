@@ -11,11 +11,10 @@ let dlcKey (input: string) =
     Regex.Replace(input, "[^0-9a-zA-Z]", "")
 
 let field (input: string) =
-    input
-    |> String.filter usableCharacters.Contains
+    String.filter usableCharacters.Contains input
 
 let sortField (input: string) =
-    Regex.Replace(input, "^[^A-Za-z0-9]*", "")
+    Regex.Replace(input, "^[^0-9a-zA-Z]*", "")
 
 let removeArticles (input: string) =
     if input.StartsWith("the ", StringComparison.OrdinalIgnoreCase) then

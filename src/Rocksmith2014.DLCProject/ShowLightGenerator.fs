@@ -124,8 +124,5 @@ let generate (targetFile: string) (sngs: (Arrangement * SNG) list) =
         |> Seq.append (generateLaserNotes sng)
         |> Seq.sortBy (fun x -> x.Time)
 
-    let list =
-        ResizeArray<ShowLight>(showlights)
-        |> validateShowLights
-
+    let list = validateShowLights (ResizeArray(showlights))
     ShowLights.Save(targetFile, list)

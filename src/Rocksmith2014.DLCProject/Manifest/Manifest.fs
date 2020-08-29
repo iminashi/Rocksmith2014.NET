@@ -1,10 +1,10 @@
 ﻿namespace Rocksmith2014.DLCProject.Manifest
 
+open Rocksmith2014.Common.Manifest
 open System
+open System.IO
 open System.Text.Json
 open System.Text.Json.Serialization
-open Rocksmith2014.Common.Manifest
-open System.IO
 open System.Text.Encodings.Web
 
 type Manifest =
