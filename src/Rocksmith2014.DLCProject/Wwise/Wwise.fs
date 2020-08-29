@@ -26,10 +26,13 @@ let private getCLIPath() =
                 failwith "Wwise version must be 2019."
             Path.Combine(wwiseRoot, @"Authoring\x64\Release\bin\WwiseConsole.exe")
         elif RuntimeInformation.IsOSPlatform OSPlatform.OSX then
-            // TODO
-            ".../Authoring/Wwise.app/Contents/Tools/WwiseConsole.sh"
+            let wwiseAppPath =
+                Directory.EnumerateDirectories("/Applications/Audiokinetic")
+                |> Seq.tryFind (fun x -> x.Contains("2019"))
+                |> Option.defaultWith (fun _ -> failwith "Could not find Wwise 2019 installation in path /Applications/Audiokinetic/")
+            Path.Combine(wwiseAppPath, "Wwise.app/Contents/Tools/WwiseConsole.sh")
         else
-            failwith "Not supported."
+            failwith "Only Windows and macOS are supported for Wwise conversion."
 
     if not <| File.Exists cliPath then
         failwith "Could not find Wwise Console executable."
