@@ -13,10 +13,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="res\wwise2019.zip" />
     <EmbeddedResource Include="res\rsenumerable_root.flat" />
     <EmbeddedResource Include="res\rsenumerable_song.flat" />
     <Compile Include="SoundBank\SoundBank.fs" />
     <Compile Include="DDS\DDS.fs" />
+    <Compile Include="Wwise\Wwise.fs" />
     <Compile Include="RouteMask.fs" />
     <Compile Include="Arrangement.fs" />
     <Compile Include="StringValidator.fs" />

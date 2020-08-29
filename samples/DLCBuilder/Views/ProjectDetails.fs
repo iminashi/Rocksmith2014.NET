@@ -186,6 +186,11 @@ let view state dispatch =
                         DockPanel.children [
                             Button.create [
                                 DockPanel.dock Dock.Right
+                                Button.content "conv"
+                                Button.onClick (fun _ -> dispatch ConvertToWem)
+                            ]
+                            Button.create [
+                                DockPanel.dock Dock.Right
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
                                 Button.padding (10.0, 0.0)
                                 Button.content "..."

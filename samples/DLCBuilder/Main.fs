@@ -267,6 +267,17 @@ let update (msg: Msg) (state: State) =
         let previewFile = { state.Project.AudioPreviewFile with Path = previewPath }
         { state with Project = { state.Project with AudioFile = audioFile; AudioPreviewFile = previewFile } }, Cmd.none
 
+    | ConvertToWem ->
+        let audioFile = state.Project.AudioFile.Path
+        if IO.File.Exists audioFile && IO.File.Exists state.Project.AudioPreviewFile.Path then
+            let target =
+                IO.Path.Combine (IO.Path.GetDirectoryName audioFile, 
+                                 IO.Path.GetFileNameWithoutExtension audioFile)
+            let task () = async { Wwise.convertToWem audioFile target }
+            state, Cmd.OfAsync.attempt task () ErrorOccurred
+        else
+            state, Cmd.none
+
     | AddCoverArt (Some fileName) ->
         state.CoverArt |> Option.iter dispose
         

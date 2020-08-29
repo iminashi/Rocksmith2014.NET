@@ -82,6 +82,7 @@ module Types =
     | BuildTest
     | BuildRelease
     | BuildComplete of unit
+    | ConvertToWem
     | ShowImportToneSelector of tones : Tone array
     | ChangeLocale of locale : Locale
     | ErrorOccurred of e : exn
