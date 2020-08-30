@@ -20,10 +20,10 @@ module Locales =
         | _ -> English
 
 type Localization(locale: Locale) =
-    let defaultLocale = Locales.English
+    static let defaultLocale = Locales.English
+    static let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
 
     static let loadDictionary name =
-        let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
         use json = embeddedProvider.GetFileInfo(name).CreateReadStream()
         JsonSerializer.DeserializeAsync<Dictionary<string, string>>(json).AsAsync()
         |> Async.RunSynchronously
