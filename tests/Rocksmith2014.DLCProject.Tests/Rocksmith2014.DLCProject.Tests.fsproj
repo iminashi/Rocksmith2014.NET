@@ -30,6 +30,7 @@
     <Compile Include="ManifestTests.fs" />
     <Compile Include="XblockTests.fs" />
     <Compile Include="AggregateGraphTests.fs" />
+    <Compile Include="ShowlightGeneratorTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
