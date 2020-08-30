@@ -4,8 +4,7 @@ open System.IO
 open Rocksmith2014.Common.Interfaces
 
 type NamedEntry =
-    { Name: string
-      Data: Stream }
+    { Name: string; Data: Stream }
 
     static member Dispose(e) = e.Data.Dispose()
 

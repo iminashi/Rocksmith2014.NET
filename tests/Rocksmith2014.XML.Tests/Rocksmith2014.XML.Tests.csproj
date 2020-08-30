@@ -3,6 +3,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FluentAssertions">

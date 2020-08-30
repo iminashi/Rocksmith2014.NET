@@ -9,11 +9,11 @@ module Platform =
     | SNG = 1
     | PackageSuffix = 2
 
-    let private PathsPC = [| "windows"; "generic"; "_p" |]
-    let private PathsMac = [| "mac"; "macos"; "_m" |]
+    let private pathsPC = [| "windows"; "generic"; "_p" |]
+    let private pathsMac = [| "mac"; "macos"; "_m" |]
 
     let getPath platform (path: Path) =
         let index = LanguagePrimitives.EnumToValue path
         match platform with
-        | PC -> PathsPC.[index]
-        | Mac -> PathsMac.[index]
+        | PC -> pathsPC.[index]
+        | Mac -> pathsMac.[index]
