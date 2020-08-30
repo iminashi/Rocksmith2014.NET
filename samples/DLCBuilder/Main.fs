@@ -389,7 +389,7 @@ let update (msg: Msg) (state: State) =
 
     | SaveProject (Some target) ->
         let task() = DLCProject.save target state.Project
-        state, Cmd.OfAsync.attempt task () ErrorOccurred
+        { state with OpenProjectFile = Some target }, Cmd.OfAsync.attempt task () ErrorOccurred
 
     | ProjectSaveOrSaveAs ->
         let msg =
