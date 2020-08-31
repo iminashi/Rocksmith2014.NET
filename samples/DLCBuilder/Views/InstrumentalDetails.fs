@@ -170,20 +170,29 @@ let view state dispatch (i: Instrumental) =
                 Grid.row 5
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "centOffset")
+                TextBlock.text (state.Localization.GetString "tuningPitch")
             ]
 
-            NumericUpDown.create [
+            StackPanel.create [
                 Grid.column 1
                 Grid.row 5
-                NumericUpDown.horizontalAlignment HorizontalAlignment.Left
-                NumericUpDown.width 65.
-                NumericUpDown.value (float i.CentOffset)
-                NumericUpDown.minimum -5000.0
-                NumericUpDown.maximum 5000.0
-                NumericUpDown.increment 1.0
-                NumericUpDown.formatString "F0"
-                NumericUpDown.onValueChanged (fun value -> (fun _ a -> { a with CentOffset = int value }) |> EditInstrumental |> dispatch)
+                StackPanel.orientation Orientation.Horizontal
+                StackPanel.children [
+                    NumericUpDown.create [
+                        NumericUpDown.horizontalAlignment HorizontalAlignment.Left
+                        NumericUpDown.width 90.
+                        NumericUpDown.value i.TuningPitch
+                        NumericUpDown.minimum 0.0
+                        NumericUpDown.maximum 50000.0
+                        NumericUpDown.increment 1.0
+                        NumericUpDown.formatString "F2"
+                        NumericUpDown.onValueChanged (fun value -> (fun _ a -> { a with TuningPitch = value }) |> EditInstrumental |> dispatch)
+                    ]
+                    TextBlock.create [
+                        TextBlock.verticalAlignment VerticalAlignment.Center
+                        TextBlock.text (sprintf "%+.1f cents" (Utils.tuningPitchToCents i.TuningPitch))
+                    ]
+                ]
             ]
 
             TextBlock.create [

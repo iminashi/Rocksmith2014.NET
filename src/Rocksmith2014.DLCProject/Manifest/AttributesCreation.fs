@@ -315,7 +315,7 @@ let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Inst
     attr.AlbumNameSort <- project.AlbumName.SortValue
     attr.ArtistName <- project.ArtistName.Value
     attr.ArtistNameSort <- project.ArtistName.SortValue
-    attr.CentOffset <- instrumental.CentOffset |> float |> Nullable
+    attr.CentOffset <- Utils.tuningPitchToCents instrumental.TuningPitch |> Nullable
     attr.DNA_Chords <- dnaChords |> Nullable
     attr.DNA_Riffs <- dnaRiffs |> Nullable
     attr.DNA_Solo <- dnaSolo |> Nullable

@@ -47,7 +47,7 @@
   "path": "Polku",
   "picked": "Plektra",
   "tuning": "Viritys",
-  "centOffset": "Poikkeama",
+  "tuningPitch": "Sävelkorkeus",
   "baseTone": "Perus-soundi",
   "tones": "Soundit",
   "scrollSpeed": "Vieritysnopeus",

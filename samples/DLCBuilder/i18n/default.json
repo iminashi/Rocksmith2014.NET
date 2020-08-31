@@ -47,7 +47,7 @@
   "path": "Path",
   "picked": "Picked",
   "tuning": "Tuning",
-  "centOffset": "Cent Offset",
+  "tuningPitch": "Tuning Pitch",
   "baseTone": "Base Tone",
   "tones": "Tones",
   "scrollSpeed": "Scroll Speed",

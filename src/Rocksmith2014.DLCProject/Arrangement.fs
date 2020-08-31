@@ -21,7 +21,7 @@ type Instrumental =
       ScrollSpeed : float
       BassPicked : bool
       Tuning : int16 array
-      CentOffset : int
+      TuningPitch : double
       BaseTone : string
       Tones : string list
       MasterID : int

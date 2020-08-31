@@ -68,7 +68,7 @@ let private loadArrangement state (fileName: string) =
                 elif metadata.ArrangementProperties.BonusArrangement then ArrangementPriority.Bonus
                 else ArrangementPriority.Alternative
               Tuning = metadata.Tuning.Strings
-              CentOffset = metadata.CentOffset
+              TuningPitch = Utils.centsToTuningPitch(float metadata.CentOffset)
               RouteMask =
                 if metadata.ArrangementProperties.PathBass then RouteMask.Bass
                 elif metadata.ArrangementProperties.PathLead then RouteMask.Lead
