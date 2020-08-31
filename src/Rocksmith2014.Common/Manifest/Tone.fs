@@ -1,7 +1,7 @@
 ﻿namespace Rocksmith2014.Common.Manifest
 
-open System.Collections.Generic
 open System
+open System.Collections.Generic
 open System.Xml
 
 type Pedal() =
@@ -10,7 +10,7 @@ type Pedal() =
     member val Key : string = null with get, set
     member val Category : string = null with get, set
     member val Skin : string = null with get, set
-    member val SkinIndex : string = null with get, set
+    member val SkinIndex : Nullable<float32> = Nullable() with get, set
 
 type Gear =
     { Rack1 : Pedal
@@ -68,13 +68,13 @@ module Tone =
                 let key = knob.Item("Key", "http://schemas.microsoft.com/2003/10/Serialization/Arrays").InnerText
                 let value = knob.Item("Value", "http://schemas.microsoft.com/2003/10/Serialization/Arrays").InnerText
                 knobValues.Add(key, float32 value))
-    
+
             Pedal(Category = (if cat.IsEmpty then null else cat.InnerText),
                   Type = (node pedal "Type").InnerText,
                   Key = (node pedal "PedalKey").InnerText,
                   KnobValues = knobValues,
                   Skin = (if isNull skin then null else skin.InnerText),
-                  SkinIndex = (if not (isNull skinIndex || skinIndex.IsEmpty) then skin.InnerText else null))
+                  SkinIndex = if not (isNull skinIndex || skinIndex.IsEmpty) then Nullable(float32 skinIndex.InnerText) else Nullable())
 
     let private getGearList (ns: string option) (gearList: XmlElement) =
         let getPedal = getPedal ns gearList
