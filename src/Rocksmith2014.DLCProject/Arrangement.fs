@@ -8,6 +8,13 @@ type ArrangementName =
     | Rhythm = 2
     | Bass = 3
 
+type RouteMask =
+    | None = 0
+    | Lead = 1
+    | Rhythm = 2
+    | Any = 3
+    | Bass = 4
+
 type ArrangementPriority =
     | Main = 0
     | Alternative = 1

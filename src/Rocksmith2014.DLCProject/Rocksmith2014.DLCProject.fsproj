@@ -24,7 +24,6 @@
     <Compile Include="DDS\DDS.fs" />
     <Compile Include="Wwise\Wwise.fs" />
     <Compile Include="Utils.fs" />
-    <Compile Include="RouteMask.fs" />
     <Compile Include="Arrangement.fs" />
     <Compile Include="StringValidator.fs" />
     <Compile Include="DLCProject.fs" />
