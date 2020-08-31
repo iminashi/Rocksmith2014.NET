@@ -7,6 +7,11 @@ open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open Rocksmith2014.Common.Manifest
 
+let private optionalString (node: XmlNode) name =
+    node.Item name
+    |> Option.ofObj
+    |> Option.bind (fun x -> Option.ofString x.InnerText)
+
 let private importArrangement (arr: XmlNode) =
     let d4p1 = "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.XML"
     let xml = arr.Item("SongXml").Item("File", "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.AggregateGraph").InnerText
@@ -87,15 +92,6 @@ let import (templatePath: string) =
         match Int32.TryParse((songInfo.Item "SongYear").InnerText) with
         | true, y -> y
         | false, _ -> DateTime.Now.Year
-    let jName =
-        songInfo.Item "JapaneseArtistName"
-        |> Option.ofObj
-        |> Option.bind (fun x -> Option.ofString x.InnerText)
-
-    let jTitle =
-        songInfo.Item "JapaneseSongName"
-        |> Option.ofObj
-        |> Option.bind (fun x -> Option.ofString x.InnerText)
 
     let audioPath = (docEl.Item "OggPath").InnerText
     let previewPath =
@@ -126,8 +122,8 @@ let import (templatePath: string) =
     { Version = version
       DLCKey = docEl.Item("Name").InnerText
       ArtistName = SortableString.Create(songInfo.Item("Artist").InnerText, songInfo.Item("ArtistSort").InnerText)
-      JapaneseArtistName = jName
-      JapaneseTitle = jTitle
+      JapaneseArtistName = optionalString songInfo "JapaneseArtistName"
+      JapaneseTitle = optionalString songInfo "JapaneseSongName"
       Title = SortableString.Create(songInfo.Item("SongDisplayName").InnerText, songInfo.Item("SongDisplayNameSort").InnerText)
       AlbumName = SortableString.Create(songInfo.Item("Album").InnerText, songInfo.Item("AlbumSort").InnerText)
       Year = year
