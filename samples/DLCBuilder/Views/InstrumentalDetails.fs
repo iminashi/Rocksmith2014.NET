@@ -8,16 +8,17 @@ open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open System
 
-let view state dispatch (i: Instrumental) =
-    let fixPriority state routeMask arr =
-        if arr.Priority = ArrangementPriority.Main
-           && state.Project.Arrangements |> List.exists (function
-                | Instrumental is when is <> arr -> is.RouteMask = routeMask && is.Priority = ArrangementPriority.Main
-                | _ -> false) then
-            ArrangementPriority.Alternative
-        else
-            arr.Priority
+let private fixPriority state routeMask arr =
+    if arr.Priority = ArrangementPriority.Main
+       && state.Project.Arrangements |> List.exists (function
+            | Instrumental inst when inst <> arr ->
+                inst.RouteMask = routeMask && inst.Priority = ArrangementPriority.Main
+            | _ -> false) then
+        ArrangementPriority.Alternative
+    else
+        arr.Priority
 
+let view state dispatch (i: Instrumental) =
     Grid.create [
         //Grid.showGridLines true
         Grid.margin (0.0, 4.0)
