@@ -1,8 +1,8 @@
 ﻿module Rocksmith2014.DLCProject.ToolkitImporter
 
-open System.Xml
 open System
 open System.IO
+open System.Xml
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open Rocksmith2014.Common.Manifest
@@ -68,10 +68,28 @@ let private importArrangement (arr: XmlNode) =
         let isJapanese =
             let n = arr.Item("Name")
             (if isNull n then arr.Item("ArrangementName") else n).InnerText = "JVocals"
+
+        let customFont =
+            let lyricsArtPath = arr.Item "LyricsArtPath"
+            if not <| isNull lyricsArtPath then
+                Option.ofString lyricsArtPath.InnerText
+            else
+                let lyricArt = arr.Item "LyricArt"
+                if not <| isNull lyricArt then
+                    Option.ofString lyricArt.InnerText  
+                else
+                    let gds =
+                        let a = arr.Item "GlyphDefinitons" // sic
+                        if isNull a then arr.Item "GlyphDefinitions" else a
+                    if isNull gds || gds.IsEmpty then
+                        None
+                    else
+                        // x.glyphs.xml -> x.dds
+                        Some (Path.GetFileNameWithoutExtension (Path.GetFileNameWithoutExtension gds.InnerText) + ".dds")                 
             
         { XML = xml
           Japanese = isJapanese 
-          CustomFont = None
+          CustomFont = customFont
           MasterID = int (arr.Item("MasterId").InnerText)
           PersistentID = Guid.Parse(arr.Item("Id").InnerText) }
         |> Vocals

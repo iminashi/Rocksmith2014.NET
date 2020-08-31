@@ -73,7 +73,7 @@ module Tone =
                   Type = (node pedal "Type").InnerText,
                   Key = (node pedal "PedalKey").InnerText,
                   KnobValues = knobValues,
-                  Skin = (if isNull skin then null else skin.InnerText),
+                  Skin = (if not (isNull skin || skin.IsEmpty) then skin.InnerText else null),
                   SkinIndex = if not (isNull skinIndex || skinIndex.IsEmpty) then Nullable(float32 skinIndex.InnerText) else Nullable())
 
     let private getGearList (ns: string option) (gearList: XmlElement) =
