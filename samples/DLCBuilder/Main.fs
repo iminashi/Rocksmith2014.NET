@@ -37,11 +37,6 @@ let init () =
       OpenProjectFile = None
       Localization = Localization(Locales.English) }, Cmd.OfAsync.perform Configuration.load () SetConfiguration
 
-let private arrangementSorter = function
-    | Instrumental i -> (LanguagePrimitives.EnumToValue i.RouteMask), (LanguagePrimitives.EnumToValue i.Priority)
-    | Vocals v -> 5, if v.Japanese then 1 else 0
-    | Showlights _ -> 6, 0
-
 let private loadArrangement state (fileName: string) =
     let rootName =
         using (XmlReader.Create(fileName))
@@ -197,7 +192,8 @@ let update (msg: Msg) (state: State) =
                     Some (Utils.loadBitmap project.AlbumArtFile)
                 else
                     state.CoverArt
-            { state with Project = project; OpenProjectFile = None; CoverArt = coverArt }, Cmd.none
+            { state with Project = project; OpenProjectFile = None; CoverArt = coverArt
+                         SelectedArrangement = None; SelectedTone = None }, Cmd.none
         with e -> state, Cmd.ofMsg (ErrorOccurred e)
 
     | ImportTonesFromFile (Some fileName) ->
@@ -333,7 +329,7 @@ let update (msg: Msg) (state: State) =
                         | _ -> arr
                     arr::state
                 | _ -> state)
-            |> List.sortBy arrangementSorter
+            |> List.sortBy Arrangement.sorter
 
         let metadata = 
             if state.Project.ArtistName = SortableString.Empty then

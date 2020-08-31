@@ -106,3 +106,8 @@ module Arrangement =
 
     let pickInstrumental = function Instrumental i -> Some i | _ -> None
     let pickShowlights = function Showlights s -> Some s | _ -> None
+
+    let sorter = function
+        | Instrumental i -> (LanguagePrimitives.EnumToValue i.RouteMask), (LanguagePrimitives.EnumToValue i.Priority)
+        | Vocals v -> 5, if v.Japanese then 1 else 0
+        | Showlights _ -> 6, 0
