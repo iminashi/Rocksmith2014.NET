@@ -45,7 +45,9 @@ let view state dispatch (i: Instrumental) =
                             let routeMask =
                                 match name with
                                 | ArrangementName.Lead -> RouteMask.Lead
-                                | ArrangementName.Rhythm | ArrangementName.Combo -> RouteMask.Rhythm
+                                | ArrangementName.Rhythm -> RouteMask.Rhythm
+                                | ArrangementName.Combo ->
+                                    if i.RouteMask = RouteMask.Bass then RouteMask.Rhythm else i.RouteMask
                                 | ArrangementName.Bass -> RouteMask.Bass
                                 | _ -> failwith "Impossible failure."
                             let priority = fixPriority state routeMask a
