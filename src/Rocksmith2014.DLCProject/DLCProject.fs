@@ -25,7 +25,7 @@ type SortableString =
     static member Empty = { Value = String.Empty; SortValue = String.Empty }
 
 type DLCProject =
-    { Version: string
+    { Version : string
       DLCKey : string
       ArtistName : SortableString
       JapaneseArtistName : string option
@@ -61,7 +61,7 @@ module DLCProject =
         else
             Path.Combine(baseDir, fileName)
 
-    let private toAbsolutePaths (baseDir: string) (project: DLCProject) =
+    let toAbsolutePaths (baseDir: string) (project: DLCProject) =
         let abs = toAbsolutePath baseDir
         let arrangements =
             project.Arrangements
@@ -82,7 +82,7 @@ module DLCProject =
         else
             Path.GetRelativePath(relativeTo, path)
 
-    let private toRelativePaths (path: string) (project: DLCProject) =
+    let toRelativePaths (path: string) (project: DLCProject) =
         let rel = toRelativePath path
         let arrangements =
             project.Arrangements

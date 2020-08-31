@@ -184,12 +184,28 @@ let update (msg: Msg) (state: State) =
         let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectImportToneFile") (Dialogs.toneImportFilter state.Localization)
         state, Cmd.OfAsync.perform dialog None ImportTonesFromFile
 
+    | SelectToolkitTemplate ->
+        let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectImportToolkitTemplate") (Dialogs.toolkitFilter state.Localization)
+        state, Cmd.OfAsync.perform dialog None ImportToolkitTemplate
+
+    | ImportToolkitTemplate (Some fileName) ->
+        try
+            let project = ToolkitImporter.import fileName
+            let coverArt =
+                if IO.File.Exists project.AlbumArtFile then
+                    Option.iter dispose state.CoverArt
+                    Some (Utils.loadBitmap project.AlbumArtFile)
+                else
+                    state.CoverArt
+            { state with Project = project; OpenProjectFile = None; CoverArt = coverArt }, Cmd.none
+        with e -> state, Cmd.ofMsg (ErrorOccurred e)
+
     | ImportTonesFromFile (Some fileName) ->
         let task () =
             if fileName.EndsWith("psarc", StringComparison.OrdinalIgnoreCase) then
                 Utils.importTonesFromPSARC fileName
             else
-                async { return [| Tone.ImportFromXml fileName |] }
+                async { return [| Tone.fromXmlFile fileName |] }
         state, Cmd.OfAsync.either task () ShowImportToneSelector ErrorOccurred
 
     | ImportProfileTones ->
@@ -281,7 +297,7 @@ let update (msg: Msg) (state: State) =
     | AddCoverArt (Some fileName) ->
         state.CoverArt |> Option.iter dispose
         
-        { state with CoverArt = Some (Utils.loadBitmap(fileName))
+        { state with CoverArt = Some (Utils.loadBitmap fileName)
                      Project = { state.Project with AlbumArtFile = fileName } }, Cmd.none
 
     | AddArrangements (Some files) ->
@@ -472,7 +488,7 @@ let update (msg: Msg) (state: State) =
     // When the user canceled any of the dialogs
     | AddArrangements None | AddCoverArt None | AddAudioFile None | AddCustomFontFile None
     | AddProfilePath None | AddTestFolderPath None | AddProjectsFolderPath None
-    | SaveProject None | OpenProject None | ImportTonesFromFile None ->
+    | SaveProject None | OpenProject None | ImportTonesFromFile None | ImportToolkitTemplate None ->
         state, Cmd.none
 
 let view (state: State) dispatch =

@@ -124,5 +124,8 @@
   "Mandolin": "Mandolin *",
   "Piano": "Piano *",
   "Ukulele": "Ukulele *",
-  "toneDescriptorToolTip": "Tähdellä merkityt kuvaukset ovat merkkijonoja pelin lokalisaatiotiedostosta, jotka eivät liity soundeihin.\nKäyttö omalla vastuulla."
+  "toneDescriptorToolTip": "Tähdellä merkityt kuvaukset ovat merkkijonoja pelin lokalisaatiotiedostosta, jotka eivät liity soundeihin.\nKäyttö omalla vastuulla.",
+  "toolkitImportToolTip": "Tuo Toolkit työpohja",
+  "selectImportToolkitTemplate": "Valitse tuotava Toolkit työpohja",
+  "toolkitFiles": "Toolkit työpohjat"
 }

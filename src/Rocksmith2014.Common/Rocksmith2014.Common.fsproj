@@ -16,6 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Extensions.fs" />
     <Compile Include="Platform.fs" />
     <Compile Include="MemoryStreamPool.fs" />
     <Compile Include="Interfaces.fs" />

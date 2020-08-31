@@ -7,6 +7,7 @@ open Avalonia.Input
 open Avalonia.Layout
 open Avalonia.Media
 open Rocksmith2014.DLCProject
+open Rocksmith2014.Common
 open System
 open Media
 
@@ -281,14 +282,28 @@ let view state dispatch =
                                 Button.onClick (fun _ -> ShowConfigEditor |> dispatch)
                             ]
 
-                            Button.create [
+                            StackPanel.create [
                                 Grid.row 1
-                                Button.padding (15., 8.)
-                                Button.margin 4.
-                                Button.fontSize 16.
-                                Button.content (state.Localization.GetString "openProject")
-                                Button.onClick (fun _ -> SelectOpenProjectFile |> dispatch)
+                                StackPanel.orientation Orientation.Horizontal
+                                StackPanel.children [
+                                    Button.create [
+                                        Button.padding (15., 8.)
+                                        Button.margin (4., 4., 0., 4.)
+                                        Button.fontSize 16.
+                                        Button.content (state.Localization.GetString "openProject")
+                                        Button.onClick (fun _ -> SelectOpenProjectFile |> dispatch)
+                                    ]
+                                    Button.create [
+                                        Button.padding (8., 8.)
+                                        Button.margin (0., 4., 4., 4.)
+                                        Button.fontSize 16.
+                                        Button.content "..."
+                                        Button.onClick (fun _ -> SelectToolkitTemplate |> dispatch)
+                                        ToolTip.tip (state.Localization.GetString "toolkitImportToolTip")
+                                    ]
+                                ]
                             ]
+
                             StackPanel.create [
                                 Grid.column 1
                                 Grid.row 1

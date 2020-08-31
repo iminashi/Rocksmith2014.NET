@@ -124,5 +124,8 @@
   "Mandolin": "Mandolin *",
   "Piano": "Piano *",
   "Ukulele": "Ukulele *",
-  "toneDescriptorToolTip": "Descriptions marked with * are strings from the game's localization file not related to tone descriptions.\nUse at your own risk."
+  "toneDescriptorToolTip": "Descriptions marked with * are strings from the game's localization file not related to tone descriptions.\nUse at your own risk.",
+  "toolkitImportToolTip": "Import Toolkit Template",
+  "selectImportToolkitTemplate": "Select a Toolkit Template to Import",
+  "toolkitFiles": "Toolkit templates"
 }

@@ -1,4 +1,4 @@
-﻿namespace DLCBuilder
+﻿namespace Rocksmith2014.Common
 
 open System
 

@@ -5,6 +5,7 @@ open Avalonia
 open Avalonia.Controls
 open Avalonia.Threading
 open DLCBuilder
+open Rocksmith2014.Common
 
 let private window =
     lazy (Application.Current.ApplicationLifetime :?> ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime).MainWindow
@@ -20,6 +21,7 @@ let ddsFileFilter (loc:Localization) = createFilters (loc.GetString "ddsTextureF
 let profileFilter (loc:Localization) = createFilters (loc.GetString "profileFiles") (seq { "*" })
 let projectFilter (loc:Localization) = createFilters (loc.GetString "projectFiles") (seq { "rs2dlc" })
 let psarcFilter (loc:Localization) = createFilters (loc.GetString "psarcFiles") (seq { "psarc" })
+let toolkitFilter (loc:Localization) = createFilters (loc.GetString "toolkitFiles") (seq { "dlc.xml" })
 
 let toneImportFilter (loc:Localization) =
     List(seq { FileDialogFilter(Extensions = List(seq { "tone2014.xml" }), Name = loc.GetString "toneXmlFiles")

@@ -28,6 +28,7 @@
     <Compile Include="Arrangement.fs" />
     <Compile Include="StringValidator.fs" />
     <Compile Include="DLCProject.fs" />
+    <Compile Include="ToolkitImporter.fs" />
     <Compile Include="Partitioner.fs" />
     <Compile Include="AggregateGraph\Tags.fs" />
     <Compile Include="AggregateGraph\GraphItem.fs" />

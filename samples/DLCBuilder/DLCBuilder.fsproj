@@ -32,7 +32,6 @@
     <AvaloniaResource Include="**\*.xaml" />
     <Compile Include="Localization.fs" />
     <Compile Include="Media.fs" />
-    <Compile Include="Extensions.fs" />
     <Compile Include="Dialogs.fs" />
     <Compile Include="Configuration.fs" />
     <Compile Include="Types.fs" />
@@ -82,7 +81,6 @@
     <Watch Remove="Audio\Types.fs" />
     <Watch Remove="Configuration.fs" />
     <Watch Remove="Dialogs.fs" />
-    <Watch Remove="Extensions.fs" />
     <Watch Remove="Localization.fs" />
     <Watch Remove="Main.fs" />
     <Watch Remove="Media.fs" />

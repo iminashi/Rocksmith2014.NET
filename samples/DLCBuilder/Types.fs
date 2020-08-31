@@ -47,6 +47,8 @@ module Types =
     | SelectToneImportFile
     | ProjectSaveAs
     | SelectOpenProjectFile
+    | SelectToolkitTemplate
+    | ImportToolkitTemplate of fileName : string option
     | OpenProject of fileName : string option
     | SaveProject of fileName : string option
     | AddArrangements of files : string[] option
