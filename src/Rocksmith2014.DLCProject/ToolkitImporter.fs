@@ -13,7 +13,6 @@ let private optionalString (node: XmlNode) name =
     |> Option.bind (fun x -> Option.ofString x.InnerText)
 
 let private importArrangement (arr: XmlNode) =
-    let d4p1 = "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.XML"
     let xml = arr.Item("SongXml").Item("File", "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.AggregateGraph").InnerText
 
     match (arr.Item "ArrangementType").InnerText with
@@ -25,9 +24,15 @@ let private importArrangement (arr: XmlNode) =
                     if arr.Item("BonusArr").InnerText = "true" then ArrangementPriority.Bonus
                     else ArrangementPriority.Main
                 else
-                    if arrProp.Item("Represent", d4p1).InnerText = "1" then ArrangementPriority.Main
-                    elif arrProp.Item("BonusArr", d4p1).InnerText = "1" then ArrangementPriority.Bonus
-                    else ArrangementPriority.Alternative
+                    let tryGetPriority ns =
+                        if arrProp.Item("Represent", ns).InnerText = "1" then ArrangementPriority.Main
+                        elif arrProp.Item("BonusArr", ns).InnerText = "1" || arr.Item("BonusArr").InnerText = "true" then ArrangementPriority.Bonus
+                        else ArrangementPriority.Alternative
+
+                    // The XML namespace was renamed at some point.
+                    try
+                        tryGetPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.XML"
+                    with _ -> tryGetPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.Xml"
             with _ -> ArrangementPriority.Main
 
         let name =
@@ -78,14 +83,14 @@ let private importArrangement (arr: XmlNode) =
                 if not <| isNull lyricArt then
                     Option.ofString lyricArt.InnerText  
                 else
-                    let gds =
+                    let glyphDefs =
                         let a = arr.Item "GlyphDefinitons" // sic
                         if isNull a then arr.Item "GlyphDefinitions" else a
-                    if isNull gds || gds.IsEmpty then
+                    if isNull glyphDefs || glyphDefs.IsEmpty then
                         None
                     else
                         // x.glyphs.xml -> x.dds
-                        Some (Path.GetFileNameWithoutExtension (Path.GetFileNameWithoutExtension gds.InnerText) + ".dds")                 
+                        Some (Path.GetFileNameWithoutExtension (Path.GetFileNameWithoutExtension glyphDefs.InnerText) + ".dds")                 
             
         { XML = xml
           Japanese = isJapanese 
