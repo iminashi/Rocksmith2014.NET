@@ -69,17 +69,12 @@ let private fixHeader (fileName: string) =
     writer.WriteUInt32 3u
 
 let private copyWemFiles (destPath: string) (templateDir: string) =
-    let wemPath = Path.Combine (templateDir, ".cache", "Windows", "SFX")
-    let wemPathInfo = DirectoryInfo(wemPath)
-
-    let wemPaths =
-        wemPathInfo.EnumerateFiles("*")
-        |> Seq.filter (fun x -> x.FullName.EndsWith "wem")
-        |> Seq.toArray
-    if wemPaths.Length < 2 then
+    let cachePath = Path.Combine (templateDir, ".cache", "Windows", "SFX")
+    let wemFiles = Seq.toArray (DirectoryInfo(cachePath).EnumerateFiles("*.wem"))
+    if wemFiles.Length < 2 then
         failwith "Could not find converted Wwise audio and preview audio files."
 
-    for path in wemPaths do
+    for path in wemFiles do
         let destFile =
             if path.Name.Contains "preview" then
                 sprintf "%s_preview.wem" destPath
