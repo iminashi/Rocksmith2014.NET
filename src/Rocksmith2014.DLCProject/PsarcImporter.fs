@@ -130,6 +130,11 @@ let import (psarcFile: string) (targetDirectory: string) = async {
                     let max = Math.Min(int attributes.MaxPhraseDifficulty, attributes.DynamicVisualDensity.Length - 1)
                     float attributes.DynamicVisualDensity.[max]
 
+                let bassPicked =
+                    match attributes.BassPick |> Option.ofNullable with
+                    | Some x when x = 1 -> true
+                    | _ -> false
+
                 { XML = targetFile
                   Name = ArrangementName.Parse attributes.ArrangementName
                   Priority =
@@ -145,7 +150,7 @@ let import (psarcFile: string) (targetDirectory: string) = async {
                   ScrollSpeed = scrollSpeed
                   BaseTone = attributes.Tone_Base
                   Tones = tones
-                  BassPicked = attributes.BassPick |> Option.ofNullable |> Option.isSome
+                  BassPicked = bassPicked
                   MasterID = attributes.MasterID_RDV
                   PersistentID = Guid.Parse(attributes.PersistentID) }
                 |> Arrangement.Instrumental)
@@ -183,8 +188,7 @@ let import (psarcFile: string) (targetDirectory: string) = async {
         | Some tk ->
             use mem = MemoryStreamPool.Default.GetStream()
             do! psarc.InflateFile(tk, mem)
-            use reader = new StreamReader(mem)
-            let text = reader.ReadToEnd()
+            let text = using (new StreamReader(mem)) (fun reader -> reader.ReadToEnd())
             let m = Regex.Match(text, "Package Version: (.*)\r\n")
             if m.Success then
                 return m.Groups.[1].Captures.[0].Value
