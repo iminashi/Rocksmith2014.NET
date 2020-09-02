@@ -31,7 +31,7 @@ let import (psarcFile: string) (targetDirectory: string) = async {
     let showlights =
         psarc.Manifest
         |> Seq.find (fun x -> x.Contains "showlights")
-    do! psarc.InflateFile(showlights, Path.Combine(targetDirectory, "showlights.xml"))
+    do! psarc.InflateFile(showlights, Path.Combine(targetDirectory, "arr_showlights.xml"))
 
     let audioFiles =
         psarc.Manifest
@@ -146,7 +146,7 @@ let import (psarcFile: string) (targetDirectory: string) = async {
                   PersistentID = Guid.Parse(attributes.PersistentID) }
                 |> Arrangement.Instrumental)
         |> Array.toList
-        |> List.append [ Showlights { XML = Path.Combine(targetDirectory, "showlights.xml") } ]
+        |> List.append [ Showlights { XML = Path.Combine(targetDirectory, "arr_showlights.xml") } ]
         |> List.sortBy Arrangement.sorter
 
     let previewBank, mainBank =
