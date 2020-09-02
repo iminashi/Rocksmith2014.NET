@@ -88,6 +88,7 @@
   "projectFiles": "Projektitiedostot",
   "psarcFiles": "PSARC tiedostot",
   "toneXmlFiles": "Soundi XML tiedostot",
+  "toolkitFiles": "Toolkit työpohjat",
   "Main": "Ensisijainen",
   "Alternative": "Vaihtoehtoinen",
   "Bonus": "Bonus",
@@ -127,5 +128,6 @@
   "toneDescriptorToolTip": "Tähdellä merkityt kuvaukset ovat merkkijonoja pelin lokalisaatiotiedostosta, jotka eivät liity soundeihin.\nKäyttö omalla vastuulla.",
   "toolkitImportToolTip": "Tuo Toolkit työpohja",
   "selectImportToolkitTemplate": "Valitse tuotava Toolkit työpohja",
-  "toolkitFiles": "Toolkit työpohjat"
+  "selectImportPsarc": "Valitse tuotava PSARC tiedosto",
+  "selectPsarcExtractFolder": "Valitse kansio, jonne projekti luodaan"
 }

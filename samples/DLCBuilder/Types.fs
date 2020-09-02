@@ -48,6 +48,9 @@ module Types =
     | ProjectSaveAs
     | SelectOpenProjectFile
     | SelectToolkitTemplate
+    | SelectPsarcToImport
+    | SelectImportPsarcFolder of psarcFile : string option
+    | ImportPsarc of psarcFile : string * targetFolder : string option
     | ImportToolkitTemplate of fileName : string option
     | OpenProject of fileName : string option
     | SaveProject of fileName : string option
@@ -80,7 +83,7 @@ module Types =
     | ProjectSaveOrSaveAs
     | SaveConfiguration
     | SetConfiguration of config : Configuration
-    | ProjectLoaded of project : DLCProject * fileName : string
+    | ProjectLoaded of project : DLCProject * projectFile : string option
     | BuildTest
     | BuildRelease
     | BuildComplete of unit

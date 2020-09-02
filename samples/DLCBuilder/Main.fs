@@ -183,6 +183,18 @@ let update (msg: Msg) (state: State) =
         let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectImportToolkitTemplate") (Dialogs.toolkitFilter state.Localization)
         state, Cmd.OfAsync.perform dialog None ImportToolkitTemplate
 
+    | SelectPsarcToImport ->
+        let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectImportPsarc") (Dialogs.psarcFilter state.Localization)
+        state, Cmd.OfAsync.perform dialog None SelectImportPsarcFolder
+
+    | SelectImportPsarcFolder (Some psarcFile) ->
+        let dialog = Dialogs.openFolderDialog (state.Localization.GetString "selectPsarcExtractFolder")
+        state, Cmd.OfAsync.perform dialog None (fun folder -> ImportPsarc(psarcFile, folder))
+
+    | ImportPsarc (psarcFile, Some targetFolder) ->
+        let task() = PsarcImporter.import psarcFile targetFolder
+        state, Cmd.OfAsync.either task () (fun project -> ProjectLoaded(project, None)) ErrorOccurred
+
     | ImportToolkitTemplate (Some fileName) ->
         try
             let project = ToolkitImporter.import fileName
@@ -412,9 +424,9 @@ let update (msg: Msg) (state: State) =
 
     | OpenProject (Some fileName) ->
         let task() = DLCProject.load fileName
-        state, Cmd.OfAsync.either task () (fun p -> ProjectLoaded(p, fileName)) ErrorOccurred
+        state, Cmd.OfAsync.either task () (fun p -> ProjectLoaded(p, Some fileName)) ErrorOccurred
 
-    | ProjectLoaded (project, fileName) ->
+    | ProjectLoaded (project, projectFile) ->
         state.CoverArt |> Option.iter dispose
         let bm =
             if IO.File.Exists project.AlbumArtFile then
@@ -424,7 +436,7 @@ let update (msg: Msg) (state: State) =
 
         { state with CoverArt = Some bm
                      Project = project
-                     OpenProjectFile = Some fileName
+                     OpenProjectFile = projectFile
                      SelectedArrangement = None
                      SelectedTone = None }, Cmd.none
 
@@ -484,7 +496,8 @@ let update (msg: Msg) (state: State) =
     // When the user canceled any of the dialogs
     | AddArrangements None | AddCoverArt None | AddAudioFile None | AddCustomFontFile None
     | AddProfilePath None | AddTestFolderPath None | AddProjectsFolderPath None
-    | SaveProject None | OpenProject None | ImportTonesFromFile None | ImportToolkitTemplate None ->
+    | SaveProject None | OpenProject None | ImportTonesFromFile None | ImportToolkitTemplate None
+    | SelectImportPsarcFolder None | ImportPsarc (_, None) ->
         state, Cmd.none
 
 let view (state: State) dispatch =

@@ -30,8 +30,7 @@ let private importArrangement (arr: XmlNode) =
                         else ArrangementPriority.Alternative
 
                     // The XML namespace was renamed at some point.
-                    try
-                        tryGetPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.XML"
+                    try tryGetPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.XML"
                     with _ -> tryGetPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.Xml"
             with _ -> ArrangementPriority.Main
 

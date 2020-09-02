@@ -301,6 +301,13 @@ let view state dispatch =
                                         Button.onClick (fun _ -> SelectToolkitTemplate |> dispatch)
                                         ToolTip.tip (state.Localization.GetString "toolkitImportToolTip")
                                     ]
+                                    Button.create [
+                                        Button.padding (8., 8.)
+                                        Button.margin (0., 4., 4., 4.)
+                                        Button.fontSize 16.
+                                        Button.content "psarc"
+                                        Button.onClick (fun _ -> SelectPsarcToImport |> dispatch)
+                                    ]
                                 ]
                             ]
 

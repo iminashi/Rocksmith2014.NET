@@ -88,6 +88,7 @@
   "projectFiles": "Project Files",
   "psarcFiles": "PSARC Files",
   "toneXmlFiles": "Tone XML Files",
+  "toolkitFiles": "Toolkit templates",
   "Main": "Main",
   "Alternative": "Alternative",
   "Bonus": "Bonus",
@@ -127,5 +128,6 @@
   "toneDescriptorToolTip": "Descriptions marked with * are strings from the game's localization file not related to tone descriptions.\nUse at your own risk.",
   "toolkitImportToolTip": "Import Toolkit Template",
   "selectImportToolkitTemplate": "Select a Toolkit Template to Import",
-  "toolkitFiles": "Toolkit templates"
+  "selectImportPsarc": "Select a PSARC File to Import",
+  "selectPsarcExtractFolder": "Select a Folder where the Project will be Created"
 }

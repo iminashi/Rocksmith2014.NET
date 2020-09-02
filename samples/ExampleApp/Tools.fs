@@ -238,7 +238,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                         return {| File = x; Manifest = manifest |} })
                     |> Async.Sequential
 
-                return sngs
+                sngs
                 |> Array.Parallel.iter (fun s ->
                     let targetFile = Path.Combine(targetDirectory, Path.ChangeExtension(Path.GetFileName s.File, "xml"))
                     if s.File.Contains "vocals" then
@@ -250,8 +250,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                             |> Seq.tryFind (fun m -> m.File.Contains(Path.GetFileNameWithoutExtension s.File))
                             |> Option.map (fun m -> Manifest.getSingletonAttributes m.Manifest)
                         let xml = ConvertInstrumental.sngToXml attributes s.SNG
-                        xml.Save targetFile
-                    )
+                        xml.Save targetFile)
                 }
             state, Cmd.OfAsync.attempt t () Error
 
@@ -269,8 +268,9 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             let wemName = SoundBank.generate "test" audio targetFile -2.5f false PC
             state, Cmd.none
 
-        | ReadVolume file ->
+        | ReadVolume fileName ->
             let message =
+                use file = File.OpenRead fileName
                 match SoundBank.readVolume file PC with
                 | Result.Error err -> err
                 | Result.Ok vol -> sprintf "Volume: %f dB" vol

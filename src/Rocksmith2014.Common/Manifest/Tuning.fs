@@ -8,6 +8,9 @@ type Tuning =
       string4 : int16
       string5 : int16 }
 
+    member this.ToArray () =
+        [| this.string0; this.string1; this.string2; this.string3; this.string4; this.string5 |]
+
     static member Default =
         { string0 = 0s; string1 = 0s; string2 = 0s; string3 = 0s; string4 = 0s; string5 = 0s }
 

@@ -325,20 +325,19 @@ let generate name (audioStream: Stream) (output: Stream) volume isPreview (platf
 
     string fileID
 
-let readVolume path platform =
-    use file = File.OpenRead(path)
-    let reader = BinaryReaders.getReader file platform
+let readVolume (stream: Stream) platform =
+    let reader = BinaryReaders.getReader stream platform
 
     let skipSection () =
         let length = reader.ReadUInt32()
-        file.Position <- file.Position + int64 length
+        stream.Position <- stream.Position + int64 length
 
     let mutable magic = Encoding.ASCII.GetString(reader.ReadBytes(4))
-    while magic <> "HIRC" && file.Position < file.Length do
+    while magic <> "HIRC" && stream.Position < stream.Length do
         skipSection()
         magic <- Encoding.ASCII.GetString(reader.ReadBytes(4))
 
-    if file.Position >= file.Length then
+    if stream.Position >= stream.Length then
         Error "Could not find HIRC section."
     else
         // Read HIRC section length
@@ -356,7 +355,7 @@ let readVolume path platform =
             Error "Could not find SFX object."
         else
             // Skip 46 bytes to get to the parameter count
-            file.Position <- file.Position + 46L
+            stream.Position <- stream.Position + 46L
 
             let paramCount = reader.ReadInt8()
             let paramTypes = reader.ReadBytes(int32 paramCount)
@@ -366,5 +365,5 @@ let readVolume path platform =
                 Ok 0.f
             else
                 // Skip to the volume parameter
-                file.Position <- file.Position + int64 (volParamIndex * 4)
+                stream.Position <- stream.Position + int64 (volParamIndex * 4)
                 Ok (reader.ReadSingle())
