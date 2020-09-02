@@ -97,7 +97,7 @@ let import (psarcFile: string) (targetDirectory: string) = async {
             let targetFile = Path.Combine(targetDirectory, Path.ChangeExtension(file, "xml"))
             let attributes =
                 manifests
-                |> Seq.find (fun m -> m.File.Contains(Path.GetFileNameWithoutExtension s.File))
+                |> Seq.find (fun m -> Path.GetFileNameWithoutExtension m.File = Path.GetFileNameWithoutExtension s.File)
                 |> fun m -> Manifest.getSingletonAttributes m.Manifest
 
             if s.File.Contains "vocals" then
