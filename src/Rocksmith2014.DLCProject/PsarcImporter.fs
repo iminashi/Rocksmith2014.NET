@@ -126,6 +126,10 @@ let import (psarcFile: string) (targetDirectory: string) = async {
                       Option.ofString attributes.Tone_D ]
                     |> List.choose id
 
+                let scrollSpeed =
+                    let max = Math.Min(int attributes.MaxPhraseDifficulty, attributes.DynamicVisualDensity.Length - 1)
+                    float attributes.DynamicVisualDensity.[max]
+
                 { XML = targetFile
                   Name = ArrangementName.Parse attributes.ArrangementName
                   Priority =
@@ -138,7 +142,7 @@ let import (psarcFile: string) (targetDirectory: string) = async {
                     if arrProps.pathBass = 1uy then RouteMask.Bass
                     elif arrProps.pathLead = 1uy then RouteMask.Lead
                     else RouteMask.Rhythm
-                  ScrollSpeed = float attributes.DynamicVisualDensity.[attributes.DynamicVisualDensity.Length - 1]
+                  ScrollSpeed = scrollSpeed
                   BaseTone = attributes.Tone_Base
                   Tones = tones
                   BassPicked = attributes.BassPick |> Option.ofNullable |> Option.isSome
