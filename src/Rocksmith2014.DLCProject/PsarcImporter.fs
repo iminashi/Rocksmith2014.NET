@@ -8,6 +8,7 @@ open Rocksmith2014.Conversion
 open Rocksmith2014.XML
 open Rocksmith2014.DLCProject.Manifest
 open System
+open System.Text.RegularExpressions
 
 let private getVolume (psarc: PSARC) platform bank = async {
     use mem = MemoryStreamPool.Default.GetStream()
@@ -170,7 +171,24 @@ let import (psarcFile: string) (targetDirectory: string) = async {
         |> Array.find (fun x -> not <| x.File.Contains "vocals")
         |> fun x -> x.Manifest |> Manifest.getSingletonAttributes
 
-    return { Version = "1"
+    let! version = async {
+        let tkVer =
+            psarc.Manifest
+            |> Seq.tryFind ((=) "toolkit.version")
+        match tkVer with
+        | Some tk ->
+            use mem = MemoryStreamPool.Default.GetStream()
+            do! psarc.InflateFile(tk, mem)
+            use reader = new StreamReader(mem)
+            let text = reader.ReadToEnd()
+            let m = Regex.Match(text, "Package Version: (.*)\r\n")
+            if m.Success then
+                return m.Groups.[1].Captures.[0].Value
+            else
+                return "1"
+        | None -> return "1" }
+
+    return { Version = version
              DLCKey = metaData.DLCKey
              ArtistName = SortableString.Create(metaData.ArtistName, metaData.ArtistNameSort)
              JapaneseArtistName = Option.ofObj metaData.JapaneseArtistName
