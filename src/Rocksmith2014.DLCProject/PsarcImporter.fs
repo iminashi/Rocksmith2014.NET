@@ -18,24 +18,24 @@ let private getVolume (psarc: PSARC) platform bank = async {
            | Ok vol -> vol
            | Error _ -> -12.0f }
 
-let import (psarcFile: string) (targetDirectory: string) = async {
+let import (psarcPath: string) (targetDirectory: string) = async {
     let platform =
-        if Path.GetFileNameWithoutExtension(psarcFile).EndsWith("_p") then PC else Mac
+        if Path.GetFileNameWithoutExtension(psarcPath).EndsWith("_p") then PC else Mac
 
-    use psarc = PSARC.ReadFile(psarcFile)
-    let psarcFiles = psarc.Manifest
+    use psarc = PSARC.ReadFile(psarcPath)
+    let psarcContents = psarc.Manifest
     let artFile =
-        psarcFiles
+        psarcContents
         |> Seq.find (fun x -> x.EndsWith "256.dds")
     do! psarc.InflateFile(artFile, Path.Combine(targetDirectory, "cover.dds"))
 
     let showlights =
-        psarcFiles
+        psarcContents
         |> Seq.find (fun x -> x.Contains "showlights")
     do! psarc.InflateFile(showlights, Path.Combine(targetDirectory, "arr_showlights.xml"))
 
     let audioFiles =
-        psarcFiles
+        psarcContents
         |> Seq.filter (fun x -> x.EndsWith "wem")
 
     if Seq.length audioFiles > 2 then failwith "Package contains more than 2 audio files."
@@ -57,7 +57,7 @@ let import (psarcFile: string) (targetDirectory: string) = async {
         File.Move(audioInfo1.FullName, Path.Combine(targetDirectory, "audio_preview.wem"), true)
 
     let! sngs =
-        psarcFiles
+        psarcContents
         |> Seq.filter (fun x -> x.EndsWith "sng")
         |> Seq.map (fun x -> async {
             use mem = MemoryStreamPool.Default.GetStream()
@@ -67,7 +67,7 @@ let import (psarcFile: string) (targetDirectory: string) = async {
         |> Async.Sequential
 
     let! manifests =
-        psarcFiles
+        psarcContents
         |> Seq.filter (fun x -> x.EndsWith "json")
         |> Seq.map (fun x -> async {
             use mem = MemoryStreamPool.Default.GetStream()
@@ -78,7 +78,7 @@ let import (psarcFile: string) (targetDirectory: string) = async {
 
     let! customFont = async {
         let font =
-            psarcFiles
+            psarcContents
             |> Seq.tryFind (fun x -> x.Contains "assets/ui/lyrics")
         match font with
         | Some font ->
@@ -160,7 +160,7 @@ let import (psarcFile: string) (targetDirectory: string) = async {
         |> List.sortBy Arrangement.sorter
 
     let previewBank, mainBank =
-        psarcFiles
+        psarcContents
         |> Seq.filter (fun x -> x.EndsWith "bnk")
         |> Seq.toArray
         |> Array.partition (fun x -> x.Contains "preview")
@@ -183,7 +183,7 @@ let import (psarcFile: string) (targetDirectory: string) = async {
 
     let! version = async {
         let tkVer =
-            psarcFiles
+            psarcContents
             |> Seq.tryFind ((=) "toolkit.version")
         match tkVer with
         | Some tk ->
