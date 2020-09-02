@@ -74,13 +74,25 @@ let import (psarcFile: string) (targetDirectory: string) = async {
             return {| File = x; Manifest = manifest |} })
         |> Async.Sequential
 
+    let! customFont = async {
+        let font =
+            psarc.Manifest
+            |> Seq.tryFind (fun x -> x.Contains "assets/ui/lyrics")
+        match font with
+        | Some font ->
+            let fn = Path.Combine(targetDirectory, "lyrics.dds")
+            use file = File.Create fn
+            do! psarc.InflateFile(font, file)
+            return Some fn
+        | None -> return None }
+
     let arrangements =
         sngs
         |> Array.Parallel.map (fun s ->
-            // Change the file names from dlckey_name to arr_name
+            // Change the file names from "dlckey_name" to "arr_name"
             let file =
                 let f = Path.GetFileName s.File
-                "arr" + f.Substring(f.IndexOf('_'))
+                "arr" + f.Substring(f.IndexOf '_')
             let targetFile = Path.Combine(targetDirectory, Path.ChangeExtension(file, "xml"))
             let attributes =
                 manifests
@@ -91,9 +103,12 @@ let import (psarcFile: string) (targetDirectory: string) = async {
                 let vocals = ConvertVocals.sngToXml s.SNG
                 Vocals.Save(targetFile, vocals)
 
+                let hasCustomFont =
+                    s.SNG.SymbolsTextures.[0].Font <> "assets\ui\lyrics\lyrics.dds"
+
                 { XML = targetFile
                   Japanese = s.File.Contains "jvocals"
-                  CustomFont = None
+                  CustomFont = if hasCustomFont then customFont else None
                   MasterID = attributes.MasterID_RDV
                   PersistentID = Guid.Parse(attributes.PersistentID) }
                 |> Arrangement.Vocals
