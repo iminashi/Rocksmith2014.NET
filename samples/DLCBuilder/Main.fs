@@ -156,7 +156,7 @@ let update (msg: Msg) (state: State) =
 
     | OpenFolderDialog (locString, msg) ->
         let dialog = Dialogs.openFolderDialog (state.Localization.GetString locString)
-        state, Cmd.OfAsync.perform dialog None (fun file -> ConditionalCmdDispatch(file, msg))
+        state, Cmd.OfAsync.perform dialog None (fun folder -> ConditionalCmdDispatch(folder, msg))
 
     | SelectOpenArrangement ->
         let dialog = Dialogs.openMultiFileDialog (state.Localization.GetString "selectArrangement") (Dialogs.xmlFileFilter state.Localization)
