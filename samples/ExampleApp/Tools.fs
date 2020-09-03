@@ -247,7 +247,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                     else
                         let attributes =
                             manifests
-                            |> Seq.tryFind (fun m -> m.File.Contains(Path.GetFileNameWithoutExtension s.File))
+                            |> Seq.tryFind (fun m -> Path.GetFileNameWithoutExtension m.File = Path.GetFileNameWithoutExtension s.File)
                             |> Option.map (fun m -> Manifest.getSingletonAttributes m.Manifest)
                         let xml = ConvertInstrumental.sngToXml attributes s.SNG
                         xml.Save targetFile)
