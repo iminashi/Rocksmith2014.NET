@@ -427,11 +427,9 @@ let update (msg: Msg) (state: State) =
         | _ -> state, Cmd.none
 
     | EditTone edit ->
-        match state.SelectedTone with
-        | Some old ->
-            let updated = edit old
-            updateTone old updated state
-        | _ -> state, Cmd.none
+        state.SelectedTone
+        |> Option.map (fun old ->  updateTone old (edit old) state)
+        |> Option.defaultValue (state, Cmd.none)
 
     | EditProject edit -> { state with Project = edit state.Project }, Cmd.none
     | EditConfig edit -> { state with Config = edit state.Config }, Cmd.none
