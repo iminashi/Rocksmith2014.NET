@@ -435,24 +435,30 @@ let update (msg: Msg) (state: State) =
     | EditConfig edit -> { state with Config = edit state.Config }, Cmd.none
 
     | BuildTest ->
-        let testDir = state.Config.TestFolderPath
-        let path = IO.Path.Combine(testDir, state.Project.DLCKey.ToLowerInvariant())
-        let task () = PackageBuilder.buildPackages path [ state.CurrentPlatform ] state.Config.CharterName state.Project
-        { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
-
-    // TODO: Validate project properties and file paths before build
+        match DLCProject.validateBuild state.Project with
+        | Error error ->
+            { state with Overlay = ErrorMessage error }, Cmd.none
+        | Ok _ ->
+            let testDir = state.Config.TestFolderPath
+            let path = IO.Path.Combine(testDir, state.Project.DLCKey.ToLowerInvariant())
+            let task () = PackageBuilder.buildPackages path [ state.CurrentPlatform ] state.Config.CharterName state.Project
+            { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
 
     | BuildRelease ->
-        let releaseDir =
-            state.OpenProjectFile
-            |> Option.map IO.Path.GetDirectoryName
-            |> Option.defaultWith (fun _ -> IO.Path.GetDirectoryName state.Project.AudioFile.Path)
-        let fn =
-            sprintf "%s_%s_v%s" state.Project.ArtistName.Value state.Project.Title.Value (state.Project.Version.Replace('.', '_'))
-            |> StringValidator.fileName
-        let path = IO.Path.Combine(releaseDir, fn)
-        let task () = PackageBuilder.buildPackages path state.Config.ReleasePlatforms state.Config.CharterName state.Project
-        { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
+        match DLCProject.validateBuild state.Project with
+        | Error error ->
+            { state with Overlay = ErrorMessage error }, Cmd.none
+        | Ok _ ->
+            let releaseDir =
+                state.OpenProjectFile
+                |> Option.map IO.Path.GetDirectoryName
+                |> Option.defaultWith (fun _ -> IO.Path.GetDirectoryName state.Project.AudioFile.Path)
+            let fn =
+                sprintf "%s_%s_v%s" state.Project.ArtistName.Value state.Project.Title.Value (state.Project.Version.Replace('.', '_'))
+                |> StringValidator.fileName
+            let path = IO.Path.Combine(releaseDir, fn)
+            let task () = PackageBuilder.buildPackages path state.Config.ReleasePlatforms state.Config.CharterName state.Project
+            { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
 
     | BuildComplete _ -> { state with BuildInProgress = false }, Cmd.none
    

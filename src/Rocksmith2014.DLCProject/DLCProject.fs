@@ -12,6 +12,7 @@ type AudioFile = { Path : string; Volume : float }
 type SortableString =
     { Value: string; SortValue: string }
 
+    /// Creates a sortable string with the given value and optional sort value.
     static member Create(value, ?sort) =
         let sort = defaultArg sort null
         { Value = value
@@ -61,6 +62,7 @@ module DLCProject =
         else
             Path.Combine(baseDir, fileName)
 
+    /// Converts the paths in the project to absolute paths.
     let toAbsolutePaths (baseDir: string) (project: DLCProject) =
         let abs = toAbsolutePath baseDir
         let arrangements =
@@ -82,6 +84,7 @@ module DLCProject =
         else
             Path.GetRelativePath(relativeTo, path)
 
+    /// Converts the paths in the project relative to the given path.
     let toRelativePaths (path: string) (project: DLCProject) =
         let rel = toRelativePath path
         let arrangements =
@@ -97,6 +100,7 @@ module DLCProject =
                        AudioFile = { project.AudioFile with Path = rel project.AudioFile.Path }
                        AudioPreviewFile = { project.AudioPreviewFile with Path = rel project.AudioPreviewFile.Path } }
 
+    /// Saves a project with the given filename.
     let save (fileName: string) (project: DLCProject) = async {
         use file = File.Create fileName
         let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
@@ -104,12 +108,46 @@ module DLCProject =
         let p = toRelativePaths (Path.GetDirectoryName fileName) project
         do! JsonSerializer.SerializeAsync(file, p, options) }
 
+    /// Loads a project from a file with the given filename.
     let load (fileName: string) = async {
         let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
         options.Converters.Add(JsonFSharpConverter())
         use file = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan ||| FileOptions.Asynchronous)
         let! project = JsonSerializer.DeserializeAsync<DLCProject>(file, options)
         return toAbsolutePaths (Path.GetDirectoryName fileName) project  }
+
+    /// Validates the project for missing files and other errors.
+    let validateBuild (project: DLCProject) =
+        let wemAudio = IO.Path.ChangeExtension(project.AudioFile.Path, "wem")
+        let wemPreview =
+            if String.notEmpty project.AudioPreviewFile.Path then
+                IO.Path.ChangeExtension(project.AudioFile.Path, "wem")
+            else
+                let dir = IO.Path.GetDirectoryName project.AudioFile.Path
+                let fn = IO.Path.GetFileNameWithoutExtension project.AudioFile.Path
+                IO.Path.Combine(dir, sprintf "%s_preview.wem" fn)
+    
+        let toneKeyGroups =
+            project.Tones
+            |> List.groupBy (fun x -> x.Key)
+    
+        let vocalGroups =
+            project.Arrangements
+            |> List.choose (function Vocals v -> Some v | _ -> None)
+            |> List.groupBy (fun x -> x.Japanese)
+    
+        if not <| IO.File.Exists project.AlbumArtFile then
+            Error "Album art file not found."
+        elif toneKeyGroups |> List.exists (fun (_, list) -> list.Length > 1)  then
+            Error "A tone key has more than one defined tone."
+        elif vocalGroups |> List.exists (fun (_, list) -> list.Length > 1) then
+            Error "There are two conflicting vocals arrangements. One needs to be set as Japanese."
+        elif not <| IO.File.Exists wemAudio then
+            Error "Wwise wem audio file not found."
+        elif not <| IO.File.Exists wemPreview then
+            Error "Wwise wem preview audio file not found."
+        else
+            Ok ()
 
 module DLCKey =
     let create (charterName: string) (artist: string) (title: string) =

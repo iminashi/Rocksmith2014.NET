@@ -23,6 +23,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
 
     use psarc = PSARC.ReadFile(psarcPath)
     let psarcContents = psarc.Manifest
+
     let artFile =
         psarcContents
         |> Seq.find (fun x -> x.EndsWith "256.dds")
