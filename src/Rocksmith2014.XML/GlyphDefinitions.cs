@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -17,9 +18,23 @@ namespace Rocksmith2014.XML
         [XmlElement("GlyphDefinition")]
         public List<GlyphDefinition>? Glyphs { get; set; }
 
+        public void Save(string fileName)
+        {
+            var ns = new XmlSerializerNamespaces();
+            ns.Add("", "");
+            var serializer = new XmlSerializer(typeof(GlyphDefinitions), "");
+            var settings = new XmlWriterSettings
+            {
+                Indent = true,
+                Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false)
+            };
+            using XmlWriter writer = XmlWriter.Create(fileName, settings);
+            serializer.Serialize(writer, this, ns);
+        }
+
         public static GlyphDefinitions Load(string fileName)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(GlyphDefinitions), "");
+            var serializer = new XmlSerializer(typeof(GlyphDefinitions), "");
             using StreamReader file = new StreamReader(fileName);
             return (GlyphDefinitions)serializer.Deserialize(file);
         }

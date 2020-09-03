@@ -106,6 +106,10 @@ let import (psarcPath: string) (targetDirectory: string) = async {
                 let hasCustomFont =
                     sng.SymbolsTextures.[0].Font <> "assets\ui\lyrics\lyrics.dds"
 
+                if hasCustomFont then
+                    let glyphs = ConvertVocals.extractGlyphData sng
+                    glyphs.Save(Path.Combine(targetDirectory, "lyrics.glyphs.xml"))
+
                 { XML = targetFile
                   Japanese = file.Contains "jvocals"
                   CustomFont = if hasCustomFont then customFont else None
