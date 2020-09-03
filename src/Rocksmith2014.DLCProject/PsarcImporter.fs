@@ -13,10 +13,9 @@ open System.Text.RegularExpressions
 let private getVolume (psarc: PSARC) platform bank = async {
     use mem = MemoryStreamPool.Default.GetStream()
     do! psarc.InflateFile(bank, mem)
-    mem.Position <- 0L
     return match SoundBank.readVolume mem platform with
            | Ok vol -> vol
-           | Error _ -> -12.0f }
+           | Error _ -> 0.0f }
 
 let import (psarcPath: string) (targetDirectory: string) = async {
     let platform =
@@ -59,21 +58,21 @@ let import (psarcPath: string) (targetDirectory: string) = async {
     let! sngs =
         psarcContents
         |> Seq.filter (fun x -> x.EndsWith "sng")
-        |> Seq.map (fun x -> async {
+        |> Seq.map (fun file -> async {
             use mem = MemoryStreamPool.Default.GetStream()
-            do! psarc.InflateFile(x, mem)
+            do! psarc.InflateFile(file, mem)
             let! sng = SNG.fromStream mem platform
-            return {| File = x; SNG = sng |} })
+            return file, sng })
         |> Async.Sequential
 
     let! manifests =
         psarcContents
         |> Seq.filter (fun x -> x.EndsWith "json")
-        |> Seq.map (fun x -> async {
+        |> Seq.map (fun file -> async {
             use mem = MemoryStreamPool.Default.GetStream()
-            do! psarc.InflateFile(x, mem)
+            do! psarc.InflateFile(file, mem)
             let! manifest = Manifest.fromJsonStream(mem)
-            return {| File = x; Manifest = manifest |} })
+            return file, manifest })
         |> Async.Sequential
 
     let! customFont = async {
@@ -90,42 +89,38 @@ let import (psarcPath: string) (targetDirectory: string) = async {
 
     let arrangements =
         sngs
-        |> Array.Parallel.map (fun s ->
+        |> Array.Parallel.map (fun (file, sng) ->
             // Change the file names from "dlckey_name" to "arr_name"
-            let file =
-                let f = Path.GetFileName s.File
-                "arr" + f.Substring(f.IndexOf '_')
-            let targetFile = Path.Combine(targetDirectory, Path.ChangeExtension(file, "xml"))
+            let targetFile =
+                let f = Path.GetFileName file
+                Path.Combine(targetDirectory, Path.ChangeExtension("arr" + f.Substring(f.IndexOf '_'), "xml"))
             let attributes =
                 manifests
-                |> Seq.find (fun m -> Path.GetFileNameWithoutExtension m.File = Path.GetFileNameWithoutExtension s.File)
-                |> fun m -> Manifest.getSingletonAttributes m.Manifest
+                |> Seq.find (fun (mFile, _) -> Path.GetFileNameWithoutExtension mFile = Path.GetFileNameWithoutExtension file)
+                |> (snd >> Manifest.getSingletonAttributes)
 
-            if s.File.Contains "vocals" then
-                let vocals = ConvertVocals.sngToXml s.SNG
+            if file.Contains "vocals" then
+                let vocals = ConvertVocals.sngToXml sng
                 Vocals.Save(targetFile, vocals)
 
                 let hasCustomFont =
-                    s.SNG.SymbolsTextures.[0].Font <> "assets\ui\lyrics\lyrics.dds"
+                    sng.SymbolsTextures.[0].Font <> "assets\ui\lyrics\lyrics.dds"
 
                 { XML = targetFile
-                  Japanese = s.File.Contains "jvocals"
+                  Japanese = file.Contains "jvocals"
                   CustomFont = if hasCustomFont then customFont else None
                   MasterID = attributes.MasterID_RDV
                   PersistentID = Guid.Parse(attributes.PersistentID) }
                 |> Arrangement.Vocals
             else
-                let xml = ConvertInstrumental.sngToXml (Some attributes) s.SNG
+                let xml = ConvertInstrumental.sngToXml (Some attributes) sng
                 xml.Save targetFile
 
                 let arrProps = Option.get attributes.ArrangementProperties
 
                 let tones =
-                    [ Option.ofString attributes.Tone_A
-                      Option.ofString attributes.Tone_B
-                      Option.ofString attributes.Tone_C
-                      Option.ofString attributes.Tone_D ]
-                    |> List.choose id
+                    [ attributes.Tone_A; attributes.Tone_B; attributes.Tone_C; attributes.Tone_D ]
+                    |> List.choose Option.ofString
 
                 let scrollSpeed =
                     let max = Math.Min(int attributes.MaxPhraseDifficulty, attributes.DynamicVisualDensity.Length - 1)
@@ -171,15 +166,15 @@ let import (psarcPath: string) (targetDirectory: string) = async {
             
     let tones =
         manifests
-        |> Array.choose (fun x -> Option.ofObj (Manifest.getSingletonAttributes x.Manifest).Tones)
+        |> Array.choose (fun (_, manifest) -> Option.ofObj (Manifest.getSingletonAttributes manifest).Tones)
         |> Array.collect id
         |> Array.distinctBy (fun x -> x.Key)
         |> Array.toList
 
     let metaData =
         manifests
-        |> Array.find (fun x -> not <| x.File.Contains "vocals")
-        |> fun x -> x.Manifest |> Manifest.getSingletonAttributes
+        |> Array.find (fun (file, _) -> not <| file.Contains "vocals")
+        |> (snd >> Manifest.getSingletonAttributes)
 
     let! version = async {
         let tkVer =
