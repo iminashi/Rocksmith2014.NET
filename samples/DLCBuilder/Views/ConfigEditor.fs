@@ -121,7 +121,7 @@ let view state dispatch =
                     Button.create [
                         Button.margin (0., 4.)
                         Button.content "..."
-                        Button.onClick (fun _ -> SelectTestFolderPath |> dispatch)
+                        Button.onClick (fun _ -> dispatch (Msg.OpenFolderDialog("selectTestFolder", AddTestFolderPath)))
                     ]
                 ]
             ]
@@ -145,7 +145,7 @@ let view state dispatch =
                     Button.create [
                         Button.margin (0., 4.)
                         Button.content "..."
-                        Button.onClick (fun _ -> SelectProjectsFolderPath |> dispatch)
+                        Button.onClick (fun _ -> dispatch (Msg.OpenFolderDialog("selectProjectFolder", AddProjectsFolderPath)))
                     ]
                 ]
             ]

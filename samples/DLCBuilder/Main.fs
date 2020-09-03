@@ -154,17 +154,13 @@ let update (msg: Msg) (state: State) =
         let dialog = Dialogs.openFileDialog (state.Localization.GetString locString) (filter state.Localization)
         state, Cmd.OfAsync.perform dialog None (fun file -> ConditionalCmdDispatch(file, msg))
 
+    | OpenFolderDialog (locString, msg) ->
+        let dialog = Dialogs.openFolderDialog (state.Localization.GetString locString)
+        state, Cmd.OfAsync.perform dialog None (fun file -> ConditionalCmdDispatch(file, msg))
+
     | SelectOpenArrangement ->
         let dialog = Dialogs.openMultiFileDialog (state.Localization.GetString "selectArrangement") (Dialogs.xmlFileFilter state.Localization)
         state, Cmd.OfAsync.perform dialog None AddArrangements
-
-    | SelectTestFolderPath ->
-        let dialog = Dialogs.openFolderDialog (state.Localization.GetString "selectTestFolder")
-        state, Cmd.OfAsync.perform dialog None AddTestFolderPath
-
-    | SelectProjectsFolderPath ->
-        let dialog = Dialogs.openFolderDialog (state.Localization.GetString "selectProjectFolder")
-        state, Cmd.OfAsync.perform dialog None AddProjectsFolderPath
 
     | SelectImportPsarcFolder psarcFile ->
         let dialog = Dialogs.openFolderDialog (state.Localization.GetString "selectPsarcExtractFolder")
@@ -229,11 +225,11 @@ let update (msg: Msg) (state: State) =
         let dialog = Dialogs.saveFileDialog (state.Localization.GetString "saveProjectAs") (Dialogs.projectFilter state.Localization) intialFileName
         state, Cmd.OfAsync.perform dialog initialDir SaveProject
 
-    | AddProjectsFolderPath (Some path) ->
+    | AddProjectsFolderPath path ->
         let config = { state.Config with ProjectsFolderPath = path }
         { state with Config = config }, Cmd.none
 
-    | AddTestFolderPath (Some path) ->
+    | AddTestFolderPath path ->
         let config = { state.Config with TestFolderPath = path }
         { state with Config = config }, Cmd.none
 
@@ -355,7 +351,8 @@ let update (msg: Msg) (state: State) =
             match state.SelectedTone with
             | None -> state.Project.Tones
             | Some selected -> List.remove selected state.Project.Tones
-        { state with Project = { state.Project with Tones = tones } }, Cmd.none
+        { state with Project = { state.Project with Tones = tones }
+                     SelectedTone = None }, Cmd.none
 
     | PreviewAudioStartChanged time ->
         { state with PreviewStartTime = TimeSpan.FromSeconds time }, Cmd.none
@@ -469,7 +466,7 @@ let update (msg: Msg) (state: State) =
                      Localization = Localization(newLocale) }, Cmd.none
     
     // When the user canceled any of the dialogs
-    | AddArrangements None | AddTestFolderPath None | AddProjectsFolderPath None | SaveProject None | ImportPsarc (_, None) ->
+    | AddArrangements None | SaveProject None | ImportPsarc (_, None) ->
         state, Cmd.none
 
 let view (state: State) dispatch =

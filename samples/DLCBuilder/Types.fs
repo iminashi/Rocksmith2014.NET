@@ -39,10 +39,9 @@ module Types =
 
     type Msg =
     | OpenFileDialog of locTitle : string * filter : (Localization -> ResizeArray<FileDialogFilter>) * msg : (string -> Msg)
+    | OpenFolderDialog of locTitle : string * msg : (string -> Msg)
     | ConditionalCmdDispatch of opt : string option * msg : (string -> Msg)
     | SelectOpenArrangement
-    | SelectTestFolderPath
-    | SelectProjectsFolderPath
     | ProjectSaveAs
     | SelectImportPsarcFolder of psarcFile : string
     | ImportPsarc of psarcFile : string * targetFolder : string option
@@ -54,8 +53,8 @@ module Types =
     | AddAudioFile of fileName : string
     | AddCustomFontFile of fileName : string
     | AddProfilePath of path : string
-    | AddTestFolderPath of path : string option
-    | AddProjectsFolderPath of path : string option
+    | AddTestFolderPath of path : string
+    | AddProjectsFolderPath of path : string
     | ImportTonesFromFile of fileName : string
     | ArrangementSelected of selected : Arrangement option
     | ToneSelected of selected : Tone option
