@@ -26,8 +26,9 @@
     <Compile Include="Utils.fs" />
     <Compile Include="Arrangement.fs" />
     <Compile Include="StringValidator.fs" />
+    <Compile Include="SortableString.fs" />
+    <Compile Include="DLCKey.fs" />
     <Compile Include="DLCProject.fs" />
-    <Compile Include="ToolkitImporter.fs" />
     <Compile Include="Partitioner.fs" />
     <Compile Include="AggregateGraph\Tags.fs" />
     <Compile Include="AggregateGraph\GraphItem.fs" />
@@ -36,6 +37,7 @@
     <Compile Include="Manifest\AttributesCreation.fs" />
     <Compile Include="Manifest\Manifest.fs" />
     <Compile Include="XBlock\XBlock.fs" />
+    <Compile Include="ToolkitImporter.fs" />
     <Compile Include="PsarcImporter.fs" />
     <Compile Include="ShowLightGenerator.fs" />
     <Compile Include="PackageBuilder.fs" />

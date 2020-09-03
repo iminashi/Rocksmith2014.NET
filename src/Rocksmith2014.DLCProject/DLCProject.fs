@@ -9,22 +9,6 @@ open System.Text.Json.Serialization
 
 type AudioFile = { Path : string; Volume : float }
 
-type SortableString =
-    { Value: string; SortValue: string }
-
-    /// Creates a sortable string with the given value and optional sort value.
-    static member Create(value, ?sort) =
-        let sort = defaultArg sort null
-        { Value = value
-          SortValue =
-            if String.IsNullOrWhiteSpace sort then
-                StringValidator.removeArticles value
-            else
-                sort
-            |> StringValidator.sortField }
-
-    static member Empty = { Value = String.Empty; SortValue = String.Empty }
-
 type DLCProject =
     { Version : string
       DLCKey : string
@@ -148,18 +132,3 @@ module DLCProject =
             Error "Wwise wem preview audio file not found."
         else
             Ok ()
-
-module DLCKey =
-    let create (charterName: string) (artist: string) (title: string) =
-        let prefix =
-            let name = StringValidator.dlcKey charterName
-            if String.IsNullOrWhiteSpace name || name.Length < 2 then
-                String([| RandomGenerator.nextAlphabet(); RandomGenerator.nextAlphabet() |])
-            else
-                name.Substring(0, 2)
-        let validArtist = StringValidator.dlcKey artist
-        let validTitle = StringValidator.dlcKey title
-
-        prefix
-        + validArtist.Substring(0, Math.Min(5, validArtist.Length))
-        + validTitle.Substring(0, Math.Min(5, validTitle.Length))
