@@ -196,16 +196,27 @@ let import (psarcPath: string) (targetDirectory: string) = async {
                 return "1"
         | None -> return "1" }
 
-    return { Version = version
-             DLCKey = metaData.DLCKey
-             ArtistName = SortableString.Create(metaData.ArtistName, metaData.ArtistNameSort)
-             JapaneseArtistName = Option.ofObj metaData.JapaneseArtistName
-             JapaneseTitle = Option.ofObj metaData.JapaneseSongName
-             Title = SortableString.Create(metaData.SongName, metaData.SongNameSort)
-             AlbumName = SortableString.Create(metaData.AlbumName, metaData.AlbumNameSort)
-             Year = metaData.SongYear |> Option.ofNullable |> Option.defaultValue 0
-             AlbumArtFile = Path.Combine(targetDirectory, "cover.dds")
-             AudioFile = { Path = Path.Combine(targetDirectory, "audio.wem"); Volume = float mainVolume }
-             AudioPreviewFile = { Path = Path.Combine(targetDirectory, "audio_preview.wem"); Volume = float previewVolume }
-             Arrangements = arrangements
-             Tones = tones } }
+    let project =
+        { Version = version
+          DLCKey = metaData.DLCKey
+          ArtistName = SortableString.Create(metaData.ArtistName, metaData.ArtistNameSort)
+          JapaneseArtistName = Option.ofObj metaData.JapaneseArtistName
+          JapaneseTitle = Option.ofObj metaData.JapaneseSongName
+          Title = SortableString.Create(metaData.SongName, metaData.SongNameSort)
+          AlbumName = SortableString.Create(metaData.AlbumName, metaData.AlbumNameSort)
+          Year = metaData.SongYear |> Option.ofNullable |> Option.defaultValue 0
+          AlbumArtFile = Path.Combine(targetDirectory, "cover.dds")
+          AudioFile = { Path = Path.Combine(targetDirectory, "audio.wem"); Volume = float mainVolume }
+          AudioPreviewFile = { Path = Path.Combine(targetDirectory, "audio_preview.wem"); Volume = float previewVolume }
+          Arrangements = arrangements
+          Tones = tones }
+
+    let projectFile =
+        let fn =
+            sprintf "%s_%s" project.ArtistName.Value project.Title.Value
+            |> StringValidator.fileName
+        Path.Combine(targetDirectory, fn + ".rs2dlc")
+
+    do! DLCProject.save projectFile project
+
+    return project, projectFile }

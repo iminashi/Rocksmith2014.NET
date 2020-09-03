@@ -168,7 +168,7 @@ let update (msg: Msg) (state: State) =
 
     | ImportPsarc (psarcFile, Some targetFolder) ->
         let task() = PsarcImporter.import psarcFile targetFolder
-        state, Cmd.OfAsync.either task () (fun project -> ProjectLoaded(project, None)) ErrorOccurred
+        state, Cmd.OfAsync.either task () (fun (project, projectFile) -> ProjectLoaded(project, Some projectFile)) ErrorOccurred
 
     | ImportToolkitTemplate fileName ->
         try
