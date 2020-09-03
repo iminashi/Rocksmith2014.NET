@@ -32,6 +32,7 @@ type MainWindow() as this =
                     | KeyModifiers.Control, Key.S -> dispatch ProjectSaveOrSaveAs
                     | KeyModifiers.Control, Key.P -> dispatch ImportProfileTones
                     | KeyModifiers.Control, Key.T -> dispatch SelectToolkitTemplate
+                    | KeyModifiers.Control, Key.A -> dispatch SelectPsarcToImport
                     | _ -> ()
 
         let hotKeysSub _initialModel =

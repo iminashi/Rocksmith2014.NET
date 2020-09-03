@@ -293,20 +293,28 @@ let view state dispatch =
                                         Button.content (state.Localization.GetString "openProject")
                                         Button.onClick (fun _ -> SelectOpenProjectFile |> dispatch)
                                     ]
-                                    Button.create [
-                                        Button.padding (8., 8.)
-                                        Button.margin (0., 4., 4., 4.)
-                                        Button.fontSize 16.
-                                        Button.content "..."
-                                        Button.onClick (fun _ -> SelectToolkitTemplate |> dispatch)
-                                        ToolTip.tip (state.Localization.GetString "toolkitImportToolTip")
-                                    ]
-                                    Button.create [
-                                        Button.padding (8., 8.)
-                                        Button.margin (0., 4., 4., 4.)
-                                        Button.fontSize 16.
-                                        Button.content "psarc"
-                                        Button.onClick (fun _ -> SelectPsarcToImport |> dispatch)
+                                    Menu.create [
+                                        Menu.fontSize 16.
+                                        Menu.background "#505050"
+                                        Menu.margin (0., 4., 4., 4.)
+                                        Menu.viewItems [
+                                            MenuItem.create [
+                                                MenuItem.header (TextBlock.create [
+                                                    TextBlock.text "..."
+                                                    TextBlock.verticalAlignment VerticalAlignment.Center
+                                                ])
+                                                MenuItem.viewItems [
+                                                    MenuItem.create [
+                                                        MenuItem.header (state.Localization.GetString "toolkitImport")
+                                                        MenuItem.onClick (fun _ -> SelectToolkitTemplate |> dispatch)
+                                                    ]
+                                                    MenuItem.create [
+                                                        MenuItem.header (state.Localization.GetString "psarcImport")
+                                                        MenuItem.onClick (fun _ -> SelectPsarcToImport |> dispatch)
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
                                     ]
                                 ]
                             ]

@@ -126,7 +126,8 @@
   "Piano": "Piano *",
   "Ukulele": "Ukulele *",
   "toneDescriptorToolTip": "Tähdellä merkityt kuvaukset ovat merkkijonoja pelin lokalisaatiotiedostosta, jotka eivät liity soundeihin.\nKäyttö omalla vastuulla.",
-  "toolkitImportToolTip": "Tuo Toolkit työpohja",
+  "toolkitImport": "Tuo Toolkit työpohja",
+  "psarcImport": "Tuo PSARC tiedosto",
   "selectImportToolkitTemplate": "Valitse tuotava Toolkit työpohja",
   "selectImportPsarc": "Valitse tuotava PSARC tiedosto",
   "selectPsarcExtractFolder": "Valitse kansio, jonne projekti luodaan"
