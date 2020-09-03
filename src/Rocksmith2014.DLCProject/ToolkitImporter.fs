@@ -143,11 +143,11 @@ let import (templatePath: string) =
 
     { Version = version
       DLCKey = docEl.Item("Name").InnerText
-      ArtistName = SortableString.Create(songInfo.Item("Artist").InnerText, songInfo.Item("ArtistSort").InnerText)
+      ArtistName = { Value = songInfo.Item("Artist").InnerText; SortValue = songInfo.Item("ArtistSort").InnerText }
       JapaneseArtistName = optionalString songInfo "JapaneseArtistName"
       JapaneseTitle = optionalString songInfo "JapaneseSongName"
-      Title = SortableString.Create(songInfo.Item("SongDisplayName").InnerText, songInfo.Item("SongDisplayNameSort").InnerText)
-      AlbumName = SortableString.Create(songInfo.Item("Album").InnerText, songInfo.Item("AlbumSort").InnerText)
+      Title = { Value = songInfo.Item("SongDisplayName").InnerText; SortValue = songInfo.Item("SongDisplayNameSort").InnerText }
+      AlbumName = { Value = songInfo.Item("Album").InnerText; SortValue = songInfo.Item("AlbumSort").InnerText }
       Year = year
       AlbumArtFile = docEl.Item("AlbumArtPath").InnerText
       AudioFile = { Path = audioPath; Volume = float (docEl.Item "Volume").InnerText }

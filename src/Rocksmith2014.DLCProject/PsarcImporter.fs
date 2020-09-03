@@ -200,11 +200,11 @@ let import (psarcPath: string) (targetDirectory: string) = async {
     let project =
         { Version = version
           DLCKey = metaData.DLCKey
-          ArtistName = SortableString.Create(metaData.ArtistName, metaData.ArtistNameSort)
+          ArtistName = { Value = metaData.ArtistName; SortValue = metaData.ArtistNameSort }
           JapaneseArtistName = Option.ofObj metaData.JapaneseArtistName
           JapaneseTitle = Option.ofObj metaData.JapaneseSongName
-          Title = SortableString.Create(metaData.SongName, metaData.SongNameSort)
-          AlbumName = SortableString.Create(metaData.AlbumName, metaData.AlbumNameSort)
+          Title = { Value = metaData.SongName; SortValue = metaData.SongNameSort }
+          AlbumName = { Value = metaData.AlbumName; SortValue = metaData.AlbumNameSort }
           Year = metaData.SongYear |> Option.ofNullable |> Option.defaultValue 0
           AlbumArtFile = Path.Combine(targetDirectory, "cover.dds")
           AudioFile = { Path = Path.Combine(targetDirectory, "audio.wem"); Volume = float mainVolume }
