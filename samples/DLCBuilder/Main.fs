@@ -147,25 +147,16 @@ let update (msg: Msg) (state: State) =
 
     | CloseOverlay -> {state with Overlay = NoOverlay }, Cmd.none
 
+    | ConditionalCmdDispatch (Some str, msg) -> state, Cmd.ofMsg (msg str)
+    | ConditionalCmdDispatch (None, _) -> state, Cmd.none
+
+    | OpenFileDialog (locString, filter, msg) ->
+        let dialog = Dialogs.openFileDialog (state.Localization.GetString locString) (filter state.Localization)
+        state, Cmd.OfAsync.perform dialog None (fun file -> ConditionalCmdDispatch(file, msg))
+
     | SelectOpenArrangement ->
         let dialog = Dialogs.openMultiFileDialog (state.Localization.GetString "selectArrangement") (Dialogs.xmlFileFilter state.Localization)
         state, Cmd.OfAsync.perform dialog None AddArrangements
-
-    | SelectCoverArt ->
-        let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectCoverArt") (Dialogs.imgFileFilter state.Localization)
-        state, Cmd.OfAsync.perform dialog None AddCoverArt
-
-    | SelectAudioFile ->
-        let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectAudioFile") (Dialogs.audioFileFilters state.Localization)
-        state, Cmd.OfAsync.perform dialog None AddAudioFile
-
-    | SelectCustomFont ->
-        let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectCustomFont") (Dialogs.ddsFileFilter state.Localization)
-        state, Cmd.OfAsync.perform dialog None AddCustomFontFile
-
-    | SelectProfilePath ->
-        let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectProfile") (Dialogs.profileFilter state.Localization)
-        state, Cmd.OfAsync.perform dialog None AddProfilePath
 
     | SelectTestFolderPath ->
         let dialog = Dialogs.openFolderDialog (state.Localization.GetString "selectTestFolder")
@@ -175,19 +166,7 @@ let update (msg: Msg) (state: State) =
         let dialog = Dialogs.openFolderDialog (state.Localization.GetString "selectProjectFolder")
         state, Cmd.OfAsync.perform dialog None AddProjectsFolderPath
 
-    | SelectToneImportFile ->
-        let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectImportToneFile") (Dialogs.toneImportFilter state.Localization)
-        state, Cmd.OfAsync.perform dialog None ImportTonesFromFile
-
-    | SelectToolkitTemplate ->
-        let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectImportToolkitTemplate") (Dialogs.toolkitFilter state.Localization)
-        state, Cmd.OfAsync.perform dialog None ImportToolkitTemplate
-
-    | SelectPsarcToImport ->
-        let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectImportPsarc") (Dialogs.psarcFilter state.Localization)
-        state, Cmd.OfAsync.perform dialog None SelectImportPsarcFolder
-
-    | SelectImportPsarcFolder (Some psarcFile) ->
+    | SelectImportPsarcFolder psarcFile ->
         let dialog = Dialogs.openFolderDialog (state.Localization.GetString "selectPsarcExtractFolder")
         state, Cmd.OfAsync.perform dialog None (fun folder -> ImportPsarc(psarcFile, folder))
 
@@ -195,7 +174,7 @@ let update (msg: Msg) (state: State) =
         let task() = PsarcImporter.import psarcFile targetFolder
         state, Cmd.OfAsync.either task () (fun project -> ProjectLoaded(project, None)) ErrorOccurred
 
-    | ImportToolkitTemplate (Some fileName) ->
+    | ImportToolkitTemplate fileName ->
         try
             let project = ToolkitImporter.import fileName
             let coverArt =
@@ -208,7 +187,7 @@ let update (msg: Msg) (state: State) =
                          SelectedArrangement = None; SelectedTone = None }, Cmd.none
         with e -> state, Cmd.ofMsg (ErrorOccurred e)
 
-    | ImportTonesFromFile (Some fileName) ->
+    | ImportTonesFromFile fileName ->
         let task () =
             if fileName.EndsWith("psarc", StringComparison.OrdinalIgnoreCase) then
                 Utils.importTonesFromPSARC fileName
@@ -250,10 +229,6 @@ let update (msg: Msg) (state: State) =
         let dialog = Dialogs.saveFileDialog (state.Localization.GetString "saveProjectAs") (Dialogs.projectFilter state.Localization) intialFileName
         state, Cmd.OfAsync.perform dialog initialDir SaveProject
 
-    | SelectOpenProjectFile ->
-        let dialog = Dialogs.openFileDialog (state.Localization.GetString "selectProjectFile") (Dialogs.projectFilter state.Localization)
-        state, Cmd.OfAsync.perform dialog None OpenProject
-
     | AddProjectsFolderPath (Some path) ->
         let config = { state.Config with ProjectsFolderPath = path }
         { state with Config = config }, Cmd.none
@@ -262,21 +237,21 @@ let update (msg: Msg) (state: State) =
         let config = { state.Config with TestFolderPath = path }
         { state with Config = config }, Cmd.none
 
-    | AddProfilePath (Some path) ->
+    | AddProfilePath path ->
         if not <| path.EndsWith("_PRFLDB", StringComparison.OrdinalIgnoreCase) then
             state, Cmd.none
         else
             let config = { state.Config with ProfilePath = path }
             { state with Config = config }, Cmd.none
 
-    | AddCustomFontFile (Some fileName) ->
+    | AddCustomFontFile fileName ->
         match state.SelectedArrangement with
         | Some (Vocals arr as old) ->
             let updated = Vocals ({ arr with CustomFont = Some fileName})
             updateArrangement old updated state
         | _ -> state, Cmd.none
 
-    | AddAudioFile (Some fileName) ->
+    | AddAudioFile fileName ->
         let audioFile = { state.Project.AudioFile with Path = fileName }
         let previewPath =
             let previewPath =
@@ -302,7 +277,7 @@ let update (msg: Msg) (state: State) =
         else
             state, Cmd.none
 
-    | AddCoverArt (Some fileName) ->
+    | AddCoverArt fileName ->
         state.CoverArt |> Option.iter dispose
         
         { state with CoverArt = Some (Utils.loadBitmap fileName)
@@ -422,7 +397,7 @@ let update (msg: Msg) (state: State) =
             | None -> ProjectSaveAs
         state, Cmd.ofMsg msg
 
-    | OpenProject (Some fileName) ->
+    | OpenProject fileName ->
         let task() = DLCProject.load fileName
         state, Cmd.OfAsync.either task () (fun p -> ProjectLoaded(p, Some fileName)) ErrorOccurred
 
@@ -494,10 +469,7 @@ let update (msg: Msg) (state: State) =
                      Localization = Localization(newLocale) }, Cmd.none
     
     // When the user canceled any of the dialogs
-    | AddArrangements None | AddCoverArt None | AddAudioFile None | AddCustomFontFile None
-    | AddProfilePath None | AddTestFolderPath None | AddProjectsFolderPath None
-    | SaveProject None | OpenProject None | ImportTonesFromFile None | ImportToolkitTemplate None
-    | SelectImportPsarcFolder None | ImportPsarc (_, None) ->
+    | AddArrangements None | AddTestFolderPath None | AddProjectsFolderPath None | SaveProject None | ImportPsarc (_, None) ->
         state, Cmd.none
 
 let view (state: State) dispatch =
@@ -597,7 +569,7 @@ let view (state: State) dispatch =
                                         Button.padding (15.0, 5.0)
                                         Button.horizontalAlignment HorizontalAlignment.Left
                                         Button.content (state.Localization.GetString "import")
-                                        Button.onClick (fun _ -> dispatch SelectToneImportFile)
+                                        Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectImportToneFile", Dialogs.toneImportFilter, ImportTonesFromFile)))
                                     ]
                                 ]
                             ]

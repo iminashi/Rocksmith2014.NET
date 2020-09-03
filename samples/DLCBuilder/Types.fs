@@ -3,6 +3,7 @@
 open Rocksmith2014.DLCProject
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
+open Avalonia.Controls
 open Avalonia.Media.Imaging
 open System
 
@@ -37,31 +38,25 @@ module Types =
           Localization : Localization }
 
     type Msg =
+    | OpenFileDialog of locTitle : string * filter : (Localization -> ResizeArray<FileDialogFilter>) * msg : (string -> Msg)
+    | ConditionalCmdDispatch of opt : string option * msg : (string -> Msg)
     | SelectOpenArrangement
-    | SelectCoverArt
-    | SelectAudioFile
-    | SelectCustomFont
-    | SelectProfilePath
     | SelectTestFolderPath
     | SelectProjectsFolderPath
-    | SelectToneImportFile
     | ProjectSaveAs
-    | SelectOpenProjectFile
-    | SelectToolkitTemplate
-    | SelectPsarcToImport
-    | SelectImportPsarcFolder of psarcFile : string option
+    | SelectImportPsarcFolder of psarcFile : string
     | ImportPsarc of psarcFile : string * targetFolder : string option
-    | ImportToolkitTemplate of fileName : string option
-    | OpenProject of fileName : string option
+    | ImportToolkitTemplate of fileName : string
+    | OpenProject of fileName : string
     | SaveProject of fileName : string option
     | AddArrangements of files : string[] option
-    | AddCoverArt of fileName : string option
-    | AddAudioFile of fileName : string option
-    | AddCustomFontFile of fileName : string option
-    | AddProfilePath of path : string option
+    | AddCoverArt of fileName : string
+    | AddAudioFile of fileName : string
+    | AddCustomFontFile of fileName : string
+    | AddProfilePath of path : string
     | AddTestFolderPath of path : string option
     | AddProjectsFolderPath of path : string option
-    | ImportTonesFromFile of fileName : string option
+    | ImportTonesFromFile of fileName : string
     | ArrangementSelected of selected : Arrangement option
     | ToneSelected of selected : Tone option
     | DeleteArrangement

@@ -28,11 +28,11 @@ type MainWindow() as this =
 
         let handleHotkeys dispatch (event : KeyEventArgs) =
                     match event.KeyModifiers, event.Key with
-                    | KeyModifiers.Control, Key.O -> dispatch SelectOpenProjectFile
+                    | KeyModifiers.Control, Key.O -> dispatch (Msg.OpenFileDialog("selectProjectFile", Dialogs.projectFilter, OpenProject))
                     | KeyModifiers.Control, Key.S -> dispatch ProjectSaveOrSaveAs
                     | KeyModifiers.Control, Key.P -> dispatch ImportProfileTones
-                    | KeyModifiers.Control, Key.T -> dispatch SelectToolkitTemplate
-                    | KeyModifiers.Control, Key.A -> dispatch SelectPsarcToImport
+                    | KeyModifiers.Control, Key.T -> dispatch (Msg.OpenFileDialog("selectImportToolkitTemplate", Dialogs.toolkitFilter, ImportToolkitTemplate))
+                    | KeyModifiers.Control, Key.A -> dispatch (Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder))
                     | _ -> ()
 
         let hotKeysSub _initialModel =

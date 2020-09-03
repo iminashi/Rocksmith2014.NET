@@ -49,7 +49,7 @@ let view state dispatch (v: Vocals) =
                         DockPanel.dock Dock.Right
                         Button.margin (0.0, 4.0, 4.0, 4.0)
                         Button.content "..."
-                        Button.onClick (fun _ -> SelectCustomFont |> dispatch)
+                        Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectCustomFont", Dialogs.ddsFileFilter, AddCustomFontFile)))
                         ToolTip.tip (state.Localization.GetString "selectCustomFontToolTip")
                     ]
                     TextBlock.create [

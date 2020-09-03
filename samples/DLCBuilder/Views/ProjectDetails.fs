@@ -27,7 +27,7 @@ let view state dispatch =
                 Image.source (Option.toObj state.CoverArt)
                 Image.width 200.
                 Image.height 200.
-                Image.onTapped (fun _ -> dispatch SelectCoverArt)
+                Image.onTapped (fun _ -> dispatch (Msg.OpenFileDialog("selectCoverArt", Dialogs.imgFileFilter, AddCoverArt)))
                 Image.cursor (Cursor(StandardCursorType.Hand))
                 ToolTip.tip (state.Localization.GetString "selectCoverArtToolTip")
             ]
@@ -197,7 +197,7 @@ let view state dispatch =
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
                                 Button.padding (10.0, 0.0)
                                 Button.content "..."
-                                Button.onClick (fun _ -> dispatch SelectAudioFile)
+                                Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, AddAudioFile)))
                                 ToolTip.tip (state.Localization.GetString "selectAudioFile")
                             ]
                             TextBox.create [
@@ -291,7 +291,7 @@ let view state dispatch =
                                         Button.margin (4., 4., 0., 4.)
                                         Button.fontSize 16.
                                         Button.content (state.Localization.GetString "openProject")
-                                        Button.onClick (fun _ -> SelectOpenProjectFile |> dispatch)
+                                        Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectProjectFile", Dialogs.projectFilter, OpenProject)))
                                     ]
                                     Menu.create [
                                         Menu.fontSize 16.
@@ -306,11 +306,15 @@ let view state dispatch =
                                                 MenuItem.viewItems [
                                                     MenuItem.create [
                                                         MenuItem.header (state.Localization.GetString "toolkitImport")
-                                                        MenuItem.onClick (fun _ -> SelectToolkitTemplate |> dispatch)
+                                                        MenuItem.onClick (fun _ ->
+                                                            Msg.OpenFileDialog("selectImportToolkitTemplate", Dialogs.toolkitFilter, ImportToolkitTemplate)
+                                                            |> dispatch)
                                                     ]
                                                     MenuItem.create [
                                                         MenuItem.header (state.Localization.GetString "psarcImport")
-                                                        MenuItem.onClick (fun _ -> SelectPsarcToImport |> dispatch)
+                                                        MenuItem.onClick (fun _ ->
+                                                            Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder)
+                                                            |>dispatch)
                                                     ]
                                                 ]
                                             ]

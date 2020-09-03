@@ -96,7 +96,7 @@ let view state dispatch =
                     Button.create [
                         Button.margin (0., 4.)
                         Button.content "..."
-                        Button.onClick (fun _ -> SelectProfilePath |> dispatch)
+                        Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectProfile", Dialogs.profileFilter, AddProfilePath)))
                     ]
                 ]
             ]
