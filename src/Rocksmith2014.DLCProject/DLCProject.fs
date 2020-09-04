@@ -99,36 +99,3 @@ module DLCProject =
         use file = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan ||| FileOptions.Asynchronous)
         let! project = JsonSerializer.DeserializeAsync<DLCProject>(file, options)
         return toAbsolutePaths (Path.GetDirectoryName fileName) project  }
-
-    /// Validates the project for missing files and other errors.
-    let validateBuild (project: DLCProject) =
-        let wemAudio = IO.Path.ChangeExtension(project.AudioFile.Path, "wem")
-        let wemPreview =
-            if String.notEmpty project.AudioPreviewFile.Path then
-                IO.Path.ChangeExtension(project.AudioFile.Path, "wem")
-            else
-                let dir = IO.Path.GetDirectoryName project.AudioFile.Path
-                let fn = IO.Path.GetFileNameWithoutExtension project.AudioFile.Path
-                IO.Path.Combine(dir, sprintf "%s_preview.wem" fn)
-    
-        let toneKeyGroups =
-            project.Tones
-            |> List.groupBy (fun x -> x.Key)
-    
-        let vocalGroups =
-            project.Arrangements
-            |> List.choose (function Vocals v -> Some v | _ -> None)
-            |> List.groupBy (fun x -> x.Japanese)
-    
-        if not <| IO.File.Exists project.AlbumArtFile then
-            Error "Album art file not found."
-        elif toneKeyGroups |> List.exists (fun (_, list) -> list.Length > 1)  then
-            Error "A tone key has more than one defined tone."
-        elif vocalGroups |> List.exists (fun (_, list) -> list.Length > 1) then
-            Error "There are two conflicting vocals arrangements. One needs to be set as Japanese."
-        elif not <| IO.File.Exists wemAudio then
-            Error "Wwise wem audio file not found."
-        elif not <| IO.File.Exists wemPreview then
-            Error "Wwise wem preview audio file not found."
-        else
-            Ok ()

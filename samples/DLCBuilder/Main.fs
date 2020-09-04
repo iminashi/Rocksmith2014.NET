@@ -435,7 +435,7 @@ let update (msg: Msg) (state: State) =
     | EditConfig edit -> { state with Config = edit state.Config }, Cmd.none
 
     | BuildTest ->
-        match DLCProject.validateBuild state.Project with
+        match BuildValidator.validate state.Localization state.Project with
         | Error error ->
             { state with Overlay = ErrorMessage error }, Cmd.none
         | Ok _ ->
@@ -445,7 +445,7 @@ let update (msg: Msg) (state: State) =
             { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
 
     | BuildRelease ->
-        match DLCProject.validateBuild state.Project with
+        match BuildValidator.validate state.Localization state.Project with
         | Error error ->
             { state with Overlay = ErrorMessage error }, Cmd.none
         | Ok _ ->

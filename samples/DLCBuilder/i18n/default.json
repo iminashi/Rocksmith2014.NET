@@ -130,5 +130,10 @@
   "psarcImport": "Import PSARC File",
   "selectImportToolkitTemplate": "Select a Toolkit Template to Import",
   "selectImportPsarc": "Select a PSARC File to Import",
-  "selectPsarcExtractFolder": "Select a Folder where the Project will be Created"
+  "selectPsarcExtractFolder": "Select a Folder where the Project will be Created",
+  "albumArtNotFound": "Album art file not found.",
+  "multipleTonesSameKey": "A tone key has more than one defined tone.",
+  "conflictingVocals": "There are two conflicting vocals arrangements. One needs to be set as Japanese.",
+  "wemAudioNotFound": "Wwise wem audio file not found.",
+  "wemPreviewNotFound": "Wwise wem preview audio file not found."
 }

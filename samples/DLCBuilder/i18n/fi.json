@@ -130,5 +130,10 @@
   "psarcImport": "Tuo PSARC tiedosto",
   "selectImportToolkitTemplate": "Valitse tuotava Toolkit työpohja",
   "selectImportPsarc": "Valitse tuotava PSARC tiedosto",
-  "selectPsarcExtractFolder": "Valitse kansio, jonne projekti luodaan"
+  "selectPsarcExtractFolder": "Valitse kansio, jonne projekti luodaan",
+  "albumArtNotFound": "Kansikuvatiedostoa ei löydy.",
+  "multipleTonesSameKey": "Yhdelle soundiavaimelle on määritelty useita eri soundeja.",
+  "conflictingVocals": "Projektissa on kaksi päällekkäistä sanoitus-sovitusta.\nJompikumpi niistä pitää asettaa japaninkieliseksi.",
+  "wemAudioNotFound": "Wwise wem äänitiedosta ei löydy.",
+  "wemPreviewNotFound": "Wwise wem esikatseluäänitiedostoa ei löydy."
 }
