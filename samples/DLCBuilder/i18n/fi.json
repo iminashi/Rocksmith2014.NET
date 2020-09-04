@@ -135,5 +135,6 @@
   "multipleTonesSameKey": "Yhdelle soundiavaimelle on määritelty useita eri soundeja.",
   "conflictingVocals": "Projektissa on kaksi päällekkäistä sanoitus-sovitusta.\nJompikumpi niistä pitää asettaa japaninkieliseksi.",
   "wemAudioNotFound": "Wwise wem äänitiedosta ei löydy.",
-  "wemPreviewNotFound": "Wwise wem esikatseluäänitiedostoa ei löydy."
+  "wemPreviewNotFound": "Wwise wem esikatseluäänitiedostoa ei löydy.",
+  "noAudioFile": "Ei äänitiedostoa."
 }

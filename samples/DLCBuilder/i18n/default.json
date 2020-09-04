@@ -135,5 +135,6 @@
   "multipleTonesSameKey": "A tone key has more than one defined tone.",
   "conflictingVocals": "There are two conflicting vocals arrangements. One needs to be set as Japanese.",
   "wemAudioNotFound": "Wwise wem audio file not found.",
-  "wemPreviewNotFound": "Wwise wem preview audio file not found."
+  "wemPreviewNotFound": "Wwise wem preview audio file not found.",
+  "noAudioFile": "No audio file."
 }

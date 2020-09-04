@@ -200,10 +200,15 @@ let view state dispatch =
                                 Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, AddAudioFile)))
                                 ToolTip.tip (state.Localization.GetString "selectAudioFile")
                             ]
-                            TextBox.create [
-                                TextBox.margin (4.0, 4.0, 0.0, 4.0)
-                                TextBox.watermark (state.Localization.GetString "audioFile")
-                                TextBox.text (IO.Path.GetFileName state.Project.AudioFile.Path)
+                            TextBlock.create [
+                                TextBlock.margin (4.0, 4.0, 0.0, 4.0)
+                                TextBlock.verticalAlignment VerticalAlignment.Center
+                                TextBlock.text (
+                                    if String.IsNullOrWhiteSpace state.Project.AudioFile.Path then
+                                        state.Localization.GetString "noAudioFile"
+                                    else
+                                        IO.Path.GetFileName state.Project.AudioFile.Path
+                                )
                                 ToolTip.tip (state.Localization.GetString "audioFile")
                             ]
                         ]
@@ -248,7 +253,12 @@ let view state dispatch =
                         )
                         Button.isEnabled (state.Project.AudioFile.Path.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
                         Button.onClick (fun _ -> dispatch (CreatePreviewAudio SetupStartTime))
-                        ToolTip.tip (if previewExists then state.Localization.GetString "previewAudioExistsToolTip" else state.Localization.GetString "previewAudioDoesNotExistToolTip")
+                        ToolTip.tip (
+                            if previewExists then
+                                state.Localization.GetString "previewAudioExistsToolTip"
+                            else
+                                state.Localization.GetString "previewAudioDoesNotExistToolTip"
+                        )
                     ]
 
                     NumericUpDown.create [
