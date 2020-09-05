@@ -61,6 +61,7 @@ type App() =
         this.Styles.Load "avares://Avalonia.Themes.Default/DefaultTheme.xaml"
         this.Styles.Load "avares://Avalonia.Themes.Default/Accents/BaseDark.xaml"
         this.Styles.Load "avares://DLCBuilder/Styles.xaml"
+        this.Name <- "Rocksmith 2014 DLC Builder"
 
     override this.OnFrameworkInitializationCompleted() =
         match this.ApplicationLifetime with
