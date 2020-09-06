@@ -19,6 +19,9 @@ module Locales =
         | "fi" -> Finnish
         | _ -> English
 
+type ILocalization =
+    abstract member GetString : string -> string
+
 type Localization(locale: Locale) =
     static let defaultLocale = Locales.English
     static let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
@@ -37,9 +40,10 @@ type Localization(locale: Locale) =
             sprintf "i18n/%s.json" locale.ShortName
             |> loadDictionary
 
-    member _.GetString (key: string) =
-        let found, str = localeDictionary.TryGetValue key
-        if found then str
-        else
-            let found, str = defaultDictionary.TryGetValue key
-            if found then str else sprintf "!!%s!!" key
+    interface ILocalization with
+        member _.GetString (key: string) =
+            let found, str = localeDictionary.TryGetValue key
+            if found then str
+            else
+                let found, str = defaultDictionary.TryGetValue key
+                if found then str else sprintf "!!%s!!" key

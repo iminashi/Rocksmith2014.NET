@@ -35,10 +35,10 @@ module Types =
           OpenProjectFile : string option
           CurrentPlatform : Platform
           BuildInProgress : bool
-          Localization : Localization }
+          Localization : ILocalization }
 
     type Msg =
-    | OpenFileDialog of locTitle : string * filter : (Localization -> ResizeArray<FileDialogFilter>) * msg : (string -> Msg)
+    | OpenFileDialog of locTitle : string * filter : (ILocalization -> ResizeArray<FileDialogFilter>) * msg : (string -> Msg)
     | OpenFolderDialog of locTitle : string * msg : (string -> Msg)
     | ConditionalCmdDispatch of opt : string option * msg : (string -> Msg)
     | SelectOpenArrangement

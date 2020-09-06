@@ -14,16 +14,16 @@ let private createFilters name (extensions : string seq) =
     let filter = FileDialogFilter(Extensions = List(extensions), Name = name)
     List(seq { filter })
 
-let audioFileFilters (loc:Localization) = createFilters (loc.GetString "audioFiles") (seq { "wav"; "wem" })
-let xmlFileFilter (loc:Localization) = createFilters (loc.GetString "rocksmithArrangementFiles") (seq { "xml" })
-let imgFileFilter (loc:Localization) = createFilters (loc.GetString "imageFiles") (seq { "png"; "jpg"; "dds" })
-let ddsFileFilter (loc:Localization) = createFilters (loc.GetString "ddsTextureFiles") (seq { "dds" })
-let profileFilter (loc:Localization) = createFilters (loc.GetString "profileFiles") (seq { "*" })
-let projectFilter (loc:Localization) = createFilters (loc.GetString "projectFiles") (seq { "rs2dlc" })
-let psarcFilter (loc:Localization) = createFilters (loc.GetString "psarcFiles") (seq { "psarc" })
-let toolkitFilter (loc:Localization) = createFilters (loc.GetString "toolkitFiles") (seq { "dlc.xml" })
+let audioFileFilters (loc:ILocalization) = createFilters (loc.GetString "audioFiles") (seq { "wav"; "wem" })
+let xmlFileFilter (loc:ILocalization) = createFilters (loc.GetString "rocksmithArrangementFiles") (seq { "xml" })
+let imgFileFilter (loc:ILocalization) = createFilters (loc.GetString "imageFiles") (seq { "png"; "jpg"; "dds" })
+let ddsFileFilter (loc:ILocalization) = createFilters (loc.GetString "ddsTextureFiles") (seq { "dds" })
+let profileFilter (loc:ILocalization) = createFilters (loc.GetString "profileFiles") (seq { "*" })
+let projectFilter (loc:ILocalization) = createFilters (loc.GetString "projectFiles") (seq { "rs2dlc" })
+let psarcFilter (loc:ILocalization) = createFilters (loc.GetString "psarcFiles") (seq { "psarc" })
+let toolkitFilter (loc:ILocalization) = createFilters (loc.GetString "toolkitFiles") (seq { "dlc.xml" })
 
-let toneImportFilter (loc:Localization) =
+let toneImportFilter (loc:ILocalization) =
     List(seq { FileDialogFilter(Extensions = List(seq { "tone2014.xml" }), Name = loc.GetString "toneXmlFiles")
                FileDialogFilter(Extensions = List(seq { "psarc" }), Name = loc.GetString "psarcFiles") })
 

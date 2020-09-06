@@ -5,7 +5,7 @@ open Rocksmith2014.Common
 open System.IO
 
 /// Validates the project for missing files and other errors.
-let validate (loc: Localization) (project: DLCProject) =
+let validate (loc: ILocalization) (project: DLCProject) =
     let wemAudio = Path.ChangeExtension(project.AudioFile.Path, "wem")
     let wemPreview =
         if String.notEmpty project.AudioPreviewFile.Path then
