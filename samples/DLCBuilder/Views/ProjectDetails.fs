@@ -15,7 +15,7 @@ let view state dispatch =
     let canBuild =
         not state.BuildInProgress
         && state.Project.Arrangements.Length > 0
-        && String.notEmpty state.Project.DLCKey
+        && state.Project.DLCKey.Length >= 5
         && String.notEmpty state.Project.AudioFile.Path
 
     DockPanel.create [
