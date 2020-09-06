@@ -10,6 +10,7 @@ open Rocksmith2014.PSARC
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject.Manifest
 
+/// Converts a Pfim DDS bitmap into an Avalonia bitmap.
 let private avaloniaBitmapFromDDS (fileName: string) =
     use image = Pfim.FromFile fileName
     let pxFormat, data, stride =
@@ -34,12 +35,14 @@ let private avaloniaBitmapFromDDS (fileName: string) =
     pinnedArray.Free()
     bm
     
+/// Loads a bitmap from the given path.
 let loadBitmap (fileName: string) =
     if fileName.EndsWith("dds", StringComparison.OrdinalIgnoreCase) then
         avaloniaBitmapFromDDS fileName
     else
         new Bitmap(fileName)
 
+/// Imports tones from a PSARC file.
 let importTonesFromPSARC (psarcPath: string) = async {
     use psarc = PSARC.ReadFile psarcPath
     let! jsons =
