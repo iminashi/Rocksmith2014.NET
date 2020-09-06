@@ -24,7 +24,7 @@ let view state dispatch =
         DockPanel.children [
             Image.create [
                 DockPanel.dock Dock.Top
-                Image.source (Option.toObj state.CoverArt)
+                Image.source state.CoverArt
                 Image.width 200.
                 Image.height 200.
                 Image.onTapped (fun _ -> dispatch (Msg.OpenFileDialog("selectCoverArt", Dialogs.imgFileFilter, AddCoverArt)))

@@ -28,7 +28,7 @@
     <Page Include="Styles.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <AvaloniaResource Include="placeholder.png" />
+    <AvaloniaResource Include="coverart_placeholder.png" />
     <AvaloniaResource Include="**\*.xaml" />
     <Compile Include="Localization.fs" />
     <Compile Include="Media.fs" />

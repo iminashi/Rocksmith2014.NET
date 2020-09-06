@@ -24,7 +24,7 @@ module Types =
     type State =
         { Project : DLCProject
           Config : Configuration
-          CoverArt : Bitmap option
+          CoverArt : Bitmap
           SelectedArrangement : Arrangement option
           SelectedTone : Tone option
           ShowSortFields : bool

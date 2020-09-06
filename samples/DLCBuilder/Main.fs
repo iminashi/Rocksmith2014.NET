@@ -19,12 +19,12 @@ open Avalonia.Layout
 
 let private loadPlaceHolderAlbumArt () =
     let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
-    new Bitmap(assets.Open(new Uri("avares://DLCBuilder/placeholder.png")))
+    new Bitmap(assets.Open(new Uri("avares://DLCBuilder/coverart_placeholder.png")))
 
 let init () =
     { Project = DLCProject.Empty
       Config = Configuration.Default
-      CoverArt = Some (loadPlaceHolderAlbumArt())
+      CoverArt = loadPlaceHolderAlbumArt()
       SelectedArrangement = None
       SelectedTone = None
       ShowSortFields = false
@@ -175,8 +175,8 @@ let update (msg: Msg) (state: State) =
             let project = ToolkitImporter.import fileName
             let coverArt =
                 if IO.File.Exists project.AlbumArtFile then
-                    Option.iter dispose state.CoverArt
-                    Some (Utils.loadBitmap project.AlbumArtFile)
+                    state.CoverArt.Dispose()
+                    Utils.loadBitmap project.AlbumArtFile
                 else
                     state.CoverArt
             { state with Project = project; OpenProjectFile = None; CoverArt = coverArt
@@ -274,9 +274,9 @@ let update (msg: Msg) (state: State) =
             state, Cmd.none
 
     | AddCoverArt fileName ->
-        state.CoverArt |> Option.iter dispose
+        state.CoverArt.Dispose()
         
-        { state with CoverArt = Some (Utils.loadBitmap fileName)
+        { state with CoverArt = Utils.loadBitmap fileName
                      Project = { state.Project with AlbumArtFile = fileName } }, Cmd.none
 
     | AddArrangements (Some files) ->
@@ -399,14 +399,14 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfAsync.either task () (fun p -> ProjectLoaded(p, Some fileName)) ErrorOccurred
 
     | ProjectLoaded (project, projectFile) ->
-        state.CoverArt |> Option.iter dispose
+        state.CoverArt.Dispose()
         let bm =
             if IO.File.Exists project.AlbumArtFile then
                 Utils.loadBitmap(project.AlbumArtFile)
             else
                 loadPlaceHolderAlbumArt()
 
-        { state with CoverArt = Some bm
+        { state with CoverArt = bm
                      Project = project
                      OpenProjectFile = projectFile
                      SelectedArrangement = None
