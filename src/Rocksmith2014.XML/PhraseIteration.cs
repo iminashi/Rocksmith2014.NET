@@ -39,7 +39,19 @@ namespace Rocksmith2014.XML
         }
 
         /// <summary>
-        /// Creates a new phrase iteration with the given properties.
+        /// Creates a new phrase iteration with the given time and phrase ID.
+        /// </summary>
+        /// <param name="time">The time code of the phrase.</param>
+        /// <param name="phraseId">The phrase ID.</param>
+        public PhraseIteration(int time, int phraseId)
+        {
+            Time = time;
+            PhraseId = phraseId;
+            HeroLevels = new HeroLevels();
+        }
+
+        /// <summary>
+        /// Creates a new phrase iteration with the given time, phrase ID and hero levels.
         /// </summary>
         /// <param name="time">The time code of the phrase.</param>
         /// <param name="phraseId">The phrase ID.</param>
