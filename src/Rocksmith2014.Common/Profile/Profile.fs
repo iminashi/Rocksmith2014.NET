@@ -25,6 +25,7 @@ let private readHeader (stream: Stream) =
     reader.ReadUInt64() |> ignore // Profile ID
     reader.ReadUInt32() |> ignore // Uncompressed length
 
+/// Writes a decrypted Rocksmith 2014 profile from the input stream into the output stream.
 let decryptProfile (input: Stream) (output: Stream) = async {
     readHeader input
 
@@ -36,6 +37,7 @@ let decryptProfile (input: Stream) (output: Stream) = async {
     decrypted.Position <- 0L
     do! Compression.unzip decrypted output }
 
+/// Reads an array of tones from the profile with the given path.
 let importTones (path: string) =
     try
         use profile = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan)

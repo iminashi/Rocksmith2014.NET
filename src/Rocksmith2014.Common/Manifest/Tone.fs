@@ -100,6 +100,7 @@ module Tone =
         |> Seq.map (fun x -> x.InnerText)
         |> Seq.toArray
 
+    /// Imports a tone from a Tone2014 XML structure using the optional XML namespace.
     let importXml (ns: string option) (xmlNode: XmlNode) =
         let node =
             match ns with
@@ -119,6 +120,7 @@ module Tone =
           // Sort order is not needed
           SortOrder = Nullable() }
 
+    /// Imports a tone from a Tone2014 XML file.
     let fromXmlFile (fileName: string) =
         let doc = XmlDocument()
         doc.Load(fileName)

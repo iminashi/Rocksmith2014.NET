@@ -12,6 +12,7 @@ module Platform =
     let private pathsPC = [| "windows"; "generic"; "_p" |]
     let private pathsMac = [| "mac"; "macos"; "_m" |]
 
+    /// Returns a platform-specific string for the given path.
     let getPath platform (path: Path) =
         let index = LanguagePrimitives.EnumToValue path
         match platform with

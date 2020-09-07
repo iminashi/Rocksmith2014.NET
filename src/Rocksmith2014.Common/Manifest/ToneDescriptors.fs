@@ -145,23 +145,27 @@ module ToneDescriptor =
           Aliases = [ "vocal"; "vox" ]
           UIName = "$[35718]VOCAL" } |]
 
+    /// A dictionary for converting a UI name into a tone descriptor.
     let uiNameToDesc =
         all
         |> Array.map (fun x -> x.UIName, x)
         |> dict
 
+    /// Tries to infer tone descriptors from the given tone name.
     let tryInfer (name: string) =
         Array.FindAll(all, (fun x ->
             x.Aliases
             |> List.exists (fun a -> name.Contains(a, StringComparison.OrdinalIgnoreCase))))
 
+    /// Returns an array of tone descriptors inferred from the tone name, or the clean tone descriptor as default.
     let getDescriptionsOrDefault (name: string) =
         let descs = tryInfer name
         if descs.Length = 0 then [| all.[3] |] // Use clean as default
         else descs
 
-    let private uiNameToName (uiName: string) =
-        Array.find (fun x -> x.UIName = uiName) all
+    /// Returns a description name for the given UI name.
+    let uiNameToName (uiName: string) = uiNameToDesc.[uiName].Name
 
+    /// Combines an array of UI names into a string of description names separated by spaces.
     let combineUINames (uiNames: string array) =
         String.Join(" ", Array.map uiNameToName uiNames)
