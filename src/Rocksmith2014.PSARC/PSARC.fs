@@ -181,10 +181,9 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         do! inflateEntry entry output }
 
     /// Inflates the entry with the given file name into the target file.
-    member _.InflateFile (name: string, targetFile: string) = async {
-        let entry = toc.[Array.IndexOf(manifest, name)]
+    member this.InflateFile (name: string, targetFile: string) = async {
         use file = File.Create targetFile
-        do! inflateEntry entry file }
+        do! this.InflateFile(name, file) }
 
     /// Extracts all the files from the PSARC into the given directory.
     member _.ExtractFiles (baseDirectory: string) = async {
