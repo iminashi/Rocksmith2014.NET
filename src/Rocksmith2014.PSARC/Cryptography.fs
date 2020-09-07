@@ -108,6 +108,7 @@ let private aesCfbEncrypt (input: Stream) (output: Stream) (key: byte[]) length 
             buffer.[i] <- buffer.[i] ^^^ vecBlock.[i]
             output.WriteByte(buffer.[i])
 
+/// Decrypts a PSARC header from the input stream into the output stream.
 let decrypt (input: Stream) (output: Stream) (length: uint32) =
     if Sse2.IsSupported then
         aesCfbDecryptSIMD input output psarcKey (int64 length)
@@ -117,12 +118,14 @@ let decrypt (input: Stream) (output: Stream) (length: uint32) =
     output.Flush()
     output.Position <- 0L
 
+/// Encrypts a plain PSARC header from the input stream into the output stream.
 let encrypt (input: Stream) (output: Stream) length  =
     if Sse2.IsSupported then
         aesCfbEncryptSIMD input output psarcKey length
     else
         aesCfbEncrypt input output psarcKey length
 
+/// Calculates an MD5 hash for the given string.
 let md5Hash (name: string) =
     if String.IsNullOrEmpty name then Array.zeroCreate<byte> 16
     else using (new MD5CryptoServiceProvider()) (fun md5 -> md5.ComputeHash(Encoding.ASCII.GetBytes(name)))

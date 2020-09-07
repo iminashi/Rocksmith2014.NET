@@ -9,18 +9,25 @@ type NamedEntry =
     static member Dispose(e) = e.Data.Dispose()
 
 type Entry =
-    { NameDigest : byte[]
+    { /// MD5 hash of the name of the entry in the manifest.
+      NameDigest : byte[]
+      /// The starting z-block index for the entry.
       zIndexBegin : uint32
+      /// The length of the plain data for the entry in bytes.
       Length : uint64
+      /// The offset in bytes from the start of the PSARC file for the entry.
       Offset : uint64
+      /// The ID number for the entry.
       ID : int32 }
 
+    /// Writes this entry into the writer.
     member this.Write (writer: IBinaryWriter) =
         writer.WriteBytes this.NameDigest
         writer.WriteUInt32 this.zIndexBegin
         writer.WriteUInt40 this.Length
         writer.WriteUInt40 this.Offset
 
+    /// Reads an entry from the reader.
     static member Read (reader: IBinaryReader) index =
         { ID = index
           NameDigest = reader.ReadBytes(16)
