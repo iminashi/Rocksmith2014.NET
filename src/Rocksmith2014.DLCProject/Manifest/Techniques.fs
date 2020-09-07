@@ -97,7 +97,7 @@ let isDoubleStopBend sng note =
     sng.ChordNotes.[note.ChordNotesId].BendData |> Array.exists (fun x -> x.UsedCount > 0)
 
 let getTechniques (sng: SNG) (note: Note) =
-    if note.Mask = NoteMask.None || note.Mask = NoteMask.Single then
+    if note.Mask = NoteMask.None || note.Mask = NoteMask.Single || note.Mask = (NoteMask.Single ||| NoteMask.Open) then
         Seq.empty
     else
         let isHopo = hasFlag note NoteMask.HammerOn || hasFlag note NoteMask.PullOff
