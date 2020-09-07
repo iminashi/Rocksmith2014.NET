@@ -18,23 +18,23 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     static let getZType (header: Header) =
         int <| Math.Log(float header.BlockSizeAlloc, 256.0)
 
-    /// Reads the TOC and block size table from the given reader.
-    static let readTOC (header: Header) (reader: IBinaryReader) =
-        let toc = Seq.init (int header.TOCEntries) (Entry.Read reader) |> ResizeArray
+    /// Reads the ToC and block size table from the given reader.
+    static let readToC (header: Header) (reader: IBinaryReader) =
+        let toc = Seq.init (int header.ToCEntryCount) (Entry.Read reader) |> ResizeArray
 
-        let tocChunkSize = int (header.TOCEntries * header.TOCEntrySize)
         let zType = getZType header
-        let tocSize = int (header.TOCLength - 32u)
-        let zNum = (tocSize - tocChunkSize) / zType
+        let tocSize = int (header.ToCEntryCount * header.ToCEntrySize)
+        let blockSizeTableLength = int header.ToCLength - Header.Length - tocSize
+        let blockSizeCount = blockSizeTableLength / zType
         let read = 
             match zType with
             | 2 -> fun _ -> uint32 (reader.ReadUInt16()) // 64KB
             | 3 -> fun _ -> reader.ReadUInt24() // 16MB
             | 4 -> fun _ -> reader.ReadUInt32() // 4GB
             | _ -> failwith "Unexpected zType"
-        let zLengths = Array.init zNum read
+        let blockSizes = Array.init blockSizeCount read
 
-        toc, zLengths
+        toc, blockSizes
 
     let mutable blockSizeTable = blockSizeTable
     let buffer = ArrayPool<byte>.Shared.Rent (int header.BlockSizeAlloc)
@@ -139,7 +139,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         
         // Update and write the table of contents
         toc.Clear()
-        let mutable offset = uint64 header.TOCLength
+        let mutable offset = uint64 header.ToCLength
         protoEntries |> Array.iteri (fun i e ->
             let entry = { fst e with Offset = offset; ID = i }
             offset <- offset + (e |> (snd >> uint64))
@@ -224,8 +224,8 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
         // Update header
         let zType = getZType header
-        header.TOCLength <- uint (Header.Length + protoEntries.Length * int header.TOCEntrySize + blockTable.Length * zType)
-        header.TOCEntries <- uint protoEntries.Length
+        header.ToCLength <- uint (Header.Length + protoEntries.Length * int header.ToCEntrySize + blockTable.Length * zType)
+        header.ToCEntryCount <- uint protoEntries.Length
         header.ArchiveFlags <- if options.EncyptTOC then 4u else 0u
         header.Write writer 
 
@@ -266,18 +266,18 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     static member Read (input: Stream) = 
         let reader = BigEndianBinaryReader(input) :> IBinaryReader
         let header = Header.Read reader
-        let tocSize = int header.TOCLength - Header.Length
+        let tocSize = int header.ToCLength - Header.Length
 
         let toc, zLengths =
             if header.IsEncrypted then
                 use decStream = MemoryStreamPool.Default.GetStream()
-                Cryptography.decrypt input decStream header.TOCLength
+                Cryptography.decrypt input decStream header.ToCLength
 
-                if decStream.Length <> int64 tocSize then failwith "TOC decryption failed: Incorrect TOC size."
+                if decStream.Length <> int64 tocSize then failwith "ToC decryption failed: Incorrect ToC size."
 
-                readTOC header (BigEndianBinaryReader(decStream))
+                readToC header (BigEndianBinaryReader(decStream))
             else
-                readTOC header reader
+                readToC header reader
 
         new PSARC(input, header, toc, zLengths)
 

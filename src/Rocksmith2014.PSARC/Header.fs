@@ -4,7 +4,7 @@ open Rocksmith2014.Common.Interfaces
 open System.Text
 
 type internal Header() =
-    /// The length of a header in bytes.
+    /// The length of a PSARC header in bytes (32 bytes).
     static member Length = 32
 
     /// The file identifier string "PSAR".
@@ -19,14 +19,14 @@ type internal Header() =
     /// The method used for compressing the data, should be "zlib".
     member val CompressionMethod = "zlib"
     
-    /// The length of the table of contents in bytes.
-    member val TOCLength = 0u with get, set
+    /// The length of the ToC in bytes, including the header (32 bytes) and the block size table.
+    member val ToCLength = 0u with get, set
     
-    /// The size of a TOC entry, default: 30 bytes.
-    member val TOCEntrySize = 30u with get, set
+    /// The size of a ToC entry, default: 30 bytes.
+    member val ToCEntrySize = 30u with get, set
 
     /// The number of entries in the table of contents.
-    member val TOCEntries = 0u with get, set
+    member val ToCEntryCount = 0u with get, set
 
     /// The maximum size of a block, default: 64KB.
     member val BlockSizeAlloc = 65536u with get, set
@@ -43,9 +43,9 @@ type internal Header() =
         writer.WriteUInt16 this.VersionMajor
         writer.WriteUInt16 this.VersionMinor
         writer.WriteBytes "zlib"B
-        writer.WriteUInt32 this.TOCLength
-        writer.WriteUInt32 this.TOCEntrySize
-        writer.WriteUInt32 this.TOCEntries
+        writer.WriteUInt32 this.ToCLength
+        writer.WriteUInt32 this.ToCEntrySize
+        writer.WriteUInt32 this.ToCEntryCount
         writer.WriteUInt32 this.BlockSizeAlloc
         writer.WriteUInt32 this.ArchiveFlags
 
@@ -63,8 +63,8 @@ type internal Header() =
         else
             Header(VersionMajor = versionMaj,
                    VersionMinor = versionMin,
-                   TOCLength = reader.ReadUInt32(),
-                   TOCEntrySize = reader.ReadUInt32(),
-                   TOCEntries = reader.ReadUInt32(),
+                   ToCLength = reader.ReadUInt32(),
+                   ToCEntrySize = reader.ReadUInt32(),
+                   ToCEntryCount = reader.ReadUInt32(),
                    BlockSizeAlloc = reader.ReadUInt32(),
                    ArchiveFlags = reader.ReadUInt32())
