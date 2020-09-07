@@ -123,6 +123,7 @@ let processStringMasks (stringMasks: int8[][]) (maxDiff: int) =
             let mask = stringMasks.[s].[d]
             stringMasks.[s].[d] <- mask ||| stringMasks.[s + 1].[d]
 
+/// Creates an array of phrase iteration start times, with the song length as the last value.
 let createPhraseIterationTimesArray (xml: InstrumentalArrangement) =
     Array.init (xml.PhraseIterations.Count + 1) (fun i ->
         if i = xml.PhraseIterations.Count then
@@ -202,6 +203,6 @@ let sngFileToXml sngFile targetFile platform = async {
     xml.Save targetFile }
 
 /// Converts an XML instrumental arrangement into an SNG file.
-let xmlFileToSng xmlFile targetFile platform =
+let xmlFileToSng xmlFile targetFile platform = async {
     let sng = InstrumentalArrangement.Load(xmlFile) |> xmlToSng
-    SNG.savePackedFile targetFile platform sng
+    do! SNG.savePackedFile targetFile platform sng }

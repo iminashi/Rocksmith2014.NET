@@ -149,6 +149,13 @@ module SNG =
         do! unpack file memory platform
         return SNG.Read reader }
 
+    /// Reads an unpacked SNG from the given file.
+    let readUnpackedFile fileName =
+        use stream = File.OpenRead fileName
+        let reader = LittleEndianBinaryReader(stream)
+    
+        SNG.Read reader
+
     /// Saves an SNG (packed/encrypted) into the given stream.
     let savePacked (output: Stream) platform (sng: SNG) = async {
         use memory = MemoryStreamPool.Default.GetStream()
@@ -162,14 +169,7 @@ module SNG =
     let savePackedFile fileName platform (sng: SNG) = async {
         use out = File.Open(fileName, FileMode.Create, FileAccess.Write)
         do! savePacked out platform sng }
-    
-    /// Reads an unpacked SNG from the given file.
-    let readUnpackedFile fileName =
-        use stream = File.OpenRead fileName
-        let reader = LittleEndianBinaryReader(stream)
-    
-        SNG.Read reader
-    
+       
     /// Saves an SNG (plain) with the given filename.
     let saveUnpackedFile fileName (sng: SNG) =
         use stream = File.Open(fileName, FileMode.Create, FileAccess.Write)
