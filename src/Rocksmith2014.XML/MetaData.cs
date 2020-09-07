@@ -176,7 +176,7 @@ namespace Rocksmith2014.XML
                         case "lastConversionDateTime":
                             metaData.LastConversionDateTime = reader.ReadElementContentAsString();
                             break;
-                        // The meta data should come before the sections.
+                        // The metadata should come before the phrases.
                         case "phrases":
                         case "phraseIterations":
                             return metaData;
