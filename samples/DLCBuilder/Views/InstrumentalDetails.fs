@@ -40,21 +40,20 @@ let view state dispatch (i: Instrumental) =
                 ComboBox.selectedItem i.Name
                 ComboBox.onSelectedItemChanged (fun item ->
                     match item with
-                    | :? ArrangementName as name ->
+                    | :? ArrangementName as name when name <> i.Name ->
                         fun state (a:Instrumental) ->
                             let routeMask =
                                 match name with
                                 | ArrangementName.Lead -> RouteMask.Lead
                                 | ArrangementName.Rhythm -> RouteMask.Rhythm
                                 | ArrangementName.Combo ->
-                                    if i.RouteMask = RouteMask.Bass then RouteMask.Rhythm else i.RouteMask
+                                    if a.RouteMask = RouteMask.Bass then RouteMask.Rhythm else a.RouteMask
                                 | ArrangementName.Bass -> RouteMask.Bass
                                 | _ -> failwith "Impossible failure."
                             let priority = fixPriority state routeMask a
                             { a with Name = name; RouteMask = routeMask; Priority = priority }
                         |> EditInstrumental |> dispatch
-                    | _ -> ()
-                )
+                    | _ -> ())
             ]
 
             TextBlock.create [
@@ -103,21 +102,21 @@ let view state dispatch (i: Instrumental) =
                 Grid.row 2
                 StackPanel.margin 4.
                 StackPanel.orientation Orientation.Horizontal
-                StackPanel.isVisible (i.Name = ArrangementName.Combo)
-                StackPanel.children [
-                    for mask in [ RouteMask.Lead; RouteMask.Rhythm ] ->
-                        RadioButton.create [
-                            RadioButton.margin (2.0, 0.0)
-                            RadioButton.groupName "RouteMask"
-                            RadioButton.content (string mask)
-                            RadioButton.isChecked (i.RouteMask = mask)
-                            RadioButton.onChecked (fun _ ->
-                                fun state a ->
-                                    let priority = fixPriority state mask a
-                                    { a with RouteMask = mask; Priority = priority }
-                                |> EditInstrumental |> dispatch)
-                        ]
-                ]
+                if i.Name = ArrangementName.Combo then
+                    StackPanel.children [
+                        for mask in [ RouteMask.Lead; RouteMask.Rhythm ] ->
+                            RadioButton.create [
+                                RadioButton.margin (2.0, 0.0)
+                                RadioButton.groupName "RouteMask"
+                                RadioButton.content (string mask)
+                                RadioButton.isChecked (i.RouteMask = mask)
+                                RadioButton.onChecked (fun _ ->
+                                    fun state a ->
+                                        let priority = fixPriority state mask a
+                                        { a with RouteMask = mask; Priority = priority }
+                                    |> EditInstrumental |> dispatch)
+                            ]
+                    ]
             ]
 
             TextBlock.create [

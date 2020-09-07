@@ -504,8 +504,7 @@ let view (state: State) dispatch =
                                 | None -> ()
                                 ListBox.onSelectedItemChanged ((fun item ->
                                     match item with
-                                    | :? Arrangement as arr ->
-                                        dispatch (ArrangementSelected (Some arr))
+                                    | :? Arrangement as arr -> dispatch (ArrangementSelected (Some arr))
                                     | null when state.Project.Arrangements.Length = 0 -> dispatch (ArrangementSelected None)
                                     | _ -> ()), SubPatchOptions.OnChangeOf state)
                                 ListBox.onKeyDown (fun k ->
