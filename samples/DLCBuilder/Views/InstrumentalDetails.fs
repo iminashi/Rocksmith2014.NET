@@ -102,6 +102,7 @@ let view state dispatch (i: Instrumental) =
                 Grid.row 2
                 StackPanel.margin 4.
                 StackPanel.orientation Orientation.Horizontal
+                StackPanel.isVisible (i.Name = ArrangementName.Combo)
                 if i.Name = ArrangementName.Combo then
                     StackPanel.children [
                         for mask in [ RouteMask.Lead; RouteMask.Rhythm ] ->
