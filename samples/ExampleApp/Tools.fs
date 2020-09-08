@@ -281,7 +281,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             let t () = async {
                 use profFile = File.OpenRead(file)
                 use targetFile = File.Create(file + ".json")
-                do! Profile.decryptProfile profFile targetFile }
+                do! Profile.decrypt profFile targetFile |> Async.Ignore }
             state, Cmd.OfAsync.attempt t () Error
 
         | ImportTones file ->
