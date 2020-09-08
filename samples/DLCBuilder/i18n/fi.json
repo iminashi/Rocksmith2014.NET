@@ -88,6 +88,7 @@
   "projectFiles": "Projektitiedostot",
   "psarcFiles": "PSARC tiedostot",
   "toneXmlFiles": "Soundi XML tiedostot",
+  "toneImportFiles": "Sounditiedostot",
   "toolkitFiles": "Toolkit työpohjat",
   "Main": "Ensisijainen",
   "Alternative": "Vaihtoehtoinen",

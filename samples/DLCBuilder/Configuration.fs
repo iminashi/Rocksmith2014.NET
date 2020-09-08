@@ -24,7 +24,7 @@ type Configuration =
           Locale = Locales.English }
 
 module Configuration =
-    type private Dto() =
+    type Dto() =
         member val ReleasePC : bool = true with get, set
         member val ReleaseMac : bool = true with get, set
         member val ProfilePath : string = String.Empty with get, set

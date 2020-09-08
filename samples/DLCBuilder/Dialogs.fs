@@ -22,10 +22,7 @@ let profileFilter (loc:ILocalization) = createFilters (loc.GetString "profileFil
 let projectFilter (loc:ILocalization) = createFilters (loc.GetString "projectFiles") (seq { "rs2dlc" })
 let psarcFilter (loc:ILocalization) = createFilters (loc.GetString "psarcFiles") (seq { "psarc" })
 let toolkitFilter (loc:ILocalization) = createFilters (loc.GetString "toolkitFiles") (seq { "dlc.xml" })
-
-let toneImportFilter (loc:ILocalization) =
-    List(seq { FileDialogFilter(Extensions = List(seq { "tone2014.xml" }), Name = loc.GetString "toneXmlFiles")
-               FileDialogFilter(Extensions = List(seq { "psarc" }), Name = loc.GetString "psarcFiles") })
+let toneImportFilter (loc:ILocalization) = createFilters (loc.GetString "toneImportFiles") (seq { "tone2014.xml"; "psarc" })
 
 /// Shows an open folder dialog.
 let openFolderDialog title directory = async {
