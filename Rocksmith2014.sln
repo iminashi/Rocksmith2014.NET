@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rocksmith2014.XML", "src\Ro
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rocksmith2014.XML.Tests", "tests\Rocksmith2014.XML.Tests\Rocksmith2014.XML.Tests.csproj", "{DD7A884C-500A-484D-B8DB-53992AA20ACF}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "ExampleApp", "samples\ExampleApp\ExampleApp.fsproj", "{84C4F666-8945-4CF3-A409-572767075925}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "MiscTools", "samples\MiscTools\MiscTools.fsproj", "{84C4F666-8945-4CF3-A409-572767075925}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D205B519-E450-49DC-AE3A-C73C88DD7FE3}"
 EndProject
@@ -37,7 +37,7 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.DLCProject.Te
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "DLCBuilder", "samples\DLCBuilder\DLCBuilder.fsproj", "{5DB51439-79BE-4FE1-B3B6-BA291F418D77}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ProfileDebloater", "samples\ProfileDebloater\ProfileDebloater.fsproj", "{63CC84D5-B794-43A7-8395-4D9CB8729A3B}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "ProfileDebloater", "samples\ProfileDebloater\ProfileDebloater.fsproj", "{63CC84D5-B794-43A7-8395-4D9CB8729A3B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
