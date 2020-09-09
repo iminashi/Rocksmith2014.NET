@@ -19,7 +19,7 @@ let gatherDLCData (directory: string) =
 
             use psarc = PSARC.ReadFile path
             let headerFile = psarc.Manifest |> Seq.find (fun x -> x.EndsWith "hsan")
-            use mem = new MemoryStream()
+            use mem = MemoryStreamPool.Default.GetStream()
             psarc.InflateFile(headerFile, mem) |> Async.RunSynchronously
             let manifest = async { return! Manifest.fromJsonStream mem } |> Async.RunSynchronously
 
@@ -48,7 +48,7 @@ let saveProfile (originalPath: string) id (profile: JToken) =
 
 let readProfile path =
     use profileFile = File.OpenRead path
-    use mem = new MemoryStream()
+    use mem = MemoryStreamPool.Default.GetStream()
     let _, id, _ = Profile.decrypt profileFile mem |> Async.RunSynchronously
 
     mem.Position <- 0L
