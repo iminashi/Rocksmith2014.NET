@@ -11,11 +11,12 @@ let [<Literal>] private canonicalXBlock = "/gamexblocks/nsongs"
 let [<Literal>] private canonicalXmlSong = "/songs/arr"
 let [<Literal>] private canonicalAlbumArt = "/gfxassets/album_art"
 
+/// Creates an aggregate graph object for the project.
 let create (platform: Platform) (project: DLCProject) =
     let dlcName = project.DLCKey.ToLowerInvariant()
     let partition = Partitioner.create project
 
-    let items = [
+    { Items = [
         yield GraphItem.normal dlcName canonicalXBlock "xblock" [ Tag.EmergentWorld; Tag.XWorld ]
 
         for arrangement in project.Arrangements do
@@ -36,8 +37,8 @@ let create (platform: Platform) (project: DLCProject) =
         let canonical = sprintf "/manifests/songs_dlc_%s" dlcName
         yield GraphItem.normal name canonical "hsan" [ Tag.Database; Tag.HsanDB ]
 
-        yield! [ sprintf "album_%s_256" dlcName; sprintf "album_%s_128" dlcName; sprintf "album_%s_64" dlcName  ]
-        |> List.map (fun name -> GraphItem.dds name canonicalAlbumArt)
+        yield! [ 64; 128; 256 ]
+        |> List.map (fun size -> GraphItem.dds (sprintf "album_%s_%i" dlcName size) canonicalAlbumArt)
 
         yield! project.Arrangements
         |> List.tryPick (function Vocals v -> v.CustomFont | _ -> None)
@@ -47,14 +48,10 @@ let create (platform: Platform) (project: DLCProject) =
             GraphItem.dds name canonical)
         |> Option.toList
 
-        let name = sprintf "song_%s" dlcName
-        yield GraphItem.bnk name platform
+        yield GraphItem.bnk (sprintf "song_%s" dlcName) platform
+        yield GraphItem.bnk (sprintf "song_%s_preview" dlcName) platform ] }
 
-        let name = sprintf "song_%s_preview" dlcName
-        yield GraphItem.bnk name platform ]
-
-    { Items = items }
-
+/// Serializes the aggregate graph into the output stream.
 let serialize (output: Stream) (graph: Graph) =
     use writer = new StreamWriter(output, Encoding.UTF8, -1, true, NewLine = "\n")
     graph.Items

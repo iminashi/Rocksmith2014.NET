@@ -105,6 +105,15 @@ let someTests =
         Expect.equal (Option.get item.LogPath) "/songs/arr/sometest_showlights.xml" "Logical path is correct"
         Expect.sequenceEqual item.Tags [ "application"; "xml" ] "Has correct tags" }
 
+    test "Graph items are created correctly: Album art small" { 
+        let a = AggregateGraph.create PC project
+        let item = a.Items |> List.find (fun x -> x.Name = "album_sometest_64")
+
+        Expect.equal item.Canonical "/gfxassets/album_art" "Canonical is correct"
+        Expect.equal item.RelPath "/gfxassets/album_art/album_sometest_64.dds" "Relative path is correct"       
+        Expect.equal (Option.get item.LogPath) "/gfxassets/album_art/album_sometest_64.dds" "Logical path is correct"
+        Expect.sequenceEqual item.Tags [ "dds"; "image" ] "Has correct tags" }
+
     test "Graph items are created correctly: Album art medium" { 
         let a = AggregateGraph.create PC project
         let item = a.Items |> List.find (fun x -> x.Name = "album_sometest_128")
@@ -112,6 +121,15 @@ let someTests =
         Expect.equal item.Canonical "/gfxassets/album_art" "Canonical is correct"
         Expect.equal item.RelPath "/gfxassets/album_art/album_sometest_128.dds" "Relative path is correct"       
         Expect.equal (Option.get item.LogPath) "/gfxassets/album_art/album_sometest_128.dds" "Logical path is correct"
+        Expect.sequenceEqual item.Tags [ "dds"; "image" ] "Has correct tags" }
+
+    test "Graph items are created correctly: Album art large" { 
+        let a = AggregateGraph.create PC project
+        let item = a.Items |> List.find (fun x -> x.Name = "album_sometest_256")
+
+        Expect.equal item.Canonical "/gfxassets/album_art" "Canonical is correct"
+        Expect.equal item.RelPath "/gfxassets/album_art/album_sometest_256.dds" "Relative path is correct"       
+        Expect.equal (Option.get item.LogPath) "/gfxassets/album_art/album_sometest_256.dds" "Logical path is correct"
         Expect.sequenceEqual item.Tags [ "dds"; "image" ] "Has correct tags" }
 
     test "Graph items are created correctly: X-Block" { 

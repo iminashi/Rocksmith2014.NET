@@ -51,6 +51,7 @@ module GraphItem =
         let lp = sprintf "/audio/%s.bnk" name |> Some
         make name canonical [ Tag.Audio; Tag.WwiseSoundBank; getPlatformTag platform ] rp lp
     
+    /// Writes the graph item into the writer.
     let write (writer: StreamWriter) (item: GraphItem) =
         let uuid = item.UUID.ToString()
 
