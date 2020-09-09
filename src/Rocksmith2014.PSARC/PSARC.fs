@@ -89,7 +89,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     let createManifestData () =
         let memory = MemoryStreamPool.Default.GetStream()
         for i = 0 to manifest.Length - 1 do
-            if i <> 0 then memory.WriteByte(0x0Auy) // Write newline '\n'
+            if i <> 0 then memory.WriteByte('\n'B) // Use Unix newline '\n'
             memory.Write(ReadOnlySpan(Encoding.ASCII.GetBytes(manifest.[i])))
         memory
 
