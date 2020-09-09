@@ -25,7 +25,10 @@ let private importArrangement (arr: XmlNode) =
                     else ArrangementPriority.Main
                 else
                     let tryGetPriority ns =
-                        if arrProp.Item("Represent", ns).InnerText = "1" then ArrangementPriority.Main
+                        let represent =
+                            let r = arr.Item("Represent")
+                            not (isNull r) && r.InnerText = "true"
+                        if arrProp.Item("Represent", ns).InnerText = "1" || represent then ArrangementPriority.Main
                         elif arrProp.Item("BonusArr", ns).InnerText = "1" || arr.Item("BonusArr").InnerText = "true" then ArrangementPriority.Bonus
                         else ArrangementPriority.Alternative
 
