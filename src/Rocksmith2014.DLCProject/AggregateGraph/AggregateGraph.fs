@@ -56,7 +56,7 @@ let create (platform: Platform) (project: DLCProject) =
     { Items = items }
 
 let serialize (output: Stream) (graph: Graph) =
-    use writer = new StreamWriter(output, Encoding.UTF8, -1, true)
+    use writer = new StreamWriter(output, Encoding.UTF8, -1, true, NewLine = "\n")
     graph.Items
     |> List.iteri (fun i item ->
         if i <> 0 then writer.WriteLine()
