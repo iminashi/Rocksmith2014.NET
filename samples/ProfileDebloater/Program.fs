@@ -82,19 +82,23 @@ let main argv =
             |> Seq.toArray
             |> Array.iter (fun x -> x.Remove())
 
+        let filterJArrayKeys (array: JArray) =
+            array
+            |> Seq.filter (fun x -> not <| keys.Contains(x.Value<string>()))
+            |> Seq.toArray
+            |> Array.iter (array.Remove >> ignore)
+
         Console.WriteLine "Debloating profile..."
 
         filterJTokenIds (profile.["Playnexts"].["Songs"])
         filterJTokenIds (profile.["Songs"])
         filterJTokenIds (profile.["Stats"].["Songs"])
 
-        let songLists = profile.["SongListsRoot"].["SongLists"] :?> JArray
-        for jt in songLists do
-            let songList = jt :?> JArray
-            songList
-            |> Seq.filter (fun x -> not <| keys.Contains(x.Value<string>()))
-            |> Seq.toArray
-            |> Array.iter (songList.Remove >> ignore)
+        profile.["SongListsRoot"].["SongLists"] :?> JArray
+        |> Seq.iter (fun songList -> songList :?> JArray |> filterJArrayKeys) 
+
+        profile.["FavoritesListRoot"].["FavoritesList"] :?> JArray
+        |> filterJArrayKeys
 
         Console.WriteLine "Saving profile file..."
 
