@@ -44,7 +44,11 @@ let saveProfile (originalPath: string) id (profile: JToken) =
     profile.WriteTo writer
     writer.Flush()
 
-    Profile.write (originalPath + ".processed") id json |> Async.RunSynchronously
+    let backUp = originalPath + ".backup"
+    if File.Exists backUp then File.Delete backUp
+    File.Copy(originalPath, backUp)
+
+    Profile.write originalPath id json |> Async.RunSynchronously
 
 let readProfile path =
     use profileFile = File.OpenRead path
