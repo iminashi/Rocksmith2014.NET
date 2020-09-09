@@ -35,7 +35,7 @@ let gatherDLCData (directory: string) =
 
 let saveProfile (originalPath: string) id (profile: JToken) =
     use json = MemoryStreamPool.Default.GetStream()
-    use streamWriter = new StreamWriter(json)
+    use streamWriter = new StreamWriter(json, NewLine = "\n")
     use writer = new JsonTextWriter(streamWriter,
                                     Formatting = Formatting.Indented,
                                     Indentation = 0,
