@@ -17,6 +17,7 @@ let private getVolume (psarc: PSARC) platform bank = async {
            | Ok vol -> vol
            | Error _ -> 0.0f }
 
+/// Imports a PSARC from the given path into a DLCProject with the project created in the target directory.
 let import (psarcPath: string) (targetDirectory: string) = async {
     let platform =
         if Path.GetFileNameWithoutExtension(psarcPath).EndsWith("_p") then PC else Mac
@@ -164,7 +165,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
         |> Seq.filter (fun x -> x.EndsWith "bnk")
         |> Seq.toArray
         |> Array.partition (fun x -> x.Contains "preview")
-        |> fun x -> Array.head (fst x), Array.head (snd x)
+        |> fun (prev, main) -> Array.head prev, Array.head main
 
     let! mainVolume = getVolume psarc platform mainBank
     let! previewVolume = getVolume psarc platform previewBank

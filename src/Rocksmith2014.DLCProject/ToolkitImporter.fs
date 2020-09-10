@@ -105,6 +105,7 @@ let private importArrangement (arr: XmlNode) =
 
     | unknown -> failwith (sprintf "Unknown arrangement type: %s" unknown)
 
+/// Converts a Toolkit template from the given path into a DLCProject.
 let import (templatePath: string) =
     let doc = XmlDocument()
     doc.Load(templatePath)
