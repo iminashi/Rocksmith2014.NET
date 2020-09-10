@@ -99,3 +99,15 @@ module DLCProject =
         use file = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan ||| FileOptions.Asynchronous)
         let! project = JsonSerializer.DeserializeAsync<DLCProject>(file, options)
         return toAbsolutePaths (Path.GetDirectoryName fileName) project  }
+
+    /// Updates the tone names for the instrumental arrangements in the project from the XML files.
+    let updateToneInfo (project: DLCProject) =
+        let arrs =
+            project.Arrangements
+            |> List.map (function
+                | Instrumental inst ->
+                    let toneInfo = Rocksmith2014.XML.InstrumentalArrangement.ReadToneNames inst.XML
+                    { inst with Tones = toneInfo.Names |> Array.choose Option.ofString |> Array.toList }
+                    |> Instrumental
+                | other -> other)
+        { project with Arrangements = arrs }

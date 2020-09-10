@@ -407,7 +407,7 @@ let update (msg: Msg) (state: State) =
                 loadPlaceHolderAlbumArt()
 
         { state with CoverArt = bm
-                     Project = project
+                     Project = DLCProject.updateToneInfo project
                      OpenProjectFile = projectFile
                      SelectedArrangement = None
                      SelectedTone = None }, Cmd.none
