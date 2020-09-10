@@ -10,17 +10,14 @@ open Rocksmith2014.Common
 
 [<XmlRoot("set"); CLIMutable>]
 type Set =
-    { [<XmlAttribute("value")>]
-      Value: string }
+    { [<XmlAttribute("value")>] Value: string }
 
 [<XmlRoot("property"); CLIMutable>]
 type Property =
-    { [<XmlAttribute("name")>]
-      Name: string
+    { [<XmlAttribute("name")>] Name: string
+      [<XmlElement("set")>] Set: Set }
 
-      [<XmlElement("set")>]
-      Set: Set }
-
+    /// Creates a property with the given name and value.
     static member Create(name, value) = { Name = name; Set = { Value = value } }
 
 [<XmlRoot("entity"); CLIMutable>]
@@ -45,14 +42,16 @@ type Game =
     { [<XmlArray("entitySet"); XmlArrayItem(ElementName = "entity")>]
       EntitySet: Entity array }
 
+/// Creates a Game XBlock object for the project.
 let create (platform: Platform) (project: DLCProject) =
     let dlcName = project.DLCKey.ToLowerInvariant()
     let partition = Partitioner.create project
 
-    let entitySet = [|
-        for arr in project.Arrangements do
-            match arr with
-            | Showlights _ -> ()
+    { EntitySet =
+        project.Arrangements
+        |> List.toArray
+        |> Array.Parallel.choose (function
+            | Showlights _ -> None
             | arr ->
                 let fileName = partition arr |> snd
 
@@ -77,10 +76,10 @@ let create (platform: Platform) (project: DLCProject) =
                   ModelName = "RSEnumerable_Song"
                   Name = sprintf "%s_%s" project.DLCKey (Arrangement.getName arr false)
                   Iterations = 0
-                  Properties = properties } |]
+                  Properties = properties }
+                |> Some) }
 
-    { EntitySet = entitySet }
-
+/// Serializes the Game object into the output stream.
 let serialize (output: Stream) (game: Game) =
     let ns = XmlSerializerNamespaces()
     ns.Add("", "")
@@ -89,6 +88,7 @@ let serialize (output: Stream) (game: Game) =
     use writer = XmlWriter.Create(output, settings)
     serializer.Serialize(writer, game, ns)
 
+/// Deserializes a Game object from the input stream.
 let deserialize (input: Stream) =
     let serializer = XmlSerializer(typeof<Game>, "")
     use reader = new StreamReader(input)
