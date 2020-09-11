@@ -96,6 +96,7 @@ let main argv =
 
         filterJTokenIds (profile.["Playnexts"].["Songs"])
         filterJTokenIds (profile.["Songs"])
+        filterJTokenIds (profile.["SongsSA"])
         filterJTokenIds (profile.["Stats"].["Songs"])
 
         profile.["SongListsRoot"].["SongLists"] :?> JArray
