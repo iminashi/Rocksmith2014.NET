@@ -10,6 +10,7 @@ type DDSOptions =
     { Compression: Compression
       Resize: Resize }
 
+/// Converts the source file into a DDS into the output stream.
 let convertToDDS (sourceFile: string) (output: Stream) (options: DDSOptions) =
     use image = new MagickImage(sourceFile)
 
@@ -24,6 +25,7 @@ let convertToDDS (sourceFile: string) (output: Stream) (options: DDSOptions) =
     image.Format <- MagickFormat.Dds
     image.Write output
 
+/// Creates three cover art images from the source file and returns the file names of the temp files.
 let createCoverArtImages (sourceFile: string) =
     [| Resize(64, 64); Resize(128, 128); Resize(256, 256) |]
     |> Array.Parallel.map (fun size ->

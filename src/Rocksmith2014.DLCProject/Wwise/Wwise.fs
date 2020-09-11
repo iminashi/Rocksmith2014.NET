@@ -83,6 +83,7 @@ let private copyWemFiles (destPath: string) (templateDir: string) =
         File.Copy(path.FullName, destFile, true)
         fixHeader destFile
 
+/// Converts the source audio and preview audio files in the source path into wem files.
 let convertToWem (sourcePath: string) (destPath: string) =
     let cliPath = getCLIPath()
     let templateDir = loadTemplate sourcePath

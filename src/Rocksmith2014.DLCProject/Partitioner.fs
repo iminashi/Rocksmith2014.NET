@@ -3,6 +3,7 @@
 open Rocksmith2014.DLCProject
 open System
 
+/// Returns a partitioner function for the arrangements in the project.
 let create (project: DLCProject) =
     let groups =
         project.Arrangements

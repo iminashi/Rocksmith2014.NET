@@ -298,6 +298,7 @@ let private writeChunk (writer: IBinaryWriter) name (data: byte array) =
     writer.WriteInt32 data.Length
     writer.WriteBytes data
 
+/// Generates a sound bank for the audio stream into the output stream.
 let generate name (audioStream: Stream) (output: Stream) volume isPreview (platform: Platform) =
     let soundbankID = RandomGenerator.next() |> uint32
     let fileID = RandomGenerator.next()
@@ -325,6 +326,7 @@ let generate name (audioStream: Stream) (output: Stream) volume isPreview (platf
 
     string fileID
 
+/// Reads the volume value from the sound bank in the stream.
 let readVolume (stream: Stream) platform =
     let reader = BinaryReaders.getReader stream platform
 
