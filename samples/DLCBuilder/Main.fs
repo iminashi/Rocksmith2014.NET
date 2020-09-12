@@ -19,7 +19,7 @@ open Avalonia.Layout
 
 let private loadPlaceHolderAlbumArt () =
     let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
-    new Bitmap(assets.Open(new Uri("avares://DLCBuilder/coverart_placeholder.png")))
+    new Bitmap(assets.Open(Uri("avares://DLCBuilder/coverart_placeholder.png")))
 
 let init () =
     { Project = DLCProject.Empty
