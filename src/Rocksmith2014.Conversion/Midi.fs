@@ -5,6 +5,7 @@ open Rocksmith2014
 /// The MIDI notes for each string in standard tuning.
 let private standardTuningMidiNotes = [| 40; 45; 50; 55; 59; 64 |]
 
+/// Creates a MIDI note from the given properties.
 let toMidiNote string fret (tuning: int16 array) capo isBass =
     let fret =
         if capo > 0y && fret = 0y then

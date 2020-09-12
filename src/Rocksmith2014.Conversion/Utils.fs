@@ -51,13 +51,15 @@ let findBeatPhraseIterationId time iterations = findPiId false time iterations
 
 let findPhraseIterationId time iterations = findPiId true time iterations
 
-let findSectionId (time: int) (sections: ResizeArray<XML.Section>) =
+/// Finds the ID of the section that contains the given time code.
+let findSectionId time (sections: ResizeArray<XML.Section>) =
     let mutable id = sections.Count - 1
     while id > 0 && not (sections.[id].Time <= time) do
         id <- id - 1
     id
 
-let findAnchor (time: int) (anchors: ResizeArray<XML.Anchor>) =
+/// Finds the ID of the anchor for the note at the given time code.
+let findAnchor time (anchors: ResizeArray<XML.Anchor>) =
     let rec find index =
         if index < 0 then
             failwith "No anchor found for note."
@@ -67,6 +69,7 @@ let findAnchor (time: int) (anchors: ResizeArray<XML.Anchor>) =
             find (index - 1)
     find (anchors.Count - 1)
 
+/// Finds the ID (if any) of the fingerprint for a note at the given time code.
 let findFingerPrintId time (fingerPrints: FingerPrint array) =
     let mutable id = 0
     while id <> fingerPrints.Length && not (time >= fingerPrints.[id].StartTime && time < fingerPrints.[id].EndTime) do

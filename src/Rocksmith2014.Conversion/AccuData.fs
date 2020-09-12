@@ -25,6 +25,7 @@ type AccuData =
       NotesInPhraseIterationsAll : int[][]
       NoteCounts : NoteCountsMutable }
 
+    /// Increments the phrase iteration note count and hero level note counts.
     member this.AddNote(pi: int, difficulty: byte, heroLevels: XML.HeroLevels, ignored: bool) =
         let d = int difficulty
         this.NotesInPhraseIterationsAll.[d].[pi] <- this.NotesInPhraseIterationsAll.[d].[pi] + 1
@@ -43,6 +44,7 @@ type AccuData =
             if ignored then
                 Interlocked.Increment(&this.NoteCounts.Ignored) |> ignore
     
+    /// Initializes a new AccuData object.
     static member Init(arr: XML.InstrumentalArrangement) =
         { StringMasks = Array.init (arr.Sections.Count) (fun _ -> Array.zeroCreate 36)
           ChordNotes = ResizeArray()
