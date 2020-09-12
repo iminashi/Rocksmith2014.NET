@@ -7,9 +7,9 @@ open System.Text
 
 type Graph = { Items: GraphItem list }
 
-let [<Literal>] private canonicalXBlock = "/gamexblocks/nsongs"
-let [<Literal>] private canonicalXmlSong = "/songs/arr"
-let [<Literal>] private canonicalAlbumArt = "/gfxassets/album_art"
+let [<Literal>] private CanonicalXBlock = "/gamexblocks/nsongs"
+let [<Literal>] private CanonicalXmlSong = "/songs/arr"
+let [<Literal>] private CanonicalAlbumArt = "/gfxassets/album_art"
 
 /// Creates an aggregate graph object for the project.
 let create (platform: Platform) (project: DLCProject) =
@@ -17,14 +17,14 @@ let create (platform: Platform) (project: DLCProject) =
     let partition = Partitioner.create project
 
     { Items = [
-        yield GraphItem.normal dlcName canonicalXBlock "xblock" [ Tag.EmergentWorld; Tag.XWorld ]
+        yield GraphItem.normal dlcName CanonicalXBlock "xblock" [ Tag.EmergentWorld; Tag.XWorld ]
 
         for arrangement in project.Arrangements do
             let name = sprintf "%s_%s" dlcName (partition arrangement |> snd)
 
             match arrangement with 
             | Showlights _ ->
-                yield GraphItem.llid name canonicalXmlSong "xml" [ Tag.Application; Tag.XML ]
+                yield GraphItem.llid name CanonicalXmlSong "xml" [ Tag.Application; Tag.XML ]
 
             | _ ->
                 let canonical = sprintf "/manifests/songs_dlc_%s" dlcName
@@ -38,7 +38,7 @@ let create (platform: Platform) (project: DLCProject) =
         yield GraphItem.normal name canonical "hsan" [ Tag.Database; Tag.HsanDB ]
 
         yield! [ 64; 128; 256 ]
-        |> List.map (fun size -> GraphItem.dds (sprintf "album_%s_%i" dlcName size) canonicalAlbumArt)
+        |> List.map (fun size -> GraphItem.dds (sprintf "album_%s_%i" dlcName size) CanonicalAlbumArt)
 
         yield! project.Arrangements
         |> List.tryPick (function Vocals v -> v.CustomFont | _ -> None)
