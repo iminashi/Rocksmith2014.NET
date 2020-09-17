@@ -150,13 +150,13 @@ let xmlToSng (arr: InstrumentalArrangement) =
         arr.ChordTemplates |> mapToArray (XmlToSng.convertChord arr)
     let phraseIterations =
         arr.PhraseIterations |> mapiToArray (XmlToSng.convertPhraseIteration piTimes)
-    let NLDs =
+    let nlds =
         arr.NewLinkedDiffs |> mapToArray XmlToSng.convertNLD
     let events =
         arr.Events |> mapToArray XmlToSng.convertEvent
     let tones =
         arr.Tones.Changes |> mapToArray XmlToSng.convertTone
-    let DNAs = XmlToSng.createDNAs arr
+    let dnas = XmlToSng.createDNAs arr
     let levels =
         //arr.Levels |> mapToArray convertLevel
         arr.Levels.ToArray()
@@ -186,11 +186,11 @@ let xmlToSng (arr: InstrumentalArrangement) =
       SymbolDefinitions = [||]
       PhraseIterations = phraseIterations
       PhraseExtraInfo = phraseExtraInfo
-      NewLinkedDifficulties = NLDs
+      NewLinkedDifficulties = nlds
       Actions = [||]
       Events = events
       Tones = tones
-      DNAs = DNAs
+      DNAs = dnas
       Sections = sections
       Levels = levels
       MetaData = metadata
