@@ -14,14 +14,21 @@ open System.Reflection
 open System.Text
 open System
 
-let private build platform targetFile sngs coverArt author partition project = async {
+type private BuildData =
+    { SNGs: (Arrangement * SNG) list 
+      CoverArtFiles: string array
+      Author: string 
+      Partition: Arrangement -> int * string }
+
+let private build (data: BuildData) targetFile project platform = async {
     let readFile = Utils.getFileStreamForRead
+    let partition = data.Partition
     let entry name data = { Name = name; Data = data }
     let key = project.DLCKey.ToLowerInvariant()
     let getManifestName arr =
         let name = partition arr |> snd
         sprintf "manifests/songs_dlc_%s/%s_%s.json" key key name
-    let sngMap = sngs |> dict
+    let sngMap = data.SNGs |> dict
 
     let! manifestEntries =
         project.Arrangements
@@ -52,7 +59,7 @@ let private build platform targetFile sngs coverArt author partition project = a
         return entry (sprintf "manifests/songs_dlc_%s/songs_dlc_%s.hsan" key key) data }
 
     let! sngEntries =
-        sngs
+        data.SNGs
         |> List.map (fun (arr, sng) -> async {
             let data = MemoryStreamPool.Default.GetStream()
             do! SNG.savePacked data platform sng
@@ -114,11 +121,11 @@ let private build platform targetFile sngs coverArt author partition project = a
         createEntries project.AudioPreviewFile true
 
     let gfxEntries =
-        ([| 64; 128; 256 |], coverArt)
+        ([| 64; 128; 256 |], data.CoverArtFiles)
         ||> Array.map2 (fun size file -> entry (sprintf "gfxassets/album_art/album_%s_%i.dds" key size) (readFile file))
 
     let toolkitEntry =
-        let text = sprintf "Toolkit version: 9.9.9.9\nPackage Author: %s\nPackage Version: %s\nPackage Comment: Remastered" author project.Version
+        let text = sprintf "Toolkit version: 9.9.9.9\nPackage Author: %s\nPackage Version: %s\nPackage Comment: Remastered" data.Author project.Version
         let data = MemoryStreamPool.Default.GetStream()
         use writer = new StreamWriter(data, Encoding.UTF8, 256, true)
         writer.Write text
@@ -206,8 +213,10 @@ let buildPackages (targetFile: string) (platforms: Platform list) (author: strin
             let arrangements = sl::project.Arrangements
             { project with Arrangements = arrangements }
 
+    let data = { SNGs = sngs; CoverArtFiles = coverArt; Author = author; Partition = partition }
+
     do! platforms
-        |> List.map (fun plat -> build plat targetFile sngs coverArt author partition project)
+        |> List.map (build data targetFile project)
         |> Async.Parallel
         |> Async.Ignore
     coverArt |> Array.iter File.Delete }
