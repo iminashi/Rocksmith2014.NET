@@ -26,33 +26,35 @@ let view state dispatch (i: Instrumental) =
         Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*,*,*,*"
         Grid.children [
             TextBlock.create [
+                TextBlock.isVisible (i.Name <> ArrangementName.Bass)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text (state.Localization.GetString "name")
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
 
-            ComboBox.create [
-                Grid.column 1
-                ComboBox.horizontalAlignment HorizontalAlignment.Left
-                ComboBox.margin 4.
-                ComboBox.width 100.
-                ComboBox.dataItems (Enum.GetValues(typeof<ArrangementName>))
-                ComboBox.selectedItem i.Name
-                ComboBox.onSelectedItemChanged (fun item ->
-                    let name = item :?> ArrangementName
-                    fun state (a:Instrumental) ->
-                        let routeMask =
-                            match name with
-                            | ArrangementName.Lead -> RouteMask.Lead
-                            | ArrangementName.Rhythm -> RouteMask.Rhythm
-                            | ArrangementName.Combo ->
-                                if a.RouteMask = RouteMask.Bass then RouteMask.Rhythm else a.RouteMask
-                            | ArrangementName.Bass -> RouteMask.Bass
-                            | _ -> failwith "Impossible failure."
-                        let priority = fixPriority state routeMask a
-                        { a with Name = name; RouteMask = routeMask; Priority = priority }
-                    |> EditInstrumental |> dispatch)
-            ]
+            if i.Name <> ArrangementName.Bass then
+                ComboBox.create [
+                    Grid.column 1
+                    ComboBox.horizontalAlignment HorizontalAlignment.Left
+                    ComboBox.margin 4.
+                    ComboBox.width 100.
+                    ComboBox.dataItems [ ArrangementName.Lead; ArrangementName.Rhythm; ArrangementName.Combo ]
+                    ComboBox.selectedItem i.Name
+                    ComboBox.onSelectedItemChanged (fun item ->
+                        let name = item :?> ArrangementName
+                        fun state (a:Instrumental) ->
+                            let routeMask =
+                                match name with
+                                | ArrangementName.Lead -> RouteMask.Lead
+                                | ArrangementName.Rhythm -> RouteMask.Rhythm
+                                | ArrangementName.Combo ->
+                                    if a.RouteMask = RouteMask.Bass then RouteMask.Rhythm else a.RouteMask
+                                | ArrangementName.Bass -> RouteMask.Bass
+                                | _ -> failwith "Impossible failure."
+                            let priority = fixPriority state routeMask a
+                            { a with Name = name; RouteMask = routeMask; Priority = priority }
+                        |> EditInstrumental |> dispatch)
+                ]
 
             TextBlock.create [
                 Grid.row 1
