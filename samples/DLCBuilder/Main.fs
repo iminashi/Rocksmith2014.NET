@@ -290,7 +290,7 @@ let update (msg: Msg) (state: State) =
             // Allow max five instrumental arrangements
             | Instrumental _ when (arrangements |> List.choose Arrangement.pickInstrumental).Length = 5 -> false
 
-            // Allow max two instrumental arrangements
+            // Allow max two vocals arrangements
             | Vocals _ when (arrangements |> List.choose (function Vocals _ -> Some 1 | _ -> None)).Length = 2 -> false
             | _ -> true
 
