@@ -6,10 +6,12 @@ open Rocksmith2014.DLCProject.Manifest
 open Newtonsoft.Json
 open Newtonsoft.Json.Linq
 
+/// Reads the on-disc IDs and keys from the prepared text files.
 let readOnDiscIdsAndKeys () =
     Set.ofArray (File.ReadAllLines "onDiscIDs.txt"),
     Set.ofArray (File.ReadAllLines "onDiscKeys.txt")
     
+/// Reads IDs and keys from psarcs in the given directory and its subdirectories.
 let gatherDLCData (directory: string) =
     let ids, keys =
         Directory.EnumerateFiles(directory, "*.psarc", SearchOption.AllDirectories)
@@ -33,6 +35,7 @@ let gatherDLCData (directory: string) =
         |> List.unzip
     List.collect id ids, List.collect id keys
 
+/// Saves the profile data, backing up the existing profile file.
 let saveProfile (originalPath: string) id (profile: JToken) =
     use json = MemoryStreamPool.Default.GetStream()
     use streamWriter = new StreamWriter(json, NewLine = "\n")
@@ -50,6 +53,7 @@ let saveProfile (originalPath: string) id (profile: JToken) =
 
     Profile.write originalPath id json |> Async.RunSynchronously
 
+/// Reads a profile from the given path.
 let readProfile path =
     use profileFile = File.OpenRead path
     use mem = MemoryStreamPool.Default.GetStream()
@@ -60,6 +64,20 @@ let readProfile path =
     use reader = new JsonTextReader(textReader)
 
     JToken.ReadFrom reader, id
+
+/// Removes the children whose names are not in the IDs set from the JToken.
+let filterJTokenIds (ids: Set<string>) (token: JToken) =
+    token
+    |> Seq.filter (fun x -> not <| ids.Contains((x :?> JProperty).Name))
+    |> Seq.toArray
+    |> Array.iter (fun x -> x.Remove())
+
+/// Removes the elements that are not in the keys set from the JArray.
+let filterJArrayKeys (keys: Set<string>) (array: JArray) =
+    array
+    |> Seq.filter (fun x -> not <| keys.Contains(x.Value<string>()))
+    |> Seq.toArray
+    |> Array.iter (array.Remove >> ignore)
 
 [<EntryPoint>]
 let main argv =
@@ -76,34 +94,25 @@ let main argv =
             Set.union odIds (Set.ofList dlcIds), 
             Set.union odKeys (Set.ofList dlcKeys)
 
+        let filterIds = filterJTokenIds ids
+        let filterKeys = filterJArrayKeys keys
+
         Console.WriteLine "Reading profile..."
 
         let profile, id = readProfile profilePath
 
-        let filterJTokenIds (token: JToken) =
-            token
-            |> Seq.filter (fun x -> not <| ids.Contains((x :?> JProperty).Name))
-            |> Seq.toArray
-            |> Array.iter (fun x -> x.Remove())
-
-        let filterJArrayKeys (array: JArray) =
-            array
-            |> Seq.filter (fun x -> not <| keys.Contains(x.Value<string>()))
-            |> Seq.toArray
-            |> Array.iter (array.Remove >> ignore)
-
         Console.WriteLine "Debloating profile..."
 
-        filterJTokenIds (profile.["Playnexts"].["Songs"])
-        filterJTokenIds (profile.["Songs"])
-        filterJTokenIds (profile.["SongsSA"])
-        filterJTokenIds (profile.["Stats"].["Songs"])
+        filterIds (profile.["Playnexts"].["Songs"])
+        filterIds (profile.["Songs"])
+        filterIds (profile.["SongsSA"])
+        filterIds (profile.["Stats"].["Songs"])
 
         profile.["SongListsRoot"].["SongLists"] :?> JArray
-        |> Seq.iter (fun songList -> songList :?> JArray |> filterJArrayKeys) 
+        |> Seq.iter (fun songList -> songList :?> JArray |> filterKeys) 
 
         profile.["FavoritesListRoot"].["FavoritesList"] :?> JArray
-        |> filterJArrayKeys
+        |> filterKeys
 
         Console.WriteLine "Saving profile file..."
 
