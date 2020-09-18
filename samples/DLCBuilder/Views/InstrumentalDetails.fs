@@ -39,21 +39,19 @@ let view state dispatch (i: Instrumental) =
                 ComboBox.dataItems (Enum.GetValues(typeof<ArrangementName>))
                 ComboBox.selectedItem i.Name
                 ComboBox.onSelectedItemChanged (fun item ->
-                    match item with
-                    | :? ArrangementName as name when name <> i.Name ->
-                        fun state (a:Instrumental) ->
-                            let routeMask =
-                                match name with
-                                | ArrangementName.Lead -> RouteMask.Lead
-                                | ArrangementName.Rhythm -> RouteMask.Rhythm
-                                | ArrangementName.Combo ->
-                                    if a.RouteMask = RouteMask.Bass then RouteMask.Rhythm else a.RouteMask
-                                | ArrangementName.Bass -> RouteMask.Bass
-                                | _ -> failwith "Impossible failure."
-                            let priority = fixPriority state routeMask a
-                            { a with Name = name; RouteMask = routeMask; Priority = priority }
-                        |> EditInstrumental |> dispatch
-                    | _ -> ())
+                    let name = item :?> ArrangementName
+                    fun state (a:Instrumental) ->
+                        let routeMask =
+                            match name with
+                            | ArrangementName.Lead -> RouteMask.Lead
+                            | ArrangementName.Rhythm -> RouteMask.Rhythm
+                            | ArrangementName.Combo ->
+                                if a.RouteMask = RouteMask.Bass then RouteMask.Rhythm else a.RouteMask
+                            | ArrangementName.Bass -> RouteMask.Bass
+                            | _ -> failwith "Impossible failure."
+                        let priority = fixPriority state routeMask a
+                        { a with Name = name; RouteMask = routeMask; Priority = priority }
+                    |> EditInstrumental |> dispatch)
             ]
 
             TextBlock.create [
