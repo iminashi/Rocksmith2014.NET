@@ -191,7 +191,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
             use mem = MemoryStreamPool.Default.GetStream()
             do! psarc.InflateFile(tk, mem)
             let text = using (new StreamReader(mem)) (fun reader -> reader.ReadToEnd())
-            let m = Regex.Match(text, "Package Version: ([^\r\n]+)\r*\n")
+            let m = Regex.Match(text, "Package Version: ([^\r\n]+)\r?\n")
             if m.Success then
                 return m.Groups.[1].Captures.[0].Value
             else
