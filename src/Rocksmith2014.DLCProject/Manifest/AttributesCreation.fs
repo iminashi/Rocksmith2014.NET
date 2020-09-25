@@ -255,7 +255,7 @@ let private createChordMap (sng: SNG) =
                 |> Seq.map (fun x -> x.ChordId)
                 |> Set.ofSeq
             if chordIds.Count > 0 then
-                diffIds.Add(string i, chordIds |> Set.toArray)
+                diffIds.Add(string i, Set.toArray chordIds)
 
         if diffIds.Count > 0 then
             chords.Add(string lvl, diffIds)
@@ -281,7 +281,7 @@ let private createTechniqueMap (sng: SNG) =
                 |> Seq.collect (Techniques.getTechniques sng)
                 |> Set.ofSeq
             if techIds.Count > 0 then
-                diffIds.Add(string i, techIds |> Set.toArray)
+                diffIds.Add(string i, Set.toArray techIds)
 
         if diffIds.Count > 0 then
             techniques.Add(string lvl, diffIds)
