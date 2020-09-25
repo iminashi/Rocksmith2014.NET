@@ -2,12 +2,13 @@
 
 open Rocksmith2014
 open Rocksmith2014.DLCProject
+open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.SNG
 open System
 open System.Collections.Generic
 
-// There are two "iteration versions" of the attributes, version 2 and 3:
+// There are two "iteration versions" of the attributes, version 2 and 3.
 //
 // Differences in version 3:
 // -The attributes are sorted differently (e.g. arrangement properties are sorted alphabetically)
@@ -43,11 +44,13 @@ let private getDNATime (sng: SNG) dnaId =
         
     getTotal 0 0.f |> float
 
+/// Calculates the times for the three types of DNA.
 let private calculateDNAs (sng: SNG) =
     Math.Round(getDNATime sng DNA.Chord, 3),
     Math.Round(getDNATime sng DNA.Riff, 3),
     Math.Round(getDNATime sng DNA.Solo, 3)
 
+/// Calculates difficulty values for hard, medium and easy.
 let private calculateDifficulties (metaData: XML.MetaData) (sng: SNG) =
     let arrProp = metaData.ArrangementProperties
     let techCoeff = bti arrProp.NonStandardChords +
@@ -85,6 +88,7 @@ let private calculateDifficulties (metaData: XML.MetaData) (sng: SNG) =
     Math.Round(float (techCoeff * sng.NoteCounts.Medium) / float sng.MetaData.SongLength / 50.0, 9),
     Math.Round(float (techCoeff * sng.NoteCounts.Easy) / float sng.MetaData.SongLength / 25.0, 9)
 
+/// Converts SNG phrase iterations into manifest phrase iterations.
 let private convertPhraseIterations (sng: SNG) =
     sng.PhraseIterations
     |> Array.map (fun pi ->
@@ -95,10 +99,11 @@ let private convertPhraseIterations (sng: SNG) =
           StartTime = pi.StartTime
           EndTime = pi.EndTime })
 
+/// Converts SNG chord templates into manifest chord templates.
 let private convertChordTemplates (sng: SNG) =
     sng.Chords
     |> Seq.indexed
-    |> Seq.filter(fun (_, c) -> (not <| String.IsNullOrEmpty c.Name) && (c.Mask <> ChordMask.Arpeggio))
+    |> Seq.filter(fun (_, c) -> String.notEmpty c.Name && c.Mask <> ChordMask.Arpeggio)
     |> Seq.map (fun (id, c) ->
         { ChordId = int16 id
           ChordName = c.Name
@@ -106,6 +111,7 @@ let private convertChordTemplates (sng: SNG) =
           Frets = c.Frets })
     |> Seq.toArray
 
+/// Returns a matching UI name for a section name.
 let private getSectionUIName (name: string) =
     // Official files may have names like "riff 1" or "solo7"
     let n = name |> String.filter Char.IsLetter
@@ -144,6 +150,7 @@ let private getSectionUIName (name: string) =
     | "noguitar"   -> "$[6091] No Guitar [1]"
     | _            -> failwith "Unknown section name."
 
+/// Converts SNG sections into manifest sections.
 let private convertSections (sng: SNG) =
     sng.Sections
     |> Array.map (fun s ->
@@ -156,6 +163,7 @@ let private convertSections (sng: SNG) =
           EndPhraseIterationIndex = s.EndPhraseIterationId
           IsSolo = s.Name.StartsWith("solo", StringComparison.Ordinal) })
 
+/// Converts SNG phrases into manifest phrases.
 let private convertPhrases (sng: SNG) =
     sng.Phrases
     |> Array.map (fun p ->
@@ -163,6 +171,7 @@ let private convertPhrases (sng: SNG) =
           Name = p.Name
           IterationCount = p.IterationCount })
 
+/// Creates a dynamic visual density array for the arrangement.
 let private createDynamicVisualDensity (levels: int) (arrangement: Arrangement) =
     match arrangement with
     | Vocals _ -> Array.replicate 20 2.f
@@ -182,6 +191,7 @@ let private createDynamicVisualDensity (levels: int) (arrangement: Arrangement) 
 
     | Showlights _ -> failwith "I am Error."
 
+/// Converts XML arrangement properties into manifest arrangement properties.
 let private convertArrangementProperties (arrProps: XML.ArrangementProperties) (instrumental: Instrumental) =
     { represent = btb (instrumental.Priority = ArrangementPriority.Main)
       bonusArr = btb arrProps.BonusArrangement
@@ -216,6 +226,7 @@ let private convertArrangementProperties (arrProps: XML.ArrangementProperties) (
       pathBass = if instrumental.RouteMask = RouteMask.Bass then 1uy else 0uy
       routeMask = instrumental.RouteMask |> LanguagePrimitives.EnumToValue |> byte }
 
+/// Creates a chord ID map.
 let private createChordMap (sng: SNG) =
     // Structure:
     //
@@ -240,7 +251,7 @@ let private createChordMap (sng: SNG) =
             let chordIds = 
                 sng.Levels.[lvl].HandShapes
                 |> Seq.filter (fun x -> 
-                   (not <| String.IsNullOrEmpty sng.Chords.[x.ChordId].Name) && (x.StartTime >= pi.StartTime && x.StartTime < pi.EndTime))
+                   (String.notEmpty sng.Chords.[x.ChordId].Name) && (x.StartTime >= pi.StartTime && x.StartTime < pi.EndTime))
                 |> Seq.map (fun x -> x.ChordId)
                 |> Set.ofSeq
             if chordIds.Count > 0 then
@@ -251,6 +262,7 @@ let private createChordMap (sng: SNG) =
             
     chords
 
+/// Creates a technique ID map.
 let private createTechniqueMap (sng: SNG) =
     // The structure of the map is the same as the chord map, but with technique IDs instead of chord IDs.
 
@@ -276,6 +288,7 @@ let private createTechniqueMap (sng: SNG) =
             
     techniques
 
+/// Initializes attributes that are common for all arrangements (manifest headers).
 let private initBase name dlcKey (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
     attr.AlbumArt <- sprintf "urn:image:dds:album_%s" dlcKey
     attr.ArrangementName <- Arrangement.getName arrangement true
@@ -290,6 +303,7 @@ let private initBase name dlcKey (project: DLCProject) (arrangement: Arrangement
 
     attr
 
+/// Initializes attributes that are common all arrangements (non-headers).
 let private initAttributesCommon name dlcKey levels (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
     attr.ArrangementSort <- 0 |> Nullable // Always zero
     attr.BlockAsset <- sprintf "urn:emergent-world:%s" dlcKey
@@ -307,6 +321,7 @@ let private initAttributesCommon name dlcKey levels (project: DLCProject) (arran
 
     attr
 
+/// Initializes attributes that are common for instrumental arrangement headers and non-headers.
 let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Instrumental) (sng: SNG) (attr: Attributes) =
     let diffHard, diffMed, diffEasy = calculateDifficulties xmlMetaData sng
     let dnaChords, dnaRiffs, dnaSolo = calculateDNAs sng
@@ -336,6 +351,7 @@ let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Inst
 
     attr
 
+/// Initializes attributes unique to instrumental arrangements (non-header).
 let private initSongComplete partition
                              (xmlMetaData: XML.MetaData)
                              (xmlToneInfo: XML.ToneInfo)
@@ -381,6 +397,7 @@ type AttributesConversion =
 | FromVocals of Vocals
 | FromInstrumental of inst: Instrumental * sng: SNG
 
+/// Creates attributes for an arrangement.
 let private create isHeader (project: DLCProject) (conversion: AttributesConversion) =
     let attributes = Attributes()
     let dlcKey = project.DLCKey.ToLowerInvariant()
@@ -421,5 +438,8 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
             |> initAttributesCommon name dlcKey sng.Levels.Length project arr
             |> initSongComplete part xmlMetaData toneInfo project inst sng
 
+/// Creates manifest attributes for an arrangement.
 let createAttributes = create false
+
+/// Creates manifest header attributes for an arrangement.
 let createAttributesHeader = create true
