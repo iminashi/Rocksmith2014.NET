@@ -10,12 +10,14 @@ open Microsoft.Extensions.FileProviders
 open Rocksmith2014.Common.BinaryWriters
 open Rocksmith2014.Common.Interfaces
 
+/// Recursively removes files and subdirectories from a directory.
 let rec private cleanDirectory (path: string) =
     Directory.EnumerateFiles path |> Seq.iter File.Delete
     let subDirs = Directory.EnumerateDirectories path
     subDirs |> Seq.iter cleanDirectory
     subDirs |> Seq.iter Directory.Delete
 
+/// Returns the path to the Wwise console executable.
 let private getCLIPath() =
     let cliPath =
         if RuntimeInformation.IsOSPlatform OSPlatform.Windows then
@@ -39,6 +41,7 @@ let private getCLIPath() =
 
     cliPath
 
+/// Extracts the Wwise template and copies the wav files into the Originals/SFX directory.
 let private loadTemplate (sourcePath: string) =
     let templateDir = Path.Combine(Path.GetTempPath(), "RS2WwiseConv")
     if Directory.Exists templateDir then
@@ -62,12 +65,14 @@ let private loadTemplate (sourcePath: string) =
 
     templateDir
 
+/// Fixes the header of a wem file.
 let private fixHeader (fileName: string) =
     use file = File.Open(fileName, FileMode.Open, FileAccess.Write)
     let writer = LittleEndianBinaryWriter(file) :> IBinaryWriter
     file.Seek(40L, SeekOrigin.Begin) |> ignore
     writer.WriteUInt32 3u
 
+/// Copies the wem files from the template cache directory into the destination path.
 let private copyWemFiles (destPath: string) (templateDir: string) =
     let cachePath = Path.Combine (templateDir, ".cache", "Windows", "SFX")
     let wemFiles = Seq.toArray (DirectoryInfo(cachePath).EnumerateFiles("*.wem"))
