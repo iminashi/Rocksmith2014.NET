@@ -38,6 +38,7 @@ module Configuration =
         let appData = IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
         IO.Path.Combine(appData, "config.json")
 
+    /// Converts a configuration DTO into a cofiguration record.
     let private fromDto (dto: Dto) =
         let platforms =
             if not (dto.ReleasePC || dto.ReleaseMac) then
@@ -54,6 +55,7 @@ module Configuration =
           ShowAdvanced = dto.ShowAdvanced
           Locale = Locales.fromShortName dto.Locale }
 
+    /// Converts a configuration into a configuration DTO.
     let private toDto (config: Configuration) =
         Dto(ReleasePC = (config.ReleasePlatforms |> List.contains PC),
             ReleaseMac = (config.ReleasePlatforms |> List.contains Mac),
@@ -64,6 +66,7 @@ module Configuration =
             ShowAdvanced = config.ShowAdvanced,
             Locale = config.Locale.ShortName)
     
+    /// Loads a configuration from the file defined in configFilePath.
     let load () = async {
         if not <| File.Exists configFilePath then
             return Configuration.Default
@@ -75,6 +78,7 @@ module Configuration =
                 return fromDto dto
             with _ -> return Configuration.Default }
     
+    /// Saves the configuration to the file defined in configFilePath.
     let save (config: Configuration) = async {
         Directory.CreateDirectory(Path.GetDirectoryName configFilePath) |> ignore
         use file = File.Create configFilePath
