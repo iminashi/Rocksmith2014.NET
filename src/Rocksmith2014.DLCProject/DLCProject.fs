@@ -51,8 +51,7 @@ module DLCProject =
         let abs = toAbsolutePath baseDir
         let arrangements =
             project.Arrangements
-            |> List.map (fun x ->
-                match x with
+            |> List.map (function
                 | Instrumental i -> Instrumental { i with XML = abs i.XML }
                 | Vocals v -> Vocals { v with XML = abs v.XML; CustomFont = Option.map abs v.CustomFont }
                 | Showlights s -> Showlights { s with XML = abs s.XML })
@@ -73,8 +72,7 @@ module DLCProject =
         let rel = toRelativePath path
         let arrangements =
             project.Arrangements
-            |> List.map (fun x ->
-                match x with
+            |> List.map (function
                 | Instrumental i -> Instrumental { i with XML = rel i.XML }
                 | Vocals v -> Vocals { v with XML = rel v.XML; CustomFont = Option.map rel v.CustomFont }
                 | Showlights s -> Showlights { s with XML = rel s.XML })
