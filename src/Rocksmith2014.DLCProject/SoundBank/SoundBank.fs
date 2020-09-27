@@ -12,6 +12,7 @@ module private HierarchyID =
     let [<Literal>] Event = 4y
     let [<Literal>] ActorMixer = 7y
 
+/// Calculates a Fowler–Noll–Vo hash for a string.
 let private fnvHash (str: string) =
     let bytes = str.ToLower().ToCharArray()
     let mutable hash = 2166136261u
@@ -22,6 +23,7 @@ let private fnvHash (str: string) =
 
     hash
 
+/// Creates the data index chunk.
 let private dataIndex id length platform =
     let fileOffset = 0
 
@@ -34,6 +36,7 @@ let private dataIndex id length platform =
 
     memory.ToArray()
 
+/// Creates the header chunk.
 let private header id didxSize platform =
     let soundbankVersion = 91u
     let soundbankID = id
@@ -58,6 +61,7 @@ let private header id didxSize platform =
 
     memory.ToArray()
 
+/// Creates the string ID chunk.
 let private stringID id name platform =
     let stringType = 1u
     let numNames = 1u
@@ -75,6 +79,7 @@ let private stringID id name platform =
 
     memory.ToArray()
 
+/// Creates a hierarchy sound section.
 let private hierarchySound id fileId mixerId volume isPreview platform =
     let soundID = uint32 id
     let pluginID = 262145u
@@ -162,6 +167,7 @@ let private hierarchySound id fileId mixerId volume isPreview platform =
     memory.Position <- 0L
     memory
 
+/// Creates a hierarchy actor mixer section.
 let private hierarchyActorMixer id soundId platform =
     let mixerID = id
     let overrideParent = 0y
@@ -227,6 +233,7 @@ let private hierarchyActorMixer id soundId platform =
     memory.Position <- 0L
     memory
 
+/// Creates a hierarchy action section.
 let private hierarchyAction id objId bankId platform =
     let actionID = id
     let actionScope = 3y // 3 = Game object
@@ -254,6 +261,7 @@ let private hierarchyAction id objId bankId platform =
     memory.Position <- 0L
     memory
 
+/// Creates a hierarchy event section with a Play event.
 let private hierarchyEvent id name platform =
     let eventID = fnvHash (sprintf "Play_%s" name)
     let numEvents = 1u
@@ -275,6 +283,7 @@ let private writeHierarchy output (writer: IBinaryWriter) id (hierarchy: Stream)
     hierarchy.CopyTo output
     hierarchy.Dispose()
 
+/// Creates the hierarchy chunk.
 let private hierarchy bankId soundId fileId name volume isPreview platform =
     let mixerID = 650605636u
     let actionID = RandomGenerator.next() |> uint32
@@ -293,6 +302,7 @@ let private hierarchy bankId soundId fileId name volume isPreview platform =
 
     memory.ToArray()
 
+/// Writes the chunk name, length and data into the writer.
 let private writeChunk (writer: IBinaryWriter) name (data: byte array) =
     writer.WriteBytes name
     writer.WriteInt32 data.Length
