@@ -26,7 +26,7 @@ let validate (loc: ILocalization) (project: DLCProject) =
 
     if not <| File.Exists project.AlbumArtFile then
         Error (loc.GetString "albumArtNotFound")
-    elif toneKeyGroups |> List.exists (fun (_, list) -> list.Length > 1)  then
+    elif toneKeyGroups |> List.exists (fun (_, list) -> list.Length > 1) then
         Error (loc.GetString "multipleTonesSameKey")
     elif vocalGroups |> List.exists (fun (_, list) -> list.Length > 1) then
         Error (loc.GetString "conflictingVocals")
