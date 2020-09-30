@@ -76,4 +76,16 @@ let someTests =
 
         Expect.equal psarc.Manifest.Length oldManifest.Length "Manifest size is same"
         Expect.equal psarc.Manifest.[psarc.Manifest.Length - 1] oldManifest.[0] "First file is now last" }
+
+    testAsync "Can rename files" {
+        use! memory = copyToMemory "test_edit_p.psarc"
+        let psarc = PSARC.Read memory
+        let oldManifest = psarc.Manifest
+
+        do! psarc.Edit(options, (fun files ->
+            let f = { files.[0] with Name = "new name" }
+            files.[0] <- f))
+
+        Expect.equal psarc.Manifest.Length oldManifest.Length "Manifest size is same"
+        Expect.equal psarc.Manifest.[0] "new name" "File name is changed" }
   ]
