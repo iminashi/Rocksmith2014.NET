@@ -38,82 +38,84 @@ let init () =
       Localization = Localization(Locales.English) }, Cmd.OfAsync.perform Configuration.load () SetConfiguration
 
 let private loadArrangement state (fileName: string) =
-    let rootName =
-        using (XmlReader.Create(fileName))
-              (fun reader -> reader.MoveToContent() |> ignore; reader.LocalName)
+    try
+        let rootName =
+            using (XmlReader.Create(fileName))
+                  (fun reader -> reader.MoveToContent() |> ignore; reader.LocalName)
 
-    match rootName with
-    | "song" ->
-        let metadata = XML.MetaData.Read fileName
-        let toneInfo = XML.InstrumentalArrangement.ReadToneNames fileName
-        let baseTone =
-            if isNull toneInfo.BaseToneName then
-                metadata.Arrangement.ToLowerInvariant() + "_base"
-            else
-                toneInfo.BaseToneName
-        let tones =
-            toneInfo.Names
-            |> Array.filter (isNull >> not)
-            |> Array.toList
+        match rootName with
+        | "song" ->
+            let metadata = XML.MetaData.Read fileName
+            let toneInfo = XML.InstrumentalArrangement.ReadToneNames fileName
+            let baseTone =
+                if isNull toneInfo.BaseToneName then
+                    metadata.Arrangement.ToLowerInvariant() + "_base"
+                else
+                    toneInfo.BaseToneName
+            let tones =
+                toneInfo.Names
+                |> Array.filter (isNull >> not)
+                |> Array.toList
 
-        let routeMask =
-            if metadata.ArrangementProperties.PathBass then RouteMask.Bass
-            elif metadata.ArrangementProperties.PathRhythm then RouteMask.Rhythm
-            else RouteMask.Lead
+            let routeMask =
+                if metadata.ArrangementProperties.PathBass then RouteMask.Bass
+                elif metadata.ArrangementProperties.PathRhythm then RouteMask.Rhythm
+                else RouteMask.Lead
 
-        let name =
-            match ArrangementName.TryParse metadata.Arrangement with
-            | true, name -> name
-            | false, _ ->
-                match routeMask with
-                | RouteMask.Bass -> ArrangementName.Bass
-                | RouteMask.Rhythm -> ArrangementName.Rhythm
-                | _ -> ArrangementName.Lead
+            let name =
+                match ArrangementName.TryParse metadata.Arrangement with
+                | true, name -> name
+                | false, _ ->
+                    match routeMask with
+                    | RouteMask.Bass -> ArrangementName.Bass
+                    | RouteMask.Rhythm -> ArrangementName.Rhythm
+                    | _ -> ArrangementName.Lead
 
-        let arr =
-            { XML = fileName
-              Name = name
-              Priority =
-                if metadata.ArrangementProperties.Represent then ArrangementPriority.Main
-                elif metadata.ArrangementProperties.BonusArrangement then ArrangementPriority.Bonus
-                else ArrangementPriority.Alternative
-              Tuning = metadata.Tuning.Strings
-              TuningPitch = Utils.centsToTuningPitch(float metadata.CentOffset)
-              RouteMask = routeMask
-              ScrollSpeed = 1.3
-              BaseTone = baseTone
-              Tones = tones
-              BassPicked = metadata.ArrangementProperties.BassPick
-              MasterID = RandomGenerator.next()
-              PersistentID = Guid.NewGuid() }
-            |> Arrangement.Instrumental
-        Ok (arr, Some metadata)
+            let arr =
+                { XML = fileName
+                  Name = name
+                  Priority =
+                    if metadata.ArrangementProperties.Represent then ArrangementPriority.Main
+                    elif metadata.ArrangementProperties.BonusArrangement then ArrangementPriority.Bonus
+                    else ArrangementPriority.Alternative
+                  Tuning = metadata.Tuning.Strings
+                  TuningPitch = Utils.centsToTuningPitch(float metadata.CentOffset)
+                  RouteMask = routeMask
+                  ScrollSpeed = 1.3
+                  BaseTone = baseTone
+                  Tones = tones
+                  BassPicked = metadata.ArrangementProperties.BassPick
+                  MasterID = RandomGenerator.next()
+                  PersistentID = Guid.NewGuid() }
+                |> Arrangement.Instrumental
+            Ok (arr, Some metadata)
 
-    | "vocals" ->
-        // Attempt to infer whether the lyrics are Japanese from the filename
-        let isJapanese =
-            fileName.Contains("jvocal", StringComparison.OrdinalIgnoreCase) ||
-            fileName.Contains("jlyric", StringComparison.OrdinalIgnoreCase)
+        | "vocals" ->
+            // Attempt to infer whether the lyrics are Japanese from the filename
+            let isJapanese =
+                fileName.Contains("jvocal", StringComparison.OrdinalIgnoreCase) ||
+                fileName.Contains("jlyric", StringComparison.OrdinalIgnoreCase)
 
-        // Try to find custom font for Japanese vocals
-        let customFont =
-            let lyricFile = IO.Path.Combine(IO.Path.GetDirectoryName fileName, "lyrics.dds")
-            if isJapanese && IO.File.Exists lyricFile then Some lyricFile else None
+            // Try to find custom font for Japanese vocals
+            let customFont =
+                let lyricFile = IO.Path.Combine(IO.Path.GetDirectoryName fileName, "lyrics.dds")
+                if isJapanese && IO.File.Exists lyricFile then Some lyricFile else None
 
-        let arr =
-            { XML = fileName
-              Japanese = isJapanese
-              CustomFont = customFont
-              MasterID = RandomGenerator.next()
-              PersistentID = Guid.NewGuid() }
-            |> Arrangement.Vocals
-        Ok (arr, None)
+            let arr =
+                { XML = fileName
+                  Japanese = isJapanese
+                  CustomFont = customFont
+                  MasterID = RandomGenerator.next()
+                  PersistentID = Guid.NewGuid() }
+                |> Arrangement.Vocals
+            Ok (arr, None)
 
-    | "showlights" ->
-        let arr = Arrangement.Showlights { XML = fileName }
-        Ok (arr, None)
+        | "showlights" ->
+            let arr = Arrangement.Showlights { XML = fileName }
+            Ok (arr, None)
 
-    | _ -> Error (state.Localization.GetString "unknownArrangementError")
+        | _ -> Error (state.Localization.GetString "unknownArrangementError")
+    with ex -> Error ex.Message
 
 let private updateArrangement old updated state =
     let arrangements =
@@ -306,6 +308,14 @@ let update (msg: Msg) (state: State) =
             | Vocals _ when (arrangements |> List.choose (function Vocals _ -> Some 1 | _ -> None)).Length = 2 -> false
             | _ -> true
 
+        let errors =
+            (files, results)
+            ||> Array.map2 (fun file result ->
+                match result with
+                | Ok _ -> None
+                | Error msg -> Some(sprintf "%s:\n%s\n" file msg))
+            |> Array.choose id
+
         let arrangements =
             (state.Project.Arrangements, results)
             ||> Array.fold (fun state elem ->
@@ -333,18 +343,23 @@ let update (msg: Msg) (state: State) =
             else
                 None
 
-        match metadata with
-        | Some md ->
-            { state with
-                Project = { state.Project with
-                                DLCKey = DLCKey.create state.Config.CharterName md.ArtistName md.Title
-                                ArtistName = SortableString.Create md.ArtistName // Ignore the sort value from the XML
-                                Title = SortableString.Create (md.Title, md.TitleSort)
-                                AlbumName = SortableString.Create (md.AlbumName, md.AlbumNameSort)
-                                Year = md.AlbumYear
-                                Arrangements = arrangements } }, Cmd.none
-        | None ->
-            { state with Project = { state.Project with Arrangements = arrangements } }, Cmd.none
+        let newState = 
+            match metadata with
+            | Some md ->
+                { state with
+                    Project = { state.Project with
+                                    DLCKey = DLCKey.create state.Config.CharterName md.ArtistName md.Title
+                                    ArtistName = SortableString.Create md.ArtistName // Ignore the sort value from the XML
+                                    Title = SortableString.Create (md.Title, md.TitleSort)
+                                    AlbumName = SortableString.Create (md.AlbumName, md.AlbumNameSort)
+                                    Year = md.AlbumYear
+                                    Arrangements = arrangements } }
+            | None ->
+                { state with Project = { state.Project with Arrangements = arrangements } }
+
+        match errors with
+        | [||] -> newState, Cmd.none
+        | _ -> { newState with Overlay = ErrorMessage(String.Join('\n', errors)) }, Cmd.none
 
     | ArrangementSelected selected -> { state with SelectedArrangement = selected }, Cmd.none
 
