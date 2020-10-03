@@ -55,19 +55,31 @@ let private loadArrangement state (fileName: string) =
             toneInfo.Names
             |> Array.filter (isNull >> not)
             |> Array.toList
+
+        let routeMask =
+            if metadata.ArrangementProperties.PathBass then RouteMask.Bass
+            elif metadata.ArrangementProperties.PathRhythm then RouteMask.Rhythm
+            else RouteMask.Lead
+
+        let name =
+            match ArrangementName.TryParse metadata.Arrangement with
+            | true, name -> name
+            | false, _ ->
+                match routeMask with
+                | RouteMask.Bass -> ArrangementName.Bass
+                | RouteMask.Rhythm -> ArrangementName.Rhythm
+                | _ -> ArrangementName.Lead
+
         let arr =
             { XML = fileName
-              Name = ArrangementName.Parse metadata.Arrangement
+              Name = name
               Priority =
                 if metadata.ArrangementProperties.Represent then ArrangementPriority.Main
                 elif metadata.ArrangementProperties.BonusArrangement then ArrangementPriority.Bonus
                 else ArrangementPriority.Alternative
               Tuning = metadata.Tuning.Strings
               TuningPitch = Utils.centsToTuningPitch(float metadata.CentOffset)
-              RouteMask =
-                if metadata.ArrangementProperties.PathBass then RouteMask.Bass
-                elif metadata.ArrangementProperties.PathLead then RouteMask.Lead
-                else RouteMask.Rhythm
+              RouteMask = routeMask
               ScrollSpeed = 1.3
               BaseTone = baseTone
               Tones = tones
