@@ -101,12 +101,15 @@ let private generateLaserNotes (sng: SNG) =
     [ lasersOn; lasersOff ]
 
 /// Ensures that the show lights contain at least one beam and one fog note.
-let private validateShowLights (slList: ResizeArray<ShowLight>) =
+let private validateShowLights songLength (slList: ResizeArray<ShowLight>) =
     if slList.FindIndex(fun x -> (x.Note >= ShowLight.BeamMin && x.Note <= ShowLight.BeamMax) || x.Note = ShowLight.BeamOff) = -1 then
         slList.Insert(0, ShowLight(0, ShowLight.BeamMin))
 
     if slList.FindIndex(fun x -> x.Note >= ShowLight.FogMin && x.Note <= ShowLight.FogMax) = -1 then
         slList.Insert(0, ShowLight(0, ShowLight.FogMin))
+
+    // Add an extra fog note at the end to prevent a glitch
+    slList.Add(ShowLight(int (songLength * 1000.f), ShowLight.FogMax))
 
     slList
 
@@ -132,5 +135,5 @@ let generate (targetFile: string) (sngs: (Arrangement * SNG) list) =
         |> List.append (generateLaserNotes sng)
         |> List.sortBy (fun x -> x.Time)
 
-    let list = validateShowLights (ResizeArray(showlights))
+    let list = validateShowLights sng.MetaData.SongLength (ResizeArray(showlights))
     ShowLights.Save(targetFile, list)
