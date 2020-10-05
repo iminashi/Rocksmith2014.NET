@@ -79,8 +79,8 @@ let private generateBeamNotes (sng: SNG) =
     ||> Seq.fold (fun acc midi ->
         let beamNote = getBeamNote midi.Note
         match acc with
-        | (prevTime, prevNote)::_ as list when midi.Time - prevTime >= minTime && beamNote <> prevNote ->
-            (midi.Time, beamNote)::list
+        | (prevTime, prevNote)::_ when midi.Time - prevTime >= minTime && beamNote <> prevNote ->
+            (midi.Time, beamNote)::acc
         | [] -> [ midi.Time, beamNote ]
         | list -> list)
     |> List.map (fun (time, beam) -> ShowLight(int (time * 1000.f), beam))
@@ -100,18 +100,19 @@ let private generateLaserNotes (sng: SNG) =
 
     [ lasersOn; lasersOff ]
 
+let private isBeam (x: ShowLight) =
+    (x.Note >= ShowLight.BeamMin && x.Note <= ShowLight.BeamMax) || x.Note = ShowLight.BeamOff
+
+let private isFog (x: ShowLight) =
+    x.Note >= ShowLight.FogMin && x.Note <= ShowLight.FogMax
+
 /// Ensures that the show lights contain at least one beam and one fog note.
-let private validateShowLights songLength (slList: ResizeArray<ShowLight>) =
-    if slList.FindIndex(fun x -> (x.Note >= ShowLight.BeamMin && x.Note <= ShowLight.BeamMax) || x.Note = ShowLight.BeamOff) = -1 then
-        slList.Insert(0, ShowLight(0, ShowLight.BeamMin))
-
-    if slList.FindIndex(fun x -> x.Note >= ShowLight.FogMin && x.Note <= ShowLight.FogMax) = -1 then
-        slList.Insert(0, ShowLight(0, ShowLight.FogMin))
-
-    // Add an extra fog note at the end to prevent a glitch
-    slList.Add(ShowLight(int (songLength * 1000.f), ShowLight.FogMax))
-
-    slList
+let private validateShowLights songLength (slList: ShowLight list) =
+    slList @ [
+        if Option.isNone (List.tryFindIndex isBeam slList) then ShowLight(0, ShowLight.BeamMin)
+        if Option.isNone (List.tryFindIndex isFog slList) then ShowLight(0, ShowLight.FogMin)
+        // Add an extra fog note at the end to prevent a glitch
+        ShowLight(int (songLength * 1000.f), ShowLight.FogMax) ]
 
 /// Generates show lights and saves them into the target file.
 let generate (targetFile: string) (sngs: (Arrangement * SNG) list) =
@@ -133,7 +134,8 @@ let generate (targetFile: string) (sngs: (Arrangement * SNG) list) =
         generateFogNotes sng
         |> List.append (generateBeamNotes sng)
         |> List.append (generateLaserNotes sng)
+        |> validateShowLights sng.MetaData.SongLength
         |> List.sortBy (fun x -> x.Time)
+        |> ResizeArray
 
-    let list = validateShowLights sng.MetaData.SongLength (ResizeArray(showlights))
-    ShowLights.Save(targetFile, list)
+    ShowLights.Save(targetFile, showlights)
