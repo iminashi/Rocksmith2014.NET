@@ -159,7 +159,7 @@ let update (msg: Msg) (state: State) =
         { state with Project = { state.Project with Tones = tones }
                      Overlay = NoOverlay }, Cmd.none
 
-    | CloseOverlay -> {state with Overlay = NoOverlay }, Cmd.none
+    | CloseOverlay -> { state with Overlay = NoOverlay }, Cmd.none
 
     | ConditionalCmdDispatch (Some str, msg) -> state, Cmd.ofMsg (msg str)
     | ConditionalCmdDispatch (None, _) -> state, Cmd.none
@@ -380,6 +380,20 @@ let update (msg: Msg) (state: State) =
             | Some selected -> List.remove selected state.Project.Tones
         { state with Project = { state.Project with Tones = tones }
                      SelectedTone = None }, Cmd.none
+
+    | MoveTone dir ->
+        let tones = 
+            match state.SelectedTone with
+            | None -> state.Project.Tones
+            | Some selected ->
+                let change = match dir with Up -> -1 | Down -> 1 
+                let insertPos = (List.findIndex ((=) selected) state.Project.Tones) + change
+                if insertPos >= 0 && insertPos < state.Project.Tones.Length then
+                    List.remove selected state.Project.Tones
+                    |> List.insertAt insertPos selected
+                else
+                    state.Project.Tones
+        { state with Project = { state.Project with Tones = tones } }, Cmd.none
 
     | PreviewAudioStartChanged time ->
         { state with PreviewStartTime = TimeSpan.FromSeconds time }, Cmd.none
@@ -612,7 +626,12 @@ let view (state: State) dispatch =
                                     | :? Tone as t -> dispatch (ToneSelected (Some t))
                                     | null when state.Project.Tones.Length = 0 -> dispatch (ToneSelected None)
                                     | _ -> ()), SubPatchOptions.OnChangeOf state)
-                                ListBox.onKeyDown (fun k -> if k.Key = Key.Delete then dispatch DeleteTone)
+                                ListBox.onKeyDown (fun k ->
+                                    match k.KeyModifiers, k.Key with
+                                    | KeyModifiers.None, Key.Delete -> dispatch DeleteTone
+                                    | KeyModifiers.Alt, Key.Up -> dispatch (MoveTone Up)
+                                    | KeyModifiers.Alt, Key.Down -> dispatch (MoveTone Down)
+                                    | _ -> ())
                             ]
                         ]
                     ]

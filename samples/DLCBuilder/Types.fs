@@ -21,6 +21,8 @@ module Types =
     | CreateFile
     | FileCreated of path : string
 
+    type MoveDirection = Up | Down
+
     type State =
         { Project : DLCProject
           Config : Configuration
@@ -60,6 +62,7 @@ module Types =
     | ToneSelected of selected : Tone option
     | DeleteArrangement
     | DeleteTone
+    | MoveTone of MoveDirection
     | ImportProfileTones
     | CreatePreviewAudio of PreviewAudioCreation
     | PreviewAudioStartChanged of time : float

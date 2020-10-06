@@ -21,6 +21,15 @@ module List =
     
         remove 0 list
 
+    let insertAt index (item: 'a) (list: 'a list) =
+        let rec insert current list =
+            match list with
+            | [] -> [ item ]
+            | l when current = index -> item::l
+            | h::tail -> h::(insert (current + 1) tail)
+    
+        insert 0 list
+
     /// Removes the item from the list.
     let rec remove (item: 'a) (list: 'a list) =
         match list with
