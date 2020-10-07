@@ -202,8 +202,8 @@ let import (psarcPath: string) (targetDirectory: string) = async {
         { Version = version
           DLCKey = metaData.DLCKey
           ArtistName = { Value = metaData.ArtistName; SortValue = metaData.ArtistNameSort }
-          JapaneseArtistName = Option.ofObj metaData.JapaneseArtistName
-          JapaneseTitle = Option.ofObj metaData.JapaneseSongName
+          JapaneseArtistName = Option.ofObj metaData.JapaneseArtistName |> Option.bind Option.ofString
+          JapaneseTitle = Option.ofObj metaData.JapaneseSongName |> Option.bind Option.ofString
           Title = { Value = metaData.SongName; SortValue = metaData.SongNameSort }
           AlbumName = { Value = metaData.AlbumName; SortValue = metaData.AlbumNameSort }
           Year = metaData.SongYear |> Option.ofNullable |> Option.defaultValue 0
