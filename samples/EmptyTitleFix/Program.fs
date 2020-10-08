@@ -58,15 +58,15 @@ let findFixablePsarcs directory =
     |> Seq.choose (fun path ->
         let psarc = PSARC.ReadFile path
 
-        // Use the first found JSON file to determine if a fix is needed
-        let jsonFile = psarc.Manifest |> Seq.find (fun x -> x.EndsWith "json")
-        use mem = MemoryStreamPool.Default.GetStream()
-        psarc.InflateFile(jsonFile, mem) |> Async.RunSynchronously
-
         let attributes =
-            async { return! Manifest.fromJsonStream mem }
+            async {
+                // Use the first found JSON file to determine if a fix is needed
+                let jsonFile = psarc.Manifest |> Seq.find (fun x -> x.EndsWith "json")
+                use mem = MemoryStreamPool.Default.GetStream()
+                do! psarc.InflateFile(jsonFile, mem)
+                let! mani = Manifest.fromJsonStream mem
+                return Manifest.getSingletonAttributes mani }
             |> Async.RunSynchronously
-            |> Manifest.getSingletonAttributes
 
         if attributes.JapaneseSongName = String.Empty then
             printfn "Fixing %s" (Path.GetRelativePath(directory, path))
