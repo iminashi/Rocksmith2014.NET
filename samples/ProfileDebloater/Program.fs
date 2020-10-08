@@ -83,7 +83,6 @@ let filterJArrayKeys (keys: Set<string>) (array: JArray) =
 let main argv =
     if argv.Length <> 2 then
         Console.WriteLine "Give as arguments: path to profile file and path to DLC directory."
-        0
     else
         let profilePath = argv.[0]
         let dlcDirectory = argv.[1]
@@ -118,4 +117,4 @@ let main argv =
 
         saveProfile profilePath id profile
 
-        0
+    0
