@@ -41,3 +41,7 @@ Cross-platform desktop app for creating CDLC.
 ### Profile Debloater
 
 Console app for removing obsolete IDs from profile files.
+
+### Empty Title Fix
+
+Console app for fixing empty Japanese titles in PSARCs created with a buggy version of the Toolkit.
