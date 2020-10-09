@@ -6,10 +6,13 @@ open Rocksmith2014.DLCProject.Manifest
 open Newtonsoft.Json
 open Newtonsoft.Json.Linq
 
+let readFromAppDir file =
+    File.ReadAllLines (Path.Combine(AppContext.BaseDirectory, file))
+
 /// Reads the on-disc IDs and keys from the prepared text files.
 let readOnDiscIdsAndKeys () =
-    Set.ofArray (File.ReadAllLines "onDiscIDs.txt"),
-    Set.ofArray (File.ReadAllLines "onDiscKeys.txt")
+    Set.ofArray (readFromAppDir "onDiscIDs.txt"),
+    Set.ofArray (readFromAppDir "onDiscKeys.txt")
     
 /// Reads IDs and keys from psarcs in the given directory and its subdirectories.
 let gatherDLCData (directory: string) =
