@@ -40,16 +40,24 @@ let fixManifests (psarcs: seq<PSARC>) =
                 namedEntries
                 |> List.ofSeq
                 |> List.map (fun entry ->
-                    if entry.Name.EndsWith("hsan") then fixHsan entry
-                    elif entry.Name.EndsWith("json") then fixJson entry
+                    if entry.Name.EndsWith "hsan" then fixHsan entry
+                    elif entry.Name.EndsWith "json" then fixJson entry
                     else entry)
 
             namedEntries.Clear()
-            namedEntries.AddRange(updatedManifests))
-        )
+            namedEntries.AddRange updatedManifests))
         |> Async.RunSynchronously
         (psarc :> IDisposable).Dispose()
     )
+
+/// Returns the attributes of the first arrangement found.
+let getAttributes (psarc: PSARC) = async {
+    // Use the first found JSON file to determine if a fix is needed
+    let jsonFile = psarc.Manifest |> Seq.find (fun x -> x.EndsWith "json")
+    use mem = MemoryStreamPool.Default.GetStream()
+    do! psarc.InflateFile(jsonFile, mem)
+    let! mani = Manifest.fromJsonStream mem
+    return Manifest.getSingletonAttributes mani }
 
 /// Returns a sequence of PSARCs where the Japanese song name is an empty string.
 let findFixablePsarcs directory =
@@ -59,13 +67,7 @@ let findFixablePsarcs directory =
         let psarc = PSARC.ReadFile path
 
         let attributes =
-            async {
-                // Use the first found JSON file to determine if a fix is needed
-                let jsonFile = psarc.Manifest |> Seq.find (fun x -> x.EndsWith "json")
-                use mem = MemoryStreamPool.Default.GetStream()
-                do! psarc.InflateFile(jsonFile, mem)
-                let! mani = Manifest.fromJsonStream mem
-                return Manifest.getSingletonAttributes mani }
+            getAttributes psarc
             |> Async.RunSynchronously
 
         if attributes.JapaneseSongName = String.Empty then
