@@ -172,7 +172,7 @@ let view state dispatch =
                 Button.padding (50., 10.)
                 Button.horizontalAlignment HorizontalAlignment.Center
                 Button.content (state.Localization.GetString "close")
-                Button.onClick (fun _ -> SaveConfiguration |> dispatch)
+                Button.onClick (fun _ -> CloseOverlay |> dispatch)
             ]
         ]
     ] :> IView

@@ -159,7 +159,12 @@ let update (msg: Msg) (state: State) =
         { state with Project = { state.Project with Tones = tones }
                      Overlay = NoOverlay }, Cmd.none
 
-    | CloseOverlay -> { state with Overlay = NoOverlay }, Cmd.none
+    | CloseOverlay ->
+        let cmd =
+            match state.Overlay with
+            | ConfigEditor -> Cmd.ofMsg SaveConfiguration
+            | _ -> Cmd.none
+        { state with Overlay = NoOverlay }, cmd
 
     | ConditionalCmdDispatch (Some str, msg) -> state, Cmd.ofMsg (msg str)
     | ConditionalCmdDispatch (None, _) -> state, Cmd.none
