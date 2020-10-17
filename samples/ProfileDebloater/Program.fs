@@ -70,10 +70,12 @@ let readProfile path =
 
 /// Removes the children whose names are not in the IDs set from the JToken.
 let filterJTokenIds (ids: Set<string>) (token: JToken) =
-    token
-    |> Seq.filter (fun x -> not <| ids.Contains((x :?> JProperty).Name))
-    |> Seq.toArray
-    |> Array.iter (fun x -> x.Remove())
+    let filtered =
+        token
+        |> Seq.filter (fun x -> not <| ids.Contains((x :?> JProperty).Name))
+        |> Seq.toArray
+    filtered |> Array.iter (fun x -> x.Remove())
+    filtered.Length
 
 /// Removes the elements that are not in the keys set from the JArray.
 let filterJArrayKeys (keys: Set<string>) (array: JArray) =
@@ -98,6 +100,7 @@ let main argv =
 
         let filterIds = filterJTokenIds ids
         let filterKeys = filterJArrayKeys keys
+        let printstats section num = printfn "%-9s: %i records removed" section num
 
         Console.WriteLine "Reading profile..."
 
@@ -105,10 +108,10 @@ let main argv =
 
         Console.WriteLine "Debloating profile..."
 
-        filterIds (profile.["Playnexts"].["Songs"])
-        filterIds (profile.["Songs"])
-        filterIds (profile.["SongsSA"])
-        filterIds (profile.["Stats"].["Songs"])
+        filterIds profile.["Playnexts"].["Songs"] |> printstats "Playnexts"
+        filterIds profile.["Songs"] |> printstats "Songs"
+        filterIds profile.["SongsSA"] |> printstats "Songs SA"
+        filterIds profile.["Stats"].["Songs"] |> printstats "Stats"
 
         profile.["SongListsRoot"].["SongLists"] :?> JArray
         |> Seq.iter (fun songList -> songList :?> JArray |> filterKeys) 
