@@ -120,10 +120,10 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         for entry in entries do
             let proto = Entry.CreateProto entry (uint32 zLengths.Count)
 
-            let! totalLength =
-                if usePlain entry then async {
-                    return addPlainData blockSize deflatedData zLengths entry.Data }
-                else async {
+            let! totalLength = async {
+                if usePlain entry then 
+                    return addPlainData blockSize deflatedData zLengths entry.Data
+                else
                     let! length = Compression.blockZip blockSize deflatedData zLengths entry.Data
                     do! entry.Data.DisposeAsync()
                     return length }
