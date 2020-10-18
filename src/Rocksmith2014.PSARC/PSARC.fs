@@ -250,7 +250,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     /// Creates a new PSARC into the given stream using the creation function.
     static member Create(stream, encrypt, createFun) = async {
         let options = { Mode = InMemory; EncyptTOC = encrypt }
-        let psarc = PSARC.CreateEmpty(stream)
+        use psarc = PSARC.CreateEmpty(stream)
         do! psarc.Edit(options, createFun) }
 
     /// Packs all the files in the directory and subdirectories into a PSARC file with the given filename.
