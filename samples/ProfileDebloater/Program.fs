@@ -100,7 +100,7 @@ let main argv =
 
         let filterIds = filterJTokenIds ids
         let filterKeys = filterJArrayKeys keys
-        let printstats section num = printfn "%-9s: %i records removed" section num
+        let printStats section num = printfn "%-9s: %i records removed" section num
 
         Console.WriteLine "Reading profile..."
 
@@ -108,10 +108,10 @@ let main argv =
 
         Console.WriteLine "Debloating profile..."
 
-        filterIds profile.["Playnexts"].["Songs"] |> printstats "Playnexts"
-        filterIds profile.["Songs"] |> printstats "Songs"
-        filterIds profile.["SongsSA"] |> printstats "Songs SA"
-        filterIds profile.["Stats"].["Songs"] |> printstats "Stats"
+        filterIds profile.["Playnexts"].["Songs"] |> printStats "Playnexts"
+        filterIds profile.["Songs"] |> printStats "Songs"
+        filterIds profile.["SongsSA"] |> printStats "Songs SA"
+        filterIds profile.["Stats"].["Songs"] |> printStats "Stats"
 
         profile.["SongListsRoot"].["SongLists"] :?> JArray
         |> Seq.iter (fun songList -> songList :?> JArray |> filterKeys) 
