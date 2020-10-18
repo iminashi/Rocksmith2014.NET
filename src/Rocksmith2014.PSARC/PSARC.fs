@@ -140,9 +140,9 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         // Update and write the table of contents
         toc.Clear()
         let mutable offset = uint64 header.ToCLength
-        protoEntries |> Array.iteri (fun i e ->
-            let entry = { fst e with Offset = offset; ID = i }
-            offset <- offset + (e |> (snd >> uint64))
+        protoEntries |> Array.iteri (fun i (proto, size) ->
+            let entry = { proto with Offset = offset; ID = i }
+            offset <- offset + uint64 size
             // Don't add the manifest to the TOC
             if i <> 0 then toc.Add entry
             entry.Write tocWriter)
@@ -227,7 +227,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         header.ToCLength <- uint (Header.Length + protoEntries.Length * int header.ToCEntrySize + blockTable.Length * zType)
         header.ToCEntryCount <- uint protoEntries.Length
         header.ArchiveFlags <- if options.EncyptTOC then 4u else 0u
-        header.Write writer 
+        header.Write writer
 
         // Update and write TOC entries
         updateToc protoEntries blockTable zType options.EncyptTOC
