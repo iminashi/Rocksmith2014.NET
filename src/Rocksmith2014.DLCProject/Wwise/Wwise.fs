@@ -94,7 +94,7 @@ let convertToWem (sourcePath: string) (destPath: string) =
     let templateDir = loadTemplate sourcePath
     
     let template = Path.Combine(templateDir, "Template.wproj")
-    let args = sprintf "generate-soundbank \"%s\" --platform \"Windows\" --language \"English(US)\" --no-decode --quiet" template
+    let args = sprintf """generate-soundbank "%s" --platform "Windows" --language "English(US)" --no-decode --quiet""" template
     
     let startInfo = ProcessStartInfo(FileName = cliPath, Arguments = args, CreateNoWindow = true, RedirectStandardOutput = true)
     use wwiseCli = new Process(StartInfo = startInfo)
