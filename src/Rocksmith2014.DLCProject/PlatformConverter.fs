@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.PlatformConverter
+﻿module Rocksmith2014.DLCProject.PlatformConverter
 
 open Rocksmith2014.PSARC
 open Rocksmith2014.Common

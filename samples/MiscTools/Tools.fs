@@ -103,6 +103,7 @@ type Msg =
     | BatchConvertToSng of files:string array
     | UnpackPSARC of file:string
     | PackDirectoryPSARC of path:string
+    | ConvertPCtoMac of path:string
     | TouchPSARC of file:string
     | CreateManifest of file:string
     | ExtractSNGtoXML of file:string
@@ -181,6 +182,15 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
 
         | PackDirectoryPSARC path ->
             let t () = PSARC.PackDirectory(path, path + ".psarc", true)
+
+            state, Cmd.OfAsync.attempt t () Error
+
+        | ConvertPCtoMac file ->
+            let t () = async {
+                let targetFile = file.Replace("_p.psarc", "_m.psarc")
+                File.Copy (file, targetFile)
+                use psarc = PSARC.ReadFile targetFile
+                do! PlatformConverter.pcToMac psarc }
 
             state, Cmd.OfAsync.attempt t () Error
 
@@ -391,6 +401,11 @@ let view (state: State) dispatch =
             Button.create [
                 Button.onClick (fun _ -> ofdPsarc (ExtractSNGtoXML >> dispatch))
                 Button.content "Convert SNG to XML from PSARC..."
+            ]
+
+            Button.create [
+                Button.onClick (fun _ -> ofdPsarc (ConvertPCtoMac >> dispatch))
+                Button.content "Convert PC to Mac..."
             ]
 
             TextBlock.create [
