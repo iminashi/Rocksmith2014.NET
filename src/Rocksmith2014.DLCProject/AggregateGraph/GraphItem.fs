@@ -41,6 +41,13 @@ module GraphItem =
         let path = sprintf "%s/%s.%s" canonical name extension
         make name canonical tags path (Some path)
 
+    /// Creates a graph item for an SNG file.
+    let sng name platform =
+        let canonical = sprintf "/songs/bin/%s" (Platform.getPath platform Platform.Path.SNG)
+        let rp = sprintf "%s/%s.sng" canonical name
+        let lp = sprintf "/songs/bin/%s.sng" name |> Some
+        make name canonical [ Tag.Application; Tag.MusicgameSong; if platform = Mac then Tag.MacOS ] rp lp
+
     /// Creates a graph item for a DDS image.
     let dds name canonical = llid name canonical "dds" [ Tag.DDS; Tag.Image ]
     

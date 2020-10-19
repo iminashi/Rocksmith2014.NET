@@ -85,7 +85,7 @@ let someTests =
 
         Expect.equal item.Canonical "/songs/bin/generic" "Canonical is correct"
         Expect.equal item.RelPath "/songs/bin/generic/sometest_lead.sng" "Relative path is correct"
-        Expect.equal (Option.get item.LogPath) "/songs/bin/generic/sometest_lead.sng" "Logical path is correct" }
+        Expect.equal (Option.get item.LogPath) "/songs/bin/sometest_lead.sng" "Logical path is correct" }
 
     test "Graph items are created correctly: Lead arrangement JSON" { 
         let a = AggregateGraph.create PC project
