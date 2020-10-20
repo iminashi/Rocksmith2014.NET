@@ -67,6 +67,8 @@ let parse (text: string) =
 
     { Items =
         text.Split('\n')
+        // Aggregate graph files created by the Toolkit contain an empty line at the end.
+        |> Array.filter (String.IsNullOrWhiteSpace >> not)
         |> Array.map (fun line ->
             let m = Regex.Match(line, """<urn:uuid:([^>]+)> <http://emergent.net/aweb/1.0/([^>]+)> "([^"]+)"\.""")
             { UUID = m.Groups.[1].Value; TagType = m.Groups.[2].Value; Value = m.Groups.[3].Value })
