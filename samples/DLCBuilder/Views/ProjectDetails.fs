@@ -222,6 +222,7 @@ let view state dispatch =
                         NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                         NumericUpDown.minimum -45.
                         NumericUpDown.maximum 45.
+                        NumericUpDown.increment 0.5
                         NumericUpDown.value state.Project.AudioFile.Volume
                         NumericUpDown.formatString "F1"
                         NumericUpDown.onValueChanged (fun v -> (fun p -> { p with AudioFile = { p.AudioFile with Volume = v } }) |> EditProject |> dispatch)
@@ -269,6 +270,7 @@ let view state dispatch =
                         NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                         NumericUpDown.minimum -45.
                         NumericUpDown.maximum 45.
+                        NumericUpDown.increment 0.5
                         NumericUpDown.value state.Project.AudioPreviewFile.Volume
                         NumericUpDown.formatString "F1"
                         NumericUpDown.onValueChanged (fun v -> (fun p -> { p with AudioPreviewFile = { p.AudioPreviewFile with Volume = v } }) |> EditProject |> dispatch)
