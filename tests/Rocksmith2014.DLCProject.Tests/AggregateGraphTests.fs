@@ -48,16 +48,6 @@ let project =
 let someTests =
   testList "Aggregate Graph Tests" [
 
-    test "Can be serialized" {
-        use stream = new MemoryStream()
-        AggregateGraph.create PC project
-        |> AggregateGraph.serialize stream
-
-        stream.Position <- 0L
-        let str = using (new StreamReader(stream)) (fun reader -> reader.ReadToEnd())
-
-        Expect.isNotEmpty str "Aggregate graph string is not empty" }
-
     test "Graph items are created correctly: Main sound bank (PC)" { 
         let a = AggregateGraph.create PC project
         let bnk = a.Items |> List.find (fun x -> x.Name = "song_sometest")
@@ -147,4 +137,16 @@ let someTests =
         Expect.equal item.Canonical "/manifests/songs_dlc_sometest" "Canonical is correct"
         Expect.equal item.RelPath "/manifests/songs_dlc_sometest/songs_dlc_sometest.hsan" "Relative path is correct"       
         Expect.sequenceEqual item.Tags [ "database"; "hsan-db" ] "Has correct tags" }
+
+    test "Can be parsed from a string" {
+        use stream = new MemoryStream()
+        let graph = AggregateGraph.create PC project
+        AggregateGraph.serialize stream graph
+
+        stream.Position <- 0L
+        let str = using (new StreamReader(stream)) (fun reader -> reader.ReadToEnd())
+        let parsed = AggregateGraph.parse str
+
+        Expect.equal graph parsed "Parsed graph is equal to serialized graph."
+    }
   ]

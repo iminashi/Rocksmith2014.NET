@@ -4,6 +4,8 @@ open Rocksmith2014.DLCProject
 open Rocksmith2014.Common
 open System.IO
 open System.Text
+open System.Text.RegularExpressions
+open System
 
 type Graph = { Items: GraphItem list }
 
@@ -56,3 +58,25 @@ let serialize (output: Stream) (graph: Graph) =
     |> List.iteri (fun i item ->
         if i <> 0 then writer.WriteLine()
         GraphItem.write writer item)
+
+type private ParsedLine = { UUID : string; TagType : string; Value : string }
+
+/// Parses an aggregate graph from a string.
+let parse (text: string) =
+    let findTagType tt x =  if x.TagType = tt then Some x.Value else None
+
+    { Items =
+        text.Split('\n')
+        |> Array.map (fun line ->
+            let m = Regex.Match(line, """<urn:uuid:([^>]+)> <http://emergent.net/aweb/1.0/([^>]+)> "([^"]+)"\.""")
+            { UUID = m.Groups.[1].Value; TagType = m.Groups.[2].Value; Value = m.Groups.[3].Value })
+        |> Array.groupBy (fun x -> x.UUID)
+        |> Array.map (fun (uuid, values) ->
+            { UUID = Guid.Parse uuid
+              LLID = values |> Array.tryPick (findTagType "llid") |> Option.map Guid.Parse
+              Tags = values |> Array.choose (findTagType "tag") |> List.ofArray
+              Canonical = Array.pick (findTagType "canonical") values
+              Name = Array.pick (findTagType "name") values
+              RelPath = Array.pick (findTagType "relpath") values
+              LogPath= Array.tryPick (findTagType "logpath") values })
+        |> List.ofArray }
