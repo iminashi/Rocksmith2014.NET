@@ -75,10 +75,10 @@ let parse (text: string) =
         |> Array.groupBy (fun x -> x.UUID)
         |> Array.map (fun (uuid, values) ->
             { UUID = Guid.Parse uuid
-              LLID = values |> Array.tryPick (findTagType "llid") |> Option.map Guid.Parse
-              Tags = values |> Array.choose (findTagType "tag") |> List.ofArray
-              Canonical = Array.pick (findTagType "canonical") values
-              Name = Array.pick (findTagType "name") values
-              RelPath = Array.pick (findTagType "relpath") values
-              LogPath= Array.tryPick (findTagType "logpath") values })
+              LLID = values |> Array.tryPick (findTagType TagType.LLID) |> Option.map Guid.Parse
+              Tags = values |> Array.choose (findTagType TagType.Tag) |> List.ofArray
+              Canonical = Array.pick (findTagType TagType.Canonical) values
+              Name = Array.pick (findTagType TagType.Name) values
+              RelPath = Array.pick (findTagType TagType.RelPath) values
+              LogPath = Array.tryPick (findTagType TagType.LogPath) values })
         |> List.ofArray }
