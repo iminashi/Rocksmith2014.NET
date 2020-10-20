@@ -11,7 +11,7 @@ open Avalonia.FuncUI.Components.Hosts
 type MainWindow() as this =
     inherit HostWindow()
     do
-        base.Title <- "TestApp"
+        base.Title <- "Tools"
         base.Width <- 800.0
         base.Height <- 700.0
         
