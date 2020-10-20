@@ -104,7 +104,6 @@ type Msg =
     | UnpackPSARC of file:string
     | PackDirectoryPSARC of path:string
     | ConvertPCtoMac of path:string
-    | TouchPSARC of file:string
     | CreateManifest of file:string
     | ExtractSNGtoXML of file:string
     | ChangePlatform of Platform
@@ -174,25 +173,22 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                 do! psarc.ExtractFiles dir }
             state, Cmd.OfAsync.attempt t () Error
 
-        | TouchPSARC file ->
-            let t () = async {
-                use psarc = PSARC.ReadFile file
-                do! psarc.Edit({ Mode = InMemory; EncyptTOC = true }, ignore) }
-            state, Cmd.OfAsync.attempt t () Error
-
         | PackDirectoryPSARC path ->
             let t () = PSARC.PackDirectory(path, path + ".psarc", true)
 
             state, Cmd.OfAsync.attempt t () Error
 
         | ConvertPCtoMac file ->
-            let t () = async {
-                let targetFile = file.Replace("_p.psarc", "_m.psarc")
-                File.Copy (file, targetFile)
-                use psarc = PSARC.ReadFile targetFile
-                do! PlatformConverter.pcToMac psarc }
+            if not <| file.EndsWith("_p.psarc") then
+                { state with Status = "Filename has to end in _p.psarc." }, Cmd.none
+            else
+                let t () = async {
+                    let targetFile = file.Replace("_p.psarc", "_m.psarc")
+                    File.Copy (file, targetFile)
+                    use psarc = PSARC.ReadFile targetFile
+                    do! PlatformConverter.pcToMac psarc }
 
-            state, Cmd.OfAsync.attempt t () Error
+                state, Cmd.OfAsync.attempt t () Error
 
         | CreateManifest file ->
             let arrangement =
@@ -381,11 +377,6 @@ let view (state: State) dispatch =
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
                 TextBlock.text "PSARC"
-            ]
-
-            Button.create [
-                Button.onClick (fun _ -> ofdPsarc (TouchPSARC >> dispatch))
-                Button.content "Touch PSARC File..."
             ]
 
             Button.create [
