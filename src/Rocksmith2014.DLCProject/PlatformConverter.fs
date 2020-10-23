@@ -5,6 +5,7 @@ open Rocksmith2014.Common
 open Rocksmith2014.SNG
 open System.IO
 
+/// Replaces PC specific paths and tags with Mac versions.
 let convertGraph (data: Stream) =
     let text = using (new StreamReader(data)) (fun reader -> reader.ReadToEnd())
     let newText = text.Replace("bin/generic", "bin/macos")
@@ -15,6 +16,7 @@ let convertGraph (data: Stream) =
     writer.Write newText
     newData
 
+/// Changes the encoding of an SNG from PC to Mac platform.
 let convertSNG (data: Stream) = async {
     use unpacked = MemoryStreamPool.Default.GetStream()
     do! SNG.unpack data unpacked PC
@@ -22,6 +24,7 @@ let convertSNG (data: Stream) = async {
     data.SetLength 0L
     do! SNG.pack unpacked data Mac }
 
+/// Converts a PSARC from PC to Mac platform.
 let pcToMac (psarc: PSARC) = async {
     do! psarc.Edit({ Mode = InMemory; EncyptTOC = true }, fun entries ->
         let updated =
