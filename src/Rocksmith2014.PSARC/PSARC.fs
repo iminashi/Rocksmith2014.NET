@@ -12,7 +12,7 @@ open Rocksmith2014.Common.BinaryWriters
 
 type EditMode = InMemory | TempFiles
 
-type EditOptions = { Mode: EditMode; EncyptTOC: bool }
+type EditOptions = { Mode: EditMode; EncryptTOC: bool }
 
 type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, blockSizeTable: uint32[]) =
     static let getZType (header: Header) =
@@ -226,11 +226,11 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         let zType = getZType header
         header.ToCLength <- uint (Header.Length + protoEntries.Length * int header.ToCEntrySize + blockTable.Length * zType)
         header.ToCEntryCount <- uint protoEntries.Length
-        header.ArchiveFlags <- if options.EncyptTOC then 4u else 0u
+        header.ArchiveFlags <- if options.EncryptTOC then 4u else 0u
         header.Write writer
 
         // Update and write TOC entries
-        updateToc protoEntries blockTable zType options.EncyptTOC
+        updateToc protoEntries blockTable zType options.EncryptTOC
 
         // Write the data to the source stream
         for dataEntry in data do
@@ -249,7 +249,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     /// Creates a new PSARC into the given stream using the creation function.
     static member Create(stream, encrypt, createFun) = async {
-        let options = { Mode = InMemory; EncyptTOC = encrypt }
+        let options = { Mode = InMemory; EncryptTOC = encrypt }
         use psarc = PSARC.CreateEmpty(stream)
         do! psarc.Edit(options, createFun) }
 

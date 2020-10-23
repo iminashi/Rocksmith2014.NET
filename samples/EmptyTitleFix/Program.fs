@@ -35,7 +35,7 @@ let fixJson entry =
 let fixManifests (psarcs: seq<PSARC>) =
     psarcs
     |> Seq.iter (fun psarc ->
-        psarc.Edit({ Mode = InMemory; EncyptTOC = true }, (fun namedEntries ->
+        psarc.Edit({ Mode = InMemory; EncryptTOC = true }, (fun namedEntries ->
             let updatedManifests =
                 namedEntries
                 |> List.ofSeq

@@ -11,7 +11,7 @@ let copyToMemory (fileName: string) = async {
     memory.Position <- 0L
     return memory }
 
-let options = { Mode = InMemory; EncyptTOC = true }
+let options = { Mode = InMemory; EncryptTOC = true }
 
 [<Tests>]
 let someTests =
