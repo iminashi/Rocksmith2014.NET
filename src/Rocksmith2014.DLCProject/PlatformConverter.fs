@@ -26,7 +26,7 @@ let convertSNG (data: Stream) = async {
 
 /// Converts a PSARC from PC to Mac platform.
 let pcToMac (psarc: PSARC) = async {
-    do! psarc.Edit({ Mode = InMemory; EncryptTOC = true }, fun entries ->
+    do! psarc.Edit(EditOptions.Default, fun entries ->
         let updated =
             List.ofSeq entries
             |> List.map (fun e ->

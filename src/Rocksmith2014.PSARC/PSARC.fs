@@ -12,7 +12,10 @@ open Rocksmith2014.Common.BinaryWriters
 
 type EditMode = InMemory | TempFiles
 
-type EditOptions = { Mode: EditMode; EncryptTOC: bool }
+type EditOptions =
+    { Mode: EditMode; EncryptTOC: bool }
+
+    static member Default = { Mode = InMemory; EncryptTOC = true }
 
 type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, blockSizeTable: uint32[]) =
     static let getZType (header: Header) =
