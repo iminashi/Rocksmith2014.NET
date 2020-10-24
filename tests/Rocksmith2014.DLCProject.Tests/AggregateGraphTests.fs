@@ -133,6 +133,15 @@ let someTests =
         Expect.equal (Option.get item.LogPath) "/gfxassets/album_art/album_sometest_256.dds" "Logical path is correct"
         Expect.sequenceEqual item.Tags [ "dds"; "image" ] "Has correct tags" }
 
+    test "Graph items are created correctly: Custom font" { 
+        let a = AggregateGraph.create PC project
+        let item = a.Items |> List.find (fun x -> x.Name = "lyrics_sometest")
+
+        Expect.equal item.Canonical "/assets/ui/lyrics/sometest" "Canonical is correct"
+        Expect.equal item.RelPath "/assets/ui/lyrics/sometest/lyrics_sometest.dds" "Relative path is correct"       
+        Expect.equal (Option.get item.LogPath) "/assets/ui/lyrics/sometest/lyrics_sometest.dds" "Logical path is correct"
+        Expect.sequenceEqual item.Tags [ "dds"; "image" ] "Has correct tags" }
+
     test "Graph items are created correctly: X-Block" { 
         let a = AggregateGraph.create PC project
         let item = a.Items |> List.find (fun x -> x.Name = "sometest")
