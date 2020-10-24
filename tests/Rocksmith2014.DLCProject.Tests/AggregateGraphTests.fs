@@ -57,7 +57,7 @@ let someTests =
         let str = using (new StreamReader(stream)) (fun reader -> reader.ReadToEnd())
 
         Expect.isFalse (str.Contains "\r\n") "Unix newline is used"
-        Expect.stringEnds str "." "Does end with a newline" }
+        Expect.stringEnds str "." "Does not end with a newline" }
 
     test "Can be parsed from a string" {
         use stream = new MemoryStream()
