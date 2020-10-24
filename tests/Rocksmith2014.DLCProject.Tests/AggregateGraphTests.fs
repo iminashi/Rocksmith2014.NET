@@ -67,7 +67,7 @@ let someTests =
         Expect.equal (Option.get bnk.LogPath) "/audio/song_sometest_preview.bnk" "Logical path is correct"
         Expect.sequenceEqual bnk.Tags [ "audio"; "wwise-sound-bank"; "macos" ] "Has correct tags" }
 
-    test "Graph items are created correctly: Lead arrangement SNG" { 
+    test "Graph items are created correctly: Lead arrangement SNG (PC)" { 
         let a = AggregateGraph.create PC project
         let item =
             a.Items
@@ -76,6 +76,17 @@ let someTests =
         Expect.equal item.Canonical "/songs/bin/generic" "Canonical is correct"
         Expect.equal item.RelPath "/songs/bin/generic/sometest_lead.sng" "Relative path is correct"
         Expect.equal (Option.get item.LogPath) "/songs/bin/sometest_lead.sng" "Logical path is correct" }
+
+    test "Graph items are created correctly: Lead arrangement SNG (Mac)" { 
+        let a = AggregateGraph.create Mac project
+        let item =
+            a.Items
+            |> List.find (fun x -> x.Name = "sometest_lead" && List.contains "musicgame-song" x.Tags)
+
+        Expect.equal item.Canonical "/songs/bin/macos" "Canonical is correct"
+        Expect.equal item.RelPath "/songs/bin/macos/sometest_lead.sng" "Relative path is correct"
+        Expect.equal (Option.get item.LogPath) "/songs/bin/sometest_lead.sng" "Logical path is correct"
+        Expect.sequenceEqual item.Tags [ "application"; "musicgame-song"; "macos" ] "Has correct tags" }
 
     test "Graph items are created correctly: Lead arrangement JSON" { 
         let a = AggregateGraph.create PC project
