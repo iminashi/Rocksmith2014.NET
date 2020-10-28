@@ -10,7 +10,7 @@ let someTests =
     test "Can infer a description" {
         let descriptors = ToneDescriptor.getDescriptionsOrDefault "tone_bass"
 
-        Expect.isNonEmpty descriptors "Descriptor array note empty"
+        Expect.isNonEmpty descriptors "Descriptor array is not empty"
         Expect.exists descriptors (fun x -> x.Name = "Bass") "Bass descriptor inferred" }
 
     test "Can infer a two part description" {
