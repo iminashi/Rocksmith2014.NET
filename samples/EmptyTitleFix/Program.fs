@@ -10,42 +10,30 @@ let makeManifestData manifest =
     async { do! Manifest.toJsonStream mem manifest } |> Async.RunSynchronously
     mem
 
-let fixHsan entry =
-    let headerData =
+let fixManifest entry =
+    let data =
         async { return! Manifest.fromJsonStream entry.Data }
         |> Async.RunSynchronously
 
-    headerData.Entries
+    data.Entries
     |> Map.iter (fun _ a -> a.Attributes.JapaneseSongName <- null)
 
-    { entry with Data = makeManifestData headerData }
-
-let fixJson entry =
-    let attrs =
-        async { return! Manifest.fromJsonStream entry.Data }
-        |> Async.RunSynchronously
-        |> Manifest.getSingletonAttributes
-
-    attrs.JapaneseSongName <- null
-    let newJson = Manifest.create [ attrs ]
-
-    { entry with Data = makeManifestData newJson }
+    { entry with Data = makeManifestData data }
 
 /// Fixes empty Japanese song names by setting the attribute to null in the manifests.
 let fixManifests (psarcs: seq<PSARC>) =
     psarcs
     |> Seq.iter (fun psarc ->
         psarc.Edit(EditOptions.Default, (fun namedEntries ->
-            let updatedManifests =
+            let updatedEntries =
                 namedEntries
                 |> List.ofSeq
                 |> List.map (fun entry ->
-                    if entry.Name.EndsWith "hsan" then fixHsan entry
-                    elif entry.Name.EndsWith "json" then fixJson entry
+                    if entry.Name.EndsWith "hsan" || entry.Name.EndsWith "json" then fixManifest entry
                     else entry)
 
             namedEntries.Clear()
-            namedEntries.AddRange updatedManifests))
+            namedEntries.AddRange updatedEntries))
         |> Async.RunSynchronously
         (psarc :> IDisposable).Dispose()
     )
