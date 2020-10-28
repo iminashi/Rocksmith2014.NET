@@ -5,20 +5,19 @@ open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open Rocksmith2014.DLCProject.Manifest
 
-let makeManifestData manifest =
+let makeManifestData manifest = async {
     let mem = MemoryStreamPool.Default.GetStream()
-    async { do! Manifest.toJsonStream mem manifest } |> Async.RunSynchronously
-    mem
+    do! Manifest.toJsonStream mem manifest 
+    return mem }
 
-let fixManifest entry =
-    let manifest =
-        async { return! Manifest.fromJsonStream entry.Data }
-        |> Async.RunSynchronously
+let fixManifest entry = async {
+    let! manifest = Manifest.fromJsonStream entry.Data 
 
     manifest.Entries
     |> Map.iter (fun _ a -> a.Attributes.JapaneseSongName <- null)
 
-    { entry with Data = makeManifestData manifest }
+    let! data = makeManifestData manifest
+    return { entry with Data = data } }
 
 /// Fixes empty Japanese song names by setting the attribute to null in the manifests.
 let fixManifests (psarcs: seq<PSARC>) =
@@ -29,7 +28,8 @@ let fixManifests (psarcs: seq<PSARC>) =
                 namedEntries
                 |> List.ofSeq
                 |> List.map (fun entry ->
-                    if entry.Name.EndsWith "hsan" || entry.Name.EndsWith "json" then fixManifest entry
+                    if entry.Name.EndsWith "hsan" || entry.Name.EndsWith "json" then
+                        fixManifest entry |> Async.RunSynchronously
                     else entry)
 
             namedEntries.Clear()
