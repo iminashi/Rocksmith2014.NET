@@ -108,11 +108,11 @@ let sngToXml (attr: Manifest.Attributes option) (sng: SNG) =
     arr.Tones.Changes <- tones
 
     attr |> Option.iter (fun attr ->
-        if not <| String.IsNullOrWhiteSpace attr.Tone_Base then arr.Tones.BaseToneName <- attr.Tone_Base
-        if not <| String.IsNullOrWhiteSpace attr.Tone_A then arr.Tones.Names.[0] <- attr.Tone_A
-        if not <| String.IsNullOrWhiteSpace attr.Tone_B then arr.Tones.Names.[1] <- attr.Tone_B
-        if not <| String.IsNullOrWhiteSpace attr.Tone_C then arr.Tones.Names.[2] <- attr.Tone_C
-        if not <| String.IsNullOrWhiteSpace attr.Tone_D then arr.Tones.Names.[3] <- attr.Tone_D)
+        if String.notEmpty attr.Tone_Base then arr.Tones.BaseToneName <- attr.Tone_Base
+        if String.notEmpty attr.Tone_A then arr.Tones.Names.[0] <- attr.Tone_A
+        if String.notEmpty attr.Tone_B then arr.Tones.Names.[1] <- attr.Tone_B
+        if String.notEmpty attr.Tone_C then arr.Tones.Names.[2] <- attr.Tone_C
+        if String.notEmpty attr.Tone_D then arr.Tones.Names.[3] <- attr.Tone_D)
 
     arr
 
