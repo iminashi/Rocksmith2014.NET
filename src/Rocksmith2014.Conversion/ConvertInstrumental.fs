@@ -117,7 +117,7 @@ let sngToXml (attr: Manifest.Attributes option) (sng: SNG) =
     arr
 
 /// Adds the string masks from a section to the one before it.
-let processStringMasks (stringMasks: int8[][]) (maxDiff: int) =
+let private processStringMasks (stringMasks: int8[][]) (maxDiff: int) =
     for s = 0 to stringMasks.Length - 2 do
         for d = 0 to maxDiff - 1 do
             let mask = stringMasks.[s].[d]
