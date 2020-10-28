@@ -1,6 +1,6 @@
 # Libraries for Rocksmith 2014 CDLC
 
-.NET Core libraries for Rocksmith 2014 custom DLC creation. Based largely on the Song Creator Toolkit for Rocksmith.
+.NET Core libraries for Rocksmith 2014 custom DLC creation. Based largely on the [Song Creator Toolkit for Rocksmith](https://github.com/rscustom/rocksmith-custom-song-toolkit).
 
 ## Libraries
 
@@ -10,7 +10,7 @@ Contains various types and functions used by the other libraries. Also has funct
 
 ### XML
 
-For reading, editing and writing XML files. Originally created for DDC Improver.
+For reading, editing and writing XML files. Originally created for [DDC Improver](https://github.com/iminashi/DDCImprover).
 
 ### SNG
 
