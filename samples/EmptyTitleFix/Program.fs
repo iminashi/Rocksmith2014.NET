@@ -11,14 +11,14 @@ let makeManifestData manifest =
     mem
 
 let fixManifest entry =
-    let data =
+    let manifest =
         async { return! Manifest.fromJsonStream entry.Data }
         |> Async.RunSynchronously
 
-    data.Entries
+    manifest.Entries
     |> Map.iter (fun _ a -> a.Attributes.JapaneseSongName <- null)
 
-    { entry with Data = makeManifestData data }
+    { entry with Data = makeManifestData manifest }
 
 /// Fixes empty Japanese song names by setting the attribute to null in the manifests.
 let fixManifests (psarcs: seq<PSARC>) =
