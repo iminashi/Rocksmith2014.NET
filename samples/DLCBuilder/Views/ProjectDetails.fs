@@ -363,7 +363,7 @@ let view state dispatch =
                                 Button.margin 4.
                                 Button.fontSize 16.
                                 Button.content (state.Localization.GetString "buildTest")
-                                Button.isEnabled (canBuild && (not (String.IsNullOrWhiteSpace state.Config.TestFolderPath)))
+                                Button.isEnabled (canBuild && String.notEmpty state.Config.TestFolderPath)
                                 Button.onClick (fun _ -> BuildTest |> dispatch)
                             ]
                             Button.create [
