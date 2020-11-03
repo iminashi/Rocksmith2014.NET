@@ -3,6 +3,7 @@
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
+open Rocksmith2014.DLCProject.PackageBuilder
 open Rocksmith2014
 open Elmish
 open System.Runtime.InteropServices
@@ -485,9 +486,9 @@ let update (msg: Msg) (state: State) =
         | Error error ->
             { state with Overlay = ErrorMessage error }, Cmd.none
         | Ok _ ->
-            let testDir = state.Config.TestFolderPath
-            let path = IO.Path.Combine(testDir, state.Project.DLCKey.ToLowerInvariant())
-            let task () = PackageBuilder.buildPackages path [ state.CurrentPlatform ] state.Config.CharterName state.Project
+            let path = IO.Path.Combine(state.Config.TestFolderPath, state.Project.DLCKey.ToLowerInvariant())
+            let config = { Platforms = [ state.CurrentPlatform ]; Author = state.Config.CharterName; AppId = "248750" }
+            let task () = buildPackages path config state.Project
             { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
 
     | BuildRelease ->
@@ -503,7 +504,8 @@ let update (msg: Msg) (state: State) =
                 sprintf "%s_%s_v%s" state.Project.ArtistName.Value state.Project.Title.Value (state.Project.Version.Replace('.', '_'))
                 |> StringValidator.fileName
             let path = IO.Path.Combine(releaseDir, fn)
-            let task () = PackageBuilder.buildPackages path state.Config.ReleasePlatforms state.Config.CharterName state.Project
+            let config = { Platforms = state.Config.ReleasePlatforms; Author = state.Config.CharterName; AppId = "248750" }
+            let task () = buildPackages path config state.Project
             { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
 
     | BuildComplete _ -> { state with BuildInProgress = false }, Cmd.none

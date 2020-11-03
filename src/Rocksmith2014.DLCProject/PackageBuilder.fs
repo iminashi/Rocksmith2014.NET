@@ -1,7 +1,6 @@
-﻿module Rocksmith2014.PackageBuilder
+﻿module Rocksmith2014.DLCProject.PackageBuilder
 
 open Rocksmith2014.Common
-open Rocksmith2014.DLCProject
 open Rocksmith2014.DLCProject.Manifest
 open Rocksmith2014.DLCProject.Manifest.AttributesCreation
 open Rocksmith2014.XML
@@ -20,6 +19,11 @@ type private BuildData =
       Author: string
       AppId: string
       Partition: Arrangement -> int * string }
+
+type BuildConfig =
+    { Platforms: Platform list
+      Author: string
+      AppId: string }
 
 let private build (buildData: BuildData) targetFile project platform = async {
     let readFile = Utils.getFileStreamForRead
@@ -168,7 +172,7 @@ let private setupInstrumental part (inst: Instrumental) (xml: InstrumentalArrang
 
     xml
 
-let buildPackages (targetFile: string) (platforms: Platform list) (author: string) (project: DLCProject) = async {
+let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProject) = async {
     let key = project.DLCKey.ToLowerInvariant()
     let coverArt = DDS.createCoverArtImages project.AlbumArtFile
     let partition = Partitioner.create project
@@ -214,9 +218,9 @@ let buildPackages (targetFile: string) (platforms: Platform list) (author: strin
             let arrangements = sl::project.Arrangements
             { project with Arrangements = arrangements }
 
-    let data = { SNGs = sngs; CoverArtFiles = coverArt; Author = author; AppId = "248750"; Partition = partition }
+    let data = { SNGs = sngs; CoverArtFiles = coverArt; Author = config.Author; AppId = config.AppId; Partition = partition }
 
-    do! platforms
+    do! config.Platforms
         |> List.map (build data targetFile project)
         |> Async.Parallel
         |> Async.Ignore
