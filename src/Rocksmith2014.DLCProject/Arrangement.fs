@@ -66,14 +66,12 @@ type Arrangement =
                     " (Picked)"
                 else
                     String.Empty
+
             let tuning =
-                let roots = [| "E"; "F"; "F#"; "G"; "Ab"; "A"; "Bb"; "B"; "C"; "C#"; "D"; "Eb" |]
-                let first = inst.Tuning.[0]
-                if first > -11s && first < 3s && inst.Tuning |> Array.forall ((=) first) then
-                    let i = int (first + 12s) % 12
-                    " [" + roots.[i] + " Standard]"
-                else
-                    String.Empty
+                let t = Utils.getTuningString inst.Tuning
+                let p = if inst.TuningPitch <> 440.0 then " " + inst.TuningPitch.ToString() else String.Empty
+                if t.Length > 0 then " [" + t + p + "]" else String.Empty
+
             sprintf "%s%s%s%s" prefix (string inst.RouteMask) extra tuning
 
         | Vocals v ->
@@ -86,7 +84,6 @@ type Arrangement =
             sprintf "%sVocals%s" prefix extra
 
         | Showlights _ -> "Show Lights"
-
 
 module Arrangement =
     let getMasterId = function
