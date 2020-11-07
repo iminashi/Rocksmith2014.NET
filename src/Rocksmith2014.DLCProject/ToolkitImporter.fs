@@ -12,97 +12,101 @@ let private optionalString (node: XmlNode) name =
     |> Option.ofObj
     |> Option.bind (fun x -> Option.ofString x.InnerText)
 
+/// Imports an instrumental arrangement.
+let private importInstrumental (xmlFile: string) (arr: XmlNode) =
+    let priority =
+        try
+            let arrProp = arr.Item("ArrangementPropeties")
+            if isNull arrProp then
+                if arr.Item("BonusArr").InnerText = "true" then ArrangementPriority.Bonus
+                else ArrangementPriority.Main
+            else
+                let tryGetPriority ns =
+                    let represent =
+                        let r = arr.Item("Represent")
+                        not (isNull r) && r.InnerText = "true"
+                    if arrProp.Item("Represent", ns).InnerText = "1" || represent then ArrangementPriority.Main
+                    elif arrProp.Item("BonusArr", ns).InnerText = "1" || arr.Item("BonusArr").InnerText = "true" then ArrangementPriority.Bonus
+                    else ArrangementPriority.Alternative
+
+                // The XML namespace was renamed at some point.
+                try tryGetPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.XML"
+                with _ -> tryGetPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.Xml"
+        with _ -> ArrangementPriority.Main
+
+    let name =
+        let n = arr.Item "Name"
+        (if isNull n then arr.Item "ArrangementName" else n).InnerText
+        |> ArrangementName.Parse
+
+    let isPicked =
+        name = ArrangementName.Bass
+        &&
+        arr.Item("PluckedType").InnerText <> "NotPicked"
+
+    let tuning =
+        arr.Item("TuningStrings").ChildNodes
+        |> Seq.cast<XmlNode>
+        |> Seq.map (fun x -> int16 x.InnerText)
+        |> Seq.toArray
+
+    let tones =
+        [ for t in 'A'..'D' -> Option.ofString (arr.Item(sprintf "Tone%c" t).InnerText) ]
+        |> List.choose id
+
+    { XML = xmlFile
+      Name = name
+      RouteMask = RouteMask.Parse(arr.Item("RouteMask").InnerText)
+      Priority = priority
+      ScrollSpeed = float (arr.Item("ScrollSpeed").InnerText) / 10.
+      BassPicked = isPicked
+      Tuning = tuning
+      TuningPitch = float (arr.Item("TuningPitch").InnerText)
+      BaseTone = arr.Item("ToneBase").InnerText
+      Tones = tones
+      MasterID = int (arr.Item("MasterId").InnerText)
+      PersistentID = Guid.Parse(arr.Item("Id").InnerText) }
+    |> Instrumental
+
+/// Imports a vocals arrangement.
+let private importVocals (xmlFile: string) (arr: XmlNode) =
+    let isJapanese =
+        let n = arr.Item("Name")
+        (if isNull n then arr.Item("ArrangementName") else n).InnerText = "JVocals"
+
+    let customFont =
+        let lyricsArtPath = arr.Item "LyricsArtPath"
+        if not <| isNull lyricsArtPath then
+            Option.ofString lyricsArtPath.InnerText
+        else
+            let lyricArt = arr.Item "LyricArt"
+            if not <| isNull lyricArt then
+                Option.ofString lyricArt.InnerText  
+            else
+                let glyphDefs =
+                    let a = arr.Item "GlyphDefinitons" // sic
+                    if isNull a then arr.Item "GlyphDefinitions" else a
+                if isNull glyphDefs || glyphDefs.IsEmpty then
+                    None
+                else
+                    // x.glyphs.xml -> x.dds
+                    Some (Path.GetFileNameWithoutExtension (Path.GetFileNameWithoutExtension glyphDefs.InnerText) + ".dds")                 
+        
+    { XML = xmlFile
+      Japanese = isJapanese 
+      CustomFont = customFont
+      MasterID = int (arr.Item("MasterId").InnerText)
+      PersistentID = Guid.Parse(arr.Item("Id").InnerText) }
+    |> Vocals
+
+/// Imports an arrangement from the Toolkit template.
 let private importArrangement (arr: XmlNode) =
     let xml = arr.Item("SongXml").Item("File", "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.AggregateGraph").InnerText
 
     match (arr.Item "ArrangementType").InnerText with
-    | "Guitar" | "Bass" ->
-        let priority =
-            try
-                let arrProp = arr.Item("ArrangementPropeties")
-                if isNull arrProp then
-                    if arr.Item("BonusArr").InnerText = "true" then ArrangementPriority.Bonus
-                    else ArrangementPriority.Main
-                else
-                    let tryGetPriority ns =
-                        let represent =
-                            let r = arr.Item("Represent")
-                            not (isNull r) && r.InnerText = "true"
-                        if arrProp.Item("Represent", ns).InnerText = "1" || represent then ArrangementPriority.Main
-                        elif arrProp.Item("BonusArr", ns).InnerText = "1" || arr.Item("BonusArr").InnerText = "true" then ArrangementPriority.Bonus
-                        else ArrangementPriority.Alternative
-
-                    // The XML namespace was renamed at some point.
-                    try tryGetPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.XML"
-                    with _ -> tryGetPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.Xml"
-            with _ -> ArrangementPriority.Main
-
-        let name =
-            let n = arr.Item "Name"
-            (if isNull n then arr.Item "ArrangementName" else n).InnerText
-            |> ArrangementName.Parse
-
-        let isPicked =
-            name = ArrangementName.Bass
-            &&
-            arr.Item("PluckedType").InnerText <> "NotPicked"
-
-        let tuning =
-            arr.Item("TuningStrings").ChildNodes
-            |> Seq.cast<XmlNode>
-            |> Seq.map (fun x -> int16 x.InnerText)
-            |> Seq.toArray
-
-        let tones =
-            [ for t in 'A'..'D' -> Option.ofString (arr.Item(sprintf "Tone%c" t).InnerText) ]
-            |> List.choose id
-
-        { XML = xml
-          Name = name
-          RouteMask = RouteMask.Parse(arr.Item("RouteMask").InnerText)
-          Priority = priority
-          ScrollSpeed = float (arr.Item("ScrollSpeed").InnerText) / 10.
-          BassPicked = isPicked
-          Tuning = tuning
-          TuningPitch = float (arr.Item("TuningPitch").InnerText)
-          BaseTone = arr.Item("ToneBase").InnerText
-          Tones = tones
-          MasterID = int (arr.Item("MasterId").InnerText)
-          PersistentID = Guid.Parse(arr.Item("Id").InnerText) }
-        |> Instrumental
-
-    | "Vocal" ->
-        let isJapanese =
-            let n = arr.Item("Name")
-            (if isNull n then arr.Item("ArrangementName") else n).InnerText = "JVocals"
-
-        let customFont =
-            let lyricsArtPath = arr.Item "LyricsArtPath"
-            if not <| isNull lyricsArtPath then
-                Option.ofString lyricsArtPath.InnerText
-            else
-                let lyricArt = arr.Item "LyricArt"
-                if not <| isNull lyricArt then
-                    Option.ofString lyricArt.InnerText  
-                else
-                    let glyphDefs =
-                        let a = arr.Item "GlyphDefinitons" // sic
-                        if isNull a then arr.Item "GlyphDefinitions" else a
-                    if isNull glyphDefs || glyphDefs.IsEmpty then
-                        None
-                    else
-                        // x.glyphs.xml -> x.dds
-                        Some (Path.GetFileNameWithoutExtension (Path.GetFileNameWithoutExtension glyphDefs.InnerText) + ".dds")                 
-            
-        { XML = xml
-          Japanese = isJapanese 
-          CustomFont = customFont
-          MasterID = int (arr.Item("MasterId").InnerText)
-          PersistentID = Guid.Parse(arr.Item("Id").InnerText) }
-        |> Vocals
-
+    | "Guitar" | "Bass" -> importInstrumental xml arr
+    | "Vocal" -> importVocals xml arr
     | "ShowLight" -> Showlights { XML = xml }
-
     | unknown -> failwith (sprintf "Unknown arrangement type: %s" unknown)
 
 /// Converts a Toolkit template from the given path into a DLCProject.
