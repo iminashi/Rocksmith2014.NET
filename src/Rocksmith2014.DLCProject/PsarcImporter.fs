@@ -23,28 +23,26 @@ let import (psarcPath: string) (targetDirectory: string) = async {
         if Path.GetFileNameWithoutExtension(psarcPath).EndsWith("_p") then PC else Mac
 
     use psarc = PSARC.ReadFile(psarcPath)
-    let psarcContents = psarc.Manifest
+    let psarcContents = List.ofSeq psarc.Manifest
 
     let artFile =
         psarcContents
-        |> Seq.find (fun x -> x.EndsWith "256.dds")
+        |> List.find (fun x -> x.EndsWith "256.dds")
     do! psarc.InflateFile(artFile, Path.Combine(targetDirectory, "cover.dds"))
 
     let showlights =
         psarcContents
-        |> Seq.find (fun x -> x.Contains "showlights")
+        |> List.find (fun x -> x.Contains "showlights")
     do! psarc.InflateFile(showlights, Path.Combine(targetDirectory, "arr_showlights.xml"))
 
     let audioFiles =
         psarcContents
-        |> Seq.filter (fun x -> x.EndsWith "wem")
+        |> List.filter (fun x -> x.EndsWith "wem")
 
-    if Seq.length audioFiles > 2 then failwith "Package contains more than 2 audio files."
+    if audioFiles.Length > 2 then failwith "Package contains more than 2 audio files."
 
     do! audioFiles
-        |> Seq.mapi (fun i x -> async {
-            do! psarc.InflateFile(x, Path.Combine(targetDirectory, sprintf "%i.wem" i))
-        })
+        |> List.mapi (fun i x -> psarc.InflateFile(x, Path.Combine(targetDirectory, sprintf "%i.wem" i)))
         |> Async.Sequential
         |> Async.Ignore
 
@@ -59,8 +57,8 @@ let import (psarcPath: string) (targetDirectory: string) = async {
 
     let! sngs =
         psarcContents
-        |> Seq.filter (fun x -> x.EndsWith "sng")
-        |> Seq.map (fun file -> async {
+        |> List.filter (fun x -> x.EndsWith "sng")
+        |> List.map (fun file -> async {
             use mem = MemoryStreamPool.Default.GetStream()
             do! psarc.InflateFile(file, mem)
             let! sng = SNG.fromStream mem platform
@@ -69,8 +67,8 @@ let import (psarcPath: string) (targetDirectory: string) = async {
 
     let! manifests =
         psarcContents
-        |> Seq.filter (fun x -> x.EndsWith "json")
-        |> Seq.map (fun file -> async {
+        |> List.filter (fun x -> x.EndsWith "json")
+        |> List.map (fun file -> async {
             use mem = MemoryStreamPool.Default.GetStream()
             do! psarc.InflateFile(file, mem)
             let! manifest = Manifest.fromJsonStream(mem)
@@ -80,7 +78,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
     let! customFont = async {
         let font =
             psarcContents
-            |> Seq.tryFind (fun x -> x.Contains "assets/ui/lyrics")
+            |> List.tryFind (fun x -> x.Contains "assets/ui/lyrics")
         match font with
         | Some font ->
             let fn = Path.Combine(targetDirectory, "lyrics.dds")
@@ -162,10 +160,9 @@ let import (psarcPath: string) (targetDirectory: string) = async {
 
     let previewBank, mainBank =
         psarcContents
-        |> Seq.filter (fun x -> x.EndsWith "bnk")
-        |> Seq.toArray
-        |> Array.partition (fun x -> x.Contains "preview")
-        |> fun (prev, main) -> Array.head prev, Array.head main
+        |> List.filter (fun x -> x.EndsWith "bnk")
+        |> List.partition (fun x -> x.Contains "preview")
+        |> fun (prev, main) -> List.head prev, List.head main
 
     let! mainVolume = getVolume psarc platform mainBank
     let! previewVolume = getVolume psarc platform previewBank
@@ -185,7 +182,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
     let! version = async {
         let tkVer =
             psarcContents
-            |> Seq.tryFind ((=) "toolkit.version")
+            |> List.tryFind ((=) "toolkit.version")
         match tkVer with
         | Some tk ->
             use mem = MemoryStreamPool.Default.GetStream()
