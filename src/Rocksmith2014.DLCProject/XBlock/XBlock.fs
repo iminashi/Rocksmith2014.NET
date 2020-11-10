@@ -57,24 +57,24 @@ let create (platform: Platform) (project: DLCProject) =
 
                 let properties = [|
                     match platform with
-                    | PC | Mac -> Property.Create("Header", sprintf "urn:database:hsan-db:songs_dlc_%s" dlcName)
-                    Property.Create("Manifest", sprintf "urn:database:json-db:%s_%s" dlcName fileName)
-                    Property.Create("SngAsset", sprintf "urn:application:musicgame-song:%s_%s" dlcName fileName)
-                    Property.Create("AlbumArtSmall", sprintf "urn:image:dds:album_%s_64" dlcName)
-                    Property.Create("AlbumArtMedium", sprintf "urn:image:dds:album_%s_128" dlcName)
-                    Property.Create("AlbumArtLarge", sprintf "urn:image:dds:album_%s_256" dlcName)
+                    | PC | Mac -> Property.Create("Header", $"urn:database:hsan-db:songs_dlc_{dlcName}")
+                    Property.Create("Manifest", $"urn:database:json-db:{dlcName}_{fileName}")
+                    Property.Create("SngAsset", $"urn:application:musicgame-song:{dlcName}_{fileName}")
+                    Property.Create("AlbumArtSmall", $"urn:image:dds:album_{dlcName}_64")
+                    Property.Create("AlbumArtMedium", $"urn:image:dds:album_{dlcName}_128")
+                    Property.Create("AlbumArtLarge", $"urn:image:dds:album_{dlcName}_256")
                     let lyricArt = 
                         match arr with
-                        | Vocals { CustomFont = Some _ } -> sprintf "urn:image:dds:lyrics_%s" dlcName
+                        | Vocals { CustomFont = Some _ } -> $"urn:image:dds:lyrics_{dlcName}" 
                         | _ -> String.Empty
                     Property.Create("LyricArt", lyricArt)
-                    Property.Create("ShowLightsXMLAsset", sprintf "urn:application:xml:%s_showlights" dlcName)
-                    Property.Create("SoundBank", sprintf "urn:audio:wwise-sound-bank:song_%s" dlcName)
-                    Property.Create("PreviewSoundBank", sprintf "urn:audio:wwise-sound-bank:song_%s_preview" dlcName) |]
+                    Property.Create("ShowLightsXMLAsset", $"urn:application:xml:{dlcName}_showlights")
+                    Property.Create("SoundBank", $"urn:audio:wwise-sound-bank:song_{dlcName}" )
+                    Property.Create("PreviewSoundBank", $"urn:audio:wwise-sound-bank:song_{dlcName}_preview") |]
 
                 { Id = (Arrangement.getPersistentId arr).ToString("N")
                   ModelName = "RSEnumerable_Song"
-                  Name = sprintf "%s_%s" project.DLCKey (Arrangement.getName arr false)
+                  Name = $"{project.DLCKey}_{Arrangement.getName arr false}"
                   Iterations = 0
                   Properties = properties }
                 |> Some) }
