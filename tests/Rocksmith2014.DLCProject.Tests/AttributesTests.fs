@@ -135,4 +135,15 @@ let attributeTests =
         Expect.equal attr.ShowlightsXML "urn:application:xml:sometest_showlights" "ShowlightsXML is correct"
         Expect.equal attr.SongAsset "urn:application:musicgame-song:sometest_lead" "SongAsset is correct"
         Expect.equal attr.SongXml "urn:application:xml:sometest_lead" "SongXml is correct"
+
+    testCase "Various attributes are correct (Instrumental)" <| fun _ ->
+        let project = { testProject with Arrangements = [ Instrumental testLead ] }
+
+        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+
+        Expect.equal attr.MasterID_RDV 12345 "MasterID is correct"
+        Expect.equal attr.FullName "SomeTest_Lead" "FullName is correct"
+        Expect.equal attr.PreviewBankPath "song_sometest_preview.bnk" "PreviewBankPath is correct"
+        Expect.equal attr.SongBank "song_sometest.bnk" "SongBank is correct"
+        Expect.equal attr.SongEvent "Play_SomeTest" "SongEvent is correct"
   ]
