@@ -42,7 +42,7 @@ let testLead =
       PersistentID = Guid.NewGuid() }
 
 [<Tests>]
-let someTests =
+let attributeTests =
   testList "Attribute Tests" [
 
     testCase "Partition is set correctly" <| fun _ ->
@@ -119,8 +119,20 @@ let someTests =
 
         let attr = createAttributes project (FromInstrumental (testLead, testSng))
 
-        Expect.equal testLead.BaseTone "Base_Tone" "Base tone name is correct"
+        Expect.equal attr.Tone_Base "Base_Tone" "Base tone name is correct"
         Expect.equal attr.Tone_A "Tone_1" "Tone A name is correct"
         Expect.equal attr.Tone_B "Tone_2" "Tone B name is correct"
         Expect.equal attr.Tone_C "Tone_3" "Tone C name is correct"
+
+    testCase "URN attributes are correct" <| fun _ ->
+        let project = { testProject with Arrangements = [ Instrumental testLead ] }
+
+        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+
+        Expect.equal attr.AlbumArt "urn:image:dds:album_sometest" "AlbumArt is correct"
+        Expect.equal attr.ManifestUrn "urn:database:json-db:sometest_lead" "ManifestUrn is correct"
+        Expect.equal attr.BlockAsset "urn:emergent-world:sometest" "BlockAsset is correct"
+        Expect.equal attr.ShowlightsXML "urn:application:xml:sometest_showlights" "ShowlightsXML is correct"
+        Expect.equal attr.SongAsset "urn:application:musicgame-song:sometest_lead" "SongAsset is correct"
+        Expect.equal attr.SongXml "urn:application:xml:sometest_lead" "SongXml is correct"
   ]
