@@ -288,40 +288,40 @@ let private createTechniqueMap (sng: SNG) =
             
     techniques
 
-/// Initializes attributes that are common for all arrangements (manifest headers).
+/// Initializes attributes that are common to all arrangements (manifest headers).
 let private initBase name dlcKey (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
-    attr.AlbumArt <- sprintf "urn:image:dds:album_%s" dlcKey
+    attr.AlbumArt <- $"urn:image:dds:album_%s{dlcKey}" 
     attr.ArrangementName <- Arrangement.getName arrangement true
     attr.DLCKey <- project.DLCKey
     attr.JapaneseArtistName <- Option.toObj project.JapaneseArtistName
     attr.JapaneseSongName <- Option.toObj project.JapaneseTitle
     attr.JapaneseVocal <- getJapaneseVocal arrangement
-    attr.ManifestUrn <- sprintf "urn:database:json-db:%s_%s" dlcKey name
+    attr.ManifestUrn <- $"urn:database:json-db:%s{dlcKey}_%s{name}"
     attr.MasterID_RDV <- Arrangement.getMasterId arrangement
     attr.PersistentID <- (Arrangement.getPersistentId arrangement).ToString("N").ToUpperInvariant()
     attr.SongKey <- project.DLCKey
 
     attr
 
-/// Initializes attributes that are common all arrangements (non-headers).
+/// Initializes attributes that are common to all arrangements (non-headers).
 let private initAttributesCommon name dlcKey levels (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
     attr.ArrangementSort <- 0 // Always zero
-    attr.BlockAsset <- sprintf "urn:emergent-world:%s" dlcKey
+    attr.BlockAsset <- $"urn:emergent-world:{dlcKey}" 
     attr.DynamicVisualDensity <- createDynamicVisualDensity levels arrangement
-    attr.FullName <- sprintf "%s_%s" project.DLCKey (Arrangement.getName arrangement false)
+    attr.FullName <- $"{project.DLCKey}_{Arrangement.getName arrangement false}"
     attr.MasterID_PS3 <- -1
     attr.MasterID_XBox360 <- -1
-    attr.PreviewBankPath <- sprintf "song_%s_preview.bnk" dlcKey
+    attr.PreviewBankPath <- $"song_{dlcKey}_preview.bnk" 
     attr.RelativeDifficulty <- 0 // Always zero
-    attr.ShowlightsXML <- sprintf "urn:application:xml:%s_showlights" dlcKey
-    attr.SongAsset <- sprintf "urn:application:musicgame-song:%s_%s" dlcKey name
-    attr.SongBank <- sprintf "song_%s.bnk" dlcKey
-    attr.SongEvent <- sprintf "Play_%s" project.DLCKey
-    attr.SongXml <- sprintf "urn:application:xml:%s_%s" dlcKey name
+    attr.ShowlightsXML <- $"urn:application:xml:{dlcKey}_showlights" 
+    attr.SongAsset <- $"urn:application:musicgame-song:%s{dlcKey}_%s{name}"
+    attr.SongBank <- $"song_{dlcKey}.bnk" 
+    attr.SongEvent <- $"Play_{project.DLCKey}"
+    attr.SongXml <- $"urn:application:xml:{dlcKey}_{name}"
 
     attr
 
-/// Initializes attributes that are common for instrumental arrangement headers and non-headers.
+/// Initializes attributes that are common to instrumental arrangement headers and non-headers.
 let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Instrumental) (sng: SNG) (attr: Attributes) =
     let diffHard, diffMed, diffEasy = calculateDifficulties xmlMetaData sng
     let dnaChords, dnaRiffs, dnaSolo = calculateDNAs sng
