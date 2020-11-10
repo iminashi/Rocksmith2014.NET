@@ -32,7 +32,7 @@ let private build (buildData: BuildData) targetFile project platform = async {
     let key = project.DLCKey.ToLowerInvariant()
     let getManifestName arr =
         let name = partition arr |> snd
-        sprintf "manifests/songs_dlc_%s/%s_%s.json" key key name
+        $"manifests/songs_dlc_{key}/{key}_{name}.json" 
     let sngMap = buildData.SNGs |> dict
 
     let! manifestEntries =
@@ -61,7 +61,7 @@ let private build (buildData: BuildData) targetFile project platform = async {
             |> Manifest.createHeader
         let data = MemoryStreamPool.Default.GetStream()
         do! Manifest.toJsonStream data header
-        return entry (sprintf "manifests/songs_dlc_%s/songs_dlc_%s.hsan" key key) data }
+        return entry $"manifests/songs_dlc_{key}/songs_dlc_{key}.hsan" data }
 
     let! sngEntries =
         buildData.SNGs
@@ -70,18 +70,19 @@ let private build (buildData: BuildData) targetFile project platform = async {
             do! SNG.savePacked data platform sng
             let name =
                 let part = partition arr |> snd
-                sprintf "songs/bin/%s/%s_%s.sng" (Platform.getPath platform Platform.Path.SNG) key part
+                let path = Platform.getPath platform Platform.Path.SNG
+                $"songs/bin/{path}/{key}_{part}.sng"
             return entry name data })
         |> Async.Parallel
 
     let slEntry =
         let slFile = (List.pick Arrangement.pickShowlights project.Arrangements).XML
-        entry (sprintf "songs/arr/%s_showlights.xml" key) (readFile slFile)
+        entry $"songs/arr/{key}_showlights.xml" (readFile slFile)
 
     let fontEntry =
         project.Arrangements
         |> List.tryPick (function Vocals { CustomFont = Some _ as font } -> font | _ -> None)
-        |> Option.map (fun f -> entry (sprintf "assets/ui/lyrics/%s/lyrics_%s.dds" key key) (readFile f))
+        |> Option.map (fun f -> entry $"assets/ui/lyrics/{key}/lyrics_{key}.dds" (readFile f))
         |> Option.toList
 
     let flatModelEntries =
@@ -94,7 +95,7 @@ let private build (buildData: BuildData) targetFile project platform = async {
     let xBlockEntry =
         let data = MemoryStreamPool.Default.GetStream()
         XBlock.create platform project |> XBlock.serialize data
-        entry (sprintf "gamexblocks/nsongs/%s.xblock" key) data
+        entry $"gamexblocks/nsongs/{key}.xblock" data
 
     let appIdEntry =
         let data = MemoryStreamPool.Default.GetStream()
@@ -104,7 +105,7 @@ let private build (buildData: BuildData) targetFile project platform = async {
     let graphEntry =
         let data = MemoryStreamPool.Default.GetStream()
         AggregateGraph.create platform project |> AggregateGraph.serialize data
-        entry (sprintf "%s_aggregategraph.nt" key) data
+        entry $"{key}_aggregategraph.nt" data
 
     let audioEntries =
         let createEntries (audioFile: AudioFile) isPreview =
@@ -117,9 +118,10 @@ let private build (buildData: BuildData) targetFile project platform = async {
             let audio = readFile path
             let bankName = if isPreview then project.DLCKey + "_Preview" else project.DLCKey
             let audioName = SoundBank.generate bankName audio bankData (float32 audioFile.Volume) isPreview platform
-            let platPath = Platform.getPath platform Platform.Path.Audio
-            [ entry (sprintf "audio/%s/song_%s%s.bnk" platPath key (if isPreview then "_preview" else "")) bankData
-              entry (sprintf "audio/%s/%s.wem" platPath audioName) audio ]
+            let path = Platform.getPath platform Platform.Path.Audio
+            let suffix = if isPreview then "_preview" else ""
+            [ entry $"audio/{path}/song_{key}{suffix}.bnk" bankData
+              entry $"audio/{path}/{audioName}.wem" audio ]
 
         createEntries project.AudioFile false
         @
@@ -127,10 +129,10 @@ let private build (buildData: BuildData) targetFile project platform = async {
 
     let gfxEntries =
         ([| 64; 128; 256 |], buildData.CoverArtFiles)
-        ||> Array.map2 (fun size file -> entry (sprintf "gfxassets/album_art/album_%s_%i.dds" key size) (readFile file))
+        ||> Array.map2 (fun size file -> entry $"gfxassets/album_art/album_{key}_{size}.dds" (readFile file))
 
     let toolkitEntry =
-        let text = sprintf "Toolkit version: 9.9.9.9\nPackage Author: %s\nPackage Version: %s\nPackage Comment: Remastered" buildData.Author project.Version
+        let text = $"Toolkit version: 9.9.9.9\nPackage Author: {buildData.Author}\nPackage Version: {project.Version}\nPackage Comment: Remastered"
         let data = MemoryStreamPool.Default.GetStream()
         use writer = new StreamWriter(data, Encoding.UTF8, 256, true)
         writer.Write text
@@ -194,8 +196,7 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
                         let glyphs = 
                             Path.ChangeExtension(f, ".glyphs.xml")
                             |> GlyphDefinitions.Load
-                        let assetPath =
-                            sprintf "assets/ui/lyrics/%s/lyrics_%s.dds" key key
+                        let assetPath = $"assets/ui/lyrics/{key}/lyrics_{key}.dds"
                         FontOption.CustomFont (glyphs, assetPath)
                     | None -> FontOption.DefaultFont
                 let sng =
