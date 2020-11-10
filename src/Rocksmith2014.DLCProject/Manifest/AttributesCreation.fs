@@ -290,7 +290,7 @@ let private createTechniqueMap (sng: SNG) =
 
 /// Initializes attributes that are common to all arrangements (manifest headers).
 let private initBase name dlcKey (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
-    attr.AlbumArt <- $"urn:image:dds:album_%s{dlcKey}" 
+    attr.AlbumArt <- $"urn:image:dds:album_%s{dlcKey}"
     attr.ArrangementName <- Arrangement.getName arrangement true
     attr.DLCKey <- project.DLCKey
     attr.JapaneseArtistName <- Option.toObj project.JapaneseArtistName
@@ -306,16 +306,16 @@ let private initBase name dlcKey (project: DLCProject) (arrangement: Arrangement
 /// Initializes attributes that are common to all arrangements (non-headers).
 let private initAttributesCommon name dlcKey levels (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
     attr.ArrangementSort <- 0 // Always zero
-    attr.BlockAsset <- $"urn:emergent-world:{dlcKey}" 
+    attr.BlockAsset <- $"urn:emergent-world:{dlcKey}"
     attr.DynamicVisualDensity <- createDynamicVisualDensity levels arrangement
     attr.FullName <- $"{project.DLCKey}_{Arrangement.getName arrangement false}"
     attr.MasterID_PS3 <- -1
     attr.MasterID_XBox360 <- -1
-    attr.PreviewBankPath <- $"song_{dlcKey}_preview.bnk" 
+    attr.PreviewBankPath <- $"song_{dlcKey}_preview.bnk"
     attr.RelativeDifficulty <- 0 // Always zero
-    attr.ShowlightsXML <- $"urn:application:xml:{dlcKey}_showlights" 
+    attr.ShowlightsXML <- $"urn:application:xml:{dlcKey}_showlights"
     attr.SongAsset <- $"urn:application:musicgame-song:%s{dlcKey}_%s{name}"
-    attr.SongBank <- $"song_{dlcKey}.bnk" 
+    attr.SongBank <- $"song_{dlcKey}.bnk"
     attr.SongEvent <- $"Play_{project.DLCKey}"
     attr.SongXml <- $"urn:application:xml:{dlcKey}_{name}"
 
