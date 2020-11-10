@@ -22,34 +22,34 @@ let create (platform: Platform) (project: DLCProject) =
         yield GraphItem.normal dlcName CanonicalXBlock "xblock" [ Tag.EmergentWorld; Tag.XWorld ]
 
         for arrangement in project.Arrangements do
-            let name = sprintf "%s_%s" dlcName (partition arrangement |> snd)
+            let name = $"{dlcName}_{partition arrangement |> snd}"
 
             match arrangement with 
             | Showlights _ ->
                 yield GraphItem.llid name CanonicalXmlSong "xml" [ Tag.Application; Tag.XML ]
 
             | _ ->
-                let canonical = sprintf "/manifests/songs_dlc_%s" dlcName
+                let canonical = $"/manifests/songs_dlc_{dlcName}"
                 yield GraphItem.normal name canonical "json" [ Tag.Database; Tag.JsonDB ]
                 yield GraphItem.sng name platform
 
-        let name = sprintf "songs_dlc_%s" dlcName
-        let canonical = sprintf "/manifests/songs_dlc_%s" dlcName
+        let name = $"songs_dlc_{dlcName}"
+        let canonical = $"/manifests/songs_dlc_{dlcName}"
         yield GraphItem.normal name canonical "hsan" [ Tag.Database; Tag.HsanDB ]
 
         yield! [ 64; 128; 256 ]
-        |> List.map (fun size -> GraphItem.dds (sprintf "album_%s_%i" dlcName size) CanonicalAlbumArt)
+        |> List.map (fun size -> GraphItem.dds $"album_{dlcName}_{size}" CanonicalAlbumArt)
 
         yield! project.Arrangements
         |> List.tryPick (function Vocals v -> v.CustomFont | _ -> None)
         |> Option.map (fun _ ->
-            let name = sprintf "lyrics_%s" dlcName
-            let canonical = sprintf "/assets/ui/lyrics/%s" dlcName
+            let name = $"lyrics_{dlcName}"
+            let canonical = $"/assets/ui/lyrics/{dlcName}"
             GraphItem.dds name canonical)
         |> Option.toList
 
-        yield GraphItem.bnk (sprintf "song_%s" dlcName) platform
-        yield GraphItem.bnk (sprintf "song_%s_preview" dlcName) platform ] }
+        yield GraphItem.bnk $"song_{dlcName}" platform
+        yield GraphItem.bnk $"song_{dlcName}_preview" platform ] }
 
 /// Serializes the aggregate graph into the output stream.
 let serialize (output: Stream) (graph: Graph) =
