@@ -232,7 +232,7 @@ let private createChordMap (sng: SNG) =
     //
     // "Difficulty level" : {
     //      "Phrase iteration index" : [
-    //          Chord ID of a chord included in the manifest, i.e. a chord that has a name and not an arpeggio.
+    //          Chord ID of a chord included in the manifest, i.e. a chord that has a name and is not an arpeggio.
     //      ]
     //  }
     //
@@ -305,14 +305,14 @@ let private initBase name dlcKey (project: DLCProject) (arrangement: Arrangement
 
 /// Initializes attributes that are common all arrangements (non-headers).
 let private initAttributesCommon name dlcKey levels (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
-    attr.ArrangementSort <- 0 |> Nullable // Always zero
+    attr.ArrangementSort <- 0 // Always zero
     attr.BlockAsset <- sprintf "urn:emergent-world:%s" dlcKey
     attr.DynamicVisualDensity <- createDynamicVisualDensity levels arrangement
     attr.FullName <- sprintf "%s_%s" project.DLCKey (Arrangement.getName arrangement false)
-    attr.MasterID_PS3 <- Nullable(-1)
-    attr.MasterID_XBox360 <- Nullable(-1)
+    attr.MasterID_PS3 <- -1
+    attr.MasterID_XBox360 <- -1
     attr.PreviewBankPath <- sprintf "song_%s_preview.bnk" dlcKey
-    attr.RelativeDifficulty <- Nullable(0) // Always zero
+    attr.RelativeDifficulty <- 0 // Always zero
     attr.ShowlightsXML <- sprintf "urn:application:xml:%s_showlights" dlcKey
     attr.SongAsset <- sprintf "urn:application:musicgame-song:%s_%s" dlcKey name
     attr.SongBank <- sprintf "song_%s.bnk" dlcKey
@@ -330,29 +330,29 @@ let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Inst
     attr.AlbumNameSort <- project.AlbumName.SortValue
     attr.ArtistName <- project.ArtistName.Value
     attr.ArtistNameSort <- project.ArtistName.SortValue
-    attr.CentOffset <- Utils.tuningPitchToCents instrumental.TuningPitch |> Nullable
-    attr.DNA_Chords <- dnaChords |> Nullable
-    attr.DNA_Riffs <- dnaRiffs |> Nullable
-    attr.DNA_Solo <- dnaSolo |> Nullable
-    attr.EasyMastery <- Math.Round(float sng.NoteCounts.Easy / float sng.NoteCounts.Hard, 9) |> Nullable
-    attr.MediumMastery <- Math.Round(float sng.NoteCounts.Medium / float sng.NoteCounts.Hard, 9) |> Nullable
-    attr.NotesEasy <- float32 sng.NoteCounts.Easy |> Nullable
-    attr.NotesHard <- float32 sng.NoteCounts.Hard |> Nullable
-    attr.NotesMedium <- float32 sng.NoteCounts.Medium |> Nullable
-    attr.SongDiffEasy <- diffEasy |> Nullable
-    attr.SongDiffHard <- diffHard |> Nullable
-    attr.SongDiffMed <- diffMed |> Nullable
-    attr.SongDifficulty <- diffHard |> Nullable
-    attr.SongLength <- sng.MetaData.SongLength |> Nullable
+    attr.CentOffset <- Utils.tuningPitchToCents instrumental.TuningPitch
+    attr.DNA_Chords <- dnaChords
+    attr.DNA_Riffs <- dnaRiffs
+    attr.DNA_Solo <- dnaSolo
+    attr.EasyMastery <- Math.Round(float sng.NoteCounts.Easy / float sng.NoteCounts.Hard, 9)
+    attr.MediumMastery <- Math.Round(float sng.NoteCounts.Medium / float sng.NoteCounts.Hard, 9)
+    attr.NotesEasy <- float32 sng.NoteCounts.Easy
+    attr.NotesHard <- float32 sng.NoteCounts.Hard
+    attr.NotesMedium <- float32 sng.NoteCounts.Medium
+    attr.SongDiffEasy <- diffEasy
+    attr.SongDiffHard <- diffHard
+    attr.SongDiffMed <- diffMed
+    attr.SongDifficulty <- diffHard
+    attr.SongLength <- sng.MetaData.SongLength
     attr.SongName <- project.Title.Value
     attr.SongNameSort <- project.Title.SortValue
-    attr.SongYear <- project.Year |> Nullable
+    attr.SongYear <- project.Year
     attr.Tuning <- Tuning.FromArray(instrumental.Tuning) |> Some
 
     attr
 
 /// Initializes attributes unique to instrumental arrangements (non-header).
-let private initSongComplete partition
+let private initSongComplete (partition: int)
                              (xmlMetaData: XML.MetaData)
                              (xmlToneInfo: XML.ToneInfo)
                              (project: DLCProject)
@@ -368,20 +368,20 @@ let private initSongComplete partition
         |> List.toArray
 
     attr.ArrangementProperties <- Some (convertArrangementProperties xmlMetaData.ArrangementProperties instrumental)
-    attr.ArrangementType <- instrumental.Name |> LanguagePrimitives.EnumToValue |> Nullable
+    attr.ArrangementType <- LanguagePrimitives.EnumToValue instrumental.Name
     attr.Chords <- createChordMap sng
     attr.ChordTemplates <- convertChordTemplates sng
     attr.LastConversionDateTime <- sng.MetaData.LastConversionDateTime
-    attr.MaxPhraseDifficulty <- (sng.Levels.Length - 1) |> Nullable
+    attr.MaxPhraseDifficulty <- (sng.Levels.Length - 1)
     attr.PhraseIterations <- convertPhraseIterations sng
     attr.Phrases <- convertPhrases sng
-    attr.Score_MaxNotes <- sng.NoteCounts.Hard |> float32 |> Nullable
-    attr.Score_PNV <- (100000.f / float32 sng.NoteCounts.Hard) |> Nullable
+    attr.Score_MaxNotes <- float32 sng.NoteCounts.Hard
+    attr.Score_PNV <- (100000.f / float32 sng.NoteCounts.Hard)
     attr.Sections <- convertSections sng
-    attr.SongAverageTempo <- xmlMetaData.AverageTempo |> Nullable
-    attr.SongOffset <- -sng.MetaData.StartTime |> Nullable
-    attr.SongPartition <- partition |> Nullable
-    attr.TargetScore <- Nullable(100000)
+    attr.SongAverageTempo <- xmlMetaData.AverageTempo
+    attr.SongOffset <- -sng.MetaData.StartTime
+    attr.SongPartition <- partition
+    attr.TargetScore <- 100000
     attr.Techniques <- createTechniqueMap sng
     attr.Tone_A <- if isNull xmlToneInfo.Names.[0] then String.Empty else xmlToneInfo.Names.[0]
     attr.Tone_B <- if isNull xmlToneInfo.Names.[1] then String.Empty else xmlToneInfo.Names.[1]
@@ -429,8 +429,8 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
         if isHeader then
             // Attributes unique to header
             attr.BassPick <- if inst.BassPicked then Nullable(1) else Nullable()
-            attr.Representative <- if inst.Priority = ArrangementPriority.Main then Nullable(1) else Nullable(0)
-            attr.RouteMask <- inst.RouteMask |> LanguagePrimitives.EnumToValue |> Nullable
+            attr.Representative <- if inst.Priority = ArrangementPriority.Main then 1 else 0
+            attr.RouteMask <- inst.RouteMask |> LanguagePrimitives.EnumToValue
             attr
         else
             let toneInfo = XML.InstrumentalArrangement.ReadToneNames(inst.XML)
