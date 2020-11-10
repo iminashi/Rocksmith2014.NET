@@ -351,6 +351,8 @@ let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Inst
 
     attr
 
+let private getToneName name = if isNull name then String.Empty else name
+
 /// Initializes attributes unique to instrumental arrangements (non-header).
 let private initSongComplete (partition: int)
                              (xmlMetaData: XML.MetaData)
@@ -383,11 +385,11 @@ let private initSongComplete (partition: int)
     attr.SongPartition <- partition
     attr.TargetScore <- 100000
     attr.Techniques <- createTechniqueMap sng
-    attr.Tone_A <- if isNull xmlToneInfo.Names.[0] then String.Empty else xmlToneInfo.Names.[0]
-    attr.Tone_B <- if isNull xmlToneInfo.Names.[1] then String.Empty else xmlToneInfo.Names.[1]
+    attr.Tone_A <- getToneName xmlToneInfo.Names.[0]
+    attr.Tone_B <- getToneName xmlToneInfo.Names.[1]
     attr.Tone_Base <- instrumental.BaseTone
-    attr.Tone_C <- if isNull xmlToneInfo.Names.[2] then String.Empty else xmlToneInfo.Names.[2]
-    attr.Tone_D <- if isNull xmlToneInfo.Names.[3] then String.Empty else xmlToneInfo.Names.[3]
+    attr.Tone_C <- getToneName xmlToneInfo.Names.[2]
+    attr.Tone_D <- getToneName xmlToneInfo.Names.[3]
     attr.Tone_Multiplayer <- String.Empty
     attr.Tones <- tones
 
@@ -430,7 +432,7 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
             // Attributes unique to header
             attr.BassPick <- if inst.BassPicked then Nullable(1) else Nullable()
             attr.Representative <- if inst.Priority = ArrangementPriority.Main then 1 else 0
-            attr.RouteMask <- inst.RouteMask |> LanguagePrimitives.EnumToValue
+            attr.RouteMask <- LanguagePrimitives.EnumToValue inst.RouteMask
             attr
         else
             let toneInfo = XML.InstrumentalArrangement.ReadToneNames(inst.XML)
