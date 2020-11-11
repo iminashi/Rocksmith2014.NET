@@ -3,9 +3,9 @@
 open Expecto
 open System
 open Rocksmith2014.SNG
-open Rocksmith2014.DLCProject
 open Rocksmith2014.DLCProject.Manifest.AttributesCreation
 open Rocksmith2014.XML
+open Rocksmith2014.DLCProject
 open Rocksmith2014.Conversion
 open Rocksmith2014.Common
 
@@ -39,6 +39,20 @@ let testLead =
       ScrollSpeed = 1.3
       BassPicked = false
       MasterID = 12345
+      PersistentID = Guid.NewGuid() }
+
+let testVocals =
+    { XML = "vocals.xml"
+      Japanese = false
+      CustomFont = None
+      MasterID = 54321
+      PersistentID = Guid.NewGuid() }
+
+let testJVocals =
+    { XML = "jvocals.xml"
+      Japanese = true
+      CustomFont = None
+      MasterID = 54321
       PersistentID = Guid.NewGuid() }
 
 [<Tests>]
@@ -136,6 +150,18 @@ let attributeTests =
         Expect.equal attr.SongAsset "urn:application:musicgame-song:sometest_lead" "SongAsset is correct"
         Expect.equal attr.SongXml "urn:application:xml:sometest_lead" "SongXml is correct"
 
+    testCase "Various attributes are correct (Common)" <| fun _ ->
+        let project = { testProject with Arrangements = [ Instrumental testLead ] }
+
+        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+
+        Expect.equal attr.ArrangementSort (Nullable(0)) "ArrangementSort is 0"
+        Expect.equal attr.RelativeDifficulty (Nullable(0)) "RelativeDifficulty is 0"
+        Expect.equal attr.DLCKey "SomeTest" "DLCKey is correct"
+        Expect.equal attr.SongKey "SomeTest" "SongKey is correct"
+        Expect.equal attr.SKU "RS2" "SKU is correct"
+        Expect.equal attr.Shipping true "Shipping is correct"
+
     testCase "Various attributes are correct (Instrumental)" <| fun _ ->
         let project = { testProject with Arrangements = [ Instrumental testLead ] }
 
@@ -146,4 +172,24 @@ let attributeTests =
         Expect.equal attr.PreviewBankPath "song_sometest_preview.bnk" "PreviewBankPath is correct"
         Expect.equal attr.SongBank "song_sometest.bnk" "SongBank is correct"
         Expect.equal attr.SongEvent "Play_SomeTest" "SongEvent is correct"
+
+    testCase "Various attributes are correct (Vocals)" <| fun _ ->
+        let project = { testProject with Arrangements = [ Vocals testVocals ] }
+
+        let attr = createAttributes project (FromVocals testVocals)
+
+        Expect.equal attr.MasterID_RDV 54321 "MasterID is correct"
+        Expect.equal attr.FullName "SomeTest_Vocals" "FullName is correct"
+        Expect.equal attr.SongEvent "Play_SomeTest" "SongEvent is correct"
+        Expect.equal attr.InputEvent "Play_Tone_Standard_Mic" "InputEvent is correct"
+        Expect.equal attr.JapaneseVocal (Nullable()) "JapaneseVocal is null"
+
+    testCase "Various attributes are correct (Japanese Vocals)" <| fun _ ->
+        let project = { testProject with Arrangements = [ Vocals testJVocals ] }
+
+        let attr = createAttributes project (FromVocals testJVocals)
+
+        Expect.equal attr.ArrangementName "Vocals" "ArrangementName is correct"
+        Expect.equal attr.FullName "SomeTest_JVocals" "FullName is correct"
+        Expect.equal attr.JapaneseVocal (Nullable(true)) "JapaneseVocal is true"
   ]
