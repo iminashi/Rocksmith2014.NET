@@ -25,7 +25,7 @@ let private avaloniaBitmapFromDDS (fileName: string) =
                 newData.[i * 4 + 1] <- image.Data.[i * 3 + 1]
                 newData.[i * 4 + 2] <- image.Data.[i * 3 + 2]
                 newData.[i * 4 + 3] <- 255uy
- 
+
             let stride = image.Width * 4
             PixelFormat.Bgra8888, newData, stride
         | _ -> PixelFormat.Bgra8888, image.Data, image.Stride
@@ -34,7 +34,7 @@ let private avaloniaBitmapFromDDS (fileName: string) =
     let bm = new Bitmap(pxFormat, addr, PixelSize(image.Width, image.Height), Vector(96., 96.), stride)
     pinnedArray.Free()
     bm
-    
+
 /// Loads a bitmap from the given path.
 let loadBitmap (fileName: string) =
     if fileName.EndsWith("dds", StringComparison.OrdinalIgnoreCase) then
@@ -47,7 +47,7 @@ let importTonesFromPSARC (psarcPath: string) = async {
     use psarc = PSARC.ReadFile psarcPath
     let! jsons =
         psarc.Manifest
-        |> Seq.filter (fun x -> x.EndsWith("json"))
+        |> Seq.filter (fun x -> x.EndsWith "json")
         |> Seq.map (fun x -> async {
             let data = MemoryStreamPool.Default.GetStream()
             do! psarc.InflateFile(x, data)
@@ -56,12 +56,13 @@ let importTonesFromPSARC (psarcPath: string) = async {
 
     let! manifests =
         jsons
-        |> Array.map (fun x -> async { return! Manifest.fromJsonStream x })
+        |> Array.map (fun data -> async {
+            let! a = using data Manifest.fromJsonStream
+            return Manifest.getSingletonAttributes a })
         |> Async.Parallel
-        
+
     return
         manifests
-        |> Array.map Manifest.getSingletonAttributes
         |> Array.choose (fun x -> Option.ofObj x.Tones)
         |> Array.concat
         |> Array.distinctBy (fun x -> x.Key) }

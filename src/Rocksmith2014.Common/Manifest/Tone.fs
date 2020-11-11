@@ -32,7 +32,7 @@ type Tone =
     { GearList : Gear
       ToneDescriptors : string array 
       NameSeparator : string
-      IsCustom : bool
+      IsCustom : Nullable<bool>
       Volume : string
       MacVolume : string
       Key : string
@@ -112,7 +112,7 @@ module Tone =
         { GearList = getGearList ns (node "GearList")
           ToneDescriptors = getDescriptors (node "ToneDescriptors")
           NameSeparator = (node "NameSeparator").InnerText
-          IsCustom = Boolean.Parse((node "IsCustom").InnerText)
+          IsCustom = Boolean.Parse((node "IsCustom").InnerText) |> Nullable
           Volume = (node "Volume").InnerText
           MacVolume = if isNull macVol then null else macVol.InnerText
           Key = (node "Key").InnerText
