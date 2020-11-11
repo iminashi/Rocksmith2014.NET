@@ -45,7 +45,12 @@ type Tone =
                 String.Empty
             else
                 " (" + ToneDescriptor.combineUINames this.ToneDescriptors + ")"
-        sprintf "%s%s" this.Name description
+        let key =
+            if isNull this.Key || this.Key = this.Name then
+                String.Empty
+            else
+                " [" + this.Key + "]"
+        sprintf "%s%s%s" this.Name key description
 
 module Tone =
     let private getPedal (ns: string option) (gearList: XmlElement) (name: string) =
