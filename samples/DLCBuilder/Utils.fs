@@ -57,12 +57,14 @@ let importTonesFromPSARC (psarcPath: string) = async {
     let! manifests =
         jsons
         |> Array.map (fun data -> async {
-            let! a = using data Manifest.fromJsonStream
-            return Manifest.getSingletonAttributes a })
+            try
+                let! a = using data Manifest.fromJsonStream
+                return Some (Manifest.getSingletonAttributes a)
+            with _ -> return None })
         |> Async.Parallel
 
     return
         manifests
-        |> Array.choose (fun x -> Option.ofObj x.Tones)
+        |> Array.choose (Option.bind (fun a -> Option.ofObj a.Tones))
         |> Array.concat
         |> Array.distinctBy (fun x -> x.Key) }
