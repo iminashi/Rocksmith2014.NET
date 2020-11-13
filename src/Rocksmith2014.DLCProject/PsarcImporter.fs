@@ -25,16 +25,6 @@ let import (psarcPath: string) (targetDirectory: string) = async {
     use psarc = PSARC.ReadFile(psarcPath)
     let psarcContents = List.ofSeq psarc.Manifest
 
-    let artFile =
-        psarcContents
-        |> List.find (fun x -> x.EndsWith "256.dds")
-    do! psarc.InflateFile(artFile, Path.Combine(targetDirectory, "cover.dds"))
-
-    let showlights =
-        psarcContents
-        |> List.find (fun x -> x.Contains "showlights")
-    do! psarc.InflateFile(showlights, Path.Combine(targetDirectory, "arr_showlights.xml"))
-
     let audioFiles =
         psarcContents
         |> List.filter (fun x -> x.EndsWith "wem")
@@ -55,6 +45,16 @@ let import (psarcPath: string) (targetDirectory: string) = async {
         File.Move(audioInfo2.FullName, Path.Combine(targetDirectory, "audio.wem"), true)
         File.Move(audioInfo1.FullName, Path.Combine(targetDirectory, "audio_preview.wem"), true)
 
+    let artFile =
+        psarcContents
+        |> List.find (fun x -> x.EndsWith "256.dds")
+    do! psarc.InflateFile(artFile, Path.Combine(targetDirectory, "cover.dds"))
+
+    let showlights =
+        psarcContents
+        |> List.find (fun x -> x.Contains "showlights")
+    do! psarc.InflateFile(showlights, Path.Combine(targetDirectory, "arr_showlights.xml"))
+
     let! sngs =
         psarcContents
         |> List.filter (fun x -> x.EndsWith "sng")
@@ -65,14 +65,14 @@ let import (psarcPath: string) (targetDirectory: string) = async {
             return file, sng })
         |> Async.Sequential
 
-    let! manifests =
+    let! fileAttributes =
         psarcContents
         |> List.filter (fun x -> x.EndsWith "json")
         |> List.map (fun file -> async {
             use mem = MemoryStreamPool.Default.GetStream()
             do! psarc.InflateFile(file, mem)
             let! manifest = Manifest.fromJsonStream(mem)
-            return file, manifest })
+            return file, Manifest.getSingletonAttributes manifest })
         |> Async.Sequential
 
     let! customFont = async {
@@ -95,9 +95,9 @@ let import (psarcPath: string) (targetDirectory: string) = async {
                 let f = Path.GetFileName file
                 Path.Combine(targetDirectory, Path.ChangeExtension("arr" + f.Substring(f.IndexOf '_'), "xml"))
             let attributes =
-                manifests
-                |> Seq.find (fun (mFile, _) -> Path.GetFileNameWithoutExtension mFile = Path.GetFileNameWithoutExtension file)
-                |> (snd >> Manifest.getSingletonAttributes)
+                fileAttributes
+                |> Array.find (fun (mFile, _) -> Path.GetFileNameWithoutExtension mFile = Path.GetFileNameWithoutExtension file)
+                |> snd
 
             if file.Contains "vocals" then
                 let vocals = ConvertVocals.sngToXml sng
@@ -131,7 +131,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
                     float attributes.DynamicVisualDensity.[max]
 
                 let bassPicked =
-                    match attributes.BassPick |> Option.ofNullable with
+                    match Option.ofNullable attributes.BassPick with
                     | Some x when x = 1 -> true
                     | _ -> false
 
@@ -162,22 +162,22 @@ let import (psarcPath: string) (targetDirectory: string) = async {
         psarcContents
         |> List.filter (fun x -> x.EndsWith "bnk")
         |> List.partition (fun x -> x.Contains "preview")
-        |> fun (prev, main) -> List.head prev, List.head main
+        |> fun (preview, main) -> List.head preview, List.head main
 
     let! mainVolume = getVolume psarc platform mainBank
     let! previewVolume = getVolume psarc platform previewBank
             
     let tones =
-        manifests
-        |> Array.choose (fun (_, manifest) -> Option.ofObj (Manifest.getSingletonAttributes manifest).Tones)
+        fileAttributes
+        |> Array.choose (fun (_, attr) -> Option.ofObj attr.Tones)
         |> Array.collect id
         |> Array.distinctBy (fun x -> x.Key)
         |> Array.toList
 
     let metaData =
-        manifests
+        fileAttributes
         |> Array.find (fun (file, _) -> not <| file.Contains "vocals")
-        |> (snd >> Manifest.getSingletonAttributes)
+        |> snd
 
     let! version = async {
         let tkVer =
