@@ -192,4 +192,12 @@ let attributeTests =
         Expect.equal attr.ArrangementName "Vocals" "ArrangementName is correct"
         Expect.equal attr.FullName "SomeTest_JVocals" "FullName is correct"
         Expect.equal attr.JapaneseVocal (Nullable(true)) "JapaneseVocal is true"
+
+    testCase "Maximum scroll speed is correct" <| fun _ ->
+        let project = { testProject with Arrangements = [ Instrumental testLead ] }
+
+        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+        let dvd = attr.DynamicVisualDensity.[(testArr.Levels.Count - 1)..]
+
+        Expect.allEqual dvd (float32 testLead.ScrollSpeed) "Maximum scroll speed is correct"
   ]
