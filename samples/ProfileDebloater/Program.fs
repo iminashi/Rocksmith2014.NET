@@ -100,7 +100,8 @@ let main argv =
 
         let filterIds = filterJTokenIds ids
         let filterKeys = filterJArrayKeys keys
-        let printStats section num = printfn "%-9s: %i records removed" section num
+        let printStats section num =
+            printfn "%-9s: %i record%s removed" section num (if num = 1 then "" else "s")
 
         Console.WriteLine "Reading profile..."
 
