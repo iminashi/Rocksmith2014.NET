@@ -28,10 +28,9 @@ let convertChordTemplate (sngChord: Chord) =
 /// Converts an SNG Phrase into an XML Phrase.
 let convertPhrase (sngPhrase: Phrase) =
     let mask =
-        XML.PhraseMask.None
-        ||| if sngPhrase.Disparity = 1y then XML.PhraseMask.Disparity else XML.PhraseMask.None
-        ||| if sngPhrase.Solo = 1y then XML.PhraseMask.Solo else XML.PhraseMask.None
-        ||| if sngPhrase.Ignore = 1y then XML.PhraseMask.Ignore else XML.PhraseMask.None
+        if sngPhrase.Disparity = 1y  then XML.PhraseMask.Disparity else XML.PhraseMask.None
+        ||| if sngPhrase.Solo = 1y   then XML.PhraseMask.Solo      else XML.PhraseMask.None
+        ||| if sngPhrase.Ignore = 1y then XML.PhraseMask.Ignore    else XML.PhraseMask.None
 
     XML.Phrase(sngPhrase.Name, byte sngPhrase.MaxDifficulty, mask)
 
@@ -111,8 +110,7 @@ let convertNoteMask (sngMask: NoteMask) =
     if (sngMask &&& Masks.NoteTechniques) = NoteMask.None then
         XML.NoteMask.None
     else
-        XML.NoteMask.None
-        ||| if sngMask ?= NoteMask.Accent        then XML.NoteMask.Accent        else XML.NoteMask.None
+        if sngMask ?= NoteMask.Accent            then XML.NoteMask.Accent        else XML.NoteMask.None
         ||| if sngMask ?= NoteMask.HammerOn      then XML.NoteMask.HammerOn      else XML.NoteMask.None
         ||| if sngMask ?= NoteMask.Harmonic      then XML.NoteMask.Harmonic      else XML.NoteMask.None
         ||| if sngMask ?= NoteMask.Ignore        then XML.NoteMask.Ignore        else XML.NoteMask.None
@@ -158,8 +156,7 @@ let convertChordMask (sngMask: NoteMask) =
     if (sngMask &&& Masks.ChordTechniques) = NoteMask.None then
         XML.ChordMask.None
     else
-        XML.ChordMask.None
-        ||| if sngMask ?= NoteMask.Accent       then XML.ChordMask.Accent       else XML.ChordMask.None
+        if sngMask ?= NoteMask.Accent           then XML.ChordMask.Accent       else XML.ChordMask.None
         ||| if sngMask ?= NoteMask.FretHandMute then XML.ChordMask.FretHandMute else XML.ChordMask.None
         ||| if sngMask ?= NoteMask.HighDensity  then XML.ChordMask.HighDensity  else XML.ChordMask.None
         ||| if sngMask ?= NoteMask.Ignore       then XML.ChordMask.Ignore       else XML.ChordMask.None

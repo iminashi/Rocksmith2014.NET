@@ -26,8 +26,7 @@ let private createMaskForChordNote (note: XML.Note) =
 
     // Apply flags from properties not in the XML note mask
     let baseMask =
-        NoteMask.None
-        ||| if note.Fret = 0y        then NoteMask.Open           else NoteMask.None
+        if note.Fret = 0y            then NoteMask.Open           else NoteMask.None
         ||| if note.Sustain > 0      then NoteMask.Sustain        else NoteMask.None
         ||| if note.IsSlide          then NoteMask.Slide          else NoteMask.None
         ||| if note.IsUnpitchedSlide then NoteMask.UnpitchedSlide else NoteMask.None
