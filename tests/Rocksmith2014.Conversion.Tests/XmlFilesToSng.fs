@@ -29,20 +29,19 @@ let sngToXmlConversionTests =
         Expect.equal sng.SymbolsTextures.[0].Width customFont.TextureWidth "Texture width is correct"
         Expect.equal sng.SymbolsTextures.[0].Height customFont.TextureHeight "Texture height is correct"
 
-    testCase "Japanese Vocals (Custom Font)" <| fun _ ->
+    testAsync "Japanese Vocals (Custom Font)" {
         let xml = Vocals.Load("jvocals.xml")
         let customFont = GlyphDefinitions.Load("jvocals.glyphs.xml")
-        ConvertVocals.xmlToSng (CustomFont (customFont, "nothing")) xml
-        |> SNG.savePackedFile "jvocals_test.sng" PC
-        |> Async.RunSynchronously
+        do! ConvertVocals.xmlToSng (CustomFont (customFont, "nothing")) xml
+            |> SNG.savePackedFile "jvocals_test.sng" PC
 
-        let sng = SNG.readPackedFile "jvocals_test.sng" PC |> Async.RunSynchronously
+        let! sng = SNG.readPackedFile "jvocals_test.sng" PC
 
         Expect.equal sng.Vocals.Length xml.Count "Vocal count is same"
         Expect.equal sng.Vocals.[0].Lyric "夏-" "Vocal #1 is correct"
         Expect.equal sng.Vocals.[9].Lyric "跡+" "Vocal #9 is correct"
         Expect.equal sng.SymbolDefinitions.Length customFont.Glyphs.Count "Symbol definition count is correct"
-        Expect.equal sng.SymbolDefinitions.[1].Symbol "が" "Symbol #1 is correct"
+        Expect.equal sng.SymbolDefinitions.[1].Symbol "が" "Symbol #1 is correct" }
 
     testCase "Instrumental" <| fun _ ->
         let xml = InstrumentalArrangement.Load("instrumental.xml")
