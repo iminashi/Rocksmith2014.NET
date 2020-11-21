@@ -36,12 +36,11 @@ let private build (buildData: BuildData) targetFile project platform = async {
     let sngMap = buildData.SNGs |> dict
 
     let! manifestEntries =
+        let attributes arr conv = Some(getManifestName arr, createAttributes project conv)
         project.Arrangements
         |> List.choose (function
-            | Instrumental i as arr ->
-                Some(getManifestName arr, createAttributes project (FromInstrumental(i, sngMap.[arr])))
-            | Vocals v as arr ->
-                Some(getManifestName arr, createAttributes project (FromVocals v))
+            | Instrumental i as arr -> FromInstrumental(i, sngMap.[arr]) |> attributes arr
+            | Vocals v as arr -> FromVocals v |> attributes arr
             | Showlights _ -> None)
        |> List.map (fun (name, attr) -> async {
            let data = MemoryStreamPool.Default.GetStream()
@@ -50,17 +49,15 @@ let private build (buildData: BuildData) targetFile project platform = async {
        |> Async.Parallel
 
     let! headerEntry = async {
-        let header =
-            project.Arrangements
+        let header = createAttributesHeader project >> Some
+        let data = MemoryStreamPool.Default.GetStream()
+        do! project.Arrangements
             |> List.choose (function
-                | Instrumental i as arr ->
-                    Some (createAttributesHeader project (FromInstrumental(i, sngMap.[arr])))
-                | Vocals v ->
-                    Some (createAttributesHeader project (FromVocals v))
+                | Instrumental i as arr -> FromInstrumental(i, sngMap.[arr]) |> header
+                | Vocals v -> FromVocals v |> header
                 | Showlights _ -> None)
             |> Manifest.createHeader
-        let data = MemoryStreamPool.Default.GetStream()
-        do! Manifest.toJsonStream data header
+            |> Manifest.toJsonStream data
         return entry $"manifests/songs_dlc_{key}/songs_dlc_{key}.hsan" data }
 
     let! sngEntries =
