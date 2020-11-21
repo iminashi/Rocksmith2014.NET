@@ -45,8 +45,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSharp.SystemTextJson" Version="0.14.8" />
-    <PackageReference Include="Magick.NET-Q8-x64" Version="7.22.1" />
+    <PackageReference Include="FSharp.SystemTextJson" Version="0.15.14" />
+    <PackageReference Include="Magick.NET-Q8-x64" Version="7.22.2.1" />
     <PackageReference Update="FSharp.Core" Version="5.0.0" />
   </ItemGroup>
 
