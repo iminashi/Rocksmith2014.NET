@@ -95,9 +95,7 @@ let private build (buildData: BuildData) targetFile project platform = async {
         entry $"gamexblocks/nsongs/{key}.xblock" data
 
     let appIdEntry =
-        let data = MemoryStreamPool.Default.GetStream()
-        data.Write(ReadOnlySpan(Encoding.ASCII.GetBytes(buildData.AppId)))
-        entry "appid.appid" data
+        entry "appid.appid" (new MemoryStream(Encoding.ASCII.GetBytes(buildData.AppId)))
 
     let graphEntry =
         let data = MemoryStreamPool.Default.GetStream()
@@ -129,11 +127,8 @@ let private build (buildData: BuildData) targetFile project platform = async {
         ||> Array.map2 (fun size file -> entry $"gfxassets/album_art/album_{key}_{size}.dds" (readFile file))
 
     let toolkitEntry =
-        let text = $"Toolkit version: 9.9.9.9\nPackage Author: {buildData.Author}\nPackage Version: {project.Version}\nPackage Comment: Remastered"
-        let data = MemoryStreamPool.Default.GetStream()
-        use writer = new StreamWriter(data, Encoding.UTF8, 256, true)
-        writer.Write text
-        entry "toolkit.version" data
+        new MemoryStream(Encoding.UTF8.GetBytes($"Toolkit version: 9.9.9.9\nPackage Author: {buildData.Author}\nPackage Version: {project.Version}\nPackage Comment: Remastered"))
+        |> entry "toolkit.version"
 
     use psarcFile =
         sprintf "%s%s.psarc" targetFile (Platform.getPath platform Platform.Path.PackageSuffix)
