@@ -10,7 +10,7 @@ namespace Rocksmith2014.XML
     public static class Vocals
     {
         /// <summary>
-        /// Saves this vocals list into an XML file.
+        /// Saves a list of vocals into an XML file.
         /// </summary>
         /// <param name="fileName">The target filename.</param>
         /// <param name="vocals">The list of vocals to save.</param>
