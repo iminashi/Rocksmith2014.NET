@@ -38,7 +38,7 @@ module Configuration =
         let appData = IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
         IO.Path.Combine(appData, "config.json")
 
-    /// Converts a configuration DTO into a cofiguration record.
+    /// Converts a configuration DTO into a configuration record.
     let private fromDto (dto: Dto) =
         let platforms =
             if not (dto.ReleasePC || dto.ReleaseMac) then
