@@ -54,7 +54,7 @@ let openFileDialogSingle title filters dispatch =
                .ShowAsync(window.Force())
                .ContinueWith(fun (t: Task<string[]>) -> 
                    match t.Result with
-                   | [| file |] -> file |> dispatch
+                   | [| file |] -> dispatch file
                    | _ -> ())
         ) |> ignore
 
@@ -66,7 +66,7 @@ let openFileDialogMulti title filters dispatch =
                .ContinueWith(fun (t: Task<string[]>) -> 
                    match t.Result with
                    | null | [||] -> ()
-                   | files -> files |> dispatch)
+                   | files -> dispatch files)
         ) |> ignore
 
 let openFolderDialog title dispatch = 
@@ -77,7 +77,7 @@ let openFolderDialog title dispatch =
                .ContinueWith(fun (t: Task<string>) -> 
                    match t.Result with
                    | null -> ()
-                   | file -> file |> dispatch)
+                   | file -> dispatch file)
         ) |> ignore
 
 let ofdSng = openFileDialogSingle "Select File" sngFilters
@@ -166,7 +166,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             state, Cmd.OfAsync.attempt t () Error
 
         | UnpackPSARC file ->
-            let dir = Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file))
+            let dir = Path.Combine(Path.GetDirectoryName file, Path.GetFileNameWithoutExtension file)
             Directory.CreateDirectory(dir) |> ignore
             let t () = async {
                 use psarc = PSARC.ReadFile file
@@ -179,12 +179,12 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             state, Cmd.OfAsync.attempt t () Error
 
         | ConvertPCtoMac file ->
-            if not <| file.EndsWith("_p.psarc") then
+            if not <| file.EndsWith "_p.psarc" then
                 { state with Status = "Filename has to end in _p.psarc." }, Cmd.none
             else
                 let t () = async {
                     let targetFile = file.Replace("_p.psarc", "_m.psarc")
-                    File.Copy (file, targetFile)
+                    File.Copy(file, targetFile)
                     use psarc = PSARC.ReadFile targetFile
                     do! PlatformConverter.pcToMac psarc }
 
@@ -207,8 +207,9 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
 
             let project = { project with Arrangements = [ Instrumental arrangement ] }
 
-            let xml = InstrumentalArrangement.Load file
-            let sng = ConvertInstrumental.xmlToSng xml
+            let sng =
+                InstrumentalArrangement.Load file
+                |> ConvertInstrumental.xmlToSng
             let attr = AttributesCreation.createAttributes project (AttributesCreation.FromInstrumental (arrangement, sng))
             let t () = async {
                 use target = File.Create(Path.ChangeExtension(file, "json"))
@@ -240,7 +241,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                     |> Seq.map (fun x -> async {
                         use mem = MemoryStreamPool.Default.GetStream()
                         do! psarc.InflateFile(x, mem)
-                        let! manifest = Manifest.fromJsonStream(mem)
+                        let! manifest = Manifest.fromJsonStream mem
                         return {| File = x; Manifest = manifest |} })
                     |> Async.Sequential
 
@@ -269,9 +270,9 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
 
         | GenerateSoundBank file ->
             let target = Path.ChangeExtension(file, "bnk")
-            use targetFile = File.Create(target)
-            use audio = File.OpenRead(file)
-            let wemName = SoundBank.generate "test" audio targetFile -2.5f false PC
+            use targetFile = File.Create target
+            use audio = File.OpenRead file
+            SoundBank.generate "test" audio targetFile -2.5f false PC |> ignore
             state, Cmd.none
 
         | ReadVolume fileName ->
@@ -285,20 +286,18 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
 
         | DecryptProfile file ->
             let t () = async {
-                use profFile = File.OpenRead(file)
+                use profFile = File.OpenRead file
                 use targetFile = File.Create(file + ".json")
                 do! Profile.decrypt profFile targetFile |> Async.Ignore }
             state, Cmd.OfAsync.attempt t () Error
 
         | ImportTones file ->
-            let result = Profile.importTones file
-            match result with
+            match Profile.importTones file with
             | Result.Ok tones ->
                 let msg = sprintf "%i custom tones found." tones.Length
                 { state with Status = msg }, Cmd.none
             | Result.Error msg ->
                 { state with Status = msg }, Cmd.none
-            
 
         | ChangePlatform platform -> { state with Platform = platform }, Cmd.none
 
