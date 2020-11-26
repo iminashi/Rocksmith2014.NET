@@ -28,20 +28,22 @@ let private itemText (root: XmlNode) name = root.Item(name).InnerText
 let private importInstrumental (xmlFile: string) (arr: XmlNode) =
     let priority =
         try
+            let bonusArr = itemText arr "BonusArr" = "true"
+
             // "Properties" in the tag name is misspelled
             match Option.ofObj (arr.Item "ArrangementPropeties") with
             | None ->
                 // Arrangement properties do not exist in old files
-                if itemText arr "BonusArr" = "true" then ArrangementPriority.Bonus
-                else ArrangementPriority.Main
+                if bonusArr then ArrangementPriority.Bonus else ArrangementPriority.Main
             | Some arrProp ->
                 let tryGetPriority ns =
                     let represent =
                         let r = arr.Item "Represent"
+                        // The Represent tag is not present in old files
                         not (isNull r) && r.InnerText = "true"
-                    if arrProp.Item("Represent", ns).InnerText = "1" || represent then
+                    if represent || arrProp.Item("Represent", ns).InnerText = "1" then
                         ArrangementPriority.Main
-                    elif arrProp.Item("BonusArr", ns).InnerText = "1" || arr.Item("BonusArr").InnerText = "true" then
+                    elif bonusArr || arrProp.Item("BonusArr", ns).InnerText = "1" then
                         ArrangementPriority.Bonus
                     else
                         ArrangementPriority.Alternative
