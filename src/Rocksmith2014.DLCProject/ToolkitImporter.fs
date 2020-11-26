@@ -7,42 +7,51 @@ open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open Rocksmith2014.Common.Manifest
 
+let [<Literal>] AggregateGraphNs = "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.AggregateGraph"
+let [<Literal>] ToneNs = "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.Manifest2014.Tone"
+
 let private optionalString (node: XmlNode) name =
     node.Item name
     |> Option.ofObj
     |> Option.bind (fun x -> Option.ofString x.InnerText)
 
+/// Returns the contents of an arrangement's name node.
+let private getName (arrNode: XmlNode) =
+    // The tag is Name in older template files
+    let n = arrNode.Item "ArrangementName"
+    (if isNull n then arrNode.Item "Name" else n).InnerText
+
+/// Returns the inner text of a child node with the given name.
+let private itemText (root: XmlNode) name = root.Item(name).InnerText
+
 /// Imports an instrumental arrangement.
 let private importInstrumental (xmlFile: string) (arr: XmlNode) =
     let priority =
         try
-            let arrProp = arr.Item("ArrangementPropeties")
-            if isNull arrProp then
-                if arr.Item("BonusArr").InnerText = "true" then ArrangementPriority.Bonus
+            // "Properties" in the tag name is misspelled
+            match Option.ofObj (arr.Item "ArrangementPropeties") with
+            | None ->
+                // Arrangement properties do not exist in old files
+                if itemText arr "BonusArr" = "true" then ArrangementPriority.Bonus
                 else ArrangementPriority.Main
-            else
+            | Some arrProp ->
                 let tryGetPriority ns =
                     let represent =
-                        let r = arr.Item("Represent")
+                        let r = arr.Item "Represent"
                         not (isNull r) && r.InnerText = "true"
-                    if arrProp.Item("Represent", ns).InnerText = "1" || represent then ArrangementPriority.Main
-                    elif arrProp.Item("BonusArr", ns).InnerText = "1" || arr.Item("BonusArr").InnerText = "true" then ArrangementPriority.Bonus
-                    else ArrangementPriority.Alternative
+                    if arrProp.Item("Represent", ns).InnerText = "1" || represent then
+                        ArrangementPriority.Main
+                    elif arrProp.Item("BonusArr", ns).InnerText = "1" || arr.Item("BonusArr").InnerText = "true" then
+                        ArrangementPriority.Bonus
+                    else
+                        ArrangementPriority.Alternative
 
                 // The XML namespace was renamed at some point.
                 try tryGetPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.XML"
                 with _ -> tryGetPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.Xml"
         with _ -> ArrangementPriority.Main
 
-    let name =
-        let n = arr.Item "Name"
-        (if isNull n then arr.Item "ArrangementName" else n).InnerText
-        |> ArrangementName.Parse
-
-    let isPicked =
-        name = ArrangementName.Bass
-        &&
-        arr.Item("PluckedType").InnerText <> "NotPicked"
+    let name = getName arr |> ArrangementName.Parse
 
     let tuning =
         arr.Item("TuningStrings").ChildNodes
@@ -51,59 +60,59 @@ let private importInstrumental (xmlFile: string) (arr: XmlNode) =
         |> Seq.toArray
 
     let tones =
-        [ for t in 'A'..'D' -> Option.ofString (arr.Item(sprintf "Tone%c" t).InnerText) ]
+        [ for t in 'A'..'D' -> Option.ofString (itemText arr (sprintf "Tone%c" t)) ]
         |> List.choose id
 
     { XML = xmlFile
       Name = name
-      RouteMask = RouteMask.Parse(arr.Item("RouteMask").InnerText)
+      RouteMask = RouteMask.Parse(itemText arr "RouteMask")
       Priority = priority
-      ScrollSpeed = float (arr.Item("ScrollSpeed").InnerText) / 10.
-      BassPicked = isPicked
+      ScrollSpeed = float (itemText arr "ScrollSpeed") / 10.
+      BassPicked = name = ArrangementName.Bass && itemText arr "PluckedType" <> "NotPicked"
       Tuning = tuning
-      TuningPitch = float (arr.Item("TuningPitch").InnerText)
-      BaseTone = arr.Item("ToneBase").InnerText
+      TuningPitch = float (itemText arr "TuningPitch")
+      BaseTone = itemText arr "ToneBase"
       Tones = tones
-      MasterID = int (arr.Item("MasterId").InnerText)
-      PersistentID = Guid.Parse(arr.Item("Id").InnerText) }
+      MasterID = int (itemText arr "MasterId")
+      PersistentID = Guid.Parse(itemText arr "Id") }
     |> Instrumental
 
 /// Imports a vocals arrangement.
 let private importVocals (xmlFile: string) (arr: XmlNode) =
-    let isJapanese =
-        let n = arr.Item("Name")
-        (if isNull n then arr.Item("ArrangementName") else n).InnerText = "JVocals"
+    let isJapanese = (getName arr = "JVocals")
 
     let customFont =
-        let lyricsArtPath = arr.Item "LyricsArtPath"
-        if not <| isNull lyricsArtPath then
-            Option.ofString lyricsArtPath.InnerText
-        else
-            let lyricArt = arr.Item "LyricArt"
-            if not <| isNull lyricArt then
-                Option.ofString lyricArt.InnerText  
-            else
-                let glyphDefs =
-                    let a = arr.Item "GlyphDefinitons" // sic
-                    if isNull a then arr.Item "GlyphDefinitions" else a
-                if isNull glyphDefs || glyphDefs.IsEmpty then
-                    None
+        // In the current version (2.9.2.1) of the Toolkit,
+        // the tag name for the custom font texture is LyricsArtPath
+        optionalString arr "LyricsArtPath"
+        // In an earlier version it was LyricArt
+        |> Option.orElseWith (fun () -> optionalString arr "LyricArt")
+        |> Option.orElseWith (fun () ->
+            // In an earlier version there was the glyph definitions tag
+            Option.ofObj (arr.Item "GlyphDefinitions")
+            // ...which was misspelled in an earlier version
+            |> Option.orElseWith (fun () -> Option.ofObj (arr.Item "GlyphDefinitons")) // sic
+            |> Option.bind (fun glyphDefs ->
+                if glyphDefs.IsEmpty then None
                 else
-                    // x.glyphs.xml -> x.dds
-                    Some (Path.GetFileNameWithoutExtension (Path.GetFileNameWithoutExtension glyphDefs.InnerText) + ".dds")                 
+                    // Converts "path\to\x.glyphs.xml" to "x.dds"
+                    Some (Path.ChangeExtension(Path.GetFileNameWithoutExtension glyphDefs.InnerText, "dds"))))
         
     { XML = xmlFile
       Japanese = isJapanese 
       CustomFont = customFont
-      MasterID = int (arr.Item("MasterId").InnerText)
-      PersistentID = Guid.Parse(arr.Item("Id").InnerText) }
+      MasterID = int (itemText arr "MasterId")
+      PersistentID = Guid.Parse(itemText arr "Id") }
     |> Vocals
 
 /// Imports an arrangement from the Toolkit template.
 let private importArrangement (arr: XmlNode) =
-    let xml = arr.Item("SongXml").Item("File", "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.AggregateGraph").InnerText
+    let xml =
+        arr.Item("SongXml")
+           .Item("File", AggregateGraphNs)
+           .InnerText
 
-    match (arr.Item "ArrangementType").InnerText with
+    match itemText arr "ArrangementType" with
     | "Guitar" | "Bass" -> importInstrumental xml arr
     | "Vocal" -> importVocals xml arr
     | "ShowLight" -> Showlights { XML = xml }
@@ -119,15 +128,15 @@ let import (templatePath: string) =
 
     let songInfo = docEl.Item "SongInfo"
     let year =
-        match Int32.TryParse((songInfo.Item "SongYear").InnerText) with
-        | true, y -> y
+        match Int32.TryParse(itemText songInfo "SongYear") with
+        | true, year -> year
         | false, _ -> DateTime.Now.Year
 
-    let audioPath = (docEl.Item "OggPath").InnerText
+    let audioPath = itemText docEl "OggPath"
     let previewPath =
         let fn = Path.GetFileNameWithoutExtension audioPath
         let prevFile = fn + "_preview" + (Path.GetExtension audioPath)
-        let prevPath = Path.Combine (Path.GetDirectoryName(templatePath), prevFile)
+        let prevPath = Path.Combine (Path.GetDirectoryName templatePath, prevFile)
         if File.Exists prevPath then prevFile else String.Empty
 
     let arrangements =
@@ -138,28 +147,28 @@ let import (templatePath: string) =
         |> Seq.toList
 
     let tones =
-        let ns = Some "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.Manifest2014.Tone"
         docEl.Item("TonesRS2014").ChildNodes
         |> Seq.cast<XmlNode>
-        |> Seq.map (Tone.importXml ns)
+        |> Seq.map (Tone.importXml (Some ToneNs))
         |> Seq.toList
 
     let version =
         let tkInfo = docEl.Item "ToolkitInfo"
-        if isNull tkInfo then docEl.Item("PackageVersion").InnerText
-        else tkInfo.Item("PackageVersion").InnerText
+        // There is no ToolkitInfo tag in older template files
+        if isNull tkInfo then itemText docEl "PackageVersion"
+        else itemText tkInfo "PackageVersion"
 
     { Version = version
-      DLCKey = docEl.Item("Name").InnerText
-      ArtistName = { Value = songInfo.Item("Artist").InnerText; SortValue = songInfo.Item("ArtistSort").InnerText }
+      DLCKey = itemText docEl "Name"
+      ArtistName = { Value = itemText songInfo "Artist"; SortValue = itemText songInfo "ArtistSort" }
       JapaneseArtistName = optionalString songInfo "JapaneseArtistName"
       JapaneseTitle = optionalString songInfo "JapaneseSongName"
-      Title = { Value = songInfo.Item("SongDisplayName").InnerText; SortValue = songInfo.Item("SongDisplayNameSort").InnerText }
-      AlbumName = { Value = songInfo.Item("Album").InnerText; SortValue = songInfo.Item("AlbumSort").InnerText }
+      Title = { Value = itemText songInfo "SongDisplayName"; SortValue = itemText songInfo "SongDisplayNameSort" }
+      AlbumName = { Value = itemText songInfo "Album"; SortValue = itemText songInfo "AlbumSort" }
       Year = year
-      AlbumArtFile = docEl.Item("AlbumArtPath").InnerText
-      AudioFile = { Path = audioPath; Volume = float (docEl.Item "Volume").InnerText }
-      AudioPreviewFile = { Path = previewPath; Volume = float (docEl.Item "PreviewVolume").InnerText }
+      AlbumArtFile = itemText docEl "AlbumArtPath"
+      AudioFile = { Path = audioPath; Volume = float (itemText docEl "Volume") }
+      AudioPreviewFile = { Path = previewPath; Volume = float (itemText docEl "PreviewVolume") }
       Arrangements = arrangements
       Tones = tones }
     |> DLCProject.toAbsolutePaths (Path.GetDirectoryName templatePath) 
