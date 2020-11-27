@@ -18,7 +18,7 @@ let readOnDiscIdsAndKeys () =
 let gatherDLCData (directory: string) =
     let ids, keys =
         Directory.EnumerateFiles(directory, "*.psarc", SearchOption.AllDirectories)
-        |> Seq.filter (fun x -> not <| x.Contains("inlay") && not <| x.Contains("rs1compatibility"))
+        |> Seq.filter (fun x -> not <| (x.Contains "inlay" || x.Contains "rs1compatibility"))
         |> Seq.map (fun path ->
             printfn "Reading IDs from %s" (Path.GetRelativePath(directory, path))
 
