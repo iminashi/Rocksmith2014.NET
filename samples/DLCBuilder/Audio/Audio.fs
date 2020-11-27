@@ -1,12 +1,16 @@
 ﻿module DLCBuilder.Audio.Tools
 
+open Rocksmith2014.Common
 open System
 open System.IO
-open DLCBuilder.Audio
 open NAudio.Wave
 
+let [<Literal>] FadeIn = 2500<ms>
+let [<Literal>] FadeOut = 3000<ms>
+let [<Literal>] PreviewLength = 28_000L<ms>
+
 let private getAudioReader (fileName : string)  =
-    if fileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase) then
+    if String.endsWith ".wav" fileName then
         new AudioFileReader(fileName)
     else
         invalidOp "The audio file must be a wave file."
@@ -27,10 +31,8 @@ let getLength (fileName : string) =
 let createPreview (sourceFile: string) (startOffset: TimeSpan) =
     let targetFile = Path.Combine(Path.GetDirectoryName(sourceFile), Path.GetFileNameWithoutExtension(sourceFile) + "_preview.wav")
     use audio = getAudioReader sourceFile
-    let fadeIn = 2500<ms>
-    let fadeOut = 3000<ms>
 
     let previewSection = getPreviewSection startOffset audio
-    let preview = fade fadeIn fadeOut (28L * 1000L<ms>) previewSection
+    let preview = fade FadeIn FadeOut PreviewLength previewSection
     WaveFileWriter.CreateWaveFile16(targetFile, preview)
     targetFile
