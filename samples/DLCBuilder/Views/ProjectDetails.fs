@@ -252,7 +252,7 @@ let view state dispatch =
                                 ]
                             ]
                         )
-                        Button.isEnabled (state.Project.AudioFile.Path.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+                        Button.isEnabled (String.endsWith ".wav" state.Project.AudioFile.Path)
                         Button.onClick (fun _ -> dispatch (CreatePreviewAudio SetupStartTime))
                         ToolTip.tip (
                             if previewExists then

@@ -23,7 +23,7 @@ let gatherDLCData (directory: string) =
             printfn "Reading IDs from %s" (Path.GetRelativePath(directory, path))
 
             use psarc = PSARC.ReadFile path
-            let headerFile = psarc.Manifest |> Seq.find (fun x -> x.EndsWith "hsan")
+            let headerFile = psarc.Manifest |> Seq.find (String.endsWith "hsan")
             use mem = MemoryStreamPool.Default.GetStream()
             psarc.InflateFile(headerFile, mem) |> Async.RunSynchronously
             let manifest = async { return! Manifest.fromJsonStream mem } |> Async.RunSynchronously

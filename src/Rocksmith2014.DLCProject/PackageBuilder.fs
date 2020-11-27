@@ -105,7 +105,7 @@ let private build (buildData: BuildData) targetFile project platform = async {
     let audioEntries =
         let createEntries (audioFile: AudioFile) isPreview =
             let path =
-                if audioFile.Path.EndsWith(".wem", StringComparison.OrdinalIgnoreCase) then
+                if String.endsWith ".wem" audioFile.Path then
                     audioFile.Path
                 else
                     Path.ChangeExtension(audioFile.Path, "wem")

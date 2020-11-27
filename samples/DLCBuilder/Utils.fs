@@ -37,7 +37,7 @@ let private avaloniaBitmapFromDDS (fileName: string) =
 
 /// Loads a bitmap from the given path.
 let loadBitmap (fileName: string) =
-    if fileName.EndsWith("dds", StringComparison.OrdinalIgnoreCase) then
+    if String.endsWith "dds" fileName then
         avaloniaBitmapFromDDS fileName
     else
         new Bitmap(fileName)
@@ -47,7 +47,7 @@ let importTonesFromPSARC (psarcPath: string) = async {
     use psarc = PSARC.ReadFile psarcPath
     let! jsons =
         psarc.Manifest
-        |> Seq.filter (fun x -> x.EndsWith "json")
+        |> Seq.filter (String.endsWith "json")
         |> Seq.map (fun x -> async {
             let data = MemoryStreamPool.Default.GetStream()
             do! psarc.InflateFile(x, data)

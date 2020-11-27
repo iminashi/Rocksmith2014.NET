@@ -179,7 +179,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             state, Cmd.OfAsync.attempt t () Error
 
         | ConvertPCtoMac file ->
-            if not <| file.EndsWith "_p.psarc" then
+            if not <| String.endsWith "_p.psarc" file then
                 { state with Status = "Filename has to end in _p.psarc." }, Cmd.none
             else
                 let t () = async {
@@ -227,7 +227,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
 
                 let! sngs =
                     psarc.Manifest
-                    |> Seq.filter (fun x -> x.EndsWith "sng")
+                    |> Seq.filter (String.endsWith "sng")
                     |> Seq.map (fun x -> async {
                         use mem = MemoryStreamPool.Default.GetStream()
                         do! psarc.InflateFile(x, mem)
@@ -237,7 +237,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
 
                 let! manifests =
                     psarc.Manifest
-                    |> Seq.filter (fun x -> x.EndsWith "json")
+                    |> Seq.filter (String.endsWith "json")
                     |> Seq.map (fun x -> async {
                         use mem = MemoryStreamPool.Default.GetStream()
                         do! psarc.InflateFile(x, mem)

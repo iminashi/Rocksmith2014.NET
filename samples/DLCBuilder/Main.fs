@@ -205,7 +205,7 @@ let update (msg: Msg) (state: State) =
 
     | ImportTonesFromFile fileName ->
         let task () =
-            if fileName.EndsWith("psarc", StringComparison.OrdinalIgnoreCase) then
+            if String.endsWith "psarc" fileName then
                 Utils.importTonesFromPSARC fileName
             else
                 async { return [| Tone.fromXmlFile fileName |] }
@@ -254,7 +254,7 @@ let update (msg: Msg) (state: State) =
         { state with Config = config }, Cmd.none
 
     | AddProfilePath path ->
-        if not <| path.EndsWith("_PRFLDB", StringComparison.OrdinalIgnoreCase) then
+        if not <| String.endsWith "_PRFLDB" path then
             state, Cmd.none
         else
             let config = { state.Config with ProfilePath = path }
@@ -442,14 +442,13 @@ let update (msg: Msg) (state: State) =
         state, Cmd.ofMsg msg
 
     | OpenProject fileName ->
-        let task() = DLCProject.load fileName
-        state, Cmd.OfAsync.either task () (fun p -> ProjectLoaded(p, Some fileName)) ErrorOccurred
+        state, Cmd.OfAsync.either DLCProject.load fileName (fun p -> ProjectLoaded(p, Some fileName)) ErrorOccurred
 
     | ProjectLoaded (project, projectFile) ->
         state.CoverArt.Dispose()
         let bm =
             if IO.File.Exists project.AlbumArtFile then
-                Utils.loadBitmap(project.AlbumArtFile)
+                Utils.loadBitmap project.AlbumArtFile
             else
                 loadPlaceHolderAlbumArt()
 

@@ -75,7 +75,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         // SNG -> Already zlib packed
         // AppId -> Very small file (6-7 bytes), unpacked in official files
         // 7z -> Already compressed (found in cache.psarc)
-        entry.Name.EndsWith(".wem") || entry.Name.EndsWith(".sng") || entry.Name.EndsWith("appid") || entry.Name.EndsWith("7z")
+        List.exists (fun x -> String.endsWith x entry.Name) [ ".wem"; ".sng"; "appid"; "7z" ]
 
     let mutable manifest =
         if toc.Count > 1 then

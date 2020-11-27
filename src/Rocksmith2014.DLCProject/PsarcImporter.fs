@@ -27,7 +27,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
 
     let audioFiles =
         psarcContents
-        |> List.filter (fun x -> x.EndsWith "wem")
+        |> List.filter (String.endsWith "wem")
 
     if audioFiles.Length > 2 then failwith "Package contains more than 2 audio files."
 
@@ -47,7 +47,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
 
     let artFile =
         psarcContents
-        |> List.find (fun x -> x.EndsWith "256.dds")
+        |> List.find (String.endsWith "256.dds")
     do! psarc.InflateFile(artFile, Path.Combine(targetDirectory, "cover.dds"))
 
     let showlights =
@@ -57,7 +57,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
 
     let! sngs =
         psarcContents
-        |> List.filter (fun x -> x.EndsWith "sng")
+        |> List.filter (String.endsWith "sng")
         |> List.map (fun file -> async {
             use mem = MemoryStreamPool.Default.GetStream()
             do! psarc.InflateFile(file, mem)
@@ -67,7 +67,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
 
     let! fileAttributes =
         psarcContents
-        |> List.filter (fun x -> x.EndsWith "json")
+        |> List.filter (String.endsWith "json")
         |> List.map (fun file -> async {
             use mem = MemoryStreamPool.Default.GetStream()
             do! psarc.InflateFile(file, mem)
@@ -160,7 +160,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
 
     let previewBank, mainBank =
         psarcContents
-        |> List.filter (fun x -> x.EndsWith "bnk")
+        |> List.filter (String.endsWith "bnk")
         |> List.partition (fun x -> x.Contains "preview")
         |> fun (preview, main) -> List.head preview, List.head main
 
