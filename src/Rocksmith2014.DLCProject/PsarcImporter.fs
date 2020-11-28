@@ -17,6 +17,70 @@ let private getVolume (psarc: PSARC) platform bank = async {
            | Ok vol -> vol
            | Error _ -> 0.0f }
 
+let private (|VocalsFile|JVocalsFile|InstrumentalFile|) (fileName: string) =
+    if String.contains "jvocals" fileName then JVocalsFile
+    elif String.contains "vocals" fileName then VocalsFile
+    else InstrumentalFile
+
+/// Imports a vocals SNG into a vocals arrangement.
+let private importVocals targetDirectory targetFile customFont (attributes: Manifest.Attributes) sng isJapanese =
+    let vocals = ConvertVocals.sngToXml sng
+    Vocals.Save(targetFile, vocals)
+
+    let hasCustomFont =
+        sng.SymbolsTextures.[0].Font <> "assets\ui\lyrics\lyrics.dds"
+
+    if hasCustomFont then
+        let glyphs = ConvertVocals.extractGlyphData sng
+        glyphs.Save(Path.Combine(targetDirectory, "lyrics.glyphs.xml"))
+
+    { XML = targetFile
+      Japanese = isJapanese
+      CustomFont = if hasCustomFont then customFont else None
+      MasterID = attributes.MasterID_RDV
+      PersistentID = Guid.Parse(attributes.PersistentID) }
+    |> Arrangement.Vocals
+
+/// Imports an instrumental SNG into an instrumental arrangement.
+let private importInstrumental targetFile (attributes: Manifest.Attributes) sng =
+    let xml = ConvertInstrumental.sngToXml (Some attributes) sng
+    xml.Save targetFile
+
+    let arrProps = Option.get attributes.ArrangementProperties
+
+    let tones =
+        [ attributes.Tone_A; attributes.Tone_B; attributes.Tone_C; attributes.Tone_D ]
+        |> List.choose Option.ofString
+
+    let scrollSpeed =
+        let max = Math.Min(int attributes.MaxPhraseDifficulty, attributes.DynamicVisualDensity.Length - 1)
+        float attributes.DynamicVisualDensity.[max]
+
+    let bassPicked =
+        match Option.ofNullable attributes.BassPick with
+        | Some x when x = 1 -> true
+        | _ -> false
+
+    { XML = targetFile
+      Name = ArrangementName.Parse attributes.ArrangementName
+      Priority =
+        if arrProps.represent = 1uy then ArrangementPriority.Main
+        elif arrProps.bonusArr = 1uy then ArrangementPriority.Bonus
+        else ArrangementPriority.Alternative
+      Tuning = (Option.get attributes.Tuning).ToArray()
+      TuningPitch = Utils.centsToTuningPitch(float attributes.CentOffset)
+      RouteMask =
+        if arrProps.pathBass = 1uy then RouteMask.Bass
+        elif arrProps.pathLead = 1uy then RouteMask.Lead
+        else RouteMask.Rhythm
+      ScrollSpeed = scrollSpeed
+      BaseTone = attributes.Tone_Base
+      Tones = tones
+      BassPicked = bassPicked
+      MasterID = attributes.MasterID_RDV
+      PersistentID = Guid.Parse(attributes.PersistentID) }
+    |> Arrangement.Instrumental
+
 /// Imports a PSARC from the given path into a DLCProject with the project created in the target directory.
 let import (psarcPath: string) (targetDirectory: string) = async {
     let platform =
@@ -25,9 +89,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
     use psarc = PSARC.ReadFile(psarcPath)
     let psarcContents = psarc.Manifest
 
-    let audioFiles =
-        psarcContents
-        |> List.filter (String.endsWith "wem")
+    let audioFiles = List.filter (String.endsWith "wem") psarcContents
 
     if audioFiles.Length > 2 then failwith "Package contains more than 2 audio files."
 
@@ -45,14 +107,10 @@ let import (psarcPath: string) (targetDirectory: string) = async {
         File.Move(audioInfo2.FullName, Path.Combine(targetDirectory, "audio.wem"), true)
         File.Move(audioInfo1.FullName, Path.Combine(targetDirectory, "audio_preview.wem"), true)
 
-    let artFile =
-        psarcContents
-        |> List.find (String.endsWith "256.dds")
+    let artFile = List.find (String.endsWith "256.dds") psarcContents
     do! psarc.InflateFile(artFile, Path.Combine(targetDirectory, "cover.dds"))
 
-    let showlights =
-        psarcContents
-        |> List.find (fun x -> x.Contains "showlights")
+    let showlights = List.find (String.contains "showlights") psarcContents
     do! psarc.InflateFile(showlights, Path.Combine(targetDirectory, "arr_showlights.xml"))
 
     let! sngs =
@@ -99,61 +157,12 @@ let import (psarcPath: string) (targetDirectory: string) = async {
                 |> Array.find (fun (mFile, _) -> Path.GetFileNameWithoutExtension mFile = Path.GetFileNameWithoutExtension file)
                 |> snd
 
-            if file.Contains "vocals" then
-                let vocals = ConvertVocals.sngToXml sng
-                Vocals.Save(targetFile, vocals)
+            let importVocals' = importVocals targetDirectory targetFile customFont attributes sng
 
-                let hasCustomFont =
-                    sng.SymbolsTextures.[0].Font <> "assets\ui\lyrics\lyrics.dds"
-
-                if hasCustomFont then
-                    let glyphs = ConvertVocals.extractGlyphData sng
-                    glyphs.Save(Path.Combine(targetDirectory, "lyrics.glyphs.xml"))
-
-                { XML = targetFile
-                  Japanese = file.Contains "jvocals"
-                  CustomFont = if hasCustomFont then customFont else None
-                  MasterID = attributes.MasterID_RDV
-                  PersistentID = Guid.Parse(attributes.PersistentID) }
-                |> Arrangement.Vocals
-            else
-                let xml = ConvertInstrumental.sngToXml (Some attributes) sng
-                xml.Save targetFile
-
-                let arrProps = Option.get attributes.ArrangementProperties
-
-                let tones =
-                    [ attributes.Tone_A; attributes.Tone_B; attributes.Tone_C; attributes.Tone_D ]
-                    |> List.choose Option.ofString
-
-                let scrollSpeed =
-                    let max = Math.Min(int attributes.MaxPhraseDifficulty, attributes.DynamicVisualDensity.Length - 1)
-                    float attributes.DynamicVisualDensity.[max]
-
-                let bassPicked =
-                    match Option.ofNullable attributes.BassPick with
-                    | Some x when x = 1 -> true
-                    | _ -> false
-
-                { XML = targetFile
-                  Name = ArrangementName.Parse attributes.ArrangementName
-                  Priority =
-                    if arrProps.represent = 1uy then ArrangementPriority.Main
-                    elif arrProps.bonusArr = 1uy then ArrangementPriority.Bonus
-                    else ArrangementPriority.Alternative
-                  Tuning = (Option.get attributes.Tuning).ToArray()
-                  TuningPitch = Utils.centsToTuningPitch(float attributes.CentOffset)
-                  RouteMask =
-                    if arrProps.pathBass = 1uy then RouteMask.Bass
-                    elif arrProps.pathLead = 1uy then RouteMask.Lead
-                    else RouteMask.Rhythm
-                  ScrollSpeed = scrollSpeed
-                  BaseTone = attributes.Tone_Base
-                  Tones = tones
-                  BassPicked = bassPicked
-                  MasterID = attributes.MasterID_RDV
-                  PersistentID = Guid.Parse(attributes.PersistentID) }
-                |> Arrangement.Instrumental)
+            match file with
+            | JVocalsFile -> importVocals' true
+            | VocalsFile -> importVocals' false
+            | InstrumentalFile -> importInstrumental targetFile attributes sng)
         |> Array.toList
         |> List.append [ Showlights { XML = Path.Combine(targetDirectory, "arr_showlights.xml") } ]
         |> List.sortBy Arrangement.sorter
@@ -180,9 +189,8 @@ let import (psarcPath: string) (targetDirectory: string) = async {
         |> snd
 
     let! version = async {
-        let tkVer =
-            psarcContents
-            |> List.tryFind ((=) "toolkit.version")
+        let tkVer = List.tryFind ((=) "toolkit.version") psarcContents
+
         match tkVer with
         | Some tk ->
             use mem = MemoryStreamPool.Default.GetStream()
