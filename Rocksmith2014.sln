@@ -39,7 +39,7 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "DLCBuilder", "samples\DLCBu
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "ProfileDebloater", "samples\ProfileDebloater\ProfileDebloater.fsproj", "{63CC84D5-B794-43A7-8395-4D9CB8729A3B}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "EmptyTitleFix", "samples\EmptyTitleFix\EmptyTitleFix.fsproj", "{7C9F9E01-DBEA-4116-8262-33F089878C6F}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "EmptyTitleFix", "samples\EmptyTitleFix\EmptyTitleFix.fsproj", "{7C9F9E01-DBEA-4116-8262-33F089878C6F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -140,11 +140,13 @@ Global
 		{63CC84D5-B794-43A7-8395-4D9CB8729A3B}.Debug|x64.Build.0 = Debug|x64
 		{63CC84D5-B794-43A7-8395-4D9CB8729A3B}.Release|Any CPU.ActiveCfg = Release|x64
 		{63CC84D5-B794-43A7-8395-4D9CB8729A3B}.Release|x64.ActiveCfg = Release|x64
+		{63CC84D5-B794-43A7-8395-4D9CB8729A3B}.Release|x64.Build.0 = Release|x64
 		{7C9F9E01-DBEA-4116-8262-33F089878C6F}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{7C9F9E01-DBEA-4116-8262-33F089878C6F}.Debug|x64.ActiveCfg = Debug|x64
 		{7C9F9E01-DBEA-4116-8262-33F089878C6F}.Debug|x64.Build.0 = Debug|x64
 		{7C9F9E01-DBEA-4116-8262-33F089878C6F}.Release|Any CPU.ActiveCfg = Release|x64
 		{7C9F9E01-DBEA-4116-8262-33F089878C6F}.Release|x64.ActiveCfg = Release|x64
+		{7C9F9E01-DBEA-4116-8262-33F089878C6F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
