@@ -50,10 +50,10 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             match int blockSizeTable.[zIndex] with
             | 0 ->
                 // Raw, full cluster used
-                let! bytesRead = source.ReadAsync(buffer.AsMemory(0, blockSize))
-                do! output.WriteAsync(ReadOnlyMemory(buffer, 0, blockSize))
+                let! bytesRead = source.AsyncRead(buffer, 0, blockSize)
+                do! output.AsyncWrite(buffer, 0, blockSize)
             | size ->
-                let! bytesRead = source.ReadAsync(buffer.AsMemory(0, size))
+                let! bytesRead = source.AsyncRead(buffer, 0, size)
 
                 // Check for zlib header
                 if buffer.[0] = 0x78uy && buffer.[1] = 0xDAuy then
