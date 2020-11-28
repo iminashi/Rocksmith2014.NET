@@ -23,17 +23,10 @@ let fixManifest entry = async {
 let fixManifests (psarcs: seq<PSARC>) =
     psarcs
     |> Seq.iter (fun psarc ->
-        psarc.Edit(EditOptions.Default, (fun namedEntries ->
-            let updatedEntries =
-                namedEntries
-                |> List.ofSeq
-                |> List.map (fun entry ->
-                    if entry.Name.EndsWith "hsan" || entry.Name.EndsWith "json" then
-                        fixManifest entry |> Async.RunSynchronously
-                    else entry)
-
-            namedEntries.Clear()
-            namedEntries.AddRange updatedEntries))
+        psarc.Edit(EditOptions.Default, (List.map (fun entry ->
+            if entry.Name.EndsWith "hsan" || entry.Name.EndsWith "json" then
+                fixManifest entry |> Async.RunSynchronously
+            else entry)))
         |> Async.RunSynchronously
         (psarc :> IDisposable).Dispose()
     )

@@ -22,7 +22,7 @@ let someTests =
         use psarc = PSARC.Read memory
         let oldManifest = psarc.Manifest
 
-        do! psarc.Edit(options, ignore)
+        do! psarc.Edit(options, id)
 
         Expect.sequenceContainsOrder psarc.Manifest oldManifest "Manifest is unchanged" }
 
@@ -32,7 +32,7 @@ let someTests =
         let oldManifest = psarc.Manifest
         let oldToc = psarc.TOC
 
-        do! psarc.Edit(options, ignore)
+        do! psarc.Edit(options, id)
         memory.Position <- 0L
         let psarc2 = PSARC.Read memory
 
@@ -47,7 +47,7 @@ let someTests =
         let oldSize = memory.Length
 
         // Remove all files ending in "wem" from the archive
-        do! psarc.Edit(options, (fun files -> files.RemoveAll(fun x -> x.Name.EndsWith "wem") |> ignore))
+        do! psarc.Edit(options, (List.filter (fun x -> not <| x.Name.EndsWith "wem")))
         memory.Position <- 0L
         let psarc2 = PSARC.Read memory
 
@@ -61,10 +61,10 @@ let someTests =
 
         let fileToAdd = { Name = "test/test.dll"; Data = File.OpenRead "Rocksmith2014.PSARC.dll" }
 
-        do! psarc.Edit(options, (fun files -> files.Add fileToAdd))
+        do! psarc.Edit(options, (fun files -> fileToAdd::files))
 
         Expect.equal psarc.Manifest.Length (oldManifest.Length + 1) "Manifest size is correct"
-        Expect.equal psarc.Manifest.[psarc.Manifest.Length - 1] fileToAdd.Name "Name in manifest is correct"
+        Expect.equal psarc.Manifest.[0] fileToAdd.Name "Name in manifest is correct"
         Expect.isFalse fileToAdd.Data.CanRead "Data stream has been disposed" }
 
     testAsync "Can reorder files" {
@@ -72,7 +72,9 @@ let someTests =
         let psarc = PSARC.Read memory
         let oldManifest = psarc.Manifest
 
-        do! psarc.Edit(options, (fun files -> let f = files.[0] in files.RemoveAt 0; files.Add f))
+        do! psarc.Edit(options, (fun files ->
+            let first = List.head files
+            (List.tail files) @ [first]))
 
         Expect.equal psarc.Manifest.Length oldManifest.Length "Manifest size is same"
         Expect.equal psarc.Manifest.[psarc.Manifest.Length - 1] oldManifest.[0] "First file is now last" }
@@ -82,9 +84,8 @@ let someTests =
         let psarc = PSARC.Read memory
         let oldManifest = psarc.Manifest
 
-        do! psarc.Edit(options, (fun files ->
-            let f = { files.[0] with Name = "new name" }
-            files.[0] <- f))
+        do! psarc.Edit(options, (List.mapi (fun i item ->
+            if i = 0 then { item with Name = "new name" } else item)))
 
         Expect.equal psarc.Manifest.Length oldManifest.Length "Manifest size is same"
         Expect.equal psarc.Manifest.[0] "new name" "File name is changed" }

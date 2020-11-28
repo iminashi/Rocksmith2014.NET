@@ -45,3 +45,7 @@ let createFileStreamForPSARC (fileName: string) =
 /// Fixes the platform-specific directory separator character when extracting files from a PSARC.
 let fixDirSeparator (path: string) =
     if Path.DirectorySeparatorChar = '/' then path else path.Replace('/', '\\')
+
+/// Finds all files in the given path and its subdirectories.
+let getAllFiles path = Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories)
+    

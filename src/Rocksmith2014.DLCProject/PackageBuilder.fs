@@ -95,11 +95,12 @@ let private build (buildData: BuildData) targetFile project platform = async {
         entry $"gamexblocks/nsongs/{key}.xblock" data
 
     let appIdEntry =
-        entry "appid.appid" (new MemoryStream(Encoding.ASCII.GetBytes(buildData.AppId)))
+        entry "appid.appid" (new MemoryStream(Encoding.ASCII.GetBytes buildData.AppId))
 
     let graphEntry =
         let data = MemoryStreamPool.Default.GetStream()
-        AggregateGraph.create platform project |> AggregateGraph.serialize data
+        AggregateGraph.create platform project
+        |> AggregateGraph.serialize data
         entry $"{key}_aggregategraph.nt" data
 
     let audioEntries =
@@ -134,21 +135,19 @@ let private build (buildData: BuildData) targetFile project platform = async {
         sprintf "%s%s.psarc" targetFile (Platform.getPath platform Platform.Path.PackageSuffix)
         |> Utils.createFileStreamForPSARC
 
-    do! PSARC.Create(psarcFile, true,
-                    (fun entries ->
-                        entries.AddRange sngEntries
-                        entries.Add slEntry
-                        entries.Add headerEntry
-                        entries.AddRange manifestEntries
-                        entries.AddRange gfxEntries
-                        entries.Add xBlockEntry
-                        entries.AddRange flatModelEntries
-                        entries.Add graphEntry
-                        entries.AddRange audioEntries
-                        entries.AddRange fontEntry
-                        entries.Add toolkitEntry
-                        entries.Add appIdEntry)
-                    ) }
+    do! PSARC.Create(psarcFile, true, [
+        yield! sngEntries
+        yield slEntry
+        yield headerEntry
+        yield! manifestEntries
+        yield! gfxEntries
+        yield xBlockEntry
+        yield! flatModelEntries
+        yield graphEntry
+        yield! audioEntries
+        yield! fontEntry
+        yield toolkitEntry
+        yield appIdEntry ]) }
 
 let private setupInstrumental part (inst: Instrumental) (xml: InstrumentalArrangement) =
     xml.MetaData.Part <- int16 part

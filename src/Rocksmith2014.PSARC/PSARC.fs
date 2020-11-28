@@ -112,14 +112,14 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         data.Length
 
     /// Deflates the data in the given named entries.
-    let deflateEntries (entries: ResizeArray<NamedEntry>) = async {
+    let deflateEntries (entries: NamedEntry list) = async {
         let deflatedData = ResizeArray<Stream>()
         let protoEntries = ResizeArray<Entry * int64>()
         let blockSize = int header.BlockSizeAlloc
         let zLengths = ResizeArray<uint32>()
 
         // Add the manifest as the first entry
-        entries.Insert(0, { Name = String.Empty; Data = createManifestData() })
+        let entries = { Name = String.Empty; Data = createManifestData() }::entries
 
         for entry in entries do
             let proto = Entry.CreateProto entry (uint32 zLengths.Count)
@@ -198,7 +198,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             do! inflateEntry entry file }
 
     /// Edits the contents of the PSARC with the given edit function.
-    member _.Edit (options: EditOptions, editFunc: ResizeArray<NamedEntry> -> unit) = async {
+    member _.Edit (options: EditOptions, editFunc: NamedEntry list -> NamedEntry list) = async {
         // Map the table of contents to entry names and data
         let! namedEntries =
             let getTargetStream =
@@ -212,12 +212,11 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                 return { Name = getName e; Data = data } })
             |> Async.Sequential
 
-        // Call the edit function that mutates the resize array
-        let editList = ResizeArray(namedEntries)
-        editFunc editList
+        // Call the edit function that returns a new list
+        let editList = editFunc (List.ofArray namedEntries)
 
         // Update the manifest
-        manifest <- List.init editList.Count (fun i -> editList.[i].Name)
+        manifest <- List.map (fun entry -> entry.Name) editList
         
         // Deflate entries
         let! protoEntries, data, blockTable = deflateEntries editList
@@ -251,20 +250,20 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     /// Creates a new empty PSARC using the given stream.
     static member CreateEmpty(stream) = new PSARC(stream, Header(), ResizeArray(), [||])
 
-    /// Creates a new PSARC into the given stream using the creation function.
-    static member Create(stream, encrypt, createFun) = async {
+    /// Creates a new PSARC into the given stream with the given contents.
+    static member Create(stream, encrypt, content) = async {
         let options = { Mode = InMemory; EncryptTOC = encrypt }
         use psarc = PSARC.CreateEmpty(stream)
-        do! psarc.Edit(options, createFun) }
+        do! psarc.Edit(options, fun _ -> content) }
 
     /// Packs all the files in the directory and subdirectories into a PSARC file with the given filename.
     static member PackDirectory(path, targetFile, encrypt) = async {
         use file = File.Open(targetFile, FileMode.Create, FileAccess.ReadWrite)
-        let sourceFiles = Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories)
-        do! PSARC.Create(file, encrypt, (fun packFiles ->
-            for f in sourceFiles do
-                let name = Path.GetRelativePath(path, f).Replace('\\', '/')
-                packFiles.Add({ Name = name; Data = Utils.getFileStreamForRead f }))) }
+        do! PSARC.Create(file, encrypt, [
+            for file in Utils.getAllFiles path do
+                let name = Path.GetRelativePath(path, file).Replace('\\', '/')
+                { Name = name; Data = Utils.getFileStreamForRead file } ]
+        ) }
 
     /// Initializes a PSARC from the input stream. 
     static member Read (input: Stream) = 

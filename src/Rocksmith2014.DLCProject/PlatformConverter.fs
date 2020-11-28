@@ -26,18 +26,13 @@ let convertSNG (data: Stream) = async {
 
 /// Converts a PSARC from PC to Mac platform.
 let pcToMac (psarc: PSARC) = async {
-    do! psarc.Edit(EditOptions.Default, fun entries ->
-        let updated =
-            List.ofSeq entries
-            |> List.map (fun e ->
-                if e.Name.Contains "audio/windows" then
-                    { e with Name = e.Name.Replace("audio/windows", "audio/mac") }
-                elif e.Name.Contains "bin/generic" then
-                    convertSNG e.Data |> Async.RunSynchronously
-                    { e with Name = e.Name.Replace("bin/generic", "bin/macos") }
-                elif e.Name.EndsWith "aggregategraph.nt" then
-                    { e with Data = convertGraph e.Data }
-                else e)
-        entries.Clear()
-        entries.AddRange(updated)
+    do! psarc.Edit(EditOptions.Default, (List.map (fun e ->
+        if e.Name.Contains "audio/windows" then
+            { e with Name = e.Name.Replace("audio/windows", "audio/mac") }
+        elif e.Name.Contains "bin/generic" then
+            convertSNG e.Data |> Async.RunSynchronously
+            { e with Name = e.Name.Replace("bin/generic", "bin/macos") }
+        elif e.Name.EndsWith "aggregategraph.nt" then
+            { e with Data = convertGraph e.Data }
+        else e))
     ) }
