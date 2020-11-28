@@ -7,6 +7,7 @@ open System.IO.Compression
 open System.Diagnostics
 open System.Runtime.InteropServices
 open Microsoft.Extensions.FileProviders
+open Rocksmith2014.Common
 open Rocksmith2014.Common.BinaryWriters
 open Rocksmith2014.Common.Interfaces
 
@@ -24,14 +25,14 @@ let private getCLIPath() =
             let wwiseRoot = Environment.GetEnvironmentVariable "WWISEROOT"
             if String.IsNullOrEmpty wwiseRoot then
                 failwith "Failed to read WWISEROOT environment variable."
-            elif not <| wwiseRoot.Contains("2019", StringComparison.Ordinal) then
+            elif not <| String.contains "2019" wwiseRoot then
                 failwith "Wwise version must be 2019."
             Path.Combine(wwiseRoot, @"Authoring\x64\Release\bin\WwiseConsole.exe")
         elif RuntimeInformation.IsOSPlatform OSPlatform.OSX then
             let wwiseAppPath =
                 Directory.EnumerateDirectories("/Applications/Audiokinetic")
-                |> Seq.tryFind (fun x -> x.Contains("2019", StringComparison.Ordinal))
-                |> Option.defaultWith (fun _ -> failwith "Could not find Wwise 2019 installation in path /Applications/Audiokinetic/")
+                |> Seq.tryFind (String.contains "2019")
+                |> Option.defaultWith (fun _ -> failwith "Could not find Wwise 2019 installation in /Applications/Audiokinetic/")
             Path.Combine(wwiseAppPath, "Wwise.app/Contents/Tools/WwiseConsole.sh")
         else
             failwith "Only Windows and macOS are supported for Wwise conversion."

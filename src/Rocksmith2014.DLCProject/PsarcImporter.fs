@@ -170,7 +170,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
     let previewBank, mainBank =
         psarcContents
         |> List.filter (String.endsWith "bnk")
-        |> List.partition (fun x -> x.Contains "preview")
+        |> List.partition (String.contains "preview")
         |> fun (preview, main) -> List.head preview, List.head main
 
     let! mainVolume = getVolume psarc platform mainBank
