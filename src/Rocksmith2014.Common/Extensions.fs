@@ -10,8 +10,11 @@ module String =
     /// Returns true if the string is not null or whitespace.
     let notEmpty = (String.IsNullOrWhiteSpace >> not)
 
-    /// Returns true if the string ends with the given value (case ignored).
+    /// Returns true if the string ends with the given value (case insensitive).
     let endsWith value (str: string) = str.EndsWith(value, StringComparison.OrdinalIgnoreCase)
+
+    /// Returns true if the string contains the given value (case sensitive).
+    let contains (value: string) (str: string) = str.Contains(value, StringComparison.Ordinal)
 
 module List =
     /// Removes the item at the given index form the list.

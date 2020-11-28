@@ -48,4 +48,3 @@ let fixDirSeparator (path: string) =
 
 /// Finds all files in the given path and its subdirectories.
 let getAllFiles path = Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories)
-    
