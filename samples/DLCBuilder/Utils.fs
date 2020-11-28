@@ -47,8 +47,8 @@ let importTonesFromPSARC (psarcPath: string) = async {
     use psarc = PSARC.ReadFile psarcPath
     let! jsons =
         psarc.Manifest
-        |> Seq.filter (String.endsWith "json")
-        |> Seq.map (fun x -> async {
+        |> List.filter (String.endsWith "json")
+        |> List.map (fun x -> async {
             let data = MemoryStreamPool.Default.GetStream()
             do! psarc.InflateFile(x, data)
             return data })

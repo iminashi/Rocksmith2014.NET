@@ -227,8 +227,8 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
 
                 let! sngs =
                     psarc.Manifest
-                    |> Seq.filter (String.endsWith "sng")
-                    |> Seq.map (fun x -> async {
+                    |> List.filter (String.endsWith "sng")
+                    |> List.map (fun x -> async {
                         use mem = MemoryStreamPool.Default.GetStream()
                         do! psarc.InflateFile(x, mem)
                         let! sng = SNG.fromStream mem PC
@@ -237,8 +237,8 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
 
                 let! manifests =
                     psarc.Manifest
-                    |> Seq.filter (String.endsWith "json")
-                    |> Seq.map (fun x -> async {
+                    |> List.filter (String.endsWith "json")
+                    |> List.map (fun x -> async {
                         use mem = MemoryStreamPool.Default.GetStream()
                         do! psarc.InflateFile(x, mem)
                         let! manifest = Manifest.fromJsonStream mem

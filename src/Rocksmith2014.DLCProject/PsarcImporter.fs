@@ -23,7 +23,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
         if Path.GetFileNameWithoutExtension(psarcPath).EndsWith("_p") then PC else Mac
 
     use psarc = PSARC.ReadFile(psarcPath)
-    let psarcContents = List.ofSeq psarc.Manifest
+    let psarcContents = psarc.Manifest
 
     let audioFiles =
         psarcContents

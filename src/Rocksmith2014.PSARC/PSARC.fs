@@ -2,7 +2,6 @@
 
 open System
 open System.IO
-open System.Collections.Immutable
 open System.Text
 open System.Buffers
 open Rocksmith2014.Common
@@ -84,16 +83,18 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             inflateEntry toc.[0] data |> Async.RunSynchronously
             toc.RemoveAt 0
             use mReader = new StreamReader(data, true)
-            mReader.ReadToEnd().Split('\n')
+            [ while mReader.Peek() >= 0 do mReader.ReadLine() ]
         else
-            [||]
+            []
 
     /// Creates the data for the manifest.
     let createManifestData () =
         let memory = MemoryStreamPool.Default.GetStream()
-        for i = 0 to manifest.Length - 1 do
-            if i <> 0 then memory.WriteByte('\n'B) // Use Unix newline '\n'
-            memory.Write(ReadOnlySpan(Encoding.ASCII.GetBytes(manifest.[i])))
+        use writer = new StreamWriter(memory, Encoding.ASCII, leaveOpen = true, NewLine = "\n")
+        manifest
+        |> List.iteri (fun i name ->
+            if i <> 0 then writer.WriteLine()
+            writer.Write name)
         memory
 
     let getName (entry: Entry) = manifest.[entry.ID - 1]
@@ -170,7 +171,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             tocData.CopyTo source
 
     /// Gets the manifest.
-    member _.Manifest = manifest.ToImmutableArray()
+    member _.Manifest = manifest
 
     /// Gets the table of contents.
     member _.TOC = toc.AsReadOnly() 
@@ -180,7 +181,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     /// Inflates the entry with the given file name into the output stream.
     member _.InflateFile (name: string, output: Stream) = async {
-        let entry = toc.[Array.IndexOf(manifest, name)]
+        let entry = toc.[List.findIndex ((=) name) manifest]
         do! inflateEntry entry output }
 
     /// Inflates the entry with the given file name into the target file.
@@ -216,7 +217,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         editFunc editList
 
         // Update the manifest
-        manifest <- Array.init editList.Count (fun i -> editList.[i].Name)
+        manifest <- List.init editList.Count (fun i -> editList.[i].Name)
         
         // Deflate entries
         let! protoEntries, data, blockTable = deflateEntries editList
@@ -245,7 +246,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
         // Ensure that all entries that were inflated are disposed
         // If the user removed any entries, their data will be disposed of here
-        namedEntries |> Array.iter NamedEntry.Dispose }
+        Array.iter NamedEntry.Dispose namedEntries }
 
     /// Creates a new empty PSARC using the given stream.
     static member CreateEmpty(stream) = new PSARC(stream, Header(), ResizeArray(), [||])

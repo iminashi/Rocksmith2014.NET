@@ -41,7 +41,7 @@ let fixManifests (psarcs: seq<PSARC>) =
 /// Returns the attributes of the first arrangement found.
 let getAttributes (psarc: PSARC) = async {
     // Use the first (non-vocals) JSON file to determine if a fix is needed
-    let jsonFile = psarc.Manifest |> Seq.find (fun x -> x.EndsWith "json" && not <| x.Contains "vocals")
+    let jsonFile = psarc.Manifest |> List.find (fun x -> x.EndsWith "json" && not <| x.Contains "vocals")
     use mem = MemoryStreamPool.Default.GetStream()
     do! psarc.InflateFile(jsonFile, mem)
     let! mani = Manifest.fromJsonStream mem

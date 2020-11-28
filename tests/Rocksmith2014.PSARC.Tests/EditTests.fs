@@ -59,7 +59,7 @@ let someTests =
         let psarc = PSARC.Read memory
         let oldManifest = psarc.Manifest
 
-        let fileToAdd = { Name = "test/test.dll"; Data = File.OpenRead("Rocksmith2014.PSARC.dll") }
+        let fileToAdd = { Name = "test/test.dll"; Data = File.OpenRead "Rocksmith2014.PSARC.dll" }
 
         do! psarc.Edit(options, (fun files -> files.Add fileToAdd))
 

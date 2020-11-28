@@ -19,7 +19,7 @@ let readIDs rootDir path = async {
     printfn "Reading IDs from %s" (Path.GetRelativePath(rootDir, path))
     
     use psarc = PSARC.ReadFile path
-    let headerFile = psarc.Manifest |> Seq.find (String.endsWith "hsan")
+    let headerFile = psarc.Manifest |> List.find (String.endsWith "hsan")
     use mem = MemoryStreamPool.Default.GetStream()
     do! psarc.InflateFile(headerFile, mem)
     let! manifest = Manifest.fromJsonStream mem
