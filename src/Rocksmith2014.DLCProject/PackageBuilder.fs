@@ -131,11 +131,9 @@ let private build (buildData: BuildData) targetFile project platform = async {
         new MemoryStream(Encoding.UTF8.GetBytes($"Toolkit version: 9.9.9.9\nPackage Author: {buildData.Author}\nPackage Version: {project.Version}\nPackage Comment: Remastered"))
         |> entry "toolkit.version"
 
-    use psarcFile =
-        sprintf "%s%s.psarc" targetFile (Platform.getPath platform Platform.Path.PackageSuffix)
-        |> Utils.createFileStreamForPSARC
+    let targetPath = sprintf "%s%s.psarc" targetFile (Platform.getPath platform Platform.Path.PackageSuffix)
 
-    do! PSARC.Create(psarcFile, true, [
+    do! PSARC.Create(targetPath, true, [
         yield! sngEntries
         yield slEntry
         yield headerEntry

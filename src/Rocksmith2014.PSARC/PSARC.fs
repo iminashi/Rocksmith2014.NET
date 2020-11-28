@@ -256,10 +256,14 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         use psarc = PSARC.CreateEmpty(stream)
         do! psarc.Edit(options, fun _ -> content) }
 
+    /// Creates a new PSARC file with the given contents.
+    static member Create(fileName, encrypt, content) = async {
+        use file = Utils.createFileStreamForPSARC fileName
+        do! PSARC.Create(file, encrypt, content) }
+
     /// Packs all the files in the directory and subdirectories into a PSARC file with the given filename.
-    static member PackDirectory(path, targetFile, encrypt) = async {
-        use file = File.Open(targetFile, FileMode.Create, FileAccess.ReadWrite)
-        do! PSARC.Create(file, encrypt, [
+    static member PackDirectory(path, targetFile: string, encrypt) = async {
+        do! PSARC.Create(targetFile, encrypt, [
             for file in Utils.getAllFiles path do
                 let name = Path.GetRelativePath(path, file).Replace('\\', '/')
                 { Name = name; Data = Utils.getFileStreamForRead file } ]
