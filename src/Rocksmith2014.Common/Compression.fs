@@ -34,12 +34,12 @@ let blockZip blockSize (deflatedData: ResizeArray<Stream>) (zLengths: ResizeArra
             do! zip pStream zStream
             let packedSize = int zStream.Length
             if packedSize < blockSize then
-                do! pStream.DisposeAsync()
+                pStream.Dispose()
                 return zStream, packedSize
             else
                 // Edge case: the size of the zipped data is equal to, or greater than the block size
                 assert (bytesRead = int pStream.Length)
-                do! zStream.DisposeAsync()
+                zStream.Dispose()
                 return pStream, bytesRead }
 
         deflatedData.Add data
