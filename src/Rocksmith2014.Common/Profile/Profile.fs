@@ -17,10 +17,10 @@ let private getDecryptStream (input: Stream) =
     let decryptor = aes.CreateDecryptor(profileKey, null)
     new CryptoStream(input, decryptor, CryptoStreamMode.Read, true)
 
-let private getEncryptStream (input: Stream) =
+let private getEncryptStream (output: Stream) =
     use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.Zeros)
     let encryptor = aes.CreateEncryptor(profileKey, null)
-    new CryptoStream(input, encryptor, CryptoStreamMode.Write, true)
+    new CryptoStream(output, encryptor, CryptoStreamMode.Write, true)
 
 let private readHeader (stream: Stream) =
     let reader = LittleEndianBinaryReader(stream) :> IBinaryReader
