@@ -35,6 +35,7 @@
     <Compile Include="Dialogs.fs" />
     <Compile Include="Configuration.fs" />
     <Compile Include="Types.fs" />
+    <Compile Include="TitledTextBox.fs" />
     <Compile Include="Views\ProjectDetails.fs" />
     <Compile Include="Views\InstrumentalDetails.fs" />
     <Compile Include="Views\VocalsDetails.fs" />
@@ -86,6 +87,7 @@
     <Watch Remove="Localization.fs" />
     <Watch Remove="Main.fs" />
     <Watch Remove="Media.fs" />
+    <Watch Remove="TitledTextBox.fs" />
     <Watch Remove="Types.fs" />
     <Watch Remove="Utils.fs" />
     <Watch Remove="Views\ConfigEditor.fs" />

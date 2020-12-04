@@ -24,7 +24,7 @@ type MainWindow() as this =
         base.Width <- 1100.0
         base.Height <- 850.0
         base.MinWidth <- 900.0
-        base.MinHeight <- 650.0
+        base.MinHeight <- 670.0
 
         let handleHotkeys dispatch (event: KeyEventArgs) =
             match event.KeyModifiers, event.Key with

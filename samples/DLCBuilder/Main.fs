@@ -420,9 +420,11 @@ let update (msg: Msg) (state: State) =
         let previewFile = { state.Project.AudioPreviewFile with Path = previewPath }
         { state with Project = { state.Project with AudioPreviewFile = previewFile } }, Cmd.none
 
-    | ShowSortFields shown -> { state with ShowSortFields = shown }, Cmd.none
+    | ShowSortFields shown ->
+        { state with ShowSortFields = shown }, Cmd.none
     
-    | ShowJapaneseFields shown -> { state with ShowJapaneseFields = shown }, Cmd.none
+    | ShowJapaneseFields shown ->
+        { state with ShowJapaneseFields = shown }, Cmd.none
 
     | ShowConfigEditor -> { state with Overlay = ConfigEditor }, Cmd.none
     

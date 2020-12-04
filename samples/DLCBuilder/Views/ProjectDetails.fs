@@ -34,15 +34,11 @@ let view state dispatch =
 
             Grid.create [
                 Grid.columnDefinitions "3*,*"
-                Grid.rowDefinitions "35,35,35,35,35,40,40,*"
+                Grid.rowDefinitions "46,46,46,46,46,40,40,*"
                 //Grid.showGridLines true
                 Grid.children [
-                    TextBox.create [
-                        Grid.column 0
-                        Grid.row 0
-                        TextBox.watermark (state.Localization.GetString "dlcKey")
+                    TitledTextBox.create (state.Localization.GetString "dlcKey") [ Grid.column 0; Grid.row 0 ] [
                         TextBox.text state.Project.DLCKey
-                        ToolTip.tip (state.Localization.GetString "dlcKey")
                         // Cannot filter pasted text: https://github.com/AvaloniaUI/Avalonia/issues/2611
                         TextBox.onTextInput (fun e -> e.Text <- StringValidator.dlcKey e.Text)
                         TextBox.onTextChanged (fun e -> (fun p -> { p with DLCKey = StringValidator.dlcKey e }) |> EditProject |> dispatch)
@@ -50,115 +46,126 @@ let view state dispatch =
                         TextBox.onLostFocus ((fun e -> (e.Source :?> TextBox).Text <- state.Project.DLCKey), SubPatchOptions.OnChangeOf state.Project.DLCKey)
                     ]
 
-                    TextBox.create [
-                        Grid.column 1
-                        Grid.row 0
+                    TitledTextBox.create (state.Localization.GetString "version") [ Grid.column 1; Grid.row 0 ] [
                         TextBox.horizontalAlignment HorizontalAlignment.Left
                         TextBox.width 65.
-                        TextBox.watermark (state.Localization.GetString "version")
                         TextBox.text state.Project.Version
-                        ToolTip.tip (state.Localization.GetString "version")
-                        TextBox.onTextChanged (fun e -> (fun p -> { p with Version = e }) |> EditProject |> dispatch)
+                        TextBox.onTextChanged (fun e ->
+                            fun p -> { p with Version = e }
+                            |> EditProject
+                            |> dispatch)
                     ]
 
-                    TextBox.create [
-                        Grid.column 0
-                        Grid.row 1
-                        TextBox.watermark (state.Localization.GetString "artistName")
-                        TextBox.text state.Project.ArtistName.Value
-                        ToolTip.tip (state.Localization.GetString "artistName")
-                        TextBox.onTextChanged (fun e -> (fun p -> { p with ArtistName = { p.ArtistName with Value = StringValidator.field e } }) |> EditProject |> dispatch)
+                    TitledTextBox.create (state.Localization.GetString "artistName")
+                        [ Grid.column 0
+                          Grid.row 1
+                          StackPanel.isVisible (not state.ShowSortFields && not state.ShowJapaneseFields) ]
+                        [ TextBox.text state.Project.ArtistName.Value
+                          TextBox.onTextChanged (fun e ->
+                            fun p -> { p with ArtistName = { p.ArtistName with Value = StringValidator.field e } }
+                            |> EditProject
+                            |> dispatch)
                     ]
 
-                    TextBox.create [
-                        Grid.column 0
-                        Grid.row 1
-                        TextBox.watermark (state.Localization.GetString "artistNameSort")
-                        TextBox.text state.Project.ArtistName.SortValue
-                        TextBox.isVisible state.ShowSortFields
-                        ToolTip.tip (state.Localization.GetString "artistNameSort")
-                        TextBox.onLostFocus (fun e -> 
+                    TitledTextBox.create (state.Localization.GetString "artistNameSort")
+                        [ Grid.column 0
+                          Grid.row 1
+                          StackPanel.isVisible (state.ShowSortFields && not state.ShowJapaneseFields) ]
+                        [ TextBox.text state.Project.ArtistName.SortValue
+                          TextBox.onLostFocus (fun e -> 
                             let txtBox = e.Source :?> TextBox
                             let validValue = StringValidator.sortField txtBox.Text
                             txtBox.Text <- validValue
-                            (fun p -> { p with ArtistName = { p.ArtistName with SortValue = validValue } }) |> EditProject |> dispatch)
+
+                            fun p -> { p with ArtistName = { p.ArtistName with SortValue = validValue } }
+                            |> EditProject
+                            |> dispatch)
                     ]
 
-                    TextBox.create [
-                        Grid.column 0
-                        Grid.row 1
-                        TextBox.watermark (state.Localization.GetString "japaneseArtistName")
-                        TextBox.text (defaultArg state.Project.JapaneseArtistName String.Empty)
-                        TextBox.isVisible state.ShowJapaneseFields
-                        ToolTip.tip (state.Localization.GetString "japaneseArtistName")
-                        TextBox.onTextChanged (fun e -> (fun p -> { p with JapaneseArtistName = Option.ofString (StringValidator.field e) }) |> EditProject |> dispatch)
+                    TitledTextBox.create (state.Localization.GetString "japaneseArtistName")
+                        [ Grid.column 0
+                          Grid.row 1
+                          StackPanel.isVisible state.ShowJapaneseFields ]
+                        [ TextBox.text (defaultArg state.Project.JapaneseArtistName String.Empty)
+                          TextBox.onTextChanged (fun e -> 
+                            fun p -> { p with JapaneseArtistName = Option.ofString (StringValidator.field e) }
+                            |> EditProject
+                            |> dispatch)
                     ]
 
-                    TextBox.create [
-                        Grid.column 0
-                        Grid.row 2
-                        TextBox.watermark (state.Localization.GetString "title")
-                        TextBox.text state.Project.Title.Value
-                        ToolTip.tip (state.Localization.GetString "title")
-                        TextBox.onTextChanged (fun e -> (fun p -> { p with Title = { p.Title with Value = StringValidator.field e } }) |> EditProject |> dispatch)
+                    TitledTextBox.create (state.Localization.GetString "title")
+                        [ Grid.column 0
+                          Grid.row 2
+                          StackPanel.isVisible (not state.ShowSortFields && not state.ShowJapaneseFields) ]
+                        [ TextBox.text state.Project.Title.Value
+                          TextBox.onTextChanged (fun e ->
+                            fun p -> { p with Title = { p.Title with Value = StringValidator.field e } }
+                            |> EditProject
+                            |> dispatch)
                     ]
 
-                    TextBox.create [
-                        Grid.column 0
-                        Grid.row 2
-                        TextBox.watermark (state.Localization.GetString "titleSort")
-                        TextBox.text state.Project.Title.SortValue
-                        TextBox.isVisible state.ShowSortFields
-                        ToolTip.tip (state.Localization.GetString "titleSort")
-                        TextBox.onLostFocus (fun e -> 
+                    TitledTextBox.create (state.Localization.GetString "titleSort")
+                        [ Grid.column 0
+                          Grid.row 2
+                          StackPanel.isVisible state.ShowSortFields ]
+                        [ TextBox.text state.Project.Title.SortValue
+                          TextBox.onLostFocus (fun e -> 
                             let txtBox = e.Source :?> TextBox
                             let validValue = StringValidator.sortField txtBox.Text
                             txtBox.Text <- validValue
-                            (fun p -> { p with Title = { p.Title with SortValue = validValue } }) |> EditProject |> dispatch)
+
+                            fun p -> { p with Title = { p.Title with SortValue = validValue } }
+                            |> EditProject
+                            |> dispatch)
                     ]
 
-                    TextBox.create [
-                        Grid.column 0
-                        Grid.row 2
-                        TextBox.watermark (state.Localization.GetString "japaneseTitle")
-                        TextBox.text (defaultArg state.Project.JapaneseTitle String.Empty)
-                        TextBox.isVisible state.ShowJapaneseFields
-                        ToolTip.tip (state.Localization.GetString "japaneseTitle")
-                        TextBox.onTextChanged (fun e -> (fun p -> { p with JapaneseTitle = Option.ofString (StringValidator.field e) }) |> EditProject |> dispatch)
+                    TitledTextBox.create (state.Localization.GetString "japaneseTitle")
+                        [ Grid.column 0
+                          Grid.row 2
+                          StackPanel.isVisible state.ShowJapaneseFields ]
+                        [ TextBox.text (defaultArg state.Project.JapaneseTitle String.Empty)
+                          TextBox.onTextChanged (fun e ->
+                            fun p -> { p with JapaneseTitle = Option.ofString (StringValidator.field e) }
+                            |> EditProject
+                            |> dispatch)
                     ]
 
-                    TextBox.create [
-                        Grid.column 0
-                        Grid.row 3
-                        TextBox.watermark (state.Localization.GetString "albumName")
-                        TextBox.text state.Project.AlbumName.Value
-                        ToolTip.tip (state.Localization.GetString "albumName")
-                        TextBox.onTextChanged (fun e -> (fun p -> { p with AlbumName = { p.AlbumName with Value = StringValidator.field e } }) |> EditProject |> dispatch)
+                    TitledTextBox.create (state.Localization.GetString "albumName")
+                        [ Grid.column 0
+                          Grid.row 3
+                          StackPanel.isVisible (not state.ShowSortFields) ]
+                        [ TextBox.text state.Project.AlbumName.Value
+                          TextBox.onTextChanged (fun e ->
+                            fun p -> { p with AlbumName = { p.AlbumName with Value = StringValidator.field e } }
+                            |> EditProject
+                            |> dispatch)
                     ]
 
-                    TextBox.create [
-                        Grid.column 0
-                        Grid.row 3
-                        TextBox.watermark (state.Localization.GetString "albumNameSort")
-                        TextBox.text state.Project.AlbumName.SortValue
-                        TextBox.isVisible state.ShowSortFields
-                        ToolTip.tip (state.Localization.GetString "albumNameSort")
-                        TextBox.onLostFocus (fun e -> 
+                    TitledTextBox.create (state.Localization.GetString "albumNameSort")
+                        [ Grid.column 0
+                          Grid.row 3
+                          StackPanel.isVisible state.ShowSortFields ]
+                        [ TextBox.text state.Project.AlbumName.SortValue
+                          TextBox.onLostFocus (fun e -> 
                             let txtBox = e.Source :?> TextBox
                             let validValue = StringValidator.sortField txtBox.Text
                             txtBox.Text <- validValue
-                            (fun p -> { p with AlbumName = { p.AlbumName with SortValue = validValue } }) |> EditProject |> dispatch)
+
+                            fun p -> { p with AlbumName = { p.AlbumName with SortValue = validValue } }
+                            |> EditProject
+                            |> dispatch)
                     ]
 
-                    TextBox.create [
-                        Grid.column 1
-                        Grid.row 3
-                        TextBox.horizontalAlignment HorizontalAlignment.Left
-                        TextBox.width 65.
-                        TextBox.watermark (state.Localization.GetString "year")
-                        TextBox.text (string state.Project.Year)
-                        ToolTip.tip (state.Localization.GetString "year")
-                        TextBox.onTextChanged (fun e -> (fun p -> { p with Year = int e }) |> EditProject |> dispatch)
+                    TitledTextBox.create (state.Localization.GetString "year")
+                        [ Grid.column 1
+                          Grid.row 3 ]
+                        [ TextBox.horizontalAlignment HorizontalAlignment.Left
+                          TextBox.width 65.
+                          TextBox.text (string state.Project.Year)
+                          TextBox.onTextChanged (fun e ->
+                            fun p -> { p with Year = int e }
+                            |> EditProject
+                            |> dispatch)
                     ]
 
                     StackPanel.create [
@@ -169,14 +176,14 @@ let view state dispatch =
                         StackPanel.children [
                             CheckBox.create [
                                 CheckBox.content (state.Localization.GetString "showSortFields")
-                                CheckBox.isChecked state.ShowSortFields
+                                CheckBox.isChecked (state.ShowSortFields && not state.ShowJapaneseFields)
                                 CheckBox.onChecked (fun _ -> dispatch (ShowSortFields true))
                                 CheckBox.onUnchecked (fun _ -> dispatch (ShowSortFields false))
                             ]
                             CheckBox.create [
                                 CheckBox.margin (8., 0.,0., 0.)
                                 CheckBox.content (state.Localization.GetString "showJapaneseFields")
-                                CheckBox.isChecked state.ShowJapaneseFields
+                                CheckBox.isChecked (state.ShowJapaneseFields && not state.ShowSortFields)
                                 CheckBox.onChecked (fun _ -> dispatch (ShowJapaneseFields true))
                                 CheckBox.onUnchecked (fun _ -> dispatch (ShowJapaneseFields false))
                             ]
