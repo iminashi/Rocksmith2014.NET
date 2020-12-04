@@ -45,11 +45,13 @@ module Types =
     | OpenFolderDialog of locTitle : string * msg : (string -> Msg)
     | ConditionalCmdDispatch of opt : string option * msg : (string -> Msg)
     | SelectOpenArrangement
-    | ProjectSaveAs
     | SelectImportPsarcFolder of psarcFile : string
     | ImportPsarc of psarcFile : string * targetFolder : string option
     | ImportToolkitTemplate of fileName : string
     | OpenProject of fileName : string
+    | ProjectSaveOrSaveAs
+    | ProjectSaveAs
+    | ProjectSaved of targetFile : string
     | SaveProject of fileName : string option
     | AddArrangements of files : string[] option
     | AddCoverArt of fileName : string
@@ -78,7 +80,6 @@ module Types =
     | ImportTonesChanged of item : obj
     | ImportSelectedTones
     | ShowConfigEditor
-    | ProjectSaveOrSaveAs
     | SaveConfiguration
     | SetConfiguration of config : Configuration
     | ProjectLoaded of project : DLCProject * projectFile : string option

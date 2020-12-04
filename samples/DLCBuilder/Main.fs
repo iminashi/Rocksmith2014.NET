@@ -433,8 +433,13 @@ let update (msg: Msg) (state: State) =
                                               Localization = Localization(config.Locale) }, Cmd.none
 
     | SaveProject (Some target) ->
-        let task() = DLCProject.save target state.Project
-        { state with OpenProjectFile = Some target; SavedProject = state.Project }, Cmd.OfAsync.attempt task () ErrorOccurred
+        let task() = async {
+            do! DLCProject.save target state.Project
+            return target }
+        state, Cmd.OfAsync.either task () ProjectSaved ErrorOccurred
+
+    | ProjectSaved target ->
+        { state with OpenProjectFile = Some target; SavedProject = state.Project }, Cmd.none
 
     | ProjectSaveOrSaveAs ->
         let msg =
