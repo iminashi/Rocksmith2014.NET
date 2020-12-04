@@ -46,6 +46,8 @@ let view state dispatch =
                         // Cannot filter pasted text: https://github.com/AvaloniaUI/Avalonia/issues/2611
                         TextBox.onTextInput (fun e -> e.Text <- StringValidator.dlcKey e.Text)
                         TextBox.onTextChanged (fun e -> (fun p -> { p with DLCKey = StringValidator.dlcKey e }) |> EditProject |> dispatch)
+                        // Display the validated DLC key if invalid characters very pasted into the textbox
+                        TextBox.onLostFocus ((fun e -> (e.Source :?> TextBox).Text <- state.Project.DLCKey), SubPatchOptions.OnChangeOf state.Project.DLCKey)
                     ]
 
                     TextBox.create [
