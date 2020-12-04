@@ -351,20 +351,22 @@ let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Inst
 
     attr
 
-let private getToneName name = if isNull name then String.Empty else name
+let private getToneName index tones =
+    match List.tryItem index tones with
+    | Some tone -> tone
+    | None -> String.Empty
 
 /// Initializes attributes unique to instrumental arrangements (non-header).
 let private initSongComplete (partition: int)
                              (xmlMetaData: XML.MetaData)
-                             (xmlToneInfo: XML.ToneInfo)
                              (project: DLCProject)
                              (instrumental: Instrumental)
                              (sng: SNG)
                              (attr: Attributes) =
     let tones = 
         let toneKeysUsed =
-            seq { instrumental.BaseTone; yield! xmlToneInfo.Names |> Seq.filter (isNull >> not) }
-            |> Set.ofSeq
+            [ instrumental.BaseTone; yield! instrumental.Tones ]
+            |> Set.ofList
         project.Tones
         |> List.filter (fun t -> toneKeysUsed.Contains t.Key)
         |> List.toArray
@@ -385,11 +387,11 @@ let private initSongComplete (partition: int)
     attr.SongPartition <- partition
     attr.TargetScore <- 100000
     attr.Techniques <- createTechniqueMap sng
-    attr.Tone_A <- getToneName xmlToneInfo.Names.[0]
-    attr.Tone_B <- getToneName xmlToneInfo.Names.[1]
+    attr.Tone_A <- getToneName 0 instrumental.Tones
+    attr.Tone_B <- getToneName 1 instrumental.Tones
     attr.Tone_Base <- instrumental.BaseTone
-    attr.Tone_C <- getToneName xmlToneInfo.Names.[2]
-    attr.Tone_D <- getToneName xmlToneInfo.Names.[3]
+    attr.Tone_C <- getToneName 2 instrumental.Tones
+    attr.Tone_D <- getToneName 3 instrumental.Tones
     attr.Tone_Multiplayer <- String.Empty
     attr.Tones <- tones
 
@@ -435,10 +437,9 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
             attr.RouteMask <- LanguagePrimitives.EnumToValue inst.RouteMask
             attr
         else
-            let toneInfo = XML.InstrumentalArrangement.ReadToneNames(inst.XML)
             attr
             |> initAttributesCommon name dlcKey sng.Levels.Length project arr
-            |> initSongComplete part xmlMetaData toneInfo project inst sng
+            |> initSongComplete part xmlMetaData project inst sng
 
 /// Creates manifest attributes for an arrangement.
 let createAttributes = create false
