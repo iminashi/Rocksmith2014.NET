@@ -242,6 +242,7 @@ let view state dispatch (i: Instrumental) =
             NumericUpDown.create [
                 Grid.column 1
                 Grid.row 8
+                ToolTip.tip (state.Localization.GetString "scrollSpeedTooltip")
                 NumericUpDown.isVisible state.Config.ShowAdvanced
                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                 NumericUpDown.increment 0.1
