@@ -12,11 +12,12 @@ open System
 open Avalonia
 open Avalonia.Media.Imaging
 open Avalonia.Input
+open Avalonia.Layout
 open Avalonia.Platform
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
 open Avalonia.FuncUI.DSL
-open Avalonia.Layout
+open Avalonia.FuncUI.Components.Hosts
 
 let private loadPlaceHolderAlbumArt () =
     let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
@@ -24,6 +25,7 @@ let private loadPlaceHolderAlbumArt () =
 
 let init () =
     { Project = DLCProject.Empty
+      SavedProject = DLCProject.Empty
       Config = Configuration.Default
       CoverArt = loadPlaceHolderAlbumArt()
       SelectedArrangement = None
@@ -432,7 +434,7 @@ let update (msg: Msg) (state: State) =
 
     | SaveProject (Some target) ->
         let task() = DLCProject.save target state.Project
-        { state with OpenProjectFile = Some target }, Cmd.OfAsync.attempt task () ErrorOccurred
+        { state with OpenProjectFile = Some target; SavedProject = state.Project }, Cmd.OfAsync.attempt task () ErrorOccurred
 
     | ProjectSaveOrSaveAs ->
         let msg =
@@ -452,8 +454,11 @@ let update (msg: Msg) (state: State) =
             else
                 loadPlaceHolderAlbumArt()
 
+        let project = DLCProject.updateToneInfo project
+
         { state with CoverArt = bm
-                     Project = DLCProject.updateToneInfo project
+                     Project = project
+                     SavedProject = project
                      OpenProjectFile = projectFile
                      SelectedArrangement = None
                      SelectedTone = None }, Cmd.none
@@ -520,7 +525,17 @@ let update (msg: Msg) (state: State) =
     | AddArrangements None | SaveProject None | ImportPsarc (_, None) ->
         state, Cmd.none
 
-let view (state: State) dispatch =
+let view (window: HostWindow) (state: State) dispatch =
+    if state.BuildInProgress then
+        window.Cursor <- Cursor(StandardCursorType.AppStarting)
+    else
+        window.Cursor <- Cursor(StandardCursorType.Arrow)
+        
+    state.OpenProjectFile |> Option.iter (fun project ->
+        let dot = if state.SavedProject <> state.Project then "*" else String.Empty
+        window.Title <- $"{dot}Rocksmith 2014 DLC Builder - {project}"
+    )
+
     Grid.create [
         Grid.children [
             Grid.create [

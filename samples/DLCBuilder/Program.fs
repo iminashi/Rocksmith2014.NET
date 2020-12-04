@@ -26,22 +26,24 @@ type MainWindow() as this =
         base.MinWidth <- 900.0
         base.MinHeight <- 650.0
 
-        let handleHotkeys dispatch (event : KeyEventArgs) =
-                    match event.KeyModifiers, event.Key with
-                    | KeyModifiers.Control, Key.O -> dispatch (Msg.OpenFileDialog("selectProjectFile", Dialogs.projectFilter, OpenProject))
-                    | KeyModifiers.Control, Key.S -> dispatch ProjectSaveOrSaveAs
-                    | KeyModifiers.Control, Key.P -> dispatch ImportProfileTones
-                    | KeyModifiers.Control, Key.T -> dispatch (Msg.OpenFileDialog("selectImportToolkitTemplate", Dialogs.toolkitFilter, ImportToolkitTemplate))
-                    | KeyModifiers.Control, Key.A -> dispatch (Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder))
-                    | _ -> ()
+        let handleHotkeys dispatch (event: KeyEventArgs) =
+            match event.KeyModifiers, event.Key with
+            | KeyModifiers.Control, Key.O -> dispatch (Msg.OpenFileDialog("selectProjectFile", Dialogs.projectFilter, OpenProject))
+            | KeyModifiers.Control, Key.S -> dispatch ProjectSaveOrSaveAs
+            | KeyModifiers.Control, Key.P -> dispatch ImportProfileTones
+            | KeyModifiers.Control, Key.T -> dispatch (Msg.OpenFileDialog("selectImportToolkitTemplate", Dialogs.toolkitFilter, ImportToolkitTemplate))
+            | KeyModifiers.Control, Key.A -> dispatch (Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder))
+            | _ -> ()
 
         let hotKeysSub _initialModel =
-                    Cmd.ofSub (fun dispatch -> this.KeyDown.Add(handleHotkeys dispatch))
+            Cmd.ofSub (fun dispatch -> this.KeyDown.Add(handleHotkeys dispatch))
       
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
         //this.VisualRoot.VisualRoot.Renderer.DrawDirtyRects <- true
 
-        Elmish.Program.mkProgram Main.init Main.update Main.view
+        let view' = Main.view this
+
+        Program.mkProgram Main.init Main.update view'
         |> Program.withHost this
         |> Program.withSubscription hotKeysSub
         |> Program.run
@@ -73,7 +75,6 @@ type App() =
         | _ -> ()
 
 module Program =
-
     [<EntryPoint>]
     let main(args: string[]) =
         AppBuilder

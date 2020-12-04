@@ -25,6 +25,7 @@ module Types =
 
     type State =
         { Project : DLCProject
+          SavedProject : DLCProject
           Config : Configuration
           CoverArt : Bitmap
           SelectedArrangement : Arrangement option

@@ -348,6 +348,7 @@ let view state dispatch =
                                         Button.fontSize 16.
                                         Button.content (state.Localization.GetString "saveProject")
                                         Button.onClick (fun _ -> ProjectSaveOrSaveAs |> dispatch)
+                                        Button.isEnabled (state.Project <> state.SavedProject)
                                     ]
                                     Button.create [
                                         Button.padding (8., 8.)
