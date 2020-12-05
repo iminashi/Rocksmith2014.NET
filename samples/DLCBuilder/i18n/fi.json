@@ -139,5 +139,6 @@
   "conflictingVocals": "Projektissa on kaksi päällekkäistä sanoitus-sovitusta.\nJompikumpi niistä pitää asettaa japaninkieliseksi.",
   "wemAudioNotFound": "Wwise wem äänitiedosta ei löydy.",
   "previewNotFound": "Esikatseluäänitiedostoa ei löydy.",
-  "noAudioFile": "Ei olemassa"
+  "noAudioFile": "Ei olemassa",
+  "cents": "senttiä"
 }

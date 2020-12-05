@@ -593,7 +593,7 @@ let view (window: HostWindow) (state: State) dispatch =
                                     match item with
                                     | :? Arrangement as arr -> dispatch (ArrangementSelected (Some arr))
                                     | null when state.Project.Arrangements.Length = 0 -> dispatch (ArrangementSelected None)
-                                    | _ -> ()), SubPatchOptions.OnChangeOf state)
+                                    | _ -> ()), SubPatchOptions.OnChangeOf state.Project.Arrangements)
                                 ListBox.onKeyDown (fun k ->
                                     if k.Key = Key.Delete then
                                         k.Handled <- true
@@ -671,7 +671,7 @@ let view (window: HostWindow) (state: State) dispatch =
                                     match item with
                                     | :? Tone as t -> dispatch (ToneSelected (Some t))
                                     | null when state.Project.Tones.Length = 0 -> dispatch (ToneSelected None)
-                                    | _ -> ()), SubPatchOptions.OnChangeOf state)
+                                    | _ -> ()), SubPatchOptions.OnChangeOf state.Project.Tones)
                                 ListBox.onKeyDown (fun k ->
                                     match k.KeyModifiers, k.Key with
                                     | KeyModifiers.None, Key.Delete -> dispatch DeleteTone

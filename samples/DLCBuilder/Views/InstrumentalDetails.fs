@@ -75,7 +75,10 @@ let view state dispatch (i: Instrumental) =
                             RadioButton.groupName "Priority"
                             RadioButton.content (state.Localization.GetString(string priority))
                             RadioButton.isChecked (i.Priority = priority)
-                            RadioButton.onChecked (fun _ -> (fun _ a -> { a with Priority = priority }) |> EditInstrumental |> dispatch)
+                            RadioButton.onChecked (fun _ ->
+                                fun _ a -> { a with Priority = priority }
+                                |> EditInstrumental
+                                |> dispatch)
                             RadioButton.isEnabled (
                                 // Disable the main option if a main arrangement of the type already exists
                                 not (priority = ArrangementPriority.Main
@@ -189,11 +192,14 @@ let view state dispatch (i: Instrumental) =
                         NumericUpDown.maximum 50000.0
                         NumericUpDown.increment 1.0
                         NumericUpDown.formatString "F2"
-                        NumericUpDown.onValueChanged (fun value -> (fun _ a -> { a with TuningPitch = value }) |> EditInstrumental |> dispatch)
+                        NumericUpDown.onValueChanged (fun value ->
+                            fun _ a -> { a with TuningPitch = value }
+                            |> EditInstrumental
+                            |> dispatch)
                     ]
                     TextBlock.create [
                         TextBlock.verticalAlignment VerticalAlignment.Center
-                        TextBlock.text (sprintf "%+.1f cents" (Utils.tuningPitchToCents i.TuningPitch))
+                        TextBlock.text (sprintf "%+.0f %s" (Utils.tuningPitchToCents i.TuningPitch) (state.Localization.GetString "cents"))
                     ]
                 ]
             ]
@@ -210,7 +216,10 @@ let view state dispatch (i: Instrumental) =
                 Grid.row 6
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
                 TextBox.text i.BaseTone
-                TextBox.onTextChanged (fun text -> (fun _ a -> { a with BaseTone = text }) |> EditInstrumental |> dispatch)
+                TextBox.onTextChanged (fun text ->
+                    fun _ a -> { a with BaseTone = StringValidator.toneName text }
+                    |> EditInstrumental
+                    |> dispatch)
             ]
 
             TextBlock.create [
@@ -251,7 +260,10 @@ let view state dispatch (i: Instrumental) =
                 NumericUpDown.minimum 0.5
                 NumericUpDown.formatString "F1"
                 NumericUpDown.value i.ScrollSpeed
-                NumericUpDown.onValueChanged (fun value -> (fun _ a -> { a with ScrollSpeed = value }) |> EditInstrumental |> dispatch)
+                NumericUpDown.onValueChanged (fun value ->
+                    fun _ a -> { a with ScrollSpeed = value }
+                    |> EditInstrumental
+                    |> dispatch)
             ]
 
             TextBlock.create [
@@ -272,7 +284,9 @@ let view state dispatch (i: Instrumental) =
                     let txtBox = arg.Source :?> TextBox
                     let success, masterID = Int32.TryParse(txtBox.Text)
                     if success then
-                        (fun _ (a:Instrumental) -> { a with MasterID = masterID }) |> EditInstrumental |> dispatch
+                        fun _ (a:Instrumental) -> { a with MasterID = masterID }
+                        |> EditInstrumental
+                        |> dispatch
                 )
             ]
 
@@ -294,7 +308,9 @@ let view state dispatch (i: Instrumental) =
                     let txtBox = arg.Source :?> TextBox
                     let success, perID = Guid.TryParse(txtBox.Text)
                     if success then
-                        (fun _ (a:Instrumental) -> { a with PersistentID = perID }) |> EditInstrumental |> dispatch
+                        fun _ (a:Instrumental) -> { a with PersistentID = perID }
+                        |> EditInstrumental
+                        |> dispatch
                 )
             ]
 

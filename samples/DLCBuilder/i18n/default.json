@@ -139,5 +139,6 @@
   "conflictingVocals": "There are two conflicting vocals arrangements.\nOne needs to be set as Japanese.",
   "wemAudioNotFound": "Wwise wem audio file not found.",
   "previewNotFound": "Preview audio file not found.",
-  "noAudioFile": "None"
+  "noAudioFile": "None",
+  "cents": "cents"
 }

@@ -42,7 +42,10 @@ let view state dispatch (v: Vocals) =
                         Button.margin (0.0, 4.0, 4.0, 4.0)
                         Button.content "X"
                         Button.isVisible (Option.isSome v.CustomFont)
-                        Button.onClick (fun _ -> (fun v -> { v with CustomFont = None }) |> EditVocals |> dispatch)
+                        Button.onClick (fun _ ->
+                            fun v -> { v with CustomFont = None }
+                            |> EditVocals
+                            |> dispatch)
                         ToolTip.tip (state.Localization.GetString "removeCustomFontToolTip")
                     ]
                     Button.create [

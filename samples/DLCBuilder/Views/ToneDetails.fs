@@ -66,7 +66,10 @@ let view state dispatch (tone: Tone) =
                 Grid.column 1
                 TextBox.text tone.Name
                 TextBox.onTextInput (fun arg -> arg.Text <- StringValidator.toneName arg.Text)
-                TextBox.onTextChanged (fun name -> (fun (t:Tone) -> { t with Name = StringValidator.toneName name }) |> EditTone |> dispatch)
+                TextBox.onTextChanged (fun name ->
+                    fun (t: Tone) -> { t with Name = StringValidator.toneName name }
+                    |> EditTone
+                    |> dispatch)
             ]
 
             TextBlock.create [
@@ -85,7 +88,9 @@ let view state dispatch (tone: Tone) =
                 ComboBox.onSelectedItemChanged (fun item ->
                     match item with
                     | :? string as key ->
-                        (fun t -> { t with Key = key }) |> EditTone |> dispatch
+                        fun t -> { t with Key = key }
+                        |> EditTone
+                        |> dispatch
                     | _ -> ()
                 )
             ]
@@ -100,8 +105,8 @@ let view state dispatch (tone: Tone) =
                 Grid.column 1
                 Grid.row 2
                 StackPanel.children [
-                    yield createDescriptors state dispatch tone
-                    yield StackPanel.create [
+                    createDescriptors state dispatch tone
+                    StackPanel.create [
                         StackPanel.orientation Orientation.Horizontal
                         StackPanel.children [
                             Button.create [
@@ -118,7 +123,10 @@ let view state dispatch (tone: Tone) =
                                 Button.isEnabled (tone.ToneDescriptors.Length > 1)
                                 Button.margin 4.
                                 Button.content "-"
-                                Button.onClick (fun _ -> (fun t -> { t with ToneDescriptors = t.ToneDescriptors.[1..] }) |> EditTone |> dispatch)
+                                Button.onClick (fun _ ->
+                                    fun t -> { t with ToneDescriptors = t.ToneDescriptors.[1..] }
+                                    |> EditTone
+                                    |> dispatch)
                                 ToolTip.tip (state.Localization.GetString "removeDescriptionToolTip")
                             ]
                         ]
@@ -142,7 +150,10 @@ let view state dispatch (tone: Tone) =
                 NumericUpDown.maximum 45.
                 NumericUpDown.increment 0.1
                 NumericUpDown.formatString "F1"
-                NumericUpDown.onValueChanged (fun value -> (fun (t:Tone) -> { t with Volume = sprintf "%.3f" value }) |> EditTone |> dispatch)
+                NumericUpDown.onValueChanged (fun value ->
+                    fun (t: Tone) -> { t with Volume = sprintf "%.3f" value }
+                    |> EditTone
+                    |> dispatch)
                 ToolTip.tip (state.Localization.GetString "toneVolumeToolTip")
             ]
         ]
