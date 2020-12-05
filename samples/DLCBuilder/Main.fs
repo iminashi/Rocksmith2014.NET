@@ -542,10 +542,12 @@ let view (window: HostWindow) (state: State) dispatch =
     else
         window.Cursor <- Cursor(StandardCursorType.Arrow)
         
-    state.OpenProjectFile |> Option.iter (fun project ->
-        let dot = if state.SavedProject <> state.Project then "*" else String.Empty
-        window.Title <- $"{dot}Rocksmith 2014 DLC Builder - {project}"
-    )
+    window.Title <-
+        match state.OpenProjectFile with
+        | Some project ->
+            let dot = if state.SavedProject <> state.Project then "*" else String.Empty
+            $"{dot}Rocksmith 2014 DLC Builder - {project}"
+        | None -> "Rocksmith 2014 DLC Builder"
 
     Grid.create [
         Grid.children [
