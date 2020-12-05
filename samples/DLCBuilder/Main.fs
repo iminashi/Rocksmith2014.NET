@@ -232,10 +232,12 @@ let update (msg: Msg) (state: State) =
                 { state with Overlay = ErrorMessage msg }, Cmd.none
 
     | ShowImportToneSelector tones ->
-        match tones.Length with
-        | 0 -> { state with Overlay = ErrorMessage (state.Localization.GetString "couldNotFindTonesError") }, Cmd.none
-        | 1 -> { state with Project = { state.Project with Tones = tones.[0]::state.Project.Tones } }, Cmd.none
-        | _ -> { state with Overlay = ImportToneSelector tones; ImportTones = [] }, Cmd.none
+        let newState =
+            match tones with
+            | [||] -> { state with Overlay = ErrorMessage (state.Localization.GetString "couldNotFindTonesError") }
+            | [| tone |] -> { state with Project = { state.Project with Tones = tone::state.Project.Tones } }
+            | _ -> { state with Overlay = ImportToneSelector tones; ImportTones = [] }
+        newState, Cmd.none
 
     | ProjectSaveAs ->
         let intialFileName =
