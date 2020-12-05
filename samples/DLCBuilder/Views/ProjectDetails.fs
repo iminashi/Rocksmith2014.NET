@@ -277,6 +277,8 @@ let view state dispatch =
                                 Path.data (if previewExists then Icons.check else Icons.x)
                                 Path.verticalAlignment VerticalAlignment.Center
                                 Path.margin (0., 0., 4., 0.)
+                                if IO.File.Exists state.Project.AudioPreviewFile.Path then
+                                    ToolTip.tip (IO.Path.GetFileName state.Project.AudioPreviewFile.Path)
                             ]
                         ]
                     ]        

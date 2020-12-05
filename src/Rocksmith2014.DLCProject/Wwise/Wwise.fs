@@ -90,7 +90,7 @@ let private copyWemFiles (destPath: string) (templateDir: string) =
         fixHeader destFile
 
 /// Converts the source audio and preview audio files in the source path into wem files.
-let convertToWem (sourcePath: string) (destPath: string) =
+let convertToWem (sourcePath: string) (destPath: string) = async {
     let cliPath = getCLIPath()
     let templateDir = loadTemplate sourcePath
     
@@ -100,10 +100,10 @@ let convertToWem (sourcePath: string) (destPath: string) =
     let startInfo = ProcessStartInfo(FileName = cliPath, Arguments = args, CreateNoWindow = true, RedirectStandardOutput = true)
     use wwiseCli = new Process(StartInfo = startInfo)
     wwiseCli.Start() |> ignore
+    do! wwiseCli.WaitForExitAsync()
+
     let output = wwiseCli.StandardOutput.ReadToEnd()
-    wwiseCli.WaitForExit()
-    
     if output.Length > 0 then failwith output
     
     copyWemFiles destPath templateDir
-    cleanDirectory templateDir
+    cleanDirectory templateDir }

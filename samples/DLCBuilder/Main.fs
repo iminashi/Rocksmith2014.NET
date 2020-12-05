@@ -290,8 +290,8 @@ let update (msg: Msg) (state: State) =
             let target =
                 IO.Path.Combine (IO.Path.GetDirectoryName audioFile, 
                                  IO.Path.GetFileNameWithoutExtension audioFile)
-            let task () = async { Wwise.convertToWem audioFile target }
-            { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
+            { state with BuildInProgress = true },
+            Cmd.OfAsync.either (Wwise.convertToWem audioFile) target BuildComplete ErrorOccurred
         else
             state, Cmd.none
 
@@ -500,6 +500,7 @@ let update (msg: Msg) (state: State) =
             let path = IO.Path.Combine(state.Config.TestFolderPath, state.Project.DLCKey.ToLowerInvariant())
             let config = { Platforms = [ state.CurrentPlatform ]; Author = state.Config.CharterName; AppId = "248750" }
             let task () = buildPackages path config state.Project
+
             { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
 
     | BuildRelease ->
@@ -511,12 +512,15 @@ let update (msg: Msg) (state: State) =
                 state.OpenProjectFile
                 |> Option.map IO.Path.GetDirectoryName
                 |> Option.defaultWith (fun _ -> IO.Path.GetDirectoryName state.Project.AudioFile.Path)
+
             let fn =
                 sprintf "%s_%s_v%s" state.Project.ArtistName.Value state.Project.Title.Value (state.Project.Version.Replace('.', '_'))
                 |> StringValidator.fileName
+
             let path = IO.Path.Combine(releaseDir, fn)
             let config = { Platforms = state.Config.ReleasePlatforms; Author = state.Config.CharterName; AppId = "248750" }
             let task () = buildPackages path config state.Project
+
             { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
 
     | BuildComplete _ -> { state with BuildInProgress = false }, Cmd.none

@@ -18,7 +18,8 @@ type private BuildData =
       CoverArtFiles: string array
       Author: string
       AppId: string
-      Partition: Arrangement -> int * string }
+      Partition: Arrangement -> int * string
+      AudioConversionTask: Async<unit> }
 
 type BuildConfig =
     { Platforms: Platform list
@@ -103,15 +104,26 @@ let private build (buildData: BuildData) targetFile project platform = async {
         |> AggregateGraph.serialize data
         entry $"{key}_aggregategraph.nt" data
 
+    let gfxEntries =
+        ([| 64; 128; 256 |], buildData.CoverArtFiles)
+        ||> Array.map2 (fun size file -> entry $"gfxassets/album_art/album_{key}_{size}.dds" (readFile file))
+
+    let toolkitEntry =
+        new MemoryStream(Encoding.UTF8.GetBytes($"Toolkit version: 9.9.9.9\nPackage Author: {buildData.Author}\nPackage Version: {project.Version}\nPackage Comment: Remastered"))
+        |> entry "toolkit.version"
+
+    // Wait for the wem conversion to complete, if necessary
+    do! buildData.AudioConversionTask
+
     let audioEntries =
         let createEntries (audioFile: AudioFile) isPreview =
-            let path =
+            let filePath =
                 if String.endsWith ".wem" audioFile.Path then
                     audioFile.Path
                 else
                     Path.ChangeExtension(audioFile.Path, "wem")
             let bankData = MemoryStreamPool.Default.GetStream()
-            let audio = readFile path
+            let audio = readFile filePath
             let bankName = if isPreview then project.DLCKey + "_Preview" else project.DLCKey
             let audioName = SoundBank.generate bankName audio bankData (float32 audioFile.Volume) isPreview platform
             let path = Platform.getPath platform Platform.Path.Audio
@@ -122,14 +134,6 @@ let private build (buildData: BuildData) targetFile project platform = async {
         createEntries project.AudioFile false
         @
         createEntries project.AudioPreviewFile true
-
-    let gfxEntries =
-        ([| 64; 128; 256 |], buildData.CoverArtFiles)
-        ||> Array.map2 (fun size file -> entry $"gfxassets/album_art/album_{key}_{size}.dds" (readFile file))
-
-    let toolkitEntry =
-        new MemoryStream(Encoding.UTF8.GetBytes($"Toolkit version: 9.9.9.9\nPackage Author: {buildData.Author}\nPackage Version: {project.Version}\nPackage Comment: Remastered"))
-        |> entry "toolkit.version"
 
     let targetPath = sprintf "%s%s.psarc" targetFile (Platform.getPath platform Platform.Path.PackageSuffix)
 
@@ -163,7 +167,22 @@ let private setupInstrumental part (inst: Instrumental) (xml: InstrumentalArrang
 
     xml
 
+let private convertAudioIfNeeded project = async {
+    let audioFile = project.AudioFile.Path
+    let previewFile = project.AudioPreviewFile.Path
+    let wemAudio = Path.ChangeExtension(audioFile, "wem")
+    let wemPreview = Path.ChangeExtension(previewFile, "wem")
+
+    if not <| File.Exists wemAudio || not <| File.Exists wemPreview then
+        let target =
+            Path.Combine (Path.GetDirectoryName audioFile, 
+                          Path.GetFileNameWithoutExtension audioFile)
+
+        do! Wwise.convertToWem audioFile target }
+
 let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProject) = async {
+    let! audioConversionTask = convertAudioIfNeeded project |> Async.StartChild
+
     let key = project.DLCKey.ToLowerInvariant()
     let coverArt = DDS.createCoverArtImages project.AlbumArtFile
     let partition = Partitioner.create project
@@ -208,7 +227,13 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
             let arrangements = sl::project.Arrangements
             { project with Arrangements = arrangements }
 
-    let data = { SNGs = sngs; CoverArtFiles = coverArt; Author = config.Author; AppId = config.AppId; Partition = partition }
+    let data =
+        { SNGs = sngs
+          CoverArtFiles = coverArt
+          Author = config.Author
+          AppId = config.AppId
+          Partition = partition
+          AudioConversionTask = audioConversionTask }
 
     do! config.Platforms
         |> List.map (build data targetFile project)
