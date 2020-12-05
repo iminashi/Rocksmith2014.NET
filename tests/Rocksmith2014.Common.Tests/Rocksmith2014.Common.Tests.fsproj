@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="ExtensionTests.fs" />
     <Compile Include="Generators.fs" />
     <Compile Include="BigEndianBinaryReadWrite.fs" />
     <Compile Include="LittleEndianBinaryReadWrite.fs" />
