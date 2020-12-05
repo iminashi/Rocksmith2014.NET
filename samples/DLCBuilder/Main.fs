@@ -108,8 +108,8 @@ let private loadArrangement state (fileName: string) =
 
             // Try to find custom font for Japanese vocals
             let customFont =
-                let lyricFile = IO.Path.Combine(IO.Path.GetDirectoryName fileName, "lyrics.dds")
-                if isJapanese && IO.File.Exists lyricFile then Some lyricFile else None
+                let fontFile = IO.Path.Combine(IO.Path.GetDirectoryName fileName, "lyrics.dds")
+                if isJapanese && IO.File.Exists fontFile then Some fontFile else None
 
             let arr =
                 { XML = fileName
