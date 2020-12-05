@@ -97,3 +97,9 @@ let loadRecentFiles () = async {
     else
         use file = File.OpenRead recentFile
         return! JsonSerializer.DeserializeAsync<string list>(file, jsonOptions) }
+
+let previewPathFromMainAudio (audioPath: string) =
+    let dir = Path.GetDirectoryName audioPath
+    let fn = Path.GetFileNameWithoutExtension audioPath
+    let ext = Path.GetExtension audioPath
+    Path.Combine(dir, $"{fn}_preview{ext}")

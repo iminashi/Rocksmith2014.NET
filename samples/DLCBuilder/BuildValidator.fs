@@ -5,7 +5,7 @@ open Rocksmith2014.Common
 open System.IO
 
 /// Validates the project for missing files and other errors.
-let validate (loc: ILocalization) (project: DLCProject) =
+let validate (project: DLCProject) =
     let toneKeyGroups =
         project.Tones
         |> List.groupBy (fun x -> x.Key)
@@ -16,12 +16,12 @@ let validate (loc: ILocalization) (project: DLCProject) =
         |> List.groupBy (fun x -> x.Japanese)
 
     if not <| File.Exists project.AlbumArtFile then
-        Error (loc.GetString "albumArtNotFound")
+        Error "albumArtNotFound"
     elif toneKeyGroups |> List.exists (fun (_, list) -> list.Length > 1) then
-        Error (loc.GetString "multipleTonesSameKey")
+        Error "multipleTonesSameKey"
     elif vocalGroups |> List.exists (fun (_, list) -> list.Length > 1) then
-        Error (loc.GetString "conflictingVocals")
+        Error "conflictingVocals"
     elif not <| File.Exists project.AudioPreviewFile.Path then
-        Error (loc.GetString "previewNotFound")
+        Error "previewNotFound"
     else
         Ok ()

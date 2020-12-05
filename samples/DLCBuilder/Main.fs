@@ -142,6 +142,9 @@ let private updateTone old updated state =
                  SelectedTone = Some updated }, Cmd.none
 
 let update (msg: Msg) (state: State) =
+    let { Project=project; Config=config } = state
+    let localize = state.Localization.GetString
+
     match msg with
     | ImportTonesChanged item ->
         if isNull item then state, Cmd.none
@@ -164,9 +167,9 @@ let update (msg: Msg) (state: State) =
                 else
                     { x with SortOrder = Nullable(); NameSeparator = " - " })
         let tones =
-            state.Project.Tones
+            project.Tones
             |> List.append importedTones
-        { state with Project = { state.Project with Tones = tones }
+        { state with Project = { project with Tones = tones }
                      Overlay = NoOverlay }, Cmd.none
 
     | CloseOverlay ->
@@ -180,19 +183,19 @@ let update (msg: Msg) (state: State) =
     | ConditionalCmdDispatch (None, _) -> state, Cmd.none
 
     | OpenFileDialog (locString, filter, msg) ->
-        let dialog = Dialogs.openFileDialog (state.Localization.GetString locString) (filter state.Localization)
+        let dialog = Dialogs.openFileDialog (localize locString) (filter state.Localization)
         state, Cmd.OfAsync.perform dialog None (fun file -> ConditionalCmdDispatch(file, msg))
 
     | OpenFolderDialog (locString, msg) ->
-        let dialog = Dialogs.openFolderDialog (state.Localization.GetString locString)
+        let dialog = Dialogs.openFolderDialog (localize locString)
         state, Cmd.OfAsync.perform dialog None (fun folder -> ConditionalCmdDispatch(folder, msg))
 
     | SelectOpenArrangement ->
-        let dialog = Dialogs.openMultiFileDialog (state.Localization.GetString "selectArrangement") (Dialogs.xmlFileFilter state.Localization)
+        let dialog = Dialogs.openMultiFileDialog (localize "selectArrangement") (Dialogs.xmlFileFilter state.Localization)
         state, Cmd.OfAsync.perform dialog None AddArrangements
 
     | SelectImportPsarcFolder psarcFile ->
-        let dialog = Dialogs.openFolderDialog (state.Localization.GetString "selectPsarcExtractFolder")
+        let dialog = Dialogs.openFolderDialog (localize "selectPsarcExtractFolder")
         state, Cmd.OfAsync.perform dialog None (fun folder -> ImportPsarc(psarcFile, folder))
 
     | ImportPsarc (psarcFile, Some targetFolder) ->
@@ -221,10 +224,10 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfAsync.either task () ShowImportToneSelector ErrorOccurred
 
     | ImportProfileTones ->
-        if String.IsNullOrWhiteSpace state.Config.ProfilePath then
+        if String.IsNullOrWhiteSpace config.ProfilePath then
             state, Cmd.none
         else
-            let result = Profile.importTones state.Config.ProfilePath
+            let result = Profile.importTones config.ProfilePath
             match result with
             | Ok toneArray ->
                 state, Cmd.ofMsg (ShowImportToneSelector toneArray)
@@ -234,8 +237,8 @@ let update (msg: Msg) (state: State) =
     | ShowImportToneSelector tones ->
         let newState =
             match tones with
-            | [||] -> { state with Overlay = ErrorMessage (state.Localization.GetString "couldNotFindTonesError") }
-            | [| tone |] -> { state with Project = { state.Project with Tones = tone::state.Project.Tones } }
+            | [||] -> { state with Overlay = ErrorMessage (localize "couldNotFindTonesError") }
+            | [| tone |] -> { state with Project = { project with Tones = tone::project.Tones } }
             | _ -> { state with Overlay = ImportToneSelector tones; ImportTones = [] }
         newState, Cmd.none
 
@@ -243,59 +246,51 @@ let update (msg: Msg) (state: State) =
         let intialFileName =
             state.OpenProjectFile
             |> Option.map IO.Path.GetFileName
-            |> Option.orElse
-                (let fn =
-                    sprintf "%s_%s" state.Project.ArtistName.Value state.Project.Title.Value
-                    |> StringValidator.fileName
-                sprintf "%s.rs2dlc" fn
+            |> Option.orElseWith (fun () ->
+                sprintf "%s_%s" project.ArtistName.Value project.Title.Value
+                |> StringValidator.fileName
+                |> sprintf "%s.rs2dlc"
                 |> Some)
         let initialDir =
             state.OpenProjectFile
             |> Option.map IO.Path.GetDirectoryName
-            |> Option.orElse (Option.ofString state.Config.ProjectsFolderPath)
-        let dialog = Dialogs.saveFileDialog (state.Localization.GetString "saveProjectAs") (Dialogs.projectFilter state.Localization) intialFileName
+            |> Option.orElse (Option.ofString config.ProjectsFolderPath)
+        let dialog = Dialogs.saveFileDialog (localize "saveProjectAs") (Dialogs.projectFilter state.Localization) intialFileName
         state, Cmd.OfAsync.perform dialog initialDir SaveProject
 
     | AddProjectsFolderPath path ->
-        let config = { state.Config with ProjectsFolderPath = path }
-        { state with Config = config }, Cmd.none
+        { state with Config = { config with ProjectsFolderPath = path } }, Cmd.none
 
     | AddTestFolderPath path ->
-        let config = { state.Config with TestFolderPath = path }
-        { state with Config = config }, Cmd.none
+        { state with Config = { config with TestFolderPath = path } }, Cmd.none
 
     | AddProfilePath path ->
         if not <| String.endsWith "_PRFLDB" path then
             state, Cmd.none
         else
-            let config = { state.Config with ProfilePath = path }
-            { state with Config = config }, Cmd.none
+            { state with Config = { config with ProfilePath = path } }, Cmd.none
 
     | AddCustomFontFile fileName ->
         match state.SelectedArrangement with
         | Some (Vocals arr as old) ->
-            let updated = Vocals ({ arr with CustomFont = Some fileName})
+            let updated = Vocals { arr with CustomFont = Some fileName }
             updateArrangement old updated state
         | _ -> state, Cmd.none
 
     | AddAudioFile fileName ->
-        let audioFile = { state.Project.AudioFile with Path = fileName }
+        let audioFile = { project.AudioFile with Path = fileName }
         let previewPath =
-            let previewPath =
-                let dir = IO.Path.GetDirectoryName fileName
-                let fn = IO.Path.GetFileNameWithoutExtension fileName
-                let ext = IO.Path.GetExtension fileName
-                IO.Path.Combine(dir, sprintf "%s_preview%s" fn ext)
+            let previewPath = Utils.previewPathFromMainAudio fileName
             if IO.File.Exists previewPath then
                 previewPath
             else
                 String.Empty
-        let previewFile = { state.Project.AudioPreviewFile with Path = previewPath }
-        { state with Project = { state.Project with AudioFile = audioFile; AudioPreviewFile = previewFile } }, Cmd.none
+        let previewFile = { project.AudioPreviewFile with Path = previewPath }
+        { state with Project = { project with AudioFile = audioFile; AudioPreviewFile = previewFile } }, Cmd.none
 
     | ConvertToWem ->
-        let audioFile = state.Project.AudioFile.Path
-        if IO.File.Exists audioFile && IO.File.Exists state.Project.AudioPreviewFile.Path then
+        let audioFile = project.AudioFile.Path
+        if IO.File.Exists audioFile && IO.File.Exists project.AudioPreviewFile.Path then
             let target =
                 IO.Path.Combine (IO.Path.GetDirectoryName audioFile, 
                                  IO.Path.GetFileNameWithoutExtension audioFile)
@@ -308,7 +303,7 @@ let update (msg: Msg) (state: State) =
         state.CoverArt.Dispose()
         
         { state with CoverArt = Utils.loadBitmap fileName
-                     Project = { state.Project with AlbumArtFile = fileName } }, Cmd.none
+                     Project = { project with AlbumArtFile = fileName } }, Cmd.none
 
     | AddArrangements (Some files) ->
         let results = Array.map (loadArrangement state) files
@@ -334,7 +329,7 @@ let update (msg: Msg) (state: State) =
             |> Array.choose id
 
         let arrangements =
-            (state.Project.Arrangements, results)
+            (project.Arrangements, results)
             ||> Array.fold (fun state elem ->
                 match elem with
                 | Ok (arr, _) when shouldInclude state arr ->
@@ -354,7 +349,7 @@ let update (msg: Msg) (state: State) =
             |> List.sortBy Arrangement.sorter
 
         let metadata = 
-            if state.Project.ArtistName = SortableString.Empty then
+            if project.ArtistName = SortableString.Empty then
                 results
                 |> Array.tryPick (function Ok (_, md) -> md | Error _ -> None)
             else
@@ -364,15 +359,15 @@ let update (msg: Msg) (state: State) =
             match metadata with
             | Some md ->
                 { state with
-                    Project = { state.Project with
-                                    DLCKey = DLCKey.create state.Config.CharterName md.ArtistName md.Title
+                    Project = { project with
+                                    DLCKey = DLCKey.create config.CharterName md.ArtistName md.Title
                                     ArtistName = SortableString.Create md.ArtistName // Ignore the sort value from the XML
                                     Title = SortableString.Create (md.Title, md.TitleSort)
                                     AlbumName = SortableString.Create (md.AlbumName, md.AlbumNameSort)
                                     Year = md.AlbumYear
                                     Arrangements = arrangements } }
             | None ->
-                { state with Project = { state.Project with Arrangements = arrangements } }
+                { state with Project = { project with Arrangements = arrangements } }
 
         match errors with
         | [||] -> newState, Cmd.none
@@ -385,60 +380,59 @@ let update (msg: Msg) (state: State) =
     | DeleteArrangement ->
         let arrangements =
             match state.SelectedArrangement with
-            | None -> state.Project.Arrangements
-            | Some selected -> List.remove selected state.Project.Arrangements
-        { state with Project = { state.Project with Arrangements = arrangements }
+            | None -> project.Arrangements
+            | Some selected -> List.remove selected project.Arrangements
+        { state with Project = { project with Arrangements = arrangements }
                      SelectedArrangement = None }, Cmd.none
 
     | DeleteTone ->
         let tones =
             match state.SelectedTone with
-            | None -> state.Project.Tones
-            | Some selected -> List.remove selected state.Project.Tones
-        { state with Project = { state.Project with Tones = tones }
+            | None -> project.Tones
+            | Some selected -> List.remove selected project.Tones
+        { state with Project = { project with Tones = tones }
                      SelectedTone = None }, Cmd.none
 
     | MoveTone dir ->
         let tones = 
             match state.SelectedTone with
-            | None -> state.Project.Tones
+            | None -> project.Tones
             | Some selected ->
                 let change = match dir with Up -> -1 | Down -> 1 
-                let insertPos = (List.findIndex ((=) selected) state.Project.Tones) + change
-                if insertPos >= 0 && insertPos < state.Project.Tones.Length then
-                    List.remove selected state.Project.Tones
+                let insertPos = (List.findIndex ((=) selected) project.Tones) + change
+                if insertPos >= 0 && insertPos < project.Tones.Length then
+                    List.remove selected project.Tones
                     |> List.insertAt insertPos selected
                 else
-                    state.Project.Tones
-        { state with Project = { state.Project with Tones = tones } }, Cmd.none
+                    project.Tones
+        { state with Project = { project with Tones = tones } }, Cmd.none
 
     | PreviewAudioStartChanged time ->
         { state with PreviewStartTime = TimeSpan.FromSeconds time }, Cmd.none
 
     | CreatePreviewAudio (SetupStartTime) ->
-        let totalLength = Audio.Tools.getLength state.Project.AudioFile.Path
+        let totalLength = Audio.Tools.getLength project.AudioFile.Path
         // Remove the length of the preview from the total length
         let length = totalLength - TimeSpan.FromSeconds 28.
         { state with Overlay = SelectPreviewStart length }, Cmd.none
 
     | CreatePreviewAudio (CreateFile) ->
-        let task () = async { return Audio.Tools.createPreview state.Project.AudioFile.Path state.PreviewStartTime }
+        let task () = async { return Audio.Tools.createPreview project.AudioFile.Path state.PreviewStartTime }
         { state with Overlay = NoOverlay }, Cmd.OfAsync.either task () (FileCreated >> CreatePreviewAudio) ErrorOccurred
 
     | CreatePreviewAudio (FileCreated previewPath) ->
-        let previewFile = { state.Project.AudioPreviewFile with Path = previewPath }
-        { state with Project = { state.Project with AudioPreviewFile = previewFile } }, Cmd.none
+        let previewFile = { project.AudioPreviewFile with Path = previewPath }
+        { state with Project = { project with AudioPreviewFile = previewFile } }, Cmd.none
 
-    | ShowSortFields shown ->
-        { state with ShowSortFields = shown }, Cmd.none
+    | ShowSortFields shown -> { state with ShowSortFields = shown }, Cmd.none
     
-    | ShowJapaneseFields shown ->
-        { state with ShowJapaneseFields = shown }, Cmd.none
+    | ShowJapaneseFields shown -> { state with ShowJapaneseFields = shown }, Cmd.none
 
     | ShowConfigEditor -> { state with Overlay = ConfigEditor }, Cmd.none
     
     | SaveConfiguration ->
-        { state with Overlay = NoOverlay }, Cmd.OfAsync.attempt Configuration.save state.Config ErrorOccurred
+        { state with Overlay = NoOverlay },
+        Cmd.OfAsync.attempt Configuration.save config ErrorOccurred
 
     | SetConfiguration config -> { state with Config = config
                                               Localization = Localization(config.Locale) }, Cmd.none
@@ -447,12 +441,12 @@ let update (msg: Msg) (state: State) =
 
     | SaveProject (Some target) ->
         let task() = async {
-            do! DLCProject.save target state.Project
+            do! DLCProject.save target project
             return target }
         state, Cmd.OfAsync.either task () ProjectSaved ErrorOccurred
 
     | ProjectSaved target ->
-        { state with OpenProjectFile = Some target; SavedProject = state.Project }, Cmd.none
+        { state with OpenProjectFile = Some target; SavedProject = project }, Cmd.none
 
     | ProjectSaveOrSaveAs ->
         let msg =
@@ -503,37 +497,37 @@ let update (msg: Msg) (state: State) =
         |> Option.map (fun old ->  updateTone old (edit old) state)
         |> Option.defaultValue (state, Cmd.none)
 
-    | EditProject edit -> { state with Project = edit state.Project }, Cmd.none
-    | EditConfig edit -> { state with Config = edit state.Config }, Cmd.none
+    | EditProject edit -> { state with Project = edit project }, Cmd.none
+    | EditConfig edit -> { state with Config = edit config }, Cmd.none
 
     | BuildTest ->
-        match BuildValidator.validate state.Localization state.Project with
+        match BuildValidator.validate project with
         | Error error ->
-            { state with Overlay = ErrorMessage error }, Cmd.none
+            { state with Overlay = localize error |> ErrorMessage }, Cmd.none
         | Ok _ ->
-            let path = IO.Path.Combine(state.Config.TestFolderPath, state.Project.DLCKey.ToLowerInvariant())
-            let config = { Platforms = [ state.CurrentPlatform ]; Author = state.Config.CharterName; AppId = "248750" }
-            let task () = buildPackages path config state.Project
+            let path = IO.Path.Combine(config.TestFolderPath, project.DLCKey.ToLowerInvariant())
+            let config = { Platforms = [ state.CurrentPlatform ]; Author = config.CharterName; AppId = "248750" }
+            let task () = buildPackages path config project
 
             { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
 
     | BuildRelease ->
-        match BuildValidator.validate state.Localization state.Project with
+        match BuildValidator.validate project with
         | Error error ->
-            { state with Overlay = ErrorMessage error }, Cmd.none
+            { state with Overlay = localize error |> ErrorMessage }, Cmd.none
         | Ok _ ->
             let releaseDir =
                 state.OpenProjectFile
                 |> Option.map IO.Path.GetDirectoryName
-                |> Option.defaultWith (fun _ -> IO.Path.GetDirectoryName state.Project.AudioFile.Path)
+                |> Option.defaultWith (fun _ -> IO.Path.GetDirectoryName project.AudioFile.Path)
 
             let fn =
-                sprintf "%s_%s_v%s" state.Project.ArtistName.Value state.Project.Title.Value (state.Project.Version.Replace('.', '_'))
+                sprintf "%s_%s_v%s" project.ArtistName.Value project.Title.Value (project.Version.Replace('.', '_'))
                 |> StringValidator.fileName
 
             let path = IO.Path.Combine(releaseDir, fn)
-            let config = { Platforms = state.Config.ReleasePlatforms; Author = state.Config.CharterName; AppId = "248750" }
-            let task () = buildPackages path config state.Project
+            let buildConfig = { Platforms = config.ReleasePlatforms; Author = config.CharterName; AppId = "248750" }
+            let task () = buildPackages path buildConfig project
 
             { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
 
@@ -543,7 +537,7 @@ let update (msg: Msg) (state: State) =
                                       BuildInProgress = false }, Cmd.none
 
     | ChangeLocale newLocale ->
-        { state with Config = { state.Config with Locale = newLocale }
+        { state with Config = { config with Locale = newLocale }
                      Localization = Localization(newLocale) }, Cmd.none
     
     // When the user canceled any of the dialogs
