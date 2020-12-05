@@ -203,7 +203,7 @@ namespace Rocksmith2014.XML
             Mask = other.Mask;
             Time = other.Time;
             ChordId = other.ChordId;
-            if (other.ChordNotes != null)
+            if (other.ChordNotes is not null)
             {
                 ChordNotes = new List<Note>(other.ChordNotes.Count);
                 ChordNotes.AddRange(other.ChordNotes.Select(cn => new Note(cn)));

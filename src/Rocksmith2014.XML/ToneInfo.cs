@@ -25,16 +25,16 @@ namespace Rocksmith2014.XML
 
         internal void WriteToXml(XmlWriter writer)
         {
-            if (BaseToneName != null)
+            if (BaseToneName is not null)
                 writer.WriteElementString("tonebase", BaseToneName);
 
             for (int i = 0; i < Names.Length; i++)
             {
-                if (Names[i] != null)
+                if (Names[i] is not null)
                     writer.WriteElementString("tone" + (char)('a' + i), Names[i]);
             }
 
-            if (Changes != null)
+            if (Changes is not null)
                 Utils.SerializeWithCount(Changes, "tones", "tone", writer);
         }
     }

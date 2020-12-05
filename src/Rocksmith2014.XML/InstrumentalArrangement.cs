@@ -435,7 +435,7 @@ namespace Rocksmith2014.XML
             writer.WriteElementString("centOffset", MetaData.CentOffset.ToString(NumberFormatInfo.InvariantInfo));
             writer.WriteElementString("songLength", Utils.TimeCodeToString(MetaData.SongLength));
 
-            if (MetaData.TitleSort != null)
+            if (MetaData.TitleSort is not null)
             {
                 writer.WriteElementString("songNameSort", MetaData.TitleSort);
             }
@@ -443,7 +443,7 @@ namespace Rocksmith2014.XML
             writer.WriteElementString("startBeat", Utils.TimeCodeToString(StartBeat));
             writer.WriteElementString("averageTempo", MetaData.AverageTempo.ToString("F3", NumberFormatInfo.InvariantInfo));
 
-            if (MetaData.Tuning != null)
+            if (MetaData.Tuning is not null)
             {
                 writer.WriteStartElement("tuning");
                 ((IXmlSerializable)MetaData.Tuning).WriteXml(writer);
@@ -453,20 +453,20 @@ namespace Rocksmith2014.XML
             writer.WriteElementString("capo", MetaData.Capo.ToString(NumberFormatInfo.InvariantInfo));
 
             writer.WriteElementString("artistName", MetaData.ArtistName);
-            if (MetaData.ArtistNameSort != null)
+            if (MetaData.ArtistNameSort is not null)
             {
                 writer.WriteElementString("artistNameSort", MetaData.ArtistNameSort);
             }
 
             writer.WriteElementString("albumName", MetaData.AlbumName);
-            if (MetaData.AlbumNameSort != null)
+            if (MetaData.AlbumNameSort is not null)
             {
                 writer.WriteElementString("albumNameSort", MetaData.AlbumNameSort);
             }
 
             writer.WriteElementString("albumYear", MetaData.AlbumYear.ToString(NumberFormatInfo.InvariantInfo));
 
-            if (MetaData.AlbumArt != null)
+            if (MetaData.AlbumArt is not null)
             {
                 writer.WriteElementString("albumArt", MetaData.AlbumArt);
             }
@@ -483,10 +483,10 @@ namespace Rocksmith2014.XML
             Utils.SerializeWithCount(PhraseIterations, "phraseIterations", "phraseIteration", writer);
             Utils.SerializeWithCount(NewLinkedDiffs, "newLinkedDiffs", "newLinkedDiff", writer);
 
-            if (LinkedDiffs != null)
+            if (LinkedDiffs is not null)
                 Utils.SerializeWithCount(LinkedDiffs, "linkedDiffs", "linkedDiff", writer);
 
-            if (PhraseProperties != null)
+            if (PhraseProperties is not null)
                 Utils.SerializeWithCount(PhraseProperties, "phraseProperties", "phraseProperty", writer);
 
             Utils.SerializeWithCount(ChordTemplates, "chordTemplates", "chordTemplate", writer);
@@ -497,7 +497,7 @@ namespace Rocksmith2014.XML
             Utils.SerializeWithCount(Sections, "sections", "section", writer);
             Utils.SerializeWithCount(Events, "events", "event", writer);
 
-            if (TranscriptionTrack != null)
+            if (TranscriptionTrack is not null)
             {
                 writer.WriteStartElement("transcriptionTrack");
                 ((IXmlSerializable)TranscriptionTrack).WriteXml(writer);
