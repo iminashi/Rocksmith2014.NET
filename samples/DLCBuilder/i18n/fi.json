@@ -31,10 +31,12 @@
   "year": "Julkaisuvuosi",
   "showSortFields": "Näytä lajittelukentät",
   "showJapaneseFields": "Näytä japanilaiset kentät",
-  "audioFile": "Äänitiedosto",
+  "audioFile": "Äänitiedosto:",
+  "preview": "Esikatselu:",
+  "previewAudio": "Esikatseluäänitiedosto",
   "audioVolumeToolTip": "Äänenvoimakkuus (dB)",
   "previewAudioVolumeToolTip": "Esikatseluäänen äänenvoimakkuus (dB)",
-  "createPreviewAudio": "Luo esikatseluäänitiedosto",
+  "createPreviewAudio": "Luo",
   "previewAudioExistsToolTip": "Esikatseluäänitiedosto on olemassa, paina luodaksesi uuden.",
   "previewAudioDoesNotExistToolTip": "Esikatseluäänitiedostoa ei löydy, paina luodaksesi sellaisen.",
   "configuration": "Asetukset",
@@ -66,7 +68,6 @@
   "removeDescriptionToolTip": "Paina poistaaksesi kuvausosan.",
   "volume": "Äänenvoimakkuus",
   "toneVolumeToolTip": "Pienempi arvo = suurempi äänenvoimakkuus",
-  "previewAudio": "Esikatseluäänitiedosto",
   "startTime": "Alkuaika",
   "create": "Luo",
   "cancel": "Peruuta",
@@ -138,5 +139,5 @@
   "conflictingVocals": "Projektissa on kaksi päällekkäistä sanoitus-sovitusta.\nJompikumpi niistä pitää asettaa japaninkieliseksi.",
   "wemAudioNotFound": "Wwise wem äänitiedosta ei löydy.",
   "wemPreviewNotFound": "Wwise wem esikatseluäänitiedostoa ei löydy.",
-  "noAudioFile": "Ei äänitiedostoa."
+  "noAudioFile": "Ei olemassa"
 }

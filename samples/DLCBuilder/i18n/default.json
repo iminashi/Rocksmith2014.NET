@@ -31,10 +31,12 @@
   "year": "Year",
   "showSortFields": "Show Sort Fields",
   "showJapaneseFields": "Show Japanese Fields",
-  "audioFile": "Audio File",
+  "audioFile": "Audio File:",
+  "preview": "Preview:",
+  "previewAudio": "Preview Audio",
   "audioVolumeToolTip": "Audio Volume (dB)",
   "previewAudioVolumeToolTip": "Preview Audio Volume (dB)",
-  "createPreviewAudio": "Create Preview Audio",
+  "createPreviewAudio": "Create",
   "previewAudioExistsToolTip": "Preview audio file exists, click to create a new one.",
   "previewAudioDoesNotExistToolTip": "Preview audio file does not exist, click to create one.",
   "configuration": "Configuration",
@@ -66,7 +68,6 @@
   "removeDescriptionToolTip": "Click to remove a description part.",
   "volume": "Volume",
   "toneVolumeToolTip": "Lower value = louder volume",
-  "previewAudio": "Preview Audio",
   "startTime": "Start Time",
   "create": "Create",
   "cancel": "Cancel",
@@ -138,5 +139,5 @@
   "conflictingVocals": "There are two conflicting vocals arrangements.\nOne needs to be set as Japanese.",
   "wemAudioNotFound": "Wwise wem audio file not found.",
   "wemPreviewNotFound": "Wwise wem preview audio file not found.",
-  "noAudioFile": "No audio file."
+  "noAudioFile": "None"
 }

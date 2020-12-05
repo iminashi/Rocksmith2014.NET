@@ -201,6 +201,7 @@ let view state dispatch =
                                 Button.isEnabled (not state.BuildInProgress)
                                 Button.onClick (fun _ -> dispatch ConvertToWem)
                             ]
+
                             Button.create [
                                 DockPanel.dock Dock.Right
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
@@ -209,6 +210,13 @@ let view state dispatch =
                                 Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, AddAudioFile)))
                                 ToolTip.tip (state.Localization.GetString "selectAudioFile")
                             ]
+
+                            TextBlock.create [
+                                TextBlock.margin (4.0, 4.0, 0.0, 4.0)
+                                TextBlock.verticalAlignment VerticalAlignment.Center
+                                TextBlock.text (state.Localization.GetString "audioFile")
+                            ]
+
                             TextBlock.create [
                                 TextBlock.margin (4.0, 4.0, 0.0, 4.0)
                                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -218,7 +226,6 @@ let view state dispatch =
                                     else
                                         IO.Path.GetFileName state.Project.AudioFile.Path
                                 )
-                                ToolTip.tip (state.Localization.GetString "audioFile")
                             ]
                         ]
                     ]
@@ -237,39 +244,42 @@ let view state dispatch =
                         NumericUpDown.onValueChanged (fun v -> (fun p -> { p with AudioFile = { p.AudioFile with Volume = v } }) |> EditProject |> dispatch)
                         ToolTip.tip (state.Localization.GetString "audioVolumeToolTip")
                     ]
-        
-                    Button.create [
-                        let previewExists = IO.File.Exists state.Project.AudioPreviewFile.Path
 
+                    DockPanel.create [
                         Grid.column 0
                         Grid.row 6
-                        Button.horizontalAlignment HorizontalAlignment.Center
-                        Button.content (
-                            StackPanel.create [
-                                StackPanel.orientation Orientation.Horizontal
-                                StackPanel.children [
-                                    Path.create [
-                                        Path.fill Brushes.Gray
-                                        Path.data (if previewExists then Icons.check else Icons.x)
-                                        Path.horizontalAlignment HorizontalAlignment.Center
-                                        Path.margin (0., 0., 4., 0.)
-                                    ]
-                                    TextBlock.create [
-                                        TextBlock.verticalAlignment VerticalAlignment.Center
-                                        TextBlock.text (state.Localization.GetString "createPreviewAudio")
-                                    ]
-                                ]
+                        DockPanel.children [
+                            let previewExists = IO.File.Exists state.Project.AudioPreviewFile.Path
+
+                            Button.create [
+                                DockPanel.dock Dock.Right
+                                Button.margin (0.0, 4.0, 4.0, 4.0)
+                                Button.horizontalAlignment HorizontalAlignment.Center
+                                Button.content (state.Localization.GetString "createPreviewAudio")
+                                Button.isEnabled (String.endsWith ".wav" state.Project.AudioFile.Path)
+                                Button.onClick (fun _ -> dispatch (CreatePreviewAudio SetupStartTime))
+                                ToolTip.tip (
+                                    if previewExists then
+                                        state.Localization.GetString "previewAudioExistsToolTip"
+                                    else
+                                        state.Localization.GetString "previewAudioDoesNotExistToolTip"
+                                )
                             ]
-                        )
-                        Button.isEnabled (String.endsWith ".wav" state.Project.AudioFile.Path)
-                        Button.onClick (fun _ -> dispatch (CreatePreviewAudio SetupStartTime))
-                        ToolTip.tip (
-                            if previewExists then
-                                state.Localization.GetString "previewAudioExistsToolTip"
-                            else
-                                state.Localization.GetString "previewAudioDoesNotExistToolTip"
-                        )
-                    ]
+
+                            TextBlock.create [
+                                TextBlock.margin (4.0, 4.0, 0.0, 4.0)
+                                TextBlock.verticalAlignment VerticalAlignment.Center
+                                TextBlock.text (state.Localization.GetString "preview")
+                            ]
+
+                            Path.create [
+                                Path.fill Brushes.Gray
+                                Path.data (if previewExists then Icons.check else Icons.x)
+                                Path.verticalAlignment VerticalAlignment.Center
+                                Path.margin (0., 0., 4., 0.)
+                            ]
+                        ]
+                    ]        
 
                     NumericUpDown.create [
                         Grid.column 1
@@ -282,7 +292,10 @@ let view state dispatch =
                         NumericUpDown.increment 0.5
                         NumericUpDown.value state.Project.AudioPreviewFile.Volume
                         NumericUpDown.formatString "F1"
-                        NumericUpDown.onValueChanged (fun v -> (fun p -> { p with AudioPreviewFile = { p.AudioPreviewFile with Volume = v } }) |> EditProject |> dispatch)
+                        NumericUpDown.onValueChanged (fun v ->
+                            fun p -> { p with AudioPreviewFile = { p.AudioPreviewFile with Volume = v } }
+                            |> EditProject
+                            |> dispatch)
                         ToolTip.tip (state.Localization.GetString "previewAudioVolumeToolTip")
                     ]
 
