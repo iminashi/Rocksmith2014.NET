@@ -24,8 +24,15 @@ let private loadPlaceHolderAlbumArt () =
     new Bitmap(assets.Open(Uri("avares://DLCBuilder/coverart_placeholder.png")))
 
 let init () =
+    let commands =
+        Cmd.batch [
+            Cmd.OfAsync.perform Configuration.load () SetConfiguration
+            Cmd.OfAsync.perform Utils.loadRecentFiles () SetRecentFiles
+        ]
+
     { Project = DLCProject.Empty
       SavedProject = DLCProject.Empty
+      RecentFiles = []
       Config = Configuration.Default
       CoverArt = loadPlaceHolderAlbumArt()
       SelectedArrangement = None
@@ -38,7 +45,7 @@ let init () =
       BuildInProgress = false
       CurrentPlatform = if RuntimeInformation.IsOSPlatform OSPlatform.OSX then Mac else PC
       OpenProjectFile = None
-      Localization = Localization(Locales.English) }, Cmd.OfAsync.perform Configuration.load () SetConfiguration
+      Localization = Localization(Locales.English) }, commands
 
 let private loadArrangement state (fileName: string) =
     try
@@ -190,7 +197,7 @@ let update (msg: Msg) (state: State) =
 
     | ImportPsarc (psarcFile, Some targetFolder) ->
         let task() = PsarcImporter.import psarcFile targetFolder
-        state, Cmd.OfAsync.either task () (fun (project, projectFile) -> ProjectLoaded(project, Some projectFile)) ErrorOccurred
+        state, Cmd.OfAsync.either task () ProjectLoaded ErrorOccurred
 
     | ImportToolkitTemplate fileName ->
         try
@@ -434,6 +441,8 @@ let update (msg: Msg) (state: State) =
     | SetConfiguration config -> { state with Config = config
                                               Localization = Localization(config.Locale) }, Cmd.none
 
+    | SetRecentFiles recent -> { state with RecentFiles = recent }, Cmd.none
+
     | SaveProject (Some target) ->
         let task() = async {
             do! DLCProject.save target state.Project
@@ -451,7 +460,7 @@ let update (msg: Msg) (state: State) =
         state, Cmd.ofMsg msg
 
     | OpenProject fileName ->
-        state, Cmd.OfAsync.either DLCProject.load fileName (fun p -> ProjectLoaded(p, Some fileName)) ErrorOccurred
+        state, Cmd.OfAsync.either DLCProject.load fileName (fun p -> ProjectLoaded(p, fileName)) ErrorOccurred
 
     | ProjectLoaded (project, projectFile) ->
         state.CoverArt.Dispose()
@@ -462,11 +471,14 @@ let update (msg: Msg) (state: State) =
                 loadPlaceHolderAlbumArt()
 
         let project = DLCProject.updateToneInfo project
+        let recent = Utils.createRecentList projectFile state.RecentFiles
+        Cmd.OfAsync.start (Utils.saveRecentFiles recent)
 
         { state with CoverArt = bm
                      Project = project
                      SavedProject = project
-                     OpenProjectFile = projectFile
+                     OpenProjectFile = Some projectFile
+                     RecentFiles = recent
                      SelectedArrangement = None
                      SelectedTone = None }, Cmd.none
 

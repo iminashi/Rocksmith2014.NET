@@ -26,6 +26,7 @@ module Types =
     type State =
         { Project : DLCProject
           SavedProject : DLCProject
+          RecentFiles : string list
           Config : Configuration
           CoverArt : Bitmap
           SelectedArrangement : Arrangement option
@@ -82,7 +83,8 @@ module Types =
     | ShowConfigEditor
     | SaveConfiguration
     | SetConfiguration of config : Configuration
-    | ProjectLoaded of project : DLCProject * projectFile : string option
+    | SetRecentFiles of string list
+    | ProjectLoaded of project : DLCProject * projectFile : string
     | BuildTest
     | BuildRelease
     | BuildComplete of unit

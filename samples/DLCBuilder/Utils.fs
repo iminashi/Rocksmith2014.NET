@@ -2,7 +2,10 @@
 
 open Pfim
 open System
+open System.IO
 open System.Runtime.InteropServices
+open System.Text.Json
+open System.Text.Json.Serialization
 open Avalonia.Platform
 open Avalonia.Media.Imaging
 open Avalonia
@@ -68,3 +71,29 @@ let importTonesFromPSARC (psarcPath: string) = async {
         |> Array.choose (Option.bind (fun a -> Option.ofObj a.Tones))
         |> Array.concat
         |> Array.distinctBy (fun x -> x.Key) }
+
+let createRecentList newFile recentList =
+    let list = List.remove newFile recentList
+    let recent = newFile::list
+    if recent.Length > 3 then List.take 3 recent else recent
+
+let private recentFile =
+    let appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
+    Path.Combine(appData, "recent.json")
+
+let private jsonOptions =
+    let options = JsonSerializerOptions()
+    options.Converters.Add(JsonFSharpConverter())
+    options
+
+let saveRecentFiles (recentList: string list) = async {
+    Directory.CreateDirectory(Path.GetDirectoryName recentFile) |> ignore
+    use file = File.Create recentFile
+    do! JsonSerializer.SerializeAsync(file, recentList, jsonOptions) }
+
+let loadRecentFiles () = async {
+    if not <| File.Exists recentFile then
+        return []
+    else
+        use file = File.OpenRead recentFile
+        return! JsonSerializer.DeserializeAsync<string list>(file, jsonOptions) }

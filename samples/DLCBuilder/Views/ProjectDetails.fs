@@ -2,6 +2,7 @@
 
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
+open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
 open Avalonia.Input
 open Avalonia.Layout
@@ -352,7 +353,18 @@ let view state dispatch =
                                                             Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder)
                                                             |>dispatch)
                                                     ]
+                                                    if state.RecentFiles.Length > 0 then
+                                                        MenuItem.create [
+                                                            MenuItem.header "-"
+                                                        ]
+                                                        yield! state.RecentFiles |> List.map (fun fileName ->
+                                                            MenuItem.create [
+                                                                MenuItem.header ((IO.Path.GetFileName fileName).Replace("_", "__"))
+                                                                MenuItem.onClick ((fun _ -> OpenProject fileName |>dispatch), SubPatchOptions.OnChangeOf state.RecentFiles)
+                                                            ] |> Helpers.generalize
+                                                        )
                                                 ]
+                                                
                                             ]
                                         ]
                                     ]
