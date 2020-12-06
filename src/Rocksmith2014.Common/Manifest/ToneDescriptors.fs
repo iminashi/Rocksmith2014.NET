@@ -153,14 +153,14 @@ module ToneDescriptor =
 
     /// Tries to infer tone descriptors from the given tone name.
     let tryInfer (name: string) =
-        Array.FindAll(all, (fun x ->
-            x.Aliases
-            |> List.exists (fun a -> name.Contains(a, StringComparison.OrdinalIgnoreCase))))
+        Array.FindAll(all, (fun descriptor ->
+            descriptor.Aliases
+            |> List.exists (fun alias -> name.Contains(alias, StringComparison.OrdinalIgnoreCase))))
 
     /// Returns an array of tone descriptors inferred from the tone name, or the clean tone descriptor as default.
     let getDescriptionsOrDefault (name: string) =
         let descs = tryInfer name
-        if descs.Length = 0 then [| all.[3] |] // Use clean as default
+        if descs.Length = 0 then [| all.[4] |] // Use clean as default
         else descs
 
     /// Returns a description name for the given UI name.
