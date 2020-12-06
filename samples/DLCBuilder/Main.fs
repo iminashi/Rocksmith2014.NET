@@ -79,14 +79,14 @@ let update (msg: Msg) (state: State) =
         let importedTones =
             state.ImportTones
             |> List.map (fun x ->
-                match x.ToneDescriptors with
-                | null | [||] ->
-                    let descs =
+                let descs =
+                    match x.ToneDescriptors with
+                    | null | [||] ->
                         ToneDescriptor.getDescriptionsOrDefault x.Name
                         |> Array.map (fun x -> x.UIName)
-                    { x with ToneDescriptors = descs; SortOrder = Nullable(); NameSeparator = " - " }
-                | _ ->
-                    { x with SortOrder = Nullable(); NameSeparator = " - " })
+                    | descriptors -> descriptors
+                { x with ToneDescriptors = descs; SortOrder = Nullable(); NameSeparator = " - " })
+
         let tones =
             project.Tones
             |> List.append importedTones
