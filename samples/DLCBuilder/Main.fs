@@ -23,11 +23,19 @@ let private loadPlaceHolderAlbumArt () =
     let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
     new Bitmap(assets.Open(Uri("avares://DLCBuilder/coverart_placeholder.png")))
 
-let init () =
+let init arg =
     let commands =
+        let loadProject =
+            arg
+            |> Option.bind (fun a ->
+                if String.endsWith ".rs2dlc" a then
+                    Some <| Cmd.OfAsync.either DLCProject.load a (fun p -> ProjectLoaded(p, a)) ErrorOccurred
+                else None)
+
         Cmd.batch [
             Cmd.OfAsync.perform Configuration.load () SetConfiguration
             Cmd.OfAsync.perform Utils.loadRecentFiles () SetRecentFiles
+            yield! loadProject |> Option.toList
         ]
 
     { Project = DLCProject.Empty

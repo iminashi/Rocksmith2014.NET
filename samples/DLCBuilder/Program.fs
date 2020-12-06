@@ -9,6 +9,7 @@ open Avalonia.FuncUI.Elmish
 open Avalonia.FuncUI.Components.Hosts
 open Live.Avalonia
 open Avalonia.Controls
+open System
 
 //type MainControl() as this =
 //    inherit HostControl()
@@ -41,12 +42,17 @@ type MainWindow() as this =
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
         //this.VisualRoot.VisualRoot.Renderer.DrawDirtyRects <- true
 
+        let arg =
+            match Environment.GetCommandLineArgs() with
+            | [| _; arg |] -> Some arg
+            | _ -> None
+
         let view' = Main.view this
 
         Program.mkProgram Main.init Main.update view'
         |> Program.withHost this
         |> Program.withSubscription hotKeysSub
-        |> Program.run
+        |> Program.runWith arg
         
 type App() =
     inherit Application()
