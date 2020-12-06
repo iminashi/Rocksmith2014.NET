@@ -352,9 +352,8 @@ let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Inst
     attr
 
 let private getToneName index tones =
-    match List.tryItem index tones with
-    | Some tone -> tone
-    | None -> String.Empty
+    List.tryItem index tones
+    |> Option.defaultValue String.Empty
 
 /// Initializes attributes unique to instrumental arrangements (non-header).
 let private initSongComplete (partition: int)
