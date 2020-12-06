@@ -29,7 +29,7 @@ let view state dispatch =
                 Image.width 200.
                 Image.height 200.
                 Image.onTapped (fun _ -> dispatch (Msg.OpenFileDialog("selectCoverArt", Dialogs.imgFileFilter, AddCoverArt)))
-                Image.cursor (Cursor(StandardCursorType.Hand))
+                Image.cursor Cursors.hand
                 ToolTip.tip (state.Localization.GetString "selectCoverArtToolTip")
             ]
 

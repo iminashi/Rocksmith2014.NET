@@ -17,6 +17,7 @@ open Avalonia.Controls
 open Avalonia.Controls.Shapes
 open Avalonia.FuncUI.DSL
 open Avalonia.FuncUI.Components.Hosts
+open Media
 
 let private loadPlaceHolderAlbumArt () =
     let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
@@ -465,9 +466,9 @@ let update (msg: Msg) (state: State) =
 
 let view (window: HostWindow) (state: State) dispatch =
     if state.BuildInProgress then
-        window.Cursor <- Cursor(StandardCursorType.AppStarting)
+        window.Cursor <- Cursors.appStarting
     else
-        window.Cursor <- Cursor(StandardCursorType.Arrow)
+        window.Cursor <- Cursors.arrow
         
     window.Title <-
         match state.OpenProjectFile with
