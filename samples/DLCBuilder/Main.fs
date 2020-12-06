@@ -7,7 +7,6 @@ open Rocksmith2014.DLCProject.PackageBuilder
 open Rocksmith2014
 open Elmish
 open System.Runtime.InteropServices
-open System.Xml
 open System
 open Avalonia
 open Avalonia.Media.Imaging
@@ -46,86 +45,6 @@ let init () =
       CurrentPlatform = if RuntimeInformation.IsOSPlatform OSPlatform.OSX then Mac else PC
       OpenProjectFile = None
       Localization = Localization(Locales.English) }, commands
-
-let private loadArrangement state (fileName: string) =
-    try
-        let rootName =
-            using (XmlReader.Create(fileName))
-                  (fun reader -> reader.MoveToContent() |> ignore; reader.LocalName)
-
-        match rootName with
-        | "song" ->
-            let metadata = XML.MetaData.Read fileName
-            let toneInfo = XML.InstrumentalArrangement.ReadToneNames fileName
-            let baseTone =
-                if isNull toneInfo.BaseToneName then
-                    metadata.Arrangement.ToLowerInvariant() + "_base"
-                else
-                    toneInfo.BaseToneName
-            let tones =
-                toneInfo.Names
-                |> Array.filter (isNull >> not)
-                |> Array.toList
-
-            let routeMask =
-                if metadata.ArrangementProperties.PathBass then RouteMask.Bass
-                elif metadata.ArrangementProperties.PathRhythm then RouteMask.Rhythm
-                else RouteMask.Lead
-
-            let name =
-                match ArrangementName.TryParse metadata.Arrangement with
-                | true, name -> name
-                | false, _ ->
-                    match routeMask with
-                    | RouteMask.Bass -> ArrangementName.Bass
-                    | RouteMask.Rhythm -> ArrangementName.Rhythm
-                    | _ -> ArrangementName.Lead
-
-            let arr =
-                { XML = fileName
-                  Name = name
-                  Priority =
-                    if metadata.ArrangementProperties.Represent then ArrangementPriority.Main
-                    elif metadata.ArrangementProperties.BonusArrangement then ArrangementPriority.Bonus
-                    else ArrangementPriority.Alternative
-                  Tuning = metadata.Tuning.Strings
-                  TuningPitch = Utils.centsToTuningPitch(float metadata.CentOffset)
-                  RouteMask = routeMask
-                  ScrollSpeed = 1.3
-                  BaseTone = baseTone
-                  Tones = tones
-                  BassPicked = metadata.ArrangementProperties.BassPick
-                  MasterID = RandomGenerator.next()
-                  PersistentID = Guid.NewGuid() }
-                |> Arrangement.Instrumental
-            Ok (arr, Some metadata)
-
-        | "vocals" ->
-            // Attempt to infer whether the lyrics are Japanese from the filename
-            let isJapanese =
-                fileName.Contains("jvocal", StringComparison.OrdinalIgnoreCase) ||
-                fileName.Contains("jlyric", StringComparison.OrdinalIgnoreCase)
-
-            // Try to find custom font for Japanese vocals
-            let customFont =
-                let fontFile = IO.Path.Combine(IO.Path.GetDirectoryName fileName, "lyrics.dds")
-                if isJapanese && IO.File.Exists fontFile then Some fontFile else None
-
-            let arr =
-                { XML = fileName
-                  Japanese = isJapanese
-                  CustomFont = customFont
-                  MasterID = RandomGenerator.next()
-                  PersistentID = Guid.NewGuid() }
-                |> Arrangement.Vocals
-            Ok (arr, None)
-
-        | "showlights" ->
-            let arr = Arrangement.Showlights { XML = fileName }
-            Ok (arr, None)
-
-        | _ -> Error (state.Localization.GetString "unknownArrangementError")
-    with ex -> Error ex.Message
 
 let private updateArrangement old updated state =
     let arrangements =
@@ -306,7 +225,7 @@ let update (msg: Msg) (state: State) =
                      Project = { project with AlbumArtFile = fileName } }, Cmd.none
 
     | AddArrangements (Some files) ->
-        let results = Array.map (loadArrangement state) files
+        let results = Array.map (Arrangement.fromFile localize) files
 
         let shouldInclude arrangements arr =
             match arr with
