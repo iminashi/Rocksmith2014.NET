@@ -495,16 +495,27 @@ let view (window: HostWindow) (state: State) dispatch =
                 Grid.children [
                     ProjectDetails.view state dispatch
 
+                    // Arrangements
                     DockPanel.create [
                         Grid.column 1
                         DockPanel.children [
-                            Button.create [
+                            DockPanel.create [
                                 DockPanel.dock Dock.Top
-                                Button.margin 5.0
-                                Button.padding (15.0, 5.0)
-                                Button.horizontalAlignment HorizontalAlignment.Left
-                                Button.content (state.Localization.GetString "addArrangement")
-                                Button.onClick (fun _ -> dispatch SelectOpenArrangement)
+                                DockPanel.margin 5.0
+
+                                DockPanel.children [
+                                    Button.create [
+                                        DockPanel.dock Dock.Right
+                                        Button.padding (15.0, 5.0)
+                                        Button.content (state.Localization.GetString "addArrangement")
+                                        Button.onClick (fun _ -> dispatch SelectOpenArrangement)
+                                    ]
+
+                                    TextBlock.create [
+                                        TextBlock.text (state.Localization.GetString "arrangements")
+                                        TextBlock.verticalAlignment VerticalAlignment.Bottom
+                                    ]
+                                ]
                             ]
 
                             ListBox.create [
@@ -527,6 +538,7 @@ let view (window: HostWindow) (state: State) dispatch =
                         ]
                     ]
 
+                    // Arrangement details
                     StackPanel.create [
                         Grid.column 2
                         StackPanel.margin 8.
@@ -559,10 +571,17 @@ let view (window: HostWindow) (state: State) dispatch =
                         ]
                     ]
 
+                    // Tones
                     DockPanel.create [
                         Grid.column 1
                         Grid.row 1
                         DockPanel.children [
+                            TextBlock.create [
+                                DockPanel.dock Dock.Top
+                                TextBlock.text (state.Localization.GetString "tones")
+                                TextBlock.margin 5.0
+                            ]
+
                             StackPanel.create [
                                 DockPanel.dock Dock.Top
                                 StackPanel.orientation Orientation.Horizontal
@@ -607,6 +626,7 @@ let view (window: HostWindow) (state: State) dispatch =
                         ]
                     ]
 
+                    // Tone details
                     StackPanel.create [
                         Grid.column 2
                         Grid.row 1
