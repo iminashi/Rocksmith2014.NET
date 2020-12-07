@@ -141,5 +141,7 @@
   "wemAudioNotFound": "Wwise wem audio file not found.",
   "previewNotFound": "Preview audio file not found.",
   "noAudioFile": "None",
-  "cents": "cents"
+  "cents": "cents",
+  "updateToneNames": "Update Tone Names",
+  "updateToneNamesTooltip": "Reads the tone names from the arrangement's XML file."
 }

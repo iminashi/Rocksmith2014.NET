@@ -205,3 +205,16 @@ module Arrangement =
     
             | _ -> Error (localize "unknownArrangementError")
         with ex -> Error ex.Message
+    
+    /// Reads the tone info from the arrangement's XML file.
+    let updateToneInfo (inst: Instrumental) updateBaseTone =
+        let toneInfo = InstrumentalArrangement.ReadToneNames inst.XML
+        let tones =
+            toneInfo.Names
+            |> Array.choose Option.ofString
+            |> Array.toList
+
+        if updateBaseTone then
+            { inst with Tones = tones; BaseTone = toneInfo.BaseToneName }
+        else
+            { inst with Tones = tones }

@@ -141,5 +141,7 @@
   "wemAudioNotFound": "Wwise wem äänitiedosta ei löydy.",
   "previewNotFound": "Esikatseluäänitiedostoa ei löydy.",
   "noAudioFile": "Ei olemassa",
-  "cents": "senttiä"
+  "cents": "senttiä",
+  "updateToneNames": "Päivitä soundinimet",
+  "updateToneNamesTooltip": "Lukee soundien nimet sovituksen XML-tiedostosta."
 }

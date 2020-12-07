@@ -103,9 +103,7 @@ module DLCProject =
         let arrs =
             project.Arrangements
             |> List.map (function
-                | Instrumental inst ->
-                    let toneInfo = Rocksmith2014.XML.InstrumentalArrangement.ReadToneNames inst.XML
-                    { inst with Tones = toneInfo.Names |> Array.choose Option.ofString |> Array.toList }
-                    |> Instrumental
+                | Instrumental inst -> Arrangement.updateToneInfo inst false |> Instrumental
                 | other -> other)
+
         { project with Arrangements = arrs }

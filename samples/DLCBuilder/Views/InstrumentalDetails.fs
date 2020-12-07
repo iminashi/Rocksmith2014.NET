@@ -137,8 +137,14 @@ let view state dispatch (i: Instrumental) =
                 CheckBox.margin 4.
                 CheckBox.isVisible (i.Name = ArrangementName.Bass)
                 CheckBox.isChecked i.BassPicked
-                CheckBox.onChecked (fun _ -> (fun _ a -> { a with BassPicked = true }) |> EditInstrumental |> dispatch)
-                CheckBox.onUnchecked (fun _ -> (fun _ a -> { a with BassPicked = false }) |> EditInstrumental |> dispatch)
+                CheckBox.onChecked (fun _ ->
+                    fun _ a -> { a with BassPicked = true }
+                    |> EditInstrumental
+                    |> dispatch)
+                CheckBox.onUnchecked (fun _ ->
+                    fun _ a -> { a with BassPicked = false }
+                    |> EditInstrumental
+                    |> dispatch)
             ]
 
             TextBlock.create [
@@ -240,8 +246,20 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.horizontalAlignment HorizontalAlignment.Left
             ]
 
-            TextBlock.create [
+            Button.create [
+                Grid.columnSpan 2
                 Grid.row 8
+                Button.horizontalAlignment HorizontalAlignment.Center
+                Button.content (state.Localization.GetString "updateToneNames")
+                Button.onClick (fun _ ->
+                    fun _ arr -> Arrangement.updateToneInfo arr true
+                    |> EditInstrumental
+                    |> dispatch)
+                ToolTip.tip (state.Localization.GetString "updateToneNamesTooltip")
+            ]
+
+            TextBlock.create [
+                Grid.row 9
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -250,7 +268,7 @@ let view state dispatch (i: Instrumental) =
 
             NumericUpDown.create [
                 Grid.column 1
-                Grid.row 8
+                Grid.row 9
                 ToolTip.tip (state.Localization.GetString "scrollSpeedTooltip")
                 NumericUpDown.isVisible state.Config.ShowAdvanced
                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
@@ -267,7 +285,7 @@ let view state dispatch (i: Instrumental) =
             ]
 
             TextBlock.create [
-                Grid.row 9
+                Grid.row 10
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -276,7 +294,7 @@ let view state dispatch (i: Instrumental) =
 
             TextBox.create [
                 Grid.column 1
-                Grid.row 9
+                Grid.row 10
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
                 TextBox.text (string i.MasterID)
@@ -291,7 +309,7 @@ let view state dispatch (i: Instrumental) =
             ]
 
             TextBlock.create [
-                Grid.row 10
+                Grid.row 11
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -300,7 +318,7 @@ let view state dispatch (i: Instrumental) =
 
             TextBox.create [
                 Grid.column 1
-                Grid.row 10
+                Grid.row 11
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
                 TextBox.text (i.PersistentID.ToString("N"))
@@ -316,7 +334,7 @@ let view state dispatch (i: Instrumental) =
 
             Button.create [
                 Grid.columnSpan 2
-                Grid.row 11
+                Grid.row 12
                 Button.horizontalAlignment HorizontalAlignment.Center
                 Button.isVisible state.Config.ShowAdvanced
                 Button.content (state.Localization.GetString "generateNewArrIDs")
