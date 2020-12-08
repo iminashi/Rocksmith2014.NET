@@ -102,6 +102,7 @@ module Arrangement =
         | Showlights s -> s.XML
 
     let pickInstrumental = function Instrumental i -> Some i | _ -> None
+    let pickVocals = function Vocals v -> Some v | _ -> None
     let pickShowlights = function Showlights s -> Some s | _ -> None
 
     /// Returns the comparable values for sorting arrangements.

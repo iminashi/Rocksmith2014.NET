@@ -6,6 +6,7 @@
     <RuntimeIdentifiers>win-x64;osx-x64</RuntimeIdentifiers>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <Platforms>x64</Platforms>
+    <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -20,6 +21,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AvaloniaResource Include="Assets\coverart_placeholder.png" />
+    <EmbeddedResource Include="Assets\icon.ico" />
     <EmbeddedResource Include="i18n\fi.json" />
     <EmbeddedResource Include="i18n\default.json" />
     <Compile Include="Audio\Types.fs" />
@@ -28,7 +31,6 @@
     <Page Include="Styles.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <AvaloniaResource Include="coverart_placeholder.png" />
     <AvaloniaResource Include="**\*.xaml" />
     <Compile Include="Localization.fs" />
     <Compile Include="Media.fs" />

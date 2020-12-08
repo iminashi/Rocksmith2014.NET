@@ -21,7 +21,7 @@ open Media
 
 let private loadPlaceHolderAlbumArt () =
     let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
-    new Bitmap(assets.Open(Uri("avares://DLCBuilder/coverart_placeholder.png")))
+    new Bitmap(assets.Open(Uri("avares://DLCBuilder/Assets/coverart_placeholder.png")))
 
 let init arg =
     let commands =
@@ -246,7 +246,7 @@ let update (msg: Msg) (state: State) =
             | Instrumental _ when (arrangements |> List.choose Arrangement.pickInstrumental).Length = 5 -> false
 
             // Allow max two vocals arrangements
-            | Vocals _ when (arrangements |> List.choose (function Vocals _ -> Some 1 | _ -> None)).Length = 2 -> false
+            | Vocals _ when (arrangements |> List.choose Arrangement.pickVocals).Length = 2 -> false
             | _ -> true
 
         let errors =

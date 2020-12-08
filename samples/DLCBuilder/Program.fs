@@ -10,6 +10,8 @@ open Avalonia.FuncUI.Components.Hosts
 open Live.Avalonia
 open Avalonia.Controls
 open System
+open System.Reflection
+open Microsoft.Extensions.FileProviders
 
 //type MainControl() as this =
 //    inherit HostControl()
@@ -21,6 +23,9 @@ open System
 type MainWindow() as this =
     inherit HostWindow()
     do
+        let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
+        use iconData = embeddedProvider.GetFileInfo("Assets/icon.ico").CreateReadStream()
+        base.Icon <- WindowIcon(iconData)
         base.Title <- "Rocksmith 2014 DLC Builder"
         base.Width <- 1100.0
         base.Height <- 850.0

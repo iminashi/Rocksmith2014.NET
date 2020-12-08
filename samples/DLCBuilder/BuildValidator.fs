@@ -12,7 +12,7 @@ let validate (project: DLCProject) =
 
     let vocalGroups =
         project.Arrangements
-        |> List.choose (function Vocals v -> Some v | _ -> None)
+        |> List.choose Arrangement.pickVocals
         |> List.groupBy (fun x -> x.Japanese)
 
     if not <| File.Exists project.AlbumArtFile then
