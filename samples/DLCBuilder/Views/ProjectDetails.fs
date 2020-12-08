@@ -42,9 +42,14 @@ let view state dispatch =
                         TextBox.text state.Project.DLCKey
                         // Cannot filter pasted text: https://github.com/AvaloniaUI/Avalonia/issues/2611
                         TextBox.onTextInput (fun e -> e.Text <- StringValidator.dlcKey e.Text)
-                        TextBox.onTextChanged (fun e -> (fun p -> { p with DLCKey = StringValidator.dlcKey e }) |> EditProject |> dispatch)
+                        TextBox.onTextChanged (fun e ->
+                            fun p -> { p with DLCKey = StringValidator.dlcKey e }
+                            |> EditProject
+                            |> dispatch)
                         // Display the validated DLC key if invalid characters very pasted into the textbox
-                        TextBox.onLostFocus ((fun e -> (e.Source :?> TextBox).Text <- state.Project.DLCKey), SubPatchOptions.OnChangeOf state.Project.DLCKey)
+                        TextBox.onLostFocus (
+                            (fun e -> (e.Source :?> TextBox).Text <- state.Project.DLCKey),
+                            SubPatchOptions.OnChangeOf state.Project.DLCKey)
                     ]
 
                     TitledTextBox.create (state.Localization.GetString "version") [ Grid.column 1; Grid.row 0 ] [
@@ -242,7 +247,10 @@ let view state dispatch =
                         NumericUpDown.increment 0.5
                         NumericUpDown.value state.Project.AudioFile.Volume
                         NumericUpDown.formatString "F1"
-                        NumericUpDown.onValueChanged (fun v -> (fun p -> { p with AudioFile = { p.AudioFile with Volume = v } }) |> EditProject |> dispatch)
+                        NumericUpDown.onValueChanged (fun v ->
+                            fun p -> { p with AudioFile = { p.AudioFile with Volume = v } }
+                            |> EditProject
+                            |> dispatch)
                         ToolTip.tip (state.Localization.GetString "audioVolumeToolTip")
                     ]
 
@@ -360,7 +368,9 @@ let view state dispatch =
                                                         yield! state.RecentFiles |> List.map (fun fileName ->
                                                             MenuItem.create [
                                                                 MenuItem.header ((IO.Path.GetFileName fileName).Replace("_", "__"))
-                                                                MenuItem.onClick ((fun _ -> OpenProject fileName |>dispatch), SubPatchOptions.OnChangeOf state.RecentFiles)
+                                                                MenuItem.onClick (
+                                                                    (fun _ -> OpenProject fileName |>dispatch),
+                                                                    SubPatchOptions.OnChangeOf state.RecentFiles)
                                                             ] |> Helpers.generalize
                                                         )
                                                 ]
@@ -381,7 +391,7 @@ let view state dispatch =
                                         Button.margin (4., 4., 0., 4.)
                                         Button.fontSize 16.
                                         Button.content (state.Localization.GetString "saveProject")
-                                        Button.onClick (fun _ -> ProjectSaveOrSaveAs |> dispatch)
+                                        Button.onClick (fun _ -> dispatch ProjectSaveOrSaveAs)
                                         Button.isEnabled (state.Project <> state.SavedProject)
                                     ]
                                     Button.create [
@@ -389,7 +399,7 @@ let view state dispatch =
                                         Button.margin (0., 4., 4., 4.)
                                         Button.fontSize 16.
                                         Button.content "..."
-                                        Button.onClick (fun _ -> ProjectSaveAs |> dispatch)
+                                        Button.onClick (fun _ -> dispatch ProjectSaveAs)
                                         ToolTip.tip (state.Localization.GetString "saveProjectAs")
                                     ]
                                 ]
@@ -401,7 +411,7 @@ let view state dispatch =
                                 Button.fontSize 16.
                                 Button.content (state.Localization.GetString "buildTest")
                                 Button.isEnabled (canBuild && String.notEmpty state.Config.TestFolderPath)
-                                Button.onClick (fun _ -> BuildTest |> dispatch)
+                                Button.onClick (fun _ -> dispatch BuildTest)
                             ]
                             Button.create [
                                 Grid.column 1
@@ -411,7 +421,7 @@ let view state dispatch =
                                 Button.fontSize 16.
                                 Button.content (state.Localization.GetString "buildRelease")
                                 Button.isEnabled canBuild
-                                Button.onClick (fun _ -> BuildRelease |> dispatch)
+                                Button.onClick (fun _ -> dispatch BuildRelease)
                             ]
                         ]
                     ]
