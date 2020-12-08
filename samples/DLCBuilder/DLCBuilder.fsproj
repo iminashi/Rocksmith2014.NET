@@ -36,6 +36,7 @@
     <Compile Include="Configuration.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="TitledTextBox.fs" />
+    <Compile Include="Templates.fs" />
     <Compile Include="Views\ProjectDetails.fs" />
     <Compile Include="Views\InstrumentalDetails.fs" />
     <Compile Include="Views\VocalsDetails.fs" />
@@ -89,6 +90,7 @@
     <Watch Remove="Main.fs" />
     <Watch Remove="Media.fs" />
     <Watch Remove="RecentFilesList.fs" />
+    <Watch Remove="Templates.fs" />
     <Watch Remove="TitledTextBox.fs" />
     <Watch Remove="Types.fs" />
     <Watch Remove="Utils.fs" />

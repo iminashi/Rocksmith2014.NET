@@ -3,17 +3,9 @@
 open Avalonia.Controls
 open Avalonia.Controls.Primitives
 open Avalonia.FuncUI.DSL
-open Avalonia.FuncUI.Components
 open Avalonia.Layout
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
-
-// TODO: Fix this
-let createDescriptionTemplate state =
-    DataTemplateView<ToneDescriptor>.create (fun desc ->
-        TextBlock.create [
-            TextBlock.text (state.Localization.GetString desc.Name)
-        ])
 
 let createDescriptors state dispatch tone =
     UniformGrid.create [
@@ -23,7 +15,7 @@ let createDescriptors state dispatch tone =
                 yield ComboBox.create [
                     ComboBox.margin 4.
                     ComboBox.dataItems ToneDescriptor.all
-                    ComboBox.itemTemplate (createDescriptionTemplate state)
+                    ComboBox.itemTemplate (Templates.toneDescriptor state)
                     ComboBox.selectedItem (ToneDescriptor.uiNameToDesc.[tone.ToneDescriptors.[i]])
                     ComboBox.onSelectedItemChanged (fun item ->
                         match item with

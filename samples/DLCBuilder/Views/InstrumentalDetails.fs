@@ -249,6 +249,7 @@ let view state dispatch (i: Instrumental) =
             Button.create [
                 Grid.columnSpan 2
                 Grid.row 8
+                Button.margin 4.
                 Button.horizontalAlignment HorizontalAlignment.Center
                 Button.content (state.Localization.GetString "updateToneNames")
                 Button.onClick (fun _ ->

@@ -522,6 +522,7 @@ let view (window: HostWindow) (state: State) dispatch =
                                 ListBox.virtualizationMode ItemVirtualizationMode.None
                                 ListBox.margin 2.
                                 ListBox.dataItems state.Project.Arrangements
+                                ListBox.itemTemplate Templates.arrangement
                                 match state.SelectedArrangement with
                                 | Some a -> ListBox.selectedItem a
                                 | None -> ()

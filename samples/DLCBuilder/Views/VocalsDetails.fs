@@ -22,8 +22,14 @@ let view state dispatch (v: Vocals) =
                 Grid.column 1
                 CheckBox.margin 4.0
                 CheckBox.isChecked v.Japanese
-                CheckBox.onChecked (fun _ -> (fun v -> { v with Japanese = true }) |> EditVocals |> dispatch)
-                CheckBox.onUnchecked (fun _ -> (fun v -> { v with Japanese = false }) |> EditVocals |> dispatch)
+                CheckBox.onChecked (fun _ ->
+                    fun v -> { v with Japanese = true }
+                    |> EditVocals
+                    |> dispatch)
+                CheckBox.onUnchecked (fun _ ->
+                    fun v -> { v with Japanese = false }
+                    |> EditVocals
+                    |> dispatch)
             ]
 
             // Custom font
