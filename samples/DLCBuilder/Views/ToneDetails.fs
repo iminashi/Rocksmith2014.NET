@@ -25,7 +25,8 @@ let createDescriptors state dispatch tone =
                                     t.ToneDescriptors
                                     |> Array.mapi (fun j x -> if j = i then td.UIName else x)
                                 { t with ToneDescriptors = updated }
-                            |> EditTone |> dispatch
+                            |> EditTone
+                            |> dispatch
                         | _ -> ()
                     )
                     ToolTip.tip (state.Localization.GetString "toneDescriptorToolTip")
@@ -108,7 +109,8 @@ let view state dispatch (tone: Tone) =
                                 Button.onClick (fun _ ->
                                     fun t ->
                                         { t with ToneDescriptors = t.ToneDescriptors |> Array.append [| ToneDescriptor.all.[0].UIName |] }
-                                    |> EditTone |> dispatch)
+                                    |> EditTone
+                                    |> dispatch)
                                 ToolTip.tip (state.Localization.GetString "addDescriptionToolTip")
                             ]
                             Button.create [

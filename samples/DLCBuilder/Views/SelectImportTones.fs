@@ -33,7 +33,7 @@ let view state dispatch (tones: Tone array) =
                         Button.padding (50., 10.)
                         Button.horizontalAlignment HorizontalAlignment.Center
                         Button.content (state.Localization.GetString "import")
-                        Button.onClick (fun _ -> ImportSelectedTones |> dispatch)
+                        Button.onClick (fun _ -> dispatch ImportSelectedTones)
                         Button.isDefault true
                     ]
                     Button.create [
@@ -41,7 +41,7 @@ let view state dispatch (tones: Tone array) =
                         Button.padding (50., 10.)
                         Button.horizontalAlignment HorizontalAlignment.Center
                         Button.content (state.Localization.GetString "cancel")
-                        Button.onClick (fun _ -> CloseOverlay |> dispatch)
+                        Button.onClick (fun _ -> dispatch CloseOverlay)
                     ]
                 ]
             ]
