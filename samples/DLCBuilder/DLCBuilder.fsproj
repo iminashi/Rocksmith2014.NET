@@ -1,11 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <RuntimeIdentifiers>win-x64;osx-x64</RuntimeIdentifiers>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <Platforms>x64</Platforms>
+    <Authors>iminashi</Authors>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Product>Rocksmith 2014 DLC Builder</Product>
+    <Copyright>Copyright © 2020</Copyright>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
   </PropertyGroup>
 
@@ -79,6 +82,10 @@
   <ItemGroup>
     <Watch Include="**\*.fs" />
     <Watch Include="**\*.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Assets\" />
   </ItemGroup>
 
   <ItemGroup>
