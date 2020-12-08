@@ -28,9 +28,9 @@ let toneImportFilter (loc:ILocalization) = createFilters (loc.GetString "toneImp
 let openFolderDialog title directory = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string>(
-                fun () ->
-                    let dialog = OpenFolderDialog(Title = title, Directory = Option.toObj directory)
-                    dialog.ShowAsync window.Value)
+            fun () ->
+                let dialog = OpenFolderDialog(Title = title, Directory = Option.toObj directory)
+                dialog.ShowAsync window.Value)
 
     return Option.ofString result }
 
@@ -38,14 +38,14 @@ let openFolderDialog title directory = async {
 let saveFileDialog title filters initialFileName directory = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string>(
-                fun () ->
-                    let dialog =
-                        SaveFileDialog(
-                            Title = title,
-                            Filters = filters,
-                            InitialFileName = Option.toObj initialFileName,
-                            Directory = Option.toObj directory)
-                    dialog.ShowAsync window.Value)
+            fun () ->
+                let dialog =
+                    SaveFileDialog(
+                        Title = title,
+                        Filters = filters,
+                        InitialFileName = Option.toObj initialFileName,
+                        Directory = Option.toObj directory)
+                dialog.ShowAsync window.Value)
 
     return Option.ofString result }
 
@@ -56,9 +56,9 @@ let private createOpenFileDialog t f d m =
 let openFileDialog title filters directory = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string[]>(
-                fun () ->
-                    let dialog = createOpenFileDialog title filters directory false
-                    dialog.ShowAsync window.Value)
+            fun () ->
+                let dialog = createOpenFileDialog title filters directory false
+                dialog.ShowAsync window.Value)
     match result with
     | [| file |] -> return Some file
     | _ -> return None }
@@ -67,9 +67,9 @@ let openFileDialog title filters directory = async {
 let openMultiFileDialog title filters directory = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string[]>(
-                fun () ->
-                    let dialog = createOpenFileDialog title filters directory true
-                    dialog.ShowAsync window.Value)
+            fun () ->
+                let dialog = createOpenFileDialog title filters directory true
+                dialog.ShowAsync window.Value)
     match result with
     | null | [||] -> return None
     | arr -> return Some arr }
