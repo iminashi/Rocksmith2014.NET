@@ -41,6 +41,7 @@
   "previewAudioExistsToolTip": "Esikatseluäänitiedosto on olemassa, paina luodaksesi uuden.",
   "previewAudioDoesNotExistToolTip": "Esikatseluäänitiedostoa ei löydy, paina luodaksesi sellaisen.",
   "configuration": "Asetukset",
+  "newProject": "Uusi projekti",
   "openProject": "Avaa projekti",
   "saveProject": "Tallenna projekti",
   "buildTest": "Rakenna testi",

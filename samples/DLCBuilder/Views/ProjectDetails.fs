@@ -350,6 +350,13 @@ let view state dispatch =
                                                 ])
                                                 MenuItem.viewItems [
                                                     MenuItem.create [
+                                                        MenuItem.header (state.Localization.GetString "newProject")
+                                                        MenuItem.onClick (fun _ -> dispatch NewProject)
+                                                    ]
+                                                    MenuItem.create [
+                                                        MenuItem.header "-"
+                                                    ]
+                                                    MenuItem.create [
                                                         MenuItem.header (state.Localization.GetString "toolkitImport")
                                                         MenuItem.onClick (fun _ ->
                                                             Msg.OpenFileDialog("selectImportToolkitTemplate", Dialogs.toolkitFilter, ImportToolkitTemplate)

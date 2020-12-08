@@ -60,19 +60,23 @@ let arrangement =
             StackPanel.orientation Orientation.Horizontal
             StackPanel.minHeight 33.
             StackPanel.children [
+                // Icon
                 Path.create [
                     Path.fill color
                     Path.data icon
                     Path.verticalAlignment VerticalAlignment.Center
-                    Path.margin (0., 0., 4., 0.)
+                    Path.margin (0., 0., 6., 0.)
                 ]
+
                 StackPanel.create [
                     StackPanel.verticalAlignment VerticalAlignment.Center
                     StackPanel.children [
+                        // Name
                         TextBlock.create [
                             TextBlock.fontSize 16.
                             TextBlock.text (name)
                         ]
+
                         match arr with
                         | Instrumental inst ->
                             let tuning =

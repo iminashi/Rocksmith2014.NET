@@ -41,6 +41,7 @@
   "previewAudioExistsToolTip": "Preview audio file exists, click to create a new one.",
   "previewAudioDoesNotExistToolTip": "Preview audio file does not exist, click to create one.",
   "configuration": "Configuration",
+  "newProject": "New Project",
   "openProject": "Open Project",
   "saveProject": "Save Project",
   "buildTest": "Build Test",

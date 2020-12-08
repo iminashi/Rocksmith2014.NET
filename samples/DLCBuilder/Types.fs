@@ -49,6 +49,7 @@ module Types =
     | SelectImportPsarcFolder of psarcFile : string
     | ImportPsarc of psarcFile : string * targetFolder : string option
     | ImportToolkitTemplate of fileName : string
+    | NewProject
     | OpenProject of fileName : string
     | ProjectSaveOrSaveAs
     | ProjectSaveAs

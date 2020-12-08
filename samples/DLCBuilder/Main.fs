@@ -74,6 +74,15 @@ let update (msg: Msg) (state: State) =
     let localize = state.Localization.GetString
 
     match msg with
+    | NewProject ->
+        state.CoverArt.Dispose()
+        { state with Project = DLCProject.Empty
+                     SavedProject = DLCProject.Empty
+                     OpenProjectFile = None
+                     SelectedArrangement = None
+                     SelectedTone = None
+                     CoverArt = loadPlaceHolderAlbumArt () }, Cmd.none
+
     | ImportTonesChanged item ->
         if isNull item then state, Cmd.none
         else
