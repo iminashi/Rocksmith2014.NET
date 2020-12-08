@@ -1,4 +1,4 @@
-﻿module TitledTextBox
+﻿module DLCBuilder.TitledTextBox
 
 open Avalonia.FuncUI.Types
 open Avalonia.FuncUI.DSL

@@ -1,10 +1,9 @@
-﻿module Dialogs
+﻿module DLCBuilder.Dialogs
 
 open System.Collections.Generic
 open Avalonia
 open Avalonia.Controls
 open Avalonia.Threading
-open DLCBuilder
 open Rocksmith2014.Common
 
 let private window =
