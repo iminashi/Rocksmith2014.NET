@@ -15,7 +15,11 @@ let validate (project: DLCProject) =
         |> List.choose Arrangement.pickVocals
         |> List.groupBy (fun x -> x.Japanese)
 
-    if not <| File.Exists project.AlbumArtFile then
+    if SortableString.IsEmpty project.Title then
+        Error "titleEmpty"
+    elif SortableString.IsEmpty project.ArtistName then
+        Error "artistNameEmpty"
+    elif not <| File.Exists project.AlbumArtFile then
         Error "albumArtNotFound"
     elif toneKeyGroups |> List.exists (fun (_, list) -> list.Length > 1) then
         Error "multipleTonesSameKey"

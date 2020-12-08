@@ -16,8 +16,8 @@ let create title (generalProps: IAttr<StackPanel> list) (textBoxProps: IAttr<Tex
                 TextBlock.text title
             ]
             TextBox.create [
-                yield! textBoxProps
                 ToolTip.tip title
+                yield! textBoxProps
             ]
         ]
     ]

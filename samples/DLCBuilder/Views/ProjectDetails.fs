@@ -4,7 +4,6 @@ open Avalonia.Controls
 open Avalonia.Controls.Shapes
 open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
-open Avalonia.Input
 open Avalonia.Layout
 open Avalonia.Media
 open Rocksmith2014.DLCProject
@@ -50,6 +49,7 @@ let view state dispatch =
                         TextBox.onLostFocus (
                             (fun e -> (e.Source :?> TextBox).Text <- state.Project.DLCKey),
                             SubPatchOptions.OnChangeOf state.Project.DLCKey)
+                        ToolTip.tip (state.Localization.GetString "dlcKeyTooltip")
                     ]
 
                     TitledTextBox.create (state.Localization.GetString "version") [ Grid.column 1; Grid.row 0 ] [
