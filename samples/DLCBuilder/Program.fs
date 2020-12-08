@@ -41,8 +41,7 @@ type MainWindow() as this =
             | KeyModifiers.Control, Key.A -> dispatch (Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder))
             | _ -> ()
 
-        let hotKeysSub _initialModel =
-            Cmd.ofSub (fun dispatch -> this.KeyDown.Add(handleHotkeys dispatch))
+        let hotKeysSub _initialModel = Cmd.ofSub (handleHotkeys >> this.KeyDown.Add)
       
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
         //this.VisualRoot.VisualRoot.Renderer.DrawDirtyRects <- true
