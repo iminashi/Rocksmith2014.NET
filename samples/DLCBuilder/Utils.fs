@@ -74,8 +74,8 @@ let importTonesFromPSARC (psarcPath: string) = async {
 
 let createRecentList newFile recentList =
     let list = List.remove newFile recentList
-    let recent = newFile::list
-    if recent.Length > 3 then List.take 3 recent else recent
+    newFile::list
+    |> List.truncate 3
 
 let private recentFile =
     let appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
