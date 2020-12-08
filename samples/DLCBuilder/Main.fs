@@ -34,7 +34,7 @@ let init arg =
 
         Cmd.batch [
             Cmd.OfAsync.perform Configuration.load () SetConfiguration
-            Cmd.OfAsync.perform Utils.loadRecentFiles () SetRecentFiles
+            Cmd.OfAsync.perform RecentFilesList.load () SetRecentFiles
             yield! loadProject |> Option.toList
         ]
 
@@ -396,8 +396,8 @@ let update (msg: Msg) (state: State) =
                 loadPlaceHolderAlbumArt()
 
         let project = DLCProject.updateToneInfo project
-        let recent = Utils.createRecentList projectFile state.RecentFiles
-        Cmd.OfAsync.start (Utils.saveRecentFiles recent)
+        let recent = RecentFilesList.update projectFile state.RecentFiles
+        Cmd.OfAsync.start (RecentFilesList.save recent)
 
         { state with CoverArt = bm
                      Project = project

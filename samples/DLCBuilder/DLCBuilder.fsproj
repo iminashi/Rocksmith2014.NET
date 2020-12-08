@@ -45,6 +45,7 @@
     <Compile Include="Views\SelectImportTones.fs" />
     <Compile Include="Views\ConfigEditor.fs" />
     <Compile Include="Utils.fs" />
+    <Compile Include="RecentFilesList.fs" />
     <Compile Include="BuildValidator.fs" />
     <Compile Include="Main.fs" />
     <Compile Include="Program.fs" />
@@ -87,6 +88,7 @@
     <Watch Remove="Localization.fs" />
     <Watch Remove="Main.fs" />
     <Watch Remove="Media.fs" />
+    <Watch Remove="RecentFilesList.fs" />
     <Watch Remove="TitledTextBox.fs" />
     <Watch Remove="Types.fs" />
     <Watch Remove="Utils.fs" />
