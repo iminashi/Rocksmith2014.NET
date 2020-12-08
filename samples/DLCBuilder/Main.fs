@@ -504,13 +504,17 @@ let view (window: HostWindow) (state: State) dispatch =
                                 DockPanel.margin 5.0
 
                                 DockPanel.children [
+                                    // Add arrangement
                                     Button.create [
                                         DockPanel.dock Dock.Right
                                         Button.padding (15.0, 5.0)
                                         Button.content (state.Localization.GetString "addArrangement")
                                         Button.onClick (fun _ -> dispatch SelectOpenArrangement)
+                                        // 5 instrumentals, 2 vocals, 1 showlights
+                                        Button.isEnabled (state.Project.Arrangements.Length < 8)
                                     ]
 
+                                    // Title
                                     TextBlock.create [
                                         TextBlock.text (state.Localization.GetString "arrangements")
                                         TextBlock.verticalAlignment VerticalAlignment.Bottom
@@ -577,6 +581,7 @@ let view (window: HostWindow) (state: State) dispatch =
                         Grid.column 1
                         Grid.row 1
                         DockPanel.children [
+                            // Title
                             TextBlock.create [
                                 DockPanel.dock Dock.Top
                                 TextBlock.text (state.Localization.GetString "tones")
@@ -589,6 +594,7 @@ let view (window: HostWindow) (state: State) dispatch =
                                 StackPanel.spacing 4.
                                 StackPanel.margin 5.
                                 StackPanel.children [
+                                    // Import from profile
                                     Button.create [
                                         Button.padding (15.0, 5.0)
                                         Button.horizontalAlignment HorizontalAlignment.Left
@@ -597,6 +603,7 @@ let view (window: HostWindow) (state: State) dispatch =
                                         Button.isEnabled (IO.File.Exists state.Config.ProfilePath)
                                         ToolTip.tip (state.Localization.GetString "profileImportToolTip")
                                     ]
+                                    // Import from a file
                                     Button.create [
                                         Button.padding (15.0, 5.0)
                                         Button.horizontalAlignment HorizontalAlignment.Left
