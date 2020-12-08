@@ -23,12 +23,7 @@ let arrangement =
         let name, icon, color =
             match arr with
             | Instrumental inst ->
-                let prefix =
-                    match inst.Priority with
-                    | ArrangementPriority.Main -> String.Empty
-                    | ArrangementPriority.Alternative -> "Alt. "
-                    | ArrangementPriority.Bonus -> "Bonus "
-                    | _ -> failwith "Impossible."
+                let baseName = Arrangement.getHumanizedName arr
 
                 let extra =
                     if inst.Name = ArrangementName.Combo then
@@ -44,21 +39,22 @@ let arrangement =
                     | RouteMask.Bass -> Brushes.bass
                     | _ -> Brushes.rhythm
 
-                sprintf "%s%s%s" prefix (string inst.RouteMask) extra,
+                sprintf "%s%s" baseName extra,
                 Icons.guitar,
                 color
 
             | Vocals v ->
-                let prefix, color =
+                let name = Arrangement.getHumanizedName arr
+                let  color =
                     if v.Japanese then
-                        "Japanese ", Brushes.jvocals
+                        Brushes.jvocals
                     else
-                        String.Empty, Brushes.vocals
+                        Brushes.vocals
 
-                sprintf "%sVocals" prefix, Icons.microphone, color
+                name, Icons.microphone, color
 
             | Showlights _ ->
-                "Show Lights", Icons.spotlight, Brushes.showlights
+                Arrangement.getHumanizedName arr, Icons.spotlight, Brushes.showlights
 
         StackPanel.create [
             StackPanel.orientation Orientation.Horizontal
@@ -80,7 +76,7 @@ let arrangement =
                         match arr with
                         | Instrumental inst ->
                             let tuning =
-                                let t = Utils.getTuningString inst.Tuning
+                                let t = Utils.getTuningName inst.Tuning
                                 if inst.TuningPitch <> 440.0 then $"{t} (A{inst.TuningPitch})" else t
 
                             TextBlock.create [

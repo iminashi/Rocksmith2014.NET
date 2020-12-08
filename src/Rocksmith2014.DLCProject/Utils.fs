@@ -12,7 +12,8 @@ let centsToTuningPitch (cents: float) =
 
 let private roots = [| "E"; "F"; "F#"; "G"; "Ab"; "A"; "Bb"; "B"; "C"; "C#"; "D"; "Eb" |]
 
-let getTuningString (tuning : int16 array) =
+/// Returns the name of the given tuning.
+let getTuningName (tuning : int16 array) =
     let first = tuning.[0]
 
     // Standard tunings
@@ -34,4 +35,4 @@ let getTuningString (tuning : int16 array) =
         | [| -2s; -2s; 0s;  0s;  0s; -2s |] -> "Open G"
         | [|  0s;  2s; 2s;  1s;  0s;  0s |] -> "Open E"
         | [| -2s;  0s; 0s;  0s; -2s; -2s |] -> "DADGAD"
-        | _ -> String.Empty
+        | _ -> "Custom Tuning"

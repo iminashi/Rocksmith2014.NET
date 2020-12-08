@@ -559,7 +559,7 @@ let view (window: HostWindow) (state: State) dispatch =
                                 // Arrangement name
                                 TextBlock.create [
                                     TextBlock.fontSize 17.
-                                    TextBlock.text (Arrangement.getName arr false)
+                                    TextBlock.text (Arrangement.getHumanizedName arr)
                                     TextBlock.horizontalAlignment HorizontalAlignment.Center
                                 ]
 

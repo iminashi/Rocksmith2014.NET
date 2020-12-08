@@ -1,11 +1,8 @@
 ﻿module DLCBuilder.Utils
 
 open Pfim
-open System
 open System.IO
 open System.Runtime.InteropServices
-open System.Text.Json
-open System.Text.Json.Serialization
 open Avalonia.Platform
 open Avalonia.Media.Imaging
 open Avalonia

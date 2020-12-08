@@ -53,42 +53,6 @@ type Arrangement =
     | Vocals of Vocals
     | Showlights of Showlights
 
-    override this.ToString() =
-        match this with
-        | Instrumental inst ->
-            let prefix =
-                match inst.Priority with
-                | ArrangementPriority.Main -> String.Empty
-                | ArrangementPriority.Alternative -> "Alt. "
-                | ArrangementPriority.Bonus -> "Bonus "
-                | _ -> failwith "Impossible."
-
-            let extra =
-                if inst.Name = ArrangementName.Combo then
-                    " (Combo)"
-                elif inst.RouteMask = RouteMask.Bass && inst.BassPicked then
-                    " (Picked)"
-                else
-                    String.Empty
-
-            let tuning =
-                let t = Utils.getTuningString inst.Tuning
-                let p = if inst.TuningPitch <> 440.0 then " " + inst.TuningPitch.ToString() else String.Empty
-                if t.Length > 0 then " [" + t + p + "]" else String.Empty
-
-            sprintf "%s%s%s%s" prefix (string inst.RouteMask) extra tuning
-
-        | Vocals v ->
-            let prefix =
-                if v.Japanese then "Japanese " else String.Empty
-            let extra =
-                match v.CustomFont with
-                | Some _ -> " (Custom Font)"
-                | None -> String.Empty
-            sprintf "%sVocals%s" prefix extra
-
-        | Showlights _ -> "Show Lights"
-
 module Arrangement =
     /// Returns the master ID of an arrangement.
     let getMasterId = function
@@ -109,6 +73,27 @@ module Arrangement =
         | Vocals _ -> "Vocals"
         | Showlights _ -> "Showlights"
         | Instrumental i -> i.Name.ToString()
+
+    /// Returns a humanized name of an arrangement.
+    let getHumanizedName arr =
+        match arr with
+        | Instrumental inst ->
+            let prefix =
+                match inst.Priority with
+                | ArrangementPriority.Main -> String.Empty
+                | ArrangementPriority.Alternative -> "Alt. "
+                | ArrangementPriority.Bonus -> "Bonus "
+                | _ -> failwith "Impossible."
+
+            sprintf "%s%s" prefix (string inst.RouteMask)
+
+        | Vocals v ->
+            let prefix =
+                if v.Japanese then "Japanese " else String.Empty
+
+            sprintf "%sVocals" prefix
+
+        | Showlights _ -> "Show Lights"
 
     /// Returns the XML file of an arrangement.
     let getFile = function
@@ -214,7 +199,7 @@ module Arrangement =
             |> Array.choose Option.ofString
             |> Array.toList
 
-        if updateBaseTone then
+        if updateBaseTone && not <| isNull toneInfo.BaseToneName then
             { inst with Tones = tones; BaseTone = toneInfo.BaseToneName }
         else
             { inst with Tones = tones }
