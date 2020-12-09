@@ -4,13 +4,18 @@ open Expecto
 open Rocksmith2014.Common.Manifest
 
 [<Tests>]
-let someTests =
+let toneDescriptorTests =
   testList "Tone Descriptor Tests" [
+    test "Default description is 'Clean'" {
+      let descriptors = ToneDescriptor.getDescriptionsOrDefault "tone_test"
+
+      Expect.hasLength descriptors 1 "One descriptor exists"
+      Expect.exists descriptors (fun x -> x.Name = "Clean") "Clean descriptor inferred" }
 
     test "Can infer a description" {
         let descriptors = ToneDescriptor.getDescriptionsOrDefault "tone_bass"
 
-        Expect.isNonEmpty descriptors "Descriptor array is not empty"
+        Expect.hasLength descriptors 1 "One descriptor exists"
         Expect.exists descriptors (fun x -> x.Name = "Bass") "Bass descriptor inferred" }
 
     test "Can infer a two part description" {

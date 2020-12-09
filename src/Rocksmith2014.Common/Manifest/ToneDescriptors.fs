@@ -159,9 +159,10 @@ module ToneDescriptor =
 
     /// Returns an array of tone descriptors inferred from the tone name, or the clean tone descriptor as default.
     let getDescriptionsOrDefault (name: string) =
-        let descs = tryInfer name
-        if descs.Length = 0 then [| all.[4] |] // Use clean as default
-        else descs
+        match tryInfer name with
+        // Use "Clean" as the default
+        | [||] -> Array.singleton uiNameToDesc.["$[35720]CLEAN"]
+        | descriptors -> descriptors
 
     /// Returns a description name for the given UI name.
     let uiNameToName (uiName: string) = uiNameToDesc.[uiName].Name
