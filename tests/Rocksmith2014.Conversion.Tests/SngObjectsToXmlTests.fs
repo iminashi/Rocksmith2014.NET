@@ -396,6 +396,7 @@ let sngToXmlConversionTests =
       Expect.isTrue xml.IsHighDensity "High density is same"
       Expect.isTrue xml.IsIgnore "Ignore is same"
       Expect.isTrue xml.IsPalmMute "Palm-mute is same"
+      Expect.hasLength xml.ChordNotes 5 "Chord notes were created"
     
     testCase "Level" <| fun _ ->
       let a =

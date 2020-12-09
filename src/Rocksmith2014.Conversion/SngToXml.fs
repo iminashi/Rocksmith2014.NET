@@ -4,6 +4,7 @@ open Rocksmith2014
 open Rocksmith2014.SNG
 open Rocksmith2014.Conversion.Utils
 open Rocksmith2014.Common
+open System
 
 /// Converts an SNG Beat into an XML Ebeat.
 let convertBeat (sngBeat: Beat) =
@@ -148,7 +149,7 @@ let convertNote (sngNote: Note) =
              MaxBend = sngNote.MaxBend,
              BendValues = bendValues,
              // Default value used for tap in XML is 0, in SNG it is -1
-             Tap = if sngNote.Tap < 0y then 0y else sngNote.Tap)
+             Tap = Math.Max(0y, sngNote.Tap))
 
 /// Converts an SNG NoteMask into an XML ChordMask.
 let convertChordMask (sngMask: NoteMask) =
@@ -168,13 +169,19 @@ let convertBendData32 (bd: BendData32) =
     if bd.UsedCount = 0 then
         null
     else
-        bd.BendValues.[..(bd.UsedCount - 1)]
+        bd.BendValues
+        |> Array.take bd.UsedCount
         |> mapToResizeArray convertBendValue
 
 /// Creates a list of XML chord notes for an SNG Note.
 let private createChordNotes (sng: SNG) (chord: Note) =
     let template = sng.Chords.[chord.ChordId]
     let xmlNotes = ResizeArray()
+
+    let chordNotes =
+        match chord.ChordNotesId with
+        | id when id = -1 || id >= sng.ChordNotes.Length -> ValueNone
+        | id -> ValueSome sng.ChordNotes.[id]
 
     for i = 0 to 5 do
         if template.Frets.[i] <> -1y then
@@ -185,16 +192,12 @@ let private createChordNotes (sng: SNG) (chord: Note) =
                         String = sbyte i,
                         Sustain = secToMs chord.Sustain)
 
-            match chord.ChordNotesId with
-            | id when id = -1 || id >= sng.ChordNotes.Length -> ()
-            | id ->
-                let chordNotes = sng.ChordNotes.[id]
-
+            chordNotes |> ValueOption.iter(fun chordNotes ->
                 cn.Mask <- convertNoteMask chordNotes.Mask.[i]
                 cn.SlideTo <- chordNotes.SlideTo.[i]
                 cn.SlideUnpitchTo <- chordNotes.SlideUnpitchTo.[i]
                 cn.Vibrato <- byte chordNotes.Vibrato.[i]
-                cn.BendValues <- convertBendData32 chordNotes.BendData.[i]
+                cn.BendValues <- convertBendData32 chordNotes.BendData.[i])
 
             xmlNotes.Add(cn)
             
