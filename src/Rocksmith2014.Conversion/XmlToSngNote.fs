@@ -88,16 +88,16 @@ let private createMaskForNote parentNote isArpeggio (note: XML.Note) =
 
 /// Returns true if the double stop bit should be set.
 let private isDoubleStop (template: XML.ChordTemplate) =
-    template.Frets
-    |> Seq.filter (fun f -> f <> -1y)
-    |> Seq.length
-    |> (=) 2
+    let mutable notes = 0
+
+    for i = 0 to template.Frets.Length - 1 do
+        if template.Frets.[i] <> -1y then notes <- notes + 1
+
+    notes = 2
 
 /// Returns true if the chord panel bit should be set.
 let private showChordPanel (chord: XML.Chord) =
-    match chord.ChordNotes with
-    | cn when isNull cn || cn.Count = 0 -> false
-    | _ -> true
+    not (isNull chord.ChordNotes || chord.ChordNotes.Count = 0)
 
 /// Creates an SNG note mask for a chord.
 let private createMaskForChord (template: XML.ChordTemplate) sustain chordNoteId isArpeggio (chord:XML.Chord) =
@@ -147,13 +147,13 @@ let private createChordNotes (pendingLinkNexts: Dictionary<int8, int16>) thisId 
     // Convert the masks first to check if the chord notes need to be created at all
     let masks = createChordNotesMask chord.ChordNotes
 
-    if Array.forall (fun m -> m = NoteMask.None) masks then
+    if Array.forall ((=) NoteMask.None) masks then
         -1
     else
         let slideTo = Array.replicate 6 -1y
         let slideUnpitchTo = Array.replicate 6 -1y
         let vibrato = Array.zeroCreate<int16> 6
-        let bendDict = Dictionary<int, BendData32>()
+        let bendData = Array.replicate 6 BendData32.Empty
     
         for note in chord.ChordNotes do
             let strIndex = int note.String
@@ -163,17 +163,11 @@ let private createChordNotes (pendingLinkNexts: Dictionary<int8, int16>) thisId 
             vibrato.[strIndex] <- int16 note.Vibrato
     
             if note.IsBend then
-                bendDict.Add(strIndex, createBendData32 note)
+                bendData.[strIndex] <- createBendData32 note
     
             if note.IsLinkNext then
                 pendingLinkNexts.TryAdd(note.String, thisId) |> ignore
-    
-        let bendData = Array.init<BendData32> 6 (fun i ->
-            if bendDict.ContainsKey(i) then
-                bendDict.[i]
-            else
-                BendData32.Empty)
-    
+        
         let chordNotes =
             { Mask = masks; BendData = bendData; SlideTo = slideTo; SlideUnpitchTo = slideUnpitchTo; Vibrato = vibrato }
     
