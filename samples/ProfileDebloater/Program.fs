@@ -7,12 +7,12 @@ open Newtonsoft.Json
 open Newtonsoft.Json.Linq
 
 let readFromAppDir file =
-    File.ReadAllLines (Path.Combine(AppContext.BaseDirectory, file))
+    File.ReadLines (Path.Combine(AppContext.BaseDirectory, file))
 
 /// Reads the on-disc IDs and keys from the prepared text files.
 let readOnDiscIdsAndKeys () =
-    Set.ofArray (readFromAppDir "onDiscIDs.txt"),
-    Set.ofArray (readFromAppDir "onDiscKeys.txt")
+    Set.ofSeq (readFromAppDir "onDiscIDs.txt"),
+    Set.ofSeq (readFromAppDir "onDiscKeys.txt")
 
 /// Reads the IDs and keys from a PSARC with the given path.
 let readIDs rootDir path = async {
