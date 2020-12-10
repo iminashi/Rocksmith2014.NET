@@ -20,7 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Rocksmith2014.DLCProject\Rocksmith2014.DLCProject.fsproj" />
+    <ProjectReference Include="..\..\src\Rocksmith2014.Common\Rocksmith2014.Common.fsproj" />
+    <ProjectReference Include="..\..\src\Rocksmith2014.PSARC\Rocksmith2014.PSARC.fsproj" />
   </ItemGroup>
 
 </Project>

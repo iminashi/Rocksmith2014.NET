@@ -35,7 +35,6 @@
     <Compile Include="AggregateGraph\AggregateGraph.fs" />
     <Compile Include="Manifest\Techniques.fs" />
     <Compile Include="Manifest\AttributesCreation.fs" />
-    <Compile Include="Manifest\Manifest.fs" />
     <Compile Include="XBlock\XBlock.fs" />
     <Compile Include="ToolkitImporter.fs" />
     <Compile Include="PsarcImporter.fs" />

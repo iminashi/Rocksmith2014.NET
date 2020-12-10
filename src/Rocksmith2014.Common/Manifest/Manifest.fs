@@ -1,6 +1,5 @@
-﻿namespace Rocksmith2014.DLCProject.Manifest
+﻿namespace Rocksmith2014.Common.Manifest
 
-open Rocksmith2014.Common.Manifest
 open System
 open System.IO
 open System.Text.Json

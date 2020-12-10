@@ -3,10 +3,10 @@
 open System.IO
 open Rocksmith2014.PSARC
 open Rocksmith2014.Common
+open Rocksmith2014.Common.Manifest
 open Rocksmith2014.SNG
 open Rocksmith2014.Conversion
 open Rocksmith2014.XML
-open Rocksmith2014.DLCProject.Manifest
 open System
 open System.Text.RegularExpressions
 

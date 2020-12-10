@@ -8,7 +8,7 @@ open Avalonia.Media.Imaging
 open Avalonia
 open Rocksmith2014.PSARC
 open Rocksmith2014.Common
-open Rocksmith2014.DLCProject.Manifest
+open Rocksmith2014.Common.Manifest
 
 /// Converts a Pfim DDS bitmap into an Avalonia bitmap.
 let private avaloniaBitmapFromDDS (fileName: string) =

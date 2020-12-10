@@ -1,8 +1,8 @@
 ﻿module ManifestTests
 
 open Expecto
+open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
-open Rocksmith2014.DLCProject.Manifest
 open Rocksmith2014.DLCProject.Manifest.AttributesCreation
 open System
 

@@ -1,7 +1,7 @@
 ﻿module Rocksmith2014.DLCProject.PackageBuilder
 
 open Rocksmith2014.Common
-open Rocksmith2014.DLCProject.Manifest
+open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject.Manifest.AttributesCreation
 open Rocksmith2014.XML
 open Rocksmith2014.SNG
