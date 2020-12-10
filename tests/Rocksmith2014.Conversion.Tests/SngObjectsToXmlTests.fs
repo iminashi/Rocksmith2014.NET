@@ -397,6 +397,40 @@ let sngToXmlConversionTests =
       Expect.isTrue xml.IsIgnore "Ignore is same"
       Expect.isTrue xml.IsPalmMute "Palm-mute is same"
       Expect.hasLength xml.ChordNotes 5 "Chord notes were created"
+
+    testCase "Chord (no chord notes)" <| fun _ ->
+      let c =
+          { Mask = NoteMask.Chord
+            Flags = 0u
+            Hash = 1234u
+            Time = 66.66f
+            StringIndex = -1y
+            FretId = -1y
+            AnchorFretId = 8y
+            AnchorWidth = 4y
+            ChordId = 0
+            ChordNotesId = -1
+            PhraseId = 7
+            PhraseIterationId = 12
+            FingerPrintId = [| 1s; -1s |]
+            NextIterNote = 16s
+            PrevIterNote = 14s
+            ParentPrevNote = 14s
+            SlideTo = -1y
+            SlideUnpitchTo = -1y
+            LeftHand = -1y
+            Tap = -1y
+            PickDirection = -1y
+            Slap = -1y
+            Pluck = -1y
+            Vibrato = 0s
+            Sustain = 0.f
+            MaxBend = 0.f
+            BendData = [||] }
+
+      let xml = SngToXml.convertChord testSng c
+
+      Expect.isNull xml.ChordNotes "Chord notes were not created"
     
     testCase "Level" <| fun _ ->
       let a =
