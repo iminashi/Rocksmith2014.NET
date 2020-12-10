@@ -264,7 +264,7 @@ let convertNote (noteTimes: int[])
                    Tap = if note.Tap > 0y then note.Tap else -1y
                    Slap = if note.IsSlap then 1y else -1y
                    Pluck = if note.IsPluck then 1y else -1y
-                   // Values note applicable to notes
+                   // Values not applicable to notes
                    ChordId = -1; ChordNoteId = -1; |}
         
             // XML Chords
