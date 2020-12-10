@@ -35,7 +35,9 @@ module Manifest =
     let getSingletonAttributes (manifest: Manifest) =
         manifest.Entries
         |> Map.toArray
-        |> fun x -> (snd x.[0]).Attributes
+        |> Array.head
+        |> snd
+        |> fun x -> x.Attributes
 
     let private options =
         let o = JsonSerializerOptions(WriteIndented = true,
@@ -63,4 +65,4 @@ module Manifest =
     /// Deserializes a manifest from a file.
     let fromJsonFile (path: string) = async {
         use file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan ||| FileOptions.Asynchronous)
-        return! fromJsonStream(file) }
+        return! fromJsonStream file }
