@@ -106,10 +106,7 @@ let view state dispatch =
                         TextBox.margin (0., 4.)
                         TextBox.width 200.
                         TextBox.text state.Config.ProfilePath
-                        TextBox.onTextChanged (fun path ->
-                            fun c -> { c with ProfilePath = path }
-                            |> EditConfig
-                            |> dispatch)
+                        TextBox.onTextChanged (SetProfilePath >> dispatch)
                     ]
                     Button.create [
                         Button.margin (0., 4.)
@@ -134,10 +131,7 @@ let view state dispatch =
                         TextBox.margin (0., 4.)
                         TextBox.width 200.
                         TextBox.text state.Config.TestFolderPath
-                        TextBox.onTextChanged (fun path ->
-                            fun c -> { c with TestFolderPath = path }
-                            |> EditConfig
-                            |> dispatch)
+                        TextBox.onTextChanged (SetTestFolderPath >> dispatch)
                     ]
                     Button.create [
                         Button.margin (0., 4.)
@@ -161,10 +155,7 @@ let view state dispatch =
                         TextBox.margin (0., 4.)
                         TextBox.width 200.
                         TextBox.text state.Config.ProjectsFolderPath
-                        TextBox.onTextChanged (fun path ->
-                            fun c -> { c with ProjectsFolderPath = path }
-                            |> EditConfig
-                            |> dispatch)
+                        TextBox.onTextChanged (SetProjectsFolderPath >> dispatch)
                     ]
                     Button.create [
                         Button.margin (0., 4.)
