@@ -56,12 +56,14 @@ module Types =
     | ProjectSaved of targetFile : string
     | SaveProject of fileName : string option
     | AddArrangements of files : string[] option
-    | AddCoverArt of fileName : string
-    | AddAudioFile of fileName : string
-    | AddCustomFontFile of fileName : string
-    | AddProfilePath of path : string
-    | AddTestFolderPath of path : string
-    | AddProjectsFolderPath of path : string
+    | SetCoverArt of fileName : string
+    | SetAudioFile of fileName : string
+    | SetCustomFontFile of fileName : string
+    | SetProfilePath of path : string
+    | SetTestFolderPath of path : string
+    | SetProjectsFolderPath of path : string
+    | SetConfiguration of config : Configuration
+    | SetRecentFiles of string list
     | ImportTonesFromFile of fileName : string
     | ArrangementSelected of selected : Arrangement option
     | ToneSelected of selected : Tone option
@@ -83,8 +85,6 @@ module Types =
     | ImportSelectedTones
     | ShowConfigEditor
     | SaveConfiguration
-    | SetConfiguration of config : Configuration
-    | SetRecentFiles of string list
     | ProjectLoaded of project : DLCProject * projectFile : string
     | BuildTest
     | BuildRelease

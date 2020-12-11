@@ -196,26 +196,26 @@ let update (msg: Msg) (state: State) =
         let dialog = Dialogs.saveFileDialog (localize "saveProjectAs") (Dialogs.projectFilter state.Localization) intialFileName
         state, Cmd.OfAsync.perform dialog initialDir SaveProject
 
-    | AddProjectsFolderPath path ->
+    | SetProjectsFolderPath path ->
         { state with Config = { config with ProjectsFolderPath = path } }, Cmd.none
 
-    | AddTestFolderPath path ->
+    | SetTestFolderPath path ->
         { state with Config = { config with TestFolderPath = path } }, Cmd.none
 
-    | AddProfilePath path ->
+    | SetProfilePath path ->
         if not <| String.endsWith "_PRFLDB" path then
             state, Cmd.none
         else
             { state with Config = { config with ProfilePath = path } }, Cmd.none
 
-    | AddCustomFontFile fileName ->
+    | SetCustomFontFile fileName ->
         match state.SelectedArrangement with
         | Some (Vocals arr as old) ->
             let updated = Vocals { arr with CustomFont = Some fileName }
             updateArrangement old updated state
         | _ -> state, Cmd.none
 
-    | AddAudioFile fileName ->
+    | SetAudioFile fileName ->
         let audioFile = { project.AudioFile with Path = fileName }
         let previewPath =
             let previewPath = Utils.previewPathFromMainAudio fileName
@@ -237,7 +237,7 @@ let update (msg: Msg) (state: State) =
         else
             state, Cmd.none
 
-    | AddCoverArt fileName ->
+    | SetCoverArt fileName ->
         state.CoverArt.Dispose()
         
         { state with CoverArt = Utils.loadBitmap fileName

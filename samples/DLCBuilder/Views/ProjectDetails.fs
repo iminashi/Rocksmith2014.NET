@@ -27,7 +27,7 @@ let view state dispatch =
                 Image.source state.CoverArt
                 Image.width 200.
                 Image.height 200.
-                Image.onTapped (fun _ -> dispatch (Msg.OpenFileDialog("selectCoverArt", Dialogs.imgFileFilter, AddCoverArt)))
+                Image.onTapped (fun _ -> dispatch (Msg.OpenFileDialog("selectCoverArt", Dialogs.imgFileFilter, SetCoverArt)))
                 Image.cursor Cursors.hand
                 ToolTip.tip (state.Localization.GetString "selectCoverArtToolTip")
             ]
@@ -213,7 +213,7 @@ let view state dispatch =
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
                                 Button.padding (10.0, 0.0)
                                 Button.content "..."
-                                Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, AddAudioFile)))
+                                Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, SetAudioFile)))
                                 ToolTip.tip (state.Localization.GetString "selectAudioFile")
                             ]
 

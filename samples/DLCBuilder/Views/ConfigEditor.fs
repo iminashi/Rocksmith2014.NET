@@ -114,7 +114,7 @@ let view state dispatch =
                     Button.create [
                         Button.margin (0., 4.)
                         Button.content "..."
-                        Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectProfile", Dialogs.profileFilter, AddProfilePath)))
+                        Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectProfile", Dialogs.profileFilter, SetProfilePath)))
                     ]
                 ]
             ]
@@ -142,7 +142,7 @@ let view state dispatch =
                     Button.create [
                         Button.margin (0., 4.)
                         Button.content "..."
-                        Button.onClick (fun _ -> dispatch (Msg.OpenFolderDialog("selectTestFolder", AddTestFolderPath)))
+                        Button.onClick (fun _ -> dispatch (Msg.OpenFolderDialog("selectTestFolder", SetTestFolderPath)))
                     ]
                 ]
             ]
@@ -169,7 +169,7 @@ let view state dispatch =
                     Button.create [
                         Button.margin (0., 4.)
                         Button.content "..."
-                        Button.onClick (fun _ -> dispatch (Msg.OpenFolderDialog("selectProjectFolder", AddProjectsFolderPath)))
+                        Button.onClick (fun _ -> dispatch (Msg.OpenFolderDialog("selectProjectFolder", SetProjectsFolderPath)))
                     ]
                 ]
             ]
