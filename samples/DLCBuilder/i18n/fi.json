@@ -146,6 +146,6 @@
   "previewNotFound": "Esikatseluäänitiedostoa ei löydy.",
   "noAudioFile": "Ei olemassa",
   "cents": "senttiä",
-  "updateToneNames": "Päivitä soundinimet",
-  "updateToneNamesTooltip": "Lukee soundien nimet sovituksen XML-tiedostosta."
+  "reloadToneKeys": "Lue uudelleen soundiavaimet",
+  "reloadToneKeysTooltip": "Lukee soundien avaimet sovituksen XML-tiedostosta."
 }

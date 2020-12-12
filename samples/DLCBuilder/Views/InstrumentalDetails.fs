@@ -251,12 +251,12 @@ let view state dispatch (i: Instrumental) =
                 Grid.row 8
                 Button.margin 4.
                 Button.horizontalAlignment HorizontalAlignment.Center
-                Button.content (state.Localization.GetString "updateToneNames")
+                Button.content (state.Localization.GetString "reloadToneKeys")
                 Button.onClick (fun _ ->
                     fun _ arr -> Arrangement.updateToneInfo arr true
                     |> EditInstrumental
                     |> dispatch)
-                ToolTip.tip (state.Localization.GetString "updateToneNamesTooltip")
+                ToolTip.tip (state.Localization.GetString "reloadToneKeysTooltip")
             ]
 
             TextBlock.create [

@@ -146,6 +146,6 @@
   "previewNotFound": "Preview audio file not found.",
   "noAudioFile": "None",
   "cents": "cents",
-  "updateToneNames": "Update Tone Names",
-  "updateToneNamesTooltip": "Reads the tone names from the arrangement's XML file."
+  "reloadToneKeys": "Reload Tone Keys",
+  "reloadToneKeysTooltip": "Reads the tone keys from the arrangement's XML file."
 }
