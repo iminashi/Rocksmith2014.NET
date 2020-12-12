@@ -189,10 +189,12 @@ let update (msg: Msg) (state: State) =
                 |> StringValidator.fileName
                 |> sprintf "%s.rs2dlc"
                 |> Some)
+
         let initialDir =
             state.OpenProjectFile
             |> Option.map IO.Path.GetDirectoryName
             |> Option.orElse (Option.ofString config.ProjectsFolderPath)
+
         let dialog = Dialogs.saveFileDialog (localize "saveProjectAs") (Dialogs.projectFilter state.Localization) intialFileName
         state, Cmd.OfAsync.perform dialog initialDir SaveProject
 
@@ -384,7 +386,11 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfAsync.either task () ProjectSaved ErrorOccurred
 
     | ProjectSaved target ->
-        { state with OpenProjectFile = Some target; SavedProject = project }, Cmd.none
+        let recent = RecentFilesList.update target state.RecentFiles
+
+        { state with OpenProjectFile = Some target
+                     SavedProject = project
+                     RecentFiles = recent }, Cmd.none
 
     | ProjectSaveOrSaveAs ->
         let msg =
@@ -406,7 +412,6 @@ let update (msg: Msg) (state: State) =
 
         let project = DLCProject.updateToneInfo project
         let recent = RecentFilesList.update projectFile state.RecentFiles
-        Cmd.OfAsync.start (RecentFilesList.save recent)
 
         { state with CoverArt = bm
                      Project = project
