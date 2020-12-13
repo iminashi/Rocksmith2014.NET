@@ -24,7 +24,8 @@ type private BuildData =
 type BuildConfig =
     { Platforms: Platform list
       Author: string
-      AppId: string }
+      AppId: string
+      AudioConversionTask: Async<unit> }
 
 let private toDisposableList items = new DisposableList<NamedEntry>(items)
 
@@ -177,13 +178,9 @@ let private setupInstrumental part (inst: Instrumental) (xml: InstrumentalArrang
 
     xml
 
-let private convertAudioIfNeeded project = async {
-    if not <| DLCProject.wemFilesExist project then
-        do! Wwise.convertToWem project.AudioFile }
-
 /// Builds packages for the given platforms.
 let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProject) = async {
-    let! audioConversionTask = convertAudioIfNeeded project |> Async.StartChild
+    let! audioConversionTask = config.AudioConversionTask |> Async.StartChild
     let key = project.DLCKey.ToLowerInvariant()
     let coverArt = DDS.createCoverArtImages project.AlbumArtFile
     let partition = Partitioner.create project

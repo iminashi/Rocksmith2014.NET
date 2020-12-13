@@ -147,5 +147,8 @@
   "noAudioFile": "Ei olemassa",
   "cents": "senttiä",
   "reloadToneKeys": "Lue uudelleen soundiavaimet",
-  "reloadToneKeysTooltip": "Lukee soundien avaimet sovituksen XML-tiedostosta."
+  "reloadToneKeysTooltip": "Lukee soundien avaimet sovituksen XML-tiedostosta.",
+  "wwiseConsolePath": "Wwise 2019",
+  "wwiseConsolePathTooltip": "Polku Wwise 2019:n konsolisovelluksen ajotiedostoon.\n\nSe yritetään löytää automaattisesti, jos jätetty tyhjäksi.",
+  "selectWwiseConsolePath": "Valitse Wwise 2019 konsolisovellus"
 }

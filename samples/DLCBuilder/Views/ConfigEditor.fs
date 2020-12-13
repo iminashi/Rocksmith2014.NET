@@ -9,7 +9,7 @@ open Rocksmith2014.Common
 let view state dispatch =
     Grid.create [
         Grid.columnDefinitions "*,*"
-        Grid.rowDefinitions "*,*,*,*,*,*,*,*,*"
+        Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*"
         Grid.children [
             TextBlock.create [
                 Grid.columnSpan 2
@@ -167,13 +167,42 @@ let view state dispatch =
 
             TextBlock.create [
                 Grid.row 7
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text (state.Localization.GetString "wwiseConsolePath")
+            ]
+            StackPanel.create [
+                Grid.column 1
+                Grid.row 7
+                StackPanel.orientation Orientation.Horizontal
+                StackPanel.children [
+                    TextBox.create [
+                        TextBox.margin (0., 4.)
+                        TextBox.width 200.
+                        TextBox.text (Option.toObj state.Config.WwiseConsolePath)
+                        TextBox.onTextChanged (SetWwiseConsolePath >> dispatch)
+                        ToolTip.tip (state.Localization.GetString "wwiseConsolePathTooltip")
+                    ]
+                    Button.create [
+                        Button.margin (0., 4.)
+                        Button.content "..."
+                        Button.onClick (fun _ ->
+                            dispatch (Msg.OpenFileDialog("selectWwiseConsolePath",
+                                                         Dialogs.wwiseConsoleAppFilter state.CurrentPlatform,
+                                                         SetWwiseConsolePath))
+                        )
+                    ]
+                ]
+            ]
+
+            TextBlock.create [
+                Grid.row 8
                 TextBlock.margin (0., 0., 4., 0.)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text (state.Localization.GetString "showAdvancedFeatures")
             ]
             CheckBox.create [
                 Grid.column 1
-                Grid.row 7
+                Grid.row 8
                 CheckBox.isChecked state.Config.ShowAdvanced
                 CheckBox.onChecked (fun _ ->
                     fun c -> { c with ShowAdvanced = true }
@@ -187,7 +216,7 @@ let view state dispatch =
 
             Button.create [
                 Grid.columnSpan 2
-                Grid.row 8
+                Grid.row 9
                 Button.margin 4.
                 Button.fontSize 16.
                 Button.padding (50., 10.)

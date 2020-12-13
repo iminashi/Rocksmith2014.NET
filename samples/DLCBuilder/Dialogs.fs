@@ -22,6 +22,12 @@ let projectFilter (loc:ILocalization) = createFilters (loc.GetString "projectFil
 let psarcFilter (loc:ILocalization) = createFilters (loc.GetString "psarcFiles") (seq { "psarc" })
 let toolkitFilter (loc:ILocalization) = createFilters (loc.GetString "toolkitFiles") (seq { "dlc.xml" })
 let toneImportFilter (loc:ILocalization) = createFilters (loc.GetString "toneImportFiles") (seq { "tone2014.xml"; "psarc" })
+let wwiseConsoleAppFilter (platform: Platform) (_:ILocalization) =
+    let fileExt =
+        match platform with
+        | PC -> "exe"
+        | Mac -> "sh"
+    createFilters ("WwiseConsole." + fileExt) (seq { fileExt })
 
 /// Shows an open folder dialog.
 let openFolderDialog title directory = async {

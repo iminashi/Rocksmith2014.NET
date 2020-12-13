@@ -12,7 +12,8 @@ type Configuration =
       ProjectsFolderPath : string
       CharterName : string
       ShowAdvanced : bool
-      Locale : Locale }
+      Locale : Locale
+      WwiseConsolePath : string option }
 
     static member Default =
         { ReleasePlatforms = [ PC; Mac ]
@@ -21,7 +22,8 @@ type Configuration =
           ProjectsFolderPath = String.Empty
           CharterName = String.Empty
           ShowAdvanced = false
-          Locale = Locales.English }
+          Locale = Locales.English
+          WwiseConsolePath = None }
 
 module Configuration =
     type Dto() =
@@ -33,6 +35,7 @@ module Configuration =
         member val CharterName : string = String.Empty with get, set
         member val ShowAdvanced : bool = false with get, set
         member val Locale : string = "en" with get, set
+        member val WwiseConsolePath : string = String.Empty with get, set
 
     let private configFilePath =
         let appData = IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
@@ -53,7 +56,8 @@ module Configuration =
           ProjectsFolderPath = dto.ProjectsFolderPath
           CharterName = dto.CharterName
           ShowAdvanced = dto.ShowAdvanced
-          Locale = Locales.fromShortName dto.Locale }
+          Locale = Locales.fromShortName dto.Locale
+          WwiseConsolePath = Option.ofString dto.WwiseConsolePath }
 
     /// Converts a configuration into a configuration DTO.
     let private toDto (config: Configuration) =
@@ -64,7 +68,8 @@ module Configuration =
             ProjectsFolderPath = config.ProjectsFolderPath,
             CharterName = config.CharterName,
             ShowAdvanced = config.ShowAdvanced,
-            Locale = config.Locale.ShortName)
+            Locale = config.Locale.ShortName,
+            WwiseConsolePath = Option.toObj config.WwiseConsolePath)
     
     /// Loads a configuration from the file defined in configFilePath.
     let load () = async {

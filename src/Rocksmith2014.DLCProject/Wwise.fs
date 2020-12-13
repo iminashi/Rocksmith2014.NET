@@ -90,11 +90,11 @@ let private copyWemFiles (destPath: string) (templateDir: string) =
         fixHeader destFile)
 
 /// Converts the source audio and preview audio files into wem files.
-let convertToWem (source: AudioFile) = async {
+let convertToWem (cliPath: string option) (source: AudioFile) = async {
     // The target filename without extension
     let destPath = Path.Combine (Path.GetDirectoryName source.Path,
                                  Path.GetFileNameWithoutExtension source.Path)
-    let cliPath = getCLIPath()
+    let cliPath = cliPath |> Option.defaultWith getCLIPath
     let templateDir = loadTemplate source.Path
     
     let template = Path.Combine(templateDir, "Template.wproj")
