@@ -11,7 +11,7 @@ module String =
     let notEmpty = (String.IsNullOrWhiteSpace >> not)
 
     /// Returns true if the string ends with the given value (case insensitive).
-    let endsWith value (str: string) = str.EndsWith(value, StringComparison.OrdinalIgnoreCase)
+    let endsWith value (str: string) = not <| isNull str && str.EndsWith(value, StringComparison.OrdinalIgnoreCase)
 
     /// Returns true if the string contains the given value (case sensitive).
     let contains (value: string) (str: string) = str.Contains(value, StringComparison.Ordinal)

@@ -204,7 +204,7 @@ let view state dispatch =
                                 DockPanel.dock Dock.Right
                                 Button.content "wem"
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
-                                Button.isEnabled (not state.BuildInProgress)
+                                Button.isEnabled (not state.BuildInProgress && String.endsWith "wav" state.Project.AudioFile.Path)
                                 Button.onClick (fun _ -> dispatch ConvertToWem)
                             ]
 
