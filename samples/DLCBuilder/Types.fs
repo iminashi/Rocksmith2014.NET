@@ -63,6 +63,7 @@ module Types =
     | SetTestFolderPath of path : string
     | SetProjectsFolderPath of path : string
     | SetWwiseConsolePath of path : string
+    | SetCustomAppId of appId : string option
     | SetConfiguration of config : Configuration
     | SetRecentFiles of string list
     | ImportTonesFromFile of fileName : string

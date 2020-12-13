@@ -9,7 +9,7 @@ open Rocksmith2014.Common
 let view state dispatch =
     Grid.create [
         Grid.columnDefinitions "*,*"
-        Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*"
+        Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*,*"
         Grid.children [
             TextBlock.create [
                 Grid.columnSpan 2
@@ -94,12 +94,54 @@ let view state dispatch =
             TextBlock.create [
                 Grid.row 4
                 TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text (state.Localization.GetString "testingAppId")
+            ]
+            StackPanel.create [
+                Grid.column 1
+                Grid.row 4
+                StackPanel.children [
+                    RadioButton.create [
+                        RadioButton.content "Cherub Rock (248750)"
+                        RadioButton.isChecked (state.Config.CustomAppId.IsNone)
+                        RadioButton.onChecked (fun _ -> None |> SetCustomAppId |> dispatch)
+                    ]
+                    RadioButton.create [
+                        RadioButton.isChecked (state.Config.CustomAppId.IsSome)
+                        RadioButton.content (
+                            StackPanel.create [
+                                StackPanel.orientation Orientation.Horizontal
+                                StackPanel.children [
+                                    TextBlock.create [
+                                        TextBlock.verticalAlignment VerticalAlignment.Center
+                                        TextBlock.text (state.Localization.GetString "custom")
+                                    ]
+                                    TextBox.create [
+                                        TextBox.verticalAlignment VerticalAlignment.Center
+                                        TextBox.width 120.
+                                        TextBox.text (Option.toObj state.Config.CustomAppId)
+                                        TextBox.onTextChanged (fun appId ->
+                                            if String.notEmpty appId then
+                                                Some appId
+                                                |> SetCustomAppId
+                                                |> dispatch
+                                        )
+                                    ]
+                                ]
+                            ]
+                        )
+                    ]
+                ]
+            ]
+
+            TextBlock.create [
+                Grid.row 5
+                TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text (state.Localization.GetString "profilePath")
             ]
 
             StackPanel.create [
                 Grid.column 1
-                Grid.row 4
+                Grid.row 5
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.children [
                     TextBox.create [
@@ -117,14 +159,14 @@ let view state dispatch =
             ]
 
             TextBlock.create [
-                Grid.row 5
+                Grid.row 6
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text (state.Localization.GetString "testFolder")
             ]
 
             StackPanel.create [
                 Grid.column 1
-                Grid.row 5
+                Grid.row 6
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.children [
                     TextBox.create [
@@ -142,13 +184,13 @@ let view state dispatch =
             ]
 
             TextBlock.create [
-                Grid.row 6
+                Grid.row 7
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text (state.Localization.GetString "projectsFolder")
             ]
             StackPanel.create [
                 Grid.column 1
-                Grid.row 6
+                Grid.row 7
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.children [
                     TextBox.create [
@@ -166,13 +208,13 @@ let view state dispatch =
             ]
 
             TextBlock.create [
-                Grid.row 7
+                Grid.row 8
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text (state.Localization.GetString "wwiseConsolePath")
             ]
             StackPanel.create [
                 Grid.column 1
-                Grid.row 7
+                Grid.row 8
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.children [
                     TextBox.create [
@@ -195,14 +237,14 @@ let view state dispatch =
             ]
 
             TextBlock.create [
-                Grid.row 8
+                Grid.row 9
                 TextBlock.margin (0., 0., 4., 0.)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text (state.Localization.GetString "showAdvancedFeatures")
             ]
             CheckBox.create [
                 Grid.column 1
-                Grid.row 8
+                Grid.row 9
                 CheckBox.isChecked state.Config.ShowAdvanced
                 CheckBox.onChecked (fun _ ->
                     fun c -> { c with ShowAdvanced = true }
@@ -216,7 +258,7 @@ let view state dispatch =
 
             Button.create [
                 Grid.columnSpan 2
-                Grid.row 9
+                Grid.row 10
                 Button.margin 4.
                 Button.fontSize 16.
                 Button.padding (50., 10.)

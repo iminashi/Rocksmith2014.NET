@@ -59,6 +59,13 @@ let private convertAudioIfNeeded cliPath project = async {
     if not <| DLCProject.wemFilesExist project then
         do! Wwise.convertToWem cliPath project.AudioFile }
 
+let private createBuildConfig state appId platforms =
+    let convTask = convertAudioIfNeeded state.Config.WwiseConsolePath state.Project
+    { Platforms = platforms
+      Author = state.Config.CharterName
+      AppId = appId
+      AudioConversionTask = convTask }
+
 let private updateArrangement old updated state =
     let arrangements =
         state.Project.Arrangements
@@ -216,6 +223,9 @@ let update (msg: Msg) (state: State) =
 
     | SetWwiseConsolePath path ->
         { state with Config = { config with WwiseConsolePath = Option.ofString path } }, Cmd.none
+
+    | SetCustomAppId appId ->
+        { state with Config = { config with CustomAppId = appId } }, Cmd.none
 
     | SetCustomFontFile fileName ->
         match state.SelectedArrangement with
@@ -452,12 +462,9 @@ let update (msg: Msg) (state: State) =
             { state with Overlay = localize error |> ErrorMessage }, Cmd.none
         | Ok _ ->
             let path = IO.Path.Combine(config.TestFolderPath, project.DLCKey.ToLowerInvariant())
-            let convTask = convertAudioIfNeeded config.WwiseConsolePath project
-            let config = { Platforms = [ state.CurrentPlatform ]
-                           Author = config.CharterName
-                           AppId = "248750"
-                           AudioConversionTask = convTask }
-            let task () = buildPackages path config project
+            let appId = config.CustomAppId |> Option.defaultValue "248750"
+            let buildConfig = createBuildConfig state appId [ state.CurrentPlatform ]
+            let task () = buildPackages path buildConfig project
 
             { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
 
@@ -476,11 +483,7 @@ let update (msg: Msg) (state: State) =
                 |> StringValidator.fileName
 
             let path = IO.Path.Combine(releaseDir, fn)
-            let convTask = convertAudioIfNeeded config.WwiseConsolePath project
-            let buildConfig = { Platforms = config.ReleasePlatforms
-                                Author = config.CharterName
-                                AppId = "248750"
-                                AudioConversionTask = convTask }
+            let buildConfig = createBuildConfig state "248750" config.ReleasePlatforms
             let task () = buildPackages path buildConfig project
 
             { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
