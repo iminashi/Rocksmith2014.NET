@@ -16,6 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="DisposableList.fs" />
     <Compile Include="Cryptography.fs" />
     <Compile Include="Header.fs" />
     <Compile Include="Entry.fs" />

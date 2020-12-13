@@ -1,12 +1,14 @@
 ﻿namespace Rocksmith2014.PSARC
 
+open System
 open System.IO
 open Rocksmith2014.Common.Interfaces
 
 type NamedEntry =
     { Name: string; Data: Stream }
 
-    static member Dispose(e) = e.Data.Dispose()
+    interface IDisposable with
+        member this.Dispose() = this.Data.Dispose()
 
 type Entry =
     { /// MD5 hash of the name of the entry in the manifest.

@@ -15,7 +15,7 @@ open System
 
 type private BuildData =
     { SNGs: (Arrangement * SNG) list
-      CoverArtFiles: string array
+      CoverArtFiles: (int * string) list
       Author: string
       AppId: string
       Partition: Arrangement -> int * string
@@ -25,6 +25,8 @@ type BuildConfig =
     { Platforms: Platform list
       Author: string
       AppId: string }
+
+let private toDisposableList items = new DisposableList<NamedEntry>(items)
 
 let private build (buildData: BuildData) targetFile project platform = async {
     let readFile = Utils.getFileStreamForRead
@@ -36,20 +38,22 @@ let private build (buildData: BuildData) targetFile project platform = async {
         $"manifests/songs_dlc_{key}/{key}_{name}.json" 
     let sngMap = buildData.SNGs |> dict
 
-    let! manifestEntries =
-        let attributes arr conv = Some(getManifestName arr, createAttributes project conv)
-        project.Arrangements
-        |> List.choose (function
-            | Instrumental i as arr -> FromInstrumental(i, sngMap.[arr]) |> attributes arr
-            | Vocals v as arr -> FromVocals v |> attributes arr
-            | Showlights _ -> None)
-       |> List.map (fun (name, attr) -> async {
-           let data = MemoryStreamPool.Default.GetStream()
-           do! [ attr ] |> Manifest.create |> Manifest.toJsonStream data
-           return entry name data })
-       |> Async.Parallel
+    use! manifestEntries = async {
+        let! entries =
+            let attributes arr conv = Some(getManifestName arr, createAttributes project conv)
+            project.Arrangements
+            |> List.choose (function
+                | Instrumental i as arr -> FromInstrumental(i, sngMap.[arr]) |> attributes arr
+                | Vocals v as arr -> FromVocals v |> attributes arr
+                | Showlights _ -> None)
+           |> List.map (fun (name, attr) -> async {
+               let data = MemoryStreamPool.Default.GetStream()
+               do! Manifest.create [ attr ] |> Manifest.toJsonStream data
+               return entry name data })
+           |> Async.Parallel
+        return toDisposableList (List.ofArray entries) }
 
-    let! headerEntry = async {
+    use! headerEntry = async {
         let header = createAttributesHeader project >> Some
         let data = MemoryStreamPool.Default.GetStream()
         do! project.Arrangements
@@ -61,61 +65,67 @@ let private build (buildData: BuildData) targetFile project platform = async {
             |> Manifest.toJsonStream data
         return entry $"manifests/songs_dlc_{key}/songs_dlc_{key}.hsan" data }
 
-    let! sngEntries =
-        buildData.SNGs
-        |> List.map (fun (arr, sng) -> async {
-            let data = MemoryStreamPool.Default.GetStream()
-            do! SNG.savePacked data platform sng
-            let name =
-                let part = partition arr |> snd
-                let path = Platform.getPath platform Platform.Path.SNG
-                $"songs/bin/{path}/{key}_{part}.sng"
-            return entry name data })
-        |> Async.Parallel
+    use! sngEntries = async {
+        let! entries =
+            buildData.SNGs
+            |> List.map (fun (arr, sng) -> async {
+                let data = MemoryStreamPool.Default.GetStream()
+                do! SNG.savePacked data platform sng
+                let name =
+                    let part = partition arr |> snd
+                    let path = Platform.getPath platform Platform.Path.SNG
+                    $"songs/bin/{path}/{key}_{part}.sng"
+                return entry name data })
+            |> Async.Parallel
+        return toDisposableList (List.ofArray entries) }
 
-    let slEntry =
+    use showlightsEntry =
         let slFile = (List.pick Arrangement.pickShowlights project.Arrangements).XML
         entry $"songs/arr/{key}_showlights.xml" (readFile slFile)
 
-    let fontEntry =
+    use fontEntry =
         project.Arrangements
         |> List.tryPick (function Vocals { CustomFont = Some _ as font } -> font | _ -> None)
         |> Option.map (fun f -> entry $"assets/ui/lyrics/{key}/lyrics_{key}.dds" (readFile f))
         |> Option.toList
+        |> toDisposableList
 
-    let flatModelEntries =
+    use flatModelEntries =
         let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
         let songData = embeddedProvider.GetFileInfo("res/rsenumerable_song.flat").CreateReadStream()
         let rootData = embeddedProvider.GetFileInfo("res/rsenumerable_root.flat").CreateReadStream()
         [ entry "flatmodels/rs/rsenumerable_song.flat" songData
           entry "flatmodels/rs/rsenumerable_root.flat" rootData ]
+        |> toDisposableList
 
-    let xBlockEntry =
+    use xBlockEntry =
         let data = MemoryStreamPool.Default.GetStream()
         XBlock.create platform project |> XBlock.serialize data
         entry $"gamexblocks/nsongs/{key}.xblock" data
 
-    let appIdEntry =
+    use appIdEntry =
         entry "appid.appid" (new MemoryStream(Encoding.ASCII.GetBytes buildData.AppId))
 
-    let graphEntry =
+    use graphEntry =
         let data = MemoryStreamPool.Default.GetStream()
         AggregateGraph.create platform project
         |> AggregateGraph.serialize data
         entry $"{key}_aggregategraph.nt" data
 
-    let gfxEntries =
-        ([| 64; 128; 256 |], buildData.CoverArtFiles)
-        ||> Array.map2 (fun size file -> entry $"gfxassets/album_art/album_{key}_{size}.dds" (readFile file))
+    use gfxEntries =
+        buildData.CoverArtFiles
+        |> List.map (fun (size, file) ->
+            entry $"gfxassets/album_art/album_{key}_{size}.dds" (readFile file))
+        |> toDisposableList
 
-    let toolkitEntry =
+    use toolkitEntry =
         new MemoryStream(Encoding.UTF8.GetBytes($"Toolkit version: 9.9.9.9\nPackage Author: {buildData.Author}\nPackage Version: {project.Version}\nPackage Comment: Remastered"))
         |> entry "toolkit.version"
 
     // Wait for the wem conversion to complete, if necessary
     do! buildData.AudioConversionTask
 
-    let audioEntries =
+    use audioEntries =
         let createEntries (audioFile: AudioFile) isPreview =
             let filePath =
                 if String.endsWith ".wem" audioFile.Path then
@@ -132,22 +142,22 @@ let private build (buildData: BuildData) targetFile project platform = async {
               entry $"audio/{path}/{audioName}.wem" audio ]
 
         createEntries project.AudioFile false
-        @
-        createEntries project.AudioPreviewFile true
+        |> List.append (createEntries project.AudioPreviewFile true)
+        |> toDisposableList
 
     let targetPath = sprintf "%s%s.psarc" targetFile (Platform.getPath platform Platform.Path.PackageSuffix)
 
     do! PSARC.Create(targetPath, true, [
-        yield! sngEntries
-        yield slEntry
+        yield! sngEntries.Items
+        yield showlightsEntry
         yield headerEntry
-        yield! manifestEntries
-        yield! gfxEntries
+        yield! manifestEntries.Items
+        yield! gfxEntries.Items
         yield xBlockEntry
-        yield! flatModelEntries
+        yield! flatModelEntries.Items
         yield graphEntry
-        yield! audioEntries
-        yield! fontEntry
+        yield! audioEntries.Items
+        yield! fontEntry.Items
         yield toolkitEntry
         yield appIdEntry ]) }
 
@@ -180,64 +190,67 @@ let private convertAudioIfNeeded project = async {
 
         do! Wwise.convertToWem audioFile target }
 
+/// Builds packages for the given platforms.
 let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProject) = async {
     let! audioConversionTask = convertAudioIfNeeded project |> Async.StartChild
-
     let key = project.DLCKey.ToLowerInvariant()
     let coverArt = DDS.createCoverArtImages project.AlbumArtFile
     let partition = Partitioner.create project
-    let sngs =
-        project.Arrangements
-        |> List.choose (fun arr ->
-            match arr with
-            | Instrumental i ->
-                let part = partition arr |> fst
-                let sng =
-                    InstrumentalArrangement.Load i.XML
-                    |> setupInstrumental part i
-                    |> ConvertInstrumental.xmlToSng
-                Some(arr, sng)
-            | Vocals v ->
-                let customFont =
-                    match v.CustomFont with
-                    | Some f ->
-                        let glyphs = 
-                            Path.ChangeExtension(f, ".glyphs.xml")
-                            |> GlyphDefinitions.Load
-                        let assetPath = $"assets/ui/lyrics/{key}/lyrics_{key}.dds"
-                        FontOption.CustomFont (glyphs, assetPath)
-                    | None -> FontOption.DefaultFont
-                let sng =
-                    Vocals.Load v.XML
-                    |> ConvertVocals.xmlToSng customFont
-                Some(arr, sng)
-            | Showlights _ -> None)
 
-    // Check if a show lights arrangement is included
-    let project =
-        if project.Arrangements |> List.tryPick Arrangement.pickShowlights |> Option.isSome then
-            project
-        else
-            // Insert an automatically generated show lights arrangement
-            let projectPath = Path.GetDirectoryName project.AudioFile.Path
-            let slFile = Path.Combine(projectPath, "auto_showlights.xml")
-            let sl = Showlights { XML = slFile }
-            if not <| File.Exists slFile then
-                ShowLightGenerator.generate slFile sngs
-            let arrangements = sl::project.Arrangements
-            { project with Arrangements = arrangements }
+    try
+        let sngs =
+            project.Arrangements
+            |> List.choose (fun arr ->
+                match arr with
+                | Instrumental i ->
+                    let part = partition arr |> fst
+                    let sng =
+                        InstrumentalArrangement.Load i.XML
+                        |> setupInstrumental part i
+                        |> ConvertInstrumental.xmlToSng
+                    Some(arr, sng)
+                | Vocals v ->
+                    let customFont =
+                        match v.CustomFont with
+                        | Some f ->
+                            let glyphs = 
+                                Path.ChangeExtension(f, ".glyphs.xml")
+                                |> GlyphDefinitions.Load
+                            let assetPath = $"assets/ui/lyrics/{key}/lyrics_{key}.dds"
+                            FontOption.CustomFont (glyphs, assetPath)
+                        | None -> FontOption.DefaultFont
+                    let sng =
+                        Vocals.Load v.XML
+                        |> ConvertVocals.xmlToSng customFont
+                    Some(arr, sng)
+                | Showlights _ -> None)
 
-    let data =
-        { SNGs = sngs
-          CoverArtFiles = coverArt
-          Author = config.Author
-          AppId = config.AppId
-          Partition = partition
-          AudioConversionTask = audioConversionTask }
+        // Check if a show lights arrangement is included
+        let project =
+            if project.Arrangements |> List.tryPick Arrangement.pickShowlights |> Option.isSome then
+                project
+            else
+                // Insert an automatically generated show lights arrangement
+                let projectPath = Path.GetDirectoryName project.AudioFile.Path
+                let slFile = Path.Combine(projectPath, "auto_showlights.xml")
+                let sl = Showlights { XML = slFile }
+                if not <| File.Exists slFile then
+                    ShowLightGenerator.generate slFile sngs
+                let arrangements = sl::project.Arrangements
+                { project with Arrangements = arrangements }
 
-    do! config.Platforms
-        |> List.map (build data targetFile project)
-        |> Async.Parallel
-        |> Async.Ignore
-    coverArt |> Array.iter File.Delete }
+        let data =
+            { SNGs = sngs
+              CoverArtFiles = coverArt
+              Author = config.Author
+              AppId = config.AppId
+              Partition = partition
+              AudioConversionTask = audioConversionTask }
+
+        do! config.Platforms
+            |> List.map (build data targetFile project)
+            |> Async.Parallel
+            |> Async.Ignore
+
+    finally coverArt |> List.iter (snd >> File.Delete) }
     

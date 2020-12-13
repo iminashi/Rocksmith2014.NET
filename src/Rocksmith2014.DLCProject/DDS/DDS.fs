@@ -27,9 +27,10 @@ let convertToDDS (sourceFile: string) (output: Stream) (options: DDSOptions) =
 
 /// Creates three cover art images from the source file and returns the file names of the temp files.
 let createCoverArtImages (sourceFile: string) =
-    [| Resize(64, 64); Resize(128, 128); Resize(256, 256) |]
+    [| 64; 128; 256 |]
     |> Array.Parallel.map (fun size ->
         let fileName = Path.GetTempFileName()
         use tempFile = File.Create fileName
-        convertToDDS sourceFile tempFile { Compression = DXT1; Resize = size }
-        fileName)
+        convertToDDS sourceFile tempFile { Compression = DXT1; Resize = Resize(size, size) }
+        size, fileName)
+    |> List.ofArray

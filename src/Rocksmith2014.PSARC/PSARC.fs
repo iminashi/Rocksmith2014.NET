@@ -200,20 +200,22 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     /// Edits the contents of the PSARC with the given edit function.
     member _.Edit (options: EditOptions, editFunc: NamedEntry list -> NamedEntry list) = async {
         // Map the table of contents to entry names and data
-        let! namedEntries =
-            let getTargetStream =
-                match options.Mode with
-                | InMemory -> fun () -> MemoryStreamPool.Default.GetStream() :> Stream
-                | TempFiles -> Utils.getTempFileStream
-            toc
-            |> Seq.map (fun e -> async {
-                let data = getTargetStream ()
-                do! inflateEntry e data
-                return { Name = getName e; Data = data } })
-            |> Async.Sequential
+        use! namedEntries = async {
+            let! entries =
+                let getTargetStream =
+                    match options.Mode with
+                    | InMemory -> fun () -> MemoryStreamPool.Default.GetStream() :> Stream
+                    | TempFiles -> Utils.getTempFileStream
+                toc
+                |> Seq.map (fun e -> async {
+                    let data = getTargetStream ()
+                    do! inflateEntry e data
+                    return { Name = getName e; Data = data } })
+                |> Async.Sequential
+            return new DisposableList<NamedEntry>(List.ofArray entries) }
 
         // Call the edit function that returns a new list
-        let editList = editFunc (List.ofArray namedEntries)
+        let editList = editFunc namedEntries.Items
 
         // Update the manifest
         manifest <- List.map (fun entry -> entry.Name) editList
@@ -241,11 +243,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             do! dataEntry.CopyToAsync(source)
             do! dataEntry.DisposeAsync()
             
-        do! source.FlushAsync()
-
-        // Ensure that all entries that were inflated are disposed
-        // If the user removed any entries, their data will be disposed of here
-        Array.iter NamedEntry.Dispose namedEntries }
+        do! source.FlushAsync() }
 
     /// Creates a new empty PSARC using the given stream.
     static member CreateEmpty(stream) = new PSARC(stream, Header(), ResizeArray(), [||])
