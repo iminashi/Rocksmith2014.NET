@@ -178,17 +178,8 @@ let private setupInstrumental part (inst: Instrumental) (xml: InstrumentalArrang
     xml
 
 let private convertAudioIfNeeded project = async {
-    let audioFile = project.AudioFile.Path
-    let previewFile = project.AudioPreviewFile.Path
-    let wemAudio = Path.ChangeExtension(audioFile, "wem")
-    let wemPreview = Path.ChangeExtension(previewFile, "wem")
-
-    if not <| File.Exists wemAudio || not <| File.Exists wemPreview then
-        let target =
-            Path.Combine (Path.GetDirectoryName audioFile, 
-                          Path.GetFileNameWithoutExtension audioFile)
-
-        do! Wwise.convertToWem audioFile target }
+    if not <| DLCProject.wemFilesExist project then
+        do! Wwise.convertToWem project.AudioFile }
 
 /// Builds packages for the given platforms.
 let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProject) = async {

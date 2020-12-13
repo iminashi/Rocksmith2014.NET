@@ -229,13 +229,9 @@ let update (msg: Msg) (state: State) =
         { state with Project = { project with AudioFile = audioFile; AudioPreviewFile = previewFile } }, Cmd.none
 
     | ConvertToWem ->
-        let audioFile = project.AudioFile.Path
-        if IO.File.Exists audioFile && IO.File.Exists project.AudioPreviewFile.Path then
-            let target =
-                IO.Path.Combine (IO.Path.GetDirectoryName audioFile, 
-                                 IO.Path.GetFileNameWithoutExtension audioFile)
+        if DLCProject.audioFilesExist project then
             { state with BuildInProgress = true },
-            Cmd.OfAsync.either (Wwise.convertToWem audioFile) target BuildComplete ErrorOccurred
+            Cmd.OfAsync.either Wwise.convertToWem project.AudioFile BuildComplete ErrorOccurred
         else
             state, Cmd.none
 

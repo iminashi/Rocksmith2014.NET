@@ -107,3 +107,16 @@ module DLCProject =
                 | other -> other)
 
         { project with Arrangements = arrs }
+
+    /// Returns true if the audio files for the project exist.
+    let audioFilesExist (project: DLCProject) =
+        File.Exists project.AudioFile.Path
+        &&
+        File.Exists project.AudioPreviewFile.Path
+
+    /// Returns true if wem audio files for the project exist.
+    let wemFilesExist (project: DLCProject) =
+        let wemAudio = Path.ChangeExtension(project.AudioFile.Path, "wem")
+        let wemPreview = Path.ChangeExtension(project.AudioPreviewFile.Path, "wem")
+
+        File.Exists wemAudio && File.Exists wemPreview

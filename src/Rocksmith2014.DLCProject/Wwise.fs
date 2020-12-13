@@ -2,8 +2,8 @@
 
 open System
 open System.IO
-open System.Reflection
 open System.IO.Compression
+open System.Reflection
 open System.Diagnostics
 open System.Runtime.InteropServices
 open Microsoft.Extensions.FileProviders
@@ -80,19 +80,22 @@ let private copyWemFiles (destPath: string) (templateDir: string) =
     if wemFiles.Length < 2 then
         failwith "Could not find converted Wwise audio and preview audio files."
 
-    for path in wemFiles do
+    wemFiles |> Array.iter (fun path ->
         let destFile =
             if path.Name.Contains "preview" then
-                sprintf "%s_preview.wem" destPath
+                $"{destPath}_preview.wem" 
             else
-                sprintf "%s.wem" destPath
+                $"{destPath}.wem" 
         File.Copy(path.FullName, destFile, true)
-        fixHeader destFile
+        fixHeader destFile)
 
-/// Converts the source audio and preview audio files in the source path into wem files.
-let convertToWem (sourcePath: string) (destPath: string) = async {
+/// Converts the source audio and preview audio files into wem files.
+let convertToWem (source: AudioFile) = async {
+    // The target filename without extension
+    let destPath = Path.Combine (Path.GetDirectoryName source.Path,
+                                 Path.GetFileNameWithoutExtension source.Path)
     let cliPath = getCLIPath()
-    let templateDir = loadTemplate sourcePath
+    let templateDir = loadTemplate source.Path
     
     let template = Path.Combine(templateDir, "Template.wproj")
     let args = sprintf """generate-soundbank "%s" --platform "Windows" --language "English(US)" --no-decode --quiet""" template
