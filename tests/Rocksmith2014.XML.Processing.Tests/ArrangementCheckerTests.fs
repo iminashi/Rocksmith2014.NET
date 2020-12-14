@@ -6,7 +6,8 @@ open Rocksmith2014.XML.Processing
 
 let toneChanges = ResizeArray(seq { ToneChange("test", 5555, 1uy) })
 let sections = ResizeArray(seq { Section("noguitar", 6000, 1s); Section("riff", 6500, 1s) })
-let testArr = InstrumentalArrangement(Sections = sections)
+let chordTemplates = ResizeArray(seq { ChordTemplate("", "", [| 2y; 2y; -1y; -1y; -1y; -1y |], [| 2y; 2y; -1y; -1y; -1y; -1y |]) })
+let testArr = InstrumentalArrangement(Sections = sections, ChordTemplates = chordTemplates)
 testArr.Tones.Changes <- toneChanges
 
 [<Tests>]
@@ -200,6 +201,19 @@ let chordTests =
             let level = Level(Chords = chords)
 
             let results = ArrangementChecker.checkChords testArr level
+
+            Expect.hasLength results 1 "One message created"
+    ]
+
+[<Tests>]
+let handshapeTests =
+    testList "Arrangement Checker (Handshapes)" [
+        testCase "Detects fingering that does not match anchor position" <| fun _ ->
+            let hs = ResizeArray(seq { HandShape(0s, 1000, 1500) })
+            let anchors = ResizeArray(seq { Anchor(2y, 500) })
+            let level = Level(HandShapes = hs, Anchors = anchors)
+
+            let results = ArrangementChecker.checkHandshapes testArr level
 
             Expect.hasLength results 1 "One message created"
     ]

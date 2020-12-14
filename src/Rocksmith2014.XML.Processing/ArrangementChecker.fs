@@ -113,3 +113,39 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
         if isInsideNoguitarSection ngSections chord.Time then
             $"Chord inside noguitar section at {timeToString chord.Time}."
    ]
+
+/// Checks the handshapes in the arrangement for issues.
+let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
+    let handShapes = level.HandShapes
+    let chordTemplates = arrangement.ChordTemplates
+    let anchors = level.Anchors
+
+    // Logic to weed out some false positives
+    let isSameAnchorWith1stFinger (neighbour: HandShape option) (activeAnchor: Anchor) =
+         match neighbour with
+         | None -> false
+         | Some neighbour ->
+            let neighbourAnchor = anchors.FindLast(fun a -> a.Time <= neighbour.StartTime)
+            let neighbourTemplate = chordTemplates.[int neighbour.ChordId]
+    
+            neighbourTemplate.Fingers |> Array.exists((=) 1y) && neighbourAnchor = activeAnchor
+
+    [ for i = 0 to handShapes.Count - 1 do
+        let handShape = handShapes.[i]
+        let previous = if i = 0 then None else Some handShapes.[i - 1]
+        let next = if i = handShapes.Count - 1 then None else Some handShapes.[i + 1]
+
+        let activeAnchor = anchors.FindLast(fun a -> a.Time <= handShape.StartTime)
+        let chordTemplate = chordTemplates.[int handShape.ChordId]
+        
+        // Check only handshapes that do not use the 1st finger
+        if not (chordTemplate.Fingers |> Array.exists ((=) 1y)) then
+            let chordNotOk =
+                (chordTemplate.Frets, chordTemplate.Fingers)
+                ||> Array.exists2 (fun fret finger -> fret = activeAnchor.Fret && finger <> -1y)
+            
+            if chordNotOk then
+                if not (isSameAnchorWith1stFinger previous activeAnchor ||
+                        isSameAnchorWith1stFinger next activeAnchor) then
+                    $"Handshape fingering does not match anchor position at {timeToString handShape.StartTime}."
+    ]
