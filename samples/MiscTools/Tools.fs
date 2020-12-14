@@ -12,6 +12,7 @@ open Rocksmith2014.SNG
 open Rocksmith2014.Conversion
 open Rocksmith2014.PSARC
 open Rocksmith2014.XML
+open Rocksmith2014.XML.Processing
 open Rocksmith2014.DLCProject
 open Rocksmith2014.DLCProject.Manifest
 open Rocksmith2014.DLCProject.DDS
@@ -113,6 +114,7 @@ type Msg =
     | ReadVolume of file:string
     | DecryptProfile of file:string
     | ImportTones of file:string
+    | CheckXml of file:string
     | Error of ex:Exception
 
 let convertFileToSng platform (fileName: string) =
@@ -302,6 +304,17 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
 
         | ChangePlatform platform -> { state with Platform = platform }, Cmd.none
 
+        | CheckXml file ->
+            let arr = InstrumentalArrangement.Load file
+
+            let messages = [
+                yield! ArrangementChecker.checkCrowdEventPlacement arr
+                yield! ArrangementChecker.checkNotes arr arr.Levels.[0]
+                yield! ArrangementChecker.checkChords arr arr.Levels.[0]
+                yield! ArrangementChecker.checkHandshapes arr arr.Levels.[0] ]
+
+            { state with Status = String.Join("\n", messages) }, Cmd.none
+
         | Error e -> { state with Status = e.Message }, Cmd.none
 
     with e -> { state with Status = e.Message }, Cmd.none
@@ -434,6 +447,11 @@ let view (state: State) dispatch =
             Button.create [
                 Button.onClick (fun _ -> ofdAll (ImportTones >> dispatch))
                 Button.content "Import Tones from Profile..."
+            ]
+
+            Button.create [
+                Button.onClick (fun _ -> ofdXml (CheckXml >> dispatch))
+                Button.content "Check Xml..."
             ]
 
             TextBlock.create [
