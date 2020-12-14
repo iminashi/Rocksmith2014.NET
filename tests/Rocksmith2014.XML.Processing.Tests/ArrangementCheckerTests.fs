@@ -4,6 +4,11 @@ open Expecto
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Processing
 
+let toneChanges = ResizeArray(seq { ToneChange("test", 5555, 1uy) })
+let sections = ResizeArray(seq { Section("noguitar", 6000, 1s); Section("riff", 6500, 1s) })
+let testArr = InstrumentalArrangement(Sections = sections)
+testArr.Tones.Changes <- toneChanges
+
 [<Tests>]
 let arrangementCheckerTests =
     testList "Arrangement Checker" [
@@ -61,4 +66,61 @@ let arrangementCheckerTests =
             let results = ArrangementChecker.checkCrowdEventPlacement xml
 
             Expect.hasLength results 3 "Three messages created"
+
+        testCase "Detects unpitched slide note with linknext" <| fun _ ->
+            let notes = ResizeArray(seq { Note(IsLinkNext = true, SlideUnpitchTo = 12y) })
+            let level = Level(Notes = notes)
+
+            let results = ArrangementChecker.checkNotes testArr level
+
+            Expect.hasLength results 1 "One message created"
+
+        testCase "Detects note with both harmonic and pinch harmonic" <| fun _ ->
+            let notes = ResizeArray(seq { Note(IsPinchHarmonic = true, IsHarmonic = true) })
+            let level = Level(Notes = notes)
+
+            let results = ArrangementChecker.checkNotes testArr level
+
+            Expect.hasLength results 1 "One message created"
+
+        testCase "Detects notes beyond 23rd fret without ignore status" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Fret = 23y); Note(Fret = 24y); Note(Fret = 23y, IsIgnore = true) })
+            let level = Level(Notes = notes)
+
+            let results = ArrangementChecker.checkNotes testArr level
+
+            Expect.hasLength results 2 "Two messages created"
+
+        testCase "Detects harmonic note on 7th fret with sustain" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Fret = 7y, IsHarmonic = true, Sustain = 200); Note(Fret = 7y, IsHarmonic = true) })
+            let level = Level(Notes = notes)
+
+            let results = ArrangementChecker.checkNotes testArr level
+
+            Expect.hasLength results 1 "One message created"
+
+        testCase "Detects note with missing bend values" <| fun _ ->
+            let bendValues = ResizeArray(seq { BendValue() })
+            let notes = ResizeArray(seq { Note(Fret = 7y, BendValues = bendValues) })
+            let level = Level(Notes = notes)
+
+            let results = ArrangementChecker.checkNotes testArr level
+
+            Expect.hasLength results 1 "One message created"
+
+        testCase "Detects tone change that occurs on a note" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Time = 5555) })
+            let level = Level(Notes = notes)
+
+            let results = ArrangementChecker.checkNotes testArr level
+
+            Expect.hasLength results 1 "One message created"
+
+        testCase "Detects note inside noguitar section" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Time = 6000) })
+            let level = Level(Notes = notes)
+
+            let results = ArrangementChecker.checkNotes testArr level
+
+            Expect.hasLength results 1 "One message created"
     ]
