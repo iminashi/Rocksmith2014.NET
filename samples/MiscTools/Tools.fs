@@ -320,138 +320,144 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
     with e -> { state with Status = e.Message }, Cmd.none
 
 let view (state: State) dispatch =
-    StackPanel.create [
-        StackPanel.margin 5.0
-        StackPanel.spacing 5.0
-        StackPanel.children [
+    DockPanel.create [
+        DockPanel.children [
             StackPanel.create [
-                StackPanel.orientation Orientation.Horizontal
-                StackPanel.horizontalAlignment HorizontalAlignment.Center
+                DockPanel.dock Dock.Left
+                StackPanel.width 250.
+                StackPanel.margin 5.0
+                StackPanel.spacing 5.0
                 StackPanel.children [
-                    RadioButton.create [
-                        RadioButton.groupName "Platform"
-                        RadioButton.content "PC"
-                        RadioButton.isChecked (state.Platform = PC)
-                        RadioButton.onIsPressedChanged (fun p -> if p then dispatch (ChangePlatform PC))
+                    StackPanel.create [
+                        StackPanel.orientation Orientation.Horizontal
+                        StackPanel.horizontalAlignment HorizontalAlignment.Center
+                        StackPanel.children [
+                            RadioButton.create [
+                                RadioButton.groupName "Platform"
+                                RadioButton.content "PC"
+                                RadioButton.isChecked (state.Platform = PC)
+                                RadioButton.onIsPressedChanged (fun p -> if p then dispatch (ChangePlatform PC))
+                            ]
+                            RadioButton.create [
+                                RadioButton.groupName "Platform"
+                                RadioButton.content "Mac"
+                                RadioButton.isChecked (state.Platform = Mac)
+                                RadioButton.onIsPressedChanged (fun p -> if p then dispatch (ChangePlatform Mac))
+                            ]
+                        ]
                     ]
-                    RadioButton.create [
-                        RadioButton.groupName "Platform"
-                        RadioButton.content "Mac"
-                        RadioButton.isChecked (state.Platform = Mac)
-                        RadioButton.onIsPressedChanged (fun p -> if p then dispatch (ChangePlatform Mac))
+
+                    TextBlock.create [
+                        TextBlock.fontSize 18.0
+                        TextBlock.verticalAlignment VerticalAlignment.Center
+                        TextBlock.horizontalAlignment HorizontalAlignment.Center
+                        TextBlock.text "SNG"
+                    ]
+
+                    Button.create [
+                        Button.onClick (fun _ -> ofdSng (UnpackSNGFile >> dispatch))
+                        Button.content "Unpack File..."
+                    ]
+
+                    Button.create [
+                        Button.onClick (fun _ -> ofdSng (PackSNGFile >> dispatch))
+                        Button.content "Pack File..."
+                    ]
+
+                    Button.create [
+                        Button.onClick (fun _ -> ofdSng (ConvertVocalsSNGtoXML >> dispatch))
+                        Button.content "Convert Vocals SNG to XML..."
+                    ]
+
+                    Button.create [
+                        Button.onClick (fun _ -> ofdXml (ConvertVocalsXMLtoSNG >> dispatch))
+                        Button.content "Convert Vocals XML to SNG..."
+                    ]
+            
+                    Button.create [
+                        Button.onClick (fun _ -> ofdSng (ConvertInstrumentalSNGtoXML >> dispatch))
+                        Button.content "Convert Instrumental SNG to XML..."
+                    ]
+
+                    Button.create [
+                        Button.onClick (fun _ -> ofdXml (ConvertInstrumentalXMLtoSNG >> dispatch))
+                        Button.content "Convert Instrumental XML to SNG..."
+                    ]
+
+                    Button.create [
+                        Button.onClick (fun _ -> ofdMultiXml (BatchConvertToSng >> dispatch))
+                        Button.content "Batch Convert to SNG..."
+                    ]
+
+                    TextBlock.create [
+                        TextBlock.fontSize 18.0
+                        TextBlock.verticalAlignment VerticalAlignment.Center
+                        TextBlock.horizontalAlignment HorizontalAlignment.Center
+                        TextBlock.text "PSARC"
+                    ]
+
+                    Button.create [
+                        Button.onClick (fun _ -> ofdPsarc (UnpackPSARC >> dispatch))
+                        Button.content "Unpack File..."
+                    ]
+
+                    Button.create [
+                        Button.onClick (fun _ -> ofod (PackDirectoryPSARC >> dispatch))
+                        Button.content "Pack a Directory into PSARC File..."
+                    ]
+
+                    Button.create [
+                        Button.onClick (fun _ -> ofdPsarc (ExtractSNGtoXML >> dispatch))
+                        Button.content "Convert SNG to XML from PSARC..."
+                    ]
+
+                    Button.create [
+                        Button.onClick (fun _ -> ofdPsarc (ConvertPCtoMac >> dispatch))
+                        Button.content "Convert PC to Mac..."
+                    ]
+
+                    TextBlock.create [
+                        TextBlock.fontSize 18.0
+                        TextBlock.verticalAlignment VerticalAlignment.Center
+                        TextBlock.horizontalAlignment HorizontalAlignment.Center
+                        TextBlock.text "Misc."
+                    ]
+
+                    Button.create [
+                        Button.onClick (fun _ -> ofdXml (CreateManifest >> dispatch))
+                        Button.content "Create Manifest from XML File..."
+                    ]
+
+                    Button.create [
+                        Button.onClick (fun _ -> ofdAll (ConvertToDDS >> dispatch))
+                        Button.content "Convert an Image to DDS..."
+                    ]
+
+                    Button.create [
+                        Button.onClick (fun _ -> ofdWem (GenerateSoundBank >> dispatch))
+                        Button.content "Generate Sound Bank..."
+                    ]
+
+                    Button.create [
+                        Button.onClick (fun _ -> ofdBnk (ReadVolume >> dispatch))
+                        Button.content "Read Volume from Sound Bank..."
+                    ]
+
+                    Button.create [
+                        Button.onClick (fun _ -> ofdAll (DecryptProfile >> dispatch))
+                        Button.content "Decrypt Profile..."
+                    ]
+
+                    Button.create [
+                        Button.onClick (fun _ -> ofdAll (ImportTones >> dispatch))
+                        Button.content "Import Tones from Profile..."
+                    ]
+
+                    Button.create [
+                        Button.onClick (fun _ -> ofdXml (CheckXml >> dispatch))
+                        Button.content "Check Xml..."
                     ]
                 ]
-            ]
-
-            TextBlock.create [
-                TextBlock.fontSize 18.0
-                TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "SNG"
-            ]
-
-            Button.create [
-                Button.onClick (fun _ -> ofdSng (UnpackSNGFile >> dispatch))
-                Button.content "Unpack File..."
-            ]
-
-            Button.create [
-                Button.onClick (fun _ -> ofdSng (PackSNGFile >> dispatch))
-                Button.content "Pack File..."
-            ]
-
-            Button.create [
-                Button.onClick (fun _ -> ofdSng (ConvertVocalsSNGtoXML >> dispatch))
-                Button.content "Convert Vocals SNG to XML..."
-            ]
-
-            Button.create [
-                Button.onClick (fun _ -> ofdXml (ConvertVocalsXMLtoSNG >> dispatch))
-                Button.content "Convert Vocals XML to SNG..."
-            ]
-            
-            Button.create [
-                Button.onClick (fun _ -> ofdSng (ConvertInstrumentalSNGtoXML >> dispatch))
-                Button.content "Convert Instrumental SNG to XML..."
-            ]
-
-            Button.create [
-                Button.onClick (fun _ -> ofdXml (ConvertInstrumentalXMLtoSNG >> dispatch))
-                Button.content "Convert Instrumental XML to SNG..."
-            ]
-
-            Button.create [
-                Button.onClick (fun _ -> ofdMultiXml (BatchConvertToSng >> dispatch))
-                Button.content "Batch Convert to SNG..."
-            ]
-
-            TextBlock.create [
-                TextBlock.fontSize 18.0
-                TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "PSARC"
-            ]
-
-            Button.create [
-                Button.onClick (fun _ -> ofdPsarc (UnpackPSARC >> dispatch))
-                Button.content "Unpack File..."
-            ]
-
-            Button.create [
-                Button.onClick (fun _ -> ofod (PackDirectoryPSARC >> dispatch))
-                Button.content "Pack a Directory into PSARC File..."
-            ]
-
-            Button.create [
-                Button.onClick (fun _ -> ofdPsarc (ExtractSNGtoXML >> dispatch))
-                Button.content "Convert SNG to XML from PSARC..."
-            ]
-
-            Button.create [
-                Button.onClick (fun _ -> ofdPsarc (ConvertPCtoMac >> dispatch))
-                Button.content "Convert PC to Mac..."
-            ]
-
-            TextBlock.create [
-                TextBlock.fontSize 18.0
-                TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text "Misc."
-            ]
-
-            Button.create [
-                Button.onClick (fun _ -> ofdXml (CreateManifest >> dispatch))
-                Button.content "Create Manifest from XML File..."
-            ]
-
-            Button.create [
-                Button.onClick (fun _ -> ofdAll (ConvertToDDS >> dispatch))
-                Button.content "Convert an Image to DDS..."
-            ]
-
-            Button.create [
-                Button.onClick (fun _ -> ofdWem (GenerateSoundBank >> dispatch))
-                Button.content "Generate Sound Bank..."
-            ]
-
-            Button.create [
-                Button.onClick (fun _ -> ofdBnk (ReadVolume >> dispatch))
-                Button.content "Read Volume from Sound Bank..."
-            ]
-
-            Button.create [
-                Button.onClick (fun _ -> ofdAll (DecryptProfile >> dispatch))
-                Button.content "Decrypt Profile..."
-            ]
-
-            Button.create [
-                Button.onClick (fun _ -> ofdAll (ImportTones >> dispatch))
-                Button.content "Import Tones from Profile..."
-            ]
-
-            Button.create [
-                Button.onClick (fun _ -> ofdXml (CheckXml >> dispatch))
-                Button.content "Check Xml..."
             ]
 
             TextBlock.create [
