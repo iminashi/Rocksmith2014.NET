@@ -129,7 +129,7 @@ module Arrangement =
                         toneInfo.BaseToneName
                 let tones =
                     toneInfo.Names
-                    |> Array.filter (isNull >> not)
+                    |> Array.choose Option.ofString
                     |> Array.toList
     
                 let routeMask =
