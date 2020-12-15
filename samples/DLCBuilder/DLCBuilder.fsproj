@@ -49,6 +49,7 @@
     <Compile Include="Views\SelectPreviewStart.fs" />
     <Compile Include="Views\ErrorMessage.fs" />
     <Compile Include="Views\SelectImportTones.fs" />
+    <Compile Include="Views\IssueViewer.fs" />
     <Compile Include="Views\ConfigEditor.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="RecentFilesList.fs" />
@@ -73,6 +74,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Rocksmith2014.DLCProject\Rocksmith2014.DLCProject.fsproj" />
+    <ProjectReference Include="..\..\src\Rocksmith2014.XML.Processing\Rocksmith2014.XML.Processing.fsproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -106,6 +108,7 @@
     <Watch Remove="Views\ConfigEditor.fs" />
     <Watch Remove="Views\ErrorMessage.fs" />
     <Watch Remove="Views\InstrumentalDetails.fs" />
+    <Watch Remove="Views\IssueViewer.fs" />
     <Watch Remove="Views\ProjectDetails.fs" />
     <Watch Remove="Views\SelectImportTones.fs" />
     <Watch Remove="Views\SelectPreviewStart.fs" />

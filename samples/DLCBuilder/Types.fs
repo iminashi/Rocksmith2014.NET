@@ -3,6 +3,7 @@
 open Rocksmith2014.DLCProject
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
+open Rocksmith2014.XML.Processing
 open Avalonia.Controls
 open Avalonia.Media.Imaging
 open System
@@ -15,6 +16,7 @@ module Types =
     | ImportToneSelector of tones : Tone array
     | SelectPreviewStart of audioLength : TimeSpan
     | ConfigEditor
+    | IssueViewer of issues : ArrangementChecker.Issue list
 
     type PreviewAudioCreation =
     | SetupStartTime
@@ -39,6 +41,7 @@ module Types =
           OpenProjectFile : string option
           CurrentPlatform : Platform
           BuildInProgress : bool
+          ArrangementIssues : Map<Arrangement, ArrangementChecker.Issue list>
           Localization : ILocalization }
 
     type Msg =
@@ -87,10 +90,12 @@ module Types =
     | ImportSelectedTones
     | ShowConfigEditor
     | SaveConfiguration
+    | ShowIssueViewer
     | ProjectLoaded of project : DLCProject * projectFile : string
     | BuildTest
     | BuildRelease
     | BuildComplete of unit
+    | CheckArrangements
     | ConvertToWem
     | ShowImportToneSelector of tones : Tone array
     | ChangeLocale of locale : Locale

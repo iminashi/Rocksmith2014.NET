@@ -31,7 +31,7 @@ let checkCrowdEventPlacement (arrangement: InstrumentalArrangement) =
     match introApplauseStart, applauseEnd with
     | null, _ -> []
     | s, null ->
-        [ issue $"An intro applause event (E3) without an end event (E13)." s.Time ]
+        [ issue $"An intro applause event (E3) without an end event (E13)" s.Time ]
     | s, e ->
         arrangement.Events
         |> Seq.choose (fun ev ->
@@ -39,7 +39,7 @@ let checkCrowdEventPlacement (arrangement: InstrumentalArrangement) =
                 Some ev
             else
                 None)
-        |> Seq.map (fun ev -> issue $"Unexpected event ({ev.Code}) between intro applause events." ev.Time)
+        |> Seq.map (fun ev -> issue $"Unexpected event ({ev.Code}) between intro applause events" ev.Time)
         |> Seq.toList
 
 let private getNoguitarSections (arrangement: InstrumentalArrangement) =
@@ -70,10 +70,10 @@ let private findNextNote (notes: ResizeArray<Note>) currentIndex (note: Note) =
 
 let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
     if isLinkedToChord level note then
-        Some (issue $"Note incorrectly linked to a chord." note.Time)
+        Some (issue $"Note incorrectly linked to a chord" note.Time)
     else
         match findNextNote level.Notes currentIndex note with
-        | None -> Some (issue $"Unable to find next note for LinkNext note." note.Time)
+        | None -> Some (issue $"Unable to find next note for LinkNext note" note.Time)
 
         // Check if the frets match
         | Some nextNote when note.Fret <> nextNote.Fret ->
@@ -84,13 +84,13 @@ let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
                     note.SlideTo
             
             if slideTo <> -1y && slideTo <> nextNote.Fret then
-                Some (issue $"LinkNext fret mismatch for slide." note.Time)
+                Some (issue $"LinkNext fret mismatch for slide" note.Time)
             elif slideTo = -1y then
                 // Check if the next note is at the end of the sustain for this note
                 if nextNote.Time - (note.Time + note.Sustain) > 1 then
-                    Some (issue $"Incorrect LinkNext status on note, {stringNames.[int note.String]} string." note.Time)
+                    Some (issue $"Incorrect LinkNext status on note, {stringNames.[int note.String]} string" note.Time)
                 else
-                    Some (issue $"LinkNext fret mismatch." nextNote.Time)
+                    Some (issue $"LinkNext fret mismatch" nextNote.Time)
             else
                 None
 
@@ -107,7 +107,7 @@ let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
                 else 0f
 
             if thisNoteLastBendValue <> nextNoteFirstBendValue then
-                Some (issue $"LinkNext bend mismatch." nextNote.Time)
+                Some (issue $"LinkNext bend mismatch" nextNote.Time)
             else
                 None
 
@@ -122,29 +122,29 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
         let time = note.Time
 
         if note.IsLinkNext && note.IsUnpitchedSlide then
-            issue $"Unpitched slide note with LinkNext." time
+            issue $"Unpitched slide note with LinkNext" time
         
         if note.IsHarmonic && note.IsPinchHarmonic then
-            issue $"Note set as both harmonic and pinch harmonic." time
+            issue $"Note set as both harmonic and pinch harmonic" time
         
         if note.Fret >= 23y && not note.IsIgnore then
             let o = if note.Fret = 23y then "rd" else "th"
-            issue $"Note on {note.Fret}{o} fret without ignore status." time
+            issue $"Note on {note.Fret}{o} fret without ignore status" time
         
         if not note.IsIgnore && note.Fret = 7y && note.IsHarmonic && note.Sustain > 0 then 
-            issue $"7th fret harmonic note with sustain." time
+            issue $"7th fret harmonic note with sustain" time
             
         if note.IsBend && note.BendValues.FindIndex(fun bv -> bv.Step <> 0.0f) = -1 then
-            issue $"Note missing a bend value." time
+            issue $"Note missing a bend value" time
 
         if not <| isNull arrangement.Tones.Changes && arrangement.Tones.Changes.Exists(fun t -> t.Time = time) then
-            issue $"Tone change occurs on a note." time
+            issue $"Tone change occurs on a note" time
 
         if note.IsLinkNext then
             yield! checkLinkNext level i note |> Option.toList
 
         if isInsideNoguitarSection ngSections time then
-            issue $"Note inside noguitar section." time
+            issue $"Note inside noguitar section" time
         ]
 
 /// Checks the chords in the arrangement for issues.
@@ -158,23 +158,23 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
         if not <| isNull chordNotes then
             // Check for inconsistent chord note sustains
             if not <| chordNotes.TrueForAll(fun cn -> cn.Sustain = chordNotes.[0].Sustain) then
-                issue $"Chord with varying chord note sustains." time
+                issue $"Chord with varying chord note sustains" time
 
             // Check 7th fret harmonic notes with sustain (and without ignore)
             if not chord.IsIgnore && chordNotes.Exists(fun cn -> cn.Sustain > 0 && cn.Fret = 7y && cn.IsHarmonic) then
-                issue $"7th fret harmonic note with sustain." time
+                issue $"7th fret harmonic note with sustain" time
 
             // Check for notes with LinkNext and unpitched slide
             if chordNotes.Exists(fun cn -> cn.IsLinkNext && cn.IsUnpitchedSlide) then
-                issue $"Chord note set as unpitched slide note with LinkNext." time
+                issue $"Chord note set as unpitched slide note with LinkNext" time
 
             // Check for notes with both harmonic and pinch harmonic
             if chordNotes.Exists(fun cn -> cn.IsHarmonic && cn.IsPinchHarmonic) then
-                issue $"Chord note set as both harmonic and pinch harmonic." time
+                issue $"Chord note set as both harmonic and pinch harmonic" time
 
             // Check 23rd and 24th fret chords without ignore
             if chordNotes.TrueForAll(fun cn -> cn.Fret >= 23y) && not chord.IsIgnore then
-                issue $"Chord on 23rd/24th fret without ignore status." time
+                issue $"Chord on 23rd/24th fret without ignore status" time
 
             if chord.IsLinkNext then
                 yield! [ for cn in chordNotes do
@@ -182,12 +182,12 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
 
         // Check tone change placement
         if not <| isNull arrangement.Tones.Changes && arrangement.Tones.Changes.Exists(fun t -> t.Time = time) then
-            issue $"Tone change occurs on a chord." time
+            issue $"Tone change occurs on a chord" time
 
         // Check chords at the end of handshape (no handshape sustain)
         let handShape = level.HandShapes.Find(fun hs -> hs.ChordId = chord.ChordId && time >= hs.StartTime && time <= hs.EndTime)
         if not <| isNull handShape && handShape.EndTime - time <= 5 then
-            issue $"Chord at the end of a handshape." time
+            issue $"Chord at the end of a handshape" time
 
         // Check for chords inside noguitar sections
         if isInsideNoguitarSection ngSections time then
@@ -227,7 +227,7 @@ let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
             if chordNotOk then
                 if not (isSameAnchorWith1stFinger previous activeAnchor ||
                         isSameAnchorWith1stFinger next activeAnchor) then
-                    issue $"Handshape fingering does not match anchor position." handShape.StartTime
+                    issue $"Handshape fingering does not match anchor position" handShape.StartTime
     ]
 
 /// Looks for anchors that are very close to a note but not exactly on a note.
@@ -252,7 +252,7 @@ let checkAnchors (level: Level) =
     anchorsNearNotes
     |> Seq.append anchorsNearChords
     |> Seq.map (fun (anchorTime, distance) ->
-        issue $"Anchor not on a note. Distance to closest note: {distance} ms." anchorTime)
+        issue $"Anchor not on a note. Distance to closest note: {distance} ms" anchorTime)
     |> Seq.toList
 
 /// Runs all the checks on the given arrangement.

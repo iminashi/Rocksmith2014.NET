@@ -152,5 +152,7 @@
   "wwiseConsolePathTooltip": "Polku Wwise 2019:n konsolisovelluksen ajotiedostoon.\n\nSe yritetään löytää automaattisesti, jos jätetty tyhjäksi.",
   "selectWwiseConsolePath": "Valitse Wwise 2019 konsolisovellus",
   "testingAppId": "Testibuildin App ID",
-  "custom": "Mukautettu"
+  "custom": "Mukautettu",
+  "issues": "Ongelmat",
+  "validate": "Validoi"
 }

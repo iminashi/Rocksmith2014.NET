@@ -1,10 +1,11 @@
 ﻿module DLCBuilder.Main
 
+open Rocksmith2014
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open Rocksmith2014.DLCProject.PackageBuilder
-open Rocksmith2014
+open Rocksmith2014.XML.Processing
 open Elmish
 open System.Runtime.InteropServices
 open System
@@ -53,6 +54,7 @@ let init arg =
       BuildInProgress = false
       CurrentPlatform = if RuntimeInformation.IsOSPlatform OSPlatform.OSX then Mac else PC
       OpenProjectFile = None
+      ArrangementIssues = Map.empty
       Localization = Localization(Locales.English) }, commands
 
 let private convertAudioIfNeeded cliPath project = async {
@@ -489,6 +491,26 @@ let update (msg: Msg) (state: State) =
             { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
 
     | BuildComplete _ -> { state with BuildInProgress = false }, Cmd.none
+
+    | CheckArrangements ->
+        // TODO: Vocals and showlights validation and make async
+        let issues =
+            state.Project.Arrangements
+            |> List.map (function
+                | Instrumental inst as arr ->
+                    let issues =
+                        XML.InstrumentalArrangement.Load inst.XML
+                        |> ArrangementChecker.runAllChecks
+                    arr, issues
+                | arr -> arr, [])
+            |> Map.ofList
+
+        { state with ArrangementIssues = issues }, Cmd.none
+
+    | ShowIssueViewer ->
+        match state.SelectedArrangement with
+        | Some arr -> { state with Overlay = IssueViewer (state.ArrangementIssues.[arr]) }, Cmd.none
+        | None -> state, Cmd.none
    
     | ErrorOccurred e -> { state with Overlay = ErrorMessage e.Message
                                       BuildInProgress = false }, Cmd.none
@@ -532,6 +554,14 @@ let view (window: HostWindow) (state: State) dispatch =
                                 DockPanel.margin 5.0
 
                                 DockPanel.children [
+                                    Button.create [
+                                        DockPanel.dock Dock.Right
+                                        Button.padding (10.0, 5.0)
+                                        Button.content (state.Localization.GetString "validate")
+                                        Button.onClick (fun _ -> dispatch CheckArrangements)
+                                        Button.isEnabled (state.Project.Arrangements.Length > 0)
+                                    ]
+
                                     // Add arrangement
                                     Button.create [
                                         DockPanel.dock Dock.Right
@@ -596,6 +626,30 @@ let view (window: HostWindow) (state: State) dispatch =
                                     TextBlock.text (IO.Path.GetFileName (Arrangement.getFile arr))
                                     TextBlock.horizontalAlignment HorizontalAlignment.Center
                                 ]
+
+                                // Validation Icon
+                                if state.ArrangementIssues.ContainsKey arr then
+                                    let noIssues = state.ArrangementIssues.[arr].IsEmpty
+                                    StackPanel.create [
+                                        StackPanel.orientation Orientation.Horizontal
+                                        StackPanel.background Brushes.Transparent
+                                        if not noIssues then
+                                            StackPanel.onTapped (fun _ -> dispatch ShowIssueViewer)
+                                            StackPanel.cursor Media.Cursors.hand
+                                        StackPanel.children [
+                                            Path.create [
+                                                Path.fill (if noIssues then Brushes.Green else Brushes.Red)
+                                                Path.data (if noIssues then Icons.check else Icons.x)
+                                                Path.verticalAlignment VerticalAlignment.Center
+                                                Path.margin (0., 0., 6., 0.)
+                                            ]
+
+                                            TextBlock.create[
+                                                TextBlock.text (if noIssues then "OK" else state.Localization.GetString "issues")
+                                                TextBlock.verticalAlignment VerticalAlignment.Center
+                                            ]
+                                        ]
+                                    ]
 
                                 match arr with
                                 | Showlights _ -> ()
@@ -702,6 +756,7 @@ let view (window: HostWindow) (state: State) dispatch =
                                 | SelectPreviewStart audioLength -> SelectPreviewStart.view state dispatch audioLength
                                 | ImportToneSelector tones -> SelectImportTones.view state dispatch tones
                                 | ConfigEditor -> ConfigEditor.view state dispatch
+                                | IssueViewer issues -> IssueViewer.view state dispatch issues
                             )
                         ]
                     ]
