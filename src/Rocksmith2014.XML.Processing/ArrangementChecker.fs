@@ -135,7 +135,7 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
             issue $"7th fret harmonic note with sustain." time
             
         if note.IsBend && note.BendValues.FindIndex(fun bv -> bv.Step <> 0.0f) = -1 then
-            issue $"Note missing a bend value ." time
+            issue $"Note missing a bend value." time
 
         if not <| isNull arrangement.Tones.Changes && arrangement.Tones.Changes.Exists(fun t -> t.Time = time) then
             issue $"Tone change occurs on a note." time
@@ -268,5 +268,5 @@ let runAllChecks (arr: InstrumentalArrangement) =
 
     [ yield! checkCrowdEventPlacement arr
       yield! results ]
-    |> List.distinctBy (fun issue -> issue.Message)
+    |> List.distinct
     |> List.sortBy (fun issue -> issue.TimeCode)
