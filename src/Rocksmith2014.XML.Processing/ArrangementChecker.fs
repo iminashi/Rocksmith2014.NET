@@ -55,60 +55,59 @@ let private isLinkedToChord (level: Level) (note: Note) =
         && not <| isNull c.ChordNotes
         && c.ChordNotes.Exists(fun cn -> cn.String = note.String))
 
-let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
-    let notes = level.Notes
-
-    if isLinkedToChord level note then
-        $"Note incorrectly linked to a chord at {timeToString note.Time}."
-    else
-        let nextNoteIndex =
-            if currentIndex = -1 then
-                notes.FindIndex(fun n -> n.Time > note.Time && n.String = note.String)
-            else
-                notes.FindIndex(currentIndex + 1, fun n -> n.String = note.String)
-
-        if nextNoteIndex = -1 then
-            $"Unable to find next note for LinkNext note at {timeToString note.Time}."
+let private findNextNote (notes: ResizeArray<Note>) currentIndex (note: Note) =
+    let nextIndex =
+        if currentIndex = -1 then
+            notes.FindIndex(fun n -> n.Time > note.Time && n.String = note.String)
         else
-            let nextNote = notes.[nextNoteIndex]
+            notes.FindIndex(currentIndex + 1, fun n -> n.String = note.String)
 
-            // Check if the frets match
-            if note.Fret <> nextNote.Fret then
-                let slideTo =
-                    if note.SlideTo = -1y then
-                        note.SlideUnpitchTo
-                    else
-                        note.SlideTo
+    if nextIndex = -1 then None else Some notes.[nextIndex]
+
+let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
+    if isLinkedToChord level note then
+        Some $"Note incorrectly linked to a chord at {timeToString note.Time}."
+    else
+        match findNextNote level.Notes currentIndex note with
+        | None -> Some $"Unable to find next note for LinkNext note at {timeToString note.Time}."
+
+        // Check if the frets match
+        | Some nextNote when note.Fret <> nextNote.Fret ->
+            let slideTo =
+                if note.SlideTo = -1y then
+                    note.SlideUnpitchTo
+                else
+                    note.SlideTo
             
-                if slideTo <> -1y && slideTo <> nextNote.Fret then
-                    $"LinkNext fret mismatch for slide at {timeToString note.Time}."
-                elif slideTo = -1y then
-                    // Check if the next note comes after the sustain for this note ends
-                    if nextNote.Time - (note.Time + note.Sustain) > 1 then
-                        $"Incorrect LinkNext status on note at {timeToString note.Time}, {stringNames.[int note.String]} string."
-                    else
-                        $"LinkNext fret mismatch at {timeToString note.Time}."
+            if slideTo <> -1y && slideTo <> nextNote.Fret then
+                Some $"LinkNext fret mismatch for slide at {timeToString note.Time}."
+            elif slideTo = -1y then
+                // Check if the next note is at the end of the sustain for this note
+                if nextNote.Time - (note.Time + note.Sustain) > 1 then
+                    Some $"Incorrect LinkNext status on note at {timeToString note.Time}, {stringNames.[int note.String]} string."
                 else
-                    String.Empty
-
-            // Check if bendValues match
-            elif note.IsBend then
-                let thisNoteLastBendValue =
-                    let last = note.BendValues |> Seq.last
-                    last.Step
-
-                // If the next note has bend values and the first one is at the same timecode as the note, compare to that bend value
-                let nextNoteFirstBendValue =
-                    if nextNote.IsBend && nextNote.Time = nextNote.BendValues.[0].Time then
-                        nextNote.BendValues.[0].Step
-                    else 0f
-
-                if thisNoteLastBendValue <> nextNoteFirstBendValue then
-                    $"LinkNext bend mismatch at {timeToString note.Time}."
-                else
-                    String.Empty
+                    Some $"LinkNext fret mismatch at {timeToString note.Time}."
             else
-                String.Empty
+                None
+
+        // Check if bendValues match
+        | Some nextNote when note.IsBend ->
+            let thisNoteLastBendValue =
+                let last = Seq.last note.BendValues
+                last.Step
+
+            // If the next note has bend values and the first one is at the same timecode as the note, compare to that bend value
+            let nextNoteFirstBendValue =
+                if nextNote.IsBend && nextNote.Time = nextNote.BendValues.[0].Time then
+                    nextNote.BendValues.[0].Step
+                else 0f
+
+            if thisNoteLastBendValue <> nextNoteFirstBendValue then
+                Some $"LinkNext bend mismatch at {timeToString note.Time}."
+            else
+                None
+
+        | _ -> None
     
 /// Checks the notes in the arrangement for issues.
 let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
@@ -137,9 +136,7 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
             $"Tone change occurs on a note at {timeToString note.Time}."
 
         if note.IsLinkNext then
-            let r = checkLinkNext level i note
-            if r <> String.Empty then
-                r
+            yield! checkLinkNext level i note |> Option.toList
 
         if isInsideNoguitarSection ngSections note.Time then
             $"Note inside noguitar section at {timeToString note.Time}."
@@ -174,10 +171,8 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
                 $"Chord on 23rd/24th fret without ignore status at {timeToString chord.Time}."
 
             if chord.IsLinkNext then
-                yield! [
-                    for cn in chordNotes do
-                        let r = checkLinkNext level -1 cn
-                        if r <> String.Empty then r ]
+                yield! [ for cn in chordNotes do
+                            yield! checkLinkNext level -1 cn |> Option.toList ]
 
         // Check tone change placement
         if not <| isNull arrangement.Tones.Changes && arrangement.Tones.Changes.Exists(fun t -> t.Time = chord.Time) then
