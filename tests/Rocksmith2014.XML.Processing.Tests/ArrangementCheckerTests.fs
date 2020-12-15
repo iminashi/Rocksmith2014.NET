@@ -335,3 +335,21 @@ let anchorTests =
             Expect.hasLength results 1 "One message created"
             Expect.stringContains results.[0].Message "Distance to closest note: 2 ms" "Contains correct message"
     ]
+
+[<Tests>]
+let vocalsTests =
+    testList "Arrangement Checker (Vocals)" [
+        testCase "Detects character not in default font" <| fun _ ->
+            let vocals = ResizeArray(seq { Vocal(0, 50, "Test"); Vocal(100, 50, "Nope:あ")})
+
+            let result = ArrangementChecker.checkVocals vocals
+
+            Expect.isSome result "Checker returned a message"
+
+        testCase "Accepts character in default font" <| fun _ ->
+            let vocals = ResizeArray(seq { Vocal(0, 50, "Test"); Vocal(100, 50, "ÄöÖÅå"); Vocal(200, 50, "àè- +?&#\"") })
+
+            let result = ArrangementChecker.checkVocals vocals
+
+            Expect.isNone result "Checker returned None"
+    ]

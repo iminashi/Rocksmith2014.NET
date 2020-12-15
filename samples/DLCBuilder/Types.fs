@@ -41,6 +41,7 @@ module Types =
           OpenProjectFile : string option
           CurrentPlatform : Platform
           BuildInProgress : bool
+          CheckInProgress : bool
           ArrangementIssues : Map<Arrangement, ArrangementChecker.Issue list>
           Localization : ILocalization }
 
@@ -96,6 +97,7 @@ module Types =
     | BuildRelease
     | BuildComplete of unit
     | CheckArrangements
+    | CheckCompleted of Map<Arrangement, ArrangementChecker.Issue list>
     | ConvertToWem
     | ShowImportToneSelector of tones : Tone array
     | ChangeLocale of locale : Locale

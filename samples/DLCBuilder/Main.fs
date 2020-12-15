@@ -52,6 +52,7 @@ let init arg =
       ImportTones = []
       PreviewStartTime = TimeSpan()
       BuildInProgress = false
+      CheckInProgress = false
       CurrentPlatform = if RuntimeInformation.IsOSPlatform OSPlatform.OSX then Mac else PC
       OpenProjectFile = None
       ArrangementIssues = Map.empty
@@ -493,19 +494,29 @@ let update (msg: Msg) (state: State) =
     | BuildComplete _ -> { state with BuildInProgress = false }, Cmd.none
 
     | CheckArrangements ->
-        // TODO: Vocals and showlights validation and make async
-        let issues =
-            state.Project.Arrangements
-            |> List.map (function
-                | Instrumental inst as arr ->
-                    let issues =
-                        XML.InstrumentalArrangement.Load inst.XML
-                        |> ArrangementChecker.runAllChecks
-                    arr, issues
-                | arr -> arr, [])
-            |> Map.ofList
+        // TODO: Showlights validation
+        let task() = async {
+            return state.Project.Arrangements
+                   |> List.map (function
+                       | Instrumental inst as arr ->
+                           let issues =
+                               XML.InstrumentalArrangement.Load inst.XML
+                               |> ArrangementChecker.runAllChecks
+                           arr, issues
+                       | Vocals v as arr when Option.isNone v.CustomFont ->
+                           let issues =
+                               XML.Vocals.Load v.XML
+                               |> ArrangementChecker.checkVocals
+                               |> Option.toList
+                           arr, issues
+                       | arr -> arr, [])
+                   |> Map.ofList }
 
-        { state with ArrangementIssues = issues }, Cmd.none
+        { state with CheckInProgress = true }, Cmd.OfAsync.either task () CheckCompleted ErrorOccurred
+
+    | CheckCompleted issues ->
+        { state with ArrangementIssues = issues
+                     CheckInProgress = false }, Cmd.none
 
     | ShowIssueViewer ->
         match state.SelectedArrangement with
@@ -513,7 +524,8 @@ let update (msg: Msg) (state: State) =
         | None -> state, Cmd.none
    
     | ErrorOccurred e -> { state with Overlay = ErrorMessage e.Message
-                                      BuildInProgress = false }, Cmd.none
+                                      BuildInProgress = false
+                                      CheckInProgress = false }, Cmd.none
 
     | ChangeLocale newLocale ->
         { state with Config = { config with Locale = newLocale }
@@ -559,7 +571,7 @@ let view (window: HostWindow) (state: State) dispatch =
                                         Button.padding (10.0, 5.0)
                                         Button.content (state.Localization.GetString "validate")
                                         Button.onClick (fun _ -> dispatch CheckArrangements)
-                                        Button.isEnabled (state.Project.Arrangements.Length > 0)
+                                        Button.isEnabled (state.Project.Arrangements.Length > 0 && not state.CheckInProgress)
                                     ]
 
                                     // Add arrangement

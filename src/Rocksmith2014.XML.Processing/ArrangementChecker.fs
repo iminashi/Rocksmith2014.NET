@@ -4,6 +4,8 @@ open Rocksmith2014.XML
 open System
 open System.Text.RegularExpressions
 
+let [<Literal>] LyricsCharset = """ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_abcdefghijklmnopqrstuvwxyz{|}~¡¢¥¦§¨ª«°²³´•¸¹º»¼½¾¿ÀÁÂÄÅÆÇÈÉÊËÌÎÏÑÒÓÔÖØÙÚÛÜÞßàáâäåæçèéêëìíîïñòóôöøùúûüŒœŠšž„…€™␀★➨"""
+
 type Issue = { Message : string; TimeCode: int }
 
 let private issue msg time = { Message = msg; TimeCode = time }
@@ -270,3 +272,13 @@ let runAllChecks (arr: InstrumentalArrangement) =
       yield! results ]
     |> List.distinct
     |> List.sortBy (fun issue -> issue.TimeCode)
+
+/// Checks the vocals for characters not in the default font.
+let checkVocals (vocals: ResizeArray<Vocal>) =
+    vocals
+    |> Seq.tryPick (fun v ->
+        v.Lyric
+        |> Seq.tryFindIndex (LyricsCharset.Contains >> not)
+        |> Option.map (fun i -> v, v.Lyric.[i]))
+    |> Option.map (fun (invalidVocal, invalidChar) ->
+        issue $"Lyric \"{invalidVocal.Lyric}\" contains a character ({invalidChar}) not in the default font" invalidVocal.Time)
