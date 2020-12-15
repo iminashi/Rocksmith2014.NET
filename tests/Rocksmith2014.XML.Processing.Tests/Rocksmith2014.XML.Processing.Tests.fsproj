@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <Compile Include="ArrangementCheckerTests.fs" />
+    <Compile Include="ArrangementImproverTests.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 
