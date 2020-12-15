@@ -13,7 +13,6 @@ testArr.Tones.Changes <- toneChanges
 [<Tests>]
 let eventTests =
     testList "Arrangement Checker (Events)" [
-
         testCase "Detects missing applause end event" <| fun _ ->
             let xml = InstrumentalArrangement()
             xml.Events.Add(Event("E3", 1000))
@@ -23,7 +22,7 @@ let eventTests =
             Expect.hasLength results 1 "One message created"
             Expect.stringContains results.[0] "without an end event" "Contains correct message"
 
-        testCase "Can detect unexpected crowd speed event" <| fun _ ->
+        testCase "Detects unexpected crowd speed event" <| fun _ ->
             let xml = InstrumentalArrangement()
             xml.Events.Add(Event("E3", 1000))
             xml.Events.Add(Event("e2", 2000))
@@ -34,7 +33,7 @@ let eventTests =
             Expect.hasLength results 1 "One message created"
             Expect.stringContains results.[0] "Unexpected" "Contains correct message"
 
-        testCase "Can detect unexpected intro applause event" <| fun _ ->
+        testCase "Detects unexpected intro applause event" <| fun _ ->
             let xml = InstrumentalArrangement()
             xml.Events.Add(Event("E3", 1000))
             xml.Events.Add(Event("E3", 2000))
@@ -45,7 +44,7 @@ let eventTests =
             Expect.hasLength results 1 "One message created"
             Expect.stringContains results.[0] "Unexpected" "Contains correct message"
 
-        testCase "Can detect unexpected outro applause event" <| fun _ ->
+        testCase "Detects unexpected outro applause event" <| fun _ ->
             let xml = InstrumentalArrangement()
             xml.Events.Add(Event("E3", 1000))
             xml.Events.Add(Event("D3", 2000))
@@ -56,7 +55,7 @@ let eventTests =
             Expect.hasLength results 1 "One message created"
             Expect.stringContains results.[0] "Unexpected" "Contains correct message"
 
-        testCase "Can detect multiple unexpected events" <| fun _ ->
+        testCase "Detects multiple unexpected events" <| fun _ ->
             let xml = InstrumentalArrangement()
             xml.Events.Add(Event("E3", 1000))
             xml.Events.Add(Event("D3", 2000))
@@ -73,7 +72,8 @@ let eventTests =
 let noteTests =
     testList "Arrangement Checker (Notes)" [
         testCase "Detects unpitched slide note with linknext" <| fun _ ->
-            let notes = ResizeArray(seq { Note(IsLinkNext = true, SlideUnpitchTo = 12y) })
+            let notes = ResizeArray(seq { Note(IsLinkNext = true, SlideUnpitchTo = 12y)
+                                          Note(Fret = 12y, Time = 100)})
             let level = Level(Notes = notes)
 
             let results = ArrangementChecker.checkNotes testArr level
@@ -104,6 +104,14 @@ let noteTests =
 
             Expect.hasLength results 1 "One message created"
 
+        testCase "Ignores harmonic note on 7th fret with sustain when ignore set" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Fret = 7y, IsHarmonic = true, Sustain = 200, IsIgnore = true) })
+            let level = Level(Notes = notes)
+
+            let results = ArrangementChecker.checkNotes testArr level
+
+            Expect.hasLength results 0 "No messages created"
+
         testCase "Detects note with missing bend values" <| fun _ ->
             let bendValues = ResizeArray(seq { BendValue() })
             let notes = ResizeArray(seq { Note(Fret = 7y, BendValues = bendValues) })
@@ -128,6 +136,59 @@ let noteTests =
             let results = ArrangementChecker.checkNotes testArr level
 
             Expect.hasLength results 1 "One message created"
+
+        testCase "Detects linknext fret mismatch" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100)
+                                          Note(Fret = 5y, Time = 1100) })
+            let level = Level(Notes = notes)
+
+            let results = ArrangementChecker.checkNotes testArr level
+
+            Expect.hasLength results 1 "One message created"
+            Expect.stringContains results.[0] "fret mismatch" "Contains correct message"
+
+        testCase "Detects note linked to a chord" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100) })
+            let cn = ResizeArray(seq { Note(Fret = 1y, Time = 1100) })
+            let chords = ResizeArray(seq { Chord(Time = 1100, ChordNotes = cn) })
+            let level = Level(Notes = notes, Chords = chords)
+
+            let results = ArrangementChecker.checkNotes testArr level
+
+            Expect.hasLength results 1 "One message created"
+            Expect.stringContains results.[0] "linked to a chord" "Contains correct message"
+
+        testCase "Detects linknext slide fret mismatch" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100, SlideTo = 4y)
+                                          Note(Fret = 5y, Time = 1100) })
+            let level = Level(Notes = notes)
+
+            let results = ArrangementChecker.checkNotes testArr level
+
+            Expect.hasLength results 1 "One message created"
+            Expect.stringContains results.[0] "fret mismatch for slide" "Contains correct message"
+
+        testCase "Detects linknext bend value mismatch" <| fun _ ->
+            let bv1 = ResizeArray(seq { BendValue(1050, 1f) })
+            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100, BendValues = bv1)
+                                          Note(Fret = 1y, Time = 1100) })
+            let level = Level(Notes = notes)
+
+            let results = ArrangementChecker.checkNotes testArr level
+
+            Expect.hasLength results 1 "One message created"
+            Expect.stringContains results.[0] "bend mismatch" "Contains correct message"
+
+        testCase "Does not produce false positive when no bend value at note time" <| fun _ ->
+            let bv1 = ResizeArray(seq { BendValue(1000, 1f); BendValue(1050, 0f) })
+            let bv2 = ResizeArray(seq { BendValue(1150, 1f) })
+            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100, BendValues = bv1)
+                                          Note(Fret = 1y, Time = 1100, Sustain = 100, BendValues = bv2) })
+            let level = Level(Notes = notes)
+
+            let results = ArrangementChecker.checkNotes testArr level
+
+            Expect.hasLength results 0 "No messages created"
     ]
 
 [<Tests>]
@@ -199,6 +260,27 @@ let chordTests =
         testCase "Detects chord inside noguitar section" <| fun _ ->
             let chords = ResizeArray(seq { Chord(Time = 6100) })
             let level = Level(Chords = chords)
+
+            let results = ArrangementChecker.checkChords testArr level
+
+            Expect.hasLength results 1 "One message created"
+
+        testCase "Detects chord note linknext slide fret mismatch" <| fun _ ->
+            let cn = ResizeArray(seq { Note(Time = 1000, Sustain = 100, IsLinkNext = true, Fret = 1y, SlideTo = 3y) })
+            let chords = ResizeArray(seq { Chord(Time = 1000, ChordNotes = cn, IsLinkNext = true) })
+            let notes = ResizeArray(seq { Note(Time = 1100, Fret = 12y) })
+            let level = Level(Chords = chords, Notes = notes)
+
+            let results = ArrangementChecker.checkChords testArr level
+
+            Expect.hasLength results 1 "One message created"
+
+        testCase "Detects chord note linknext bend value mismatch" <| fun _ ->
+            let bv = ResizeArray(seq { BendValue(1050, 1f) })
+            let cn = ResizeArray(seq { Note(Time = 1000, Sustain = 100, IsLinkNext = true, Fret = 1y, BendValues = bv) })
+            let chords = ResizeArray(seq { Chord(Time = 1000, ChordNotes = cn, IsLinkNext = true) })
+            let notes = ResizeArray(seq { Note(Time = 1100, Fret = 1y) })
+            let level = Level(Chords = chords, Notes = notes)
 
             let results = ArrangementChecker.checkChords testArr level
 

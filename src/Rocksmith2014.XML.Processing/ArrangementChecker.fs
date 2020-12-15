@@ -1,7 +1,16 @@
 ﻿module Rocksmith2014.XML.Processing.ArrangementChecker
 
 open Rocksmith2014.XML
+open System
 open System.Text.RegularExpressions
+
+let private stringNames =
+    [| "Low E"
+       "A"
+       "D"
+       "G"
+       "B"
+       "High E" |]
 
 let private timeToString time =
     let minutes = time / 1000 / 60
@@ -39,12 +48,75 @@ let private getNoguitarSections (arrangement: InstrumentalArrangement) =
 let private isInsideNoguitarSection noGuitarSections (time: int) =
     noGuitarSections
     |> List.exists (fun (_, startTime, endTime) -> time >= startTime && time < endTime)
+
+let private isLinkedToChord (level: Level) (note: Note) =
+    level.Chords.Exists(fun c -> 
+        c.Time = note.Time + note.Sustain
+        && not <| isNull c.ChordNotes
+        && c.ChordNotes.Exists(fun cn -> cn.String = note.String))
+
+let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
+    let notes = level.Notes
+
+    if isLinkedToChord level note then
+        $"Note incorrectly linked to a chord at {timeToString note.Time}."
+    else
+        let nextNoteIndex =
+            if currentIndex = -1 then
+                notes.FindIndex(fun n -> n.Time > note.Time && n.String = note.String)
+            else
+                notes.FindIndex(currentIndex + 1, fun n -> n.String = note.String)
+
+        if nextNoteIndex = -1 then
+            $"Unable to find next note for LinkNext note at {timeToString note.Time}."
+        else
+            let nextNote = notes.[nextNoteIndex]
+
+            // Check if the frets match
+            if note.Fret <> nextNote.Fret then
+                let slideTo =
+                    if note.SlideTo = -1y then
+                        note.SlideUnpitchTo
+                    else
+                        note.SlideTo
+            
+                if slideTo <> -1y && slideTo <> nextNote.Fret then
+                    $"LinkNext fret mismatch for slide at {timeToString note.Time}."
+                elif slideTo = -1y then
+                    // Check if the next note comes after the sustain for this note ends
+                    if nextNote.Time - (note.Time + note.Sustain) > 1 then
+                        $"Incorrect LinkNext status on note at {timeToString note.Time}, {stringNames.[int note.String]} string."
+                    else
+                        $"LinkNext fret mismatch at {timeToString note.Time}."
+                else
+                    String.Empty
+
+            // Check if bendValues match
+            elif note.IsBend then
+                let thisNoteLastBendValue =
+                    let last = note.BendValues |> Seq.last
+                    last.Step
+
+                // If the next note has bend values and the first one is at the same timecode as the note, compare to that bend value
+                let nextNoteFirstBendValue =
+                    if nextNote.IsBend && nextNote.Time = nextNote.BendValues.[0].Time then
+                        nextNote.BendValues.[0].Step
+                    else 0f
+
+                if thisNoteLastBendValue <> nextNoteFirstBendValue then
+                    $"LinkNext bend mismatch at {timeToString note.Time}."
+                else
+                    String.Empty
+            else
+                String.Empty
     
 /// Checks the notes in the arrangement for issues.
 let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
     let ngSections = getNoguitarSections arrangement
 
-    [ for note in level.Notes do
+    [ for i = 0 to level.Notes.Count - 1 do
+        let note = level.Notes.[i]
+
         if note.IsLinkNext && note.IsUnpitchedSlide then
             $"Unpitched slide note with LinkNext at {timeToString note.Time}."
         
@@ -55,7 +127,7 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
             let o = if note.Fret = 23y then "rd" else "th"
             $"Note on {note.Fret}{o} fret without ignore status at {timeToString note.Time}."
         
-        if note.Fret = 7y && note.IsHarmonic && note.Sustain > 0 then 
+        if not note.IsIgnore && note.Fret = 7y && note.IsHarmonic && note.Sustain > 0 then 
             $"7th fret harmonic note with sustain at {timeToString note.Time}."
             
         if note.IsBend && note.BendValues.FindIndex(fun bv -> bv.Step <> 0.0f) = -1 then
@@ -64,7 +136,10 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
         if not <| isNull arrangement.Tones.Changes && arrangement.Tones.Changes.Exists(fun t -> t.Time = note.Time) then
             $"Tone change occurs on a note at {timeToString note.Time}."
 
-        // TODO: Check linknext
+        if note.IsLinkNext then
+            let r = checkLinkNext level i note
+            if r <> String.Empty then
+                r
 
         if isInsideNoguitarSection ngSections note.Time then
             $"Note inside noguitar section at {timeToString note.Time}."
@@ -98,7 +173,11 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
             if chordNotes.TrueForAll(fun cn -> cn.Fret >= 23y) && not chord.IsIgnore then
                 $"Chord on 23rd/24th fret without ignore status at {timeToString chord.Time}."
 
-            // TODO: Check linknext
+            if chord.IsLinkNext then
+                yield! [
+                    for cn in chordNotes do
+                        let r = checkLinkNext level -1 cn
+                        if r <> String.Empty then r ]
 
         // Check tone change placement
         if not <| isNull arrangement.Tones.Changes && arrangement.Tones.Changes.Exists(fun t -> t.Time = chord.Time) then
