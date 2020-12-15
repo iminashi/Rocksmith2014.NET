@@ -307,11 +307,9 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
         | CheckXml file ->
             let arr = InstrumentalArrangement.Load file
 
-            let messages = [
-                yield! ArrangementChecker.checkCrowdEventPlacement arr
-                yield! ArrangementChecker.checkNotes arr arr.Levels.[0]
-                yield! ArrangementChecker.checkChords arr arr.Levels.[0]
-                yield! ArrangementChecker.checkHandshapes arr arr.Levels.[0] ]
+            let messages =
+                ArrangementChecker.runAllChecks arr
+                |> List.map (fun issue -> $"[{ArrangementChecker.timeToString issue.TimeCode}] {issue.Message}")
 
             { state with Status = String.Join("\n", messages) }, Cmd.none
 
@@ -460,12 +458,16 @@ let view (state: State) dispatch =
                 ]
             ]
 
-            TextBlock.create [
-                TextBlock.fontSize 22.0
-                TextBlock.textWrapping TextWrapping.Wrap
-                TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (string state.Status)
+            ScrollViewer.create [
+                ScrollViewer.content (
+                    TextBlock.create [
+                        TextBlock.fontSize 22.0
+                        TextBlock.textWrapping TextWrapping.Wrap
+                        TextBlock.verticalAlignment VerticalAlignment.Center
+                        TextBlock.horizontalAlignment HorizontalAlignment.Center
+                        TextBlock.text (string state.Status)
+                    ]
+                )
             ]
         ]
     ]

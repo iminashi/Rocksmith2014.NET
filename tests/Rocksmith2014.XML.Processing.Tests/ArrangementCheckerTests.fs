@@ -20,7 +20,7 @@ let eventTests =
             let results = ArrangementChecker.checkCrowdEventPlacement xml
 
             Expect.hasLength results 1 "One message created"
-            Expect.stringContains results.[0] "without an end event" "Contains correct message"
+            Expect.stringContains results.[0].Message "without an end event" "Contains correct message"
 
         testCase "Detects unexpected crowd speed event" <| fun _ ->
             let xml = InstrumentalArrangement()
@@ -31,7 +31,7 @@ let eventTests =
             let results = ArrangementChecker.checkCrowdEventPlacement xml
 
             Expect.hasLength results 1 "One message created"
-            Expect.stringContains results.[0] "Unexpected" "Contains correct message"
+            Expect.stringContains results.[0].Message "Unexpected" "Contains correct message"
 
         testCase "Detects unexpected intro applause event" <| fun _ ->
             let xml = InstrumentalArrangement()
@@ -42,7 +42,7 @@ let eventTests =
             let results = ArrangementChecker.checkCrowdEventPlacement xml
 
             Expect.hasLength results 1 "One message created"
-            Expect.stringContains results.[0] "Unexpected" "Contains correct message"
+            Expect.stringContains results.[0].Message "Unexpected" "Contains correct message"
 
         testCase "Detects unexpected outro applause event" <| fun _ ->
             let xml = InstrumentalArrangement()
@@ -53,7 +53,7 @@ let eventTests =
             let results = ArrangementChecker.checkCrowdEventPlacement xml
 
             Expect.hasLength results 1 "One message created"
-            Expect.stringContains results.[0] "Unexpected" "Contains correct message"
+            Expect.stringContains results.[0].Message "Unexpected" "Contains correct message"
 
         testCase "Detects multiple unexpected events" <| fun _ ->
             let xml = InstrumentalArrangement()
@@ -89,7 +89,10 @@ let noteTests =
             Expect.hasLength results 1 "One message created"
 
         testCase "Detects notes beyond 23rd fret without ignore status" <| fun _ ->
-            let notes = ResizeArray(seq { Note(Fret = 23y); Note(Fret = 24y); Note(Fret = 23y, IsIgnore = true) })
+            let notes = ResizeArray(seq { Note(Fret = 23y)
+                                          Note(Fret = 24y)
+                                          Note(Fret = 23y, IsIgnore = true)
+                                          Note(Fret = 24y, IsIgnore = true) })
             let level = Level(Notes = notes)
 
             let results = ArrangementChecker.checkNotes testArr level
@@ -145,7 +148,7 @@ let noteTests =
             let results = ArrangementChecker.checkNotes testArr level
 
             Expect.hasLength results 1 "One message created"
-            Expect.stringContains results.[0] "fret mismatch" "Contains correct message"
+            Expect.stringContains results.[0].Message "fret mismatch" "Contains correct message"
 
         testCase "Detects note linked to a chord" <| fun _ ->
             let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100) })
@@ -156,7 +159,7 @@ let noteTests =
             let results = ArrangementChecker.checkNotes testArr level
 
             Expect.hasLength results 1 "One message created"
-            Expect.stringContains results.[0] "linked to a chord" "Contains correct message"
+            Expect.stringContains results.[0].Message "linked to a chord" "Contains correct message"
 
         testCase "Detects linknext slide fret mismatch" <| fun _ ->
             let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100, SlideTo = 4y)
@@ -166,7 +169,7 @@ let noteTests =
             let results = ArrangementChecker.checkNotes testArr level
 
             Expect.hasLength results 1 "One message created"
-            Expect.stringContains results.[0] "fret mismatch for slide" "Contains correct message"
+            Expect.stringContains results.[0].Message "fret mismatch for slide" "Contains correct message"
 
         testCase "Detects linknext bend value mismatch" <| fun _ ->
             let bv1 = ResizeArray(seq { BendValue(1050, 1f) })
@@ -177,7 +180,7 @@ let noteTests =
             let results = ArrangementChecker.checkNotes testArr level
 
             Expect.hasLength results 1 "One message created"
-            Expect.stringContains results.[0] "bend mismatch" "Contains correct message"
+            Expect.stringContains results.[0].Message "bend mismatch" "Contains correct message"
 
         testCase "Does not produce false positive when no bend value at note time" <| fun _ ->
             let bv1 = ResizeArray(seq { BendValue(1000, 1f); BendValue(1050, 0f) })
@@ -298,4 +301,37 @@ let handshapeTests =
             let results = ArrangementChecker.checkHandshapes testArr level
 
             Expect.hasLength results 1 "One message created"
+    ]
+
+[<Tests>]
+let anchorTests =
+    testList "Arrangement Checker (Anchors)" [
+        testCase "Ignores anchor exactly on note" <| fun _ ->
+            let anchors = ResizeArray(seq { Anchor(1y, 100) })
+            let notes = ResizeArray(seq { Note(Time = 100, Fret = 1y) })
+            let level = Level(Notes = notes, Anchors = anchors)
+
+            let results = ArrangementChecker.checkAnchors level
+
+            Expect.hasLength results 0 "No messages created"
+
+        testCase "Detects anchor before note" <| fun _ ->
+            let anchors = ResizeArray(seq { Anchor(1y, 99) })
+            let notes = ResizeArray(seq { Note(Time = 100, Fret = 1y) })
+            let level = Level(Notes = notes, Anchors = anchors)
+
+            let results = ArrangementChecker.checkAnchors level
+
+            Expect.hasLength results 1 "One message created"
+            Expect.stringContains results.[0].Message "Distance to closest note: -1 ms" "Contains correct message"
+
+        testCase "Detects anchor after chord" <| fun _ ->
+            let anchors = ResizeArray(seq { Anchor(1y, 102) })
+            let chords = ResizeArray(seq { Chord(Time = 100) })
+            let level = Level(Chords = chords, Anchors = anchors)
+
+            let results = ArrangementChecker.checkAnchors level
+
+            Expect.hasLength results 1 "One message created"
+            Expect.stringContains results.[0].Message "Distance to closest note: 2 ms" "Contains correct message"
     ]
