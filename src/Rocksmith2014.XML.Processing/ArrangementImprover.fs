@@ -2,3 +2,6 @@
 
 /// Adds crowd events to the arrangement if it does not have them.
 let addCrowdEvents = CrowdEventAdder.improve
+
+/// Processes the chord names in the arrangement.
+let processChordNames = ChordNameProcessor.improve
