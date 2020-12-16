@@ -17,3 +17,6 @@ let movePhrases = PhraseMover.improve
 
 /// Processes custom events.
 let processCustomEvents = CustomEvents.improve
+
+/// Shortens the lengths of a handshapes that are too close to the next one.
+let adjustHandShapes = HandShapeAdjuster.improve

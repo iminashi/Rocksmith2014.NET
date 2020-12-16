@@ -312,3 +312,5 @@ let customEventTests =
             Expect.hasLength arr.Levels.[0].HandShapes 2 "A hand shape was created"
             Expect.equal arr.Levels.[0].HandShapes.[1].EndTime 1500 "Second hand shape ends at end of sustain"
     ]
+
+// TODO: Test HandShapeAdjuster

@@ -13,6 +13,7 @@
     <Compile Include="Improvers\EOFFixes.fs" />
     <Compile Include="Improvers\PhraseMover.fs" />
     <Compile Include="Improvers\CustomEvents.fs" />
+    <Compile Include="Improvers\HandShapeAdjuster.fs" />
     <Compile Include="ArrangementImprover.fs" />
     <Compile Include="ArrangementChecker.fs" />
   </ItemGroup>
