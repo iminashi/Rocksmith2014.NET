@@ -7,6 +7,7 @@ open Avalonia.Controls.Shapes
 open Avalonia.Layout
 open Avalonia.Media
 open System
+open Rocksmith2014.XML.Processing.Utils
 open Rocksmith2014.XML.Processing.ArrangementChecker
 
 let view state dispatch (issues: Issue list) =

@@ -309,7 +309,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
 
             let messages =
                 ArrangementChecker.runAllChecks arr
-                |> List.map (fun issue -> $"[{ArrangementChecker.timeToString issue.TimeCode}] {issue.Message}")
+                |> List.map (fun issue -> $"[{Utils.timeToString issue.TimeCode}] {issue.Message}")
 
             { state with Status = String.Join("\n", messages) }, Cmd.none
 

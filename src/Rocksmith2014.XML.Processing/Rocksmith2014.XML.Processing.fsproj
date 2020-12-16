@@ -6,10 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Utils.fs" />
     <Compile Include="Improvers\CrowdEventAdder.fs" />
     <Compile Include="Improvers\ChordNameProcessor.fs" />
     <Compile Include="Improvers\ExtraBeatRemover.fs" />
     <Compile Include="Improvers\EOFFixes.fs" />
+    <Compile Include="Improvers\PhraseMover.fs" />
     <Compile Include="ArrangementImprover.fs" />
     <Compile Include="ArrangementChecker.fs" />
   </ItemGroup>

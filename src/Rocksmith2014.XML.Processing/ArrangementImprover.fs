@@ -11,3 +11,6 @@ let removeExtraBeats = ExtraBeatRemover.improve
 
 /// Applies various minor fixes.
 let eofFixes = EOFFixes.fixAll
+
+/// Moves phrases that have a special name "mover" (move right).
+let movePhrases = PhraseMover.improve

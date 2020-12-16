@@ -158,3 +158,84 @@ let eofFixTests =
 
             Expect.equal hs.EndTime 1000 "Hand shape end time is correct"
     ]
+
+[<Tests>]
+let phraseMoverTests =
+    testList "Arrangement Improver (Phrase Mover)" [
+        testCase "Can move phrase to next note" <| fun _ ->
+            let phrases = ResizeArray(seq { Phrase("mover1", 0uy, PhraseMask.None) })
+            let iter = PhraseIteration(1000, 0)
+            let iterations = ResizeArray(seq { iter })
+            let notes = ResizeArray(seq { Note(Time = 1200) })
+            let levels = ResizeArray(seq { Level(Notes = notes) })
+            let arr = InstrumentalArrangement(Phrases = phrases, PhraseIterations = iterations, Levels = levels)
+
+            PhraseMover.improve arr
+
+            Expect.equal iter.Time 1200 "Phrase iteration was moved to correct time"
+
+        testCase "Can move phrase to chord" <| fun _ ->
+            let phrases = ResizeArray(seq { Phrase("mover2", 0uy, PhraseMask.None) })
+            let iter = PhraseIteration(1000, 0)
+            let iterations = ResizeArray(seq { iter })
+            let notes = ResizeArray(seq { Note(Time = 1200) })
+            let chords = ResizeArray(seq { Chord(Time = 1600) })
+            let levels = ResizeArray(seq { Level(Notes = notes, Chords = chords) })
+            let arr = InstrumentalArrangement(Phrases = phrases, PhraseIterations = iterations, Levels = levels)
+
+            PhraseMover.improve arr
+
+            Expect.equal iter.Time 1600 "Phrase iteration was moved to correct time"
+
+        testCase "Can move phrase beyond multiple notes at the same time code" <| fun _ ->
+            let phrases = ResizeArray(seq { Phrase("mover2", 0uy, PhraseMask.None) })
+            let iter = PhraseIteration(1000, 0)
+            let iterations = ResizeArray(seq { iter })
+            let notes = ResizeArray(seq { Note(Time = 1200); Note(String = 1y, Time = 1200); Note(String = 2y, Time = 1200); Note(Time = 2500) })
+            let levels = ResizeArray(seq { Level(Notes = notes) })
+            let arr = InstrumentalArrangement(Phrases = phrases, PhraseIterations = iterations, Levels = levels)
+
+            PhraseMover.improve arr
+
+            Expect.equal iter.Time 2500 "Phrase iteration was moved to correct time"
+
+        testCase "Can move a phrase on the same time code as a note" <| fun _ ->
+            let phrases = ResizeArray(seq { Phrase("mover2", 0uy, PhraseMask.None) })
+            let iter = PhraseIteration(1000, 0)
+            let iterations = ResizeArray(seq { iter })
+            let notes = ResizeArray(seq { Note(Time = 1000); Note(Time = 7500) })
+            let levels = ResizeArray(seq { Level(Notes = notes) })
+            let arr = InstrumentalArrangement(Phrases = phrases, PhraseIterations = iterations, Levels = levels)
+
+            PhraseMover.improve arr
+
+            Expect.equal iter.Time 7500 "Phrase iteration was moved to correct time"
+
+        testCase "Section is also moved" <| fun _ ->
+            let phrases = ResizeArray(seq { Phrase("mover1", 0uy, PhraseMask.None) })
+            let iter = PhraseIteration(1000, 0)
+            let iterations = ResizeArray(seq { iter })
+            let section = Section("", 1000, 1s)
+            let sections = ResizeArray(seq { section })
+            let notes = ResizeArray(seq { Note(Time = 7500) })
+            let levels = ResizeArray(seq { Level(Notes = notes) })
+            let arr = InstrumentalArrangement(Phrases = phrases, PhraseIterations = iterations, Sections = sections, Levels = levels)
+
+            PhraseMover.improve arr
+
+            Expect.equal section.Time 7500 "Section was moved to correct time"
+
+        testCase "Anchor is also moved" <| fun _ ->
+            let phrases = ResizeArray(seq { Phrase("mover1", 0uy, PhraseMask.None) })
+            let iter = PhraseIteration(1000, 0)
+            let iterations = ResizeArray(seq { iter })
+            let notes = ResizeArray(seq { Note(Time = 7500) })
+            let anchors = ResizeArray(seq { Anchor(Time = 1000) })
+            let levels = ResizeArray(seq { Level(Notes = notes, Anchors = anchors) })
+            let arr = InstrumentalArrangement(Phrases = phrases, PhraseIterations = iterations, Levels = levels)
+
+            PhraseMover.improve arr
+
+            Expect.hasLength anchors 1 "One anchor exists"
+            Expect.exists anchors (fun a -> a.Time = 7500) "Anchor was moved to correct time"
+    ]

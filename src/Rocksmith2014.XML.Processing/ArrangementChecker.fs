@@ -18,12 +18,6 @@ let private stringNames =
        "B"
        "High E" |]
 
-let timeToString time =
-    let minutes = time / 1000 / 60
-    let seconds = (time / 1000) - (minutes * 60)
-    let milliSeconds = time - (minutes * 60 * 1000) - (seconds * 1000)
-    $"{minutes:D2}:{seconds:D2}.{milliSeconds:D3}"
-
 /// Checks for unexpected crowd events between the intro applause events.
 let checkCrowdEventPlacement (arrangement: InstrumentalArrangement) =
     let introApplauseStart = arrangement.Events.Find(fun e -> e.Code = "E3")
