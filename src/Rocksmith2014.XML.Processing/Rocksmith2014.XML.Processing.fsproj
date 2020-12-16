@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Improvers\CrowdEventAdder.fs" />
     <Compile Include="ArrangementImprover.fs" />
     <Compile Include="ArrangementChecker.fs" />
   </ItemGroup>
