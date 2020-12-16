@@ -5,28 +5,6 @@ open Rocksmith2014.XML.Extensions
 open System
 open System.Globalization
 
-let private findTimeOfNthNoteFrom (level: Level) (startTime: int) (nthNote: int) =
-    let noteTimes =
-        level.Notes
-        |> Seq.filter (fun n -> n.Time >= startTime)
-        |> Seq.map (fun n -> n.Time)
-        // Notes on the same timecode (i.e. split chords) count as one
-        |> Seq.distinct
-        |> Seq.truncate nthNote
-
-    let chordTimes =
-        level.Chords
-        |> Seq.filter (fun c -> c.Time >= startTime)
-        |> Seq.map (fun c -> c.Time)
-        |> Seq.distinct
-        |> Seq.truncate nthNote
-
-    noteTimes
-    |> Seq.append chordTimes
-    |> Seq.sort
-    |> Seq.skip (nthNote - 1)
-    |> Seq.head
-
 /// Moves phrases that have a special name "mover" (move right).
 let improve (arrangement: InstrumentalArrangement) =
     arrangement.Phrases
@@ -42,7 +20,7 @@ let improve (arrangement: InstrumentalArrangement) =
                 match Int32.TryParse(phraseToMove.Name.Substring("mover".Length), NumberStyles.Integer, NumberFormatInfo.InvariantInfo) with
                 | true, moveBy ->
                     let level = arrangement.Levels.[int phraseToMove.MaxDifficulty]
-                    findTimeOfNthNoteFrom level phraseTime moveBy
+                    Utils.findTimeOfNthNoteFrom level phraseTime moveBy
                 | _ ->
                     failwith $"Unable to parse to read value for 'moveR' phrase at {Utils.timeToString phraseTime}"
 

@@ -14,3 +14,6 @@ let eofFixes = EOFFixes.fixAll
 
 /// Moves phrases that have a special name "mover" (move right).
 let movePhrases = PhraseMover.improve
+
+/// Processes custom events.
+let processCustomEvents = CustomEvents.improve

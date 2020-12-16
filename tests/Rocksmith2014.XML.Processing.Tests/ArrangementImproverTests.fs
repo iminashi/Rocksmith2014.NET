@@ -239,3 +239,76 @@ let phraseMoverTests =
             Expect.hasLength anchors 1 "One anchor exists"
             Expect.exists anchors (fun a -> a.Time = 7500) "Anchor was moved to correct time"
     ]
+
+[<Tests>]
+let customEventTests =
+    testList "Arrangement Improver (Custom Events)" [
+        testCase "Anchor width 3 event" <| fun _ ->
+            let anchor = Anchor(1y, 100)
+            let anchors = ResizeArray(seq { anchor })
+            let levels = ResizeArray(seq { Level(Anchors = anchors) })
+            let events = ResizeArray(seq { Event("w3", 100) })
+            let arr = InstrumentalArrangement(Events = events, Levels = levels)
+
+            CustomEvents.improve arr
+
+            Expect.equal anchor.Width 3y "Anchor has correct width"
+
+        testCase "Remove beats event" <| fun _ ->
+            let beats = ResizeArray(seq { Ebeat(100, -1s); Ebeat(200, -1s); Ebeat(300, -1s); Ebeat(400, -1s); Ebeat(500, -1s); })
+            let events = ResizeArray(seq { Event("removebeats", 400) })
+            let arr = InstrumentalArrangement(Events = events, Ebeats = beats)
+
+            CustomEvents.improve arr
+
+            Expect.hasLength arr.Ebeats 3 "Two beats were removed"
+
+        testCase "Slide-out event works for normal chord" <| fun _ ->
+            let phrases = ResizeArray(seq { Phrase("", 0uy, PhraseMask.None) })
+            let iterations = ResizeArray(seq { PhraseIteration(0, 0) })
+            let templates = ResizeArray(seq { ChordTemplate("", "", [| 1y; 3y; -1y; -1y; -1y; -1y; |], [| 1y; 3y; -1y; -1y; -1y; -1y; |]) })
+            let cn = ResizeArray(seq { Note(String = 0y, Fret = 1y, Sustain = 1000, SlideUnpitchTo = 7y)
+                                       Note(String = 1y, Fret = 3y, Sustain = 1000, SlideUnpitchTo = 9y) })
+            let chords = ResizeArray(seq { Chord(ChordNotes = cn) })
+            let hs = HandShape(0s, 0, 1000)
+            let handShapes = ResizeArray(seq { hs })
+            let levels = ResizeArray(seq { Level(Chords = chords, HandShapes = handShapes) })
+            let events = ResizeArray(seq { Event("so", 0) })
+            let arr = InstrumentalArrangement(Phrases = phrases, PhraseIterations = iterations, ChordTemplates = templates, Events = events, Levels = levels)
+
+            CustomEvents.improve arr
+
+            Expect.hasLength arr.ChordTemplates 2 "A chord template was created"
+            Expect.equal arr.ChordTemplates.[1].Frets.[0] 7y "Fret is correct"
+            Expect.equal arr.ChordTemplates.[1].Frets.[1] 9y "Fret is correct"
+            Expect.equal arr.ChordTemplates.[1].Fingers.[0] 1y "Fingering is correct"
+            Expect.equal arr.ChordTemplates.[1].Fingers.[1] 3y "Fingering is correct"
+            Expect.hasLength arr.Levels.[0].HandShapes 2 "A hand shape was created"
+            Expect.equal arr.Levels.[0].HandShapes.[1].EndTime 1000 "Second hand shape ends at end of sustain"
+            Expect.isTrue (hs.EndTime < 1000) "First hand shape was shortened"
+
+        testCase "Slide-out event works for link-next chord" <| fun _ ->
+            let phrases = ResizeArray(seq { Phrase("", 0uy, PhraseMask.None) })
+            let iterations = ResizeArray(seq { PhraseIteration(0, 0) })
+            let templates = ResizeArray(seq { ChordTemplate("", "", [| -1y; -1y; 2y; 2y; -1y; -1y; |], [| -1y; -1y; 5y; 5y; -1y; -1y; |]) })
+            let cn = ResizeArray(seq { Note(String = 2y, Fret = 5y, Sustain = 1000, IsLinkNext = true)
+                                       Note(String = 3y, Fret = 5y, Sustain = 1000, IsLinkNext = true) })
+            let chords = ResizeArray(seq { Chord(ChordNotes = cn, IsLinkNext = true) })
+            let notes = ResizeArray(seq { Note(Time = 1000, String = 2y, Fret = 5y, Sustain = 500, SlideUnpitchTo = 12y)
+                                          Note(Time = 1000, String = 3y, Fret = 5y, Sustain = 500, SlideUnpitchTo = 12y) })
+            let hs = HandShape(0s, 0, 1000)
+            let handShapes = ResizeArray(seq { hs })
+            let levels = ResizeArray(seq { Level(Notes = notes, Chords = chords, HandShapes = handShapes) })
+            let events = ResizeArray(seq { Event("so", 1000) })
+            let arr = InstrumentalArrangement(Phrases = phrases, PhraseIterations = iterations, ChordTemplates = templates, Events = events, Levels = levels)
+
+            CustomEvents.improve arr
+
+            Expect.hasLength arr.ChordTemplates 2 "A chord template was created"
+            Expect.equal arr.ChordTemplates.[1].Frets.[2] 12y "Fret is correct"
+            Expect.equal arr.ChordTemplates.[1].Frets.[3] 12y "Fret is correct"
+            Expect.equal arr.ChordTemplates.[1].Fingers.[2] 2y "Fingering is correct"
+            Expect.equal arr.ChordTemplates.[1].Fingers.[3] 2y "Fingering is correct"
+            Expect.hasLength arr.Levels.[0].HandShapes 2 "A hand shape was created"
+            Expect.equal arr.Levels.[0].HandShapes.[1].EndTime 1500 "Second hand shape ends at end of sustain"
+    ]
