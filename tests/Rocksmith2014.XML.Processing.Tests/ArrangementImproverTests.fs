@@ -119,3 +119,42 @@ let beatRemoverTests =
             Expect.hasLength arr.Ebeats 2 "Two beats were removed"
             Expect.equal arr.Ebeats.[1].Time 6100 "Last beat was moved to the correct time"
     ]
+
+[<Tests>]
+let eofFixTests =
+    testList "Arrangement Improver (EOF Fixes)" [
+        testCase "Fixes LinkNext chords" <| fun _ ->
+            let cn = ResizeArray(seq { Note(IsLinkNext = true) })
+            let chord = Chord(ChordNotes = cn)
+            let chords = ResizeArray(seq { chord })
+            let levels = ResizeArray(seq { Level(Chords = chords) })
+            let arr = InstrumentalArrangement(Levels = levels)
+
+            EOFFixes.fixChordLinkNext arr
+
+            Expect.isTrue chord.IsLinkNext "LinkNext was enabled"
+
+        testCase "Fixes incorrect crowd events" <| fun _ ->
+            let events = ResizeArray(seq { Event("E0", 100); Event("E1", 200); Event("E2", 300) })
+            let arr = InstrumentalArrangement(Events = events)
+
+            EOFFixes.fixCrowdEvents arr
+
+            Expect.hasLength arr.Events 3 "Number of events is unchanged"
+            Expect.exists arr.Events (fun e -> e.Code = "e0") "E0 -> e0"
+            Expect.exists arr.Events (fun e -> e.Code = "e1") "E1 -> e1"
+            Expect.exists arr.Events (fun e -> e.Code = "e2") "E2 -> e2"
+
+        testCase "Fixes incorrect hand shape lengths" <| fun _ ->
+            let cn = ResizeArray(seq { Note(IsLinkNext = true, SlideTo = 5y, Sustain = 1000) })
+            let chord = Chord(ChordNotes = cn, IsLinkNext = true)
+            let chords = ResizeArray(seq { chord })
+            let hs = HandShape(0s, 0, 1500)
+            let handShapes = ResizeArray(seq { hs })
+            let levels = ResizeArray(seq { Level(Chords = chords, HandShapes = handShapes) })
+            let arr = InstrumentalArrangement(Levels = levels)
+
+            EOFFixes.fixChordSlideHandshapes arr
+
+            Expect.equal hs.EndTime 1000 "Hand shape end time is correct"
+    ]

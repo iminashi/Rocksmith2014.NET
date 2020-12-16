@@ -8,3 +8,6 @@ let processChordNames = ChordNameProcessor.improve
 
 /// Removes beats that come after the audio has ended.
 let removeExtraBeats = ExtraBeatRemover.improve
+
+/// Applies various minor fixes.
+let eofFixes = EOFFixes.fixAll
