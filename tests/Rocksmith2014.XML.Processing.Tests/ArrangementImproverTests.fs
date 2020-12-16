@@ -86,3 +86,36 @@ let chordNameTests =
             Expect.stringHasLength c.Name 0 "Name was fixed"
             Expect.stringHasLength c.DisplayName 0 "DisplayName was fixed"
     ]
+
+[<Tests>]
+let beatRemoverTests =
+    testList "Arrangement Improver (Beat Remover)" [
+        testCase "Removes beats" <| fun _ ->
+            let beats = ResizeArray(seq { Ebeat(5000, 1s); Ebeat(6000, 1s); Ebeat(7000, 1s); Ebeat(8000, 1s) })
+            let arr = InstrumentalArrangement(Ebeats = beats)
+            arr.MetaData.SongLength <- 6000
+
+            ArrangementImprover.removeExtraBeats arr
+
+            Expect.hasLength arr.Ebeats 2 "Two beats were removed"
+
+        testCase "Moves the beat after the end close to it to the end" <| fun _ ->
+            let beats = ResizeArray(seq { Ebeat(5000, 1s); Ebeat(6000, 1s); Ebeat(7000, 1s); Ebeat(8000, 1s) })
+            let arr = InstrumentalArrangement(Ebeats = beats)
+            arr.MetaData.SongLength <- 6900
+
+            ArrangementImprover.removeExtraBeats arr
+
+            Expect.hasLength arr.Ebeats 3 "One beat was removed"
+            Expect.equal arr.Ebeats.[2].Time 6900 "Last beat was moved to the correct time"
+
+        testCase "Moves the beat before the end close to it to the end" <| fun _ ->
+            let beats = ResizeArray(seq { Ebeat(5000, 1s); Ebeat(6000, 1s); Ebeat(7000, 1s); Ebeat(8000, 1s) })
+            let arr = InstrumentalArrangement(Ebeats = beats)
+            arr.MetaData.SongLength <- 6100
+
+            ArrangementImprover.removeExtraBeats arr
+
+            Expect.hasLength arr.Ebeats 2 "Two beats were removed"
+            Expect.equal arr.Ebeats.[1].Time 6100 "Last beat was moved to the correct time"
+    ]

@@ -5,3 +5,6 @@ let addCrowdEvents = CrowdEventAdder.improve
 
 /// Processes the chord names in the arrangement.
 let processChordNames = ChordNameProcessor.improve
+
+/// Removes beats that come after the audio has ended.
+let removeExtraBeats = ExtraBeatRemover.improve
