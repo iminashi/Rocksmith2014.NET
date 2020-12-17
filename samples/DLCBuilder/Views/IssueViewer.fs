@@ -10,16 +10,27 @@ open System
 open Rocksmith2014.XML.Processing.Utils
 open Rocksmith2014.XML.Processing.ArrangementChecker
 
+let issueToString (loc: ILocalization) issueType =
+    match issueType with
+    | EventBetweenIntroApplause eventCode ->
+        loc.Format "EventBetweenIntroApplause" [| eventCode |]
+    | AnchorNotOnNote distance ->
+        loc.Format "AnchorNotOnNote" [| distance |]
+    | LyricWithInvalidChar invalidChar ->
+        loc.Format "LyricWithInvalidChar" [| invalidChar |]
+    | other ->
+        loc.GetString (string other)
+
 let view state dispatch (issues: Issue list) =
     let issues =
         issues
-        |> List.groupBy (fun issue -> issue.Message)
-        |> List.map (fun (msg, issues) ->
+        |> List.groupBy (fun issue -> issue.Type)
+        |> List.map (fun (issueType, issues) ->
             let issuesStr =
                 issues
                 |> List.map (fun issue -> timeToString issue.TimeCode)
                 |> List.reduce (fun acc elem -> acc + ", " + elem)
-            $"{msg} at:\n{issuesStr}")
+            $"{issueToString state.Localization issueType}:\n{issuesStr}")
 
     StackPanel.create [
         StackPanel.spacing 8.

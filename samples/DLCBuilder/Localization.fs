@@ -4,6 +4,7 @@ open System.Collections.Generic
 open Microsoft.Extensions.FileProviders
 open System.Reflection
 open System.Text.Json
+open System
 
 type Locale =
     { Name : string; ShortName : string }
@@ -21,6 +22,7 @@ module Locales =
 
 type ILocalization =
     abstract member GetString : string -> string
+    abstract member Format : string -> obj array -> string
 
 type Localization(locale: Locale) =
     static let defaultLocale = Locales.English
@@ -47,3 +49,7 @@ type Localization(locale: Locale) =
             else
                 let found, str = defaultDictionary.TryGetValue key
                 if found then str else sprintf "!!%s!!" key
+
+        member this.Format (key: string) (args: obj array) =
+            let formatString = (this :> ILocalization).GetString key
+            String.Format(formatString, args)
