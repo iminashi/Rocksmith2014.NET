@@ -17,7 +17,7 @@ let view state dispatch msg =
                 StackPanel.children [
                     Path.create [
                         Path.fill Brushes.Gray
-                        Path.data Media.Icons.alert
+                        Path.data Media.Icons.alertRound
                         Path.verticalAlignment VerticalAlignment.Center
                         Path.margin (0., 0., 14., 0.)
                     ]
