@@ -12,10 +12,9 @@ let fixChordLinkNext (arrangement: InstrumentalArrangement) =
 
 /// Fixes incorrect crowd events: E0, E1, E2.
 let fixCrowdEvents (arrangement: InstrumentalArrangement) =
-    if not <| isNull arrangement.Events && arrangement.Events.Count > 0 then
-        for event in arrangement.Events do
-            if Regex.IsMatch(event.Code, "E[0-2]") then
-                event.Code <- event.Code.ToLowerInvariant()
+    for event in arrangement.Events do
+        if Regex.IsMatch(event.Code, "E[0-2]") then
+            event.Code <- event.Code.ToLowerInvariant()
 
 /// Shortens handshapes of chords that include the slide-to notes.
 let fixChordSlideHandshapes (arrangement: InstrumentalArrangement) =
