@@ -49,7 +49,7 @@ let private build (buildData: BuildData) targetFile project platform = async {
                 | Showlights _ -> None)
            |> List.map (fun (name, attr) -> async {
                let data = MemoryStreamPool.Default.GetStream()
-               do! Manifest.create [ attr ] |> Manifest.toJsonStream data
+               do! Manifest.create attr |> Manifest.toJsonStream data
                return entry name data })
            |> Async.Parallel
         return toDisposableList (List.ofArray entries) }
@@ -215,7 +215,7 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
 
         // Check if a show lights arrangement is included
         let project =
-            if project.Arrangements |> List.tryPick Arrangement.pickShowlights |> Option.isSome then
+            if project.Arrangements |> List.exists (Arrangement.pickShowlights >> Option.isSome) then
                 project
             else
                 // Insert an automatically generated show lights arrangement

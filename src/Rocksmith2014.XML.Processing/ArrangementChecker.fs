@@ -233,10 +233,9 @@ let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
                 (chordTemplate.Frets, chordTemplate.Fingers)
                 ||> Array.exists2 (fun fret finger -> fret = activeAnchor.Fret && finger <> -1y)
             
-            if chordNotOk then
-                if not (isSameAnchorWith1stFinger previous activeAnchor ||
-                        isSameAnchorWith1stFinger next activeAnchor) then
-                    issue FingeringAnchorMismatch handShape.StartTime
+            if chordNotOk && not (isSameAnchorWith1stFinger previous activeAnchor ||
+                                  isSameAnchorWith1stFinger next activeAnchor) then
+                issue FingeringAnchorMismatch handShape.StartTime
     ]
 
 /// Looks for anchors that are very close to a note but not exactly on a note.

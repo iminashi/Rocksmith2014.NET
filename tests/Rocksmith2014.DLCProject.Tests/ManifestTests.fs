@@ -35,7 +35,7 @@ let someTests =
 
         let attr = createAttributes project (FromVocals arr)
         let jsonString =
-            Manifest.create [ attr ]
+            Manifest.create attr
             |> Manifest.toJsonString
 
         Expect.isNotEmpty jsonString "JSON string is not empty"
@@ -51,7 +51,7 @@ let someTests =
             |> createAttributes project
 
         let jsonString =
-            Manifest.create [ attr ]
+            Manifest.create attr
             |> Manifest.toJsonString
 
         let mani = Manifest.fromJsonString jsonString

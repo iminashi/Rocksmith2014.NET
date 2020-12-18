@@ -23,9 +23,9 @@ module Manifest =
           IterationVersion = iterationVersion |> Option.toNullable
           InsertRoot = insertRoot }
 
-    /// Creates a manifest with the given attributes.
-    let create (attrs: Attributes list) =
-        createInternal attrs (Some "RSEnumerable_Song") (Some 2) "Static.Songs.Entries"
+    /// Creates a manifest from the given attributes.
+    let create (attrs: Attributes) =
+        createInternal [ attrs ] (Some "RSEnumerable_Song") (Some 2) "Static.Songs.Entries"
 
     /// Creates a manifest header with the given attributes.
     let createHeader (attrs: Attributes list) =

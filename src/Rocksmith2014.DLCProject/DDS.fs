@@ -12,7 +12,7 @@ type DDSOptions =
 
 /// Converts the source file into a DDS into the output stream.
 let convertToDDS (sourceFile: string) (output: Stream) (options: DDSOptions) =
-    use image = new MagickImage(sourceFile)
+    use image = new MagickImage(sourceFile, Format = MagickFormat.Dds)
 
     image.Settings.SetDefine(MagickFormat.Dds, "compression", options.Compression.ToString().ToLowerInvariant())
     image.Settings.SetDefine(MagickFormat.Dds, "mipmaps", "0")
@@ -22,7 +22,6 @@ let convertToDDS (sourceFile: string) (output: Stream) (options: DDSOptions) =
     | Resize (width, height) ->
         image.Resize (MagickGeometry(width, height, IgnoreAspectRatio = true))
 
-    image.Format <- MagickFormat.Dds
     image.Write output
 
 /// Creates three cover art images from the source file and returns the file names of the temp files.

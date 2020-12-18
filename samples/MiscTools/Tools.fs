@@ -216,7 +216,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             let attr = AttributesCreation.createAttributes project (AttributesCreation.FromInstrumental (arrangement, sng))
             let t () = async {
                 use target = File.Create(Path.ChangeExtension(file, "json"))
-                do! Manifest.create [ attr ]
+                do! Manifest.create attr
                     |> Manifest.toJsonStream target }
 
             state, Cmd.OfAsync.attempt t () Error
