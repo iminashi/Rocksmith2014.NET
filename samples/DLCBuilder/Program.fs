@@ -39,6 +39,7 @@ type MainWindow() as this =
             | KeyModifiers.Control, Key.P -> dispatch ImportProfileTones
             | KeyModifiers.Control, Key.T -> dispatch (Msg.OpenFileDialog("selectImportToolkitTemplate", Dialogs.toolkitFilter, ImportToolkitTemplate))
             | KeyModifiers.Control, Key.A -> dispatch (Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder))
+            | KeyModifiers.None, Key.Escape -> dispatch CloseOverlay
             | _ -> ()
 
         let hotKeysSub _initialModel = Cmd.ofSub (handleHotkeys >> this.KeyDown.Add)
