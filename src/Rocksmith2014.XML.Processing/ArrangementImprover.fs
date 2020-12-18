@@ -20,3 +20,13 @@ let processCustomEvents = CustomEvents.improve
 
 /// Shortens the lengths of a handshapes that are too close to the next one.
 let adjustHandShapes = HandShapeAdjuster.improve
+
+/// Applies all the improvements to the arrangement.
+let applyAll arrangement =
+    eofFixes arrangement
+    addCrowdEvents arrangement
+    processChordNames arrangement
+    processCustomEvents arrangement
+    removeExtraBeats arrangement
+    movePhrases arrangement
+    adjustHandShapes arrangement

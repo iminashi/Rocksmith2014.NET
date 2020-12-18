@@ -4,6 +4,7 @@ open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject.Manifest.AttributesCreation
 open Rocksmith2014.XML
+open Rocksmith2014.XML.Processing
 open Rocksmith2014.SNG
 open Rocksmith2014.PSARC
 open Rocksmith2014.Conversion
@@ -25,6 +26,7 @@ type BuildConfig =
     { Platforms: Platform list
       Author: string
       AppId: string
+      ApplyImprovements: bool
       AudioConversionTask: Async<unit> }
 
 let private toDisposableList items = new DisposableList<NamedEntry>(items)
@@ -162,7 +164,7 @@ let private build (buildData: BuildData) targetFile project platform = async {
         yield toolkitEntry
         yield appIdEntry ]) }
 
-let private setupInstrumental part (inst: Instrumental) (xml: InstrumentalArrangement) =
+let private setupInstrumental part (inst: Instrumental) improve (xml: InstrumentalArrangement) =
     xml.MetaData.Part <- int16 part
 
     // Set up correct tone IDs
@@ -173,6 +175,8 @@ let private setupInstrumental part (inst: Instrumental) (xml: InstrumentalArrang
     Array.Copy(inst.Tuning, xml.MetaData.Tuning.Strings, 6)
 
     if xml.Version < 8uy then xml.FixHighDensity()
+
+    if improve then ArrangementImprover.applyAll xml
 
     // TODO: Generate DD levels
 
@@ -190,11 +194,11 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
             project.Arrangements
             |> List.choose (fun arr ->
                 match arr with
-                | Instrumental i ->
+                | Instrumental inst ->
                     let part = partition arr |> fst
                     let sng =
-                        InstrumentalArrangement.Load i.XML
-                        |> setupInstrumental part i
+                        InstrumentalArrangement.Load inst.XML
+                        |> setupInstrumental part inst config.ApplyImprovements
                         |> ConvertInstrumental.xmlToSng
                     Some(arr, sng)
                 | Vocals v ->
