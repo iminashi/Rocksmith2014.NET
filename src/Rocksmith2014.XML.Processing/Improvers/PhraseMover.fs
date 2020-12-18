@@ -22,7 +22,7 @@ let improve (arrangement: InstrumentalArrangement) =
                     let level = arrangement.Levels.[int phraseToMove.MaxDifficulty]
                     Utils.findTimeOfNthNoteFrom level phraseTime moveBy
                 | _ ->
-                    failwith $"Unable to parse to read value for 'moveR' phrase at {Utils.timeToString phraseTime}"
+                    failwith $"Unable to parse value for 'moveR' phrase at {Utils.timeToString phraseTime}"
 
             // Check if anchor(s) should be moved
             arrangement.Levels
