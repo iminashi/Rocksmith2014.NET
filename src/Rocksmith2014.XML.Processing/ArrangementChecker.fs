@@ -83,8 +83,13 @@ let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
         Some (issue NoteLinkedToChord note.Time)
     else
         match findNextNote level.Notes currentIndex note with
-        | None -> Some (issue LinkNextMissingTargetNote note.Time)
+        | None ->
+            Some (issue LinkNextMissingTargetNote note.Time)
 
+        // Check if the next note is at the end of the sustain for this note
+        | Some nextNote when nextNote.Time - (note.Time + note.Sustain) > 1 ->
+            Some (issue IncorrectLinkNext note.Time)
+            
         // Check if the frets match
         | Some nextNote when note.Fret <> nextNote.Fret ->
             let slideTo =
@@ -93,16 +98,12 @@ let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
                 else
                     note.SlideTo
             
-            if slideTo <> -1y && slideTo <> nextNote.Fret then
-                Some (issue LinkNextSlideMismatch note.Time)
-            elif slideTo = -1y then
-                // Check if the next note is at the end of the sustain for this note
-                if nextNote.Time - (note.Time + note.Sustain) > 1 then
-                    Some (issue IncorrectLinkNext note.Time)
-                else
-                    Some (issue LinkNextFretMismatch nextNote.Time)
-            else
+            if slideTo = nextNote.Fret then
                 None
+            elif slideTo <> -1y then
+                Some (issue LinkNextSlideMismatch note.Time)
+            else
+                Some (issue LinkNextFretMismatch nextNote.Time)
 
         // Check if bendValues match
         | Some nextNote when note.IsBend ->
@@ -185,9 +186,11 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
             if chordNotes.TrueForAll(fun cn -> cn.Fret >= 23y) && not chord.IsIgnore then
                 issue MissingIgnore time
 
-            if chord.IsLinkNext then
-                yield! [ for cn in chordNotes do
-                            yield! checkLinkNext level -1 cn |> Option.toList ]
+            // EOF does not set LinkNext on chords correctly, so check all chords regardless of LinkNext status
+            yield! chordNotes
+                   |> Seq.filter (fun cn -> cn.IsLinkNext)
+                   |> Seq.map (fun cn -> checkLinkNext level -1 cn |> Option.toList)
+                   |> List.concat
 
         // Check tone change placement
         if not <| isNull arrangement.Tones.Changes && arrangement.Tones.Changes.Exists(fun t -> t.Time = time) then

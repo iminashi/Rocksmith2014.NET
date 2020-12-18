@@ -72,7 +72,7 @@ let eventTests =
 let noteTests =
     testList "Arrangement Checker (Notes)" [
         testCase "Detects unpitched slide note with linknext" <| fun _ ->
-            let notes = ResizeArray(seq { Note(IsLinkNext = true, SlideUnpitchTo = 12y)
+            let notes = ResizeArray(seq { Note(IsLinkNext = true, SlideUnpitchTo = 12y, Sustain = 100)
                                           Note(Fret = 12y, Time = 100)})
             let level = Level(Notes = notes)
 
@@ -192,6 +192,31 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 0 "No issues created"
+
+        testCase "Does not produce false positive for chord note without linknext" <| fun _ ->
+            let notes = ResizeArray(seq { Note(String = 1y, Time = 1100)
+                                          Note(String = 2y, Time = 1500) })
+            let cn = ResizeArray(seq { Note(String = 1y, Time = 1000, IsLinkNext = true, Sustain = 100)
+                                       Note(String = 2y, Time = 1000, Sustain = 100) })
+            let chords = ResizeArray(seq { Chord(Time = 1000, IsLinkNext = true, ChordNotes = cn) })
+            let level = Level(Notes = notes, Chords = chords)
+
+            let results = checkChords testArr level
+
+            Expect.hasLength results 0 "No issues created"
+
+        testCase "Detects incorrect linknext on chord note" <| fun _ ->
+            let notes = ResizeArray(seq { Note(String = 1y, Time = 1100)
+                                          Note(String = 2y, Time = 1500) })
+            let cn = ResizeArray(seq { Note(String = 1y, Time = 1000, IsLinkNext = true, Sustain = 100)
+                                       Note(String = 2y, Time = 1000, IsLinkNext = true, Sustain = 100) })
+            let chords = ResizeArray(seq { Chord(Time = 1000, IsLinkNext = true, ChordNotes = cn) })
+            let level = Level(Notes = notes, Chords = chords)
+
+            let results = checkChords testArr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.[0].Type IncorrectLinkNext "Correct issue type"
     ]
 
 [<Tests>]
@@ -207,13 +232,15 @@ let chordTests =
             Expect.hasLength results 1 "One issue created"
 
         testCase "Detects chord note with linknext and unpitched slide" <| fun _ ->
-            let cn = ResizeArray(seq { Note(IsLinkNext = true, SlideUnpitchTo = 10y) })
+            let cn = ResizeArray(seq { Note(IsLinkNext = true, SlideUnpitchTo = 10y, Sustain = 100) })
             let chords = ResizeArray(seq { Chord(ChordNotes = cn) })
             let level = Level(Chords = chords)
 
             let results = checkChords testArr level
 
-            Expect.hasLength results 1 "One issue created"
+            Expect.hasLength results 2 "One issue created"
+            Expect.exists results (fun x -> x.Type = UnpitchedSlideWithLinkNext) "Correct first issue type"
+            Expect.exists results (fun x -> x.Type = LinkNextMissingTargetNote) "Correct second issue type"
 
         testCase "Detects chord note with both harmonic and pinch harmonic" <| fun _ ->
             let cn = ResizeArray(seq { Note(IsHarmonic = true, IsPinchHarmonic = true) })
