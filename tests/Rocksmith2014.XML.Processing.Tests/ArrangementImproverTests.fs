@@ -238,6 +238,14 @@ let phraseMoverTests =
 
             Expect.hasLength anchors 1 "One anchor exists"
             Expect.exists anchors (fun a -> a.Time = 7500) "Anchor was moved to correct time"
+
+        testCase "Throws an exception when no integer given" <| fun _ ->
+            let phrases = ResizeArray(seq { Phrase("mover", 0uy, PhraseMask.None) })
+            let iterations = ResizeArray(seq { PhraseIteration(1000, 0) })
+            let arr = InstrumentalArrangement(Phrases = phrases, PhraseIterations = iterations)
+
+            Expect.throwsC (fun _ -> PhraseMover.improve arr)
+                           (fun ex -> Expect.stringContains ex.Message "Unable to parse" "Correct exception was thrown")
     ]
 
 [<Tests>]

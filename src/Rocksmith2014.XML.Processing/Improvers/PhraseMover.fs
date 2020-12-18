@@ -17,7 +17,7 @@ let improve (arrangement: InstrumentalArrangement) =
         |> Seq.iter (fun iterationToMove ->
             let phraseTime = iterationToMove.Time
             let movetoTime =
-                match Int32.TryParse(phraseToMove.Name.Substring("mover".Length), NumberStyles.Integer, NumberFormatInfo.InvariantInfo) with
+                match Int32.TryParse(phraseToMove.Name.AsSpan("mover".Length), NumberStyles.Integer, NumberFormatInfo.InvariantInfo) with
                 | true, moveBy ->
                     let level = arrangement.Levels.[int phraseToMove.MaxDifficulty]
                     Utils.findTimeOfNthNoteFrom level phraseTime moveBy
