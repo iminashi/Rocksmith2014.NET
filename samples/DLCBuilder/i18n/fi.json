@@ -172,6 +172,6 @@
   "VaryingChordNoteSustains": "Sointu, jonka nuoteilla on eri sustainarvot",
   "ChordAtEndOfHandShape": "Sointu handshapen lopussa",
   "FingeringAnchorMismatch": "Handshapen sormitus ei vastaa ankkuriarvoa",
-  "AnchorNotOnNote": "Ankkuri, joka ei ole nuotin kohdalla. Etäisyys lähimpään: {0} ms",
+  "AnchorNotOnNote": "Ankkuri ei ole nuotin kohdalla. Etäisyys lähimpään nuottiin: {0} ms",
   "LyricWithInvalidChar": "Sanoitus sisältää merkin ({0}), jota ei ole oletusfontissa"
 }

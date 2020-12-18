@@ -313,4 +313,34 @@ let customEventTests =
             Expect.equal arr.Levels.[0].HandShapes.[1].EndTime 1500 "Second hand shape ends at end of sustain"
     ]
 
-// TODO: Test HandShapeAdjuster
+[<Tests>]
+let handShapeAdjusterTests =
+    testList "Arrangement Improver (Hand Shape Adjuster)" [
+        testCase "Shortens handshape length" <| fun _ ->
+            let beats = ResizeArray(seq { Ebeat(500, -1s); Ebeat(1000, -1s); Ebeat(1500, -1s); Ebeat(2500, -1s) })
+            let chords = ResizeArray(seq { Chord(Time = 1000); Chord(ChordId = 1s, Time = 2000) })
+            let hs1 = HandShape(0s, 1000, 2000)
+            let hs2 = HandShape(1s, 2000, 3000)
+            let handShapes = ResizeArray(seq { hs1; hs2 })
+            let levels = ResizeArray(seq { Level(Chords = chords, HandShapes = handShapes) })
+            let arr = InstrumentalArrangement(Ebeats = beats, Levels = levels)
+
+            HandShapeAdjuster.improve arr
+
+            Expect.isTrue (hs1.EndTime < 2000) "Hand shape was shortened"
+            Expect.isTrue (hs1.StartTime < hs1.EndTime) "Hand shape end comes after the start"
+
+        testCase "Shortens length of a really short hand shape" <| fun _ ->
+            let beats = ResizeArray(seq { Ebeat(500, -1s); Ebeat(1000, -1s); Ebeat(1500, -1s); Ebeat(2500, -1s) })
+            let chords = ResizeArray(seq { Chord(Time = 1950); Chord(ChordId = 1s, Time = 2000) })
+            let hs1 = HandShape(0s, 1950, 2000)
+            let hs2 = HandShape(1s, 2000, 3000)
+            let handShapes = ResizeArray(seq { hs1; hs2 })
+            let levels = ResizeArray(seq { Level(Chords = chords, HandShapes = handShapes) })
+            let arr = InstrumentalArrangement(Ebeats = beats, Levels = levels)
+
+            HandShapeAdjuster.improve arr
+
+            Expect.isTrue (hs1.EndTime < 2000) "Hand shape was shortened"
+            Expect.isTrue (hs1.StartTime < hs1.EndTime) "Hand shape end comes after the start"
+    ]

@@ -55,7 +55,7 @@ let improve (arrangement: InstrumentalArrangement) =
                         let time = followingStartTime - minDistance
                         // For very small note values
                         if time <= precedingStartTime then
-                            (precedingEndTime - precedingStartTime) / 2
+                            precedingStartTime + (precedingEndTime - precedingStartTime) / 2
                         else
                             time
                 
