@@ -6,31 +6,66 @@ open Avalonia.Controls
 open Avalonia.Controls.Shapes
 open Avalonia.Layout
 open Avalonia.Media
-open System
 open Rocksmith2014.XML.Processing.Utils
 open Rocksmith2014.XML.Processing.ArrangementChecker
 
-let issueToString (loc: ILocalization) issueType =
+let private getIssueHeaderAndHelp (loc: ILocalization) issueType =
     match issueType with
     | EventBetweenIntroApplause eventCode ->
-        loc.Format "EventBetweenIntroApplause" [| eventCode |]
+        loc.Format "EventBetweenIntroApplause" [| eventCode |],
+        loc.GetString "EventBetweenIntroApplauseHelp"
     | AnchorNotOnNote distance ->
-        loc.Format "AnchorNotOnNote" [| distance |]
+        loc.Format "AnchorNotOnNote" [| distance |],
+        loc.GetString "AnchorNotOnNoteHelp"
     | LyricWithInvalidChar invalidChar ->
-        loc.Format "LyricWithInvalidChar" [| invalidChar |]
+        loc.Format "LyricWithInvalidChar" [| invalidChar |],
+        loc.GetString "LyricWithInvalidCharHelp"
     | other ->
-        loc.GetString (string other)
+        let locStr = string other
+        loc.GetString locStr,
+        loc.GetString (locStr + "Help")
+
+let private viewForIssue (loc: ILocalization) issueType times =
+    let header, help = getIssueHeaderAndHelp loc issueType
+
+    StackPanel.create [
+        StackPanel.margin (0., 5.)
+        StackPanel.children [
+            StackPanel.create [
+                StackPanel.orientation Orientation.Horizontal
+                StackPanel.children [
+                    Path.create [
+                        Path.fill Brushes.CadetBlue
+                        Path.data Media.Icons.help
+                        Path.margin (5., 0.)
+                        ToolTip.tip help
+                    ]
+                    TextBlock.create [
+                        TextBlock.text header
+                        TextBlock.fontSize 14.
+                    ]
+                ]
+            ]
+            TextBlock.create [
+                TextBlock.text times
+                TextBlock.fontSize 14.
+                TextBlock.maxWidth 550.
+                TextBlock.textWrapping TextWrapping.Wrap
+            ]
+        ]
+    ] :> IView
+    
 
 let view state dispatch (issues: Issue list) =
     let issues =
         issues
         |> List.groupBy (fun issue -> issue.Type)
         |> List.map (fun (issueType, issues) ->
-            let issuesStr =
+            let issueTimes =
                 issues
                 |> List.map (fun issue -> timeToString issue.TimeCode)
                 |> List.reduce (fun acc elem -> acc + ", " + elem)
-            $"{issueToString state.Localization issueType}:\n{issuesStr}")
+            viewForIssue state.Localization issueType issueTimes)
 
     StackPanel.create [
         StackPanel.spacing 8.
@@ -57,12 +92,8 @@ let view state dispatch (issues: Issue list) =
                 ScrollViewer.maxHeight 500.
                 ScrollViewer.maxWidth 600.
                 ScrollViewer.content (
-                    TextBlock.create [
-                        TextBlock.fontSize 16.
-                        TextBlock.text (String.Join("\n\n", issues))
-                        TextBlock.margin 10.0
-                        TextBlock.maxWidth 580.
-                        TextBlock.textWrapping TextWrapping.Wrap
+                    StackPanel.create [
+                        StackPanel.children issues
                     ]
                 )
             ]
