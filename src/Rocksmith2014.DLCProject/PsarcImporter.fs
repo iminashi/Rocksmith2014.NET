@@ -23,7 +23,7 @@ let private (|VocalsFile|JVocalsFile|InstrumentalFile|) (fileName: string) =
     else InstrumentalFile
 
 /// Imports a vocals SNG into a vocals arrangement.
-let private importVocals targetDirectory targetFile customFont (attributes: Manifest.Attributes) sng isJapanese =
+let private importVocals targetDirectory targetFile customFont (attributes: Attributes) sng isJapanese =
     let vocals = ConvertVocals.sngToXml sng
     Vocals.Save(targetFile, vocals)
 
@@ -42,7 +42,7 @@ let private importVocals targetDirectory targetFile customFont (attributes: Mani
     |> Arrangement.Vocals
 
 /// Imports an instrumental SNG into an instrumental arrangement.
-let private importInstrumental targetFile (attributes: Manifest.Attributes) sng =
+let private importInstrumental targetFile (attributes: Attributes) sng =
     let xml = ConvertInstrumental.sngToXml (Some attributes) sng
     xml.Save targetFile
 

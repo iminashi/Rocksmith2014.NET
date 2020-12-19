@@ -649,7 +649,7 @@ let view (window: HostWindow) (state: State) dispatch =
                                         StackPanel.background Brushes.Transparent
                                         if not noIssues then
                                             StackPanel.onTapped (fun _ -> dispatch ShowIssueViewer)
-                                            StackPanel.cursor Media.Cursors.hand
+                                            StackPanel.cursor Cursors.hand
                                         StackPanel.children [
                                             Path.create [
                                                 Path.fill (if noIssues then Brushes.Green else Brushes.Red)
