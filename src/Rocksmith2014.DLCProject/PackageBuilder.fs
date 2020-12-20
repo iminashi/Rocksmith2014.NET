@@ -8,6 +8,7 @@ open Rocksmith2014.XML.Processing
 open Rocksmith2014.SNG
 open Rocksmith2014.PSARC
 open Rocksmith2014.Conversion
+open Rocksmith2014.DD
 open Microsoft.Extensions.FileProviders
 open System.IO
 open System.Reflection
@@ -176,9 +177,11 @@ let private setupInstrumental part (inst: Instrumental) improve (xml: Instrument
 
     if xml.Version < 8uy then xml.FixHighDensity()
 
-    if improve then ArrangementImprover.applyAll xml
+    if improve || xml.Levels.Count = 1 then ArrangementImprover.applyAll xml
 
-    // TODO: Generate DD levels
+    // TODO: Make configurable
+    if xml.Levels.Count = 1 then
+        Generator.generateForArrangement xml |> ignore
 
     xml
 

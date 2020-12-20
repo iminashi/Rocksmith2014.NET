@@ -51,6 +51,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Rocksmith2014.Conversion\Rocksmith2014.Conversion.fsproj" />
+    <ProjectReference Include="..\Rocksmith2014.DD\Rocksmith2014.DD.fsproj" />
     <ProjectReference Include="..\Rocksmith2014.PSARC\Rocksmith2014.PSARC.fsproj" />
     <ProjectReference Include="..\Rocksmith2014.SNG\Rocksmith2014.SNG.fsproj" />
     <ProjectReference Include="..\Rocksmith2014.XML.Processing\Rocksmith2014.XML.Processing.fsproj" />
