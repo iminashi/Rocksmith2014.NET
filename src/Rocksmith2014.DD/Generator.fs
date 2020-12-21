@@ -4,8 +4,55 @@ open Rocksmith2014.XML
 open System
 open LevelCounter
 
+type XmlEntity =
+    | XmlNote of Note
+    | XmlChord of Chord
+
+let private getTimeCode = function
+    | XmlNote xn -> xn.Time
+    | XmlChord xc -> xc.Time
+
+/// Creates an XML entity array from the notes and chords.
+let private createXmlEntityArray (xmlNotes: Note list) (xmlChords: Chord list) =
+    if xmlChords.Length = 0 then
+        xmlNotes
+        |> List.map XmlNote
+        |> Array.ofList
+    elif xmlNotes.Length = 0 then
+        xmlChords
+        |> List.map XmlChord
+        |> Array.ofList
+    else
+        let entityArray =
+            [| yield! List.map XmlNote xmlNotes
+               yield! List.map XmlChord xmlChords |]
+
+        Array.sortInPlaceBy getTimeCode entityArray
+        entityArray
+
+let private chooseEntities diffPercent (entities: XmlEntity array) =
+    entities
+    |> Array.choose (fun e ->
+        // TODO: Actual implementation
+        match e with
+        | XmlNote _ ->
+            Some e
+        | XmlChord _ ->
+            Some e
+    )
+
+let private chooseHandShapes diffPercent (handShapes: HandShape list) =
+    // TODO: Actual implementation
+    handShapes
+    |> List.choose (fun hs ->
+        if diffPercent <= 15 then
+            None
+        else
+            Some hs
+    )
+
 /// Copies the necessary anchors into the difficulty level.
-let private addAnchors (notes: Note list) (chords: Chord list) (anchors: Anchor list) phraseEndTime =
+let private chooseAnchors (entities: XmlEntity array) (anchors: Anchor list) phraseEndTime =
     // Assume that anchors up to 3ms after a note were meant to be on the note
     let errorMargin = 3
 
@@ -20,8 +67,10 @@ let private addAnchors (notes: Note list) (chords: Chord list) (anchors: Anchor 
                 | a2::_ -> a2.Time
                 | [] -> phraseEndTime
             let result =
-                if notes |> List.exists (fun n -> (n.Time + errorMargin) >= a.Time && n.Time < endTime)
-                   || chords |> List.exists (fun c -> (c.Time + errorMargin) >= a.Time && c.Time < endTime) then
+                if entities |> Array.exists (fun e ->
+                    let time = getTimeCode e
+                    time + errorMargin >= a.Time && time < endTime)
+                then
                     a::result
                 else
                     result
@@ -48,13 +97,18 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
                       ResizeArray(phraseData.Anchors),
                       ResizeArray(phraseData.HandShapes))
             else
-                // TODO: Implement
+                let diffPercent = 100 * diff / levelCount
+                let entities = createXmlEntityArray phraseData.Notes phraseData.Chords
+                let levelEntities = chooseEntities diffPercent entities
+                let notes = levelEntities |> Array.choose (function XmlNote n -> Some n | _ -> None)
+                let chords = levelEntities |> Array.choose (function XmlChord n -> Some n | _ -> None)
+                let handShapes = chooseHandShapes diffPercent phraseData.HandShapes
 
                 Level(sbyte diff,
-                      ResizeArray(phraseData.Notes),
-                      ResizeArray(phraseData.Chords),
-                      ResizeArray(addAnchors phraseData.Notes phraseData.Chords phraseData.Anchors phraseData.EndTime),
-                      ResizeArray(phraseData.HandShapes))     
+                      ResizeArray(notes),
+                      ResizeArray(chords),
+                      ResizeArray(chooseAnchors levelEntities phraseData.Anchors phraseData.EndTime),
+                      ResizeArray(handShapes))     
         )
 
 let generateForArrangement (arr: InstrumentalArrangement) =
@@ -110,7 +164,7 @@ let generateForArrangement (arr: InstrumentalArrangement) =
         Seq.init maxDiff (fun diff -> 
             let level = Level(sbyte diff)
             levels
-            |> Seq.iter
+            |> Array.iter
                 (fun lvl ->
                     if diff < lvl.Length then
                         level.Anchors.AddRange(lvl.[diff].Anchors)
