@@ -77,6 +77,7 @@ let private chooseAnchors (entities: XmlEntity array) (anchors: Anchor list) phr
             add result tail
 
     add [] anchors
+    |> List.rev
 
 let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtractor.PhraseData) =
     // Determine the number of levels to generate for this phrase
