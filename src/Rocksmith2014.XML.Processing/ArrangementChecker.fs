@@ -27,6 +27,7 @@ type IssueType =
     | FingeringAnchorMismatch
     | AnchorNotOnNote of distance : int
     | LyricWithInvalidChar of invalidChar : char
+    | InvalidShowlights
 
 type Issue = { Type : IssueType; TimeCode: int }
 
@@ -291,3 +292,10 @@ let checkVocals (vocals: ResizeArray<Vocal>) =
         |> Option.map (fun i -> v, v.Lyric.[i]))
     |> Option.map (fun (invalidVocal, invalidChar) ->
         issue (LyricWithInvalidChar invalidChar) invalidVocal.Time)
+
+/// Checks that the show lights have at least one beam and one fog note.
+let checkShowlights (showLights: ResizeArray<ShowLight>) =
+    if showLights.Exists(fun sl -> sl.IsBeam()) && showLights.Exists(fun sl -> sl.IsFog()) then
+        None
+    else
+        Some (issue InvalidShowlights 0)

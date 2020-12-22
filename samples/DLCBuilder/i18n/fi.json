@@ -192,5 +192,7 @@
   "AnchorNotOnNote": "Ankkuri ei ole nuotin kohdalla. Etäisyys lähimpään nuottiin: {0} ms",
   "AnchorNotOnNoteHelp": "Ankkureiden pitäisi olla juuri nuotin kohdalla ongelmien välttämiseksi.",
   "LyricWithInvalidChar": "Sanoitus sisältää merkin ({0}), jota ei ole oletusfontissa",
-  "LyricWithInvalidCharHelp": "Tarvitaan mukautettu fontti, jotta tämä merkki näkyisi pelissä."
+  "LyricWithInvalidCharHelp": "Tarvitaan mukautettu fontti, jotta tämä merkki näkyisi pelissä.",
+  "InvalidShowlights": "Valoshowssa pitää olla vähintään yksi \"fog\" nuotti ja yksi \"beam\" nuotti",
+  "InvalidShowlightsHelp": "Tämä valoshowtiedosto kaataa pelin, kun kappale valitaan."
 }

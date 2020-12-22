@@ -384,7 +384,7 @@ let anchorTests =
 let vocalsTests =
     testList "Arrangement Checker (Vocals)" [
         testCase "Detects character not in default font" <| fun _ ->
-            let vocals = ResizeArray(seq { Vocal(0, 50, "Test"); Vocal(100, 50, "Nope:あ")})
+            let vocals = ResizeArray(seq { Vocal(0, 50, "Test"); Vocal(100, 50, "Nope:あ") })
 
             let result = checkVocals vocals
 
@@ -394,6 +394,31 @@ let vocalsTests =
             let vocals = ResizeArray(seq { Vocal(0, 50, "Test"); Vocal(100, 50, "ÄöÖÅå"); Vocal(200, 50, "àè- +?&#\"") })
 
             let result = checkVocals vocals
+
+            Expect.isNone result "Checker returned None"
+    ]
+
+[<Tests>]
+let showLightsTests =
+    testList "Arrangement Checker (Show Lights)" [
+        testCase "Detects missing fog note" <| fun _ ->
+            let sl = ResizeArray(seq { ShowLight(100, ShowLight.BeamMin) })
+
+            let result = checkShowlights sl
+
+            Expect.isSome result "Checker returned an issue"
+
+        testCase "Detects missing beam note" <| fun _ ->
+            let sl = ResizeArray(seq { ShowLight(100, ShowLight.FogMin) })
+
+            let result = checkShowlights sl
+
+            Expect.isSome result "Checker returned an issue"
+
+        testCase "Returns None for valid show lights" <| fun _ ->
+            let sl = ResizeArray(seq { ShowLight(100, ShowLight.FogMin); ShowLight(100, ShowLight.BeamOff) })
+
+            let result = checkShowlights sl
 
             Expect.isNone result "Checker returned None"
     ]

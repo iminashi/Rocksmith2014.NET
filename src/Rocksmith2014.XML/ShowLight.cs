@@ -48,6 +48,18 @@ namespace Rocksmith2014.XML
             Note = note;
         }
 
+        /// <summary>
+        /// Checks if this is a beam note.
+        /// </summary>
+        /// <returns>True if this is a beam note.</returns>
+        public bool IsBeam() => (Note >= BeamMin && Note < BeamMax) || Note == BeamOff;
+
+        /// <summary>
+        /// Checks if this is a fog note.
+        /// </summary>
+        /// <returns>True if this is a fog note.</returns>
+        public bool IsFog() => Note >= FogMin && Note < FogMax;
+
         public override string ToString()
             => $"{Utils.TimeCodeToString(Time)}: {Note}";
 

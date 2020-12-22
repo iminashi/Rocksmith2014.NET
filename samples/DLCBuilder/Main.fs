@@ -496,7 +496,6 @@ let update (msg: Msg) (state: State) =
     | BuildComplete _ -> { state with BuildInProgress = false }, Cmd.none
 
     | CheckArrangements ->
-        // TODO: Showlights validation
         let task() = async {
             return state.Project.Arrangements
                    |> List.map (function
@@ -510,6 +509,12 @@ let update (msg: Msg) (state: State) =
                                XML.Vocals.Load v.XML
                                |> ArrangementChecker.checkVocals
                                |> Option.toList
+                           arr, issues
+                       | Showlights sl as arr ->
+                           let issues =
+                                XML.ShowLights.Load sl.XML
+                                |> ArrangementChecker.checkShowlights
+                                |> Option.toList
                            arr, issues
                        | arr -> arr, [])
                    |> Map.ofList }

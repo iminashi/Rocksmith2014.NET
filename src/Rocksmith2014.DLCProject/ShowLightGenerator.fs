@@ -100,11 +100,8 @@ let private generateLaserNotes (sng: SNG) =
 
     [ lasersOn; lasersOff ]
 
-let private isBeam (x: ShowLight) =
-    (x.Note >= ShowLight.BeamMin && x.Note <= ShowLight.BeamMax) || x.Note = ShowLight.BeamOff
-
-let private isFog (x: ShowLight) =
-    x.Note >= ShowLight.FogMin && x.Note <= ShowLight.FogMax
+let private isBeam (x: ShowLight) = x.IsBeam()
+let private isFog (x: ShowLight) = x.IsFog()
 
 /// Ensures that the show lights contain at least one beam and one fog note.
 let private validateShowLights songLength (slList: ShowLight list) =
