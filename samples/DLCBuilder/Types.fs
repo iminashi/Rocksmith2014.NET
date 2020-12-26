@@ -1,4 +1,5 @@
-﻿namespace DLCBuilder
+﻿[<AutoOpen>]
+module DLCBuilder.Types
 
 open Rocksmith2014.DLCProject
 open Rocksmith2014.Common
@@ -8,9 +9,7 @@ open Avalonia.Controls
 open Avalonia.Media.Imaging
 open System
 
-[<AutoOpen>]
-module Types =
-    type OverlayContents =
+type OverlayContents =
     | NoOverlay
     | ErrorMessage of message : string
     | ImportToneSelector of tones : Tone array
@@ -18,34 +17,34 @@ module Types =
     | ConfigEditor
     | IssueViewer of issues : ArrangementChecker.Issue list
 
-    type PreviewAudioCreation =
+type PreviewAudioCreation =
     | SetupStartTime
     | CreateFile
     | FileCreated of path : string
 
-    type MoveDirection = Up | Down
+type MoveDirection = Up | Down
 
-    type State =
-        { Project : DLCProject
-          SavedProject : DLCProject
-          RecentFiles : string list
-          Config : Configuration
-          CoverArt : Bitmap
-          SelectedArrangement : Arrangement option
-          SelectedTone : Tone option
-          ShowSortFields : bool
-          ShowJapaneseFields : bool
-          Overlay : OverlayContents
-          ImportTones : Tone list
-          PreviewStartTime : TimeSpan
-          OpenProjectFile : string option
-          CurrentPlatform : Platform
-          BuildInProgress : bool
-          CheckInProgress : bool
-          ArrangementIssues : Map<Arrangement, ArrangementChecker.Issue list>
-          Localization : ILocalization }
+type State =
+    { Project : DLCProject
+      SavedProject : DLCProject
+      RecentFiles : string list
+      Config : Configuration
+      CoverArt : Bitmap
+      SelectedArrangement : Arrangement option
+      SelectedTone : Tone option
+      ShowSortFields : bool
+      ShowJapaneseFields : bool
+      Overlay : OverlayContents
+      ImportTones : Tone list
+      PreviewStartTime : TimeSpan
+      OpenProjectFile : string option
+      CurrentPlatform : Platform
+      BuildInProgress : bool
+      CheckInProgress : bool
+      ArrangementIssues : Map<Arrangement, ArrangementChecker.Issue list>
+      Localization : ILocalization }
 
-    type Msg =
+type Msg =
     | OpenFileDialog of locTitle : string * filter : (ILocalization -> ResizeArray<FileDialogFilter>) * msg : (string -> Msg)
     | OpenFolderDialog of locTitle : string * msg : (string -> Msg)
     | ConditionalCmdDispatch of opt : string option * msg : (string -> Msg)
