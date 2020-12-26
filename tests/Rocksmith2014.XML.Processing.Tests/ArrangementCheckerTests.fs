@@ -5,10 +5,11 @@ open Rocksmith2014.XML
 open Rocksmith2014.XML.Processing.ArrangementChecker
 
 let toneChanges = ResizeArray(seq { ToneChange("test", 5555, 1uy) })
-let sections = ResizeArray(seq { Section("noguitar", 6000, 1s); Section("riff", 6500, 1s) })
+let sections = ResizeArray(seq { Section("noguitar", 6000, 1s); Section("riff", 6500, 1s); Section("noguitar", 8000, 2s) })
 let chordTemplates = ResizeArray(seq { ChordTemplate("", "", [| 2y; 2y; -1y; -1y; -1y; -1y |], [| 2y; 2y; -1y; -1y; -1y; -1y |]) })
 let testArr = InstrumentalArrangement(Sections = sections, ChordTemplates = chordTemplates)
 testArr.Tones.Changes <- toneChanges
+testArr.MetaData.SongLength <- 10000
 
 [<Tests>]
 let eventTests =
@@ -140,6 +141,15 @@ let noteTests =
 
         testCase "Detects note inside noguitar section" <| fun _ ->
             let notes = ResizeArray(seq { Note(Time = 6000) })
+            let level = Level(Notes = notes)
+
+            let results = checkNotes testArr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type NoteInsideNoguitarSection "Correct issue type"
+
+        testCase "Detects note inside last noguitar section" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Time = 9000) })
             let level = Level(Notes = notes)
 
             let results = checkNotes testArr level

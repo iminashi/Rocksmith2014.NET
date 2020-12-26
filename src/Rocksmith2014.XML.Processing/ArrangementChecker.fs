@@ -31,7 +31,10 @@ type IssueType =
 
 type Issue = { Type : IssueType; TimeCode: int }
 
-let private issue typ time = { Type = typ; TimeCode = time }
+let private issue type' time = { Type = type'; TimeCode = time }
+
+[<Struct>]
+type private NgSection = { StartTime: int; EndTime: int }
 
 /// Checks for unexpected crowd events between the intro applause events.
 let checkCrowdEventPlacement (arrangement: InstrumentalArrangement) =
@@ -53,16 +56,21 @@ let checkCrowdEventPlacement (arrangement: InstrumentalArrangement) =
         |> Seq.map (fun ev -> issue (EventBetweenIntroApplause ev.Code) ev.Time)
         |> Seq.toList
 
-let private getNoguitarSections (arrangement: InstrumentalArrangement) =
-    arrangement.Sections
-    |> Seq.pairwise
-    |> Seq.map (fun (first, second) -> first.Name, first.Time, second.Time)
-    |> Seq.filter (fun (name, _, _) -> name = "noguitar")
-    |> Seq.toList
+let private getNoguitarSections (arrangement: InstrumentalArrangement) = [|
+    let sections = arrangement.Sections
+    for i in 1..sections.Count do
+        let sect = sections.[i - 1]
+        let endTime =
+            if i = sections.Count then
+                arrangement.MetaData.SongLength
+            else
+                sections.[i].Time
+        if sect.Name ="noguitar" then
+            { StartTime = sect.Time; EndTime = endTime } |]
 
 let private isInsideNoguitarSection noGuitarSections (time: int) =
     noGuitarSections
-    |> List.exists (fun (_, startTime, endTime) -> time >= startTime && time < endTime)
+    |> Array.exists (fun x -> time >= x.StartTime && time < x.EndTime)
 
 let private isLinkedToChord (level: Level) (note: Note) =
     level.Chords.Exists(fun c -> 
