@@ -24,7 +24,8 @@ let fixManifest entry = async {
 let mapEntry (entry: NamedEntry) =
     if entry.Name.EndsWith "hsan" || entry.Name.EndsWith "json" then
         fixManifest entry |> Async.RunSynchronously
-    else entry
+    else
+        entry
 
 /// Fixes empty Japanese song names by setting the attribute to null in the manifests.
 let fixManifests (psarcs: seq<PSARC>) =

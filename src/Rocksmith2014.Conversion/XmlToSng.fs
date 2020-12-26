@@ -81,7 +81,7 @@ let convertChord (xml:XML.InstrumentalArrangement) (xmlChord:XML.ChordTemplate) 
     let mask =
         if xmlChord.IsArpeggio then
             ChordMask.Arpeggio
-        elif xmlChord.DisplayName.EndsWith("-nop") then
+        elif xmlChord.DisplayName.EndsWith("-nop", StringComparison.Ordinal) then
             ChordMask.Nop
         else
             ChordMask.None
@@ -107,7 +107,7 @@ let convertPhraseIteration (piTimes: int[]) index (xmlPi: XML.PhraseIteration) =
 /// Converts an XML NewLinkedDifficulty into an SNG NewLinkedDifficulty.
 let convertNLD (xmlNLD: XML.NewLinkedDiff) =
     { LevelBreak = int xmlNLD.LevelBreak
-      NLDPhrases = Array.ofSeq xmlNLD.PhraseIds }
+      NLDPhrases = xmlNLD.PhraseIds.ToArray() }
 
 /// Converts an XML Event into an SNG Event.
 let convertEvent (xmlEvent: XML.Event) =
