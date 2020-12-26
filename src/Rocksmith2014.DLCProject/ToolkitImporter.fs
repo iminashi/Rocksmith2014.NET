@@ -95,7 +95,8 @@ let private importVocals (xmlFile: string) (arr: XmlNode) =
             // ...which was misspelled in an earlier version
             |> Option.orElseWith (fun () -> Option.ofObj (arr.Item "GlyphDefinitons")) // sic
             |> Option.bind (fun glyphDefs ->
-                if glyphDefs.IsEmpty then None
+                if glyphDefs.IsEmpty then
+                    None
                 else
                     // Converts "path\to\x.glyphs.xml" to "x.dds"
                     Some (Path.ChangeExtension(Path.GetFileNameWithoutExtension glyphDefs.InnerText, "dds"))))
@@ -155,10 +156,10 @@ let import (templatePath: string) =
         |> Seq.toList
 
     let version =
-        let tkInfo = docEl.Item "ToolkitInfo"
         // There is no ToolkitInfo tag in older template files
-        if isNull tkInfo then itemText docEl "PackageVersion"
-        else itemText tkInfo "PackageVersion"
+        match docEl.Item "ToolkitInfo" with
+        | null -> itemText docEl "PackageVersion"
+        | tkInfo -> itemText tkInfo "PackageVersion"
 
     { Version = version
       DLCKey = itemText docEl "Name"
