@@ -42,7 +42,7 @@ let improve (arrangement: InstrumentalArrangement) =
         let slideTime =
             // If a number was given after the event code, get the time of the chord or note that is right of the event by that number
             if slideEvent.Code.Length > 2 then
-                match Int32.TryParse(slideEvent.Code.Substring(2), NumberStyles.Integer, NumberFormatInfo.InvariantInfo) with
+                match Int32.TryParse(slideEvent.Code.AsSpan(2), NumberStyles.Integer, NumberFormatInfo.InvariantInfo) with
                 | true, rightBy ->
                     Utils.findTimeOfNthNoteFrom level slideEvent.Time rightBy
                 | _ ->

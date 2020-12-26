@@ -3,7 +3,7 @@
 open Rocksmith2014.XML
 open System.Text.RegularExpressions
 
-/// Adds linknext on chords without it but which have linknext chord notes.
+/// Adds linknext to chords that have linknext chord notes, but are missing the attribute.
 let fixChordLinkNext (arrangement: InstrumentalArrangement) =
     arrangement.Levels
     |> Seq.collect (fun l -> l.Chords)

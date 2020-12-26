@@ -13,7 +13,7 @@ let private isChordSlideAt (level: Level) time  =
         |> Seq.exists(fun cn -> cn.IsSlide)
     | _ -> false
 
-/// Shortens the lengths of a handshapes that are too close to the next one.
+/// Shortens the lengths of handshapes that are too close to the next one.
 let improve (arrangement: InstrumentalArrangement) =
     for level in arrangement.Levels do
         let handShapes = level.HandShapes
@@ -34,12 +34,10 @@ let improve (arrangement: InstrumentalArrangement) =
 
                 let note32nd = (beat2.Time - beat1.Time) / 8
                 let shortenBy16thNote =
-                    // Check if it is a chord slide
-                    if isChordSlideAt level precedingStartTime then
-                        // Check if the handshape length is an 8th note or longer
-                        precedingEndTime - precedingStartTime > note32nd * 4
-                    else
-                        false
+                    // If it is a chord slide and the handshape length is an 8th note or longer
+                    isChordSlideAt level precedingStartTime
+                    &&
+                    precedingEndTime - precedingStartTime > note32nd * 4
 
                 let minDistance =
                     // Shorten the min. distance required for 32nd notes or smaller

@@ -20,7 +20,7 @@ module private Events =
 
 let private getMinTime (first: int option) (second: int option) =
     match first, second with
-    | None, None -> failwith "Cannot compare missing values"
+    | None, None -> failwith "Cannot compare missing values."
     | Some first, None -> first
     | None, Some second -> second
     | Some first, Some second -> Math.Min(first, second)
@@ -32,8 +32,8 @@ let private getFirstNoteTime (arrangement: InstrumentalArrangement) =
         else
             // Find the first phrase that has difficulty levels
             let firstPhraseIteration =
-                arrangement.PhraseIterations
-                |> Seq.find (fun pi -> arrangement.Phrases.[pi.PhraseId].MaxDifficulty > 0uy)
+                arrangement.PhraseIterations.Find(fun pi ->
+                    arrangement.Phrases.[pi.PhraseId].MaxDifficulty > 0uy)
             let firstPhrase = arrangement.Phrases.[firstPhraseIteration.PhraseId]
             arrangement.Levels.[int firstPhrase.MaxDifficulty]
 

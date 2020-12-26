@@ -36,7 +36,7 @@ let private issue type' time = { Type = type'; TimeCode = time }
 [<Struct>]
 type private NgSection = { StartTime: int; EndTime: int }
 
-/// Checks for unexpected crowd events between the intro applause events.
+/// Checks for unexpected crowd events between the intro applause start and end events.
 let checkCrowdEventPlacement (arrangement: InstrumentalArrangement) =
     let introApplauseStart = arrangement.Events.Find(fun e -> e.Code = "E3")
     let applauseEnd = arrangement.Events.Find(fun e -> e.Code = "E13")
@@ -117,14 +117,14 @@ let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
         // Check if bendValues match
         | Some nextNote when note.IsBend ->
             let thisNoteLastBendValue =
-                let last = Seq.last note.BendValues
-                last.Step
+                note.BendValues.[note.BendValues.Count - 1].Step
 
             // If the next note has bend values and the first one is at the same timecode as the note, compare to that bend value
             let nextNoteFirstBendValue =
                 if nextNote.IsBend && nextNote.Time = nextNote.BendValues.[0].Time then
                     nextNote.BendValues.[0].Step
-                else 0f
+                else
+                    0f
 
             if thisNoteLastBendValue <> nextNoteFirstBendValue then
                 Some (issue LinkNextBendMismatch nextNote.Time)
@@ -133,6 +133,10 @@ let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
 
         | _ -> None
     
+let private isOnToneChange (arr: InstrumentalArrangement) time =
+    not <| isNull arr.Tones.Changes
+    && arr.Tones.Changes.Exists(fun t -> t.Time = time)
+
 /// Checks the notes in the arrangement for issues.
 let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
     let ngSections = getNoguitarSections arrangement
@@ -156,7 +160,7 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
         if note.IsBend && note.BendValues.FindIndex(fun bv -> bv.Step <> 0.0f) = -1 then
             issue MissingBendValue time
 
-        if not <| isNull arrangement.Tones.Changes && arrangement.Tones.Changes.Exists(fun t -> t.Time = time) then
+        if isOnToneChange arrangement time then
             issue ToneChangeOnNote time
 
         if note.IsLinkNext then
@@ -202,7 +206,7 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
                    |> List.concat
 
         // Check tone change placement
-        if not <| isNull arrangement.Tones.Changes && arrangement.Tones.Changes.Exists(fun t -> t.Time = time) then
+        if isOnToneChange arrangement time then
             issue ToneChangeOnNote time
 
         // Check chords at the end of handshape (no handshape sustain)
