@@ -2,6 +2,12 @@
 
 open System
 
+module Async =
+    /// Maps the result of an asynchronous computation.
+    let map f (task: Async<'a>) = async {
+        let! x = task
+        return f x }
+    
 module Option =
     /// Creates an option from a string, where a null or whitespace string equals None.
     let ofString s = if String.IsNullOrWhiteSpace s then None else Some s

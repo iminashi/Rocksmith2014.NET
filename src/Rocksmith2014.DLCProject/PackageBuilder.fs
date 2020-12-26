@@ -41,20 +41,19 @@ let private build (buildData: BuildData) targetFile project platform = async {
         $"manifests/songs_dlc_{key}/{key}_{name}.json" 
     let sngMap = buildData.SNGs |> dict
 
-    use! manifestEntries = async {
-        let! entries =
-            let attributes arr conv = Some(getManifestName arr, createAttributes project conv)
-            project.Arrangements
-            |> List.choose (function
-                | Instrumental i as arr -> FromInstrumental(i, sngMap.[arr]) |> attributes arr
-                | Vocals v as arr -> FromVocals v |> attributes arr
-                | Showlights _ -> None)
-           |> List.map (fun (name, attr) -> async {
-               let data = MemoryStreamPool.Default.GetStream()
-               do! Manifest.create attr |> Manifest.toJsonStream data
-               return entry name data })
-           |> Async.Parallel
-        return toDisposableList (List.ofArray entries) }
+    use! manifestEntries =
+        let attributes arr conv = Some(getManifestName arr, createAttributes project conv)
+        project.Arrangements
+        |> List.choose (function
+            | Instrumental i as arr -> FromInstrumental(i, sngMap.[arr]) |> attributes arr
+            | Vocals v as arr -> FromVocals v |> attributes arr
+            | Showlights _ -> None)
+        |> List.map (fun (name, attr) -> async {
+           let data = MemoryStreamPool.Default.GetStream()
+           do! Manifest.create attr |> Manifest.toJsonStream data
+           return entry name data })
+        |> Async.Parallel
+        |> Async.map (List.ofArray >> toDisposableList)
 
     use! headerEntry = async {
         let header = createAttributesHeader project >> Some
@@ -68,19 +67,18 @@ let private build (buildData: BuildData) targetFile project platform = async {
             |> Manifest.toJsonStream data
         return entry $"manifests/songs_dlc_{key}/songs_dlc_{key}.hsan" data }
 
-    use! sngEntries = async {
-        let! entries =
-            buildData.SNGs
-            |> List.map (fun (arr, sng) -> async {
-                let data = MemoryStreamPool.Default.GetStream()
-                do! SNG.savePacked data platform sng
-                let name =
-                    let part = partition arr |> snd
-                    let path = Platform.getPath platform Platform.Path.SNG
-                    $"songs/bin/{path}/{key}_{part}.sng"
-                return entry name data })
-            |> Async.Parallel
-        return toDisposableList (List.ofArray entries) }
+    use! sngEntries =
+        buildData.SNGs
+        |> List.map (fun (arr, sng) -> async {
+            let data = MemoryStreamPool.Default.GetStream()
+            do! SNG.savePacked data platform sng
+            let name =
+                let part = partition arr |> snd
+                let path = Platform.getPath platform Platform.Path.SNG
+                $"songs/bin/{path}/{key}_{part}.sng"
+            return entry name data })
+        |> Async.Parallel
+        |> Async.map (List.ofArray >> toDisposableList)
 
     use showlightsEntry =
         let slFile = (List.pick Arrangement.pickShowlights project.Arrangements).XML
@@ -90,8 +88,7 @@ let private build (buildData: BuildData) targetFile project platform = async {
         project.Arrangements
         |> List.tryPick (function Vocals { CustomFont = Some _ as font } -> font | _ -> None)
         |> Option.map (fun f -> entry $"assets/ui/lyrics/{key}/lyrics_{key}.dds" (readFile f))
-        |> Option.toList
-        |> toDisposableList
+        |> (Option.toList >> toDisposableList)
 
     use flatModelEntries =
         let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())

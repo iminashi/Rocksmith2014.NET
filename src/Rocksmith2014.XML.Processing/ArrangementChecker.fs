@@ -44,12 +44,12 @@ let checkCrowdEventPlacement (arrangement: InstrumentalArrangement) =
 
     match introApplauseStart, applauseEnd with
     | null, _ -> []
-    | s, null ->
-        [ issue ApplauseEventWithoutEnd s.Time ]
-    | s, e ->
+    | start, null ->
+        [ issue ApplauseEventWithoutEnd start.Time ]
+    | start, end' ->
         arrangement.Events
         |> Seq.choose (fun ev ->
-            if ev.Time > s.Time && ev.Time < e.Time && crowdEventRegex.IsMatch ev.Code then
+            if ev.Time > start.Time && ev.Time < end'.Time && crowdEventRegex.IsMatch ev.Code then
                 Some ev
             else
                 None)
