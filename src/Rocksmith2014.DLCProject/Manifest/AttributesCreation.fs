@@ -100,16 +100,14 @@ let private convertPhraseIterations (sng: SNG) =
           EndTime = pi.EndTime })
 
 /// Converts SNG chord templates into manifest chord templates.
-let private convertChordTemplates (sng: SNG) =
-    sng.Chords
-    |> Seq.indexed
-    |> Seq.filter(fun (_, c) -> String.notEmpty c.Name && c.Mask <> ChordMask.Arpeggio)
-    |> Seq.map (fun (id, c) ->
-        { ChordId = int16 id
-          ChordName = c.Name
-          Fingers = c.Fingers
-          Frets = c.Frets })
-    |> Seq.toArray
+let private convertChordTemplates (sng: SNG) = [|
+    for id = 0 to sng.Chords.Length - 1 do
+        let chord = sng.Chords.[id]
+        if String.notEmpty chord.Name && chord.Mask <> ChordMask.Arpeggio then
+            { ChordId = int16 id
+              ChordName = chord.Name
+              Fingers = chord.Fingers
+              Frets = chord.Frets } |]
 
 /// Returns a matching UI name for a section name.
 let private getSectionUIName (name: string) =
@@ -397,8 +395,8 @@ let private initSongComplete (partition: int)
     attr
 
 type AttributesConversion =
-| FromVocals of Vocals
-| FromInstrumental of inst: Instrumental * sng: SNG
+    | FromVocals of Vocals
+    | FromInstrumental of inst: Instrumental * sng: SNG
 
 /// Creates attributes for an arrangement.
 let private create isHeader (project: DLCProject) (conversion: AttributesConversion) =
@@ -409,7 +407,7 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
     match conversion with
     | FromVocals v ->
         let arr = Vocals v
-        let name = partition arr |> snd
+        let _, name = partition arr
         let attr = initBase name dlcKey project arr attributes
 
         if isHeader then
