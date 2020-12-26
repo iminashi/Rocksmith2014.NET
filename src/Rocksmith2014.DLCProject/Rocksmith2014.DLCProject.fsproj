@@ -20,6 +20,7 @@
     <EmbeddedResource Include="res\wwise2019.zip" />
     <EmbeddedResource Include="res\rsenumerable_root.flat" />
     <EmbeddedResource Include="res\rsenumerable_song.flat" />
+    <Compile Include="ActivePatterns.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="Arrangement.fs" />
     <Compile Include="SoundBank.fs" />

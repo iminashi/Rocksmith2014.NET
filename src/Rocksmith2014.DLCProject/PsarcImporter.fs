@@ -18,9 +18,10 @@ let private getVolume (psarc: PSARC) platform bank = async {
            | Error _ -> 0.0f }
 
 let private (|VocalsFile|JVocalsFile|InstrumentalFile|) (fileName: string) =
-    if String.contains "jvocals" fileName then JVocalsFile
-    elif String.contains "vocals" fileName then VocalsFile
-    else InstrumentalFile
+    match fileName with
+    | Contains "jvocals" -> JVocalsFile
+    | Contains "vocals" -> VocalsFile
+    | _ -> InstrumentalFile
 
 /// Imports a vocals SNG into a vocals arrangement.
 let private importVocals targetDirectory targetFile customFont (attributes: Attributes) sng isJapanese =
@@ -136,7 +137,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
     let! customFont = async {
         let font =
             psarcContents
-            |> List.tryFind (fun x -> x.Contains "assets/ui/lyrics")
+            |> List.tryFind (String.contains "assets/ui/lyrics")
         match font with
         | Some font ->
             let fn = Path.Combine(targetDirectory, "lyrics.dds")
@@ -148,7 +149,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
     let arrangements =
         sngs
         |> Array.Parallel.map (fun (file, sng) ->
-            // Change the file names from "dlckey_name" to "arr_name"
+            // Change the filenames from "dlckey_name" to "arr_name"
             let targetFile =
                 let f = Path.GetFileName file
                 Path.Combine(targetDirectory, Path.ChangeExtension("arr" + f.Substring(f.IndexOf '_'), "xml"))
