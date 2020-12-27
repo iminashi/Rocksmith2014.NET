@@ -173,9 +173,10 @@ let private createChordNotes (pendingLinkNexts: Dictionary<int8, int16>) thisId 
     
         let hash = hashChordNotes chordNotes
         lock accuData.ChordNotesMap (fun _ ->
-            if accuData.ChordNotesMap.ContainsKey(hash) then
-                accuData.ChordNotesMap.[hash]
-            else
+            match accuData.ChordNotesMap.TryGetValue hash with
+            | true, id ->
+                id
+            | false, _ ->
                 let id = accuData.ChordNotes.Count
                 accuData.ChordNotes.Add(chordNotes)
                 accuData.ChordNotesMap.Add(hash, id)
