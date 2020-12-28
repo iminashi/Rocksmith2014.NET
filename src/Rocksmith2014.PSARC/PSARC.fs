@@ -43,7 +43,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     let inflateEntry (entry: Entry) (output: Stream) = async {
         let blockSize = int header.BlockSizeAlloc
-        let mutable zIndex = int entry.zIndexBegin
+        let mutable zIndex = int entry.ZIndexBegin
         source.Position <- int64 entry.Offset
 
         while output.Length < int64 entry.Length do
