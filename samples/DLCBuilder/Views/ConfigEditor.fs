@@ -171,7 +171,7 @@ let private generalConfig state dispatch =
 let private buildConfig state dispatch =
     Grid.create [
         Grid.columnDefinitions "*,2*"
-        Grid.rowDefinitions "*,*"
+        Grid.rowDefinitions "*,*,*,*,*"
         Grid.verticalAlignment VerticalAlignment.Top
         Grid.children [
             TextBlock.create [
@@ -255,6 +255,39 @@ let private buildConfig state dispatch =
                         )
                     ]
                 ]
+            ]
+
+            TextBlock.create [
+                Grid.row 2
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text "Generate DD"
+            ]
+            CheckBox.create [
+                Grid.column 1
+                Grid.row 2
+                CheckBox.margin (0., 2.)
+            ]
+
+            TextBlock.create [
+                Grid.row 3
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text "Apply Improvements"
+            ]
+            CheckBox.create [
+                Grid.column 1
+                Grid.row 3
+                CheckBox.margin (0., 2.)
+            ]
+
+            TextBlock.create [
+                Grid.row 4
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text "Save Debug Files"
+            ]
+            CheckBox.create [
+                Grid.column 1
+                Grid.row 4
+                CheckBox.margin (0., 2.)
             ]
         ]
      ]
