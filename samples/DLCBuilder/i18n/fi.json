@@ -194,5 +194,7 @@
   "LyricWithInvalidChar": "Sanoitus sisältää merkin ({0}), jota ei ole oletusfontissa",
   "LyricWithInvalidCharHelp": "Tarvitaan mukautettu fontti, jotta tämä merkki näkyisi pelissä.",
   "InvalidShowlights": "Valoshowssa pitää olla vähintään yksi \"fog\" nuotti ja yksi \"beam\" nuotti",
-  "InvalidShowlightsHelp": "Tämä valoshowtiedosto kaataa pelin, kun kappale valitaan."
+  "InvalidShowlightsHelp": "Tämä valoshowtiedosto kaataa pelin, kun kappale valitaan.",
+  "general": "Yleinen",
+  "build": "Rakennus"
 }

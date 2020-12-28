@@ -194,5 +194,7 @@
   "LyricWithInvalidChar": "The lyrics contain a character ({0}) not in the default font",
   "LyricWithInvalidCharHelp": "A custom font is needed for the character to be displayed in-game.",
   "InvalidShowlights": "The show lights need to contain at least one fog note and one beam note",
-  "InvalidShowlightsHelp": "This show lights file will crash the game when the song is selected."
+  "InvalidShowlightsHelp": "This show lights file will crash the game when the song is selected.",
+  "general":  "General",
+  "build": "Build"
 }
