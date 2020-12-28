@@ -66,7 +66,7 @@ let write (targetFile: string) (profileId: uint64) (jsonData: Stream) = async {
 
     use zipped = MemoryStreamPool.Default.GetStream()
     jsonData.Position <- 0L
-    do! Compression.zip jsonData zipped
+    do! Compression.asyncZip jsonData zipped
 
     zipped.Position <- 0L
     do! encryptProfileData zipped file }

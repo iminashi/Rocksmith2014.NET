@@ -115,7 +115,7 @@ module SNG =
         use payload = MemoryStreamPool.Default.GetStream()
         // Write the uncompressed length
         (BinaryWriters.getWriter payload platform).WriteInt32 (input.Length |> int32)
-        do! Compression.zip input payload
+        do! Compression.asyncZip input payload
         
         payload.Position <- 0L
         Cryptography.encryptSNG payload output platform None }

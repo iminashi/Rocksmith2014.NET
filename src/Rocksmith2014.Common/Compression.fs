@@ -5,10 +5,15 @@ open System.IO
 open ICSharpCode.SharpZipLib.Zip.Compression.Streams
 open ICSharpCode.SharpZipLib.Zip.Compression
 
-/// Zips the data from the input stream into the output stream in zlib format, using the best compression.
-let zip (input: Stream) (output: Stream) = async {
+/// Zips the data from the input stream into the output stream in zlib format, asynchronously, using the best compression.
+let asyncZip (input: Stream) (output: Stream) = async {
     use zipStream = new DeflaterOutputStream(output, Deflater(Deflater.BEST_COMPRESSION), IsStreamOwner = false)
     do! input.CopyToAsync(zipStream, 65536) }
+
+/// Zips the data from the input stream into the output stream in zlib format, using the best compression.
+let zip bufferSize (input: Stream) (output: Stream) =
+    use zipStream = new DeflaterOutputStream(output, Deflater(Deflater.BEST_COMPRESSION), IsStreamOwner = false)
+    input.CopyTo(zipStream, bufferSize)
 
 /// Unzips zlib data from the input stream into the output stream.
 let unzip (input: Stream) (output: Stream) = async {
@@ -30,17 +35,17 @@ let blockZip blockSize (deflatedData: ResizeArray<Stream>) (zLengths: ResizeArra
         let pStream = new MemoryStream(buffer)
         let zStream = MemoryStreamPool.Default.GetStream()
     
-        let! data, length = async {
-            do! zip pStream zStream
+        let data, length =
+            zip size pStream zStream
             let packedSize = int zStream.Length
             if packedSize < blockSize then
                 pStream.Dispose()
-                return zStream, packedSize
+                zStream, packedSize
             else
                 // Edge case: the size of the zipped data is equal to, or greater than the block size
                 assert (bytesRead = int pStream.Length)
                 zStream.Dispose()
-                return pStream, bytesRead }
+                pStream, bytesRead
 
         deflatedData.Add data
         zLengths.Add(uint32 length)
