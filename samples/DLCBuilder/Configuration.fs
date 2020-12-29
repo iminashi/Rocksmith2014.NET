@@ -12,6 +12,9 @@ type Configuration =
       ProjectsFolderPath : string
       CharterName : string
       ShowAdvanced : bool
+      GenerateDD : bool
+      ApplyImprovements : bool
+      SaveDebugFiles : bool
       Locale : Locale
       WwiseConsolePath : string option
       CustomAppId : string option }
@@ -23,6 +26,9 @@ type Configuration =
           ProjectsFolderPath = String.Empty
           CharterName = String.Empty
           ShowAdvanced = false
+          GenerateDD = true
+          ApplyImprovements = true
+          SaveDebugFiles = false
           Locale = Locales.English
           WwiseConsolePath = None
           CustomAppId = None }
@@ -36,6 +42,9 @@ module Configuration =
         member val ProjectsFolderPath : string = String.Empty with get, set
         member val CharterName : string = String.Empty with get, set
         member val ShowAdvanced : bool = false with get, set
+        member val GenerateDD : bool = true with get, set
+        member val ApplyImprovements : bool = true with get, set
+        member val SaveDebugFiles : bool = false with get, set
         member val Locale : string = "en" with get, set
         member val WwiseConsolePath : string = String.Empty with get, set
         member val CustomAppId : string = String.Empty with get, set
@@ -59,6 +68,9 @@ module Configuration =
           ProjectsFolderPath = dto.ProjectsFolderPath
           CharterName = dto.CharterName
           ShowAdvanced = dto.ShowAdvanced
+          GenerateDD = dto.GenerateDD
+          ApplyImprovements = dto.ApplyImprovements
+          SaveDebugFiles = dto.SaveDebugFiles
           Locale = Locales.fromShortName dto.Locale
           WwiseConsolePath = Option.ofString dto.WwiseConsolePath
           CustomAppId = Option.ofString dto.CustomAppId }

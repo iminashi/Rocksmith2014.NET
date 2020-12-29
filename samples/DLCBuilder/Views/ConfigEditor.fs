@@ -266,6 +266,15 @@ let private buildConfig state dispatch =
                 Grid.column 1
                 Grid.row 2
                 CheckBox.margin (0., 2.)
+                CheckBox.isChecked state.Config.GenerateDD
+                CheckBox.onChecked (fun _ ->
+                    fun c -> { c with GenerateDD = true }
+                    |> EditConfig
+                    |> dispatch)
+                CheckBox.onUnchecked (fun _ ->
+                    fun c -> { c with GenerateDD = false }
+                    |> EditConfig
+                    |> dispatch)
             ]
 
             TextBlock.create [
@@ -277,6 +286,15 @@ let private buildConfig state dispatch =
                 Grid.column 1
                 Grid.row 3
                 CheckBox.margin (0., 2.)
+                CheckBox.isChecked state.Config.ApplyImprovements
+                CheckBox.onChecked (fun _ ->
+                    fun c -> { c with ApplyImprovements = true }
+                    |> EditConfig
+                    |> dispatch)
+                CheckBox.onUnchecked (fun _ ->
+                    fun c -> { c with ApplyImprovements = false }
+                    |> EditConfig
+                    |> dispatch)
             ]
 
             TextBlock.create [
@@ -288,6 +306,15 @@ let private buildConfig state dispatch =
                 Grid.column 1
                 Grid.row 4
                 CheckBox.margin (0., 2.)
+                CheckBox.isChecked state.Config.SaveDebugFiles
+                CheckBox.onChecked (fun _ ->
+                    fun c -> { c with SaveDebugFiles = true }
+                    |> EditConfig
+                    |> dispatch)
+                CheckBox.onUnchecked (fun _ ->
+                    fun c -> { c with SaveDebugFiles = false }
+                    |> EditConfig
+                    |> dispatch)
             ]
         ]
      ]
