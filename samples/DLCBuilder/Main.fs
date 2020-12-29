@@ -67,7 +67,9 @@ let private createBuildConfig state appId platforms =
     { Platforms = platforms
       Author = state.Config.CharterName
       AppId = appId
+      GenerateDD = state.Config.GenerateDD
       ApplyImprovements = state.Config.ApplyImprovements
+      SaveDebugFiles = state.Config.SaveDebugFiles
       AudioConversionTask = convTask }
 
 let private updateArrangement old updated state =

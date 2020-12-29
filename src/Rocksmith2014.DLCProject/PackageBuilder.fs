@@ -26,7 +26,9 @@ type BuildConfig =
     { Platforms: Platform list
       Author: string
       AppId: string
+      GenerateDD: bool
       ApplyImprovements: bool
+      SaveDebugFiles: bool
       AudioConversionTask: Async<unit> }
 
 let private toDisposableList items = new DisposableList<NamedEntry>(items)
@@ -161,7 +163,7 @@ let private build (buildData: BuildData) targetFile project platform = async {
         yield toolkitEntry
         yield appIdEntry ]) }
 
-let private setupInstrumental part (inst: Instrumental) improve (xml: InstrumentalArrangement) =
+let private setupInstrumental part (inst: Instrumental) config (xml: InstrumentalArrangement) =
     xml.MetaData.Part <- int16 part
 
     // Set up correct tone IDs
@@ -173,7 +175,7 @@ let private setupInstrumental part (inst: Instrumental) improve (xml: Instrument
 
     if xml.Version < 8uy then xml.FixHighDensity()
 
-    if improve then ArrangementImprover.applyAll xml
+    if config.ApplyImprovements then ArrangementImprover.applyAll xml
 
     // TODO: Generate DD levels
 
@@ -195,7 +197,7 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
                     let part = partition arr |> fst
                     let sng =
                         InstrumentalArrangement.Load inst.XML
-                        |> setupInstrumental part inst config.ApplyImprovements
+                        |> setupInstrumental part inst config
                         |> ConvertInstrumental.xmlToSng
                     Some(arr, sng)
                 | Vocals v ->
