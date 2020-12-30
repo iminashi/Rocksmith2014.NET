@@ -3,6 +3,7 @@
 open Rocksmith2014.XML
 open System
 open LevelCounter
+open System.Collections.Generic
 
 type XmlEntity =
     | XmlNote of Note
@@ -11,6 +12,16 @@ type XmlEntity =
 let private getTimeCode = function
     | XmlNote xn -> xn.Time
     | XmlChord xc -> xc.Time
+
+type RequestTarget = ChordTarget of Chord | HandShapeTarget of HandShape
+
+type TemplateRequest = { OriginalId: int16; NoteCount: byte; Target: RequestTarget }
+
+let private getNoteCount (template: ChordTemplate) =
+    template.Frets
+    |> Array.fold (fun acc elem -> if elem >= 0y then acc + 1 else acc) 0
+
+let private lockObj = obj()
 
 /// Creates an XML entity array from the notes and chords.
 let private createXmlEntityArray (xmlNotes: Note list) (xmlChords: Chord list) =
@@ -30,25 +41,62 @@ let private createXmlEntityArray (xmlNotes: Note list) (xmlChords: Chord list) =
         Array.sortInPlaceBy getTimeCode entityArray
         entityArray
 
-let private chooseEntities diffPercent (entities: XmlEntity array) =
+let private chooseEntities diffPercent (templates: ResizeArray<ChordTemplate>) (entities: XmlEntity array) =
     entities
     |> Array.choose (fun e ->
-        // TODO: Actual implementation
         match e with
         | XmlNote _ ->
-            Some e
-        | XmlChord _ ->
-            Some e
+            // TODO: Actual implementation
+            Some (e, None)
+        | XmlChord chord ->
+            let template = templates.[int chord.ChordId]
+            let noteCount = getNoteCount template
+
+            // TODO: Techniques, link next
+
+            if diffPercent <= 17 && noteCount > 1 then
+                let template = templates.[int chord.ChordId]
+                let string = template.Frets |> Array.findIndex (fun x -> x <> -1y)
+                let note = Note(Time = chord.Time, String = sbyte string, Fret = template.Frets.[string])
+                Some (XmlNote note, None)
+            elif diffPercent <= 34 && noteCount > 2 then
+                let copy = Chord(chord)
+                Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 2uy; Target = ChordTarget copy })
+            elif diffPercent <= 51 && noteCount > 3 then
+                let copy = Chord(chord)
+                Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 3uy; Target = ChordTarget copy })
+            elif diffPercent <= 68 && noteCount > 4 then
+                let copy = Chord(chord)
+                Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 4uy; Target = ChordTarget copy })
+            elif diffPercent <= 85 && noteCount > 5 then
+                let copy = Chord(chord)
+                Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 5uy; Target = ChordTarget copy })
+            else
+                Some (e, None)
     )
 
-let private chooseHandShapes diffPercent (handShapes: HandShape list) =
-    // TODO: Actual implementation
+let private chooseHandShapes diffPercent (templates: ResizeArray<ChordTemplate>) (handShapes: HandShape list) =
     handShapes
     |> List.choose (fun hs ->
-        if diffPercent <= 15 then
+        let template = templates.[int hs.ChordId]
+        let noteCount = getNoteCount template
+
+        if diffPercent <= 17 && noteCount > 1 then
             None
+        elif diffPercent <= 34 && noteCount > 2 then
+            let copy = HandShape(hs)
+            Some (copy, Some { OriginalId = hs.ChordId; NoteCount = 2uy; Target = HandShapeTarget copy })
+        elif diffPercent <= 51 && noteCount > 3 then
+            let copy = HandShape(hs)
+            Some (copy, Some { OriginalId = hs.ChordId; NoteCount = 3uy; Target = HandShapeTarget copy })
+        elif diffPercent <= 68 && noteCount > 4 then
+            let copy = HandShape(hs)
+            Some (copy, Some { OriginalId = hs.ChordId; NoteCount = 4uy; Target = HandShapeTarget copy })
+        elif diffPercent <= 85 && noteCount > 5 then
+            let copy = HandShape(hs)
+            Some (copy, Some { OriginalId = hs.ChordId; NoteCount = 5uy; Target = HandShapeTarget copy })
         else
-            Some hs
+            Some (hs, None)
     )
 
 /// Copies the necessary anchors into the difficulty level.
@@ -100,10 +148,71 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
             else
                 let diffPercent = 100 * diff / levelCount
                 let entities = createXmlEntityArray phraseData.Notes phraseData.Chords
-                let levelEntities = chooseEntities diffPercent entities
+                let levelEntities, templateRequests1 =
+                    chooseEntities diffPercent arr.ChordTemplates entities
+                    |> Array.unzip
                 let notes = levelEntities |> Array.choose (function XmlNote n -> Some n | _ -> None)
                 let chords = levelEntities |> Array.choose (function XmlChord n -> Some n | _ -> None)
-                let handShapes = chooseHandShapes diffPercent phraseData.HandShapes
+                let handShapes, templateRequests2 =
+                    chooseHandShapes diffPercent arr.ChordTemplates phraseData.HandShapes
+                    |> List.unzip
+
+                let templateMap = Dictionary<int16 * byte, int16>()
+
+                templateRequests1
+                |> Seq.append templateRequests2
+                |> Seq.choose id
+                |> Seq.iter (fun request ->
+                    let id = 
+                        match templateMap.TryGetValue((request.OriginalId, request.NoteCount)) with
+                        | true, id ->
+                            id
+                        | false, _ ->
+                            let template = arr.ChordTemplates.[int request.OriginalId]
+                            let noteCount = getNoteCount template
+
+                            let mutable removeNotes = noteCount - int request.NoteCount
+                            let newFingers =
+                                let fingers = Array.copy template.Fingers
+                                for i = fingers.Length - 1 downto 0 do
+                                    if (fingers.[i] <> -1y || template.Frets.[i] = 0y) && removeNotes > 0 then
+                                        removeNotes <- removeNotes - 1
+                                        fingers.[i] <- -1y
+                                fingers
+
+                            removeNotes <- noteCount - int request.NoteCount
+                            let newFrets =
+                                let frets = Array.copy template.Frets
+                                for i = frets.Length - 1 downto 0 do
+                                    if frets.[i] <> -1y && removeNotes > 0 then
+                                        removeNotes <- removeNotes - 1
+                                        frets.[i] <- -1y
+                                frets
+
+                            let newTemplate = ChordTemplate(template.Name, template.DisplayName, newFingers, newFrets)
+
+                            let id =
+                                lock lockObj (fun _ ->
+                                    let existing = arr.ChordTemplates.FindIndex(fun x ->
+                                        x.DisplayName = newTemplate.DisplayName
+                                        && x.Name = newTemplate.Name
+                                        && x.Frets = newTemplate.Frets
+                                        && x.Fingers = newTemplate.Fingers
+                                    )
+                                    match existing with
+                                    | -1 ->
+                                        let id = int16 arr.ChordTemplates.Count
+                                        arr.ChordTemplates.Add newTemplate
+                                        id
+                                    | index ->
+                                        int16 index)
+                            templateMap.Add((request.OriginalId, request.NoteCount), id)
+                            id
+
+                    match request.Target with
+                    | ChordTarget chord -> chord.ChordId <- id
+                    | HandShapeTarget hs -> hs.ChordId <- id
+                )
 
                 Level(sbyte diff,
                       ResizeArray(notes),
