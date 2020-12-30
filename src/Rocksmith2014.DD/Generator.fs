@@ -142,22 +142,15 @@ let private applyChordId (templates: ResizeArray<ChordTemplate>) =
                 let noteCount = getNoteCount template
 
                 let mutable removeNotes = noteCount - int request.NoteCount
-                let newFingers =
+                let newFingers, newFrets =
                     let fingers = Array.copy template.Fingers
-                    for i = fingers.Length - 1 downto 0 do
-                        if (fingers.[i] <> -1y || template.Frets.[i] = 0y) && removeNotes > 0 then
-                            removeNotes <- removeNotes - 1
-                            fingers.[i] <- -1y
-                    fingers
-
-                removeNotes <- noteCount - int request.NoteCount
-                let newFrets =
                     let frets = Array.copy template.Frets
                     for i = frets.Length - 1 downto 0 do
                         if frets.[i] <> -1y && removeNotes > 0 then
                             removeNotes <- removeNotes - 1
+                            fingers.[i] <- -1y
                             frets.[i] <- -1y
-                    frets
+                    fingers, frets
 
                 let newTemplate = ChordTemplate(template.Name, template.DisplayName, newFingers, newFrets)
 
@@ -167,8 +160,8 @@ let private applyChordId (templates: ResizeArray<ChordTemplate>) =
                             x.DisplayName = newTemplate.DisplayName
                             && x.Name = newTemplate.Name
                             && x.Frets = newTemplate.Frets
-                            && x.Fingers = newTemplate.Fingers
-                        )
+                            && x.Fingers = newTemplate.Fingers)
+
                         match existing with
                         | -1 ->
                             let id = int16 templates.Count
