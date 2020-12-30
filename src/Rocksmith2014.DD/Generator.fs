@@ -54,6 +54,8 @@ let private chooseEntities diffPercent (templates: ResizeArray<ChordTemplate>) (
 
             // TODO: Techniques, link next
 
+            // TODO: Chord notes thinning
+
             if diffPercent <= 17 && noteCount > 1 then
                 let template = templates.[int chord.ChordId]
                 let string = template.Frets |> Array.findIndex (fun x -> x <> -1y)
@@ -127,6 +129,60 @@ let private chooseAnchors (entities: XmlEntity array) (anchors: Anchor list) phr
     add [] anchors
     |> List.rev
 
+let private applyChordId (templates: ResizeArray<ChordTemplate>) =
+    let templateMap = Dictionary<int16 * byte, int16>()
+
+    fun (request: TemplateRequest) ->
+        let id = 
+            match templateMap.TryGetValue((request.OriginalId, request.NoteCount)) with
+            | true, id ->
+                id
+            | false, _ ->
+                let template = templates.[int request.OriginalId]
+                let noteCount = getNoteCount template
+
+                let mutable removeNotes = noteCount - int request.NoteCount
+                let newFingers =
+                    let fingers = Array.copy template.Fingers
+                    for i = fingers.Length - 1 downto 0 do
+                        if (fingers.[i] <> -1y || template.Frets.[i] = 0y) && removeNotes > 0 then
+                            removeNotes <- removeNotes - 1
+                            fingers.[i] <- -1y
+                    fingers
+
+                removeNotes <- noteCount - int request.NoteCount
+                let newFrets =
+                    let frets = Array.copy template.Frets
+                    for i = frets.Length - 1 downto 0 do
+                        if frets.[i] <> -1y && removeNotes > 0 then
+                            removeNotes <- removeNotes - 1
+                            frets.[i] <- -1y
+                    frets
+
+                let newTemplate = ChordTemplate(template.Name, template.DisplayName, newFingers, newFrets)
+
+                let id =
+                    lock lockObj (fun _ ->
+                        let existing = templates.FindIndex(fun x ->
+                            x.DisplayName = newTemplate.DisplayName
+                            && x.Name = newTemplate.Name
+                            && x.Frets = newTemplate.Frets
+                            && x.Fingers = newTemplate.Fingers
+                        )
+                        match existing with
+                        | -1 ->
+                            let id = int16 templates.Count
+                            templates.Add newTemplate
+                            id
+                        | index ->
+                            int16 index)
+                templateMap.Add((request.OriginalId, request.NoteCount), id)
+                id
+
+        match request.Target with
+        | ChordTarget chord -> chord.ChordId <- id
+        | HandShapeTarget hs -> hs.ChordId <- id
+
 let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtractor.PhraseData) =
     // Determine the number of levels to generate for this phrase
     let levelCount = predictLevelCount (DataExtractor.getPath arr) phraseData
@@ -157,62 +213,10 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
                     chooseHandShapes diffPercent arr.ChordTemplates phraseData.HandShapes
                     |> List.unzip
 
-                let templateMap = Dictionary<int16 * byte, int16>()
-
                 templateRequests1
                 |> Seq.append templateRequests2
                 |> Seq.choose id
-                |> Seq.iter (fun request ->
-                    let id = 
-                        match templateMap.TryGetValue((request.OriginalId, request.NoteCount)) with
-                        | true, id ->
-                            id
-                        | false, _ ->
-                            let template = arr.ChordTemplates.[int request.OriginalId]
-                            let noteCount = getNoteCount template
-
-                            let mutable removeNotes = noteCount - int request.NoteCount
-                            let newFingers =
-                                let fingers = Array.copy template.Fingers
-                                for i = fingers.Length - 1 downto 0 do
-                                    if (fingers.[i] <> -1y || template.Frets.[i] = 0y) && removeNotes > 0 then
-                                        removeNotes <- removeNotes - 1
-                                        fingers.[i] <- -1y
-                                fingers
-
-                            removeNotes <- noteCount - int request.NoteCount
-                            let newFrets =
-                                let frets = Array.copy template.Frets
-                                for i = frets.Length - 1 downto 0 do
-                                    if frets.[i] <> -1y && removeNotes > 0 then
-                                        removeNotes <- removeNotes - 1
-                                        frets.[i] <- -1y
-                                frets
-
-                            let newTemplate = ChordTemplate(template.Name, template.DisplayName, newFingers, newFrets)
-
-                            let id =
-                                lock lockObj (fun _ ->
-                                    let existing = arr.ChordTemplates.FindIndex(fun x ->
-                                        x.DisplayName = newTemplate.DisplayName
-                                        && x.Name = newTemplate.Name
-                                        && x.Frets = newTemplate.Frets
-                                        && x.Fingers = newTemplate.Fingers
-                                    )
-                                    match existing with
-                                    | -1 ->
-                                        let id = int16 arr.ChordTemplates.Count
-                                        arr.ChordTemplates.Add newTemplate
-                                        id
-                                    | index ->
-                                        int16 index)
-                            templateMap.Add((request.OriginalId, request.NoteCount), id)
-                            id
-
-                    match request.Target with
-                    | ChordTarget chord -> chord.ChordId <- id
-                    | HandShapeTarget hs -> hs.ChordId <- id
-                )
+                |> Seq.iter (applyChordId arr.ChordTemplates)
 
                 Level(sbyte diff,
                       ResizeArray(notes),
