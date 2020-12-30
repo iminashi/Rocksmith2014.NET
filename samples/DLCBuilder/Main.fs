@@ -485,7 +485,7 @@ let update (msg: Msg) (state: State) =
                 |> Option.defaultWith (fun _ -> IO.Path.GetDirectoryName project.AudioFile.Path)
 
             let fn =
-                sprintf "%s_%s_v%s" project.ArtistName.Value project.Title.Value (project.Version.Replace('.', '_'))
+                sprintf "%s_%s_v%s" project.ArtistName.SortValue project.Title.SortValue (project.Version.Replace('.', '_'))
                 |> StringValidator.fileName
 
             let path = IO.Path.Combine(releaseDir, fn)

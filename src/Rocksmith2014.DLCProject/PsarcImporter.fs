@@ -221,7 +221,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
 
     let projectFile =
         let fn =
-            sprintf "%s_%s" project.ArtistName.Value project.Title.Value
+            sprintf "%s_%s" project.ArtistName.SortValue project.Title.SortValue
             |> StringValidator.fileName
         Path.Combine(targetDirectory, fn + ".rs2dlc")
 
