@@ -51,7 +51,7 @@ let private pruneTechniques diffPercent (removedLinkNexts: HashSet<sbyte>) (note
         note.SlideTo <- -1y
         note.SlideUnpitchTo <- -1y
 
-let private pruneChordNotes noteCount (removedLinkNexts: HashSet<sbyte>) (chord: Chord) =
+let private pruneChordNotes diffPercent noteCount (removedLinkNexts: HashSet<sbyte>) (chord: Chord) =
     let cn = chord.ChordNotes
     if not <| isNull cn && cn.Count > 0 then
         let removeNotes = cn.Count - noteCount
@@ -59,6 +59,8 @@ let private pruneChordNotes noteCount (removedLinkNexts: HashSet<sbyte>) (chord:
             if cn.[i].IsLinkNext then
                 removedLinkNexts.Add cn.[i].String |> ignore
         cn.RemoveRange(cn.Count - removeNotes, removeNotes)
+
+        for n in cn do pruneTechniques diffPercent removedLinkNexts n
 
 let private chooseEntities diffPercent (templates: ResizeArray<ChordTemplate>) (entities: XmlEntity array) =
     let removedLinkNexts = HashSet<sbyte>()
@@ -79,8 +81,6 @@ let private chooseEntities diffPercent (templates: ResizeArray<ChordTemplate>) (
             let template = templates.[int chord.ChordId]
             let noteCount = getNoteCount template
 
-            // TODO: Techniques
-
             if diffPercent <= 17 && noteCount > 1 then
                 let template = templates.[int chord.ChordId]
 
@@ -94,30 +94,32 @@ let private chooseEntities diffPercent (templates: ResizeArray<ChordTemplate>) (
                         n
                     else
                         let string = template.Frets |> Array.findIndex (fun x -> x <> -1y)
-                        Note(Time = chord.Time, String = sbyte string, Fret = template.Frets.[string])
+                        Note(Time = chord.Time, String = sbyte string, Fret = template.Frets.[string], IsFretHandMute = chord.IsFretHandMute)
                 
                 Some (XmlNote note, None)
             elif diffPercent <= 34 && noteCount > 2 then
                 let copy = Chord(chord)
-                pruneChordNotes 2 removedLinkNexts copy
+                pruneChordNotes diffPercent 2 removedLinkNexts copy
                 Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 2uy; Target = ChordTarget copy })
             elif diffPercent <= 51 && noteCount > 3 then
                 let copy = Chord(chord)
-                pruneChordNotes 3 removedLinkNexts copy
+                pruneChordNotes diffPercent 3 removedLinkNexts copy
                 Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 3uy; Target = ChordTarget copy })
             elif diffPercent <= 68 && noteCount > 4 then
                 let copy = Chord(chord)
-                pruneChordNotes 4 removedLinkNexts copy
+                pruneChordNotes diffPercent 4 removedLinkNexts copy
                 Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 4uy; Target = ChordTarget copy })
             elif diffPercent <= 85 && noteCount > 5 then
                 let copy = Chord(chord)
-                pruneChordNotes 5 removedLinkNexts copy
+                pruneChordNotes diffPercent 5 removedLinkNexts copy
                 Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 5uy; Target = ChordTarget copy })
             else
                 Some (e, None)
     )
 
 let private chooseHandShapes diffPercent (templates: ResizeArray<ChordTemplate>) (handShapes: HandShape list) =
+    // TODO: Special handling for arpeggios
+
     handShapes
     |> List.choose (fun hs ->
         let template = templates.[int hs.ChordId]
@@ -192,19 +194,18 @@ let private applyChordId (templates: ResizeArray<ChordTemplate>) =
                             frets.[i] <- -1y
                     fingers, frets
 
-                let newTemplate = ChordTemplate(template.Name, template.DisplayName, newFingers, newFrets)
-
                 let id =
                     lock lockObj (fun _ ->
                         let existing = templates.FindIndex(fun x ->
-                            x.DisplayName = newTemplate.DisplayName
-                            && x.Name = newTemplate.Name
-                            && x.Frets = newTemplate.Frets
-                            && x.Fingers = newTemplate.Fingers)
+                            x.DisplayName = template.Name
+                            && x.Name = template.DisplayName
+                            && x.Frets = newFrets
+                            && x.Fingers = newFingers)
 
                         match existing with
                         | -1 ->
                             let id = int16 templates.Count
+                            let newTemplate = ChordTemplate(template.Name, template.DisplayName, newFingers, newFrets)
                             templates.Add newTemplate
                             id
                         | index ->
@@ -235,16 +236,19 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
                       ResizeArray(phraseData.Anchors),
                       ResizeArray(phraseData.HandShapes))
             else
-                let diffPercent = 100 * diff / levelCount
+                let diffPercent = 100 * (diff + 1) / levelCount
+
                 let entities = createXmlEntityArray phraseData.Notes phraseData.Chords
                 let levelEntities, templateRequests1 =
                     chooseEntities diffPercent arr.ChordTemplates entities
                     |> Array.unzip
                 let notes = levelEntities |> Array.choose (function XmlNote n -> Some n | _ -> None)
                 let chords = levelEntities |> Array.choose (function XmlChord n -> Some n | _ -> None)
+
                 let handShapes, templateRequests2 =
                     chooseHandShapes diffPercent arr.ChordTemplates phraseData.HandShapes
                     |> List.unzip
+
                 let anchors = chooseAnchors levelEntities phraseData.Anchors phraseData.EndTime
 
                 templateRequests1
