@@ -164,8 +164,7 @@ namespace Rocksmith2014.XML
 
             reader.MoveToContent();
 
-            if (reader.LocalName != "song")
-                throw new InvalidOperationException("Expected root node of the XML file to be \"song\", instead found: " + reader.LocalName);
+            Utils.ValidateRootName(reader);
 
             var tones = new ToneInfo();
 
