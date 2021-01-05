@@ -7,13 +7,13 @@ namespace Rocksmith2014.XML
 {
     public sealed class MetaData
     {
-        // Other metadata that is included here:
+        // Other metadata that is not included here:
         //
         // Offset - Start beat * -1. Handled automatically.
         // WaveFilePath - Used only in official files.
         // InternalName - Used only in official files.
         // CrowdSpeed - Completely purposeless since it does not have an equivalent in the SNG files or manifest files.
-        //              The crowd speed is controlled with events e0, e1 and e2.
+        //              The crowd speed is controlled with the events e0, e1 and e2.
 
         /// <summary>
         /// The name of the arrangement: Lead, Rhythm, Combo or Bass.
