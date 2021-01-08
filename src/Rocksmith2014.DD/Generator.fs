@@ -43,7 +43,10 @@ let private chooseAnchors (entities: XmlEntity array) (anchors: Anchor list) phr
             let result =
                 if entities |> Array.exists (fun e ->
                     let time = getTimeCode e
-                    time + errorMargin >= a.Time && time < endTime)
+                    let sustain = getSustain e
+                    time + errorMargin >= a.Time && time < endTime
+                    ||
+                    time + sustain + errorMargin >= a.Time && time + sustain < endTime)
                 then
                     a::result
                 else

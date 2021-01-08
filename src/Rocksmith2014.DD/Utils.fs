@@ -14,3 +14,12 @@ let getNoteCount (template: ChordTemplate) =
 let getTimeCode = function
     | XmlNote xn -> xn.Time
     | XmlChord xc -> xc.Time
+
+let getSustain = function
+    | XmlNote xn ->
+        xn.Sustain
+    | XmlChord xc ->
+        if isNull xc.ChordNotes then
+            0
+        else
+            xc.ChordNotes.[0].Sustain

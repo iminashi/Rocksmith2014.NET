@@ -66,8 +66,8 @@ let private findEntityWithString (entities: XmlEntity seq) string =
             &&
             c.ChordNotes.Exists(fun cn -> cn.String = string))
 
-let private findPrevEntityAll (entities: XmlEntity array) string time =
-    entities
+let private findPrevEntityAll (allEntities: XmlEntity array) string time =
+    allEntities
     |> Array.tryFindBack (function
         | XmlNote n ->
             n.String = string && n.Time < time
@@ -102,16 +102,19 @@ let choose diffPercent
     |> Array.fold (fun acc e ->
         let division = noteTimeToDivision.[getTimeCode e]
         let range = divisionMap.[division]
-    
+
+        // The entity is outside of the difficulty range
         if diffPercent < range.Low then
             removePreviousLinkNext pendingLinkNexts e
     
             acc
+        // The entity is within the difficulty range but there are already enough notes chosen
         elif (diffPercent >= range.Low && diffPercent < range.High)
              && shouldExclude diffPercent division notesInDivision currentNotesInDivision range then
             removePreviousLinkNext pendingLinkNexts e
     
             acc
+        // The entity is within the difficulty range
         else
             match e with
             | XmlNote note ->
@@ -125,7 +128,7 @@ let choose diffPercent
     
                     let copy = Note(note)
                     if copy.IsLinkNext then
-                        pendingLinkNexts.Add(copy.String, copy)
+                        pendingLinkNexts.TryAdd(copy.String, copy) |> ignore
                     else
                         pendingLinkNexts.Remove(copy.String) |> ignore
     
@@ -134,6 +137,7 @@ let choose diffPercent
                     if copy.IsHopo then
                         let prevLevelEntity = findEntityWithString (acc |> Seq.map fst) copy.String
                         let prevAllEntity = findPrevEntityAll entities copy.String copy.Time
+
                         match prevLevelEntity, prevAllEntity with
                         // Leave the HOPO if the previous note on the same string is on an appropriate fret
                         | Some (XmlNote n), _ when (copy.IsPullOff && n.Fret > copy.Fret) || (copy.IsHammerOn && n.Fret < copy.Fret) -> ()
