@@ -162,32 +162,16 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
                       ResizeArray(handShapes))     
         )
 
-let private combineNGPhrases (iterations: PhraseIteration array) (phrases: Phrase array) =
-    let isNGPhrase = Predicate<Phrase>(fun p -> p.Name = "NG")
-
-    let phrases = ResizeArray(phrases)
-    let firstIndex = phrases.FindIndex isNGPhrase
-    let mutable lastIndex = phrases.FindLastIndex isNGPhrase
-
-    while firstIndex <> -1 && lastIndex <> firstIndex do
-        phrases.RemoveAt lastIndex
-
-        // Update the phrase ids of the phrase iterations
-        for pi in iterations do
-            if pi.PhraseId = lastIndex then pi.PhraseId <- firstIndex
-            elif pi.PhraseId > lastIndex then pi.PhraseId <- pi.PhraseId - 1
-
-        lastIndex <- phrases.FindLastIndex isNGPhrase
-
-    phrases
-
 let generateForArrangement (arr: InstrumentalArrangement) =
     let phraseIterations = arr.PhraseIterations.ToArray()
+    let phraseIterationData =
+        phraseIterations
+        |> Array.Parallel.map (DataExtractor.getPhraseIterationData arr)
 
     // Create the difficulty levels
     let levels =
-        phraseIterations
-        |> Array.Parallel.map (DataExtractor.getPhraseIterationData arr >> generateLevels arr)
+        phraseIterationData
+        |> Array.Parallel.map (generateLevels arr)
 
     let maxDiff =
         levels
@@ -245,10 +229,12 @@ let generateForArrangement (arr: InstrumentalArrangement) =
             level
         )
 
-    let phrases = combineNGPhrases newPhraseIterations phrases
-
-    // TODO: Search for similar phrases
+    // TODO: Improve search for similar phrases
     // Use same name or create linked difficulty
+
+    let phrases = ResizeArray(phrases)
+    PhraseCombiner.combineSamePhrases phraseIterationData newPhraseIterations phrases
+    PhraseCombiner.combineNGPhrases newPhraseIterations phrases
 
     arr.Levels <- ResizeArray(combinedLevels)
     arr.Phrases <- phrases
