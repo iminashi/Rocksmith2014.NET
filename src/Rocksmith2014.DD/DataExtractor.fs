@@ -4,7 +4,6 @@ open Rocksmith2014.XML
 open System
 open System.Text
 open System.IO
-open Utils
 
 type PhraseData = 
   { Name : string
@@ -46,7 +45,7 @@ let getPath (arr: InstrumentalArrangement) =
     else 2
 
 let private isRepeatedNote (n1: Note, n2: Note) = n1.String = n2.String && n1.Fret = n2.Fret && n1.Mask = n2.Mask
-let private isRepeatedChord (c1:Chord, c2:Chord) = c1.ChordId = c2.ChordId
+let private isRepeatedChord (c1: Chord, c2: Chord) = c1.ChordId = c2.ChordId
 let private getRepeatCount f = Seq.pairwise >> (Seq.filter f) >> Seq.length
 
 let private lengthBy f = Seq.filter f >> Seq.length

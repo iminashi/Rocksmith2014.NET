@@ -5,22 +5,6 @@ open System
 open LevelCounter
 open System.Collections.Generic
 
-type XmlEntity =
-    | XmlNote of Note
-    | XmlChord of Chord
-
-let private getTimeCode = function
-    | XmlNote xn -> xn.Time
-    | XmlChord xc -> xc.Time
-
-type RequestTarget = ChordTarget of Chord | HandShapeTarget of HandShape
-
-type TemplateRequest = { OriginalId: int16; NoteCount: byte; Target: RequestTarget }
-
-let private getNoteCount (template: ChordTemplate) =
-    template.Frets
-    |> Array.fold (fun acc elem -> if elem >= 0y then acc + 1 else acc) 0
-
 let private lockObj = obj()
 
 /// Creates an XML entity array from the notes and chords.
@@ -42,12 +26,12 @@ let private createXmlEntityArray (xmlNotes: Note list) (xmlChords: Chord list) =
         entityArray
 
 let private pruneTechniques diffPercent (removedLinkNexts: HashSet<sbyte>) (note: Note) =
-    if diffPercent < 20 then
+    if diffPercent <= 20uy then
         note.Sustain <- 0
         if note.IsLinkNext then
             removedLinkNexts.Add note.String |> ignore
             note.IsLinkNext <- false
-        note.Mask <- NoteMask.None
+        note.Mask <- note.Mask &&& (NoteMask.Ignore ||| NoteMask.FretHandMute)
         note.SlideTo <- -1y
         note.SlideUnpitchTo <- -1y
 
@@ -62,85 +46,100 @@ let private pruneChordNotes diffPercent noteCount (removedLinkNexts: HashSet<sby
 
         for n in cn do pruneTechniques diffPercent removedLinkNexts n
 
-let private chooseEntities diffPercent (templates: ResizeArray<ChordTemplate>) (entities: XmlEntity array) =
+let private shouldExclude diffPercent
+                          (division: BeatDivision)
+                          (notesInDivision: Map<BeatDivision, int>)
+                          (currentNotes: Dictionary<BeatDivision, int>)
+                          (range: DifficultyRange) =
+    let notes = notesInDivision.[division]
+    let currentCount =
+        match currentNotes.TryGetValue(division) with
+        | true, v -> v
+        | false, _ -> 0
+    let allowedPercent = 100 * int diffPercent / int range.High
+    let allowedCount = notes * allowedPercent / 100
+
+    (currentCount + 1) > allowedCount
+    
+let private chooseEntities diffPercent
+                           (divisions: (int * BeatDivision) array)
+                           notesInDivision
+                           (templates: ResizeArray<ChordTemplate>)
+                           (entities: XmlEntity array) =
     let removedLinkNexts = HashSet<sbyte>()
+
+    let noteTimeToDivision = Map.ofArray divisions
+    let divisionMap = BeatDivider.createDivisionMap divisions entities.Length
+    let currentNotesInDivision = Dictionary<BeatDivision, int>()
+
+    let incrementCount division =
+        match currentNotesInDivision.TryGetValue division with
+        | true, v ->
+            currentNotesInDivision.[division] <- v + 1
+        | false, _ ->
+            currentNotesInDivision.[division] <- 1
 
     entities
     |> Array.choose (fun e ->
-        match e with
-        | XmlNote note ->
-            // TODO: Actual implementation
-            if removedLinkNexts.Contains note.String then
-                if not note.IsLinkNext then
-                    removedLinkNexts.Remove note.String |> ignore
-                None
-            else
-                Some (e, None)
+        let division = noteTimeToDivision.[getTimeCode e]
+        let range = divisionMap.[division]
 
-        | XmlChord chord ->
-            let template = templates.[int chord.ChordId]
-            let noteCount = getNoteCount template
-
-            if diffPercent <= 17 && noteCount > 1 then
-                let template = templates.[int chord.ChordId]
-
-                let note =
-                    if not <| isNull chord.ChordNotes then
-                        for i = 1 to chord.ChordNotes.Count - 1 do
-                            if chord.ChordNotes.[i].IsLinkNext then
-                                removedLinkNexts.Add(chord.ChordNotes.[i].String) |> ignore
-                        let n = Note(chord.ChordNotes.[0], LeftHand = -1y)
-                        pruneTechniques diffPercent removedLinkNexts n
-                        n
-                    else
-                        let string = template.Frets |> Array.findIndex (fun x -> x <> -1y)
-                        Note(Time = chord.Time, String = sbyte string, Fret = template.Frets.[string], IsFretHandMute = chord.IsFretHandMute)
-                
-                Some (XmlNote note, None)
-            elif diffPercent <= 34 && noteCount > 2 then
-                let copy = Chord(chord)
-                pruneChordNotes diffPercent 2 removedLinkNexts copy
-                Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 2uy; Target = ChordTarget copy })
-            elif diffPercent <= 51 && noteCount > 3 then
-                let copy = Chord(chord)
-                pruneChordNotes diffPercent 3 removedLinkNexts copy
-                Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 3uy; Target = ChordTarget copy })
-            elif diffPercent <= 68 && noteCount > 4 then
-                let copy = Chord(chord)
-                pruneChordNotes diffPercent 4 removedLinkNexts copy
-                Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 4uy; Target = ChordTarget copy })
-            elif diffPercent <= 85 && noteCount > 5 then
-                let copy = Chord(chord)
-                pruneChordNotes diffPercent 5 removedLinkNexts copy
-                Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 5uy; Target = ChordTarget copy })
-            else
-                Some (e, None)
-    )
-
-let private chooseHandShapes diffPercent (templates: ResizeArray<ChordTemplate>) (handShapes: HandShape list) =
-    // TODO: Special handling for arpeggios
-
-    handShapes
-    |> List.choose (fun hs ->
-        let template = templates.[int hs.ChordId]
-        let noteCount = getNoteCount template
-
-        if diffPercent <= 17 && noteCount > 1 then
+        if diffPercent < range.Low then
             None
-        elif diffPercent <= 34 && noteCount > 2 then
-            let copy = HandShape(hs)
-            Some (copy, Some { OriginalId = hs.ChordId; NoteCount = 2uy; Target = HandShapeTarget copy })
-        elif diffPercent <= 51 && noteCount > 3 then
-            let copy = HandShape(hs)
-            Some (copy, Some { OriginalId = hs.ChordId; NoteCount = 3uy; Target = HandShapeTarget copy })
-        elif diffPercent <= 68 && noteCount > 4 then
-            let copy = HandShape(hs)
-            Some (copy, Some { OriginalId = hs.ChordId; NoteCount = 4uy; Target = HandShapeTarget copy })
-        elif diffPercent <= 85 && noteCount > 5 then
-            let copy = HandShape(hs)
-            Some (copy, Some { OriginalId = hs.ChordId; NoteCount = 5uy; Target = HandShapeTarget copy })
+        elif (diffPercent >= range.Low && diffPercent < range.High) && shouldExclude diffPercent division notesInDivision currentNotesInDivision range then
+            None
         else
-            Some (hs, None)
+            match e with
+            | XmlNote note ->
+                if removedLinkNexts.Contains note.String then
+                    if not note.IsLinkNext then
+                        removedLinkNexts.Remove note.String |> ignore
+                    None
+                else
+                    incrementCount division
+                    // TODO: Techniques
+                    Some (e, None)
+
+            | XmlChord chord ->
+                incrementCount division
+
+                let template = templates.[int chord.ChordId]
+                let noteCount = getNoteCount template
+
+                if diffPercent <= 17uy && noteCount > 1 then
+                    let template = templates.[int chord.ChordId]
+
+                    let note =
+                        if not <| isNull chord.ChordNotes then
+                            for i = 1 to chord.ChordNotes.Count - 1 do
+                                if chord.ChordNotes.[i].IsLinkNext then
+                                    removedLinkNexts.Add(chord.ChordNotes.[i].String) |> ignore
+                            let n = Note(chord.ChordNotes.[0], LeftHand = -1y)
+                            pruneTechniques diffPercent removedLinkNexts n
+                            n
+                        else
+                            let string = template.Frets |> Array.findIndex (fun x -> x <> -1y)
+                            Note(Time = chord.Time, String = sbyte string, Fret = template.Frets.[string], IsFretHandMute = chord.IsFretHandMute)
+                
+                    Some (XmlNote note, None)
+                elif diffPercent <= 34uy && noteCount > 2 then
+                    let copy = Chord(chord)
+                    pruneChordNotes diffPercent 2 removedLinkNexts copy
+                    Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 2uy; Target = ChordTarget copy })
+                elif diffPercent <= 51uy && noteCount > 3 then
+                    let copy = Chord(chord)
+                    pruneChordNotes diffPercent 3 removedLinkNexts copy
+                    Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 3uy; Target = ChordTarget copy })
+                elif diffPercent <= 68uy && noteCount > 4 then
+                    let copy = Chord(chord)
+                    pruneChordNotes diffPercent 4 removedLinkNexts copy
+                    Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 4uy; Target = ChordTarget copy })
+                elif diffPercent <= 85uy && noteCount > 5 then
+                    let copy = Chord(chord)
+                    pruneChordNotes diffPercent 5 removedLinkNexts copy
+                    Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 5uy; Target = ChordTarget copy })
+                else
+                    Some (e, None)
     )
 
 /// Copies the necessary anchors into the difficulty level.
@@ -224,9 +223,24 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
     if phraseData.NoteCount + phraseData.ChordCount = 0 then
         // Copy anchors only
         let level = Level 0y
-        level.Anchors.AddRange(phraseData.Anchors)
+        level.Anchors.AddRange phraseData.Anchors
         [| level |]
     else
+        let entities = createXmlEntityArray phraseData.Notes phraseData.Chords
+        let divisions =
+            entities
+            |> Array.map (fun e ->
+                let time = getTimeCode e
+                time, BeatDivider.getDivision phraseData.Beats time)
+
+        let notesInDivision =
+            divisions
+            |> Array.groupBy snd
+            |> Array.map (fun (group, elems) -> group, elems.Length)
+            |> Map.ofArray
+
+        let applyChordId' = applyChordId arr.ChordTemplates
+
         Array.init levelCount (fun diff ->
             // Copy everything for the hardest level
             if diff = levelCount - 1 then
@@ -236,17 +250,16 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
                       ResizeArray(phraseData.Anchors),
                       ResizeArray(phraseData.HandShapes))
             else
-                let diffPercent = 100 * (diff + 1) / levelCount
+                let diffPercent = byte <| 100 * (diff + 1) / levelCount
 
-                let entities = createXmlEntityArray phraseData.Notes phraseData.Chords
                 let levelEntities, templateRequests1 =
-                    chooseEntities diffPercent arr.ChordTemplates entities
+                    chooseEntities diffPercent divisions notesInDivision arr.ChordTemplates entities
                     |> Array.unzip
                 let notes = levelEntities |> Array.choose (function XmlNote n -> Some n | _ -> None)
                 let chords = levelEntities |> Array.choose (function XmlChord n -> Some n | _ -> None)
 
                 let handShapes, templateRequests2 =
-                    chooseHandShapes diffPercent arr.ChordTemplates phraseData.HandShapes
+                    HandShapeChooser.choose diffPercent levelEntities arr.ChordTemplates phraseData.HandShapes
                     |> List.unzip
 
                 let anchors = chooseAnchors levelEntities phraseData.Anchors phraseData.EndTime
@@ -254,7 +267,7 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
                 templateRequests1
                 |> Seq.append templateRequests2
                 |> Seq.choose id
-                |> Seq.iter (applyChordId arr.ChordTemplates)
+                |> Seq.iter applyChordId'
 
                 Level(sbyte diff,
                       ResizeArray(notes),
@@ -262,6 +275,25 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
                       ResizeArray(anchors),
                       ResizeArray(handShapes))     
         )
+
+let private combineNGPhrases (iterations: PhraseIteration array) (phrases: Phrase array) =
+    let isNGPhrase = Predicate<Phrase>(fun p -> p.Name = "NG")
+
+    let phrases = ResizeArray(phrases)
+    let firstIndex = phrases.FindIndex isNGPhrase
+    let mutable lastIndex = phrases.FindLastIndex isNGPhrase
+
+    while firstIndex <> -1 && lastIndex <> firstIndex do
+        phrases.RemoveAt lastIndex
+
+        // Update the phrase ids of the phrase iterations
+        for pi in iterations do
+            if pi.PhraseId = lastIndex then pi.PhraseId <- firstIndex
+            elif pi.PhraseId > lastIndex then pi.PhraseId <- pi.PhraseId - 1
+
+        lastIndex <- phrases.FindLastIndex isNGPhrase
+
+    phrases
 
 let generateForArrangement (arr: InstrumentalArrangement) =
     let phraseIterations = arr.PhraseIterations.ToArray()
@@ -327,13 +359,13 @@ let generateForArrangement (arr: InstrumentalArrangement) =
             level
         )
 
+    let phrases = combineNGPhrases newPhraseIterations phrases
+
     // TODO: Search for similar phrases
     // Use same name or create linked difficulty
 
-    // TODO: Combine noguitar phrases
-
     arr.Levels <- ResizeArray(combinedLevels)
-    arr.Phrases <- ResizeArray(phrases)
+    arr.Phrases <- phrases
     arr.PhraseIterations <- ResizeArray(newPhraseIterations)
 
     arr
