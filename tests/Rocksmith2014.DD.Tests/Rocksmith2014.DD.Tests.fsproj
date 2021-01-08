@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="HandShapeChooserTests.fs" />
     <Compile Include="GeneratorTests.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>

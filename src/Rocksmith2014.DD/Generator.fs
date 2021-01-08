@@ -286,7 +286,7 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
                 let chords = levelEntities |> Array.choose (function XmlChord n -> Some n | _ -> None)
 
                 let handShapes, templateRequests2 =
-                    HandShapeChooser.choose diffPercent levelEntities arr.ChordTemplates phraseData.HandShapes
+                    HandShapeChooser.choose diffPercent levelEntities entities arr.ChordTemplates phraseData.HandShapes
                     |> List.unzip
 
                 let anchors = chooseAnchors levelEntities phraseData.Anchors phraseData.EndTime

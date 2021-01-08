@@ -7,10 +7,8 @@ let private isInsideHandShape (hs: HandShape) time =
 
 let private noNotesInHandShape (entities: XmlEntity array) (hs: HandShape) =
     entities
-    |> Array.tryFind (fun entity ->
-        let time = getTimeCode entity
-        isInsideHandShape hs time)
-    |> Option.isNone
+    |> Array.exists (getTimeCode >> (isInsideHandShape hs))
+    |> not
 
 let private isArpeggio (entities: XmlEntity array) (hs: HandShape) =
     let handShapeNotes =
@@ -19,6 +17,7 @@ let private isArpeggio (entities: XmlEntity array) (hs: HandShape) =
             match entity with
             | XmlNote n when isInsideHandShape hs n.Time -> Some n
             | _ -> None)
+
     match handShapeNotes with
     | [||] ->
         false
@@ -28,7 +27,8 @@ let private isArpeggio (entities: XmlEntity array) (hs: HandShape) =
         |> not
 
 let choose diffPercent
-           (entities: XmlEntity array)
+           (levelEntities: XmlEntity array)
+           (allEntities: XmlEntity array)
            (templates: ResizeArray<ChordTemplate>)
            (handShapes: HandShape list) =
     // TODO: Special handling for empty handshapes
@@ -38,9 +38,9 @@ let choose diffPercent
         let template = templates.[int hs.ChordId]
         let noteCount = getNoteCount template
 
-        if noNotesInHandShape entities hs then
+        if noNotesInHandShape levelEntities hs then
             None
-        elif isArpeggio entities hs then
+        elif isArpeggio allEntities hs then
             // Always use the full handshape for arpeggios
             Some (hs, None)
         elif diffPercent <= 17uy && noteCount > 1 then
