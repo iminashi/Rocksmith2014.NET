@@ -35,7 +35,7 @@ let private pruneTechniques diffPercent (removedLinkNexts: HashSet<sbyte>) (note
         note.SlideTo <- -1y
         note.SlideUnpitchTo <- -1y
 
-let private pruneChordNotes diffPercent noteCount (removedLinkNexts: HashSet<sbyte>) (chord: Chord) =
+let private pruneChordNotes diffPercent noteCount (removedLinkNexts: HashSet<sbyte>) (pendingLinkNexts: Dictionary<sbyte, Note>) (chord: Chord) =
     let cn = chord.ChordNotes
     if not <| isNull cn && cn.Count > 0 then
         let removeNotes = cn.Count - noteCount
@@ -44,7 +44,10 @@ let private pruneChordNotes diffPercent noteCount (removedLinkNexts: HashSet<sby
                 removedLinkNexts.Add cn.[i].String |> ignore
         cn.RemoveRange(cn.Count - removeNotes, removeNotes)
 
-        for n in cn do pruneTechniques diffPercent removedLinkNexts n
+        for n in cn do
+            pruneTechniques diffPercent removedLinkNexts n
+            if n.IsLinkNext then
+                pendingLinkNexts.TryAdd(n.String, n) |> ignore
 
 let private shouldExclude diffPercent
                           (division: BeatDivision)
@@ -61,6 +64,15 @@ let private shouldExclude diffPercent
 
     (currentCount + 1) > allowedCount
     
+let private removePreviousLinkNext (pendingLinkNexts: Dictionary<sbyte, Note>) (entity: XmlEntity) =
+    match entity with
+    | XmlChord _ ->
+        ()
+    | XmlNote note ->
+        let mutable lnNote: Note = null
+        if pendingLinkNexts.Remove(note.String, &lnNote) then
+            lnNote.IsLinkNext <- false
+
 let private chooseEntities diffPercent
                            (divisions: (int * BeatDivision) array)
                            notesInDivision
@@ -79,14 +91,18 @@ let private chooseEntities diffPercent
         | false, _ ->
             currentNotesInDivision.[division] <- 1
 
+    let pendingLinkNexts = Dictionary<sbyte, Note>()
+
     entities
     |> Array.choose (fun e ->
         let division = noteTimeToDivision.[getTimeCode e]
         let range = divisionMap.[division]
 
         if diffPercent < range.Low then
+            removePreviousLinkNext pendingLinkNexts e
             None
         elif (diffPercent >= range.Low && diffPercent < range.High) && shouldExclude diffPercent division notesInDivision currentNotesInDivision range then
+            removePreviousLinkNext pendingLinkNexts e
             None
         else
             match e with
@@ -97,8 +113,14 @@ let private chooseEntities diffPercent
                     None
                 else
                     incrementCount division
+                    let copy = Note(note)
+                    if copy.IsLinkNext then
+                        pendingLinkNexts.Add(copy.String, copy)
+                    else
+                        pendingLinkNexts.Remove(copy.String) |> ignore
                     // TODO: Techniques
-                    Some (e, None)
+                    // TODO: Special handling for HOPO notes
+                    Some (XmlNote copy, None)
 
             | XmlChord chord ->
                 incrementCount division
@@ -124,22 +146,27 @@ let private chooseEntities diffPercent
                     Some (XmlNote note, None)
                 elif diffPercent <= 34uy && noteCount > 2 then
                     let copy = Chord(chord)
-                    pruneChordNotes diffPercent 2 removedLinkNexts copy
+                    pruneChordNotes diffPercent 2 removedLinkNexts pendingLinkNexts copy
                     Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 2uy; Target = ChordTarget copy })
                 elif diffPercent <= 51uy && noteCount > 3 then
                     let copy = Chord(chord)
-                    pruneChordNotes diffPercent 3 removedLinkNexts copy
+                    pruneChordNotes diffPercent 3 removedLinkNexts pendingLinkNexts copy
                     Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 3uy; Target = ChordTarget copy })
                 elif diffPercent <= 68uy && noteCount > 4 then
                     let copy = Chord(chord)
-                    pruneChordNotes diffPercent 4 removedLinkNexts copy
+                    pruneChordNotes diffPercent 4 removedLinkNexts pendingLinkNexts copy
                     Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 4uy; Target = ChordTarget copy })
                 elif diffPercent <= 85uy && noteCount > 5 then
                     let copy = Chord(chord)
-                    pruneChordNotes diffPercent 5 removedLinkNexts copy
+                    pruneChordNotes diffPercent 5 removedLinkNexts pendingLinkNexts copy
                     Some (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 5uy; Target = ChordTarget copy })
                 else
-                    Some (e, None)
+                    let copy = Chord(chord)
+                    if not <| isNull copy.ChordNotes then
+                        for n in copy.ChordNotes do
+                            if n.IsLinkNext then
+                                pendingLinkNexts.TryAdd(n.String, n) |> ignore
+                    Some (XmlChord copy, None)
     )
 
 /// Copies the necessary anchors into the difficulty level.
