@@ -13,6 +13,7 @@
     <Compile Include="BeatDivider.fs" />
     <Compile Include="LevelCounter.fs" />
     <Compile Include="HandShapeChooser.fs" />
+    <Compile Include="EntityChooser.fs" />
     <Compile Include="Generator.fs" />
   </ItemGroup>
 
