@@ -139,7 +139,7 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
                 let diffPercent = byte <| 100 * (diff + 1) / levelCount
 
                 let levelEntities, templateRequests1 =
-                    EntityChooser.choose diffPercent divisions notesInDivision arr.ChordTemplates entities
+                    EntityChooser.choose diffPercent divisions notesInDivision arr.ChordTemplates phraseData.HandShapes entities
                     |> Array.unzip
                 let notes = levelEntities |> Array.choose (function XmlNote n -> Some n | _ -> None)
                 let chords = levelEntities |> Array.choose (function XmlChord n -> Some n | _ -> None)

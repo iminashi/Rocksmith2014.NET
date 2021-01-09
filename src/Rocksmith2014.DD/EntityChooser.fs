@@ -78,10 +78,34 @@ let private findPrevEntityAll (allEntities: XmlEntity array) string time =
             &&
             c.ChordNotes.Exists(fun cn -> cn.String = string))
 
+let private isFirstChordInHs (entities: XmlEntity list) (handShapes: HandShape list) (chord: Chord) =
+    let hs =
+        handShapes
+        |> List.find (fun x -> chord.Time >= x.StartTime && chord.Time < x.EndTime)
+
+    let prevChord =
+        entities
+        |> List.tryFind (function
+            | XmlNote _ -> false
+            | XmlChord c ->
+                not <| isNull c.ChordNotes
+                && c.ChordId = chord.ChordId
+                && c.Time >= hs.StartTime && c.Time < hs.EndTime)
+
+    prevChord.IsNone
+
+let private chordNotesFromTemplate (template: ChordTemplate) time =
+    let cn = ResizeArray<Note>()
+    for i = 0 to 5 do
+        if template.Frets.[i] <> -1y then
+            cn.Add(Note(Time = time, String = sbyte i, Fret = template.Frets.[i], LeftHand = template.Fingers.[i]))
+    cn
+
 let choose diffPercent
            (divisions: (int * BeatDivision) array)
            (notesInDivision: Map<BeatDivision, int>)
            (templates: ResizeArray<ChordTemplate>)
+           (handShapes: HandShape list)
            (entities: XmlEntity array) =
     let removedLinkNexts = HashSet<sbyte>()
     
@@ -153,15 +177,12 @@ let choose diffPercent
     
             | XmlChord chord ->
                 incrementCount division
-    
-                // TODO: Handle case when chord notes need to be created
-    
+       
                 let template = templates.[int chord.ChordId]
                 let noteCount = getNoteCount template
-    
+  
                 if diffPercent <= 17uy && noteCount > 1 then
-                    let template = templates.[int chord.ChordId]
-    
+                    // Create a note from the chord
                     let note =
                         if not <| isNull chord.ChordNotes then
                             for i = 1 to chord.ChordNotes.Count - 1 do
@@ -175,34 +196,36 @@ let choose diffPercent
                             Note(Time = chord.Time, String = sbyte string, Fret = template.Frets.[string], IsFretHandMute = chord.IsFretHandMute)
                 
                     (XmlNote note, None)::acc
-                elif diffPercent <= 34uy && noteCount > 2 then
-                    let copy = Chord(chord)
-                    pruneChordNotes diffPercent 2 removedLinkNexts pendingLinkNexts copy
-    
-                    (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 2uy; Target = ChordTarget copy })::acc
-                elif diffPercent <= 51uy && noteCount > 3 then
-                    let copy = Chord(chord)
-                    pruneChordNotes diffPercent 3 removedLinkNexts pendingLinkNexts copy
-    
-                    (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 3uy; Target = ChordTarget copy })::acc
-                elif diffPercent <= 68uy && noteCount > 4 then
-                    let copy = Chord(chord)
-                    pruneChordNotes diffPercent 4 removedLinkNexts pendingLinkNexts copy
-    
-                    (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 4uy; Target = ChordTarget copy })::acc
-                elif diffPercent <= 85uy && noteCount > 5 then
-                    let copy = Chord(chord)
-                    pruneChordNotes diffPercent 5 removedLinkNexts pendingLinkNexts copy
-    
-                    (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 5uy; Target = ChordTarget copy })::acc
                 else
                     let copy = Chord(chord)
-                    if not <| isNull copy.ChordNotes then
-                        for n in copy.ChordNotes do
-                            if n.IsLinkNext then
-                                pendingLinkNexts.TryAdd(n.String, n) |> ignore
+
+                    // Create chord notes if this is the first chord in the hand shape
+                    if isNull copy.ChordNotes && isFirstChordInHs (List.map fst acc) handShapes copy then
+                        copy.ChordNotes <- chordNotesFromTemplate template copy.Time
+
+                    if diffPercent <= 34uy && noteCount > 2 then
+                        pruneChordNotes diffPercent 2 removedLinkNexts pendingLinkNexts copy
     
-                    (XmlChord copy, None)::acc
+                        (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 2uy; Target = ChordTarget copy })::acc
+                    elif diffPercent <= 51uy && noteCount > 3 then
+                        pruneChordNotes diffPercent 3 removedLinkNexts pendingLinkNexts copy
+    
+                        (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 3uy; Target = ChordTarget copy })::acc
+                    elif diffPercent <= 68uy && noteCount > 4 then
+                        pruneChordNotes diffPercent 4 removedLinkNexts pendingLinkNexts copy
+    
+                        (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 4uy; Target = ChordTarget copy })::acc
+                    elif diffPercent <= 85uy && noteCount > 5 then
+                        pruneChordNotes diffPercent 5 removedLinkNexts pendingLinkNexts copy
+    
+                        (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 5uy; Target = ChordTarget copy })::acc
+                    else
+                        if not <| isNull copy.ChordNotes then
+                            for n in copy.ChordNotes do
+                                if n.IsLinkNext then
+                                    pendingLinkNexts.TryAdd(n.String, n) |> ignore
+    
+                        (XmlChord copy, None)::acc
     ) []
     |> List.rev
     |> List.toArray

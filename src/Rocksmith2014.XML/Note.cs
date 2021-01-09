@@ -119,7 +119,7 @@ namespace Rocksmith2014.XML
             Vibrato = other.Vibrato;
             MaxBend = other.MaxBend;
 
-            if (other.BendValues != null)
+            if (other.BendValues is not null)
                 BendValues = new List<BendValue>(other.BendValues);
         }
 
