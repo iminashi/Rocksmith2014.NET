@@ -79,18 +79,23 @@ let private findPrevEntityAll (allEntities: XmlEntity array) string time =
 let private isFirstChordInHs (entities: XmlEntity list) (handShapes: HandShape list) (chord: Chord) =
     let hs =
         handShapes
-        |> List.find (fun x -> chord.Time >= x.StartTime && chord.Time < x.EndTime)
+        |> List.tryFind (fun x -> chord.Time >= x.StartTime && chord.Time < x.EndTime)
+    
+    // The hand shape might not be found if the start of the phrase is placed poorly
+    match hs with
+    | None ->
+        true
+    | Some hs ->
+        let prevChord =
+            entities
+            |> List.tryFind (function
+                | XmlNote _ -> false
+                | XmlChord c ->
+                    c.HasChordNotes
+                    && c.ChordId = chord.ChordId
+                    && c.Time >= hs.StartTime && c.Time < hs.EndTime)
 
-    let prevChord =
-        entities
-        |> List.tryFind (function
-            | XmlNote _ -> false
-            | XmlChord c ->
-                c.HasChordNotes
-                && c.ChordId = chord.ChordId
-                && c.Time >= hs.StartTime && c.Time < hs.EndTime)
-
-    prevChord.IsNone
+        prevChord.IsNone
 
 let private chordNotesFromTemplate (template: ChordTemplate) time =
     let cn = ResizeArray<Note>()
@@ -160,8 +165,10 @@ let choose diffPercent
                         let prevAllEntity = findPrevEntityAll entities copy.String copy.Time
 
                         match prevLevelEntity, prevAllEntity with
-                        // Leave the HOPO if the previous note on the same string is on an appropriate fret
-                        | Some (XmlNote n), _ when (copy.IsPullOff && n.Fret > copy.Fret) || (copy.IsHammerOn && n.Fret < copy.Fret) -> ()
+                        // Leave the HOPO if the previous note on the same string is an appropriate one and comes right before this one
+                        | Some (XmlNote n as xn), _ when List.head acc |> fst = xn
+                                                         && not (n.IsFretHandMute || n.IsHarmonic)
+                                                         && ((copy.IsPullOff && n.Fret > copy.Fret) || (copy.IsHammerOn && n.Fret < copy.Fret)) -> ()
                         // Leave the HOPO if the previous note/chord is the actual one before this
                         | Some (XmlNote n), Some (XmlNote nn) when n.Time = nn.Time -> ()
                         | Some (XmlChord c), Some (XmlChord cc) when c.Time = cc.Time -> ()
