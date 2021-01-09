@@ -30,7 +30,7 @@ let private pruneChordNotes diffPercent
         for n in cn do
             pruneTechniques diffPercent removedLinkNexts n
             if n.IsLinkNext then
-                pendingLinkNexts.TryAdd(n.String, n) |> ignore
+                pendingLinkNexts.Add(n.String, n)
 
 let private shouldExclude diffPercent
                           (division: BeatDivision)
@@ -147,12 +147,11 @@ let choose diffPercent
                     acc
                 else
                     incrementCount division
-    
                     let copy = Note(note)
+
+                    pendingLinkNexts.Remove(copy.String) |> ignore
                     if copy.IsLinkNext then
-                        pendingLinkNexts.TryAdd(copy.String, copy) |> ignore
-                    else
-                        pendingLinkNexts.Remove(copy.String) |> ignore
+                        pendingLinkNexts.Add(copy.String, copy)                        
     
                     // TODO: Techniques
     
