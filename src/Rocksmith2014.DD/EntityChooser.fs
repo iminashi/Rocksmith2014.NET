@@ -18,10 +18,10 @@ let private pruneChordNotes diffPercent
                             (removedLinkNexts: HashSet<sbyte>)
                             (pendingLinkNexts: Dictionary<sbyte, Note>)
                             (chord: Chord) =
-    let cn = chord.ChordNotes
-
-    if not <| isNull cn && cn.Count > 0 then
+    if chord.HasChordNotes then
+        let cn = chord.ChordNotes
         let removeNotes = cn.Count - noteCount
+
         for i = cn.Count - removeNotes to cn.Count - 1 do
             if cn.[i].IsLinkNext then
                 removedLinkNexts.Add cn.[i].String |> ignore
@@ -62,7 +62,7 @@ let private findEntityWithString (entities: XmlEntity seq) string =
         | XmlNote n ->
             n.String = string
         | XmlChord c ->
-            not <| isNull c.ChordNotes
+            c.HasChordNotes
             &&
             c.ChordNotes.Exists(fun cn -> cn.String = string))
 
@@ -73,10 +73,8 @@ let private findPrevEntityAll (allEntities: XmlEntity array) string time =
             n.String = string && n.Time < time
         | XmlChord c ->
             c.Time < time
-            &&
-            not <| isNull c.ChordNotes
-            &&
-            c.ChordNotes.Exists(fun cn -> cn.String = string))
+            && c.HasChordNotes
+            && c.ChordNotes.Exists(fun cn -> cn.String = string))
 
 let private isFirstChordInHs (entities: XmlEntity list) (handShapes: HandShape list) (chord: Chord) =
     let hs =
@@ -88,7 +86,7 @@ let private isFirstChordInHs (entities: XmlEntity list) (handShapes: HandShape l
         |> List.tryFind (function
             | XmlNote _ -> false
             | XmlChord c ->
-                not <| isNull c.ChordNotes
+                c.HasChordNotes
                 && c.ChordId = chord.ChordId
                 && c.Time >= hs.StartTime && c.Time < hs.EndTime)
 
@@ -184,7 +182,7 @@ let choose diffPercent
                 if diffPercent <= 17uy && noteCount > 1 then
                     // Create a note from the chord
                     let note =
-                        if not <| isNull chord.ChordNotes then
+                        if chord.HasChordNotes then
                             for i = 1 to chord.ChordNotes.Count - 1 do
                                 if chord.ChordNotes.[i].IsLinkNext then
                                     removedLinkNexts.Add(chord.ChordNotes.[i].String) |> ignore
@@ -220,7 +218,7 @@ let choose diffPercent
     
                         (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 5uy; Target = ChordTarget copy })::acc
                     else
-                        if not <| isNull copy.ChordNotes then
+                        if copy.HasChordNotes then
                             for n in copy.ChordNotes do
                                 if n.IsLinkNext then
                                     pendingLinkNexts.TryAdd(n.String, n) |> ignore

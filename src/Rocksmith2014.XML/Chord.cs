@@ -190,6 +190,11 @@ namespace Rocksmith2014.XML
         public List<Note>? ChordNotes { get; set; }
 
         /// <summary>
+        /// True if the chord has chord notes.
+        /// </summary>
+        public bool HasChordNotes => ChordNotes?.Count > 0;
+
+        /// <summary>
         /// Creates a new chord.
         /// </summary>
         public Chord() { }
@@ -203,6 +208,7 @@ namespace Rocksmith2014.XML
             Mask = other.Mask;
             Time = other.Time;
             ChordId = other.ChordId;
+
             if (other.ChordNotes is not null)
             {
                 ChordNotes = new List<Note>(other.ChordNotes.Count);

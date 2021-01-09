@@ -54,7 +54,7 @@ let private countNotesByPredicate pred (notes: Note seq) (chords: Chord seq) =
     (notes |> lengthBy pred)
     +
     (chords
-    |> lengthBy (fun c -> not <| isNull c.ChordNotes && c.ChordNotes |> Seq.exists pred))
+    |> lengthBy (fun c -> c.HasChordNotes && c.ChordNotes |> Seq.exists pred))
 
 let getPhraseIterationData (arr: InstrumentalArrangement) (iteration: PhraseIteration) =
     let phrase = arr.Phrases.[iteration.PhraseId]
