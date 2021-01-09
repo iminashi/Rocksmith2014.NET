@@ -117,6 +117,7 @@ namespace Rocksmith2014.XML
             SlideUnpitchTo = other.SlideUnpitchTo;
             Tap = other.Tap;
             Vibrato = other.Vibrato;
+            MaxBend = other.MaxBend;
 
             if (other.BendValues != null)
                 BendValues = new List<BendValue>(other.BendValues);
