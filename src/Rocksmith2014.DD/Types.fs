@@ -15,11 +15,4 @@ type TemplateRequest = { OriginalId: int16
 
 type DifficultyRange = { Low: byte; High: byte }
 
-type BeatDivision =
-    | OnStrongBeat
-    | OnWeakBeat
-    | Note8th
-    | Note16th
-    | Note8thTriplet
-    | Note16thTriplet
-    | Other
+type BeatDivision = int
