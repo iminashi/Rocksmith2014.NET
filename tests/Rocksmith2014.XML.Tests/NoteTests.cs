@@ -223,6 +223,7 @@ namespace Rocksmith2014.XML.Tests
                 Tap = 2,
                 Time = 33000,
                 Vibrato = 80,
+                MaxBend = 4f,
                 BendValues = new List<BendValue>
                 {
                     new BendValue(34000, 3f),
@@ -247,6 +248,7 @@ namespace Rocksmith2014.XML.Tests
             Assert.Equal(note1.Tap, note2.Tap);
             Assert.Equal(note1.Time, note2.Time);
             Assert.Equal(note1.Vibrato, note2.Vibrato);
+            Assert.Equal(note1.MaxBend, note2.MaxBend);
         }
     }
 }

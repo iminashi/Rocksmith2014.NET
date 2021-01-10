@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Platforms>x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Types.fs" />
+    <Compile Include="Utils.fs" />
+    <Compile Include="Comparers.fs" />
+    <Compile Include="DataExtractor.fs" />
+    <Compile Include="BeatDivider.fs" />
+    <Compile Include="LevelCounter.fs" />
+    <Compile Include="HandShapeChooser.fs" />
+    <Compile Include="EntityChooser.fs" />
+    <Compile Include="PhraseCombiner.fs" />
+    <Compile Include="Generator.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Rocksmith2014.DD.Model\Rocksmith2014.DD.Model.csproj" />
+    <ProjectReference Include="..\Rocksmith2014.XML\Rocksmith2014.XML.csproj" />
+  </ItemGroup>
+
+</Project>

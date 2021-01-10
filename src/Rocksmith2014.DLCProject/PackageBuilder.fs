@@ -8,6 +8,7 @@ open Rocksmith2014.XML.Processing
 open Rocksmith2014.SNG
 open Rocksmith2014.PSARC
 open Rocksmith2014.Conversion
+open Rocksmith2014.DD
 open Microsoft.Extensions.FileProviders
 open System.IO
 open System.Reflection
@@ -28,7 +29,11 @@ type BuildConfig =
       AppId: string
       GenerateDD: bool
       ApplyImprovements: bool
+<<<<<<< HEAD
       SaveDebugFiles: bool
+=======
+      GenerateDD: bool
+>>>>>>> dynamic-difficulty
       AudioConversionTask: Async<unit> }
 
 let private toDisposableList items = new DisposableList<NamedEntry>(items)
@@ -163,7 +168,12 @@ let private build (buildData: BuildData) targetFile project platform = async {
         yield toolkitEntry
         yield appIdEntry ]) }
 
+<<<<<<< HEAD
 let private setupInstrumental part (inst: Instrumental) config (xml: InstrumentalArrangement) =
+=======
+let private setupInstrumental part (inst: Instrumental) improve generateDD (xmlFile: string) =
+    let xml = InstrumentalArrangement.Load xmlFile
+>>>>>>> dynamic-difficulty
     xml.MetaData.Part <- int16 part
 
     // Set up correct tone IDs
@@ -175,9 +185,17 @@ let private setupInstrumental part (inst: Instrumental) config (xml: Instrumenta
 
     if xml.Version < 8uy then xml.FixHighDensity()
 
+<<<<<<< HEAD
     if config.ApplyImprovements then ArrangementImprover.applyAll xml
+=======
+    if improve || xml.Levels.Count = 1 then ArrangementImprover.applyAll xml
+>>>>>>> dynamic-difficulty
 
-    // TODO: Generate DD levels
+    if xml.Levels.Count = 1 && generateDD then
+        Generator.generateForArrangement xml |> ignore
+
+    // TODO: Add option to UI save intermediate file for debugging purposes
+    //xml.Save($"{xmlFile}.dd.xml")
 
     xml
 
@@ -196,8 +214,12 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
                 | Instrumental inst ->
                     let part = partition arr |> fst
                     let sng =
+<<<<<<< HEAD
                         InstrumentalArrangement.Load inst.XML
                         |> setupInstrumental part inst config
+=======
+                        setupInstrumental part inst config.ApplyImprovements config.GenerateDD inst.XML
+>>>>>>> dynamic-difficulty
                         |> ConvertInstrumental.xmlToSng
                     Some(arr, sng)
                 | Vocals v ->

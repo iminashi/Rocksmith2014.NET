@@ -145,6 +145,18 @@ let eofFixTests =
             Expect.exists arr.Events (fun e -> e.Code = "e1") "E1 -> e1"
             Expect.exists arr.Events (fun e -> e.Code = "e2") "E2 -> e2"
 
+        testCase "Does not change correct crowd events" <| fun _ ->
+            let events = ResizeArray(seq { Event("E3", 100); Event("E13", 200); Event("D3", 300); Event("E13", 400); })
+            let arr = InstrumentalArrangement(Events = events)
+
+            EOFFixes.fixCrowdEvents arr
+
+            Expect.hasLength arr.Events 4 "Number of events is unchanged"
+            Expect.equal arr.Events.[0].Code "E3" "Event #1 code unchanged"
+            Expect.equal arr.Events.[1].Code "E13" "Event #2 code unchanged"
+            Expect.equal arr.Events.[2].Code "D3" "Event #3 code unchanged"
+            Expect.equal arr.Events.[3].Code "E13" "Event #4 code unchanged"
+
         testCase "Fixes incorrect hand shape lengths" <| fun _ ->
             let cn = ResizeArray(seq { Note(IsLinkNext = true, SlideTo = 5y, Sustain = 1000) })
             let chord = Chord(ChordNotes = cn, IsLinkNext = true)
