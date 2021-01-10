@@ -67,15 +67,9 @@ let private createBuildConfig state appId platforms =
     { Platforms = platforms
       Author = state.Config.CharterName
       AppId = appId
-<<<<<<< HEAD
       GenerateDD = state.Config.GenerateDD
       ApplyImprovements = state.Config.ApplyImprovements
       SaveDebugFiles = state.Config.SaveDebugFiles
-=======
-      // TODO: Add UI options
-      ApplyImprovements = false
-      GenerateDD = true
->>>>>>> dynamic-difficulty
       AudioConversionTask = convTask }
 
 let private updateArrangement old updated state =
