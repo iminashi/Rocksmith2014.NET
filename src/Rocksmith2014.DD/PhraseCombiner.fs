@@ -56,7 +56,7 @@ let combineSamePhrases (iterationData: PhraseData array) (iterations: PhraseIter
         samePhraseIds
         |> Array.partition (fun x -> x.SameDifficulty)
 
-    // Create a mapping to the new phrase IDs after the same ones are combined
+    // Create a mapping to the new phrase IDs after phrases with the same content have been combined
     let newPhraseIds =
         let mutable phraseId = 0
         let idMap = Dictionary<int, int>()

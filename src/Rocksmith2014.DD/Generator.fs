@@ -25,37 +25,6 @@ let private createXmlEntityArray (xmlNotes: Note list) (xmlChords: Chord list) =
         Array.sortInPlaceBy getTimeCode entityArray
         entityArray
 
-/// Copies the necessary anchors into the difficulty level.
-let private chooseAnchors (entities: XmlEntity array) (anchors: Anchor list) phraseEndTime =
-    // Assume that anchors up to 3ms after a note were meant to be on the note
-    let errorMargin = 3
-
-    // TODO: Anchors that contain no notes even at the hardest level
-
-    let rec add result (anchors: Anchor list) =
-        match anchors with
-        | [] -> result
-        | a::tail ->
-            let endTime =
-                match tail with
-                | a2::_ -> a2.Time
-                | [] -> phraseEndTime
-            let result =
-                if entities |> Array.exists (fun e ->
-                    let time = getTimeCode e
-                    let sustain = getSustain e
-                    time + errorMargin >= a.Time && time < endTime
-                    ||
-                    time + sustain + errorMargin >= a.Time && time + sustain < endTime)
-                then
-                    a::result
-                else
-                    result
-            add result tail
-
-    add [] anchors
-    |> List.rev
-
 let private applyChordId (templates: ResizeArray<ChordTemplate>) =
     let templateMap = Dictionary<int16 * byte, int16>()
 
@@ -149,7 +118,7 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
                     HandShapeChooser.choose diffPercent levelEntities entities arr.ChordTemplates phraseData.HandShapes
                     |> List.unzip
 
-                let anchors = chooseAnchors levelEntities phraseData.Anchors phraseData.EndTime
+                let anchors = AnchorChooser.choose levelEntities phraseData.Anchors phraseData.StartTime phraseData.EndTime
 
                 templateRequests1
                 |> Seq.append templateRequests2
