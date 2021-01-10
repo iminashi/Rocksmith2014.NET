@@ -103,15 +103,16 @@ let private applyChordId (templates: ResizeArray<ChordTemplate>) =
         | HandShapeTarget hs -> hs.ChordId <- id
 
 let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtractor.PhraseData) =
-    // Determine the number of levels to generate for this phrase
-    let levelCount = predictLevelCount (DataExtractor.getPath arr) phraseData
-
+    // Generate one level for empty phrases
     if phraseData.NoteCount + phraseData.ChordCount = 0 then
         // Copy anchors only
         let level = Level 0y
         level.Anchors.AddRange phraseData.Anchors
         [| level |]
     else
+        // Determine the number of levels to generate for this phrase
+        let levelCount = predictLevelCount (DataExtractor.getPath arr) phraseData
+
         let entities = createXmlEntityArray phraseData.Notes phraseData.Chords
         let divisions =
             entities
@@ -173,45 +174,12 @@ let generateForArrangement (arr: InstrumentalArrangement) =
         phraseIterationData
         |> Array.Parallel.map (generateLevels arr)
 
+    let generatedLevelCount = levels |> Array.map Array.length
+
     let maxDiff =
         levels
         |> Array.maxBy (fun l -> l.Length)
         |> fun l -> l.Length
-
-    // Create phrases
-    let phrases =
-        levels
-        |> Array.mapi (fun i lvls ->
-            let name =
-                if i = 0 then
-                    // Usually "COUNT"
-                    arr.Phrases.[0].Name
-                elif i = levels.Length - 1 then
-                    "END"
-                elif lvls.Length = 1 then
-                    "NG"
-                else
-                    $"p{i}"
-
-            Phrase(name, byte (lvls.Length - 1), PhraseMask.None)
-        )
-
-    // Create phrase iterations
-    let newPhraseIterations =
-        phraseIterations
-        |> Array.mapi (fun i pi ->
-            let phrase = phrases.[i]
-            let pi = PhraseIteration(pi.Time, i)
-            if phrase.MaxDifficulty > 0uy then
-                // Create hero levels
-                let heroLevels = 
-                    HeroLevels(
-                        phrase.MaxDifficulty / 3uy,
-                        phrase.MaxDifficulty / 2uy,
-                        phrase.MaxDifficulty)
-                pi.HeroLevels <- heroLevels
-            pi
-        )
 
     // Combine the data in the levels
     let combinedLevels =
@@ -229,16 +197,13 @@ let generateForArrangement (arr: InstrumentalArrangement) =
             level
         )
 
-    // TODO: Improve search for similar phrases
-    // Use same name or create linked difficulty
-
-    let phrases = ResizeArray(phrases)
-    PhraseCombiner.combineSamePhrases phraseIterationData newPhraseIterations phrases
-    PhraseCombiner.combineNGPhrases newPhraseIterations phrases
+    let phrases, newPhraseIterations, newLinkedDiffs =
+        PhraseCombiner.combineSamePhrases phraseIterationData phraseIterations generatedLevelCount
 
     arr.Levels <- ResizeArray(combinedLevels)
-    arr.Phrases <- phrases
+    arr.Phrases <- ResizeArray(phrases)
     arr.PhraseIterations <- ResizeArray(newPhraseIterations)
+    arr.NewLinkedDiffs <- ResizeArray(newLinkedDiffs)
 
     arr
 
