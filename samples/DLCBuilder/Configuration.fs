@@ -85,6 +85,9 @@ module Configuration =
             CharterName = config.CharterName,
             ShowAdvanced = config.ShowAdvanced,
             Locale = config.Locale.ShortName,
+            GenerateDD = config.GenerateDD,
+            ApplyImprovements = config.ApplyImprovements,
+            SaveDebugFiles = config.SaveDebugFiles,
             WwiseConsolePath = Option.toObj config.WwiseConsolePath,
             CustomAppId = Option.toObj config.CustomAppId)
     
