@@ -196,5 +196,8 @@
   "InvalidShowlights": "Valoshowssa pitää olla vähintään yksi \"fog\" nuotti ja yksi \"beam\" nuotti",
   "InvalidShowlightsHelp": "Tämä valoshowtiedosto kaataa pelin, kun kappale valitaan.",
   "general": "Yleinen",
-  "build": "Rakennus"
+  "build": "Rakennus",
+  "generateDD": "Generoi DD",
+  "applyImprovements": "Käytä parannuksia",
+  "saveDebugFiles": "Luo debug tiedostoja"
 }

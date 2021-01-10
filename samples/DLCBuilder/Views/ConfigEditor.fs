@@ -260,7 +260,7 @@ let private buildConfig state dispatch =
             TextBlock.create [
                 Grid.row 2
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Generate DD"
+                TextBlock.text (state.Localization.GetString "generateDD")
             ]
             CheckBox.create [
                 Grid.column 1
@@ -280,7 +280,7 @@ let private buildConfig state dispatch =
             TextBlock.create [
                 Grid.row 3
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Apply Improvements"
+                TextBlock.text (state.Localization.GetString "applyImprovements")
             ]
             CheckBox.create [
                 Grid.column 1
@@ -300,7 +300,7 @@ let private buildConfig state dispatch =
             TextBlock.create [
                 Grid.row 4
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text "Save Debug Files"
+                TextBlock.text (state.Localization.GetString "saveDebugFiles")
             ]
             CheckBox.create [
                 Grid.column 1
