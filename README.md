@@ -8,25 +8,37 @@
 
 Contains various types and functions used by the other libraries. Also has functionality for reading and writing profile files.
 
-### XML
-
-For reading, editing and writing XML files. Originally created for [DDC Improver](https://github.com/iminashi/DDCImprover).
-
-### SNG
-
-For reading and writing SNG files.
-
 ### Conversion
 
 Contains functionality for converting XML to SNG and vice versa.
+
+### DD
+
+Contains functionality for generating dynamic difficulty levels.
+
+### DD.Model
+
+A machine learning model for predicting level counts. Created with ML.NET model builder.
+
+### DLCProject
+
+Contains the Arrangement and DLCProject types and also miscellaneous functionality needed for creating CDLC (Wwise and DDS conversion, showlight generation, etc.).
 
 ### PSARC
 
 For opening and creating PSARC archives.
 
-### DLCProject
+### SNG
 
-Contains the Arrangement and DLCProject types and also miscellaneous functionality needed for creating CDLC (Wwise and DDS conversion, showlight generation, etc,).
+For reading and writing SNG files.
+
+### XML
+
+For reading, editing and writing XML files. Originally created for [DDC Improver](https://github.com/iminashi/DDCImprover).
+
+### XML.Processing
+
+Contains functionality for improving arrangements and checking them for errors. Ported from [DDC Improver](https://github.com/iminashi/DDCImprover).
 
 ## Samples
 
