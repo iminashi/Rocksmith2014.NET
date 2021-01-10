@@ -7,7 +7,7 @@ open System.Text.RegularExpressions
 let fixChordLinkNext (arrangement: InstrumentalArrangement) =
     arrangement.Levels
     |> Seq.collect (fun l -> l.Chords)
-    |> Seq.filter (fun chord -> (not <| isNull chord.ChordNotes) && not chord.IsLinkNext && chord.ChordNotes.Exists(fun cn -> cn.IsLinkNext))
+    |> Seq.filter (fun chord -> chord.HasChordNotes && not chord.IsLinkNext && chord.ChordNotes.Exists(fun cn -> cn.IsLinkNext))
     |> Seq.iter (fun chord -> chord.IsLinkNext <- true)
 
 /// Fixes incorrect crowd events: E0, E1, E2.

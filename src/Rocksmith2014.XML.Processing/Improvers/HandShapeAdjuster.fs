@@ -7,10 +7,9 @@ let private isChordSlideAt (level: Level) time  =
     match level.Chords.FindByTime time with
     | null -> false
     | chord when chord.IsLinkNext ->
-        not <| isNull chord.ChordNotes
+        chord.HasChordNotes
         &&
-        chord.ChordNotes
-        |> Seq.exists(fun cn -> cn.IsSlide)
+        chord.ChordNotes.Exists(fun cn -> cn.IsSlide)
     | _ -> false
 
 /// Shortens the lengths of handshapes that are too close to the next one.

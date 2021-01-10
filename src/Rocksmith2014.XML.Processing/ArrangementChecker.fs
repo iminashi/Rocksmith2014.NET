@@ -75,7 +75,7 @@ let private isInsideNoguitarSection noGuitarSections (time: int) =
 let private isLinkedToChord (level: Level) (note: Note) =
     level.Chords.Exists(fun c -> 
         c.Time = note.Time + note.Sustain
-        && not <| isNull c.ChordNotes
+        && c.HasChordNotes
         && c.ChordNotes.Exists(fun cn -> cn.String = note.String))
 
 let private findNextNote (notes: ResizeArray<Note>) currentIndex (note: Note) =
@@ -175,10 +175,11 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
     let ngSections = getNoguitarSections arrangement
 
     [ for chord in level.Chords do
-        let chordNotes = chord.ChordNotes
         let time = chord.Time
 
-        if not <| isNull chordNotes then
+        if chord.HasChordNotes then
+            let chordNotes = chord.ChordNotes
+
             // Check for inconsistent chord note sustains
             if not <| chordNotes.TrueForAll(fun cn -> cn.Sustain = chordNotes.[0].Sustain) then
                 issue VaryingChordNoteSustains time
