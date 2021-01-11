@@ -9,21 +9,6 @@ open Rocksmith2014.DLCProject
 open Rocksmith2014.Conversion
 open Rocksmith2014.Common
 
-let testProject =
-    { Version = "1.0"
-      DLCKey = "SomeTest"
-      ArtistName = SortableString.Create "Artist"
-      JapaneseArtistName = None
-      JapaneseTitle = None
-      Title = SortableString.Create "Title"
-      AlbumName = SortableString.Create "Album"
-      Year = 2020
-      AlbumArtFile = "cover.dds"
-      AudioFile = { Path = "audio.wem"; Volume = 1. }
-      AudioPreviewFile = { Path = "audio_preview.wem"; Volume = 1. }
-      Arrangements = []
-      Tones = [] }
-
 let testArr = InstrumentalArrangement.Load("instrumental.xml")
 let testSng = ConvertInstrumental.xmlToSng testArr
 
@@ -55,6 +40,21 @@ let testJVocals =
       MasterID = 54321
       PersistentID = Guid.NewGuid() }
 
+let testProject =
+    { Version = "1.0"
+      DLCKey = "SomeTest"
+      ArtistName = SortableString.Create "Artist"
+      JapaneseArtistName = None
+      JapaneseTitle = None
+      Title = SortableString.Create "Title"
+      AlbumName = SortableString.Create "Album"
+      Year = 2020
+      AlbumArtFile = "cover.dds"
+      AudioFile = { Path = "audio.wem"; Volume = 1. }
+      AudioPreviewFile = { Path = "audio_preview.wem"; Volume = 1. }
+      Arrangements = [ Instrumental testLead ]
+      Tones = [] }
+
 [<Tests>]
 let attributeTests =
   testList "Attribute Tests" [
@@ -72,47 +72,36 @@ let attributeTests =
         Expect.equal attr2.SongAsset "urn:application:musicgame-song:sometest_lead2" "Song asset is correct"
 
     testCase "Chord templates are created" <| fun _ ->
-        let project = { testProject with Arrangements = [ Instrumental testLead ] }
         let emptyNameId = testSng.Chords |> Array.findIndex (fun c -> String.IsNullOrEmpty c.Name)
 
-        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+        let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
 
         Expect.isNonEmpty attr.ChordTemplates "Chord templates array is not empty"
         Expect.isFalse (attr.ChordTemplates |> Array.exists (fun (c: Manifest.ChordTemplate) -> c.ChordId = int16 emptyNameId)) "Chord template with empty name is removed"
 
     testCase "Sections are created" <| fun _ ->
-        let project = { testProject with Arrangements = [ Instrumental testLead ] }
-
-        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+        let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
 
         Expect.equal attr.Sections.Length testSng.Sections.Length "Section count is same"
         Expect.equal attr.Sections.[0].UIName "$[34298] Riff [1]" "UI name is correct"
 
     testCase "Phrases are created" <| fun _ ->
-        let project = { testProject with Arrangements = [ Instrumental testLead ] }
-
-        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+        let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
 
         Expect.equal attr.Phrases.Length testSng.Phrases.Length "Phrase count is same"
 
     testCase "Chords are created" <| fun _ ->
-        let project = { testProject with Arrangements = [ Instrumental testLead ] }
-
-        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+        let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
 
         Expect.isNonEmpty attr.Chords "Chords map is not empty"
 
     testCase "Techniques are created" <| fun _ ->
-        let project = { testProject with Arrangements = [ Instrumental testLead ] }
-
-        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+        let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
 
         Expect.isNonEmpty attr.Techniques "Technique map is not empty"
 
     testCase "Arrangement properties are set" <| fun _ ->
-        let project = { testProject with Arrangements = [ Instrumental testLead ] }
-
-        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+        let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
 
         match attr.ArrangementProperties with
         | Some ap ->
@@ -122,16 +111,12 @@ let attributeTests =
         | None -> failwith "Arrangement properties do not exist"
 
     testCase "DNA riffs is set" <| fun _ ->
-        let project = { testProject with Arrangements = [ Instrumental testLead ] }
-
-        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+        let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
 
         Expect.isGreaterThan attr.DNA_Riffs.Value 0. "DNA riffs is greater than zero"
 
     testCase "Tone names are set" <| fun _ ->
-        let project = { testProject with Arrangements = [ Instrumental testLead ] }
-
-        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+        let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
 
         Expect.equal attr.Tone_Base "Base_Tone" "Base tone name is correct"
         Expect.equal attr.Tone_A "Tone_1" "Tone A name is correct"
@@ -139,9 +124,7 @@ let attributeTests =
         Expect.equal attr.Tone_C "Tone_3" "Tone C name is correct"
 
     testCase "URN attributes are correct" <| fun _ ->
-        let project = { testProject with Arrangements = [ Instrumental testLead ] }
-
-        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+        let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
 
         Expect.equal attr.AlbumArt "urn:image:dds:album_sometest" "AlbumArt is correct"
         Expect.equal attr.ManifestUrn "urn:database:json-db:sometest_lead" "ManifestUrn is correct"
@@ -151,9 +134,7 @@ let attributeTests =
         Expect.equal attr.SongXml "urn:application:xml:sometest_lead" "SongXml is correct"
 
     testCase "Various attributes are correct (Common)" <| fun _ ->
-        let project = { testProject with Arrangements = [ Instrumental testLead ] }
-
-        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+        let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
 
         Expect.equal attr.ArrangementSort (Nullable(0)) "ArrangementSort is 0"
         Expect.equal attr.RelativeDifficulty (Nullable(0)) "RelativeDifficulty is 0"
@@ -163,9 +144,7 @@ let attributeTests =
         Expect.equal attr.Shipping true "Shipping is correct"
 
     testCase "Various attributes are correct (Instrumental)" <| fun _ ->
-        let project = { testProject with Arrangements = [ Instrumental testLead ] }
-
-        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+        let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
 
         Expect.equal attr.MasterID_RDV 12345 "MasterID is correct"
         Expect.equal attr.FullName "SomeTest_Lead" "FullName is correct"
@@ -194,9 +173,7 @@ let attributeTests =
         Expect.equal attr.JapaneseVocal (Nullable(true)) "JapaneseVocal is true"
 
     testCase "Maximum scroll speed is correct" <| fun _ ->
-        let project = { testProject with Arrangements = [ Instrumental testLead ] }
-
-        let attr = createAttributes project (FromInstrumental (testLead, testSng))
+        let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
         let dvd = attr.DynamicVisualDensity.[(testArr.Levels.Count - 1)..]
 
         Expect.allEqual dvd (float32 testLead.ScrollSpeed) "Maximum scroll speed is correct"
