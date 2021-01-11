@@ -184,7 +184,7 @@ let private setupInstrumental part (inst: Instrumental) config (xmlFile: string)
         Generator.generateForArrangement xml |> ignore
 
     if config.SaveDebugFiles then
-        xml.Save($"{xmlFile}.debug.xml")
+        xml.Save(Path.ChangeExtension(xmlFile, "debug.xml"))
 
     xml
 
