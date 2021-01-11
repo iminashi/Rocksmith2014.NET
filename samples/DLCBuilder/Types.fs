@@ -41,7 +41,7 @@ type State =
       CurrentPlatform : Platform
       BuildInProgress : bool
       CheckInProgress : bool
-      ArrangementIssues : Map<Arrangement, ArrangementChecker.Issue list>
+      ArrangementIssues : Map<string, ArrangementChecker.Issue list>
       Localization : ILocalization }
 
 type Msg =
@@ -96,7 +96,7 @@ type Msg =
     | BuildRelease
     | BuildComplete of unit
     | CheckArrangements
-    | CheckCompleted of Map<Arrangement, ArrangementChecker.Issue list>
+    | CheckCompleted of Map<string, ArrangementChecker.Issue list>
     | ConvertToWem
     | ShowImportToneSelector of tones : Tone array
     | ChangeLocale of locale : Locale

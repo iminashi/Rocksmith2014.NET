@@ -500,24 +500,24 @@ let update (msg: Msg) (state: State) =
         let task() = async {
             return state.Project.Arrangements
                    |> List.map (function
-                       | Instrumental inst as arr ->
+                       | Instrumental inst ->
                            let issues =
                                XML.InstrumentalArrangement.Load inst.XML
                                |> ArrangementChecker.runAllChecks
-                           arr, issues
-                       | Vocals v as arr when Option.isNone v.CustomFont ->
+                           inst.XML, issues
+                       | Vocals v when Option.isNone v.CustomFont ->
                            let issues =
                                XML.Vocals.Load v.XML
                                |> ArrangementChecker.checkVocals
                                |> Option.toList
-                           arr, issues
-                       | Showlights sl as arr ->
+                           v.XML, issues
+                       | Showlights sl ->
                            let issues =
                                 XML.ShowLights.Load sl.XML
                                 |> ArrangementChecker.checkShowlights
                                 |> Option.toList
-                           arr, issues
-                       | arr -> arr, [])
+                           sl.XML, issues
+                       | Vocals v -> v.XML, [])
                    |> Map.ofList }
 
         { state with CheckInProgress = true }, Cmd.OfAsync.either task () CheckCompleted ErrorOccurred
@@ -528,8 +528,11 @@ let update (msg: Msg) (state: State) =
 
     | ShowIssueViewer ->
         match state.SelectedArrangement with
-        | Some arr -> { state with Overlay = IssueViewer (state.ArrangementIssues.[arr]) }, Cmd.none
-        | None -> state, Cmd.none
+        | Some arr ->
+            let xmlFile = Arrangement.getFile arr
+            { state with Overlay = IssueViewer (state.ArrangementIssues.[xmlFile]) }, Cmd.none
+        | None ->
+            state, Cmd.none
    
     | ErrorOccurred e -> { state with Overlay = ErrorMessage e.Message
                                       BuildInProgress = false
@@ -634,6 +637,8 @@ let view (window: HostWindow) (state: State) dispatch =
                                 ]
 
                             | Some arr ->
+                                let xmlFile = Arrangement.getFile arr
+
                                 // Arrangement name
                                 TextBlock.create [
                                     TextBlock.fontSize 17.
@@ -643,13 +648,13 @@ let view (window: HostWindow) (state: State) dispatch =
 
                                 // Arrangement filename
                                 TextBlock.create [
-                                    TextBlock.text (IO.Path.GetFileName (Arrangement.getFile arr))
+                                    TextBlock.text (IO.Path.GetFileName xmlFile)
                                     TextBlock.horizontalAlignment HorizontalAlignment.Center
                                 ]
 
                                 // Validation Icon
-                                if state.ArrangementIssues.ContainsKey arr then
-                                    let noIssues = state.ArrangementIssues.[arr].IsEmpty
+                                if state.ArrangementIssues.ContainsKey xmlFile then
+                                    let noIssues = state.ArrangementIssues.[xmlFile].IsEmpty
                                     StackPanel.create [
                                         StackPanel.orientation Orientation.Horizontal
                                         StackPanel.background Brushes.Transparent
