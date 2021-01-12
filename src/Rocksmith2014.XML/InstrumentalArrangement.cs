@@ -199,7 +199,10 @@ namespace Rocksmith2014.XML
 
             return tones;
         }
-
+        /// <summary>
+        /// Modifies the arrangement to use the absence of chord notes to indicate repeated strums (matches official XML files),
+        /// instead of using the "high density" attribute (which is only used in custom files).
+        /// </summary>
         public void FixHighDensity()
         {
             static void removeHighDensity(Chord chord, bool removeChordNotes)
@@ -210,7 +213,7 @@ namespace Rocksmith2014.XML
                     if (removeChordNotes)
                     {
                         // Set the chord as ignored if it has any harmonics in it
-                        if (chord.ChordNotes?.Count > 0 && chord.ChordNotes.Any(cn => cn.IsHarmonic))
+                        if (chord.HasChordNotes && chord.ChordNotes.Any(cn => cn.IsHarmonic))
                             chord.IsIgnore = true;
 
                         chord.ChordNotes = null;
@@ -232,6 +235,7 @@ namespace Rocksmith2014.XML
 
                     bool startsWithMute = false;
                     int chordNum = 0;
+                    int prevChordId = -1;
 
                     foreach (var chord in chordsInHs)
                     {
@@ -244,13 +248,14 @@ namespace Rocksmith2014.XML
                             {
                                 startsWithMute = true;
                                 // Frethand-muted chords without techniques should not have chord notes
-                                if (chord.ChordNotes?.All(cn => cn.Sustain == 0) == true)
+                                if (chord.HasChordNotes && chord.ChordNotes.All(cn => cn.Sustain == 0))
                                     chord.ChordNotes = null;
                             }
                             else
                             {
                                 // Do not remove the chord notes even if the first chord somehow has "high density"
                                 removeHighDensity(chord, false);
+                                prevChordId = chord.ChordId;
                                 continue;
                             }
                         }
@@ -264,7 +269,14 @@ namespace Rocksmith2014.XML
                         else
                         {
                             removeHighDensity(chord, true);
+
+                            // Hack for Toolkit-like behavior, where repeated chords inside the hand shape will be forced to strums.
+                            // This makes it impossible to create repeated chords inside the same hand shape where the full chord is shown.
+                            if (chord.ChordId == prevChordId && chord.HasChordNotes && chord.ChordNotes.All(cn => cn.Sustain == 0))
+                                chord.ChordNotes = null;
                         }
+
+                        prevChordId = chord.ChordId;
                     }
                 }
             }
