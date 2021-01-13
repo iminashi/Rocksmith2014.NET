@@ -12,7 +12,7 @@ let handShapeChooserTests =
             let handShapes = [ HandShape(0s, 2000, 3500) ]
 
             let hsResult, reqResult =
-                HandShapeChooser.choose 100uy [||] [||] templates handShapes
+                HandShapeChooser.choose 100uy [||] [||] 3 templates handShapes
                 |> List.unzip
             let reqResult = List.choose id reqResult
 
@@ -28,7 +28,7 @@ let handShapeChooserTests =
             let handShapes = [ HandShape(0s, 2000, 3500) ]
 
             let hsResult, reqResult =
-                HandShapeChooser.choose 0uy entities entities templates handShapes
+                HandShapeChooser.choose 0uy entities entities 3 templates handShapes
                 |> List.unzip
             let reqResult = List.choose id reqResult
 

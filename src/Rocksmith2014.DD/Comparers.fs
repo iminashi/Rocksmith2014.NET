@@ -12,7 +12,7 @@ let sameBendValues (bends1: ResizeArray<BendValue>) (bends2: ResizeArray<BendVal
 let sameNote (n1: Note) (n2: Note) = 
     n1.Fret = n2.Fret
     && n1.String = n2.String
-    && n1.Sustain = n2.Sustain
+    //&& n1.Sustain = n2.Sustain
     && n1.Mask = n2.Mask
     && n1.SlideTo = n2.SlideTo
     && n1.SlideUnpitchTo = n2.SlideUnpitchTo

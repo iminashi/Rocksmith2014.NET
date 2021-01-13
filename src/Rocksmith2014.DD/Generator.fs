@@ -87,7 +87,7 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
             entities
             |> Array.map (fun e ->
                 let time = getTimeCode e
-                time, BeatDivider.getDivision phraseData.Beats time)
+                time, BeatDivider.getDivision phraseData.EndTime phraseData.Beats time)
 
         let notesInDivision =
             divisions
@@ -109,13 +109,20 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
                 let diffPercent = byte <| 100 * (diff + 1) / levelCount
 
                 let levelEntities, templateRequests1 =
-                    EntityChooser.choose diffPercent divisions notesInDivision arr.ChordTemplates phraseData.HandShapes entities
+                    EntityChooser.choose diffPercent divisions notesInDivision arr.ChordTemplates phraseData.HandShapes phraseData.MaxChordStrings entities
                     |> Array.unzip
                 let notes = levelEntities |> Array.choose (function XmlNote n -> Some n | _ -> None)
                 let chords = levelEntities |> Array.choose (function XmlChord n -> Some n | _ -> None)
 
+                // Ensure that the link next attributes for chords are correct
+                // A chord that has a link next attribute, but does not have any notes with link next will crash the game
+                chords
+                |> Array.iter (fun chord ->
+                    if chord.IsLinkNext && chord.ChordNotes.TrueForAll(fun x -> not x.IsLinkNext) then
+                        chord.IsLinkNext <- false)
+
                 let handShapes, templateRequests2 =
-                    HandShapeChooser.choose diffPercent levelEntities entities arr.ChordTemplates phraseData.HandShapes
+                    HandShapeChooser.choose diffPercent levelEntities entities phraseData.MaxChordStrings arr.ChordTemplates phraseData.HandShapes
                     |> List.unzip
 
                 let anchors = AnchorChooser.choose levelEntities phraseData.Anchors phraseData.StartTime phraseData.EndTime

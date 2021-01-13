@@ -83,7 +83,9 @@ let combineSamePhrases (iterationData: PhraseData array) (iterations: PhraseIter
             let maxDiff = byte (levelCount - 1)
             if maxDiff > 0uy then
                 // Create hero levels
-                pi.HeroLevels <- HeroLevels(maxDiff / 3uy, maxDiff / 2uy, maxDiff)
+                let easy = byte <| round (float maxDiff / 4.)
+                let medium = byte <| round (float maxDiff / 2.)
+                pi.HeroLevels <- HeroLevels(easy, medium, maxDiff)
             pi)
 
     // Create linked difficulties

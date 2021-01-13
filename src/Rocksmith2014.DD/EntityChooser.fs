@@ -18,8 +18,10 @@ let private pruneTechniques diffPercent (removedLinkNexts: HashSet<sbyte>) (note
         note.Vibrato <- 0uy
         note.SlideTo <- -1y
         note.SlideUnpitchTo <- -1y
-    elif diffPercent <= 35uy && note.IsTremolo then
+    elif diffPercent <= 35uy && note.IsTremolo && not note.IsTap then
         note.IsTremolo <- false
+    elif diffPercent <= 45uy && note.IsVibrato && not note.IsTap then
+        note.Vibrato <- 0uy
     elif diffPercent <= 60uy && note.IsPinchHarmonic then
         note.IsPinchHarmonic <- false
 
@@ -39,8 +41,7 @@ let private pruneChordNotes diffPercent
 
         for n in cn do
             pruneTechniques diffPercent removedLinkNexts n
-            if n.IsLinkNext then
-                pendingLinkNexts.Add(n.String, n)
+            if n.IsLinkNext then pendingLinkNexts.Add(n.String, n)
 
         if chord.IsLinkNext && cn.TrueForAll(fun x -> not x.IsLinkNext) then
             chord.IsLinkNext <- false
@@ -68,13 +69,15 @@ let private shouldExclude diffPercent
         // The current difficulty is greater than the upper limit of the range -> Include
         false
     
-let private removePreviousLinkNext (pendingLinkNexts: Dictionary<sbyte, Note>) (entity: XmlEntity) =
-    match entity with
+let private removePreviousLinkNext (pendingLinkNexts: Dictionary<sbyte, Note>) = function
     | XmlChord _ ->
         ()
     | XmlNote note ->
         let mutable lnNote = null
         if pendingLinkNexts.Remove(note.String, &lnNote) then
+            if lnNote.IsSlide then
+                lnNote.SlideTo <- -1y
+                lnNote.Sustain <- 0
             lnNote.IsLinkNext <- false
 
 let private findEntityWithString (entities: XmlEntity seq) string =
@@ -118,19 +121,29 @@ let private isFirstChordInHs (entities: XmlEntity list) (handShapes: HandShape l
 
         prevChord.IsNone
 
-let private chordNotesFromTemplate (template: ChordTemplate) time =
+let private chordNotesFromTemplate (template: ChordTemplate) (chord: Chord) =
     let cn = ResizeArray<Note>()
     for i = 0 to 5 do
         if template.Frets.[i] <> -1y then
-            cn.Add(Note(Time = time, String = sbyte i, Fret = template.Frets.[i], LeftHand = template.Fingers.[i]))
+            cn.Add(Note(Time = chord.Time,
+                        String = sbyte i,
+                        Fret = template.Frets.[i],
+                        LeftHand = template.Fingers.[i],
+                        IsFretHandMute = chord.IsFretHandMute,
+                        IsPalmMute = chord.IsPalmMute,
+                        IsAccent = chord.IsAccent))
     cn
 
-let private createNote diffPercent (removedLinkNexts: HashSet<sbyte>) (template: ChordTemplate) (chord: Chord) =
+let private createNote diffPercent
+                       (removedLinkNexts: HashSet<sbyte>)
+                       (template: ChordTemplate)
+                       (chord: Chord) =
     if chord.HasChordNotes then
         // Create the note from a chord note
         for i = 1 to chord.ChordNotes.Count - 1 do
             if chord.ChordNotes.[i].IsLinkNext then
                 removedLinkNexts.Add(chord.ChordNotes.[i].String) |> ignore
+
         let n = Note(chord.ChordNotes.[0], LeftHand = -1y)
         pruneTechniques diffPercent removedLinkNexts n
         n
@@ -149,8 +162,10 @@ let choose diffPercent
            (notesInDivision: Map<BeatDivision, int>)
            (templates: ResizeArray<ChordTemplate>)
            (handShapes: HandShape list)
+           (maxChordNotes: int)
            (entities: XmlEntity array) =
     let removedLinkNexts = HashSet<sbyte>()
+    let pendingLinkNexts = Dictionary<sbyte, Note>()
     
     let noteTimeToDivision = Map.ofArray divisions
     let divisionMap = BeatDivider.createDivisionMap divisions entities.Length
@@ -163,7 +178,7 @@ let choose diffPercent
         | false, _ ->
             currentNotesInDivision.[division] <- 1
     
-    let pendingLinkNexts = Dictionary<sbyte, Note>()
+    let allowedChordNotes = Utils.getAllowedChordNotes diffPercent maxChordNotes
     
     entities
     |> Array.fold (fun acc e ->
@@ -172,6 +187,7 @@ let choose diffPercent
 
         /// Always include notes without techniques that are linked into
         let includeAlways =
+            // TODO: Always include notes at the same time code when link next is used?
             match e with
             | XmlChord _ ->
                 false
@@ -182,6 +198,19 @@ let choose diffPercent
 
         if not includeAlways && shouldExclude diffPercent division notesInDivision currentNotesInDivision range then
             removePreviousLinkNext pendingLinkNexts e
+
+            // Update removedLinkNexts (when not a slide)
+            match e with
+            | XmlNote xn when xn.IsLinkNext && not xn.IsSlide ->
+                removedLinkNexts.Add xn.String |> ignore
+            | XmlNote xn ->
+                removedLinkNexts.Remove xn.String |> ignore
+            | XmlChord xc when xc.IsLinkNext ->
+                for cn in xc.ChordNotes do
+                    if cn.IsLinkNext && not cn.IsSlide then
+                        removedLinkNexts.Add cn.String |> ignore
+            | _ -> ()
+
             acc
         // The entity is within the difficulty range
         else
@@ -199,15 +228,17 @@ let choose diffPercent
                     pruneTechniques diffPercent removedLinkNexts note
 
                     pendingLinkNexts.Remove(note.String) |> ignore
-                    if note.IsLinkNext then
-                        pendingLinkNexts.Add(note.String, note)                        
+                    if note.IsLinkNext then pendingLinkNexts.Add(note.String, note)
     
                     if note.IsHopo then
                         let prevLevelEntity = findEntityWithString (acc |> Seq.map fst) note.String
                         let prevAllEntity = findPrevEntityAll entities note.String note.Time
 
                         match prevLevelEntity, prevAllEntity with
+                        // Leave the HOPO if this is a tapping phrase
+                        | Some (XmlNote n), _ when n.IsTap -> ()
                         // Leave the HOPO if the previous note on the same string is an appropriate one and comes right before this one
+                        // TODO: Handle case when first note is "hammer-on from nowhere"
                         | Some (XmlNote n as xn), _ when List.head acc |> fst = xn
                                                          && not (n.IsFretHandMute || n.IsHarmonic)
                                                          && ((note.IsPullOff && n.Fret > note.Fret) || (note.IsHammerOn && n.Fret < note.Fret)) -> ()
@@ -226,10 +257,11 @@ let choose diffPercent
        
                 let template = templates.[int chord.ChordId]
                 let noteCount = getNoteCount template
-  
-                if diffPercent <= 17uy && noteCount > 1 then
+ 
+                if allowedChordNotes <= 1 then
                     // Convert the chord into a note
                     let note = createNote diffPercent removedLinkNexts template chord
+                    if note.IsLinkNext then pendingLinkNexts.Add(note.String, note)
 
                     (XmlNote note, None)::acc
                 else
@@ -237,36 +269,19 @@ let choose diffPercent
 
                     // Create chord notes if this is the first chord in the hand shape
                     if isNull copy.ChordNotes && isFirstChordInHs (List.map fst acc) handShapes copy then
-                        copy.ChordNotes <- chordNotesFromTemplate template copy.Time
+                        copy.ChordNotes <- chordNotesFromTemplate template copy
 
-                    if diffPercent <= 34uy && noteCount > 2 then
-                        pruneChordNotes diffPercent 2 removedLinkNexts pendingLinkNexts copy
-    
-                        (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 2uy; Target = ChordTarget copy })::acc
-                    elif diffPercent <= 51uy && noteCount > 3 then
-                        pruneChordNotes diffPercent 3 removedLinkNexts pendingLinkNexts copy
-    
-                        (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 3uy; Target = ChordTarget copy })::acc
-                    elif diffPercent <= 68uy && noteCount > 4 then
-                        pruneChordNotes diffPercent 4 removedLinkNexts pendingLinkNexts copy
-    
-                        (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 4uy; Target = ChordTarget copy })::acc
-                    elif diffPercent <= 85uy && noteCount > 5 then
-                        pruneChordNotes diffPercent 5 removedLinkNexts pendingLinkNexts copy
-    
-                        (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = 5uy; Target = ChordTarget copy })::acc
-                    else
+                    if allowedChordNotes >= noteCount then
                         if copy.HasChordNotes then
-                            for n in copy.ChordNotes do
-                                pruneTechniques diffPercent removedLinkNexts n
-
-                                if n.IsLinkNext then
-                                    pendingLinkNexts.Add(n.String, n)
-
-                            if copy.IsLinkNext && copy.ChordNotes.TrueForAll(fun x -> not x.IsLinkNext) then
-                                copy.IsLinkNext <- false
+                            for cn in copy.ChordNotes do
+                                pruneTechniques diffPercent removedLinkNexts cn
+                                if cn.IsLinkNext then pendingLinkNexts.Add(cn.String, cn)
     
                         (XmlChord copy, None)::acc
+                    else
+                        pruneChordNotes diffPercent allowedChordNotes removedLinkNexts pendingLinkNexts copy
+    
+                        (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = byte allowedChordNotes; Target = ChordTarget copy })::acc
     ) []
     |> List.rev
     |> List.toArray

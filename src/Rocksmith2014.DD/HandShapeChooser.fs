@@ -23,15 +23,17 @@ let private isArpeggio (entities: XmlEntity array) (hs: HandShape) =
         false
     | notes ->
         notes
-        |> Array.forall (fun n -> n.String = notes.[0].String)
+        |> Array.forall (fun n -> n.String = notes.[0].String || n.Time = notes.[0].Time)
         |> not
 
-let choose diffPercent
+let choose (diffPercent: byte)
            (levelEntities: XmlEntity array)
            (allEntities: XmlEntity array)
+           (maxChordNotes: int)
            (templates: ResizeArray<ChordTemplate>)
            (handShapes: HandShape list) =
     // TODO: Special handling for empty handshapes
+    let allowedNotes = Utils.getAllowedChordNotes diffPercent maxChordNotes
 
     handShapes
     |> List.choose (fun hs ->
@@ -43,20 +45,11 @@ let choose diffPercent
         elif isArpeggio allEntities hs then
             // Always use the full handshape for arpeggios
             Some (hs, None)
-        elif diffPercent <= 17uy && noteCount > 1 then
+        elif allowedNotes <= 1 then
             None
-        elif diffPercent <= 34uy && noteCount > 2 then
-            let copy = HandShape(hs)
-            Some (copy, Some { OriginalId = hs.ChordId; NoteCount = 2uy; Target = HandShapeTarget copy })
-        elif diffPercent <= 51uy && noteCount > 3 then
-            let copy = HandShape(hs)
-            Some (copy, Some { OriginalId = hs.ChordId; NoteCount = 3uy; Target = HandShapeTarget copy })
-        elif diffPercent <= 68uy && noteCount > 4 then
-            let copy = HandShape(hs)
-            Some (copy, Some { OriginalId = hs.ChordId; NoteCount = 4uy; Target = HandShapeTarget copy })
-        elif diffPercent <= 85uy && noteCount > 5 then
-            let copy = HandShape(hs)
-            Some (copy, Some { OriginalId = hs.ChordId; NoteCount = 5uy; Target = HandShapeTarget copy })
-        else
+        elif allowedNotes >= noteCount then
             Some (hs, None)
+        else
+            let copy = HandShape(hs)
+            Some (copy, Some { OriginalId = hs.ChordId; NoteCount = byte allowedNotes; Target = HandShapeTarget copy })
     )
