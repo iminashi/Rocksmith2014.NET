@@ -180,8 +180,8 @@ let choose diffPercent
     
     let allowedChordNotes = Utils.getAllowedChordNotes diffPercent maxChordNotes
     
-    entities
-    |> Array.fold (fun acc e ->
+    ([], entities)
+    ||> Array.fold (fun acc e ->
         let division = noteTimeToDivision.[getTimeCode e]
         let range = divisionMap.[division]
 
@@ -282,6 +282,6 @@ let choose diffPercent
                         pruneChordNotes diffPercent allowedChordNotes removedLinkNexts pendingLinkNexts copy
     
                         (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = byte allowedChordNotes; Target = ChordTarget copy })::acc
-    ) []
+    )
     |> List.rev
     |> List.toArray
