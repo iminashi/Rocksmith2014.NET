@@ -30,3 +30,11 @@ let getAllowedChordNotes (diffPercent: byte) maxChordNotesInPhrase =
     else
         float diffPercent / 100. * float maxChordNotesInPhrase
         |> (ceil >> int)
+
+let allSame (arr: 'a array) =
+    match arr.Length with
+    | 0 | 1 ->
+        true
+    | _ ->
+        let first = Array.head arr
+        Array.forall ((=) first) arr

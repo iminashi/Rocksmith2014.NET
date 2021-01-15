@@ -22,31 +22,28 @@ let private findSamePhrases (levelCounts: int array) (iterationData: PhraseData 
 
     iterationData
     |> Array.mapi (fun i iter ->
-        if not <| matchedPhrases.Contains i then
-            let ids =
-                iterationData.[(i + 1)..]
-                |> Array.Parallel.choose (fun data ->
-                    let id = Array.IndexOf(iterationData, data)
-                    if not <| matchedPhrases.Contains id && getSimilarity iter data >= 95 then
-                        Some id
-                    else
-                        None)
-
-            if ids.Length = 0 then
-                None
-            else
+        if matchedPhrases.Contains i then
+            None
+        else
+            iterationData.[(i + 1)..]
+            |> Array.Parallel.choose (fun data ->
+                let id = Array.IndexOf(iterationData, data)
+                if not <| matchedPhrases.Contains id && getSimilarity iter data >= 95 then
+                    Some id
+                else
+                    None)
+            |> function
+            | [||] -> None
+            | ids ->
                 // Save the IDs that were matched
                 matchedPhrases.UnionWith ids
 
                 let sameDifficulty =
-                    let difficulties = Array.map (fun id -> levelCounts.[id]) ids
-                    let first = difficulties.[0]
-                    
-                    Array.forall ((=) first) difficulties
+                    ids
+                    |> Array.map (fun id -> levelCounts.[id])
+                    |> Utils.allSame
 
-                Some { MainId = i; Ids = ids; SameDifficulty = sameDifficulty }
-        else
-            None)
+                Some { MainId = i; Ids = ids; SameDifficulty = sameDifficulty })
     |> Array.choose id
 
 let combineSamePhrases (iterationData: PhraseData array) (iterations: PhraseIteration array) (levelCounts: int array) =
