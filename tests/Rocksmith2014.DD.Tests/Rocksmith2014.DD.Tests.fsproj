@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="ComparerTests.fs" />
     <Compile Include="AnchorChooserTests.fs" />
     <Compile Include="HandShapeChooserTests.fs" />
     <Compile Include="GeneratorTests.fs" />

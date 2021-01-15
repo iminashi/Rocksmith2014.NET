@@ -22,7 +22,8 @@ let private pruneTechniques diffPercent (removedLinkNexts: HashSet<sbyte>) (note
         note.IsTremolo <- false
     elif diffPercent <= 45uy && note.IsVibrato && not note.IsTap then
         note.Vibrato <- 0uy
-    elif diffPercent <= 60uy && note.IsPinchHarmonic then
+
+    if diffPercent <= 60uy && note.IsPinchHarmonic then
         note.IsPinchHarmonic <- false
 
 let private pruneChordNotes diffPercent

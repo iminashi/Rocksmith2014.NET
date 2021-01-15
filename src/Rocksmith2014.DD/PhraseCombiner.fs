@@ -1,48 +1,48 @@
 ﻿module Rocksmith2014.DD.PhraseCombiner
 
-open Rocksmith2014.XML
-open Rocksmith2014.DD.DataExtractor
 open System
 open System.Collections.Generic
+open Rocksmith2014.XML
+open DataExtractor
+open Comparers
 
 type private CombinationData = { MainId: int; Ids: int array; SameDifficulty: bool }
 
-let private hasSameContent (phrase1: PhraseData) (phrase2: PhraseData) =
-    Comparers.sameNotes phrase1.Notes phrase2.Notes
-    &&
-    Comparers.sameChords phrase1.Chords phrase2.Chords
+let private getSimilarity (phrase1: PhraseData) (phrase2: PhraseData) =
+    let noteSimilarity = getSimilarityPercent sameNote phrase1.Notes phrase2.Notes
+    let chordSimilarity = getSimilarityPercent sameChord phrase1.Chords phrase2.Chords
+    
+    (noteSimilarity + chordSimilarity) / 2.
+    |> (round >> int)
 
 let private findSamePhrases (levelCounts: int array) (iterationData: PhraseData array) =
-    // TODO: Improve search for similar phrases
-
-    let matchedPhrases = HashSet<int>()
+    // Ignore the first and last phrases (COUNT, END)
     let lastId = iterationData.Length - 1
+    let matchedPhrases = HashSet<int>([| 0; lastId |])
 
     iterationData
     |> Array.mapi (fun i iter ->
-        // Ignore the first and last phrases (COUNT, END)
-        if (not <| matchedPhrases.Contains i) && i <> 0 && i <> lastId then
-            let rest = iterationData.[(i + 1)..]
+        if not <| matchedPhrases.Contains i then
             let ids =
-                Array.FindAll(rest, fun x -> hasSameContent iter x)
-                |> Array.map (fun x ->
-                    let id =
-                        iterationData
-                        |> Array.findIndex (fun y -> Object.ReferenceEquals(x, y))
-                    matchedPhrases.Add id |> ignore
-                    id)
-                |> Array.filter (fun x -> x <> 0 && x <> lastId)
+                iterationData.[(i + 1)..]
+                |> Array.Parallel.choose (fun data ->
+                    let id = Array.IndexOf(iterationData, data)
+                    if not <| matchedPhrases.Contains id && getSimilarity iter data >= 95 then
+                        Some id
+                    else
+                        None)
 
             if ids.Length = 0 then
                 None
             else
+                // Save the IDs that were matched
+                matchedPhrases.UnionWith ids
+
                 let sameDifficulty =
-                    let difficulties =
-                        ids
-                        |> Array.map (fun i -> levelCounts.[i])
+                    let difficulties = Array.map (fun id -> levelCounts.[id]) ids
                     let first = difficulties.[0]
                     
-                    difficulties |> Array.forall ((=) first)
+                    Array.forall ((=) first) difficulties
 
                 Some { MainId = i; Ids = ids; SameDifficulty = sameDifficulty }
         else
@@ -50,10 +50,9 @@ let private findSamePhrases (levelCounts: int array) (iterationData: PhraseData 
     |> Array.choose id
 
 let combineSamePhrases (iterationData: PhraseData array) (iterations: PhraseIteration array) (levelCounts: int array) =
-    let samePhraseIds = findSamePhrases levelCounts iterationData
-
     let sameDifficulties, differentDifficulties =
-        samePhraseIds
+        // TODO: Allow disabling the search with a configuration option
+        findSamePhrases levelCounts iterationData
         |> Array.partition (fun x -> x.SameDifficulty)
 
     // Create a mapping to the new phrase IDs after phrases with the same content have been combined
@@ -120,7 +119,6 @@ let combineSamePhrases (iterationData: PhraseData array) (iterations: PhraseIter
                         $"p{counter - 1}"
 
                 createdPhraseIds.Add pi.PhraseId |> ignore
-                Some(Phrase(name, maxDiff, PhraseMask.None))
-        )
+                Some <| Phrase(name, maxDiff, PhraseMask.None))
 
     phrases, newPhraseIterations, linkedDiffs
