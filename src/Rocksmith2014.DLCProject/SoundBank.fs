@@ -336,22 +336,40 @@ let generate name (audioStream: Stream) (output: Stream) volume isPreview (platf
 
     string fileID
 
-/// Reads the volume value from the sound bank in the stream.
-let readVolume (stream: Stream) platform =
+let private skipSection (stream: Stream) (reader: IBinaryReader) =
+    let length = reader.ReadUInt32()
+    stream.Position <- stream.Position + int64 length
+
+let rec private seekToSection (stream: Stream) (reader: IBinaryReader) name =
+    if stream.Position >= stream.Length then
+        Error $"Could not find {name} section."
+    else
+        let magic = Encoding.ASCII.GetString(reader.ReadBytes 4)
+        if magic <> name then
+            skipSection stream reader
+            seekToSection stream reader name
+        else
+            Ok ()
+
+/// Reads the file ID value from the sound bank in the stream.
+let readFileId (stream: Stream) platform =
+    stream.Position <- 0L
     let reader = BinaryReaders.getReader stream platform
 
-    let skipSection () =
-        let length = reader.ReadUInt32()
-        stream.Position <- stream.Position + int64 length
+    seekToSection stream reader "DIDX"
+    |> Result.map (fun _ ->
+        // Read DIDX section length
+        reader.ReadUInt32() |> ignore
+        // Read File ID
+        reader.ReadInt32())
 
-    let mutable magic = Encoding.ASCII.GetString(reader.ReadBytes(4))
-    while magic <> "HIRC" && stream.Position < stream.Length do
-        skipSection()
-        magic <- Encoding.ASCII.GetString(reader.ReadBytes(4))
+/// Reads the volume value from the sound bank in the stream.
+let readVolume (stream: Stream) platform =
+    stream.Position <- 0L
+    let reader = BinaryReaders.getReader stream platform
 
-    if stream.Position >= stream.Length then
-        Error "Could not find HIRC section."
-    else
+    seekToSection stream reader "HIRC"
+    |> Result.bind (fun _ ->
         // Read HIRC section length
         reader.ReadUInt32() |> ignore
 
@@ -359,7 +377,7 @@ let readVolume (stream: Stream) platform =
         let mutable typeId = reader.ReadInt8()
         let mutable objIndex = 0u
         while typeId <> 2y && objIndex < objCount do
-            skipSection ()
+            skipSection stream reader
             typeId <- reader.ReadInt8()
             objIndex <- objIndex + 1u
 
@@ -378,4 +396,4 @@ let readVolume (stream: Stream) platform =
             else
                 // Skip to the volume parameter
                 stream.Position <- stream.Position + int64 (volParamIndex * 4)
-                Ok (reader.ReadSingle())
+                Ok <| reader.ReadSingle())

@@ -10,12 +10,27 @@ open Rocksmith2014.XML
 open System
 open System.Text.RegularExpressions
 
-let private getVolume (psarc: PSARC) platform bank = async {
+let private getVolumeAndFileId (psarc: PSARC) platform bank = async {
     use mem = MemoryStreamPool.Default.GetStream()
     do! psarc.InflateFile(bank, mem)
-    return match SoundBank.readVolume mem platform with
+    let volume =
+        match SoundBank.readVolume mem platform with
+        | Ok vol -> vol
+        | Error _ -> 0.0f
+
+    let fileId =
+        match SoundBank.readFileId mem platform with
+        | Ok vol -> vol
+        | Error err -> failwith err
+        
+    return volume, fileId }
+
+let private getFileId (psarc: PSARC) platform bank = async {
+    use mem = MemoryStreamPool.Default.GetStream()
+    do! psarc.InflateFile(bank, mem)
+    return match SoundBank.readFileId mem platform with
            | Ok vol -> vol
-           | Error _ -> 0.0f }
+           | Error err -> failwith err }
 
 let private (|VocalsFile|JVocalsFile|InstrumentalFile|) (fileName: string) =
     match fileName with
@@ -87,27 +102,12 @@ let import (psarcPath: string) (targetDirectory: string) = async {
     let platform =
         if Path.GetFileNameWithoutExtension(psarcPath).EndsWith("_p") then PC else Mac
 
-    use psarc = PSARC.ReadFile(psarcPath)
+    use psarc = PSARC.ReadFile psarcPath
     let psarcContents = psarc.Manifest
 
     let audioFiles = List.filter (String.endsWith "wem") psarcContents
 
     if audioFiles.Length > 2 then failwith "Package contains more than 2 audio files."
-
-    do! audioFiles
-        |> List.mapi (fun i x -> psarc.InflateFile(x, Path.Combine(targetDirectory, sprintf "%i.wem" i)))
-        |> Async.Sequential
-        |> Async.Ignore
-
-    // TODO: Get correct audio filename from the sound banks
-    let audioInfo1 = FileInfo(Path.Combine(targetDirectory, "0.wem"))
-    let audioInfo2 = FileInfo(Path.Combine(targetDirectory, "1.wem"))
-    if audioInfo1.Length > audioInfo2.Length then
-        File.Move(audioInfo1.FullName, Path.Combine(targetDirectory, "audio.wem"), true)
-        File.Move(audioInfo2.FullName, Path.Combine(targetDirectory, "audio_preview.wem"), true)
-    else
-        File.Move(audioInfo2.FullName, Path.Combine(targetDirectory, "audio.wem"), true)
-        File.Move(audioInfo1.FullName, Path.Combine(targetDirectory, "audio_preview.wem"), true)
 
     let artFile = List.find (String.endsWith "256.dds") psarcContents
     do! psarc.InflateFile(artFile, Path.Combine(targetDirectory, "cover.dds"))
@@ -175,9 +175,20 @@ let import (psarcPath: string) (targetDirectory: string) = async {
         |> List.partition (String.contains "preview")
         |> fun (preview, main) -> List.head preview, List.head main
 
-    let! mainVolume = getVolume psarc platform mainBank
-    let! previewVolume = getVolume psarc platform previewBank
-            
+    let! mainVolume, mainFileId = getVolumeAndFileId psarc platform mainBank
+    let! previewVolume, _ = getVolumeAndFileId psarc platform previewBank
+
+    do! audioFiles
+        |> List.map (fun x ->
+            let targetFile =
+                if x.Contains(string mainFileId, StringComparison.Ordinal) then
+                    "audio.wem"
+                else
+                    "audio_preview.wem"
+            psarc.InflateFile(x, Path.Combine(targetDirectory, targetFile)))
+        |> Async.Sequential
+        |> Async.Ignore
+           
     let tones =
         fileAttributes
         |> Array.choose (fun (_, attr) -> Option.ofObj attr.Tones)

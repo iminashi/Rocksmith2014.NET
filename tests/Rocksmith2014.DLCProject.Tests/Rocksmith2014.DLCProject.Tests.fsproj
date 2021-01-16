@@ -16,6 +16,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="test.bnk">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Tech_Test.sng">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -31,6 +34,7 @@
     <Compile Include="XblockTests.fs" />
     <Compile Include="AggregateGraphTests.fs" />
     <Compile Include="ShowlightGeneratorTests.fs" />
+    <Compile Include="SoundBankTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
