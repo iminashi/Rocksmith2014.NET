@@ -16,3 +16,7 @@ type TemplateRequest = { OriginalId: int16
 type DifficultyRange = { Low: byte; High: byte }
 
 type BeatDivision = int
+
+type PhraseSearch = SearchDisabled | WithThreshold of int
+
+type GeneratorConfig = { PhraseSearch: PhraseSearch }

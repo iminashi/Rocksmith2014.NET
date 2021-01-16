@@ -28,6 +28,7 @@ type BuildConfig =
       Author: string
       AppId: string
       GenerateDD: bool
+      DDConfig: GeneratorConfig
       ApplyImprovements: bool
       SaveDebugFiles: bool
       AudioConversionTask: Async<unit> }
@@ -181,7 +182,7 @@ let private setupInstrumental part (inst: Instrumental) config (xmlFile: string)
     if config.ApplyImprovements then ArrangementImprover.applyAll xml
 
     if xml.Levels.Count = 1 && config.GenerateDD then
-        Generator.generateForArrangement xml |> ignore
+        Generator.generateForArrangement config.DDConfig xml |> ignore
 
     if config.SaveDebugFiles then
         xml.Save(Path.ChangeExtension(xmlFile, "debug.xml"))

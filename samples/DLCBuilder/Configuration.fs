@@ -13,6 +13,8 @@ type Configuration =
       CharterName : string
       ShowAdvanced : bool
       GenerateDD : bool
+      DDPhraseSearchEnabled : bool
+      DDPhraseSearchThreshold : int
       ApplyImprovements : bool
       SaveDebugFiles : bool
       Locale : Locale
@@ -27,6 +29,8 @@ type Configuration =
           CharterName = String.Empty
           ShowAdvanced = false
           GenerateDD = true
+          DDPhraseSearchEnabled = true
+          DDPhraseSearchThreshold = 93
           ApplyImprovements = true
           SaveDebugFiles = false
           Locale = Locales.English
@@ -43,6 +47,8 @@ module Configuration =
         member val CharterName : string = String.Empty with get, set
         member val ShowAdvanced : bool = false with get, set
         member val GenerateDD : bool = true with get, set
+        member val DDPhraseSearchEnabled : bool = true with get, set
+        member val DDPhraseSearchThreshold : int = 93 with get, set
         member val ApplyImprovements : bool = true with get, set
         member val SaveDebugFiles : bool = false with get, set
         member val Locale : string = "en" with get, set
@@ -62,6 +68,8 @@ module Configuration =
                 [ if dto.ReleasePC then PC
                   if dto.ReleaseMac then Mac ]
 
+        let threshold = Math.Clamp(dto.DDPhraseSearchThreshold, 0, 100)
+
         { ReleasePlatforms = platforms
           ProfilePath = dto.ProfilePath
           TestFolderPath = dto.TestFolderPath
@@ -69,6 +77,8 @@ module Configuration =
           CharterName = dto.CharterName
           ShowAdvanced = dto.ShowAdvanced
           GenerateDD = dto.GenerateDD
+          DDPhraseSearchEnabled = dto.DDPhraseSearchEnabled
+          DDPhraseSearchThreshold = threshold
           ApplyImprovements = dto.ApplyImprovements
           SaveDebugFiles = dto.SaveDebugFiles
           Locale = Locales.fromShortName dto.Locale
@@ -86,6 +96,8 @@ module Configuration =
             ShowAdvanced = config.ShowAdvanced,
             Locale = config.Locale.ShortName,
             GenerateDD = config.GenerateDD,
+            DDPhraseSearchEnabled = config.DDPhraseSearchEnabled,
+            DDPhraseSearchThreshold = config.DDPhraseSearchThreshold,
             ApplyImprovements = config.ApplyImprovements,
             SaveDebugFiles = config.SaveDebugFiles,
             WwiseConsolePath = Option.toObj config.WwiseConsolePath,

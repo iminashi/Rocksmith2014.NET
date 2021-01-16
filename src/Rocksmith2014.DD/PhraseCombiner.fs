@@ -6,8 +6,6 @@ open Rocksmith2014.XML
 open DataExtractor
 open Comparers
 
-let [<Literal>] private Treshold = 93
-
 type private CombinationData = { MainId: int; Ids: int array; SameDifficulty: bool }
 
 let private getMaxSimilarity (phrase1: PhraseData) (phrase2: PhraseData) =
@@ -28,7 +26,7 @@ let private getSimilarity treshold (phrase1: PhraseData) (phrase2: PhraseData) =
         (noteSimilarity + chordSimilarity) / 2.
         |> (round >> int)
 
-let private findSamePhrases (levelCounts: int array) (iterationData: PhraseData array) =
+let private findSamePhrases threshold (levelCounts: int array) (iterationData: PhraseData array) =
     // Ignore the first and last phrases (COUNT, END)
     let lastId = iterationData.Length - 1
     let matchedPhrases = HashSet<int>([| 0; lastId |])
@@ -42,7 +40,7 @@ let private findSamePhrases (levelCounts: int array) (iterationData: PhraseData 
             |> Array.skip (i + 1)
             |> Array.Parallel.choose (fun data ->
                 let id = Array.IndexOf(iterationData, data)
-                if not <| matchedPhrases.Contains id && getSimilarity Treshold iter data >= Treshold then
+                if not <| matchedPhrases.Contains id && getSimilarity threshold iter data >= threshold then
                     Some id
                 else
                     None)
@@ -60,11 +58,17 @@ let private findSamePhrases (levelCounts: int array) (iterationData: PhraseData 
                 Some { MainId = i; Ids = ids; SameDifficulty = sameDifficulty })
     |> Array.choose id
 
-let combineSamePhrases (iterationData: PhraseData array) (iterations: PhraseIteration array) (levelCounts: int array) =
+let combineSamePhrases (config: GeneratorConfig)
+                       (iterationData: PhraseData array)
+                       (iterations: PhraseIteration array)
+                       (levelCounts: int array) =
     let sameDifficulties, differentDifficulties =
-        // TODO: Allow disabling the search with a configuration option
-        findSamePhrases levelCounts iterationData
-        |> Array.partition (fun x -> x.SameDifficulty)
+        match config.PhraseSearch with
+        | SearchDisabled ->
+            [||], [||]
+        | WithThreshold threshold ->
+            findSamePhrases threshold levelCounts iterationData
+            |> Array.partition (fun x -> x.SameDifficulty)
 
     // Create a mapping to the new phrase IDs after phrases with the same content have been combined
     let newPhraseIds =

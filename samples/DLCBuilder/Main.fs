@@ -4,6 +4,7 @@ open Rocksmith2014
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
+open Rocksmith2014.DD
 open Rocksmith2014.DLCProject.PackageBuilder
 open Rocksmith2014.XML.Processing
 open Elmish
@@ -64,10 +65,17 @@ let private convertAudioIfNeeded cliPath project = async {
 
 let private createBuildConfig state appId platforms =
     let convTask = convertAudioIfNeeded state.Config.WwiseConsolePath state.Project
+    let phraseSearch =
+        if state.Config.DDPhraseSearchEnabled then
+            WithThreshold state.Config.DDPhraseSearchThreshold
+        else
+            SearchDisabled
+
     { Platforms = platforms
       Author = state.Config.CharterName
       AppId = appId
       GenerateDD = state.Config.GenerateDD
+      DDConfig = { PhraseSearch = phraseSearch }
       ApplyImprovements = state.Config.ApplyImprovements
       SaveDebugFiles = state.Config.SaveDebugFiles
       AudioConversionTask = convTask }

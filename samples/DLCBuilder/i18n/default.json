@@ -198,6 +198,8 @@
   "general": "General",
   "build": "Build",
   "generateDD": "Generate DD",
+  "findSimilarPhrases": "Find Similar Phrases",
+  "similarityThreshold": "Similarity Threshold",
   "applyImprovements": "Apply Improvements",
   "saveDebugFiles": "Save Debug Files"
 }

@@ -139,7 +139,7 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
                       ResizeArray(handShapes))     
         )
 
-let generateForArrangement (arr: InstrumentalArrangement) =
+let generateForArrangement (config: GeneratorConfig) (arr: InstrumentalArrangement) =
     let phraseIterations = arr.PhraseIterations.ToArray()
     let phraseIterationData =
         phraseIterations
@@ -174,7 +174,7 @@ let generateForArrangement (arr: InstrumentalArrangement) =
         )
 
     let phrases, newPhraseIterations, newLinkedDiffs =
-        PhraseCombiner.combineSamePhrases phraseIterationData phraseIterations generatedLevelCount
+        PhraseCombiner.combineSamePhrases config phraseIterationData phraseIterations generatedLevelCount
 
     arr.Levels <- ResizeArray(combinedLevels)
     arr.Phrases <- ResizeArray(phrases)
@@ -183,9 +183,9 @@ let generateForArrangement (arr: InstrumentalArrangement) =
 
     arr
 
-let generateForFile fileName targetFile =
+let generateForFile config fileName targetFile =
     let arr =
         InstrumentalArrangement.Load fileName
-        |> generateForArrangement
+        |> generateForArrangement config
 
     arr.Save targetFile

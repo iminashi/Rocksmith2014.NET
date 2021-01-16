@@ -171,7 +171,7 @@ let private generalConfig state dispatch =
 let private buildConfig state dispatch =
     Grid.create [
         Grid.columnDefinitions "*,2*"
-        Grid.rowDefinitions "*,*,*,*,*"
+        Grid.rowDefinitions "*,*,*,*,*,*,*"
         Grid.verticalAlignment VerticalAlignment.Top
         Grid.children [
             TextBlock.create [
@@ -280,11 +280,65 @@ let private buildConfig state dispatch =
             TextBlock.create [
                 Grid.row 3
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (state.Localization.GetString "applyImprovements")
+                TextBlock.text (state.Localization.GetString "findSimilarPhrases")
             ]
             CheckBox.create [
                 Grid.column 1
                 Grid.row 3
+                CheckBox.margin (0., 2.)
+                CheckBox.isEnabled state.Config.GenerateDD
+                CheckBox.isChecked state.Config.DDPhraseSearchEnabled
+                CheckBox.onChecked (fun _ ->
+                    fun c -> { c with DDPhraseSearchEnabled = true }
+                    |> EditConfig
+                    |> dispatch)
+                CheckBox.onUnchecked (fun _ ->
+                    fun c -> { c with DDPhraseSearchEnabled = false }
+                    |> EditConfig
+                    |> dispatch)
+            ]
+
+            TextBlock.create [
+                Grid.row 4
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text (state.Localization.GetString "similarityThreshold")
+                TextBlock.isEnabled (state.Config.DDPhraseSearchEnabled && state.Config.GenerateDD)
+            ]
+            StackPanel.create [
+                Grid.column 1
+                Grid.row 4
+                StackPanel.orientation Orientation.Horizontal
+                StackPanel.children [
+                    NumericUpDown.create [
+                        NumericUpDown.margin (0., 2., 2., 2.)
+                        NumericUpDown.width 60.
+                        NumericUpDown.value (float state.Config.DDPhraseSearchThreshold)
+                        NumericUpDown.isEnabled (state.Config.DDPhraseSearchEnabled && state.Config.GenerateDD)
+                        NumericUpDown.onValueChanged (fun value ->
+                            fun c -> { c with DDPhraseSearchThreshold = int value }
+                            |> EditConfig
+                            |> dispatch)
+                        NumericUpDown.minimum 0.
+                        NumericUpDown.maximum 100.
+                        NumericUpDown.formatString "F0"
+                    ]
+
+                    TextBlock.create [
+                        TextBlock.verticalAlignment VerticalAlignment.Center
+                        TextBlock.fontSize 16.
+                        TextBlock.text "%"
+                    ]
+                ]
+            ]
+
+            TextBlock.create [
+                Grid.row 5
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text (state.Localization.GetString "applyImprovements")
+            ]
+            CheckBox.create [
+                Grid.column 1
+                Grid.row 5
                 CheckBox.margin (0., 2.)
                 CheckBox.isChecked state.Config.ApplyImprovements
                 CheckBox.onChecked (fun _ ->
@@ -298,13 +352,13 @@ let private buildConfig state dispatch =
             ]
 
             TextBlock.create [
-                Grid.row 4
+                Grid.row 6
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text (state.Localization.GetString "saveDebugFiles")
             ]
             CheckBox.create [
                 Grid.column 1
-                Grid.row 4
+                Grid.row 6
                 CheckBox.margin (0., 2.)
                 CheckBox.isChecked state.Config.SaveDebugFiles
                 CheckBox.onChecked (fun _ ->

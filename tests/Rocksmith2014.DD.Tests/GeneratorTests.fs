@@ -4,6 +4,8 @@ open Expecto
 open Rocksmith2014.XML
 open Rocksmith2014.DD
 
+let config = { PhraseSearch = WithThreshold 85 }
+
 [<Tests>]
 let sngToXmlConversionTests =
   testList "DD Generator Tests" [
@@ -16,7 +18,7 @@ let sngToXmlConversionTests =
         let arr = InstrumentalArrangement(Levels = levels, Phrases = phrases, PhraseIterations = iterations)
         arr.MetaData.SongLength <- 1000
 
-        Generator.generateForArrangement arr |> ignore
+        Generator.generateForArrangement config arr |> ignore
 
         Expect.isTrue (arr.Levels.Count > 1) "Levels were generated"
 
