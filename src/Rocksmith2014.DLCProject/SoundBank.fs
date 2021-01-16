@@ -13,28 +13,22 @@ module private HierarchyID =
     let [<Literal>] ActorMixer = 7y
 
 /// Calculates a Fowler–Noll–Vo hash for a string.
-let private fnvHash (str: string) =
-    let bytes = str.ToLower().ToCharArray()
-    let mutable hash = 2166136261u
-
-    for i = 0 to str.Length - 1 do
-        hash <- hash * 16777619u
-        hash <- hash ^^^ (uint32 bytes.[i])
-
-    hash
+let fnvHash (str: string) =
+    (2166136261u, str.ToLower().ToCharArray())
+    ||> Array.fold (fun hash ch -> (hash * 16777619u) ^^^ (uint32 ch))
 
 /// Creates the data index chunk.
 let private dataIndex id length platform =
     let fileOffset = 0
 
-    use memory = new MemoryStream()
+    let memory = MemoryStreamPool.Default.GetStream()
     let writer = BinaryWriters.getWriter memory platform
 
     writer.WriteInt32 id
     writer.WriteInt32 fileOffset
     writer.WriteInt32 length
 
-    memory.ToArray()
+    memory
 
 /// Creates the header chunk.
 let private header id didxSize platform =
@@ -43,7 +37,7 @@ let private header id didxSize platform =
     let languageID = 0u
     let hasFeedback = 0u
 
-    use memory = new MemoryStream()
+    let memory = MemoryStreamPool.Default.GetStream()
     let writer = BinaryWriters.getWriter memory platform
 
     writer.WriteUInt32 soundbankVersion
@@ -59,7 +53,7 @@ let private header id didxSize platform =
         for _ = 1 to (alignSize - paddingSize) / 4 do
             writer.WriteInt32 0
 
-    memory.ToArray()
+    memory
 
 /// Creates the string ID chunk.
 let private stringID id name platform =
@@ -68,7 +62,7 @@ let private stringID id name platform =
     let soundbankID = id
     let soundbankName = Encoding.ASCII.GetBytes(sprintf "Song_%s" name)
 
-    use memory = new MemoryStream()
+    let memory = MemoryStreamPool.Default.GetStream()
     let writer = BinaryWriters.getWriter memory platform
 
     writer.WriteUInt32 stringType
@@ -77,7 +71,7 @@ let private stringID id name platform =
     writer.WriteInt8 (int8 soundbankName.Length)
     writer.WriteBytes soundbankName
 
-    memory.ToArray()
+    memory
 
 /// Creates a hierarchy sound section.
 let private hierarchySound id fileId mixerId volume isPreview platform =
@@ -164,7 +158,6 @@ let private hierarchySound id fileId mixerId volume isPreview platform =
     writer.WriteInt16 rtpcList
     writer.WriteInt32 feedbackBus
 
-    memory.Position <- 0L
     memory
 
 /// Creates a hierarchy actor mixer section.
@@ -230,7 +223,6 @@ let private hierarchyActorMixer id soundId platform =
     writer.WriteInt32 numChild
     writer.WriteInt32 child1
 
-    memory.Position <- 0L
     memory
 
 /// Creates a hierarchy action section.
@@ -258,7 +250,6 @@ let private hierarchyAction id objId bankId platform =
     writer.WriteInt8 fadeCurve
     writer.WriteUInt32 soundbankID
 
-    memory.Position <- 0L
     memory
 
 /// Creates a hierarchy event section with a Play event.
@@ -274,14 +265,17 @@ let private hierarchyEvent id name platform =
     writer.WriteUInt32 numEvents
     writer.WriteUInt32 actionID
 
-    memory.Position <- 0L
     memory
+
+let private copyData output (writer: IBinaryWriter) (data: Stream) =
+    writer.WriteInt32 (int32 data.Length)
+    data.Position <- 0L
+    data.CopyTo output
+    data.Dispose()
 
 let private writeHierarchy output (writer: IBinaryWriter) id (hierarchy: Stream) =
     writer.WriteInt8 id
-    writer.WriteInt32 (int32 hierarchy.Length)
-    hierarchy.CopyTo output
-    hierarchy.Dispose()
+    copyData output writer hierarchy
 
 /// Creates the hierarchy chunk.
 let private hierarchy bankId soundId fileId name volume isPreview platform =
@@ -289,7 +283,7 @@ let private hierarchy bankId soundId fileId name volume isPreview platform =
     let actionID = RandomGenerator.next() |> uint32
     let numObjects = 4u
 
-    use memory = new MemoryStream()
+    let memory = MemoryStreamPool.Default.GetStream()
     let writer = BinaryWriters.getWriter memory platform
     let write = writeHierarchy memory writer
 
@@ -300,13 +294,12 @@ let private hierarchy bankId soundId fileId name volume isPreview platform =
     write HierarchyID.Action (hierarchyAction actionID soundId bankId platform)
     write HierarchyID.Event (hierarchyEvent actionID name platform)
 
-    memory.ToArray()
+    memory
 
 /// Writes the chunk name, length and data into the writer.
-let private writeChunk (writer: IBinaryWriter) name (data: byte array) =
+let private writeChunk (output: Stream) (writer: IBinaryWriter) name (data: Stream) =
     writer.WriteBytes name
-    writer.WriteInt32 data.Length
-    writer.WriteBytes data
+    copyData output writer data
 
 /// Generates a sound bank for the audio stream into the output stream.
 let generate name (audioStream: Stream) (output: Stream) volume isPreview (platform: Platform) =
@@ -314,22 +307,18 @@ let generate name (audioStream: Stream) (output: Stream) volume isPreview (platf
     let fileID = RandomGenerator.next()
     let soundID = RandomGenerator.next()
 
+    let writer = BinaryWriters.getWriter output platform
+    let write = writeChunk output writer
+
     let audioReader = BinaryReaders.getReader audioStream platform
     let dataLength = if isPreview then 72000 else 51200
-    let dataChunk = audioReader.ReadBytes(dataLength)
     let dataIndexChunk = dataIndex fileID dataLength platform
-    let headerChunk = header soundbankID dataIndexChunk.Length platform
-    let hierarchyChunk = hierarchy soundbankID soundID fileID name volume isPreview platform
-    let stringIDChunk = stringID soundbankID name platform
 
-    let writer = BinaryWriters.getWriter output platform
-    let write = writeChunk writer
-
-    write "BKHD"B headerChunk
+    write "BKHD"B (header soundbankID (int dataIndexChunk.Length) platform)
     write "DIDX"B dataIndexChunk
-    write "DATA"B dataChunk
-    write "HIRC"B hierarchyChunk
-    write "STID"B stringIDChunk
+    write "DATA"B (new MemoryStream(audioReader.ReadBytes dataLength))
+    write "HIRC"B (hierarchy soundbankID soundID fileID name volume isPreview platform)
+    write "STID"B (stringID soundbankID name platform)
 
     output.Flush()
     output.Position <- 0L
