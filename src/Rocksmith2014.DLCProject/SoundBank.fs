@@ -327,7 +327,7 @@ let generate name (audioStream: Stream) (output: Stream) volume isPreview (platf
 
 let private skipSection (stream: Stream) (reader: IBinaryReader) =
     let length = reader.ReadUInt32()
-    stream.Position <- stream.Position + int64 length
+    stream.Seek(int64 length, SeekOrigin.Current) |> ignore
 
 let rec private seekToSection (stream: Stream) (reader: IBinaryReader) name =
     if stream.Position >= stream.Length then

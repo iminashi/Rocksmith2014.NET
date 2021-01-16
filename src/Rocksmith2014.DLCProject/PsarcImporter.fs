@@ -1,6 +1,5 @@
 ﻿module Rocksmith2014.DLCProject.PsarcImporter
 
-open System.IO
 open Rocksmith2014.PSARC
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
@@ -8,6 +7,7 @@ open Rocksmith2014.SNG
 open Rocksmith2014.Conversion
 open Rocksmith2014.XML
 open System
+open System.IO
 open System.Text.RegularExpressions
 
 let private getVolumeAndFileId (psarc: PSARC) platform bank = async {
@@ -24,13 +24,6 @@ let private getVolumeAndFileId (psarc: PSARC) platform bank = async {
         | Error err -> failwith err
         
     return volume, fileId }
-
-let private getFileId (psarc: PSARC) platform bank = async {
-    use mem = MemoryStreamPool.Default.GetStream()
-    do! psarc.InflateFile(bank, mem)
-    return match SoundBank.readFileId mem platform with
-           | Ok vol -> vol
-           | Error err -> failwith err }
 
 let private (|VocalsFile|JVocalsFile|InstrumentalFile|) (fileName: string) =
     match fileName with
@@ -106,7 +99,6 @@ let import (psarcPath: string) (targetDirectory: string) = async {
     let psarcContents = psarc.Manifest
 
     let audioFiles = List.filter (String.endsWith "wem") psarcContents
-
     if audioFiles.Length > 2 then failwith "Package contains more than 2 audio files."
 
     let artFile = List.find (String.endsWith "256.dds") psarcContents
