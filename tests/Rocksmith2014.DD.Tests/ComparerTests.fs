@@ -108,4 +108,18 @@ let comparerTests =
             let sameCount = getSameElementCount sameNote notes1 notes2
 
             Expect.equal sameCount 3 "Count is correct"
+
+        testCase "Correct when starting note is different" <| fun _ ->
+            let notes1 = [ Note(Time = 0, String = 0y, Fret = 10y)
+                           Note(Time = 0, String = 0y, Fret = 14y)
+                           Note(Time = 50, String = 0y, Fret = 13y)
+                           Note(Time = 75, String = 1y, Fret = 12y) ]
+            let notes2 = [ Note(Time = 100, String = 1y, Fret = 12y)
+                           Note(Time = 125, String = 0y, Fret = 14y)
+                           Note(Time = 175, String = 0y, Fret = 13y)
+                           Note(Time = 200, String = 1y, Fret = 12y) ]
+
+            let sameCount = getSameElementCount sameNote notes1 notes2
+
+            Expect.equal sameCount 3 "Count is correct"
     ]

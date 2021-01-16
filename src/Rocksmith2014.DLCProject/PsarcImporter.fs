@@ -99,6 +99,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
         |> Async.Sequential
         |> Async.Ignore
 
+    // TODO: Get correct audio filename from the sound banks
     let audioInfo1 = FileInfo(Path.Combine(targetDirectory, "0.wem"))
     let audioInfo2 = FileInfo(Path.Combine(targetDirectory, "1.wem"))
     if audioInfo1.Length > audioInfo2.Length then

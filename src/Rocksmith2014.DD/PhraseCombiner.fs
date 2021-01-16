@@ -6,14 +6,27 @@ open Rocksmith2014.XML
 open DataExtractor
 open Comparers
 
+let [<Literal>] private Treshold = 93
+
 type private CombinationData = { MainId: int; Ids: int array; SameDifficulty: bool }
 
-let private getSimilarity (phrase1: PhraseData) (phrase2: PhraseData) =
-    let noteSimilarity = getSimilarityPercent sameNote phrase1.Notes phrase2.Notes
-    let chordSimilarity = getSimilarityPercent sameChord phrase1.Chords phrase2.Chords
-    
-    (noteSimilarity + chordSimilarity) / 2.
+let private getMaxSimilarity (phrase1: PhraseData) (phrase2: PhraseData) =
+    let maxN = getMaxSimilarityPercent phrase1.Notes phrase2.Notes
+    let maxC = getMaxSimilarityPercent phrase1.Chords phrase2.Chords
+
+    (maxN + maxC) / 2.
     |> (round >> int)
+
+let private getSimilarity treshold (phrase1: PhraseData) (phrase2: PhraseData) =
+    let maxSimilarity = getMaxSimilarity phrase1 phrase2
+    if maxSimilarity < treshold then
+        0
+    else
+        let noteSimilarity = getSimilarityPercent sameNote phrase1.Notes phrase2.Notes
+        let chordSimilarity = getSimilarityPercent sameChord phrase1.Chords phrase2.Chords
+    
+        (noteSimilarity + chordSimilarity) / 2.
+        |> (round >> int)
 
 let private findSamePhrases (levelCounts: int array) (iterationData: PhraseData array) =
     // Ignore the first and last phrases (COUNT, END)
@@ -25,10 +38,11 @@ let private findSamePhrases (levelCounts: int array) (iterationData: PhraseData 
         if matchedPhrases.Contains i then
             None
         else
-            iterationData.[(i + 1)..]
+            iterationData
+            |> Array.skip (i + 1)
             |> Array.Parallel.choose (fun data ->
                 let id = Array.IndexOf(iterationData, data)
-                if not <| matchedPhrases.Contains id && getSimilarity iter data >= 95 then
+                if not <| matchedPhrases.Contains id && getSimilarity Treshold iter data >= Treshold then
                     Some id
                 else
                     None)
