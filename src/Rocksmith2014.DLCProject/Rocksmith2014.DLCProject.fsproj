@@ -23,6 +23,7 @@
     <Compile Include="ActivePatterns.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="Arrangement.fs" />
+    <Compile Include="SoundBankUtils.fs" />
     <Compile Include="SoundBank.fs" />
     <Compile Include="DDS.fs" />
     <Compile Include="StringValidator.fs" />

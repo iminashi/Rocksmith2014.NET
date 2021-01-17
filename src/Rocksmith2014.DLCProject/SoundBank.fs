@@ -5,6 +5,7 @@ open System.IO
 open System.Text
 open Rocksmith2014.Common.Interfaces
 open Rocksmith2014.Common
+open SoundBankUtils
 
 module private HierarchyID =
     let [<Literal>] Sound = 2y
@@ -12,61 +13,42 @@ module private HierarchyID =
     let [<Literal>] Event = 4y
     let [<Literal>] ActorMixer = 7y
 
-/// Calculates a Fowler–Noll–Vo hash for a string.
-let fnvHash (str: string) =
-    (2166136261u, str.ToLower().ToCharArray())
-    ||> Array.fold (fun hash ch -> (hash * 16777619u) ^^^ (uint32 ch))
+module private SoundParameters =
+    let [<Literal>] Volume = 0y
 
 /// Creates the data index chunk.
-let private dataIndex id length platform =
-    let fileOffset = 0
-
+let private dataIndex id dataLength platform =
     let memory = MemoryStreamPool.Default.GetStream()
     let writer = BinaryWriters.getWriter memory platform
 
     writer.WriteInt32 id
-    writer.WriteInt32 fileOffset
-    writer.WriteInt32 length
+    writer.WriteInt32 0 // File Offset
+    writer.WriteInt32 dataLength
 
     memory
 
 /// Creates the header chunk.
-let private header id didxSize platform =
-    let soundbankVersion = 91u
-    let soundbankID = id
-    let languageID = 0u
-    let hasFeedback = 0u
-
+let private header soundbankID platform =
     let memory = MemoryStreamPool.Default.GetStream()
     let writer = BinaryWriters.getWriter memory platform
 
-    writer.WriteUInt32 soundbankVersion
+    writer.WriteUInt32 91u // Sound Bank Version
     writer.WriteUInt32 soundbankID
-    writer.WriteUInt32 languageID
-    writer.WriteUInt32 hasFeedback
-
-    let alignSize = match platform with PC | Mac -> 16
-    let dataSize = int32 memory.Length
-    let junkSize = 24 + didxSize
-    let paddingSize = (dataSize + junkSize) % alignSize
-    if paddingSize <> 0 then
-        for _ = 1 to (alignSize - paddingSize) / 4 do
-            writer.WriteInt32 0
+    writer.WriteUInt32 0u // Language ID
+    writer.WriteUInt32 0u // HasFeedback
+    for _ = 1 to getHeaderPaddingSize platform do writer.WriteInt32 0
 
     memory
 
 /// Creates the string ID chunk.
-let private stringID id name platform =
-    let stringType = 1u
-    let numNames = 1u
-    let soundbankID = id
-    let soundbankName = Encoding.ASCII.GetBytes(sprintf "Song_%s" name)
-
+let private stringID soundbankID name platform =
     let memory = MemoryStreamPool.Default.GetStream()
     let writer = BinaryWriters.getWriter memory platform
 
-    writer.WriteUInt32 stringType
-    writer.WriteUInt32 numNames
+    let soundbankName = Encoding.ASCII.GetBytes(sprintf "Song_%s" name)
+
+    writer.WriteUInt32 1u // String Type
+    writer.WriteUInt32 1u // NumNames
     writer.WriteUInt32 soundbankID
     writer.WriteInt8 (int8 soundbankName.Length)
     writer.WriteBytes soundbankName
@@ -91,7 +73,7 @@ let private hierarchySound id fileId mixerId volume isPreview platform =
     let priorityApplyDist = 0y
     let overrideMidi = 0y
     let numParam = 3y
-    let param1Type = 0y
+    let param1Type = SoundParameters.Volume
     let param2Type = 46y
     let param3Type = 47y
     let param1Value = volume
@@ -312,10 +294,9 @@ let generate name (audioStream: Stream) (output: Stream) volume isPreview (platf
 
     let audioReader = BinaryReaders.getReader audioStream platform
     let dataLength = if isPreview then 72000 else 51200
-    let dataIndexChunk = dataIndex fileID dataLength platform
 
-    write "BKHD"B (header soundbankID (int dataIndexChunk.Length) platform)
-    write "DIDX"B dataIndexChunk
+    write "BKHD"B (header soundbankID platform)
+    write "DIDX"B (dataIndex fileID dataLength platform)
     write "DATA"B (new MemoryStream(audioReader.ReadBytes dataLength))
     write "HIRC"B (hierarchy soundbankID soundID fileID name volume isPreview platform)
     write "STID"B (stringID soundbankID name platform)
@@ -325,64 +306,33 @@ let generate name (audioStream: Stream) (output: Stream) volume isPreview (platf
 
     string fileID
 
-let private skipSection (stream: Stream) (reader: IBinaryReader) =
-    let length = reader.ReadUInt32()
-    stream.Seek(int64 length, SeekOrigin.Current) |> ignore
-
-let rec private seekToSection (stream: Stream) (reader: IBinaryReader) name =
-    if stream.Position >= stream.Length then
-        Error $"Could not find {name} section."
-    else
-        let magic = Encoding.ASCII.GetString(reader.ReadBytes 4)
-        if magic <> name then
-            skipSection stream reader
-            seekToSection stream reader name
-        else
-            Ok ()
-
 /// Reads the file ID value from the sound bank in the stream.
-let readFileId (stream: Stream) platform =
-    stream.Position <- 0L
-    let reader = BinaryReaders.getReader stream platform
+let readFileId (stream: Stream) platform = result {
+    let reader = initReader stream platform
 
-    seekToSection stream reader "DIDX"
-    |> Result.map (fun _ ->
-        // Read DIDX section length
-        reader.ReadUInt32() |> ignore
-        // Read File ID
-        reader.ReadInt32())
+    do! seekToSection stream reader "DIDX"B |> Result.ignore
+
+    // Read the file ID
+    return reader.ReadInt32() }
 
 /// Reads the volume value from the sound bank in the stream.
-let readVolume (stream: Stream) platform =
-    stream.Position <- 0L
-    let reader = BinaryReaders.getReader stream platform
+let readVolume (stream: Stream) platform = result {
+    let reader = initReader stream platform
 
-    seekToSection stream reader "HIRC"
-    |> Result.bind (fun _ ->
-        // Read HIRC section length
-        reader.ReadUInt32() |> ignore
+    do! seekToSection stream reader "HIRC"B |> Result.ignore
+    do! seekToObject stream reader HierarchyID.Sound
+    
+    // Skip 46 bytes to get to the parameter count
+    seek stream 46L
 
-        let objCount = reader.ReadUInt32()
-        let mutable typeId = reader.ReadInt8()
-        let mutable objIndex = 0u
-        while typeId <> 2y && objIndex < objCount do
-            skipSection stream reader
-            typeId <- reader.ReadInt8()
-            objIndex <- objIndex + 1u
+    let paramCount = reader.ReadInt8()
+    let paramTypes = reader.ReadBytes(int32 paramCount)
 
-        if objIndex = objCount then
-            Error "Could not find SFX object."
-        else
-            // Skip 46 bytes to get to the parameter count
-            stream.Position <- stream.Position + 46L
-
-            let paramCount = reader.ReadInt8()
-            let paramTypes = reader.ReadBytes(int32 paramCount)
-            let volParamIndex = Array.IndexOf(paramTypes, 0uy)
-            if volParamIndex = -1 then
-                // Volume parameter not present
-                Ok 0.f
-            else
-                // Skip to the volume parameter
-                stream.Position <- stream.Position + int64 (volParamIndex * 4)
-                Ok <| reader.ReadSingle())
+    match Array.IndexOf(paramTypes, byte SoundParameters.Volume) with
+    | -1 ->
+        // Volume parameter is not present
+        return 0.f
+    | index ->
+        // Seek to the volume parameter (each parameter is 4 bytes long)
+        seek stream (int64 index * 4L)
+        return reader.ReadSingle() }
