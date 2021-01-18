@@ -13,7 +13,7 @@ let centsToTuningPitch (cents: float) =
 let private roots = [| "E"; "F"; "F#"; "G"; "Ab"; "A"; "Bb"; "B"; "C"; "C#"; "D"; "Eb" |]
 
 /// Returns the name of the given tuning.
-let getTuningName (tuning : int16 array) =
+let getTuningName (tuning: int16 array) =
     let first = tuning.[0]
 
     // Standard tunings

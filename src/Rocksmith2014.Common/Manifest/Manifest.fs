@@ -27,7 +27,7 @@ module Manifest =
     let create (attrs: Attributes) =
         createInternal [ attrs ] (Some "RSEnumerable_Song") (Some 2) "Static.Songs.Entries"
 
-    /// Creates a manifest header with the given attributes.
+    /// Creates a manifest header from the given list of attributes objects.
     let createHeader (attrs: Attributes list) =
         createInternal attrs None None "Static.Songs.Headers"
 
@@ -36,8 +36,7 @@ module Manifest =
         manifest.Entries
         |> Map.toArray
         |> Array.head
-        |> snd
-        |> fun x -> x.Attributes
+        |> fun (_, container) -> container.Attributes
 
     let private options =
         let o = JsonSerializerOptions(WriteIndented = true,

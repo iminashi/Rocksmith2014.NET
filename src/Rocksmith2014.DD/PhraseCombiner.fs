@@ -16,8 +16,7 @@ let private getMaxSimilarity (phrase1: PhraseData) (phrase2: PhraseData) =
     |> (round >> int)
 
 let private getSimilarity treshold (phrase1: PhraseData) (phrase2: PhraseData) =
-    let maxSimilarity = getMaxSimilarity phrase1 phrase2
-    if maxSimilarity < treshold then
+    if getMaxSimilarity phrase1 phrase2 < treshold then
         0
     else
         let noteSimilarity = getSimilarityPercent sameNote phrase1.Notes phrase2.Notes
