@@ -50,37 +50,34 @@ let wemFilters = createFilters (seq { "wem" }) "Wwise Audio Files"
 let bnkFilters = createFilters (seq { "bnk" }) "Sound Bank Files"
 
 let openFileDialogSingle title filters dispatch = 
-    Dispatcher.UIThread.InvokeAsync(
-        fun () ->
-            OpenFileDialog(Title = title, AllowMultiple = false, Filters = filters)
-               .ShowAsync(window.Force())
-               .ContinueWith(fun (t: Task<string[]>) -> 
-                   match t.Result with
-                   | [| file |] -> dispatch file
-                   | _ -> ())
-        ) |> ignore
+    Dispatcher.UIThread.InvokeAsync(fun () ->
+        OpenFileDialog(Title = title, AllowMultiple = false, Filters = filters)
+           .ShowAsync(window.Force())
+           .ContinueWith(fun (t: Task<string[]>) -> 
+               match t.Result with
+               | [| file |] -> dispatch file
+               | _ -> ())
+    ) |> ignore
 
 let openFileDialogMulti title filters dispatch = 
-    Dispatcher.UIThread.InvokeAsync(
-        fun () ->
-            OpenFileDialog(Title = title, AllowMultiple = true, Filters = filters)
-               .ShowAsync(window.Force())
-               .ContinueWith(fun (t: Task<string[]>) -> 
-                   match t.Result with
-                   | null | [||] -> ()
-                   | files -> dispatch files)
-        ) |> ignore
+    Dispatcher.UIThread.InvokeAsync(fun () ->
+        OpenFileDialog(Title = title, AllowMultiple = true, Filters = filters)
+           .ShowAsync(window.Force())
+           .ContinueWith(fun (t: Task<string[]>) -> 
+               match t.Result with
+               | null | [||] -> ()
+               | files -> dispatch files)
+    ) |> ignore
 
 let openFolderDialog title dispatch = 
-    Dispatcher.UIThread.InvokeAsync(
-        fun () ->
-            OpenFolderDialog(Title = title)
-               .ShowAsync(window.Force())
-               .ContinueWith(fun (t: Task<string>) -> 
-                   match t.Result with
-                   | null -> ()
-                   | file -> dispatch file)
-        ) |> ignore
+    Dispatcher.UIThread.InvokeAsync(fun () ->
+        OpenFolderDialog(Title = title)
+           .ShowAsync(window.Force())
+           .ContinueWith(fun (t: Task<string>) -> 
+               match t.Result with
+               | null -> ()
+               | file -> dispatch file)
+    ) |> ignore
 
 let ofdSng = openFileDialogSingle "Select File" sngFilters
 let ofdXml = openFileDialogSingle "Select File" xmlFilters
@@ -113,7 +110,6 @@ type Msg =
     | GenerateSoundBank of file:string
     | ReadVolume of file:string
     | DecryptProfile of file:string
-    | ImportTones of file:string
     | CheckXml of file:string
     | Error of ex:Exception
 
@@ -294,24 +290,18 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                 do! Profile.decrypt profFile targetFile |> Async.Ignore }
             state, Cmd.OfAsync.attempt t () Error
 
-        | ImportTones file ->
-            match Profile.importTones file with
-            | Result.Ok tones ->
-                let msg = sprintf "%i custom tones found." tones.Length
-                { state with Status = msg }, Cmd.none
-            | Result.Error msg ->
-                { state with Status = msg }, Cmd.none
-
         | ChangePlatform platform -> { state with Platform = platform }, Cmd.none
 
         | CheckXml file ->
-            let arr = InstrumentalArrangement.Load file
-
-            let messages =
-                ArrangementChecker.runAllChecks arr
+            let status = 
+                InstrumentalArrangement.Load file
+                |> ArrangementChecker.runAllChecks
                 |> List.map (fun issue -> $"[{Utils.timeToString issue.TimeCode}] {issue.Type}")
+                |> function
+                | [] -> "No issues found."
+                | messages -> String.Join("\n", messages)
 
-            { state with Status = String.Join("\n", messages) }, Cmd.none
+            { state with Status = status }, Cmd.none
 
         | Error e -> { state with Status = e.Message }, Cmd.none
 
@@ -333,6 +323,7 @@ let view (state: State) dispatch =
                             RadioButton.create [
                                 RadioButton.groupName "Platform"
                                 RadioButton.content "PC"
+                                RadioButton.margin (0., 0., 10., 0.)
                                 RadioButton.isChecked (state.Platform = PC)
                                 RadioButton.onIsPressedChanged (fun p -> if p then dispatch (ChangePlatform PC))
                             ]
@@ -447,13 +438,8 @@ let view (state: State) dispatch =
                     ]
 
                     Button.create [
-                        Button.onClick (fun _ -> ofdAll (ImportTones >> dispatch))
-                        Button.content "Import Tones from Profile..."
-                    ]
-
-                    Button.create [
                         Button.onClick (fun _ -> ofdXml (CheckXml >> dispatch))
-                        Button.content "Check Xml..."
+                        Button.content "Check Instrumental XML..."
                     ]
                 ]
             ]
