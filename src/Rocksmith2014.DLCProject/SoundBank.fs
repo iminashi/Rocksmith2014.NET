@@ -286,7 +286,7 @@ let private writeChunk (output: Stream) (writer: IBinaryWriter) name (data: Stre
 /// Generates a sound bank for the audio stream into the output stream.
 let generate name (audioStream: Stream) (output: Stream) volume isPreview (platform: Platform) =
     let soundbankID = RandomGenerator.next() |> uint32
-    let fileID = RandomGenerator.next()
+    let fileID = abs <| hash name
     let soundID = RandomGenerator.next()
 
     let writer = BinaryWriters.getWriter output platform
