@@ -1,4 +1,4 @@
-﻿module DLCBuilder.InstrumentalDetails
+﻿module DLCBuilder.Views.InstrumentalDetails
 
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
@@ -7,6 +7,7 @@ open Avalonia.Media
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open System
+open DLCBuilder
 
 let private fixPriority state routeMask arr =
     if arr.Priority = ArrangementPriority.Main

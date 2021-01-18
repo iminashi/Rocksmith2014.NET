@@ -1,10 +1,11 @@
-﻿module DLCBuilder.SelectPreviewStart
+﻿module DLCBuilder.Views.SelectPreviewStart
 
 open System
 open Avalonia.FuncUI.DSL
 open Avalonia.Controls
 open Avalonia.Layout
 open Avalonia.FuncUI.Types
+open DLCBuilder
 
 let view state dispatch (audioLength: TimeSpan) =
     StackPanel.create [

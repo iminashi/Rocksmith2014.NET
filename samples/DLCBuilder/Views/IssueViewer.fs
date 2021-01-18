@@ -1,4 +1,4 @@
-﻿module DLCBuilder.IssueViewer
+﻿module DLCBuilder.Views.IssueViewer
 
 open Avalonia.FuncUI.DSL
 open Avalonia.FuncUI.Types
@@ -8,6 +8,7 @@ open Avalonia.Layout
 open Avalonia.Media
 open Rocksmith2014.XML.Processing.Utils
 open Rocksmith2014.XML.Processing.ArrangementChecker
+open DLCBuilder
 
 let private getIssueHeaderAndHelp (loc: ILocalization) issueType =
     match issueType with

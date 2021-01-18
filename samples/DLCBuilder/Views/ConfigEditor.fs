@@ -1,4 +1,4 @@
-﻿module DLCBuilder.ConfigEditor
+﻿module DLCBuilder.Views.ConfigEditor
 
 open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
@@ -7,6 +7,7 @@ open Avalonia.Controls.Shapes
 open Avalonia.Layout
 open Avalonia.Media
 open Rocksmith2014.Common
+open DLCBuilder
 
 let private generalConfig state dispatch =
     Grid.create [

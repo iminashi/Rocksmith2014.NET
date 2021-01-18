@@ -1,4 +1,4 @@
-﻿module DLCBuilder.ToneDetails
+﻿module DLCBuilder.Views.ToneDetails
 
 open Avalonia.Controls
 open Avalonia.Controls.Primitives
@@ -6,6 +6,7 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
+open DLCBuilder
 
 let createDescriptors state dispatch tone =
     UniformGrid.create [

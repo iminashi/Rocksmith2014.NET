@@ -52,7 +52,7 @@ type MainWindow() as this =
             | [| _; arg |] -> Some arg
             | _ -> None
 
-        let view' = Main.view this
+        let view' = Views.Main.view this
 
         Program.mkProgram Main.init Main.update view'
         |> Program.withHost this

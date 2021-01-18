@@ -1,4 +1,4 @@
-﻿module DLCBuilder.ProjectDetails
+﻿module DLCBuilder.Views.ProjectDetails
 
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
@@ -9,6 +9,7 @@ open Avalonia.Media
 open Rocksmith2014.DLCProject
 open Rocksmith2014.Common
 open System
+open DLCBuilder
 open Media
 
 let view state dispatch =

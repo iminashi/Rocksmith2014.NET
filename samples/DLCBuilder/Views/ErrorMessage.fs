@@ -1,4 +1,4 @@
-﻿module DLCBuilder.ErrorMessage
+﻿module DLCBuilder.Views.ErrorMessage
 
 open Avalonia.FuncUI.DSL
 open Avalonia.FuncUI.Types
@@ -6,6 +6,7 @@ open Avalonia.Controls
 open Avalonia.Controls.Shapes
 open Avalonia.Layout
 open Avalonia.Media
+open DLCBuilder
 
 let view state dispatch msg =
     StackPanel.create [

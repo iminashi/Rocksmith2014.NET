@@ -1,10 +1,11 @@
-﻿module DLCBuilder.SelectImportTones
+﻿module DLCBuilder.Views.SelectImportTones
 
 open Avalonia.FuncUI.DSL
 open Avalonia.Controls
 open Avalonia.Layout
 open Rocksmith2014.Common.Manifest
 open Avalonia.FuncUI.Types
+open DLCBuilder
 
 let view state dispatch (tones: Tone array) =
     StackPanel.create [

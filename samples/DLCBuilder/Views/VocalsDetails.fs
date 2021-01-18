@@ -1,10 +1,11 @@
-﻿module DLCBuilder.VocalsDetails
+﻿module DLCBuilder.Views.VocalsDetails
 
 open Avalonia.Controls
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Rocksmith2014.DLCProject
 open System.IO
+open DLCBuilder
 
 let view state dispatch (v: Vocals) =
     Grid.create [
