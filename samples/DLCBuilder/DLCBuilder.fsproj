@@ -51,6 +51,7 @@
     <Compile Include="Views\SelectImportTones.fs" />
     <Compile Include="Views\IssueViewer.fs" />
     <Compile Include="Views\ConfigEditor.fs" />
+    <Compile Include="Views\Main.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="RecentFilesList.fs" />
     <Compile Include="BuildValidator.fs" />
@@ -109,6 +110,7 @@
     <Watch Remove="Views\ErrorMessage.fs" />
     <Watch Remove="Views\InstrumentalDetails.fs" />
     <Watch Remove="Views\IssueViewer.fs" />
+    <Watch Remove="Views\Main.fs" />
     <Watch Remove="Views\ProjectDetails.fs" />
     <Watch Remove="Views\SelectImportTones.fs" />
     <Watch Remove="Views\SelectPreviewStart.fs" />

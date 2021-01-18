@@ -1,7 +1,7 @@
 ﻿namespace DLCBuilder
 
-open System.Collections.Generic
 open Microsoft.Extensions.FileProviders
+open System.Collections.Generic
 open System.Reflection
 open System.Text.Json
 open System
@@ -19,6 +19,12 @@ module Locales =
         | "en" -> English
         | "fi" -> Finnish
         | _ -> English
+
+module private Utils =
+    let tryGetValue (dict: IDictionary<_,_>) key =
+        match dict.TryGetValue key with
+        | true, value -> Some value
+        | false, _ -> None
 
 type ILocalization =
     abstract member GetString : string -> string
@@ -44,11 +50,9 @@ type Localization(locale: Locale) =
 
     interface ILocalization with
         member _.GetString (key: string) =
-            let found, str = localeDictionary.TryGetValue key
-            if found then str
-            else
-                let found, str = defaultDictionary.TryGetValue key
-                if found then str else sprintf "!!%s!!" key
+            Utils.tryGetValue localeDictionary key
+            |> Option.orElseWith (fun () -> Utils.tryGetValue defaultDictionary key)
+            |> Option.defaultWith (fun () -> $"!!{key}!!")
 
         member this.Format (key: string) (args: obj array) =
             let formatString = (this :> ILocalization).GetString key
