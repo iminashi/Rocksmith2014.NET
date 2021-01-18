@@ -2,6 +2,7 @@
 
 open Pfim
 open System.IO
+open System.Collections.Generic
 open System.Runtime.InteropServices
 open Avalonia.Platform
 open Avalonia.Media.Imaging
@@ -31,7 +32,7 @@ let private avaloniaBitmapFromDDS (fileName: string) =
         | _ -> PixelFormat.Bgra8888, image.Data, image.Stride
     let pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned)
     let addr = pinnedArray.AddrOfPinnedObject()
-    let bm = new Bitmap(pxFormat, addr, PixelSize(image.Width, image.Height), Vector(96., 96.), stride)
+    let bm = new Bitmap(pxFormat, AlphaFormat.Unpremul, addr, PixelSize(image.Width, image.Height), Vector(96., 96.), stride)
     pinnedArray.Free()
     bm
 
@@ -74,3 +75,8 @@ let previewPathFromMainAudio (audioPath: string) =
     let fn = Path.GetFileNameWithoutExtension audioPath
     let ext = Path.GetExtension audioPath
     Path.Combine(dir, $"{fn}_preview{ext}")
+
+let tryGetValue (dict: IDictionary<_,_>) key =
+    match dict.TryGetValue key with
+    | true, value -> Some value
+    | false, _ -> None

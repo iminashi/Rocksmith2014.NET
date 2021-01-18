@@ -35,6 +35,7 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <AvaloniaResource Include="**\*.xaml" />
+    <Compile Include="Utils.fs" />
     <Compile Include="Localization.fs" />
     <Compile Include="Media.fs" />
     <Compile Include="Dialogs.fs" />
@@ -52,7 +53,6 @@
     <Compile Include="Views\IssueViewer.fs" />
     <Compile Include="Views\ConfigEditor.fs" />
     <Compile Include="Views\Main.fs" />
-    <Compile Include="Utils.fs" />
     <Compile Include="RecentFilesList.fs" />
     <Compile Include="BuildValidator.fs" />
     <Compile Include="Main.fs" />
@@ -60,11 +60,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia.Desktop" Version="0.9.12" />
-    <PackageReference Include="JaggerJo.Avalonia.FuncUI" Version="0.4.1" />
-    <PackageReference Include="JaggerJo.Avalonia.FuncUI.DSL" Version="0.4.3" />
-    <PackageReference Include="JaggerJo.Avalonia.FuncUI.Elmish" Version="0.4.0" />
-    <PackageReference Include="Live.Avalonia" Version="1.0.1" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.0-rc1" />
+    <PackageReference Include="JaggerJo.Avalonia.FuncUI" Version="0.5.0-beta" />
+    <PackageReference Include="JaggerJo.Avalonia.FuncUI.DSL" Version="0.5.0-beta" />
+    <PackageReference Include="JaggerJo.Avalonia.FuncUI.Elmish" Version="0.5.0-beta" />
+    <PackageReference Include="Live.Avalonia" Version="1.1.1" />
     <PackageReference Include="NAudio" Version="1.10.0" />
     <PackageReference Include="Pfim" Version="0.9.1" />
   </ItemGroup>

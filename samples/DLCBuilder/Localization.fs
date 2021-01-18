@@ -20,12 +20,6 @@ module Locales =
         | "fi" -> Finnish
         | _ -> English
 
-module private Utils =
-    let tryGetValue (dict: IDictionary<_,_>) key =
-        match dict.TryGetValue key with
-        | true, value -> Some value
-        | false, _ -> None
-
 type ILocalization =
     abstract member GetString : string -> string
     abstract member Format : string -> obj array -> string

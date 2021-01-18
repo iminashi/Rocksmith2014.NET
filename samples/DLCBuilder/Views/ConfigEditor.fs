@@ -387,6 +387,8 @@ let private tabHeader (icon: Geometry) text =
             TextBlock.create [
                 TextBlock.text text
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.foreground Brushes.WhiteSmoke
+                TextBlock.margin (0., 4., 0., 0.)
             ]
         ]
     ]

@@ -94,6 +94,8 @@ let view state dispatch =
                           Grid.row 1
                           StackPanel.isVisible state.ShowJapaneseFields ]
                         [ TextBox.text (defaultArg state.Project.JapaneseArtistName String.Empty)
+                          TextBox.fontFamily Fonts.japanese
+                          TextBox.fontSize 15.
                           TextBox.onTextChanged (fun e -> 
                             fun p -> { p with JapaneseArtistName = Option.ofString (StringValidator.field e) }
                             |> EditProject
@@ -131,6 +133,8 @@ let view state dispatch =
                           Grid.row 2
                           StackPanel.isVisible state.ShowJapaneseFields ]
                         [ TextBox.text (defaultArg state.Project.JapaneseTitle String.Empty)
+                          TextBox.fontFamily Fonts.japanese
+                          TextBox.fontSize 15.
                           TextBox.onTextChanged (fun e ->
                             fun p -> { p with JapaneseTitle = Option.ofString (StringValidator.field e) }
                             |> EditProject

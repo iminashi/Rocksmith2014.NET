@@ -2,12 +2,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Style Selector="TextBox">
-        <Setter Property="Margin" Value="4"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Margin" Value="4"/>
     </Style>
     <Style Selector="NumericUpDown">
-        <Setter Property="Margin" Value="4"/>
+      <Setter Property="Margin" Value="4"/>
     </Style>
     <Style Selector="Button">
-        <Setter Property="Padding" Value="10,0"/>
+      <Setter Property="Padding" Value="10,0"/>
     </Style>
 </Styles>

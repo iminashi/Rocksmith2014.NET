@@ -2,6 +2,7 @@
 
 open Avalonia.Media
 open Avalonia.Input
+open System
 
 /// Icons from Material Design.
 module Icons =
@@ -29,3 +30,7 @@ module Cursors =
     let hand = Cursor(StandardCursorType.Hand)
     let arrow = Cursor(StandardCursorType.Arrow)
     let appStarting = Cursor(StandardCursorType.AppStarting)
+
+module Fonts =
+    let japanese =
+        FontFamily(if OperatingSystem.IsMacOS() then "Hiragino Sans" else "MS UI Gothic")
