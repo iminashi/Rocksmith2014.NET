@@ -10,6 +10,8 @@ open Rocksmith2014.Common.Manifest
 open Newtonsoft.Json
 open BinaryWriters
 
+type ProfileHeader = { Version: uint32; ID: uint64; UncompressedLength: uint32 }
+
 let private profileKey = "\x72\x8B\x36\x9E\x24\xED\x01\x34\x76\x85\x11\x02\x18\x12\xAF\xC0\xA3\xC2\x5D\x02\x06\x5F\x16\x6B\x4B\xCC\x58\xCD\x26\x44\xF2\x9E"B
 
 let private getDecryptStream (input: Stream) =
@@ -27,13 +29,11 @@ let private readHeader (stream: Stream) =
     let magic = reader.ReadBytes 4
     if Encoding.ASCII.GetString magic <> "EVAS" then
         failwith "Profile magic check failed."
-    reader.ReadUInt32(), // Version
-    reader.ReadUInt64(), // Profile ID
-    reader.ReadUInt32()  // Uncompressed length
+    { Version = reader.ReadUInt32(); ID = reader.ReadUInt64(); UncompressedLength = reader.ReadUInt32() }
 
 /// Decrypts the Rocksmith 2014 profile data from the input stream into the output stream.
 let decrypt (input: Stream) (output: Stream) = async {
-    let ver, id, length = readHeader input
+    let header = readHeader input
 
     use decrypted = MemoryStreamPool.Default.GetStream()
     use dStream = getDecryptStream input
@@ -42,7 +42,7 @@ let decrypt (input: Stream) (output: Stream) = async {
 
     decrypted.Position <- 0L
     do! Compression.unzip decrypted output
-    return ver, id, length }
+    return header }
 
 /// Encrypts profile data from the input stream into the output stream.
 let private encryptProfileData (input: Stream) (output: Stream) = async {

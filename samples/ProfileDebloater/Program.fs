@@ -48,34 +48,34 @@ let gatherDLCData (directory: string) = async {
     return List.collect id ids, List.collect id keys }
 
 /// Saves the profile data, backing up the existing profile file.
-let saveProfile (originalPath: string) id (profile: JToken) = async {
-    use json = MemoryStreamPool.Default.GetStream()
-    use streamWriter = new StreamWriter(json, NewLine = "\n")
+let saveProfile originalPath id (profileJson: JToken) = async {
+    use jsonData = MemoryStreamPool.Default.GetStream()
+    use streamWriter = new StreamWriter(jsonData, NewLine = "\n")
     use writer = new JsonTextWriter(streamWriter,
                                     Formatting = Formatting.Indented,
                                     Indentation = 0,
                                     StringEscapeHandling = StringEscapeHandling.EscapeNonAscii)
 
-    profile.WriteTo writer
+    profileJson.WriteTo writer
     writer.Flush()
 
     let backUp = originalPath + ".backup"
     if File.Exists backUp then File.Delete backUp
     File.Copy(originalPath, backUp)
 
-    do! Profile.write originalPath id json }
+    do! Profile.write originalPath id jsonData }
 
 /// Reads a profile from the given path.
 let readProfile path = async {
     use profileFile = File.OpenRead path
     use mem = MemoryStreamPool.Default.GetStream()
-    let! _, id, _ = Profile.decrypt profileFile mem
+    let! header = Profile.decrypt profileFile mem
 
     mem.Position <- 0L
     use textReader = new StreamReader(mem)
     use reader = new JsonTextReader(textReader)
 
-    return JToken.ReadFrom reader, id }
+    return JToken.ReadFrom reader, header.ID }
 
 /// Removes the children whose names are not in the IDs set from the JToken.
 let filterJTokenIds (ids: Set<string>) (token: JToken) =
