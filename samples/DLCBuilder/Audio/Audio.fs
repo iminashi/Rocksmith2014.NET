@@ -9,7 +9,7 @@ let [<Literal>] FadeIn = 2500<ms>
 let [<Literal>] FadeOut = 3000<ms>
 let [<Literal>] PreviewLength = 28_000L<ms>
 
-let private getAudioReader (fileName : string)  =
+let private getAudioReader (fileName: string)  =
     if String.endsWith ".wav" fileName then
         new AudioFileReader(fileName)
     else
@@ -20,11 +20,11 @@ let private fade fadeIn fadeOut audioLength (sampleProvider : ISampleProvider) =
     AudioFader(sampleProvider, fadeIn, fadeOut, audioLength) :> ISampleProvider
 
 /// Gets a 28 second section from the sample provider starting at the given offset.
-let private getPreviewSection (offset : TimeSpan) (file : ISampleProvider) =
+let private getPreviewSection (offset: TimeSpan) (file: ISampleProvider) =
     file.Skip(offset).Take(TimeSpan.FromSeconds 28.)
 
 /// Returns the total length of the given wave file.
-let getLength (fileName : string) =
+let getLength (fileName: string) =
     using (getAudioReader fileName) (fun reader -> reader.TotalTime)
 
 /// Creates a preview audio file .

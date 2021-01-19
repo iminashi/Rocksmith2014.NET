@@ -185,8 +185,7 @@ let update (msg: Msg) (state: State) =
         if String.IsNullOrWhiteSpace config.ProfilePath then
             state, Cmd.none
         else
-            let result = Profile.importTones config.ProfilePath
-            match result with
+            match Profile.importTones config.ProfilePath with
             | Ok toneArray ->
                 state, Cmd.ofMsg (ShowImportToneSelector toneArray)
             | Error msg ->
@@ -205,7 +204,7 @@ let update (msg: Msg) (state: State) =
             state.OpenProjectFile
             |> Option.map IO.Path.GetFileName
             |> Option.orElseWith (fun () ->
-                sprintf "%s_%s" project.ArtistName.Value project.Title.Value
+                sprintf "%s_%s" project.ArtistName.SortValue project.Title.SortValue
                 |> StringValidator.fileName
                 |> sprintf "%s.rs2dlc"
                 |> Some)
@@ -341,17 +340,15 @@ let update (msg: Msg) (state: State) =
 
     | DeleteArrangement ->
         let arrangements =
-            match state.SelectedArrangement with
-            | None -> project.Arrangements
-            | Some selected -> List.remove selected project.Arrangements
+            Utils.removeSelected project.Arrangements state.SelectedArrangement
+
         { state with Project = { project with Arrangements = arrangements }
                      SelectedArrangement = None }, Cmd.none
 
     | DeleteTone ->
         let tones =
-            match state.SelectedTone with
-            | None -> project.Tones
-            | Some selected -> List.remove selected project.Tones
+             Utils.removeSelected project.Tones state.SelectedTone
+
         { state with Project = { project with Tones = tones }
                      SelectedTone = None }, Cmd.none
 
@@ -380,7 +377,8 @@ let update (msg: Msg) (state: State) =
 
     | CreatePreviewAudio (CreateFile) ->
         let task () = async { return Audio.Tools.createPreview project.AudioFile.Path state.PreviewStartTime }
-        { state with Overlay = NoOverlay }, Cmd.OfAsync.either task () (FileCreated >> CreatePreviewAudio) ErrorOccurred
+        { state with Overlay = NoOverlay },
+        Cmd.OfAsync.either task () (FileCreated >> CreatePreviewAudio) ErrorOccurred
 
     | CreatePreviewAudio (FileCreated previewPath) ->
         let previewFile = { project.AudioPreviewFile with Path = previewPath }

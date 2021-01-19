@@ -80,3 +80,7 @@ let tryGetValue (dict: IDictionary<_,_>) key =
     match dict.TryGetValue key with
     | true, value -> Some value
     | false, _ -> None
+
+let removeSelected list = function
+    | None -> list
+    | Some selected -> List.remove selected list
