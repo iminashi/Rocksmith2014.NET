@@ -55,9 +55,11 @@ module Configuration =
         member val WwiseConsolePath : string = String.Empty with get, set
         member val CustomAppId : string = String.Empty with get, set
 
+    let appDataFolder =
+        IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
+
     let private configFilePath =
-        let appData = IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
-        IO.Path.Combine(appData, "config.json")
+        IO.Path.Combine(appDataFolder, "config.json")
 
     /// Converts a configuration DTO into a configuration record.
     let private fromDto (dto: Dto) =

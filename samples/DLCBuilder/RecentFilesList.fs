@@ -7,8 +7,7 @@ open System.Text.Json
 open System.Text.Json.Serialization
 
 let private recentFilePath =
-    let appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
-    Path.Combine(appData, "recent.json")
+    Path.Combine(Configuration.appDataFolder, "recent.json")
 
 let private jsonOptions =
     let options = JsonSerializerOptions()
