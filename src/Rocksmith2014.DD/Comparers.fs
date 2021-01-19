@@ -85,8 +85,8 @@ let getSimilarityPercent eq l1 l2 =
         let maxCount = max l1.Length l2.Length |> float
         100. * sameCount / maxCount
 
-/// Calculates the maximum possible similarity in percents between the two lists based on their lengths.
-let getMaxSimilarityPercent l1 l2 =
+/// Calculates the maximum possible similarity in percents between two lists based on their lengths.
+let getMaxSimilarityFastest l1 l2 =
     match l1, l2 with
     | [], [] -> 100.
     | [], _ | _, [] -> 0.
@@ -94,3 +94,30 @@ let getMaxSimilarityPercent l1 l2 =
         let maxLength = max l1.Length l2.Length
         let minLength = min l1.Length l2.Length
         100. * float minLength / float maxLength
+
+let chordProjection (chord: Chord) = chord.ChordId
+let noteProjection (note: Note) = int16 note.String ||| (int16 note.Fret <<< 8)
+
+/// Calculates the maximum possible similarity in percents between two lists by
+/// finding the number of same elements based on a projection.
+let getMaxSimilarityFast projection l1 l2 =
+    let createMap = (List.countBy projection) >> Map.ofList
+
+    match l1, l2 with
+    | [], [] -> 100.
+    | [], _ | _, [] -> 0.
+    | _ ->
+        let map1 = createMap l1
+        let map2 = createMap l2
+
+        let sameCount =
+            (0, map1)
+            ||> Map.fold (fun state key count1 ->
+                match map2 |> Map.tryFind key with
+                | Some count2 ->
+                    state + count1 + count2 - max count1 count2
+                | None ->
+                    state)
+
+        let maxLength = max l1.Length l1.Length
+        100. * float sameCount / float maxLength

@@ -159,17 +159,15 @@ let private createNote diffPercent
              IsAccent = chord.IsAccent)
 
 let choose diffPercent
-           (divisions: (int * BeatDivision) array)
+           (divisionMap: Map<BeatDivision, DifficultyRange>)
+           (noteTimeToDivision: Map<int, int>)
            (notesInDivision: Map<BeatDivision, int>)
            (templates: ResizeArray<ChordTemplate>)
            (handShapes: HandShape list)
            (maxChordNotes: int)
            (entities: XmlEntity array) =
     let removedLinkNexts = HashSet<sbyte>()
-    let pendingLinkNexts = Dictionary<sbyte, Note>()
-    
-    let noteTimeToDivision = Map.ofArray divisions
-    let divisionMap = BeatDivider.createDivisionMap divisions entities.Length
+    let pendingLinkNexts = Dictionary<sbyte, Note>() 
     let currentNotesInDivision = Dictionary<BeatDivision, int>()
     
     let incrementCount division =

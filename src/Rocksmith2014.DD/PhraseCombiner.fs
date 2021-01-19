@@ -8,22 +8,22 @@ open Comparers
 
 type private CombinationData = { MainId: int; Ids: int array; SameDifficulty: bool }
 
-let private getMaxSimilarity (phrase1: PhraseData) (phrase2: PhraseData) =
-    let maxN = getMaxSimilarityPercent phrase1.Notes phrase2.Notes
-    let maxC = getMaxSimilarityPercent phrase1.Chords phrase2.Chords
-
-    (maxN + maxC) / 2.
+let private calculateSimilarity fn fc (phrase1: PhraseData) (phrase2: PhraseData) =
+    let noteSimilarity = fn phrase1.Notes phrase2.Notes
+    let chordSimilarity = fc phrase1.Chords phrase2.Chords
+    
+    (noteSimilarity + chordSimilarity) / 2.
     |> (round >> int)
 
-let private getSimilarity treshold (phrase1: PhraseData) (phrase2: PhraseData) =
-    if getMaxSimilarity phrase1 phrase2 < treshold then
-        0
-    else
-        let noteSimilarity = getSimilarityPercent sameNote phrase1.Notes phrase2.Notes
-        let chordSimilarity = getSimilarityPercent sameChord phrase1.Chords phrase2.Chords
-    
-        (noteSimilarity + chordSimilarity) / 2.
-        |> (round >> int)
+let private getSimilarity threshold (phrase1: PhraseData) (phrase2: PhraseData) =
+    let simFastest = calculateSimilarity getMaxSimilarityFastest getMaxSimilarityFastest phrase1 phrase2
+
+    let simFast =
+        if simFastest < threshold then 0
+        else calculateSimilarity (getMaxSimilarityFast noteProjection) (getMaxSimilarityFast chordProjection) phrase1 phrase2
+
+    if simFast < threshold then 0
+    else calculateSimilarity (getSimilarityPercent sameNote) (getSimilarityPercent sameChord) phrase1 phrase2
 
 let private findSamePhrases threshold (levelCounts: int array) (iterationData: PhraseData array) =
     // Ignore the first and last phrases (COUNT, END)

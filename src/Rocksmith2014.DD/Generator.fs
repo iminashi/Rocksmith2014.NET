@@ -9,18 +9,20 @@ let private lockObj = obj()
 
 /// Creates an XML entity array from the notes and chords.
 let private createXmlEntityArray (xmlNotes: Note list) (xmlChords: Chord list) =
+    let xmlNotes = Array.ofList xmlNotes
+    let xmlChords = Array.ofList xmlChords
+
     if xmlChords.Length = 0 then
-        xmlNotes
-        |> List.map XmlNote
-        |> Array.ofList
+        Array.map XmlNote xmlNotes
     elif xmlNotes.Length = 0 then
-        xmlChords
-        |> List.map XmlChord
-        |> Array.ofList
+        Array.map XmlChord xmlChords
     else
         let entityArray =
-            [| yield! List.map XmlNote xmlNotes
-               yield! List.map XmlChord xmlChords |]
+            Array.init (xmlNotes.Length + xmlChords.Length) (fun i ->
+                if i < xmlNotes.Length then
+                    XmlNote xmlNotes.[i]
+                else
+                    XmlChord xmlChords.[i - xmlNotes.Length])
 
         Array.sortInPlaceBy getTimeCode entityArray
         entityArray
@@ -29,7 +31,7 @@ let private applyChordId (templates: ResizeArray<ChordTemplate>) =
     let templateMap = Dictionary<int16 * byte, int16>()
 
     fun (request: TemplateRequest) ->
-        let id = 
+        let id =
             match templateMap.TryGetValue((request.OriginalId, request.NoteCount)) with
             | true, id ->
                 id
@@ -95,6 +97,9 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
             |> Array.map (fun (group, elems) -> group, elems.Length)
             |> Map.ofArray
 
+        let noteTimeToDivision = Map.ofArray divisions
+        let divisionMap = BeatDivider.createDivisionMap divisions entities.Length
+
         let applyChordId' = applyChordId arr.ChordTemplates
 
         Array.init levelCount (fun diff ->
@@ -109,7 +114,7 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
                 let diffPercent = byte <| 100 * (diff + 1) / levelCount
 
                 let levelEntities, templateRequests1 =
-                    EntityChooser.choose diffPercent divisions notesInDivision arr.ChordTemplates phraseData.HandShapes phraseData.MaxChordStrings entities
+                    EntityChooser.choose diffPercent divisionMap noteTimeToDivision notesInDivision arr.ChordTemplates phraseData.HandShapes phraseData.MaxChordStrings entities
                     |> Array.unzip
                 let notes = levelEntities |> Array.choose (function XmlNote n -> Some n | _ -> None)
                 let chords = levelEntities |> Array.choose (function XmlChord n -> Some n | _ -> None)
