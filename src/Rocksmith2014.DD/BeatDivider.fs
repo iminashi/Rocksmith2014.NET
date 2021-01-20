@@ -1,5 +1,6 @@
 ﻿module Rocksmith2014.DD.BeatDivider
 
+open Rocksmith2014.DD.DataExtractor
 open Rocksmith2014.XML
 open System
 
@@ -49,7 +50,9 @@ let private getDivisionInPhrase startTime endTime time =
     let div = findDiv 0
     phraseDivisions.[div]
 
-let getDivision phraseStartTime phraseEndTime (beats: Ebeat list) (time: int) =
+let getDivision (phraseData: PhraseData) (time: int) =
+    let { StartTime=phraseStartTime; EndTime=phraseEndTime; Beats=beats } = phraseData
+
     let beat1 =
         beats
         |> List.tryFindBack (fun b -> b.Time <= time)

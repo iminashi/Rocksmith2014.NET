@@ -89,7 +89,7 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
             entities
             |> Array.map (fun e ->
                 let time = getTimeCode e
-                time, BeatDivider.getDivision phraseData.StartTime phraseData.EndTime phraseData.Beats time)
+                time, BeatDivider.getDivision phraseData time)
 
         let notesInDivision =
             divisions
