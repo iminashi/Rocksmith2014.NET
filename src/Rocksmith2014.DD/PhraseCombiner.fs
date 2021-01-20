@@ -39,12 +39,12 @@ let private findSamePhrases threshold (levelCounts: int array) (iterationData: P
     let matchedPhrases = HashSet<int>([| 0; lastId |])
 
     iterationData
-    |> Array.mapi (fun i iter ->
-        if matchedPhrases.Contains i then
+    |> Array.mapi (fun mainId iter ->
+        if matchedPhrases.Contains mainId then
             None
         else
             iterationData
-            |> Array.skip (i + 1)
+            |> Array.skip (mainId + 1)
             |> Array.Parallel.choose (fun data ->
                 let id = Array.IndexOf(iterationData, data)
                 if not <| matchedPhrases.Contains id && getSimilarity threshold iter data >= threshold then
@@ -59,10 +59,11 @@ let private findSamePhrases threshold (levelCounts: int array) (iterationData: P
 
                 let sameDifficulty =
                     ids
+                    |> Array.append [| mainId |]
                     |> Array.map (fun id -> levelCounts.[id])
                     |> Utils.allSame
 
-                Some { MainId = i; Ids = ids; SameDifficulty = sameDifficulty })
+                Some { MainId = mainId; Ids = ids; SameDifficulty = sameDifficulty })
     |> Array.choose id
 
 let private findEmptyPhrases (iterationData: PhraseData array) =
