@@ -16,8 +16,7 @@ let private noNotesInHandShape (entities: XmlEntity array) (hs: HandShape) =
 let private isArpeggio (entities: XmlEntity array) (hs: HandShape) =
     let handShapeNotes =
         entities
-        |> Array.choose (fun entity ->
-            match entity with
+        |> Array.choose (function
             | XmlNote n when isInsideHandShape hs n.Time -> Some n
             | _ -> None)
 

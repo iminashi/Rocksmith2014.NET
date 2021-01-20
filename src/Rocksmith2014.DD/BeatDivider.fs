@@ -50,7 +50,7 @@ let private getDivisionInPhrase startTime endTime time =
     let div = findDiv 0
     phraseDivisions.[div]
 
-let getDivision (phraseData: PhraseData) (time: int) =
+let getDivision (phraseData: PhraseData) (time: int) : BeatDivision =
     let { StartTime=phraseStartTime; EndTime=phraseEndTime; Beats=beats } = phraseData
 
     let beat1 =

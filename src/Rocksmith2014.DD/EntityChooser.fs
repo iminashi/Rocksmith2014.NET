@@ -156,7 +156,8 @@ let private createNote diffPercent
              Fret = template.Frets.[string],
              IsFretHandMute = chord.IsFretHandMute,
              IsPalmMute = chord.IsPalmMute,
-             IsAccent = chord.IsAccent)
+             IsAccent = chord.IsAccent,
+             IsIgnore = chord.IsIgnore)
 
 let choose diffPercent
            (divisionMap: Map<BeatDivision, DifficultyRange>)
