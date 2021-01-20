@@ -304,7 +304,7 @@ let customEventTests =
             Expect.equal arr.ChordTemplates.[1].Fingers.[0] 1y "Fingering is correct"
             Expect.equal arr.ChordTemplates.[1].Fingers.[1] 3y "Fingering is correct"
             Expect.hasLength arr.Levels.[0].HandShapes 2 "A hand shape was created"
-            Expect.equal arr.Levels.[0].HandShapes.[1].EndTime 1000 "Second hand shape ends at end of sustain"
+            Expect.equal arr.Levels.[0].HandShapes.[1].EndTime 1001 "Second hand shape ends at end of sustain + 1ms"
             Expect.isTrue (hs.EndTime < 1000) "First hand shape was shortened"
 
         testCase "Slide-out event works for link-next chord" <| fun _ ->
@@ -316,7 +316,7 @@ let customEventTests =
             let chords = ResizeArray(seq { Chord(ChordNotes = cn, IsLinkNext = true) })
             let notes = ResizeArray(seq { Note(Time = 1000, String = 2y, Fret = 5y, Sustain = 500, SlideUnpitchTo = 12y)
                                           Note(Time = 1000, String = 3y, Fret = 5y, Sustain = 500, SlideUnpitchTo = 12y) })
-            let hs = HandShape(0s, 0, 1000)
+            let hs = HandShape(0s, 0, 1500) // Includes sustain of slide-out notes
             let handShapes = ResizeArray(seq { hs })
             let levels = ResizeArray(seq { Level(Notes = notes, Chords = chords, HandShapes = handShapes) })
             let events = ResizeArray(seq { Event("so", 1000) })
@@ -330,7 +330,8 @@ let customEventTests =
             Expect.equal arr.ChordTemplates.[1].Fingers.[2] 2y "Fingering is correct"
             Expect.equal arr.ChordTemplates.[1].Fingers.[3] 2y "Fingering is correct"
             Expect.hasLength arr.Levels.[0].HandShapes 2 "A hand shape was created"
-            Expect.equal arr.Levels.[0].HandShapes.[1].EndTime 1500 "Second hand shape ends at end of sustain"
+            Expect.equal arr.Levels.[0].HandShapes.[1].EndTime 1501 "Second hand shape ends at end of sustain + 1ms"
+            Expect.isTrue (hs.EndTime < 1500) "First hand shape was shortened"
     ]
 
 [<Tests>]

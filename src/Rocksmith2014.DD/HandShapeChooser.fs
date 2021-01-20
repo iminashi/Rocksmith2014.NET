@@ -7,7 +7,10 @@ let private isInsideHandShape (hs: HandShape) time =
 
 let private noNotesInHandShape (entities: XmlEntity array) (hs: HandShape) =
     entities
-    |> Array.exists (getTimeCode >> (isInsideHandShape hs))
+    |> Array.exists (fun x ->
+        let time = getTimeCode x
+        time |> (isInsideHandShape hs)
+        || time + getSustain x |> (isInsideHandShape hs))
     |> not
 
 let private isArpeggio (entities: XmlEntity array) (hs: HandShape) =
@@ -32,7 +35,6 @@ let choose (diffPercent: byte)
            (maxChordNotes: int)
            (templates: ResizeArray<ChordTemplate>)
            (handShapes: HandShape list) =
-    // TODO: Special handling for empty handshapes
     let allowedNotes = Utils.getAllowedChordNotes diffPercent maxChordNotes
 
     handShapes

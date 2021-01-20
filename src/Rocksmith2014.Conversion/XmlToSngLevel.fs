@@ -7,7 +7,7 @@ open Rocksmith2014.Conversion.Utils
 open XmlToSngNote
 
 /// Creates an XML entity array from the notes and chords.
-let private createXmlEntityArray (xmlNotes: ResizeArray<XML.Note>) (xmlChords: ResizeArray<XML.Chord>) =
+let createXmlEntityArray (xmlNotes: ResizeArray<XML.Note>) (xmlChords: ResizeArray<XML.Chord>) =
     if xmlChords.Count = 0 then
         Array.init xmlNotes.Count (fun i -> XmlNote xmlNotes.[i])
     elif xmlNotes.Count = 0 then
@@ -29,7 +29,7 @@ let convertLevel (accuData: AccuData) (piTimes: int[]) (xmlArr: XML.Instrumental
     let xmlEntities = createXmlEntityArray xmlLevel.Notes xmlLevel.Chords
     let noteTimes = xmlEntities |> Array.map getTimeCode
     let isArpeggio (hs: XML.HandShape) = xmlArr.ChordTemplates.[int hs.ChordId].IsArpeggio
-    let convertHandshape' = convertHandshape noteTimes
+    let convertHandshape' = convertHandshape noteTimes xmlEntities
 
     let arpeggios, handShapes =
         xmlLevel.HandShapes.ToArray()

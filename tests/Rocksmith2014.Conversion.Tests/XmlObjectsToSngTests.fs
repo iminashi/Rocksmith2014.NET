@@ -4,6 +4,8 @@ open Expecto
 open Rocksmith2014
 open Rocksmith2014.XML
 open Rocksmith2014.Conversion
+open Rocksmith2014.Conversion.XmlToSng
+open Rocksmith2014.Conversion.XmlToSngLevel
 open Rocksmith2014.Conversion.Utils
 open System.Globalization
 open System
@@ -297,14 +299,29 @@ let sngToXmlConversionTests =
     testCase "Hand Shape" <| fun _ ->
         let hs = HandShape(1s, 222, 333)
         let noteTimes = [| 222; 250; 280; 300 |]
+        let dummyNote = XmlNote <| Note()
+        let entities = [| dummyNote; dummyNote; dummyNote; dummyNote |]
 
-        let sng = XmlToSng.convertHandshape noteTimes hs
+        let sng = XmlToSng.convertHandshape noteTimes entities hs
 
         Expect.equal sng.ChordId (int hs.ChordId) "Chord ID is same"
         Expect.equal sng.StartTime (convertTime hs.StartTime) "Start time is same"
         Expect.equal sng.EndTime (convertTime hs.EndTime) "End time is same"
         Expect.equal sng.FirstNoteTime 0.222f "First note time is correct"
         Expect.equal sng.LastNoteTime 0.3f "Last note time is correct"
+
+    testCase "Hand Shape, last note time is correct for chord with sustain spanning whole handshape" <| fun _ ->
+        let hs = HandShape(1s, 222, 333)
+        let noteTimes = [| 222; |]
+        let entities = [| XmlChord <| Chord(Time = 222, ChordNotes = ResizeArray(seq { Note (Time = 222, Sustain = 111)})) |]
+
+        let sng = XmlToSng.convertHandshape noteTimes entities hs
+
+        Expect.equal sng.ChordId (int hs.ChordId) "Chord ID is same"
+        Expect.equal sng.StartTime (convertTime hs.StartTime) "Start time is same"
+        Expect.equal sng.EndTime (convertTime hs.EndTime) "End time is same"
+        Expect.equal sng.FirstNoteTime 0.222f "First note time is correct"
+        Expect.equal sng.LastNoteTime -1f "Last note time is set to -1"
 
     testCase "Note" <| fun _ ->
         let note = Note(Mask = NoteMask.Pluck,
@@ -480,8 +497,9 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].HandShapes.Add(hs)
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
+        let entities = createXmlEntityArray testArr.Levels.[0].Notes testArr.Levels.[0].Chords
         let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
-        let fp = XmlToSng.convertHandshape noteTimes hs
+        let fp = XmlToSng.convertHandshape noteTimes entities hs
         let convert = XmlToSngNote.convertNote noteTimes piTimes [| [| fp |]; [||] |] sharedAccData flagFunc testArr 0
 
         let sng = convert 0 (XmlToSng.XmlNote note)
@@ -501,8 +519,9 @@ let sngToXmlConversionTests =
         testArr.Levels.[0].HandShapes.Add(hs)
 
         let noteTimes = createNoteTimes testArr.Levels.[0]
+        let entities = createXmlEntityArray testArr.Levels.[0].Notes testArr.Levels.[0].Chords
         let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
-        let fp = XmlToSng.convertHandshape noteTimes hs
+        let fp = XmlToSng.convertHandshape noteTimes entities hs
         let convert = XmlToSngNote.convertNote noteTimes piTimes [| [||]; [| fp |] |] sharedAccData flagFunc testArr 0
 
         let sng = convert 0 (XmlToSng.XmlNote note)

@@ -7,6 +7,7 @@ type FingerPrint =
       StartTime : float32
       EndTime : float32
       FirstNoteTime : float32
+      /// Defines the time after which the handshape fingering can start moving to the next fingering (-1 = handshape end time).
       LastNoteTime : float32 }
 
     interface IBinaryWritable with

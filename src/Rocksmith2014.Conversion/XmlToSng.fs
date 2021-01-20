@@ -8,6 +8,8 @@ open Rocksmith2014.SNG
 
 type NoteFlagger = Note option -> Note -> uint32
 
+// TODO: Duplicate code in Conversion and DD libraries
+
 type XmlEntity =
     | XmlNote of XmlNote : XML.Note
     | XmlChord of XmlChord : XML.Chord
@@ -15,6 +17,15 @@ type XmlEntity =
 let getTimeCode = function
     | XmlNote xn -> xn.Time
     | XmlChord xc -> xc.Time
+
+let getSustain = function
+    | XmlNote xn ->
+        xn.Sustain
+    | XmlChord xc ->
+        if isNull xc.ChordNotes then
+            0
+        else
+            xc.ChordNotes.[0].Sustain
 
 /// Returns a function that keeps a track of the current measure and the current beat.
 let convertBeat () =
@@ -199,12 +210,16 @@ let convertAnchor (notes: Note array) (noteTimes: int array) (level: XML.Level) 
       PhraseIterationId = findPhraseIterationId xmlAnchor.Time xml.PhraseIterations }
 
 /// Converts an XML HandShape into an SNG FingerPrint.
-let convertHandshape (noteTimes: int array) (xmlHs: XML.HandShape) =
+let convertHandshape (noteTimes: int array) (entities: XmlEntity array) (xmlHs: XML.HandShape) =
     let firstNoteTime, lastNoteTime =
         match findFirstAndLastTime noteTimes xmlHs.StartTime xmlHs.EndTime with
-        | None -> -1.f, -1.f
-        // In official files, the sustain may be included in the last note time
-        | Some (first, last) -> msToSec noteTimes.[first], msToSec noteTimes.[last]
+        | None ->
+            -1.f, -1.f
+        | Some (first, last) ->
+            let endTime =
+                let t = noteTimes.[last] + getSustain entities.[last]
+                if t >= xmlHs.EndTime then -1.f else msToSec t
+            msToSec noteTimes.[first], endTime     
 
     { ChordId = int xmlHs.ChordId
       StartTime = msToSec xmlHs.StartTime

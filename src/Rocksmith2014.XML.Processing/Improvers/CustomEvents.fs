@@ -60,8 +60,14 @@ let improve (arrangement: InstrumentalArrangement) =
             if chordIndex = -1 then
                 // These are notes that follow a LinkNext chord
                 let linkNextChord = level.Chords.FindLast(fun c -> c.Time < slideTime)
+                let chordHs = level.HandShapes.Find(fun hs -> hs.StartTime = linkNextChord.Time)
 
-                level.Notes |> Seq.filter (fun n -> n.Time = slideTime && n.IsUnpitchedSlide),
+                // Shorten hand shapes that include the slide out notes
+                // If chord notes is null here, there is an error in the XML file
+                if not <| isNull chordHs && chordHs.EndTime > linkNextChord.Time + linkNextChord.ChordNotes.[0].Sustain then
+                    chordHs.EndTime <- linkNextChord.Time + linkNextChord.ChordNotes.[0].Sustain
+
+                level.Notes.FindAll(fun n -> n.Time = slideTime && n.IsUnpitchedSlide).ToArray(),
                 arrangement.ChordTemplates.[int linkNextChord.ChordId]
             else
                 // It is a normal chord with unpitched slide out
@@ -74,15 +80,14 @@ let improve (arrangement: InstrumentalArrangement) =
                 if not <| isNull chordHs then
                     chordHs.EndTime <- chordHs.StartTime + ((chordHs.EndTime - chordHs.StartTime) / 3)
 
-                chord.ChordNotes |> Seq.filter (fun cn -> cn.IsUnpitchedSlide),
+                chord.ChordNotes.FindAll(fun cn -> cn.IsUnpitchedSlide).ToArray(),
                 arrangement.ChordTemplates.[int chord.ChordId]
             
-        let notes = Seq.toArray notes
         if notes.Length = 0 then
             failwith $"Invalid SlideOut event at {Utils.timeToString slideEvent.Time}"
         
-        // Create a new handshape at the slide end
-        let endTime = notes.[0].Time + notes.[0].Sustain
+        // Create a new handshape at the slide end (add 1ms to include the sustain of the notes inside the handshape)
+        let endTime = notes.[0].Time + notes.[0].Sustain + 1
         let startTime = endTime - (notes.[0].Sustain / 3)
         let chordId = int16 arrangement.ChordTemplates.Count
         level.HandShapes.InsertByTime(HandShape(chordId, startTime, endTime))
