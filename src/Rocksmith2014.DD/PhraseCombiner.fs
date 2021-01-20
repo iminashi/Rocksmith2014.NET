@@ -65,6 +65,17 @@ let private findSamePhrases threshold (levelCounts: int array) (iterationData: P
                 Some { MainId = i; Ids = ids; SameDifficulty = sameDifficulty })
     |> Array.choose id
 
+let private findEmptyPhrases (iterationData: PhraseData array) =
+    let emptyIds =
+        iterationData.[1..(iterationData.Length - 2)]
+        |> Array.mapi (fun i data -> if isEmpty data then Some (i + 1) else None)
+        |> Array.choose id
+
+    if emptyIds.Length > 1 then
+        Array.singleton { MainId = emptyIds.[0]; Ids = emptyIds.[1..]; SameDifficulty = true }
+    else
+        Array.empty
+
 let combineSamePhrases (config: GeneratorConfig)
                        (iterationData: PhraseData array)
                        (iterations: PhraseIteration array)
@@ -72,7 +83,7 @@ let combineSamePhrases (config: GeneratorConfig)
     let sameDifficulties, differentDifficulties =
         match config.PhraseSearch with
         | SearchDisabled ->
-            [||], [||]
+            findEmptyPhrases iterationData, [||]
         | WithThreshold threshold ->
             findSamePhrases threshold levelCounts iterationData
             |> Array.partition (fun x -> x.SameDifficulty)
