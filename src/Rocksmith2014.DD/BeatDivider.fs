@@ -33,7 +33,23 @@ let private getSubdivisionInsideMeasure phraseEndTime (beats: Ebeat list) (time:
 
         getSubdivision first.Time endTime time
 
-let getDivision phraseEndTime (beats: Ebeat list) (time: int) =
+let private phraseDivisions = [| 0; 3; 2; 3; 1; 3; 2; 3; 4 |]
+
+let private getDivisionInPhrase startTime endTime time =
+    let dist = float <| endTime - startTime
+    let divisionLength = dist / 9.
+    let pos = float <| time - startTime
+
+    let rec findDiv curr =
+        if pos >= divisionLength * float curr && pos < divisionLength * float (curr + 1) then
+            curr
+        else
+            findDiv (curr + 1)
+
+    let div = findDiv 0
+    phraseDivisions.[div]
+
+let getDivision phraseStartTime phraseEndTime (beats: Ebeat list) (time: int) =
     let beat1 =
         beats
         |> List.tryFindBack (fun b -> b.Time <= time)
@@ -42,6 +58,9 @@ let getDivision phraseEndTime (beats: Ebeat list) (time: int) =
         beats
         |> List.tryFind (fun b -> b.Time >= time)
 
+    let divisionInPhrase = getDivisionInPhrase phraseStartTime phraseEndTime time
+
+    divisionInPhrase +
     match beat1, beat2 with
     | None, _ ->
         // The note comes before any beat
