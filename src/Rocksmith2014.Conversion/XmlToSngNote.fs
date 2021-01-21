@@ -13,7 +13,7 @@ let private hashNote note = hash note |> uint32
 let private hashChordNotes cn = hash cn
 
 /// Mask bits that need to be considered when converting an XML chord note into SNG.
-let private xmlCnMask =
+let [<Literal>] private XmlChordNoteMask =
     XML.NoteMask.LinkNext ||| XML.NoteMask.Accent ||| XML.NoteMask.Tremolo
     ||| XML.NoteMask.FretHandMute ||| XML.NoteMask.HammerOn ||| XML.NoteMask.Harmonic
     ||| XML.NoteMask.PalmMute ||| XML.NoteMask.PinchHarmonic ||| XML.NoteMask.Pluck
@@ -35,7 +35,7 @@ let private createMaskForChordNote (note: XML.Note) =
         ||| if note.IsTap            then NoteMask.Tap            else NoteMask.None
 
     // Apply flags from the XML note mask if needed
-    if (note.Mask &&& xmlCnMask) = XML.NoteMask.None then
+    if (note.Mask &&& XmlChordNoteMask) = XML.NoteMask.None then
         baseMask
     else
         baseMask
@@ -86,26 +86,13 @@ let private createMaskForNote parentNote isArpeggio (note: XML.Note) =
         ||| if note.IsRightHand     then NoteMask.RightHand     else NoteMask.None
         ||| if note.IsSlap          then NoteMask.Slap          else NoteMask.None
 
-/// Returns true if the double stop bit should be set.
-let private isDoubleStop (template: XML.ChordTemplate) =
-    let mutable notes = 0
-
-    for i = 0 to template.Frets.Length - 1 do
-        if template.Frets.[i] <> -1y then notes <- notes + 1
-
-    notes = 2
-
-/// Returns true if the chord panel bit should be set.
-let private showChordPanel (chord: XML.Chord) =
-    not (isNull chord.ChordNotes || chord.ChordNotes.Count = 0)
-
 /// Creates an SNG note mask for a chord.
-let private createMaskForChord (template: XML.ChordTemplate) sustain chordNoteId isArpeggio (chord:XML.Chord) =
+let private createMaskForChord (template: XML.ChordTemplate) sustain chordNoteId isArpeggio (chord: XML.Chord) =
     // Apply flags from properties not in the XML chord mask
     let baseMask =
         NoteMask.Chord
         ||| if isDoubleStop template then NoteMask.DoubleStop else NoteMask.None
-        ||| if showChordPanel chord  then NoteMask.ChordPanel else NoteMask.None
+        ||| if chord.HasChordNotes   then NoteMask.ChordPanel else NoteMask.None
         ||| if template.IsArpeggio   then NoteMask.Arpeggio   else NoteMask.None
         ||| if sustain > 0.f         then NoteMask.Sustain    else NoteMask.None
         ||| if chordNoteId <> -1     then NoteMask.ChordNotes else NoteMask.None
@@ -271,23 +258,18 @@ let convertNote (noteTimes: int[])
             // XML Chords
             | XmlChord chord ->
                 let template = xml.ChordTemplates.[int chord.ChordId]
-                let sustain =
-                    match chord.ChordNotes with
-                    | null -> 0.f
-                    | cn when cn.Count = 0 -> 0.f
-                    | cn -> msToSec cn.[0].Sustain
-
-                let chordNoteId =
-                    match chord.ChordNotes with
-                    | null -> -1
-                    | chordNotes ->
-                        for cn in chordNotes do
+                let sustain, chordNoteId =
+                    if chord.HasChordNotes then
+                        for cn in chord.ChordNotes do
                             // Update the string mask for this chord's section/difficulty
                             let sMask = accuData.StringMasks.[sectionId].[difficulty]
                             accuData.StringMasks.[sectionId].[difficulty] <- sMask ||| (1y <<< int cn.String)
 
+                        msToSec chord.ChordNotes.[0].Sustain, 
                         createChordNotes pendingLinkNexts this accuData chord
-            
+                    else
+                        0.f, -1
+
                 let mask = createMaskForChord template sustain chordNoteId isArpeggio chord
 
                 {| Mask = mask; ChordId = int chord.ChordId; ChordNoteId = chordNoteId; Sustain = sustain;

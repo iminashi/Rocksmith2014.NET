@@ -11,13 +11,22 @@ let secToMs (sec: float32) = Math.Round(float sec * 1000.0) |> int
 let msToSec (time: int) = float32 time / 1000.0f
 
 /// Tests if an SNG note mask has the given flag.
-let inline (?=) (mask:NoteMask) (flag:NoteMask) = (mask &&& flag) <> NoteMask.None
+let inline (?=) (mask: NoteMask) (flag: NoteMask) = (mask &&& flag) <> NoteMask.None
 
 // Returns true if the SNG note is not a chord.
 let isNote (n: Note) = n.ChordId = -1
 
+/// Returns true if the chord template is a double stop.
+let isDoubleStop (template: XML.ChordTemplate) =
+    let mutable notes = 0
+
+    for i = 0 to template.Frets.Length - 1 do
+        if template.Frets.[i] <> -1y then notes <- notes + 1
+
+    notes = 2
+
 /// Maps an array into a ResizeArray using the given map function.
-let mapToResizeArray map (array : 'a array) =
+let mapToResizeArray map (array: 'a array) =
     let ra = ResizeArray(array.Length)
     for i = 0 to array.Length - 1 do
         ra.Add(map array.[i])

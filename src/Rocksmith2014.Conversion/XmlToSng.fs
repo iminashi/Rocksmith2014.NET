@@ -80,7 +80,7 @@ let convertPhrase (xml: XML.InstrumentalArrangement) phraseId (xmlPhrase: XML.Ph
       Name = xmlPhrase.Name }
 
 /// Converts an XML PhraseProperty into an SNG PhraseExtraInfo.
-let convertPhraseExtraInfo (xml:XML.PhraseProperty) =
+let convertPhraseExtraInfo (xml: XML.PhraseProperty) =
     { PhraseId = xml.PhraseId
       Difficulty = xml.Difficulty
       Empty = xml.Empty
@@ -88,7 +88,7 @@ let convertPhraseExtraInfo (xml:XML.PhraseProperty) =
       Redundant = xml.Redundant }
 
 /// Converts an XML ChordTemplate into an SNG Chord.
-let convertChord (xml:XML.InstrumentalArrangement) (xmlChord:XML.ChordTemplate) =
+let convertChord (xml: XML.InstrumentalArrangement) (xmlChord: XML.ChordTemplate) =
     let mask =
         if xmlChord.IsArpeggio then
             ChordMask.Arpeggio
@@ -155,12 +155,12 @@ let convertSection (stringMasks: int8[][]) (xml: XML.InstrumentalArrangement) in
       EndPhraseIterationId = endPi
       StringMask = stringMasks.[index] }
 
+// Uninitialized values found in anchors that have no notes
+let [<Literal>] private UninitFirstNote = 3.4028234663852886e+38f
+let [<Literal>] private UninitLastNote = 1.1754943508222875e-38f
+
 /// Converts an XML Anchor into an SNG Anchor.
 let convertAnchor (notes: Note array) (noteTimes: int array) (level: XML.Level) (xml: XML.InstrumentalArrangement) index (xmlAnchor: XML.Anchor) =
-    // Uninitialized values found in anchors that have no notes
-    let uninitFirstNote = 3.4028234663852886e+38f
-    let uninitLastNote = 1.1754943508222875e-38f
-
     let startTime = msToSec xmlAnchor.Time
     let endTime =
         if index = level.Anchors.Count - 1 then
@@ -177,7 +177,8 @@ let convertAnchor (notes: Note array) (noteTimes: int array) (level: XML.Level) 
 
     let firstNoteTime, lastNoteTime =
         match findFirstAndLastTime noteTimes xmlAnchor.Time endTime with
-        | None -> uninitFirstNote, uninitLastNote
+        | None ->
+            UninitFirstNote, UninitLastNote
         | Some (firstIndex, lastIndex) ->
             let firstNote = notes.[firstIndex]
             let lastNote = notes.[lastIndex]
@@ -230,11 +231,12 @@ let convertHandshape (noteTimes: int array) (entities: XmlEntity array) (xmlHs: 
 /// Creates a DNA from an XML event.
 let private eventToDNA (event: XML.Event) =
     match event.Code with
-    | "dna_none"  -> Some { DnaId = DNA.None; Time = msToSec event.Time }
-    | "dna_solo"  -> Some { DnaId = DNA.Solo; Time = msToSec event.Time }
-    | "dna_riff"  -> Some { DnaId = DNA.Riff; Time = msToSec event.Time }
-    | "dna_chord" -> Some { DnaId = DNA.Chord; Time = msToSec event.Time }
+    | "dna_none"  -> Some DNA.None
+    | "dna_solo"  -> Some DNA.Solo
+    | "dna_riff"  -> Some DNA.Riff
+    | "dna_chord" -> Some DNA.Chord
     | _ -> None
+    |> Option.map (fun id -> { DnaId = id; Time = msToSec event.Time })
 
 /// Creates DNAs for the XML arrangement.
 let createDNAs (xml: XML.InstrumentalArrangement) =

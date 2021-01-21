@@ -1,8 +1,8 @@
 ﻿namespace Rocksmith2014.Conversion
 
-open System.Collections.Generic
 open Rocksmith2014.SNG
 open Rocksmith2014
+open System.Collections.Generic
 open System.Threading
 
 /// The note count for each hero level and the number of ignored notes in the hard level.
@@ -46,10 +46,10 @@ type AccuData =
     
     /// Initializes a new AccuData object.
     static member Init(arr: XML.InstrumentalArrangement) =
-        { StringMasks = Array.init (arr.Sections.Count) (fun _ -> Array.zeroCreate 36)
+        { StringMasks = Array.init arr.Sections.Count (fun _ -> Array.zeroCreate 36)
           ChordNotes = ResizeArray()
-          AnchorExtensions = Array.init arr.Levels.Count (fun _ -> ResizeArray())
           ChordNotesMap = Dictionary()
-          NotesInPhraseIterationsExclIgnored = Array.init arr.Levels.Count (fun _ -> Array.zeroCreate (arr.PhraseIterations.Count))
-          NotesInPhraseIterationsAll = Array.init arr.Levels.Count (fun _ -> Array.zeroCreate (arr.PhraseIterations.Count))
+          AnchorExtensions = Array.init arr.Levels.Count (fun _ -> ResizeArray())
+          NotesInPhraseIterationsExclIgnored = Array.init arr.Levels.Count (fun _ -> Array.zeroCreate arr.PhraseIterations.Count)
+          NotesInPhraseIterationsAll = Array.init arr.Levels.Count (fun _ -> Array.zeroCreate arr.PhraseIterations.Count)
           NoteCounts = NoteCountsMutable() }
