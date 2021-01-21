@@ -45,7 +45,7 @@ let arrangement =
 
             | Vocals v ->
                 let name = Arrangement.getHumanizedName arr
-                let  color =
+                let color =
                     if v.Japanese then
                         Brushes.jvocals
                     else

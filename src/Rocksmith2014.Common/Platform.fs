@@ -2,19 +2,16 @@
 
 type Platform = PC | Mac
 
-[<RequireQualifiedAccess>]
 module Platform =
-    type Path =
-    | Audio = 0
-    | SNG = 1
-    | PackageSuffix = 2
+    [<RequireQualifiedAccess>]
+    type Path = Audio | SNG | PackageSuffix
 
-    let private pathsPC = [| "windows"; "generic"; "_p" |]
-    let private pathsMac = [| "mac"; "macos"; "_m" |]
-
-    /// Returns a platform-specific string for the given path.
-    let getPath platform (path: Path) =
-        let index = LanguagePrimitives.EnumToValue path
-        match platform with
-        | PC -> pathsPC.[index]
-        | Mac -> pathsMac.[index]
+    /// Returns a platform-specific string for the given path type.
+    let getPathPart platform path =
+        match platform, path with
+        | PC, Path.Audio -> "windows"
+        | PC, Path.SNG   -> "generic"
+        | PC, Path.PackageSuffix -> "_p"
+        | Mac, Path.Audio -> "mac"
+        | Mac, Path.SNG   -> "macos"
+        | Mac, Path.PackageSuffix -> "_m"

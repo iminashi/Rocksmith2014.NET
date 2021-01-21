@@ -70,17 +70,20 @@ let importTonesFromPSARC (psarcPath: string) = async {
         |> Array.concat
         |> Array.distinctBy (fun x -> x.Key) }
 
+/// Creates the path for the preview audio from the main audio path.
 let previewPathFromMainAudio (audioPath: string) =
     let dir = Path.GetDirectoryName audioPath
     let fn = Path.GetFileNameWithoutExtension audioPath
     let ext = Path.GetExtension audioPath
     Path.Combine(dir, $"{fn}_preview{ext}")
 
+/// Maps the result of Dictionary.TryGetValue into an option.
 let tryGetValue (dict: IDictionary<_,_>) key =
     match dict.TryGetValue key with
     | true, value -> Some value
     | false, _ -> None
 
+/// Removes an option from the list if it is Some.
 let removeSelected list = function
     | None -> list
     | Some selected -> List.remove selected list

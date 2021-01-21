@@ -3,6 +3,7 @@
 open System
 open System.IO
 open Rocksmith2014.Common
+open Rocksmith2014.Common.Platform
 
 type GraphItem =
     { UUID: Guid
@@ -43,7 +44,7 @@ module GraphItem =
 
     /// Creates a graph item for an SNG file.
     let sng name platform =
-        let canonical = $"/songs/bin/{Platform.getPath platform Platform.Path.SNG}"
+        let canonical = $"/songs/bin/{getPathPart platform Path.SNG}"
         let rp = $"{canonical}/{name}.sng"
         let lp = $"/songs/bin/{name}.sng" |> Some
         make name canonical [ Tag.Application; Tag.MusicgameSong; if platform = Mac then Tag.MacOS ] rp lp
@@ -53,7 +54,7 @@ module GraphItem =
     
     /// Creates a graph item for a BNK file.
     let bnk name platform =
-        let canonical = $"/audio/{Platform.getPath platform Platform.Path.Audio}"
+        let canonical = $"/audio/{getPathPart platform Path.Audio}"
         let rp = $"{canonical}/{name}.bnk"
         let lp = $"/audio/{name}.bnk" |> Some
         make name canonical [ Tag.Audio; Tag.WwiseSoundBank; getPlatformTag platform ] rp lp

@@ -1,6 +1,7 @@
 ﻿module Rocksmith2014.DLCProject.PackageBuilder
 
 open Rocksmith2014.Common
+open Rocksmith2014.Common.Platform
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject.Manifest.AttributesCreation
 open Rocksmith2014.XML
@@ -78,7 +79,7 @@ let private build (buildData: BuildData) targetFile project platform = async {
             do! SNG.savePacked data platform sng
             let name =
                 let part = partition arr |> snd
-                let path = Platform.getPath platform Platform.Path.SNG
+                let path = getPathPart platform Path.SNG
                 $"songs/bin/{path}/{key}_{part}.sng"
             return entry name data })
         |> Async.Parallel
@@ -140,7 +141,7 @@ let private build (buildData: BuildData) targetFile project platform = async {
             let audio = readFile filePath
             let bankName = if isPreview then project.DLCKey + "_Preview" else project.DLCKey
             let audioName = SoundBank.generate bankName audio bankData (float32 audioFile.Volume) isPreview platform
-            let path = Platform.getPath platform Platform.Path.Audio
+            let path = getPathPart platform Path.Audio
             let suffix = if isPreview then "_preview" else ""
             [ entry $"audio/{path}/song_{key}{suffix}.bnk" bankData
               entry $"audio/{path}/{audioName}.wem" audio ]
@@ -149,7 +150,7 @@ let private build (buildData: BuildData) targetFile project platform = async {
         |> List.append (createEntries project.AudioPreviewFile true)
         |> toDisposableList
 
-    let targetPath = sprintf "%s%s.psarc" targetFile (Platform.getPath platform Platform.Path.PackageSuffix)
+    let targetPath = sprintf "%s%s.psarc" targetFile (getPathPart platform Path.PackageSuffix)
 
     do! PSARC.Create(targetPath, true, [
         yield! sngEntries.Items
