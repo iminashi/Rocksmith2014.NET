@@ -8,11 +8,11 @@ open System
 type Overrides() =
     static member Float32() =
         Arb.Default.Float32()
-        |> Arb.filter (fun f -> not <| System.Single.IsNaN(f))
+        |> Arb.filter (Single.IsNaN >> not)
 
     static member Float() =
         Arb.Default.Float()
-        |> Arb.filter (fun f -> not <| System.Double.IsNaN(f))
+        |> Arb.filter (Double.IsNaN >> not)
 
 module Custom =
     type UInt24 = UInt24 of uint32

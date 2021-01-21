@@ -57,13 +57,13 @@ type LittleEndianBinaryWriter(stream: Stream) =
         member _.WriteSingle(value) =
             let length = 4
             let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
-            BinaryPrimitives.WriteInt32LittleEndian(Span<byte>(buffer, length), BitConverter.SingleToInt32Bits(value))
+            BinaryPrimitives.WriteInt32LittleEndian(Span<byte>(buffer, length), BitConverter.SingleToInt32Bits value)
             stream.Write(ReadOnlySpan(buffer, length))
 
         member _.WriteDouble(value) =
             let length = 8
             let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
-            BinaryPrimitives.WriteInt64LittleEndian(Span<byte>(buffer, length), BitConverter.DoubleToInt64Bits(value))
+            BinaryPrimitives.WriteInt64LittleEndian(Span<byte>(buffer, length), BitConverter.DoubleToInt64Bits value)
             stream.Write(ReadOnlySpan(buffer, length))
 
         member _.WriteBytes(value) = stream.Write(ReadOnlySpan(value))

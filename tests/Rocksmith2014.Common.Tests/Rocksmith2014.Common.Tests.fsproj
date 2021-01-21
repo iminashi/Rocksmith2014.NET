@@ -8,11 +8,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="test.tone2014.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Compile Include="ExtensionTests.fs" />
     <Compile Include="Generators.fs" />
     <Compile Include="BigEndianBinaryReadWrite.fs" />
     <Compile Include="LittleEndianBinaryReadWrite.fs" />
     <Compile Include="SlowStreamTests.fs" />
+    <Compile Include="ToneTests.fs" />
     <Compile Include="ToneDescriptorTests.fs" />
     <Compile Include="PlatformTests.fs" />
     <Compile Include="Program.fs" />

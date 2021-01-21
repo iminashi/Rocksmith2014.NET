@@ -53,6 +53,8 @@ type Tone =
         sprintf "%s%s%s" this.Name key description
 
 module Tone =
+    let [<Literal>] private ArrayNs = "http://schemas.microsoft.com/2003/10/Serialization/Arrays"
+
     let private getPedal (ns: string option) (gearList: XmlElement) (name: string) =
         let node =
             match ns with
@@ -60,7 +62,8 @@ module Tone =
             | None -> fun (xel: XmlElement) name -> xel.Item name
 
         let pedal = node gearList name
-        if pedal.IsEmpty then Unchecked.defaultof<Pedal>
+        if pedal.IsEmpty then
+            Unchecked.defaultof<Pedal>
         else
             let cat = node pedal "Category"
             let skin = node pedal "Skin"
@@ -70,8 +73,8 @@ module Tone =
             (node pedal "KnobValues").ChildNodes
             |> Seq.cast<XmlNode>
             |> Seq.iter (fun knob ->
-                let key = knob.Item("Key", "http://schemas.microsoft.com/2003/10/Serialization/Arrays").InnerText
-                let value = knob.Item("Value", "http://schemas.microsoft.com/2003/10/Serialization/Arrays").InnerText
+                let key = knob.Item("Key", ArrayNs).InnerText
+                let value = knob.Item("Value", ArrayNs).InnerText
                 knobValues.Add(key, float32 value))
 
             Pedal(Category = (if cat.IsEmpty then null else cat.InnerText),
@@ -111,17 +114,18 @@ module Tone =
             match ns with
             | Some ns -> fun name -> xmlNode.Item(name, ns)
             | None -> fun name -> xmlNode.Item name
+        let nodeText name = (node name).InnerText
 
         let macVol = node "MacVolume"
 
         { GearList = getGearList ns (node "GearList")
           ToneDescriptors = getDescriptors (node "ToneDescriptors")
-          NameSeparator = (node "NameSeparator").InnerText
-          IsCustom = Boolean.Parse((node "IsCustom").InnerText) |> Nullable
-          Volume = (node "Volume").InnerText
+          NameSeparator = nodeText "NameSeparator"
+          IsCustom = Boolean.Parse(nodeText "IsCustom") |> Nullable
+          Volume = nodeText "Volume"
           MacVolume = if isNull macVol then null else macVol.InnerText
-          Key = (node "Key").InnerText
-          Name = (node "Name").InnerText
+          Key = nodeText "Key"
+          Name = nodeText "Name"
           // Sort order is not needed
           SortOrder = Nullable() }
 
