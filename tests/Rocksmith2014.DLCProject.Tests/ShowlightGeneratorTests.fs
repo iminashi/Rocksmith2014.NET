@@ -28,14 +28,13 @@ let showlights =
     ShowLights.Load "sl_test.xml"
 
 [<Tests>]
-let someTests =
-  testList "Showlight Generator Tests" [
-
-    test "Fog and beam notes are generated" {
-        Expect.exists showlights (fun x -> (x.Note >= ShowLight.BeamMin && x.Note <= ShowLight.BeamMax) || x.Note = ShowLight.BeamOff) "Beam note exists."
-        Expect.exists showlights (fun x -> x.Note >= ShowLight.FogMin && x.Note <= ShowLight.FogMax) "Fog note exists." }
-
-    test "Laser light notes are generated" {
-        Expect.exists showlights (fun x -> x.Note = ShowLight.LasersOn) "Lasers on note exists."
-        Expect.exists showlights (fun x -> x.Note = ShowLight.LasersOff) "Lasers off note exists." }
-    ]
+let showlightGeneratorTests =
+    testList "Showlight Generator Tests" [
+        test "Fog and beam notes are generated" {
+            Expect.exists showlights (fun x -> (x.Note >= ShowLight.BeamMin && x.Note <= ShowLight.BeamMax) || x.Note = ShowLight.BeamOff) "Beam note exists."
+            Expect.exists showlights (fun x -> x.Note >= ShowLight.FogMin && x.Note <= ShowLight.FogMax) "Fog note exists." }
+        
+        test "Laser light notes are generated" {
+            Expect.exists showlights (fun x -> x.Note = ShowLight.LasersOn) "Lasers on note exists."
+            Expect.exists showlights (fun x -> x.Note = ShowLight.LasersOff) "Lasers off note exists." }
+        ]
