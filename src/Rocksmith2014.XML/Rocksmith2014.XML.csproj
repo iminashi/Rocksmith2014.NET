@@ -4,15 +4,16 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
-    <AssemblyVersion>1.0.2.0</AssemblyVersion>
-    <FileVersion>1.0.2.0</FileVersion>
+    <Platforms>AnyCPU;x64</Platforms>
+    <AssemblyVersion>1.0.3.0</AssemblyVersion>
+    <FileVersion>1.0.3.0</FileVersion>
     <Company></Company>
     <Authors>Tapio Malmberg</Authors>
     <Copyright>Copyright © 2021</Copyright>
-    <Version>1.0.2</Version>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Version>1.0.3</Version>
     <Description>A library for reading, modifying and writing Rocksmith 2014 XML files.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/iminashi/Rocksmith2014.NET</PackageProjectUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
