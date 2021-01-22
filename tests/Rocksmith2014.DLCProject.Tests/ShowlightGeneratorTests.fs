@@ -19,7 +19,8 @@ let testLead =
       ScrollSpeed = 1.3
       BassPicked = false
       MasterID = 12345
-      PersistentID = Guid.NewGuid() }
+      PersistentID = Guid.NewGuid()
+      CustomAudio = None }
 
 let showlights =
     let sng = SNG.readPackedFile "Tech_Test.sng" PC |> Async.RunSynchronously

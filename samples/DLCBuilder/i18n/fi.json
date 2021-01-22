@@ -201,5 +201,6 @@
   "findSimilarPhrases": "Etsi samanlaiset fraasit",
   "similarityThreshold": "Samuuskynnys",
   "applyImprovements": "Käytä parannuksia",
-  "saveDebugFiles": "Luo debug tiedostoja"
+  "saveDebugFiles": "Luo debug tiedostoja",
+  "customAudioFile": "Eri äänitiedosto"
 }

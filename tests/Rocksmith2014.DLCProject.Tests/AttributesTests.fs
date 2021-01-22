@@ -24,7 +24,8 @@ let testLead =
       ScrollSpeed = 1.3
       BassPicked = false
       MasterID = 12345
-      PersistentID = Guid.NewGuid() }
+      PersistentID = Guid.NewGuid()
+      CustomAudio = None }
 
 let testVocals =
     { XML = "vocals.xml"
@@ -150,6 +151,15 @@ let attributeTests =
             Expect.equal attr.PreviewBankPath "song_sometest_preview.bnk" "PreviewBankPath is correct"
             Expect.equal attr.SongBank "song_sometest.bnk" "SongBank is correct"
             Expect.equal attr.SongEvent "Play_SomeTest" "SongEvent is correct"
+
+        testCase "Various attributes are correct (Instrumental with custom audio)" <| fun _ ->
+            let testArr = { testLead with CustomAudio = Some { Path = "Test.wem"; Volume = 0. } }
+            let testProject = { testProject with Arrangements = [ Instrumental testArr ] }
+            let attr = createAttributes testProject (FromInstrumental (testArr, testSng))
+        
+            Expect.equal attr.PreviewBankPath "song_sometest_preview.bnk" "PreviewBankPath is correct"
+            Expect.equal attr.SongBank "song_sometest_lead.bnk" "SongBank is correct"
+            Expect.equal attr.SongEvent "Play_SomeTest_lead" "SongEvent is correct"
         
         testCase "Various attributes are correct (Vocals)" <| fun _ ->
             let project = { testProject with Arrangements = [ Vocals testVocals ] }

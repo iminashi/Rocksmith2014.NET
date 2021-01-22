@@ -24,6 +24,8 @@ type ArrangementPriority =
     | Alternative = 1
     | Bonus = 2
 
+type AudioFile = { Path : string; Volume : float }
+
 type Instrumental =
     { XML : string
       Name : ArrangementName
@@ -35,6 +37,7 @@ type Instrumental =
       TuningPitch : double
       BaseTone : string
       Tones : string list
+      CustomAudio : AudioFile option
       MasterID : int
       PersistentID : Guid }
 
@@ -161,7 +164,8 @@ module Arrangement =
                       Tones = tones
                       BassPicked = metadata.ArrangementProperties.BassPick
                       MasterID = RandomGenerator.next()
-                      PersistentID = Guid.NewGuid() }
+                      PersistentID = Guid.NewGuid()
+                      CustomAudio = None }
                     |> Arrangement.Instrumental
                 Ok (arr, Some metadata)
     

@@ -311,8 +311,13 @@ let private initAttributesCommon name dlcKey levels (project: DLCProject) (arran
     attr.RelativeDifficulty <- 0 // Always zero
     attr.ShowlightsXML <- $"urn:application:xml:{dlcKey}_showlights"
     attr.SongAsset <- $"urn:application:musicgame-song:%s{dlcKey}_%s{name}"
-    attr.SongBank <- $"song_{dlcKey}.bnk"
-    attr.SongEvent <- $"Play_{project.DLCKey}"
+    match arrangement with
+    | Instrumental { CustomAudio = Some _ } ->
+        attr.SongBank <- $"song_{dlcKey}_{name}.bnk"
+        attr.SongEvent <- $"Play_{project.DLCKey}_{name}"
+    | _ ->
+        attr.SongBank <- $"song_{dlcKey}.bnk"
+        attr.SongEvent <- $"Play_{project.DLCKey}"
     attr.SongXml <- $"urn:application:xml:{dlcKey}_{name}"
 
     attr

@@ -202,7 +202,8 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                   ScrollSpeed = 1.3
                   BassPicked = false
                   MasterID = 12345
-                  PersistentID = Guid.NewGuid() }
+                  PersistentID = Guid.NewGuid()
+                  CustomAudio = None }
 
             let project = { project with Arrangements = [ Instrumental arrangement ] }
 

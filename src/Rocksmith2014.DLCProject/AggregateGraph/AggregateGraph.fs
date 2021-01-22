@@ -33,6 +33,12 @@ let create (platform: Platform) (project: DLCProject) =
                 yield GraphItem.normal name canonical "json" [ Tag.Database; Tag.JsonDB ]
                 yield GraphItem.sng name platform
 
+                // Custom audio file
+                match arrangement with
+                | Instrumental { CustomAudio = Some _ } ->
+                    yield GraphItem.bnk $"song_{name}" platform
+                | _ -> ()
+
         let name = $"songs_dlc_{dlcName}"
         let canonical = $"/manifests/songs_dlc_{dlcName}"
         yield GraphItem.normal name canonical "hsan" [ Tag.Database; Tag.HsanDB ]

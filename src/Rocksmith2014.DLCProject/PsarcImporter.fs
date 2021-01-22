@@ -87,7 +87,9 @@ let private importInstrumental targetFile (attributes: Attributes) sng =
       Tones = tones
       BassPicked = bassPicked
       MasterID = attributes.MasterID_RDV
-      PersistentID = Guid.Parse(attributes.PersistentID) }
+      PersistentID = Guid.Parse(attributes.PersistentID)
+      // TODO: Handle import of custom audio
+      CustomAudio = None }
     |> Arrangement.Instrumental
 
 /// Imports a PSARC from the given path into a DLCProject with the project created in the target directory.

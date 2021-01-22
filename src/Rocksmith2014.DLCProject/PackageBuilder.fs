@@ -130,8 +130,17 @@ let private build (buildData: BuildData) targetFile project platform = async {
     // Wait for the wem conversion to complete, if necessary
     do! buildData.AudioConversionTask
 
+    let customAudio =
+        project.Arrangements
+        |> List.choose (function
+            | Instrumental { CustomAudio = Some audioFile } as i ->
+                // TODO: Using main audio file volume
+                Some (partition i |> snd, { audioFile with Volume = project.AudioFile.Volume })
+            | _ ->
+                None) 
+
     use audioEntries =
-        let createEntries (audioFile: AudioFile) isPreview =
+        let createEntries (audioFile: AudioFile) name isPreview =
             let filePath =
                 if String.endsWith ".wem" audioFile.Path then
                     audioFile.Path
@@ -139,15 +148,16 @@ let private build (buildData: BuildData) targetFile project platform = async {
                     Path.ChangeExtension(audioFile.Path, "wem")
             let bankData = MemoryStreamPool.Default.GetStream()
             let audio = readFile filePath
-            let bankName = if isPreview then project.DLCKey + "_Preview" else project.DLCKey
+            let bankName = if isPreview then name + "_Preview" else name
             let audioName = SoundBank.generate bankName audio bankData (float32 audioFile.Volume) isPreview platform
             let path = getPathPart platform Path.Audio
             let suffix = if isPreview then "_preview" else ""
-            [ entry $"audio/{path}/song_{key}{suffix}.bnk" bankData
+            [ entry $"audio/{path}/song_{name.ToLowerInvariant()}{suffix}.bnk" bankData
               entry $"audio/{path}/{audioName}.wem" audio ]
 
-        createEntries project.AudioFile false
-        |> List.append (createEntries project.AudioPreviewFile true)
+        createEntries project.AudioFile project.DLCKey false
+        |> List.append (customAudio |> List.collect (fun (name, audio) -> createEntries audio $"{project.DLCKey}_{name}" false))
+        |> List.append (createEntries project.AudioPreviewFile project.DLCKey true)
         |> toDisposableList
 
     let targetPath = sprintf "%s%s.psarc" targetFile (getPathPart platform Path.PackageSuffix)

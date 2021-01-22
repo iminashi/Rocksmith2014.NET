@@ -26,7 +26,8 @@ let lead =
       ScrollSpeed = 1.3
       BassPicked = false
       MasterID = 987654
-      PersistentID = Guid.NewGuid() }
+      PersistentID = Guid.NewGuid()
+      CustomAudio = None }
 
 let testProject =
     { Version = "1.0"
@@ -78,6 +79,14 @@ let xblockTests =
             Expect.exists entitySet.[1].Properties (propertyEqual "Manifest" "urn:database:json-db:sometest_lead") "Lead entity manifest property is correct"
             Expect.exists entitySet.[1].Properties (propertyEqual "SngAsset" "urn:application:musicgame-song:sometest_lead") "Lead entity SNG asset property is correct"
             Expect.exists entitySet.[1].Properties (propertyEqual "LyricArt" "") "Lead entity lyric art property is empty" }
+
+        test "Custom audio entity is correct" {
+            let testArr = { lead with CustomAudio = Some { Path = "Test.wem"; Volume = 0. } }
+            let testProject = { testProject with Arrangements = [ Instrumental testArr ] }
+            let x = XBlock.create PC testProject
+            let entitySet = x.EntitySet
+        
+            Expect.all entitySet (hasProperty "SoundBank" "urn:audio:wwise-sound-bank:song_sometest_lead") "Contains sound bank property with correct URN" }
         
         test "Can be serialized" {
             let set = { Value = "urn:database:hsan-db:songs_dlc_test" }

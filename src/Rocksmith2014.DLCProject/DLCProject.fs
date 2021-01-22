@@ -7,8 +7,6 @@ open System.IO
 open System.Text.Json
 open System.Text.Json.Serialization
 
-type AudioFile = { Path : string; Volume : float }
-
 type DLCProject =
     { Version : string
       DLCKey : string
@@ -52,9 +50,14 @@ module DLCProject =
         let arrangements =
             project.Arrangements
             |> List.map (function
-                | Instrumental i -> Instrumental { i with XML = abs i.XML }
-                | Vocals v -> Vocals { v with XML = abs v.XML; CustomFont = Option.map abs v.CustomFont }
-                | Showlights s -> Showlights { s with XML = abs s.XML })
+                | Instrumental i ->
+                    Instrumental { i with XML = abs i.XML
+                                          CustomAudio = Option.map (fun x -> { x with Path = abs x.Path }) i.CustomAudio }
+                | Vocals v ->
+                    Vocals { v with XML = abs v.XML
+                                    CustomFont = Option.map abs v.CustomFont }
+                | Showlights s ->
+                    Showlights { s with XML = abs s.XML })
 
         { project with Arrangements = arrangements
                        AlbumArtFile = abs project.AlbumArtFile
@@ -73,9 +76,14 @@ module DLCProject =
         let arrangements =
             project.Arrangements
             |> List.map (function
-                | Instrumental i -> Instrumental { i with XML = rel i.XML }
-                | Vocals v -> Vocals { v with XML = rel v.XML; CustomFont = Option.map rel v.CustomFont }
-                | Showlights s -> Showlights { s with XML = rel s.XML })
+                | Instrumental i ->
+                    Instrumental { i with XML = rel i.XML
+                                          CustomAudio = Option.map (fun x -> { x with Path = rel x.Path }) i.CustomAudio }
+                | Vocals v ->
+                    Vocals { v with XML = rel v.XML
+                                    CustomFont = Option.map rel v.CustomFont }
+                | Showlights s ->
+                    Showlights { s with XML = rel s.XML })
 
         { project with Arrangements = arrangements
                        AlbumArtFile = rel project.AlbumArtFile

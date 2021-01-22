@@ -201,5 +201,6 @@
   "findSimilarPhrases": "Find Similar Phrases",
   "similarityThreshold": "Similarity Threshold",
   "applyImprovements": "Apply Improvements",
-  "saveDebugFiles": "Save Debug Files"
+  "saveDebugFiles": "Save Debug Files",
+  "customAudioFile": "Custom Audio File"
 }

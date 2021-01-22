@@ -76,7 +76,8 @@ let private importInstrumental (xmlFile: string) (arr: XmlNode) =
       BaseTone = itemText arr "ToneBase"
       Tones = tones
       MasterID = int (itemText arr "MasterId")
-      PersistentID = Guid.Parse(itemText arr "Id") }
+      PersistentID = Guid.Parse(itemText arr "Id")
+      CustomAudio = None }
     |> Instrumental
 
 /// Imports a vocals arrangement.
