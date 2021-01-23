@@ -15,8 +15,9 @@ let private toMidiNote (sng: SNG) (note: Note) =
         if note.ChordId = -1 then
             Midi.toMidiNote (int note.StringIndex) note.FretId sng.MetaData.Tuning sng.MetaData.CapoFretId false
         else
-            sng.Chords.[note.ChordId].Notes
-            |> Array.find ((>) 0)
+            match sng.Chords.[note.ChordId].Notes |> Array.tryFind (fun x -> x > 0) with
+            | Some n -> n
+            | None -> 0
     { Time = note.Time; Note = mn }
 
 /// Creates MIDI notes of all the notes in the highest difficulty level.
