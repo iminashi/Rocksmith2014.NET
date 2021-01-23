@@ -12,7 +12,6 @@ On Windows the program will try to find the Wwise installation automatically usi
 
 ## Missing Features
 
-- Wem to ogg conversion when importing a PSARC
-- Calculating audio volumes automatically
+- Wem to ogg/wav conversion when importing a PSARC
 - Tone editing / Exporting tones
 - Support for console platforms (Most likely will not be added)
