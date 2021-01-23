@@ -202,5 +202,6 @@
   "similarityThreshold": "Samuuskynnys",
   "applyImprovements": "Käytä parannuksia",
   "saveDebugFiles": "Luo debug tiedostoja",
-  "customAudioFile": "Eri äänitiedosto"
+  "customAudioFile": "Eri äänitiedosto",
+  "calculateVolumes": "Laske äänenvoimakkuudet"
 }

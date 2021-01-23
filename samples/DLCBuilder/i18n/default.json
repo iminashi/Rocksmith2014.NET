@@ -202,5 +202,6 @@
   "similarityThreshold": "Similarity Threshold",
   "applyImprovements": "Apply Improvements",
   "saveDebugFiles": "Save Debug Files",
-  "customAudioFile": "Custom Audio File"
+  "customAudioFile": "Custom Audio File",
+  "calculateVolumes": "Calculate Volumes"
 }

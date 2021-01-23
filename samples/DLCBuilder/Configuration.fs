@@ -17,6 +17,7 @@ type Configuration =
       DDPhraseSearchThreshold : int
       ApplyImprovements : bool
       SaveDebugFiles : bool
+      AutoVolume : bool
       Locale : Locale
       WwiseConsolePath : string option
       CustomAppId : string option }
@@ -33,6 +34,7 @@ type Configuration =
           DDPhraseSearchThreshold = 80
           ApplyImprovements = true
           SaveDebugFiles = false
+          AutoVolume = true
           Locale = Locales.English
           WwiseConsolePath = None
           CustomAppId = None }
@@ -51,6 +53,7 @@ module Configuration =
         member val DDPhraseSearchThreshold : int = 80 with get, set
         member val ApplyImprovements : bool = true with get, set
         member val SaveDebugFiles : bool = false with get, set
+        member val AutoVolume : bool = true with get, set
         member val Locale : string = "en" with get, set
         member val WwiseConsolePath : string = String.Empty with get, set
         member val CustomAppId : string = String.Empty with get, set
@@ -83,6 +86,7 @@ module Configuration =
           DDPhraseSearchThreshold = threshold
           ApplyImprovements = dto.ApplyImprovements
           SaveDebugFiles = dto.SaveDebugFiles
+          AutoVolume = dto.AutoVolume
           Locale = Locales.fromShortName dto.Locale
           WwiseConsolePath = Option.ofString dto.WwiseConsolePath
           CustomAppId = Option.ofString dto.CustomAppId }
@@ -101,6 +105,7 @@ module Configuration =
             DDPhraseSearchEnabled = config.DDPhraseSearchEnabled,
             DDPhraseSearchThreshold = config.DDPhraseSearchThreshold,
             ApplyImprovements = config.ApplyImprovements,
+            AutoVolume = config.AutoVolume,
             SaveDebugFiles = config.SaveDebugFiles,
             WwiseConsolePath = Option.toObj config.WwiseConsolePath,
             CustomAppId = Option.toObj config.CustomAppId)

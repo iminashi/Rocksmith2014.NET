@@ -3,6 +3,7 @@
 open Rocksmith2014.Common
 open System
 open System.IO
+open System.Buffers
 open NAudio.Wave
 
 let [<Literal>] FadeIn = 2500<ms>
@@ -36,3 +37,26 @@ let createPreview (sourceFile: string) (startOffset: TimeSpan) =
     let preview = fade FadeIn FadeOut PreviewLength previewSection
     WaveFileWriter.CreateWaveFile16(targetFile, preview)
     targetFile
+
+let [<Literal>] private BufferSize = 50_000
+
+/// Calculates a volume value using BS.1770 integrated loudness with -16 as reference value.
+let calculateVolume (fileName: string) =
+    use audio = getAudioReader fileName
+    let lufsMeter = LufsMeter(float audio.WaveFormat.SampleRate, audio.WaveFormat.Channels)
+    let buffer = ArrayPool<float32>.Shared.Rent(BufferSize)
+    let channels = audio.WaveFormat.Channels
+
+    while audio.Position < audio.Length do
+        let samplesRead = audio.Read(buffer, 0, BufferSize)
+        if samplesRead > 0 then
+            let perChannel = samplesRead / channels
+            let calcBuffer = Array.init<float[]> channels (fun _ -> Array.zeroCreate perChannel)
+            for pos = 0 to perChannel - 1 do
+                for ch = 0 to channels - 1 do
+                    calcBuffer.[ch].[pos] <- float buffer.[pos * channels + ch]
+
+            lufsMeter.ProcessBuffer calcBuffer
+
+    ArrayPool.Shared.Return buffer
+    Math.Round(-1. * (16. + lufsMeter.GetIntegratedLoudness()), 1)

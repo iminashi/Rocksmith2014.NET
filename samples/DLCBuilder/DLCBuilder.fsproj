@@ -29,6 +29,8 @@
     <EmbeddedResource Include="i18n\fi.json" />
     <EmbeddedResource Include="i18n\default.json" />
     <Compile Include="Audio\Types.fs" />
+    <Compile Include="Audio\SecondOrderIIRFilter.fs" />
+    <Compile Include="Audio\LufsMeter.fs" />
     <Compile Include="Audio\AudioFader.fs" />
     <Compile Include="Audio\Audio.fs" />
     <Page Include="Styles.xaml">
@@ -94,6 +96,8 @@
   <ItemGroup>
     <Watch Remove="Audio\Audio.fs" />
     <Watch Remove="Audio\AudioFader.fs" />
+    <Watch Remove="Audio\LufsMeter.fs" />
+    <Watch Remove="Audio\SecondOrderIIRFilter.fs" />
     <Watch Remove="Audio\Types.fs" />
     <Watch Remove="BuildValidator.fs" />
     <Watch Remove="Configuration.fs" />

@@ -215,9 +215,26 @@ let view state dispatch =
 
                             Button.create [
                                 DockPanel.dock Dock.Right
+                                Button.content "vol"
+                                Button.margin (0.0, 4.0, 4.0, 4.0)
+                                Button.isEnabled (
+                                    not state.BuildInProgress
+                                    && String.endsWith "wav" state.Project.AudioFile.Path
+                                    && state.VolumeCalculationInProgress.IsEmpty)
+                                Button.onClick ((fun _ ->
+                                    dispatch (CalculateVolume MainAudio)
+                                    let previewPath = state.Project.AudioPreviewFile.Path
+                                    if IO.File.Exists previewPath && String.endsWith "wav" previewPath then
+                                        dispatch (CalculateVolume PreviewAudio)
+                                    ), SubPatchOptions.OnChangeOf state.Project.AudioPreviewFile)
+                            ]
+
+                            Button.create [
+                                DockPanel.dock Dock.Right
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
                                 Button.padding (10.0, 0.0)
                                 Button.content "..."
+                                Button.isEnabled state.VolumeCalculationInProgress.IsEmpty
                                 Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, SetAudioFile)))
                                 ToolTip.tip (state.Localization.GetString "selectAudioFile")
                             ]
@@ -252,6 +269,7 @@ let view state dispatch =
                         NumericUpDown.increment 0.5
                         NumericUpDown.value state.Project.AudioFile.Volume
                         NumericUpDown.formatString "F1"
+                        NumericUpDown.isEnabled (not <| state.VolumeCalculationInProgress.Contains MainAudio)
                         NumericUpDown.onValueChanged (fun v ->
                             fun p -> { p with AudioFile = { p.AudioFile with Volume = v } }
                             |> EditProject
@@ -308,6 +326,7 @@ let view state dispatch =
                         NumericUpDown.increment 0.5
                         NumericUpDown.value state.Project.AudioPreviewFile.Volume
                         NumericUpDown.formatString "F1"
+                        NumericUpDown.isEnabled (not <| state.VolumeCalculationInProgress.Contains PreviewAudio)
                         NumericUpDown.onValueChanged (fun v ->
                             fun p -> { p with AudioPreviewFile = { p.AudioPreviewFile with Volume = v } }
                             |> EditProject

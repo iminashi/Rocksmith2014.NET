@@ -24,6 +24,8 @@ type PreviewAudioCreation =
 
 type MoveDirection = Up | Down
 
+type VolumeTarget = MainAudio | PreviewAudio
+
 type State =
     { Project : DLCProject
       SavedProject : DLCProject
@@ -41,6 +43,7 @@ type State =
       CurrentPlatform : Platform
       BuildInProgress : bool
       CheckInProgress : bool
+      VolumeCalculationInProgress : VolumeTarget Set
       ArrangementIssues : Map<string, ArrangementChecker.Issue list>
       Localization : ILocalization }
 
@@ -98,6 +101,8 @@ type Msg =
     | CheckArrangements
     | CheckCompleted of Map<string, ArrangementChecker.Issue list>
     | ConvertToWem
+    | CalculateVolume of target : VolumeTarget
+    | VolumeCalculated of volume : float * target : VolumeTarget
     | ShowImportToneSelector of tones : Tone array
     | ChangeLocale of locale : Locale
     | ErrorOccurred of e : exn

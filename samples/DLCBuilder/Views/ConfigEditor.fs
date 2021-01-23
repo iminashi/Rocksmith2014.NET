@@ -12,7 +12,7 @@ open DLCBuilder
 let private generalConfig state dispatch =
     Grid.create [
         Grid.columnDefinitions "*,2*"
-        Grid.rowDefinitions "*,*,*,*,*,*,*"
+        Grid.rowDefinitions "*,*,*,*,*,*,*,*"
         Grid.children [
             TextBlock.create [
                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -151,11 +151,31 @@ let private generalConfig state dispatch =
                 Grid.row 6
                 TextBlock.margin (0., 0., 4., 0.)
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (state.Localization.GetString "showAdvancedFeatures")
+                TextBlock.text (state.Localization.GetString "calculateVolumes")
             ]
             CheckBox.create [
                 Grid.column 1
                 Grid.row 6
+                CheckBox.isChecked state.Config.AutoVolume
+                CheckBox.onChecked (fun _ ->
+                    fun c -> { c with AutoVolume = true }
+                    |> EditConfig
+                    |> dispatch)
+                CheckBox.onUnchecked (fun _ ->
+                    fun c -> { c with AutoVolume = false }
+                    |> EditConfig
+                    |> dispatch)
+            ]
+
+            TextBlock.create [
+                Grid.row 7
+                TextBlock.margin (0., 0., 4., 0.)
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text (state.Localization.GetString "showAdvancedFeatures")
+            ]
+            CheckBox.create [
+                Grid.column 1
+                Grid.row 7
                 CheckBox.isChecked state.Config.ShowAdvanced
                 CheckBox.onChecked (fun _ ->
                     fun c -> { c with ShowAdvanced = true }

@@ -49,6 +49,7 @@ let init arg =
       PreviewStartTime = TimeSpan()
       BuildInProgress = false
       CheckInProgress = false
+      VolumeCalculationInProgress = Set.empty
       CurrentPlatform = if RuntimeInformation.IsOSPlatform OSPlatform.OSX then Mac else PC
       OpenProjectFile = None
       ArrangementIssues = Map.empty
@@ -250,8 +251,16 @@ let update (msg: Msg) (state: State) =
                 previewPath
             else
                 String.Empty
+        let cmd =
+            if state.Config.AutoVolume && String.endsWith ".wav" fileName then
+                [ Cmd.ofMsg (CalculateVolume MainAudio)
+                  if String.notEmpty previewPath then Cmd.ofMsg (CalculateVolume PreviewAudio) ]
+                |> Cmd.batch
+            else
+                Cmd.none
+
         let previewFile = { project.AudioPreviewFile with Path = previewPath }
-        { state with Project = { project with AudioFile = audioFile; AudioPreviewFile = previewFile } }, Cmd.none
+        { state with Project = { project with AudioFile = audioFile; AudioPreviewFile = previewFile } }, cmd
 
     | ConvertToWem ->
         if DLCProject.audioFilesExist project then
@@ -259,6 +268,24 @@ let update (msg: Msg) (state: State) =
             Cmd.OfAsync.either (Wwise.convertToWem state.Config.WwiseConsolePath) project.AudioFile BuildComplete ErrorOccurred
         else
             state, Cmd.none
+
+    | CalculateVolume target ->
+        let path =
+            match target with
+            | MainAudio -> project.AudioFile.Path
+            | PreviewAudio -> project.AudioPreviewFile.Path
+        let task () = async { return Audio.Tools.calculateVolume path }
+        { state with VolumeCalculationInProgress = state.VolumeCalculationInProgress |> Set.add target },
+        Cmd.OfAsync.either task () (fun v -> VolumeCalculated(v, target)) ErrorOccurred
+
+    | VolumeCalculated (volume, target) ->
+        let state =
+            match target with
+            | MainAudio ->
+                { state with Project = { project with AudioFile = { project.AudioFile with Volume = volume } } }
+            | PreviewAudio ->
+                { state with Project = { project with AudioPreviewFile = { project.AudioPreviewFile with Volume = volume } } }
+        { state with VolumeCalculationInProgress = state.VolumeCalculationInProgress |> Set.remove target }, Cmd.none
 
     | SetCoverArt fileName ->
         state.CoverArt.Dispose()
@@ -382,7 +409,12 @@ let update (msg: Msg) (state: State) =
 
     | CreatePreviewAudio (FileCreated previewPath) ->
         let previewFile = { project.AudioPreviewFile with Path = previewPath }
-        { state with Project = { project with AudioPreviewFile = previewFile } }, Cmd.none
+        let cmd =
+            if state.Config.AutoVolume then
+                Cmd.ofMsg (CalculateVolume PreviewAudio)
+            else
+                Cmd.none
+        { state with Project = { project with AudioPreviewFile = previewFile } }, cmd
 
     | ShowSortFields shown -> { state with ShowSortFields = shown }, Cmd.none
     
