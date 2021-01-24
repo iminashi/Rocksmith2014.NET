@@ -69,9 +69,6 @@ type LufsMeter(blockDuration, overlap, _shortTermDuration, sampleRate, numChanne
     new(sampleRate, numChannels) = LufsMeter(0.4, 0.75, 3., sampleRate, numChannels)
 
     member _.ProcessBuffer(buffer: float[][]) =
-        // Clone the buffer
-        //let buffer = Array.init buffer.Length (fun i -> Array.copy buffer.[i])
-
         // “K” frequency weighting
         preFilter.ProcessBuffer buffer
         highPassFilter.ProcessBuffer buffer

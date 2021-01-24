@@ -51,12 +51,10 @@ let calculateVolume (fileName: string) =
         let samplesRead = audio.Read(buffer, 0, BufferSize)
         if samplesRead > 0 then
             let perChannel = samplesRead / channels
-            let calcBuffer = Array.init<float[]> channels (fun _ -> Array.zeroCreate perChannel)
-            for pos = 0 to perChannel - 1 do
-                for ch = 0 to channels - 1 do
-                    calcBuffer.[ch].[pos] <- float buffer.[pos * channels + ch]
-
-            lufsMeter.ProcessBuffer calcBuffer
+            Array.init channels (fun ch ->
+                Array.init perChannel (fun pos -> float buffer.[pos * channels + ch])
+            )
+            |> lufsMeter.ProcessBuffer
 
     ArrayPool.Shared.Return buffer
     Math.Round(-1. * (16. + lufsMeter.GetIntegratedLoudness()), 1)

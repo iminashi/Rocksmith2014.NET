@@ -5,14 +5,6 @@
 type SecondOrderIIRFilter(b0At48k, b1At48k, b2At48k, a1At48k, a2At48k, sampleRate, numChannels) =
     let [<Literal>] SampleRate48k = 48_000.
 
-    let koverQ = (2. - 2. * a2At48k) / (a2At48k - a1At48k + 1.)
-    let k = sqrt ((a1At48k + a2At48k + 1.) / (a2At48k - a1At48k + 1.))
-    let q = k / koverQ
-    let arctanK = atan k
-    let vb = (b0At48k - b2At48k) / (1. - a2At48k)
-    let vh = (b0At48k - b1At48k + b2At48k) / (a2At48k - a1At48k + 1.)
-    let vl = (b0At48k + b1At48k + b2At48k) / (a1At48k + a2At48k + 1.)
-
     let mutable b0 = b0At48k
     let mutable b1 = b1At48k
     let mutable b2 = b2At48k
@@ -23,6 +15,14 @@ type SecondOrderIIRFilter(b0At48k, b1At48k, b2At48k, a1At48k, a2At48k, sampleRat
     let z2 = Array.zeroCreate<float> numChannels
 
     do if sampleRate <> SampleRate48k then
+        let koverQ = (2. - 2. * a2At48k) / (a2At48k - a1At48k + 1.)
+        let k = sqrt ((a1At48k + a2At48k + 1.) / (a2At48k - a1At48k + 1.))
+        let q = k / koverQ
+        let arctanK = atan k
+        let vb = (b0At48k - b2At48k) / (1. - a2At48k)
+        let vh = (b0At48k - b1At48k + b2At48k) / (a2At48k - a1At48k + 1.)
+        let vl = (b0At48k + b1At48k + b2At48k) / (a1At48k + a2At48k + 1.)
+
         let k = tan (arctanK * SampleRate48k / sampleRate)
         let commonFactor = 1. / (1. + k / q + k * k)
         b0 <- (vh + vb * k / q + vl * k * k) * commonFactor
@@ -32,12 +32,10 @@ type SecondOrderIIRFilter(b0At48k, b1At48k, b2At48k, a1At48k, a2At48k, sampleRat
         a2 <- (1. - k / q + k * k) * commonFactor
             
     member _.ProcessBuffer(buffer: float[][]) =
-        let numOfChannels = min numChannels buffer.Length
-
-        for channel = 0 to numOfChannels - 1 do
+        for channel = 0 to numChannels - 1 do
             let samples = buffer.[channel]
 
-            for i = 0 to buffer.[channel].Length - 1 do
+            for i = 0 to samples.Length - 1 do
                 let inVal = samples.[i]
 
                 let factorForB0 = inVal - a1 * z1.[channel] - a2 * z2.[channel]
