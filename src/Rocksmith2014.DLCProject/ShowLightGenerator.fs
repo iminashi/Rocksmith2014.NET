@@ -7,6 +7,7 @@ open Rocksmith2014.Conversion
 open System.Collections.Generic
 open System
 
+[<Struct>]
 type private MidiNote = { Time: float32; Note: int }
 
 let private toMs secs = int (secs * 1000.f)
@@ -14,36 +15,36 @@ let private toMs secs = int (secs * 1000.f)
 let private tryFindSoloSection =
     Array.tryFind (fun (x: Section) -> x.Name.StartsWith("solo", StringComparison.OrdinalIgnoreCase))
 
+let private isWithinPhraseIteration (pi: PhraseIteration) (note: Note) =
+    note.Time >= pi.StartTime && note.Time < pi.EndTime
+
+let private isBeam (x: ShowLight) = x.IsBeam()
+let private isFog (x: ShowLight) = x.IsFog()
+
 /// Creates a MIDI note from an SNG note.
 let private toMidiNote (sng: SNG) (note: Note) =
     let mn =
-        if note.ChordId = -1 then
+        match note.ChordId with
+        | -1 ->
             Midi.toMidiNote (int note.StringIndex) note.FretId sng.MetaData.Tuning sng.MetaData.CapoFretId false
-        else
-            match sng.Chords.[note.ChordId].Notes |> Array.tryFind (fun x -> x > 0) with
+        | chordId ->
+            match sng.Chords.[chordId].Notes |> Array.tryFind (fun x -> x > 0) with
             | Some n -> n
             | None -> 0
+
     { Time = note.Time; Note = mn }
 
 /// Creates MIDI notes of all the notes in the highest difficulty level.
 let private getMidiNotes (sng: SNG) =
-    let midiNotes = ResizeArray<MidiNote>()
-    for i = 1 to sng.PhraseIterations.Length - 2 do
-        let phraseIteration = sng.PhraseIterations.[i]
-        let phraseId = phraseIteration.PhraseId
-        let maxDifficulty = sng.Phrases.[phraseId].MaxDifficulty
-        if maxDifficulty > 0 then
-            let phraseStartTime = phraseIteration.StartTime
-            let phraseEndTime = phraseIteration.EndTime
-            let highestLevelForPhrase = sng.Levels.[maxDifficulty]
-
-            let phraseIterationMidiNotes = 
-                highestLevelForPhrase.Notes
-                |> Array.filter (fun n -> n.Time >= phraseStartTime && n.Time < phraseEndTime)
-                |> Array.map (toMidiNote sng)
-
-            midiNotes.AddRange(phraseIterationMidiNotes)
-    midiNotes
+    sng.PhraseIterations
+    |> Array.collect (fun pi ->
+        match sng.Phrases.[pi.PhraseId].MaxDifficulty with
+        | 0 ->
+            Array.empty
+        | maxDifficulty ->
+            sng.Levels.[maxDifficulty].Notes
+            |> Array.filter (isWithinPhraseIteration pi)
+            |> Array.map (toMidiNote sng))
 
 /// Returns a random fog note.
 let rec private getRandomFogNote (excludeNote: byte) =
@@ -81,7 +82,7 @@ let private generateBeamNotes (sng: SNG) =
     let minTime = 0.35f
 
     ([], getMidiNotes sng)
-    ||> Seq.fold (fun acc midi ->
+    ||> Array.fold (fun acc midi ->
         let beamNote = getBeamNote midi.Note
         match acc with
         | (prevTime, prevNote)::_ when midi.Time - prevTime >= minTime && beamNote <> prevNote ->
@@ -107,9 +108,6 @@ let private generateLaserNotes (sng: SNG) =
         ShowLight(toMs (sng.MetaData.SongLength - 5.0f), ShowLight.LasersOff)
 
     [ lasersOn; lasersOff ]
-
-let private isBeam (x: ShowLight) = x.IsBeam()
-let private isFog (x: ShowLight) = x.IsFog()
 
 /// Ensures that the show lights contain at least one beam and one fog note.
 let private validateShowLights songLength (slList: ShowLight list) =
