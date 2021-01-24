@@ -23,7 +23,7 @@ let private isFog (x: ShowLight) = x.IsFog()
 
 /// Creates a MIDI note from an SNG note.
 let private toMidiNote (sng: SNG) (note: Note) =
-    let mn =
+    let midiValue =
         match note.ChordId with
         | -1 ->
             Midi.toMidiNote (int note.StringIndex) note.FretId sng.MetaData.Tuning sng.MetaData.CapoFretId false
@@ -32,19 +32,16 @@ let private toMidiNote (sng: SNG) (note: Note) =
             | Some n -> n
             | None -> 0
 
-    { Time = note.Time; Note = mn }
+    { Time = note.Time; Note = midiValue }
 
 /// Creates MIDI notes of all the notes in the highest difficulty level.
 let private getMidiNotes (sng: SNG) =
     sng.PhraseIterations
     |> Array.collect (fun pi ->
-        match sng.Phrases.[pi.PhraseId].MaxDifficulty with
-        | 0 ->
-            Array.empty
-        | maxDifficulty ->
-            sng.Levels.[maxDifficulty].Notes
-            |> Array.filter (isWithinPhraseIteration pi)
-            |> Array.map (toMidiNote sng))
+        let maxDifficulty = sng.Phrases.[pi.PhraseId].MaxDifficulty
+        sng.Levels.[maxDifficulty].Notes
+        |> Array.filter (isWithinPhraseIteration pi)
+        |> Array.map (toMidiNote sng))
 
 /// Returns a random fog note.
 let rec private getRandomFogNote (excludeNote: byte) =
@@ -57,25 +54,33 @@ let rec private getRandomFogNote (excludeNote: byte) =
 /// Returns a beam note matching the MIDI note.
 let private getBeamNote (midiNote: int) = byte <| ShowLight.BeamMin + (byte midiNote % 12uy)
 
+let private getFogNoteForSection () =
+    let sectionFogNotes = Dictionary<string, ShowLight>()
+
+    fun (current: ShowLight list) time sectionName ->
+        Dictionary.tryGetValue sectionName sectionFogNotes
+        |> Option.defaultWith (fun () ->
+            let prevNote =
+                match List.tryHead current with
+                | Some x -> x.Note
+                | None -> 0uy
+            let note = getRandomFogNote prevNote
+            let fog = ShowLight(toMs time, note)
+            sectionFogNotes.[sectionName] <- fog
+            fog)
+
 /// Generates fog notes from the sections in the SNG.
 let private generateFogNotes (sng: SNG) =
-    let sections = sng.Sections
-    let sectionFogNotes = Dictionary<string, byte>()
-    let mutable prevSectionName = String.Empty
-    let mutable prevNote = 0uy
-    [ for section in sections do
-        let name = section.Name
-        if name <> prevSectionName then
-            let fogNote =
-                if sectionFogNotes.ContainsKey name then
-                    sectionFogNotes.[name]
-                else
-                    let fog = getRandomFogNote prevNote
-                    sectionFogNotes.[name] <- fog
-                    fog
-            yield ShowLight(toMs section.StartTime, fogNote)
-            prevNote <- fogNote
-        prevSectionName <- name ]
+    let getFog = getFogNoteForSection ()
+
+    ((String.Empty, []), sng.Sections)
+    ||> Array.fold (fun (prevName, acc) { Name=name; StartTime=startTime } ->
+        name,
+        if name = prevName then
+            acc
+        else
+            (getFog acc startTime name)::acc)
+    |> snd
 
 /// Generates beam notes from the notes in the SNG.
 let private generateBeamNotes (sng: SNG) =

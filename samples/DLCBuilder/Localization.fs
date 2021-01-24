@@ -5,6 +5,7 @@ open System.Collections.Generic
 open System.Reflection
 open System.Text.Json
 open System
+open Rocksmith2014.Common
 
 type Locale =
     { Name : string; ShortName : string }
@@ -44,8 +45,8 @@ type Localization(locale: Locale) =
 
     interface ILocalization with
         member _.GetString (key: string) =
-            Utils.tryGetValue localeDictionary key
-            |> Option.orElseWith (fun () -> Utils.tryGetValue defaultDictionary key)
+            Dictionary.tryGetValue key localeDictionary 
+            |> Option.orElseWith (fun () -> Dictionary.tryGetValue key defaultDictionary)
             |> Option.defaultWith (fun () -> $"!!{key}!!")
 
         member this.Format (key: string) (args: obj array) =

@@ -1,17 +1,29 @@
 ﻿namespace Rocksmith2014.Common
 
 open System
+open System.Collections.Generic
 
+[<RequireQualifiedAccess>]
 module Async =
     /// Maps the result of an asynchronous computation.
-    let map f (task: Async<'a>) = async {
+    let map f (task: Async<_>) = async {
         let! x = task
         return f x }
     
+[<RequireQualifiedAccess>]
+module Dictionary =
+    /// Maps the result of Dictionary.TryGetValue into an option.
+    let tryGetValue key (dict: IDictionary<_,_>) =
+        match dict.TryGetValue key with
+        | true, value -> Some value
+        | false, _ -> None
+
+[<RequireQualifiedAccess>]
 module Option =
     /// Creates an option from a string, where a null or whitespace string equals None.
     let ofString s = if String.IsNullOrWhiteSpace s then None else Some s
 
+[<RequireQualifiedAccess>]
 module String =
     /// Returns true if the string is not null or whitespace.
     let notEmpty = (String.IsNullOrWhiteSpace >> not)
@@ -22,6 +34,7 @@ module String =
     /// Returns true if the string contains the given value (case sensitive).
     let contains (value: string) (str: string) = str.Contains(value, StringComparison.Ordinal)
 
+[<RequireQualifiedAccess>]
 module List =
     /// Removes the item at the given index form the list.
     let removeAt index (list: 'a list) =

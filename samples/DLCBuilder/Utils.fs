@@ -2,7 +2,6 @@
 
 open Pfim
 open System.IO
-open System.Collections.Generic
 open System.Runtime.InteropServices
 open Avalonia.Platform
 open Avalonia.Media.Imaging
@@ -76,12 +75,6 @@ let previewPathFromMainAudio (audioPath: string) =
     let fn = Path.GetFileNameWithoutExtension audioPath
     let ext = Path.GetExtension audioPath
     Path.Combine(dir, $"{fn}_preview{ext}")
-
-/// Maps the result of Dictionary.TryGetValue into an option.
-let tryGetValue (dict: IDictionary<_,_>) key =
-    match dict.TryGetValue key with
-    | true, value -> Some value
-    | false, _ -> None
 
 /// Removes an option from the list if it is Some.
 let removeSelected list = function
