@@ -9,6 +9,11 @@ open System
 
 type private MidiNote = { Time: float32; Note: int }
 
+let private toMs secs = int (secs * 1000.f)
+
+let private tryFindSoloSection =
+    Array.tryFind (fun (x: Section) -> x.Name.StartsWith("solo", StringComparison.OrdinalIgnoreCase))
+
 /// Creates a MIDI note from an SNG note.
 let private toMidiNote (sng: SNG) (note: Note) =
     let mn =
@@ -60,7 +65,6 @@ let private generateFogNotes (sng: SNG) =
     [ for section in sections do
         let name = section.Name
         if name <> prevSectionName then
-            let startTime = section.StartTime
             let fogNote =
                 if sectionFogNotes.ContainsKey name then
                     sectionFogNotes.[name]
@@ -68,7 +72,7 @@ let private generateFogNotes (sng: SNG) =
                     let fog = getRandomFogNote prevNote
                     sectionFogNotes.[name] <- fog
                     fog
-            yield ShowLight(int (startTime  * 1000.f), fogNote)
+            yield ShowLight(toMs section.StartTime, fogNote)
             prevNote <- fogNote
         prevSectionName <- name ]
 
@@ -82,22 +86,25 @@ let private generateBeamNotes (sng: SNG) =
         match acc with
         | (prevTime, prevNote)::_ when midi.Time - prevTime >= minTime && beamNote <> prevNote ->
             (midi.Time, beamNote)::acc
-        | [] -> [ midi.Time, beamNote ]
-        | list -> list)
-    |> List.map (fun (time, beam) -> ShowLight(int (time * 1000.f), beam))
+        | [] ->
+            [ midi.Time, beamNote ]
+        | list ->
+            list)
+    |> List.map (fun (time, beam) -> ShowLight(toMs time, beam))
 
 /// Generates laser notes from the SNG.
 let private generateLaserNotes (sng: SNG) =
     // The lasers will be enabled at the first solo section, if one is present.
     // If there is no solo sections, the lasers are set on at 60% into the song.
     let lasersOn =
-        sng.Sections
-        |> Array.tryFind (fun x -> x.Name = "solo")
-        |> Option.map (fun s -> ShowLight(int (s.StartTime * 1000.f), ShowLight.LasersOn))
-        |> Option.defaultWith (fun _ -> ShowLight(int (sng.MetaData.SongLength * 0.6f * 1000.f), ShowLight.LasersOn))
+        let time =
+            match tryFindSoloSection sng.Sections with
+            | Some soloSection -> soloSection.StartTime
+            | None -> sng.MetaData.SongLength * 0.6f
+        ShowLight(toMs time, ShowLight.LasersOn)
 
     let lasersOff =
-        ShowLight(int ((sng.MetaData.SongLength - 5.0f) * 1000.f), ShowLight.LasersOff)
+        ShowLight(toMs (sng.MetaData.SongLength - 5.0f), ShowLight.LasersOff)
 
     [ lasersOn; lasersOff ]
 
@@ -107,31 +114,27 @@ let private isFog (x: ShowLight) = x.IsFog()
 /// Ensures that the show lights contain at least one beam and one fog note.
 let private validateShowLights songLength (slList: ShowLight list) =
     slList @ [
-        if Option.isNone (List.tryFindIndex isBeam slList) then ShowLight(0, ShowLight.BeamMin)
-        if Option.isNone (List.tryFindIndex isFog slList) then ShowLight(0, ShowLight.FogMin)
+        if not <| List.exists isBeam slList then ShowLight(0, ShowLight.BeamMin)
+        if not <| List.exists isFog slList then ShowLight(0, ShowLight.FogMin)
         // Add an extra fog note at the end to prevent a glitch
-        ShowLight(int (songLength * 1000.f), ShowLight.FogMax) ]
+        ShowLight(toMs songLength, ShowLight.FogMax) ]
 
 /// Generates show lights and saves them into the target file.
 let generate (targetFile: string) (sngs: (Arrangement * SNG) list) =
     // Select an instrumental arrangement to generate the show lights from
-    let sng =
-        let leadFile =
+    let _, sng =
+        sngs
+        |> List.tryFind (function
+            | Instrumental i, _ -> i.RouteMask = RouteMask.Lead
+            | _ -> false)
+        |> Option.defaultWith (fun () ->
             sngs
-            |> List.tryFind (fun x ->
-                match fst x with
-                | Instrumental i -> i.RouteMask = RouteMask.Lead
-                | _ -> false)
-            |> Option.map snd
-        leadFile |> Option.defaultWith (fun _ ->
-            sngs
-            |> List.find (fun x -> match fst x with | Instrumental _ -> true | _ -> false)
-            |> snd)
+            |> List.find (function Instrumental _, _ -> true | _ -> false))
 
-    let showlights =
-        generateFogNotes sng
-        |> List.append (generateBeamNotes sng)
-        |> List.append (generateLaserNotes sng)
+    let showlights = 
+        [ yield! generateFogNotes sng
+          yield! generateBeamNotes sng
+          yield! generateLaserNotes sng ]
         |> validateShowLights sng.MetaData.SongLength
         |> List.sortBy (fun x -> x.Time)
         |> ResizeArray
