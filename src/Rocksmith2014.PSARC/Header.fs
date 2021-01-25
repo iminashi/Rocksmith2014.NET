@@ -2,6 +2,7 @@
 
 open Rocksmith2014.Common.Interfaces
 open System.Text
+open System
 
 type internal Header() =
     /// The length of a PSARC header in bytes (32 bytes).
@@ -51,15 +52,15 @@ type internal Header() =
 
     /// Reads a PSARC header from the reader.
     static member Read (reader: IBinaryReader) =
-        let magic = Encoding.ASCII.GetString(reader.ReadBytes(4))
+        let magic = Encoding.ASCII.GetString(reader.ReadBytes 4)
         let versionMaj = reader.ReadUInt16()
         let versionMin = reader.ReadUInt16()
-        let compressionMethod = Encoding.ASCII.GetString(reader.ReadBytes(4))
+        let compressionMethod = Encoding.ASCII.GetString(reader.ReadBytes 4)
 
         if magic <> "PSAR" then
             failwith "PSARC header magic check failed."
         elif compressionMethod <> "zlib" then
-            failwith "Unsupported compression type."
+            raise <| NotSupportedException($"Unsupported PSARC compression method: {compressionMethod}.")
         else
             Header(VersionMajor = versionMaj,
                    VersionMinor = versionMin,

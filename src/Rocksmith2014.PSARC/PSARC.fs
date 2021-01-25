@@ -17,27 +17,6 @@ type EditOptions =
     static member Default = { Mode = InMemory; EncryptTOC = true }
 
 type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, blockSizeTable: uint32[]) =
-    static let getZType (header: Header) =
-        int <| Math.Log(float header.BlockSizeAlloc, 256.0)
-
-    /// Reads the ToC and block size table from the given reader.
-    static let readToC (header: Header) (reader: IBinaryReader) =
-        let toc = Seq.init (int header.ToCEntryCount) (Entry.Read reader) |> ResizeArray
-
-        let zType = getZType header
-        let tocSize = int (header.ToCEntryCount * header.ToCEntrySize)
-        let blockSizeTableLength = int header.ToCLength - Header.Length - tocSize
-        let blockSizeCount = blockSizeTableLength / zType
-        let read = 
-            match zType with
-            | 2 -> fun _ -> uint32 (reader.ReadUInt16()) // 64KB
-            | 3 -> fun _ -> reader.ReadUInt24() // 16MB
-            | 4 -> fun _ -> reader.ReadUInt32() // 4GB
-            | _ -> failwith "Unexpected zType"
-        let blockSizes = Array.init blockSizeCount read
-
-        toc, blockSizes
-
     let mutable blockSizeTable = blockSizeTable
     let buffer = ArrayPool<byte>.Shared.Rent (int header.BlockSizeAlloc)
 
@@ -50,10 +29,10 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             match int blockSizeTable.[zIndex] with
             | 0 ->
                 // Raw, full cluster used
-                let! bytesRead = source.AsyncRead(buffer, 0, blockSize)
+                let! _bytesRead = source.AsyncRead(buffer, 0, blockSize)
                 do! output.AsyncWrite(buffer, 0, blockSize)
             | size ->
-                let! bytesRead = source.AsyncRead(buffer, 0, size)
+                let! _bytesRead = source.AsyncRead(buffer, 0, size)
 
                 // Check for zlib header
                 if buffer.[0] = 0x78uy && buffer.[1] = 0xDAuy then
@@ -67,14 +46,6 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
         output.Position <- 0L
         do! output.FlushAsync() }
-
-    /// Returns true if the given named entry should not be zipped.
-    let usePlain (entry: NamedEntry) =
-        // WEM -> Packed vorbis data, zipping usually pointless
-        // SNG -> Already zlib packed
-        // AppId -> Very small file (6-7 bytes), unpacked in official files
-        // 7z -> Already compressed (found in cache.psarc)
-        List.exists (fun x -> String.endsWith x entry.Name) [ ".wem"; ".sng"; "appid"; "7z" ]
 
     let mutable manifest =
         if toc.Count > 1 then
@@ -113,19 +84,19 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     /// Deflates the data in the given named entries.
     let deflateEntries (entries: NamedEntry list) = async {
-        let deflatedData = ResizeArray<Stream>()
-        let protoEntries = ResizeArray<Entry * int64>()
-        let blockSize = int header.BlockSizeAlloc
-        let zLengths = ResizeArray<uint32>()
-
         // Add the manifest as the first entry
         let entries = { Name = String.Empty; Data = createManifestData() }::entries
+
+        let protoEntries = ResizeArray<Entry * int64>(entries.Length)
+        let deflatedData = ResizeArray<Stream>()
+        let blockSize = int header.BlockSizeAlloc
+        let zLengths = ResizeArray<uint32>()
 
         for entry in entries do
             let proto = Entry.CreateProto entry (uint32 zLengths.Count)
 
             let! totalLength = async {
-                if usePlain entry then 
+                if Utils.usePlain entry then 
                     return addPlainData blockSize deflatedData zLengths entry.Data
                 else
                     let! length = Compression.blockZip blockSize deflatedData zLengths entry.Data
@@ -228,7 +199,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         let writer = BigEndianBinaryWriter(source) :> IBinaryWriter
 
         // Update header
-        let zType = getZType header
+        let zType = Utils.getZType header
         header.ToCLength <- uint (Header.Length + protoEntries.Length * int header.ToCEntrySize + blockTable.Length * zType)
         header.ToCEntryCount <- uint protoEntries.Length
         header.ArchiveFlags <- if options.EncryptTOC then 4u else 0u
@@ -280,9 +251,9 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
                 if decStream.Length <> int64 tocSize then failwith "ToC decryption failed: Incorrect ToC size."
 
-                readToC header (BigEndianBinaryReader(decStream))
+                Utils.readToC header (BigEndianBinaryReader(decStream))
             else
-                readToC header reader
+                Utils.readToC header reader
 
         new PSARC(input, header, toc, zLengths)
 

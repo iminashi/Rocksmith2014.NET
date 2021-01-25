@@ -9,6 +9,13 @@ module Async =
     let map f (task: Async<_>) = async {
         let! x = task
         return f x }
+
+[<RequireQualifiedAccess>]
+module ResizeArray =
+    let init (size: int) f =
+        let a = ResizeArray(size)
+        for i = 0 to size - 1 do a.Add(f i)
+        a
     
 [<RequireQualifiedAccess>]
 module Dictionary =
@@ -29,10 +36,10 @@ module String =
     let notEmpty = (String.IsNullOrWhiteSpace >> not)
 
     /// Returns true if the string ends with the given value (case insensitive).
-    let endsWith value (str: string) = not <| isNull str && str.EndsWith(value, StringComparison.OrdinalIgnoreCase)
+    let endsWith suffix (str: string) = not <| isNull str && str.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)
 
     /// Returns true if the string contains the given value (case sensitive).
-    let contains (value: string) (str: string) = str.Contains(value, StringComparison.Ordinal)
+    let contains (substr: string) (str: string) = str.Contains(substr, StringComparison.Ordinal)
 
 [<RequireQualifiedAccess>]
 module List =
