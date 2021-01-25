@@ -9,11 +9,7 @@ open System
 /// Store mean square infos of previous sample blocks from the time the measurement was started (for integrated loudness)
 type internal MeanSquareLoudness = { MeanSquare : float; Loudness : float }
 
-[<Struct>]
-/// Models of real-time result returned by ProcessBuffer
-type internal Result = { MomentaryLoudness : float; ShortTermLoudness : float }
-
-type LufsMeter(blockDuration, overlap, _shortTermDuration, sampleRate, numChannels) =
+type LufsMeter(blockDuration, overlap, sampleRate, numChannels) =
     let precedingMeanSquareLoudness = ResizeArray<MeanSquareLoudness>()
 
     // Initialize momentary loudness
@@ -26,12 +22,6 @@ type LufsMeter(blockDuration, overlap, _shortTermDuration, sampleRate, numChanne
     // Buffer for calculating mean square for current sample block (for momentary loudness) double[step][channel][sample]
     let blockBuffer: float[][][] =
         Array.init blockStepCount (fun _ -> Array.init numChannels (fun _ -> Array.zeroCreate stepSampleCount))
-
-    // Store mean squares of previous sample blocks (for short-term loudness)
-    // Initialize short-term loudness
-    //let stepDuration = blockDuration * (1. - overlap)
-    //let shortTermMeanSquaresLength = int <| round (shortTermDuration / stepDuration)
-    //let shortTermMeanSquares = Array.zeroCreate<float> shortTermMeanSquaresLength
 
     let preFilter =
         SecondOrderIIRFilter(
@@ -66,7 +56,7 @@ type LufsMeter(blockDuration, overlap, _shortTermDuration, sampleRate, numChanne
     
     let gate gateLoudness = Array.filter (fun x -> x.Loudness > gateLoudness)
         
-    new(sampleRate, numChannels) = LufsMeter(0.4, 0.75, 3., sampleRate, numChannels)
+    new(sampleRate, numChannels) = LufsMeter(0.4, 0.75, sampleRate, numChannels)
 
     member _.ProcessBuffer(buffer: float[][]) =
         // “K” frequency weighting
