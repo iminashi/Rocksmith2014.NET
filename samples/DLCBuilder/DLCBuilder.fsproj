@@ -69,6 +69,7 @@
     <PackageReference Include="Live.Avalonia" Version="1.1.1" />
     <PackageReference Include="NAudio" Version="1.10.0" />
     <PackageReference Include="Pfim" Version="0.9.1" />
+    <PackageReference Include="SimpleSIMD" Version="2.4.3" />
   </ItemGroup>
 
   <ItemGroup>

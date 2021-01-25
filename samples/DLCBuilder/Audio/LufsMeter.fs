@@ -1,13 +1,34 @@
 ﻿namespace DLCBuilder.Audio
 
 open System
+open System.Numerics
+open System.Runtime.CompilerServices
+open SimpleSimd
 
 // Ported from: https://github.com/xuan525/R128Normalization
 // Functionality for calculating integrated loudness once.
 
-[<Struct>]
+[<IsReadOnly; Struct>]
 /// Store mean square infos of previous sample blocks from the time the measurement was started (for integrated loudness)
 type internal MeanSquareLoudness = { MeanSquare : float; Loudness : float }
+
+[<IsReadOnly; Struct>]
+type internal VectorSquare = interface IFunc<Vector<float>, Vector<float>> with member _.Invoke(param) = param * param
+
+[<IsReadOnly; Struct>]
+type internal Square = interface IFunc<float, float> with member _.Invoke(param) = param * param
+
+[<AutoOpen>]
+module internal Helpers =
+    let getChannelWeight = function 3 | 4 -> 1.41 | _ -> 1.
+
+    let inline loudness mean = -0.691 + 10. * Math.Log10 mean
+    
+    let meanSquareAverage = function
+        | [||] -> 0.
+        | arr -> Array.averageBy (fun x -> x.MeanSquare) arr
+    
+    let inline gate gateLoudness = Array.filter (fun x -> x.Loudness > gateLoudness)
 
 type LufsMeter(blockDuration, overlap, sampleRate, numChannels) =
     let precedingMeanSquareLoudness = ResizeArray<MeanSquareLoudness>()
@@ -43,19 +64,6 @@ type LufsMeter(blockDuration, overlap, sampleRate, numChannels) =
             sampleRate,
             numChannels)
 
-    // Helper functions
-    let getChannelWeight = function
-        | 3 | 4 -> 1.41
-        | _ -> 1.
-
-    let loudness mean = -0.691 + 10. * Math.Log10 mean
-    
-    let meanSquareAverage = function
-        | [||] -> 0.
-        | arr -> Array.averageBy (fun x -> x.MeanSquare) arr
-    
-    let gate gateLoudness = Array.filter (fun x -> x.Loudness > gateLoudness)
-        
     new(sampleRate, numChannels) = LufsMeter(0.4, 0.75, sampleRate, numChannels)
 
     member _.ProcessBuffer(buffer: float[][]) =
@@ -83,19 +91,15 @@ type LufsMeter(blockDuration, overlap, sampleRate, numChannels) =
 
             // Calculate momentary loudness
             let mutable momentaryMeanSquare = 0.
-            if not <| isNull blockBuffer.[0] then
-                for channel = 0 to numChannels - 1 do
-                    let mutable channelSquaredSum = 0.
-                    for step = 0 to blockStepCount - 1 do
-                        let stepBuffer = blockBuffer.[step]
-                        for sample = 0 to stepSampleCount - 1 do
-                            let squared =
-                                let x = stepBuffer.[channel].[sample]
-                                x * x
-                            channelSquaredSum <- channelSquaredSum + squared
-                    let channelMeanSquare = channelSquaredSum / float (blockStepCount * stepSampleCount)
-                    let channelWeight = getChannelWeight channel
-                    momentaryMeanSquare <- momentaryMeanSquare + channelWeight * channelMeanSquare
+            for channel = 0 to numChannels - 1 do
+                let channelSquaredSum =
+                    blockBuffer
+                    |> Array.sumBy (fun stepBuffer ->
+                        let a = ReadOnlySpan(stepBuffer.[channel])
+                        SimdOps.Sum(&a, VectorSquare(), Square()))
+                let channelMeanSquare = channelSquaredSum / float (blockStepCount * stepSampleCount)
+                let channelWeight = getChannelWeight channel
+                momentaryMeanSquare <- momentaryMeanSquare + channelWeight * channelMeanSquare
 
             let momentaryLoudness = loudness momentaryMeanSquare
 

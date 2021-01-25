@@ -2,7 +2,7 @@
 
 open NAudio.Wave
 
-type AudioFader(source: ISampleProvider, fadeInLength: int<ms>, fadeOutLength : int<ms>, audioLength : int64<ms>) =
+type AudioFader(source: ISampleProvider, fadeInLength: int<ms>, fadeOutLength: int<ms>, audioLength: int64<ms>) =
     let mutable fadeInSamplePosition = 0
     let mutable fadeOutSamplePosition = 0
     let mutable totalSamplesRead = 0L
@@ -12,7 +12,7 @@ type AudioFader(source: ISampleProvider, fadeInLength: int<ms>, fadeOutLength : 
     let fadeOutStartSample = ((int64 audioLength - int64 fadeOutLength) * int64 source.WaveFormat.SampleRate * int64 source.WaveFormat.Channels) / 1000L
 
     interface ISampleProvider with
-        member _.Read(buffer:float32[], offset:int, count:int) = 
+        member _.Read(buffer: float32[], offset: int, count: int) = 
             let sourceSamplesRead = source.Read(buffer, offset, count)
             totalSamplesRead <- totalSamplesRead + int64 sourceSamplesRead
 
