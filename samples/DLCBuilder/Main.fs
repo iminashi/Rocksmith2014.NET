@@ -190,12 +190,12 @@ let update (msg: Msg) (state: State) =
             | Ok toneArray ->
                 state, Cmd.ofMsg (ShowImportToneSelector toneArray)
             | Error msg ->
-                { state with Overlay = ErrorMessage msg }, Cmd.none
+                { state with Overlay = ErrorMessage(msg, None) }, Cmd.none
 
     | ShowImportToneSelector tones ->
         let newState =
             match tones with
-            | [||] -> { state with Overlay = ErrorMessage (localize "couldNotFindTonesError") }
+            | [||] -> { state with Overlay = ErrorMessage(localize "couldNotFindTonesError", None) }
             | [| tone |] -> { state with Project = { project with Tones = tone::project.Tones } }
             | _ -> { state with Overlay = ImportToneSelector tones; ImportTones = [] }
         newState, Cmd.none
@@ -265,7 +265,7 @@ let update (msg: Msg) (state: State) =
     | ConvertToWem ->
         if DLCProject.audioFilesExist project then
             { state with BuildInProgress = true },
-            Cmd.OfAsync.either (Wwise.convertToWem state.Config.WwiseConsolePath) project.AudioFile BuildComplete ErrorOccurred
+            Cmd.OfAsync.either (Wwise.convertToWem state.Config.WwiseConsolePath) project.AudioFile BuildComplete (fun ex -> TaskFailed(ex, ConvertToWem))
         else
             state, Cmd.none
 
@@ -276,7 +276,7 @@ let update (msg: Msg) (state: State) =
             | PreviewAudio -> project.AudioPreviewFile.Path
         let task () = async { return Audio.Tools.calculateVolume path }
         { state with VolumeCalculationInProgress = state.VolumeCalculationInProgress |> Set.add target },
-        Cmd.OfAsync.either task () (fun v -> VolumeCalculated(v, target)) ErrorOccurred
+        Cmd.OfAsync.either task () (fun v -> VolumeCalculated(v, target)) (fun ex -> TaskFailed(ex, msg))
 
     | VolumeCalculated (volume, target) ->
         let state =
@@ -359,7 +359,7 @@ let update (msg: Msg) (state: State) =
 
         match errors with
         | [||] -> newState, Cmd.none
-        | _ -> { newState with Overlay = ErrorMessage(String.Join('\n', errors)) }, Cmd.none
+        | _ -> { newState with Overlay = ErrorMessage(String.Join('\n', errors), None) }, Cmd.none
 
     | ArrangementSelected selected -> { state with SelectedArrangement = selected }, Cmd.none
 
@@ -498,19 +498,19 @@ let update (msg: Msg) (state: State) =
     | BuildTest ->
         match BuildValidator.validate project with
         | Error error ->
-            { state with Overlay = localize error |> ErrorMessage }, Cmd.none
+            { state with Overlay = ErrorMessage(localize error, None) }, Cmd.none
         | Ok _ ->
             let path = IO.Path.Combine(config.TestFolderPath, project.DLCKey.ToLowerInvariant())
             let appId = config.CustomAppId |> Option.defaultValue "248750"
             let buildConfig = createBuildConfig state appId [ state.CurrentPlatform ]
             let task () = buildPackages path buildConfig project
 
-            { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
+            { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete (fun ex -> TaskFailed(ex, BuildTest))
 
     | BuildRelease ->
         match BuildValidator.validate project with
         | Error error ->
-            { state with Overlay = localize error |> ErrorMessage }, Cmd.none
+            { state with Overlay = ErrorMessage(localize error, None) }, Cmd.none
         | Ok _ ->
             let releaseDir =
                 state.OpenProjectFile
@@ -525,7 +525,7 @@ let update (msg: Msg) (state: State) =
             let buildConfig = createBuildConfig state "248750" config.ReleasePlatforms
             let task () = buildPackages path buildConfig project
 
-            { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete ErrorOccurred
+            { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete (fun ex -> TaskFailed(ex, BuildRelease))
 
     | BuildComplete _ -> { state with BuildInProgress = false }, Cmd.none
 
@@ -553,7 +553,7 @@ let update (msg: Msg) (state: State) =
                        | Vocals v -> v.XML, [])
                    |> Map.ofList }
 
-        { state with CheckInProgress = true }, Cmd.OfAsync.either task () CheckCompleted ErrorOccurred
+        { state with CheckInProgress = true }, Cmd.OfAsync.either task () CheckCompleted (fun ex -> TaskFailed(ex, CheckArrangements))
 
     | CheckCompleted issues ->
         { state with ArrangementIssues = issues
@@ -567,9 +567,29 @@ let update (msg: Msg) (state: State) =
         | None ->
             state, Cmd.none
    
-    | ErrorOccurred e -> { state with Overlay = ErrorMessage e.Message
-                                      BuildInProgress = false
-                                      CheckInProgress = false }, Cmd.none
+    | ErrorOccurred e ->
+        { state with Overlay = ErrorMessage (e.Message, Some e.StackTrace) }, Cmd.none
+
+    | TaskFailed (ex, failedMsg) ->
+        let buildInProgress =
+            match failedMsg with
+            | BuildRelease | BuildTest | ConvertToWem -> false
+            | _ -> state.BuildInProgress
+
+        let checkInProgress =
+            match failedMsg with
+            | CheckArrangements -> false
+            | _ -> state.CheckInProgress
+
+        let volumeCalc =
+            match failedMsg with
+            | CalculateVolume target -> state.VolumeCalculationInProgress |> Set.remove target
+            | _ -> state.VolumeCalculationInProgress
+            
+        { state with Overlay = ErrorMessage (ex.Message, Some ex.StackTrace)
+                     BuildInProgress = buildInProgress
+                     CheckInProgress = checkInProgress
+                     VolumeCalculationInProgress = volumeCalc }, Cmd.none
 
     | ChangeLocale newLocale ->
         { state with Config = { config with Locale = newLocale }

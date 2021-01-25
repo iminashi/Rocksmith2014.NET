@@ -203,5 +203,6 @@
   "applyImprovements": "Apply Improvements",
   "saveDebugFiles": "Save Debug Files",
   "customAudioFile": "Custom Audio File",
-  "calculateVolumes": "Calculate Volumes"
+  "calculateVolumes": "Calculate Volumes",
+  "moreInfo": "More Info"
 }

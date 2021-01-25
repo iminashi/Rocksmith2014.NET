@@ -3,12 +3,13 @@
 open Avalonia.FuncUI.DSL
 open Avalonia.FuncUI.Types
 open Avalonia.Controls
+open Avalonia.Controls.Primitives
 open Avalonia.Controls.Shapes
 open Avalonia.Layout
 open Avalonia.Media
 open DLCBuilder
 
-let view state dispatch msg =
+let view state dispatch msg info =
     StackPanel.create [
         StackPanel.spacing 8.
         StackPanel.children [
@@ -35,6 +36,22 @@ let view state dispatch msg =
                 TextBlock.text msg
                 TextBlock.margin 10.0
             ]
+
+            match info with
+            | None -> ()
+            | Some moreInfo ->
+                Expander.create [
+                    Expander.header (state.Localization.GetString "moreInfo")
+                    Expander.content (
+                        TextBox.create [
+                            TextBox.maxWidth 450.
+                            TextBox.maxHeight 450.
+                            TextBox.horizontalScrollBarVisibility ScrollBarVisibility.Auto
+                            TextBox.verticalScrollBarVisibility ScrollBarVisibility.Auto
+                            TextBox.text moreInfo
+                        ]
+                    )
+                ]
 
             // OK button
             Button.create [

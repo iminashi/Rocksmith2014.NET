@@ -244,7 +244,7 @@ let view (window: HostWindow) (state: State) dispatch =
                             Border.child (
                                 match state.Overlay with
                                 | NoOverlay -> failwith "This can not happen."
-                                | ErrorMessage msg -> ErrorMessage.view state dispatch msg
+                                | ErrorMessage(msg, info) -> ErrorMessage.view state dispatch msg info
                                 | SelectPreviewStart audioLength -> SelectPreviewStart.view state dispatch audioLength
                                 | ImportToneSelector tones -> SelectImportTones.view state dispatch tones
                                 | ConfigEditor -> ConfigEditor.view state dispatch

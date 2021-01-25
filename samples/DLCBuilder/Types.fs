@@ -11,7 +11,7 @@ open System
 
 type OverlayContents =
     | NoOverlay
-    | ErrorMessage of message : string
+    | ErrorMessage of message : string * moreInfo : string option
     | ImportToneSelector of tones : Tone array
     | SelectPreviewStart of audioLength : TimeSpan
     | ConfigEditor
@@ -106,3 +106,4 @@ type Msg =
     | ShowImportToneSelector of tones : Tone array
     | ChangeLocale of locale : Locale
     | ErrorOccurred of e : exn
+    | TaskFailed of e : exn * failedMsg : Msg
