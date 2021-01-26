@@ -1,8 +1,9 @@
 ﻿namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common.Interfaces
+open System.Runtime.CompilerServices
 
-[<Struct>]
+[<IsReadOnly; Struct>]
 type AnchorExtension =
     { BeatTime : float32
       FretId : int8 }

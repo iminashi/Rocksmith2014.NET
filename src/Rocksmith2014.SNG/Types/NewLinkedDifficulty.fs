@@ -2,8 +2,9 @@
 
 open Rocksmith2014.Common.Interfaces
 open BinaryHelpers
+open System.Runtime.CompilerServices
 
-[<Struct>]
+[<IsReadOnly; Struct>]
 type NewLinkedDifficulty =
     { LevelBreak : int32
       NLDPhrases : int32[] }
