@@ -108,7 +108,7 @@ type LufsMeter(blockDuration, overlap, sampleRate, numChannels) =
             precedingMeanSquareLoudness.Add meanSquareLoudness
 
         // Process remaining samples
-        let remainingLength = buffer.[0].Length - bufferPosition
+        let remainingLength = bufferSampleCount - bufferPosition
         for channel = 0 to numChannels - 1 do
             Array.Copy(buffer.[channel], bufferPosition, stepBuffer.[channel], stepBufferPosition, remainingLength)
         stepBufferPosition <- remainingLength

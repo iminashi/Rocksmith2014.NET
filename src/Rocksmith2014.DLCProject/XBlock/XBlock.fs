@@ -49,8 +49,7 @@ let create (platform: Platform) (project: DLCProject) =
 
     { EntitySet =
         project.Arrangements
-        |> List.toArray
-        |> Array.Parallel.choose (function
+        |> List.choose (function
             | Showlights _ -> None
             | arr ->
                 let fileName = partition arr |> snd
@@ -81,7 +80,8 @@ let create (platform: Platform) (project: DLCProject) =
                   Name = $"{project.DLCKey}_{Arrangement.getName arr false}"
                   Iterations = 0
                   Properties = properties }
-                |> Some) }
+                |> Some)
+        |> List.toArray }
 
 /// Serializes the Game object into the output stream.
 let serialize (output: Stream) (game: Game) =
