@@ -1,7 +1,6 @@
 ﻿module Rocksmith2014.XML.Processing.ArrangementChecker
 
 open Rocksmith2014.XML
-open System
 open System.Text.RegularExpressions
 
 let [<Literal>] LyricsCharset = """ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_abcdefghijklmnopqrstuvwxyz{|}~¡¢¥¦§¨ª«°²³´•¸¹º»¼½¾¿ÀÁÂÄÅÆÇÈÉÊËÌÎÏÑÒÓÔÖØÙÚÛÜÞßàáâäåæçèéêëìíîïñòóôöøùúûüŒœŠšž„…€™␀★➨"""
@@ -48,11 +47,7 @@ let checkCrowdEventPlacement (arrangement: InstrumentalArrangement) =
         [ issue ApplauseEventWithoutEnd start.Time ]
     | start, end' ->
         arrangement.Events
-        |> Seq.choose (fun ev ->
-            if ev.Time > start.Time && ev.Time < end'.Time && crowdEventRegex.IsMatch ev.Code then
-                Some ev
-            else
-                None)
+        |> Seq.filter (fun ev -> ev.Time > start.Time && ev.Time < end'.Time && crowdEventRegex.IsMatch ev.Code)
         |> Seq.map (fun ev -> issue (EventBetweenIntroApplause ev.Code) ev.Time)
         |> Seq.toList
 
@@ -234,7 +229,7 @@ let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
             let neighbourAnchor = anchors.FindLast(fun a -> a.Time <= neighbour.StartTime)
             let neighbourTemplate = chordTemplates.[int neighbour.ChordId]
     
-            neighbourTemplate.Fingers |> Array.exists((=) 1y) && neighbourAnchor = activeAnchor
+            neighbourTemplate.Fingers |> Array.contains 1y && neighbourAnchor = activeAnchor
 
     [ for i = 0 to handShapes.Count - 1 do
         let handShape = handShapes.[i]
@@ -245,7 +240,7 @@ let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
         let chordTemplate = chordTemplates.[int handShape.ChordId]
         
         // Check only handshapes that do not use the 1st finger
-        if not (chordTemplate.Fingers |> Array.exists ((=) 1y)) then
+        if not (chordTemplate.Fingers |> Array.contains 1y) then
             let chordNotOk =
                 (chordTemplate.Frets, chordTemplate.Fingers)
                 ||> Array.exists2 (fun fret finger -> fret = activeAnchor.Fret && finger <> -1y)
@@ -259,7 +254,7 @@ let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
 let checkAnchors (level: Level) =
     let pickTimeAndDistance noteTime (anchor: Anchor) =
         let distance = anchor.Time - noteTime 
-        if distance <> 0 && Math.Abs(distance) <= 5 then
+        if distance <> 0 && abs distance <= 5 then
             Some (anchor.Time, distance)
         else
             None
