@@ -14,10 +14,10 @@ open DLCBuilder
 open Media
 
 let view (window: HostWindow) (state: State) dispatch =
-    if state.BuildInProgress then
-        window.Cursor <- Cursors.appStarting
-    else
+    if state.RunningTasks.IsEmpty then
         window.Cursor <- Cursors.arrow
+    else
+        window.Cursor <- Cursors.appStarting
         
     window.Title <-
         match state.OpenProjectFile with
@@ -49,7 +49,7 @@ let view (window: HostWindow) (state: State) dispatch =
                                         Button.padding (10.0, 5.0)
                                         Button.content (state.Localization.GetString "validate")
                                         Button.onClick (fun _ -> dispatch CheckArrangements)
-                                        Button.isEnabled (state.Project.Arrangements.Length > 0 && not state.CheckInProgress)
+                                        Button.isEnabled (state.Project.Arrangements.Length > 0 && not (state.RunningTasks |> Set.contains ArrangementCheck))
                                     ]
 
                                     // Add arrangement

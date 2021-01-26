@@ -26,6 +26,12 @@ type MoveDirection = Up | Down
 
 type VolumeTarget = MainAudio | PreviewAudio
 
+type LongTask =
+    | BuildPackage
+    | WemConversion
+    | ArrangementCheck
+    | VolumeCalculation of VolumeTarget
+
 type State =
     { Project : DLCProject
       SavedProject : DLCProject
@@ -41,9 +47,7 @@ type State =
       PreviewStartTime : TimeSpan
       OpenProjectFile : string option
       CurrentPlatform : Platform
-      BuildInProgress : bool
-      CheckInProgress : bool
-      VolumeCalculationInProgress : VolumeTarget Set
+      RunningTasks : LongTask Set
       ArrangementIssues : Map<string, ArrangementChecker.Issue list>
       Localization : ILocalization }
 
@@ -106,4 +110,4 @@ type Msg =
     | ShowImportToneSelector of tones : Tone array
     | ChangeLocale of locale : Locale
     | ErrorOccurred of e : exn
-    | TaskFailed of e : exn * failedMsg : Msg
+    | TaskFailed of e : exn * failedTask : LongTask

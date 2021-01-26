@@ -47,13 +47,17 @@ let init arg =
       Overlay = NoOverlay
       ImportTones = []
       PreviewStartTime = TimeSpan()
-      BuildInProgress = false
-      CheckInProgress = false
-      VolumeCalculationInProgress = Set.empty
+      RunningTasks = Set.empty
       CurrentPlatform = if RuntimeInformation.IsOSPlatform OSPlatform.OSX then Mac else PC
       OpenProjectFile = None
       ArrangementIssues = Map.empty
       Localization = Localization(Locales.English) }, commands
+
+let private addTask newTask state =
+    { state with RunningTasks = state.RunningTasks |> Set.add newTask }
+
+let private removeTask completedTask state =
+    { state with RunningTasks = state.RunningTasks |> Set.remove completedTask }
 
 let private convertAudioIfNeeded cliPath project = async {
     if not <| DLCProject.wemFilesExist project then
@@ -264,8 +268,8 @@ let update (msg: Msg) (state: State) =
 
     | ConvertToWem ->
         if DLCProject.audioFilesExist project then
-            { state with BuildInProgress = true },
-            Cmd.OfAsync.either (Wwise.convertToWem state.Config.WwiseConsolePath) project.AudioFile BuildComplete (fun ex -> TaskFailed(ex, ConvertToWem))
+            addTask WemConversion state,
+            Cmd.OfAsync.either (Wwise.convertToWem state.Config.WwiseConsolePath) project.AudioFile BuildComplete (fun ex -> TaskFailed(ex, WemConversion))
         else
             state, Cmd.none
 
@@ -275,8 +279,8 @@ let update (msg: Msg) (state: State) =
             | MainAudio -> project.AudioFile.Path
             | PreviewAudio -> project.AudioPreviewFile.Path
         let task () = async { return Audio.Tools.calculateVolume path }
-        { state with VolumeCalculationInProgress = state.VolumeCalculationInProgress |> Set.add target },
-        Cmd.OfAsync.either task () (fun v -> VolumeCalculated(v, target)) (fun ex -> TaskFailed(ex, msg))
+        addTask (VolumeCalculation target) state,
+        Cmd.OfAsync.either task () (fun v -> VolumeCalculated(v, target)) (fun ex -> TaskFailed(ex, (VolumeCalculation target)))
 
     | VolumeCalculated (volume, target) ->
         let state =
@@ -285,7 +289,7 @@ let update (msg: Msg) (state: State) =
                 { state with Project = { project with AudioFile = { project.AudioFile with Volume = volume } } }
             | PreviewAudio ->
                 { state with Project = { project with AudioPreviewFile = { project.AudioPreviewFile with Volume = volume } } }
-        { state with VolumeCalculationInProgress = state.VolumeCalculationInProgress |> Set.remove target }, Cmd.none
+        removeTask (VolumeCalculation target) state, Cmd.none
 
     | SetCoverArt fileName ->
         state.CoverArt.Dispose()
@@ -505,7 +509,7 @@ let update (msg: Msg) (state: State) =
             let buildConfig = createBuildConfig state appId [ state.CurrentPlatform ]
             let task () = buildPackages path buildConfig project
 
-            { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete (fun ex -> TaskFailed(ex, BuildTest))
+            addTask BuildPackage state, Cmd.OfAsync.either task () BuildComplete (fun ex -> TaskFailed(ex, BuildPackage))
 
     | BuildRelease ->
         match BuildValidator.validate project with
@@ -525,9 +529,13 @@ let update (msg: Msg) (state: State) =
             let buildConfig = createBuildConfig state "248750" config.ReleasePlatforms
             let task () = buildPackages path buildConfig project
 
-            { state with BuildInProgress = true }, Cmd.OfAsync.either task () BuildComplete (fun ex -> TaskFailed(ex, BuildRelease))
+            addTask BuildPackage state, Cmd.OfAsync.either task () BuildComplete (fun ex -> TaskFailed(ex, BuildPackage))
 
-    | BuildComplete _ -> { state with BuildInProgress = false }, Cmd.none
+    | BuildComplete _ ->
+        let runningTasks =
+            Set([ BuildPackage; WemConversion ])
+            |> Set.difference state.RunningTasks
+        { state with RunningTasks = runningTasks }, Cmd.none
 
     | CheckArrangements ->
         let task() = async {
@@ -553,11 +561,11 @@ let update (msg: Msg) (state: State) =
                        | Vocals v -> v.XML, [])
                    |> Map.ofList }
 
-        { state with CheckInProgress = true }, Cmd.OfAsync.either task () CheckCompleted (fun ex -> TaskFailed(ex, CheckArrangements))
+        addTask ArrangementCheck state, Cmd.OfAsync.either task () CheckCompleted (fun ex -> TaskFailed(ex, ArrangementCheck))
 
     | CheckCompleted issues ->
         { state with ArrangementIssues = issues
-                     CheckInProgress = false }, Cmd.none
+                     RunningTasks = state.RunningTasks |> Set.remove ArrangementCheck }, Cmd.none
 
     | ShowIssueViewer ->
         match state.SelectedArrangement with
@@ -570,26 +578,9 @@ let update (msg: Msg) (state: State) =
     | ErrorOccurred e ->
         { state with Overlay = ErrorMessage (e.Message, Some e.StackTrace) }, Cmd.none
 
-    | TaskFailed (ex, failedMsg) ->
-        let buildInProgress =
-            match failedMsg with
-            | BuildRelease | BuildTest | ConvertToWem -> false
-            | _ -> state.BuildInProgress
-
-        let checkInProgress =
-            match failedMsg with
-            | CheckArrangements -> false
-            | _ -> state.CheckInProgress
-
-        let volumeCalc =
-            match failedMsg with
-            | CalculateVolume target -> state.VolumeCalculationInProgress |> Set.remove target
-            | _ -> state.VolumeCalculationInProgress
-            
+    | TaskFailed (ex, failedTask) ->          
         { state with Overlay = ErrorMessage (ex.Message, Some ex.StackTrace)
-                     BuildInProgress = buildInProgress
-                     CheckInProgress = checkInProgress
-                     VolumeCalculationInProgress = volumeCalc }, Cmd.none
+                     RunningTasks = state.RunningTasks |> Set.remove failedTask }, Cmd.none
 
     | ChangeLocale newLocale ->
         { state with Config = { config with Locale = newLocale }

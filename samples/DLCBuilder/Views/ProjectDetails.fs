@@ -12,9 +12,18 @@ open System
 open DLCBuilder
 open Media
 
+let private notBuilding state =
+    state.RunningTasks
+    |> Set.intersect (Set([ BuildPackage; WemConversion ]))
+    |> Set.isEmpty
+
 let view state dispatch =
+    let noBuildInProgress = notBuilding state
+    let notCalculatingVolume =
+        not (state.RunningTasks |> Set.exists (function VolumeCalculation _ -> true | _ -> false))
+
     let canBuild =
-        not state.BuildInProgress
+        noBuildInProgress
         && state.Project.Arrangements.Length > 0
         && state.Project.DLCKey.Length >= 5
         && String.notEmpty state.Project.AudioFile.Path
@@ -209,7 +218,7 @@ let view state dispatch =
                                 DockPanel.dock Dock.Right
                                 Button.content "wem"
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
-                                Button.isEnabled (not state.BuildInProgress && String.endsWith "wav" state.Project.AudioFile.Path)
+                                Button.isEnabled (noBuildInProgress && String.endsWith "wav" state.Project.AudioFile.Path)
                                 Button.onClick (fun _ -> dispatch ConvertToWem)
                             ]
 
@@ -218,9 +227,9 @@ let view state dispatch =
                                 Button.content "vol"
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
                                 Button.isEnabled (
-                                    not state.BuildInProgress
+                                    noBuildInProgress
                                     && String.endsWith "wav" state.Project.AudioFile.Path
-                                    && state.VolumeCalculationInProgress.IsEmpty)
+                                    && notCalculatingVolume)
                                 Button.onClick ((fun _ ->
                                     dispatch (CalculateVolume MainAudio)
                                     let previewPath = state.Project.AudioPreviewFile.Path
@@ -234,7 +243,7 @@ let view state dispatch =
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
                                 Button.padding (10.0, 0.0)
                                 Button.content "..."
-                                Button.isEnabled state.VolumeCalculationInProgress.IsEmpty
+                                Button.isEnabled notCalculatingVolume
                                 Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, SetAudioFile)))
                                 ToolTip.tip (state.Localization.GetString "selectAudioFile")
                             ]
@@ -269,7 +278,7 @@ let view state dispatch =
                         NumericUpDown.increment 0.5
                         NumericUpDown.value state.Project.AudioFile.Volume
                         NumericUpDown.formatString "F1"
-                        NumericUpDown.isEnabled (not <| state.VolumeCalculationInProgress.Contains MainAudio)
+                        NumericUpDown.isEnabled (not <| state.RunningTasks.Contains (VolumeCalculation MainAudio))
                         NumericUpDown.onValueChanged (fun v ->
                             fun p -> { p with AudioFile = { p.AudioFile with Volume = v } }
                             |> EditProject
@@ -326,7 +335,7 @@ let view state dispatch =
                         NumericUpDown.increment 0.5
                         NumericUpDown.value state.Project.AudioPreviewFile.Volume
                         NumericUpDown.formatString "F1"
-                        NumericUpDown.isEnabled (not <| state.VolumeCalculationInProgress.Contains PreviewAudio)
+                        NumericUpDown.isEnabled (not <| state.RunningTasks.Contains (VolumeCalculation PreviewAudio))
                         NumericUpDown.onValueChanged (fun v ->
                             fun p -> { p with AudioPreviewFile = { p.AudioPreviewFile with Volume = v } }
                             |> EditProject
