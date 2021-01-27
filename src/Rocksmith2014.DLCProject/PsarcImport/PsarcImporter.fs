@@ -4,105 +4,9 @@ open Rocksmith2014.PSARC
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.SNG
-open Rocksmith2014.Conversion
-open Rocksmith2014.XML
-open System
 open System.IO
 open System.Text.RegularExpressions
-
-let private getVolumeAndFileId (psarc: PSARC) platform bank = async {
-    use mem = MemoryStreamPool.Default.GetStream()
-    do! psarc.InflateFile(bank, mem)
-    let volume =
-        match SoundBank.readVolume mem platform with
-        | Ok vol -> vol
-        | Error _ -> 0.0f
-
-    let fileId =
-        match SoundBank.readFileId mem platform with
-        | Ok vol -> vol
-        | Error err -> failwith err
-        
-    return volume, fileId }
-
-let private (|VocalsFile|JVocalsFile|InstrumentalFile|) = function
-    | Contains "jvocals" -> JVocalsFile
-    | Contains "vocals" -> VocalsFile
-    | _ -> InstrumentalFile
-
-/// Creates a target wem filename from a sound bank name.
-/// Example: "song_dlckey_xxx.bnk" -> "dlckey_xxx.wem"
-let private createTargetAudioFilename (bankName: string) =
-    Path.GetFileNameWithoutExtension(bankName).Substring("song_".Length)
-    |> sprintf "%s.wem"
-
-/// Imports a vocals SNG into a vocals arrangement.
-let private importVocals targetDirectory targetFile customFont (attributes: Attributes) sng isJapanese =
-    let vocals = ConvertVocals.sngToXml sng
-    Vocals.Save(targetFile, vocals)
-
-    let hasCustomFont =
-        sng.SymbolsTextures.[0].Font <> "assets\ui\lyrics\lyrics.dds"
-
-    if hasCustomFont then
-        let glyphs = ConvertVocals.extractGlyphData sng
-        glyphs.Save(Path.Combine(targetDirectory, "lyrics.glyphs.xml"))
-
-    { XML = targetFile
-      Japanese = isJapanese
-      CustomFont = if hasCustomFont then customFont else None
-      MasterID = attributes.MasterID_RDV
-      PersistentID = Guid.Parse(attributes.PersistentID) }
-    |> Arrangement.Vocals
-
-/// Imports an instrumental SNG into an instrumental arrangement.
-let private importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile (attributes: Attributes) sng =
-    let xml = ConvertInstrumental.sngToXml (Some attributes) sng
-    xml.Save targetFile
-
-    let arrProps = Option.get attributes.ArrangementProperties
-
-    let tones =
-        [ attributes.Tone_A; attributes.Tone_B; attributes.Tone_C; attributes.Tone_D ]
-        |> List.choose Option.ofString
-
-    let scrollSpeed =
-        let max = Math.Min(int attributes.MaxPhraseDifficulty, attributes.DynamicVisualDensity.Length - 1)
-        float attributes.DynamicVisualDensity.[max]
-
-    let bassPicked =
-        match Option.ofNullable attributes.BassPick with
-        | Some x when x = 1 -> true
-        | _ -> false
-
-    let customAudio =
-        if attributes.SongBank = $"song_{dlcKey}.bnk" then
-            None
-        else
-            let targetFilename = createTargetAudioFilename attributes.SongBank
-            audioFiles
-            |> Array.tryFind (fun audio -> String.contains targetFilename audio.Path)
-
-    { XML = targetFile
-      Name = ArrangementName.Parse attributes.ArrangementName
-      Priority =
-        if arrProps.represent = 1uy then ArrangementPriority.Main
-        elif arrProps.bonusArr = 1uy then ArrangementPriority.Bonus
-        else ArrangementPriority.Alternative
-      Tuning = (Option.get attributes.Tuning).ToArray()
-      TuningPitch = Utils.centsToTuningPitch(float attributes.CentOffset)
-      RouteMask =
-        if arrProps.pathBass = 1uy then RouteMask.Bass
-        elif arrProps.pathLead = 1uy then RouteMask.Lead
-        else RouteMask.Rhythm
-      ScrollSpeed = scrollSpeed
-      BaseTone = attributes.Tone_Base
-      Tones = tones
-      BassPicked = bassPicked
-      MasterID = attributes.MasterID_RDV
-      PersistentID = Guid.Parse(attributes.PersistentID)
-      CustomAudio = customAudio }
-    |> Arrangement.Instrumental
+open PsarcImportUtils
 
 /// Imports a PSARC from the given path into a DLCProject with the project created in the target directory.
 let import (psarcPath: string) (targetDirectory: string) = async {
@@ -115,7 +19,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
     let psarcContents = psarc.Manifest
 
     let dlcKey =
-        match List.filter (String.endsWith "xblock") psarcContents with
+        match psarcContents |> filterFilesWithExtension "xblock" with
         | [ xblock ] -> Path.GetFileNameWithoutExtension xblock
         | [] -> failwith "The package does not contain an xblock file."
         | _ -> failwith "The package contains more than one xblock file\nSong packs cannot be imported."
@@ -128,7 +32,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
 
     let! sngs =
         psarcContents
-        |> List.filter (String.endsWith "sng")
+        |> filterFilesWithExtension "sng"
         |> List.map (fun file -> async {
             use mem = MemoryStreamPool.Default.GetStream()
             do! psarc.InflateFile(file, mem)
@@ -138,7 +42,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
 
     let! fileAttributes =
         psarcContents
-        |> List.filter (String.endsWith "json")
+        |> filterFilesWithExtension "json"
         |> List.map (fun file -> async {
             use mem = MemoryStreamPool.Default.GetStream()
             do! psarc.InflateFile(file, mem)
@@ -157,7 +61,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
 
     let! targetAudioFilesById =
         psarcContents
-        |> List.filter (String.endsWith "bnk")
+        |> filterFilesWithExtension "bnk"
         |> List.map (fun bankName -> async {
             let! volume, id = getVolumeAndFileId psarc platform bankName
             let targetFilename = createTargetAudioFilename bankName
@@ -170,7 +74,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
 
     // Extract audio files
     do! psarcContents
-        |> List.filter (String.endsWith "wem")
+        |> filterFilesWithExtension "wem"
         |> List.map (fun pathInPsarc ->
             let targetAudioFile =
                 targetAudioFilesById

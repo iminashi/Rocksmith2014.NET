@@ -38,8 +38,9 @@
     <Compile Include="Manifest\Techniques.fs" />
     <Compile Include="Manifest\AttributesCreation.fs" />
     <Compile Include="XBlock\XBlock.fs" />
+    <Compile Include="PsarcImport\PsarcImportUtils.fs" />
+    <Compile Include="PsarcImport\PsarcImporter.fs" />
     <Compile Include="ToolkitImporter.fs" />
-    <Compile Include="PsarcImporter.fs" />
     <Compile Include="ShowLightGenerator.fs" />
     <Compile Include="PlatformConverter.fs" />
     <Compile Include="PackageBuilder.fs" />
