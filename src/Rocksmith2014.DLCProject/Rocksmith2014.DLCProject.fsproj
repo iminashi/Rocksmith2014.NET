@@ -23,8 +23,6 @@
     <Compile Include="ActivePatterns.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="Arrangement.fs" />
-    <Compile Include="SoundBankUtils.fs" />
-    <Compile Include="SoundBank.fs" />
     <Compile Include="DDS.fs" />
     <Compile Include="StringValidator.fs" />
     <Compile Include="SortableString.fs" />
@@ -32,12 +30,14 @@
     <Compile Include="DLCProject.fs" />
     <Compile Include="Partitioner.fs" />
     <Compile Include="Wwise.fs" />
+    <Compile Include="XBlock.fs" />
     <Compile Include="AggregateGraph\Tags.fs" />
     <Compile Include="AggregateGraph\GraphItem.fs" />
     <Compile Include="AggregateGraph\AggregateGraph.fs" />
     <Compile Include="Manifest\Techniques.fs" />
     <Compile Include="Manifest\AttributesCreation.fs" />
-    <Compile Include="XBlock\XBlock.fs" />
+    <Compile Include="SoundBank\SoundBankUtils.fs" />
+    <Compile Include="SoundBank\SoundBank.fs" />
     <Compile Include="PsarcImport\PsarcImportUtils.fs" />
     <Compile Include="PsarcImport\PsarcImporter.fs" />
     <Compile Include="ToolkitImporter.fs" />

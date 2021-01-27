@@ -46,7 +46,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
         |> List.map (fun file -> async {
             use mem = MemoryStreamPool.Default.GetStream()
             do! psarc.InflateFile(file, mem)
-            let! manifest = Manifest.fromJsonStream(mem)
+            let! manifest = Manifest.fromJsonStream mem
             return file, Manifest.getSingletonAttributes manifest })
         |> Async.Sequential
 
@@ -120,19 +120,16 @@ let import (psarcPath: string) (targetDirectory: string) = async {
         |> snd
 
     let! version = async {
-        let tkVer = List.tryFind ((=) "toolkit.version") psarcContents
-
-        match tkVer with
-        | Some tk ->
+        match List.contains "toolkit.version" psarcContents with
+        | false ->
+            return "1"
+        | true ->
             use mem = MemoryStreamPool.Default.GetStream()
-            do! psarc.InflateFile(tk, mem)
+            do! psarc.InflateFile("toolkit.version", mem)
             let text = using (new StreamReader(mem)) (fun reader -> reader.ReadToEnd())
-            let m = Regex.Match(text, "Package Version: ([^\r\n]+)\r?\n")
-            if m.Success then
-                return m.Groups.[1].Captures.[0].Value
-            else
-                return "1"
-        | None -> return "1" }
+            match Regex.Match(text, "Package Version: ([^\r\n]+)\r?\n") with
+            | m when m.Success -> return m.Groups.[1].Captures.[0].Value
+            | _ -> return "1" }
 
     let project =
         { Version = version
