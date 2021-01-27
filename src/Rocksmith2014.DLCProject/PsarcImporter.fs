@@ -25,11 +25,16 @@ let private getVolumeAndFileId (psarc: PSARC) platform bank = async {
         
     return volume, fileId }
 
-let private (|VocalsFile|JVocalsFile|InstrumentalFile|) (fileName: string) =
-    match fileName with
+let private (|VocalsFile|JVocalsFile|InstrumentalFile|) = function
     | Contains "jvocals" -> JVocalsFile
     | Contains "vocals" -> VocalsFile
     | _ -> InstrumentalFile
+
+/// Creates a target wem filename from a sound bank name.
+/// Example: "song_dlckey_xxx.bnk" -> "dlckey_xxx.wem"
+let private createTargetAudioFilename (bankName: string) =
+    Path.GetFileNameWithoutExtension(bankName).Substring("song_".Length)
+    |> sprintf "%s.wem"
 
 /// Imports a vocals SNG into a vocals arrangement.
 let private importVocals targetDirectory targetFile customFont (attributes: Attributes) sng isJapanese =
@@ -51,7 +56,7 @@ let private importVocals targetDirectory targetFile customFont (attributes: Attr
     |> Arrangement.Vocals
 
 /// Imports an instrumental SNG into an instrumental arrangement.
-let private importInstrumental targetFile (attributes: Attributes) sng =
+let private importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile (attributes: Attributes) sng =
     let xml = ConvertInstrumental.sngToXml (Some attributes) sng
     xml.Save targetFile
 
@@ -69,6 +74,14 @@ let private importInstrumental targetFile (attributes: Attributes) sng =
         match Option.ofNullable attributes.BassPick with
         | Some x when x = 1 -> true
         | _ -> false
+
+    let customAudio =
+        if attributes.SongBank = $"song_{dlcKey}.bnk" then
+            None
+        else
+            let targetFilename = createTargetAudioFilename attributes.SongBank
+            audioFiles
+            |> Array.tryFind (fun audio -> String.contains targetFilename audio.Path)
 
     { XML = targetFile
       Name = ArrangementName.Parse attributes.ArrangementName
@@ -88,8 +101,7 @@ let private importInstrumental targetFile (attributes: Attributes) sng =
       BassPicked = bassPicked
       MasterID = attributes.MasterID_RDV
       PersistentID = Guid.Parse(attributes.PersistentID)
-      // TODO: Handle import of custom audio
-      CustomAudio = None }
+      CustomAudio = customAudio }
     |> Arrangement.Instrumental
 
 /// Imports a PSARC from the given path into a DLCProject with the project created in the target directory.
@@ -97,17 +109,22 @@ let import (psarcPath: string) (targetDirectory: string) = async {
     let platform =
         if Path.GetFileNameWithoutExtension(psarcPath).EndsWith("_p") then PC else Mac
 
+    let toTargetPath filename = Path.Combine(targetDirectory, filename)
+
     use psarc = PSARC.ReadFile psarcPath
     let psarcContents = psarc.Manifest
 
-    let audioFiles = List.filter (String.endsWith "wem") psarcContents
-    if audioFiles.Length > 2 then failwith "Package contains more than 2 audio files."
+    let dlcKey =
+        match List.filter (String.endsWith "xblock") psarcContents with
+        | [ xblock ] -> Path.GetFileNameWithoutExtension xblock
+        | [] -> failwith "The package does not contain an xblock file."
+        | _ -> failwith "The package contains more than one xblock file\nSong packs cannot be imported."
 
     let artFile = List.find (String.endsWith "256.dds") psarcContents
-    do! psarc.InflateFile(artFile, Path.Combine(targetDirectory, "cover.dds"))
+    do! psarc.InflateFile(artFile, toTargetPath "cover.dds")
 
     let showlights = List.find (String.contains "showlights") psarcContents
-    do! psarc.InflateFile(showlights, Path.Combine(targetDirectory, "arr_showlights.xml"))
+    do! psarc.InflateFile(showlights, toTargetPath "arr_showlights.xml")
 
     let! sngs =
         psarcContents
@@ -130,16 +147,39 @@ let import (psarcPath: string) (targetDirectory: string) = async {
         |> Async.Sequential
 
     let! customFont = async {
-        let font =
-            psarcContents
-            |> List.tryFind (String.contains "assets/ui/lyrics")
-        match font with
+        match List.tryFind (String.contains "assets/ui/lyrics") psarcContents with
         | Some font ->
-            let fn = Path.Combine(targetDirectory, "lyrics.dds")
-            use file = File.Create fn
+            let targetPath = toTargetPath "lyrics.dds"
+            use file = File.Create targetPath
             do! psarc.InflateFile(font, file)
-            return Some fn
+            return Some targetPath
         | None -> return None }
+
+    let! targetAudioFilesById =
+        psarcContents
+        |> List.filter (String.endsWith "bnk")
+        |> List.map (fun bankName -> async {
+            let! volume, id = getVolumeAndFileId psarc platform bankName
+            let targetFilename = createTargetAudioFilename bankName
+            return string id, { Path = toTargetPath targetFilename; Volume = float volume } })
+        |> Async.Sequential
+
+    let targetAudioFiles = targetAudioFilesById |> Array.map snd
+    let mainAudio = targetAudioFiles |> Array.find (fun audio -> String.endsWith $"{dlcKey}.wem" audio.Path)
+    let previewAudio = targetAudioFiles |> Array.find (fun audio -> String.endsWith $"{dlcKey}_preview.wem" audio.Path)
+
+    // Extract audio files
+    do! psarcContents
+        |> List.filter (String.endsWith "wem")
+        |> List.map (fun pathInPsarc ->
+            let targetAudioFile =
+                targetAudioFilesById
+                |> Array.find (fun (id, _) -> String.contains id pathInPsarc)
+                |> snd
+                    
+            psarc.InflateFile(pathInPsarc, targetAudioFile.Path))
+        |> Async.Sequential
+        |> Async.Ignore
 
     let arrangements =
         sngs
@@ -147,7 +187,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
             // Change the filenames from "dlckey_name" to "arr_name"
             let targetFile =
                 let f = Path.GetFileName file
-                Path.Combine(targetDirectory, Path.ChangeExtension("arr" + f.Substring(f.IndexOf '_'), "xml"))
+                toTargetPath <| Path.ChangeExtension("arr" + f.Substring(f.IndexOf '_'), "xml")
             let attributes =
                 fileAttributes
                 |> Array.find (fun (mFile, _) -> Path.GetFileNameWithoutExtension mFile = Path.GetFileNameWithoutExtension file)
@@ -158,30 +198,10 @@ let import (psarcPath: string) (targetDirectory: string) = async {
             match file with
             | JVocalsFile -> importVocals' true
             | VocalsFile -> importVocals' false
-            | InstrumentalFile -> importInstrumental targetFile attributes sng)
+            | InstrumentalFile -> importInstrumental targetAudioFiles dlcKey targetFile attributes sng)
         |> Array.toList
-        |> List.append [ Showlights { XML = Path.Combine(targetDirectory, "arr_showlights.xml") } ]
+        |> List.append [ Showlights { XML = toTargetPath "arr_showlights.xml" } ]
         |> List.sortBy Arrangement.sorter
-
-    let previewBank, mainBank =
-        psarcContents
-        |> List.filter (String.endsWith "bnk")
-        |> List.partition (String.contains "preview")
-        |> fun (preview, main) -> List.head preview, List.head main
-
-    let! mainVolume, mainFileId = getVolumeAndFileId psarc platform mainBank
-    let! previewVolume, _ = getVolumeAndFileId psarc platform previewBank
-
-    do! audioFiles
-        |> List.map (fun x ->
-            let targetFile =
-                if x.Contains(string mainFileId, StringComparison.Ordinal) then
-                    "audio.wem"
-                else
-                    "audio_preview.wem"
-            psarc.InflateFile(x, Path.Combine(targetDirectory, targetFile)))
-        |> Async.Sequential
-        |> Async.Ignore
            
     let tones =
         fileAttributes
@@ -219,17 +239,17 @@ let import (psarcPath: string) (targetDirectory: string) = async {
           Title = { Value = metaData.SongName; SortValue = metaData.SongNameSort }
           AlbumName = { Value = metaData.AlbumName; SortValue = metaData.AlbumNameSort }
           Year = metaData.SongYear |> Option.ofNullable |> Option.defaultValue 0
-          AlbumArtFile = Path.Combine(targetDirectory, "cover.dds")
-          AudioFile = { Path = Path.Combine(targetDirectory, "audio.wem"); Volume = float mainVolume }
-          AudioPreviewFile = { Path = Path.Combine(targetDirectory, "audio_preview.wem"); Volume = float previewVolume }
+          AlbumArtFile = toTargetPath "cover.dds"
+          AudioFile = mainAudio
+          AudioPreviewFile = previewAudio
           Arrangements = arrangements
           Tones = tones }
 
     let projectFile =
-        let fn =
-            sprintf "%s_%s" project.ArtistName.SortValue project.Title.SortValue
-            |> StringValidator.fileName
-        Path.Combine(targetDirectory, fn + ".rs2dlc")
+        sprintf "%s_%s" project.ArtistName.SortValue project.Title.SortValue
+        |> StringValidator.fileName
+        |> sprintf "%s.rs2dlc"
+        |> toTargetPath
 
     do! DLCProject.save projectFile project
 

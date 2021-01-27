@@ -1,6 +1,7 @@
 ﻿module Rocksmith2014.XML.Processing.ArrangementChecker
 
 open Rocksmith2014.XML
+open System.Runtime.CompilerServices
 open System.Text.RegularExpressions
 
 let [<Literal>] LyricsCharset = """ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_abcdefghijklmnopqrstuvwxyz{|}~¡¢¥¦§¨ª«°²³´•¸¹º»¼½¾¿ÀÁÂÄÅÆÇÈÉÊËÌÎÏÑÒÓÔÖØÙÚÛÜÞßàáâäåæçèéêëìíîïñòóôöøùúûüŒœŠšž„…€™␀★➨"""
@@ -32,7 +33,7 @@ type Issue = { Type : IssueType; TimeCode: int }
 
 let private issue type' time = { Type = type'; TimeCode = time }
 
-[<Struct>]
+[<IsReadOnly; Struct>]
 type private NgSection = { StartTime: int; EndTime: int }
 
 /// Checks for unexpected crowd events between the intro applause start and end events.
@@ -213,7 +214,7 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
         // Check for chords inside noguitar sections
         if isInsideNoguitarSection ngSections time then
             issue NoteInsideNoguitarSection time
-   ]
+    ]
 
 /// Checks the handshapes in the arrangement for issues.
 let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
@@ -294,10 +295,10 @@ let runAllChecks (arr: InstrumentalArrangement) =
 /// Checks the vocals for characters not in the default font.
 let checkVocals (vocals: ResizeArray<Vocal>) =
     vocals
-    |> Seq.tryPick (fun v ->
-        v.Lyric
+    |> Seq.tryPick (fun vocal ->
+        vocal.Lyric
         |> Seq.tryFindIndex (LyricsCharset.Contains >> not)
-        |> Option.map (fun i -> v, v.Lyric.[i]))
+        |> Option.map (fun i -> vocal, vocal.Lyric.[i]))
     |> Option.map (fun (invalidVocal, invalidChar) ->
         issue (LyricWithInvalidChar invalidChar) invalidVocal.Time)
 
