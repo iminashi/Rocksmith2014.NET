@@ -31,7 +31,7 @@ type SecondOrderIIRFilter(b0At48k, b1At48k, b2At48k, a1At48k, a2At48k, sampleRat
         a1 <- 2. * (k * k - 1.) * commonFactor
         a2 <- (1. - k / q + k * k) * commonFactor
             
-    member _.ProcessBuffer(buffer: float[][]) =
+    member _.ProcessBufferGeneral(buffer: float[][]) =
         for channel = 0 to numChannels - 1 do
             let samples = buffer.[channel]
 
@@ -45,3 +45,27 @@ type SecondOrderIIRFilter(b0At48k, b1At48k, b2At48k, a1At48k, a2At48k, sampleRat
                 z1.[channel] <- factorForB0
 
                 samples.[i] <- outVal
+
+    member this.ProcessBuffer(buffer: float[][]) =
+        // Unroll the outer loop for the usual case of two channel audio
+        if numChannels = 2 then
+            for i = 0 to buffer.[0].Length - 1 do
+                // Channel 1
+                let factorForB0 = buffer.[0].[i] - a1 * z1.[0] - a2 * z2.[0]
+                let outVal = b0 * factorForB0 + b1 * z1.[0] + b2 * z2.[0]
+
+                z2.[0] <- z1.[0]
+                z1.[0] <- factorForB0
+
+                buffer.[0].[i] <- outVal
+
+                // Channel 2
+                let factorForB0 = buffer.[1].[i] - a1 * z1.[1] - a2 * z2.[1]
+                let outVal = b0 * factorForB0 + b1 * z1.[1] + b2 * z2.[1]
+
+                z2.[1] <- z1.[1]
+                z1.[1] <- factorForB0
+
+                buffer.[1].[i] <- outVal
+        else
+            this.ProcessBufferGeneral buffer
