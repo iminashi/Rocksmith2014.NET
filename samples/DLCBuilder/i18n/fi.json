@@ -206,5 +206,8 @@
   "customAudioFile": "Eri äänitiedosto",
   "calculateVolumes": "Laske äänenvoimakkuudet",
   "moreInfo": "Lisätietoja",
-  "convertWemOnImport": "Muunna wem tiedostot"
+  "convertWemOnImport": "Muunna wem tiedostot kun PSARC tuodaan",
+  "noConversion": "Pois päältä",
+  "toOggFile": "Ogg tiedostoiksi",
+  "toWavFile": "Wave tiedostoiksi"
 }

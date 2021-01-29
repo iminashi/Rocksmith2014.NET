@@ -190,30 +190,31 @@ let private generalConfig state dispatch =
      ]
 
 let private importConfig state dispatch =
-    Grid.create [
-        Grid.columnDefinitions "*,2*"
-        Grid.rowDefinitions "*,*,*,*,*,*,*"
-        Grid.verticalAlignment VerticalAlignment.Top
-        Grid.children [
+    let localize conv =
+        match conv with
+        | NoConversion -> "noConversion"
+        | ToOgg -> "toOggFile"
+        | ToWav -> "toWavFile"
+        |> state.Localization.GetString
+
+    StackPanel.create [
+        StackPanel.children [
             TextBlock.create [
-                Grid.row 0
-                TextBlock.margin (0., 0., 4., 0.)
-                TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text (state.Localization.GetString "convertWemOnImport")
+                TextBlock.horizontalAlignment HorizontalAlignment.Left
+                TextBlock.margin (0., 0., 0., 4.)
             ]
-            CheckBox.create [
-                Grid.column 1
-                Grid.row 0
-                CheckBox.isChecked state.Config.ConvertAudio
-                CheckBox.onChecked (fun _ ->
-                    fun c -> { c with ConvertAudio = true }
-                    |> EditConfig
-                    |> dispatch)
-                CheckBox.onUnchecked (fun _ ->
-                    fun c -> { c with ConvertAudio = false }
-                    |> EditConfig
-                    |> dispatch)
-            ]
+            yield! [ NoConversion; ToOgg; ToWav ]
+            |> List.map(fun conv ->
+                RadioButton.create [
+                    RadioButton.margin (0., 2.)
+                    RadioButton.isChecked (state.Config.ConvertAudio = conv)
+                    RadioButton.content (localize conv)
+                    RadioButton.onChecked (fun _ ->
+                        fun c -> { c with ConvertAudio = conv }
+                        |> EditConfig
+                        |> dispatch)
+                ] |> generalize)
         ]
     ]
 

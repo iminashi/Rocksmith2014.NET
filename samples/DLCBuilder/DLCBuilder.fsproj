@@ -95,6 +95,7 @@
     <PackageReference Include="JaggerJo.Avalonia.FuncUI.Elmish" Version="0.5.0-beta" />
     <PackageReference Include="Live.Avalonia" Version="1.1.1" />
     <PackageReference Include="NAudio" Version="1.10.0" />
+    <PackageReference Include="NAudio.Vorbis" Version="1.2.0" />
     <PackageReference Include="Pfim" Version="0.9.1" />
     <PackageReference Include="SimpleSIMD" Version="2.5.1" />
   </ItemGroup>

@@ -5,6 +5,8 @@ open System
 open System.IO
 open System.Text.Json
 
+type AudioConversionType = NoConversion | ToWav | ToOgg
+
 type Configuration =
     { ReleasePlatforms : Platform list
       ProfilePath : string
@@ -18,7 +20,7 @@ type Configuration =
       ApplyImprovements : bool
       SaveDebugFiles : bool
       AutoVolume : bool
-      ConvertAudio : bool
+      ConvertAudio : AudioConversionType
       Locale : Locale
       WwiseConsolePath : string option
       CustomAppId : string option }
@@ -36,7 +38,7 @@ type Configuration =
           ApplyImprovements = true
           SaveDebugFiles = false
           AutoVolume = true
-          ConvertAudio = true
+          ConvertAudio = NoConversion
           Locale = Locales.English
           WwiseConsolePath = None
           CustomAppId = None }
@@ -56,7 +58,7 @@ module Configuration =
         member val ApplyImprovements : bool = true with get, set
         member val SaveDebugFiles : bool = false with get, set
         member val AutoVolume : bool = true with get, set
-        member val ConvertAudio : bool = true with get, set
+        member val ConvertAudio : int = 0 with get, set
         member val Locale : string = "en" with get, set
         member val WwiseConsolePath : string = String.Empty with get, set
         member val CustomAppId : string = String.Empty with get, set
@@ -78,6 +80,12 @@ module Configuration =
 
         let threshold = Math.Clamp(dto.DDPhraseSearchThreshold, 0, 100)
 
+        let convertAudio =
+            match dto.ConvertAudio with
+            | 1 -> ToOgg
+            | 2 -> ToWav
+            | _ -> NoConversion
+
         { ReleasePlatforms = platforms
           ProfilePath = dto.ProfilePath
           TestFolderPath = dto.TestFolderPath
@@ -90,13 +98,19 @@ module Configuration =
           ApplyImprovements = dto.ApplyImprovements
           SaveDebugFiles = dto.SaveDebugFiles
           AutoVolume = dto.AutoVolume
-          ConvertAudio = dto.ConvertAudio
+          ConvertAudio = convertAudio
           Locale = Locales.fromShortName dto.Locale
           WwiseConsolePath = Option.ofString dto.WwiseConsolePath
           CustomAppId = Option.ofString dto.CustomAppId }
 
     /// Converts a configuration into a configuration DTO.
     let private toDto (config: Configuration) =
+        let convertAudio =
+            match config.ConvertAudio with
+            | NoConversion -> 0
+            | ToOgg -> 1
+            | ToWav -> 2
+
         Dto(ReleasePC = (config.ReleasePlatforms |> List.contains PC),
             ReleaseMac = (config.ReleasePlatforms |> List.contains Mac),
             ProfilePath = config.ProfilePath,
@@ -110,7 +124,7 @@ module Configuration =
             DDPhraseSearchThreshold = config.DDPhraseSearchThreshold,
             ApplyImprovements = config.ApplyImprovements,
             AutoVolume = config.AutoVolume,
-            ConvertAudio = config.ConvertAudio,
+            ConvertAudio = convertAudio,
             SaveDebugFiles = config.SaveDebugFiles,
             WwiseConsolePath = Option.toObj config.WwiseConsolePath,
             CustomAppId = Option.toObj config.CustomAppId)

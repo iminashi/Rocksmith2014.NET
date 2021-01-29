@@ -163,14 +163,17 @@ let update (msg: Msg) (state: State) =
     | ImportPsarc (psarcFile, Some targetFolder) ->
         let task() = async {
             let! x = PsarcImporter.import psarcFile targetFolder
-            if state.Config.ConvertAudio then
-                Audio.Conversion.allWemToOgg targetFolder 
+            match state.Config.ConvertAudio with
+            | ToOgg -> Audio.Conversion.allWemToOgg targetFolder false
+            | ToWav -> Audio.Conversion.allWemToOgg targetFolder true
+            | NoConversion -> ()
             return x }
 
         let newState, onError =
-            if state.Config.ConvertAudio then
+            match state.Config.ConvertAudio with
+            | ToOgg | ToWav ->
                 addTask PsarcImport state, fun ex -> TaskFailed(ex, PsarcImport)
-            else
+            | NoConversion ->
                 state, ErrorOccurred
 
         newState, Cmd.OfAsync.either task () ProjectLoaded onError

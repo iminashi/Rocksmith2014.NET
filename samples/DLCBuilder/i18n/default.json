@@ -206,5 +206,8 @@
   "customAudioFile": "Custom Audio File",
   "calculateVolumes": "Calculate Volumes",
   "moreInfo": "More Info",
-  "convertWemOnImport": "Convert wem files to ogg"
+  "convertWemOnImport": "Convert Audio on PSARC Import",
+  "noConversion": "Disabled",
+  "toOggFile": "To Ogg File",
+  "toWavFile": "To Wave File"
 }
