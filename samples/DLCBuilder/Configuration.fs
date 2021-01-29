@@ -18,6 +18,7 @@ type Configuration =
       ApplyImprovements : bool
       SaveDebugFiles : bool
       AutoVolume : bool
+      ConvertAudio : bool
       Locale : Locale
       WwiseConsolePath : string option
       CustomAppId : string option }
@@ -35,6 +36,7 @@ type Configuration =
           ApplyImprovements = true
           SaveDebugFiles = false
           AutoVolume = true
+          ConvertAudio = true
           Locale = Locales.English
           WwiseConsolePath = None
           CustomAppId = None }
@@ -54,6 +56,7 @@ module Configuration =
         member val ApplyImprovements : bool = true with get, set
         member val SaveDebugFiles : bool = false with get, set
         member val AutoVolume : bool = true with get, set
+        member val ConvertAudio : bool = true with get, set
         member val Locale : string = "en" with get, set
         member val WwiseConsolePath : string = String.Empty with get, set
         member val CustomAppId : string = String.Empty with get, set
@@ -87,6 +90,7 @@ module Configuration =
           ApplyImprovements = dto.ApplyImprovements
           SaveDebugFiles = dto.SaveDebugFiles
           AutoVolume = dto.AutoVolume
+          ConvertAudio = dto.ConvertAudio
           Locale = Locales.fromShortName dto.Locale
           WwiseConsolePath = Option.ofString dto.WwiseConsolePath
           CustomAppId = Option.ofString dto.CustomAppId }
@@ -106,6 +110,7 @@ module Configuration =
             DDPhraseSearchThreshold = config.DDPhraseSearchThreshold,
             ApplyImprovements = config.ApplyImprovements,
             AutoVolume = config.AutoVolume,
+            ConvertAudio = config.ConvertAudio,
             SaveDebugFiles = config.SaveDebugFiles,
             WwiseConsolePath = Option.toObj config.WwiseConsolePath,
             CustomAppId = Option.toObj config.CustomAppId)

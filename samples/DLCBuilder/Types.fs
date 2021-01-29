@@ -29,6 +29,7 @@ type VolumeTarget = MainAudio | PreviewAudio
 type LongTask =
     | BuildPackage
     | WemConversion
+    | PsarcImport
     | ArrangementCheck
     | VolumeCalculation of VolumeTarget
 

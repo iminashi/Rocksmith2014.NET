@@ -24,6 +24,7 @@ let view state dispatch =
 
     let canBuild =
         noBuildInProgress
+        && (not <| state.RunningTasks.Contains PsarcImport)
         && state.Project.Arrangements.Length > 0
         && state.Project.DLCKey.Length >= 5
         && String.notEmpty state.Project.AudioFile.Path
@@ -370,6 +371,7 @@ let view state dispatch =
                                         Button.fontSize 16.
                                         Button.content (state.Localization.GetString "openProject")
                                         Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectProjectFile", Dialogs.projectFilter, OpenProject)))
+                                        Button.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
                                     ]
                                     Menu.create [
                                         Menu.fontSize 16.
@@ -377,6 +379,7 @@ let view state dispatch =
                                         Menu.margin (0., 4., 4., 4.)
                                         Menu.viewItems [
                                             MenuItem.create [
+                                                MenuItem.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
                                                 MenuItem.header (TextBlock.create [
                                                     TextBlock.text "..."
                                                     TextBlock.verticalAlignment VerticalAlignment.Center

@@ -8,7 +8,6 @@ open Rocksmith2014.DD
 open Rocksmith2014.DLCProject.PackageBuilder
 open Rocksmith2014.XML.Processing
 open Elmish
-open System.Runtime.InteropServices
 open System
 open Avalonia
 open Avalonia.Media.Imaging
@@ -48,7 +47,7 @@ let init arg =
       ImportTones = []
       PreviewStartTime = TimeSpan()
       RunningTasks = Set.empty
-      CurrentPlatform = if RuntimeInformation.IsOSPlatform OSPlatform.OSX then Mac else PC
+      CurrentPlatform = if OperatingSystem.IsMacOS() then Mac else PC
       OpenProjectFile = None
       ArrangementIssues = Map.empty
       Localization = Localization(Locales.English) }, commands
@@ -162,8 +161,19 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfAsync.perform dialog None (fun folder -> ImportPsarc(psarcFile, folder))
 
     | ImportPsarc (psarcFile, Some targetFolder) ->
-        let task() = PsarcImporter.import psarcFile targetFolder
-        state, Cmd.OfAsync.either task () ProjectLoaded ErrorOccurred
+        let task() = async {
+            let! x = PsarcImporter.import psarcFile targetFolder
+            if state.Config.ConvertAudio then
+                Audio.Conversion.allWemToOgg targetFolder 
+            return x }
+
+        let newState, onError =
+            if state.Config.ConvertAudio then
+                addTask PsarcImport state, fun ex -> TaskFailed(ex, PsarcImport)
+            else
+                state, ErrorOccurred
+
+        newState, Cmd.OfAsync.either task () ProjectLoaded onError
 
     | ImportToolkitTemplate fileName ->
         try
@@ -475,6 +485,7 @@ let update (msg: Msg) (state: State) =
                      OpenProjectFile = Some projectFile
                      RecentFiles = recent
                      SelectedArrangement = None
+                     RunningTasks = state.RunningTasks |> Set.remove PsarcImport
                      SelectedTone = None }, Cmd.none
 
     | EditInstrumental edit ->
