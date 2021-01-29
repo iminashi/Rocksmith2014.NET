@@ -12,6 +12,10 @@ On Windows the program will try to find the Wwise installation automatically usi
 
 ## Missing Features
 
-- Wem to ogg/wav conversion when importing a PSARC
 - Tone editing / Exporting tones
 - Support for console platforms (Most likely will not be added)
+
+## External Tools Used
+
+- [ww2ogg](https://github.com/hcs64/ww2ogg)
+- [revorb](https://github.com/jonboydell/revorb-nix)
