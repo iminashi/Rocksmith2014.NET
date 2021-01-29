@@ -197,6 +197,7 @@
   "InvalidShowlightsHelp": "Tämä valoshowtiedosto kaataa pelin, kun kappale valitaan.",
   "general": "Yleinen",
   "build": "Rakennus",
+  "importHeader": "Tuonti",
   "generateDD": "Generoi DD",
   "findSimilarPhrases": "Etsi samanlaiset fraasit",
   "similarityThreshold": "Samuuskynnys",
@@ -204,5 +205,6 @@
   "saveDebugFiles": "Luo debug tiedostoja",
   "customAudioFile": "Eri äänitiedosto",
   "calculateVolumes": "Laske äänenvoimakkuudet",
-  "moreInfo": "Lisätietoja"
+  "moreInfo": "Lisätietoja",
+  "convertWemOnImport": "Muunna wem tiedostot"
 }

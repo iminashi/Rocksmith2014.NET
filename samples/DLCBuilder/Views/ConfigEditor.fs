@@ -189,6 +189,34 @@ let private generalConfig state dispatch =
         ]
      ]
 
+let private importConfig state dispatch =
+    Grid.create [
+        Grid.columnDefinitions "*,2*"
+        Grid.rowDefinitions "*,*,*,*,*,*,*"
+        Grid.verticalAlignment VerticalAlignment.Top
+        Grid.children [
+            TextBlock.create [
+                Grid.row 0
+                TextBlock.margin (0., 0., 4., 0.)
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text (state.Localization.GetString "convertWemOnImport")
+            ]
+            CheckBox.create [
+                Grid.column 1
+                Grid.row 0
+                CheckBox.isChecked state.Config.ConvertAudio
+                CheckBox.onChecked (fun _ ->
+                    fun c -> { c with ConvertAudio = true }
+                    |> EditConfig
+                    |> dispatch)
+                CheckBox.onUnchecked (fun _ ->
+                    fun c -> { c with ConvertAudio = false }
+                    |> EditConfig
+                    |> dispatch)
+            ]
+        ]
+    ]
+
 let private buildConfig state dispatch =
     Grid.create [
         Grid.columnDefinitions "*,2*"
@@ -419,6 +447,7 @@ let view state dispatch =
             TextBlock.create [
                 DockPanel.dock Dock.Top
                 TextBlock.fontSize 16.
+                TextBlock.margin (0., 0., 0., 5.)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
                 TextBlock.text (state.Localization.GetString "configuration")
@@ -448,6 +477,11 @@ let view state dispatch =
                         TabItem.horizontalAlignment HorizontalAlignment.Center
                         TabItem.header (tabHeader Media.Icons.package (state.Localization.GetString "build"))
                         TabItem.content (buildConfig state dispatch)
+                    ]
+                    TabItem.create [
+                        TabItem.horizontalAlignment HorizontalAlignment.Center
+                        TabItem.header (tabHeader Media.Icons.import (state.Localization.GetString "importHeader"))
+                        TabItem.content (importConfig state dispatch)
                     ]
                 ]
             ]

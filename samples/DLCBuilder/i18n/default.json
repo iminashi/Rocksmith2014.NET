@@ -197,6 +197,7 @@
   "InvalidShowlightsHelp": "This show lights file will crash the game when the song is selected.",
   "general": "General",
   "build": "Build",
+  "importHeader": "Import",
   "generateDD": "Generate DD",
   "findSimilarPhrases": "Find Similar Phrases",
   "similarityThreshold": "Similarity Threshold",
@@ -204,5 +205,6 @@
   "saveDebugFiles": "Save Debug Files",
   "customAudioFile": "Custom Audio File",
   "calculateVolumes": "Calculate Volumes",
-  "moreInfo": "More Info"
+  "moreInfo": "More Info",
+  "convertWemOnImport": "Convert wem files to ogg"
 }
