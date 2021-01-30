@@ -163,12 +163,19 @@ let update (msg: Msg) (state: State) =
 
     | ImportPsarc (psarcFile, Some targetFolder) ->
         let task() = async {
-            let! x = PsarcImporter.import psarcFile targetFolder
+            let! project, fileName = PsarcImporter.import psarcFile targetFolder
+
             match state.Config.ConvertAudio with
-            | ToOgg -> Conversion.allWemToOgg targetFolder false
-            | ToWav -> Conversion.allWemToOgg targetFolder true
-            | NoConversion -> ()
-            return x }
+            | ToOgg | ToWav as conv ->
+                [ yield project.AudioFile
+                  yield project.AudioPreviewFile
+                  yield! project.Arrangements
+                         |> List.choose (function Instrumental i -> i.CustomAudio | _ -> None) ]
+                |> List.map (fun x -> x.Path)
+                |> Conversion.wemToOgg (conv = ToWav)
+            | NoConversion ->
+                ()
+            return project, fileName }
 
         let newState, onError =
             match state.Config.ConvertAudio with
@@ -270,7 +277,7 @@ let update (msg: Msg) (state: State) =
             else
                 String.Empty
         let cmd =
-            if state.Config.AutoVolume && String.endsWith ".wav" fileName then
+            if state.Config.AutoVolume && not <| String.endsWith ".wem" fileName then
                 [ Cmd.ofMsg (CalculateVolume MainAudio)
                   if String.notEmpty previewPath then Cmd.ofMsg (CalculateVolume PreviewAudio) ]
                 |> Cmd.batch

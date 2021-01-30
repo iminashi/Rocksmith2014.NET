@@ -13,7 +13,7 @@ let private createFilters name (extensions : string seq) =
     let filter = FileDialogFilter(Extensions = List(extensions), Name = name)
     List(seq { filter })
 
-let audioFileFilters (loc:ILocalization) = createFilters (loc.GetString "audioFiles") (seq { "wav"; "wem" })
+let audioFileFilters (loc:ILocalization) = createFilters (loc.GetString "audioFiles") (seq { "wav"; "ogg"; "wem" })
 let xmlFileFilter (loc:ILocalization) = createFilters (loc.GetString "rocksmithArrangementFiles") (seq { "xml" })
 let imgFileFilter (loc:ILocalization) = createFilters (loc.GetString "imageFiles") (seq { "png"; "jpg"; "dds" })
 let ddsFileFilter (loc:ILocalization) = createFilters (loc.GetString "ddsTextureFiles") (seq { "dds" })

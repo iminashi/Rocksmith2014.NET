@@ -208,6 +208,6 @@
   "moreInfo": "More Info",
   "convertWemOnImport": "Convert Audio on PSARC Import",
   "noConversion": "Disabled",
-  "toOggFile": "To Ogg File",
-  "toWavFile": "To Wave File"
+  "toOggFile": "To Ogg Files",
+  "toWavFile": "To Wave Files"
 }

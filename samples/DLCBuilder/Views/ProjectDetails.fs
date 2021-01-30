@@ -219,7 +219,7 @@ let view state dispatch =
                                 DockPanel.dock Dock.Right
                                 Button.content "wem"
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
-                                Button.isEnabled (noBuildInProgress && String.endsWith "wav" state.Project.AudioFile.Path)
+                                Button.isEnabled (noBuildInProgress && not <| String.endsWith "wem" state.Project.AudioFile.Path)
                                 Button.onClick (fun _ -> dispatch ConvertToWem)
                             ]
 
@@ -229,12 +229,12 @@ let view state dispatch =
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
                                 Button.isEnabled (
                                     noBuildInProgress
-                                    && String.endsWith "wav" state.Project.AudioFile.Path
+                                    && not <| String.endsWith "wem" state.Project.AudioFile.Path
                                     && notCalculatingVolume)
                                 Button.onClick ((fun _ ->
                                     dispatch (CalculateVolume MainAudio)
                                     let previewPath = state.Project.AudioPreviewFile.Path
-                                    if IO.File.Exists previewPath && String.endsWith "wav" previewPath then
+                                    if IO.File.Exists previewPath && not <| String.endsWith "wem" previewPath then
                                         dispatch (CalculateVolume PreviewAudio)
                                     ), SubPatchOptions.OnChangeOf state.Project.AudioPreviewFile)
                             ]

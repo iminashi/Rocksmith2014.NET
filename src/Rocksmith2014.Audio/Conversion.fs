@@ -15,9 +15,9 @@ let oggToWav sourcePath targetPath =
     use ogg = new VorbisWaveReader(sourcePath)
     WaveFileWriter.CreateWaveFile16(targetPath, ogg)
 
-let private processFiles path pattern cmd args =
-    Directory.EnumerateFiles(path, pattern)
-    |> Seq.iter (fun file ->
+let private processFiles cmd args (files: string list) =
+    files
+    |> List.iter (fun file ->
         let startInfo = ProcessStartInfo(FileName = cmd,
                                          Arguments = String.Format(args, file),
                                          WorkingDirectory = toolsDir,
@@ -26,13 +26,18 @@ let private processFiles path pattern cmd args =
         proc.Start() |> ignore
         proc.WaitForExit())
 
-let allWemToOgg folder toWave =
-    processFiles folder "*.wem" ww2ogg "\"{0}\" --pcb packed_codebooks_aoTuV_603.bin"
-    processFiles folder "*.ogg" revorb "\"{0}\""
+/// Converts wem files to ogg or wav files.
+let wemToOgg toWave wemfiles =
+    let oggFiles =
+        wemfiles
+        |> List.map (fun path -> Path.ChangeExtension(path, "ogg"))
+
+    processFiles ww2ogg "\"{0}\" --pcb packed_codebooks_aoTuV_603.bin" wemfiles
+    processFiles revorb "\"{0}\"" oggFiles
 
     if toWave then
-        Directory.EnumerateFiles(folder, "*.ogg")
-        |> Seq.iter(fun sourcePath ->
+        oggFiles
+        |> List.iter(fun sourcePath ->
             let targetPath = Path.ChangeExtension(sourcePath, "wav")
             oggToWav sourcePath targetPath
             File.Delete sourcePath)
