@@ -18,8 +18,8 @@ open System.Collections.Generic
 //    *Version 2: Sum of all regions of DNA ID to DNA None (or the end of the song)
 //    *Version 3: Sum of all regions of DNA ID to different DNA ID (or the END phrase)
 
-let private bti b = if b then 1 else 0
-let private btb b = if b then 1uy else 0uy
+let inline private bti (b: bool) = Convert.ToInt32 b
+let inline private btb (b: bool) = Convert.ToByte b
 
 let private getJapaneseVocal = function
     | Vocals v when v.Japanese -> Nullable(true)

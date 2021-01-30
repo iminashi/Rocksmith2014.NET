@@ -56,7 +56,7 @@ let view state dispatch =
                             fun p -> { p with DLCKey = StringValidator.dlcKey e }
                             |> EditProject
                             |> dispatch)
-                        // Display the validated DLC key if invalid characters very pasted into the textbox
+                        // Display the validated DLC key if invalid characters were pasted into the textbox
                         TextBox.onLostFocus (
                             (fun e -> (e.Source :?> TextBox).Text <- state.Project.DLCKey),
                             SubPatchOptions.OnChangeOf state.Project.DLCKey)

@@ -45,9 +45,6 @@ let tryAverage = function
     | [||] -> 0.f
     | arr -> arr |> Array.average
 
-/// Converts a boolean value into a signed byte.
-let inline boolToByte b = if b then 1y else 0y
-
 /// Finds the index of the phrase iteration that contains the given time code.
 let findPiId inclusive (time: int) (iterations: ResizeArray<XML.PhraseIteration>) =
     let mutable id = iterations.Count - 1
