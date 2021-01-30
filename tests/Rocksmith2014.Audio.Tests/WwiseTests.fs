@@ -23,4 +23,13 @@ let wwiseTests =
 
             Expect.isTrue (File.Exists mainWemPath) "Main wem file was created"
             Expect.isTrue (File.Exists previewWemPath) "Preview wem file was created" }
+
+        testAsync "Main and preview audio can be converted (Vorbis main file + Wave preview file)" {
+            if File.Exists mainWemPath then File.Delete mainWemPath
+            if File.Exists previewWemPath then File.Delete previewWemPath
+
+            do! Wwise.convertToWem None TestFiles.VorbisFile
+
+            Expect.isTrue (File.Exists mainWemPath) "Main wem file was created"
+            Expect.isTrue (File.Exists previewWemPath) "Preview wem file was created" }
     ]

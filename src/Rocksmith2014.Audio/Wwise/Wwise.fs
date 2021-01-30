@@ -57,10 +57,22 @@ let private loadTemplate (sourcePath: string) =
 
     let orgSfxDir = Path.Combine(templateDir, "Originals", "SFX")
 
-    let previewFile = Utils.createPreviewAudioPath sourcePath
+    let wavPreview = Utils.createPreviewAudioPath sourcePath
+    let oggPreview = Path.ChangeExtension(wavPreview, "ogg")
+    let mainTarget = Path.Combine(orgSfxDir, "Audio.wav")
+    let previewTarget = Path.Combine(orgSfxDir, "Audio_preview.wav")
+    
+    // Copy main audio file
+    match sourcePath with
+    | EndsWith ".wav" -> File.Copy(sourcePath, mainTarget, true)
+    | EndsWith ".ogg" -> Conversion.oggToWav sourcePath mainTarget
+    | _ -> failwith "Could not detect file type from extension."
 
-    File.Copy (previewFile, Path.Combine(orgSfxDir, "Audio_preview.wav"), true)
-    File.Copy (sourcePath, Path.Combine(orgSfxDir, "Audio.wav"), true)
+    // Copy preview audio file
+    if File.Exists oggPreview && not <| File.Exists wavPreview then
+        Conversion.oggToWav oggPreview previewTarget
+    else
+        File.Copy(wavPreview, previewTarget, true)
 
     templateDir
 

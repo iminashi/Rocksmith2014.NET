@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="Types.fs" />
     <Compile Include="Utils.fs" />
+    <Compile Include="Conversion.fs" />
     <EmbeddedResource Include="Wwise\wwise2019.zip" />
     <Content Include="Tools\packed_codebooks.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -51,7 +52,6 @@
     <Compile Include="Volume\LufsMeter.fs" />
     <Compile Include="Volume\Volume.fs" />
     <Compile Include="AudioFader.fs" />
-    <Compile Include="Conversion.fs" />
     <Compile Include="Preview.fs" />
   </ItemGroup>
 
