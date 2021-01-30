@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <GenerateProgramFile>false</GenerateProgramFile>
+    <Platforms>x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="BWV0573.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="BWV0573.ogg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Compile Include="TestFiles.fs" />
+    <Compile Include="UtilsTests.fs" />
+    <Compile Include="ConversionTests.fs" />
+    <Compile Include="PreviewTests.fs" />
+    <Compile Include="VolumeTests.fs" />
+    <Compile Include="WwiseTests.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Expecto" Version="9.0.2" />
+    <PackageReference Include="Expecto.FsCheck" Version="9.0.2" />
+    <PackageReference Include="Expecto.VisualStudio.TestAdapter" Version="10.0.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
+    <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.11.1" />
+    <ProjectReference Include="..\..\src\Rocksmith2014.Audio\Rocksmith2014.Audio.fsproj" />
+    <PackageReference Update="FSharp.Core" Version="5.0.0" />
+  </ItemGroup>
+
+</Project>

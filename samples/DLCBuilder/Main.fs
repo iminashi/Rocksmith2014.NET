@@ -61,7 +61,7 @@ let private removeTask completedTask state =
 
 let private convertAudioIfNeeded cliPath project = async {
     if not <| DLCProject.wemFilesExist project then
-        do! Wwise.convertToWem cliPath project.AudioFile }
+        do! Wwise.convertToWem cliPath project.AudioFile.Path }
 
 let private createBuildConfig state appId platforms =
     let convTask = convertAudioIfNeeded state.Config.WwiseConsolePath state.Project
@@ -283,7 +283,7 @@ let update (msg: Msg) (state: State) =
     | ConvertToWem ->
         if DLCProject.audioFilesExist project then
             addTask WemConversion state,
-            Cmd.OfAsync.either (Wwise.convertToWem state.Config.WwiseConsolePath) project.AudioFile BuildComplete (fun ex -> TaskFailed(ex, WemConversion))
+            Cmd.OfAsync.either (Wwise.convertToWem state.Config.WwiseConsolePath) project.AudioFile.Path BuildComplete (fun ex -> TaskFailed(ex, WemConversion))
         else
             state, Cmd.none
 
@@ -421,7 +421,11 @@ let update (msg: Msg) (state: State) =
         { state with Overlay = SelectPreviewStart length }, Cmd.none
 
     | CreatePreviewAudio (CreateFile) ->
-        let task () = async { return Preview.create project.AudioFile.Path state.PreviewStartTime }
+        let task () = async {
+            let targetPath = Utils.createPreviewAudioPath project.AudioFile.Path
+            Preview.create project.AudioFile.Path targetPath state.PreviewStartTime
+            return targetPath }
+
         { state with Overlay = NoOverlay },
         Cmd.OfAsync.either task () (FileCreated >> CreatePreviewAudio) ErrorOccurred
 

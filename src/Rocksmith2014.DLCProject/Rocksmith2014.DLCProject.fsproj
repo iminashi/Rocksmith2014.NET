@@ -19,7 +19,6 @@
   <ItemGroup>
     <EmbeddedResource Include="res\rsenumerable_root.flat" />
     <EmbeddedResource Include="res\rsenumerable_song.flat" />
-    <Compile Include="ActivePatterns.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="Arrangement.fs" />
     <Compile Include="DDS.fs" />

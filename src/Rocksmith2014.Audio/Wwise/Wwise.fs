@@ -5,7 +5,6 @@ open System.IO
 open System.IO.Compression
 open System.Reflection
 open System.Diagnostics
-open System.Runtime.InteropServices
 open Microsoft.Extensions.FileProviders
 open Rocksmith2014.Common
 open Rocksmith2014.Common.BinaryWriters
@@ -20,21 +19,24 @@ let rec private cleanDirectory (path: string) =
 /// Returns the path to the Wwise console executable.
 let private getCLIPath() =
     let cliPath =
-        if RuntimeInformation.IsOSPlatform OSPlatform.Windows then
+        if OperatingSystem.IsWindows() then
             let wwiseRoot = Environment.GetEnvironmentVariable "WWISEROOT"
+
             if String.IsNullOrEmpty wwiseRoot then
                 failwith "Failed to read WWISEROOT environment variable."
             elif not <| String.contains "2019" wwiseRoot then
                 failwith "Wwise version must be 2019."
+
             Path.Combine(wwiseRoot, @"Authoring\x64\Release\bin\WwiseConsole.exe")
-        elif RuntimeInformation.IsOSPlatform OSPlatform.OSX then
+        elif OperatingSystem.IsMacOS() then
             let wwiseAppPath =
                 Directory.EnumerateDirectories("/Applications/Audiokinetic")
                 |> Seq.tryFind (String.contains "2019")
                 |> Option.defaultWith (fun _ -> failwith "Could not find Wwise 2019 installation in /Applications/Audiokinetic/")
+
             Path.Combine(wwiseAppPath, "Wwise.app/Contents/Tools/WwiseConsole.sh")
         else
-            failwith "Only Windows and macOS are supported for Wwise conversion."
+            raise <| NotSupportedException "Only Windows and macOS are supported for Wwise conversion."
 
     if not <| File.Exists cliPath then
         failwith "Could not find Wwise Console executable."
@@ -55,10 +57,7 @@ let private loadTemplate (sourcePath: string) =
 
     let orgSfxDir = Path.Combine(templateDir, "Originals", "SFX")
 
-    let previewFile =
-        let dir = Path.GetDirectoryName sourcePath
-        let fn = Path.GetFileNameWithoutExtension sourcePath
-        sprintf "%s_%s.wav" (Path.Combine (dir,fn)) "preview"
+    let previewFile = Utils.createPreviewAudioPath sourcePath
 
     File.Copy (previewFile, Path.Combine(orgSfxDir, "Audio_preview.wav"), true)
     File.Copy (sourcePath, Path.Combine(orgSfxDir, "Audio.wav"), true)
@@ -89,12 +88,12 @@ let private copyWemFiles (destPath: string) (templateDir: string) =
         fixHeader destFile)
 
 /// Converts the source audio and preview audio files into wem files.
-let convertToWem (cliPath: string option) (source: AudioFile) = async {
+let convertToWem (cliPath: string option) (sourcePath: string) = async {
     // The target filename without extension
-    let destPath = Path.Combine (Path.GetDirectoryName source.Path,
-                                 Path.GetFileNameWithoutExtension source.Path)
+    let destPath = Path.Combine (Path.GetDirectoryName sourcePath,
+                                 Path.GetFileNameWithoutExtension sourcePath)
     let cliPath = cliPath |> Option.defaultWith getCLIPath
-    let templateDir = loadTemplate source.Path
+    let templateDir = loadTemplate sourcePath
     
     let template = Path.Combine(templateDir, "Template.wproj")
     let args = sprintf """generate-soundbank "%s" --platform "Windows" --language "English(US)" --no-decode --quiet""" template

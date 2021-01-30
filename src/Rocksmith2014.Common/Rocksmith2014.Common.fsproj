@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Compile Include="Extensions.fs" />
+    <Compile Include="ActivePatterns.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="Platform.fs" />
     <Compile Include="MemoryStreamPool.fs" />
