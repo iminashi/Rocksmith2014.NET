@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 
 type PhraseIteration =
     { PhraseId : int32
@@ -15,7 +15,7 @@ type PhraseIteration =
             writer.WriteSingle this.EndTime
             this.Difficulty |> Array.iter writer.WriteInt32
 
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         { PhraseId = reader.ReadInt32()
           StartTime = reader.ReadSingle()
           EndTime = reader.ReadSingle()

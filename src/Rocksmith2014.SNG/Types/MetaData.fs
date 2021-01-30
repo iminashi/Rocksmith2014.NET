@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 open BinaryHelpers
 open System
 
@@ -39,7 +39,7 @@ type MetaData =
             writer.WriteSingle this.FirstNoteTime
             writer.WriteInt32 this.MaxDifficulty
 
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         { MaxScore = reader.ReadDouble()
           MaxNotesAndChords = reader.ReadDouble()
           MaxNotesAndChordsReal = reader.ReadDouble()

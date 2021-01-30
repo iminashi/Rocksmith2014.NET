@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 open BinaryHelpers
 
 /// Leftover from RS1, no equivalent in RS2014 XML.
@@ -13,6 +13,6 @@ type Action =
             writer.WriteSingle this.Time
             writeZeroTerminatedUTF8String 256 this.ActionName writer
 
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         { Time = reader.ReadSingle()
           ActionName = readZeroTerminatedUTF8String 256 reader }

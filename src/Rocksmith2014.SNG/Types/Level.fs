@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 open BinaryHelpers
 
 type Level =
@@ -29,7 +29,7 @@ type Level =
             writer.WriteInt32 this.NotesInPhraseIterationsAll.Length
             this.NotesInPhraseIterationsAll |> Array.iter writer.WriteInt32
 
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         { Difficulty = reader.ReadInt32()
           Anchors = readArray reader Anchor.Read
           AnchorExtensions = readArray reader AnchorExtension.Read

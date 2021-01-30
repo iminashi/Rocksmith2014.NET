@@ -3,7 +3,6 @@
 open System
 open System.IO
 open System.Text
-open Rocksmith2014.Common.Interfaces
 open Rocksmith2014.Common
 open SoundBankUtils
 

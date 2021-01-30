@@ -10,8 +10,6 @@
     <Product>Rocksmith 2014 DLC Builder</Product>
     <Copyright>Copyright © 2020</Copyright>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
-    <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))'">true</IsWindows>
-    <IsMacOS Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))'">true</IsMacOS>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -25,41 +23,11 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(RuntimeIdentifier)'=='win-x64' Or ('$(IsWindows)'=='true' And '$(RuntimeIdentifier)'!='osx-x64')">
-    <Content Include="Tools\revorb.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Tools\ww2ogg.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(RuntimeIdentifier)'=='osx-x64' Or ('$(IsMacOS)'=='true' And '$(RuntimeIdentifier)'!='win-x64')">
-    <Content Include="Tools\revorb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Tools\ww2ogg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
   <ItemGroup>
     <AvaloniaResource Include="Assets\coverart_placeholder.png" />
     <EmbeddedResource Include="Assets\icon.ico" />
-    <Content Include="Tools\packed_codebooks.bin">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Tools\packed_codebooks_aoTuV_603.bin">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <EmbeddedResource Include="i18n\fi.json" />
     <EmbeddedResource Include="i18n\default.json" />
-    <Compile Include="Audio\Types.fs" />
-    <Compile Include="Audio\SecondOrderIIRFilter.fs" />
-    <Compile Include="Audio\LufsMeter.fs" />
-    <Compile Include="Audio\AudioFader.fs" />
-    <Compile Include="Audio\Conversion.fs" />
-    <Compile Include="Audio\Audio.fs" />
     <Page Include="Styles.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -94,10 +62,7 @@
     <PackageReference Include="JaggerJo.Avalonia.FuncUI.DSL" Version="0.5.0-beta" />
     <PackageReference Include="JaggerJo.Avalonia.FuncUI.Elmish" Version="0.5.0-beta" />
     <PackageReference Include="Live.Avalonia" Version="1.1.1" />
-    <PackageReference Include="NAudio" Version="1.10.0" />
-    <PackageReference Include="NAudio.Vorbis" Version="1.2.0" />
     <PackageReference Include="Pfim" Version="0.9.1" />
-    <PackageReference Include="SimpleSIMD" Version="2.5.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -105,8 +70,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Rocksmith2014.Audio\Rocksmith2014.Audio.fsproj" />
     <ProjectReference Include="..\..\src\Rocksmith2014.DLCProject\Rocksmith2014.DLCProject.fsproj" />
     <ProjectReference Include="..\..\src\Rocksmith2014.XML.Processing\Rocksmith2014.XML.Processing.fsproj" />
+    <ProjectReference Include="..\..\src\Rocksmith2014.XML\Rocksmith2014.XML.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -123,12 +90,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Watch Remove="Audio\Audio.fs" />
-    <Watch Remove="Audio\AudioFader.fs" />
-    <Watch Remove="Audio\Conversion.fs" />
-    <Watch Remove="Audio\LufsMeter.fs" />
-    <Watch Remove="Audio\SecondOrderIIRFilter.fs" />
-    <Watch Remove="Audio\Types.fs" />
     <Watch Remove="BuildValidator.fs" />
     <Watch Remove="Configuration.fs" />
     <Watch Remove="Dialogs.fs" />

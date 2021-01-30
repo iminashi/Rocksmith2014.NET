@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 open System.Runtime.CompilerServices
 
 [<IsReadOnly; Struct>]
@@ -21,7 +21,7 @@ type AnchorExtension =
             writer.WriteInt16 0s
             writer.WriteInt8 0y
 
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         let time = reader.ReadSingle()
         let fret = reader.ReadInt8()
 

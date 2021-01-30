@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 
 /// Leftover from RS1, not used in RS2014.
 type PhraseExtraInfo =
@@ -21,7 +21,7 @@ type PhraseExtraInfo =
             // Write a single byte of padding
             writer.WriteInt8 0y
 
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         let info =
             { PhraseId = reader.ReadInt32()
               Difficulty = reader.ReadInt32()

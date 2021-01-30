@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 open BinaryHelpers
 
 type Chord =
@@ -18,7 +18,7 @@ type Chord =
             this.Notes |> Array.iter writer.WriteInt32
             writeZeroTerminatedUTF8String 32 this.Name writer
     
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         { Mask = reader.ReadUInt32() |> LanguagePrimitives.EnumOfValue
           Frets = Array.init 6 (fun _ -> reader.ReadInt8())
           Fingers = Array.init 6 (fun _ -> reader.ReadInt8())

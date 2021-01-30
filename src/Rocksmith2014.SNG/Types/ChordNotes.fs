@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 
 type ChordNotes =
     { Mask : NoteMask[]
@@ -17,7 +17,7 @@ type ChordNotes =
             this.SlideUnpitchTo |> Array.iter writer.WriteInt8
             this.Vibrato |> Array.iter writer.WriteInt16
     
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         { Mask = Array.init 6 (fun _ -> reader.ReadUInt32() |> LanguagePrimitives.EnumOfValue)
           BendData = Array.init 6 (fun _ -> BendData32.Read reader)
           SlideTo = Array.init 6 (fun _ -> reader.ReadInt8())

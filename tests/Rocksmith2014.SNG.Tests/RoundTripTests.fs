@@ -2,7 +2,7 @@
 
 open Expecto
 open Rocksmith2014.SNG
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 open Rocksmith2014.Common.BinaryReaders
 open Rocksmith2014.Common.BinaryWriters
 open System.IO

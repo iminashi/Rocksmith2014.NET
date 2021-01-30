@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 
 type Anchor =
     { StartTime : float32
@@ -24,7 +24,7 @@ type Anchor =
             writer.WriteInt32 this.Width
             writer.WriteInt32 this.PhraseIterationId
 
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         // Read three bytes of padding
         let readPadding () =
             reader.ReadInt16() |> ignore; reader.ReadInt8() |> ignore

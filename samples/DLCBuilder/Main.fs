@@ -1,6 +1,7 @@
 ﻿module DLCBuilder.Main
 
 open Rocksmith2014
+open Rocksmith2014.Audio
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
@@ -164,8 +165,8 @@ let update (msg: Msg) (state: State) =
         let task() = async {
             let! x = PsarcImporter.import psarcFile targetFolder
             match state.Config.ConvertAudio with
-            | ToOgg -> Audio.Conversion.allWemToOgg targetFolder false
-            | ToWav -> Audio.Conversion.allWemToOgg targetFolder true
+            | ToOgg -> Conversion.allWemToOgg targetFolder false
+            | ToWav -> Conversion.allWemToOgg targetFolder true
             | NoConversion -> ()
             return x }
 
@@ -291,7 +292,7 @@ let update (msg: Msg) (state: State) =
             match target with
             | MainAudio -> project.AudioFile.Path
             | PreviewAudio -> project.AudioPreviewFile.Path
-        let task () = async { return Audio.Tools.calculateVolume path }
+        let task () = async { return Volume.calculate path }
         addTask (VolumeCalculation target) state,
         Cmd.OfAsync.either task () (fun v -> VolumeCalculated(v, target)) (fun ex -> TaskFailed(ex, (VolumeCalculation target)))
 
@@ -414,13 +415,13 @@ let update (msg: Msg) (state: State) =
         { state with PreviewStartTime = TimeSpan.FromSeconds time }, Cmd.none
 
     | CreatePreviewAudio (SetupStartTime) ->
-        let totalLength = Audio.Tools.getLength project.AudioFile.Path
+        let totalLength = Utils.getLength project.AudioFile.Path
         // Remove the length of the preview from the total length
         let length = totalLength - TimeSpan.FromSeconds 28.
         { state with Overlay = SelectPreviewStart length }, Cmd.none
 
     | CreatePreviewAudio (CreateFile) ->
-        let task () = async { return Audio.Tools.createPreview project.AudioFile.Path state.PreviewStartTime }
+        let task () = async { return Preview.create project.AudioFile.Path state.PreviewStartTime }
         { state with Overlay = NoOverlay },
         Cmd.OfAsync.either task () (FileCreated >> CreatePreviewAudio) ErrorOccurred
 

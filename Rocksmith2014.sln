@@ -53,6 +53,8 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "DDGen", "samples\DDGen\DDGe
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.DD.Tests", "Tests\Rocksmith2014.DD.Tests\Rocksmith2014.DD.Tests.fsproj", "{E594F38F-9FBD-4613-B16C-8877642DA7DF}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Rocksmith2014.Audio", "src\Rocksmith2014.Audio\Rocksmith2014.Audio.fsproj", "{984B869F-DCCD-4224-8882-3CF90FA3470D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -207,6 +209,14 @@ Global
 		{E594F38F-9FBD-4613-B16C-8877642DA7DF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E594F38F-9FBD-4613-B16C-8877642DA7DF}.Release|x64.ActiveCfg = Release|x64
 		{E594F38F-9FBD-4613-B16C-8877642DA7DF}.Release|x64.Build.0 = Release|x64
+		{984B869F-DCCD-4224-8882-3CF90FA3470D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{984B869F-DCCD-4224-8882-3CF90FA3470D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{984B869F-DCCD-4224-8882-3CF90FA3470D}.Debug|x64.ActiveCfg = Debug|x64
+		{984B869F-DCCD-4224-8882-3CF90FA3470D}.Debug|x64.Build.0 = Debug|x64
+		{984B869F-DCCD-4224-8882-3CF90FA3470D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{984B869F-DCCD-4224-8882-3CF90FA3470D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{984B869F-DCCD-4224-8882-3CF90FA3470D}.Release|x64.ActiveCfg = Release|x64
+		{984B869F-DCCD-4224-8882-3CF90FA3470D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -234,6 +244,7 @@ Global
 		{04FC5303-3656-4D46-880C-715AA3E93497} = {D205B519-E450-49DC-AE3A-C73C88DD7FE3}
 		{E481F925-46EF-4A9D-9699-5A5F0DFB7DFD} = {5372FA3F-22E5-4217-B4E1-D439C943AEA0}
 		{E594F38F-9FBD-4613-B16C-8877642DA7DF} = {0FF21B35-CA73-45A8-939A-F14614C11471}
+		{984B869F-DCCD-4224-8882-3CF90FA3470D} = {D205B519-E450-49DC-AE3A-C73C88DD7FE3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0B1D2436-1840-458A-B570-F533FC009333}

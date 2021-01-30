@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DLCProject.Wwise
+﻿module Rocksmith2014.Audio.Wwise
 
 open System
 open System.IO
@@ -9,7 +9,6 @@ open System.Runtime.InteropServices
 open Microsoft.Extensions.FileProviders
 open Rocksmith2014.Common
 open Rocksmith2014.Common.BinaryWriters
-open Rocksmith2014.Common.Interfaces
 
 /// Recursively removes files and subdirectories from a directory.
 let rec private cleanDirectory (path: string) =
@@ -51,7 +50,7 @@ let private loadTemplate (sourcePath: string) =
         Directory.CreateDirectory templateDir |> ignore
 
     let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
-    use templateZip = embeddedProvider.GetFileInfo("res/wwise2019.zip").CreateReadStream()
+    use templateZip = embeddedProvider.GetFileInfo("Wwise/wwise2019.zip").CreateReadStream()
     using (new ZipArchive(templateZip)) (fun zip -> zip.ExtractToDirectory templateDir)
 
     let orgSfxDir = Path.Combine(templateDir, "Originals", "SFX")

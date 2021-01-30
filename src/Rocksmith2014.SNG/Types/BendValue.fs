@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 open System.Runtime.CompilerServices
 
 [<IsReadOnly; Struct>]
@@ -19,7 +19,7 @@ type BendValue =
             // Write zero for all unknown values
             writer.WriteInt32 0
 
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         let time = reader.ReadSingle()
         let step = reader.ReadSingle()
         // Read unknown values

@@ -24,8 +24,6 @@ type ArrangementPriority =
     | Alternative = 1
     | Bonus = 2
 
-type AudioFile = { Path : string; Volume : float }
-
 type Instrumental =
     { XML : string
       Name : ArrangementName

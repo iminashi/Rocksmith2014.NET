@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 open BinaryHelpers
 
 type Phrase =
@@ -23,7 +23,7 @@ type Phrase =
             writer.WriteInt32 this.IterationCount
             writeZeroTerminatedUTF8String 32 this.Name writer
 
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         // Read a single byte of padding
         let readPadding() = reader.ReadInt8() |> ignore
 

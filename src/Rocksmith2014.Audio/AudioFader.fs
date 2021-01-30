@@ -1,4 +1,4 @@
-﻿namespace DLCBuilder.Audio
+﻿namespace Rocksmith2014.Audio
 
 open NAudio.Wave
 

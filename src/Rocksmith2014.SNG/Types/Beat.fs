@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 
 type Beat =
     { Time : float32
@@ -17,7 +17,7 @@ type Beat =
             writer.WriteInt32 this.PhraseIteration
             writer.WriteInt32 (LanguagePrimitives.EnumToValue this.Mask)
     
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         { Time = reader.ReadSingle()
           Measure = reader.ReadInt16()
           Beat = reader.ReadInt16()

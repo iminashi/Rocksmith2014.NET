@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 open BinaryHelpers
 
 type SymbolsHeader = 
@@ -24,7 +24,7 @@ type SymbolsHeader =
             writer.WriteInt32 this.Unk7
             writer.WriteInt32 this.Unk8
     
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         { ID = reader.ReadInt32()
           Unk2 = reader.ReadInt32()
           Unk3 = reader.ReadInt32()
@@ -73,7 +73,7 @@ type Rect =
             writer.WriteSingle this.yMax
             writer.WriteSingle this.xMax
 
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         { yMin = reader.ReadSingle()
           xMin = reader.ReadSingle()
           yMax = reader.ReadSingle()
@@ -90,7 +90,7 @@ type SymbolDefinition =
             (this.Outer :> IBinaryWritable).Write writer
             (this.Inner :> IBinaryWritable).Write writer
 
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         { Symbol = readZeroTerminatedUTF8String 12 reader
           Outer = Rect.Read reader
           Inner = Rect.Read reader }

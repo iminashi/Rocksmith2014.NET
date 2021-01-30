@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 open BinaryHelpers
 
 type Note =
@@ -62,7 +62,7 @@ type Note =
             writer.WriteSingle this.MaxBend
             writeArray writer this.BendData
 
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         { Mask = LanguagePrimitives.EnumOfValue(reader.ReadUInt32())
           Flags = reader.ReadUInt32()
           Hash = reader.ReadUInt32()

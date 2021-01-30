@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 
 type BendData32 =
     { BendValues : BendValue[]
@@ -11,7 +11,7 @@ type BendData32 =
             this.BendValues |> Array.iter (fun b -> (b :> IBinaryWritable).Write writer)
             writer.WriteInt32 this.UsedCount
 
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         { BendValues = Array.init 32 (fun _ -> BendValue.Read reader)
           UsedCount = reader.ReadInt32() }
 

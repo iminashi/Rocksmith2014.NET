@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 
 type FingerPrint =
     { ChordId : int32
@@ -18,7 +18,7 @@ type FingerPrint =
             writer.WriteSingle this.FirstNoteTime
             writer.WriteSingle this.LastNoteTime
 
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         { ChordId = reader.ReadInt32() 
           StartTime = reader.ReadSingle()
           EndTime = reader.ReadSingle()

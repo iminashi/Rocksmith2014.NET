@@ -17,9 +17,9 @@
 
   <ItemGroup>
     <Compile Include="Extensions.fs" />
+    <Compile Include="Types.fs" />
     <Compile Include="Platform.fs" />
     <Compile Include="MemoryStreamPool.fs" />
-    <Compile Include="Interfaces.fs" />
     <Compile Include="BinaryReaders.fs" />
     <Compile Include="BinaryWriters.fs" />
     <Compile Include="RandomGenerator.fs" />

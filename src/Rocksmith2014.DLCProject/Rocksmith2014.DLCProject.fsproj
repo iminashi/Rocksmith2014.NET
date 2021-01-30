@@ -17,7 +17,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="res\wwise2019.zip" />
     <EmbeddedResource Include="res\rsenumerable_root.flat" />
     <EmbeddedResource Include="res\rsenumerable_song.flat" />
     <Compile Include="ActivePatterns.fs" />
@@ -29,7 +28,6 @@
     <Compile Include="DLCKey.fs" />
     <Compile Include="DLCProject.fs" />
     <Compile Include="Partitioner.fs" />
-    <Compile Include="Wwise.fs" />
     <Compile Include="XBlock.fs" />
     <Compile Include="AggregateGraph\Tags.fs" />
     <Compile Include="AggregateGraph\GraphItem.fs" />

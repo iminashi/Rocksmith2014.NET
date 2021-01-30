@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 open System.Runtime.CompilerServices
 
 [<IsReadOnly; Struct>]
@@ -13,7 +13,7 @@ type DNA =
             writer.WriteSingle this.Time
             writer.WriteInt32 this.DnaId
 
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         { Time = reader.ReadSingle()
           DnaId = reader.ReadInt32() }
 

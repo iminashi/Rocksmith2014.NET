@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 open BinaryHelpers
 open System.Runtime.CompilerServices
 
@@ -14,6 +14,6 @@ type Event =
             writer.WriteSingle this.Time
             writeZeroTerminatedUTF8String 256 this.Name writer
 
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         { Time = reader.ReadSingle()
           Name = readZeroTerminatedUTF8String 256 reader }

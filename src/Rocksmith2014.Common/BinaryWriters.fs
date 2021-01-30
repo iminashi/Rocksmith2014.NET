@@ -4,7 +4,6 @@ open System
 open System.IO
 open System.Buffers.Binary
 open Microsoft.FSharp.NativeInterop
-open Interfaces
 
 #nowarn "9"
 

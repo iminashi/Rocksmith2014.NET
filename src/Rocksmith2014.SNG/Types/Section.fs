@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.SNG
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 open BinaryHelpers
 
 type Section =
@@ -22,7 +22,7 @@ type Section =
             writer.WriteInt32 this.EndPhraseIterationId
             this.StringMask |> Array.iter writer.WriteInt8
 
-    static member Read(reader : IBinaryReader) =
+    static member Read(reader: IBinaryReader) =
         { Name = readZeroTerminatedUTF8String 32 reader
           Number = reader.ReadInt32()
           StartTime = reader.ReadSingle()

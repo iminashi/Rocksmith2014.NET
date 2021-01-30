@@ -3,7 +3,6 @@
 open System.IO
 open System
 open Rocksmith2014.Common
-open Rocksmith2014.Common.Interfaces
 
 let inline internal getZType (header: Header) =
     int <| Math.Log(float header.BlockSizeAlloc, 256.0)

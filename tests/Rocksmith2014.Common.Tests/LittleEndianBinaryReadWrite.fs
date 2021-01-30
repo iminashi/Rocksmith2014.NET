@@ -3,7 +3,7 @@
 open Expecto
 open FsCheck
 open System.IO
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 open Rocksmith2014.Common.BinaryWriters
 open Rocksmith2014.Common.BinaryReaders
 open Generators

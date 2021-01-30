@@ -2,7 +2,7 @@
 
 open System
 open System.IO
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 
 type NamedEntry =
     { Name: string; Data: Stream }

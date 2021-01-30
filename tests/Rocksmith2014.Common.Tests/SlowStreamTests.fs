@@ -4,7 +4,7 @@ open System
 open System.IO
 open Expecto
 open Rocksmith2014.Common.BinaryReaders
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 
 /// A stream that returns data one byte at a time
 type SlowStream() =

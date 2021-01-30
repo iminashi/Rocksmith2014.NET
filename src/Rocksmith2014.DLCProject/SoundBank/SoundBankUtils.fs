@@ -1,6 +1,5 @@
 ﻿module Rocksmith2014.DLCProject.SoundBankUtils
 
-open Rocksmith2014.Common.Interfaces
 open Rocksmith2014.Common
 open System.IO
 

@@ -1,4 +1,4 @@
-﻿namespace DLCBuilder.Audio
+﻿namespace Rocksmith2014.Audio
 
 // Ported from: https://github.com/xuan525/R128Normalization
 

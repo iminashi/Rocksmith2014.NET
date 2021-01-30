@@ -5,7 +5,6 @@ open System.Security.Cryptography
 open System.Text
 open Rocksmith2014.Common
 open Rocksmith2014.Common.BinaryReaders
-open Rocksmith2014.Common.Interfaces
 open Rocksmith2014.Common.Manifest
 open Newtonsoft.Json
 open BinaryWriters

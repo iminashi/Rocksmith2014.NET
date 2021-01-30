@@ -5,7 +5,6 @@ open System.IO
 open System.Text
 open System.Buffers
 open Rocksmith2014.Common
-open Rocksmith2014.Common.Interfaces
 open Rocksmith2014.Common.BinaryReaders
 open Rocksmith2014.Common.BinaryWriters
 

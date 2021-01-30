@@ -1,6 +1,6 @@
 ﻿namespace Rocksmith2014.PSARC
 
-open Rocksmith2014.Common.Interfaces
+open Rocksmith2014.Common
 open System.Text
 open System
 

@@ -1,6 +1,8 @@
-﻿module Rocksmith2014.Common.Interfaces
+﻿namespace Rocksmith2014.Common
 
 open System
+
+type AudioFile = { Path : string; Volume : float }
 
 type IBinaryReader =
     abstract member ReadInt8 : unit -> int8

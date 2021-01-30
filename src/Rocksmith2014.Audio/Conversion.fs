@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Audio.Conversion
+﻿module Rocksmith2014.Audio.Conversion
 
 open System.IO
 open System.Diagnostics
@@ -10,6 +10,7 @@ let private toolsDir = Path.Combine(AppContext.BaseDirectory, "Tools")
 let private ww2ogg = Path.Combine(toolsDir, "ww2ogg")
 let private revorb = Path.Combine(toolsDir, "revorb")
 
+/// Converts a vorbis file into a wave file.
 let oggToWav sourcePath targetPath =
     use ogg = new VorbisWaveReader(sourcePath)
     WaveFileWriter.CreateWaveFile16(targetPath, ogg)
