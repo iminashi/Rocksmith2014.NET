@@ -4,6 +4,10 @@
 
 ## Libraries
 
+### Audio
+
+Contains functionality for converting between wav, ogg and wem files, creating preview audio files and calculating volume values.
+
 ### Common
 
 Contains various types and functions used by the other libraries. Also has functionality for reading and writing profile files.
@@ -22,7 +26,7 @@ A machine learning model for predicting level counts. Created with ML.NET model 
 
 ### DLCProject
 
-Contains the Arrangement and DLCProject types and also miscellaneous functionality needed for creating CDLC (Wwise and DDS conversion, showlight generation, etc.).
+Contains the Arrangement and DLCProject types and also miscellaneous functionality needed for creating CDLC (DDS conversion, showlight generation, etc.).
 
 ### PSARC
 
