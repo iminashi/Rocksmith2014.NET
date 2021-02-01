@@ -16,8 +16,17 @@ let rec private cleanDirectory (path: string) =
     subDirs |> Seq.iter cleanDirectory
     subDirs |> Seq.iter Directory.Delete
 
+let private tryFindWwiseInstallation rootDir =
+    match Path.Combine(rootDir, "Audiokinetic") with
+    | dir when Directory.Exists dir ->
+        dir
+        |> Directory.EnumerateDirectories
+        |> Seq.tryFind (String.contains "2019")
+    | _ ->
+        None
+
 /// Returns the path to the Wwise console executable.
-let private getCLIPath() =
+let private getCLIPath () =
     let cliPath =
         if OperatingSystem.IsWindows() then
             let wwiseRoot =
@@ -26,16 +35,14 @@ let private getCLIPath() =
                     path
                 | _ ->
                     // Try the default installation directory in program files
-                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Audiokinetic")
-                    |> Directory.EnumerateDirectories
-                    |> Seq.tryFind (String.contains "2019")
-                    |> Option.defaultWith (fun () -> failwith "Could not locate Wwise 2019 installation from WWISEROOT environment variable or path Program Files(x86)\Audiokinetic.")
+                    tryFindWwiseInstallation (Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86))
+                    |> Option.orElseWith (fun () -> tryFindWwiseInstallation (Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)))
+                    |> Option.defaultWith (fun () -> failwith "Could not locate Wwise 2019 installation from WWISEROOT environment variable or path Program Files\Audiokinetic.")
 
             Path.Combine(wwiseRoot, @"Authoring\x64\Release\bin\WwiseConsole.exe")
         elif OperatingSystem.IsMacOS() then
             let wwiseAppPath =
-                Directory.EnumerateDirectories("/Applications/Audiokinetic")
-                |> Seq.tryFind (String.contains "2019")
+                tryFindWwiseInstallation "/Applications"
                 |> Option.defaultWith (fun () -> failwith "Could not find Wwise 2019 installation in /Applications/Audiokinetic/")
 
             Path.Combine(wwiseAppPath, "Wwise.app/Contents/Tools/WwiseConsole.sh")
@@ -47,17 +54,22 @@ let private getCLIPath() =
 
     cliPath
 
-/// Extracts the Wwise template and copies the wav files into the Originals/SFX directory.
-let private loadTemplate (sourcePath: string) =
-    let templateDir = Path.Combine(Path.GetTempPath(), "RS2WwiseConv")
-    if Directory.Exists templateDir then
-        cleanDirectory templateDir
-    else
-        Directory.CreateDirectory templateDir |> ignore
+let private getTempDirectory () =
+    let dir = Path.Combine(Path.GetTempPath(), "RS2WwiseConv")
+    if Directory.Exists dir then cleanDirectory dir
+    else Directory.CreateDirectory dir |> ignore
+    dir
 
+/// Extracts the Wwise template into the target directory.
+let private extractTemplate targetDir =
     let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
     use templateZip = embeddedProvider.GetFileInfo("Wwise/wwise2019.zip").CreateReadStream()
-    using (new ZipArchive(templateZip)) (fun zip -> zip.ExtractToDirectory templateDir)
+    using (new ZipArchive(templateZip)) (fun zip -> zip.ExtractToDirectory targetDir)
+
+/// Extracts the Wwise template and copies the audio files into the Originals/SFX directory.
+let private loadTemplate (sourcePath: string) =
+    let templateDir = getTempDirectory()
+    extractTemplate templateDir
 
     let orgSfxDir = Path.Combine(templateDir, "Originals", "SFX")
 
@@ -89,30 +101,32 @@ let private fixHeader (fileName: string) =
 
 /// Copies the wem files from the template cache directory into the destination path.
 let private copyWemFiles (destPath: string) (templateDir: string) =
-    let cachePath = Path.Combine (templateDir, ".cache", "Windows", "SFX")
+    let cachePath = Path.Combine(templateDir, ".cache", "Windows", "SFX")
     let wemFiles = Seq.toArray (DirectoryInfo(cachePath).EnumerateFiles("*.wem"))
     if wemFiles.Length < 2 then
         failwith "Could not find converted Wwise audio and preview audio files."
 
-    wemFiles |> Array.iter (fun path ->
+    wemFiles
+    |> Array.iter (fun fileInfo ->
         let destFile =
-            if path.Name.Contains "preview" then
-                $"{destPath}_preview.wem" 
-            else
-                $"{destPath}.wem" 
-        File.Copy(path.FullName, destFile, true)
+            match fileInfo.Name with
+            | Contains "preview" -> $"{destPath}_preview.wem" 
+            | _ -> $"{destPath}.wem" 
+
+        File.Copy(fileInfo.FullName, destFile, overwrite=true)
         fixHeader destFile)
 
 /// Converts the source audio and preview audio files into wem files.
 let convertToWem (cliPath: string option) (sourcePath: string) = async {
     // The target filename without extension
-    let destPath = Path.Combine (Path.GetDirectoryName sourcePath,
-                                 Path.GetFileNameWithoutExtension sourcePath)
+    let destPath = Path.Combine(Path.GetDirectoryName sourcePath,
+                                Path.GetFileNameWithoutExtension sourcePath)
     let cliPath = cliPath |> Option.defaultWith getCLIPath
     let templateDir = loadTemplate sourcePath
     
-    let template = Path.Combine(templateDir, "Template.wproj")
-    let args = sprintf """generate-soundbank "%s" --platform "Windows" --language "English(US)" --no-decode --quiet""" template
+    let args =
+        Path.Combine(templateDir, "Template.wproj")
+        |> sprintf """generate-soundbank "%s" --platform "Windows" --language "English(US)" --no-decode --quiet"""
     
     let startInfo = ProcessStartInfo(FileName = cliPath, Arguments = args, CreateNoWindow = true, RedirectStandardOutput = true)
     use wwiseCli = new Process(StartInfo = startInfo)
