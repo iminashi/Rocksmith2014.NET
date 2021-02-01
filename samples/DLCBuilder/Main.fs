@@ -272,10 +272,14 @@ let update (msg: Msg) (state: State) =
         let audioFile = { project.AudioFile with Path = fileName }
         let previewPath =
             let previewPath = Utils.previewPathFromMainAudio fileName
+            let wavPreview = IO.Path.ChangeExtension(previewPath, "wav")
             if IO.File.Exists previewPath then
                 previewPath
+            elif IO.File.Exists wavPreview then
+                wavPreview
             else
                 String.Empty
+
         let cmd =
             if state.Config.AutoVolume && not <| String.endsWith ".wem" fileName then
                 [ Cmd.ofMsg (CalculateVolume MainAudio)

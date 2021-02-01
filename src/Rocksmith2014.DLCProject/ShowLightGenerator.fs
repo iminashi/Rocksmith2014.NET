@@ -5,9 +5,10 @@ open Rocksmith2014.SNG
 open Rocksmith2014.Common
 open Rocksmith2014.Conversion
 open System.Collections.Generic
+open System.Runtime.CompilerServices
 open System
 
-[<Struct>]
+[<IsReadOnly; Struct>]
 type private MidiNote = { Time: float32; Note: int }
 
 let private toMs secs = int (secs * 1000.f)

@@ -272,7 +272,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             let target = Path.ChangeExtension(file, "bnk")
             use targetFile = File.Create target
             use audio = File.OpenRead file
-            SoundBank.generate "test" audio targetFile -2.5f false PC |> ignore
+            SoundBank.generate "test" audio targetFile -2.5f PC |> ignore
             state, Cmd.none
 
         | ReadVolume fileName ->

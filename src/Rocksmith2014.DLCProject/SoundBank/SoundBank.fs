@@ -283,7 +283,7 @@ let private writeChunk (output: Stream) (writer: IBinaryWriter) name (data: Stre
     copyData output writer data
 
 /// Generates a sound bank for the audio stream into the output stream.
-let generate name (audioStream: Stream) (output: Stream) volume isPreview (platform: Platform) =
+let generate name (audioStream: Stream) (output: Stream) volume (platform: Platform) =
     let soundbankID = RandomGenerator.next() |> uint32
     let fileID = abs <| hash name
     let soundID = RandomGenerator.next()
@@ -292,6 +292,7 @@ let generate name (audioStream: Stream) (output: Stream) volume isPreview (platf
     let write = writeChunk output writer
 
     let audioReader = BinaryReaders.getReader audioStream platform
+    let isPreview = String.endsWith "_Preview" name
     let dataLength = if isPreview then 72000 else 51200
 
     write "BKHD"B (header soundbankID platform)

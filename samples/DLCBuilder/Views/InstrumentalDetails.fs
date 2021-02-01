@@ -24,7 +24,7 @@ let view state dispatch (i: Instrumental) =
         //Grid.showGridLines true
         Grid.margin (0.0, 4.0)
         Grid.columnDefinitions "*,3*"
-        Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*,*,*,*,*"
+        Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*,*,*,*,*,*"
         Grid.children [
             TextBlock.create [
                 TextBlock.isVisible (i.Name <> ArrangementName.Bass)
@@ -358,25 +358,73 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.text (state.Localization.GetString "customAudioFile")
             ]
 
-            TextBox.create [
+            DockPanel.create [
                 Grid.column 1
                 Grid.row 13
-                TextBox.isVisible state.Config.ShowAdvanced
-                TextBox.horizontalAlignment HorizontalAlignment.Stretch
-                TextBox.text (Option.map (fun x -> x.Path) i.CustomAudio |> Option.toObj)
-                TextBox.onTextChanged (fun text ->
+                DockPanel.isVisible state.Config.ShowAdvanced
+                DockPanel.children [
+                    Button.create [
+                        DockPanel.dock Dock.Right
+                        Button.content "..."
+                        Button.margin (0., 2., 0., 0.)
+                        Button.onClick (fun _ ->
+                            let editArr path =
+                                fun _ a ->
+                                    let customAudio =
+                                        match a.CustomAudio with
+                                        | Some audio -> { audio with Path = path }
+                                        | None -> { Path = path; Volume = -8. }
+                                    { a with CustomAudio = Some customAudio }
+                                |> EditInstrumental
+                            dispatch <| Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, editArr))
+                    ]
+
+                    TextBox.create [
+                        TextBox.margin (4., 2., 0., 0.)
+                        TextBox.horizontalAlignment HorizontalAlignment.Stretch
+                        TextBox.text (Option.map (fun x -> x.Path) i.CustomAudio |> Option.toObj)
+                        TextBox.onTextChanged (fun text ->
+                            fun _ a ->
+                                let customAudio =
+                                    Option.ofString text
+                                    |> Option.map (fun x ->
+                                        match a.CustomAudio with
+                                        | Some audio -> { audio with Path = x }
+                                        | None -> { Path = x; Volume = -7. })
+                                { a with CustomAudio = customAudio }
+                            |> EditInstrumental
+                            |> dispatch
+                        )
+                    ]
+                ]
+            ]
+
+            TextBlock.create [
+                Grid.row 14
+                TextBlock.isVisible state.Config.ShowAdvanced
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.text (state.Localization.GetString "volume")
+            ]
+
+            NumericUpDown.create [
+                Grid.column 1
+                Grid.row 14
+                NumericUpDown.isVisible state.Config.ShowAdvanced
+                NumericUpDown.width 65.
+                NumericUpDown.horizontalAlignment HorizontalAlignment.Left
+                NumericUpDown.minimum -45.
+                NumericUpDown.maximum 45.
+                NumericUpDown.increment 0.5
+                NumericUpDown.value (i.CustomAudio |> Option.map (fun x -> x.Volume) |> Option.defaultValue -8.)
+                NumericUpDown.formatString "F1"
+                NumericUpDown.isEnabled i.CustomAudio.IsSome
+                NumericUpDown.onValueChanged (fun vol ->
                     fun _ a ->
-                        let customAudio =
-                            Option.ofString text
-                            |> Option.map (fun x ->
-                                // TODO: Allow setting audio volume
-                                match a.CustomAudio with
-                                | Some audio -> { audio with Path = x }
-                                | None -> { Path = x; Volume = -7. })
-                        { a with CustomAudio = customAudio }
+                        { a with CustomAudio = Option.map (fun x -> { x with Volume = vol }) a.CustomAudio }
                     |> EditInstrumental
-                    |> dispatch
-                )
+                    |> dispatch)
+                ToolTip.tip (state.Localization.GetString "audioVolumeToolTip")
             ]
         ]
     ]
