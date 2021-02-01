@@ -11,14 +11,8 @@ open Rocksmith2014.XML.Processing
 open Elmish
 open System
 open Avalonia
-open Avalonia.Media.Imaging
 open Avalonia.Layout
-open Avalonia.Platform
 open Avalonia.Controls
-
-let private loadPlaceHolderAlbumArt () =
-    let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
-    new Bitmap(assets.Open(Uri("avares://DLCBuilder/Assets/coverart_placeholder.png")))
 
 let init arg =
     let commands =
@@ -39,7 +33,7 @@ let init arg =
       SavedProject = DLCProject.Empty
       RecentFiles = []
       Config = Configuration.Default
-      CoverArt = loadPlaceHolderAlbumArt()
+      CoverArt = Utils.loadPlaceHolderAlbumArt()
       SelectedArrangement = None
       SelectedTone = None
       ShowSortFields = false
@@ -106,7 +100,7 @@ let update (msg: Msg) (state: State) =
                      OpenProjectFile = None
                      SelectedArrangement = None
                      SelectedTone = None
-                     CoverArt = loadPlaceHolderAlbumArt () }, Cmd.none
+                     CoverArt = Utils.loadPlaceHolderAlbumArt() }, Cmd.none
 
     | ImportTonesChanged item ->
         if isNull item then state, Cmd.none
@@ -493,7 +487,7 @@ let update (msg: Msg) (state: State) =
             if IO.File.Exists project.AlbumArtFile then
                 Utils.loadBitmap project.AlbumArtFile
             else
-                loadPlaceHolderAlbumArt()
+                Utils.loadPlaceHolderAlbumArt()
 
         let project = DLCProject.updateToneInfo project
         let recent = RecentFilesList.update projectFile state.RecentFiles

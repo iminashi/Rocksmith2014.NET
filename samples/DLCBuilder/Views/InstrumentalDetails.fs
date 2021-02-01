@@ -401,7 +401,7 @@ let view state dispatch (i: Instrumental) =
 
             TextBlock.create [
                 Grid.row 14
-                TextBlock.isVisible state.Config.ShowAdvanced
+                TextBlock.isVisible (state.Config.ShowAdvanced && i.CustomAudio.IsSome)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
                 TextBlock.text (state.Localization.GetString "volume")
@@ -410,7 +410,7 @@ let view state dispatch (i: Instrumental) =
             NumericUpDown.create [
                 Grid.column 1
                 Grid.row 14
-                NumericUpDown.isVisible state.Config.ShowAdvanced
+                NumericUpDown.isVisible (state.Config.ShowAdvanced && i.CustomAudio.IsSome)
                 NumericUpDown.width 65.
                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                 NumericUpDown.minimum -45.
@@ -418,7 +418,6 @@ let view state dispatch (i: Instrumental) =
                 NumericUpDown.increment 0.5
                 NumericUpDown.value (i.CustomAudio |> Option.map (fun x -> x.Volume) |> Option.defaultValue -8.)
                 NumericUpDown.formatString "F1"
-                NumericUpDown.isEnabled i.CustomAudio.IsSome
                 NumericUpDown.onValueChanged (fun vol ->
                     fun _ a ->
                         { a with CustomAudio = Option.map (fun x -> { x with Volume = vol }) a.CustomAudio }

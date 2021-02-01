@@ -1,6 +1,7 @@
 ﻿module DLCBuilder.Utils
 
 open Pfim
+open System
 open System.IO
 open System.Runtime.InteropServices
 open Avalonia.Platform
@@ -41,6 +42,10 @@ let loadBitmap (fileName: string) =
         avaloniaBitmapFromDDS fileName
     else
         new Bitmap(fileName)
+
+let loadPlaceHolderAlbumArt () =
+    let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
+    new Bitmap(assets.Open(Uri("avares://DLCBuilder/Assets/coverart_placeholder.png")))
 
 /// Imports tones from a PSARC file.
 let importTonesFromPSARC (psarcPath: string) = async {

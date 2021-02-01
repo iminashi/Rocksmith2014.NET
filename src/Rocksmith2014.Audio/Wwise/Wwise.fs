@@ -20,19 +20,23 @@ let rec private cleanDirectory (path: string) =
 let private getCLIPath() =
     let cliPath =
         if OperatingSystem.IsWindows() then
-            let wwiseRoot = Environment.GetEnvironmentVariable "WWISEROOT"
-
-            if String.IsNullOrEmpty wwiseRoot then
-                failwith "Failed to read WWISEROOT environment variable."
-            elif not <| String.contains "2019" wwiseRoot then
-                failwith "Wwise version must be 2019."
+            let wwiseRoot =
+                match Environment.GetEnvironmentVariable "WWISEROOT" |> Option.ofString with
+                | Some (Contains "2019" as path) ->
+                    path
+                | _ ->
+                    // Try the default installation directory in program files
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Audiokinetic")
+                    |> Directory.EnumerateDirectories
+                    |> Seq.tryFind (String.contains "2019")
+                    |> Option.defaultWith (fun () -> failwith "Could not locate Wwise 2019 installation from WWISEROOT environment variable or path Program Files(x86)\Audiokinetic.")
 
             Path.Combine(wwiseRoot, @"Authoring\x64\Release\bin\WwiseConsole.exe")
         elif OperatingSystem.IsMacOS() then
             let wwiseAppPath =
                 Directory.EnumerateDirectories("/Applications/Audiokinetic")
                 |> Seq.tryFind (String.contains "2019")
-                |> Option.defaultWith (fun _ -> failwith "Could not find Wwise 2019 installation in /Applications/Audiokinetic/")
+                |> Option.defaultWith (fun () -> failwith "Could not find Wwise 2019 installation in /Applications/Audiokinetic/")
 
             Path.Combine(wwiseAppPath, "Wwise.app/Contents/Tools/WwiseConsole.sh")
         else
