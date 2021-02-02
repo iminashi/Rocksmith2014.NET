@@ -30,4 +30,4 @@ let calculate (fileName: string) =
     let lufsMeter = LufsMeter(float sampleProvider.WaveFormat.SampleRate, sampleProvider.WaveFormat.Channels)
     processData sampleProvider lufsMeter
     
-    Math.Round(-1. * (16. + lufsMeter.GetIntegratedLoudness()), 1)
+    Math.Round(-1. * (16. + lufsMeter.GetIntegratedLoudness()), 1, MidpointRounding.AwayFromZero)
