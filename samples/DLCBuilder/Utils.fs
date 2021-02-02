@@ -10,6 +10,9 @@ open Avalonia
 open Rocksmith2014.PSARC
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
+open Rocksmith2014.DLCProject
+open Rocksmith2014.XML.Processing
+open Rocksmith2014.XML
 
 /// Converts a Pfim DDS bitmap into an Avalonia bitmap.
 let private avaloniaBitmapFromDDS (fileName: string) =
@@ -38,10 +41,9 @@ let private avaloniaBitmapFromDDS (fileName: string) =
 
 /// Loads a bitmap from the given path.
 let loadBitmap (fileName: string) =
-    if String.endsWith "dds" fileName then
-        avaloniaBitmapFromDDS fileName
-    else
-        new Bitmap(fileName)
+    match fileName with
+    | EndsWith "dds" -> avaloniaBitmapFromDDS fileName
+    | _ -> new Bitmap(fileName)
 
 let loadPlaceHolderAlbumArt () =
     let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
@@ -85,3 +87,28 @@ let previewPathFromMainAudio (audioPath: string) =
 let removeSelected list = function
     | None -> list
     | Some selected -> List.remove selected list
+
+/// Checks the project's arrangements for issues.
+let checkArrangements (project: DLCProject) =
+    project.Arrangements
+    |> List.map (function
+        | Instrumental inst ->
+            let issues =
+                InstrumentalArrangement.Load inst.XML
+                |> ArrangementChecker.runAllChecks
+            inst.XML, issues
+        | Vocals v when Option.isNone v.CustomFont ->
+            let issues =
+                Vocals.Load v.XML
+                |> ArrangementChecker.checkVocals
+                |> Option.toList
+            v.XML, issues
+        | Showlights sl ->
+            let issues =
+                 ShowLights.Load sl.XML
+                 |> ArrangementChecker.checkShowlights
+                 |> Option.toList
+            sl.XML, issues
+        | Vocals v ->
+            v.XML, [])
+    |> Map.ofList

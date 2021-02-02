@@ -18,10 +18,11 @@ let init arg =
     let commands =
         let loadProject =
             arg
-            |> Option.bind (fun a ->
-                if String.endsWith ".rs2dlc" a then
-                    Some <| Cmd.OfAsync.either DLCProject.load a (fun p -> ProjectLoaded(p, a)) ErrorOccurred
-                else None)
+            |> Option.bind (function
+                | EndsWith ".rs2dlc" as path ->
+                    Some <| Cmd.OfAsync.either DLCProject.load path (fun p -> ProjectLoaded(p, path)) ErrorOccurred
+                | _ ->
+                    None)
 
         Cmd.batch [
             Cmd.OfAsync.perform Configuration.load () SetConfiguration
@@ -114,19 +115,16 @@ let update (msg: Msg) (state: State) =
     | ImportSelectedTones ->
         let importedTones =
             state.ImportTones
-            |> List.map (fun x ->
+            |> List.map (fun tone ->
                 let descs =
-                    match x.ToneDescriptors with
+                    match tone.ToneDescriptors with
                     | null | [||] ->
-                        ToneDescriptor.getDescriptionsOrDefault x.Name
+                        ToneDescriptor.getDescriptionsOrDefault tone.Name
                         |> Array.map (fun x -> x.UIName)
                     | descriptors -> descriptors
-                { x with ToneDescriptors = descs; SortOrder = Nullable(); NameSeparator = " - " })
+                { tone with ToneDescriptors = descs; SortOrder = Nullable(); NameSeparator = " - " })
 
-        let tones =
-            project.Tones
-            |> List.append importedTones
-        { state with Project = { project with Tones = tones }
+        { state with Project = { project with Tones = List.append importedTones project.Tones }
                      Overlay = NoOverlay }, Cmd.none
 
     | CloseOverlay ->
@@ -244,10 +242,11 @@ let update (msg: Msg) (state: State) =
         { state with Config = { config with TestFolderPath = path } }, Cmd.none
 
     | SetProfilePath path ->
-        if not <| String.endsWith "_PRFLDB" path then
-            state, Cmd.none
-        else
+        match path with
+        | EndsWith "_PRFLDB" ->
             { state with Config = { config with ProfilePath = path } }, Cmd.none
+        | _ ->
+            state, Cmd.none           
 
     | SetWwiseConsolePath path ->
         { state with Config = { config with WwiseConsolePath = Option.ofString path } }, Cmd.none
@@ -514,7 +513,7 @@ let update (msg: Msg) (state: State) =
 
     | ProjectLoaded (project, projectFile) ->
         state.CoverArt.Dispose()
-        let bm =
+        let coverArt =
             if IO.File.Exists project.AlbumArtFile then
                 Utils.loadBitmap project.AlbumArtFile
             else
@@ -523,7 +522,7 @@ let update (msg: Msg) (state: State) =
         let project = DLCProject.updateToneInfo project
         let recent = RecentFilesList.update projectFile state.RecentFiles
 
-        { state with CoverArt = bm
+        { state with CoverArt = coverArt
                      Project = project
                      SavedProject = project
                      OpenProjectFile = Some projectFile
@@ -593,28 +592,7 @@ let update (msg: Msg) (state: State) =
         { state with RunningTasks = runningTasks }, Cmd.none
 
     | CheckArrangements ->
-        let task() = async {
-            return state.Project.Arrangements
-                   |> List.map (function
-                       | Instrumental inst ->
-                           let issues =
-                               XML.InstrumentalArrangement.Load inst.XML
-                               |> ArrangementChecker.runAllChecks
-                           inst.XML, issues
-                       | Vocals v when Option.isNone v.CustomFont ->
-                           let issues =
-                               XML.Vocals.Load v.XML
-                               |> ArrangementChecker.checkVocals
-                               |> Option.toList
-                           v.XML, issues
-                       | Showlights sl ->
-                           let issues =
-                                XML.ShowLights.Load sl.XML
-                                |> ArrangementChecker.checkShowlights
-                                |> Option.toList
-                           sl.XML, issues
-                       | Vocals v -> v.XML, [])
-                   |> Map.ofList }
+        let task() = async { return Utils.checkArrangements project }
 
         addTask ArrangementCheck state, Cmd.OfAsync.either task () CheckCompleted (fun ex -> TaskFailed(ex, ArrangementCheck))
 
