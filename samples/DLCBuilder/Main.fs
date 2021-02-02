@@ -297,6 +297,7 @@ let update (msg: Msg) (state: State) =
             match target with
             | MainAudio -> project.AudioFile.Path
             | PreviewAudio -> project.AudioPreviewFile.Path
+            | CustomAudio path -> path
         let task () = async { return Volume.calculate path }
         addTask (VolumeCalculation target) state,
         Cmd.OfAsync.either task () (fun v -> VolumeCalculated(v, target)) (fun ex -> TaskFailed(ex, (VolumeCalculation target)))
@@ -308,6 +309,36 @@ let update (msg: Msg) (state: State) =
                 { state with Project = { project with AudioFile = { project.AudioFile with Volume = volume } } }
             | PreviewAudio ->
                 { state with Project = { project with AudioPreviewFile = { project.AudioPreviewFile with Volume = volume } } }
+            | CustomAudio audioPath ->
+                project.Arrangements
+                |> List.tryPick (fun arr ->
+                    // TODO: This won't work correctly if there are multiple arrangements with the same custom audio file
+                    match arr with
+                    | Instrumental { CustomAudio = Some audio } when audio.Path = audioPath ->
+                        Some arr
+                    | _ ->
+                        None)
+                |> function
+                | Some (Instrumental inst as old) ->
+                    let updated =
+                        Instrumental { inst with CustomAudio = inst.CustomAudio |> Option.map (fun a -> { a with Volume = volume }) }
+                        
+                    let arrangements =
+                        state.Project.Arrangements
+                        |> List.update old updated
+
+                    let selected = 
+                        // Update the selected arrangement unless it was changed
+                        match state.SelectedArrangement with
+                        | Some arr when arr = old ->
+                            Some updated
+                        | _ ->
+                            state.SelectedArrangement
+                    { state with Project = { state.Project with Arrangements = arrangements }
+                                 SelectedArrangement = selected }
+                | _ ->
+                    state
+                    
         removeTask (VolumeCalculation target) state, Cmd.none
 
     | SetCoverArt fileName ->

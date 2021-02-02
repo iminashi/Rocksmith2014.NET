@@ -209,5 +209,6 @@
   "convertWemOnImport": "Muunna wem tiedostot kun PSARC tuodaan",
   "noConversion": "Pois päältä",
   "toOggFile": "Ogg tiedostoiksi",
-  "toWavFile": "Wave tiedostoiksi"
+  "toWavFile": "Wave tiedostoiksi",
+  "removeCustomAudioTooltip": "Poista mukautettu äänitiedosto sovituksesta."
 }

@@ -369,7 +369,10 @@ let view state dispatch (i: Instrumental) =
                         Button.margin (0., 2., 0., 0.)
                         Button.onClick (fun _ ->
                             let editArr path =
-                                fun _ a ->
+                                fun state a ->
+                                    if state.Config.AutoVolume then
+                                        dispatch <| CalculateVolume(CustomAudio(path))
+
                                     let customAudio =
                                         match a.CustomAudio with
                                         | Some audio -> { audio with Path = path }
@@ -379,51 +382,58 @@ let view state dispatch (i: Instrumental) =
                             dispatch <| Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, editArr))
                     ]
 
-                    TextBox.create [
-                        TextBox.margin (4., 2., 0., 0.)
-                        TextBox.horizontalAlignment HorizontalAlignment.Stretch
-                        TextBox.text (Option.map (fun x -> x.Path) i.CustomAudio |> Option.toObj)
-                        TextBox.onTextChanged (fun text ->
-                            fun _ a ->
-                                let customAudio =
-                                    Option.ofString text
-                                    |> Option.map (fun x ->
-                                        match a.CustomAudio with
-                                        | Some audio -> { audio with Path = x }
-                                        | None -> { Path = x; Volume = -7. })
-                                { a with CustomAudio = customAudio }
+                    Button.create [
+                        DockPanel.dock Dock.Right
+                        Button.margin (0., 2., 2., 0.)
+                        Button.content "X"
+                        Button.isVisible i.CustomAudio.IsSome
+                        Button.onClick (fun _ ->
+                            fun _ a -> { a with CustomAudio = None }
                             |> EditInstrumental
-                            |> dispatch
+                            |> dispatch)
+                        ToolTip.tip (state.Localization.GetString "removeCustomAudioTooltip")
+                    ]
+
+                    TextBlock.create [
+                        TextBlock.margin (4., 2., 0., 0.)
+                        TextBlock.text (
+                            Option.map (fun x -> IO.Path.GetFileName x.Path) i.CustomAudio
+                            |> Option.defaultValue (state.Localization.GetString "noAudioFile")
                         )
                     ]
                 ]
             ]
 
-            TextBlock.create [
-                Grid.row 14
-                TextBlock.isVisible (state.Config.ShowAdvanced && i.CustomAudio.IsSome)
-                TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "volume")
-            ]
+            if state.Config.ShowAdvanced && i.CustomAudio.IsSome then
+                TextBlock.create [
+                    Grid.row 14
+                    TextBlock.verticalAlignment VerticalAlignment.Center
+                    TextBlock.horizontalAlignment HorizontalAlignment.Center
+                    TextBlock.text (state.Localization.GetString "volume")
+                ]
 
-            NumericUpDown.create [
-                Grid.column 1
-                Grid.row 14
-                NumericUpDown.isVisible (state.Config.ShowAdvanced && i.CustomAudio.IsSome)
-                NumericUpDown.width 65.
-                NumericUpDown.horizontalAlignment HorizontalAlignment.Left
-                NumericUpDown.minimum -45.
-                NumericUpDown.maximum 45.
-                NumericUpDown.increment 0.5
-                NumericUpDown.value (i.CustomAudio |> Option.map (fun x -> x.Volume) |> Option.defaultValue -8.)
-                NumericUpDown.formatString "F1"
-                NumericUpDown.onValueChanged (fun vol ->
-                    fun _ a ->
-                        { a with CustomAudio = Option.map (fun x -> { x with Volume = vol }) a.CustomAudio }
-                    |> EditInstrumental
-                    |> dispatch)
-                ToolTip.tip (state.Localization.GetString "audioVolumeToolTip")
-            ]
+                NumericUpDown.create [
+                    Grid.column 1
+                    Grid.row 14
+                    NumericUpDown.isEnabled (
+                        match i.CustomAudio with
+                        | Some audio when state.RunningTasks.Contains(VolumeCalculation(CustomAudio(audio.Path))) ->
+                            false
+                        | _ ->
+                            true)
+                    NumericUpDown.width 65.
+                    NumericUpDown.horizontalAlignment HorizontalAlignment.Left
+                    NumericUpDown.minimum -45.
+                    NumericUpDown.maximum 45.
+                    NumericUpDown.increment 0.5
+                    NumericUpDown.value (i.CustomAudio |> Option.map (fun x -> x.Volume) |> Option.defaultValue -8.)
+                    NumericUpDown.formatString "F1"
+                    NumericUpDown.onValueChanged (fun vol ->
+                        fun _ a ->
+                            { a with CustomAudio = Option.map (fun x -> { x with Volume = vol }) a.CustomAudio }
+                        |> EditInstrumental
+                        |> dispatch)
+                    ToolTip.tip (state.Localization.GetString "audioVolumeToolTip")
+                ]
         ]
     ]

@@ -20,7 +20,7 @@ let private notBuilding state =
 let view state dispatch =
     let noBuildInProgress = notBuilding state
     let notCalculatingVolume =
-        not (state.RunningTasks |> Set.exists (function VolumeCalculation _ -> true | _ -> false))
+        not (state.RunningTasks |> Set.exists (function VolumeCalculation (MainAudio | PreviewAudio) -> true | _ -> false))
 
     let canBuild =
         noBuildInProgress

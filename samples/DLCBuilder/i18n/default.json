@@ -209,5 +209,6 @@
   "convertWemOnImport": "Convert Audio on PSARC Import",
   "noConversion": "Disabled",
   "toOggFile": "To Ogg Files",
-  "toWavFile": "To Wave Files"
+  "toWavFile": "To Wave Files",
+  "removeCustomAudioTooltip": "Remove the custom audio file from the arrangement."
 }

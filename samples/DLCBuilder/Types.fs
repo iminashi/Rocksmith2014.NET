@@ -24,7 +24,10 @@ type PreviewAudioCreation =
 
 type MoveDirection = Up | Down
 
-type VolumeTarget = MainAudio | PreviewAudio
+type VolumeTarget =
+    | MainAudio
+    | PreviewAudio
+    | CustomAudio of audioPath : string
 
 type LongTask =
     | BuildPackage
