@@ -3,33 +3,27 @@
 open Expecto
 open Rocksmith2014.Audio
 open System.IO
-open System
 
-let previewPath = Utils.createPreviewAudioPath TestFiles.WaveFile
-let mainWemPath = Path.ChangeExtension(TestFiles.WaveFile, "wem")
-let previewWemPath = Path.ChangeExtension(previewPath, "wem")
-
-do if not <| File.Exists previewPath then
-       Preview.create TestFiles.WaveFile previewPath (TimeSpan.FromSeconds 0.)
+let wemPath = Path.ChangeExtension(TestFiles.WaveFile, "wem")
 
 [<Tests>]
 let wwiseTests =
     testSequenced <| testList "Wwise Conversion Tests" [
-        testAsync "Main and preview audio can be converted (Wave files)" {
-            if File.Exists mainWemPath then File.Delete mainWemPath
-            if File.Exists previewWemPath then File.Delete previewWemPath
+        testAsync "Wave file can be converted" {
+            if File.Exists wemPath then File.Delete wemPath
 
             do! Wwise.convertToWem None TestFiles.WaveFile
+            let info = FileInfo(wemPath)          
 
-            Expect.isTrue (File.Exists mainWemPath) "Main wem file was created"
-            Expect.isTrue (File.Exists previewWemPath) "Preview wem file was created" }
+            Expect.isTrue info.Exists "Wem file was created"
+            Expect.isGreaterThan info.Length 10_000L "File is larger than 10KB" }
 
-        testAsync "Main and preview audio can be converted (Vorbis main file + Wave preview file)" {
-            if File.Exists mainWemPath then File.Delete mainWemPath
-            if File.Exists previewWemPath then File.Delete previewWemPath
+        testAsync "Vorbis file can be converted" {
+            if File.Exists wemPath then File.Delete wemPath
 
             do! Wwise.convertToWem None TestFiles.VorbisFile
+            let info = FileInfo(wemPath)
 
-            Expect.isTrue (File.Exists mainWemPath) "Main wem file was created"
-            Expect.isTrue (File.Exists previewWemPath) "Preview wem file was created" }
+            Expect.isTrue info.Exists "Wem file was created"
+            Expect.isGreaterThan info.Length 10_000L "File is larger than 10KB" }
     ]

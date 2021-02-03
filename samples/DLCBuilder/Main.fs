@@ -14,6 +14,8 @@ open Avalonia
 open Avalonia.Layout
 open Avalonia.Controls
 
+let [<Literal>] CherubRock = "248750"
+
 let init arg =
     let commands =
         let loadProject =
@@ -54,25 +56,31 @@ let private addTask newTask state =
 let private removeTask completedTask state =
     { state with RunningTasks = state.RunningTasks |> Set.remove completedTask }
 
+let private convertAudio cliPath project =
+    [| project.AudioFile.Path; project.AudioPreviewFile.Path |]
+    |> Array.map (Wwise.convertToWem cliPath)
+    |> Async.Parallel
+    |> Async.Ignore
+
 let private convertAudioIfNeeded cliPath project = async {
     if not <| DLCProject.wemFilesExist project then
-        do! Wwise.convertToWem cliPath project.AudioFile.Path }
+        do! convertAudio cliPath project }
 
-let private createBuildConfig state appId platforms =
-    let convTask = convertAudioIfNeeded state.Config.WwiseConsolePath state.Project
+let private createBuildConfig config project appId platforms =
+    let convTask = convertAudioIfNeeded config.WwiseConsolePath project
     let phraseSearch =
-        if state.Config.DDPhraseSearchEnabled then
-            WithThreshold state.Config.DDPhraseSearchThreshold
+        if config.DDPhraseSearchEnabled then
+            WithThreshold config.DDPhraseSearchThreshold
         else
             SearchDisabled
 
     { Platforms = platforms
-      Author = state.Config.CharterName
+      Author = config.CharterName
       AppId = appId
-      GenerateDD = state.Config.GenerateDD
+      GenerateDD = config.GenerateDD
       DDConfig = { PhraseSearch = phraseSearch }
-      ApplyImprovements = state.Config.ApplyImprovements
-      SaveDebugFiles = state.Config.SaveDebugFiles
+      ApplyImprovements = config.ApplyImprovements
+      SaveDebugFiles = config.SaveDebugFiles
       AudioConversionTask = convTask }
 
 let private updateArrangement old updated state =
@@ -157,7 +165,7 @@ let update (msg: Msg) (state: State) =
         let task() = async {
             let! project, fileName = PsarcImporter.import psarcFile targetFolder
 
-            match state.Config.ConvertAudio with
+            match config.ConvertAudio with
             | ToOgg | ToWav as conv ->
                 [ yield project.AudioFile
                   yield project.AudioPreviewFile
@@ -170,7 +178,7 @@ let update (msg: Msg) (state: State) =
             return project, fileName }
 
         let newState, onError =
-            match state.Config.ConvertAudio with
+            match config.ConvertAudio with
             | ToOgg | ToWav ->
                 addTask PsarcImport state, fun ex -> TaskFailed(ex, PsarcImport)
             | NoConversion ->
@@ -274,7 +282,7 @@ let update (msg: Msg) (state: State) =
                 String.Empty
 
         let cmd =
-            if state.Config.AutoVolume && not <| String.endsWith ".wem" fileName then
+            if config.AutoVolume && not <| String.endsWith ".wem" fileName then
                 [ Cmd.ofMsg (CalculateVolume MainAudio)
                   if String.notEmpty previewPath then Cmd.ofMsg (CalculateVolume PreviewAudio) ]
                 |> Cmd.batch
@@ -286,8 +294,10 @@ let update (msg: Msg) (state: State) =
 
     | ConvertToWem ->
         if DLCProject.audioFilesExist project then
+            let task() = convertAudio config.WwiseConsolePath project
+
             addTask WemConversion state,
-            Cmd.OfAsync.either (Wwise.convertToWem state.Config.WwiseConsolePath) project.AudioFile.Path BuildComplete (fun ex -> TaskFailed(ex, WemConversion))
+            Cmd.OfAsync.either task () BuildComplete (fun ex -> TaskFailed(ex, WemConversion))
         else
             state, Cmd.none
 
@@ -467,7 +477,7 @@ let update (msg: Msg) (state: State) =
     | CreatePreviewAudio (FileCreated previewPath) ->
         let previewFile = { project.AudioPreviewFile with Path = previewPath }
         let cmd =
-            if state.Config.AutoVolume then
+            if config.AutoVolume then
                 Cmd.ofMsg (CalculateVolume PreviewAudio)
             else
                 Cmd.none
@@ -559,8 +569,8 @@ let update (msg: Msg) (state: State) =
             { state with Overlay = ErrorMessage(localize error, None) }, Cmd.none
         | Ok _ ->
             let path = IO.Path.Combine(config.TestFolderPath, project.DLCKey.ToLowerInvariant())
-            let appId = config.CustomAppId |> Option.defaultValue "248750"
-            let buildConfig = createBuildConfig state appId [ state.CurrentPlatform ]
+            let appId = config.CustomAppId |> Option.defaultValue CherubRock
+            let buildConfig = createBuildConfig config project appId [ state.CurrentPlatform ]
             let task () = buildPackages path buildConfig project
 
             addTask BuildPackage state, Cmd.OfAsync.either task () BuildComplete (fun ex -> TaskFailed(ex, BuildPackage))
@@ -580,7 +590,7 @@ let update (msg: Msg) (state: State) =
                 |> StringValidator.fileName
 
             let path = IO.Path.Combine(releaseDir, fn)
-            let buildConfig = createBuildConfig state "248750" config.ReleasePlatforms
+            let buildConfig = createBuildConfig config project CherubRock config.ReleasePlatforms
             let task () = buildPackages path buildConfig project
 
             addTask BuildPackage state, Cmd.OfAsync.either task () BuildComplete (fun ex -> TaskFailed(ex, BuildPackage))

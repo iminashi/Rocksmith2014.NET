@@ -54,8 +54,9 @@ let private getCLIPath () =
 
     cliPath
 
-let private getTempDirectory () =
-    let dir = Path.Combine(Path.GetTempPath(), "RS2WwiseConv")
+/// Creates a temporary directory and returns its path.
+let private getTempDirectory (sourcePath: string) =
+    let dir = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension sourcePath)
     if Directory.Exists dir then cleanDirectory dir
     else Directory.CreateDirectory dir |> ignore
     dir
@@ -67,60 +68,39 @@ let private extractTemplate targetDir =
     using (new ZipArchive(templateZip)) (fun zip -> zip.ExtractToDirectory targetDir)
 
 /// Extracts the Wwise template and copies the audio files into the Originals/SFX directory.
-let private loadTemplate (sourcePath: string) =
-    let templateDir = getTempDirectory()
+let private loadTemplate sourcePath =
+    let templateDir = getTempDirectory sourcePath
+    let targetPath = Path.Combine(templateDir, "Originals", "SFX", "Audio.wav")
     extractTemplate templateDir
-
-    let orgSfxDir = Path.Combine(templateDir, "Originals", "SFX")
-
-    let wavPreview = Utils.createPreviewAudioPath sourcePath
-    let oggPreview = Path.ChangeExtension(wavPreview, "ogg")
-    let mainTarget = Path.Combine(orgSfxDir, "Audio.wav")
-    let previewTarget = Path.Combine(orgSfxDir, "Audio_preview.wav")
     
-    // Copy main audio file
     match sourcePath with
-    | EndsWith ".wav" -> File.Copy(sourcePath, mainTarget, true)
-    | EndsWith ".ogg" -> Conversion.oggToWav sourcePath mainTarget
+    | EndsWith ".wav" -> File.Copy(sourcePath, targetPath, overwrite=true)
+    | EndsWith ".ogg" -> Conversion.oggToWav sourcePath targetPath
     | _ -> failwith "Could not detect file type from extension."
-
-    // Copy preview audio file
-    if File.Exists oggPreview && not <| File.Exists wavPreview then
-        Conversion.oggToWav oggPreview previewTarget
-    else
-        File.Copy(wavPreview, previewTarget, true)
 
     templateDir
 
-/// Fixes the header of a wem file.
-let private fixHeader (fileName: string) =
-    use file = File.Open(fileName, FileMode.Open, FileAccess.Write)
+/// Fixes the header of a wem file to be compatible with Rocksmith 2014.
+let private fixHeader (path: string) =
+    use file = File.Open(path, FileMode.Open, FileAccess.Write)
     let writer = LittleEndianBinaryWriter(file) :> IBinaryWriter
     file.Seek(40L, SeekOrigin.Begin) |> ignore
     writer.WriteUInt32 3u
 
-/// Copies the wem files from the template cache directory into the destination path.
+/// Copies the wem file from the template cache directory into the destination path.
 let private copyWemFiles (destPath: string) (templateDir: string) =
     let cachePath = Path.Combine(templateDir, ".cache", "Windows", "SFX")
-    let wemFiles = Seq.toArray (DirectoryInfo(cachePath).EnumerateFiles("*.wem"))
-    if wemFiles.Length < 2 then
-        failwith "Could not find converted Wwise audio and preview audio files."
+    
+    let wemFiles = Seq.toArray <| Directory.EnumerateFiles(cachePath, "*.wem")
+    if wemFiles.Length = 0 then
+        failwith "Could not find converted Wwise audio file."
 
-    wemFiles
-    |> Array.iter (fun fileInfo ->
-        let destFile =
-            match fileInfo.Name with
-            | Contains "preview" -> $"{destPath}_preview.wem" 
-            | _ -> $"{destPath}.wem" 
+    File.Copy(wemFiles.[0], destPath, overwrite=true)
+    fixHeader destPath
 
-        File.Copy(fileInfo.FullName, destFile, overwrite=true)
-        fixHeader destFile)
-
-/// Converts the source audio and preview audio files into wem files.
+/// Converts the source audio file into a wem file.
 let convertToWem (cliPath: string option) (sourcePath: string) = async {
-    // The target filename without extension
-    let destPath = Path.Combine(Path.GetDirectoryName sourcePath,
-                                Path.GetFileNameWithoutExtension sourcePath)
+    let destPath = Path.ChangeExtension(sourcePath, "wem")
     let cliPath = cliPath |> Option.defaultWith getCLIPath
     let templateDir = loadTemplate sourcePath
     
@@ -137,4 +117,5 @@ let convertToWem (cliPath: string option) (sourcePath: string) = async {
     if output.Length > 0 then failwith output
     
     copyWemFiles destPath templateDir
-    cleanDirectory templateDir }
+    cleanDirectory templateDir
+    Directory.Delete templateDir }
