@@ -18,6 +18,7 @@ let private notBuilding state =
     |> Set.isEmpty
 
 let view state dispatch =
+    let audioPath = state.Project.AudioFile.Path
     let noBuildInProgress = notBuilding state
     let notCalculatingVolume =
         not (state.RunningTasks |> Set.exists (function VolumeCalculation (MainAudio | PreviewAudio) -> true | _ -> false))
@@ -27,7 +28,7 @@ let view state dispatch =
         && (not <| state.RunningTasks.Contains PsarcImport)
         && state.Project.Arrangements.Length > 0
         && state.Project.DLCKey.Length >= 5
-        && String.notEmpty state.Project.AudioFile.Path
+        && String.notEmpty audioPath
 
     DockPanel.create [
         Grid.rowSpan 2
@@ -217,36 +218,36 @@ let view state dispatch =
                         DockPanel.children [
                             Button.create [
                                 DockPanel.dock Dock.Right
-                                Button.content "wem"
-                                Button.margin (0.0, 4.0, 4.0, 4.0)
-                                Button.isEnabled (noBuildInProgress && not <| String.endsWith "wem" state.Project.AudioFile.Path)
-                                Button.onClick (fun _ -> dispatch ConvertToWem)
-                            ]
-
-                            Button.create [
-                                DockPanel.dock Dock.Right
-                                Button.content "vol"
-                                Button.margin (0.0, 4.0, 4.0, 4.0)
-                                Button.isEnabled (
-                                    noBuildInProgress
-                                    && not <| String.endsWith "wem" state.Project.AudioFile.Path
-                                    && notCalculatingVolume)
-                                Button.onClick ((fun _ ->
-                                    dispatch (CalculateVolume MainAudio)
-                                    let previewPath = state.Project.AudioPreviewFile.Path
-                                    if IO.File.Exists previewPath && not <| String.endsWith "wem" previewPath then
-                                        dispatch (CalculateVolume PreviewAudio)
-                                    ), SubPatchOptions.OnChangeOf state.Project.AudioPreviewFile)
-                            ]
-
-                            Button.create [
-                                DockPanel.dock Dock.Right
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
                                 Button.padding (10.0, 0.0)
                                 Button.content "..."
                                 Button.isEnabled notCalculatingVolume
                                 Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, SetAudioFile)))
                                 ToolTip.tip (state.Localization.GetString "selectAudioFile")
+                            ]
+
+                            Button.create [
+                                DockPanel.dock Dock.Right
+                                Button.content "W"
+                                Button.margin (0.0, 4.0, 4.0, 4.0)
+                                Button.isEnabled noBuildInProgress
+                                Button.isVisible (String.notEmpty audioPath && not <| String.endsWith ".wem" audioPath)
+                                Button.onClick (fun _ -> dispatch ConvertToWem)
+                                ToolTip.tip (state.Localization.GetString "convertMultipleToWemTooltip")
+                            ]
+
+                            Button.create [
+                                DockPanel.dock Dock.Right
+                                Button.content "vol"
+                                Button.margin (0.0, 4.0, 4.0, 4.0)
+                                Button.isEnabled (noBuildInProgress && notCalculatingVolume)
+                                Button.isVisible (String.notEmpty audioPath && not <| String.endsWith ".wem" audioPath)
+                                Button.onClick ((fun _ ->
+                                    dispatch (CalculateVolume MainAudio)
+                                    let previewPath = state.Project.AudioPreviewFile.Path
+                                    if IO.File.Exists previewPath && not <| String.endsWith "wem" previewPath then
+                                        dispatch (CalculateVolume PreviewAudio)
+                                    ), SubPatchOptions.OnChangeOf state.Project.AudioPreviewFile)
                             ]
 
                             TextBlock.create [
@@ -259,10 +260,10 @@ let view state dispatch =
                                 TextBlock.margin (4.0, 4.0, 0.0, 4.0)
                                 TextBlock.verticalAlignment VerticalAlignment.Center
                                 TextBlock.text (
-                                    if String.IsNullOrWhiteSpace state.Project.AudioFile.Path then
-                                        state.Localization.GetString "noAudioFile"
+                                    if String.notEmpty audioPath then
+                                        IO.Path.GetFileName audioPath
                                     else
-                                        IO.Path.GetFileName state.Project.AudioFile.Path
+                                        state.Localization.GetString "noAudioFile"
                                 )
                             ]
                         ]
@@ -298,7 +299,7 @@ let view state dispatch =
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
                                 Button.horizontalAlignment HorizontalAlignment.Center
                                 Button.content (state.Localization.GetString "createPreviewAudio")
-                                Button.isEnabled (not <| String.endsWith ".wem" state.Project.AudioFile.Path)
+                                Button.isEnabled (not <| String.endsWith ".wem" audioPath)
                                 Button.onClick (fun _ -> dispatch (CreatePreviewAudio SetupStartTime))
                                 ToolTip.tip (
                                     if previewExists then

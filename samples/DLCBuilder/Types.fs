@@ -109,6 +109,7 @@ type Msg =
     | CheckArrangements
     | CheckCompleted of Map<string, ArrangementChecker.Issue list>
     | ConvertToWem
+    | ConvertToWemCustom of audioPath : string
     | CalculateVolume of target : VolumeTarget
     | VolumeCalculated of volume : float * target : VolumeTarget
     | ShowImportToneSelector of tones : Tone array

@@ -301,6 +301,10 @@ let update (msg: Msg) (state: State) =
         else
             state, Cmd.none
 
+    | ConvertToWemCustom path ->
+        addTask WemConversion state,
+        Cmd.OfAsync.either (Wwise.convertToWem config.WwiseConsolePath) path BuildComplete (fun ex -> TaskFailed(ex, WemConversion))
+
     | CalculateVolume target ->
         let path =
             match target with

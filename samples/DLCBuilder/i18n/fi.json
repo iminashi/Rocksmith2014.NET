@@ -210,5 +210,7 @@
   "noConversion": "Pois päältä",
   "toOggFile": "Ogg tiedostoiksi",
   "toWavFile": "Wave tiedostoiksi",
-  "removeCustomAudioTooltip": "Poista mukautettu äänitiedosto sovituksesta."
+  "removeCustomAudioTooltip": "Poista mukautettu äänitiedosto sovituksesta.",
+  "convertToWemTooltip": "Muunna äänitiedosto Wwise wem muotoon.",
+  "convertMultipleToWemTooltip": "Muunna ääni- ja esikatseluäänitiedostot Wwise wem muotoon."
 }

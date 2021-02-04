@@ -370,7 +370,7 @@ let view state dispatch (i: Instrumental) =
                         Button.onClick (fun _ ->
                             let editArr path =
                                 fun state a ->
-                                    if state.Config.AutoVolume then
+                                    if state.Config.AutoVolume && not <| String.endsWith ".wem" path then
                                         dispatch <| CalculateVolume(CustomAudio(path))
 
                                     let customAudio =
@@ -392,6 +392,22 @@ let view state dispatch (i: Instrumental) =
                             |> EditInstrumental
                             |> dispatch)
                         ToolTip.tip (state.Localization.GetString "removeCustomAudioTooltip")
+                    ]
+
+                    Button.create [
+                        DockPanel.dock Dock.Right
+                        Button.margin (0., 2., 2., 0.)
+                        Button.content "W"
+                        Button.isEnabled (not <| state.RunningTasks.Contains WemConversion)
+                        Button.isVisible (
+                            match i.CustomAudio with
+                            | Some audio when not <| String.endsWith ".wem" audio.Path -> true
+                            | _ -> false)
+                        Button.onClick ((fun _ ->
+                            match i.CustomAudio with
+                            | Some { Path = path } -> ConvertToWemCustom path |> dispatch
+                            | None -> ()), SubPatchOptions.OnChangeOf i.CustomAudio)
+                        ToolTip.tip (state.Localization.GetString "convertToWemTooltip")
                     ]
 
                     TextBlock.create [
