@@ -17,6 +17,7 @@ type Configuration =
       GenerateDD : bool
       DDPhraseSearchEnabled : bool
       DDPhraseSearchThreshold : int
+      RemoveDDOnImport : bool
       ApplyImprovements : bool
       SaveDebugFiles : bool
       AutoVolume : bool
@@ -35,6 +36,7 @@ type Configuration =
           GenerateDD = true
           DDPhraseSearchEnabled = true
           DDPhraseSearchThreshold = 80
+          RemoveDDOnImport = false
           ApplyImprovements = true
           SaveDebugFiles = false
           AutoVolume = true
@@ -55,6 +57,7 @@ module Configuration =
         member val GenerateDD : bool = true with get, set
         member val DDPhraseSearchEnabled : bool = true with get, set
         member val DDPhraseSearchThreshold : int = 80 with get, set
+        member val RemoveDDOnImport : bool = false with get, set
         member val ApplyImprovements : bool = true with get, set
         member val SaveDebugFiles : bool = false with get, set
         member val AutoVolume : bool = true with get, set
@@ -95,6 +98,7 @@ module Configuration =
           GenerateDD = dto.GenerateDD
           DDPhraseSearchEnabled = dto.DDPhraseSearchEnabled
           DDPhraseSearchThreshold = threshold
+          RemoveDDOnImport = dto.RemoveDDOnImport
           ApplyImprovements = dto.ApplyImprovements
           SaveDebugFiles = dto.SaveDebugFiles
           AutoVolume = dto.AutoVolume
@@ -122,6 +126,7 @@ module Configuration =
             GenerateDD = config.GenerateDD,
             DDPhraseSearchEnabled = config.DDPhraseSearchEnabled,
             DDPhraseSearchThreshold = config.DDPhraseSearchThreshold,
+            RemoveDDOnImport = config.RemoveDDOnImport,
             ApplyImprovements = config.ApplyImprovements,
             AutoVolume = config.AutoVolume,
             ConvertAudio = convertAudio,

@@ -206,11 +206,13 @@
   "customAudioFile": "Eri äänitiedosto",
   "calculateVolumes": "Laske äänenvoimakkuudet",
   "moreInfo": "Lisätietoja",
-  "convertWemOnImport": "Muunna wem tiedostot kun PSARC tuodaan",
+  "psarcImportHeader": "PSARC tuonti",
+  "convertWemOnImport": "Muunna wem tiedostot",
   "noConversion": "Pois päältä",
   "toOggFile": "Ogg tiedostoiksi",
   "toWavFile": "Wave tiedostoiksi",
   "removeCustomAudioTooltip": "Poista mukautettu äänitiedosto sovituksesta.",
   "convertToWemTooltip": "Muunna äänitiedosto Wwise wem muotoon.",
-  "convertMultipleToWemTooltip": "Muunna ääni- ja esikatseluäänitiedostot Wwise wem muotoon."
+  "convertMultipleToWemTooltip": "Muunna ääni- ja esikatseluäänitiedostot Wwise wem muotoon.",
+  "removeDDLevels": "Poista DD tasot"
 }

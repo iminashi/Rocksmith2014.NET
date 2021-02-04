@@ -198,7 +198,15 @@ let private importConfig state dispatch =
         |> state.Localization.GetString
 
     StackPanel.create [
+        StackPanel.margin (8., 0.)
         StackPanel.children [
+            TextBlock.create [
+                TextBlock.text (state.Localization.GetString "psarcImportHeader")
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.fontSize 17.
+                TextBlock.margin (0., 0., 0., 4.)
+            ]
+
             TextBlock.create [
                 TextBlock.text (state.Localization.GetString "convertWemOnImport")
                 TextBlock.horizontalAlignment HorizontalAlignment.Left
@@ -215,6 +223,21 @@ let private importConfig state dispatch =
                         |> EditConfig
                         |> dispatch)
                 ] |> generalize)
+
+            CheckBox.create [
+                CheckBox.content (state.Localization.GetString "removeDDLevels")
+                CheckBox.horizontalAlignment HorizontalAlignment.Left
+                CheckBox.margin (0., 8., 0., 4.)
+                CheckBox.isChecked state.Config.RemoveDDOnImport
+                CheckBox.onChecked (fun _ ->
+                    fun c -> { c with RemoveDDOnImport = true }
+                    |> EditConfig
+                    |> dispatch)
+                CheckBox.onUnchecked (fun _ ->
+                    fun c -> { c with RemoveDDOnImport = false }
+                    |> EditConfig
+                    |> dispatch)
+            ]
         ]
     ]
 

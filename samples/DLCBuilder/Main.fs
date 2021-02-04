@@ -175,6 +175,19 @@ let update (msg: Msg) (state: State) =
                 |> Conversion.wemToOgg (conv = ToWav)
             | NoConversion ->
                 ()
+
+            if config.RemoveDDOnImport then
+                do! project.Arrangements
+                    |> List.map (fun a -> async {
+                        match a with
+                        | Instrumental i ->
+                            let arr = XML.InstrumentalArrangement.Load i.XML
+                            do! arr.RemoveDD false
+                            arr.Save i.XML
+                        | _ -> () })
+                    |> Async.Sequential
+                    |> Async.Ignore
+
             return project, fileName }
 
         let newState, onError =

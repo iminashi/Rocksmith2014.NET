@@ -206,11 +206,13 @@
   "customAudioFile": "Custom Audio File",
   "calculateVolumes": "Calculate Volumes",
   "moreInfo": "More Info",
-  "convertWemOnImport": "Convert Audio on PSARC Import",
+  "psarcImportHeader": "PSARC Import",
+  "convertWemOnImport": "Convert Audio",
   "noConversion": "Disabled",
   "toOggFile": "To Ogg Files",
   "toWavFile": "To Wave Files",
   "removeCustomAudioTooltip": "Remove the custom audio file from the arrangement.",
   "convertToWemTooltip": "Convert the audio file into Wwise wem format.",
-  "convertMultipleToWemTooltip": "Convert the audio and preview audio files into Wwise wem format."
+  "convertMultipleToWemTooltip": "Convert the audio and preview audio files into Wwise wem format.",
+  "removeDDLevels": "Remove DD Levels"
 }
