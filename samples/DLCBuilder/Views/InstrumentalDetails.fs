@@ -403,10 +403,7 @@ let view state dispatch (i: Instrumental) =
                             match i.CustomAudio with
                             | Some audio when not <| String.endsWith ".wem" audio.Path -> true
                             | _ -> false)
-                        Button.onClick ((fun _ ->
-                            match i.CustomAudio with
-                            | Some { Path = path } -> ConvertToWemCustom path |> dispatch
-                            | None -> ()), SubPatchOptions.OnChangeOf i.CustomAudio)
+                        Button.onClick (fun _ -> ConvertToWemCustom |> dispatch)
                         ToolTip.tip (state.Localization.GetString "convertToWemTooltip")
                     ]
 

@@ -301,9 +301,13 @@ let update (msg: Msg) (state: State) =
         else
             state, Cmd.none
 
-    | ConvertToWemCustom path ->
-        addTask WemConversion state,
-        Cmd.OfAsync.either (Wwise.convertToWem config.WwiseConsolePath) path BuildComplete (fun ex -> TaskFailed(ex, WemConversion))
+    | ConvertToWemCustom ->
+        match state.SelectedArrangement with
+        | Some (Instrumental { CustomAudio = Some audio }) ->
+            addTask WemConversion state,
+            Cmd.OfAsync.either (Wwise.convertToWem config.WwiseConsolePath) audio.Path BuildComplete (fun ex -> TaskFailed(ex, WemConversion))
+        | _ ->
+            state, Cmd.none
 
     | CalculateVolume target ->
         let path =
