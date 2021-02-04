@@ -282,6 +282,128 @@ namespace Rocksmith2014.XML
             }
         }
 
+        private async Task<Level> GenerateTranscriptionTrack()
+        {
+            var notes = new List<Note>();
+            var chords = new List<Chord>();
+            var handshapes = new List<HandShape>();
+            var anchors = new List<Anchor>();
+            var tasks = Enumerable.Repeat(Task.CompletedTask, 4).ToArray();
+
+            // Ignore the last phrase iteration (END)
+            for (int i = 0; i < PhraseIterations.Count - 1; i++)
+            {
+                var phraseIteration = PhraseIterations[i];
+                int maxDifficulty = Phrases[phraseIteration.PhraseId].MaxDifficulty;
+
+                int phraseStartTime = phraseIteration.Time;
+                int phraseEndTime = PhraseIterations[i + 1].Time;
+                var highestLevelForPhrase = Levels[maxDifficulty];
+
+                var notesInPhraseIteration = highestLevelForPhrase.Notes
+                    .Where(n => n.Time >= phraseStartTime && n.Time < phraseEndTime);
+
+                var chordsInPhraseIteration = highestLevelForPhrase.Chords
+                    .Where(c => c.Time >= phraseStartTime && c.Time < phraseEndTime);
+
+                var handShapesInPhraseIteration = highestLevelForPhrase.HandShapes
+                    .Where(hs => hs.Time >= phraseStartTime && hs.Time < phraseEndTime);
+
+                var anchorsInPhraseIteration = highestLevelForPhrase.Anchors
+                    .Where(a => a.Time >= phraseStartTime && a.Time < phraseEndTime);
+
+                tasks[0] = tasks[0].ContinueWith(_ => notes.AddRange(notesInPhraseIteration));
+                tasks[1] = tasks[1].ContinueWith(_ => chords.AddRange(chordsInPhraseIteration));
+                tasks[2] = tasks[2].ContinueWith(_ => handshapes.AddRange(handShapesInPhraseIteration));
+                tasks[3] = tasks[3].ContinueWith(_ => anchors.AddRange(anchorsInPhraseIteration));
+            }
+
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+
+            return new Level
+            {
+                Difficulty = 0,
+                Notes = notes,
+                Chords = chords,
+                Anchors = anchors,
+                HandShapes = handshapes
+            };
+        }
+
+        /// <summary>
+        /// Removes dynamic difficulty levels from the arrangement.
+        /// </summary>
+        /// <param name="matchPhrasesToSections">If true, recreates the phrases to match the sections.</param>
+        public async Task RemoveDD(bool matchPhrasesToSections)
+        {
+            var trTrack = await GenerateTranscriptionTrack().ConfigureAwait(false);
+
+            TranscriptionTrack = new Level();
+            Levels.Clear();
+            Levels.Add(trTrack);
+
+            NewLinkedDiffs.Clear();
+            LinkedDiffs?.Clear();
+
+            if (matchPhrasesToSections)
+            {
+                Phrases.Clear();
+
+                Phrases.Add(new Phrase { Name = "COUNT" });
+                foreach (string sectionName in Sections.Select(s => s.Name).Distinct())
+                {
+                    Phrases.Add(new Phrase
+                    {
+                        Name = sectionName
+                    });
+                }
+                Phrases[^1].Name = "END";
+
+                PhraseIterations.Clear();
+
+                // Add COUNT phrase iteration
+                PhraseIterations.Add(new PhraseIteration(StartBeat, 0));
+
+                // Add phrase iterations
+                foreach (var section in Sections)
+                {
+                    int phraseId = Phrases.FindIndex(p => p.Name == section.Name);
+                    PhraseIterations.Add(new PhraseIteration(section.Time, phraseId));
+                }
+
+                // Set correct phrase ID for the END phrase iteration
+                PhraseIterations[^1].PhraseId = Phrases.Count - 1;
+            }
+            else
+            {
+                foreach (var p in Phrases)
+                {
+                    p.MaxDifficulty = 0;
+                }
+
+                foreach (var pi in PhraseIterations)
+                {
+                    pi.HeroLevels = new HeroLevels();
+                }
+            }
+
+            // Remove any unused chord templates
+            if (ChordTemplates.Count > 0)
+            {
+                int highestChordId = 0;
+                if (Levels[0].Chords.Count > 0)
+                    highestChordId = Levels[0].Chords.Max(c => c.ChordId);
+
+                int highestHandShapeId = 0;
+                if (Levels[0].HandShapes.Count > 0)
+                    highestHandShapeId = Levels[0].HandShapes.Max(hs => hs.ChordId);
+
+                int highestId = Math.Max(highestChordId, highestHandShapeId);
+                if (highestId < ChordTemplates.Count - 1)
+                    ChordTemplates.RemoveRange(highestId + 1, ChordTemplates.Count - 1 - highestId);
+            }
+        }
+
         #region IXmlSerializable Implementation
 
         XmlSchema? IXmlSerializable.GetSchema() => null;
