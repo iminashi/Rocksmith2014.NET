@@ -146,14 +146,6 @@ namespace Rocksmith2014.XML
         }
 
         /// <summary>
-        /// Loads a Rocksmith 2014 arrangement from the given file name on a background thread.
-        /// </summary>
-        /// <param name="fileName">The file name of a Rocksmith 2014 instrumental arrangement.</param>
-        /// <returns>A Rocksmith 2014 arrangement parsed from the XML file.</returns>
-        public static Task<InstrumentalArrangement> LoadAsync(string fileName)
-            => Task.Run(() => Load(fileName));
-
-        /// <summary>
         /// Reads the tone names from the given file using an XmlReader.
         /// </summary>
         /// <param name="fileName">The file name of a Rocksmith 2014 instrumental arrangement.</param>
@@ -348,18 +340,14 @@ namespace Rocksmith2014.XML
             if (matchPhrasesToSections)
             {
                 Phrases.Clear();
+                PhraseIterations.Clear();
 
                 Phrases.Add(new Phrase { Name = "COUNT" });
                 foreach (string sectionName in Sections.Select(s => s.Name).Distinct())
                 {
-                    Phrases.Add(new Phrase
-                    {
-                        Name = sectionName
-                    });
+                    Phrases.Add(new Phrase { Name = sectionName });
                 }
                 Phrases[^1].Name = "END";
-
-                PhraseIterations.Clear();
 
                 // Add COUNT phrase iteration
                 PhraseIterations.Add(new PhraseIteration(StartBeat, 0));
@@ -390,13 +378,11 @@ namespace Rocksmith2014.XML
             // Remove any unused chord templates
             if (ChordTemplates.Count > 0)
             {
-                int highestChordId = 0;
-                if (Levels[0].Chords.Count > 0)
-                    highestChordId = Levels[0].Chords.Max(c => c.ChordId);
+                int highestChordId =
+                    Levels[0].Chords.Count > 0 ? Levels[0].Chords.Max(c => c.ChordId) : 0;
 
-                int highestHandShapeId = 0;
-                if (Levels[0].HandShapes.Count > 0)
-                    highestHandShapeId = Levels[0].HandShapes.Max(hs => hs.ChordId);
+                int highestHandShapeId =
+                    Levels[0].HandShapes.Count > 0 ? Levels[0].HandShapes.Max(hs => hs.ChordId) : 0;
 
                 int highestId = Math.Max(highestChordId, highestHandShapeId);
                 if (highestId < ChordTemplates.Count - 1)
