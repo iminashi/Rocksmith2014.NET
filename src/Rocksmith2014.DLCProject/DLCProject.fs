@@ -122,9 +122,11 @@ module DLCProject =
         &&
         File.Exists project.AudioPreviewFile.Path
 
-    /// Returns true if wem audio files for the project exist.
-    let wemFilesExist (project: DLCProject) =
-        let wemAudio = Path.ChangeExtension(project.AudioFile.Path, "wem")
-        let wemPreview = Path.ChangeExtension(project.AudioPreviewFile.Path, "wem")
-
-        File.Exists wemAudio && File.Exists wemPreview
+    /// Returns the paths to the audio files that need converting to wem.
+    let getFilesThatNeedsConverting (project: DLCProject) =
+        seq { project.AudioFile
+              project.AudioPreviewFile
+              yield! project.Arrangements
+                     |> List.choose (function Instrumental i -> i.CustomAudio | _ -> None) }
+        |> Seq.map (fun audio -> audio.Path)
+        |> Seq.filter (fun path -> not <| File.Exists(Path.ChangeExtension(path, "wem")))

@@ -62,12 +62,13 @@ let private convertAudio cliPath project =
     |> Async.Parallel
     |> Async.Ignore
 
-let private convertAudioIfNeeded cliPath project = async {
-    if not <| DLCProject.wemFilesExist project then
-        do! convertAudio cliPath project }
-
 let private createBuildConfig config project appId platforms =
-    let convTask = convertAudioIfNeeded config.WwiseConsolePath project
+    let convTask =
+        DLCProject.getFilesThatNeedsConverting project
+        |> Seq.map (Wwise.convertToWem config.WwiseConsolePath)
+        |> Async.Parallel
+        |> Async.Ignore
+
     let phraseSearch =
         if config.DDPhraseSearchEnabled then
             WithThreshold config.DDPhraseSearchThreshold

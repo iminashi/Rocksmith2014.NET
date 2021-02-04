@@ -191,6 +191,7 @@ namespace Rocksmith2014.XML
 
             return tones;
         }
+
         /// <summary>
         /// Modifies the arrangement to use the absence of chord notes to indicate repeated strums (matches official XML files),
         /// instead of using the "high density" attribute (which is only used in custom files).
