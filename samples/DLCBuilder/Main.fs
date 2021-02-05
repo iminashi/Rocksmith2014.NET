@@ -4,8 +4,8 @@ open Rocksmith2014
 open Rocksmith2014.Audio
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
-open Rocksmith2014.DLCProject
 open Rocksmith2014.DD
+open Rocksmith2014.DLCProject
 open Rocksmith2014.DLCProject.PackageBuilder
 open Rocksmith2014.XML.Processing
 open Elmish
@@ -13,6 +13,7 @@ open System
 open Avalonia
 open Avalonia.Layout
 open Avalonia.Controls
+open EditFunctions
 
 let [<Literal>] CherubRock = "248750"
 
@@ -88,30 +89,6 @@ let private createBuildConfig buildType config project platforms =
       ApplyImprovements = config.ApplyImprovements
       SaveDebugFiles = config.SaveDebugFiles
       AudioConversionTask = convTask }
-
-let private updateArrangement old updated state =
-    let arrangements =
-        state.Project.Arrangements
-        |> List.update old updated
-    { state with Project = { state.Project with Arrangements = arrangements }
-                 SelectedArrangement = Some updated }
-
-let private updateTone old updated state =
-    let tones =
-        state.Project.Tones
-        |> List.update old updated
-    { state with Project = { state.Project with Tones = tones } 
-                 SelectedTone = Some updated }, Cmd.none
-
-let private fixPriority state routeMask arr =
-    if arr.Priority = ArrangementPriority.Main
-       && state.Project.Arrangements |> List.exists (function
-            | Instrumental inst when inst <> arr ->
-                inst.RouteMask = routeMask && inst.Priority = ArrangementPriority.Main
-            | _ -> false) then
-        ArrangementPriority.Alternative
-    else
-        arr.Priority
 
 let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
@@ -554,132 +531,22 @@ let update (msg: Msg) (state: State) =
 
     | EditInstrumental edit ->
         match state.SelectedArrangement with
-        | Some (Instrumental inst as old) ->
-            let updated, cmd =
-                match edit with
-                | SetArrangementName name ->
-                    let routeMask =
-                        match name with
-                        | ArrangementName.Lead -> RouteMask.Lead
-                        | ArrangementName.Rhythm -> RouteMask.Rhythm
-                        | ArrangementName.Combo ->
-                            // The name of a bass arrangement cannot currently be changed
-                            if inst.RouteMask = RouteMask.Bass then RouteMask.Rhythm else inst.RouteMask
-                        | ArrangementName.Bass -> RouteMask.Bass
-                        | _ -> failwith "Impossible failure."
-                    let priority = fixPriority state routeMask inst
-                    { inst with Name = name; RouteMask = routeMask; Priority = priority }, Cmd.none
-                | SetRouteMask mask ->
-                    let priority = fixPriority state mask inst
-                    { inst with RouteMask = mask; Priority = priority }, Cmd.none
-                | SetPriority priority -> { inst with Priority = priority }, Cmd.none
-                | SetBassPicked picked -> { inst with BassPicked = picked }, Cmd.none
-                | SetTuning (index, tuning) ->
-                    let tuning =
-                        inst.Tuning
-                        |> Array.mapi (fun i x -> if i = index then tuning else x)
-                    { inst with Tuning = tuning }, Cmd.none
-                | SetTuningPitch pitch -> { inst with TuningPitch = pitch }, Cmd.none
-                | SetBaseTone tone -> { inst with BaseTone = tone }, Cmd.none
-                | UpdateToneInfo -> Arrangement.updateToneInfo inst true, Cmd.none
-                | SetScrollSpeed speed -> { inst with ScrollSpeed = speed }, Cmd.none
-                | SetMasterId id -> { inst with MasterID = id }, Cmd.none
-                | SetPersistentId id -> { inst with PersistentID = id }, Cmd.none
-                | GenerateNewIds ->
-                    { inst with MasterID = RandomGenerator.next()
-                                PersistentID = Guid.NewGuid() }, Cmd.none
-                | SetCustomAudioPath (Some path) ->
-                    let cmd =
-                        if config.AutoVolume && not <| String.endsWith ".wem" path then
-                            Cmd.ofMsg <| CalculateVolume(CustomAudio(path))
-                        else
-                            Cmd.none
-
-                    let customAudio =
-                        match inst.CustomAudio with
-                        | Some audio -> { audio with Path = path }
-                        | None -> { Path = path; Volume = -8. }
-                    { inst with CustomAudio = Some customAudio }, cmd
-                | SetCustomAudioPath None ->
-                    { inst with CustomAudio = None }, Cmd.none
-                | SetCustomAudioVolume vol ->
-                    { inst with CustomAudio = Option.map (fun x -> { x with Volume = vol }) inst.CustomAudio }, Cmd.none
-            updateArrangement old (Instrumental updated) state, cmd
+        | Some (Instrumental inst as old) -> editInstrumental state edit old inst
         | _ -> state, Cmd.none
 
     | EditVocals edit ->
         match state.SelectedArrangement with
-        | Some (Vocals vocals as old) ->
-            let updated =
-                match edit with
-                | SetIsJapanese jp -> { vocals with Japanese = jp }
-                | SetCustomFont font -> { vocals with CustomFont = font }
-            updateArrangement old (Vocals updated) state, Cmd.none
+        | Some (Vocals vocals as old) -> editVocals state edit old vocals
         | _ -> state, Cmd.none
 
     | EditTone edit ->
          match state.SelectedTone with
-         | Some old ->
-            let updatedTone =
-                 match edit with
-                 | SetName name -> { old with Name = name }
-                 | SetKey key -> { old with Key = key }
-                 | SetVolume vol -> { old with Volume = sprintf "%.3f" vol }
-                 | AddDescriptor -> { old with ToneDescriptors = old.ToneDescriptors |> Array.append [| ToneDescriptor.all.[0].UIName |] }
-                 | RemoveDescriptor -> { old with ToneDescriptors = old.ToneDescriptors.[1..] }
-                 | ChangeDescriptor (index, descriptor) ->
-                    let updated =
-                        old.ToneDescriptors
-                        |> Array.mapi (fun i x -> if i = index then descriptor.UIName else x)
-                    { old with ToneDescriptors = updated }
-            updateTone old updatedTone state
-         | None ->
-             state, Cmd.none
+         | Some old -> editTone state edit old
+         | None -> state, Cmd.none
 
-    | EditProject edit ->
-        let p = 
-            match edit with
-            | SetDLCKey key -> { project with DLCKey = key }
-            | SetVersion ver -> { project with Version = ver }
-            | SetArtistName artist -> { project with ArtistName = { project.ArtistName with Value = artist } }
-            | SetArtistNameSort sort -> { project with ArtistName = { project.ArtistName with SortValue = sort } }
-            | SetArtistJapaneseName artist -> { project with JapaneseArtistName = artist }
-            | SetTitle title -> { project with Title = { project.Title with Value = title } }
-            | SetTitleSort sort -> { project with Title = { project.Title with SortValue = sort } }
-            | SetJapaneseTitle title -> { project with JapaneseTitle = title }
-            | SetAlbumName album -> { project with AlbumName = { project.AlbumName with Value = album } }
-            | SetAlbumNameSort sort -> { project with AlbumName = { project.AlbumName with SortValue = sort } }
-            | SetYear year -> { project with Year = year }
-            | SetAudioVolume vol -> { project with AudioFile = { project.AudioFile with Volume = vol } }
-            | SetPreviewVolume vol -> { project with AudioPreviewFile = { project.AudioPreviewFile with Volume = vol } }
+    | EditProject edit -> { state with Project = editProject edit project }, Cmd.none
 
-        { state with Project = p }, Cmd.none
-
-    | EditConfig edit ->
-        let c =
-            match edit with
-            | SetCharterName name -> { config with CharterName = name }
-            | SetAutoVolume autoVol -> { config with AutoVolume = autoVol }
-            | SetShowAdvanced showAdv -> { config with ShowAdvanced = showAdv }
-            | SetRemoveDDOnImport removeDD -> { config with RemoveDDOnImport = removeDD }
-            | SetGenerateDD generateDD -> { config with GenerateDD = generateDD }
-            | SetDDPhraseSearchEnabled phraseSearch -> { config with DDPhraseSearchEnabled = phraseSearch }
-            | SetDDPhraseSearchThreshold threshold -> { config with DDPhraseSearchThreshold = threshold }
-            | SetApplyImprovements improve -> { config with ApplyImprovements = improve }
-            | SetSaveDebugFiles debug -> { config with SaveDebugFiles = debug }
-            | SetCustomAppId appId -> { config with CustomAppId = appId }
-            | SetConvertAudio conv -> { config with ConvertAudio = conv }
-            | AddReleasePlatform platform -> { config with ReleasePlatforms = platform::config.ReleasePlatforms }
-            | RemoveReleasePlatform platform -> { config with ReleasePlatforms = config.ReleasePlatforms |> List.remove platform }
-            | SetTestFolderPath path -> { config with TestFolderPath = path }
-            | SetProjectsFolderPath path -> { config with ProjectsFolderPath = path }
-            | SetWwiseConsolePath path -> { config with WwiseConsolePath = Option.ofString path }
-            | SetProfilePath path ->
-                match path with
-                | EndsWith "_PRFLDB" -> { config with ProfilePath = path }
-                | _ -> config
-
-        { state with Config = c }, Cmd.none
+    | EditConfig edit -> { state with Config = editConfig edit config }, Cmd.none
 
     | Build Test ->
         match BuildValidator.validate project with
