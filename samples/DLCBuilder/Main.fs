@@ -62,7 +62,7 @@ let private convertAudio cliPath project =
     |> Async.Parallel
     |> Async.Ignore
 
-let private createBuildConfig config project appId platforms =
+let private createBuildConfig buildType config project platforms =
     let convTask =
         DLCProject.getFilesThatNeedConverting project
         |> Seq.map (Wwise.convertToWem config.WwiseConsolePath)
@@ -75,10 +75,15 @@ let private createBuildConfig config project appId platforms =
         else
             SearchDisabled
 
+    let appId =
+        match buildType, config.CustomAppId with
+        | Test, Some customId -> customId
+        | _ -> CherubRock
+
     { Platforms = platforms
       Author = config.CharterName
       AppId = appId
-      GenerateDD = config.GenerateDD
+      GenerateDD = (buildType = Release) || config.GenerateDD
       DDConfig = { PhraseSearch = phraseSearch }
       ApplyImprovements = config.ApplyImprovements
       SaveDebugFiles = config.SaveDebugFiles
@@ -585,19 +590,18 @@ let update (msg: Msg) (state: State) =
     | EditProject edit -> { state with Project = edit project }, Cmd.none
     | EditConfig edit -> { state with Config = edit config }, Cmd.none
 
-    | BuildTest ->
+    | Build Test ->
         match BuildValidator.validate project with
         | Error error ->
             { state with Overlay = ErrorMessage(localize error, None) }, Cmd.none
         | Ok _ ->
             let path = IO.Path.Combine(config.TestFolderPath, project.DLCKey.ToLowerInvariant())
-            let appId = config.CustomAppId |> Option.defaultValue CherubRock
-            let buildConfig = createBuildConfig config project appId [ state.CurrentPlatform ]
+            let buildConfig = createBuildConfig Test config project [ state.CurrentPlatform ]
             let task () = buildPackages path buildConfig project
 
             addTask BuildPackage state, Cmd.OfAsync.either task () BuildComplete (fun ex -> TaskFailed(ex, BuildPackage))
 
-    | BuildRelease ->
+    | Build Release ->
         match BuildValidator.validate project with
         | Error error ->
             { state with Overlay = ErrorMessage(localize error, None) }, Cmd.none
@@ -612,7 +616,7 @@ let update (msg: Msg) (state: State) =
                 |> StringValidator.fileName
 
             let path = IO.Path.Combine(releaseDir, fn)
-            let buildConfig = createBuildConfig config project CherubRock config.ReleasePlatforms
+            let buildConfig = createBuildConfig Release config project config.ReleasePlatforms
             let task () = buildPackages path buildConfig project
 
             addTask BuildPackage state, Cmd.OfAsync.either task () BuildComplete (fun ex -> TaskFailed(ex, BuildPackage))

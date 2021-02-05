@@ -36,6 +36,8 @@ type LongTask =
     | ArrangementCheck
     | VolumeCalculation of VolumeTarget
 
+type BuildType = Test | Release
+
 type State =
     { Project : DLCProject
       SavedProject : DLCProject
@@ -103,8 +105,7 @@ type Msg =
     | SaveConfiguration
     | ShowIssueViewer
     | ProjectLoaded of project : DLCProject * projectFile : string
-    | BuildTest
-    | BuildRelease
+    | Build of BuildType
     | BuildComplete of unit
     | CheckArrangements
     | CheckCompleted of Map<string, ArrangementChecker.Issue list>
