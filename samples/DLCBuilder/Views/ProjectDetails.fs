@@ -455,7 +455,7 @@ let view state dispatch =
                                 Button.fontSize 16.
                                 Button.content (state.Localization.GetString "buildTest")
                                 Button.isEnabled (canBuild && String.notEmpty state.Config.TestFolderPath)
-                                Button.onClick (fun _ -> dispatch BuildTest)
+                                Button.onClick (fun _ -> dispatch <| Build Test)
                             ]
                             Button.create [
                                 Grid.column 1
@@ -465,7 +465,7 @@ let view state dispatch =
                                 Button.fontSize 16.
                                 Button.content (state.Localization.GetString "buildRelease")
                                 Button.isEnabled canBuild
-                                Button.onClick (fun _ -> dispatch BuildRelease)
+                                Button.onClick (fun _ -> dispatch <| Build Release)
                             ]
                         ]
                     ]
