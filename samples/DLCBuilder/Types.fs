@@ -61,6 +61,10 @@ type ToneEdit =
     | AddDescriptor
     | RemoveDescriptor
 
+type VocalsEdit =
+    | SetIsJapanese of bool
+    | SetCustomFont of string option
+
 type State =
     { Project : DLCProject
       SavedProject : DLCProject
@@ -97,7 +101,6 @@ type Msg =
     | AddArrangements of files : string[] option
     | SetCoverArt of fileName : string
     | SetAudioFile of fileName : string
-    | SetCustomFontFile of fileName : string
     | SetProfilePath of path : string
     | SetTestFolderPath of path : string
     | SetProjectsFolderPath of path : string
@@ -117,7 +120,7 @@ type Msg =
     | ShowSortFields of shown : bool
     | ShowJapaneseFields of shown : bool
     | EditInstrumental of edit : (State -> Instrumental -> Instrumental)
-    | EditVocals of edit : (Vocals -> Vocals)
+    | EditVocals of edit : VocalsEdit
     | EditTone of edit : ToneEdit
     | EditProject of edit : ProjectEdit
     | EditConfig of edit : (Configuration -> Configuration)

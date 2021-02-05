@@ -23,14 +23,8 @@ let view state dispatch (v: Vocals) =
                 Grid.column 1
                 CheckBox.margin 4.0
                 CheckBox.isChecked v.Japanese
-                CheckBox.onChecked (fun _ ->
-                    fun v -> { v with Japanese = true }
-                    |> EditVocals
-                    |> dispatch)
-                CheckBox.onUnchecked (fun _ ->
-                    fun v -> { v with Japanese = false }
-                    |> EditVocals
-                    |> dispatch)
+                CheckBox.onChecked (fun _ -> true |> SetIsJapanese |> EditVocals |> dispatch)
+                CheckBox.onUnchecked (fun _ -> false |> SetIsJapanese |> EditVocals |> dispatch)
             ]
 
             // Custom font
@@ -49,17 +43,14 @@ let view state dispatch (v: Vocals) =
                         Button.margin (0.0, 4.0, 4.0, 4.0)
                         Button.content "X"
                         Button.isVisible (Option.isSome v.CustomFont)
-                        Button.onClick (fun _ ->
-                            fun v -> { v with CustomFont = None }
-                            |> EditVocals
-                            |> dispatch)
+                        Button.onClick (fun _ -> None |> SetCustomFont |> EditVocals |> dispatch)
                         ToolTip.tip (state.Localization.GetString "removeCustomFontToolTip")
                     ]
                     Button.create [
                         DockPanel.dock Dock.Right
                         Button.margin (0.0, 4.0, 4.0, 4.0)
                         Button.content "..."
-                        Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectCustomFont", Dialogs.ddsFileFilter, SetCustomFontFile)))
+                        Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectCustomFont", Dialogs.ddsFileFilter, Some >> SetCustomFont >> EditVocals)))
                         ToolTip.tip (state.Localization.GetString "selectCustomFontToolTip")
                     ]
                     TextBlock.create [

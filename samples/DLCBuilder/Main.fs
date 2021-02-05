@@ -281,13 +281,6 @@ let update (msg: Msg) (state: State) =
     | SetCustomAppId appId ->
         { state with Config = { config with CustomAppId = appId } }, Cmd.none
 
-    | SetCustomFontFile fileName ->
-        match state.SelectedArrangement with
-        | Some (Vocals arr as old) ->
-            let updated = Vocals { arr with CustomFont = Some fileName }
-            updateArrangement old updated state
-        | _ -> state, Cmd.none
-
     | SetAudioFile fileName ->
         let audioFile = { project.AudioFile with Path = fileName }
         let previewPath =
@@ -577,9 +570,12 @@ let update (msg: Msg) (state: State) =
 
     | EditVocals edit ->
         match state.SelectedArrangement with
-        | Some (Vocals arr as old) ->
-            let updated = Vocals (edit arr)
-            updateArrangement old updated state
+        | Some (Vocals vocals as old) ->
+            let updated =
+                match edit with
+                | SetIsJapanese jp -> { vocals with Japanese = jp }
+                | SetCustomFont font -> { vocals with CustomFont = font }
+            updateArrangement old (Vocals updated) state
         | _ -> state, Cmd.none
 
     | EditTone edit ->
