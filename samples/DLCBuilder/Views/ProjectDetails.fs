@@ -53,10 +53,7 @@ let view state dispatch =
                         TextBox.text state.Project.DLCKey
                         // Cannot filter pasted text: https://github.com/AvaloniaUI/Avalonia/issues/2611
                         TextBox.onTextInput (fun e -> e.Text <- StringValidator.dlcKey e.Text)
-                        TextBox.onTextChanged (fun e ->
-                            fun p -> { p with DLCKey = StringValidator.dlcKey e }
-                            |> EditProject
-                            |> dispatch)
+                        TextBox.onTextChanged (StringValidator.dlcKey >> SetDLCKey >> EditProject >> dispatch)
                         // Display the validated DLC key if invalid characters were pasted into the textbox
                         TextBox.onLostFocus (
                             (fun e -> (e.Source :?> TextBox).Text <- state.Project.DLCKey),
@@ -68,10 +65,7 @@ let view state dispatch =
                         TextBox.horizontalAlignment HorizontalAlignment.Left
                         TextBox.width 65.
                         TextBox.text state.Project.Version
-                        TextBox.onTextChanged (fun e ->
-                            fun p -> { p with Version = e }
-                            |> EditProject
-                            |> dispatch)
+                        TextBox.onTextChanged (SetVersion >> EditProject >> dispatch)
                     ]
 
                     TitledTextBox.create (state.Localization.GetString "artistName")
@@ -79,10 +73,7 @@ let view state dispatch =
                           Grid.row 1
                           StackPanel.isVisible (not state.ShowSortFields && not state.ShowJapaneseFields) ]
                         [ TextBox.text state.Project.ArtistName.Value
-                          TextBox.onTextChanged (fun e ->
-                            fun p -> { p with ArtistName = { p.ArtistName with Value = StringValidator.field e } }
-                            |> EditProject
-                            |> dispatch)
+                          TextBox.onTextChanged (StringValidator.field >> SetArtistName >> EditProject >> dispatch)
                     ]
 
                     TitledTextBox.create (state.Localization.GetString "artistNameSort")
@@ -95,9 +86,7 @@ let view state dispatch =
                             let validValue = StringValidator.sortField txtBox.Text
                             txtBox.Text <- validValue
 
-                            fun p -> { p with ArtistName = { p.ArtistName with SortValue = validValue } }
-                            |> EditProject
-                            |> dispatch)
+                            validValue |> (SetArtistNameSort >> EditProject >> dispatch))
                     ]
 
                     TitledTextBox.create (state.Localization.GetString "japaneseArtistName")
@@ -107,10 +96,7 @@ let view state dispatch =
                         [ TextBox.text (defaultArg state.Project.JapaneseArtistName String.Empty)
                           TextBox.fontFamily Fonts.japanese
                           TextBox.fontSize 15.
-                          TextBox.onTextChanged (fun e -> 
-                            fun p -> { p with JapaneseArtistName = Option.ofString (StringValidator.field e) }
-                            |> EditProject
-                            |> dispatch)
+                          TextBox.onTextChanged (StringValidator.field >> Option.ofString >> SetArtistJapaneseName >> EditProject >> dispatch)
                     ]
 
                     TitledTextBox.create (state.Localization.GetString "title")
@@ -118,10 +104,7 @@ let view state dispatch =
                           Grid.row 2
                           StackPanel.isVisible (not state.ShowSortFields && not state.ShowJapaneseFields) ]
                         [ TextBox.text state.Project.Title.Value
-                          TextBox.onTextChanged (fun e ->
-                            fun p -> { p with Title = { p.Title with Value = StringValidator.field e } }
-                            |> EditProject
-                            |> dispatch)
+                          TextBox.onTextChanged (StringValidator.field >> SetTitle >> EditProject >> dispatch)
                     ]
 
                     TitledTextBox.create (state.Localization.GetString "titleSort")
@@ -134,9 +117,7 @@ let view state dispatch =
                             let validValue = StringValidator.sortField txtBox.Text
                             txtBox.Text <- validValue
 
-                            fun p -> { p with Title = { p.Title with SortValue = validValue } }
-                            |> EditProject
-                            |> dispatch)
+                            validValue |> (SetTitleSort >> EditProject >> dispatch))
                     ]
 
                     TitledTextBox.create (state.Localization.GetString "japaneseTitle")
@@ -146,10 +127,7 @@ let view state dispatch =
                         [ TextBox.text (defaultArg state.Project.JapaneseTitle String.Empty)
                           TextBox.fontFamily Fonts.japanese
                           TextBox.fontSize 15.
-                          TextBox.onTextChanged (fun e ->
-                            fun p -> { p with JapaneseTitle = Option.ofString (StringValidator.field e) }
-                            |> EditProject
-                            |> dispatch)
+                          TextBox.onTextChanged (StringValidator.field >> Option.ofString >> SetJapaneseTitle >> EditProject >> dispatch)
                     ]
 
                     TitledTextBox.create (state.Localization.GetString "albumName")
@@ -157,10 +135,7 @@ let view state dispatch =
                           Grid.row 3
                           StackPanel.isVisible (not state.ShowSortFields) ]
                         [ TextBox.text state.Project.AlbumName.Value
-                          TextBox.onTextChanged (fun e ->
-                            fun p -> { p with AlbumName = { p.AlbumName with Value = StringValidator.field e } }
-                            |> EditProject
-                            |> dispatch)
+                          TextBox.onTextChanged (StringValidator.field >> SetAlbumName >> EditProject >> dispatch)
                     ]
 
                     TitledTextBox.create (state.Localization.GetString "albumNameSort")
@@ -173,9 +148,7 @@ let view state dispatch =
                             let validValue = StringValidator.sortField txtBox.Text
                             txtBox.Text <- validValue
 
-                            fun p -> { p with AlbumName = { p.AlbumName with SortValue = validValue } }
-                            |> EditProject
-                            |> dispatch)
+                            validValue |> (SetAlbumNameSort >> EditProject >> dispatch))
                     ]
 
                     TitledTextBox.create (state.Localization.GetString "year")
@@ -184,10 +157,7 @@ let view state dispatch =
                         [ TextBox.horizontalAlignment HorizontalAlignment.Left
                           TextBox.width 65.
                           TextBox.text (string state.Project.Year)
-                          TextBox.onTextChanged (fun e ->
-                            fun p -> { p with Year = int e }
-                            |> EditProject
-                            |> dispatch)
+                          TextBox.onTextChanged (int >> SetYear >> EditProject >> dispatch)
                     ]
 
                     StackPanel.create [
@@ -281,10 +251,7 @@ let view state dispatch =
                         NumericUpDown.value state.Project.AudioFile.Volume
                         NumericUpDown.formatString "F1"
                         NumericUpDown.isEnabled (not <| state.RunningTasks.Contains (VolumeCalculation MainAudio))
-                        NumericUpDown.onValueChanged (fun v ->
-                            fun p -> { p with AudioFile = { p.AudioFile with Volume = v } }
-                            |> EditProject
-                            |> dispatch)
+                        NumericUpDown.onValueChanged (SetAudioVolume >> EditProject >> dispatch)
                         ToolTip.tip (state.Localization.GetString "audioVolumeToolTip")
                     ]
 
@@ -338,10 +305,7 @@ let view state dispatch =
                         NumericUpDown.value state.Project.AudioPreviewFile.Volume
                         NumericUpDown.formatString "F1"
                         NumericUpDown.isEnabled (not <| state.RunningTasks.Contains (VolumeCalculation PreviewAudio))
-                        NumericUpDown.onValueChanged (fun v ->
-                            fun p -> { p with AudioPreviewFile = { p.AudioPreviewFile with Volume = v } }
-                            |> EditProject
-                            |> dispatch)
+                        NumericUpDown.onValueChanged (SetPreviewVolume >> EditProject >> dispatch)
                         ToolTip.tip (state.Localization.GetString "previewAudioVolumeToolTip")
                     ]
 

@@ -38,6 +38,21 @@ type LongTask =
 
 type BuildType = Test | Release
 
+type ProjectEdit =
+    | SetDLCKey of string
+    | SetVersion of string
+    | SetArtistName of string
+    | SetArtistNameSort of string
+    | SetArtistJapaneseName of string option
+    | SetTitle of string
+    | SetTitleSort of string
+    | SetJapaneseTitle of string option
+    | SetAlbumName of string
+    | SetAlbumNameSort of string
+    | SetYear of int
+    | SetAudioVolume of double
+    | SetPreviewVolume of double
+
 type State =
     { Project : DLCProject
       SavedProject : DLCProject
@@ -96,7 +111,7 @@ type Msg =
     | EditInstrumental of edit : (State -> Instrumental -> Instrumental)
     | EditVocals of edit : (Vocals -> Vocals)
     | EditTone of edit : (Tone -> Tone)
-    | EditProject of edit : (DLCProject -> DLCProject)
+    | EditProject of edit : ProjectEdit
     | EditConfig of edit : (Configuration -> Configuration)
     | CloseOverlay
     | ImportTonesChanged of item : obj

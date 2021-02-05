@@ -587,7 +587,25 @@ let update (msg: Msg) (state: State) =
         |> Option.map (fun old ->  updateTone old (edit old) state)
         |> Option.defaultValue (state, Cmd.none)
 
-    | EditProject edit -> { state with Project = edit project }, Cmd.none
+    | EditProject edit ->
+        let p = 
+            match edit with
+            | SetDLCKey key -> { project with DLCKey = key }
+            | SetVersion ver -> { project with Version = ver }
+            | SetArtistName artist -> { project with ArtistName = { project.ArtistName with Value = artist } }
+            | SetArtistNameSort sort -> { project with ArtistName = { project.ArtistName with SortValue = sort } }
+            | SetArtistJapaneseName artist -> { project with JapaneseArtistName = artist }
+            | SetTitle title -> { project with Title = { project.Title with Value = title } }
+            | SetTitleSort sort -> { project with Title = { project.Title with SortValue = sort } }
+            | SetJapaneseTitle title -> { project with JapaneseTitle = title }
+            | SetAlbumName album -> { project with AlbumName = { project.AlbumName with Value = album } }
+            | SetAlbumNameSort sort -> { project with AlbumName = { project.AlbumName with SortValue = sort } }
+            | SetYear year -> { project with Year = year }
+            | SetAudioVolume vol -> { project with AudioFile = { project.AudioFile with Volume = vol } }
+            | SetPreviewVolume vol -> { project with AudioPreviewFile = { project.AudioPreviewFile with Volume = vol } }
+
+        { state with Project = p }, Cmd.none
+
     | EditConfig edit -> { state with Config = edit config }, Cmd.none
 
     | Build Test ->
