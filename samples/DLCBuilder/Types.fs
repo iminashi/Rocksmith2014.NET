@@ -84,6 +84,22 @@ type ConfigEdit =
     | AddReleasePlatform of Platform
     | RemoveReleasePlatform of Platform
 
+type InstrumentalEdit =
+    | SetArrangementName of ArrangementName
+    | SetPriority of ArrangementPriority
+    | SetRouteMask of RouteMask
+    | SetBassPicked of bool
+    | SetTuning of stringIndex:int * tuningValue:int16
+    | SetTuningPitch of double
+    | SetBaseTone of string
+    | SetScrollSpeed of double
+    | SetMasterId of int
+    | SetPersistentId of Guid
+    | SetCustomAudioPath of string option
+    | SetCustomAudioVolume of double
+    | UpdateToneInfo
+    | GenerateNewIds
+
 type State =
     { Project : DLCProject
       SavedProject : DLCProject
@@ -133,7 +149,7 @@ type Msg =
     | PreviewAudioStartChanged of time : float
     | ShowSortFields of shown : bool
     | ShowJapaneseFields of shown : bool
-    | EditInstrumental of edit : (State -> Instrumental -> Instrumental)
+    | EditInstrumental of InstrumentalEdit
     | EditVocals of VocalsEdit
     | EditTone of ToneEdit
     | EditProject of ProjectEdit

@@ -9,16 +9,6 @@ open Rocksmith2014.DLCProject
 open System
 open DLCBuilder
 
-let private fixPriority state routeMask arr =
-    if arr.Priority = ArrangementPriority.Main
-       && state.Project.Arrangements |> List.exists (function
-            | Instrumental inst when inst <> arr ->
-                inst.RouteMask = routeMask && inst.Priority = ArrangementPriority.Main
-            | _ -> false) then
-        ArrangementPriority.Alternative
-    else
-        arr.Priority
-
 let view state dispatch (i: Instrumental) =
     Grid.create [
         //Grid.showGridLines true
@@ -41,20 +31,9 @@ let view state dispatch (i: Instrumental) =
                     ComboBox.width 100.
                     ComboBox.dataItems [ ArrangementName.Lead; ArrangementName.Rhythm; ArrangementName.Combo ]
                     ComboBox.selectedItem i.Name
-                    ComboBox.onSelectedItemChanged (fun item ->
-                        let name = item :?> ArrangementName
-                        fun state (a:Instrumental) ->
-                            let routeMask =
-                                match name with
-                                | ArrangementName.Lead -> RouteMask.Lead
-                                | ArrangementName.Rhythm -> RouteMask.Rhythm
-                                | ArrangementName.Combo ->
-                                    if a.RouteMask = RouteMask.Bass then RouteMask.Rhythm else a.RouteMask
-                                | ArrangementName.Bass -> RouteMask.Bass
-                                | _ -> failwith "Impossible failure."
-                            let priority = fixPriority state routeMask a
-                            { a with Name = name; RouteMask = routeMask; Priority = priority }
-                        |> EditInstrumental |> dispatch)
+                    ComboBox.onSelectedItemChanged (function
+                        | :? ArrangementName as name -> name |> SetArrangementName |> EditInstrumental |> dispatch
+                        | _ -> ())
                 ]
 
             TextBlock.create [
@@ -76,10 +55,7 @@ let view state dispatch (i: Instrumental) =
                             RadioButton.groupName "Priority"
                             RadioButton.content (state.Localization.GetString(string priority))
                             RadioButton.isChecked (i.Priority = priority)
-                            RadioButton.onChecked (fun _ ->
-                                fun _ a -> { a with Priority = priority }
-                                |> EditInstrumental
-                                |> dispatch)
+                            RadioButton.onChecked (fun _ -> priority |> SetPriority |> EditInstrumental |> dispatch)
                             RadioButton.isEnabled (
                                 // Disable the main option if a main arrangement of the type already exists
                                 not (priority = ArrangementPriority.Main
@@ -115,11 +91,7 @@ let view state dispatch (i: Instrumental) =
                                 RadioButton.groupName "RouteMask"
                                 RadioButton.content (string mask)
                                 RadioButton.isChecked (i.RouteMask = mask)
-                                RadioButton.onChecked (fun _ ->
-                                    fun state a ->
-                                        let priority = fixPriority state mask a
-                                        { a with RouteMask = mask; Priority = priority }
-                                    |> EditInstrumental |> dispatch)
+                                RadioButton.onChecked (fun _ -> mask |> SetRouteMask |> EditInstrumental |> dispatch)
                             ]
                     ]
             ]
@@ -138,14 +110,8 @@ let view state dispatch (i: Instrumental) =
                 CheckBox.margin 4.
                 CheckBox.isVisible (i.Name = ArrangementName.Bass)
                 CheckBox.isChecked i.BassPicked
-                CheckBox.onChecked (fun _ ->
-                    fun _ a -> { a with BassPicked = true }
-                    |> EditInstrumental
-                    |> dispatch)
-                CheckBox.onUnchecked (fun _ ->
-                    fun _ a -> { a with BassPicked = false }
-                    |> EditInstrumental
-                    |> dispatch)
+                CheckBox.onChecked (fun _ -> true |> SetBassPicked |> EditInstrumental |> dispatch)
+                CheckBox.onUnchecked (fun _ -> false |> SetBassPicked |> EditInstrumental |> dispatch)
             ]
 
             TextBlock.create [
@@ -166,15 +132,9 @@ let view state dispatch (i: Instrumental) =
                             TextBox.text (string i.Tuning.[str])
                             TextBox.onLostFocus (fun arg ->
                                 let txtBox = arg.Source :?> TextBox
-                                let success, newTuning = Int16.TryParse(txtBox.Text)
-                                if success then
-                                    fun _ a ->
-                                        let tuning =
-                                            a.Tuning
-                                            |> Array.mapi (fun i old -> if i = str then newTuning else old)
-                                        { a with Tuning = tuning }
-                                    |> EditInstrumental |> dispatch
-                            )
+                                match Int16.TryParse txtBox.Text with
+                                | true, newTuning -> SetTuning (str, newTuning) |> EditInstrumental |> dispatch
+                                | false, _ -> ())
                         ]
                 ]
             ]
@@ -199,10 +159,7 @@ let view state dispatch (i: Instrumental) =
                         NumericUpDown.maximum 50000.0
                         NumericUpDown.increment 1.0
                         NumericUpDown.formatString "F2"
-                        NumericUpDown.onValueChanged (fun value ->
-                            fun _ a -> { a with TuningPitch = value }
-                            |> EditInstrumental
-                            |> dispatch)
+                        NumericUpDown.onValueChanged (SetTuningPitch >> EditInstrumental >> dispatch)
                     ]
                     TextBlock.create [
                         TextBlock.verticalAlignment VerticalAlignment.Center
@@ -223,10 +180,7 @@ let view state dispatch (i: Instrumental) =
                 Grid.row 6
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
                 TextBox.text i.BaseTone
-                TextBox.onTextChanged (fun text ->
-                    fun _ a -> { a with BaseTone = StringValidator.toneName text }
-                    |> EditInstrumental
-                    |> dispatch)
+                TextBox.onTextChanged (StringValidator.toneName >> SetBaseTone >> EditInstrumental >> dispatch)
             ]
 
             TextBlock.create [
@@ -253,10 +207,7 @@ let view state dispatch (i: Instrumental) =
                 Button.margin 4.
                 Button.horizontalAlignment HorizontalAlignment.Center
                 Button.content (state.Localization.GetString "reloadToneKeys")
-                Button.onClick (fun _ ->
-                    fun _ arr -> Arrangement.updateToneInfo arr true
-                    |> EditInstrumental
-                    |> dispatch)
+                Button.onClick (fun _ -> UpdateToneInfo |> EditInstrumental |> dispatch)
                 ToolTip.tip (state.Localization.GetString "reloadToneKeysTooltip")
             ]
 
@@ -280,10 +231,7 @@ let view state dispatch (i: Instrumental) =
                 NumericUpDown.minimum 0.5
                 NumericUpDown.formatString "F1"
                 NumericUpDown.value i.ScrollSpeed
-                NumericUpDown.onValueChanged (fun value ->
-                    fun _ a -> { a with ScrollSpeed = value }
-                    |> EditInstrumental
-                    |> dispatch)
+                NumericUpDown.onValueChanged (SetScrollSpeed >> EditInstrumental >> dispatch)
             ]
 
             TextBlock.create [
@@ -302,11 +250,9 @@ let view state dispatch (i: Instrumental) =
                 TextBox.text (string i.MasterID)
                 TextBox.onLostFocus (fun arg ->
                     let txtBox = arg.Source :?> TextBox
-                    let success, masterID = Int32.TryParse(txtBox.Text)
-                    if success then
-                        fun _ (a:Instrumental) -> { a with MasterID = masterID }
-                        |> EditInstrumental
-                        |> dispatch
+                    match Int32.TryParse txtBox.Text with
+                    | true, masterId -> SetMasterId masterId |> EditInstrumental |> dispatch
+                    | false, _ -> ()
                 )
             ]
 
@@ -326,11 +272,9 @@ let view state dispatch (i: Instrumental) =
                 TextBox.text (i.PersistentID.ToString("N"))
                 TextBox.onLostFocus (fun arg ->
                     let txtBox = arg.Source :?> TextBox
-                    let success, perID = Guid.TryParse(txtBox.Text)
-                    if success then
-                        fun _ (a:Instrumental) -> { a with PersistentID = perID }
-                        |> EditInstrumental
-                        |> dispatch
+                    match Guid.TryParse txtBox.Text with
+                    | true, id -> SetPersistentId id |> EditInstrumental |> dispatch
+                    | false, _ -> ()
                 )
             ]
 
@@ -340,13 +284,7 @@ let view state dispatch (i: Instrumental) =
                 Button.horizontalAlignment HorizontalAlignment.Center
                 Button.isVisible state.Config.ShowAdvanced
                 Button.content (state.Localization.GetString "generateNewArrIDs")
-                Button.onClick (fun _ -> 
-                    fun _ (a: Instrumental) ->
-                        { a with MasterID = RandomGenerator.next()
-                                 PersistentID = Guid.NewGuid() }
-                    |> EditInstrumental
-                    |> dispatch
-                )
+                Button.onClick (fun _ -> GenerateNewIds |> EditInstrumental |> dispatch)
                 ToolTip.tip (state.Localization.GetString "generateNewArrIDsToolTip")
             ]
 
@@ -368,18 +306,7 @@ let view state dispatch (i: Instrumental) =
                         Button.content "..."
                         Button.margin (0., 2., 0., 0.)
                         Button.onClick (fun _ ->
-                            let editArr path =
-                                fun state a ->
-                                    if state.Config.AutoVolume && not <| String.endsWith ".wem" path then
-                                        dispatch <| CalculateVolume(CustomAudio(path))
-
-                                    let customAudio =
-                                        match a.CustomAudio with
-                                        | Some audio -> { audio with Path = path }
-                                        | None -> { Path = path; Volume = -8. }
-                                    { a with CustomAudio = Some customAudio }
-                                |> EditInstrumental
-                            dispatch <| Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, editArr))
+                           dispatch <| Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, Some >> SetCustomAudioPath >> EditInstrumental))
                     ]
 
                     Button.create [
@@ -387,10 +314,7 @@ let view state dispatch (i: Instrumental) =
                         Button.margin (0., 2., 2., 0.)
                         Button.content "X"
                         Button.isVisible i.CustomAudio.IsSome
-                        Button.onClick (fun _ ->
-                            fun _ a -> { a with CustomAudio = None }
-                            |> EditInstrumental
-                            |> dispatch)
+                        Button.onClick (fun _ -> None |> SetCustomAudioPath |> EditInstrumental |> dispatch)
                         ToolTip.tip (state.Localization.GetString "removeCustomAudioTooltip")
                     ]
 
@@ -441,11 +365,7 @@ let view state dispatch (i: Instrumental) =
                     NumericUpDown.increment 0.5
                     NumericUpDown.value (i.CustomAudio |> Option.map (fun x -> x.Volume) |> Option.defaultValue -8.)
                     NumericUpDown.formatString "F1"
-                    NumericUpDown.onValueChanged (fun vol ->
-                        fun _ a ->
-                            { a with CustomAudio = Option.map (fun x -> { x with Volume = vol }) a.CustomAudio }
-                        |> EditInstrumental
-                        |> dispatch)
+                    NumericUpDown.onValueChanged (SetCustomAudioVolume >> EditInstrumental >> dispatch)
                     ToolTip.tip (state.Localization.GetString "audioVolumeToolTip")
                 ]
         ]

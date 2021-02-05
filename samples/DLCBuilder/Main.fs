@@ -94,7 +94,7 @@ let private updateArrangement old updated state =
         state.Project.Arrangements
         |> List.update old updated
     { state with Project = { state.Project with Arrangements = arrangements }
-                 SelectedArrangement = Some updated }, Cmd.none
+                 SelectedArrangement = Some updated }
 
 let private updateTone old updated state =
     let tones =
@@ -102,6 +102,16 @@ let private updateTone old updated state =
         |> List.update old updated
     { state with Project = { state.Project with Tones = tones } 
                  SelectedTone = Some updated }, Cmd.none
+
+let private fixPriority state routeMask arr =
+    if arr.Priority = ArrangementPriority.Main
+       && state.Project.Arrangements |> List.exists (function
+            | Instrumental inst when inst <> arr ->
+                inst.RouteMask = routeMask && inst.Priority = ArrangementPriority.Main
+            | _ -> false) then
+        ArrangementPriority.Alternative
+    else
+        arr.Priority
 
 let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
@@ -544,9 +554,57 @@ let update (msg: Msg) (state: State) =
 
     | EditInstrumental edit ->
         match state.SelectedArrangement with
-        | Some (Instrumental arr as old) ->
-            let updated = Instrumental (edit state arr)
-            updateArrangement old updated state
+        | Some (Instrumental inst as old) ->
+            let updated, cmd =
+                match edit with
+                | SetArrangementName name ->
+                    let routeMask =
+                        match name with
+                        | ArrangementName.Lead -> RouteMask.Lead
+                        | ArrangementName.Rhythm -> RouteMask.Rhythm
+                        | ArrangementName.Combo ->
+                            // The name of a bass arrangement cannot currently be changed
+                            if inst.RouteMask = RouteMask.Bass then RouteMask.Rhythm else inst.RouteMask
+                        | ArrangementName.Bass -> RouteMask.Bass
+                        | _ -> failwith "Impossible failure."
+                    let priority = fixPriority state routeMask inst
+                    { inst with Name = name; RouteMask = routeMask; Priority = priority }, Cmd.none
+                | SetRouteMask mask ->
+                    let priority = fixPriority state mask inst
+                    { inst with RouteMask = mask; Priority = priority }, Cmd.none
+                | SetPriority priority -> { inst with Priority = priority }, Cmd.none
+                | SetBassPicked picked -> { inst with BassPicked = picked }, Cmd.none
+                | SetTuning (index, tuning) ->
+                    let tuning =
+                        inst.Tuning
+                        |> Array.mapi (fun i x -> if i = index then tuning else x)
+                    { inst with Tuning = tuning }, Cmd.none
+                | SetTuningPitch pitch -> { inst with TuningPitch = pitch }, Cmd.none
+                | SetBaseTone tone -> { inst with BaseTone = tone }, Cmd.none
+                | UpdateToneInfo -> Arrangement.updateToneInfo inst true, Cmd.none
+                | SetScrollSpeed speed -> { inst with ScrollSpeed = speed }, Cmd.none
+                | SetMasterId id -> { inst with MasterID = id }, Cmd.none
+                | SetPersistentId id -> { inst with PersistentID = id }, Cmd.none
+                | GenerateNewIds ->
+                    { inst with MasterID = RandomGenerator.next()
+                                PersistentID = Guid.NewGuid() }, Cmd.none
+                | SetCustomAudioPath (Some path) ->
+                    let cmd =
+                        if config.AutoVolume && not <| String.endsWith ".wem" path then
+                            Cmd.ofMsg <| CalculateVolume(CustomAudio(path))
+                        else
+                            Cmd.none
+
+                    let customAudio =
+                        match inst.CustomAudio with
+                        | Some audio -> { audio with Path = path }
+                        | None -> { Path = path; Volume = -8. }
+                    { inst with CustomAudio = Some customAudio }, cmd
+                | SetCustomAudioPath None ->
+                    { inst with CustomAudio = None }, Cmd.none
+                | SetCustomAudioVolume vol ->
+                    { inst with CustomAudio = Option.map (fun x -> { x with Volume = vol }) inst.CustomAudio }, Cmd.none
+            updateArrangement old (Instrumental updated) state, cmd
         | _ -> state, Cmd.none
 
     | EditVocals edit ->
@@ -556,7 +614,7 @@ let update (msg: Msg) (state: State) =
                 match edit with
                 | SetIsJapanese jp -> { vocals with Japanese = jp }
                 | SetCustomFont font -> { vocals with CustomFont = font }
-            updateArrangement old (Vocals updated) state
+            updateArrangement old (Vocals updated) state, Cmd.none
         | _ -> state, Cmd.none
 
     | EditTone edit ->
