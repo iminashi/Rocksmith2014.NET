@@ -53,6 +53,14 @@ type ProjectEdit =
     | SetAudioVolume of double
     | SetPreviewVolume of double
 
+type ToneEdit =
+    | SetName of string
+    | SetKey of string
+    | SetVolume of double
+    | ChangeDescriptor of index:int * descriptor:ToneDescriptor
+    | AddDescriptor
+    | RemoveDescriptor
+
 type State =
     { Project : DLCProject
       SavedProject : DLCProject
@@ -110,7 +118,7 @@ type Msg =
     | ShowJapaneseFields of shown : bool
     | EditInstrumental of edit : (State -> Instrumental -> Instrumental)
     | EditVocals of edit : (Vocals -> Vocals)
-    | EditTone of edit : (Tone -> Tone)
+    | EditTone of edit : ToneEdit
     | EditProject of edit : ProjectEdit
     | EditConfig of edit : (Configuration -> Configuration)
     | CloseOverlay

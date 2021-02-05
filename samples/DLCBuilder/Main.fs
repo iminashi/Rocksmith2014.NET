@@ -583,9 +583,23 @@ let update (msg: Msg) (state: State) =
         | _ -> state, Cmd.none
 
     | EditTone edit ->
-        state.SelectedTone
-        |> Option.map (fun old ->  updateTone old (edit old) state)
-        |> Option.defaultValue (state, Cmd.none)
+         match state.SelectedTone with
+         | Some old ->
+            let updatedTone =
+                 match edit with
+                 | SetName name -> { old with Name = name }
+                 | SetKey key -> { old with Key = key }
+                 | SetVolume vol -> { old with Volume = sprintf "%.3f" vol }
+                 | AddDescriptor -> { old with ToneDescriptors = old.ToneDescriptors |> Array.append [| ToneDescriptor.all.[0].UIName |] }
+                 | RemoveDescriptor -> { old with ToneDescriptors = old.ToneDescriptors.[1..] }
+                 | ChangeDescriptor (index, descriptor) ->
+                    let updated =
+                        old.ToneDescriptors
+                        |> Array.mapi (fun i x -> if i = index then descriptor.UIName else x)
+                    { old with ToneDescriptors = updated }
+            updateTone old updatedTone state
+         | None ->
+             state, Cmd.none
 
     | EditProject edit ->
         let p = 

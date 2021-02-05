@@ -18,16 +18,8 @@ let createDescriptors state dispatch tone =
                     ComboBox.dataItems ToneDescriptor.all
                     ComboBox.itemTemplate (Templates.toneDescriptor state)
                     ComboBox.selectedItem (ToneDescriptor.uiNameToDesc.[tone.ToneDescriptors.[i]])
-                    ComboBox.onSelectedItemChanged (fun item ->
-                        match item with
-                        | :? ToneDescriptor as td ->
-                            fun t ->
-                                let updated =
-                                    t.ToneDescriptors
-                                    |> Array.mapi (fun j x -> if j = i then td.UIName else x)
-                                { t with ToneDescriptors = updated }
-                            |> EditTone
-                            |> dispatch
+                    ComboBox.onSelectedItemChanged (function
+                        | :? ToneDescriptor as td -> ChangeDescriptor(i, td) |> EditTone |> dispatch
                         | _ -> ()
                     )
                     ToolTip.tip (state.Localization.GetString "toneDescriptorToolTip")
@@ -60,10 +52,7 @@ let view state dispatch (tone: Tone) =
                 Grid.column 1
                 TextBox.text tone.Name
                 TextBox.onTextInput (fun arg -> arg.Text <- StringValidator.toneName arg.Text)
-                TextBox.onTextChanged (fun name ->
-                    fun (t: Tone) -> { t with Name = StringValidator.toneName name }
-                    |> EditTone
-                    |> dispatch)
+                TextBox.onTextChanged (StringValidator.toneName >> SetName >> EditTone >> dispatch)
             ]
 
             TextBlock.create [
@@ -79,12 +68,8 @@ let view state dispatch (tone: Tone) =
                 ComboBox.minHeight 26.
                 ComboBox.dataItems keys
                 ComboBox.selectedItem tone.Key
-                ComboBox.onSelectedItemChanged (fun item ->
-                    match item with
-                    | :? string as key ->
-                        fun t -> { t with Key = key }
-                        |> EditTone
-                        |> dispatch
+                ComboBox.onSelectedItemChanged (function
+                    | :? string as key -> key |> (SetKey >> EditTone >> dispatch)
                     | _ -> ()
                 )
             ]
@@ -107,21 +92,14 @@ let view state dispatch (tone: Tone) =
                                 Button.isEnabled (tone.ToneDescriptors.Length < 3)
                                 Button.margin 4.
                                 Button.content "+"
-                                Button.onClick (fun _ ->
-                                    fun t ->
-                                        { t with ToneDescriptors = t.ToneDescriptors |> Array.append [| ToneDescriptor.all.[0].UIName |] }
-                                    |> EditTone
-                                    |> dispatch)
+                                Button.onClick (fun _ -> AddDescriptor |> EditTone |> dispatch)
                                 ToolTip.tip (state.Localization.GetString "addDescriptionToolTip")
                             ]
                             Button.create [
                                 Button.isEnabled (tone.ToneDescriptors.Length > 1)
                                 Button.margin 4.
                                 Button.content "-"
-                                Button.onClick (fun _ ->
-                                    fun t -> { t with ToneDescriptors = t.ToneDescriptors.[1..] }
-                                    |> EditTone
-                                    |> dispatch)
+                                Button.onClick (fun _ -> RemoveDescriptor |> EditTone |> dispatch)
                                 ToolTip.tip (state.Localization.GetString "removeDescriptionToolTip")
                             ]
                         ]
@@ -145,10 +123,7 @@ let view state dispatch (tone: Tone) =
                 NumericUpDown.maximum 45.
                 NumericUpDown.increment 0.1
                 NumericUpDown.formatString "F1"
-                NumericUpDown.onValueChanged (fun value ->
-                    fun (t: Tone) -> { t with Volume = sprintf "%.3f" value }
-                    |> EditTone
-                    |> dispatch)
+                NumericUpDown.onValueChanged (SetVolume >> EditTone >> dispatch)
                 ToolTip.tip (state.Localization.GetString "toneVolumeToolTip")
             ]
         ]
