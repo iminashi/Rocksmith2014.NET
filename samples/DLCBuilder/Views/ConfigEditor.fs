@@ -38,10 +38,7 @@ let private generalConfig state dispatch =
                 Grid.row 1
                 TextBox.margin (0., 4.)
                 TextBox.text state.Config.CharterName
-                TextBox.onTextChanged (fun name ->
-                    fun c -> { c with CharterName = name }
-                    |> EditConfig
-                    |> dispatch)
+                TextBox.onTextChanged (SetCharterName >> EditConfig >> dispatch)
             ]
 
             TextBlock.create [
@@ -59,12 +56,12 @@ let private generalConfig state dispatch =
                         TextBox.margin (0., 4.)
                         TextBox.width 250.
                         TextBox.text state.Config.ProfilePath
-                        TextBox.onTextChanged (SetProfilePath >> dispatch)
+                        TextBox.onTextChanged (SetProfilePath >> EditConfig >> dispatch)
                     ]
                     Button.create [
                         Button.margin (0., 4.)
                         Button.content "..."
-                        Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectProfile", Dialogs.profileFilter, SetProfilePath)))
+                        Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectProfile", Dialogs.profileFilter, SetProfilePath >> EditConfig)))
                     ]
                 ]
             ]
@@ -84,12 +81,12 @@ let private generalConfig state dispatch =
                         TextBox.margin (0., 4.)
                         TextBox.width 250.
                         TextBox.text state.Config.TestFolderPath
-                        TextBox.onTextChanged (SetTestFolderPath >> dispatch)
+                        TextBox.onTextChanged (SetTestFolderPath >> EditConfig >> dispatch)
                     ]
                     Button.create [
                         Button.margin (0., 4.)
                         Button.content "..."
-                        Button.onClick (fun _ -> dispatch (Msg.OpenFolderDialog("selectTestFolder", SetTestFolderPath)))
+                        Button.onClick (fun _ -> dispatch (Msg.OpenFolderDialog("selectTestFolder", SetTestFolderPath >> EditConfig)))
                     ]
                 ]
             ]
@@ -108,12 +105,12 @@ let private generalConfig state dispatch =
                         TextBox.margin (0., 4.)
                         TextBox.width 250.
                         TextBox.text state.Config.ProjectsFolderPath
-                        TextBox.onTextChanged (SetProjectsFolderPath >> dispatch)
+                        TextBox.onTextChanged (SetProjectsFolderPath >> EditConfig >> dispatch)
                     ]
                     Button.create [
                         Button.margin (0., 4.)
                         Button.content "..."
-                        Button.onClick (fun _ -> dispatch (Msg.OpenFolderDialog("selectProjectFolder", SetProjectsFolderPath)))
+                        Button.onClick (fun _ -> dispatch (Msg.OpenFolderDialog("selectProjectFolder", SetProjectsFolderPath >> EditConfig)))
                     ]
                 ]
             ]
@@ -132,7 +129,7 @@ let private generalConfig state dispatch =
                         TextBox.margin (0., 4.)
                         TextBox.width 250.
                         TextBox.text (Option.toObj state.Config.WwiseConsolePath)
-                        TextBox.onTextChanged (SetWwiseConsolePath >> dispatch)
+                        TextBox.onTextChanged (SetWwiseConsolePath >> EditConfig >> dispatch)
                         ToolTip.tip (state.Localization.GetString "wwiseConsolePathTooltip")
                     ]
                     Button.create [
@@ -141,7 +138,7 @@ let private generalConfig state dispatch =
                         Button.onClick (fun _ ->
                             dispatch (Msg.OpenFileDialog("selectWwiseConsolePath",
                                                          Dialogs.wwiseConsoleAppFilter state.CurrentPlatform,
-                                                         SetWwiseConsolePath))
+                                                         SetWwiseConsolePath >> EditConfig))
                         )
                     ]
                 ]
@@ -157,14 +154,8 @@ let private generalConfig state dispatch =
                 Grid.column 1
                 Grid.row 6
                 CheckBox.isChecked state.Config.AutoVolume
-                CheckBox.onChecked (fun _ ->
-                    fun c -> { c with AutoVolume = true }
-                    |> EditConfig
-                    |> dispatch)
-                CheckBox.onUnchecked (fun _ ->
-                    fun c -> { c with AutoVolume = false }
-                    |> EditConfig
-                    |> dispatch)
+                CheckBox.onChecked (fun _ -> true |> SetAutoVolume |> EditConfig |> dispatch)
+                CheckBox.onUnchecked (fun _ -> false |> SetAutoVolume |> EditConfig |> dispatch)
             ]
 
             TextBlock.create [
@@ -177,14 +168,8 @@ let private generalConfig state dispatch =
                 Grid.column 1
                 Grid.row 7
                 CheckBox.isChecked state.Config.ShowAdvanced
-                CheckBox.onChecked (fun _ ->
-                    fun c -> { c with ShowAdvanced = true }
-                    |> EditConfig
-                    |> dispatch)
-                CheckBox.onUnchecked (fun _ ->
-                    fun c -> { c with ShowAdvanced = false }
-                    |> EditConfig
-                    |> dispatch)
+                CheckBox.onChecked (fun _ -> true |> SetShowAdvanced |> EditConfig |> dispatch)
+                CheckBox.onUnchecked (fun _ -> false |> SetShowAdvanced |> EditConfig |> dispatch)
             ]
         ]
      ]
@@ -218,10 +203,7 @@ let private importConfig state dispatch =
                     RadioButton.margin (0., 2.)
                     RadioButton.isChecked (state.Config.ConvertAudio = conv)
                     RadioButton.content (localize conv)
-                    RadioButton.onChecked (fun _ ->
-                        fun c -> { c with ConvertAudio = conv }
-                        |> EditConfig
-                        |> dispatch)
+                    RadioButton.onChecked (fun _ -> conv |> SetConvertAudio |> EditConfig |> dispatch)
                 ] |> generalize)
 
             CheckBox.create [
@@ -229,14 +211,8 @@ let private importConfig state dispatch =
                 CheckBox.horizontalAlignment HorizontalAlignment.Left
                 CheckBox.margin (0., 8., 0., 4.)
                 CheckBox.isChecked state.Config.RemoveDDOnImport
-                CheckBox.onChecked (fun _ ->
-                    fun c -> { c with RemoveDDOnImport = true }
-                    |> EditConfig
-                    |> dispatch)
-                CheckBox.onUnchecked (fun _ ->
-                    fun c -> { c with RemoveDDOnImport = false }
-                    |> EditConfig
-                    |> dispatch)
+                CheckBox.onChecked (fun _ -> true |> SetRemoveDDOnImport |> EditConfig |> dispatch)
+                CheckBox.onUnchecked (fun _ -> false |> SetRemoveDDOnImport |> EditConfig |> dispatch)
             ]
         ]
     ]
@@ -261,28 +237,16 @@ let private buildConfig state dispatch =
                         CheckBox.content "PC"
                         CheckBox.isEnabled (state.Config.ReleasePlatforms |> List.contains Mac)
                         CheckBox.isChecked (state.Config.ReleasePlatforms |> List.contains PC)
-                        CheckBox.onChecked (fun _ ->
-                            fun c -> { c with ReleasePlatforms = PC::c.ReleasePlatforms }
-                            |> EditConfig
-                            |> dispatch)
-                        CheckBox.onUnchecked (fun _ ->
-                            fun c -> { c with ReleasePlatforms = c.ReleasePlatforms |> List.remove PC }
-                            |> EditConfig
-                            |> dispatch)
+                        CheckBox.onChecked (fun _ -> PC |> AddReleasePlatform |> EditConfig |> dispatch)
+                        CheckBox.onUnchecked (fun _ -> PC |> RemoveReleasePlatform |> EditConfig |> dispatch)
                     ]
                     CheckBox.create [
                         CheckBox.margin 2.
                         CheckBox.content "Mac"
                         CheckBox.isEnabled (state.Config.ReleasePlatforms |> List.contains PC)
                         CheckBox.isChecked (state.Config.ReleasePlatforms |> List.contains Mac)
-                        CheckBox.onChecked (fun _ ->
-                            fun c -> { c with ReleasePlatforms = Mac::c.ReleasePlatforms }
-                            |> EditConfig
-                            |> dispatch)
-                        CheckBox.onUnchecked (fun _ ->
-                            fun c -> { c with ReleasePlatforms = c.ReleasePlatforms |> List.remove Mac }
-                            |> EditConfig
-                            |> dispatch)
+                        CheckBox.onChecked (fun _ -> Mac |> AddReleasePlatform |> EditConfig |> dispatch)
+                        CheckBox.onUnchecked (fun _ -> Mac |> RemoveReleasePlatform |> EditConfig |> dispatch)
                     ]
                 ]
             ]
@@ -300,7 +264,7 @@ let private buildConfig state dispatch =
                     RadioButton.create [
                         RadioButton.content "Cherub Rock (248750)"
                         RadioButton.isChecked (state.Config.CustomAppId.IsNone)
-                        RadioButton.onChecked (fun _ -> None |> SetCustomAppId |> dispatch)
+                        RadioButton.onChecked (fun _ -> None |> SetCustomAppId |> EditConfig |> dispatch)
                     ]
                     RadioButton.create [
                         RadioButton.isChecked (state.Config.CustomAppId.IsSome)
@@ -316,12 +280,7 @@ let private buildConfig state dispatch =
                                         TextBox.verticalAlignment VerticalAlignment.Center
                                         TextBox.width 120.
                                         TextBox.text (Option.toObj state.Config.CustomAppId)
-                                        TextBox.onTextChanged (fun appId ->
-                                            if String.notEmpty appId then
-                                                Some appId
-                                                |> SetCustomAppId
-                                                |> dispatch
-                                        )
+                                        TextBox.onTextChanged (Option.ofString >> SetCustomAppId >> EditConfig >> dispatch)
                                     ]
                                 ]
                             ]
@@ -340,14 +299,8 @@ let private buildConfig state dispatch =
                 Grid.row 2
                 CheckBox.margin (0., 2.)
                 CheckBox.isChecked state.Config.GenerateDD
-                CheckBox.onChecked (fun _ ->
-                    fun c -> { c with GenerateDD = true }
-                    |> EditConfig
-                    |> dispatch)
-                CheckBox.onUnchecked (fun _ ->
-                    fun c -> { c with GenerateDD = false }
-                    |> EditConfig
-                    |> dispatch)
+                CheckBox.onChecked (fun _ -> true |> SetGenerateDD |> EditConfig |> dispatch)
+                CheckBox.onUnchecked (fun _ -> false |> SetGenerateDD |> EditConfig |> dispatch)
             ]
 
             TextBlock.create [
@@ -361,14 +314,8 @@ let private buildConfig state dispatch =
                 CheckBox.margin (0., 2.)
                 CheckBox.isEnabled state.Config.GenerateDD
                 CheckBox.isChecked state.Config.DDPhraseSearchEnabled
-                CheckBox.onChecked (fun _ ->
-                    fun c -> { c with DDPhraseSearchEnabled = true }
-                    |> EditConfig
-                    |> dispatch)
-                CheckBox.onUnchecked (fun _ ->
-                    fun c -> { c with DDPhraseSearchEnabled = false }
-                    |> EditConfig
-                    |> dispatch)
+                CheckBox.onChecked (fun _ -> true |> SetDDPhraseSearchEnabled |> EditConfig |> dispatch)
+                CheckBox.onUnchecked (fun _ -> false |> SetDDPhraseSearchEnabled |> EditConfig |> dispatch)
             ]
 
             TextBlock.create [
@@ -387,10 +334,7 @@ let private buildConfig state dispatch =
                         NumericUpDown.width 60.
                         NumericUpDown.value (float state.Config.DDPhraseSearchThreshold)
                         NumericUpDown.isEnabled (state.Config.DDPhraseSearchEnabled && state.Config.GenerateDD)
-                        NumericUpDown.onValueChanged (fun value ->
-                            fun c -> { c with DDPhraseSearchThreshold = int value }
-                            |> EditConfig
-                            |> dispatch)
+                        NumericUpDown.onValueChanged (int >> SetDDPhraseSearchThreshold >> EditConfig >> dispatch)
                         NumericUpDown.minimum 0.
                         NumericUpDown.maximum 100.
                         NumericUpDown.formatString "F0"
@@ -414,14 +358,8 @@ let private buildConfig state dispatch =
                 Grid.row 5
                 CheckBox.margin (0., 2.)
                 CheckBox.isChecked state.Config.ApplyImprovements
-                CheckBox.onChecked (fun _ ->
-                    fun c -> { c with ApplyImprovements = true }
-                    |> EditConfig
-                    |> dispatch)
-                CheckBox.onUnchecked (fun _ ->
-                    fun c -> { c with ApplyImprovements = false }
-                    |> EditConfig
-                    |> dispatch)
+                CheckBox.onChecked (fun _ -> true |> SetApplyImprovements |> EditConfig |> dispatch)
+                CheckBox.onUnchecked (fun _ -> false |> SetApplyImprovements |> EditConfig |> dispatch)
             ]
 
             TextBlock.create [
@@ -434,14 +372,8 @@ let private buildConfig state dispatch =
                 Grid.row 6
                 CheckBox.margin (0., 2.)
                 CheckBox.isChecked state.Config.SaveDebugFiles
-                CheckBox.onChecked (fun _ ->
-                    fun c -> { c with SaveDebugFiles = true }
-                    |> EditConfig
-                    |> dispatch)
-                CheckBox.onUnchecked (fun _ ->
-                    fun c -> { c with SaveDebugFiles = false }
-                    |> EditConfig
-                    |> dispatch)
+                CheckBox.onChecked (fun _ -> true |> SetSaveDebugFiles |> EditConfig |> dispatch)
+                CheckBox.onUnchecked (fun _ -> false |> SetSaveDebugFiles |> EditConfig |> dispatch)
             ]
         ]
      ]

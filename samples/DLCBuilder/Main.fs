@@ -262,25 +262,6 @@ let update (msg: Msg) (state: State) =
         let dialog = Dialogs.saveFileDialog (localize "saveProjectAs") (Dialogs.projectFilter state.Localization) intialFileName
         state, Cmd.OfAsync.perform dialog initialDir SaveProject
 
-    | SetProjectsFolderPath path ->
-        { state with Config = { config with ProjectsFolderPath = path } }, Cmd.none
-
-    | SetTestFolderPath path ->
-        { state with Config = { config with TestFolderPath = path } }, Cmd.none
-
-    | SetProfilePath path ->
-        match path with
-        | EndsWith "_PRFLDB" ->
-            { state with Config = { config with ProfilePath = path } }, Cmd.none
-        | _ ->
-            state, Cmd.none           
-
-    | SetWwiseConsolePath path ->
-        { state with Config = { config with WwiseConsolePath = Option.ofString path } }, Cmd.none
-
-    | SetCustomAppId appId ->
-        { state with Config = { config with CustomAppId = appId } }, Cmd.none
-
     | SetAudioFile fileName ->
         let audioFile = { project.AudioFile with Path = fileName }
         let previewPath =
@@ -616,7 +597,31 @@ let update (msg: Msg) (state: State) =
 
         { state with Project = p }, Cmd.none
 
-    | EditConfig edit -> { state with Config = edit config }, Cmd.none
+    | EditConfig edit ->
+        let c =
+            match edit with
+            | SetCharterName name -> { config with CharterName = name }
+            | SetAutoVolume autoVol -> { config with AutoVolume = autoVol }
+            | SetShowAdvanced showAdv -> { config with ShowAdvanced = showAdv }
+            | SetRemoveDDOnImport removeDD -> { config with RemoveDDOnImport = removeDD }
+            | SetGenerateDD generateDD -> { config with GenerateDD = generateDD }
+            | SetDDPhraseSearchEnabled phraseSearch -> { config with DDPhraseSearchEnabled = phraseSearch }
+            | SetDDPhraseSearchThreshold threshold -> { config with DDPhraseSearchThreshold = threshold }
+            | SetApplyImprovements improve -> { config with ApplyImprovements = improve }
+            | SetSaveDebugFiles debug -> { config with SaveDebugFiles = debug }
+            | SetCustomAppId appId -> { config with CustomAppId = appId }
+            | SetConvertAudio conv -> { config with ConvertAudio = conv }
+            | AddReleasePlatform platform -> { config with ReleasePlatforms = platform::config.ReleasePlatforms }
+            | RemoveReleasePlatform platform -> { config with ReleasePlatforms = config.ReleasePlatforms |> List.remove platform }
+            | SetTestFolderPath path -> { config with TestFolderPath = path }
+            | SetProjectsFolderPath path -> { config with ProjectsFolderPath = path }
+            | SetWwiseConsolePath path -> { config with WwiseConsolePath = Option.ofString path }
+            | SetProfilePath path ->
+                match path with
+                | EndsWith "_PRFLDB" -> { config with ProfilePath = path }
+                | _ -> config
+
+        { state with Config = c }, Cmd.none
 
     | Build Test ->
         match BuildValidator.validate project with

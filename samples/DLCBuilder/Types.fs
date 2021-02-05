@@ -65,6 +65,25 @@ type VocalsEdit =
     | SetIsJapanese of bool
     | SetCustomFont of string option
 
+type ConfigEdit =
+    | SetCharterName of string
+    | SetProfilePath of string
+    | SetTestFolderPath of string
+    | SetProjectsFolderPath of string
+    | SetWwiseConsolePath of string
+    | SetAutoVolume of bool
+    | SetShowAdvanced of bool
+    | SetRemoveDDOnImport of bool
+    | SetGenerateDD of bool
+    | SetDDPhraseSearchEnabled of bool
+    | SetDDPhraseSearchThreshold of int
+    | SetApplyImprovements of bool
+    | SetSaveDebugFiles of bool
+    | SetCustomAppId of string option
+    | SetConvertAudio of AudioConversionType
+    | AddReleasePlatform of Platform
+    | RemoveReleasePlatform of Platform
+
 type State =
     { Project : DLCProject
       SavedProject : DLCProject
@@ -101,11 +120,6 @@ type Msg =
     | AddArrangements of files : string[] option
     | SetCoverArt of fileName : string
     | SetAudioFile of fileName : string
-    | SetProfilePath of path : string
-    | SetTestFolderPath of path : string
-    | SetProjectsFolderPath of path : string
-    | SetWwiseConsolePath of path : string
-    | SetCustomAppId of appId : string option
     | SetConfiguration of config : Configuration
     | SetRecentFiles of string list
     | ImportTonesFromFile of fileName : string
@@ -120,10 +134,10 @@ type Msg =
     | ShowSortFields of shown : bool
     | ShowJapaneseFields of shown : bool
     | EditInstrumental of edit : (State -> Instrumental -> Instrumental)
-    | EditVocals of edit : VocalsEdit
-    | EditTone of edit : ToneEdit
-    | EditProject of edit : ProjectEdit
-    | EditConfig of edit : (Configuration -> Configuration)
+    | EditVocals of VocalsEdit
+    | EditTone of ToneEdit
+    | EditProject of ProjectEdit
+    | EditConfig of ConfigEdit
     | CloseOverlay
     | ImportTonesChanged of item : obj
     | ImportSelectedTones
