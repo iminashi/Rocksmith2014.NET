@@ -123,7 +123,7 @@ module DLCProject =
         File.Exists project.AudioPreviewFile.Path
 
     /// Returns the paths to the audio files that need converting to wem.
-    let getFilesThatNeedsConverting (project: DLCProject) =
+    let getFilesThatNeedConverting (project: DLCProject) =
         seq { project.AudioFile
               project.AudioPreviewFile
               yield! project.Arrangements

@@ -64,7 +64,7 @@ let private convertAudio cliPath project =
 
 let private createBuildConfig config project appId platforms =
     let convTask =
-        DLCProject.getFilesThatNeedsConverting project
+        DLCProject.getFilesThatNeedConverting project
         |> Seq.map (Wwise.convertToWem config.WwiseConsolePath)
         |> Async.Parallel
         |> Async.Ignore
