@@ -24,11 +24,11 @@ let getSustain = function
         else
             xc.ChordNotes.[0].Sustain
 
-let getAllowedChordNotes (diffPercent: byte) maxChordNotesInPhrase =
+let getAllowedChordNotes (diffPercent: float) maxChordNotesInPhrase =
     if maxChordNotesInPhrase = 0 then
         0
     else
-        float diffPercent / 100. * float maxChordNotesInPhrase
+        diffPercent * float maxChordNotesInPhrase
         |> (ceil >> int)
 
 let allSame (arr: 'a array) =

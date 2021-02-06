@@ -28,7 +28,7 @@ let private isArpeggio (entities: XmlEntity array) (hs: HandShape) =
         |> Array.forall (fun n -> n.String = notes.[0].String || n.Time = notes.[0].Time)
         |> not
 
-let choose (diffPercent: byte)
+let choose (diffPercent: float)
            (levelEntities: XmlEntity array)
            (allEntities: XmlEntity array)
            (maxChordNotes: int)

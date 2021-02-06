@@ -39,3 +39,8 @@ let predictLevelCount (path: int) (p: DataExtractor.PhraseData) =
         Math.Round(float result.Score)
         |> int
     Math.Clamp(levels, 2, 30)
+
+let getSimpleLevelCount (phraseData: DataExtractor.PhraseData)
+                        (divisionMap: Map<BeatDivision, DifficultyRange>) =
+    let minLevels = max 2 phraseData.MaxChordStrings
+    Math.Clamp(divisionMap.Count, minLevels, 30)

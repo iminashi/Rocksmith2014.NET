@@ -1,9 +1,8 @@
 ﻿module Rocksmith2014.DD.Generator
 
 open Rocksmith2014.XML
-open System
-open LevelCounter
 open System.Collections.Generic
+open LevelCounter
 
 let private lockObj = obj()
 
@@ -82,14 +81,14 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
         [| level |]
     else
         // Determine the number of levels to generate for this phrase
-        let levelCount = predictLevelCount (DataExtractor.getPath arr) phraseData
+        //let levelCount = predictLevelCount (DataExtractor.getPath arr) phraseData
 
         let entities = createXmlEntityArray phraseData.Notes phraseData.Chords
         let divisions =
             entities
             |> Array.map (fun e ->
                 let time = getTimeCode e
-                time, BeatDivider.getDivision phraseData time)
+                time, BeatDivider.getDivision phraseData time e)
 
         let notesInDivision =
             divisions
@@ -99,6 +98,8 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
 
         let noteTimeToDivision = Map.ofArray divisions
         let divisionMap = BeatDivider.createDivisionMap divisions entities.Length
+
+        let levelCount = getSimpleLevelCount phraseData divisionMap
 
         let applyChordId' = applyChordId arr.ChordTemplates
 
@@ -111,7 +112,7 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
                       ResizeArray(phraseData.Anchors),
                       ResizeArray(phraseData.HandShapes))
             else
-                let diffPercent = byte <| 100 * (diff + 1) / levelCount
+                let diffPercent = float (diff + 1) / float levelCount
 
                 let levelEntities, templateRequests1 =
                     EntityChooser.choose diffPercent divisionMap noteTimeToDivision notesInDivision arr.ChordTemplates phraseData.HandShapes phraseData.MaxChordStrings entities

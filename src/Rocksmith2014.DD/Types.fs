@@ -13,7 +13,7 @@ type TemplateRequest = { OriginalId: int16
                          NoteCount: byte
                          Target: RequestTarget }
 
-type DifficultyRange = { Low: byte; High: byte }
+type DifficultyRange = { Low: float; High: float }
 
 type BeatDivision = int
 

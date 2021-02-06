@@ -4,13 +4,15 @@ open Rocksmith2014.DD.DataExtractor
 open Rocksmith2014.XML
 open System
 
+let round (value: float) = Math.Round(value, MidpointRounding.AwayFromZero)
+
 let private getSubdivision startTime endTime time =
     let dist = float <| endTime - startTime
     let pos = float <| time - startTime
+    let mid = dist / 2.
     let div =
-        let d = dist / pos
-        // TODO: Improve
-        if round d < 2. then d * 2. else d
+        let pos = if pos - mid > 10. then pos - mid else pos
+        dist / pos
     
     int <| round div
     
@@ -50,7 +52,7 @@ let private getDivisionInPhrase startTime endTime time =
     let div = findDiv 0
     phraseDivisions.[div]
 
-let getDivision (phraseData: PhraseData) (time: int) : BeatDivision =
+let getDivision (phraseData: PhraseData) (time: int) (entity: XmlEntity) : BeatDivision =
     let { StartTime=phraseStartTime; EndTime=phraseEndTime; Beats=beats } = phraseData
 
     let beat1 =
@@ -62,8 +64,14 @@ let getDivision (phraseData: PhraseData) (time: int) : BeatDivision =
         |> List.tryFind (fun b -> b.Time >= time)
 
     let divisionInPhrase = getDivisionInPhrase phraseStartTime phraseEndTime time
+    let isFretHandMute =
+        match entity with
+        | XmlNote n -> n.IsFretHandMute
+        | XmlChord c -> c.IsFretHandMute
 
-    divisionInPhrase +
+    // De-emphasize fret hand mutes
+    if isFretHandMute then 20 else 0
+    + divisionInPhrase +
     match beat1, beat2 with
     | None, _ ->
         // The note comes before any beat
@@ -89,10 +97,10 @@ let createDivisionMap (divisions: (int * BeatDivision) array) totalNotes =
     |> Seq.fold (fun acc (division, notes) ->
         let low =
             match List.tryHead acc with
-            | None -> 0uy
-            | Some x -> (snd x).High
-        let high = Math.Round(float low + (100. * float notes / float totalNotes))
+            | None -> 0.
+            | Some (_, range) -> range.High
+        let high = low + (float notes / float totalNotes)
 
-        (division, { Low = low; High = byte high })::acc
+        (division, { Low = low; High = high })::acc
     ) []
     |> Map.ofList
