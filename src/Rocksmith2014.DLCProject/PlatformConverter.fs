@@ -4,11 +4,13 @@ open Rocksmith2014.PSARC
 open Rocksmith2014.Common
 open Rocksmith2014.SNG
 open System.IO
+open System.Text
 
 /// Replaces PC specific paths and tags with Mac versions.
 let convertGraph (data: Stream) =
     let text = using (new StreamReader(data)) (fun reader -> reader.ReadToEnd())
-    let newText = text.Replace("bin/generic", "bin/macos")
+    let newText = StringBuilder(text)
+                      .Replace("bin/generic", "bin/macos")
                       .Replace("audio/windows", "audio/mac")
                       .Replace("dx9", "macos")
     let newData = MemoryStreamPool.Default.GetStream()
@@ -26,13 +28,13 @@ let convertSNG (data: Stream) = async {
 
 /// Converts a PSARC from PC to Mac platform.
 let pcToMac (psarc: PSARC) = async {
-    do! psarc.Edit(EditOptions.Default, List.map (fun e ->
-        match e.Name with
+    do! psarc.Edit(EditOptions.Default, List.map (fun entry ->
+        match entry.Name with
         | Contains "audio/windows" ->
-            { e with Name = e.Name.Replace("audio/windows", "audio/mac") }
+            { entry with Name = entry.Name.Replace("audio/windows", "audio/mac") }
         | Contains "bin/generic" ->
-            convertSNG e.Data |> Async.RunSynchronously
-            { e with Name = e.Name.Replace("bin/generic", "bin/macos") }
+            convertSNG entry.Data |> Async.RunSynchronously
+            { entry with Name = entry.Name.Replace("bin/generic", "bin/macos") }
         | EndsWith "aggregategraph.nt" ->
-            { e with Data = convertGraph e.Data }
-        | _ -> e)) }
+            { entry with Data = convertGraph entry.Data }
+        | _ -> entry)) }
