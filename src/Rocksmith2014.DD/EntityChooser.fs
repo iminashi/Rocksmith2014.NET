@@ -50,7 +50,7 @@ let private pruneChordNotes diffPercent
 
 let private shouldExclude (diffPercent: float)
                           (division: BeatDivision)
-                          (notesInDivision: Map<BeatDivision, int>)
+                          (notesInDivision: IReadOnlyDictionary<BeatDivision, int>)
                           (currentNotes: Dictionary<BeatDivision, int>)
                           (range: DifficultyRange) =
     if diffPercent < range.Low then
@@ -163,9 +163,9 @@ let private noteFromChord (diffPercent: float)
              IsIgnore = chord.IsIgnore)
 
 let choose (diffPercent: float)
-           (divisionMap: Map<BeatDivision, DifficultyRange>)
-           (noteTimeToDivision: Map<int, int>)
-           (notesInDivision: Map<BeatDivision, int>)
+           (divisionMap: DivisionMap)
+           (noteTimeToDivision: IReadOnlyDictionary<int, BeatDivision>)
+           (notesInDivision: IReadOnlyDictionary<BeatDivision, int>)
            (templates: ResizeArray<ChordTemplate>)
            (handShapes: HandShape list)
            (maxChordNotes: int)

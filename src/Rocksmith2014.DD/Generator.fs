@@ -94,9 +94,9 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
             divisions
             |> Array.groupBy snd
             |> Array.map (fun (group, elems) -> group, elems.Length)
-            |> Map.ofArray
+            |> readOnlyDict
 
-        let noteTimeToDivision = Map.ofArray divisions
+        let noteTimeToDivision = readOnlyDict divisions
         let divisionMap = BeatDivider.createDivisionMap divisions entities.Length
 
         let levelCount = getSimpleLevelCount phraseData divisionMap

@@ -103,4 +103,4 @@ let createDivisionMap (divisions: (int * BeatDivision) array) totalNotes =
 
         (division, { Low = low; High = high })::acc
     ) []
-    |> Map.ofList
+    |> readOnlyDict

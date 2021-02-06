@@ -2,6 +2,7 @@
 module Rocksmith2014.DD.Types
 
 open Rocksmith2014.XML
+open System.Collections.Generic
 
 type XmlEntity =
     | XmlNote of Note
@@ -20,3 +21,5 @@ type BeatDivision = int
 type PhraseSearch = SearchDisabled | WithThreshold of int
 
 type GeneratorConfig = { PhraseSearch: PhraseSearch }
+
+type DivisionMap = IReadOnlyDictionary<BeatDivision, DifficultyRange>
