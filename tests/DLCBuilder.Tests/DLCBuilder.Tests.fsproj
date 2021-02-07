@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <Compile Include="Common.fs" />
+    <Compile Include="EditVocalsMessageTests.fs" />
     <Compile Include="EditToneMessageTests.fs" />
     <Compile Include="EditConfigMessageTests.fs" />
     <Compile Include="MessageTests.fs" />

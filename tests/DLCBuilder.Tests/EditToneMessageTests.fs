@@ -3,10 +3,10 @@
 open Expecto
 open DLCBuilder
 open Rocksmith2014.Common
+open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open System
 open Elmish
-open Rocksmith2014.Common.Manifest
 
 let tone =
     { GearList =
