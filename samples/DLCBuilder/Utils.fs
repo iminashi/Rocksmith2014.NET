@@ -46,10 +46,11 @@ let loadBitmap (fileName: string) =
 
 /// Disposes the old cover art and loads a new one from the given path.
 let changeCoverArt (coverArt: Bitmap option) newPath =
-    coverArt
-    |> Option.map (fun old ->
-        old.Dispose()
-        loadBitmap newPath)
+    coverArt |> Option.iter (fun old -> old.Dispose())
+    if File.Exists newPath then
+        Some <| loadBitmap newPath
+    else
+        None
 
 /// Imports tones from a PSARC file.
 let importTonesFromPSARC (psarcPath: string) = async {

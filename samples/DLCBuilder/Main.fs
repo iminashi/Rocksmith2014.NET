@@ -195,11 +195,8 @@ let update (msg: Msg) (state: State) =
     | ImportToolkitTemplate fileName ->
         try
             let project = ToolkitImporter.import fileName
-            let coverArt =
-                if IO.File.Exists project.AlbumArtFile then
-                    Utils.changeCoverArt state.CoverArt project.AlbumArtFile
-                else
-                    None
+            let coverArt = Utils.changeCoverArt state.CoverArt project.AlbumArtFile
+
             { state with Project = project; OpenProjectFile = None; CoverArt = coverArt
                          SelectedArrangement = None; SelectedTone = None }, Cmd.none
         with e -> state, Cmd.ofMsg (ErrorOccurred e)
@@ -507,12 +504,7 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfAsync.either DLCProject.load fileName (fun p -> ProjectLoaded(p, fileName)) ErrorOccurred
 
     | ProjectLoaded (project, projectFile) ->
-        let coverArt =
-            if IO.File.Exists project.AlbumArtFile then
-                Utils.changeCoverArt state.CoverArt project.AlbumArtFile
-            else
-                None
-
+        let coverArt = Utils.changeCoverArt state.CoverArt project.AlbumArtFile
         let project = DLCProject.updateToneInfo project
         let recent = RecentFilesList.update projectFile state.RecentFiles
 
