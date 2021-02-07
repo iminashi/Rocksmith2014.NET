@@ -1,16 +1,24 @@
 ﻿module DLCBuilder.Views.ProjectDetails
 
+open Avalonia
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
 open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Media
+open Avalonia.Media.Imaging
+open Avalonia.Platform
 open Rocksmith2014.DLCProject
 open Rocksmith2014.Common
 open System
 open DLCBuilder
 open Media
+
+let private placeholderAlbumArt =
+    lazy
+        let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
+        new Bitmap(assets.Open(Uri("avares://DLCBuilder/Assets/coverart_placeholder.png")))
 
 let private notBuilding state =
     state.RunningTasks
@@ -36,7 +44,7 @@ let view state dispatch =
         DockPanel.children [
             Image.create [
                 DockPanel.dock Dock.Top
-                Image.source state.CoverArt
+                Image.source (state.CoverArt |> Option.defaultWith placeholderAlbumArt.Force)
                 Image.width 200.
                 Image.height 200.
                 Image.onTapped (fun _ -> dispatch (Msg.OpenFileDialog("selectCoverArt", Dialogs.imgFileFilter, SetCoverArt)))

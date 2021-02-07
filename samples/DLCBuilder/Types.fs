@@ -105,7 +105,7 @@ type State =
       SavedProject : DLCProject
       RecentFiles : string list
       Config : Configuration
-      CoverArt : Bitmap
+      CoverArt : Bitmap option
       SelectedArrangement : Arrangement option
       SelectedTone : Tone option
       ShowSortFields : bool

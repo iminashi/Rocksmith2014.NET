@@ -37,7 +37,7 @@ let init arg =
       SavedProject = DLCProject.Empty
       RecentFiles = []
       Config = Configuration.Default
-      CoverArt = Utils.loadPlaceHolderAlbumArt()
+      CoverArt = None
       SelectedArrangement = None
       SelectedTone = None
       ShowSortFields = false
@@ -96,13 +96,13 @@ let update (msg: Msg) (state: State) =
 
     match msg with
     | NewProject ->
-        state.CoverArt.Dispose()
+        state.CoverArt |> Option.iter(fun x -> x.Dispose())
         { state with Project = DLCProject.Empty
                      SavedProject = DLCProject.Empty
                      OpenProjectFile = None
                      SelectedArrangement = None
                      SelectedTone = None
-                     CoverArt = Utils.loadPlaceHolderAlbumArt() }, Cmd.none
+                     CoverArt = None }, Cmd.none
 
     | ImportTonesChanged item ->
         if isNull item then state, Cmd.none
@@ -197,10 +197,9 @@ let update (msg: Msg) (state: State) =
             let project = ToolkitImporter.import fileName
             let coverArt =
                 if IO.File.Exists project.AlbumArtFile then
-                    state.CoverArt.Dispose()
-                    Utils.loadBitmap project.AlbumArtFile
+                    Utils.changeCoverArt state.CoverArt project.AlbumArtFile
                 else
-                    state.CoverArt
+                    None
             { state with Project = project; OpenProjectFile = None; CoverArt = coverArt
                          SelectedArrangement = None; SelectedTone = None }, Cmd.none
         with e -> state, Cmd.ofMsg (ErrorOccurred e)
@@ -339,9 +338,7 @@ let update (msg: Msg) (state: State) =
         removeTask (VolumeCalculation target) state, Cmd.none
 
     | SetCoverArt fileName ->
-        state.CoverArt.Dispose()
-        
-        { state with CoverArt = Utils.loadBitmap fileName
+        { state with CoverArt = Utils.changeCoverArt state.CoverArt fileName
                      Project = { project with AlbumArtFile = fileName } }, Cmd.none
 
     | AddArrangements (Some files) ->
@@ -510,12 +507,11 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfAsync.either DLCProject.load fileName (fun p -> ProjectLoaded(p, fileName)) ErrorOccurred
 
     | ProjectLoaded (project, projectFile) ->
-        state.CoverArt.Dispose()
         let coverArt =
             if IO.File.Exists project.AlbumArtFile then
-                Utils.loadBitmap project.AlbumArtFile
+                Utils.changeCoverArt state.CoverArt project.AlbumArtFile
             else
-                Utils.loadPlaceHolderAlbumArt()
+                None
 
         let project = DLCProject.updateToneInfo project
         let recent = RecentFilesList.update projectFile state.RecentFiles
