@@ -8,6 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Common.fs" />
+    <Compile Include="EditToneMessageTests.fs" />
     <Compile Include="EditConfigMessageTests.fs" />
     <Compile Include="MessageTests.fs" />
     <Compile Include="Program.fs" />
