@@ -23,24 +23,22 @@ module Locales =
 
 [<AutoOpen>]
 module Localization =
-    let private defaultLocale = Locales.Default
     let private embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
 
     let private loadDictionary name =
-        use json = embeddedProvider.GetFileInfo(name).CreateReadStream()
+        use json = embeddedProvider.GetFileInfo($"i18n/%s{name}.json").CreateReadStream()
         JsonSerializer.DeserializeAsync<IReadOnlyDictionary<string, string>>(json).AsAsync()
         |> Async.RunSynchronously
 
-    let private defaultDictionary: IReadOnlyDictionary<string, string> = loadDictionary "i18n/default.json"
+    let private defaultDictionary = loadDictionary "default"
     let mutable private localeDictionary = defaultDictionary
 
     /// Changes the current locale.
     let changeLocale locale =
         localeDictionary <-
-            if locale = defaultLocale then
-                defaultDictionary
-            else
-                loadDictionary $"i18n/{locale.ShortName}.json" 
+            if locale = Locales.Default
+            then defaultDictionary
+            else loadDictionary locale.ShortName
 
     /// Returns the localized string for the given key.
     let translate key =
