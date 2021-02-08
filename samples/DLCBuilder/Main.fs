@@ -48,8 +48,7 @@ let init arg =
       RunningTasks = Set.empty
       CurrentPlatform = if OperatingSystem.IsMacOS() then Mac else PC
       OpenProjectFile = None
-      ArrangementIssues = Map.empty
-      Localization = Localization(Locales.English) }, commands
+      ArrangementIssues = Map.empty }, commands
 
 let private addTask newTask state =
     { state with RunningTasks = state.RunningTasks |> Set.add newTask }
@@ -92,7 +91,6 @@ let private createBuildConfig buildType config project platforms =
 
 let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
-    let localize = state.Localization.GetString
 
     match msg with
     | NewProject ->
@@ -139,19 +137,19 @@ let update (msg: Msg) (state: State) =
     | ConditionalCmdDispatch (None, _) -> state, Cmd.none
 
     | OpenFileDialog (locString, filter, msg) ->
-        let dialog = Dialogs.openFileDialog (localize locString) (filter state.Localization)
+        let dialog = Dialogs.openFileDialog (translate locString) (filter())
         state, Cmd.OfAsync.perform dialog None (fun file -> ConditionalCmdDispatch(file, msg))
 
     | OpenFolderDialog (locString, msg) ->
-        let dialog = Dialogs.openFolderDialog (localize locString)
+        let dialog = Dialogs.openFolderDialog (translate locString)
         state, Cmd.OfAsync.perform dialog None (fun folder -> ConditionalCmdDispatch(folder, msg))
 
     | SelectOpenArrangement ->
-        let dialog = Dialogs.openMultiFileDialog (localize "selectArrangement") (Dialogs.xmlFileFilter state.Localization)
+        let dialog = Dialogs.openMultiFileDialog (translate "selectArrangement") (Dialogs.xmlFileFilter())
         state, Cmd.OfAsync.perform dialog None AddArrangements
 
     | SelectImportPsarcFolder psarcFile ->
-        let dialog = Dialogs.openFolderDialog (localize "selectPsarcExtractFolder")
+        let dialog = Dialogs.openFolderDialog (translate "selectPsarcExtractFolder")
         state, Cmd.OfAsync.perform dialog None (fun folder -> ImportPsarc(psarcFile, folder))
 
     | ImportPsarc (psarcFile, Some targetFolder) ->
@@ -222,7 +220,7 @@ let update (msg: Msg) (state: State) =
     | ShowImportToneSelector tones ->
         let newState =
             match tones with
-            | [||] -> { state with Overlay = ErrorMessage(localize "couldNotFindTonesError", None) }
+            | [||] -> { state with Overlay = ErrorMessage(translate "couldNotFindTonesError", None) }
             | [| tone |] -> { state with Project = { project with Tones = tone::project.Tones } }
             | _ -> { state with Overlay = ImportToneSelector tones; ImportTones = [] }
         newState, Cmd.none
@@ -242,7 +240,7 @@ let update (msg: Msg) (state: State) =
             |> Option.map IO.Path.GetDirectoryName
             |> Option.orElse (Option.ofString config.ProjectsFolderPath)
 
-        let dialog = Dialogs.saveFileDialog (localize "saveProjectAs") (Dialogs.projectFilter state.Localization) intialFileName
+        let dialog = Dialogs.saveFileDialog (translate "saveProjectAs") (Dialogs.projectFilter()) intialFileName
         state, Cmd.OfAsync.perform dialog initialDir SaveProject
 
     | SetAudioFile fileName ->
@@ -339,7 +337,7 @@ let update (msg: Msg) (state: State) =
                      Project = { project with AlbumArtFile = fileName } }, Cmd.none
 
     | AddArrangements (Some files) ->
-        let results = Array.map (Arrangement.fromFile localize) files
+        let results = Array.map (Arrangement.fromFile translate) files
 
         let shouldInclude arrangements arr =
             match arr with
@@ -475,8 +473,9 @@ let update (msg: Msg) (state: State) =
         { state with Overlay = NoOverlay },
         Cmd.OfAsync.attempt Configuration.save config ErrorOccurred
 
-    | SetConfiguration config -> { state with Config = config
-                                              Localization = Localization(config.Locale) }, Cmd.none
+    | SetConfiguration config ->
+        if state.Config.Locale <> config.Locale then changeLocale config.Locale
+        { state with Config = config }, Cmd.none
 
     | SetRecentFiles recent -> { state with RecentFiles = recent }, Cmd.none
 
@@ -539,7 +538,7 @@ let update (msg: Msg) (state: State) =
     | Build Test ->
         match BuildValidator.validate project with
         | Error error ->
-            { state with Overlay = ErrorMessage(localize error, None) }, Cmd.none
+            { state with Overlay = ErrorMessage(translate error, None) }, Cmd.none
         | Ok _ ->
             let path = IO.Path.Combine(config.TestFolderPath, project.DLCKey.ToLowerInvariant())
             let buildConfig = createBuildConfig Test config project [ state.CurrentPlatform ]
@@ -550,7 +549,7 @@ let update (msg: Msg) (state: State) =
     | Build Release ->
         match BuildValidator.validate project with
         | Error error ->
-            { state with Overlay = ErrorMessage(localize error, None) }, Cmd.none
+            { state with Overlay = ErrorMessage(translate error, None) }, Cmd.none
         | Ok _ ->
             let releaseDir =
                 state.OpenProjectFile
@@ -598,8 +597,8 @@ let update (msg: Msg) (state: State) =
                      RunningTasks = state.RunningTasks |> Set.remove failedTask }, Cmd.none
 
     | ChangeLocale newLocale ->
-        { state with Config = { config with Locale = newLocale }
-                     Localization = Localization(newLocale) }, Cmd.none
+        if state.Config.Locale <> newLocale then changeLocale newLocale
+        { state with Config = { config with Locale = newLocale } }, Cmd.none
     
     // When the user canceled any of the dialogs
     | AddArrangements None | SaveProject None | ImportPsarc (_, None) ->

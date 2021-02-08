@@ -41,7 +41,7 @@ type Configuration =
           SaveDebugFiles = false
           AutoVolume = true
           ConvertAudio = NoConversion
-          Locale = Locales.English
+          Locale = Locales.Default
           WwiseConsolePath = None
           CustomAppId = None }
 

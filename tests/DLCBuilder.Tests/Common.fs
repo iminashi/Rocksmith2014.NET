@@ -22,5 +22,4 @@ let initialState =
       RunningTasks = Set.empty
       CurrentPlatform = if OperatingSystem.IsMacOS() then Mac else PC
       OpenProjectFile = None
-      ArrangementIssues = Map.empty
-      Localization = Localization(Locales.English) }
+      ArrangementIssues = Map.empty }

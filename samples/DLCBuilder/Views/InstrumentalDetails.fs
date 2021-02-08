@@ -19,7 +19,7 @@ let view state dispatch (i: Instrumental) =
             TextBlock.create [
                 TextBlock.isVisible (i.Name <> ArrangementName.Bass)
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (state.Localization.GetString "name")
+                TextBlock.text (translate "name")
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
 
@@ -40,7 +40,7 @@ let view state dispatch (i: Instrumental) =
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "priority")
+                TextBlock.text (translate "priority")
             ]
 
             StackPanel.create [
@@ -53,7 +53,7 @@ let view state dispatch (i: Instrumental) =
                         RadioButton.create [
                             RadioButton.margin (2.0, 0.0)
                             RadioButton.groupName "Priority"
-                            RadioButton.content (state.Localization.GetString(string priority))
+                            RadioButton.content (translate(string priority))
                             RadioButton.isChecked (i.Priority = priority)
                             RadioButton.onChecked (fun _ -> priority |> SetPriority |> EditInstrumental |> dispatch)
                             RadioButton.isEnabled (
@@ -74,7 +74,7 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.isVisible (i.Name = ArrangementName.Combo)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "path")
+                TextBlock.text (translate "path")
             ]
 
             StackPanel.create [
@@ -101,7 +101,7 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.isVisible (i.Name = ArrangementName.Bass)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "picked")
+                TextBlock.text (translate "picked")
             ]
 
             CheckBox.create [
@@ -118,7 +118,7 @@ let view state dispatch (i: Instrumental) =
                 Grid.row 4
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "tuning")
+                TextBlock.text (translate "tuning")
             ]
 
             StackPanel.create [
@@ -143,7 +143,7 @@ let view state dispatch (i: Instrumental) =
                 Grid.row 5
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "tuningPitch")
+                TextBlock.text (translate "tuningPitch")
             ]
 
             StackPanel.create [
@@ -163,7 +163,7 @@ let view state dispatch (i: Instrumental) =
                     ]
                     TextBlock.create [
                         TextBlock.verticalAlignment VerticalAlignment.Center
-                        TextBlock.text (sprintf "%+.0f %s" (Utils.tuningPitchToCents i.TuningPitch) (state.Localization.GetString "cents"))
+                        TextBlock.text (sprintf "%+.0f %s" (Utils.tuningPitchToCents i.TuningPitch) (translate "cents"))
                     ]
                 ]
             ]
@@ -172,7 +172,7 @@ let view state dispatch (i: Instrumental) =
                 Grid.row 6
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "baseTone")
+                TextBlock.text (translate "baseTone")
             ]
 
             TextBox.create [
@@ -188,7 +188,7 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.isVisible (i.Tones.Length > 0)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "tones")
+                TextBlock.text (translate "tones")
             ]
 
             TextBlock.create [
@@ -206,9 +206,9 @@ let view state dispatch (i: Instrumental) =
                 Grid.row 8
                 Button.margin 4.
                 Button.horizontalAlignment HorizontalAlignment.Center
-                Button.content (state.Localization.GetString "reloadToneKeys")
+                Button.content (translate "reloadToneKeys")
                 Button.onClick (fun _ -> UpdateToneInfo |> EditInstrumental |> dispatch)
-                ToolTip.tip (state.Localization.GetString "reloadToneKeysTooltip")
+                ToolTip.tip (translate "reloadToneKeysTooltip")
             ]
 
             TextBlock.create [
@@ -216,13 +216,13 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "scrollSpeed")
+                TextBlock.text (translate "scrollSpeed")
             ]
 
             NumericUpDown.create [
                 Grid.column 1
                 Grid.row 9
-                ToolTip.tip (state.Localization.GetString "scrollSpeedTooltip")
+                ToolTip.tip (translate "scrollSpeedTooltip")
                 NumericUpDown.isVisible state.Config.ShowAdvanced
                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                 NumericUpDown.increment 0.1
@@ -239,7 +239,7 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "masterID")
+                TextBlock.text (translate "masterID")
             ]
 
             TextBox.create [
@@ -261,7 +261,7 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "persistentID")
+                TextBlock.text (translate "persistentID")
             ]
 
             TextBox.create [
@@ -283,9 +283,9 @@ let view state dispatch (i: Instrumental) =
                 Grid.row 12
                 Button.horizontalAlignment HorizontalAlignment.Center
                 Button.isVisible state.Config.ShowAdvanced
-                Button.content (state.Localization.GetString "generateNewArrIDs")
+                Button.content (translate "generateNewArrIDs")
                 Button.onClick (fun _ -> GenerateNewIds |> EditInstrumental |> dispatch)
-                ToolTip.tip (state.Localization.GetString "generateNewArrIDsToolTip")
+                ToolTip.tip (translate "generateNewArrIDsToolTip")
             ]
 
             TextBlock.create [
@@ -293,7 +293,7 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "customAudioFile")
+                TextBlock.text (translate "customAudioFile")
             ]
 
             DockPanel.create [
@@ -315,7 +315,7 @@ let view state dispatch (i: Instrumental) =
                         Button.content "X"
                         Button.isVisible i.CustomAudio.IsSome
                         Button.onClick (fun _ -> None |> SetCustomAudioPath |> EditInstrumental |> dispatch)
-                        ToolTip.tip (state.Localization.GetString "removeCustomAudioTooltip")
+                        ToolTip.tip (translate "removeCustomAudioTooltip")
                     ]
 
                     Button.create [
@@ -328,14 +328,14 @@ let view state dispatch (i: Instrumental) =
                             | Some audio when not <| String.endsWith ".wem" audio.Path -> true
                             | _ -> false)
                         Button.onClick (fun _ -> ConvertToWemCustom |> dispatch)
-                        ToolTip.tip (state.Localization.GetString "convertToWemTooltip")
+                        ToolTip.tip (translate "convertToWemTooltip")
                     ]
 
                     TextBlock.create [
                         TextBlock.margin (4., 2., 0., 0.)
                         TextBlock.text (
                             Option.map (fun x -> IO.Path.GetFileName x.Path) i.CustomAudio
-                            |> Option.defaultValue (state.Localization.GetString "noAudioFile")
+                            |> Option.defaultValue (translate "noAudioFile")
                         )
                     ]
                 ]
@@ -346,7 +346,7 @@ let view state dispatch (i: Instrumental) =
                     Grid.row 14
                     TextBlock.verticalAlignment VerticalAlignment.Center
                     TextBlock.horizontalAlignment HorizontalAlignment.Center
-                    TextBlock.text (state.Localization.GetString "volume")
+                    TextBlock.text (translate "volume")
                 ]
 
                 NumericUpDown.create [
@@ -366,7 +366,7 @@ let view state dispatch (i: Instrumental) =
                     NumericUpDown.value (i.CustomAudio |> Option.map (fun x -> x.Volume) |> Option.defaultValue -8.)
                     NumericUpDown.formatString "F1"
                     NumericUpDown.onValueChanged (SetCustomAudioVolume >> EditInstrumental >> dispatch)
-                    ToolTip.tip (state.Localization.GetString "audioVolumeToolTip")
+                    ToolTip.tip (translate "audioVolumeToolTip")
                 ]
         ]
     ]

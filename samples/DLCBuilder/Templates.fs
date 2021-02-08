@@ -10,11 +10,10 @@ open Rocksmith2014.DLCProject
 open System
 open Media
 
-// TODO: Fix for localization
-let toneDescriptor state =
+let toneDescriptor =
     DataTemplateView<ToneDescriptor>.create (fun desc ->
         TextBlock.create [
-            TextBlock.text (state.Localization.GetString desc.Name)
+            TextBlock.text <| translate desc.Name
         ])
 
 /// Template for a selectable arrangement in the ListBox.

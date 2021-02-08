@@ -116,11 +116,10 @@ type State =
       OpenProjectFile : string option
       CurrentPlatform : Platform
       RunningTasks : LongTask Set
-      ArrangementIssues : Map<string, ArrangementChecker.Issue list>
-      Localization : ILocalization }
+      ArrangementIssues : Map<string, ArrangementChecker.Issue list> }
 
 type Msg =
-    | OpenFileDialog of locTitle : string * filter : (ILocalization -> ResizeArray<FileDialogFilter>) * msg : (string -> Msg)
+    | OpenFileDialog of locTitle : string * filter : (unit -> ResizeArray<FileDialogFilter>) * msg : (string -> Msg)
     | OpenFolderDialog of locTitle : string * msg : (string -> Msg)
     | ConditionalCmdDispatch of opt : string option * msg : (string -> Msg)
     | SelectOpenArrangement

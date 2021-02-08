@@ -8,7 +8,7 @@ open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open DLCBuilder
 
-let createDescriptors state dispatch tone =
+let createDescriptors dispatch tone =
     UniformGrid.create [
         UniformGrid.columns tone.ToneDescriptors.Length
         UniformGrid.children [
@@ -16,13 +16,13 @@ let createDescriptors state dispatch tone =
                 yield ComboBox.create [
                     ComboBox.margin 4.
                     ComboBox.dataItems ToneDescriptor.all
-                    ComboBox.itemTemplate (Templates.toneDescriptor state)
+                    ComboBox.itemTemplate Templates.toneDescriptor
                     ComboBox.selectedItem (ToneDescriptor.uiNameToDesc.[tone.ToneDescriptors.[i]])
                     ComboBox.onSelectedItemChanged (function
                         | :? ToneDescriptor as td -> ChangeDescriptor(i, td) |> EditTone |> dispatch
                         | _ -> ()
                     )
-                    ToolTip.tip (state.Localization.GetString "toneDescriptorToolTip")
+                    ToolTip.tip (translate "toneDescriptorToolTip")
                 ]
         ]
     ]
@@ -46,7 +46,7 @@ let view state dispatch (tone: Tone) =
             TextBlock.create [
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "name")
+                TextBlock.text (translate "name")
             ]
             TextBox.create [
                 Grid.column 1
@@ -59,7 +59,7 @@ let view state dispatch (tone: Tone) =
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "key")
+                TextBlock.text (translate "key")
             ]
             ComboBox.create [
                 Grid.row 1
@@ -78,13 +78,13 @@ let view state dispatch (tone: Tone) =
                 Grid.row 2
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "description")
+                TextBlock.text (translate "description")
             ]
             StackPanel.create [
                 Grid.column 1
                 Grid.row 2
                 StackPanel.children [
-                    createDescriptors state dispatch tone
+                    createDescriptors dispatch tone
                     StackPanel.create [
                         StackPanel.orientation Orientation.Horizontal
                         StackPanel.children [
@@ -93,14 +93,14 @@ let view state dispatch (tone: Tone) =
                                 Button.margin 4.
                                 Button.content "+"
                                 Button.onClick (fun _ -> AddDescriptor |> EditTone |> dispatch)
-                                ToolTip.tip (state.Localization.GetString "addDescriptionToolTip")
+                                ToolTip.tip (translate "addDescriptionToolTip")
                             ]
                             Button.create [
                                 Button.isEnabled (tone.ToneDescriptors.Length > 1)
                                 Button.margin 4.
                                 Button.content "-"
                                 Button.onClick (fun _ -> RemoveDescriptor |> EditTone |> dispatch)
-                                ToolTip.tip (state.Localization.GetString "removeDescriptionToolTip")
+                                ToolTip.tip (translate "removeDescriptionToolTip")
                             ]
                         ]
                     ]
@@ -111,7 +111,7 @@ let view state dispatch (tone: Tone) =
                 Grid.row 3
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "volume")
+                TextBlock.text (translate "volume")
             ]
             NumericUpDown.create [
                 Grid.column 1
@@ -124,7 +124,7 @@ let view state dispatch (tone: Tone) =
                 NumericUpDown.increment 0.1
                 NumericUpDown.formatString "F1"
                 NumericUpDown.onValueChanged (SetVolume >> EditTone >> dispatch)
-                ToolTip.tip (state.Localization.GetString "toneVolumeToolTip")
+                ToolTip.tip (translate "toneVolumeToolTip")
             ]
         ]
     ]

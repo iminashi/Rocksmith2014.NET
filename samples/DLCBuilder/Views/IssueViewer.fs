@@ -10,24 +10,24 @@ open Rocksmith2014.XML.Processing.Utils
 open Rocksmith2014.XML.Processing.ArrangementChecker
 open DLCBuilder
 
-let private getIssueHeaderAndHelp (loc: ILocalization) issueType =
+let private getIssueHeaderAndHelp issueType =
     match issueType with
     | EventBetweenIntroApplause eventCode ->
-        loc.Format "EventBetweenIntroApplause" [| eventCode |],
-        loc.GetString "EventBetweenIntroApplauseHelp"
+        translateFormat "EventBetweenIntroApplause" [| eventCode |],
+        translate "EventBetweenIntroApplauseHelp"
     | AnchorNotOnNote distance ->
-        loc.Format "AnchorNotOnNote" [| distance |],
-        loc.GetString "AnchorNotOnNoteHelp"
+        translateFormat "AnchorNotOnNote" [| distance |],
+        translate "AnchorNotOnNoteHelp"
     | LyricWithInvalidChar invalidChar ->
-        loc.Format "LyricWithInvalidChar" [| invalidChar |],
-        loc.GetString "LyricWithInvalidCharHelp"
+        translateFormat "LyricWithInvalidChar" [| invalidChar |],
+        translate "LyricWithInvalidCharHelp"
     | other ->
         let locStr = string other
-        loc.GetString locStr,
-        loc.GetString (locStr + "Help")
+        translate locStr,
+        translate (locStr + "Help")
 
-let private viewForIssue (loc: ILocalization) issueType times =
-    let header, help = getIssueHeaderAndHelp loc issueType
+let private viewForIssue issueType times =
+    let header, help = getIssueHeaderAndHelp issueType
 
     StackPanel.create [
         StackPanel.margin (0., 5.)
@@ -57,7 +57,7 @@ let private viewForIssue (loc: ILocalization) issueType times =
     ] :> IView
     
 
-let view state dispatch (issues: Issue list) =
+let view dispatch (issues: Issue list) =
     let issues =
         issues
         |> List.groupBy (fun issue -> issue.Type)
@@ -66,7 +66,7 @@ let view state dispatch (issues: Issue list) =
                 issues
                 |> List.map (fun issue -> timeToString issue.TimeCode)
                 |> List.reduce (fun acc elem -> acc + ", " + elem)
-            viewForIssue state.Localization issueType issueTimes)
+            viewForIssue issueType issueTimes)
 
     StackPanel.create [
         StackPanel.spacing 8.
@@ -83,7 +83,7 @@ let view state dispatch (issues: Issue list) =
                     ]
                     TextBlock.create [
                         TextBlock.fontSize 18.
-                        TextBlock.text (state.Localization.GetString "issues")
+                        TextBlock.text (translate "issues")
                     ]
                 ]
             ]
@@ -104,7 +104,7 @@ let view state dispatch (issues: Issue list) =
                 Button.fontSize 18.
                 Button.padding (80., 10.)
                 Button.horizontalAlignment HorizontalAlignment.Center
-                Button.content (state.Localization.GetString "ok")
+                Button.content (translate "ok")
                 Button.onClick (fun _ -> dispatch CloseOverlay)
             ]
         ]

@@ -16,14 +16,13 @@ let private generalConfig state dispatch =
         Grid.children [
             TextBlock.create [
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (state.Localization.GetString "language")
+                TextBlock.text (translate "language")
             ]
             ComboBox.create [
                 Grid.column 1
-                ComboBox.dataItems [ Locales.English; Locales.Finnish ]
+                ComboBox.dataItems Locales.All
                 ComboBox.selectedItem state.Config.Locale
-                ComboBox.onSelectedItemChanged (fun item ->
-                    match item with
+                ComboBox.onSelectedItemChanged (function
                     | :? Locale as l -> l |> ChangeLocale |> dispatch
                     | _ -> ())
             ]
@@ -31,7 +30,7 @@ let private generalConfig state dispatch =
             TextBlock.create [
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (state.Localization.GetString "charterName")
+                TextBlock.text (translate "charterName")
             ]
             TextBox.create [
                 Grid.column 1
@@ -44,7 +43,7 @@ let private generalConfig state dispatch =
             TextBlock.create [
                 Grid.row 2
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (state.Localization.GetString "profilePath")
+                TextBlock.text (translate "profilePath")
             ]
 
             StackPanel.create [
@@ -69,7 +68,7 @@ let private generalConfig state dispatch =
             TextBlock.create [
                 Grid.row 3
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (state.Localization.GetString "testFolder")
+                TextBlock.text (translate "testFolder")
             ]
 
             StackPanel.create [
@@ -94,7 +93,7 @@ let private generalConfig state dispatch =
             TextBlock.create [
                 Grid.row 4
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (state.Localization.GetString "projectsFolder")
+                TextBlock.text (translate "projectsFolder")
             ]
             StackPanel.create [
                 Grid.column 1
@@ -118,7 +117,7 @@ let private generalConfig state dispatch =
             TextBlock.create [
                 Grid.row 5
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (state.Localization.GetString "wwiseConsolePath")
+                TextBlock.text (translate "wwiseConsolePath")
             ]
             StackPanel.create [
                 Grid.column 1
@@ -130,7 +129,7 @@ let private generalConfig state dispatch =
                         TextBox.width 250.
                         TextBox.text (Option.toObj state.Config.WwiseConsolePath)
                         TextBox.onTextChanged (SetWwiseConsolePath >> EditConfig >> dispatch)
-                        ToolTip.tip (state.Localization.GetString "wwiseConsolePathTooltip")
+                        ToolTip.tip (translate "wwiseConsolePathTooltip")
                     ]
                     Button.create [
                         Button.margin (0., 4.)
@@ -148,7 +147,7 @@ let private generalConfig state dispatch =
                 Grid.row 6
                 TextBlock.margin (0., 0., 4., 0.)
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (state.Localization.GetString "calculateVolumes")
+                TextBlock.text (translate "calculateVolumes")
             ]
             CheckBox.create [
                 Grid.column 1
@@ -162,7 +161,7 @@ let private generalConfig state dispatch =
                 Grid.row 7
                 TextBlock.margin (0., 0., 4., 0.)
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (state.Localization.GetString "showAdvancedFeatures")
+                TextBlock.text (translate "showAdvancedFeatures")
             ]
             CheckBox.create [
                 Grid.column 1
@@ -180,20 +179,20 @@ let private importConfig state dispatch =
         | NoConversion -> "noConversion"
         | ToOgg -> "toOggFile"
         | ToWav -> "toWavFile"
-        |> state.Localization.GetString
+        |> translate
 
     StackPanel.create [
         StackPanel.margin (8., 0.)
         StackPanel.children [
             TextBlock.create [
-                TextBlock.text (state.Localization.GetString "psarcImportHeader")
+                TextBlock.text (translate "psarcImportHeader")
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
                 TextBlock.fontSize 17.
                 TextBlock.margin (0., 0., 0., 4.)
             ]
 
             TextBlock.create [
-                TextBlock.text (state.Localization.GetString "convertWemOnImport")
+                TextBlock.text (translate "convertWemOnImport")
                 TextBlock.horizontalAlignment HorizontalAlignment.Left
                 TextBlock.margin (0., 0., 0., 4.)
             ]
@@ -207,7 +206,7 @@ let private importConfig state dispatch =
                 ] |> generalize)
 
             CheckBox.create [
-                CheckBox.content (state.Localization.GetString "removeDDLevels")
+                CheckBox.content (translate "removeDDLevels")
                 CheckBox.horizontalAlignment HorizontalAlignment.Left
                 CheckBox.margin (0., 8., 0., 4.)
                 CheckBox.isChecked state.Config.RemoveDDOnImport
@@ -225,7 +224,7 @@ let private buildConfig state dispatch =
         Grid.children [
             TextBlock.create [
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (state.Localization.GetString "releasePlatforms")
+                TextBlock.text (translate "releasePlatforms")
             ]
             StackPanel.create [
                 Grid.column 1
@@ -254,7 +253,7 @@ let private buildConfig state dispatch =
             TextBlock.create [
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (state.Localization.GetString "testingAppId")
+                TextBlock.text (translate "testingAppId")
             ]
             StackPanel.create [
                 Grid.column 1
@@ -274,7 +273,7 @@ let private buildConfig state dispatch =
                                 StackPanel.children [
                                     TextBlock.create [
                                         TextBlock.verticalAlignment VerticalAlignment.Center
-                                        TextBlock.text (state.Localization.GetString "custom")
+                                        TextBlock.text (translate "custom")
                                     ]
                                     TextBox.create [
                                         TextBox.verticalAlignment VerticalAlignment.Center
@@ -292,7 +291,7 @@ let private buildConfig state dispatch =
             TextBlock.create [
                 Grid.row 2
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (state.Localization.GetString "generateDD")
+                TextBlock.text (translate "generateDD")
             ]
             CheckBox.create [
                 Grid.column 1
@@ -306,7 +305,7 @@ let private buildConfig state dispatch =
             TextBlock.create [
                 Grid.row 3
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (state.Localization.GetString "findSimilarPhrases")
+                TextBlock.text (translate "findSimilarPhrases")
             ]
             CheckBox.create [
                 Grid.column 1
@@ -321,7 +320,7 @@ let private buildConfig state dispatch =
             TextBlock.create [
                 Grid.row 4
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (state.Localization.GetString "similarityThreshold")
+                TextBlock.text (translate "similarityThreshold")
                 TextBlock.isEnabled (state.Config.DDPhraseSearchEnabled && state.Config.GenerateDD)
             ]
             StackPanel.create [
@@ -351,7 +350,7 @@ let private buildConfig state dispatch =
             TextBlock.create [
                 Grid.row 5
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (state.Localization.GetString "applyImprovements")
+                TextBlock.text (translate "applyImprovements")
             ]
             CheckBox.create [
                 Grid.column 1
@@ -365,7 +364,7 @@ let private buildConfig state dispatch =
             TextBlock.create [
                 Grid.row 6
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (state.Localization.GetString "saveDebugFiles")
+                TextBlock.text (translate "saveDebugFiles")
             ]
             CheckBox.create [
                 Grid.column 1
@@ -406,7 +405,7 @@ let view state dispatch =
                 TextBlock.margin (0., 0., 0., 5.)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "configuration")
+                TextBlock.text (translate "configuration")
             ]
 
             Button.create [
@@ -415,7 +414,7 @@ let view state dispatch =
                 Button.fontSize 16.
                 Button.padding (50., 10.)
                 Button.horizontalAlignment HorizontalAlignment.Center
-                Button.content (state.Localization.GetString "close")
+                Button.content (translate "close")
                 Button.onClick (fun _ -> CloseOverlay |> dispatch)
             ]
 
@@ -426,17 +425,17 @@ let view state dispatch =
                 TabControl.viewItems [
                     TabItem.create [
                         TabItem.horizontalAlignment HorizontalAlignment.Center
-                        TabItem.header (tabHeader Media.Icons.cog (state.Localization.GetString "general"))
+                        TabItem.header (tabHeader Media.Icons.cog (translate "general"))
                         TabItem.content (generalConfig state dispatch)
                     ]
                     TabItem.create [
                         TabItem.horizontalAlignment HorizontalAlignment.Center
-                        TabItem.header (tabHeader Media.Icons.package (state.Localization.GetString "build"))
+                        TabItem.header (tabHeader Media.Icons.package (translate "build"))
                         TabItem.content (buildConfig state dispatch)
                     ]
                     TabItem.create [
                         TabItem.horizontalAlignment HorizontalAlignment.Center
-                        TabItem.header (tabHeader Media.Icons.import (state.Localization.GetString "importHeader"))
+                        TabItem.header (tabHeader Media.Icons.import (translate "importHeader"))
                         TabItem.content (importConfig state dispatch)
                     ]
                 ]

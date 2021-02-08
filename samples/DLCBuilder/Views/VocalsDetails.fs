@@ -7,7 +7,7 @@ open Rocksmith2014.DLCProject
 open System.IO
 open DLCBuilder
 
-let view state dispatch (v: Vocals) =
+let view dispatch (v: Vocals) =
     Grid.create [
         Grid.columnDefinitions "*,3*"
         Grid.rowDefinitions "*,*,*,*"
@@ -17,7 +17,7 @@ let view state dispatch (v: Vocals) =
             TextBlock.create [
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "japanese")
+                TextBlock.text (translate "japanese")
             ]
             CheckBox.create [
                 Grid.column 1
@@ -32,7 +32,7 @@ let view state dispatch (v: Vocals) =
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "customFont")
+                TextBlock.text (translate "customFont")
             ]
             DockPanel.create [
                 Grid.column 1
@@ -44,14 +44,14 @@ let view state dispatch (v: Vocals) =
                         Button.content "X"
                         Button.isVisible (Option.isSome v.CustomFont)
                         Button.onClick (fun _ -> None |> SetCustomFont |> EditVocals |> dispatch)
-                        ToolTip.tip (state.Localization.GetString "removeCustomFontToolTip")
+                        ToolTip.tip (translate "removeCustomFontToolTip")
                     ]
                     Button.create [
                         DockPanel.dock Dock.Right
                         Button.margin (0.0, 4.0, 4.0, 4.0)
                         Button.content "..."
                         Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectCustomFont", Dialogs.ddsFileFilter, Some >> SetCustomFont >> EditVocals)))
-                        ToolTip.tip (state.Localization.GetString "selectCustomFontToolTip")
+                        ToolTip.tip (translate "selectCustomFontToolTip")
                     ]
                     TextBlock.create [
                         TextBlock.verticalAlignment VerticalAlignment.Center
@@ -59,7 +59,7 @@ let view state dispatch (v: Vocals) =
                         TextBlock.text (
                             v.CustomFont
                             |> Option.map Path.GetFileName
-                            |> Option.defaultValue (state.Localization.GetString "none"))
+                            |> Option.defaultValue (translate "none"))
                     ]
                 ]
             ]

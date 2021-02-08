@@ -19,8 +19,8 @@ module ResizeArray =
     
 [<RequireQualifiedAccess>]
 module Dictionary =
-    /// Maps the result of Dictionary.TryGetValue into an option.
-    let tryGetValue key (dict: IDictionary<_,_>) =
+    /// Maps the result of IReadOnlyDictionary.TryGetValue into an option.
+    let tryGetValue key (dict: IReadOnlyDictionary<_,_>) =
         match dict.TryGetValue key with
         | true, value -> Some value
         | false, _ -> None

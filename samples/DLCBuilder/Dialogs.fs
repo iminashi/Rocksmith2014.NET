@@ -13,16 +13,16 @@ let private createFilters name (extensions : string seq) =
     let filter = FileDialogFilter(Extensions = List(extensions), Name = name)
     List(seq { filter })
 
-let audioFileFilters (loc:ILocalization) = createFilters (loc.GetString "audioFiles") (seq { "wav"; "ogg"; "wem" })
-let xmlFileFilter (loc:ILocalization) = createFilters (loc.GetString "rocksmithArrangementFiles") (seq { "xml" })
-let imgFileFilter (loc:ILocalization) = createFilters (loc.GetString "imageFiles") (seq { "png"; "jpg"; "dds" })
-let ddsFileFilter (loc:ILocalization) = createFilters (loc.GetString "ddsTextureFiles") (seq { "dds" })
-let profileFilter (loc:ILocalization) = createFilters (loc.GetString "profileFiles") (seq { "*" })
-let projectFilter (loc:ILocalization) = createFilters (loc.GetString "projectFiles") (seq { "rs2dlc" })
-let psarcFilter (loc:ILocalization) = createFilters (loc.GetString "psarcFiles") (seq { "psarc" })
-let toolkitFilter (loc:ILocalization) = createFilters (loc.GetString "toolkitFiles") (seq { "dlc.xml" })
-let toneImportFilter (loc:ILocalization) = createFilters (loc.GetString "toneImportFiles") (seq { "tone2014.xml"; "psarc" })
-let wwiseConsoleAppFilter (platform: Platform) (_:ILocalization) =
+let audioFileFilters () = createFilters (translate "audioFiles") (seq { "wav"; "ogg"; "wem" })
+let xmlFileFilter () = createFilters (translate "rocksmithArrangementFiles") (seq { "xml" })
+let imgFileFilter () = createFilters (translate "imageFiles") (seq { "png"; "jpg"; "dds" })
+let ddsFileFilter () = createFilters (translate "ddsTextureFiles") (seq { "dds" })
+let profileFilter () = createFilters (translate "profileFiles") (seq { "*" })
+let projectFilter () = createFilters (translate "projectFiles") (seq { "rs2dlc" })
+let psarcFilter () = createFilters (translate "psarcFiles") (seq { "psarc" })
+let toolkitFilter () = createFilters (translate "toolkitFiles") (seq { "dlc.xml" })
+let toneImportFilter () = createFilters (translate "toneImportFiles") (seq { "tone2014.xml"; "psarc" })
+let wwiseConsoleAppFilter (platform: Platform) () =
     let fileExt =
         match platform with
         | PC -> "exe"

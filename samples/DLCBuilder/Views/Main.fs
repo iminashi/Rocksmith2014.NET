@@ -47,7 +47,7 @@ let view (window: HostWindow) (state: State) dispatch =
                                     Button.create [
                                         DockPanel.dock Dock.Right
                                         Button.padding (10.0, 5.0)
-                                        Button.content (state.Localization.GetString "validate")
+                                        Button.content (translate "validate")
                                         Button.onClick (fun _ -> dispatch CheckArrangements)
                                         Button.isEnabled (state.Project.Arrangements.Length > 0 && not (state.RunningTasks |> Set.contains ArrangementCheck))
                                     ]
@@ -56,7 +56,7 @@ let view (window: HostWindow) (state: State) dispatch =
                                     Button.create [
                                         DockPanel.dock Dock.Right
                                         Button.padding (15.0, 5.0)
-                                        Button.content (state.Localization.GetString "addArrangement")
+                                        Button.content (translate "addArrangement")
                                         Button.onClick (fun _ -> dispatch SelectOpenArrangement)
                                         // 5 instrumentals, 2 vocals, 1 showlights
                                         Button.isEnabled (state.Project.Arrangements.Length < 8)
@@ -64,7 +64,7 @@ let view (window: HostWindow) (state: State) dispatch =
 
                                     // Title
                                     TextBlock.create [
-                                        TextBlock.text (state.Localization.GetString "arrangements")
+                                        TextBlock.text (translate "arrangements")
                                         TextBlock.verticalAlignment VerticalAlignment.Bottom
                                     ]
                                 ]
@@ -99,7 +99,7 @@ let view (window: HostWindow) (state: State) dispatch =
                             match state.SelectedArrangement with
                             | None ->
                                 TextBlock.create [
-                                    TextBlock.text (state.Localization.GetString "selectArrangementPrompt")
+                                    TextBlock.text (translate "selectArrangementPrompt")
                                     TextBlock.horizontalAlignment HorizontalAlignment.Center
                                 ]
 
@@ -137,7 +137,7 @@ let view (window: HostWindow) (state: State) dispatch =
                                             ]
 
                                             TextBlock.create[
-                                                TextBlock.text (if noIssues then "OK" else state.Localization.GetString "issues")
+                                                TextBlock.text (if noIssues then "OK" else translate "issues")
                                                 TextBlock.verticalAlignment VerticalAlignment.Center
                                             ]
                                         ]
@@ -146,7 +146,7 @@ let view (window: HostWindow) (state: State) dispatch =
                                 match arr with
                                 | Showlights _ -> ()
                                 | Instrumental i -> InstrumentalDetails.view state dispatch i
-                                | Vocals v -> VocalsDetails.view state dispatch v
+                                | Vocals v -> VocalsDetails.view dispatch v
                         ]
                     ]
 
@@ -158,7 +158,7 @@ let view (window: HostWindow) (state: State) dispatch =
                             // Title
                             TextBlock.create [
                                 DockPanel.dock Dock.Top
-                                TextBlock.text (state.Localization.GetString "tones")
+                                TextBlock.text (translate "tones")
                                 TextBlock.margin 5.0
                             ]
 
@@ -172,16 +172,16 @@ let view (window: HostWindow) (state: State) dispatch =
                                     Button.create [
                                         Button.padding (15.0, 5.0)
                                         Button.horizontalAlignment HorizontalAlignment.Left
-                                        Button.content (state.Localization.GetString "fromProfile")
+                                        Button.content (translate "fromProfile")
                                         Button.onClick (fun _ -> dispatch ImportProfileTones)
                                         Button.isEnabled (IO.File.Exists state.Config.ProfilePath)
-                                        ToolTip.tip (state.Localization.GetString "profileImportToolTip")
+                                        ToolTip.tip (translate "profileImportToolTip")
                                     ]
                                     // Import from a file
                                     Button.create [
                                         Button.padding (15.0, 5.0)
                                         Button.horizontalAlignment HorizontalAlignment.Left
-                                        Button.content (state.Localization.GetString "import")
+                                        Button.content (translate "import")
                                         Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectImportToneFile", Dialogs.toneImportFilter, ImportTonesFromFile)))
                                     ]
                                 ]
@@ -217,7 +217,7 @@ let view (window: HostWindow) (state: State) dispatch =
                             match state.SelectedTone with
                             | None ->
                                 TextBlock.create [
-                                    TextBlock.text(state.Localization.GetString "selectTonePrompt")
+                                    TextBlock.text(translate "selectTonePrompt")
                                     TextBlock.horizontalAlignment HorizontalAlignment.Center
                                 ]
                             | Some tone -> ToneDetails.view state dispatch tone
@@ -244,11 +244,11 @@ let view (window: HostWindow) (state: State) dispatch =
                             Border.child (
                                 match state.Overlay with
                                 | NoOverlay -> failwith "This can not happen."
-                                | ErrorMessage(msg, info) -> ErrorMessage.view state dispatch msg info
+                                | ErrorMessage(msg, info) -> ErrorMessage.view dispatch msg info
                                 | SelectPreviewStart audioLength -> SelectPreviewStart.view state dispatch audioLength
-                                | ImportToneSelector tones -> SelectImportTones.view state dispatch tones
+                                | ImportToneSelector tones -> SelectImportTones.view dispatch tones
                                 | ConfigEditor -> ConfigEditor.view state dispatch
-                                | IssueViewer issues -> IssueViewer.view state dispatch issues
+                                | IssueViewer issues -> IssueViewer.view dispatch issues
                             )
                         ]
                     ]

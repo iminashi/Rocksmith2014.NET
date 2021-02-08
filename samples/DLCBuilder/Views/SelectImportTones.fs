@@ -7,14 +7,14 @@ open Avalonia.Layout
 open Rocksmith2014.Common.Manifest
 open DLCBuilder
 
-let view state dispatch (tones: Tone array) =
+let view dispatch (tones: Tone array) =
     StackPanel.create [
         StackPanel.spacing 8.
         StackPanel.children [
             TextBlock.create [
                 TextBlock.fontSize 16.
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (state.Localization.GetString "selectImportTone")
+                TextBlock.text (translate "selectImportTone")
             ]
             ListBox.create [
                 ListBox.name "tonesListBox"
@@ -33,7 +33,7 @@ let view state dispatch (tones: Tone array) =
                         Button.fontSize 16.
                         Button.padding (50., 10.)
                         Button.horizontalAlignment HorizontalAlignment.Center
-                        Button.content (state.Localization.GetString "import")
+                        Button.content (translate "import")
                         Button.onClick (fun _ -> dispatch ImportSelectedTones)
                         Button.isDefault true
                     ]
@@ -41,7 +41,7 @@ let view state dispatch (tones: Tone array) =
                         Button.fontSize 16.
                         Button.padding (50., 10.)
                         Button.horizontalAlignment HorizontalAlignment.Center
-                        Button.content (state.Localization.GetString "cancel")
+                        Button.content (translate "cancel")
                         Button.onClick (fun _ -> dispatch CloseOverlay)
                     ]
                 ]

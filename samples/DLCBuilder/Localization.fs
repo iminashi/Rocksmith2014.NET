@@ -13,42 +13,41 @@ type Locale =
     override this.ToString() = this.Name
 
 module Locales =
-    let English = { Name = "English"; ShortName = "en" }
-    let Finnish = { Name = "Suomi"; ShortName = "fi" }
+    let Default = { Name = "English"; ShortName = "en" }
+    let All = [ Default; { Name = "Suomi"; ShortName = "fi" } ]
 
-    let fromShortName = function
-        | "en" -> English
-        | "fi" -> Finnish
-        | _ -> English
+    let fromShortName shortName =
+        All
+        |> List.tryFind (fun loc -> loc.ShortName = shortName)
+        |> Option.defaultValue Default
 
-type ILocalization =
-    abstract member GetString : string -> string
-    abstract member Format : string -> obj array -> string
+[<AutoOpen>]
+module Localization =
+    let private defaultLocale = Locales.Default
+    let private embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
 
-type Localization(locale: Locale) =
-    static let defaultLocale = Locales.English
-    static let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
-
-    static let loadDictionary name =
+    let private loadDictionary name =
         use json = embeddedProvider.GetFileInfo(name).CreateReadStream()
-        JsonSerializer.DeserializeAsync<Dictionary<string, string>>(json).AsAsync()
+        JsonSerializer.DeserializeAsync<IReadOnlyDictionary<string, string>>(json).AsAsync()
         |> Async.RunSynchronously
 
-    static let defaultDictionary: Dictionary<string, string> = loadDictionary "i18n/default.json"
+    let private defaultDictionary: IReadOnlyDictionary<string, string> = loadDictionary "i18n/default.json"
+    let mutable private localeDictionary = defaultDictionary
 
-    let localeDictionary =
-        if locale = defaultLocale then
-            defaultDictionary
-        else
-            sprintf "i18n/%s.json" locale.ShortName
-            |> loadDictionary
+    /// Changes the current locale.
+    let changeLocale locale =
+        localeDictionary <-
+            if locale = defaultLocale then
+                defaultDictionary
+            else
+                loadDictionary $"i18n/{locale.ShortName}.json" 
 
-    interface ILocalization with
-        member _.GetString (key: string) =
-            Dictionary.tryGetValue key localeDictionary 
-            |> Option.orElseWith (fun () -> Dictionary.tryGetValue key defaultDictionary)
-            |> Option.defaultWith (fun () -> $"!!{key}!!")
+    /// Returns the localized string for the given key.
+    let translate key =
+        Dictionary.tryGetValue key localeDictionary
+        |> Option.orElseWith (fun () -> Dictionary.tryGetValue key defaultDictionary)
+        |> Option.defaultWith (fun () -> $"!!{key}!!")
 
-        member this.Format (key: string) (args: obj array) =
-            let formatString = (this :> ILocalization).GetString key
-            String.Format(formatString, args)
+    /// Returns the localized formatted string for the given key.
+    let translateFormat key args =
+        String.Format(translate key, args)

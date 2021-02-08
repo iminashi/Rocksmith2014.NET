@@ -9,7 +9,7 @@ open Avalonia.Layout
 open Avalonia.Media
 open DLCBuilder
 
-let view state dispatch msg info =
+let view dispatch msg info =
     StackPanel.create [
         StackPanel.spacing 8.
         StackPanel.children [
@@ -25,7 +25,7 @@ let view state dispatch msg info =
                     ]
                     TextBlock.create [
                         TextBlock.fontSize 18.
-                        TextBlock.text (state.Localization.GetString "error")
+                        TextBlock.text (translate "error")
                     ]
                 ]
             ]
@@ -41,7 +41,7 @@ let view state dispatch msg info =
             | None -> ()
             | Some moreInfo ->
                 Expander.create [
-                    Expander.header (state.Localization.GetString "moreInfo")
+                    Expander.header (translate "moreInfo")
                     Expander.content (
                         TextBox.create [
                             TextBox.maxWidth 450.
@@ -58,7 +58,7 @@ let view state dispatch msg info =
                 Button.fontSize 18.
                 Button.padding (80., 10.)
                 Button.horizontalAlignment HorizontalAlignment.Center
-                Button.content (state.Localization.GetString "ok")
+                Button.content (translate "ok")
                 Button.onClick (fun _ -> dispatch CloseOverlay)
             ]
         ]
