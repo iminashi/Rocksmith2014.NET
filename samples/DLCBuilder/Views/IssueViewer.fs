@@ -26,27 +26,44 @@ let private getIssueHeaderAndHelp issueType =
         translate locStr,
         translate (locStr + "Help")
 
+let private isImportant = function
+    | LinkNextMissingTargetNote
+    | LinkNextSlideMismatch
+    | LinkNextFretMismatch
+    | LinkNextBendMismatch
+    | IncorrectLinkNext
+    | UnpitchedSlideWithLinkNext
+    | MissingIgnore
+    | MissingBendValue
+    | MissingLinkNextChordNotes
+    | InvalidShowlights -> true
+    | _ -> false
+
 let private viewForIssue issueType times =
     let header, help = getIssueHeaderAndHelp issueType
 
     StackPanel.create [
         StackPanel.margin (0., 5.)
         StackPanel.children [
-            StackPanel.create [
-                StackPanel.orientation Orientation.Horizontal
-                StackPanel.children [
-                    Path.create [
-                        Path.fill Brushes.CadetBlue
-                        Path.data Media.Icons.help
-                        Path.margin (5., 0.)
-                        ToolTip.tip help
-                    ]
+            Expander.create [
+                Expander.header (
                     TextBlock.create [
                         TextBlock.text header
-                        TextBlock.fontSize 14.
+                        TextBlock.fontSize 16.
+                        TextBlock.fontWeight (if isImportant issueType then FontWeight.Bold else FontWeight.Normal)
                     ]
-                ]
+                )
+                Expander.content (
+                    TextBlock.create [
+                        TextBlock.padding (8., 0.)
+                        TextBlock.maxWidth 450.
+                        TextBlock.textWrapping TextWrapping.Wrap
+                        TextBlock.fontSize 14.
+                        TextBlock.text help
+                    ]
+                )
             ]
+
             TextBlock.create [
                 TextBlock.text times
                 TextBlock.fontSize 14.
