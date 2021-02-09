@@ -341,6 +341,38 @@ let chordTests =
             let results = checkChords testArr level
 
             Expect.hasLength results 0 "No issues created"
+
+        testCase "Detects missing bend value on chord note" <| fun _ ->
+            let bendValues = ResizeArray(seq { BendValue() })
+            let cn = ResizeArray(seq { Note(String = 1y, Time = 1000, Sustain = 100, BendValues = bendValues)
+                                       Note(String = 2y, Time = 1000, Sustain = 100) })
+            let chords = ResizeArray(seq { Chord(Time = 1000, ChordNotes = cn) })
+            let level = Level(Chords = chords)
+
+            let results = checkChords testArr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type MissingBendValue "Correct issue type"
+
+        testCase "Detects linknext chord without any chord notes" <| fun _ ->
+            let chords = ResizeArray(seq { Chord(Time = 1000, IsLinkNext = true) })
+            let level = Level(Chords = chords)
+
+            let results = checkChords testArr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type MissingLinkNextChordNotes "Correct issue type"
+
+        testCase "Detects linknext chord without linknext chord notes" <| fun _ ->
+            let cn = ResizeArray(seq { Note(String = 1y, Time = 1000, Sustain = 100)
+                                       Note(String = 2y, Time = 1000, Sustain = 100) })
+            let chords = ResizeArray(seq { Chord(Time = 1000, ChordNotes = cn, IsLinkNext = true) })
+            let level = Level(Chords = chords)
+
+            let results = checkChords testArr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type MissingLinkNextChordNotes "Correct issue type"
     ]
 
 [<Tests>]

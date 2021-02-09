@@ -23,6 +23,7 @@ type IssueType =
     | ToneChangeOnNote
     | NoteInsideNoguitarSection
     | VaryingChordNoteSustains
+    | MissingLinkNextChordNotes
     | ChordAtEndOfHandShape
     | FingeringAnchorMismatch
     | AnchorNotOnNote of distance : int
@@ -141,27 +142,35 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
         let note = level.Notes.[i]
         let time = note.Time
 
+        // Check for notes with LinkNext and unpitched slide
         if note.IsLinkNext && note.IsUnpitchedSlide then
             issue UnpitchedSlideWithLinkNext time
         
+        // Check for notes with both harmonic and pinch harmonic attributes
         if note.IsHarmonic && note.IsPinchHarmonic then
             issue DoubleHarmonic time
         
+        // Check 23rd and 24th fret notes without ignore attribute
         if note.Fret >= 23y && not note.IsIgnore then
             issue MissingIgnore time
         
+        // Check 7th fret harmonic notes with sustain (and without ignore)
         if not note.IsIgnore && note.Fret = 7y && note.IsHarmonic && note.Sustain > 0 then 
             issue SeventhFretHarmonicWithSustain time
             
+        // Check for missing bend values
         if note.IsBend && note.BendValues.FindIndex(fun bv -> bv.Step <> 0.0f) = -1 then
             issue MissingBendValue time
 
+        // Check tone change placement
         if isOnToneChange arrangement time then
             issue ToneChangeOnNote time
 
+        // Check LinkNext issues
         if note.IsLinkNext then
             yield! checkLinkNext level i note |> Option.toList
 
+        // Check for notes inside noguitar sections
         if isInsideNoguitarSection ngSections time then
             issue NoteInsideNoguitarSection time
         ]
@@ -188,13 +197,17 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
             if chordNotes.Exists(fun cn -> cn.IsLinkNext && cn.IsUnpitchedSlide) then
                 issue UnpitchedSlideWithLinkNext time
 
-            // Check for notes with both harmonic and pinch harmonic
+            // Check for notes with both harmonic and pinch harmonic attributes
             if chordNotes.Exists(fun cn -> cn.IsHarmonic && cn.IsPinchHarmonic) then
                 issue DoubleHarmonic time
 
-            // Check 23rd and 24th fret chords without ignore
+            // Check 23rd and 24th fret chords without ignore attribute
             if chordNotes.TrueForAll(fun cn -> cn.Fret >= 23y) && not chord.IsIgnore then
                 issue MissingIgnore time
+
+            // Check for missing bend values
+            if chordNotes.Exists(fun cn -> cn.IsBend && cn.BendValues.FindIndex(fun bv -> bv.Step <> 0.0f) = -1) then
+                issue MissingBendValue time
 
             // EOF does not set LinkNext on chords correctly, so check all chords regardless of LinkNext status
             yield! chordNotes
@@ -202,11 +215,15 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
                    |> Seq.map (fun cn -> checkLinkNext level -1 cn |> Option.toList)
                    |> List.concat
 
+        // Check for chords that have LinkNext, but no LinkNext chord notes
+        if chord.IsLinkNext && (not chord.HasChordNotes || chord.ChordNotes.TrueForAll(fun cn -> not cn.IsLinkNext)) then
+            issue MissingLinkNextChordNotes time
+
         // Check tone change placement
         if isOnToneChange arrangement time then
             issue ToneChangeOnNote time
 
-        // Check chords at the end of handshape (no handshape sustain)
+        // Check chords at the end of handshape (no "handshape sustain")
         let handShape = level.HandShapes.Find(fun hs -> hs.ChordId = chord.ChordId && time >= hs.StartTime && time <= hs.EndTime)
         if not <| isNull handShape && handShape.EndTime - time <= 5 then
             issue ChordAtEndOfHandShape  time

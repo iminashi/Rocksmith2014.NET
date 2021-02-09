@@ -15,9 +15,9 @@ let messageTests =
             Expect.equal newState.Overlay NoOverlay "Overlay was closed"
 
         testCase "ChangeLocale changes locale" <| fun _ ->
-            let newState, _ = Main.update (ChangeLocale(Locales.Finnish)) initialState
+            let newState, _ = Main.update (ChangeLocale(Locales.All.[1])) initialState
 
-            Expect.equal newState.Config.Locale Locales.Finnish "Locale was changed"
+            Expect.equal newState.Config.Locale Locales.All.[1] "Locale was changed"
 
         testCase "ErrorOccurred opens error message" <| fun _ ->
             let ex = exn("TEST")

@@ -185,6 +185,8 @@
   "ToneChangeOnNoteHelp": "Yleensä on parempi asettaa soundimuutos vähän ennen nuottia kuin juuri sen kohdalle.",
   "VaryingChordNoteSustains": "Sointu, jonka nuoteilla on eri sustainarvot",
   "VaryingChordNoteSustainsHelp": "Soinnun kaikilla nuoteilla täytyy olla sama sustainarvo. Anna soinnulle sustain-ominaisuus EOF:ssä.",
+  "MissingLinkNextChordNotes": "LinkNext sointu ilman LinkNext nuotteja",
+  "MissingLinkNextChordNotesHelp": "Soinnulla itsellään on LinkNext-ominaisuus, mutta siinä ei ole yhtään nuottia, jolla on se ominaisuus. Tälläinen sointu kaataa pelin.",
   "ChordAtEndOfHandShape": "Sointu handshapen lopussa",
   "ChordAtEndOfHandShapeHelp": "Sointu, joka on samassa kohdassa, jossa handshape loppuu, näyttää rumalta.\nLisää handshapen pituutta.",
   "FingeringAnchorMismatch": "Handshapen sormitus ei vastaa ankkuriarvoa",

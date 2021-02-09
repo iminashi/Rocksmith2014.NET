@@ -45,7 +45,6 @@ let private generalConfig state dispatch =
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text (translate "profilePath")
             ]
-
             StackPanel.create [
                 Grid.column 1
                 Grid.row 2
@@ -70,7 +69,6 @@ let private generalConfig state dispatch =
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text (translate "testFolder")
             ]
-
             StackPanel.create [
                 Grid.column 1
                 Grid.row 3
@@ -441,4 +439,4 @@ let view state dispatch =
                 ]
             ]
         ]
-    ] |> Helpers.generalize
+    ] |> generalize
