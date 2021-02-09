@@ -20,7 +20,7 @@ let fixCrowdEvents (arrangement: InstrumentalArrangement) =
 let fixChordSlideHandshapes (arrangement: InstrumentalArrangement) =
     for level in arrangement.Levels do
         level.Chords
-        |> Seq.filter (fun chord -> chord.IsLinkNext && chord.ChordNotes.Exists(fun cn -> cn.IsSlide))
+        |> Seq.filter (fun chord -> chord.IsLinkNext && chord.HasChordNotes && chord.ChordNotes.Exists(fun cn -> cn.IsSlide))
         |> Seq.iter (fun chord ->
             let handshape = level.HandShapes.Find(fun hs -> hs.StartTime = chord.Time)
             if not <| isNull handshape && handshape.EndTime > handshape.StartTime + chord.ChordNotes.[0].Sustain then
