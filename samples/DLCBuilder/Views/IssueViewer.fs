@@ -13,13 +13,13 @@ open DLCBuilder
 let private getIssueHeaderAndHelp issueType =
     match issueType with
     | EventBetweenIntroApplause eventCode ->
-        translateFormat "EventBetweenIntroApplause" [| eventCode |],
+        translatef "EventBetweenIntroApplause" [| eventCode |],
         translate "EventBetweenIntroApplauseHelp"
     | AnchorNotOnNote distance ->
-        translateFormat "AnchorNotOnNote" [| distance |],
+        translatef "AnchorNotOnNote" [| distance |],
         translate "AnchorNotOnNoteHelp"
     | LyricWithInvalidChar invalidChar ->
-        translateFormat "LyricWithInvalidChar" [| invalidChar |],
+        translatef "LyricWithInvalidChar" [| invalidChar |],
         translate "LyricWithInvalidCharHelp"
     | other ->
         let locStr = string other
@@ -72,7 +72,6 @@ let private viewForIssue issueType times =
             ]
         ]
     ] :> IView
-    
 
 let view dispatch (issues: Issue list) =
     let issues =

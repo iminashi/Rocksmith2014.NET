@@ -25,20 +25,18 @@ module Locales =
 module Localization =
     let private embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
 
-    let private loadDictionary name =
-        use json = embeddedProvider.GetFileInfo($"i18n/%s{name}.json").CreateReadStream()
+    let private loadDictionary locale =
+        use json = embeddedProvider.GetFileInfo($"i18n/%s{locale.ShortName}.json").CreateReadStream()
         JsonSerializer.DeserializeAsync<IReadOnlyDictionary<string, string>>(json).AsAsync()
         |> Async.RunSynchronously
 
-    let private defaultDictionary = loadDictionary "default"
+    let private defaultDictionary = loadDictionary Locales.Default
     let mutable private localeDictionary = defaultDictionary
 
     /// Changes the current locale.
     let changeLocale locale =
         localeDictionary <-
-            if locale = Locales.Default
-            then defaultDictionary
-            else loadDictionary locale.ShortName
+            if locale = Locales.Default then defaultDictionary else loadDictionary locale
 
     /// Returns the localized string for the given key.
     let translate key =
@@ -47,5 +45,5 @@ module Localization =
         |> Option.defaultWith (fun () -> $"!!{key}!!")
 
     /// Returns the localized formatted string for the given key.
-    let translateFormat key args =
+    let translatef key args =
         String.Format(translate key, args)
