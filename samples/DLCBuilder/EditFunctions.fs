@@ -174,7 +174,7 @@ let editProject edit project =
     | SetArtistNameSort artistSort ->
         { project with ArtistName = { project.ArtistName with SortValue = artistSort } }
 
-    | SetArtistJapaneseName artist ->
+    | SetJapaneseArtistName artist ->
         { project with JapaneseArtistName = artist }
 
     | SetTitle title ->

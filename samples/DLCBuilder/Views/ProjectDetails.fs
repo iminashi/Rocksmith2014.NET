@@ -104,7 +104,7 @@ let view state dispatch =
                         [ TextBox.text (defaultArg state.Project.JapaneseArtistName String.Empty)
                           TextBox.fontFamily Fonts.japanese
                           TextBox.fontSize 15.
-                          TextBox.onTextChanged (StringValidator.field >> Option.ofString >> SetArtistJapaneseName >> EditProject >> dispatch)
+                          TextBox.onTextChanged (StringValidator.field >> Option.ofString >> SetJapaneseArtistName >> EditProject >> dispatch)
                     ]
 
                     TitledTextBox.create (translate "title")

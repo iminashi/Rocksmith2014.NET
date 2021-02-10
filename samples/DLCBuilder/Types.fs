@@ -43,7 +43,7 @@ type ProjectEdit =
     | SetVersion of string
     | SetArtistName of string
     | SetArtistNameSort of string
-    | SetArtistJapaneseName of string option
+    | SetJapaneseArtistName of string option
     | SetTitle of string
     | SetTitleSort of string
     | SetJapaneseTitle of string option
