@@ -41,4 +41,19 @@ let messageTests =
                 Expect.isNone info "No extra information"
             | _ ->
                 failwith "Unexpected overlay type"
+
+        testCase "BuildComplete removes build task" <| fun _ ->
+            let newState, _ = Main.update (BuildComplete()) { initialState with RunningTasks = Set([ BuildPackage ]) }
+
+            Expect.isFalse (newState.RunningTasks.Contains BuildPackage) "Build task was removed"
+
+        testCase "SetRecentFiles sets recent files" <| fun _ ->
+            let newState, _ = Main.update (SetRecentFiles [ "recent_file" ]) initialState
+
+            Expect.equal newState.RecentFiles [ "recent_file" ] "Recent file list was changed"
+
+        testCase "ShowConfigEditor shows configuration editor" <| fun _ ->
+            let newState, _ = Main.update ShowConfigEditor initialState
+
+            Expect.equal newState.Overlay ConfigEditor "Overlay is set to configuration editor"
     ]
