@@ -37,6 +37,7 @@ type MainWindow() as this =
             | KeyModifiers.Control, Key.O -> dispatch (Msg.OpenFileDialog("selectProjectFile", Dialogs.projectFilter, OpenProject))
             | KeyModifiers.Control, Key.S -> dispatch ProjectSaveOrSaveAs
             | KeyModifiers.Control, Key.P -> dispatch ImportProfileTones
+            | KeyModifiers.Control, Key.N -> dispatch NewProject
             | KeyModifiers.Control, Key.T -> dispatch (Msg.OpenFileDialog("selectImportToolkitTemplate", Dialogs.toolkitFilter, ImportToolkitTemplate))
             | KeyModifiers.Control, Key.A -> dispatch (Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder))
             | KeyModifiers.None, Key.Escape -> dispatch CloseOverlay
