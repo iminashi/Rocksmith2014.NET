@@ -1,6 +1,7 @@
 ﻿module DLCBuilder.Utils
 
 open Pfim
+open System
 open System.IO
 open System.Runtime.InteropServices
 open Avalonia.Platform
@@ -115,3 +116,14 @@ let checkArrangements (project: DLCProject) =
         | Vocals v ->
             v.XML, [])
     |> Map.ofList
+
+/// Adds descriptors to tones that have none.
+let addDescriptors tone =
+    let descs =
+        match tone.ToneDescriptors with
+        | null | [||] ->
+            ToneDescriptor.getDescriptionsOrDefault tone.Name
+            |> Array.map (fun x -> x.UIName)
+        | descriptors -> descriptors
+
+    { tone with ToneDescriptors = descs; SortOrder = Nullable(); NameSeparator = " - " }

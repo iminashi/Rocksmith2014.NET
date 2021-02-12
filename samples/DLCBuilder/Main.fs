@@ -103,7 +103,8 @@ let update (msg: Msg) (state: State) =
                      CoverArt = None }, Cmd.none
 
     | ImportTonesChanged item ->
-        if isNull item then state, Cmd.none
+        if isNull item then
+            state, Cmd.none
         else
             let tones = [ item :?> Tone ]
                 //items
@@ -111,19 +112,10 @@ let update (msg: Msg) (state: State) =
                 //|> Seq.toList
             { state with ImportTones = tones }, Cmd.none
 
-    | ImportSelectedTones ->
-        let importedTones =
-            state.ImportTones
-            |> List.map (fun tone ->
-                let descs =
-                    match tone.ToneDescriptors with
-                    | null | [||] ->
-                        ToneDescriptor.getDescriptionsOrDefault tone.Name
-                        |> Array.map (fun x -> x.UIName)
-                    | descriptors -> descriptors
-                { tone with ToneDescriptors = descs; SortOrder = Nullable(); NameSeparator = " - " })
+    | ImportTones tones ->
+        let importedTones = List.map Utils.addDescriptors tones
 
-        { state with Project = { project with Tones = List.append importedTones project.Tones }
+        { state with Project = { project with Tones = importedTones @ project.Tones }
                      Overlay = NoOverlay }, Cmd.none
 
     | CloseOverlay ->
@@ -221,7 +213,7 @@ let update (msg: Msg) (state: State) =
         let newState =
             match tones with
             | [||] -> { state with Overlay = ErrorMessage(translate "couldNotFindTonesError", None) }
-            | [| tone |] -> { state with Project = { project with Tones = tone::project.Tones } }
+            | [| tone |] -> { state with Project = { project with Tones = (Utils.addDescriptors tone)::project.Tones } }
             | _ -> { state with Overlay = ImportToneSelector tones; ImportTones = [] }
         newState, Cmd.none
 

@@ -155,7 +155,7 @@ type Msg =
     | EditConfig of ConfigEdit
     | CloseOverlay
     | ImportTonesChanged of item : obj
-    | ImportSelectedTones
+    | ImportTones of tones : Tone list
     | ShowConfigEditor
     | SaveConfiguration
     | ShowIssueViewer

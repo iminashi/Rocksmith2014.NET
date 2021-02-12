@@ -216,5 +216,6 @@
   "removeCustomAudioTooltip": "Poista mukautettu äänitiedosto sovituksesta.",
   "convertToWemTooltip": "Muunna äänitiedosto Wwise wem muotoon.",
   "convertMultipleToWemTooltip": "Muunna ääni- ja esikatseluäänitiedostot Wwise wem muotoon.",
-  "removeDDLevels": "Poista DD tasot"
+  "removeDDLevels": "Poista DD tasot",
+  "all": "Kaikki"
 }

@@ -216,5 +216,6 @@
   "removeCustomAudioTooltip": "Remove the custom audio file from the arrangement.",
   "convertToWemTooltip": "Convert the audio file into Wwise wem format.",
   "convertMultipleToWemTooltip": "Convert the audio and preview audio files into Wwise wem format.",
-  "removeDDLevels": "Remove DD Levels"
+  "removeDDLevels": "Remove DD Levels",
+  "all": "All"
 }
