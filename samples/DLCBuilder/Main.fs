@@ -121,7 +121,7 @@ let update (msg: Msg) (state: State) =
     | CloseOverlay ->
         let cmd =
             match state.Overlay with
-            | ConfigEditor -> Cmd.ofMsg SaveConfiguration
+            | ConfigEditor -> Cmd.OfAsync.attempt Configuration.save config ErrorOccurred
             | _ -> Cmd.none
         { state with Overlay = NoOverlay }, cmd
 
@@ -461,10 +461,6 @@ let update (msg: Msg) (state: State) =
 
     | ShowConfigEditor -> { state with Overlay = ConfigEditor }, Cmd.none
     
-    | SaveConfiguration ->
-        { state with Overlay = NoOverlay },
-        Cmd.OfAsync.attempt Configuration.save config ErrorOccurred
-
     | SetConfiguration config ->
         if state.Config.Locale <> config.Locale then changeLocale config.Locale
         { state with Config = config }, Cmd.none

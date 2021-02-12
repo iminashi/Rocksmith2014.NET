@@ -157,7 +157,6 @@ type Msg =
     | ImportTonesChanged of item : obj
     | ImportTones of tones : Tone list
     | ShowConfigEditor
-    | SaveConfiguration
     | ShowIssueViewer
     | ProjectLoaded of project : DLCProject * projectFile : string
     | Build of BuildType
