@@ -9,7 +9,7 @@ open Rocksmith2014.Common
 let private window =
     lazy (Application.Current.ApplicationLifetime :?> ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime).MainWindow
 
-let private createFilters name (extensions : string seq) =
+let private createFilters name (extensions: string seq) =
     let filter = FileDialogFilter(Extensions = List(extensions), Name = name)
     List(seq { filter })
 
@@ -27,7 +27,7 @@ let wwiseConsoleAppFilter (platform: Platform) () =
         match platform with
         | PC -> "exe"
         | Mac -> "sh"
-    createFilters ($"WwiseConsole.{fileExt}") (seq { fileExt })
+    createFilters $"WwiseConsole.{fileExt}" (seq { fileExt })
 
 /// Shows an open folder dialog.
 let openFolderDialog title directory = async {

@@ -68,11 +68,11 @@ let create (platform: Platform) (project: DLCProject) =
                         | _ -> String.Empty
                     Property.Create("LyricArt", lyricArt)
                     Property.Create("ShowLightsXMLAsset", $"urn:application:xml:{dlcName}_showlights")
-                    match arr with
-                    | Instrumental { CustomAudio = Some _ } ->
-                        Property.Create("SoundBank", $"urn:audio:wwise-sound-bank:song_{dlcName}_{fileName}")
-                    | _ ->
-                        Property.Create("SoundBank", $"urn:audio:wwise-sound-bank:song_{dlcName}")
+                    let soundBank =
+                        match arr with
+                        | Instrumental { CustomAudio = Some _ } -> $"urn:audio:wwise-sound-bank:song_{dlcName}_{fileName}"
+                        | _ -> $"urn:audio:wwise-sound-bank:song_{dlcName}"
+                    Property.Create("SoundBank", soundBank)
                     Property.Create("PreviewSoundBank", $"urn:audio:wwise-sound-bank:song_{dlcName}_preview") |]
 
                 { Id = (Arrangement.getPersistentId arr).ToString("N")
