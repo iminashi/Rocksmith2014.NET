@@ -12,7 +12,7 @@ On Windows the program will try to find the Wwise installation automatically usi
 
 ## Missing Features
 
-- Tone editing / Exporting tones
+- Tone editing
 - Support for console platforms (Most likely will not be added)
 
 ## External Tools Used
