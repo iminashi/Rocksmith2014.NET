@@ -40,7 +40,7 @@ let view state dispatch (tone: Tone) =
 
     Grid.create [
         Grid.columnDefinitions "*,3*"
-        Grid.rowDefinitions "*,*,*,*"
+        Grid.rowDefinitions "*,*,*,*,*"
         Grid.margin (0.0, 4.0)
         Grid.children [
             TextBlock.create [
@@ -125,6 +125,13 @@ let view state dispatch (tone: Tone) =
                 NumericUpDown.formatString "F1"
                 NumericUpDown.onValueChanged (SetVolume >> EditTone >> dispatch)
                 ToolTip.tip (translate "toneVolumeToolTip")
+            ]
+
+            Button.create [
+                Grid.column 1
+                Grid.row 4
+                Button.content (translate "export")
+                Button.onClick (fun _ -> ExportSelectedTone |> dispatch)
             ]
         ]
     ]

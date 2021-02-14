@@ -118,6 +118,22 @@ let update (msg: Msg) (state: State) =
         { state with Project = { project with Tones = importedTones @ project.Tones }
                      Overlay = NoOverlay }, Cmd.none
 
+    | ExportSelectedTone ->
+        match state.SelectedTone with
+        | Some tone ->
+            let initialFileName = Some $"{tone.Key}.tone2014.xml"
+            let dialog = Dialogs.saveFileDialog (translate "exportToneAs") (Dialogs.toneExportFilter()) initialFileName
+            state, Cmd.OfAsync.perform dialog None (fun path -> ExportTone(tone, path))
+        | None ->
+            state, Cmd.none
+
+    | ExportTone (tone, Some path) ->
+        let task =
+            match path with
+            | EndsWith "xml" -> Tone.exportXml path
+            | _ -> Tone.exportJson path
+        state, Cmd.OfAsync.attempt task tone ErrorOccurred
+
     | CloseOverlay ->
         let cmd =
             match state.Overlay with
@@ -193,10 +209,17 @@ let update (msg: Msg) (state: State) =
 
     | ImportTonesFromFile fileName ->
         let task () =
-            if String.endsWith "psarc" fileName then
+            match fileName with
+            | EndsWith "psarc" ->
                 Utils.importTonesFromPSARC fileName
-            else
+            | EndsWith "xml" ->
                 async { return [| Tone.fromXmlFile fileName |] }
+            | EndsWith "json" ->
+                Tone.fromJsonFile fileName
+                |> Async.map Array.singleton
+            | _ ->
+                failwith "Unknown tone file format."
+
         state, Cmd.OfAsync.either task () ShowImportToneSelector ErrorOccurred
 
     | ImportProfileTones ->
@@ -589,5 +612,5 @@ let update (msg: Msg) (state: State) =
         { state with Config = { config with Locale = newLocale } }, Cmd.none
     
     // When the user canceled any of the dialogs
-    | AddArrangements None | SaveProject None | ImportPsarc (_, None) ->
+    | AddArrangements None | SaveProject None | ImportPsarc (_, None) | ExportTone (_, None) ->
         state, Cmd.none

@@ -156,6 +156,8 @@ type Msg =
     | CloseOverlay
     | ImportTonesChanged of item : obj
     | ImportTones of tones : Tone list
+    | ExportSelectedTone
+    | ExportTone of tone : Tone * targetPath : string option
     | ShowConfigEditor
     | ShowIssueViewer
     | ProjectLoaded of project : DLCProject * projectFile : string

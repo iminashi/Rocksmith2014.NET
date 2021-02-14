@@ -21,7 +21,8 @@ let profileFilter () = createFilters (translate "profileFiles") (seq { "*" })
 let projectFilter () = createFilters (translate "projectFiles") (seq { "rs2dlc" })
 let psarcFilter () = createFilters (translate "psarcFiles") (seq { "psarc" })
 let toolkitFilter () = createFilters (translate "toolkitFiles") (seq { "dlc.xml" })
-let toneImportFilter () = createFilters (translate "toneImportFiles") (seq { "tone2014.xml"; "psarc" })
+let toneImportFilter () = createFilters (translate "toneImportFiles") (seq { "tone2014.xml"; "tone2014.json"; "psarc" })
+let toneExportFilter () = createFilters (translate "toneExportFiles") (seq { "tone2014.xml"; "tone2014.json" })
 let wwiseConsoleAppFilter (platform: Platform) () =
     let fileExt =
         match platform with

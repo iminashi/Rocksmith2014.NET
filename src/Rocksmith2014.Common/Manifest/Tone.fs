@@ -2,6 +2,11 @@
 
 open System
 open System.Collections.Generic
+open System.IO
+open System.Runtime.Serialization
+open System.Text
+open System.Text.Json
+open System.Text.Json.Serialization
 open System.Xml
 
 type Pedal() =
@@ -12,6 +17,7 @@ type Pedal() =
     member val Skin : string = null with get, set
     member val SkinIndex : Nullable<float32> = Nullable() with get, set
 
+[<CLIMutable>]
 type Gear =
     { Rack1 : Pedal
       Rack2 : Pedal
@@ -28,6 +34,7 @@ type Gear =
       PostPedal3 : Pedal
       PostPedal4 : Pedal }
 
+[<CLIMutable>]
 type Tone =
     { GearList : Gear
       ToneDescriptors : string array 
@@ -136,3 +143,47 @@ module Tone =
         let xel = doc.DocumentElement
         if xel.Name <> "Tone2014" then failwith "Not a valid tone XML file."
         importXml None xel
+
+    /// Imports a tone from a JSON file.
+    let fromJsonFile (fileName: string) = async {
+        use file = File.OpenRead fileName
+
+        let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
+        options.Converters.Add(JsonFSharpConverter())
+        return! JsonSerializer.DeserializeAsync<Tone>(file, options) }
+
+    /// Exports a tone into a JSON file.
+    let exportJson (path: string) (tone: Tone) = async {
+        use file = File.Create path
+
+        let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
+        options.Converters.Add(JsonFSharpConverter())
+        do! JsonSerializer.SerializeAsync(file, tone, options) }
+
+    /// Exports a tone into an XML file in a format that is compatible with the Toolkit.
+    let exportXml (path: string) (tone: Tone) = async {
+        let serializer = DataContractSerializer(typeof<Tone>)
+        using (XmlWriter.Create(path, XmlWriterSettings(Indent = true))) (fun writer -> serializer.WriteObject(writer, tone))
+
+        // Read the file back and fix it up to be importable in the Toolkit
+        let! text = File.ReadAllTextAsync path
+        let sb = StringBuilder(text)
+
+        // The class name is Tone2014 (avoid renaming ToneDescriptors tag)
+        sb.Replace("<Tone ", "<Tone2014 ")
+          .Replace("</Tone>", "</Tone2014>")
+          // F# incompatibility stuff
+          .Replace("_x0040_", "")
+          // The key for pedals is PedalKey
+          .Replace("<Key>", "<PedalKey>")
+          .Replace("</Key>", "</PedalKey>")
+          // Fix the key tag of the tone itself that was replaced
+          .Replace($"<PedalKey>{tone.Key}</PedalKey>", $"<Key>{tone.Key}</Key>")
+          // Sort order is not nullable
+          .Replace("""<SortOrder i:nil="true" />""", "<SortOrder>0.0</SortOrder>")
+          // Tone key/name import does not seem to work otherwise for some reason
+          .Replace($"<NameSeparator>{tone.NameSeparator}</NameSeparator>\r\n  <Name>{tone.Name}</Name>", $"<Name>{tone.Name}</Name>\r\n  <NameSeparator>{tone.NameSeparator}</NameSeparator>")
+          // Change the namespace
+          .Replace("http://schemas.datacontract.org/2004/07/Rocksmith2014.Common.Manifest", "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.Manifest.Tone")
+          |> ignore
+        do! File.WriteAllTextAsync(path, sb.ToString()) }
