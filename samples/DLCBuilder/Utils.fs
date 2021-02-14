@@ -40,18 +40,15 @@ let private avaloniaBitmapFromDDS (fileName: string) =
     bm
 
 /// Loads a bitmap from the given path.
-let loadBitmap (fileName: string) =
-    match fileName with
-    | EndsWith "dds" -> avaloniaBitmapFromDDS fileName
-    | _ -> new Bitmap(fileName)
+let loadBitmap (path: string) =
+    match path with
+    | EndsWith "dds" -> avaloniaBitmapFromDDS path
+    | _ -> new Bitmap(path)
 
 /// Disposes the old cover art and loads a new one from the given path.
 let changeCoverArt (coverArt: Bitmap option) newPath =
     coverArt |> Option.iter (fun old -> old.Dispose())
-    if File.Exists newPath then
-        Some <| loadBitmap newPath
-    else
-        None
+    File.tryMap loadBitmap newPath
 
 /// Imports tones from a PSARC file.
 let importTonesFromPSARC (psarcPath: string) = async {

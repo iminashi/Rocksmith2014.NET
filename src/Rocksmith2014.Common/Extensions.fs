@@ -2,6 +2,15 @@
 
 open System
 open System.Collections.Generic
+open System.IO
+
+[<RequireQualifiedAccess>]
+module File =
+    /// Calls the map function if the file with the given path exists.
+    let tryMap f path =
+        if File.Exists path
+        then Some (f path)
+        else None
 
 [<RequireQualifiedAccess>]
 module Async =

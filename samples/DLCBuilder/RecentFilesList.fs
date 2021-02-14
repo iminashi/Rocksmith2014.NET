@@ -34,9 +34,10 @@ let update newFile oldList =
     updatedList
 
 /// Loads a recent files list from a file.
-let load () = async {
-    if not <| File.Exists recentFilePath then
-        return []
-    else
-        use file = File.OpenRead recentFilePath
-        return! JsonSerializer.DeserializeAsync<string list>(file, jsonOptions) }
+let load () =
+    recentFilePath
+    |> File.tryMap (fun path -> async {
+        use file = File.OpenRead path
+        return! JsonSerializer.DeserializeAsync<string list>(file, jsonOptions) } )
+    |> Option.defaultValue (async { return [] })
+
