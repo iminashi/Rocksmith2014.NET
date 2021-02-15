@@ -42,7 +42,6 @@ let view dispatch (tones: Tone array) =
                         Button.padding (20., 10.)
                         Button.content (translate "all")
                         Button.onClick (fun _ -> tones |> List.ofArray |> ImportTones |> dispatch)
-                        Button.isDefault true
                     ]
                     Button.create [
                         Button.fontSize 16.
