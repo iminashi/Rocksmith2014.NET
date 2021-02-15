@@ -9,8 +9,8 @@ open System
 [<Measure>] type ms
 
 type AudioReader(reader: WaveStream, provider: ISampleProvider) =
-    new(input: AudioFileReader) =
-        new AudioReader(input :> WaveStream, input :> ISampleProvider)
+    new(input: WaveFileReader) =
+        new AudioReader(input :> WaveStream, input.ToSampleProvider())
 
     new(input: VorbisWaveReader) =
         new AudioReader(input :> WaveStream, input :> ISampleProvider)
@@ -24,7 +24,7 @@ type AudioReader(reader: WaveStream, provider: ISampleProvider) =
     /// Returns an audio reader for the given filename.
     static member Create(fileName) =
         match fileName with
-        | EndsWith ".wav" -> new AudioReader(new AudioFileReader(fileName))
+        | EndsWith ".wav" -> new AudioReader(new WaveFileReader(fileName))
         | EndsWith ".ogg" -> new AudioReader(new VorbisWaveReader(fileName))
         | _ -> raise <| NotSupportedException "Only vorbis and wave files are supported."
 
