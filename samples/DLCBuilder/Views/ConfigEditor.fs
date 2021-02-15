@@ -78,6 +78,7 @@ let private generalConfig state dispatch =
                         TextBox.margin (0., 4.)
                         TextBox.width 250.
                         TextBox.text state.Config.TestFolderPath
+                        TextBox.watermark (translate "testFolderPlaceholder")
                         TextBox.onTextChanged (SetTestFolderPath >> EditConfig >> dispatch)
                     ]
                     Button.create [
@@ -126,6 +127,7 @@ let private generalConfig state dispatch =
                         TextBox.margin (0., 4.)
                         TextBox.width 250.
                         TextBox.text (Option.toObj state.Config.WwiseConsolePath)
+                        TextBox.watermark (translate "wwiseConsolePathPlaceholder")
                         TextBox.onTextChanged (SetWwiseConsolePath >> EditConfig >> dispatch)
                         ToolTip.tip (translate "wwiseConsolePathTooltip")
                     ]
