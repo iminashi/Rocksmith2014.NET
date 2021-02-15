@@ -13,6 +13,7 @@
     <Compile Include="EditVocalsMessageTests.fs" />
     <Compile Include="EditToneMessageTests.fs" />
     <Compile Include="EditConfigMessageTests.fs" />
+    <Compile Include="ToneImportTests.fs" />
     <Compile Include="MessageTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

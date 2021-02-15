@@ -124,3 +124,8 @@ let addDescriptors tone =
         | descriptors -> descriptors
 
     { tone with ToneDescriptors = descs; SortOrder = Nullable(); NameSeparator = " - " }
+
+/// Adds the given tones into the project.
+let addTones (state: State) tones =
+    { state with Project = { state.Project with Tones = List.map addDescriptors tones @ state.Project.Tones }
+                 Overlay = NoOverlay }

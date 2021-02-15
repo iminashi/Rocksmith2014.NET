@@ -112,14 +112,9 @@ let update (msg: Msg) (state: State) =
                 //|> Seq.toList
             { state with ImportTones = tones }, Cmd.none
 
-    | ImportSelectedTones ->
-        state, Cmd.ofMsg (ImportTones state.ImportTones)
+    | ImportSelectedTones -> Utils.addTones state state.ImportTones, Cmd.none
 
-    | ImportTones tones ->
-        let importedTones = List.map Utils.addDescriptors tones
-
-        { state with Project = { project with Tones = importedTones @ project.Tones }
-                     Overlay = NoOverlay }, Cmd.none
+    | ImportTones tones -> Utils.addTones state tones, Cmd.none
 
     | ExportSelectedTone ->
         match state.SelectedTone with
@@ -604,10 +599,10 @@ let update (msg: Msg) (state: State) =
             state, Cmd.none
    
     | ErrorOccurred e ->
-        { state with Overlay = ErrorMessage (e.Message, Some e.StackTrace) }, Cmd.none
+        { state with Overlay = ErrorMessage (e.Message, Option.ofString e.StackTrace) }, Cmd.none
 
     | TaskFailed (ex, failedTask) ->          
-        { state with Overlay = ErrorMessage (ex.Message, Some ex.StackTrace)
+        { state with Overlay = ErrorMessage (ex.Message, Option.ofString ex.StackTrace)
                      RunningTasks = state.RunningTasks |> Set.remove failedTask }, Cmd.none
 
     | ChangeLocale newLocale ->

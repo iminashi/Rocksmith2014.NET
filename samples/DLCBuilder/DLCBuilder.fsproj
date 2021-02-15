@@ -31,12 +31,12 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <AvaloniaResource Include="**\*.xaml" />
-    <Compile Include="Utils.fs" />
     <Compile Include="Localization.fs" />
-    <Compile Include="Media.fs" />
-    <Compile Include="Dialogs.fs" />
     <Compile Include="Configuration.fs" />
     <Compile Include="Types.fs" />
+    <Compile Include="Utils.fs" />
+    <Compile Include="Media.fs" />
+    <Compile Include="Dialogs.fs" />
     <Compile Include="EditFunctions.fs" />
     <Compile Include="TitledTextBox.fs" />
     <Compile Include="Templates.fs" />

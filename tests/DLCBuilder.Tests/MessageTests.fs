@@ -24,7 +24,7 @@ let messageTests =
 
             let newState, _ = Main.update (ErrorOccurred(ex)) initialState
 
-            Expect.equal newState.Overlay (ErrorMessage(ex.Message, Some ex.StackTrace)) "Overlay is ErrorMessage"
+            Expect.equal newState.Overlay (ErrorMessage(ex.Message, None)) "Overlay is ErrorMessage"
 
         testCase "CheckArrangements adds long running task" <| fun _ ->
             let newState, cmd = Main.update CheckArrangements initialState
