@@ -246,7 +246,7 @@ let view (window: HostWindow) (state: State) dispatch =
                                 | NoOverlay -> failwith "This can not happen."
                                 | ErrorMessage(msg, info) -> ErrorMessage.view dispatch msg info
                                 | SelectPreviewStart audioLength -> SelectPreviewStart.view state dispatch audioLength
-                                | ImportToneSelector tones -> SelectImportTones.view state dispatch tones
+                                | ImportToneSelector tones -> SelectImportTones.view dispatch tones
                                 | ConfigEditor -> ConfigEditor.view state dispatch
                                 | IssueViewer issues -> IssueViewer.view dispatch issues
                             )

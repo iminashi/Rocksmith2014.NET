@@ -112,6 +112,9 @@ let update (msg: Msg) (state: State) =
                 //|> Seq.toList
             { state with ImportTones = tones }, Cmd.none
 
+    | ImportSelectedTones ->
+        state, Cmd.ofMsg (ImportTones state.ImportTones)
+
     | ImportTones tones ->
         let importedTones = List.map Utils.addDescriptors tones
 

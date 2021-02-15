@@ -155,6 +155,7 @@ type Msg =
     | EditConfig of ConfigEdit
     | CloseOverlay
     | ImportTonesChanged of item : obj
+    | ImportSelectedTones
     | ImportTones of tones : Tone list
     | ExportSelectedTone
     | ExportTone of tone : Tone * targetPath : string option

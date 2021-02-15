@@ -7,7 +7,7 @@ open Avalonia.Layout
 open Rocksmith2014.Common.Manifest
 open DLCBuilder
 
-let view (state: State) dispatch (tones: Tone array) =
+let view dispatch (tones: Tone array) =
     StackPanel.create [
         StackPanel.spacing 8.
         StackPanel.children [
@@ -34,7 +34,7 @@ let view (state: State) dispatch (tones: Tone array) =
                         Button.fontSize 16.
                         Button.padding (30., 10.)
                         Button.content (translate "import")
-                        Button.onClick (fun _ -> state.ImportTones |> ImportTones |> dispatch)
+                        Button.onClick (fun _ -> dispatch ImportSelectedTones)
                         Button.isDefault true
                     ]
                     Button.create [
