@@ -274,7 +274,7 @@ let view state dispatch =
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
                                 Button.horizontalAlignment HorizontalAlignment.Center
                                 Button.content (translate "createPreviewAudio")
-                                Button.isEnabled (not <| String.endsWith ".wem" audioPath)
+                                Button.isEnabled (not <| String.endsWith ".wem" audioPath && IO.File.Exists audioPath)
                                 Button.onClick (fun _ -> dispatch (CreatePreviewAudio SetupStartTime))
                                 ToolTip.tip (
                                     if previewExists then
