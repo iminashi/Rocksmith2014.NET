@@ -201,6 +201,14 @@ let private getFontOption (key: string) =
         FontOption.CustomFont (glyphs, $"assets/ui/lyrics/{key}/lyrics_{key}.dds"))
     >> Option.defaultValue FontOption.DefaultFont
 
+/// Inserts an automatically generated show lights arrangement into the project.
+let private addShowLights sngs project =
+    let projectPath = Path.GetDirectoryName project.AudioFile.Path
+    let xmlFile = Path.Combine(projectPath, "auto_showlights.xml")
+    if not <| File.Exists xmlFile then ShowLightGenerator.generate xmlFile sngs
+
+    { project with Arrangements = (Showlights { XML = xmlFile })::project.Arrangements }
+
 /// Builds packages for the given platforms.
 let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProject) = async {
     let! audioConversionTask = config.AudioConversionTask |> Async.StartChild
@@ -231,13 +239,7 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
             if project.Arrangements |> List.exists (Arrangement.pickShowlights >> Option.isSome) then
                 project
             else
-                // Insert an automatically generated show lights arrangement
-                let projectPath = Path.GetDirectoryName project.AudioFile.Path
-                let slFile = Path.Combine(projectPath, "auto_showlights.xml")
-                let sl = Showlights { XML = slFile }
-                if not <| File.Exists slFile then
-                    ShowLightGenerator.generate slFile sngs
-                { project with Arrangements = sl::project.Arrangements }
+                addShowLights sngs project
 
         let data =
             { SNGs = sngs
