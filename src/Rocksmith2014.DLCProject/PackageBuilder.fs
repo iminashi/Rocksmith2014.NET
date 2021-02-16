@@ -124,7 +124,7 @@ let private build (buildData: BuildData) targetFile project platform = async {
         |> toDisposableList
 
     use toolkitEntry =
-        new MemoryStream(Encoding.UTF8.GetBytes($"Toolkit version: 9.9.9.9\nPackage Author: {buildData.Author}\nPackage Version: {project.Version}\nPackage Comment: Remastered"))
+        new MemoryStream(Encoding.UTF8.GetBytes($"Toolkit version: DLC Builder pre-release\nPackage Author: {buildData.Author}\nPackage Version: {project.Version}\nPackage Comment: Remastered"))
         |> entry "toolkit.version"
 
     // Wait for the wem conversion to complete, if necessary

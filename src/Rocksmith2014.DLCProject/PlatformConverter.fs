@@ -7,7 +7,7 @@ open System.IO
 open System.Text
 
 /// Replaces PC specific paths and tags with Mac versions.
-let convertGraph (data: Stream) =
+let private convertGraph (data: Stream) =
     let text = using (new StreamReader(data)) (fun reader -> reader.ReadToEnd())
     let newText = StringBuilder(text)
                       .Replace("bin/generic", "bin/macos")
@@ -19,7 +19,7 @@ let convertGraph (data: Stream) =
     newData
 
 /// Changes the encoding of an SNG from PC to Mac platform.
-let convertSNG (data: Stream) = async {
+let private convertSNG (data: Stream) = async {
     use unpacked = MemoryStreamPool.Default.GetStream()
     do! SNG.unpack data unpacked PC
     data.Position <- 0L
