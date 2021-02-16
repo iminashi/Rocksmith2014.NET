@@ -169,8 +169,8 @@ let private build (buildData: BuildData) targetFile project platform = async {
         yield toolkitEntry
         yield appIdEntry ]) }
 
-let private setupInstrumental part (inst: Instrumental) config (xmlFile: string) =
-    let xml = InstrumentalArrangement.Load xmlFile
+let private setupInstrumental part (inst: Instrumental) config =
+    let xml = InstrumentalArrangement.Load inst.XML
 
     xml.MetaData.Part <- int16 part
 
@@ -189,7 +189,7 @@ let private setupInstrumental part (inst: Instrumental) config (xmlFile: string)
         Generator.generateForArrangement config.DDConfig xml |> ignore
 
     if config.SaveDebugFiles then
-        xml.Save(Path.ChangeExtension(xmlFile, "debug.xml"))
+        xml.Save(Path.ChangeExtension(inst.XML, "debug.xml"))
 
     xml
 
@@ -208,7 +208,7 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
                 | Instrumental inst ->
                     let part = partition arr |> fst
                     let sng =
-                        setupInstrumental part inst config inst.XML
+                        setupInstrumental part inst config
                         |> ConvertInstrumental.xmlToSng
                     Some(arr, sng)
                 | Vocals v ->
@@ -238,8 +238,7 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
                 let sl = Showlights { XML = slFile }
                 if not <| File.Exists slFile then
                     ShowLightGenerator.generate slFile sngs
-                let arrangements = sl::project.Arrangements
-                { project with Arrangements = arrangements }
+                { project with Arrangements = sl::project.Arrangements }
 
         let data =
             { SNGs = sngs
