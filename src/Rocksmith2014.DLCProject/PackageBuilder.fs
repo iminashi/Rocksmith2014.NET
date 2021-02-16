@@ -44,7 +44,7 @@ let private build (buildData: BuildData) targetFile project platform = async {
     let getManifestName arr =
         let name = partition arr |> snd
         $"manifests/songs_dlc_{key}/{key}_{name}.json" 
-    let sngMap = buildData.SNGs |> dict
+    let sngMap = buildData.SNGs |> readOnlyDict
 
     use! manifestEntries =
         let attributes arr conv = Some(getManifestName arr, createAttributes project conv)
@@ -193,6 +193,14 @@ let private setupInstrumental part (inst: Instrumental) config =
 
     xml
 
+let private getFontOption (key: string) =
+    Option.map (fun fontFile ->
+        let glyphs = 
+            Path.ChangeExtension(fontFile, ".glyphs.xml")
+            |> GlyphDefinitions.Load
+        FontOption.CustomFont (glyphs, $"assets/ui/lyrics/{key}/lyrics_{key}.dds"))
+    >> Option.defaultValue FontOption.DefaultFont
+
 /// Builds packages for the given platforms.
 let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProject) = async {
     let! audioConversionTask = config.AudioConversionTask |> Async.StartChild
@@ -212,18 +220,9 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
                         |> ConvertInstrumental.xmlToSng
                     Some(arr, sng)
                 | Vocals v ->
-                    let customFont =
-                        match v.CustomFont with
-                        | Some f ->
-                            let glyphs = 
-                                Path.ChangeExtension(f, ".glyphs.xml")
-                                |> GlyphDefinitions.Load
-                            let assetPath = $"assets/ui/lyrics/{key}/lyrics_{key}.dds"
-                            FontOption.CustomFont (glyphs, assetPath)
-                        | None -> FontOption.DefaultFont
                     let sng =
                         Vocals.Load v.XML
-                        |> ConvertVocals.xmlToSng customFont
+                        |> ConvertVocals.xmlToSng (getFontOption key v.CustomFont)
                     Some(arr, sng)
                 | Showlights _ -> None)
 
