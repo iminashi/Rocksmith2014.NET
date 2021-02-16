@@ -2,13 +2,17 @@
 
 open ImageMagick
 open System.IO
+open System
 
 type Compression = DXT1 | DXT5
 type Resize = Resize of width:int * height:int | NoResize
 
-type DDSOptions =
-    { Compression: Compression
-      Resize: Resize }
+type TempDDSFile =
+    { Size: int; FileName: string }
+
+    interface IDisposable with member this.Dispose() = File.Delete this.FileName
+
+type DDSOptions = { Compression: Compression; Resize: Resize }
 
 /// Converts the source file into a DDS into the output stream.
 let convertToDDS (sourceFile: string) (output: Stream) (options: DDSOptions) =
@@ -31,5 +35,5 @@ let createCoverArtImages (sourceFile: string) =
         let fileName = Path.GetTempFileName()
         use tempFile = File.Create fileName
         convertToDDS sourceFile tempFile { Compression = DXT1; Resize = Resize(size, size) }
-        size, fileName)
+        { Size = size; FileName = fileName })
     |> List.ofArray

@@ -18,7 +18,7 @@ open System
 
 type private BuildData =
     { SNGs: (Arrangement * SNG) list
-      CoverArtFiles: (int * string) list
+      CoverArtFiles: DisposableList<DDS.TempDDSFile>
       Author: string
       AppId: string
       Partition: Arrangement -> int * string
@@ -34,7 +34,7 @@ type BuildConfig =
       SaveDebugFiles: bool
       AudioConversionTask: Async<unit> }
 
-let private toDisposableList items = new DisposableList<NamedEntry>(items)
+let private toDisposableList items = new DisposableList<_>(items)
 
 let private build (buildData: BuildData) targetFile project platform = async {
     let readFile = Utils.getFileStreamForRead
@@ -118,9 +118,9 @@ let private build (buildData: BuildData) targetFile project platform = async {
         entry $"{key}_aggregategraph.nt" data
 
     use gfxEntries =
-        buildData.CoverArtFiles
-        |> List.map (fun (size, file) ->
-            entry $"gfxassets/album_art/album_{key}_{size}.dds" (readFile file))
+        buildData.CoverArtFiles.Items
+        |> List.map (fun dds ->
+            entry $"gfxassets/album_art/album_{key}_{dds.Size}.dds" (readFile dds.FileName))
         |> toDisposableList
 
     use toolkitEntry =
@@ -213,46 +213,43 @@ let private addShowLights sngs project =
 let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProject) = async {
     let! audioConversionTask = config.AudioConversionTask |> Async.StartChild
     let key = project.DLCKey.ToLowerInvariant()
-    let coverArt = DDS.createCoverArtImages project.AlbumArtFile
+    use coverArtFiles = DDS.createCoverArtImages project.AlbumArtFile |> toDisposableList
     let partition = Partitioner.create project
 
-    try
-        let sngs =
-            project.Arrangements
-            |> List.choose (fun arr ->
-                match arr with
-                | Instrumental inst ->
-                    let part = partition arr |> fst
-                    let sng =
-                        setupInstrumental part inst config
-                        |> ConvertInstrumental.xmlToSng
-                    Some(arr, sng)
-                | Vocals v ->
-                    let sng =
-                        Vocals.Load v.XML
-                        |> ConvertVocals.xmlToSng (getFontOption key v.CustomFont)
-                    Some(arr, sng)
-                | Showlights _ -> None)
+    let sngs =
+        project.Arrangements
+        |> List.choose (fun arr ->
+            match arr with
+            | Instrumental inst ->
+                let part = partition arr |> fst
+                let sng =
+                    setupInstrumental part inst config
+                    |> ConvertInstrumental.xmlToSng
+                Some(arr, sng)
+            | Vocals v ->
+                let sng =
+                    Vocals.Load v.XML
+                    |> ConvertVocals.xmlToSng (getFontOption key v.CustomFont)
+                Some(arr, sng)
+            | Showlights _ -> None)
 
-        // Check if a show lights arrangement is included
-        let project =
-            if project.Arrangements |> List.exists (Arrangement.pickShowlights >> Option.isSome) then
-                project
-            else
-                addShowLights sngs project
+    // Check if a show lights arrangement is included
+    let project =
+        if project.Arrangements |> List.exists (Arrangement.pickShowlights >> Option.isSome) then
+            project
+        else
+            addShowLights sngs project
 
-        let data =
-            { SNGs = sngs
-              CoverArtFiles = coverArt
-              Author = config.Author
-              AppId = config.AppId
-              Partition = partition
-              AudioConversionTask = audioConversionTask }
+    let data =
+        { SNGs = sngs
+          CoverArtFiles = coverArtFiles
+          Author = config.Author
+          AppId = config.AppId
+          Partition = partition
+          AudioConversionTask = audioConversionTask }
 
-        do! config.Platforms
-            |> List.map (build data targetFile project)
-            |> Async.Parallel
-            |> Async.Ignore
-
-    finally coverArt |> List.iter (snd >> File.Delete) }
+    do! config.Platforms
+        |> List.map (build data targetFile project)
+        |> Async.Parallel
+        |> Async.Ignore }
     
