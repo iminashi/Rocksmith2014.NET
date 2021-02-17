@@ -25,6 +25,56 @@ let private notBuilding state =
     |> Set.intersect (Set([ BuildPackage; WemConversion ]))
     |> Set.isEmpty
 
+let fileMenu state dispatch =
+    Menu.create [
+        Menu.fontSize 16.
+        Menu.background "#505050"
+        Menu.margin (0., 4., 4., 4.)
+        Menu.viewItems [
+            MenuItem.create [
+                MenuItem.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
+                MenuItem.header (TextBlock.create [
+                    TextBlock.text "..."
+                    TextBlock.verticalAlignment VerticalAlignment.Center
+                ])
+                MenuItem.viewItems [
+                    MenuItem.create [
+                        MenuItem.header (translate "newProject")
+                        MenuItem.onClick (fun _ -> dispatch NewProject)
+                    ]
+                    MenuItem.create [
+                        MenuItem.header "-"
+                    ]
+                    MenuItem.create [
+                        MenuItem.header (translate "toolkitImport")
+                        MenuItem.onClick (fun _ ->
+                            Msg.OpenFileDialog("selectImportToolkitTemplate", Dialogs.toolkitFilter, ImportToolkitTemplate)
+                            |> dispatch)
+                    ]
+                    MenuItem.create [
+                        MenuItem.header (translate "psarcImport")
+                        MenuItem.onClick (fun _ ->
+                            Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder)
+                            |>dispatch)
+                    ]
+                    if state.RecentFiles.Length > 0 then
+                        MenuItem.create [
+                            MenuItem.header "-"
+                        ]
+                        yield! state.RecentFiles |> List.map (fun fileName ->
+                            MenuItem.create [
+                                MenuItem.header ((IO.Path.GetFileName fileName).Replace("_", "__"))
+                                MenuItem.onClick (
+                                    (fun _ -> OpenProject fileName |>dispatch),
+                                    SubPatchOptions.OnChangeOf state.RecentFiles)
+                            ] |> Helpers.generalize
+                        )
+                ]
+                
+            ]
+        ]
+    ]
+
 let view state dispatch =
     let audioPath = state.Project.AudioFile.Path
     let noBuildInProgress = notBuilding state
@@ -47,7 +97,9 @@ let view state dispatch =
                 Image.source (state.CoverArt |> Option.defaultWith placeholderAlbumArt.Force)
                 Image.width 200.
                 Image.height 200.
-                Image.onTapped (fun _ -> dispatch (Msg.OpenFileDialog("selectCoverArt", Dialogs.imgFileFilter, SetCoverArt)))
+                Image.onTapped (fun _ ->
+                    Msg.OpenFileDialog("selectCoverArt", Dialogs.imgFileFilter, SetCoverArt)
+                    |> dispatch)
                 Image.cursor Cursors.hand
                 ToolTip.tip (translate "selectCoverArtToolTip")
             ]
@@ -203,7 +255,9 @@ let view state dispatch =
                                 Button.padding (10.0, 0.0)
                                 Button.content "..."
                                 Button.isEnabled notCalculatingVolume
-                                Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, SetAudioFile)))
+                                Button.onClick (fun _ ->
+                                    Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, SetAudioFile)
+                                    |> dispatch)
                                 ToolTip.tip (translate "selectAudioFile")
                             ]
 
@@ -346,57 +400,13 @@ let view state dispatch =
                                         Button.margin (4., 4., 0., 4.)
                                         Button.fontSize 16.
                                         Button.content (translate "openProject")
-                                        Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectProjectFile", Dialogs.projectFilter, OpenProject)))
+                                        Button.onClick (fun _ ->
+                                            Msg.OpenFileDialog("selectProjectFile", Dialogs.projectFilter, OpenProject)
+                                            |> dispatch)
                                         Button.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
                                     ]
-                                    Menu.create [
-                                        Menu.fontSize 16.
-                                        Menu.background "#505050"
-                                        Menu.margin (0., 4., 4., 4.)
-                                        Menu.viewItems [
-                                            MenuItem.create [
-                                                MenuItem.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
-                                                MenuItem.header (TextBlock.create [
-                                                    TextBlock.text "..."
-                                                    TextBlock.verticalAlignment VerticalAlignment.Center
-                                                ])
-                                                MenuItem.viewItems [
-                                                    MenuItem.create [
-                                                        MenuItem.header (translate "newProject")
-                                                        MenuItem.onClick (fun _ -> dispatch NewProject)
-                                                    ]
-                                                    MenuItem.create [
-                                                        MenuItem.header "-"
-                                                    ]
-                                                    MenuItem.create [
-                                                        MenuItem.header (translate "toolkitImport")
-                                                        MenuItem.onClick (fun _ ->
-                                                            Msg.OpenFileDialog("selectImportToolkitTemplate", Dialogs.toolkitFilter, ImportToolkitTemplate)
-                                                            |> dispatch)
-                                                    ]
-                                                    MenuItem.create [
-                                                        MenuItem.header (translate "psarcImport")
-                                                        MenuItem.onClick (fun _ ->
-                                                            Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder)
-                                                            |>dispatch)
-                                                    ]
-                                                    if state.RecentFiles.Length > 0 then
-                                                        MenuItem.create [
-                                                            MenuItem.header "-"
-                                                        ]
-                                                        yield! state.RecentFiles |> List.map (fun fileName ->
-                                                            MenuItem.create [
-                                                                MenuItem.header ((IO.Path.GetFileName fileName).Replace("_", "__"))
-                                                                MenuItem.onClick (
-                                                                    (fun _ -> OpenProject fileName |>dispatch),
-                                                                    SubPatchOptions.OnChangeOf state.RecentFiles)
-                                                            ] |> Helpers.generalize
-                                                        )
-                                                ]
-                                                
-                                            ]
-                                        ]
-                                    ]
+
+                                    fileMenu state dispatch
                                 ]
                             ]
 
