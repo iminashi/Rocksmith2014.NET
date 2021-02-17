@@ -252,4 +252,3 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
         |> List.map (build data targetFile project)
         |> Async.Parallel
         |> Async.Ignore }
-    

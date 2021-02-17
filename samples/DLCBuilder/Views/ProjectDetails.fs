@@ -165,7 +165,10 @@ let view state dispatch =
                         [ TextBox.horizontalAlignment HorizontalAlignment.Left
                           TextBox.width 65.
                           TextBox.text (string state.Project.Year)
-                          TextBox.onTextChanged (int >> SetYear >> EditProject >> dispatch)
+                          TextBox.onTextChanged (fun text ->
+                            match Int32.TryParse text with
+                            | true, year -> year |> SetYear |> EditProject |> dispatch
+                            | false, _ -> ())
                     ]
 
                     StackPanel.create [
