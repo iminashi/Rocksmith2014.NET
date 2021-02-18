@@ -155,7 +155,7 @@ type Attributes() =
     
     member val Tone_Multiplayer : string = null with get, set
     
-    member val Tones : Tone array = null with get, set
+    member val Tones : ToneDto array = null with get, set
     
     member val Tuning : Tuning option = None with get, set
 

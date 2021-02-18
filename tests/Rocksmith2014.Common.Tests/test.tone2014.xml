@@ -27,7 +27,7 @@
       <Type>Amps</Type>
     </Amp>
     <Cabinet>
-      <Category>Dynamic_Cone</Category>
+      <Category i:nil="true" />
       <KnobValues xmlns:d4p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
       <PedalKey>Cab_OrangeJimmyBean_57_Cone</PedalKey>
       <Skin i:nil="true" />
@@ -38,7 +38,25 @@
     <PostPedal2 i:nil="true" />
     <PostPedal3 i:nil="true" />
     <PostPedal4 i:nil="true" />
-    <PrePedal1 i:nil="true" />
+    <PrePedal1>
+      <Category i:nil="true" />
+      <KnobValues xmlns:d4p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+        <d4p1:KeyValueOfstringfloat>
+          <d4p1:Key>Pedal_Chorus20_Mix</d4p1:Key>
+          <d4p1:Value>8</d4p1:Value>
+        </d4p1:KeyValueOfstringfloat>
+        <d4p1:KeyValueOfstringfloat>
+          <d4p1:Key>Pedal_Chorus20_Depth</d4p1:Key>
+          <d4p1:Value>60</d4p1:Value>
+        </d4p1:KeyValueOfstringfloat>
+        <d4p1:KeyValueOfstringfloat>
+          <d4p1:Key>Pedal_Chorus20_Rate</d4p1:Key>
+          <d4p1:Value>0</d4p1:Value>
+        </d4p1:KeyValueOfstringfloat>
+      </KnobValues>
+      <PedalKey>Pedal_Chorus20</PedalKey>
+      <Type>Pedals</Type>
+    </PrePedal1>
     <PrePedal2 i:nil="true" />
     <PrePedal3 i:nil="true" />
     <PrePedal4 i:nil="true" />

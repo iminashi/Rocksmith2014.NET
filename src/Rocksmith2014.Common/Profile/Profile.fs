@@ -85,7 +85,10 @@ let importTones (path: string) =
         while json.Read() && not (json.TokenType = JsonToken.StartArray && json.Path = "CustomTones") do ()
 
         if json.Path = "CustomTones" then
-            Ok (JsonSerializer().Deserialize<Tone array> json)
+            JsonSerializer().Deserialize<ToneDto array> json
+            |> Array.map Tone.fromDto
+            |> Ok
         else
             Error "Profile contains no custom tones."
-    with ex -> Error ex.Message
+    with ex ->
+        Error ex.Message

@@ -5,33 +5,31 @@ open DLCBuilder
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
-open System
 open Elmish
 
-let tone =
+let testPedal =
+    { Type = "Test"
+      KnobValues = None
+      Key = "test"
+      Category = None
+      Skin = None
+      SkinIndex = None }
+
+let tone: Tone =
     { GearList =
-        { Rack1 = Pedal()
-          Rack2 = Pedal()
-          Rack3 = Pedal()
-          Rack4 = Pedal()
-          Amp = Pedal()
-          Cabinet = Pedal()
-          PrePedal1 = Pedal()
-          PrePedal2 = Pedal()
-          PrePedal3 = Pedal()
-          PrePedal4 = Pedal()
-          PostPedal1 = Pedal()
-          PostPedal2 = Pedal()
-          PostPedal3 = Pedal()
-          PostPedal4 = Pedal() }
+        { Racks = [| None; None; None; None |]
+          Amp = testPedal
+          Cabinet = testPedal
+          PrePedals = [| None; None; None; None |]
+          PostPedals = [| None; None; None; None |] }
       ToneDescriptors = [| "TEST"; "TONE" |]
       NameSeparator = " "
-      IsCustom = Nullable()
+      IsCustom = None
       Volume = "-10.000"
-      MacVolume = null
+      MacVolume = None
       Key = "key"
       Name = "name"
-      SortOrder = Nullable() }
+      SortOrder = None }
 
 let project = { initialState.Project with Tones = [ tone ] }
 let state = { initialState with Project = project; SelectedTone = Some tone }

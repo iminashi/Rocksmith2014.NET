@@ -393,7 +393,7 @@ let private initSongComplete (partition: int)
     attr.Tone_C <- getToneName 2 instrumental.Tones
     attr.Tone_D <- getToneName 3 instrumental.Tones
     attr.Tone_Multiplayer <- String.Empty
-    attr.Tones <- tones
+    attr.Tones <- tones |> Array.map Tone.toDto
 
     attr
 

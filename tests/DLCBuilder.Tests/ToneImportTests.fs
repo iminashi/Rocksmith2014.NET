@@ -3,32 +3,30 @@
 open Expecto
 open DLCBuilder
 open Rocksmith2014.Common.Manifest
-open System
 
-let testTone =
+let testPedal =
+    { Type = "Test"
+      KnobValues = None
+      Key = "test"
+      Category = None
+      Skin = None
+      SkinIndex = None }
+
+let testTone: Tone =
     { GearList =
-        { Rack1 = Pedal()
-          Rack2 = Unchecked.defaultof<Pedal>
-          Rack3 = Unchecked.defaultof<Pedal>
-          Rack4 = Unchecked.defaultof<Pedal>
-          Amp = Pedal()
-          Cabinet = Pedal()
-          PrePedal1 = Pedal()
-          PrePedal2 = Unchecked.defaultof<Pedal>
-          PrePedal3 = Unchecked.defaultof<Pedal>
-          PrePedal4 = Unchecked.defaultof<Pedal>
-          PostPedal1 = Pedal()
-          PostPedal2 = Unchecked.defaultof<Pedal>
-          PostPedal3 = Unchecked.defaultof<Pedal>
-          PostPedal4 = Unchecked.defaultof<Pedal> }
+        { Racks = [| Some testPedal; None; None; None |]
+          Amp = testPedal
+          Cabinet = testPedal
+          PrePedals = [| Some testPedal; None; None; None |]
+          PostPedals = [| Some testPedal; None; None; None |] }
       ToneDescriptors = [||]
       NameSeparator = " - "
-      IsCustom = Nullable(true)
+      IsCustom = Some true
       Volume = "1"
-      MacVolume = null
+      MacVolume = None
       Key = "tone"
       Name = "tone"
-      SortOrder = Nullable() }
+      SortOrder = None }
 
 [<Tests>]
 let tests =

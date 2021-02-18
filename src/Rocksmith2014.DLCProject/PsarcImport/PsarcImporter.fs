@@ -144,7 +144,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
           AudioFile = mainAudio
           AudioPreviewFile = previewAudio
           Arrangements = arrangements
-          Tones = tones }
+          Tones = tones |> List.map Tone.fromDto }
 
     let projectFile =
         sprintf "%s_%s" project.ArtistName.SortValue project.Title.SortValue

@@ -15,10 +15,11 @@ let toneTests =
             Expect.equal tone.Key "Test" "Key is correct"
             Expect.equal tone.Name "Test" "Name is correct"
             Expect.equal tone.ToneDescriptors [| "$[35720]CLEAN" |] "Descriptors are correct"
-            Expect.equal tone.GearList.Cabinet.Category "Dynamic_Cone" "Cabinet category is correct"
-            Expect.equal tone.GearList.Cabinet.Skin null "Cabinet skin is null"
+            Expect.isNone tone.GearList.Cabinet.Category "Cabinet category is none"
+            Expect.isNone tone.GearList.Cabinet.Skin "Cabinet skin is none"
             Expect.equal tone.GearList.Amp.Key "Amp_OrangeAD50" "Amp key is correct"
-            Expect.hasLength tone.GearList.Amp.KnobValues 4 "Amp knob values length is correct" }
+            Expect.isSome tone.GearList.Amp.KnobValues "Amp knob values exist"
+            Expect.isSome tone.GearList.PrePedals.[0] "Pre-pedal 1 was imported" }
 
         testAsync "Can be exported to XML" {
             let testFile = "testExport.tone2014.xml"
@@ -33,9 +34,10 @@ let toneTests =
             Expect.equal tone.Name "Test" "Name is correct"
             Expect.equal tone.ToneDescriptors [| "$[35720]CLEAN" |] "Descriptors are correct"
             Expect.equal tone.GearList.Cabinet.Type "Cabinets" "Cabinet type is correct"
-            Expect.equal tone.GearList.Cabinet.SkinIndex (Nullable()) "Cabinet skin index is null"
+            Expect.isNone tone.GearList.Cabinet.SkinIndex "Cabinet skin index is none"
             Expect.equal tone.GearList.Amp.Type "Amps" "Amp type is correct"
-            Expect.hasLength tone.GearList.Amp.KnobValues 4 "Amp knob values length is correct" }
+            Expect.isSome tone.GearList.Amp.KnobValues "Amp knob values exist"
+            Expect.isSome tone.GearList.PrePedals.[0] "Pre-pedal 1 was imported" }
 
         testAsync "Can be exported to JSON and imported from JSON" {
             let testFile = "testExport.tone2014.json"
@@ -49,8 +51,7 @@ let toneTests =
             Expect.equal tone.Key "Test" "Key is correct"
             Expect.equal tone.Name "Test" "Name is correct"
             Expect.equal tone.ToneDescriptors [| "$[35720]CLEAN" |] "Descriptors are correct"
-            Expect.equal tone.GearList.Cabinet.Category "Dynamic_Cone" "Cabinet category is correct"
-            Expect.equal tone.GearList.Cabinet.Skin null "Cabinet skin is null"
+            Expect.isNone tone.GearList.Cabinet.Skin "Cabinet skin is none"
             Expect.equal tone.GearList.Amp.Key "Amp_OrangeAD50" "Amp key is correct"
-            Expect.hasLength tone.GearList.Amp.KnobValues 4 "Amp knob values length is correct" }
+            Expect.isSome tone.GearList.Amp.KnobValues "Amp knob values exist" }
     ]
