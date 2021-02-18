@@ -134,7 +134,7 @@ let view state dispatch =
                           StackPanel.isVisible (not state.ShowSortFields && not state.ShowJapaneseFields) ]
                         [ TextBox.text state.Project.ArtistName.Value
                           TextBox.onTextChanged (StringValidator.field >> SetArtistName >> EditProject >> dispatch)
-                    ]
+                        ]
 
                     TitledTextBox.create (translate "artistNameSort")
                         [ Grid.column 0
@@ -147,7 +147,7 @@ let view state dispatch =
                             txtBox.Text <- validValue
 
                             validValue |> (SetArtistNameSort >> EditProject >> dispatch))
-                    ]
+                        ]
 
                     TitledTextBox.create (translate "japaneseArtistName")
                         [ Grid.column 0
@@ -157,7 +157,7 @@ let view state dispatch =
                           TextBox.fontFamily Fonts.japanese
                           TextBox.fontSize 15.
                           TextBox.onTextChanged (StringValidator.field >> Option.ofString >> SetJapaneseArtistName >> EditProject >> dispatch)
-                    ]
+                        ]
 
                     TitledTextBox.create (translate "title")
                         [ Grid.column 0
@@ -165,7 +165,7 @@ let view state dispatch =
                           StackPanel.isVisible (not state.ShowSortFields && not state.ShowJapaneseFields) ]
                         [ TextBox.text state.Project.Title.Value
                           TextBox.onTextChanged (StringValidator.field >> SetTitle >> EditProject >> dispatch)
-                    ]
+                        ]
 
                     TitledTextBox.create (translate "titleSort")
                         [ Grid.column 0
@@ -178,7 +178,7 @@ let view state dispatch =
                             txtBox.Text <- validValue
 
                             validValue |> (SetTitleSort >> EditProject >> dispatch))
-                    ]
+                        ]
 
                     TitledTextBox.create (translate "japaneseTitle")
                         [ Grid.column 0
@@ -188,7 +188,7 @@ let view state dispatch =
                           TextBox.fontFamily Fonts.japanese
                           TextBox.fontSize 15.
                           TextBox.onTextChanged (StringValidator.field >> Option.ofString >> SetJapaneseTitle >> EditProject >> dispatch)
-                    ]
+                        ]
 
                     TitledTextBox.create (translate "albumName")
                         [ Grid.column 0
@@ -196,7 +196,7 @@ let view state dispatch =
                           StackPanel.isVisible (not state.ShowSortFields) ]
                         [ TextBox.text state.Project.AlbumName.Value
                           TextBox.onTextChanged (StringValidator.field >> SetAlbumName >> EditProject >> dispatch)
-                    ]
+                        ]
 
                     TitledTextBox.create (translate "albumNameSort")
                         [ Grid.column 0
@@ -209,7 +209,7 @@ let view state dispatch =
                             txtBox.Text <- validValue
 
                             validValue |> (SetAlbumNameSort >> EditProject >> dispatch))
-                    ]
+                        ]
 
                     TitledTextBox.create (translate "year")
                         [ Grid.column 1
@@ -221,7 +221,7 @@ let view state dispatch =
                             match Int32.TryParse text with
                             | true, year -> year |> SetYear |> EditProject |> dispatch
                             | false, _ -> ())
-                    ]
+                        ]
 
                     StackPanel.create [
                         Grid.columnSpan 2
