@@ -8,7 +8,7 @@ open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open DLCBuilder
 
-let createDescriptors dispatch tone =
+let createDescriptors dispatch (tone: Tone) =
     UniformGrid.create [
         UniformGrid.columns tone.ToneDescriptors.Length
         UniformGrid.children [
@@ -132,6 +132,13 @@ let view state dispatch (tone: Tone) =
                 Grid.row 4
                 Button.content (translate "export")
                 Button.onClick (fun _ -> ExportSelectedTone |> dispatch)
+            ]
+
+            Button.create [
+                Grid.column 0
+                Grid.row 4
+                Button.content "Edit"
+                Button.onClick (fun _ -> ShowToneEditor |> dispatch)
             ]
         ]
     ]

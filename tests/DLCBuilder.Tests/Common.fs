@@ -14,6 +14,7 @@ let initialState =
       CoverArt = None
       SelectedArrangement = None
       SelectedTone = None
+      SelectedGear = None, Tones.Amp
       ShowSortFields = false
       ShowJapaneseFields = false
       Overlay = NoOverlay

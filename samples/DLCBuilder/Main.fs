@@ -40,6 +40,7 @@ let init arg =
       CoverArt = None
       SelectedArrangement = None
       SelectedTone = None
+      SelectedGear = None, Tones.Amp
       ShowSortFields = false
       ShowJapaneseFields = false
       Overlay = NoOverlay
@@ -93,6 +94,10 @@ let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
 
     match msg with
+    | SetSelectedGear gear -> { state with SelectedGear = gear }, Cmd.none
+
+    | ShowToneEditor -> { state with Overlay = ToneEditor }, Cmd.none
+
     | NewProject ->
         state.CoverArt |> Option.iter(fun x -> x.Dispose())
         { state with Project = DLCProject.Empty

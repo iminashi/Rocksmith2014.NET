@@ -31,6 +31,8 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <AvaloniaResource Include="**\*.xaml" />
+    <EmbeddedResource Include="pedalData.json" />
+    <Compile Include="Tones.fs" />
     <Compile Include="Localization.fs" />
     <Compile Include="Configuration.fs" />
     <Compile Include="Types.fs" />
@@ -40,6 +42,8 @@
     <Compile Include="EditFunctions.fs" />
     <Compile Include="TitledTextBox.fs" />
     <Compile Include="Templates.fs" />
+    <Compile Include="Views\ToneEditor.fs" />
+    <Watch Include="**\*.fs" />
     <Compile Include="Views\ProjectDetails.fs" />
     <Compile Include="Views\InstrumentalDetails.fs" />
     <Compile Include="Views\VocalsDetails.fs" />
@@ -81,7 +85,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Watch Include="**\*.fs" />
     <Watch Include="**\*.xaml" />
   </ItemGroup>
 
@@ -100,6 +103,8 @@
     <Watch Remove="RecentFilesList.fs" />
     <Watch Remove="Templates.fs" />
     <Watch Remove="TitledTextBox.fs" />
+    <Watch Remove="ToneEditor.fs" />
+    <Watch Remove="Tones.fs" />
     <Watch Remove="Types.fs" />
     <Watch Remove="Utils.fs" />
     <Watch Remove="Views\ConfigEditor.fs" />
@@ -113,4 +118,6 @@
     <Watch Remove="Views\ToneDetails.fs" />
     <Watch Remove="Views\VocalsDetails.fs" />
   </ItemGroup>
+
+  <ItemGroup />
 </Project>

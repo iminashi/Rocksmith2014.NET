@@ -16,6 +16,7 @@ type OverlayContents =
     | SelectPreviewStart of audioLength : TimeSpan
     | ConfigEditor
     | IssueViewer of issues : ArrangementChecker.Issue list
+    | ToneEditor
 
 type PreviewAudioCreation =
     | SetupStartTime
@@ -60,6 +61,9 @@ type ToneEdit =
     | ChangeDescriptor of index:int * descriptor:ToneDescriptor
     | AddDescriptor
     | RemoveDescriptor
+    | SetPedal of Tones.ToneGear
+    | SetCabinet of Tones.ToneGear
+    | SetKnobValue of knobKey:string * value: float
 
 type VocalsEdit =
     | SetIsJapanese of bool
@@ -108,6 +112,7 @@ type State =
       CoverArt : Bitmap option
       SelectedArrangement : Arrangement option
       SelectedTone : Tone option
+      SelectedGear : (Tones.ToneGear option * Tones.GearType)
       ShowSortFields : bool
       ShowJapaneseFields : bool
       Overlay : OverlayContents
@@ -140,6 +145,8 @@ type Msg =
     | ImportTonesFromFile of fileName : string
     | ArrangementSelected of selected : Arrangement option
     | ToneSelected of selected : Tone option
+    | SetSelectedGear of (Tones.ToneGear option * Tones.GearType)
+    | ShowToneEditor
     | DeleteArrangement
     | DeleteTone
     | MoveTone of MoveDirection

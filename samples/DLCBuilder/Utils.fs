@@ -75,7 +75,8 @@ let importTonesFromPSARC (psarcPath: string) = async {
         manifests
         |> Array.choose (Option.bind (fun a -> Option.ofObj a.Tones))
         |> Array.concat
-        |> Array.distinctBy (fun x -> x.Key) }
+        |> Array.distinctBy (fun x -> x.Key)
+        |> Array.map Tone.fromDto }
 
 /// Creates the path for the preview audio from the main audio path.
 let previewPathFromMainAudio (audioPath: string) =
@@ -115,7 +116,7 @@ let checkArrangements (project: DLCProject) =
     |> Map.ofList
 
 /// Adds descriptors to tones that have none.
-let addDescriptors tone =
+let addDescriptors (tone: Tone) =
     let descs =
         match tone.ToneDescriptors with
         | null | [||] ->
@@ -123,9 +124,9 @@ let addDescriptors tone =
             |> Array.map (fun x -> x.UIName)
         | descriptors -> descriptors
 
-    { tone with ToneDescriptors = descs; SortOrder = Nullable(); NameSeparator = " - " }
+    { tone with ToneDescriptors = descs; SortOrder = None; NameSeparator = " - " }
 
 /// Adds the given tones into the project.
-let addTones (state: State) tones =
+let addTones (state: State) (tones: Tone list) =
     { state with Project = { state.Project with Tones = List.map addDescriptors tones @ state.Project.Tones }
                  Overlay = NoOverlay }

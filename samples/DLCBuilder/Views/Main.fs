@@ -249,6 +249,7 @@ let view (window: HostWindow) (state: State) dispatch =
                                 | ImportToneSelector tones -> SelectImportTones.view dispatch tones
                                 | ConfigEditor -> ConfigEditor.view state dispatch
                                 | IssueViewer issues -> IssueViewer.view dispatch issues
+                                | ToneEditor -> ToneEditor.view state dispatch state.SelectedTone.Value
                             )
                         ]
                     ]

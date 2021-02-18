@@ -5,6 +5,7 @@ open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open Elmish
 open System
+open Tones
 
 let private updateArrangement old updated state =
     let arrangements =
@@ -224,6 +225,76 @@ let editTone state edit (tone: Tone) =
                tone.ToneDescriptors
                |> Array.mapi (fun i x -> if i = index then descriptor.UIName else x)
            { tone with ToneDescriptors = updated }
+
+        | SetCabinet cabinet ->
+            if cabinet.Key <> tone.GearList.Cabinet.Key then
+                let gear = { tone.GearList with Cabinet = Tones.createPedalForGear cabinet }
+                { tone with GearList = gear }
+            else
+                tone
+
+        | SetPedal pedal ->
+            let currentPedal =
+                match state.SelectedGear |> snd with
+                | Amp -> Some tone.GearList.Amp
+                | PrePedal index -> tone.GearList.PrePedals.[index]
+                | PostPedal index -> tone.GearList.PostPedals.[index]
+                | Rack index -> tone.GearList.Racks.[index]
+
+            match currentPedal with
+            | Some currPedal when currPedal.Key = pedal.Key ->
+                tone
+            | _ ->
+                let gear =
+                    match state.SelectedGear |> snd with
+                    | Amp ->
+                        { tone.GearList with Amp = Tones.createPedalForGear pedal }
+                    | PrePedal index ->
+                        let prePedals =
+                            tone.GearList.PrePedals
+                            |> Array.mapi (fun i p -> if i = index then Tones.createPedalForGear pedal |> Some else p)
+                        { tone.GearList with PrePedals = prePedals }
+                    | PostPedal index ->
+                        let postPedals =
+                            tone.GearList.PostPedals
+                            |> Array.mapi (fun i p -> if i = index then Tones.createPedalForGear pedal |> Some else p)
+                        { tone.GearList with PostPedals = postPedals }
+                    | Rack index ->
+                        let racks =
+                            tone.GearList.Racks
+                            |> Array.mapi (fun i p -> if i = index then Tones.createPedalForGear pedal |> Some else p)
+                        { tone.GearList with Racks = racks }
+
+                { tone with GearList = gear }
+
+        | SetKnobValue (knobKey, value) ->
+            let updateKnobs updatedKnobs index pedals =
+                pedals
+                |> Array.mapi (fun i p ->
+                    if i = index then
+                        p |> Option.map (fun p -> { p with KnobValues = updatedKnobs })
+                    else 
+                        p)
+                
+            match state.SelectedGear with
+            | (Some _, gearType) ->
+                let updatedKnobs =
+                    getKnobValuesForGear gearType tone
+                    |> Option.map (Map.add knobKey (float32 value))
+                let gear =
+                    match gearType with
+                    | Amp ->
+                        { tone.GearList with Amp = { tone.GearList.Amp with KnobValues = updatedKnobs } }
+                    | PrePedal index ->
+                        { tone.GearList with PrePedals =  tone.GearList.PrePedals |> updateKnobs updatedKnobs index }
+                    | PostPedal index ->
+                        { tone.GearList with PostPedals = tone.GearList.PostPedals |> updateKnobs updatedKnobs index }
+                    | Rack index ->
+                        { tone.GearList with Racks = tone.GearList.Racks |> updateKnobs updatedKnobs index }
+
+                { tone with GearList = gear }
+            | _ ->
+                tone
 
     updateTone tone updatedTone state, Cmd.none
 
