@@ -40,7 +40,8 @@ let init arg =
       CoverArt = None
       SelectedArrangement = None
       SelectedTone = None
-      SelectedGear = None, Tones.Amp
+      SelectedGear = None
+      SelectedGearType = Tones.Amp
       ShowSortFields = false
       ShowJapaneseFields = false
       Overlay = NoOverlay
@@ -94,7 +95,15 @@ let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
 
     match msg with
-    | SetSelectedGear gear -> { state with SelectedGear = gear }, Cmd.none
+    | SetSelectedGear gear ->
+        let cmd =
+            match gear with
+            | Some gear -> Cmd.ofMsg (gear |> SetPedal |> EditTone)
+            | None -> Cmd.none
+
+        { state with SelectedGear = gear }, cmd
+
+    | SetSelectedGearType gearType -> { state with SelectedGearType = gearType }, Cmd.none
 
     | ShowToneEditor -> { state with Overlay = ToneEditor }, Cmd.none
 
@@ -424,7 +433,13 @@ let update (msg: Msg) (state: State) =
 
     | ArrangementSelected selected -> { state with SelectedArrangement = selected }, Cmd.none
 
-    | ToneSelected selected -> { state with SelectedTone = selected }, Cmd.none
+    | ToneSelected selected ->
+        // Ignore the message if the tone editor is open
+        // Fix for weird infinite update loop
+        if state.Overlay <> ToneEditor then
+            { state with SelectedTone = selected }, Cmd.none
+        else
+            state, Cmd.none
 
     | DeleteArrangement ->
         let arrangements =

@@ -222,5 +222,12 @@
   "convertToWemTooltip": "Convert the audio file into Wwise wem format.",
   "convertMultipleToWemTooltip": "Convert the audio and preview audio files into Wwise wem format.",
   "removeDDLevels": "Remove DD Levels",
-  "all": "All"
+  "all": "All",
+  "remove": "Remove",
+  "edit": "Edit",
+  "amp": "Amp",
+  "cabinet": "Cabinet",
+  "prePedals": "Pre Pedals",
+  "loopPedals": "Loop Pedals",
+  "rack": "Rack"
 }

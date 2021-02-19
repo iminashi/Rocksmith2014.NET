@@ -233,9 +233,24 @@ let editTone state edit (tone: Tone) =
             else
                 tone
 
+        | RemovePedal ->
+            let remove index = Array.mapi (fun i p -> if i = index then None else p)
+            let gear =
+                match state.SelectedGearType with
+                | PrePedal index ->
+                    { tone.GearList with PrePedals = tone.GearList.PrePedals |> remove index }
+                | PostPedal index ->
+                    { tone.GearList with PostPedals = tone.GearList.PostPedals |> remove index }
+                | Rack index ->
+                    { tone.GearList with Racks = tone.GearList.Racks |> remove index }
+                | Amp ->
+                    failwith "Cannot remove amp"
+
+            { tone with GearList = gear }
+
         | SetPedal pedal ->
             let currentPedal =
-                match state.SelectedGear |> snd with
+                match state.SelectedGearType with
                 | Amp -> Some tone.GearList.Amp
                 | PrePedal index -> tone.GearList.PrePedals.[index]
                 | PostPedal index -> tone.GearList.PostPedals.[index]
@@ -245,48 +260,42 @@ let editTone state edit (tone: Tone) =
             | Some currPedal when currPedal.Key = pedal.Key ->
                 tone
             | _ ->
+                let setPedal index = Array.mapi (fun i p -> if i = index then Tones.createPedalForGear pedal |> Some else p)
                 let gear =
-                    match state.SelectedGear |> snd with
+                    match state.SelectedGearType with
                     | Amp ->
                         { tone.GearList with Amp = Tones.createPedalForGear pedal }
                     | PrePedal index ->
-                        let prePedals =
-                            tone.GearList.PrePedals
-                            |> Array.mapi (fun i p -> if i = index then Tones.createPedalForGear pedal |> Some else p)
-                        { tone.GearList with PrePedals = prePedals }
+                        { tone.GearList with PrePedals = tone.GearList.PrePedals |> setPedal index }
                     | PostPedal index ->
-                        let postPedals =
-                            tone.GearList.PostPedals
-                            |> Array.mapi (fun i p -> if i = index then Tones.createPedalForGear pedal |> Some else p)
-                        { tone.GearList with PostPedals = postPedals }
+                        { tone.GearList with PostPedals = tone.GearList.PostPedals |> setPedal index }
                     | Rack index ->
-                        let racks =
-                            tone.GearList.Racks
-                            |> Array.mapi (fun i p -> if i = index then Tones.createPedalForGear pedal |> Some else p)
-                        { tone.GearList with Racks = racks }
+                        { tone.GearList with Racks = tone.GearList.Racks |> setPedal index }
 
                 { tone with GearList = gear }
 
         | SetKnobValue (knobKey, value) ->
             let updateKnobs updatedKnobs index pedals =
                 pedals
-                |> Array.mapi (fun i p ->
+                |> Array.mapi (fun i pedal ->
                     if i = index then
-                        p |> Option.map (fun p -> { p with KnobValues = updatedKnobs })
+                        pedal |> Option.map (fun p -> { p with KnobValues = updatedKnobs })
                     else 
-                        p)
+                        pedal)
                 
             match state.SelectedGear with
-            | (Some _, gearType) ->
+            | Some _ ->
                 let updatedKnobs =
-                    getKnobValuesForGear gearType tone
-                    |> Option.map (Map.add knobKey (float32 value))
+                    getKnobValuesForGear state.SelectedGearType tone
+                    // Update the value only if the key exists
+                    |> Option.map (Map.change knobKey (Option.map (fun _ -> float32 value)))
+
                 let gear =
-                    match gearType with
+                    match state.SelectedGearType with
                     | Amp ->
                         { tone.GearList with Amp = { tone.GearList.Amp with KnobValues = updatedKnobs } }
                     | PrePedal index ->
-                        { tone.GearList with PrePedals =  tone.GearList.PrePedals |> updateKnobs updatedKnobs index }
+                        { tone.GearList with PrePedals = tone.GearList.PrePedals |> updateKnobs updatedKnobs index }
                     | PostPedal index ->
                         { tone.GearList with PostPedals = tone.GearList.PostPedals |> updateKnobs updatedKnobs index }
                     | Rack index ->

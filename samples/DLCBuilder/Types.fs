@@ -64,6 +64,7 @@ type ToneEdit =
     | SetPedal of Tones.ToneGear
     | SetCabinet of Tones.ToneGear
     | SetKnobValue of knobKey:string * value: float
+    | RemovePedal
 
 type VocalsEdit =
     | SetIsJapanese of bool
@@ -112,7 +113,8 @@ type State =
       CoverArt : Bitmap option
       SelectedArrangement : Arrangement option
       SelectedTone : Tone option
-      SelectedGear : (Tones.ToneGear option * Tones.GearType)
+      SelectedGear : Tones.ToneGear option
+      SelectedGearType : Tones.GearType
       ShowSortFields : bool
       ShowJapaneseFields : bool
       Overlay : OverlayContents
@@ -145,7 +147,8 @@ type Msg =
     | ImportTonesFromFile of fileName : string
     | ArrangementSelected of selected : Arrangement option
     | ToneSelected of selected : Tone option
-    | SetSelectedGear of (Tones.ToneGear option * Tones.GearType)
+    | SetSelectedGear of Tones.ToneGear option
+    | SetSelectedGearType of Tones.GearType
     | ShowToneEditor
     | DeleteArrangement
     | DeleteTone

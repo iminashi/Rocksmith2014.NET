@@ -222,5 +222,12 @@
   "convertToWemTooltip": "Muunna äänitiedosto Wwise wem muotoon.",
   "convertMultipleToWemTooltip": "Muunna ääni- ja esikatseluäänitiedostot Wwise wem muotoon.",
   "removeDDLevels": "Poista DD tasot",
-  "all": "Kaikki"
+  "all": "Kaikki",
+  "remove": "Poista",
+  "edit": "Muokkaa",
+  "amp": "Vahvistin",
+  "cabinet": "Kaiutinkotelo",
+  "prePedals": "Pedaalit",
+  "loopPedals": "Efektilenkki",
+  "rack": "Räkki"
 }

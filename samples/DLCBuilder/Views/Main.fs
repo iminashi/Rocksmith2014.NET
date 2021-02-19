@@ -193,11 +193,9 @@ let view (window: HostWindow) (state: State) dispatch =
                                 match state.SelectedTone with
                                 | Some t -> ListBox.selectedItem t
                                 | None -> ()
-                                ListBox.onSelectedItemChanged ((fun item ->
-                                    match item with
-                                    | :? Tone as t -> dispatch (ToneSelected (Some t))
-                                    | null when state.Project.Tones.Length = 0 -> dispatch (ToneSelected None)
-                                    | _ -> ()), SubPatchOptions.OnChangeOf state.Project.Tones)
+                                ListBox.onSelectedItemChanged (function
+                                    | :? Tone as tone -> tone |> Some |> ToneSelected |> dispatch
+                                    | _ -> ())
                                 ListBox.onKeyDown (fun k ->
                                     match k.KeyModifiers, k.Key with
                                     | KeyModifiers.None, Key.Delete -> dispatch DeleteTone

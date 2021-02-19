@@ -1,11 +1,12 @@
 ﻿module DLCBuilder.Views.ToneEditor
 
-open Avalonia.FuncUI.DSL
 open Avalonia.Layout
+open Avalonia.Media
 open Avalonia.Controls
 open Avalonia.Controls.Primitives
 open Avalonia.FuncUI
 open Avalonia.FuncUI.Components
+open Avalonia.FuncUI.DSL
 open System
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.Common
@@ -56,69 +57,62 @@ let private rackDict =
     |> Array.map (fun x -> x.Key, x)
     |> readOnlyDict
 
-let private ampTemplate =
-    DataTemplateView<ToneGear>.create (fun t ->
-        let prefix =
-            if t.Key.StartsWith("bass", StringComparison.OrdinalIgnoreCase) then
-                "(Bass) "
-            else
-                String.Empty
-
-        TextBlock.create [
-            TextBlock.text (prefix + t.Name)
-        ])
-
 let private cabinetTemplate =
-    DataTemplateView<ToneGear>.create (fun t ->
+    DataTemplateView<ToneGear>.create (fun gear ->
         TextBlock.create [
-            TextBlock.text (t.Name + " - " + t.Category.Replace("_", " "))
+            TextBlock.text (gear.Name + " - " + gear.Category.Replace("_", " "))
         ])
 
-let private pedalTemplate =
-    DataTemplateView<ToneGear>.create (fun t ->
-        TextBlock.create [
-            TextBlock.text (t.Category + ": " + t.Name)
-        ])
+let private gearTemplate =
+    DataTemplateView<ToneGear>.create (fun gear ->
+        match gear.Type with
+        | "Amps" ->
+            let prefix =
+                if gear.Key.StartsWith("bass", StringComparison.OrdinalIgnoreCase) then
+                    "(Bass) "
+                else
+                    String.Empty
+
+            TextBlock.create [
+                TextBlock.text (prefix + gear.Name)
+            ]
+        | _ ->
+            TextBlock.create [
+                TextBlock.text (gear.Category + ": " + gear.Name)
+            ])
 
 let private getPedalAndDict gearType (tone: Tone) =
+    let gearList = tone.GearList
     match gearType with
-    | Amp ->
-        Some tone.GearList.Amp, ampDict
-    | PrePedal index ->
-        tone.GearList.PrePedals.[index], pedalDict
-    | PostPedal index ->
-        tone.GearList.PostPedals.[index], pedalDict
-    | Rack index ->
-        tone.GearList.Racks.[index], rackDict
+    | Amp -> Some gearList.Amp, ampDict
+    | PrePedal index -> gearList.PrePedals.[index], pedalDict
+    | PostPedal index -> gearList.PostPedals.[index], pedalDict
+    | Rack index -> gearList.Racks.[index], rackDict
 
-let editor state dispatch (tone: Tone) =
+let gearTypeSelector state dispatch (tone: Tone) =
     let amp = ampDict.[tone.GearList.Amp.Key]
+    let selectedGearType = state.SelectedGearType
     let selectedGearKey =
         match state.SelectedGear with
-        | (Some gear, _) -> gear.Key
-        | (None, Amp) -> amp.Key
+        | Some gear -> gear.Key
+        | None when selectedGearType = Amp -> amp.Key
         | _ -> String.Empty
-
-    let selectedGearType = state.SelectedGear |> snd
 
     StackPanel.create [
         StackPanel.children [
             StackPanel.create [
                 StackPanel.children [
                     TextBlock.create [
-                        TextBlock.text "Amp"
+                        TextBlock.text (translate "amp")
                     ]
                     ToggleButton.create [
                         ToggleButton.content amp.Name
                         ToggleButton.isChecked (amp.Key = selectedGearKey)
-                        ToggleButton.onIsPressedChanged ((fun isPressed ->
-                            if isPressed then
-                                (Some amp, Amp) |> SetSelectedGear |> dispatch),
-                            SubPatchOptions.OnChangeOf amp)
+                        ToggleButton.onChecked (fun _ -> Amp |> SetSelectedGearType |> dispatch)
                     ]
 
                     TextBlock.create [
-                        TextBlock.text "Cabinet"
+                        TextBlock.text (translate "cabinet")
                     ]
                     ComboBox.create [
                         ComboBox.dataItems cabinets
@@ -137,94 +131,66 @@ let editor state dispatch (tone: Tone) =
             StackPanel.create [
                 StackPanel.children [
                     TextBlock.create [
-                        TextBlock.text "Pre-pedals"
+                        TextBlock.text (translate "prePedals")
                     ]
                     yield! [ 0..3 ]
                     |> List.map (fun index ->
-                        match getPedalAndDict (PrePedal index) tone with
-                        | Some pedal, _ ->
-                            ToggleButton.create [
-                                ToggleButton.margin (0., 2.)
-                                ToggleButton.minHeight 25.
-                                ToggleButton.content pedalDict.[pedal.Key].Name
-                                ToggleButton.isChecked (PrePedal index = selectedGearType)
-                                ToggleButton.onIsPressedChanged ((fun isPressed ->
-                                    if isPressed then
-                                        (Some pedalDict.[pedal.Key], PrePedal index) |> SetSelectedGear |> dispatch),
-                                    SubPatchOptions.OnChangeOf pedal)
-                            ] |> Helpers.generalize
-                        | None, _ ->
-                            ToggleButton.create [
-                                ToggleButton.margin (0., 2.)
-                                ToggleButton.minHeight 25.
-                                ToggleButton.isChecked (PrePedal index = selectedGearType)
-                                ToggleButton.onChecked (fun _ ->
-                                    (None, PrePedal index) |> SetSelectedGear |> dispatch)
-                            ] |> Helpers.generalize)
+                        ToggleButton.create [
+                            ToggleButton.margin (0., 2.)
+                            ToggleButton.minHeight 25.
+                            ToggleButton.content (
+                                match getPedalAndDict (PrePedal index) tone with
+                                | Some pedal, dict -> dict.[pedal.Key].Name
+                                | None, _ -> String.Empty)
+                            ToggleButton.isChecked (PrePedal index = selectedGearType)
+                            ToggleButton.onChecked (fun _ -> PrePedal index |> SetSelectedGearType |> dispatch)
+                        ] |> Helpers.generalize)
                 ]
             ]
 
             StackPanel.create [
                 StackPanel.children [
                     TextBlock.create [
-                        TextBlock.text "Loop Pedals"
+                        TextBlock.text (translate "loopPedals")
                     ]
                     yield! [ 0..3 ]
                     |> List.map (fun index ->
-                        match getPedalAndDict (PostPedal index) tone with
-                        | Some pedal, _ ->
-                            ToggleButton.create [
-                                ToggleButton.margin (0., 2.)
-                                ToggleButton.minHeight 25.
-                                ToggleButton.content pedalDict.[pedal.Key].Name
-                                ToggleButton.isChecked (PostPedal index = selectedGearType)
-                                ToggleButton.onChecked ((fun _ ->
-                                    (Some pedalDict.[pedal.Key], PostPedal index) |> SetSelectedGear |> dispatch),
-                                    SubPatchOptions.OnChangeOf pedal)
-                            ] |> Helpers.generalize
-                        | None, _ ->
-                            ToggleButton.create [
-                                ToggleButton.margin (0., 2.)
-                                ToggleButton.minHeight 25.
-                                ToggleButton.isChecked (PostPedal index = selectedGearType)
-                                ToggleButton.onChecked (fun _ ->
-                                    (None, PostPedal index) |> SetSelectedGear |> dispatch)
-                            ] |> Helpers.generalize)
+                        ToggleButton.create [
+                            ToggleButton.margin (0., 2.)
+                            ToggleButton.minHeight 25.
+                            ToggleButton.content (
+                                match getPedalAndDict (PostPedal index) tone with
+                                | Some pedal, dict -> dict.[pedal.Key].Name
+                                | None, _ -> String.Empty)
+                            ToggleButton.isChecked (PostPedal index = selectedGearType)
+                            ToggleButton.onChecked (fun _ -> PostPedal index |> SetSelectedGearType |> dispatch)
+                        ] |> Helpers.generalize)
                 ]
             ]
 
             StackPanel.create [
                 StackPanel.children [
                     TextBlock.create [
-                        TextBlock.text "Rack"
+                        TextBlock.text (translate "rack")
                     ]
                     yield! [ 0..3 ]
                     |> List.map (fun index ->
-                        match getPedalAndDict (Rack index) tone with
-                        | Some pedal, _ ->
-                            ToggleButton.create [
-                                ToggleButton.margin (0., 2.)
-                                ToggleButton.minHeight 25.
-                                ToggleButton.content rackDict.[pedal.Key].Name
-                                ToggleButton.isChecked (Rack index = selectedGearType)
-                                //ToggleButton.onChecked ((fun _ ->
-                                //    (Some rackDict.[pedal.Key], Rack index) |> SetSelectedGear |> dispatch),
-                                //    SubPatchOptions.OnChangeOf pedal)
-                            ] |> Helpers.generalize
-                        | None, _ ->
-                            ToggleButton.create [
-                                ToggleButton.margin (0., 2.)
-                                ToggleButton.minHeight 25.
-                                ToggleButton.isChecked (Rack index = selectedGearType)
-                                ToggleButton.onChecked (fun _ ->
-                                    (None, Rack index) |> SetSelectedGear |> dispatch)
-                            ] |> Helpers.generalize)
+                        ToggleButton.create [
+                            ToggleButton.margin (0., 2.)
+                            ToggleButton.minHeight 25.
+                            ToggleButton.content (
+                                match getPedalAndDict (Rack index) tone with
+                                | Some pedal, dict -> dict.[pedal.Key].Name
+                                | None, _ -> String.Empty)
+                            ToggleButton.isChecked (Rack index = selectedGearType)
+                            ToggleButton.onChecked (fun _ -> Rack index |> SetSelectedGearType |> dispatch)
+                        ] |> Helpers.generalize)
                 ]
             ]
         ]
     ]
 
-let gearSelector dispatch (tone: Tone) gearType =
+let private gearSelector dispatch (tone: Tone) gearType =
     let pedal, dict = getPedalAndDict gearType tone
 
     ComboBox.create [
@@ -233,22 +199,21 @@ let gearSelector dispatch (tone: Tone) gearType =
             | Amp -> amps
             | PrePedal _ | PostPedal _ -> pedals
             | Rack _ -> racks)
-        ComboBox.itemTemplate (match gearType with | Amp -> ampTemplate | _ -> pedalTemplate)
-        match pedal with
-        | Some pedal -> ComboBox.selectedItem (dict.[pedal.Key])
-        | None -> ()
-        ComboBox.onSelectedItemChanged ((fun item ->
+        ComboBox.itemTemplate gearTemplate
+        ComboBox.selectedItem (
+            match pedal with
+            | Some pedal -> dict.[pedal.Key]
+            | None -> Unchecked.defaultof<ToneGear>)
+        ComboBox.onSelectedItemChanged (fun item ->
             match item with
-            | :? ToneGear as gear ->
-                (Some gear, gearType) |> SetSelectedGear |> dispatch
-                //gear |> SetPedal |> EditTone |> dispatch
-            | _ -> ()),
-            SubPatchOptions.OnChangeOf gearType)
+            | :? ToneGear as gear -> Some gear
+            | _ -> None
+            |> SetSelectedGear |> dispatch)
     ]
 
-let knobSliders dispatch (tone: Tone) gearType knobs =
+let private knobSliders dispatch (tone: Tone) gearType knobs =
     knobs
-    |> Array.map (fun knob ->
+    |> Array.mapi (fun i knob ->
         let currentValue =
             match Tones.getKnobValuesForGear gearType tone with
             | Some currentValues ->
@@ -258,33 +223,50 @@ let knobSliders dispatch (tone: Tone) gearType knobs =
             | None ->
                 float32 knob.DefaultValue
 
+        let bg = if i % 2 = 0 then SolidColorBrush.Parse "#303030" else SolidColorBrush.Parse "#383838"
+
         match knob.EnumValues with
         | Some enums ->
             StackPanel.create [
+                StackPanel.background bg
                 StackPanel.children [
                     TextBlock.create [
                         TextBlock.text knob.Name
+                        TextBlock.horizontalAlignment HorizontalAlignment.Center
                     ]
                     ComboBox.create [
                         ComboBox.dataItems enums
                         ComboBox.selectedIndex (int currentValue)
-                        //ComboBox.onSelectedIndexChanged ((fun index ->
-                        //    SetKnobValue (knob.Key, float index) |> EditTone |> dispatch),
-                        //    SubPatchOptions.OnChangeOf knob
-                        //)
+                        ComboBox.onSelectedIndexChanged ((fun index ->
+                            SetKnobValue (knob.Key, float index) |> EditTone |> dispatch),
+                            SubPatchOptions.OnChangeOf knob
+                        )
                     ]
                 ]
             ] |> Helpers.generalize
         | None ->
             StackPanel.create [
+                StackPanel.background bg
                 StackPanel.children [
                     TextBlock.create [
                         TextBlock.text knob.Name
+                        TextBlock.horizontalAlignment HorizontalAlignment.Center
                     ]
 
-                    TextBlock.create [
-                        TextBlock.text (string currentValue)
-                        TextBlock.horizontalAlignment HorizontalAlignment.Center
+                    StackPanel.create [
+                        StackPanel.orientation Orientation.Horizontal
+                        StackPanel.horizontalAlignment HorizontalAlignment.Center
+                        StackPanel.children [
+                            TextBlock.create [
+                                TextBlock.text (string currentValue)
+                            ]
+
+                            if knob.UnitType <> "number" then
+                                TextBlock.create [
+                                    TextBlock.text knob.UnitType
+                                    TextBlock.margin (4., 0., 0., 0.)
+                                ]
+                        ]
                     ]
 
                     DockPanel.create [
@@ -293,12 +275,6 @@ let knobSliders dispatch (tone: Tone) gearType knobs =
                                 DockPanel.dock Dock.Left
                                 TextBlock.text (string knob.MinValue)
                             ]
-                            if knob.UnitType <> "number" then
-                                TextBlock.create [
-                                    DockPanel.dock Dock.Right
-                                    TextBlock.text knob.UnitType
-                                    TextBlock.margin (4.0, 0.0)
-                                ]
                             TextBlock.create [
                                 DockPanel.dock Dock.Right
                                 TextBlock.text (string knob.MaxValue)
@@ -310,36 +286,57 @@ let knobSliders dispatch (tone: Tone) gearType knobs =
                                 Slider.value (float currentValue)
                                 Slider.maximum knob.MaxValue
                                 Slider.minimum knob.MinValue
-                                //Slider.onValueChanged ((fun value ->
-                                //    if value <> float currentValue then
-                                //        SetKnobValue (knob.Key, value) |> EditTone |> dispatch),
-                                //    SubPatchOptions.Always
-                                //)
+                                Slider.onValueChanged ((fun value ->
+                                    SetKnobValue (knob.Key, value) |> EditTone |> dispatch),
+                                    SubPatchOptions.OnChangeOf knob
+                                )
                             ]
                         ]
                     ]
                 ]
-            ] |> Helpers.generalize)
+            ] |> generalize)
 
 let view state dispatch tone =
-    Grid.create [
-        Grid.width 500.
-        Grid.columnDefinitions "*,*"
+    DockPanel.create [
         DockPanel.children [
-            editor state dispatch tone
+            Button.create [
+                DockPanel.dock Dock.Bottom
+                Button.margin 4.
+                Button.fontSize 16.
+                Button.padding (50., 10.)
+                Button.content (translate "close")
+                Button.horizontalAlignment HorizontalAlignment.Center
+                Button.onClick (fun _ -> CloseOverlay |> dispatch)
+            ]
 
-            StackPanel.create [
-                Grid.column 1
-                StackPanel.margin (16., 0., 0., 0.)
-                StackPanel.children [
-                    match state.SelectedGear with
-                    | Some { Knobs = Some knobs }, gearType ->
-                        yield gearSelector dispatch tone gearType
+            Grid.create [
+                Grid.width 550.
+                Grid.minHeight 550.
+                Grid.columnDefinitions "*,*"
+                Grid.children [
+                    gearTypeSelector state dispatch tone
 
-                        yield! knobSliders dispatch tone gearType knobs
-                    | _, gearType ->
-                        yield gearSelector dispatch tone gearType
+                    StackPanel.create [
+                        Grid.column 1
+                        StackPanel.margin (16., 0., 0., 0.)
+                        StackPanel.children [
+                            yield gearSelector dispatch tone state.SelectedGearType
+
+                            match state.SelectedGear with
+                            | Some { Knobs = Some knobs } ->
+                                yield (
+                                    Button.create [
+                                        Button.margin (0., 2.)
+                                        Button.content (translate "remove")
+                                        Button.isVisible (state.SelectedGearType <> Amp)
+                                        Button.onClick (fun _ -> RemovePedal |> EditTone |> dispatch)
+                                    ])
+                                yield! knobSliders dispatch tone state.SelectedGearType knobs
+                            | _ ->
+                                ()
+                        ]
+                    ]
                 ]
             ]
         ]
-    ] |> Helpers.generalize
+    ] |> generalize

@@ -127,18 +127,26 @@ let view state dispatch (tone: Tone) =
                 ToolTip.tip (translate "toneVolumeToolTip")
             ]
 
-            Button.create [
-                Grid.column 1
+            Grid.create [
                 Grid.row 4
-                Button.content (translate "export")
-                Button.onClick (fun _ -> ExportSelectedTone |> dispatch)
-            ]
+                Grid.columnSpan 2
+                Grid.columnDefinitions "*, *"
+                Grid.children [
+                    Button.create [
+                        Button.content (translate "edit")
+                        Button.onClick (fun _ -> ShowToneEditor |> dispatch)
+                        Button.margin 2.
+                        Button.padding (8., 4.)
+                    ]
 
-            Button.create [
-                Grid.column 0
-                Grid.row 4
-                Button.content "Edit"
-                Button.onClick (fun _ -> ShowToneEditor |> dispatch)
+                    Button.create [
+                        Grid.column 1
+                        Button.content (translate "export")
+                        Button.onClick (fun _ -> ExportSelectedTone |> dispatch)
+                        Button.margin 2.
+                        Button.padding (8., 4.)
+                    ]
+                ]
             ]
         ]
     ]

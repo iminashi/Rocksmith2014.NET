@@ -12,8 +12,6 @@ type GearType =
     | PostPedal of index : int
     | Rack of index : int
 
-type TargetKnob = { Knob : GearType; KnobKey : string }
-
 type ToneKnob =
     { Name : string
       Key : string
@@ -45,7 +43,7 @@ let getKnobValuesForGear gearType (tone: Tone) =
 let loadPedalData () = async {
     let provider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
     
-    let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
+    let options = JsonSerializerOptions(IgnoreNullValues = true)
     options.Converters.Add(JsonFSharpConverter())
     return! JsonSerializer.DeserializeAsync<ToneGear[]>(provider.GetFileInfo("pedalData.json").CreateReadStream(), options) }
 
