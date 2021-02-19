@@ -165,22 +165,6 @@ module Tone =
         if xel.Name <> "Tone2014" then failwith "Not a valid tone XML file."
         importXml None xel
 
-    /// Imports a tone from a JSON file.
-    let fromJsonFile (fileName: string) = async {
-        use file = File.OpenRead fileName
-
-        let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
-        options.Converters.Add(JsonFSharpConverter())
-        return! JsonSerializer.DeserializeAsync<Tone>(file, options) }
-
-    /// Exports a tone into a JSON file.
-    let exportJson (path: string) (tone: Tone) = async {
-        use file = File.Create path
-
-        let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
-        options.Converters.Add(JsonFSharpConverter())
-        do! JsonSerializer.SerializeAsync(file, tone, options) }
-
     let private pedalFromDto (dto: PedalDto) =
         { Category = Option.ofObj dto.Category
           Type = dto.Type
@@ -252,6 +236,23 @@ module Tone =
           Key = tone.Key
           Name = tone.Name
           SortOrder = Option.toNullable tone.SortOrder }
+
+    /// Imports a tone from a JSON file.
+    let fromJsonFile (fileName: string) = async {
+        use file = File.OpenRead fileName
+
+        let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
+        options.Converters.Add(JsonFSharpConverter())
+        let! dto = JsonSerializer.DeserializeAsync<ToneDto>(file, options)
+        return fromDto dto }
+
+    /// Exports a tone into a JSON file.
+    let exportJson (path: string) (tone: Tone) = async {
+        use file = File.Create path
+
+        let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
+        options.Converters.Add(JsonFSharpConverter())
+        do! JsonSerializer.SerializeAsync(file, toDto tone, options) }
 
     /// Exports a tone into an XML file in a format that is compatible with the Toolkit.
     let exportXml (path: string) (tone: Tone) = async {
