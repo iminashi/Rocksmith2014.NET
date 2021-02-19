@@ -11,7 +11,7 @@ open System.Xml
 
 type Pedal =
     { Type : string 
-      KnobValues : Map<string, float32> option
+      KnobValues : Map<string, float32>
       Key : string
       Category : string option
       Skin : string option
@@ -104,19 +104,22 @@ module Tone =
             let skinIndex = node pedal "SkinIndex"
 
             let knobValues =
-                // TODO: Handle missing
-                (node pedal "KnobValues").ChildNodes
-                |> Seq.cast<XmlNode>
-                |> Seq.map (fun knob ->
-                    let key = knob.Item("Key", ArrayNs).InnerText
-                    let value = knob.Item("Value", ArrayNs).InnerText
-                    key, float32 value)
-                |> Map.ofSeq
+                let knobs = node pedal "KnobValues"
+                if isNull knobs then
+                    Map.empty
+                else
+                    knobs.ChildNodes
+                    |> Seq.cast<XmlNode>
+                    |> Seq.map (fun knob ->
+                        let key = knob.Item("Key", ArrayNs).InnerText
+                        let value = knob.Item("Value", ArrayNs).InnerText
+                        key, float32 value)
+                    |> Map.ofSeq
 
             { Category = (if cat.IsEmpty then None else Some cat.InnerText)
               Type = (node pedal "Type").InnerText
               Key = (node pedal "PedalKey").InnerText
-              KnobValues = Some knobValues
+              KnobValues = knobValues
               Skin = (if not (isNull skin || skin.IsEmpty) then Some skin.InnerText else None)
               SkinIndex = if not (isNull skinIndex || skinIndex.IsEmpty) then Some (float32 skinIndex.InnerText) else None }
             |> Some
@@ -124,11 +127,11 @@ module Tone =
     let private getGearList (ns: string option) (gearList: XmlElement) =
         let getPedal = getPedal ns gearList
     
-        { Racks = [| getPedal "Rack1"; getPedal "Rack2"; getPedal "Rack3"; getPedal "Rack4" |]
-          Amp = getPedal "Amp" |> Option.get
+        { Amp = getPedal "Amp" |> Option.get
           Cabinet = getPedal "Cabinet" |> Option.get
-          PrePedals = [| getPedal "PrePedal1"; getPedal "PrePedal2"; getPedal "PrePedal3"; getPedal "PrePedal4" |]
-          PostPedals = [| getPedal "PostPedal1"; getPedal "PostPedal2"; getPedal "PostPedal3"; getPedal "PostPedal4" |] }
+          PrePedals = [| 1..4 |] |> Array.map (fun i -> getPedal $"PrePedal{i}")
+          PostPedals = [| 1..4 |] |> Array.map (fun i -> getPedal $"PostPedal{i}")
+          Racks = [| 1..4 |] |> Array.map (fun i -> getPedal $"Rack{i}") }
 
     let private getDescriptors (descs: XmlElement) =
         descs.ChildNodes
@@ -145,11 +148,12 @@ module Tone =
         let nodeText name = (node name).InnerText
 
         let macVol = node "MacVolume"
+        let isCustom = node "IsCustom"
 
         { Tone.GearList = getGearList ns (node "GearList")
           ToneDescriptors = getDescriptors (node "ToneDescriptors")
           NameSeparator = nodeText "NameSeparator"
-          IsCustom = Boolean.Parse(nodeText "IsCustom") |> Some // TODO: Handle missing
+          IsCustom = if isNull isCustom then None else Some <| Boolean.Parse(isCustom.InnerText)
           Volume = nodeText "Volume"
           MacVolume = if isNull macVol then None else Some macVol.InnerText
           Key = nodeText "Key"
@@ -171,19 +175,20 @@ module Tone =
           Key = dto.Key
           KnobValues =
             if isNull dto.KnobValues then
-                None
+                Map.empty
             else
-                dto.KnobValues |> Seq.map (|KeyValue|) |> Map.ofSeq |> Some
+                dto.KnobValues |> Seq.map (|KeyValue|) |> Map.ofSeq
           Skin = Option.ofObj dto.Skin
           SkinIndex = Option.ofNullable dto.SkinIndex }
 
     let fromDto dto : Tone =
         let gear =
-            { Racks = [| dto.GearList.Rack1; dto.GearList.Rack2; dto.GearList.Rack3; dto.GearList.Rack4 |] |> Array.map (Option.ofObj >> Option.map pedalFromDto)
-              Amp = pedalFromDto dto.GearList.Amp
+            let fromDtoArray = Array.map (Option.ofObj >> Option.map pedalFromDto)
+            { Amp = pedalFromDto dto.GearList.Amp
               Cabinet = pedalFromDto dto.GearList.Cabinet
-              PrePedals = [| dto.GearList.PrePedal1; dto.GearList.PrePedal2; dto.GearList.PrePedal3; dto.GearList.PrePedal4 |] |> Array.map (Option.ofObj >> Option.map pedalFromDto)
-              PostPedals = [| dto.GearList.PostPedal1; dto.GearList.PostPedal2; dto.GearList.PostPedal3; dto.GearList.PostPedal4 |] |> Array.map (Option.ofObj >> Option.map pedalFromDto) }
+              PrePedals = fromDtoArray [| dto.GearList.PrePedal1; dto.GearList.PrePedal2; dto.GearList.PrePedal3; dto.GearList.PrePedal4 |]
+              PostPedals = fromDtoArray [| dto.GearList.PostPedal1; dto.GearList.PostPedal2; dto.GearList.PostPedal3; dto.GearList.PostPedal4 |]
+              Racks = fromDtoArray [| dto.GearList.Rack1; dto.GearList.Rack2; dto.GearList.Rack3; dto.GearList.Rack4 |] }
 
         { GearList = gear
           ToneDescriptors = dto.ToneDescriptors
@@ -196,10 +201,9 @@ module Tone =
           SortOrder = Option.ofNullable dto.SortOrder }
 
     let toPedalDto (pedal: Pedal) =
-        let kv = pedal.KnobValues |> Option.map Dictionary |> Option.defaultWith Dictionary
         PedalDto(Key = pedal.Key,
                  Type = pedal.Type,
-                 KnobValues = kv,
+                 KnobValues = Dictionary(pedal.KnobValues),
                  Category = Option.toObj pedal.Category,
                  Skin = Option.toObj pedal.Skin,
                  SkinIndex = Option.toNullable pedal.SkinIndex)
@@ -212,11 +216,7 @@ module Tone =
             |> Option.defaultValue null
 
         let gear =
-            { Rack1 = tone.GearList.Racks |> tryGetPedal 0
-              Rack2 = tone.GearList.Racks |> tryGetPedal 1
-              Rack3 = tone.GearList.Racks |> tryGetPedal 2
-              Rack4 = tone.GearList.Racks |> tryGetPedal 3
-              Amp = toPedalDto tone.GearList.Amp
+            { Amp = toPedalDto tone.GearList.Amp
               Cabinet = toPedalDto tone.GearList.Cabinet
               PrePedal1 = tone.GearList.PrePedals |> tryGetPedal 0
               PrePedal2 = tone.GearList.PrePedals |> tryGetPedal 1
@@ -225,7 +225,11 @@ module Tone =
               PostPedal1 = tone.GearList.PostPedals |> tryGetPedal 0
               PostPedal2 = tone.GearList.PostPedals |> tryGetPedal 1
               PostPedal3 = tone.GearList.PostPedals |> tryGetPedal 2
-              PostPedal4 = tone.GearList.PostPedals |> tryGetPedal 3 }
+              PostPedal4 = tone.GearList.PostPedals |> tryGetPedal 3
+              Rack1 = tone.GearList.Racks |> tryGetPedal 0
+              Rack2 = tone.GearList.Racks |> tryGetPedal 1
+              Rack3 = tone.GearList.Racks |> tryGetPedal 2
+              Rack4 = tone.GearList.Racks |> tryGetPedal 3 }
         
         { GearList = gear
           ToneDescriptors = tone.ToneDescriptors

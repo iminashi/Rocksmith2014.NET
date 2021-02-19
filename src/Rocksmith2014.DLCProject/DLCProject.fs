@@ -32,12 +32,62 @@ type DLCProject =
           AlbumName = SortableString.Empty
           Year = DateTime.Now.Year
           AlbumArtFile = String.Empty
-          AudioFile = { Path = String.Empty; Volume = -8. }
-          AudioPreviewFile = { Path = String.Empty; Volume = -7. }
+          AudioFile = AudioFile.Empty
+          AudioPreviewFile = AudioFile.Empty
           Arrangements = []
           Tones = [] }
 
 module DLCProject =
+    type Dto() =
+        member val Version : string = String.Empty with get, set
+        member val DLCKey : string = String.Empty with get, set
+        member val ArtistName : SortableString = SortableString.Empty with get, set
+        member val JapaneseArtistName : string = null with get, set
+        member val JapaneseTitle : string = null with get, set
+        member val Title : SortableString = SortableString.Empty with get, set
+        member val AlbumName : SortableString = SortableString.Empty with get, set
+        member val Year : int = DateTime.Now.Year with get, set
+        member val AlbumArtFile : string = String.Empty with get, set
+        member val AudioFile : AudioFile = AudioFile.Empty with get, set
+        member val AudioPreviewFile = AudioFile.Empty with get, set
+        member val Arrangements : Arrangement array = Array.empty with get, set
+        member val Tones : ToneDto array = Array.empty with get, set
+
+    let private toDto (project: DLCProject) =
+        let tones =
+            project.Tones
+            |> List.map Tone.toDto
+            |> Array.ofList
+
+        Dto(Version = project.Version,
+            DLCKey = project.DLCKey,
+            ArtistName = project.ArtistName,
+            JapaneseArtistName = Option.toObj project.JapaneseArtistName,
+            JapaneseTitle = Option.toObj project.JapaneseTitle,
+            Title = project.Title,
+            AlbumName = project.AlbumName,
+            Year = project.Year,
+            AlbumArtFile = project.AlbumArtFile,
+            AudioFile = project.AudioFile,
+            AudioPreviewFile = project.AudioPreviewFile,
+            Arrangements = Array.ofList project.Arrangements,
+            Tones = tones)
+
+    let private fromDto (dto: Dto) =
+        { Version = dto.Version
+          DLCKey = dto.DLCKey
+          ArtistName = dto.ArtistName
+          JapaneseArtistName = Option.ofString dto.JapaneseArtistName
+          JapaneseTitle = Option.ofString dto.JapaneseTitle
+          Title = dto.Title
+          AlbumName = dto.AlbumName
+          Year = dto.Year
+          AlbumArtFile = dto.AlbumArtFile
+          AudioFile = dto.AudioFile
+          AudioPreviewFile = dto.AudioPreviewFile
+          Arrangements = dto.Arrangements |> List.ofArray
+          Tones = dto.Tones |> List.ofArray |> List.map Tone.fromDto }
+
     let private toAbsolutePath (baseDir: string) (fileName: string) =
         if String.IsNullOrWhiteSpace fileName then
             fileName
@@ -95,16 +145,18 @@ module DLCProject =
         use file = File.Create fileName
         let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
         options.Converters.Add(JsonFSharpConverter())
-        let p = toRelativePaths (Path.GetDirectoryName fileName) project
-        do! JsonSerializer.SerializeAsync(file, p, options) }
+        let p =
+            toRelativePaths (Path.GetDirectoryName fileName) project
+            |> toDto
+        do! JsonSerializer.SerializeAsync<Dto>(file, p, options) }
 
     /// Loads a project from a file with the given filename.
     let load (fileName: string) = async {
         let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
         options.Converters.Add(JsonFSharpConverter())
         use file = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan ||| FileOptions.Asynchronous)
-        let! project = JsonSerializer.DeserializeAsync<DLCProject>(file, options)
-        return toAbsolutePaths (Path.GetDirectoryName fileName) project  }
+        let! project = JsonSerializer.DeserializeAsync<Dto>(file, options)
+        return toAbsolutePaths (Path.GetDirectoryName fileName) (fromDto project)  }
 
     /// Updates the tone names for the instrumental arrangements in the project from the XML files.
     let updateToneInfo (project: DLCProject) =

@@ -9,7 +9,7 @@ open Elmish
 
 let testPedal =
     { Type = "Test"
-      KnobValues = None
+      KnobValues = Map.empty
       Key = "test"
       Category = None
       Skin = None

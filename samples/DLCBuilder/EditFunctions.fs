@@ -288,20 +288,23 @@ let editTone state edit (tone: Tone) =
                 let updatedKnobs =
                     getKnobValuesForGear state.SelectedGearType tone
                     // Update the value only if the key exists
-                    |> Option.map (Map.change knobKey (Option.map (fun _ -> float32 value)))
+                    |> Option.map (Map.change knobKey (Option.map (fun _ -> value)))
 
-                let gear =
-                    match state.SelectedGearType with
-                    | Amp ->
-                        { tone.GearList with Amp = { tone.GearList.Amp with KnobValues = updatedKnobs } }
-                    | PrePedal index ->
-                        { tone.GearList with PrePedals = tone.GearList.PrePedals |> updateKnobs updatedKnobs index }
-                    | PostPedal index ->
-                        { tone.GearList with PostPedals = tone.GearList.PostPedals |> updateKnobs updatedKnobs index }
-                    | Rack index ->
-                        { tone.GearList with Racks = tone.GearList.Racks |> updateKnobs updatedKnobs index }
+                match updatedKnobs with
+                | None -> tone
+                | Some updatedKnobs ->
+                    let gear =
+                        match state.SelectedGearType with
+                        | Amp ->
+                            { tone.GearList with Amp = { tone.GearList.Amp with KnobValues = updatedKnobs } }
+                        | PrePedal index ->
+                            { tone.GearList with PrePedals = tone.GearList.PrePedals |> updateKnobs updatedKnobs index }
+                        | PostPedal index ->
+                            { tone.GearList with PostPedals = tone.GearList.PostPedals |> updateKnobs updatedKnobs index }
+                        | Rack index ->
+                            { tone.GearList with Racks = tone.GearList.Racks |> updateKnobs updatedKnobs index }
 
-                { tone with GearList = gear }
+                    { tone with GearList = gear }
             | _ ->
                 tone
 

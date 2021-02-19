@@ -18,7 +18,7 @@ let toneTests =
             Expect.isNone tone.GearList.Cabinet.Category "Cabinet category is none"
             Expect.isNone tone.GearList.Cabinet.Skin "Cabinet skin is none"
             Expect.equal tone.GearList.Amp.Key "Amp_OrangeAD50" "Amp key is correct"
-            Expect.isSome tone.GearList.Amp.KnobValues "Amp knob values exist"
+            Expect.hasLength tone.GearList.Amp.KnobValues 4 "There are 4 amp knob values"
             Expect.isSome tone.GearList.PrePedals.[0] "Pre-pedal 1 was imported" }
 
         testAsync "Can be exported to XML" {
@@ -36,7 +36,7 @@ let toneTests =
             Expect.equal tone.GearList.Cabinet.Type "Cabinets" "Cabinet type is correct"
             Expect.isNone tone.GearList.Cabinet.SkinIndex "Cabinet skin index is none"
             Expect.equal tone.GearList.Amp.Type "Amps" "Amp type is correct"
-            Expect.isSome tone.GearList.Amp.KnobValues "Amp knob values exist"
+            Expect.hasLength tone.GearList.Amp.KnobValues 4 "There are 4 amp knob values"
             Expect.isSome tone.GearList.PrePedals.[0] "Pre-pedal 1 was imported" }
 
         testAsync "Can be exported to JSON and imported from JSON" {
@@ -53,5 +53,5 @@ let toneTests =
             Expect.equal tone.ToneDescriptors [| "$[35720]CLEAN" |] "Descriptors are correct"
             Expect.isNone tone.GearList.Cabinet.Skin "Cabinet skin is none"
             Expect.equal tone.GearList.Amp.Key "Amp_OrangeAD50" "Amp key is correct"
-            Expect.isSome tone.GearList.Amp.KnobValues "Amp knob values exist" }
+            Expect.hasLength tone.GearList.Amp.KnobValues 4 "There are 4 amp knob values" }
     ]

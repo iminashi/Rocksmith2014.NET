@@ -63,7 +63,7 @@ type ToneEdit =
     | RemoveDescriptor
     | SetPedal of Tones.ToneGear
     | SetCabinet of Tones.ToneGear
-    | SetKnobValue of knobKey:string * value: float
+    | SetKnobValue of knobKey:string * value:float32
     | RemovePedal
 
 type VocalsEdit =

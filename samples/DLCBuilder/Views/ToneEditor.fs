@@ -217,11 +217,11 @@ let private knobSliders dispatch (tone: Tone) gearType knobs =
         let currentValue =
             match Tones.getKnobValuesForGear gearType tone with
             | Some currentValues ->
-                let mutable value = float32 knob.DefaultValue
+                let mutable value = knob.DefaultValue
                 currentValues.TryGetValue(knob.Key, &value) |> ignore
                 value
             | None ->
-                float32 knob.DefaultValue
+                knob.DefaultValue
 
         let bg = if i % 2 = 0 then SolidColorBrush.Parse "#303030" else SolidColorBrush.Parse "#383838"
 
@@ -238,7 +238,7 @@ let private knobSliders dispatch (tone: Tone) gearType knobs =
                         ComboBox.dataItems enums
                         ComboBox.selectedIndex (int currentValue)
                         ComboBox.onSelectedIndexChanged ((fun index ->
-                            SetKnobValue (knob.Key, float index) |> EditTone |> dispatch),
+                            SetKnobValue (knob.Key, float32 index) |> EditTone |> dispatch),
                             SubPatchOptions.OnChangeOf knob
                         )
                     ]
@@ -281,13 +281,13 @@ let private knobSliders dispatch (tone: Tone) gearType knobs =
                             ]
                             Slider.create [
                                 Slider.isSnapToTickEnabled true
-                                Slider.tickFrequency knob.ValueStep
-                                Slider.smallChange knob.ValueStep
+                                Slider.tickFrequency (float knob.ValueStep)
+                                Slider.smallChange (float knob.ValueStep)
                                 Slider.value (float currentValue)
-                                Slider.maximum knob.MaxValue
-                                Slider.minimum knob.MinValue
+                                Slider.maximum (float knob.MaxValue)
+                                Slider.minimum (float knob.MinValue)
                                 Slider.onValueChanged ((fun value ->
-                                    SetKnobValue (knob.Key, value) |> EditTone |> dispatch),
+                                    SetKnobValue (knob.Key, float32 value) |> EditTone |> dispatch),
                                     SubPatchOptions.OnChangeOf knob
                                 )
                             ]

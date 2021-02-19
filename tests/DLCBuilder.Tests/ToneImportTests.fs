@@ -6,7 +6,7 @@ open Rocksmith2014.Common.Manifest
 
 let testPedal =
     { Type = "Test"
-      KnobValues = None
+      KnobValues = Map.empty
       Key = "test"
       Category = None
       Skin = None

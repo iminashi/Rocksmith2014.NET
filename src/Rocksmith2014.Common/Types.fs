@@ -2,7 +2,9 @@
 
 open System
 
-type AudioFile = { Path : string; Volume : float }
+type AudioFile =
+    { Path : string; Volume : float }
+    with static member Empty = { Path = String.Empty; Volume = -7. }
 
 type IBinaryReader =
     abstract member ReadInt8 : unit -> int8

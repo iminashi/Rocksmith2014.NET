@@ -16,10 +16,10 @@ type ToneKnob =
     { Name : string
       Key : string
       UnitType : string
-      MinValue : float
-      MaxValue : float
-      ValueStep : float
-      DefaultValue : float
+      MinValue : float32
+      MaxValue : float32
+      ValueStep : float32
+      DefaultValue : float32
       Index : int
       EnumValues : string[] option }
 
@@ -38,7 +38,7 @@ let getKnobValuesForGear gearType (tone: Tone) =
     | PrePedal index -> gear.PrePedals.[index] 
     | PostPedal index -> gear.PostPedals.[index]
     | Rack index -> gear.Racks.[index]
-    |> Option.bind (fun x -> x.KnobValues)
+    |> Option.map (fun x -> x.KnobValues)
 
 let loadPedalData () = async {
     let provider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
@@ -53,9 +53,8 @@ let private getDefaultKnobValues gear =
         knobs
         |> Array.map (fun k -> k.Key, float32 k.DefaultValue)
         |> Map.ofArray
-        |> Some
     | None ->
-        None
+        Map.empty
 
 let createPedalForGear (gear: ToneGear) =
     { Key = gear.Key
