@@ -133,7 +133,7 @@ let update (msg: Msg) (state: State) =
     | ExportSelectedTone ->
         match state.SelectedTone with
         | Some tone ->
-            let initialFileName = Some $"{tone.Key}.tone2014.xml"
+            let initialFileName = Some $"{tone.Name}.tone2014.xml"
             let dialog = Dialogs.saveFileDialog (translate "exportToneAs") (Dialogs.toneExportFilter()) initialFileName
             state, Cmd.OfAsync.perform dialog None (fun path -> ExportTone(tone, path))
         | None ->

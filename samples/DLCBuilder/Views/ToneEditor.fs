@@ -239,7 +239,7 @@ let private knobSliders dispatch (tone: Tone) gearType knobs =
                         ComboBox.selectedIndex (int currentValue)
                         ComboBox.onSelectedIndexChanged ((fun index ->
                             SetKnobValue (knob.Key, float32 index) |> EditTone |> dispatch),
-                            SubPatchOptions.OnChangeOf knob
+                            SubPatchOptions.Always
                         )
                     ]
                 ]
@@ -283,12 +283,12 @@ let private knobSliders dispatch (tone: Tone) gearType knobs =
                                 Slider.isSnapToTickEnabled true
                                 Slider.tickFrequency (float knob.ValueStep)
                                 Slider.smallChange (float knob.ValueStep)
-                                Slider.value (float currentValue)
                                 Slider.maximum (float knob.MaxValue)
                                 Slider.minimum (float knob.MinValue)
+                                Slider.value (float currentValue)
                                 Slider.onValueChanged ((fun value ->
                                     SetKnobValue (knob.Key, float32 value) |> EditTone |> dispatch),
-                                    SubPatchOptions.OnChangeOf knob
+                                    SubPatchOptions.Always
                                 )
                             ]
                         ]

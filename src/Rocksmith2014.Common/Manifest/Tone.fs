@@ -8,6 +8,7 @@ open System.Text
 open System.Text.Json
 open System.Text.Json.Serialization
 open System.Xml
+open Newtonsoft.Json
 
 type Pedal =
     { Type : string 
@@ -52,7 +53,8 @@ type Tone =
 type PedalDto() =
     member val Type : string = null with get, set
     member val KnobValues : IDictionary<string, float32> = null with get, set
-    member val Key : string = null with get, set
+    [<JsonPropertyName("Key"); JsonProperty("Key")>]
+    member val PedalKey : string = null with get, set
     member val Category : string = null with get, set
     member val Skin : string = null with get, set
     member val SkinIndex : Nullable<float32> = Nullable() with get, set
@@ -172,7 +174,7 @@ module Tone =
     let private pedalFromDto (dto: PedalDto) =
         { Category = Option.ofObj dto.Category
           Type = dto.Type
-          Key = dto.Key
+          Key = dto.PedalKey
           KnobValues =
             if isNull dto.KnobValues then
                 Map.empty
@@ -201,7 +203,7 @@ module Tone =
           SortOrder = Option.ofNullable dto.SortOrder }
 
     let toPedalDto (pedal: Pedal) =
-        PedalDto(Key = pedal.Key,
+        PedalDto(PedalKey = pedal.Key,
                  Type = pedal.Type,
                  KnobValues = Dictionary(pedal.KnobValues),
                  Category = Option.toObj pedal.Category,
@@ -272,14 +274,11 @@ module Tone =
           .Replace("</ToneDto>", "</Tone2014>")
           // F# incompatibility stuff
           .Replace("_x0040_", "")
-          // The key for pedals is PedalKey
-          .Replace("<Key>", "<PedalKey>")
-          .Replace("</Key>", "</PedalKey>")
-          // Fix the key tag of the tone itself that was replaced
-          .Replace($"<PedalKey>{tone.Key}</PedalKey>", $"<Key>{tone.Key}</Key>")
           // Sort order is not nullable
           .Replace("""<SortOrder i:nil="true" />""", "<SortOrder>0.0</SortOrder>")
-          // Tone key/name import does not seem to work otherwise for some reason
+          // Toolkit does not have MacVolume
+          .Replace("  <MacVolume i:nil=\"true\" />\r\n", "")
+          // Tone key/name import does not seem to work otherwise
           .Replace($"<NameSeparator>{tone.NameSeparator}</NameSeparator>\r\n  <Name>{tone.Name}</Name>", $"<Name>{tone.Name}</Name>\r\n  <NameSeparator>{tone.NameSeparator}</NameSeparator>")
           // Change the namespace
           .Replace("http://schemas.datacontract.org/2004/07/Rocksmith2014.Common.Manifest", "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.Manifest.Tone")
