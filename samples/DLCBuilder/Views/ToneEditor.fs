@@ -13,49 +13,20 @@ open Rocksmith2014.Common
 open DLCBuilder
 open Tones
 
-let private allTones =
-    Tones.loadPedalData()
-    |> Async.RunSynchronously
+let private allGear = Tones.loadPedalData() |> Async.RunSynchronously
 
-let private pedals =
-    allTones
-    |> Array.filter (fun x -> x.Type = "Pedals")
-    |> Array.sortBy (fun x -> x.Category, x.Name)
+let private filterSort type' sortBy = allGear |> Array.filter (fun x -> x.Type = type') |> Array.sortBy sortBy
+let private toDict = Array.map (fun x -> x.Key, x) >> readOnlyDict
 
-let private pedalDict =
-    pedals
-    |> Array.map (fun x -> x.Key, x)
-    |> readOnlyDict
+let private pedals = filterSort "Pedals" (fun x -> x.Category, x.Name)
+let private amps = filterSort "Amps" (fun x -> x.Name)
+let private cabinets = filterSort "Cabinets" (fun x -> x.Name)
+let private racks = filterSort "Racks" (fun x -> x.Category, x.Name)
 
-let private amps =
-    allTones
-    |> Array.filter (fun x -> x.Type = "Amps")
-    |> Array.sortBy (fun x -> x.Name)
-
-let private ampDict =
-    amps
-    |> Array.map (fun x -> x.Key, x)
-    |> readOnlyDict
-
-let private cabinets =
-    allTones
-    |> Array.filter (fun x -> x.Type = "Cabinets")
-    |> Array.sortBy (fun x -> x.Name)
-
-let private cabinetDict =
-    cabinets
-    |> Array.map (fun x -> x.Key, x)
-    |> readOnlyDict
-
-let private racks =
-    allTones
-    |> Array.filter (fun x -> x.Type = "Racks")
-    |> Array.sortBy (fun x -> x.Category, x.Name)
-
-let private rackDict =
-    racks
-    |> Array.map (fun x -> x.Key, x)
-    |> readOnlyDict
+let private pedalDict = toDict pedals
+let private ampDict = toDict amps
+let private cabinetDict = toDict cabinets
+let private rackDict = toDict racks
 
 let private cabinetTemplate =
     DataTemplateView<ToneGear>.create (fun gear ->
