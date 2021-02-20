@@ -28,30 +28,6 @@ let private cabinetDict = toDict cabinets
 let private pedalDict = toDict pedals
 let private rackDict = toDict racks
 
-let private cabinetTemplate =
-    DataTemplateView<GearData>.create (fun gear ->
-        TextBlock.create [
-            TextBlock.text (gear.Name + " - " + gear.Category.Replace("_", " "))
-        ])
-
-let private gearTemplate =
-    DataTemplateView<GearData>.create (fun gear ->
-        match gear.Type with
-        | "Amps" ->
-            let prefix =
-                if gear.Key.StartsWith("bass", StringComparison.OrdinalIgnoreCase) then
-                    "(Bass) "
-                else
-                    String.Empty
-
-            TextBlock.create [
-                TextBlock.text (prefix + gear.Name)
-            ]
-        | _ ->
-            TextBlock.create [
-                TextBlock.text (gear.Category + ": " + gear.Name)
-            ])
-
 let private getPedalAndDict gearType (tone: Tone) =
     let gearList = tone.GearList
     match gearType with
@@ -59,6 +35,22 @@ let private getPedalAndDict gearType (tone: Tone) =
     | PrePedal index -> gearList.PrePedals.[index], pedalDict
     | PostPedal index -> gearList.PostPedals.[index], pedalDict
     | Rack index -> gearList.Racks.[index], rackDict
+
+let private cabinetTemplate =
+    DataTemplateView<GearData>.create (fun gear ->
+        TextBlock.create [
+            let category = gear.Category.Replace("_", " ")
+            TextBlock.text $"{gear.Name} - {category}"
+        ])
+
+let private gearTemplate =
+    DataTemplateView<GearData>.create (fun gear ->
+        match gear.Type with
+        | "Amps" ->
+            let prefix = if String.startsWith "bass" gear.Key then "(Bass) " else String.Empty
+            TextBlock.create [ TextBlock.text $"{prefix}{gear.Name}" ]
+        | _ ->
+            TextBlock.create [ TextBlock.text $"{gear.Category}: {gear.Name}" ])
 
 let private gearTypeHeader locName =
     TextBlock.create [

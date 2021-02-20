@@ -40,7 +40,7 @@ let private importInstrumental (xmlFile: string) (arr: XmlNode) =
                     let represent =
                         let r = arr.Item "Represent"
                         // The Represent tag is not present in old files
-                        not (isNull r) && r.InnerText = "true"
+                        notNull r && r.InnerText = "true"
                     if represent || arrProp.Item("Represent", ns).InnerText = "1" then
                         ArrangementPriority.Main
                     elif bonusArr || arrProp.Item("BonusArr", ns).InnerText = "1" then

@@ -14,7 +14,7 @@ type private MidiNote = { Time: float32; Note: int }
 let private toMs secs = int (secs * 1000.f)
 
 let private tryFindSoloSection =
-    Array.tryFind (fun (x: Section) -> x.Name.StartsWith("solo", StringComparison.OrdinalIgnoreCase))
+    Array.tryFind (fun (x: Section) -> String.startsWith "solo" x.Name)
 
 let private isWithinPhraseIteration (pi: PhraseIteration) (note: Note) =
     note.Time >= pi.StartTime && note.Time < pi.EndTime

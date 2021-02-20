@@ -202,7 +202,7 @@ module Arrangement =
             |> Array.choose Option.ofString
             |> Array.toList
 
-        if updateBaseTone && not <| isNull toneInfo.BaseToneName then
+        if updateBaseTone && notNull toneInfo.BaseToneName then
             { inst with Tones = tones; BaseTone = toneInfo.BaseToneName }
         else
             { inst with Tones = tones }

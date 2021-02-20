@@ -157,7 +157,7 @@ let private convertSections (sng: SNG) =
           EndTime = s.EndTime
           StartPhraseIterationIndex = s.StartPhraseIterationId
           EndPhraseIterationIndex = s.EndPhraseIterationId
-          IsSolo = s.Name.StartsWith("solo", StringComparison.Ordinal) })
+          IsSolo = String.startsWith "solo" s.Name })
 
 /// Converts SNG phrases into manifest phrases.
 let private convertPhrases (sng: SNG) =

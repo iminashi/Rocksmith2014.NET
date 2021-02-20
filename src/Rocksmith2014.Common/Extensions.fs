@@ -4,6 +4,11 @@ open System
 open System.Collections.Generic
 open System.IO
 
+[<AutoOpen>]
+module GeneralHelpers =
+    /// Determines whether the given value is not null.
+    let inline notNull obj = obj |> isNull |> not
+
 [<RequireQualifiedAccess>]
 module File =
     /// Calls the map function if the file with the given path exists.
@@ -44,8 +49,11 @@ module String =
     /// Returns true if the string is not null or whitespace.
     let notEmpty = (String.IsNullOrWhiteSpace >> not)
 
+    /// Returns true if the string starts with the given value (case insensitive).
+    let startsWith prefix (str: string) = notNull str && str.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
+
     /// Returns true if the string ends with the given value (case insensitive).
-    let endsWith suffix (str: string) = not <| isNull str && str.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)
+    let endsWith suffix (str: string) = notNull str && str.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)
 
     /// Returns true if the string contains the given value (case sensitive).
     let contains (substr: string) (str: string) = str.Contains(substr, StringComparison.Ordinal)
