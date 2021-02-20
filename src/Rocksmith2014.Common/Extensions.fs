@@ -30,6 +30,14 @@ module ResizeArray =
         let a = ResizeArray(size)
         for i = 0 to size - 1 do a.Add(f i)
         a
+
+[<RequireQualifiedAccess>]
+module Array =
+    /// Returns a new array with the item at the given index replaced with the new one.
+    let updateAt (index: int) newItem arr =
+        let c = Array.copy arr
+        c.[index] <- newItem
+        c
     
 [<RequireQualifiedAccess>]
 module Dictionary =
