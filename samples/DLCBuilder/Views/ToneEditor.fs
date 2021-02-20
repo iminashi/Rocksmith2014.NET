@@ -11,31 +11,31 @@ open System
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.Common
 open DLCBuilder
-open Tones
+open ToneGear
 
-let private allGear = Tones.loadPedalData() |> Async.RunSynchronously
+let private allGear = loadGearData() |> Async.RunSynchronously
 
 let private filterSort type' sortBy = allGear |> Array.filter (fun x -> x.Type = type') |> Array.sortBy sortBy
 let private toDict = Array.map (fun x -> x.Key, x) >> readOnlyDict
 
-let private pedals = filterSort "Pedals" (fun x -> x.Category, x.Name)
 let private amps = filterSort "Amps" (fun x -> x.Name)
 let private cabinets = filterSort "Cabinets" (fun x -> x.Name)
+let private pedals = filterSort "Pedals" (fun x -> x.Category, x.Name)
 let private racks = filterSort "Racks" (fun x -> x.Category, x.Name)
 
-let private pedalDict = toDict pedals
 let private ampDict = toDict amps
 let private cabinetDict = toDict cabinets
+let private pedalDict = toDict pedals
 let private rackDict = toDict racks
 
 let private cabinetTemplate =
-    DataTemplateView<ToneGear>.create (fun gear ->
+    DataTemplateView<GearData>.create (fun gear ->
         TextBlock.create [
             TextBlock.text (gear.Name + " - " + gear.Category.Replace("_", " "))
         ])
 
 let private gearTemplate =
-    DataTemplateView<ToneGear>.create (fun gear ->
+    DataTemplateView<GearData>.create (fun gear ->
         match gear.Type with
         | "Amps" ->
             let prefix =
@@ -103,7 +103,7 @@ let private gearTypeSelector state dispatch (tone: Tone) =
                 ComboBox.selectedItem (cabinetDict.[tone.GearList.Cabinet.Key])
                 ComboBox.onSelectedItemChanged (fun item ->
                     match item with
-                    | :? ToneGear as gear ->
+                    | :? GearData as gear ->
                         gear |> SetCabinet |> EditTone |> dispatch
                     | _ ->
                         ()
@@ -128,25 +128,21 @@ let private gearSelector dispatch (tone: Tone) gearType =
         ComboBox.selectedItem (
             match pedal with
             | Some pedal -> dict.[pedal.Key]
-            | None -> Unchecked.defaultof<ToneGear>)
+            | None -> Unchecked.defaultof<GearData>)
         ComboBox.onSelectedItemChanged (fun item ->
             match item with
-            | :? ToneGear as gear -> Some gear
+            | :? GearData as gear -> Some gear
             | _ -> None
             |> SetSelectedGear |> dispatch)
     ]
 
-let private knobSliders dispatch (tone: Tone) gearType knobs =
+let private knobSliders dispatch (tone: Tone) gearType (knobs: GearKnob array) =
     knobs
     |> Array.mapi (fun i knob ->
         let currentValue =
-            match Tones.getKnobValuesForGear gearType tone with
-            | Some currentValues ->
-                let mutable value = knob.DefaultValue
-                currentValues.TryGetValue(knob.Key, &value) |> ignore
-                value
-            | None ->
-                knob.DefaultValue
+            getKnobValuesForGear gearType tone
+            |> Option.bind (Map.tryFind knob.Key)
+            |> Option.defaultValue knob.DefaultValue
 
         let bg = if i % 2 = 0 then SolidColorBrush.Parse "#303030" else SolidColorBrush.Parse "#383838"
         let formatValue v (step: float) =

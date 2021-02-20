@@ -5,7 +5,7 @@ open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open Elmish
 open System
-open Tones
+open ToneGear
 
 let private updateArrangement old updated state =
     let arrangements =
@@ -228,7 +228,7 @@ let editTone state edit (tone: Tone) =
 
         | SetCabinet cabinet ->
             if cabinet.Key <> tone.GearList.Cabinet.Key then
-                let gear = { tone.GearList with Cabinet = Tones.createPedalForGear cabinet }
+                let gear = { tone.GearList with Cabinet = createPedalForGear cabinet }
                 { tone with GearList = gear }
             else
                 tone
@@ -260,11 +260,11 @@ let editTone state edit (tone: Tone) =
             | Some currPedal when currPedal.Key = pedal.Key ->
                 tone
             | _ ->
-                let setPedal index = Array.mapi (fun i p -> if i = index then Tones.createPedalForGear pedal |> Some else p)
+                let setPedal index = Array.mapi (fun i p -> if i = index then createPedalForGear pedal |> Some else p)
                 let gear =
                     match state.SelectedGearType with
                     | Amp ->
-                        { tone.GearList with Amp = Tones.createPedalForGear pedal }
+                        { tone.GearList with Amp = createPedalForGear pedal }
                     | PrePedal index ->
                         { tone.GearList with PrePedals = tone.GearList.PrePedals |> setPedal index }
                     | PostPedal index ->

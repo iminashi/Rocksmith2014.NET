@@ -8,7 +8,7 @@
     <Authors>iminashi</Authors>
     <NeutralLanguage>en</NeutralLanguage>
     <Product>Rocksmith 2014 DLC Builder</Product>
-    <Copyright>Copyright © 2020</Copyright>
+    <Copyright>Copyright © 2021</Copyright>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
   </PropertyGroup>
 
@@ -31,8 +31,8 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <AvaloniaResource Include="**\*.xaml" />
-    <EmbeddedResource Include="pedalData.json" />
-    <Compile Include="Tones.fs" />
+    <EmbeddedResource Include="ToneGearData.json" />
+    <Compile Include="ToneGear.fs" />
     <Compile Include="Localization.fs" />
     <Compile Include="Configuration.fs" />
     <Compile Include="Types.fs" />
@@ -104,7 +104,7 @@
     <Watch Remove="Templates.fs" />
     <Watch Remove="TitledTextBox.fs" />
     <Watch Remove="ToneEditor.fs" />
-    <Watch Remove="Tones.fs" />
+    <Watch Remove="ToneGear.fs" />
     <Watch Remove="Types.fs" />
     <Watch Remove="Utils.fs" />
     <Watch Remove="Views\ConfigEditor.fs" />

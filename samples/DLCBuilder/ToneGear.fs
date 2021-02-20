@@ -1,4 +1,4 @@
-﻿module Tones
+﻿module DLCBuilder.ToneGear
 
 open System.Reflection
 open System.Text.Json
@@ -12,7 +12,7 @@ type GearType =
     | PostPedal of index : int
     | Rack of index : int
 
-type ToneKnob =
+type GearKnob =
     { Name : string
       Key : string
       UnitType : string
@@ -23,12 +23,12 @@ type ToneKnob =
       Index : int
       EnumValues : string[] option }
 
-type ToneGear =
+type GearData =
     { Name : string
       Type : string
       Category : string 
       Key : string 
-      Knobs : ToneKnob array option }
+      Knobs : GearKnob array option }
 
 let getKnobValuesForGear gearType (tone: Tone) =
     let gear = tone.GearList
@@ -40,12 +40,12 @@ let getKnobValuesForGear gearType (tone: Tone) =
     | Rack index -> gear.Racks.[index]
     |> Option.map (fun x -> x.KnobValues)
 
-let loadPedalData () = async {
+let loadGearData () = async {
     let provider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
     
     let options = JsonSerializerOptions(IgnoreNullValues = true)
     options.Converters.Add(JsonFSharpConverter())
-    return! JsonSerializer.DeserializeAsync<ToneGear[]>(provider.GetFileInfo("pedalData.json").CreateReadStream(), options) }
+    return! JsonSerializer.DeserializeAsync<GearData[]>(provider.GetFileInfo("ToneGearData.json").CreateReadStream(), options) }
 
 let private getDefaultKnobValues gear =
     match gear.Knobs with
@@ -56,7 +56,7 @@ let private getDefaultKnobValues gear =
     | None ->
         Map.empty
 
-let createPedalForGear (gear: ToneGear) =
+let createPedalForGear (gear: GearData) =
     { Key = gear.Key
       Type = gear.Type
       Category = None

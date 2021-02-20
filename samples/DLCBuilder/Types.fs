@@ -61,8 +61,8 @@ type ToneEdit =
     | ChangeDescriptor of index:int * descriptor:ToneDescriptor
     | AddDescriptor
     | RemoveDescriptor
-    | SetPedal of Tones.ToneGear
-    | SetCabinet of Tones.ToneGear
+    | SetPedal of ToneGear.GearData
+    | SetCabinet of ToneGear.GearData
     | SetKnobValue of knobKey:string * value:float32
     | RemovePedal
 
@@ -113,8 +113,8 @@ type State =
       CoverArt : Bitmap option
       SelectedArrangement : Arrangement option
       SelectedTone : Tone option
-      SelectedGear : Tones.ToneGear option
-      SelectedGearType : Tones.GearType
+      SelectedGear : ToneGear.GearData option
+      SelectedGearType : ToneGear.GearType
       ShowSortFields : bool
       ShowJapaneseFields : bool
       Overlay : OverlayContents
@@ -147,8 +147,8 @@ type Msg =
     | ImportTonesFromFile of fileName : string
     | ArrangementSelected of selected : Arrangement option
     | ToneSelected of selected : Tone option
-    | SetSelectedGear of Tones.ToneGear option
-    | SetSelectedGearType of Tones.GearType
+    | SetSelectedGear of ToneGear.GearData option
+    | SetSelectedGearType of ToneGear.GearType
     | ShowToneEditor
     | DeleteArrangement
     | DeleteTone
