@@ -10,11 +10,6 @@ After the installation, you may need to run Wwise once, otherwise the automatic 
 
 On Windows the program will try to find the Wwise installation automatically using Environment variables, which can be set from the Wwise Launcher. Alternatively you can set the Wwise console executable path in the configuration.
 
-## Missing Features
-
-- Tone editing
-- Support for console platforms (Most likely will not be added)
-
 ## External Tools Used
 
 - [ww2ogg](https://github.com/hcs64/ww2ogg)
