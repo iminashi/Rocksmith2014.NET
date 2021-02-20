@@ -62,8 +62,7 @@ let private gearTypeHeader locName =
 let private pedalSelectors dispatch selectedGearType tone (locName, pedalFunc) =
     [ gearTypeHeader locName
 
-      yield! [ 0..3 ]
-      |> List.map (fun index ->
+      for index in 0..3 do
           ToggleButton.create [
               ToggleButton.margin (0., 2.)
               ToggleButton.minHeight 30.
@@ -74,7 +73,7 @@ let private pedalSelectors dispatch selectedGearType tone (locName, pedalFunc) =
                   | None, _ -> String.Empty)
               ToggleButton.isChecked (pedalFunc index = selectedGearType)
               ToggleButton.onChecked (fun _ -> pedalFunc index |> SetSelectedGearType |> dispatch)
-          ] |> generalize) ]
+          ] |> generalize ]
 
 let private gearTypeSelector state dispatch (tone: Tone) =
     StackPanel.create [
