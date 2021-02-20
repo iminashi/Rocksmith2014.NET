@@ -57,11 +57,8 @@ let editInstrumental state edit old inst =
         | SetBassPicked picked ->
             { inst with BassPicked = picked }, Cmd.none
 
-        | SetTuning (index, tuning) ->
-            let tuning =
-                inst.Tuning
-                |> Array.mapi (fun i x -> if i = index then tuning else x)
-            { inst with Tuning = tuning }, Cmd.none
+        | SetTuning (index, newTuning) ->
+            { inst with Tuning = inst.Tuning |> Array.updateAt index newTuning }, Cmd.none
 
         | SetTuningPitch pitch ->
             { inst with TuningPitch = pitch }, Cmd.none
@@ -212,7 +209,7 @@ let editTone state edit (tone: Tone) =
             { tone with Key = key }
 
         | SetVolume volume ->
-            { tone with Volume = sprintf "%.3f" volume }
+            { tone with Volume = volume }
 
         | AddDescriptor ->
             { tone with ToneDescriptors = tone.ToneDescriptors |> Array.append [| ToneDescriptor.all.[0].UIName |] }
@@ -221,10 +218,7 @@ let editTone state edit (tone: Tone) =
             { tone with ToneDescriptors = tone.ToneDescriptors.[1..] }
 
         | ChangeDescriptor (index, descriptor) ->
-           let updated =
-               tone.ToneDescriptors
-               |> Array.mapi (fun i x -> if i = index then descriptor.UIName else x)
-           { tone with ToneDescriptors = updated }
+           { tone with ToneDescriptors = tone.ToneDescriptors |> Array.updateAt index descriptor.UIName }
 
         | SetCabinet cabinet ->
             if cabinet.Key <> tone.GearList.Cabinet.Key then
@@ -234,7 +228,7 @@ let editTone state edit (tone: Tone) =
                 tone
 
         | RemovePedal ->
-            let remove index = Array.mapi (fun i p -> if i = index then None else p)
+            let remove index = Array.updateAt index None
             let gear =
                 match state.SelectedGearType with
                 | PrePedal index ->
@@ -260,7 +254,7 @@ let editTone state edit (tone: Tone) =
             | Some currPedal when currPedal.Key = pedal.Key ->
                 tone
             | _ ->
-                let setPedal index = Array.mapi (fun i p -> if i = index then createPedalForGear pedal |> Some else p)
+                let setPedal index = Array.updateAt index (Some <| createPedalForGear pedal)
                 let gear =
                     match state.SelectedGearType with
                     | Amp ->
@@ -284,6 +278,7 @@ let editTone state edit (tone: Tone) =
                         pedal)
                 
             match state.SelectedGear with
+            | None -> tone
             | Some _ ->
                 let updatedKnobs =
                     getKnobValuesForGear state.SelectedGearType tone
@@ -305,10 +300,11 @@ let editTone state edit (tone: Tone) =
                             { tone.GearList with Racks = tone.GearList.Racks |> updateKnobs updatedKnobs index }
 
                     { tone with GearList = gear }
-            | _ ->
-                tone
 
-    updateTone tone updatedTone state, Cmd.none
+    if updatedTone = tone then
+        state, Cmd.none
+    else
+        updateTone tone updatedTone state, Cmd.none
 
 let editVocals state edit old vocals =
     let updated =

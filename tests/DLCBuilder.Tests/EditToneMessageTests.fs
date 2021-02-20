@@ -24,8 +24,7 @@ let tone: Tone =
           PostPedals = [| None; None; None; None |] }
       ToneDescriptors = [| "TEST"; "TONE" |]
       NameSeparator = " "
-      IsCustom = None
-      Volume = "-10.000"
+      Volume = -10.
       MacVolume = None
       Key = "key"
       Name = "name"
@@ -48,9 +47,9 @@ let editToneTests =
             let newTone = newState.Project.Tones |> List.head
 
             Expect.equal newState.SelectedTone (Some newTone) "Tone is selected"
-            Expect.equal newTone.Name "Test Tone" "Tone name is correct"
-            Expect.equal newTone.Key "Test_key" "Tone key is correct"
-            Expect.equal newTone.Volume "-8.500" "Tone key is correct"
+            Expect.equal newTone.Name "Test Tone" "Name is correct"
+            Expect.equal newTone.Key "Test_key" "Key is correct"
+            Expect.equal newTone.Volume -8.5 "Volume is correct"
 
         testCase "AddDescriptor" <| fun _ ->
             let newState, _ = Main.update (EditTone AddDescriptor) state

@@ -118,7 +118,7 @@ let view state dispatch (tone: Tone) =
                 Grid.row 3
                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                 NumericUpDown.width 75.
-                NumericUpDown.value (float tone.Volume)
+                NumericUpDown.value tone.Volume
                 NumericUpDown.minimum -45.
                 NumericUpDown.maximum 45.
                 NumericUpDown.increment 0.1

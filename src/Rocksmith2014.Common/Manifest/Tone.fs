@@ -2,6 +2,7 @@
 
 open System
 open System.Collections.Generic
+open System.Globalization
 open System.IO
 open System.Runtime.Serialization
 open System.Text
@@ -29,9 +30,8 @@ type Tone =
     { GearList : Gear
       ToneDescriptors : string array 
       NameSeparator : string
-      IsCustom : bool option
-      Volume : string
-      MacVolume : string option
+      Volume : float
+      MacVolume : float option
       Key : string
       Name : string
       SortOrder : float32 option }
@@ -141,6 +141,9 @@ module Tone =
         |> Seq.map (fun x -> x.InnerText)
         |> Seq.toArray
 
+    let private volumeFromString (vol: string) = Math.Round(float vol, 1, MidpointRounding.AwayFromZero)
+    let private volumeToString (vol: float) = vol.ToString(CultureInfo.InvariantCulture)
+
     /// Imports a tone from a Tone2014 XML structure using the optional XML namespace.
     let importXml (ns: string option) (xmlNode: XmlNode) =
         let node =
@@ -150,14 +153,12 @@ module Tone =
         let nodeText name = (node name).InnerText
 
         let macVol = node "MacVolume"
-        let isCustom = node "IsCustom"
 
         { Tone.GearList = getGearList ns (node "GearList")
           ToneDescriptors = getDescriptors (node "ToneDescriptors")
           NameSeparator = nodeText "NameSeparator"
-          IsCustom = if isNull isCustom then None else Some <| Boolean.Parse(isCustom.InnerText)
-          Volume = nodeText "Volume"
-          MacVolume = if isNull macVol then None else Some macVol.InnerText
+          Volume = nodeText "Volume" |> volumeFromString
+          MacVolume = if isNull macVol then None else Some <| volumeFromString macVol.InnerText
           Key = nodeText "Key"
           Name = nodeText "Name"
           // Sort order is not needed
@@ -176,10 +177,9 @@ module Tone =
           Type = dto.Type
           Key = dto.PedalKey
           KnobValues =
-            if isNull dto.KnobValues then
-                Map.empty
-            else
-                dto.KnobValues |> Seq.map (|KeyValue|) |> Map.ofSeq
+            match dto.KnobValues with
+            | null -> Map.empty
+            | values -> values |> Seq.map (|KeyValue|) |> Map.ofSeq
           Skin = Option.ofObj dto.Skin
           SkinIndex = Option.ofNullable dto.SkinIndex }
 
@@ -195,9 +195,8 @@ module Tone =
         { GearList = gear
           ToneDescriptors = dto.ToneDescriptors
           NameSeparator = dto.NameSeparator
-          IsCustom = Option.ofNullable dto.IsCustom
-          Volume = dto.Volume
-          MacVolume = Option.ofObj dto.MacVolume
+          Volume = volumeFromString dto.Volume
+          MacVolume = Option.ofObj dto.MacVolume |> Option.map volumeFromString
           Key = dto.Key
           Name = dto.Name
           SortOrder = Option.ofNullable dto.SortOrder }
@@ -236,9 +235,9 @@ module Tone =
         { GearList = gear
           ToneDescriptors = tone.ToneDescriptors
           NameSeparator = tone.NameSeparator
-          IsCustom = Option.toNullable tone.IsCustom
-          Volume = tone.Volume
-          MacVolume = Option.toObj tone.MacVolume
+          IsCustom = Nullable(true)
+          Volume = volumeToString tone.Volume
+          MacVolume = tone.MacVolume |> Option.map volumeToString |> Option.toObj
           Key = tone.Key
           Name = tone.Name
           SortOrder = Option.toNullable tone.SortOrder }

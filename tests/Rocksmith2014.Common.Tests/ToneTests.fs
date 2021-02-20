@@ -11,7 +11,7 @@ let toneTests =
         test "Can be imported from XML" {
             let tone = Tone.fromXmlFile "test.tone2014.xml"
 
-            Expect.equal tone.Volume "-12" "Volume is correct"
+            Expect.equal tone.Volume -12. "Volume is correct"
             Expect.equal tone.Key "Test" "Key is correct"
             Expect.equal tone.Name "Test" "Name is correct"
             Expect.equal tone.ToneDescriptors [| "$[35720]CLEAN" |] "Descriptors are correct"
@@ -29,7 +29,7 @@ let toneTests =
             do! Tone.exportXml testFile imported
             let tone = Tone.fromXmlFile testFile
 
-            Expect.equal tone.Volume "-12" "Volume is correct"
+            Expect.equal tone.Volume -12. "Volume is correct"
             Expect.equal tone.Key "Test" "Key is correct"
             Expect.equal tone.Name "Test" "Name is correct"
             Expect.equal tone.ToneDescriptors [| "$[35720]CLEAN" |] "Descriptors are correct"
@@ -47,7 +47,7 @@ let toneTests =
             do! Tone.exportJson testFile imported
             let! tone = Tone.fromJsonFile testFile
 
-            Expect.equal tone.Volume "-12" "Volume is correct"
+            Expect.equal tone.Volume -12. "Volume is correct"
             Expect.equal tone.Key "Test" "Key is correct"
             Expect.equal tone.Name "Test" "Name is correct"
             Expect.equal tone.ToneDescriptors [| "$[35720]CLEAN" |] "Descriptors are correct"

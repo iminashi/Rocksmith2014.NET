@@ -190,9 +190,10 @@ let view (window: HostWindow) (state: State) dispatch =
                             ListBox.create [
                                 ListBox.margin 2.
                                 ListBox.dataItems state.Project.Tones
-                                match state.SelectedTone with
-                                | Some t -> ListBox.selectedItem t
-                                | None -> ()
+                                ListBox.selectedItem (
+                                    match state.SelectedTone with
+                                    | Some t -> t
+                                    | None -> Unchecked.defaultof<Tone>)
                                 ListBox.onSelectedItemChanged (function
                                     | :? Tone as tone -> tone |> Some |> ToneSelected |> dispatch
                                     | _ -> ())
