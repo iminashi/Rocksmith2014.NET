@@ -60,7 +60,7 @@ let private getPedalAndDict gearType (tone: Tone) =
     | PostPedal index -> gearList.PostPedals.[index], pedalDict
     | Rack index -> gearList.Racks.[index], rackDict
 
-let gearTypeSelector state dispatch (tone: Tone) =
+let private gearTypeSelector state dispatch (tone: Tone) =
     let amp = ampDict.[tone.GearList.Amp.Key]
     let selectedGearType = state.SelectedGearType
     let selectedGearKey =
@@ -77,6 +77,7 @@ let gearTypeSelector state dispatch (tone: Tone) =
                         TextBlock.text (translate "amp")
                     ]
                     ToggleButton.create [
+                        ToggleButton.minHeight 27.
                         ToggleButton.content amp.Name
                         ToggleButton.isChecked (amp.Key = selectedGearKey)
                         ToggleButton.onChecked (fun _ -> Amp |> SetSelectedGearType |> dispatch)
@@ -108,14 +109,14 @@ let gearTypeSelector state dispatch (tone: Tone) =
                     |> List.map (fun index ->
                         ToggleButton.create [
                             ToggleButton.margin (0., 2.)
-                            ToggleButton.minHeight 25.
+                            ToggleButton.minHeight 27.
                             ToggleButton.content (
                                 match getPedalAndDict (PrePedal index) tone with
                                 | Some pedal, dict -> dict.[pedal.Key].Name
                                 | None, _ -> String.Empty)
                             ToggleButton.isChecked (PrePedal index = selectedGearType)
                             ToggleButton.onChecked (fun _ -> PrePedal index |> SetSelectedGearType |> dispatch)
-                        ] |> Helpers.generalize)
+                        ] |> generalize)
                 ]
             ]
 
@@ -128,14 +129,14 @@ let gearTypeSelector state dispatch (tone: Tone) =
                     |> List.map (fun index ->
                         ToggleButton.create [
                             ToggleButton.margin (0., 2.)
-                            ToggleButton.minHeight 25.
+                            ToggleButton.minHeight 27.
                             ToggleButton.content (
                                 match getPedalAndDict (PostPedal index) tone with
                                 | Some pedal, dict -> dict.[pedal.Key].Name
                                 | None, _ -> String.Empty)
                             ToggleButton.isChecked (PostPedal index = selectedGearType)
                             ToggleButton.onChecked (fun _ -> PostPedal index |> SetSelectedGearType |> dispatch)
-                        ] |> Helpers.generalize)
+                        ] |> generalize)
                 ]
             ]
 
@@ -148,14 +149,14 @@ let gearTypeSelector state dispatch (tone: Tone) =
                     |> List.map (fun index ->
                         ToggleButton.create [
                             ToggleButton.margin (0., 2.)
-                            ToggleButton.minHeight 25.
+                            ToggleButton.minHeight 27.
                             ToggleButton.content (
                                 match getPedalAndDict (Rack index) tone with
                                 | Some pedal, dict -> dict.[pedal.Key].Name
                                 | None, _ -> String.Empty)
                             ToggleButton.isChecked (Rack index = selectedGearType)
                             ToggleButton.onChecked (fun _ -> Rack index |> SetSelectedGearType |> dispatch)
-                        ] |> Helpers.generalize)
+                        ] |> generalize)
                 ]
             ]
         ]
@@ -196,15 +197,16 @@ let private knobSliders dispatch (tone: Tone) gearType knobs =
 
         let bg = if i % 2 = 0 then SolidColorBrush.Parse "#303030" else SolidColorBrush.Parse "#383838"
 
-        match knob.EnumValues with
-        | Some enums ->
-            StackPanel.create [
-                StackPanel.background bg
-                StackPanel.children [
-                    TextBlock.create [
-                        TextBlock.text knob.Name
-                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                    ]
+        StackPanel.create [
+            StackPanel.background bg
+            StackPanel.children [
+                TextBlock.create [
+                    TextBlock.text knob.Name
+                    TextBlock.horizontalAlignment HorizontalAlignment.Center
+                ]
+
+                match knob.EnumValues with
+                | Some enums ->
                     ComboBox.create [
                         ComboBox.dataItems enums
                         ComboBox.selectedIndex (int currentValue)
@@ -213,17 +215,7 @@ let private knobSliders dispatch (tone: Tone) gearType knobs =
                             SubPatchOptions.Always
                         )
                     ]
-                ]
-            ] |> Helpers.generalize
-        | None ->
-            StackPanel.create [
-                StackPanel.background bg
-                StackPanel.children [
-                    TextBlock.create [
-                        TextBlock.text knob.Name
-                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                    ]
-
+                | None ->
                     StackPanel.create [
                         StackPanel.orientation Orientation.Horizontal
                         StackPanel.horizontalAlignment HorizontalAlignment.Center
@@ -241,6 +233,7 @@ let private knobSliders dispatch (tone: Tone) gearType knobs =
                     ]
 
                     DockPanel.create [
+                        DockPanel.margin (6., 0., 6., 4.)
                         DockPanel.children [
                             TextBlock.create [
                                 DockPanel.dock Dock.Left
@@ -264,8 +257,8 @@ let private knobSliders dispatch (tone: Tone) gearType knobs =
                             ]
                         ]
                     ]
-                ]
-            ] |> generalize)
+            ]
+        ] |> generalize)
 
 let view state dispatch tone =
     DockPanel.create [
