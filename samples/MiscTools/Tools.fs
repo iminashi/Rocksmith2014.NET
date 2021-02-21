@@ -89,9 +89,9 @@ let ofdAll = openFileDialogSingle "Select File" null
 let ofdMultiXml = openFileDialogMulti "Select Files" xmlFilters
 let ofod = openFolderDialog "Select Folder"
 
-type State = { Status:string; Platform:Platform; ConvertAudio: bool }
+type State = { Status:string; Platform:Platform; ConvertAudio: bool; ConvertSNG : bool }
 
-let init () = { Status = ""; Platform = PC; ConvertAudio = true }, Cmd.none
+let init () = { Status = ""; Platform = PC; ConvertAudio = true; ConvertSNG = false }, Cmd.none
 
 type Msg =
     | UnpackSNGFile of file:string
@@ -108,6 +108,7 @@ type Msg =
     | ExtractSNGtoXML of file:string
     | ChangePlatform of Platform
     | SetConvertAudio of bool
+    | SetConvertSNG of bool
     | ConvertToDDS of file:string
     | GenerateSoundBank of file:string
     | ReadVolume of file:string
@@ -167,14 +168,47 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             state, Cmd.OfAsync.attempt t () Error
 
         | UnpackPSARC file ->
-            let dir = Path.Combine(Path.GetDirectoryName file, Path.GetFileNameWithoutExtension file)
-            Directory.CreateDirectory(dir) |> ignore
+            let targetDirectory = Path.Combine(Path.GetDirectoryName file, Path.GetFileNameWithoutExtension file)
+            Directory.CreateDirectory targetDirectory |> ignore
             let t () = async {
+                let platform = if String.endsWith "_m.psarc" file then Mac else PC
                 use psarc = PSARC.ReadFile file
-                do! psarc.ExtractFiles dir
+                do! psarc.ExtractFiles targetDirectory
+
                 if state.ConvertAudio then
-                    Directory.EnumerateFiles(dir, "*.wem", SearchOption.AllDirectories) 
-                    |> Seq.iter Conversion.wemToOgg }
+                    Directory.EnumerateFiles(targetDirectory, "*.wem", SearchOption.AllDirectories) 
+                    |> Seq.iter Conversion.wemToOgg
+
+                if state.ConvertSNG then
+                    let sngPaths =
+                        Directory.EnumerateFiles(targetDirectory, "*.sng", SearchOption.AllDirectories) 
+                        |> List.ofSeq
+
+                    let manifestPaths =
+                        Directory.EnumerateFiles(targetDirectory, "*.json", SearchOption.AllDirectories) 
+                        |> List.ofSeq
+
+                    do! sngPaths
+                        |> List.map (fun path -> async {
+                            let arrPath = Path.Combine(targetDirectory, "songs", "arr")
+                            let targetPath = Path.Combine(arrPath, Path.ChangeExtension(Path.GetFileName path, "xml"))
+                            let! sng = SNG.readPackedFile path platform
+                            if path.Contains "vocals" then
+                                let vocals = ConvertVocals.sngToXml sng
+                                Vocals.Save(targetPath, vocals)
+                            else
+                                let attributes =
+                                    manifestPaths
+                                    |> List.tryFind (fun m -> Path.GetFileNameWithoutExtension m = Path.GetFileNameWithoutExtension path)
+                                    |> Option.map (fun m ->
+                                        async {
+                                            let! manifest = Manifest.fromJsonFile m
+                                            return Manifest.getSingletonAttributes manifest }
+                                        |> Async.RunSynchronously)
+                                let xml = ConvertInstrumental.sngToXml attributes sng
+                                xml.Save targetPath })
+                        |> Async.Parallel
+                        |> Async.Ignore }
             state, Cmd.OfAsync.attempt t () Error
 
         | PackDirectoryPSARC path ->
@@ -228,6 +262,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             Directory.CreateDirectory(targetDirectory) |> ignore
 
             let t () = async {
+                let platform = if String.endsWith "_m.psarc" file then Mac else PC
                 use psarc = PSARC.ReadFile file
 
                 let! sngs =
@@ -236,7 +271,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                     |> List.map (fun x -> async {
                         use mem = MemoryStreamPool.Default.GetStream()
                         do! psarc.InflateFile(x, mem)
-                        let! sng = SNG.fromStream mem PC
+                        let! sng = SNG.fromStream mem platform
                         return {| File = x; SNG = sng |} })
                     |> Async.Sequential
 
@@ -312,6 +347,9 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
 
         | SetConvertAudio conv ->
             { state with ConvertAudio = conv}, Cmd.none
+
+        | SetConvertSNG conv ->
+            { state with ConvertSNG = conv}, Cmd.none
 
         | Error e ->
             { state with Status = e.Message }, Cmd.none
@@ -401,6 +439,13 @@ let view (state: State) dispatch =
                         CheckBox.isChecked state.ConvertAudio
                         CheckBox.onChecked (fun _ -> true |> SetConvertAudio |> dispatch)
                         CheckBox.onUnchecked (fun _ -> false |> SetConvertAudio |> dispatch)
+                    ]
+
+                    CheckBox.create [
+                        CheckBox.content "Convert SNG to XML"
+                        CheckBox.isChecked state.ConvertSNG
+                        CheckBox.onChecked (fun _ -> true |> SetConvertSNG |> dispatch)
+                        CheckBox.onUnchecked (fun _ -> false |> SetConvertSNG |> dispatch)
                     ]
 
                     Button.create [
