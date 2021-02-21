@@ -35,8 +35,13 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
                 // Check for zlib header
                 if buffer.[0] = 0x78uy && buffer.[1] = 0xDAuy then
-                    use memory = new MemoryStream(buffer, 0, size)
-                    do! Compression.unzip memory output
+                    try
+                        use memory = new MemoryStream(buffer, 0, size)
+                        do! Compression.unzip memory output
+                    with _ ->
+                        // Assume it is uncompressed data
+                        // Needed for unpacking audio.psarc
+                        do! output.AsyncWrite(buffer, 0, size)
                 else
                     // Uncompressed
                     do! output.AsyncWrite(buffer, 0, size)
@@ -177,10 +182,10 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                     | InMemory -> fun () -> MemoryStreamPool.Default.GetStream() :> Stream
                     | TempFiles -> Utils.getTempFileStream
                 toc
-                |> Seq.map (fun e -> async {
+                |> Seq.map (fun entry -> async {
                     let data = getTargetStream ()
-                    do! inflateEntry e data
-                    return { Name = getName e; Data = data } })
+                    do! inflateEntry entry data
+                    return { Name = getName entry; Data = data } })
                 |> Async.Sequential
             return new DisposableList<NamedEntry>(List.ofArray entries) }
 
