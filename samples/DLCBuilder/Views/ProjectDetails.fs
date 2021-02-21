@@ -37,36 +37,41 @@ let private fileMenu state dispatch =
                     TextBlock.verticalAlignment VerticalAlignment.Center
                 ])
                 MenuItem.viewItems [
+                    // New project
                     MenuItem.create [
                         MenuItem.header (translate "newProject")
                         MenuItem.onClick (fun _ -> dispatch NewProject)
                     ]
-                    MenuItem.create [
-                        MenuItem.header "-"
-                    ]
+
+                    MenuItem.create [ MenuItem.header "-" ]
+
+                    // Import Toolkit template
                     MenuItem.create [
                         MenuItem.header (translate "toolkitImport")
                         MenuItem.onClick (fun _ ->
                             Msg.OpenFileDialog("selectImportToolkitTemplate", Dialogs.toolkitFilter, ImportToolkitTemplate)
                             |> dispatch)
                     ]
+
+                    // Import PSARC file
                     MenuItem.create [
                         MenuItem.header (translate "psarcImport")
                         MenuItem.onClick (fun _ ->
                             Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder)
                             |>dispatch)
                     ]
+
+                    // Recent files
                     if state.RecentFiles.Length > 0 then
-                        MenuItem.create [
-                            MenuItem.header "-"
-                        ]
+                        MenuItem.create [ MenuItem.header "-" ]
+
                         yield! state.RecentFiles |> List.map (fun fileName ->
                             MenuItem.create [
                                 MenuItem.header ((IO.Path.GetFileName fileName).Replace("_", "__"))
                                 MenuItem.onClick (
                                     (fun _ -> OpenProject fileName |>dispatch),
                                     SubPatchOptions.OnChangeOf state.RecentFiles)
-                            ] |> Helpers.generalize
+                            ] |> generalize
                         )
                 ]
                 
@@ -92,20 +97,21 @@ let private audioControls state dispatch =
         Border.child (
             StackPanel.create [
                 StackPanel.children [
+                    // Header
                     TextBlock.create [
-                        TextBlock.text "Audio"
+                        TextBlock.text (translate "audio")
                         TextBlock.margin (8., 4.)
                     ]
 
                     StackPanel.create [
                         StackPanel.orientation Orientation.Horizontal
                         StackPanel.children [
+                            // Main audio filename
                             TextBlock.create [
                                 TextBlock.margin (4.0, 4.0, 0.0, 4.0)
                                 TextBlock.verticalAlignment VerticalAlignment.Center
                                 TextBlock.text (translate "mainAudio")
                             ]
-
                             TextBlock.create [
                                 TextBlock.margin (4.0, 4.0, 0.0, 4.0)
                                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -122,9 +128,8 @@ let private audioControls state dispatch =
                     StackPanel.create [
                         StackPanel.orientation Orientation.Horizontal
                         StackPanel.children [
+                            // Main volume
                             NumericUpDown.create [
-                                Grid.column 1
-                                Grid.row 5
                                 NumericUpDown.margin (2.0, 2.0, 2.0, 2.0)
                                 NumericUpDown.minimum -45.
                                 NumericUpDown.maximum 45.
@@ -136,6 +141,7 @@ let private audioControls state dispatch =
                                 ToolTip.tip (translate "audioVolumeToolTip")
                             ]
 
+                            // Select audio file
                             Button.create [
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
                                 Button.padding (10.0, 0.0)
@@ -147,18 +153,16 @@ let private audioControls state dispatch =
                                 ToolTip.tip (translate "selectAudioFile")
                             ]
 
+                            // Calculate volumes
                             Button.create [
                                 Button.content "Volume"
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
                                 Button.isEnabled (noBuildInProgress && notCalculatingVolume)
                                 Button.isVisible (String.notEmpty audioPath && not <| String.endsWith ".wem" audioPath)
-                                Button.onClick ((fun _ ->
-                                    dispatch (CalculateVolume MainAudio)
-                                    if IO.File.Exists previewPath && not <| String.endsWith "wem" previewPath then
-                                        dispatch (CalculateVolume PreviewAudio)
-                                    ), SubPatchOptions.OnChangeOf state.Project.AudioPreviewFile)
+                                Button.onClick (fun _ -> dispatch CalculateVolumes)
                             ]
 
+                            // Wem conversion
                             Button.create [
                                 Button.content "Wem"
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
@@ -173,11 +177,11 @@ let private audioControls state dispatch =
                     StackPanel.create [
                         StackPanel.orientation Orientation.Horizontal
                         StackPanel.children [
+                            // Preview audio filename
                             TextBlock.create [
                                 TextBlock.margin (4.0, 4.0, 0.0, 4.0)
                                 TextBlock.text (translate "preview")
                             ]
-
                             TextBlock.create [
                                 TextBlock.margin (4.0, 4.0, 0.0, 4.0)
                                 TextBlock.text (
@@ -193,9 +197,8 @@ let private audioControls state dispatch =
                     StackPanel.create [
                         StackPanel.orientation Orientation.Horizontal
                         StackPanel.children [
+                            // Preview audio volume
                             NumericUpDown.create [
-                                Grid.column 1
-                                Grid.row 6
                                 NumericUpDown.margin (2.0, 2.0, 2.0, 2.0)
                                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                                 NumericUpDown.minimum -45.
@@ -208,9 +211,9 @@ let private audioControls state dispatch =
                                 ToolTip.tip (translate "previewAudioVolumeToolTip")
                             ]
 
+                            // Create preview audio
                             Button.create [
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
-                                //Button.verticalAlignment VerticalAlignment.Stretch
                                 Button.content (translate "createPreviewAudio")
                                 Button.isEnabled (not <| String.endsWith ".wem" audioPath && IO.File.Exists audioPath)
                                 Button.onClick (fun _ -> dispatch (CreatePreviewAudio SetupStartTime))
@@ -244,6 +247,7 @@ let private buildControls state dispatch =
         Grid.rowDefinitions "*,*,*"
         //Grid.showGridLines true
         Grid.children [
+            // Configuration
             Button.create [
                 Grid.columnSpan 2
                 Button.padding (15., 8.)
@@ -257,6 +261,7 @@ let private buildControls state dispatch =
                 Grid.row 1
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.children [
+                    // Open project
                     Button.create [
                         Button.padding (15., 8.)
                         Button.margin (4., 4., 0., 4.)
@@ -277,6 +282,7 @@ let private buildControls state dispatch =
                 Grid.row 1
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.children [
+                    // Save project
                     Button.create [
                         Button.padding (15., 8.)
                         Button.margin (4., 4., 0., 4.)
@@ -285,6 +291,8 @@ let private buildControls state dispatch =
                         Button.onClick (fun _ -> dispatch ProjectSaveOrSaveAs)
                         Button.isEnabled (state.Project <> state.SavedProject)
                     ]
+
+                    // Save project as
                     Button.create [
                         Button.padding (8., 8.)
                         Button.margin (0., 4., 4., 4.)
@@ -295,6 +303,8 @@ let private buildControls state dispatch =
                     ]
                 ]
             ]
+
+            // Build test
             Button.create [
                 Grid.row 2
                 Button.padding (15., 8.)
@@ -304,6 +314,8 @@ let private buildControls state dispatch =
                 Button.isEnabled (canBuild && String.notEmpty state.Config.TestFolderPath)
                 Button.onClick (fun _ -> dispatch <| Build Test)
             ]
+
+            // Build release
             Button.create [
                 Grid.column 1
                 Grid.row 2
@@ -324,18 +336,20 @@ let private projectInfo state dispatch =
         Grid.rowDefinitions "auto,auto,auto,auto,auto"
         //Grid.showGridLines true
         Grid.children [
+            // DLC Key
             TitledTextBox.create (translate "dlcKey") [ Grid.column 0; Grid.row 0 ] [
                 TextBox.text state.Project.DLCKey
                 // Cannot filter pasted text: https://github.com/AvaloniaUI/Avalonia/issues/2611
                 TextBox.onTextInput (fun e -> e.Text <- StringValidator.dlcKey e.Text)
                 TextBox.onTextChanged (StringValidator.dlcKey >> SetDLCKey >> EditProject >> dispatch)
                 // Display the validated DLC key if invalid characters were pasted into the textbox
-                TextBox.onLostFocus (
-                    (fun e -> (e.Source :?> TextBox).Text <- state.Project.DLCKey),
+                TextBox.onLostFocus ((fun e ->
+                    (e.Source :?> TextBox).Text <- state.Project.DLCKey),
                     SubPatchOptions.OnChangeOf state.Project.DLCKey)
                 ToolTip.tip (translate "dlcKeyTooltip")
             ]
 
+            // Version
             TitledTextBox.create (translate "version") [ Grid.column 1; Grid.row 0 ] [
                 TextBox.horizontalAlignment HorizontalAlignment.Left
                 TextBox.width 65.
@@ -343,6 +357,7 @@ let private projectInfo state dispatch =
                 TextBox.onTextChanged (SetVersion >> EditProject >> dispatch)
             ]
 
+            // Artist name
             TitledTextBox.create (translate "artistName")
                 [ Grid.column 0
                   Grid.row 1
@@ -351,6 +366,7 @@ let private projectInfo state dispatch =
                   TextBox.onTextChanged (StringValidator.field >> SetArtistName >> EditProject >> dispatch)
                 ]
 
+            // Artist name sort
             TitledTextBox.create (translate "artistNameSort")
                 [ Grid.column 0
                   Grid.row 1
@@ -364,6 +380,7 @@ let private projectInfo state dispatch =
                     validValue |> (SetArtistNameSort >> EditProject >> dispatch))
                 ]
 
+            // Japanese artist name
             TitledTextBox.create (translate "japaneseArtistName")
                 [ Grid.column 0
                   Grid.row 1
@@ -374,6 +391,7 @@ let private projectInfo state dispatch =
                   TextBox.onTextChanged (StringValidator.field >> Option.ofString >> SetJapaneseArtistName >> EditProject >> dispatch)
                 ]
 
+            // Title
             TitledTextBox.create (translate "title")
                 [ Grid.column 0
                   Grid.row 2
@@ -382,6 +400,7 @@ let private projectInfo state dispatch =
                   TextBox.onTextChanged (StringValidator.field >> SetTitle >> EditProject >> dispatch)
                 ]
 
+            // Title sort
             TitledTextBox.create (translate "titleSort")
                 [ Grid.column 0
                   Grid.row 2
@@ -395,6 +414,7 @@ let private projectInfo state dispatch =
                     validValue |> (SetTitleSort >> EditProject >> dispatch))
                 ]
 
+            // Japanese title
             TitledTextBox.create (translate "japaneseTitle")
                 [ Grid.column 0
                   Grid.row 2
@@ -405,6 +425,7 @@ let private projectInfo state dispatch =
                   TextBox.onTextChanged (StringValidator.field >> Option.ofString >> SetJapaneseTitle >> EditProject >> dispatch)
                 ]
 
+            // Album name
             TitledTextBox.create (translate "albumName")
                 [ Grid.column 0
                   Grid.row 3
@@ -413,6 +434,7 @@ let private projectInfo state dispatch =
                   TextBox.onTextChanged (StringValidator.field >> SetAlbumName >> EditProject >> dispatch)
                 ]
 
+            // Album name sort
             TitledTextBox.create (translate "albumNameSort")
                 [ Grid.column 0
                   Grid.row 3
@@ -426,6 +448,7 @@ let private projectInfo state dispatch =
                     validValue |> (SetAlbumNameSort >> EditProject >> dispatch))
                 ]
 
+            // Year
             TitledTextBox.create (translate "year")
                 [ Grid.column 1
                   Grid.row 3 ]
@@ -444,12 +467,15 @@ let private projectInfo state dispatch =
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.horizontalAlignment HorizontalAlignment.Center
                 StackPanel.children [
+                    // Show sort fields
                     CheckBox.create [
                         CheckBox.content (translate "showSortFields")
                         CheckBox.isChecked (state.ShowSortFields && not state.ShowJapaneseFields)
                         CheckBox.onChecked (fun _ -> true |> ShowSortFields |> dispatch)
                         CheckBox.onUnchecked (fun _ -> false |> ShowSortFields |> dispatch)
                     ]
+
+                    // Show Japanese fields
                     CheckBox.create [
                         CheckBox.margin (8., 0.,0., 0.)
                         CheckBox.content (translate "showJapaneseFields")

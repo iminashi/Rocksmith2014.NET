@@ -14,6 +14,7 @@ let view dispatch (v: Vocals) =
         Grid.margin (0.0, 4.0)
         //Grid.showGridLines true
         Grid.children [
+            // Japanese lyrics
             TextBlock.create [
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -38,6 +39,7 @@ let view dispatch (v: Vocals) =
                 Grid.column 1
                 Grid.row 1
                 DockPanel.children [
+                    // Remove font
                     Button.create [
                         DockPanel.dock Dock.Right
                         Button.margin (0.0, 4.0, 4.0, 4.0)
@@ -46,6 +48,8 @@ let view dispatch (v: Vocals) =
                         Button.onClick (fun _ -> None |> SetCustomFont |> EditVocals |> dispatch)
                         ToolTip.tip (translate "removeCustomFontToolTip")
                     ]
+
+                    // Select font
                     Button.create [
                         DockPanel.dock Dock.Right
                         Button.margin (0.0, 4.0, 4.0, 4.0)
@@ -53,6 +57,8 @@ let view dispatch (v: Vocals) =
                         Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectCustomFont", Dialogs.ddsFileFilter, Some >> SetCustomFont >> EditVocals)))
                         ToolTip.tip (translate "selectCustomFontToolTip")
                     ]
+
+                    // Custom font filename
                     TextBlock.create [
                         TextBlock.verticalAlignment VerticalAlignment.Center
                         TextBlock.horizontalAlignment HorizontalAlignment.Center

@@ -8,7 +8,7 @@ open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open DLCBuilder
 
-let createDescriptors dispatch (tone: Tone) =
+let private createDescriptors dispatch (tone: Tone) =
     UniformGrid.create [
         UniformGrid.columns tone.ToneDescriptors.Length
         UniformGrid.children [

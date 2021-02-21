@@ -102,7 +102,7 @@ let private gearTypeSelector state dispatch (tone: Tone) =
             ]
 
             yield! [ ("prePedals", PrePedal); ("loopPedals", PostPedal); ("rack", Rack) ]
-            |> List.collect (pedalSelectors dispatch state.SelectedGearType tone)
+                   |> List.collect (pedalSelectors dispatch state.SelectedGearType tone)
         ]
     ] 
 

@@ -10,9 +10,7 @@ open Rocksmith2014.DLCProject.PackageBuilder
 open Rocksmith2014.XML.Processing
 open Elmish
 open System
-open Avalonia
-open Avalonia.Layout
-open Avalonia.Controls
+open System.IO
 open EditFunctions
 
 let init arg =
@@ -222,7 +220,7 @@ let update (msg: Msg) (state: State) =
     | ProjectSaveAs ->
         let intialFileName =
             state.OpenProjectFile
-            |> Option.map IO.Path.GetFileName
+            |> Option.map Path.GetFileName
             |> Option.orElseWith (fun () ->
                 sprintf "%s_%s" project.ArtistName.SortValue project.Title.SortValue
                 |> StringValidator.fileName
@@ -231,7 +229,7 @@ let update (msg: Msg) (state: State) =
 
         let initialDir =
             state.OpenProjectFile
-            |> Option.map IO.Path.GetDirectoryName
+            |> Option.map Path.GetDirectoryName
             |> Option.orElse (Option.ofString config.ProjectsFolderPath)
 
         let dialog = Dialogs.saveFileDialog (translate "saveProjectAs") (Dialogs.projectFilter()) intialFileName
@@ -241,19 +239,17 @@ let update (msg: Msg) (state: State) =
         let audioFile = { project.AudioFile with Path = fileName }
         let previewPath =
             let previewPath = Utils.previewPathFromMainAudio fileName
-            let wavPreview = IO.Path.ChangeExtension(previewPath, "wav")
-            if IO.File.Exists previewPath then
+            let wavPreview = Path.ChangeExtension(previewPath, "wav")
+            if File.Exists previewPath then
                 previewPath
-            elif IO.File.Exists wavPreview then
+            elif File.Exists wavPreview then
                 wavPreview
             else
                 String.Empty
 
         let cmd =
             if config.AutoVolume && not <| String.endsWith ".wem" fileName then
-                [ Cmd.ofMsg (CalculateVolume MainAudio)
-                  if String.notEmpty previewPath then Cmd.ofMsg (CalculateVolume PreviewAudio) ]
-                |> Cmd.batch
+                Cmd.ofMsg CalculateVolumes
             else
                 Cmd.none
 
@@ -276,6 +272,15 @@ let update (msg: Msg) (state: State) =
             Cmd.OfAsync.either (Wwise.convertToWem config.WwiseConsolePath) audio.Path BuildComplete (fun ex -> TaskFailed(ex, WemConversion))
         | _ ->
             state, Cmd.none
+
+    | CalculateVolumes ->
+        let previewPath = state.Project.AudioPreviewFile.Path
+        let doPreview = File.Exists previewPath && not <| String.endsWith "wem" previewPath
+        let cmds =
+            Cmd.batch [
+                Cmd.ofMsg (CalculateVolume MainAudio)
+                if doPreview then Cmd.ofMsg (CalculateVolume PreviewAudio) ]
+        state, cmds
 
     | CalculateVolume target ->
         let path =
@@ -536,7 +541,7 @@ let update (msg: Msg) (state: State) =
         | Error error ->
             { state with Overlay = ErrorMessage(translate error, None) }, Cmd.none
         | Ok _ ->
-            let path = IO.Path.Combine(config.TestFolderPath, project.DLCKey.ToLowerInvariant())
+            let path = Path.Combine(config.TestFolderPath, project.DLCKey.ToLowerInvariant())
             let buildConfig = Utils.createBuildConfig Test config project [ state.CurrentPlatform ]
             let task () = buildPackages path buildConfig project
 
@@ -549,14 +554,14 @@ let update (msg: Msg) (state: State) =
         | Ok _ ->
             let releaseDir =
                 state.OpenProjectFile
-                |> Option.map IO.Path.GetDirectoryName
-                |> Option.defaultWith (fun _ -> IO.Path.GetDirectoryName project.AudioFile.Path)
+                |> Option.map Path.GetDirectoryName
+                |> Option.defaultWith (fun _ -> Path.GetDirectoryName project.AudioFile.Path)
 
             let fn =
                 sprintf "%s_%s_v%s" project.ArtistName.SortValue project.Title.SortValue (project.Version.Replace('.', '_'))
                 |> StringValidator.fileName
 
-            let path = IO.Path.Combine(releaseDir, fn)
+            let path = Path.Combine(releaseDir, fn)
             let buildConfig = Utils.createBuildConfig Release config project config.ReleasePlatforms
             let task () = buildPackages path buildConfig project
 

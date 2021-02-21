@@ -179,6 +179,7 @@ type Msg =
     | CheckCompleted of Map<string, ArrangementChecker.Issue list>
     | ConvertToWem
     | ConvertToWemCustom
+    | CalculateVolumes
     | CalculateVolume of target : VolumeTarget
     | VolumeCalculated of volume : float * target : VolumeTarget
     | ChangeLocale of locale : Locale
