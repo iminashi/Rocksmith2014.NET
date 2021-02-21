@@ -78,11 +78,9 @@ let view (window: HostWindow) (state: State) dispatch =
                                 match state.SelectedArrangement with
                                 | Some a -> ListBox.selectedItem a
                                 | None -> ()
-                                ListBox.onSelectedItemChanged ((fun item ->
-                                    match item with
-                                    | :? Arrangement as arr -> dispatch (ArrangementSelected (Some arr))
-                                    | null when state.Project.Arrangements.Length = 0 -> dispatch (ArrangementSelected None)
-                                    | _ -> ()), SubPatchOptions.OnChangeOf state.Project.Arrangements)
+                                ListBox.onSelectedItemChanged (function
+                                    | :? Arrangement as arr -> arr |> Some |> SetSelectedArrangement |> dispatch
+                                    | _ -> ())
                                 ListBox.onKeyDown (fun k ->
                                     if k.Key = Key.Delete then
                                         k.Handled <- true
@@ -195,7 +193,7 @@ let view (window: HostWindow) (state: State) dispatch =
                                     | Some t -> t
                                     | None -> Unchecked.defaultof<Tone>)
                                 ListBox.onSelectedItemChanged (function
-                                    | :? Tone as tone -> tone |> Some |> ToneSelected |> dispatch
+                                    | :? Tone as tone -> tone |> Some |> SetSelectedTone |> dispatch
                                     | _ -> ())
                                 ListBox.onKeyDown (fun k ->
                                     match k.KeyModifiers, k.Key with

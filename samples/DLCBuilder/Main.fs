@@ -398,9 +398,9 @@ let update (msg: Msg) (state: State) =
         | [||] -> newState, Cmd.none
         | _ -> { newState with Overlay = ErrorMessage(String.Join('\n', errors), None) }, Cmd.none
 
-    | ArrangementSelected selected -> { state with SelectedArrangement = selected }, Cmd.none
+    | SetSelectedArrangement selected -> { state with SelectedArrangement = selected }, Cmd.none
 
-    | ToneSelected selected ->
+    | SetSelectedTone selected ->
         // Ignore the message if the tone editor is open
         // Fix for weird infinite update loop
         if state.Overlay <> ToneEditor then

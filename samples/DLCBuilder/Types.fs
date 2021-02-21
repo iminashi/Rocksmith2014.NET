@@ -133,6 +133,11 @@ type Msg =
     | SelectImportPsarcFolder of psarcFile : string
     | ImportPsarc of psarcFile : string * targetFolder : string option
     | ImportToolkitTemplate of fileName : string
+    | ImportTonesFromFile of fileName : string
+    | ImportProfileTones
+    | ImportTonesChanged of item : obj
+    | ImportSelectedTones
+    | ImportTones of tones : Tone list
     | NewProject
     | OpenProject of fileName : string
     | ProjectSaveOrSaveAs
@@ -144,16 +149,13 @@ type Msg =
     | SetAudioFile of fileName : string
     | SetConfiguration of config : Configuration
     | SetRecentFiles of string list
-    | ImportTonesFromFile of fileName : string
-    | ArrangementSelected of selected : Arrangement option
-    | ToneSelected of selected : Tone option
+    | SetSelectedArrangement of selected : Arrangement option
+    | SetSelectedTone of selected : Tone option
     | SetSelectedGear of ToneGear.GearData option
     | SetSelectedGearType of ToneGear.GearType
-    | ShowToneEditor
     | DeleteArrangement
     | DeleteTone
     | MoveTone of MoveDirection
-    | ImportProfileTones
     | CreatePreviewAudio of PreviewAudioCreation
     | PreviewAudioStartChanged of time : float
     | ShowSortFields of shown : bool
@@ -164,13 +166,12 @@ type Msg =
     | EditProject of ProjectEdit
     | EditConfig of ConfigEdit
     | CloseOverlay
-    | ImportTonesChanged of item : obj
-    | ImportSelectedTones
-    | ImportTones of tones : Tone list
     | ExportSelectedTone
     | ExportTone of tone : Tone * targetPath : string option
+    | ShowToneEditor
     | ShowConfigEditor
     | ShowIssueViewer
+    | ShowImportToneSelector of tones : Tone array
     | ProjectLoaded of project : DLCProject * projectFile : string
     | Build of BuildType
     | BuildComplete of unit
@@ -180,7 +181,6 @@ type Msg =
     | ConvertToWemCustom
     | CalculateVolume of target : VolumeTarget
     | VolumeCalculated of volume : float * target : VolumeTarget
-    | ShowImportToneSelector of tones : Tone array
     | ChangeLocale of locale : Locale
     | ErrorOccurred of e : exn
     | TaskFailed of e : exn * failedTask : LongTask
