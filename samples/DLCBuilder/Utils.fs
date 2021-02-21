@@ -10,9 +10,12 @@ open Avalonia
 open Rocksmith2014.PSARC
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
+open Rocksmith2014.DD
 open Rocksmith2014.DLCProject
+open Rocksmith2014.DLCProject.PackageBuilder
 open Rocksmith2014.XML.Processing
 open Rocksmith2014.XML
+open Rocksmith2014.Audio
 
 /// Converts a Pfim DDS bitmap into an Avalonia bitmap.
 let private avaloniaBitmapFromDDS (fileName: string) =
@@ -130,3 +133,38 @@ let addDescriptors (tone: Tone) =
 let addTones (state: State) (tones: Tone list) =
     { state with Project = { state.Project with Tones = List.map addDescriptors tones @ state.Project.Tones }
                  Overlay = NoOverlay }
+
+let [<Literal>] private CherubRock = "248750"
+
+let createBuildConfig buildType config project platforms =
+    let convTask =
+        DLCProject.getFilesThatNeedConverting project
+        |> Seq.map (Wwise.convertToWem config.WwiseConsolePath)
+        |> Async.Parallel
+        |> Async.Ignore
+
+    let phraseSearch =
+        if config.DDPhraseSearchEnabled then
+            WithThreshold config.DDPhraseSearchThreshold
+        else
+            SearchDisabled
+
+    let appId =
+        match buildType, config.CustomAppId with
+        | Test, Some customId -> customId
+        | _ -> CherubRock
+
+    { Platforms = platforms
+      Author = config.CharterName
+      AppId = appId
+      GenerateDD = (buildType = Release) || config.GenerateDD
+      DDConfig = { PhraseSearch = phraseSearch }
+      ApplyImprovements = config.ApplyImprovements
+      SaveDebugFiles = config.SaveDebugFiles
+      AudioConversionTask = convTask }
+
+let convertAudio cliPath project =
+    [| project.AudioFile.Path; project.AudioPreviewFile.Path |]
+    |> Array.map (Wwise.convertToWem cliPath)
+    |> Async.Parallel
+    |> Async.Ignore

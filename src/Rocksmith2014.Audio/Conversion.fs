@@ -15,29 +15,31 @@ let oggToWav sourcePath targetPath =
     use ogg = new VorbisWaveReader(sourcePath)
     WaveFileWriter.CreateWaveFile16(targetPath, ogg)
 
-let private processFiles cmd args (files: string list) =
-    files
-    |> List.iter (fun file ->
-        let startInfo = ProcessStartInfo(FileName = cmd,
-                                         Arguments = String.Format(args, file),
-                                         WorkingDirectory = toolsDir,
-                                         CreateNoWindow = true)
-        use proc = new Process(StartInfo = startInfo)
-        proc.Start() |> ignore
-        proc.WaitForExit())
+let private processFile cmd args (file: string) =
+    let startInfo = ProcessStartInfo(FileName = cmd,
+                                     Arguments = String.Format(args, file),
+                                     WorkingDirectory = toolsDir,
+                                     RedirectStandardOutput = true,
+                                     CreateNoWindow = true)
+    use proc = new Process(StartInfo = startInfo)
+    proc.Start() |> ignore
+    proc.WaitForExit()
+    let output = proc.StandardOutput.ReadToEnd()
+    if output.Contains("error", StringComparison.OrdinalIgnoreCase) then
+        failwith $"Process failed with output:\n{output}"
 
-/// Converts wem files to ogg or wav files.
-let wemToOgg toWave wemfiles =
-    let oggFiles =
-        wemfiles
-        |> List.map (fun path -> Path.ChangeExtension(path, "ogg"))
+/// Converts a wem file into an vorbis file.
+let wemToOgg wemfile =
+    let oggFile = Path.ChangeExtension(wemfile, "ogg")
 
-    processFiles ww2ogg "\"{0}\" --pcb packed_codebooks_aoTuV_603.bin" wemfiles
-    processFiles revorb "\"{0}\"" oggFiles
+    processFile ww2ogg "\"{0}\" --pcb packed_codebooks_aoTuV_603.bin" wemfile
+    processFile revorb "\"{0}\"" oggFile
 
-    if toWave then
-        oggFiles
-        |> List.iter(fun sourcePath ->
-            let targetPath = Path.ChangeExtension(sourcePath, "wav")
-            oggToWav sourcePath targetPath
-            File.Delete sourcePath)
+/// Converts a wem file into a wave file.
+let wemToWav wemFile =
+    wemToOgg wemFile
+
+    let oggFile = Path.ChangeExtension(wemFile, "ogg")
+    let targetPath = Path.ChangeExtension(wemFile, "wav")
+    oggToWav oggFile targetPath
+    File.Delete oggFile

@@ -88,7 +88,7 @@ let private fixHeader (path: string) =
     writer.WriteUInt32 3u
 
 /// Copies the wem file from the template cache directory into the destination path.
-let private copyWemFiles (destPath: string) (templateDir: string) =
+let private copyWemFile (destPath: string) (templateDir: string) =
     let cachePath = Path.Combine(templateDir, ".cache", "Windows", "SFX")
     
     let wemFiles = Seq.toArray <| Directory.EnumerateFiles(cachePath, "*.wem")
@@ -116,6 +116,6 @@ let convertToWem (cliPath: string option) (sourcePath: string) = async {
     let output = wwiseCli.StandardOutput.ReadToEnd()
     if output.Length > 0 then failwith output
     
-    copyWemFiles destPath templateDir
+    copyWemFile destPath templateDir
     cleanDirectory templateDir
     Directory.Delete templateDir }

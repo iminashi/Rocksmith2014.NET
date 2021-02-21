@@ -15,8 +15,6 @@ open Avalonia.Layout
 open Avalonia.Controls
 open EditFunctions
 
-let [<Literal>] CherubRock = "248750"
-
 let init arg =
     let commands =
         let loadProject =
@@ -57,39 +55,6 @@ let private addTask newTask state =
 
 let private removeTask completedTask state =
     { state with RunningTasks = state.RunningTasks |> Set.remove completedTask }
-
-let private convertAudio cliPath project =
-    [| project.AudioFile.Path; project.AudioPreviewFile.Path |]
-    |> Array.map (Wwise.convertToWem cliPath)
-    |> Async.Parallel
-    |> Async.Ignore
-
-let private createBuildConfig buildType config project platforms =
-    let convTask =
-        DLCProject.getFilesThatNeedConverting project
-        |> Seq.map (Wwise.convertToWem config.WwiseConsolePath)
-        |> Async.Parallel
-        |> Async.Ignore
-
-    let phraseSearch =
-        if config.DDPhraseSearchEnabled then
-            WithThreshold config.DDPhraseSearchThreshold
-        else
-            SearchDisabled
-
-    let appId =
-        match buildType, config.CustomAppId with
-        | Test, Some customId -> customId
-        | _ -> CherubRock
-
-    { Platforms = platforms
-      Author = config.CharterName
-      AppId = appId
-      GenerateDD = (buildType = Release) || config.GenerateDD
-      DDConfig = { PhraseSearch = phraseSearch }
-      ApplyImprovements = config.ApplyImprovements
-      SaveDebugFiles = config.SaveDebugFiles
-      AudioConversionTask = convTask }
 
 let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
@@ -182,8 +147,10 @@ let update (msg: Msg) (state: State) =
                   yield project.AudioPreviewFile
                   yield! project.Arrangements
                          |> List.choose (function Instrumental i -> i.CustomAudio | _ -> None) ]
-                |> List.map (fun x -> x.Path)
-                |> Conversion.wemToOgg (conv = ToWav)
+                |> List.iter (fun { Path=path } ->
+                    if conv = ToOgg
+                    then Conversion.wemToOgg path
+                    else Conversion.wemToWav path)
             | NoConversion ->
                 ()
 
@@ -295,7 +262,7 @@ let update (msg: Msg) (state: State) =
 
     | ConvertToWem ->
         if DLCProject.audioFilesExist project then
-            let task() = convertAudio config.WwiseConsolePath project
+            let task() = Utils.convertAudio config.WwiseConsolePath project
 
             addTask WemConversion state,
             Cmd.OfAsync.either task () BuildComplete (fun ex -> TaskFailed(ex, WemConversion))
@@ -570,7 +537,7 @@ let update (msg: Msg) (state: State) =
             { state with Overlay = ErrorMessage(translate error, None) }, Cmd.none
         | Ok _ ->
             let path = IO.Path.Combine(config.TestFolderPath, project.DLCKey.ToLowerInvariant())
-            let buildConfig = createBuildConfig Test config project [ state.CurrentPlatform ]
+            let buildConfig = Utils.createBuildConfig Test config project [ state.CurrentPlatform ]
             let task () = buildPackages path buildConfig project
 
             addTask BuildPackage state, Cmd.OfAsync.either task () BuildComplete (fun ex -> TaskFailed(ex, BuildPackage))
@@ -590,7 +557,7 @@ let update (msg: Msg) (state: State) =
                 |> StringValidator.fileName
 
             let path = IO.Path.Combine(releaseDir, fn)
-            let buildConfig = createBuildConfig Release config project config.ReleasePlatforms
+            let buildConfig = Utils.createBuildConfig Release config project config.ReleasePlatforms
             let task () = buildPackages path buildConfig project
 
             addTask BuildPackage state, Cmd.OfAsync.either task () BuildComplete (fun ex -> TaskFailed(ex, BuildPackage))
