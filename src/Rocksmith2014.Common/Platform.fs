@@ -15,3 +15,9 @@ module Platform =
         | Mac, Path.Audio -> "mac"
         | Mac, Path.SNG   -> "macos"
         | Mac, Path.PackageSuffix -> "_m"
+
+    /// Attempts to detect the platform from a package filename.
+    let fromPackageFileName (filePath: string) =
+        match System.IO.Path.GetFileNameWithoutExtension filePath with
+        | EndsWith "_m" -> Mac
+        | _ -> PC

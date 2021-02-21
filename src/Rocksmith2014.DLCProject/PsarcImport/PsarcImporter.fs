@@ -10,9 +10,7 @@ open PsarcImportUtils
 
 /// Imports a PSARC from the given path into a DLCProject with the project created in the target directory.
 let import (psarcPath: string) (targetDirectory: string) = async {
-    let platform =
-        if Path.GetFileNameWithoutExtension(psarcPath).EndsWith("_p") then PC else Mac
-
+    let platform = Platform.fromPackageFileName psarcPath
     let toTargetPath filename = Path.Combine(targetDirectory, filename)
 
     use psarc = PSARC.ReadFile psarcPath

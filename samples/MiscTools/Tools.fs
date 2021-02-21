@@ -171,7 +171,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             let targetDirectory = Path.Combine(Path.GetDirectoryName file, Path.GetFileNameWithoutExtension file)
             Directory.CreateDirectory targetDirectory |> ignore
             let t () = async {
-                let platform = if String.endsWith "_m.psarc" file then Mac else PC
+                let platform = Platform.fromPackageFileName file
                 use psarc = PSARC.ReadFile file
                 do! psarc.ExtractFiles targetDirectory
 
@@ -262,7 +262,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             Directory.CreateDirectory(targetDirectory) |> ignore
 
             let t () = async {
-                let platform = if String.endsWith "_m.psarc" file then Mac else PC
+                let platform = Platform.fromPackageFileName file
                 use psarc = PSARC.ReadFile file
 
                 let! sngs =
