@@ -26,7 +26,7 @@ let view state dispatch (audioLength: TimeSpan) =
                         Button.verticalAlignment VerticalAlignment.Center
                     ]
                     NumericUpDown.create [
-                        NumericUpDown.width 100.
+                        NumericUpDown.width 180.
                         NumericUpDown.minimum 0.
                         NumericUpDown.maximum audioLength.TotalSeconds
                         NumericUpDown.value (state.PreviewStartTime.TotalSeconds)

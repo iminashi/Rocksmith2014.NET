@@ -15,7 +15,7 @@ let view state dispatch (i: Instrumental) =
         //Grid.showGridLines true
         Grid.margin (0.0, 4.0)
         Grid.columnDefinitions "auto,*"
-        Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*,*,*,*,*,*"
+        Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*,*,*,*"
         Grid.children [
             TextBlock.create [
                 TextBlock.isVisible (i.Name <> ArrangementName.Bass)
@@ -54,13 +54,16 @@ let view state dispatch (i: Instrumental) =
                 StackPanel.children [
                     for priority in [ ArrangementPriority.Main; ArrangementPriority.Alternative; ArrangementPriority.Bonus ] ->
                         RadioButton.create [
-                            RadioButton.margin (2.0, 0.0)
+                            RadioButton.margin (4.0, 0.0)
+                            RadioButton.minWidth 0.
                             RadioButton.groupName "Priority"
                             RadioButton.content (translate(string priority))
                             RadioButton.isChecked (i.Priority = priority)
                             RadioButton.onChecked (fun _ -> priority |> SetPriority |> EditInstrumental |> dispatch)
                             RadioButton.isEnabled (
                                 // Disable the main option if a main arrangement of the type already exists
+                                i.Priority = priority
+                                ||
                                 not (priority = ArrangementPriority.Main
                                      &&
                                      state.Project.Arrangements
@@ -212,19 +215,8 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.horizontalAlignment HorizontalAlignment.Left
             ]
 
-            // Reload tone button
-            Button.create [
-                Grid.columnSpan 2
-                Grid.row 8
-                Button.margin 4.
-                Button.horizontalAlignment HorizontalAlignment.Center
-                Button.content (translate "reloadToneKeys")
-                Button.onClick (fun _ -> UpdateToneInfo |> EditInstrumental |> dispatch)
-                ToolTip.tip (translate "reloadToneKeysTooltip")
-            ]
-
             TextBlock.create [
-                Grid.row 9
+                Grid.row 8
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -234,7 +226,7 @@ let view state dispatch (i: Instrumental) =
             // Scroll speed
             NumericUpDown.create [
                 Grid.column 1
-                Grid.row 9
+                Grid.row 8
                 ToolTip.tip (translate "scrollSpeedTooltip")
                 NumericUpDown.isVisible state.Config.ShowAdvanced
                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
@@ -247,7 +239,7 @@ let view state dispatch (i: Instrumental) =
             ]
 
             TextBlock.create [
-                Grid.row 10
+                Grid.row 9
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -257,7 +249,7 @@ let view state dispatch (i: Instrumental) =
             // Master ID
             TextBox.create [
                 Grid.column 1
-                Grid.row 10
+                Grid.row 9
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
                 TextBox.text (string i.MasterID)
@@ -270,7 +262,7 @@ let view state dispatch (i: Instrumental) =
             ]
 
             TextBlock.create [
-                Grid.row 11
+                Grid.row 10
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -280,7 +272,7 @@ let view state dispatch (i: Instrumental) =
             // Persistent ID
             TextBox.create [
                 Grid.column 1
-                Grid.row 11
+                Grid.row 10
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
                 TextBox.text (i.PersistentID.ToString("N"))
@@ -292,18 +284,8 @@ let view state dispatch (i: Instrumental) =
                 )
             ]
 
-            Button.create [
-                Grid.columnSpan 2
-                Grid.row 12
-                Button.horizontalAlignment HorizontalAlignment.Center
-                Button.isVisible state.Config.ShowAdvanced
-                Button.content (translate "generateNewArrIDs")
-                Button.onClick (fun _ -> GenerateNewIds |> EditInstrumental |> dispatch)
-                ToolTip.tip (translate "generateNewArrIDsToolTip")
-            ]
-
             TextBlock.create [
-                Grid.row 13
+                Grid.row 11
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -312,7 +294,7 @@ let view state dispatch (i: Instrumental) =
 
             DockPanel.create [
                 Grid.column 1
-                Grid.row 13
+                Grid.row 11
                 DockPanel.isVisible state.Config.ShowAdvanced
                 DockPanel.children [
                     Button.create [
@@ -320,7 +302,8 @@ let view state dispatch (i: Instrumental) =
                         Button.content "..."
                         Button.margin (0., 2., 0., 0.)
                         Button.onClick (fun _ ->
-                           dispatch <| Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, Some >> SetCustomAudioPath >> EditInstrumental))
+                            Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, Some >> SetCustomAudioPath >> EditInstrumental)
+                            |> dispatch)
                     ]
 
                     Button.create [
@@ -357,7 +340,7 @@ let view state dispatch (i: Instrumental) =
 
             if state.Config.ShowAdvanced && i.CustomAudio.IsSome then
                 TextBlock.create [
-                    Grid.row 14
+                    Grid.row 12
                     TextBlock.verticalAlignment VerticalAlignment.Center
                     TextBlock.horizontalAlignment HorizontalAlignment.Center
                     TextBlock.text (translate "volume")
@@ -365,19 +348,21 @@ let view state dispatch (i: Instrumental) =
 
                 NumericUpDown.create [
                     Grid.column 1
-                    Grid.row 14
+                    Grid.row 12
                     NumericUpDown.isEnabled (
                         match i.CustomAudio with
                         | Some audio when state.RunningTasks.Contains(VolumeCalculation(CustomAudio(audio.Path))) ->
                             false
                         | _ ->
                             true)
-                    NumericUpDown.width 65.
                     NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                     NumericUpDown.minimum -45.
                     NumericUpDown.maximum 45.
                     NumericUpDown.increment 0.5
-                    NumericUpDown.value (i.CustomAudio |> Option.map (fun x -> x.Volume) |> Option.defaultValue -8.)
+                    NumericUpDown.value (
+                        i.CustomAudio
+                        |> Option.map (fun x -> x.Volume)
+                        |> Option.defaultValue state.Project.AudioFile.Volume)
                     NumericUpDown.formatString "F1"
                     NumericUpDown.onValueChanged (SetCustomAudioVolume >> EditInstrumental >> dispatch)
                     ToolTip.tip (translate "audioVolumeToolTip")

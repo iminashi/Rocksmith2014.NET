@@ -1,7 +1,5 @@
 ﻿module DLCBuilder.Views.Main
 
-open Rocksmith2014.Common.Manifest
-open Rocksmith2014.DLCProject
 open System
 open Avalonia
 open Avalonia.Input
@@ -9,8 +7,34 @@ open Avalonia.Layout
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
 open Avalonia.FuncUI.DSL
+open Rocksmith2014.Common.Manifest
+open Rocksmith2014.DLCProject
 open DLCBuilder
 open Media
+
+let private arrangementContextMenu state dispatch =
+    ContextMenu.create [
+        ContextMenu.viewItems [
+            match state.SelectedArrangement with
+            | Some (Instrumental _) ->
+                MenuItem.create [
+                    MenuItem.header (translate "generateNewArrIDs")
+                    MenuItem.onClick (fun _ -> GenerateNewIds |> EditInstrumental |> dispatch)
+                    ToolTip.tip (translate "generateNewArrIDsToolTip")
+                ]
+                MenuItem.create [
+                    MenuItem.header (translate "reloadToneKeys")
+                    MenuItem.onClick (fun _ -> UpdateToneInfo |> EditInstrumental |> dispatch)
+                    ToolTip.tip (translate "reloadToneKeysTooltip")
+                ]
+                MenuItem.create [ MenuItem.header "-" ]
+            | _ -> ()
+            MenuItem.create [
+                MenuItem.header (translate "remove")
+                MenuItem.onClick (fun _ -> dispatch DeleteArrangement)
+            ]
+        ]
+    ]
 
 let view (window: Window) (state: State) dispatch =
     if state.RunningTasks.IsEmpty then
@@ -28,7 +52,7 @@ let view (window: Window) (state: State) dispatch =
     Grid.create [
         Grid.children [
             Grid.create [
-                Grid.columnDefinitions "*,240,*"
+                Grid.columnDefinitions "*,240,1.2*"
                 Grid.rowDefinitions "3*,2*"
                 //Grid.showGridLines true
                 Grid.children [
@@ -73,13 +97,17 @@ let view (window: Window) (state: State) dispatch =
                                                 Button.padding (10.0, 5.0)
                                                 Button.content (translate "validate")
                                                 Button.onClick (fun _ -> dispatch CheckArrangements)
-                                                Button.isEnabled (state.Project.Arrangements.Length > 0 && not (state.RunningTasks |> Set.contains ArrangementCheck))
+                                                Button.isEnabled (
+                                                    state.Project.Arrangements.Length > 0
+                                                    &&
+                                                    not (state.RunningTasks |> Set.contains ArrangementCheck))
                                             ]
                                         ]
                                     ]
 
                                     // Arrangement list
                                     ListBox.create [
+                                        ListBox.contextMenu (arrangementContextMenu state dispatch)
                                         ListBox.background Brushes.Black
                                         ListBox.virtualizationMode ItemVirtualizationMode.None
                                         ListBox.margin 2.
@@ -198,7 +226,9 @@ let view (window: Window) (state: State) dispatch =
                                                 Grid.column 1
                                                 Button.padding (15.0, 5.0)
                                                 Button.content (translate "import")
-                                                Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectImportToneFile", Dialogs.toneImportFilter, ImportTonesFromFile)))
+                                                Button.onClick (fun _ ->
+                                                    Msg.OpenFileDialog("selectImportToneFile", Dialogs.toneImportFilter, ImportTonesFromFile)
+                                                    |> dispatch)
                                             ]
                                         ]
                                     ]
@@ -215,6 +245,7 @@ let view (window: Window) (state: State) dispatch =
                                         ListBox.onSelectedItemChanged (function
                                             | :? Tone as tone -> tone |> Some |> SetSelectedTone |> dispatch
                                             | _ -> ())
+                                        ListBox.onDoubleTapped (fun _ -> ShowToneEditor |> dispatch)
                                         ListBox.onKeyDown (fun k ->
                                             match k.KeyModifiers, k.Key with
                                             | KeyModifiers.None, Key.Delete -> dispatch DeleteTone

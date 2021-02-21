@@ -18,8 +18,8 @@ let create title (generalProps: IAttr<StackPanel> list) (textBoxProps: IAttr<Tex
             ]
             TextBox.create [
                 ToolTip.tip title
-                TextBox.minHeight 28.
-                TextBox.height 28.
+                TextBox.minHeight 32.
+                TextBox.height 32.
                 yield! textBoxProps
             ]
         ]

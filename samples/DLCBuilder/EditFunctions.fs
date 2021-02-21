@@ -92,7 +92,7 @@ let editInstrumental state edit old inst =
             let customAudio =
                 match inst.CustomAudio with
                 | Some audio -> { audio with Path = path }
-                | None -> { Path = path; Volume = -8. }
+                | None -> { Path = path; Volume = state.Project.AudioFile.Volume }
             { inst with CustomAudio = Some customAudio }, cmd
 
         | SetCustomAudioPath None ->
