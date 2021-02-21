@@ -9,11 +9,10 @@ open Avalonia.Layout
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
 open Avalonia.FuncUI.DSL
-open Avalonia.FuncUI.Components.Hosts
 open DLCBuilder
 open Media
 
-let view (window: HostWindow) (state: State) dispatch =
+let view (window: Window) (state: State) dispatch =
     if state.RunningTasks.IsEmpty then
         window.Cursor <- Cursors.arrow
     else

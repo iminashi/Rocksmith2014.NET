@@ -2,23 +2,16 @@
 
 open Elmish
 open Avalonia
-open Avalonia.Controls.ApplicationLifetimes
 open Avalonia.Input
 open Avalonia.FuncUI
 open Avalonia.FuncUI.Elmish
 open Avalonia.FuncUI.Components.Hosts
-open Live.Avalonia
 open Avalonia.Controls
+open Avalonia.Controls.ApplicationLifetimes
+open Avalonia.Themes.Fluent
 open System
 open System.Reflection
 open Microsoft.Extensions.FileProviders
-
-//type MainControl() as this =
-//    inherit HostControl()
-//    do
-//        Elmish.Program.mkProgram MainView.init MainView.update MainView.view
-//        |> Program.withHost this
-//        |> Program.run
 
 type MainWindow() as this =
     inherit HostWindow()
@@ -63,12 +56,10 @@ type MainWindow() as this =
 type App() =
     inherit Application()
 
-    //interface ILiveView with
-    //    member _.CreateView(window: Window) = MainControl() :> obj
-
     override this.Initialize() =
-        this.Styles.Load "avares://Avalonia.Themes.Default/DefaultTheme.xaml"
-        this.Styles.Load "avares://Avalonia.Themes.Default/Accents/BaseDark.xaml"
+        //this.Styles.Load "avares://Avalonia.Themes.Default/DefaultTheme.xaml"
+        //this.Styles.Load "avares://Avalonia.Themes.Default/Accents/BaseDark.xaml"
+        this.Styles.Add (FluentTheme(baseUri = null, Mode = FluentThemeMode.Dark))
         this.Styles.Load "avares://DLCBuilder/Styles.xaml"
         this.Name <- "Rocksmith 2014 DLC Builder"
 
@@ -76,13 +67,6 @@ type App() =
         match this.ApplicationLifetime with
         | :? IClassicDesktopStyleApplicationLifetime as desktopLifetime ->
             desktopLifetime.MainWindow <- MainWindow()
-            //let window = new LiveViewHost(this, fun msg -> printfn "%s" msg)
-            //window.StartWatchingSourceFilesForHotReloading()
-            //desktopLifetime.MainWindow <- window
-            //window.Title <- "DLCBuilder"
-            //window.Width <- 1000.0
-            //window.Height <- 800.0
-            //window.Show()
             base.OnFrameworkInitializationCompleted()
         | _ -> ()
 

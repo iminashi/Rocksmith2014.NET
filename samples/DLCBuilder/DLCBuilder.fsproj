@@ -65,7 +65,6 @@
     <PackageReference Include="JaggerJo.Avalonia.FuncUI" Version="0.5.0-beta" />
     <PackageReference Include="JaggerJo.Avalonia.FuncUI.DSL" Version="0.5.0-beta" />
     <PackageReference Include="JaggerJo.Avalonia.FuncUI.Elmish" Version="0.5.0-beta" />
-    <PackageReference Include="Live.Avalonia" Version="1.2.1" />
     <PackageReference Include="Pfim" Version="0.10.0" />
   </ItemGroup>
 
@@ -86,38 +85,10 @@
 
   <ItemGroup>
     <Watch Include="**\*.xaml" />
+    <Watch Include="**\*.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Assets\" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Watch Remove="BuildValidator.fs" />
-    <Watch Remove="Configuration.fs" />
-    <Watch Remove="Dialogs.fs" />
-    <Watch Remove="EditFunctions.fs" />
-    <Watch Remove="Localization.fs" />
-    <Watch Remove="Main.fs" />
-    <Watch Remove="Media.fs" />
-    <Watch Remove="RecentFilesList.fs" />
-    <Watch Remove="Templates.fs" />
-    <Watch Remove="TitledTextBox.fs" />
-    <Watch Remove="ToneEditor.fs" />
-    <Watch Remove="ToneGear.fs" />
-    <Watch Remove="Types.fs" />
-    <Watch Remove="Utils.fs" />
-    <Watch Remove="Views\ConfigEditor.fs" />
-    <Watch Remove="Views\ErrorMessage.fs" />
-    <Watch Remove="Views\InstrumentalDetails.fs" />
-    <Watch Remove="Views\IssueViewer.fs" />
-    <Watch Remove="Views\Main.fs" />
-    <Watch Remove="Views\ProjectDetails.fs" />
-    <Watch Remove="Views\SelectImportTones.fs" />
-    <Watch Remove="Views\SelectPreviewStart.fs" />
-    <Watch Remove="Views\ToneDetails.fs" />
-    <Watch Remove="Views\VocalsDetails.fs" />
-  </ItemGroup>
-
-  <ItemGroup />
 </Project>
