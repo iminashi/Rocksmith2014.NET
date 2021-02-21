@@ -42,12 +42,11 @@
     <Compile Include="EditFunctions.fs" />
     <Compile Include="TitledTextBox.fs" />
     <Compile Include="Templates.fs" />
-    <Compile Include="Views\ToneEditor.fs" />
-    <Watch Include="**\*.fs" />
     <Compile Include="Views\ProjectDetails.fs" />
     <Compile Include="Views\InstrumentalDetails.fs" />
     <Compile Include="Views\VocalsDetails.fs" />
     <Compile Include="Views\ToneDetails.fs" />
+    <Compile Include="Views\ToneEditor.fs" />
     <Compile Include="Views\SelectPreviewStart.fs" />
     <Compile Include="Views\ErrorMessage.fs" />
     <Compile Include="Views\SelectImportTones.fs" />

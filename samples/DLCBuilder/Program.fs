@@ -20,9 +20,9 @@ type MainWindow() as this =
         use iconData = embeddedProvider.GetFileInfo("Assets/icon.ico").CreateReadStream()
         base.Icon <- WindowIcon(iconData)
         base.Title <- "Rocksmith 2014 DLC Builder"
-        base.Width <- 1100.0
+        base.Width <- 1200.0
         base.Height <- 850.0
-        base.MinWidth <- 930.0
+        base.MinWidth <- 1100.0
         base.MinHeight <- 750.0
 
         let handleHotkeys dispatch (event: KeyEventArgs) =

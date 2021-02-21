@@ -45,22 +45,24 @@ let private generalConfig state dispatch =
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text (translate "profilePath")
             ]
-            StackPanel.create [
+            DockPanel.create [
                 Grid.column 1
                 Grid.row 2
-                StackPanel.orientation Orientation.Horizontal
-                StackPanel.children [
+                DockPanel.children [
+                    Button.create [
+                        DockPanel.dock Dock.Right
+                        Button.margin (0., 4.)
+                        Button.content "..."
+                        Button.onClick (fun _ ->
+                            Msg.OpenFileDialog("selectProfile", Dialogs.profileFilter, SetProfilePath >> EditConfig)
+                            |> dispatch)
+                    ]
                     TextBox.create [
                         TextBox.margin (0., 4.)
-                        TextBox.width 250.
                         TextBox.text state.Config.ProfilePath
                         TextBox.onTextChanged (SetProfilePath >> EditConfig >> dispatch)
                     ]
-                    Button.create [
-                        Button.margin (0., 4.)
-                        Button.content "..."
-                        Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectProfile", Dialogs.profileFilter, SetProfilePath >> EditConfig)))
-                    ]
+
                 ]
             ]
 
@@ -69,22 +71,23 @@ let private generalConfig state dispatch =
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text (translate "testFolder")
             ]
-            StackPanel.create [
+            DockPanel.create [
                 Grid.column 1
                 Grid.row 3
-                StackPanel.orientation Orientation.Horizontal
-                StackPanel.children [
+                DockPanel.children [
+                    Button.create [
+                        DockPanel.dock Dock.Right
+                        Button.margin (0., 4.)
+                        Button.content "..."
+                        Button.onClick (fun _ ->
+                            Msg.OpenFolderDialog("selectTestFolder", SetTestFolderPath >> EditConfig)
+                            |> dispatch)
+                    ]
                     TextBox.create [
                         TextBox.margin (0., 4.)
-                        TextBox.width 250.
                         TextBox.text state.Config.TestFolderPath
                         TextBox.watermark (translate "testFolderPlaceholder")
                         TextBox.onTextChanged (SetTestFolderPath >> EditConfig >> dispatch)
-                    ]
-                    Button.create [
-                        Button.margin (0., 4.)
-                        Button.content "..."
-                        Button.onClick (fun _ -> dispatch (Msg.OpenFolderDialog("selectTestFolder", SetTestFolderPath >> EditConfig)))
                     ]
                 ]
             ]
@@ -94,21 +97,22 @@ let private generalConfig state dispatch =
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text (translate "projectsFolder")
             ]
-            StackPanel.create [
+            DockPanel.create [
                 Grid.column 1
                 Grid.row 4
-                StackPanel.orientation Orientation.Horizontal
-                StackPanel.children [
-                    TextBox.create [
-                        TextBox.margin (0., 4.)
-                        TextBox.width 250.
-                        TextBox.text state.Config.ProjectsFolderPath
-                        TextBox.onTextChanged (SetProjectsFolderPath >> EditConfig >> dispatch)
-                    ]
+                DockPanel.children [
                     Button.create [
+                        DockPanel.dock Dock.Right
                         Button.margin (0., 4.)
                         Button.content "..."
-                        Button.onClick (fun _ -> dispatch (Msg.OpenFolderDialog("selectProjectFolder", SetProjectsFolderPath >> EditConfig)))
+                        Button.onClick (fun _ ->
+                            Msg.OpenFolderDialog("selectProjectFolder", SetProjectsFolderPath >> EditConfig)
+                            |> dispatch)
+                    ]
+                    TextBox.create [
+                        TextBox.margin (0., 4.)
+                        TextBox.text state.Config.ProjectsFolderPath
+                        TextBox.onTextChanged (SetProjectsFolderPath >> EditConfig >> dispatch)
                     ]
                 ]
             ]
@@ -118,27 +122,26 @@ let private generalConfig state dispatch =
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text (translate "wwiseConsolePath")
             ]
-            StackPanel.create [
+            DockPanel.create [
                 Grid.column 1
                 Grid.row 5
-                StackPanel.orientation Orientation.Horizontal
-                StackPanel.children [
+                DockPanel.children [
+                    Button.create [
+                        DockPanel.dock Dock.Right
+                        Button.margin (0., 4.)
+                        Button.content "..."
+                        Button.onClick (fun _ ->
+                            Msg.OpenFileDialog("selectWwiseConsolePath",
+                                               Dialogs.wwiseConsoleAppFilter state.CurrentPlatform,
+                                               SetWwiseConsolePath >> EditConfig)
+                            |> dispatch)
+                    ]
                     TextBox.create [
                         TextBox.margin (0., 4.)
-                        TextBox.width 250.
                         TextBox.text (Option.toObj state.Config.WwiseConsolePath)
                         TextBox.watermark (translate "wwiseConsolePathPlaceholder")
                         TextBox.onTextChanged (SetWwiseConsolePath >> EditConfig >> dispatch)
                         ToolTip.tip (translate "wwiseConsolePathTooltip")
-                    ]
-                    Button.create [
-                        Button.margin (0., 4.)
-                        Button.content "..."
-                        Button.onClick (fun _ ->
-                            dispatch (Msg.OpenFileDialog("selectWwiseConsolePath",
-                                                         Dialogs.wwiseConsoleAppFilter state.CurrentPlatform,
-                                                         SetWwiseConsolePath >> EditConfig))
-                        )
                     ]
                 ]
             ]
@@ -377,9 +380,8 @@ let private buildConfig state dispatch =
         ]
      ]
 
-let private tabHeader (icon: Geometry) text =
+let private tabHeader (icon: Geometry) locText =
     StackPanel.create [
-        StackPanel.minWidth 70.
         StackPanel.children [
             Path.create [
                 Path.fill Brushes.DarkGray
@@ -388,9 +390,8 @@ let private tabHeader (icon: Geometry) text =
             ]
 
             TextBlock.create [
-                TextBlock.text text
+                TextBlock.text (translate locText)
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.foreground Brushes.WhiteSmoke
                 TextBlock.margin (0., 4., 0., 0.)
             ]
         ]
@@ -401,16 +402,6 @@ let view state dispatch =
         DockPanel.width 600.
         DockPanel.height 400.
         DockPanel.children [
-            // Header
-            TextBlock.create [
-                DockPanel.dock Dock.Top
-                TextBlock.fontSize 16.
-                TextBlock.margin (0., 0., 0., 5.)
-                TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "configuration")
-            ]
-
             // Close button
             Button.create [
                 DockPanel.dock Dock.Bottom
@@ -423,23 +414,20 @@ let view state dispatch =
             ]
 
             TabControl.create [
-                TabControl.minHeight 250.
-                TabControl.minWidth 520.
-                TabControl.tabStripPlacement Dock.Left
                 TabControl.viewItems [
                     TabItem.create [
                         TabItem.horizontalAlignment HorizontalAlignment.Center
-                        TabItem.header (tabHeader Media.Icons.cog (translate "general"))
+                        TabItem.header (tabHeader Media.Icons.cog "general")
                         TabItem.content (generalConfig state dispatch)
                     ]
                     TabItem.create [
                         TabItem.horizontalAlignment HorizontalAlignment.Center
-                        TabItem.header (tabHeader Media.Icons.package (translate "build"))
+                        TabItem.header (tabHeader Media.Icons.package "build")
                         TabItem.content (buildConfig state dispatch)
                     ]
                     TabItem.create [
                         TabItem.horizontalAlignment HorizontalAlignment.Center
-                        TabItem.header (tabHeader Media.Icons.import (translate "importHeader"))
+                        TabItem.header (tabHeader Media.Icons.import "importHeader")
                         TabItem.content (importConfig state dispatch)
                     ]
                 ]
