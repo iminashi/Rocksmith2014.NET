@@ -6,6 +6,7 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Media
 open Avalonia.Threading
+open Rocksmith2014.Audio
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.SNG
@@ -88,9 +89,9 @@ let ofdAll = openFileDialogSingle "Select File" null
 let ofdMultiXml = openFileDialogMulti "Select Files" xmlFilters
 let ofod = openFolderDialog "Select Folder"
 
-type State = { Status:string; Platform:Platform }
+type State = { Status:string; Platform:Platform; ConvertAudio: bool }
 
-let init () = { Status = ""; Platform = PC }, Cmd.none
+let init () = { Status = ""; Platform = PC; ConvertAudio = true }, Cmd.none
 
 type Msg =
     | UnpackSNGFile of file:string
@@ -106,6 +107,7 @@ type Msg =
     | CreateManifest of file:string
     | ExtractSNGtoXML of file:string
     | ChangePlatform of Platform
+    | SetConvertAudio of bool
     | ConvertToDDS of file:string
     | GenerateSoundBank of file:string
     | ReadVolume of file:string
@@ -169,7 +171,10 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             Directory.CreateDirectory(dir) |> ignore
             let t () = async {
                 use psarc = PSARC.ReadFile file
-                do! psarc.ExtractFiles dir }
+                do! psarc.ExtractFiles dir
+                if state.ConvertAudio then
+                    Directory.EnumerateFiles(dir, "*.wem", SearchOption.AllDirectories) 
+                    |> Seq.iter Conversion.wemToOgg }
             state, Cmd.OfAsync.attempt t () Error
 
         | PackDirectoryPSARC path ->
@@ -291,7 +296,8 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                 do! Profile.decrypt profFile targetFile |> Async.Ignore }
             state, Cmd.OfAsync.attempt t () Error
 
-        | ChangePlatform platform -> { state with Platform = platform }, Cmd.none
+        | ChangePlatform platform ->
+            { state with Platform = platform }, Cmd.none
 
         | CheckXml file ->
             let status = 
@@ -304,7 +310,11 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
 
             { state with Status = status }, Cmd.none
 
-        | Error e -> { state with Status = e.Message }, Cmd.none
+        | SetConvertAudio conv ->
+            { state with ConvertAudio = conv}, Cmd.none
+
+        | Error e ->
+            { state with Status = e.Message }, Cmd.none
 
     with e -> { state with Status = e.Message }, Cmd.none
 
@@ -384,6 +394,13 @@ let view (state: State) dispatch =
                         TextBlock.verticalAlignment VerticalAlignment.Center
                         TextBlock.horizontalAlignment HorizontalAlignment.Center
                         TextBlock.text "PSARC"
+                    ]
+
+                    CheckBox.create [
+                        CheckBox.content "Convert audio to ogg"
+                        CheckBox.isChecked state.ConvertAudio
+                        CheckBox.onChecked (fun _ -> true |> SetConvertAudio |> dispatch)
+                        CheckBox.onUnchecked (fun _ -> false |> SetConvertAudio |> dispatch)
                     ]
 
                     Button.create [
