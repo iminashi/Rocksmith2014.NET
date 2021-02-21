@@ -22,8 +22,8 @@ type MainWindow() as this =
         base.Title <- "Rocksmith 2014 DLC Builder"
         base.Width <- 1100.0
         base.Height <- 850.0
-        base.MinWidth <- 900.0
-        base.MinHeight <- 670.0
+        base.MinWidth <- 920.0
+        base.MinHeight <- 750.0
 
         let handleHotkeys dispatch (event: KeyEventArgs) =
             match event.KeyModifiers, event.Key with

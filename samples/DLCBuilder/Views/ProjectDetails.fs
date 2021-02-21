@@ -25,7 +25,7 @@ let private notBuilding state =
     |> Set.intersect (Set([ BuildPackage; WemConversion ]))
     |> Set.isEmpty
 
-let fileMenu state dispatch =
+let private fileMenu state dispatch =
     Menu.create [
         Menu.fontSize 16.
         Menu.background "#505050"
@@ -106,7 +106,7 @@ let view state dispatch =
 
             Grid.create [
                 Grid.columnDefinitions "3*,*"
-                Grid.rowDefinitions "46,46,46,46,46,40,40,*"
+                Grid.rowDefinitions "auto,auto,auto,auto,auto,40,40,*"
                 //Grid.showGridLines true
                 Grid.children [
                     TitledTextBox.create (translate "dlcKey") [ Grid.column 0; Grid.row 0 ] [
@@ -308,7 +308,6 @@ let view state dispatch =
                         Grid.column 1
                         Grid.row 5
                         NumericUpDown.margin (2.0, 2.0, 2.0, 2.0)
-                        NumericUpDown.width 65.
                         NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                         NumericUpDown.minimum -45.
                         NumericUpDown.maximum 45.
@@ -362,7 +361,6 @@ let view state dispatch =
                         Grid.column 1
                         Grid.row 6
                         NumericUpDown.margin (2.0, 2.0, 2.0, 2.0)
-                        NumericUpDown.width 65.
                         NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                         NumericUpDown.minimum -45.
                         NumericUpDown.maximum 45.

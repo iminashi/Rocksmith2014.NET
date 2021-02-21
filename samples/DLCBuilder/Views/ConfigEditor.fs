@@ -11,7 +11,7 @@ open DLCBuilder
 
 let private generalConfig state dispatch =
     Grid.create [
-        Grid.columnDefinitions "*,2*"
+        Grid.columnDefinitions "auto,*"
         Grid.rowDefinitions "*,*,*,*,*,*,*,*"
         Grid.children [
             TextBlock.create [
@@ -218,8 +218,8 @@ let private importConfig state dispatch =
 
 let private buildConfig state dispatch =
     Grid.create [
-        Grid.columnDefinitions "*,2*"
-        Grid.rowDefinitions "*,*,*,*,*,*,*"
+        Grid.columnDefinitions "auto,*"
+        Grid.rowDefinitions "auto,auto,auto,auto,auto,auto,auto"
         Grid.verticalAlignment VerticalAlignment.Top
         Grid.children [
             TextBlock.create [
@@ -330,7 +330,7 @@ let private buildConfig state dispatch =
                 StackPanel.children [
                     NumericUpDown.create [
                         NumericUpDown.margin (0., 2., 2., 2.)
-                        NumericUpDown.width 60.
+                        NumericUpDown.width 140.
                         NumericUpDown.value (float state.Config.DDPhraseSearchThreshold)
                         NumericUpDown.isEnabled (state.Config.DDPhraseSearchEnabled && state.Config.GenerateDD)
                         NumericUpDown.onValueChanged (int >> SetDDPhraseSearchThreshold >> EditConfig >> dispatch)
@@ -398,7 +398,10 @@ let private tabHeader (icon: Geometry) text =
 
 let view state dispatch =
     DockPanel.create [
+        DockPanel.width 600.
+        DockPanel.height 400.
         DockPanel.children [
+            // Header
             TextBlock.create [
                 DockPanel.dock Dock.Top
                 TextBlock.fontSize 16.
@@ -408,6 +411,7 @@ let view state dispatch =
                 TextBlock.text (translate "configuration")
             ]
 
+            // Close button
             Button.create [
                 DockPanel.dock Dock.Bottom
                 Button.margin 4.

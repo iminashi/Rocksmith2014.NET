@@ -3,6 +3,7 @@
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Controls
+open Avalonia.Controls.Primitives
 open Avalonia.Media
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
@@ -13,7 +14,7 @@ let view state dispatch (i: Instrumental) =
     Grid.create [
         //Grid.showGridLines true
         Grid.margin (0.0, 4.0)
-        Grid.columnDefinitions "*,3*"
+        Grid.columnDefinitions "auto,*"
         Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*,*,*,*,*,*"
         Grid.children [
             TextBlock.create [
@@ -23,18 +24,19 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
 
-            if i.Name <> ArrangementName.Bass then
-                ComboBox.create [
-                    Grid.column 1
-                    ComboBox.horizontalAlignment HorizontalAlignment.Left
-                    ComboBox.margin 4.
-                    ComboBox.width 100.
-                    ComboBox.dataItems [ ArrangementName.Lead; ArrangementName.Rhythm; ArrangementName.Combo ]
-                    ComboBox.selectedItem i.Name
-                    ComboBox.onSelectedItemChanged (function
-                        | :? ArrangementName as name -> name |> SetArrangementName |> EditInstrumental |> dispatch
-                        | _ -> ())
-                ]
+            // Arrangement name (for non-bass arrangements)
+            ComboBox.create [
+                Grid.column 1
+                ComboBox.isVisible (i.Name <> ArrangementName.Bass)
+                ComboBox.horizontalAlignment HorizontalAlignment.Left
+                ComboBox.margin 4.
+                ComboBox.width 100.
+                ComboBox.dataItems [ ArrangementName.Lead; ArrangementName.Rhythm; ArrangementName.Combo ]
+                ComboBox.selectedItem i.Name
+                ComboBox.onSelectedItemChanged (function
+                    | :? ArrangementName as name -> name |> SetArrangementName |> EditInstrumental |> dispatch
+                    | _ -> ())
+            ]
 
             TextBlock.create [
                 Grid.row 1
@@ -43,6 +45,7 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.text (translate "priority")
             ]
 
+            // Priority
             StackPanel.create [
                 Grid.column 1
                 Grid.row 1
@@ -77,6 +80,7 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.text (translate "path")
             ]
 
+            // Path (only for combo arrangements)
             StackPanel.create [
                 Grid.column 1
                 Grid.row 2
@@ -104,6 +108,7 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.text (translate "picked")
             ]
 
+            // Bass picked
             CheckBox.create [
                 Grid.column 1
                 Grid.row 3
@@ -121,14 +126,17 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.text (translate "tuning")
             ]
 
-            StackPanel.create [
+            // Tuning strings
+            UniformGrid.create [
                 Grid.column 1
                 Grid.row 4
-                StackPanel.orientation Orientation.Horizontal
-                StackPanel.children [
+                UniformGrid.columns 6
+                UniformGrid.children [
                     for str in 0..5 ->
                         TextBox.create [
-                            TextBox.width 30.
+                            TextBox.margin 2.
+                            TextBox.minWidth 40.
+                            TextBox.width 40.
                             TextBox.text (string i.Tuning.[str])
                             TextBox.onLostFocus (fun arg ->
                                 let txtBox = arg.Source :?> TextBox
@@ -146,6 +154,7 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.text (translate "tuningPitch")
             ]
 
+            // Tuning Pitch
             StackPanel.create [
                 Grid.column 1
                 Grid.row 5
@@ -153,7 +162,7 @@ let view state dispatch (i: Instrumental) =
                 StackPanel.children [
                     NumericUpDown.create [
                         NumericUpDown.horizontalAlignment HorizontalAlignment.Left
-                        NumericUpDown.width 90.
+                        NumericUpDown.width 160.
                         NumericUpDown.value i.TuningPitch
                         NumericUpDown.minimum 0.0
                         NumericUpDown.maximum 50000.0
@@ -175,6 +184,7 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.text (translate "baseTone")
             ]
 
+            // Base Tone
             TextBox.create [
                 Grid.column 1
                 Grid.row 6
@@ -191,6 +201,7 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.text (translate "tones")
             ]
 
+            // Tone key list
             TextBlock.create [
                 Grid.column 1
                 Grid.row 7
@@ -201,6 +212,7 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.horizontalAlignment HorizontalAlignment.Left
             ]
 
+            // Reload tone button
             Button.create [
                 Grid.columnSpan 2
                 Grid.row 8
@@ -219,6 +231,7 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.text (translate "scrollSpeed")
             ]
 
+            // Scroll speed
             NumericUpDown.create [
                 Grid.column 1
                 Grid.row 9
@@ -226,7 +239,6 @@ let view state dispatch (i: Instrumental) =
                 NumericUpDown.isVisible state.Config.ShowAdvanced
                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                 NumericUpDown.increment 0.1
-                NumericUpDown.width 65.
                 NumericUpDown.maximum 5.0
                 NumericUpDown.minimum 0.5
                 NumericUpDown.formatString "F1"
@@ -242,6 +254,7 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.text (translate "masterID")
             ]
 
+            // Master ID
             TextBox.create [
                 Grid.column 1
                 Grid.row 10
@@ -264,6 +277,7 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.text (translate "persistentID")
             ]
 
+            // Persistent ID
             TextBox.create [
                 Grid.column 1
                 Grid.row 11

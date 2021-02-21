@@ -39,10 +39,11 @@ let view state dispatch (tone: Tone) =
         |> List.distinct
 
     Grid.create [
-        Grid.columnDefinitions "*,3*"
+        Grid.columnDefinitions "auto,*"
         Grid.rowDefinitions "*,*,*,*,*"
         Grid.margin (0.0, 4.0)
         Grid.children [
+            // Name
             TextBlock.create [
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -55,6 +56,7 @@ let view state dispatch (tone: Tone) =
                 TextBox.onTextChanged (StringValidator.toneName >> SetName >> EditTone >> dispatch)
             ]
 
+            // Key
             TextBlock.create [
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -74,6 +76,7 @@ let view state dispatch (tone: Tone) =
                 )
             ]
 
+            // Descriptors
             TextBlock.create [
                 Grid.row 2
                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -107,6 +110,7 @@ let view state dispatch (tone: Tone) =
                 ]
             ]
 
+            // Volume
             TextBlock.create [
                 Grid.row 3
                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -117,7 +121,7 @@ let view state dispatch (tone: Tone) =
                 Grid.column 1
                 Grid.row 3
                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
-                NumericUpDown.width 75.
+                NumericUpDown.width 140.
                 NumericUpDown.value tone.Volume
                 NumericUpDown.minimum -45.
                 NumericUpDown.maximum 45.
@@ -127,6 +131,7 @@ let view state dispatch (tone: Tone) =
                 ToolTip.tip (translate "toneVolumeToolTip")
             ]
 
+            // Buttons
             Grid.create [
                 Grid.row 4
                 Grid.columnSpan 2

@@ -176,18 +176,22 @@ let private knobSliders dispatch (tone: Tone) gearType (knobs: GearKnob array) =
                         ]
                     ]
 
-                    DockPanel.create [
-                        DockPanel.margin (6., 0., 6., 4.)
-                        DockPanel.children [
+                    Grid.create [
+                        Grid.margin (6., -15., 6., 0.)
+                        Grid.columnDefinitions "auto,*,auto"
+                        Grid.children [
                             TextBlock.create [
-                                DockPanel.dock Dock.Left
                                 TextBlock.text (string knob.MinValue)
+                                TextBlock.verticalAlignment VerticalAlignment.Center
                             ]
                             TextBlock.create [
-                                DockPanel.dock Dock.Right
+                                Grid.column 2
                                 TextBlock.text (string knob.MaxValue)
+                                TextBlock.verticalAlignment VerticalAlignment.Center
                             ]
                             Slider.create [
+                                Grid.column 1
+                                Slider.margin (4., 0.)
                                 Slider.isSnapToTickEnabled true
                                 Slider.tickFrequency (float knob.ValueStep)
                                 Slider.smallChange (float knob.ValueStep)
@@ -206,7 +210,7 @@ let private knobSliders dispatch (tone: Tone) gearType (knobs: GearKnob array) =
 
 let view state dispatch tone =
     Grid.create [
-        Grid.width 550.
+        Grid.width 620.
         Grid.minHeight 660.
         Grid.columnDefinitions "*,*"
         Grid.rowDefinitions "*,auto"

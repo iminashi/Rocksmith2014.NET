@@ -8,6 +8,7 @@ open Avalonia.Layout
 let create title (generalProps: IAttr<StackPanel> list) (textBoxProps: IAttr<TextBox> list) = 
     StackPanel.create [
         yield! generalProps
+
         StackPanel.orientation Orientation.Vertical
         StackPanel.children [
             TextBlock.create [
@@ -17,7 +18,8 @@ let create title (generalProps: IAttr<StackPanel> list) (textBoxProps: IAttr<Tex
             ]
             TextBox.create [
                 ToolTip.tip title
-                TextBox.minHeight 26.
+                TextBox.minHeight 28.
+                TextBox.height 28.
                 yield! textBoxProps
             ]
         ]
