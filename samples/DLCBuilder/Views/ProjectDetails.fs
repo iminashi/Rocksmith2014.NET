@@ -27,8 +27,7 @@ let private notBuilding state =
 let private fileMenu state dispatch =
     Menu.create [
         Menu.fontSize 16.
-        Menu.background "#505050"
-        Menu.margin (0., 4., 4., 4.)
+        Menu.background "#363636"
         Menu.viewItems [
             MenuItem.create [
                 MenuItem.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
@@ -43,8 +42,14 @@ let private fileMenu state dispatch =
                         MenuItem.onClick (fun _ -> dispatch NewProject)
                     ]
 
+                    // Save project as
+                    MenuItem.create [
+                        MenuItem.header (translate "saveProjectAs")
+                        MenuItem.onClick (fun _ -> dispatch ProjectSaveAs)
+                    ]
+    
                     MenuItem.create [ MenuItem.header "-" ]
-
+    
                     // Import Toolkit template
                     MenuItem.create [
                         MenuItem.header (translate "toolkitImport")
@@ -52,7 +57,7 @@ let private fileMenu state dispatch =
                             Msg.OpenFileDialog("selectImportToolkitTemplate", Dialogs.toolkitFilter, ImportToolkitTemplate)
                             |> dispatch)
                     ]
-
+    
                     // Import PSARC file
                     MenuItem.create [
                         MenuItem.header (translate "psarcImport")
@@ -60,11 +65,11 @@ let private fileMenu state dispatch =
                             Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder)
                             |>dispatch)
                     ]
-
+    
                     // Recent files
                     if state.RecentFiles.Length > 0 then
                         MenuItem.create [ MenuItem.header "-" ]
-
+    
                         yield! state.RecentFiles |> List.map (fun fileName ->
                             MenuItem.create [
                                 MenuItem.header ((IO.Path.GetFileName fileName).Replace("_", "__"))
@@ -264,7 +269,7 @@ let private buildControls state dispatch =
                     // Open project
                     Button.create [
                         Button.padding (15., 8.)
-                        Button.margin (4., 4., 0., 4.)
+                        Button.margin 4.
                         Button.fontSize 16.
                         Button.content (translate "openProject")
                         Button.onClick (fun _ ->
@@ -272,8 +277,6 @@ let private buildControls state dispatch =
                             |> dispatch)
                         Button.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
                     ]
-
-                    fileMenu state dispatch
                 ]
             ]
 
@@ -285,22 +288,14 @@ let private buildControls state dispatch =
                     // Save project
                     Button.create [
                         Button.padding (15., 8.)
-                        Button.margin (4., 4., 0., 4.)
+                        Button.margin 4.
                         Button.fontSize 16.
                         Button.content (translate "saveProject")
                         Button.onClick (fun _ -> dispatch ProjectSaveOrSaveAs)
                         Button.isEnabled (state.Project <> state.SavedProject)
                     ]
 
-                    // Save project as
-                    Button.create [
-                        Button.padding (8., 8.)
-                        Button.margin (0., 4., 4., 4.)
-                        Button.fontSize 16.
-                        Button.content "..."
-                        Button.onClick (fun _ -> dispatch ProjectSaveAs)
-                        ToolTip.tip (translate "saveProjectAs")
-                    ]
+                    fileMenu state dispatch
                 ]
             ]
 
