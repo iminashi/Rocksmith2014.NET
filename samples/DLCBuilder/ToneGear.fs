@@ -7,7 +7,8 @@ open Rocksmith2014.Common.Manifest
 open Microsoft.Extensions.FileProviders
 
 type GearType =
-    | Amp 
+    | Amp
+    | Cabinet
     | PrePedal of index : int
     | PostPedal of index : int
     | Rack of index : int
@@ -26,35 +27,23 @@ type GearKnob =
 type GearData =
     { Name : string
       Type : string
-      Category : string 
-      Key : string 
+      Category : string
+      Key : string
       Knobs : GearKnob array option }
 
-let getKnobValuesForGear gearType (tone: Tone) =
-    let gear = tone.GearList
-
+let getKnobValuesForGear { Tone.GearList=gearList } gearType  =
     match gearType with
-    | Amp -> Some gear.Amp
-    | PrePedal index -> gear.PrePedals.[index] 
-    | PostPedal index -> gear.PostPedals.[index]
-    | Rack index -> gear.Racks.[index]
+    | Amp -> Some gearList.Amp
+    | Cabinet -> Some gearList.Cabinet
+    | PrePedal index -> gearList.PrePedals.[index] 
+    | PostPedal index -> gearList.PostPedals.[index]
+    | Rack index -> gearList.Racks.[index]
     |> Option.map (fun x -> x.KnobValues)
 
-let loadGearData () = async {
-    let provider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
-    
-    let options = JsonSerializerOptions(IgnoreNullValues = true)
-    options.Converters.Add(JsonFSharpConverter())
-    return! JsonSerializer.DeserializeAsync<GearData[]>(provider.GetFileInfo("ToneGearData.json").CreateReadStream(), options) }
-
 let private getDefaultKnobValues gear =
-    match gear.Knobs with
-    | Some knobs ->
-        knobs
-        |> Array.map (fun k -> k.Key, float32 k.DefaultValue)
-        |> Map.ofArray
-    | None ->
-        Map.empty
+    gear.Knobs
+    |> Option.map (Array.map (fun k -> k.Key, float32 k.DefaultValue) >> Map.ofArray)
+    |> Option.defaultValue Map.empty
 
 let createPedalForGear (gear: GearData) =
     { Key = gear.Key
@@ -63,3 +52,43 @@ let createPedalForGear (gear: GearData) =
       Skin = None
       SkinIndex = None
       KnobValues = getDefaultKnobValues gear }
+
+let private loadGearData () = async {
+    let provider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
+    
+    let options = JsonSerializerOptions(IgnoreNullValues = true)
+    options.Converters.Add(JsonFSharpConverter())
+    return! JsonSerializer.DeserializeAsync<GearData[]>(provider.GetFileInfo("ToneGearData.json").CreateReadStream(), options) }
+
+let allGear = loadGearData() |> Async.RunSynchronously
+
+let private filterSort type' sortBy = allGear |> Array.filter (fun x -> x.Type = type') |> Array.sortBy sortBy
+let private toDict = Array.map (fun x -> x.Key, x) >> readOnlyDict
+
+let amps = filterSort "Amps" (fun x -> x.Name)
+let cabinets = filterSort "Cabinets" (fun x -> x.Name)
+let pedals = filterSort "Pedals" (fun x -> x.Category, x.Name)
+let racks = filterSort "Racks" (fun x -> x.Category, x.Name)
+
+let cabinetChoices = cabinets |> Array.distinctBy (fun x -> x.Name)
+let micPositionsForCabinet =
+    cabinets
+    |> Array.groupBy (fun x -> x.Name)
+    |> readOnlyDict
+
+let ampDict = toDict amps
+let cabinetDict = toDict cabinets
+let pedalDict = toDict pedals
+let rackDict = toDict racks
+
+let getGearDataForCurrentPedal { Tone.GearList=gearList } = function
+    | Amp ->
+        Some ampDict.[gearList.Amp.Key]
+    | Cabinet ->
+        Some cabinetDict.[gearList.Cabinet.Key]
+    | PrePedal index ->
+        gearList.PrePedals.[index] |> Option.map (fun x -> pedalDict.[x.Key])
+    | PostPedal index ->
+        gearList.PostPedals.[index] |> Option.map (fun x -> pedalDict.[x.Key])
+    | Rack index ->
+        gearList.Racks.[index] |> Option.map (fun x -> rackDict.[x.Key])

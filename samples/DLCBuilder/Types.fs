@@ -62,7 +62,6 @@ type ToneEdit =
     | AddDescriptor
     | RemoveDescriptor
     | SetPedal of ToneGear.GearData
-    | SetCabinet of ToneGear.GearData
     | SetKnobValue of knobKey:string * value:float32
     | RemovePedal
 

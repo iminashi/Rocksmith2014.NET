@@ -220,13 +220,6 @@ let editTone state edit (tone: Tone) =
         | ChangeDescriptor (index, descriptor) ->
            { tone with ToneDescriptors = tone.ToneDescriptors |> Array.updateAt index descriptor.UIName }
 
-        | SetCabinet cabinet ->
-            if cabinet.Key <> tone.GearList.Cabinet.Key then
-                let gear = { tone.GearList with Cabinet = createPedalForGear cabinet }
-                { tone with GearList = gear }
-            else
-                tone
-
         | RemovePedal ->
             let remove index = Array.updateAt index None
             let gear =
@@ -237,8 +230,8 @@ let editTone state edit (tone: Tone) =
                     { tone.GearList with PostPedals = tone.GearList.PostPedals |> remove index }
                 | Rack index ->
                     { tone.GearList with Racks = tone.GearList.Racks |> remove index }
-                | Amp ->
-                    failwith "Cannot remove amp"
+                | Amp | Cabinet ->
+                    failwith "Cannot remove amp or cabinet"
 
             { tone with GearList = gear }
 
@@ -246,6 +239,7 @@ let editTone state edit (tone: Tone) =
             let currentPedal =
                 match state.SelectedGearType with
                 | Amp -> Some tone.GearList.Amp
+                | Cabinet -> Some tone.GearList.Cabinet
                 | PrePedal index -> tone.GearList.PrePedals.[index]
                 | PostPedal index -> tone.GearList.PostPedals.[index]
                 | Rack index -> tone.GearList.Racks.[index]
@@ -259,6 +253,8 @@ let editTone state edit (tone: Tone) =
                     match state.SelectedGearType with
                     | Amp ->
                         { tone.GearList with Amp = createPedalForGear pedal }
+                    | Cabinet ->
+                        { tone.GearList with Cabinet = createPedalForGear pedal }
                     | PrePedal index ->
                         { tone.GearList with PrePedals = tone.GearList.PrePedals |> setPedal index }
                     | PostPedal index ->
@@ -281,7 +277,7 @@ let editTone state edit (tone: Tone) =
             | None -> tone
             | Some _ ->
                 let updatedKnobs =
-                    getKnobValuesForGear state.SelectedGearType tone
+                    getKnobValuesForGear tone state.SelectedGearType
                     // Update the value only if the key exists
                     |> Option.map (Map.change knobKey (Option.map (fun _ -> value)))
 
@@ -292,6 +288,8 @@ let editTone state edit (tone: Tone) =
                         match state.SelectedGearType with
                         | Amp ->
                             { tone.GearList with Amp = { tone.GearList.Amp with KnobValues = updatedKnobs } }
+                        | Cabinet ->
+                            failwith "Cabinets have no knobs"
                         | PrePedal index ->
                             { tone.GearList with PrePedals = tone.GearList.PrePedals |> updateKnobs updatedKnobs index }
                         | PostPedal index ->
