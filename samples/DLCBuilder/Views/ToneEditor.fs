@@ -13,10 +13,24 @@ open Rocksmith2014.Common
 open DLCBuilder
 open ToneGear
 
+let private toggleButton (content: string) (isChecked: bool) onChecked =
+    ToggleButton.create [
+        ToggleButton.margin (0., 2.)
+        ToggleButton.minHeight 30.
+        ToggleButton.fontSize 14.
+        ToggleButton.content content
+        ToggleButton.isChecked isChecked
+        ToggleButton.onChecked onChecked
+        ToggleButton.onClick (fun e ->
+            let b = e.Source :?> ToggleButton
+            b.IsChecked <- true
+            e.Handled <- true
+        )
+    ]
+
 let private micTemplate =
     DataTemplateView<GearData>.create (fun gear ->
         TextBlock.create [ TextBlock.text gear.Category ])
-
 
 let private gearTemplate =
     DataTemplateView<GearData>.create (fun gear ->
@@ -38,38 +52,26 @@ let private pedalSelectors dispatch selectedGearType tone (locName, pedalFunc) =
     [ gearTypeHeader locName
 
       for index in 0..3 do
-          ToggleButton.create [
-              ToggleButton.margin (0., 2.)
-              ToggleButton.minHeight 30.
-              ToggleButton.fontSize 14.
-              ToggleButton.content (
-                  match getGearDataForCurrentPedal tone (pedalFunc index) with
-                  | Some data -> data.Name
-                  | None -> String.Empty)
-              ToggleButton.isChecked (pedalFunc index = selectedGearType)
-              ToggleButton.onChecked (fun _ -> pedalFunc index |> SetSelectedGearType |> dispatch)
-          ] |> generalize ]
+        let gearType = pedalFunc index
+        let content =
+            match getGearDataForCurrentPedal tone gearType with
+            | Some data -> data.Name
+            | None -> String.Empty
+        toggleButton content (gearType = selectedGearType) (fun _ -> gearType |> SetSelectedGearType |> dispatch)
+        |> generalize ]
 
 let private gearTypeSelector state dispatch (tone: Tone) =
     StackPanel.create [
         StackPanel.children [
             gearTypeHeader "amp"
-            ToggleButton.create [
-                ToggleButton.minHeight 30.
-                ToggleButton.fontSize 14.
-                ToggleButton.content ampDict.[tone.GearList.Amp.Key].Name
-                ToggleButton.isChecked (state.SelectedGearType = Amp)
-                ToggleButton.onChecked (fun _ -> Amp |> SetSelectedGearType |> dispatch)
-            ]
+            toggleButton ampDict.[tone.GearList.Amp.Key].Name
+                         (state.SelectedGearType = Amp)
+                         (fun _ -> Amp |> SetSelectedGearType |> dispatch)
 
             gearTypeHeader "cabinet"
-            ToggleButton.create [
-                ToggleButton.minHeight 30.
-                ToggleButton.fontSize 14.
-                ToggleButton.content (let c = cabinetDict.[tone.GearList.Cabinet.Key] in $"{c.Name} ({c.Category})")
-                ToggleButton.isChecked (state.SelectedGearType = Cabinet)
-                ToggleButton.onChecked (fun _ -> Cabinet |> SetSelectedGearType |> dispatch)
-            ]
+            toggleButton (let c = cabinetDict.[tone.GearList.Cabinet.Key] in $"{c.Name} ({c.Category})")
+                         (state.SelectedGearType = Cabinet)
+                         (fun _ -> Cabinet |> SetSelectedGearType |> dispatch)
 
             yield! [ ("prePedals", PrePedal); ("loopPedals", PostPedal); ("rack", Rack) ]
                    |> List.collect (pedalSelectors dispatch state.SelectedGearType tone)
