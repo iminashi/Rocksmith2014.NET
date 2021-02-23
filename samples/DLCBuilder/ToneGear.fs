@@ -31,7 +31,7 @@ type GearData =
       Key : string
       Knobs : GearKnob array option }
 
-let getKnobValuesForGear { Tone.GearList=gearList } gearType  =
+let getKnobValuesForGear (gearList: Gear) gearType  =
     match gearType with
     | Amp -> Some gearList.Amp
     | Cabinet -> Some gearList.Cabinet
@@ -81,7 +81,7 @@ let cabinetDict = toDict cabinets
 let pedalDict = toDict pedals
 let rackDict = toDict racks
 
-let getGearDataForCurrentPedal { Tone.GearList=gearList } = function
+let getGearDataForCurrentPedal (gearList: Gear) = function
     | Amp ->
         Some ampDict.[gearList.Amp.Key]
     | Cabinet ->

@@ -276,7 +276,7 @@ let editTone state edit (tone: Tone) =
             match state.SelectedGear with
             | Some _ when state.SelectedGearType <> Cabinet ->
                 let updatedKnobs =
-                    getKnobValuesForGear tone state.SelectedGearType
+                    getKnobValuesForGear tone.GearList state.SelectedGearType
                     // Update the value only if the key exists
                     |> Option.map (Map.change knobKey (Option.map (fun _ -> value)))
 

@@ -26,6 +26,8 @@ module Brushes =
     let vocals = Brushes.LightGray
     let jvocals = Brushes.PaleVioletRed
     let showlights = Brushes.Violet
+    let toneKnobEven = SolidColorBrush.Parse "#303030"
+    let toneKnobOdd = SolidColorBrush.Parse "#383838"
 
 module Cursors =
     let hand = Cursor(StandardCursorType.Hand)
