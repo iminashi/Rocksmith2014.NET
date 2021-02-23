@@ -27,6 +27,7 @@ let private notBuilding state =
 let private fileMenu state dispatch =
     Menu.create [
         Menu.fontSize 16.
+        Menu.margin (0., 0., 4., 0.)
         Menu.background "#363636"
         Menu.viewItems [
             MenuItem.create [
@@ -269,7 +270,7 @@ let private buildControls state dispatch =
                     // Open project
                     Button.create [
                         Button.padding (15., 8.)
-                        Button.margin 4.
+                        Button.margin (4., 4., 0., 4.)
                         Button.fontSize 16.
                         Button.content (translate "openProject")
                         Button.onClick (fun _ ->
