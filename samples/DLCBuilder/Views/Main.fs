@@ -40,7 +40,7 @@ let view (window: Window) (state: State) dispatch =
     if state.RunningTasks.IsEmpty then
         window.Cursor <- Cursors.arrow
     else
-        window.Cursor <- Cursors.appStarting
+        window.Cursor <- Cursors.wait
         
     window.Title <-
         match state.OpenProjectFile with
@@ -53,6 +53,8 @@ let view (window: Window) (state: State) dispatch =
         Grid.background "#040404"
         Grid.children [
             Grid.create [
+                // Prevent tab navigation when and overlay is open
+                Grid.isEnabled (state.Overlay = NoOverlay)
                 Grid.columnDefinitions "*,1.8*"
                 Grid.rowDefinitions "3*,2*"
                 //Grid.showGridLines true

@@ -62,7 +62,9 @@ let update (msg: Msg) (state: State) =
         let cmd =
             match gear with
             | Some gear ->
-                let currentGear = state.SelectedTone |> Option.bind (fun x -> ToneGear.getGearDataForCurrentPedal x state.SelectedGearType)
+                let currentGear =
+                    state.SelectedTone
+                    |> Option.bind (fun x -> ToneGear.getGearDataForCurrentPedal x state.SelectedGearType)
                 match currentGear with
                 // Don't change the cabinet if its name is the same as the current one
                 | Some data when gear.Type = "Cabinets" && data.Name = gear.Name ->

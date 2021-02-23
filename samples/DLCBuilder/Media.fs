@@ -30,7 +30,7 @@ module Brushes =
 module Cursors =
     let hand = Cursor(StandardCursorType.Hand)
     let arrow = Cursor(StandardCursorType.Arrow)
-    let appStarting = Cursor(StandardCursorType.AppStarting)
+    let wait = Cursor(StandardCursorType.Wait)
 
 module Fonts =
     let japanese =

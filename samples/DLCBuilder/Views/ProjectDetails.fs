@@ -277,26 +277,21 @@ let private buildControls state dispatch =
                             |> dispatch)
                         Button.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
                     ]
-                ]
-            ]
-
-            StackPanel.create [
-                Grid.column 1
-                Grid.row 1
-                StackPanel.orientation Orientation.Horizontal
-                StackPanel.children [
-                    // Save project
-                    Button.create [
-                        Button.padding (15., 8.)
-                        Button.margin 4.
-                        Button.fontSize 16.
-                        Button.content (translate "saveProject")
-                        Button.onClick (fun _ -> dispatch ProjectSaveOrSaveAs)
-                        Button.isEnabled (state.Project <> state.SavedProject)
-                    ]
 
                     fileMenu state dispatch
                 ]
+            ]
+
+            // Save project
+            Button.create [
+                Grid.column 1
+                Grid.row 1
+                Button.padding (15., 8.)
+                Button.margin 4.
+                Button.fontSize 16.
+                Button.content (translate "saveProject")
+                Button.onClick (fun _ -> dispatch ProjectSaveOrSaveAs)
+                Button.isEnabled (state.Project <> state.SavedProject)
             ]
 
             // Build test
