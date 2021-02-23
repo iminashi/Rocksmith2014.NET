@@ -227,8 +227,10 @@
   "remove": "Poista",
   "edit": "Muokkaa",
   "amp": "Vahvistin",
-  "cabinet": "Kaiutinkotelo",
+  "cabinet": "Kaappi",
   "prePedals": "Pedaalit",
   "loopPedals": "Efektilenkki",
-  "rack": "Räkki"
+  "rack": "Räkki",
+  "micPosition": "Mikrofonin sijainti",
+  "nothingToConfigure": "Ei asetuksia"
 }

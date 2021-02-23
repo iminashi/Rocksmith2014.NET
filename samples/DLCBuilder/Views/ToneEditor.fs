@@ -28,10 +28,6 @@ let private toggleButton (content: string) (isChecked: bool) onChecked =
         )
     ]
 
-let private micTemplate =
-    DataTemplateView<GearData>.create (fun gear ->
-        TextBlock.create [ TextBlock.text gear.Category ])
-
 let private gearTemplate =
     DataTemplateView<GearData>.create (fun gear ->
         match gear.Type with
@@ -104,12 +100,13 @@ let private gearSelector dispatch (tone: Tone) gearType =
             |> SetSelectedGear |> dispatch)
     ]
 
-let private formatValue v (step: float) minValue =
+let private formatValue v (step: float) minValue unitType =
+    let unit = if unitType = "number" then String.Empty else " " + unitType
     match Math.Ceiling step > step, minValue < 0.0f with
-    | true, true -> sprintf "%+.1f" v
-    | true, false -> sprintf "%.1f" v
-    | false, true -> sprintf "%+.0f" v
-    | false, false -> sprintf "%.0f" v
+    | true, true -> sprintf "%+.1f%s" v unit
+    | true, false -> sprintf "%.1f%s" v unit
+    | false, true -> sprintf "%+.0f%s" v unit
+    | false, false -> sprintf "%.0f%s" v unit
 
 let private knobSliders dispatch (tone: Tone) gearType gear =
     match gear with
@@ -117,20 +114,32 @@ let private knobSliders dispatch (tone: Tone) gearType gear =
     | { Knobs = None } as cabinet ->
         StackPanel.create [
             StackPanel.children [
-                TextBlock.create [
-                    TextBlock.margin (0., 4.)
-                    TextBlock.text "Mic Position"
-                ]
-                ComboBox.create [
-                    ComboBox.itemTemplate micTemplate
-                    ComboBox.dataItems micPositionsForCabinet.[cabinet.Name]
-                    ComboBox.selectedItem cabinetDict.[tone.GearList.Cabinet.Key]
-                    ComboBox.onSelectedItemChanged (function
-                        | :? GearData as data ->
-                            data |> SetPedal |> EditTone |> dispatch
-                        | _ -> ()
-                    )
-                ]
+                let micPositions = micPositionsForCabinet.[cabinet.Name]
+                if micPositions.Length = 1 then
+                    TextBlock.create [
+                        TextBlock.margin (0., 4.)
+                        TextBlock.text (translate "nothingToConfigure")
+                    ]
+                else
+                    TextBlock.create [
+                        TextBlock.margin (0., 4.)
+                        TextBlock.text (translate "micPosition")
+                    ]
+                    StackPanel.create [
+                        StackPanel.children [
+                            yield! micPositions
+                            |> Array.map (fun cab ->
+                                RadioButton.create [
+                                    RadioButton.content cab.Category
+                                    RadioButton.isChecked (tone.GearList.Cabinet.Key = cab.Key)
+                                    // onChecked can cause an infinite update loop
+                                    RadioButton.onClick ((fun _ ->
+                                        cab |> SetPedal |> EditTone |> dispatch
+                                    ), SubPatchOptions.Always)
+                                ] |> generalize
+                            )
+                        ]
+                    ]
             ]
         ]
         |> generalize
@@ -165,20 +174,9 @@ let private knobSliders dispatch (tone: Tone) gearType gear =
                             )
                         ]
                     | None ->
-                        StackPanel.create [
-                            StackPanel.orientation Orientation.Horizontal
-                            StackPanel.horizontalAlignment HorizontalAlignment.Center
-                            StackPanel.children [
-                                TextBlock.create [
-                                    TextBlock.text (formatValue currentValue (float knob.ValueStep) knob.MinValue)
-                                ]
-
-                                if knob.UnitType <> "number" then
-                                    TextBlock.create [
-                                        TextBlock.text knob.UnitType
-                                        TextBlock.margin (4., 0., 0., 0.)
-                                    ]
-                            ]
+                        TextBlock.create [
+                            TextBlock.horizontalAlignment HorizontalAlignment.Center
+                            TextBlock.text (formatValue currentValue (float knob.ValueStep) knob.MinValue knob.UnitType)
                         ]
 
                         Grid.create [

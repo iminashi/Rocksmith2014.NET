@@ -230,5 +230,7 @@
   "cabinet": "Cabinet",
   "prePedals": "Pre Pedals",
   "loopPedals": "Loop Pedals",
-  "rack": "Rack"
+  "rack": "Rack",
+  "micPosition": "Mic Position",
+  "nothingToConfigure": "Nothing to configure"
 }
