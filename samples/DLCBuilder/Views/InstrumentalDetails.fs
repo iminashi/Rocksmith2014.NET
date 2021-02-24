@@ -13,7 +13,7 @@ open DLCBuilder
 let view state dispatch (i: Instrumental) =
     Grid.create [
         //Grid.showGridLines true
-        Grid.margin (0.0, 4.0)
+        Grid.margin 4.
         Grid.columnDefinitions "auto,*"
         Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*,*,*,*"
         Grid.children [
@@ -129,6 +129,7 @@ let view state dispatch (i: Instrumental) =
                 Grid.column 1
                 Grid.row 4
                 UniformGrid.columns 6
+                UniformGrid.horizontalAlignment HorizontalAlignment.Left
                 UniformGrid.children [
                     for str in 0..5 ->
                         TextBox.create [

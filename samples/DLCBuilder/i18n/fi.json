@@ -1,5 +1,7 @@
 ﻿{
   "unknownArrangementError": "Tämä ei ole Rocksmith 2014 sovitus.",
+  "select": "Valitse",
+  "convert": "Muunna",
   "selectArrangement": "Valitse sovitus",
   "selectCoverArt": "Valitse kansikuva",
   "selectAudioFile": "Valitse äänitiedosto",
@@ -39,7 +41,6 @@
   "previewAudio": "Esikatseluäänitiedosto",
   "audioVolumeToolTip": "Äänenvoimakkuus (dB)",
   "previewAudioVolumeToolTip": "Esikatseluäänen äänenvoimakkuus (dB)",
-  "createPreviewAudio": "Luo",
   "previewAudioExistsToolTip": "Esikatseluäänitiedosto on olemassa, paina luodaksesi uuden.",
   "previewAudioDoesNotExistToolTip": "Esikatseluäänitiedostoa ei löydy, paina luodaksesi sellaisen.",
   "configuration": "Asetukset",
@@ -232,5 +233,7 @@
   "loopPedals": "Efektilenkki",
   "rack": "Räkki",
   "micPosition": "Mikrofonin sijainti",
-  "nothingToConfigure": "Ei asetuksia"
+  "nothingToConfigure": "Ei asetuksia",
+  "duplicate": "Monista",
+  "previewExplanation": "Luo 28 sekuntia pitkän äänitiedoston, jossa on häivytys sisään ja ulos."
 }

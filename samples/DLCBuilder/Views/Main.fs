@@ -5,6 +5,7 @@ open Avalonia
 open Avalonia.Input
 open Avalonia.Layout
 open Avalonia.Controls
+open Avalonia.Controls.Primitives
 open Avalonia.Controls.Shapes
 open Avalonia.FuncUI.DSL
 open Rocksmith2014.Common.Manifest
@@ -13,25 +14,57 @@ open DLCBuilder
 open Media
 
 let private arrangementContextMenu state dispatch =
+    let isInstrumental = match state.SelectedArrangement with Some (Instrumental _) -> true | _ -> false
     ContextMenu.create [
+        ContextMenu.isVisible state.SelectedArrangement.IsSome
         ContextMenu.viewItems [
-            match state.SelectedArrangement with
-            | Some (Instrumental _) ->
-                MenuItem.create [
-                    MenuItem.header (translate "generateNewArrIDs")
-                    MenuItem.onClick (fun _ -> GenerateNewIds |> EditInstrumental |> dispatch)
-                    ToolTip.tip (translate "generateNewArrIDsToolTip")
-                ]
-                MenuItem.create [
-                    MenuItem.header (translate "reloadToneKeys")
-                    MenuItem.onClick (fun _ -> UpdateToneInfo |> EditInstrumental |> dispatch)
-                    ToolTip.tip (translate "reloadToneKeysTooltip")
-                ]
-                MenuItem.create [ MenuItem.header "-" ]
-            | _ -> ()
+            MenuItem.create [
+                MenuItem.header (translate "generateNewArrIDs")
+                MenuItem.isEnabled isInstrumental
+                MenuItem.onClick (fun _ -> GenerateNewIds |> EditInstrumental |> dispatch)
+                ToolTip.tip (translate "generateNewArrIDsToolTip")
+            ]
+
+            MenuItem.create [
+                MenuItem.header (translate "reloadToneKeys")
+                MenuItem.isEnabled isInstrumental
+                MenuItem.onClick (fun _ -> UpdateToneInfo |> EditInstrumental |> dispatch)
+                ToolTip.tip (translate "reloadToneKeysTooltip")
+            ]
+
+            MenuItem.create [ MenuItem.header "-" ]
+
             MenuItem.create [
                 MenuItem.header (translate "remove")
                 MenuItem.onClick (fun _ -> dispatch DeleteArrangement)
+            ]
+        ]
+    ]
+
+let private toneContextMenu state dispatch =
+    ContextMenu.create [
+        ContextMenu.isVisible state.SelectedTone.IsSome
+        ContextMenu.viewItems [
+            MenuItem.create [
+                MenuItem.header (translate "edit")
+                MenuItem.onClick (fun _ -> ShowToneEditor |> dispatch)
+            ]
+
+            MenuItem.create [
+                MenuItem.header (translate "duplicate")
+                MenuItem.onClick (fun _ -> DuplicateTone |> dispatch)
+            ]
+
+            MenuItem.create [
+                MenuItem.header (translate "export")
+                MenuItem.onClick (fun _ -> ExportSelectedTone |> dispatch)
+            ]
+
+            MenuItem.create [ MenuItem.header "-" ]
+
+            MenuItem.create [
+                MenuItem.header (translate "remove")
+                MenuItem.onClick (fun _ -> dispatch DeleteTone)
             ]
         ]
     ]
@@ -63,10 +96,8 @@ let view (window: Window) (state: State) dispatch =
 
                     Border.create [
                         Grid.column 1
-                        Border.borderThickness 1.
-                        Border.cornerRadius 4.
-                        Border.borderBrush Brushes.Gray
-                        Border.padding 2.
+                        Border.background "#181818"
+                        Border.cornerRadius 6.
                         Border.margin 2.
                         Border.child (
                             // Arrangements
@@ -74,12 +105,14 @@ let view (window: Window) (state: State) dispatch =
                                 Grid.columnDefinitions "245,*"
                                 Grid.children [
                                     DockPanel.create [
+                                        DockPanel.margin 4.
                                         StackPanel.children [
                                             // Title
                                             TextBlock.create [
                                                 DockPanel.dock Dock.Top
                                                 TextBlock.text (translate "arrangements")
-                                                TextBlock.margin 5.0
+                                                TextBlock.margin (0.0, 4.0)
+                                                TextBlock.horizontalAlignment HorizontalAlignment.Center
                                             ]
 
                                             Grid.create [
@@ -133,14 +166,15 @@ let view (window: Window) (state: State) dispatch =
                                     // Arrangement details
                                     StackPanel.create [
                                         Grid.column 1
-                                        if state.SelectedArrangement = None then
-                                            StackPanel.verticalAlignment VerticalAlignment.Center
+                                        StackPanel.background "#252525"
+                                        StackPanel.verticalAlignment VerticalAlignment.Stretch
                                         StackPanel.children [
                                             match state.SelectedArrangement with
                                             | None ->
                                                 TextBlock.create [
                                                     TextBlock.text (translate "selectArrangementPrompt")
                                                     TextBlock.horizontalAlignment HorizontalAlignment.Center
+                                                    TextBlock.verticalAlignment VerticalAlignment.Center
                                                 ]
 
                                             | Some arr ->
@@ -197,10 +231,8 @@ let view (window: Window) (state: State) dispatch =
                     Border.create [
                         Grid.column 1
                         Grid.row 1
-                        Border.borderThickness 1.
-                        Border.cornerRadius 4.
-                        Border.borderBrush Brushes.Gray
-                        Border.padding 2.
+                        Border.background "#181818"
+                        Border.cornerRadius 6.
                         Border.margin 2.
                         Border.child (
                             // Tones
@@ -208,12 +240,14 @@ let view (window: Window) (state: State) dispatch =
                                 Grid.columnDefinitions "245,*"
                                 Grid.children [
                                     DockPanel.create [
+                                        DockPanel.margin 4.
                                         DockPanel.children [
                                             // Title
                                             TextBlock.create [
                                                 DockPanel.dock Dock.Top
                                                 TextBlock.text (translate "tones")
-                                                TextBlock.margin 5.0
+                                                TextBlock.margin (0.0, 4.0)
+                                                TextBlock.horizontalAlignment HorizontalAlignment.Center
                                             ]
 
                                             Grid.create [
@@ -243,6 +277,8 @@ let view (window: Window) (state: State) dispatch =
 
                                             // Tones list
                                             ListBox.create [
+                                                ListBox.horizontalScrollBarVisibility ScrollBarVisibility.Auto
+                                                ListBox.contextMenu (toneContextMenu state dispatch)
                                                 ListBox.background Brushes.Transparent
                                                 ListBox.dataItems state.Project.Tones
                                                 ListBox.selectedItem (
@@ -266,14 +302,14 @@ let view (window: Window) (state: State) dispatch =
                                     // Tone details
                                     StackPanel.create [
                                         Grid.column 1
-                                        if state.SelectedTone = None then
-                                            StackPanel.verticalAlignment VerticalAlignment.Center
+                                        StackPanel.background "#252525"
                                         StackPanel.children [
                                             match state.SelectedTone with
                                             | None ->
                                                 TextBlock.create [
                                                     TextBlock.text(translate "selectTonePrompt")
                                                     TextBlock.horizontalAlignment HorizontalAlignment.Center
+                                                    TextBlock.verticalAlignment VerticalAlignment.Center
                                                 ]
                                             | Some tone ->
                                                 ToneDetails.view state dispatch tone
@@ -292,7 +328,7 @@ let view (window: Window) (state: State) dispatch =
                 Grid.create [
                     Grid.children [
                         Rectangle.create [
-                            Rectangle.fill "#77000000"
+                            Rectangle.fill "#99000000"
                             Rectangle.onTapped (fun _ -> CloseOverlay |> dispatch)
                         ]
                         Border.create [

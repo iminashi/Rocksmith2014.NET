@@ -24,11 +24,46 @@ let private notBuilding state =
     |> Set.intersect (Set([ BuildPackage; WemConversion ]))
     |> Set.isEmpty
 
+let private audioMenu notCalculatingVolume state dispatch =
+    let noBuildInProgress = notBuilding state
+    let audioPath = state.Project.AudioFile.Path
+
+    Menu.create [
+        Menu.fontSize 16.
+        Menu.margin (0., 0., 4., 0.)
+        //Menu.background "#363636"
+        Menu.isVisible (String.notEmpty audioPath && not <| String.endsWith ".wem" audioPath)
+        Menu.viewItems [
+            MenuItem.create [
+                MenuItem.header (TextBlock.create [
+                    TextBlock.text "..."
+                    TextBlock.verticalAlignment VerticalAlignment.Center
+                ])
+
+                MenuItem.viewItems [
+                    // Calculate volumes
+                    MenuItem.create [
+                        MenuItem.header (translate "calculateVolumes")
+                        MenuItem.isEnabled (noBuildInProgress && notCalculatingVolume)
+                        MenuItem.onClick (fun _ -> dispatch CalculateVolumes)
+                    ]
+
+                    // Wem conversion
+                    MenuItem.create [
+                        MenuItem.header (translate "convert")
+                        MenuItem.isEnabled noBuildInProgress
+                        MenuItem.onClick (fun _ -> dispatch ConvertToWem)
+                        ToolTip.tip (translate "convertMultipleToWemTooltip")
+                    ]
+                ]
+            ]
+        ]
+    ]
+
 let private fileMenu state dispatch =
     Menu.create [
         Menu.fontSize 16.
         Menu.margin (0., 0., 4., 0.)
-        Menu.background "#363636"
         Menu.viewItems [
             MenuItem.create [
                 MenuItem.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
@@ -88,25 +123,25 @@ let private fileMenu state dispatch =
 let private audioControls state dispatch =
     let audioPath = state.Project.AudioFile.Path
     let previewPath = state.Project.AudioPreviewFile.Path
-    let noBuildInProgress = notBuilding state
     let previewExists = IO.File.Exists previewPath
     let notCalculatingVolume =
         not (state.RunningTasks |> Set.exists (function VolumeCalculation (MainAudio | PreviewAudio) -> true | _ -> false))
 
     Border.create [
         DockPanel.dock Dock.Top
+        Border.background "#181818"
         Border.borderThickness 1.
-        Border.cornerRadius 4.
-        Border.borderBrush Brushes.Gray
-        Border.padding 2.
+        Border.cornerRadius 6.
         Border.margin 2.
         Border.child (
             StackPanel.create [
+                StackPanel.margin 4.
                 StackPanel.children [
                     // Header
                     TextBlock.create [
                         TextBlock.text (translate "audio")
-                        TextBlock.margin (8., 4.)
+                        TextBlock.margin (0., 4.)
+                        TextBlock.horizontalAlignment HorizontalAlignment.Center
                     ]
 
                     StackPanel.create [
@@ -151,7 +186,7 @@ let private audioControls state dispatch =
                             Button.create [
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
                                 Button.padding (10.0, 0.0)
-                                Button.content "..."
+                                Button.content (translate "select")
                                 Button.isEnabled notCalculatingVolume
                                 Button.onClick (fun _ ->
                                     Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, SetAudioFile)
@@ -159,24 +194,7 @@ let private audioControls state dispatch =
                                 ToolTip.tip (translate "selectAudioFile")
                             ]
 
-                            // Calculate volumes
-                            Button.create [
-                                Button.content "Volume"
-                                Button.margin (0.0, 4.0, 4.0, 4.0)
-                                Button.isEnabled (noBuildInProgress && notCalculatingVolume)
-                                Button.isVisible (String.notEmpty audioPath && not <| String.endsWith ".wem" audioPath)
-                                Button.onClick (fun _ -> dispatch CalculateVolumes)
-                            ]
-
-                            // Wem conversion
-                            Button.create [
-                                Button.content "Wem"
-                                Button.margin (0.0, 4.0, 4.0, 4.0)
-                                Button.isEnabled noBuildInProgress
-                                Button.isVisible (String.notEmpty audioPath && not <| String.endsWith ".wem" audioPath)
-                                Button.onClick (fun _ -> dispatch ConvertToWem)
-                                ToolTip.tip (translate "convertMultipleToWemTooltip")
-                            ]
+                            audioMenu notCalculatingVolume state dispatch
                         ]
                     ]
 
@@ -220,7 +238,8 @@ let private audioControls state dispatch =
                             // Create preview audio
                             Button.create [
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
-                                Button.content (translate "createPreviewAudio")
+                                Button.padding (10.0, 0.0)
+                                Button.content (translate "create")
                                 Button.isEnabled (not <| String.endsWith ".wem" audioPath && IO.File.Exists audioPath)
                                 Button.onClick (fun _ -> dispatch (CreatePreviewAudio SetupStartTime))
                                 ToolTip.tip (

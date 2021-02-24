@@ -1,5 +1,7 @@
 ﻿{
   "unknownArrangementError": "Not a Rocksmith 2014 arrangement.",
+  "select": "Select",
+  "convert": "Convert",
   "selectArrangement": "Select Arrangement",
   "selectCoverArt": "Select Cover Art",
   "selectAudioFile": "Select Audio File",
@@ -39,7 +41,6 @@
   "previewAudio": "Preview Audio",
   "audioVolumeToolTip": "Audio Volume (dB)",
   "previewAudioVolumeToolTip": "Preview Audio Volume (dB)",
-  "createPreviewAudio": "Create",
   "previewAudioExistsToolTip": "Preview audio file exists, click to create a new one.",
   "previewAudioDoesNotExistToolTip": "Preview audio file does not exist, click to create one.",
   "configuration": "Configuration",
@@ -232,5 +233,7 @@
   "loopPedals": "Loop Pedals",
   "rack": "Rack",
   "micPosition": "Mic Position",
-  "nothingToConfigure": "Nothing to configure"
+  "nothingToConfigure": "Nothing to configure",
+  "duplicate": "Duplicate",
+  "previewExplanation": "Creates a 28 second long audio file that has a fade-in and a fade-out."
 }

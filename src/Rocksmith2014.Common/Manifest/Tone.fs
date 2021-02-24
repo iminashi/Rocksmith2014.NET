@@ -43,7 +43,7 @@ type Tone =
             else
                 " (" + ToneDescriptor.combineUINames this.ToneDescriptors + ")"
         let key =
-            if isNull this.Key || this.Key = this.Name then
+            if String.IsNullOrEmpty this.Key || this.Key = this.Name then
                 String.Empty
             else
                 " [" + this.Key + "]"

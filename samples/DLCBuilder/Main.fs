@@ -436,6 +436,14 @@ let update (msg: Msg) (state: State) =
         { state with Project = { project with Tones = tones }
                      SelectedTone = None }, Cmd.none
 
+    | DuplicateTone ->
+        match state.SelectedTone with
+        | None ->
+            state, Cmd.none
+        | Some tone ->
+            let duplicate = { tone with Name = tone.Name + "2"; Key = String.Empty }
+            { state with Project = { project with Tones = duplicate::state.Project.Tones } }, Cmd.none
+
     | MoveTone dir ->
         let tones = 
             match state.SelectedTone with

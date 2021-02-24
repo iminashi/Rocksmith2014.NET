@@ -41,7 +41,7 @@ let view state dispatch (tone: Tone) =
     Grid.create [
         Grid.columnDefinitions "auto,*"
         Grid.rowDefinitions "*,*,*,*,*"
-        Grid.margin (0.0, 4.0)
+        Grid.margin 4.
         Grid.children [
             // Name
             TextBlock.create [

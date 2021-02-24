@@ -154,6 +154,7 @@ type Msg =
     | SetSelectedGearType of ToneGear.GearType
     | DeleteArrangement
     | DeleteTone
+    | DuplicateTone
     | MoveTone of MoveDirection
     | CreatePreviewAudio of PreviewAudioCreation
     | PreviewAudioStartChanged of time : float

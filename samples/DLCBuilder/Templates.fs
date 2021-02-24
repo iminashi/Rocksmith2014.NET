@@ -57,7 +57,7 @@ let arrangement =
 
         StackPanel.create [
             StackPanel.orientation Orientation.Horizontal
-            StackPanel.minHeight 33.
+            StackPanel.minHeight 30.
             StackPanel.children [
                 // Icon
                 Path.create [
@@ -73,23 +73,28 @@ let arrangement =
                         // Name
                         TextBlock.create [
                             TextBlock.fontSize 16.
-                            TextBlock.text (name)
+                            TextBlock.text name
                         ]
 
-                        match arr with
-                        | Instrumental inst ->
-                            let tuning =
-                                let t = Utils.getTuningName inst.Tuning
-                                if inst.TuningPitch <> 440.0 then $"{t} (A{inst.TuningPitch})" else t
+                        let extra =
+                            match arr with
+                            | Instrumental inst ->
+                                let tuning = Utils.getTuningName inst.Tuning
+                                if inst.TuningPitch <> 440.0 then
+                                    $"{tuning} (A{inst.TuningPitch})"
+                                else
+                                    tuning
 
-                            TextBlock.create [
-                                TextBlock.text tuning
-                            ]
-                        | Vocals { CustomFont = Some _ } ->
-                            TextBlock.create [
-                                TextBlock.text "Custom Font"
-                            ]
-                        | _ -> ()
+                            | Vocals { CustomFont = Some _ } ->
+                                translate "customFont"
+                            | _ ->
+                                String.Empty
+
+                        TextBlock.create [
+                            TextBlock.foreground "#afafaf"
+                            TextBlock.fontSize 14.
+                            TextBlock.text extra
+                        ]
                     ]
                 ]
             ]
