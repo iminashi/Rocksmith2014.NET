@@ -264,15 +264,7 @@ let editTone state edit (tone: Tone) =
 
                 { tone with GearList = gear }
 
-        | SetKnobValue (knobKey, value) ->
-            let updateKnobs updatedKnobs index pedals =
-                pedals
-                |> Array.mapi (fun i pedal ->
-                    if i = index then
-                        pedal |> Option.map (fun p -> { p with KnobValues = updatedKnobs })
-                    else 
-                        pedal)
-                
+        | SetKnobValue (knobKey, value) ->              
             match state.SelectedGear with
             | Some _ when state.SelectedGearType <> Cabinet ->
                 let updatedKnobs =
@@ -283,6 +275,13 @@ let editTone state edit (tone: Tone) =
                 match updatedKnobs with
                 | None -> tone
                 | Some updatedKnobs ->
+                    let updateKnobs index pedals =
+                        pedals
+                        |> Array.mapi (fun i pedal ->
+                            if i = index then
+                                pedal |> Option.map (fun p -> { p with KnobValues = updatedKnobs })
+                            else 
+                                pedal)
                     let gear =
                         match state.SelectedGearType with
                         | Amp ->
@@ -290,11 +289,11 @@ let editTone state edit (tone: Tone) =
                         | Cabinet ->
                             tone.GearList
                         | PrePedal index ->
-                            { tone.GearList with PrePedals = tone.GearList.PrePedals |> updateKnobs updatedKnobs index }
+                            { tone.GearList with PrePedals = tone.GearList.PrePedals |> updateKnobs index }
                         | PostPedal index ->
-                            { tone.GearList with PostPedals = tone.GearList.PostPedals |> updateKnobs updatedKnobs index }
+                            { tone.GearList with PostPedals = tone.GearList.PostPedals |> updateKnobs index }
                         | Rack index ->
-                            { tone.GearList with Racks = tone.GearList.Racks |> updateKnobs updatedKnobs index }
+                            { tone.GearList with Racks = tone.GearList.Racks |> updateKnobs index }
 
                     { tone with GearList = gear }
             | _ -> tone

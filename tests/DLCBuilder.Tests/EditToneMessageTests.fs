@@ -17,11 +17,11 @@ let testPedal =
 
 let tone: Tone =
     { GearList =
-        { Racks = [| None; None; None; None |]
+        { Racks = Array.replicate 4 (Some testPedal)
           Amp = testPedal
           Cabinet = testPedal
-          PrePedals = [| None; None; None; None |]
-          PostPedals = [| None; None; None; None |] }
+          PrePedals = Array.replicate 4 (Some testPedal)
+          PostPedals = Array.replicate 4 (Some testPedal) }
       ToneDescriptors = [| "TEST"; "TONE" |]
       NameSeparator = " "
       Volume = -10.
@@ -51,24 +51,134 @@ let editToneTests =
             Expect.equal newTone.Key "Test_key" "Key is correct"
             Expect.equal newTone.Volume -8.5 "Volume is correct"
 
-        testCase "AddDescriptor" <| fun _ ->
+        testCase "AddDescriptor adds a descriptor" <| fun _ ->
             let newState, _ = Main.update (EditTone AddDescriptor) state
             let newTone = newState.Project.Tones |> List.head
 
             Expect.hasLength newTone.ToneDescriptors 3 "Tone has three descriptors"
             Expect.equal newTone.ToneDescriptors.[0] "$[35721]ACOUSTIC" "First tone descriptor is the default one (acoustic)"
 
-        testCase "RemoveDescriptor" <| fun _ ->
+        testCase "RemoveDescriptor removes a descriptor" <| fun _ ->
             let newState, _ = Main.update (EditTone RemoveDescriptor) state
             let newTone = newState.Project.Tones |> List.head
 
             Expect.hasLength newTone.ToneDescriptors 1 "Tone has one descriptors"
             Expect.equal newTone.ToneDescriptors.[0] "TONE" "First tone descriptor is correct"
 
-        testCase "ChangeDescriptor" <| fun _ ->
+        testCase "ChangeDescriptor changes a descriptor" <| fun _ ->
             let newState, _ = Main.update (EditTone (ChangeDescriptor(0, ToneDescriptor.all.[2]))) state
             let newTone = newState.Project.Tones |> List.head
 
             Expect.hasLength newTone.ToneDescriptors 2 "Tone has two descriptors"
             Expect.equal newTone.ToneDescriptors.[0] "$[35715]BASS" "First tone descriptor is correct"
+
+        testCase "RemovePedal removes pre-pedal" <| fun _ ->
+            let state = { state with SelectedGearType = ToneGear.PrePedal 0 }
+
+            let newState, _ = Main.update (EditTone RemovePedal) state
+            let newTone = newState.Project.Tones |> List.head
+
+            Expect.isNone newTone.GearList.PrePedals.[0] "First pre-pedal was removed"
+
+        testCase "RemovePedal removes post-pedal" <| fun _ ->
+            let state = { state with SelectedGearType = ToneGear.PostPedal 2 }
+
+            let newState, _ = Main.update (EditTone RemovePedal) state
+            let newTone = newState.Project.Tones |> List.head
+
+            Expect.isNone newTone.GearList.PostPedals.[2] "Third post-pedal was removed"
+
+        testCase "RemovePedal removes rack" <| fun _ ->
+            let state = { state with SelectedGearType = ToneGear.Rack 3 }
+
+            let newState, _ = Main.update (EditTone RemovePedal) state
+            let newTone = newState.Project.Tones |> List.head
+
+            Expect.isNone newTone.GearList.Racks.[3] "Fourth rack gear was removed"
+
+        testCase "SetPedal sets amp" <| fun _ ->
+            let state = { state with SelectedGearType = ToneGear.Amp }
+            let newAmp = ToneGear.amps.[0]
+
+            let newState, _ = Main.update (EditTone (SetPedal newAmp)) state
+            let newTone = newState.Project.Tones |> List.head
+
+            Expect.equal newTone.GearList.Amp.Key newAmp.Key "Amp key is correct"
+            Expect.equal newTone.GearList.Amp.Type newAmp.Type "Amp type is correct"
+            Expect.equal newTone.GearList.Amp.KnobValues.Count newAmp.Knobs.Value.Length "Knob value count is correct"
+
+        testCase "SetPedal sets cabinet" <| fun _ ->
+            let state = { state with SelectedGearType = ToneGear.Cabinet }
+            let newCab = ToneGear.cabinetChoices.[0]
+
+            let newState, _ = Main.update (EditTone (SetPedal newCab)) state
+            let newTone = newState.Project.Tones |> List.head
+
+            Expect.equal newTone.GearList.Cabinet.Key newCab.Key "Cabinet key is correct"
+            Expect.equal newTone.GearList.Cabinet.Type newCab.Type "Cabinet type is correct"
+            Expect.equal newTone.GearList.Cabinet.KnobValues.Count 0 "There are no knob values"
+
+        testCase "SetPedal sets pre-pedal" <| fun _ ->
+            let state = { state with SelectedGearType = ToneGear.PrePedal 0 }
+            let newPedal = ToneGear.pedals.[0]
+
+            let newState, _ = Main.update (EditTone (SetPedal newPedal)) state
+            let newTone = newState.Project.Tones |> List.head
+
+            Expect.equal newTone.GearList.PrePedals.[0].Value.Key newPedal.Key "Pedal key is correct"
+            Expect.equal newTone.GearList.PrePedals.[0].Value.Type newPedal.Type "Pedal type is correct"
+            Expect.equal newTone.GearList.PrePedals.[0].Value.KnobValues.Count newPedal.Knobs.Value.Length "Knob value count is correct"
+
+        testCase "SetPedal sets post-pedal" <| fun _ ->
+            let state = { state with SelectedGearType = ToneGear.PostPedal 1 }
+            let newPedal = ToneGear.pedals.[1]
+
+            let newState, _ = Main.update (EditTone (SetPedal newPedal)) state
+            let newTone = newState.Project.Tones |> List.head
+
+            Expect.equal newTone.GearList.PostPedals.[1].Value.Key newPedal.Key "Pedal key is correct"
+            Expect.equal newTone.GearList.PostPedals.[1].Value.Type newPedal.Type "Pedal type is correct"
+            Expect.equal newTone.GearList.PostPedals.[1].Value.KnobValues.Count newPedal.Knobs.Value.Length "Knob value count is correct"
+
+        testCase "SetPedal sets rack" <| fun _ ->
+            let state = { state with SelectedGearType = ToneGear.Rack 3 }
+            let newPedal = ToneGear.pedals.[5]
+
+            let newState, _ = Main.update (EditTone (SetPedal newPedal)) state
+            let newTone = newState.Project.Tones |> List.head
+
+            Expect.equal newTone.GearList.Racks.[3].Value.Key newPedal.Key "Pedal key is correct"
+            Expect.equal newTone.GearList.Racks.[3].Value.Type newPedal.Type "Pedal type is correct"
+            Expect.equal newTone.GearList.Racks.[3].Value.KnobValues.Count newPedal.Knobs.Value.Length "Knob value count is correct"
+
+        testCase "SetKnobValue sets a knob value" <| fun _ ->
+            let newPedal = ToneGear.pedals.[5]
+            let knobKey = newPedal.Knobs.Value.[0].Key
+            let initialState = { state with SelectedGearType = ToneGear.PrePedal 0
+                                            SelectedGear = Some newPedal }
+            let messages = [ SetPedal newPedal
+                             SetKnobValue(knobKey, 99f) ] |> List.map EditTone
+
+            let newState, _ =
+                messages
+                |> List.fold (fun (state, _) message -> Main.update message state) (initialState, Cmd.none)
+            let newTone = newState.Project.Tones |> List.head
+
+            Expect.equal newTone.GearList.PrePedals.[0].Value.KnobValues.[knobKey] 99f "Knob value is correct"
+
+        testCase "SetKnobValue does not add a new knob value" <| fun _ ->
+            let newPedal = ToneGear.racks.[2]
+            let knobKey = "noSuchKey"
+            let initialState = { state with SelectedGearType = ToneGear.Rack 1
+                                            SelectedGear = Some newPedal }
+            let messages = [ SetPedal newPedal
+                             SetKnobValue(knobKey, 99f) ] |> List.map EditTone
+
+            let newState, _ =
+                messages
+                |> List.fold (fun (state, _) message -> Main.update message state) (initialState, Cmd.none)
+            let newTone = newState.Project.Tones |> List.head
+
+            Expect.equal newTone.GearList.Racks.[1].Value.KnobValues.Count newPedal.Knobs.Value.Length "Knob value count is correct"
+            Expect.isFalse (newTone.GearList.Racks.[1].Value.KnobValues.ContainsKey knobKey) "Knob value was not added"
     ]

@@ -32,6 +32,11 @@ let toneDescriptorTests =
             Expect.exists descriptors (fun x -> x.Name = "Rotary") "Rotary descriptor inferred"
             Expect.exists descriptors (fun x -> x.Name = "Phaser") "Phaser descriptor inferred"
             Expect.exists descriptors (fun x -> x.Name = "Overdrive") "Overdrive descriptor inferred" }
+
+        test "Infers at max three descriptors" {
+            let descriptors = ToneDescriptor.getDescriptionsOrDefault "tone_rotophasedrivevibtrem"
+        
+            Expect.hasLength descriptors 3 "Three descriptors exist" }
         
         test "Can combine UI names" {
             let uiNames =
