@@ -364,7 +364,7 @@ let update (msg: Msg) (state: State) =
             ||> Array.map2 (fun file result ->
                 match result with
                 | Ok _ -> None
-                | Error msg -> Some(sprintf "%s:\n%s\n" file msg))
+                | Error msg -> Some $"{file}:\n{msg}\n")
             |> Array.choose id
 
         let arrangements =
@@ -401,8 +401,8 @@ let update (msg: Msg) (state: State) =
                     Project = { project with
                                     DLCKey = DLCKey.create config.CharterName md.ArtistName md.Title
                                     ArtistName = SortableString.Create md.ArtistName // Ignore the sort value from the XML
-                                    Title = SortableString.Create (md.Title, md.TitleSort)
-                                    AlbumName = SortableString.Create (md.AlbumName, md.AlbumNameSort)
+                                    Title = SortableString.Create(md.Title, md.TitleSort)
+                                    AlbumName = SortableString.Create(md.AlbumName, md.AlbumNameSort)
                                     Year = md.AlbumYear
                                     Arrangements = arrangements } }
             | None ->
@@ -579,7 +579,7 @@ let update (msg: Msg) (state: State) =
                 |> StringValidator.fileName
 
             let path = Path.Combine(releaseDir, fn)
-            let buildConfig = Utils.createBuildConfig Release config project config.ReleasePlatforms
+            let buildConfig = Utils.createBuildConfig Release config project (Set.toList config.ReleasePlatforms)
             let task () = buildPackages path buildConfig project
 
             addTask BuildPackage state, Cmd.OfAsync.either task () BuildComplete (fun ex -> TaskFailed(ex, BuildPackage))
@@ -617,6 +617,14 @@ let update (msg: Msg) (state: State) =
     | ChangeLocale newLocale ->
         if state.Config.Locale <> newLocale then changeLocale newLocale
         { state with Config = { config with Locale = newLocale } }, Cmd.none
+
+    | HotKeyMsg msg ->
+        match state.Overlay, msg with
+        | NoOverlay, _ | _, CloseOverlay ->
+            state, Cmd.ofMsg msg
+        | _ ->
+            // Ignore the message when an overlay is open
+            state, Cmd.none
     
     // When the user canceled any of the dialogs
     | AddArrangements None | SaveProject None | ImportPsarc (_, None) | ExportTone (_, None) ->

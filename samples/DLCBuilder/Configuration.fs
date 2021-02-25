@@ -8,7 +8,7 @@ open System.Text.Json
 type AudioConversionType = NoConversion | ToWav | ToOgg
 
 type Configuration =
-    { ReleasePlatforms : Platform list
+    { ReleasePlatforms : Platform Set
       ProfilePath : string
       TestFolderPath : string
       ProjectsFolderPath : string
@@ -27,7 +27,7 @@ type Configuration =
       CustomAppId : string option }
 
     static member Default =
-        { ReleasePlatforms = [ PC; Mac ]
+        { ReleasePlatforms = Set([ PC; Mac ])
           ProfilePath = String.Empty
           TestFolderPath = String.Empty
           ProjectsFolderPath = String.Empty
@@ -76,10 +76,10 @@ module Configuration =
     let private fromDto (dto: Dto) =
         let platforms =
             if not (dto.ReleasePC || dto.ReleaseMac) then
-                [ PC; Mac ]
+                Set([ PC; Mac ])
             else
-                [ if dto.ReleasePC then PC
-                  if dto.ReleaseMac then Mac ]
+                Set([ if dto.ReleasePC then PC
+                      if dto.ReleaseMac then Mac ])
 
         let threshold = Math.Clamp(dto.DDPhraseSearchThreshold, 0, 100)
 
@@ -115,8 +115,8 @@ module Configuration =
             | ToOgg -> 1
             | ToWav -> 2
 
-        Dto(ReleasePC = (config.ReleasePlatforms |> List.contains PC),
-            ReleaseMac = (config.ReleasePlatforms |> List.contains Mac),
+        Dto(ReleasePC = (config.ReleasePlatforms |> Set.contains PC),
+            ReleaseMac = (config.ReleasePlatforms |> Set.contains Mac),
             ProfilePath = config.ProfilePath,
             TestFolderPath = config.TestFolderPath,
             ProjectsFolderPath = config.ProjectsFolderPath,

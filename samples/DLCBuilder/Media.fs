@@ -5,6 +5,7 @@ open Avalonia.Input
 open System
 
 /// Icons from Material Design.
+[<RequireQualifiedAccess>]
 module Icons =
     let guitar = Geometry.Parse "M19.59,3H22V5H20.41L15.12,10.29L13.71,8.9L19.59,3M12,9C12.26,9 12.5,9.1 12.71,9.3L14.71,11.3C14.89,11.5 15,11.73 15,12L14.9,12.4L10.9,20.4C10.71,20.75 10.36,20.93 10,20.93C9.65,20.93 9.29,20.75 9.11,20.4L7.25,16.7L3.55,14.9C3.18,14.7 3,14.35 3,14C3,13.65 3.18,13.3 3.55,13.1L11.55,9.1C11.69,9 11.84,9 12,9M9.35,11.82L8.65,12.5L11.5,15.35L12.18,14.65L9.35,11.82M7.94,13.23L7.23,13.94L10.06,16.77L10.77,16.06L7.94,13.23Z"
     let pick = Geometry.Parse "M19,4.1C18.1,3.3 17,2.8 15.8,2.5C15.5,2.4 13.6,2 12.2,2C12.2,2 12.1,2 12,2C12,2 11.9,2 11.8,2C10.4,2 8.4,2.4 8.1,2.5C7,2.8 5.9,3.3 5,4.1C3,5.9 3,8.7 4,11C5,13.5 6.1,15.7 7.6,17.9C8.8,19.6 10.1,22 12,22C13.9,22 15.2,19.6 16.5,17.9C18,15.8 19.1,13.5 20.1,11C21,8.7 21,5.9 19,4.1Z"
@@ -19,6 +20,7 @@ module Icons =
     let package = Geometry.Parse "M5.12,5L5.93,4H17.93L18.87,5M12,17.5L6.5,12H10V10H14V12H17.5L12,17.5M20.54,5.23L19.15,3.55C18.88,3.21 18.47,3 18,3H6C5.53,3 5.12,3.21 4.84,3.55L3.46,5.23C3.17,5.57 3,6 3,6.5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V6.5C21,6 20.83,5.57 20.54,5.23Z"
     let import = Geometry.Parse "M14,12L10,8V11H2V13H10V16M20,18V6C20,4.89 19.1,4 18,4H6A2,2 0 0,0 4,6V9H6V6H18V18H6V15H4V18A2,2 0 0,0 6,20H18A2,2 0 0,0 20,18Z"
 
+[<RequireQualifiedAccess>]
 module Brushes =
     let lead = SolidColorBrush.Parse "#ff9242" :> ISolidColorBrush
     let rhythm = SolidColorBrush.Parse "#1ea334" :> ISolidColorBrush
@@ -29,11 +31,13 @@ module Brushes =
     let toneKnobEven = SolidColorBrush.Parse "#303030"
     let toneKnobOdd = SolidColorBrush.Parse "#383838"
 
+[<RequireQualifiedAccess>]
 module Cursors =
     let hand = Cursor(StandardCursorType.Hand)
     let arrow = Cursor(StandardCursorType.Arrow)
     let wait = Cursor(StandardCursorType.Wait)
 
+[<RequireQualifiedAccess>]
 module Fonts =
     let japanese =
         FontFamily(if OperatingSystem.IsMacOS() then "Hiragino Sans" else "MS UI Gothic")

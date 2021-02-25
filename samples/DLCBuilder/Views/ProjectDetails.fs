@@ -4,6 +4,7 @@ open Avalonia
 open Avalonia.Controls
 open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
+open Avalonia.Input
 open Avalonia.Layout
 open Avalonia.Media
 open Avalonia.Media.Imaging
@@ -75,12 +76,14 @@ let private fileMenu state dispatch =
                     // New project
                     MenuItem.create [
                         MenuItem.header (translate "newProject")
+                        //MenuItem.inputGesture (KeyGesture(Key.N, KeyModifiers.Control))
                         MenuItem.onClick (fun _ -> dispatch NewProject)
                     ]
 
                     // Save project as
                     MenuItem.create [
                         MenuItem.header (translate "saveProjectAs")
+                        //MenuItem.inputGesture (KeyGesture(Key.S, KeyModifiers.Control ||| KeyModifiers.Alt))
                         MenuItem.onClick (fun _ -> dispatch ProjectSaveAs)
                     ]
     
@@ -89,6 +92,7 @@ let private fileMenu state dispatch =
                     // Import Toolkit template
                     MenuItem.create [
                         MenuItem.header (translate "toolkitImport")
+                        //MenuItem.inputGesture (KeyGesture(Key.T, KeyModifiers.Control))
                         MenuItem.onClick (fun _ ->
                             Msg.OpenFileDialog("selectImportToolkitTemplate", Dialogs.toolkitFilter, ImportToolkitTemplate)
                             |> dispatch)
@@ -97,6 +101,7 @@ let private fileMenu state dispatch =
                     // Import PSARC file
                     MenuItem.create [
                         MenuItem.header (translate "psarcImport")
+                        //MenuItem.inputGesture (KeyGesture(Key.A, KeyModifiers.Control))
                         MenuItem.onClick (fun _ ->
                             Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder)
                             |>dispatch)

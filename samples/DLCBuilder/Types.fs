@@ -185,3 +185,4 @@ type Msg =
     | ChangeLocale of locale : Locale
     | ErrorOccurred of e : exn
     | TaskFailed of e : exn * failedTask : LongTask
+    | HotKeyMsg of Msg

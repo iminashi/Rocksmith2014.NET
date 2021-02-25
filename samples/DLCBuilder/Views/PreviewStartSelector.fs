@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.SelectPreviewStart
+﻿module DLCBuilder.Views.PreviewStartSelector
 
 open System
 open Avalonia.FuncUI.DSL

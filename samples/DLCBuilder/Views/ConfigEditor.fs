@@ -237,16 +237,16 @@ let private buildConfig state dispatch =
                     CheckBox.create [
                         CheckBox.margin 2.
                         CheckBox.content "PC"
-                        CheckBox.isEnabled (state.Config.ReleasePlatforms |> List.contains Mac)
-                        CheckBox.isChecked (state.Config.ReleasePlatforms |> List.contains PC)
+                        CheckBox.isEnabled (state.Config.ReleasePlatforms |> Set.contains Mac)
+                        CheckBox.isChecked (state.Config.ReleasePlatforms |> Set.contains PC)
                         CheckBox.onChecked (fun _ -> PC |> AddReleasePlatform |> EditConfig |> dispatch)
                         CheckBox.onUnchecked (fun _ -> PC |> RemoveReleasePlatform |> EditConfig |> dispatch)
                     ]
                     CheckBox.create [
                         CheckBox.margin 2.
                         CheckBox.content "Mac"
-                        CheckBox.isEnabled (state.Config.ReleasePlatforms |> List.contains PC)
-                        CheckBox.isChecked (state.Config.ReleasePlatforms |> List.contains Mac)
+                        CheckBox.isEnabled (state.Config.ReleasePlatforms |> Set.contains PC)
+                        CheckBox.isChecked (state.Config.ReleasePlatforms |> Set.contains Mac)
                         CheckBox.onChecked (fun _ -> Mac |> AddReleasePlatform |> EditConfig |> dispatch)
                         CheckBox.onUnchecked (fun _ -> Mac |> RemoveReleasePlatform |> EditConfig |> dispatch)
                     ]

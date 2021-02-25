@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.SelectImportTones
+﻿module DLCBuilder.Views.ImportTonesSelector
 
 open Avalonia.FuncUI.DSL
 open Avalonia.FuncUI.Types

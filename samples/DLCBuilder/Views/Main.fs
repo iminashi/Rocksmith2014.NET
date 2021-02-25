@@ -36,6 +36,7 @@ let private arrangementContextMenu state dispatch =
 
             MenuItem.create [
                 MenuItem.header (translate "remove")
+                //MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))
                 MenuItem.onClick (fun _ -> dispatch DeleteArrangement)
             ]
         ]
@@ -64,6 +65,7 @@ let private toneContextMenu state dispatch =
 
             MenuItem.create [
                 MenuItem.header (translate "remove")
+                //MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))
                 MenuItem.onClick (fun _ -> dispatch DeleteTone)
             ]
         ]
@@ -344,9 +346,9 @@ let view (window: Window) (state: State) dispatch =
                                 | ErrorMessage(msg, info) ->
                                     ErrorMessage.view dispatch msg info
                                 | SelectPreviewStart audioLength ->
-                                    SelectPreviewStart.view state dispatch audioLength
+                                    PreviewStartSelector.view state dispatch audioLength
                                 | ImportToneSelector tones ->
-                                    SelectImportTones.view dispatch tones
+                                    ImportTonesSelector.view dispatch tones
                                 | ConfigEditor ->
                                     ConfigEditor.view state dispatch
                                 | IssueViewer issues ->

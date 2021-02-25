@@ -47,15 +47,16 @@
     <Compile Include="Views\VocalsDetails.fs" />
     <Compile Include="Views\ToneDetails.fs" />
     <Compile Include="Views\ToneEditor.fs" />
-    <Compile Include="Views\SelectPreviewStart.fs" />
+    <Compile Include="Views\PreviewStartSelector.fs" />
     <Compile Include="Views\ErrorMessage.fs" />
-    <Compile Include="Views\SelectImportTones.fs" />
+    <Compile Include="Views\ImportTonesSelector.fs" />
     <Compile Include="Views\IssueViewer.fs" />
     <Compile Include="Views\ConfigEditor.fs" />
     <Compile Include="Views\Main.fs" />
     <Compile Include="RecentFilesList.fs" />
     <Compile Include="BuildValidator.fs" />
     <Compile Include="Main.fs" />
+    <Compile Include="HotKeys.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
@@ -85,6 +86,12 @@
   <ItemGroup>
     <Watch Include="**\*.xaml" />
     <Watch Include="**\*.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Watch Remove="HotKeys.fs" />
+    <Watch Remove="Views\ImportTonesSelector.fs" />
+    <Watch Remove="Views\PreviewStartSelector.fs" />
   </ItemGroup>
 
   <ItemGroup>

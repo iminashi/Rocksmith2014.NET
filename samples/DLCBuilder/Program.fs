@@ -2,7 +2,6 @@
 
 open Elmish
 open Avalonia
-open Avalonia.Input
 open Avalonia.FuncUI
 open Avalonia.FuncUI.Elmish
 open Avalonia.FuncUI.Components.Hosts
@@ -25,18 +24,7 @@ type MainWindow() as this =
         base.MinWidth <- 1100.0
         base.MinHeight <- 750.0
 
-        let handleHotkeys dispatch (event: KeyEventArgs) =
-            match event.KeyModifiers, event.Key with
-            | KeyModifiers.Control, Key.O -> dispatch (Msg.OpenFileDialog("selectProjectFile", Dialogs.projectFilter, OpenProject))
-            | KeyModifiers.Control, Key.S -> dispatch ProjectSaveOrSaveAs
-            | KeyModifiers.Control, Key.P -> dispatch ImportProfileTones
-            | KeyModifiers.Control, Key.N -> dispatch NewProject
-            | KeyModifiers.Control, Key.T -> dispatch (Msg.OpenFileDialog("selectImportToolkitTemplate", Dialogs.toolkitFilter, ImportToolkitTemplate))
-            | KeyModifiers.Control, Key.A -> dispatch (Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder))
-            | KeyModifiers.None, Key.Escape -> dispatch CloseOverlay
-            | _ -> ()
-
-        let hotKeysSub _initialModel = Cmd.ofSub (handleHotkeys >> this.KeyDown.Add)
+        let hotKeysSub _initialModel = Cmd.ofSub (HotKeys.handleEvent >> this.KeyDown.Add)
       
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
         //this.VisualRoot.VisualRoot.Renderer.DrawDirtyRects <- true

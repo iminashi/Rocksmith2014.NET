@@ -52,7 +52,7 @@ let editConfigTests =
             Expect.equal newState.Config.ConvertAudio ToWav "Convert audio is correct"
 
         testCase "AddReleasePlatform" <| fun _ ->
-            let state = { initialState with Config = { initialState.Config with ReleasePlatforms = [] } }
+            let state = { initialState with Config = { initialState.Config with ReleasePlatforms = Set.empty } }
             let messages = [ AddReleasePlatform PC
                              AddReleasePlatform Mac] |> List.map EditConfig
 
@@ -64,7 +64,7 @@ let editConfigTests =
             Expect.contains newState.Config.ReleasePlatforms Mac "Release platforms contains Mac"
 
         testCase "RemoveReleasePlatform" <| fun _ ->
-            let state = { initialState with Config = { initialState.Config with ReleasePlatforms = [ PC; Mac ] } }
+            let state = { initialState with Config = { initialState.Config with ReleasePlatforms = Set([ PC; Mac ]) } }
             let messages = [ RemoveReleasePlatform PC
                              RemoveReleasePlatform Mac] |> List.map EditConfig
 
