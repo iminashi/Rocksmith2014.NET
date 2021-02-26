@@ -221,7 +221,7 @@ let editTone state edit (tone: Tone) =
            { tone with ToneDescriptors = tone.ToneDescriptors |> Array.updateAt index descriptor.UIName }
 
         | RemovePedal ->
-            let remove index = Array.updateAt index None
+            let remove index = Utils.removeAndShift index
             let gearList =
                 match state.SelectedGearType with
                 | PrePedal index ->

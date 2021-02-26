@@ -168,3 +168,11 @@ let convertAudio cliPath project =
     |> Array.map (Wwise.convertToWem cliPath)
     |> Async.Parallel
     |> Async.Ignore
+
+/// Removes the item at the index from the array and shifts the subsequent items towards index zero by one.
+let removeAndShift (index: int) array =
+    let arr = Array.copy array
+    for i = index to arr.Length - 2 do
+        arr.[i] <- arr.[i + 1]
+    arr.[arr.Length - 1] <- None
+    arr

@@ -34,10 +34,10 @@ module ResizeArray =
 [<RequireQualifiedAccess>]
 module Array =
     /// Returns a new array with the item at the given index replaced with the new one.
-    let updateAt (index: int) newItem arr =
-        let c = Array.copy arr
-        c.[index] <- newItem
-        c
+    let updateAt (index: int) newItem array =
+        let arr = Array.copy array
+        arr.[index] <- newItem
+        arr
     
 [<RequireQualifiedAccess>]
 module Dictionary =

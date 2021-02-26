@@ -19,6 +19,9 @@
       <Setter Property="HorizontalAlignment" Value="Stretch"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
     </Style>
+    <Style Selector="ToggleButton:disabled">
+      <Setter Property="Opacity" Value="0.5"/>
+    </Style>
     <Style Selector="ComboBox">
       <Setter Property="HorizontalAlignment" Value="Stretch"/>
     </Style>

@@ -14,14 +14,32 @@ open DLCBuilder
 open ToneGear
 open Media
 
-let private toggleButton (content: string) (isChecked: bool) onChecked =
+let private enablePedalSelector gearList gearType =
+    match gearType with
+    | Amp | Cabinet ->
+        true
+    | PrePedal index | PostPedal index | Rack index when index = 0 ->
+        true
+    | PrePedal index ->
+        gearList.PrePedals.[index - 1] |> Option.isSome
+    | PostPedal index ->
+        gearList.PostPedals.[index - 1] |> Option.isSome
+    | Rack index ->
+        gearList.Racks.[index - 1] |> Option.isSome
+
+let private toggleButton dispatch gearList selectedGearType (content: string) gearType  =
+    let isEnabled = enablePedalSelector gearList gearType
+    let isChecked = gearType = selectedGearType
+
     ToggleButton.create [
         ToggleButton.margin (0., 2.)
         ToggleButton.minHeight 30.
         ToggleButton.fontSize 14.
         ToggleButton.content content
         ToggleButton.isChecked isChecked
-        ToggleButton.onChecked onChecked
+        ToggleButton.isEnabled isEnabled
+        if isEnabled then ToggleButton.cursor Cursors.hand
+        ToggleButton.onChecked (fun _ -> gearType |> SetSelectedGearType |> dispatch)
         ToggleButton.onClick (fun e ->
             let b = e.Source :?> ToggleButton
             b.IsChecked <- true
@@ -55,30 +73,30 @@ let private gearTypeHeader locName =
         TextBlock.text (translate locName)
       ] |> generalize
 
-let private pedalSelectors dispatch selectedGearType tone (locName, pedalFunc) =
+   
+let private pedalSelectors dispatch selectedGearType gearList (locName, pedalFunc) =
     [ gearTypeHeader locName
 
       for index in 0..3 do
         let gearType = pedalFunc index
         let content =
-            match getGearDataForCurrentPedal tone gearType with
+            match getGearDataForCurrentPedal gearList gearType with
             | Some data -> data.Name
             | None -> String.Empty
-        toggleButton content (gearType = selectedGearType) (fun _ -> gearType |> SetSelectedGearType |> dispatch)
+        toggleButton dispatch gearList selectedGearType content gearType 
         |> generalize ]
 
 let private gearTypeSelector state dispatch (gearList: Gear) =
+    let ampName = ampDict.[gearList.Amp.Key].Name
+    let cabinetName =
+        let c = cabinetDict.[gearList.Cabinet.Key] in $"{c.Name} - {c.Category}"
     StackPanel.create [
         StackPanel.children [
             gearTypeHeader "amp"
-            toggleButton ampDict.[gearList.Amp.Key].Name
-                         (state.SelectedGearType = Amp)
-                         (fun _ -> Amp |> SetSelectedGearType |> dispatch)
+            toggleButton dispatch gearList state.SelectedGearType ampName Amp
 
             gearTypeHeader "cabinet"
-            toggleButton (let c = cabinetDict.[gearList.Cabinet.Key] in $"{c.Name} - {c.Category}")
-                         (state.SelectedGearType = Cabinet)
-                         (fun _ -> Cabinet |> SetSelectedGearType |> dispatch)
+            toggleButton dispatch gearList state.SelectedGearType cabinetName Cabinet 
 
             yield! [ ("prePedals", PrePedal); ("loopPedals", PostPedal); ("rack", Rack) ]
                    |> List.collect (pedalSelectors dispatch state.SelectedGearType gearList)
