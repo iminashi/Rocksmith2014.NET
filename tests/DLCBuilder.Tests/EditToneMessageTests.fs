@@ -78,15 +78,20 @@ let editToneTests =
             let newState, _ = Main.update (EditTone RemovePedal) state
             let newTone = newState.Project.Tones |> List.head
 
-            Expect.isNone newTone.GearList.PrePedals.[0] "First pre-pedal was removed"
+            Expect.isNone newTone.GearList.PrePedals.[3] "Fourth pre-pedal slot is empty"
 
         testCase "RemovePedal removes post-pedal" <| fun _ ->
             let state = { state with SelectedGearType = ToneGear.PostPedal 2 }
+            let messages = [ RemovePedal; RemovePedal ] |> List.map EditTone
 
-            let newState, _ = Main.update (EditTone RemovePedal) state
+            let newState, _ =
+                messages
+                |> List.fold (fun (state, _) message -> Main.update message state) (state, Cmd.none)
+
             let newTone = newState.Project.Tones |> List.head
 
-            Expect.isNone newTone.GearList.PostPedals.[2] "Third post-pedal was removed"
+            Expect.isNone newTone.GearList.PostPedals.[2] "Third post-pedal slot is empty"
+            Expect.isNone newTone.GearList.PostPedals.[3] "Fourth post-pedal slot is empty"
 
         testCase "RemovePedal removes rack" <| fun _ ->
             let state = { state with SelectedGearType = ToneGear.Rack 3 }
@@ -94,7 +99,7 @@ let editToneTests =
             let newState, _ = Main.update (EditTone RemovePedal) state
             let newTone = newState.Project.Tones |> List.head
 
-            Expect.isNone newTone.GearList.Racks.[3] "Fourth rack gear was removed"
+            Expect.isNone newTone.GearList.Racks.[3] "Fourth rack slot is empty"
 
         testCase "SetPedal sets amp" <| fun _ ->
             let state = { state with SelectedGearType = ToneGear.Amp }

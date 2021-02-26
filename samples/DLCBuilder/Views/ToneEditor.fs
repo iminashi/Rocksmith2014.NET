@@ -72,7 +72,6 @@ let private gearTypeHeader locName =
         TextBlock.margin (0., 2.)
         TextBlock.text (translate locName)
       ] |> generalize
-
    
 let private pedalSelectors dispatch selectedGearType gearList (locName, pedalFunc) =
     [ gearTypeHeader locName
