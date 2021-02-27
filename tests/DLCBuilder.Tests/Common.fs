@@ -20,7 +20,6 @@ let initialState =
       ShowJapaneseFields = false
       Overlay = NoOverlay
       ImportTones = []
-      PreviewStartTime = TimeSpan()
       RunningTasks = Set.empty
       CurrentPlatform = if OperatingSystem.IsMacOS() then Mac else PC
       OpenProjectFile = None

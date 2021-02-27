@@ -1,45 +1,13 @@
 ﻿module AttributesTechniquesTests
 
 open Expecto
-open System
 open Rocksmith2014.SNG
-open Rocksmith2014.DLCProject
 open Rocksmith2014.DLCProject.Manifest.AttributesCreation
 open Rocksmith2014.Common
 
-let testLead =
-    { XML = "instrumental.xml"
-      Name = ArrangementName.Lead
-      RouteMask = RouteMask.Lead
-      Priority = ArrangementPriority.Main
-      TuningPitch = 440.
-      Tuning = [|0s;0s;0s;0s;0s;0s|]
-      BaseTone = String.Empty
-      Tones = []
-      ScrollSpeed = 1.3
-      BassPicked = false
-      MasterID = 12345
-      PersistentID = Guid.NewGuid()
-      CustomAudio = None }
-
-let testProject =
-    { Version = "1.0"
-      DLCKey = "SomeTest"
-      ArtistName = SortableString.Create "Artist"
-      JapaneseArtistName = None
-      JapaneseTitle = None
-      Title = SortableString.Create "Title"
-      AlbumName = SortableString.Create "Album"
-      Year = 2020
-      AlbumArtFile = "cover.dds"
-      AudioFile = { Path = "audio.wem"; Volume = 12. }
-      AudioPreviewFile = { Path = "audio_preview.wem"; Volume = 12. }
-      Arrangements = [ Instrumental testLead ]
-      Tones = [] }
-
-let testSng = SNG.readPackedFile "Tech_Test.sng" PC |> Async.RunSynchronously
-let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
-let firstLevel = attr.Techniques.["0"]
+let private testSng = SNG.readPackedFile "Tech_Test.sng" PC |> Async.RunSynchronously
+let private attr = createAttributes testProject (FromInstrumental (testLead, testSng))
+let private firstLevel = attr.Techniques.["0"]
 
 [<Tests>]
 let attributeTechniquesTests =

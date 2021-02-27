@@ -63,9 +63,10 @@ let editProjectTests =
             Expect.equal project.AlbumName.SortValue "AlbumNameSort" "Album sort value is correct"
             Expect.equal project.Year 1800 "Year is correct"
 
-        testCase "SetAudioVolume, SetPreviewVolume" <| fun _ ->
+        testCase "SetAudioVolume, SetPreviewVolume, SetPreviewStartTime" <| fun _ ->
             let messages = [ SetAudioVolume 9.
-                             SetPreviewVolume -9. ] |> List.map EditProject
+                             SetPreviewVolume -9.
+                             SetPreviewStartTime 50. ] |> List.map EditProject
 
             let newState, _ =
                 messages
@@ -74,4 +75,5 @@ let editProjectTests =
 
             Expect.equal project.AudioFile.Volume 9. "Volume is correct"
             Expect.equal project.AudioPreviewFile.Volume -9. "Preview volume is correct"
+            Expect.equal project.AudioPreviewStartTime (Some 50.) "Preview start time is correct"
     ]

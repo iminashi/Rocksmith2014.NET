@@ -6,21 +6,6 @@ open Rocksmith2014.DLCProject
 open Rocksmith2014.DLCProject.Manifest.AttributesCreation
 open System
 
-let project =
-    { Version = "1.0"
-      DLCKey = "SomeTest"
-      ArtistName = SortableString.Create "Artist"
-      JapaneseArtistName = None
-      JapaneseTitle = None
-      Title = SortableString.Create "Title"
-      AlbumName = SortableString.Create "Album"
-      Year = 2020
-      AlbumArtFile = "cover.dds"
-      AudioFile = { Path = "audio.wem"; Volume = 1. }
-      AudioPreviewFile = { Path = "audio_preview.wem"; Volume = 1. }
-      Arrangements = []
-      Tones = [] }
-
 [<Tests>]
 let manifestTests =
     testList "Manifest Tests" [
@@ -32,7 +17,7 @@ let manifestTests =
                   MasterID = 123456
                   PersistentID = Guid.NewGuid() }
         
-            let attr = createAttributes project (FromVocals arr)
+            let attr = createAttributes testProject (FromVocals arr)
             let jsonString =
                 Manifest.create attr
                 |> Manifest.toJsonString
@@ -47,7 +32,7 @@ let manifestTests =
                    MasterID = 123456
                    PersistentID = Guid.NewGuid() }
                 |> FromVocals
-                |> createAttributes project
+                |> createAttributes testProject
         
             let jsonString =
                 Manifest.create attr

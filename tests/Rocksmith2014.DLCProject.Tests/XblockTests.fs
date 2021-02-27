@@ -4,45 +4,9 @@ open Expecto
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open Rocksmith2014.DLCProject.XBlock
-open System
 open System.IO
 
-let vocals =
-    { XML = "jvocals.xml"
-      Japanese = true
-      CustomFont = Some "font.dds"
-      MasterID = 123456
-      PersistentID = Guid.NewGuid() }
-
-let lead =
-    { XML = "lead.xml"
-      Name = ArrangementName.Lead
-      RouteMask = RouteMask.Lead
-      Priority = ArrangementPriority.Main
-      TuningPitch = 440.
-      Tuning = [||]
-      BaseTone = String.Empty
-      Tones = []
-      ScrollSpeed = 1.3
-      BassPicked = false
-      MasterID = 987654
-      PersistentID = Guid.NewGuid()
-      CustomAudio = None }
-
-let testProject =
-    { Version = "1.0"
-      DLCKey = "SomeTest"
-      ArtistName = SortableString.Create "Artist"
-      JapaneseArtistName = None
-      JapaneseTitle = None
-      Title = SortableString.Create "Title"
-      AlbumName = SortableString.Create "Album"
-      Year = 2020
-      AlbumArtFile = "cover.dds"
-      AudioFile = { Path = "audio.wem"; Volume = 1. }
-      AudioPreviewFile = { Path = "audio_preview.wem"; Volume = 1. }
-      Arrangements = [ Vocals vocals; Instrumental lead ]
-      Tones = [] }
+let private project = { testProject with Arrangements = [ Vocals testJVocals; Instrumental testLead; Vocals testVocals ] }
 
 let private propertyEqual name value (p: Property) =
     p.Name = name && p.Set.Value = value
@@ -55,12 +19,12 @@ let private hasProperty name value (entity: Entity) =
 let xblockTests =
     testList "XBlock Tests" [
         test "Can be created" {
-            let x = XBlock.create PC testProject
+            let x = XBlock.create PC project
         
             Expect.isNonEmpty x.EntitySet "Entity set has been populated" }
         
         test "Entity set contents is correct" {
-            let x = XBlock.create PC testProject
+            let x = XBlock.create PC project
             let entitySet = x.EntitySet
         
             Expect.all entitySet (fun x -> x.ModelName = "RSEnumerable_Song") "Model name is correct"
@@ -78,12 +42,16 @@ let xblockTests =
             Expect.equal entitySet.[1].Name "SomeTest_Lead" "Lead entity name is correct"
             Expect.exists entitySet.[1].Properties (propertyEqual "Manifest" "urn:database:json-db:sometest_lead") "Lead entity manifest property is correct"
             Expect.exists entitySet.[1].Properties (propertyEqual "SngAsset" "urn:application:musicgame-song:sometest_lead") "Lead entity SNG asset property is correct"
-            Expect.exists entitySet.[1].Properties (propertyEqual "LyricArt" "") "Lead entity lyric art property is empty" }
+            Expect.exists entitySet.[1].Properties (propertyEqual "LyricArt" "") "Lead entity lyric art property is empty"
+            Expect.equal entitySet.[2].Name "SomeTest_Vocals" "Vocals entity name is correct"
+            Expect.exists entitySet.[2].Properties (propertyEqual "Manifest" "urn:database:json-db:sometest_vocals") "Vocals entity manifest property is correct"
+            Expect.exists entitySet.[2].Properties (propertyEqual "SngAsset" "urn:application:musicgame-song:sometest_vocals") "Vocals entity SNG asset property is correct"
+            Expect.exists entitySet.[2].Properties (propertyEqual "LyricArt" "") "Vocals entity lyric art property is empty" }
 
         test "Custom audio entity is correct" {
-            let testArr = { lead with CustomAudio = Some { Path = "Test.wem"; Volume = 0. } }
-            let testProject = { testProject with Arrangements = [ Instrumental testArr ] }
-            let x = XBlock.create PC testProject
+            let testArr = { testLead with CustomAudio = Some { Path = "Test.wem"; Volume = 0. } }
+            let project = { project with Arrangements = [ Instrumental testArr ] }
+            let x = XBlock.create PC project
             let entitySet = x.EntitySet
         
             Expect.all entitySet (hasProperty "SoundBank" "urn:audio:wwise-sound-bank:song_sometest_lead") "Contains sound bank property with correct URN" }

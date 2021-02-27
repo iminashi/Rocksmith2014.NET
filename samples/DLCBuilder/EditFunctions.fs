@@ -199,6 +199,9 @@ let editProject edit project =
     | SetPreviewVolume volume ->
         { project with AudioPreviewFile = { project.AudioPreviewFile with Volume = volume } }
 
+    | SetPreviewStartTime startTime ->
+        { project with AudioPreviewStartTime = Some startTime }
+
 let editTone state edit (tone: Tone) =
     let updatedTone =
         match edit with

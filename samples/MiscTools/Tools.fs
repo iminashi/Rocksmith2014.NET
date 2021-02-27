@@ -34,6 +34,7 @@ let project =
       AlbumArtFile = "cover.dds"
       AudioFile = { Path = "audio.wem"; Volume = 12. }
       AudioPreviewFile = { Path = "preview.wem"; Volume = 12. }
+      AudioPreviewStartTime = None
       Arrangements = []
       Tones = [] }
 

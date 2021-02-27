@@ -4,46 +4,10 @@ open Expecto
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open System.IO
-open System
 
-let vocals =
-    { XML = "vocals.xml"
-      Japanese = true
-      CustomFont = Some "font.dds"
-      MasterID = 123456
-      PersistentID = Guid.Empty }
+let private sl = { XML = "showlights.xml" }
 
-let sl = { XML = "showlights.xml" }
-
-let lead =
-    { XML = "lead.xml"
-      Name = ArrangementName.Lead
-      RouteMask = RouteMask.Lead
-      Priority = ArrangementPriority.Main
-      TuningPitch = 440.
-      Tuning = [||]
-      BaseTone = String.Empty
-      Tones = []
-      ScrollSpeed = 1.3
-      BassPicked = false
-      MasterID = 987654
-      PersistentID = Guid.NewGuid()
-      CustomAudio = None }
-
-let project =
-    { Version = "1.0"
-      DLCKey = "SomeTest"
-      ArtistName = SortableString.Create "Artist"
-      JapaneseArtistName = None
-      JapaneseTitle = None
-      Title = SortableString.Create "Title"
-      AlbumName = SortableString.Create "Album"
-      Year = 2020
-      AlbumArtFile = "cover.dds"
-      AudioFile = { Path = "audio.wem"; Volume = 1. }
-      AudioPreviewFile = { Path = "audio_preview.wem"; Volume = 1. }
-      Arrangements = [ Vocals vocals; Showlights sl; Instrumental lead ]
-      Tones = [] }
+let private project = { testProject with Arrangements = [ Vocals testJVocals; Showlights sl; Instrumental testLead ] }
 
 [<Tests>]
 let aggregateGraphTests =
@@ -90,7 +54,7 @@ let aggregateGraphTests =
             Expect.sequenceEqual bnk.Tags [ "audio"; "wwise-sound-bank"; "macos" ] "Has correct tags" }
 
         test "Graph items are created correctly: Custom audio sound bank" {
-            let project = { project with Arrangements = [ Instrumental { lead with CustomAudio = Some { Path = "Test.wem"; Volume = 0. } } ]}
+            let project = { project with Arrangements = [ Instrumental { testLead with CustomAudio = Some { Path = "Test.wem"; Volume = 0. } } ]}
             let a = AggregateGraph.create PC project
             let bnk = a.Items |> List.find (fun x -> x.Name = "song_sometest_lead")
         

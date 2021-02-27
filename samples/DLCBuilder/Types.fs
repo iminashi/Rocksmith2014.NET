@@ -51,13 +51,14 @@ type ProjectEdit =
     | SetAlbumName of string
     | SetAlbumNameSort of string
     | SetYear of int
-    | SetAudioVolume of double
-    | SetPreviewVolume of double
+    | SetAudioVolume of float
+    | SetPreviewVolume of float
+    | SetPreviewStartTime of float
 
 type ToneEdit =
     | SetName of string
     | SetKey of string
-    | SetVolume of double
+    | SetVolume of float
     | ChangeDescriptor of index:int * descriptor:ToneDescriptor
     | AddDescriptor
     | RemoveDescriptor
@@ -94,13 +95,13 @@ type InstrumentalEdit =
     | SetRouteMask of RouteMask
     | SetBassPicked of bool
     | SetTuning of stringIndex:int * tuningValue:int16
-    | SetTuningPitch of double
+    | SetTuningPitch of float
     | SetBaseTone of string
-    | SetScrollSpeed of double
+    | SetScrollSpeed of float
     | SetMasterId of int
     | SetPersistentId of Guid
     | SetCustomAudioPath of string option
-    | SetCustomAudioVolume of double
+    | SetCustomAudioVolume of float
     | UpdateToneInfo
     | GenerateNewIds
 
@@ -118,7 +119,6 @@ type State =
       ShowJapaneseFields : bool
       Overlay : OverlayContents
       ImportTones : Tone list
-      PreviewStartTime : TimeSpan
       OpenProjectFile : string option
       CurrentPlatform : Platform
       RunningTasks : LongTask Set
@@ -157,7 +157,6 @@ type Msg =
     | DuplicateTone
     | MoveTone of MoveDirection
     | CreatePreviewAudio of PreviewAudioCreation
-    | PreviewAudioStartChanged of time : float
     | ShowSortFields of shown : bool
     | ShowJapaneseFields of shown : bool
     | EditInstrumental of InstrumentalEdit

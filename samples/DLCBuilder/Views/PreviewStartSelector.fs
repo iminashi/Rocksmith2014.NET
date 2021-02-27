@@ -8,6 +8,10 @@ open Avalonia.FuncUI.Types
 open DLCBuilder
 
 let view state dispatch (audioLength: TimeSpan) =
+    let previewStart =
+        state.Project.AudioPreviewStartTime
+        |> Option.defaultValue 0.
+
     StackPanel.create [
         StackPanel.spacing 8.
         StackPanel.children [
@@ -41,9 +45,9 @@ let view state dispatch (audioLength: TimeSpan) =
                         NumericUpDown.width 180.
                         NumericUpDown.minimum 0.
                         NumericUpDown.maximum audioLength.TotalSeconds
-                        NumericUpDown.value (state.PreviewStartTime.TotalSeconds)
+                        NumericUpDown.value previewStart
                         NumericUpDown.formatString "F3"
-                        NumericUpDown.onValueChanged (PreviewAudioStartChanged >> dispatch)
+                        NumericUpDown.onValueChanged (SetPreviewStartTime >> EditProject >> dispatch)
                     ]
                 ]
             ]

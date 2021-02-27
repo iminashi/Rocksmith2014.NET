@@ -28,6 +28,7 @@
     <None Include="instrumental.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Compile Include="Common.fs" />
     <Compile Include="AttributesTechniquesTests.fs" />
     <Compile Include="AttributesTests.fs" />
     <Compile Include="ManifestTests.fs" />

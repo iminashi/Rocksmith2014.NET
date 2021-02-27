@@ -19,6 +19,7 @@ type DLCProject =
       AlbumArtFile : string
       AudioFile : AudioFile
       AudioPreviewFile : AudioFile
+      AudioPreviewStartTime : float option
       Arrangements : Arrangement list
       Tones : Tone list }
 
@@ -34,6 +35,7 @@ type DLCProject =
           AlbumArtFile = String.Empty
           AudioFile = AudioFile.Empty
           AudioPreviewFile = AudioFile.Empty
+          AudioPreviewStartTime = None
           Arrangements = []
           Tones = [] }
 
@@ -50,6 +52,7 @@ module DLCProject =
         member val AlbumArtFile : string = String.Empty with get, set
         member val AudioFile : AudioFile = AudioFile.Empty with get, set
         member val AudioPreviewFile = AudioFile.Empty with get, set
+        member val AudioPreviewStartTime = Nullable<float>() with get, set
         member val Arrangements : Arrangement array = Array.empty with get, set
         member val Tones : ToneDto array = Array.empty with get, set
 
@@ -70,6 +73,7 @@ module DLCProject =
             AlbumArtFile = project.AlbumArtFile,
             AudioFile = project.AudioFile,
             AudioPreviewFile = project.AudioPreviewFile,
+            AudioPreviewStartTime = Option.toNullable project.AudioPreviewStartTime,
             Arrangements = Array.ofList project.Arrangements,
             Tones = tones)
 
@@ -85,6 +89,7 @@ module DLCProject =
           AlbumArtFile = dto.AlbumArtFile
           AudioFile = dto.AudioFile
           AudioPreviewFile = dto.AudioPreviewFile
+          AudioPreviewStartTime = Option.ofNullable dto.AudioPreviewStartTime
           Arrangements = dto.Arrangements |> List.ofArray
           Tones = dto.Tones |> List.ofArray |> List.map Tone.fromDto }
 

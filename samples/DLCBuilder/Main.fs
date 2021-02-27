@@ -42,7 +42,6 @@ let init arg =
       ShowJapaneseFields = false
       Overlay = NoOverlay
       ImportTones = []
-      PreviewStartTime = TimeSpan()
       RunningTasks = Set.empty
       CurrentPlatform = if OperatingSystem.IsMacOS() then Mac else PC
       OpenProjectFile = None
@@ -458,9 +457,6 @@ let update (msg: Msg) (state: State) =
                     project.Tones
         { state with Project = { project with Tones = tones } }, Cmd.none
 
-    | PreviewAudioStartChanged time ->
-        { state with PreviewStartTime = TimeSpan.FromSeconds time }, Cmd.none
-
     | CreatePreviewAudio (SetupStartTime) ->
         let totalLength = Utils.getLength project.AudioFile.Path
         // Remove the length of the preview from the total length
@@ -468,13 +464,17 @@ let update (msg: Msg) (state: State) =
         { state with Overlay = SelectPreviewStart length }, Cmd.none
 
     | CreatePreviewAudio (CreateFile) ->
-        let task () = async {
-            let targetPath = Utils.createPreviewAudioPath project.AudioFile.Path
-            Preview.create project.AudioFile.Path targetPath state.PreviewStartTime
-            return targetPath }
+        match state.Project.AudioPreviewStartTime with
+        | None ->
+            state, Cmd.none
+        | Some startTime ->
+            let task () = async {
+                let targetPath = Utils.createPreviewAudioPath project.AudioFile.Path
+                Preview.create project.AudioFile.Path targetPath (TimeSpan.FromSeconds startTime)
+                return targetPath }
 
-        { state with Overlay = NoOverlay },
-        Cmd.OfAsync.either task () (FileCreated >> CreatePreviewAudio) ErrorOccurred
+            { state with Overlay = NoOverlay },
+            Cmd.OfAsync.either task () (FileCreated >> CreatePreviewAudio) ErrorOccurred
 
     | CreatePreviewAudio (FileCreated previewPath) ->
         let previewFile = { project.AudioPreviewFile with Path = previewPath }

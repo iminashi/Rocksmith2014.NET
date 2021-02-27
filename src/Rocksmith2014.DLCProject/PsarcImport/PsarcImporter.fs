@@ -141,6 +141,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
           AlbumArtFile = toTargetPath "cover.dds"
           AudioFile = mainAudio
           AudioPreviewFile = previewAudio
+          AudioPreviewStartTime = None
           Arrangements = arrangements
           Tones = tones |> List.map Tone.fromDto }
 
