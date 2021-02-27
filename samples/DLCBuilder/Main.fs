@@ -569,6 +569,7 @@ let update (msg: Msg) (state: State) =
         | Error error ->
             { state with Overlay = ErrorMessage(translate error, None) }, Cmd.none
         | Ok _ ->
+            let project = Utils.addDefaultTonesIfNeeded project
             let releaseDir =
                 state.OpenProjectFile
                 |> Option.map Path.GetDirectoryName

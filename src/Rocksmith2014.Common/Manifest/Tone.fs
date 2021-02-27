@@ -149,6 +149,7 @@ module Tone =
         let node =
             match ns with
             | Some ns -> fun name -> xmlNode.Item(name, ns)
+            // fsharplint:disable-next-line ReimplementsFunction
             | None -> fun name -> xmlNode.Item name
         let nodeText name = (node name).InnerText
 
@@ -242,14 +243,17 @@ module Tone =
           Name = tone.Name
           SortOrder = Option.toNullable tone.SortOrder }
 
+    /// Imports a tone from a JSON stream.
+    let fromJsonStream (stream: Stream) = async {
+        let options = JsonSerializerOptions(IgnoreNullValues = true)
+        options.Converters.Add(JsonFSharpConverter())
+        let! dto = JsonSerializer.DeserializeAsync<ToneDto>(stream, options)
+        return fromDto dto }
+
     /// Imports a tone from a JSON file.
     let fromJsonFile (fileName: string) = async {
         use file = File.OpenRead fileName
-
-        let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
-        options.Converters.Add(JsonFSharpConverter())
-        let! dto = JsonSerializer.DeserializeAsync<ToneDto>(file, options)
-        return fromDto dto }
+        return! fromJsonStream file }
 
     /// Exports a tone into a JSON file.
     let exportJson (path: string) (tone: Tone) = async {
@@ -269,8 +273,7 @@ module Tone =
         let sb = StringBuilder(text)
 
         // The class name is Tone2014
-        sb.Replace("<ToneDto", "<Tone2014")
-          .Replace("</ToneDto>", "</Tone2014>")
+        sb.Replace("ToneDto", "Tone2014")
           // F# incompatibility stuff
           .Replace("_x0040_", "")
           // Sort order is not nullable

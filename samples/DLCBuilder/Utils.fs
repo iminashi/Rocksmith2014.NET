@@ -176,3 +176,21 @@ let removeAndShift (index: int) array =
         arr.[i] <- arr.[i + 1]
     arr.[arr.Length - 1] <- None
     arr
+
+/// Adds the path's default tone for arrangements whose base tones have no definitions.
+let addDefaultTonesIfNeeded (project: DLCProject) =
+    let neededTones =
+        project.Arrangements
+        |> List.choose (function
+            | Instrumental i when not (project.Tones |> List.exists (fun t -> t.Key = i.BaseTone)) ->
+                Some (i.BaseTone, i.RouteMask)
+            | _ ->
+                None)
+        |> List.distinctBy fst
+        |> List.map (fun (key, routeMask) ->
+            match routeMask with
+            | RouteMask.Lead -> { DefaultTones.Lead.Value with Key = key }
+            | RouteMask.Bass -> { DefaultTones.Bass.Value with Key = key }
+            | _ -> { DefaultTones.Rhythm.Value with Key = key })
+
+    { project with Tones = neededTones @ project.Tones }
