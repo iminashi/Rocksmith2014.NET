@@ -4,6 +4,8 @@ open Avalonia.Controls
 open Avalonia.Controls.Primitives
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
+open System
+open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open DLCBuilder
@@ -63,17 +65,30 @@ let view state dispatch (tone: Tone) =
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
                 TextBlock.text (translate "key")
             ]
-            ComboBox.create [
+            DockPanel.create [
                 Grid.row 1
                 Grid.column 1
-                ComboBox.margin 4.
-                ComboBox.minHeight 26.
-                ComboBox.dataItems keys
-                ComboBox.selectedItem tone.Key
-                ComboBox.onSelectedItemChanged (function
-                    | :? string as key -> key |> (SetKey >> EditTone >> dispatch)
-                    | _ -> ()
-                )
+                StackPanel.children [
+                    // Remove key
+                    Button.create [
+                        DockPanel.dock Dock.Right
+                        ComboBox.margin 4.
+                        Button.content "X"
+                        Button.isEnabled (String.notEmpty tone.Key)
+                        Button.onClick (fun _ -> String.Empty |> SetKey |> EditTone |> dispatch)
+                    ]
+
+                    ComboBox.create [
+                        ComboBox.margin 4.
+                        ComboBox.minHeight 26.
+                        ComboBox.dataItems keys
+                        ComboBox.selectedItem tone.Key
+                        ComboBox.onSelectedItemChanged (function
+                            | :? string as key -> key |> (SetKey >> EditTone >> dispatch)
+                            | _ -> ()
+                        )
+                    ]
+                ]
             ]
 
             // Descriptors
@@ -91,6 +106,7 @@ let view state dispatch (tone: Tone) =
                     StackPanel.create [
                         StackPanel.orientation Orientation.Horizontal
                         StackPanel.children [
+                            // Add description part
                             Button.create [
                                 Button.isEnabled (tone.ToneDescriptors.Length < 3)
                                 Button.margin 4.
@@ -98,6 +114,7 @@ let view state dispatch (tone: Tone) =
                                 Button.onClick (fun _ -> AddDescriptor |> EditTone |> dispatch)
                                 ToolTip.tip (translate "addDescriptionToolTip")
                             ]
+                            // Remove description part
                             Button.create [
                                 Button.isEnabled (tone.ToneDescriptors.Length > 1)
                                 Button.margin 4.
@@ -131,7 +148,7 @@ let view state dispatch (tone: Tone) =
                 ToolTip.tip (translate "toneVolumeToolTip")
             ]
 
-            // Buttons
+            // Buttons (Edit & Export)
             Grid.create [
                 Grid.row 4
                 Grid.columnSpan 2
