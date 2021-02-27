@@ -6,9 +6,10 @@ open NAudio.Wave
 
 let [<Literal>] private BufferSize = 50_000
 
-let private processData (sampleProvider: ISampleProvider) (lufsMeter: LufsMeter) =
+let private calculateLoudness (sampleProvider: ISampleProvider) =
     let buffer = ArrayPool<float32>.Shared.Rent BufferSize
     let channels = sampleProvider.WaveFormat.Channels
+    let lufsMeter = LufsMeter(float sampleProvider.WaveFormat.SampleRate, sampleProvider.WaveFormat.Channels)
 
     let rec loop () =
         match sampleProvider.Read(buffer, 0, BufferSize) with
@@ -21,13 +22,17 @@ let private processData (sampleProvider: ISampleProvider) (lufsMeter: LufsMeter)
             |> lufsMeter.ProcessBuffer
             loop ()
 
-    try loop () finally ArrayPool.Shared.Return buffer
+    try
+        loop ()
+        lufsMeter.GetIntegratedLoudness()
+    finally ArrayPool.Shared.Return buffer
 
 /// Calculates a volume value using BS.1770 integrated loudness with -16 as reference value.
 let calculate (fileName: string) =
     use audio = AudioReader.Create fileName
-    let sampleProvider = audio.SampleProvider
-    let lufsMeter = LufsMeter(float sampleProvider.WaveFormat.SampleRate, sampleProvider.WaveFormat.Channels)
-    processData sampleProvider lufsMeter
-    
-    Math.Round(-1. * (16. + lufsMeter.GetIntegratedLoudness()), 1, MidpointRounding.AwayFromZero)
+    let loudness = calculateLoudness audio.SampleProvider
+
+    if Double.IsInfinity loudness then
+        0.
+    else
+        Math.Round(-16. - loudness, 1, MidpointRounding.AwayFromZero)
