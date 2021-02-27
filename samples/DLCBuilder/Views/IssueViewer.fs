@@ -36,6 +36,7 @@ let private isImportant = function
     | MissingIgnore
     | MissingBendValue
     | MissingLinkNextChordNotes
+    | AnchorInsideHandShape
     | InvalidShowlights -> true
     | _ -> false
 

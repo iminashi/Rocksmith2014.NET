@@ -204,6 +204,8 @@
   "LyricWithInvalidCharHelp": "A custom font is needed for the character to be displayed in-game.",
   "InvalidShowlights": "The show lights need to contain at least one fog note and one beam note",
   "InvalidShowlightsHelp": "This show lights file will crash the game when the song is selected.",
+  "AnchorInsideHandShape": "Anchor is placed inside a handshape",
+  "AnchorInsideHandShapeHelp": "An anchor placed inside a handshape will break the handshape.",
   "general": "General",
   "build": "Build",
   "importHeader": "Import",

@@ -6,8 +6,10 @@ open Rocksmith2014.XML.Processing.ArrangementChecker
 
 let toneChanges = ResizeArray(seq { ToneChange("test", 5555, 1uy) })
 let sections = ResizeArray(seq { Section("noguitar", 6000, 1s); Section("riff", 6500, 1s); Section("noguitar", 8000, 2s) })
+let phrases = ResizeArray(seq { Phrase("mover6.700", 0uy, PhraseMask.None) })
+let phraseIterations = ResizeArray(seq { PhraseIteration(6500, 0) })
 let chordTemplates = ResizeArray(seq { ChordTemplate("", "", [| 2y; 2y; -1y; -1y; -1y; -1y |], [| 2y; 2y; -1y; -1y; -1y; -1y |]) })
-let testArr = InstrumentalArrangement(Sections = sections, ChordTemplates = chordTemplates)
+let testArr = InstrumentalArrangement(Sections = sections, ChordTemplates = chordTemplates, Phrases = phrases, PhraseIterations = phraseIterations)
 testArr.Tones.Changes <- toneChanges
 testArr.MetaData.SongLength <- 10000
 
@@ -397,7 +399,7 @@ let anchorTests =
             let notes = ResizeArray(seq { Note(Time = 100, Fret = 1y) })
             let level = Level(Notes = notes, Anchors = anchors)
 
-            let results = checkAnchors level
+            let results = checkAnchors testArr level
 
             Expect.hasLength results 0 "No issues created"
 
@@ -406,7 +408,7 @@ let anchorTests =
             let notes = ResizeArray(seq { Note(Time = 100, Fret = 1y) })
             let level = Level(Notes = notes, Anchors = anchors)
 
-            let results = checkAnchors level
+            let results = checkAnchors testArr level
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type (AnchorNotOnNote -1) "Correct issue type"
@@ -416,10 +418,38 @@ let anchorTests =
             let chords = ResizeArray(seq { Chord(Time = 100) })
             let level = Level(Chords = chords, Anchors = anchors)
 
-            let results = checkAnchors level
+            let results = checkAnchors testArr level
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type (AnchorNotOnNote 2) "Correct issue type"
+
+        testCase "Detects anchor inside hand shape" <| fun _ ->
+            let anchors = ResizeArray(seq { Anchor(1y, 200) })
+            let handShapes = ResizeArray(seq { HandShape(StartTime = 100, EndTime = 400) })
+            let level = Level(HandShapes = handShapes, Anchors = anchors)
+
+            let results = checkAnchors testArr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type AnchorInsideHandShape "Correct issue type"
+
+        testCase "No false positive for anchor at the start of hand shape" <| fun _ ->
+            let anchors = ResizeArray(seq { Anchor(1y, 100) })
+            let handShapes = ResizeArray(seq { HandShape(StartTime = 100, EndTime = 400) })
+            let level = Level(HandShapes = handShapes, Anchors = anchors)
+
+            let results = checkAnchors testArr level
+
+            Expect.isEmpty results "No issues created"
+
+        testCase "Ignores anchors on phrases that will be moved" <| fun _ ->
+            let anchors = ResizeArray(seq { Anchor(1y, 6500) })
+            let handShapes = ResizeArray(seq { HandShape(StartTime = 6000, EndTime = 6550) })
+            let level = Level(HandShapes = handShapes, Anchors = anchors)
+
+            let results = checkAnchors testArr level
+
+            Expect.isEmpty results "No issues created"
     ]
 
 [<Tests>]

@@ -3,6 +3,7 @@
 open Rocksmith2014.XML
 open System.Runtime.CompilerServices
 open System.Text.RegularExpressions
+open System
 
 let [<Literal>] LyricsCharset = """ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_abcdefghijklmnopqrstuvwxyz{|}~¡¢¥¦§¨ª«°²³´•¸¹º»¼½¾¿ÀÁÂÄÅÆÇÈÉÊËÌÎÏÑÒÓÔÖØÙÚÛÜÞßàáâäåæçèéêëìíîïñòóôöøùúûüŒœŠšž„…€™␀★➨"""
 
@@ -26,6 +27,7 @@ type IssueType =
     | MissingLinkNextChordNotes
     | ChordAtEndOfHandShape
     | FingeringAnchorMismatch
+    | AnchorInsideHandShape
     | AnchorNotOnNote of distance : int
     | LyricWithInvalidChar of invalidChar : char
     | InvalidShowlights
@@ -269,7 +271,7 @@ let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
     ]
 
 /// Looks for anchors that are very close to a note but not exactly on a note.
-let checkAnchors (level: Level) =
+let private findCloseAnchors (level: Level) =
     let pickTimeAndDistance noteTime (anchor: Anchor) =
         let distance = anchor.Time - noteTime 
         if distance <> 0 && abs distance <= 5 then
@@ -293,6 +295,28 @@ let checkAnchors (level: Level) =
         issue (AnchorNotOnNote distance) anchorTime)
     |> Seq.toList
 
+/// Looks for anchors that will break a hand shape.
+let private findAnchorsInsideHandShapes (arrangement: InstrumentalArrangement) (level: Level) =
+    let moverPhraseTimes =
+        arrangement.Phrases
+        |> Seq.indexed
+        |> Seq.filter (fun (_, phrase) -> phrase.Name.StartsWith("mover", StringComparison.OrdinalIgnoreCase))
+        |> Seq.map (fun (index, _) -> arrangement.PhraseIterations.Find(fun pi -> pi.PhraseId = index).Time)
+        |> Seq.toArray
+
+    level.Anchors
+    |> Seq.filter (fun anchor ->
+        level.HandShapes
+        |> Seq.exists (fun hs -> anchor.Time > hs.StartTime && anchor.Time < hs.EndTime)
+        &&
+        not (Array.contains anchor.Time moverPhraseTimes)
+    )
+    |> Seq.map (fun anchor -> issue AnchorInsideHandShape anchor.Time)
+
+let checkAnchors (arrangement: InstrumentalArrangement) (level: Level) =
+    [ yield! findCloseAnchors level
+      yield! findAnchorsInsideHandShapes arrangement level ]
+
 /// Runs all the checks on the given arrangement.
 let runAllChecks (arr: InstrumentalArrangement) =
     let results =
@@ -301,7 +325,7 @@ let runAllChecks (arr: InstrumentalArrangement) =
             [ yield! checkNotes arr level
               yield! checkChords arr level
               yield! checkHandshapes arr level
-              yield! checkAnchors level ])
+              yield! checkAnchors arr level ])
         |> List.concat
 
     [ yield! checkCrowdEventPlacement arr
