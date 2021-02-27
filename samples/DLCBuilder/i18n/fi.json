@@ -237,5 +237,7 @@
   "micPosition": "Mikrofonin sijainti",
   "nothingToConfigure": "Ei asetuksia",
   "duplicate": "Monista",
-  "previewExplanation": "Luo 28 sekuntia pitkän äänitiedoston, jossa on häivytys sisään ja ulos."
+  "previewExplanation": "Luo 28 sekuntia pitkän äänitiedoston, jossa on häivytys sisään ja ulos.",
+  "moveUp": "Siirrä ylös",
+  "moveDown": "Siirrä alas"
 }

@@ -47,13 +47,25 @@ let private toneContextMenu state dispatch =
         ContextMenu.isVisible state.SelectedTone.IsSome
         ContextMenu.viewItems [
             MenuItem.create [
-                MenuItem.header (translate "edit")
-                MenuItem.onClick (fun _ -> ShowToneEditor |> dispatch)
+                MenuItem.header (translate "duplicate")
+                MenuItem.onClick (fun _ -> DuplicateTone |> dispatch)
             ]
 
             MenuItem.create [
-                MenuItem.header (translate "duplicate")
-                MenuItem.onClick (fun _ -> DuplicateTone |> dispatch)
+                MenuItem.header (translate "moveUp")
+                //MenuItem.inputGesture (KeyGesture(Key.Up, KeyModifiers.Alt))
+                MenuItem.onClick (fun _ -> Up |> MoveTone |> dispatch)
+            ]
+
+            MenuItem.create [
+                MenuItem.header (translate "moveDown")
+                //MenuItem.inputGesture (KeyGesture(Key.Down, KeyModifiers.Alt))
+                MenuItem.onClick (fun _ -> Down |> MoveTone |> dispatch)
+            ]
+
+            MenuItem.create [
+                MenuItem.header (translate "edit")
+                MenuItem.onClick (fun _ -> ShowToneEditor |> dispatch)
             ]
 
             MenuItem.create [

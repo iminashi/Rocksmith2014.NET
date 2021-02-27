@@ -237,5 +237,7 @@
   "micPosition": "Mic Position",
   "nothingToConfigure": "Nothing to configure",
   "duplicate": "Duplicate",
-  "previewExplanation": "Creates a 28 second long audio file that has a fade-in and a fade-out."
+  "previewExplanation": "Creates a 28 second long audio file that has a fade-in and a fade-out.",
+  "moveUp": "Move Up",
+  "moveDown": "Move Down"
 }
