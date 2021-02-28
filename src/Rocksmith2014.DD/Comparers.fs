@@ -4,10 +4,14 @@ open Rocksmith2014.XML
 
 let sameBendValues (bends1: ResizeArray<BendValue>) (bends2: ResizeArray<BendValue>) =
     match bends1, bends2 with
-    | null, null -> true
-    | null, _ | _, null  -> false
-    | bends1, bends2 when bends1.Count <> bends2.Count -> false
-    | both -> both ||> Seq.forall2 (fun b1 b2 -> b1.Step = b2.Step)
+    | null, null ->
+        true
+    | null, _ | _, null  ->
+        false
+    | bends1, bends2 when bends1.Count <> bends2.Count ->
+        false
+    | both ->
+        both ||> Seq.forall2 (fun b1 b2 -> b1.Step = b2.Step)
 
 let sameNote (n1: Note) (n2: Note) = 
     n1.Fret = n2.Fret
@@ -28,10 +32,14 @@ let sameNotes (notes1: Note list) (notes2: Note list) =
 
 let sameChordNotes (c1: Chord) (c2: Chord) =
     match c1.ChordNotes, c2.ChordNotes with
-    | null, null -> true
-    | null, _ | _, null  -> false
-    | cns1, cns2 when cns1.Count <> cns2.Count -> false
-    | both -> both ||> Seq.forall2 sameNote
+    | null, null ->
+        true
+    | null, _ | _, null  ->
+        false
+    | cns1, cns2 when cns1.Count <> cns2.Count ->
+        false
+    | both ->
+        both ||> Seq.forall2 sameNote
 
 let sameChord (c1: Chord) (c2: Chord) =
     c1.ChordId = c2.ChordId
@@ -45,31 +53,44 @@ let sameChords (chords1: Chord list) (chords2: Chord list) =
         (chords1, chords2)
         ||> List.forall2 sameChord
 
+let [<Literal>] private MaxSkips = 5
+
+let private skipWhileNot eq elem list =
+    let rec doSkip depth remaining =
+        match remaining with
+        | [] ->
+            []
+        | _ when depth = MaxSkips ->
+            []
+        | head::tail when not <| eq head elem ->
+            doSkip (depth + 1) tail
+        | _ ->
+            remaining
+
+    doSkip 0 list
+
 /// Calculates the number of same elements in the lists, when the order of the elements matters.
 let getSameElementCount eq elems1 elems2 =
-    let rec getCount count l1 l2 =
-        match l1, l2 with
-        | h1::t1, h2::t2 ->
-            if eq h1 h2 then
-                 getCount (count + 1) t1 t2
+    let rec getCount count list1 list2 =
+        match list1, list2 with
+        | head1::tail1, head2::tail2 ->
+            if eq head1 head2 then
+                 getCount (count + 1) tail1 tail2
             else
-                let t1' = List.skipWhile ((eq h2) >> not) t1
-                let count1 = getCount count t1' l2
+                let tail1' = skipWhileNot eq head2 tail1
+                let count1 = getCount count tail1' list2
 
-                if t1.Length = t1'.Length then
-                    count1
-                else
-                    let t2' = List.skipWhile ((eq h1) >> not) t2
-                    let count2 = getCount count l1 t2'
+                let tail2' = skipWhileNot eq head1 tail2
+                let count2 = getCount count list1 tail2'
 
-                    let count3 =
-                        if t2.Length = t2'.Length then
-                            0
-                        else
-                            getCount count t1 t2
+                let count3 =
+                    match tail1, tail2 with
+                    | h1::t1, h2::t2 when eq h1 h2 ->
+                        getCount (count + 1) t1 t2
+                    | _ ->
+                        0
 
-                    max count1 count2
-                    |> max count3
+                max count1 count2 |> max count3
         | _ ->
             count
 

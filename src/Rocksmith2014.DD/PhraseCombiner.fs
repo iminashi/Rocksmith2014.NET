@@ -57,13 +57,13 @@ let private findSamePhrases threshold (levelCounts: int array) (iterationData: P
                 // Save the IDs that were matched
                 matchedPhrases.UnionWith ids
 
-                let sameDifficulty =
+                let isSameDifficulty =
                     ids
                     |> Array.append [| mainId |]
                     |> Array.map (fun id -> levelCounts.[id])
                     |> Utils.allSame
 
-                Some { MainId = mainId; Ids = ids; SameDifficulty = sameDifficulty })
+                Some { MainId = mainId; Ids = ids; SameDifficulty = isSameDifficulty })
     |> Array.choose id
 
 let private findEmptyPhrases (iterationData: PhraseData array) =
