@@ -1,4 +1,5 @@
-﻿namespace Rocksmith2014.Common.Manifest
+﻿// fsharplint:disable RecordFieldNames
+namespace Rocksmith2014.Common.Manifest
 
 type ArrangementProperties =
     { represent : byte

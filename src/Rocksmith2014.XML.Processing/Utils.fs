@@ -2,6 +2,7 @@
 
 open Rocksmith2014.XML
 
+/// Converts a time in milliseconds into a string.
 let timeToString time =
     let minutes = time / 1000 / 60
     let seconds = (time / 1000) - (minutes * 60)
