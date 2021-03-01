@@ -8,18 +8,18 @@ open System
 
 [<Measure>] type ms
 
-type AudioReader(reader: WaveStream, provider: ISampleProvider) =
+type AudioReader(stream: WaveStream, provider: ISampleProvider) =
     new(input: WaveFileReader) =
         new AudioReader(input :> WaveStream, input.ToSampleProvider())
 
     new(input: VorbisWaveReader) =
         new AudioReader(input :> WaveStream, input :> ISampleProvider)
 
-    member _.Reader = reader
+    member _.Stream = stream
     member _.SampleProvider = provider
 
-    member _.Position with get() = reader.Position
-    member _.Length with get() = reader.Length
+    member _.Position with get() = stream.Position
+    member _.Length with get() = stream.Length
 
     /// Returns an audio reader for the given filename.
     static member Create(fileName) =
@@ -29,4 +29,4 @@ type AudioReader(reader: WaveStream, provider: ISampleProvider) =
         | _ -> raise <| NotSupportedException "Only vorbis and wave files are supported."
 
     interface IDisposable with
-        member _.Dispose() = reader.Dispose()
+        member _.Dispose() = stream.Dispose()

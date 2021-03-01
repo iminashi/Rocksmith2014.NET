@@ -4,7 +4,7 @@ open System.IO
 
 /// Returns the total length of the audio file with the given name.
 let getLength (fileName: string) =
-    using (AudioReader.Create fileName) (fun audio -> audio.Reader.TotalTime)
+    using (AudioReader.Create fileName) (fun audio -> audio.Stream.TotalTime)
 
 /// Creates a path for the preview audio file from the given path.
 ///
