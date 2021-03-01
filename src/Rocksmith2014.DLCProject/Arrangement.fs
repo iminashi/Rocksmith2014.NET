@@ -68,9 +68,9 @@ module Arrangement =
         | Showlights _ -> failwith "No"
 
     /// Returns the name of an arrangement.
-    let getName (arr: Arrangement) generic =
+    let getName (arr: Arrangement) isGeneric =
         match arr with
-        | Vocals v when v.Japanese && not generic -> "JVocals"
+        | Vocals v when v.Japanese && not isGeneric -> "JVocals"
         | Vocals _ -> "Vocals"
         | Showlights _ -> "Showlights"
         | Instrumental i -> i.Name.ToString()
@@ -88,12 +88,8 @@ module Arrangement =
 
             sprintf "%s%s" prefix (string inst.RouteMask)
 
-        | Vocals v ->
-            let prefix =
-                if v.Japanese then "Japanese " else String.Empty
-
-            sprintf "%sVocals" prefix
-
+        | Vocals v when v.Japanese -> "Japanese Vocals"
+        | Vocals _ -> "Vocals"
         | Showlights _ -> "Show Lights"
 
     /// Returns the XML file of an arrangement.
@@ -108,9 +104,14 @@ module Arrangement =
 
     /// Returns the comparable values for sorting arrangements.
     let sorter = function
-        | Instrumental i -> (LanguagePrimitives.EnumToValue i.RouteMask), (LanguagePrimitives.EnumToValue i.Priority)
-        | Vocals v -> 5, if v.Japanese then 1 else 0
-        | Showlights _ -> 6, 0
+        | Instrumental i ->
+            LanguagePrimitives.EnumToValue i.RouteMask, LanguagePrimitives.EnumToValue i.Priority
+        | Vocals v when not v.Japanese ->
+            5, 0
+        | Vocals _ ->
+            6, 0
+        | Showlights _ ->
+            7, 0
 
     /// Loads an arrangement from a file.
     let fromFile localize (fileName: string) =
