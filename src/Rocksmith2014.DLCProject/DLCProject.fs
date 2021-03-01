@@ -186,4 +186,6 @@ module DLCProject =
               yield! project.Arrangements
                      |> List.choose (function Instrumental i -> i.CustomAudio | _ -> None) }
         |> Seq.map (fun audio -> audio.Path)
-        |> Seq.filter (fun path -> not <| File.Exists(Path.ChangeExtension(path, "wem")))
+        |> Seq.filter (fun path ->
+            not <| String.endsWith "wem" path
+            && not <| File.Exists(Path.ChangeExtension(path, "wem")))

@@ -43,8 +43,8 @@ let testProject =
       AlbumName = SortableString.Create "Album"
       Year = 2020
       AlbumArtFile = "cover.dds"
-      AudioFile = { Path = "audio.wem"; Volume = 1. }
-      AudioPreviewFile = { Path = "audio_preview.wem"; Volume = 1. }
+      AudioFile = { Path = "audio.ogg"; Volume = 1. }
+      AudioPreviewFile = { Path = "audio_preview.wav"; Volume = 1. }
       AudioPreviewStartTime = None
       Arrangements = [ Instrumental testLead ]
       Tones = [] }

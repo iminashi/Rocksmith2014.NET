@@ -24,7 +24,7 @@ let convertToDDS (sourceFile: string) (output: Stream) (options: DDSOptions) =
     match options.Resize with
     | NoResize -> ()
     | Resize (width, height) ->
-        image.Resize (MagickGeometry(width, height, IgnoreAspectRatio = true))
+        image.Resize(MagickGeometry(width, height, IgnoreAspectRatio = true))
 
     image.Write output
 

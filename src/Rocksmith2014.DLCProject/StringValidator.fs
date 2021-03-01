@@ -33,7 +33,7 @@ let removeArticles (input: string) =
 let toneName (input: string) =
     input.Replace("\"", "")
 
-/// Validates a file name.
+/// Validates a filename.
 let fileName (input: string) =
     let i = input.Replace(' ', '-')
     Regex.Replace(i, "[,." + String.Concat(Path.GetInvalidFileNameChars()) + "]", "")
