@@ -114,7 +114,7 @@ let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
             else
                 Some (issue LinkNextFretMismatch nextNote.Time)
 
-        // Check if bendValues match
+        // Check if the bend values match
         | Some nextNote when note.IsBend ->
             let thisNoteLastBendValue =
                 note.BendValues.[note.BendValues.Count - 1].Step
@@ -176,7 +176,7 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
         // Check for notes inside noguitar sections
         if isInsideNoguitarSection ngSections time then
             issue NoteInsideNoguitarSection time
-        ]
+    ]
 
 /// Checks the chords in the arrangement for issues.
 let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
@@ -296,7 +296,7 @@ let private findCloseAnchors (level: Level) =
         issue (AnchorNotOnNote distance) anchorTime)
     |> Seq.toList
 
-/// Looks for anchors that will break a hand shape.
+/// Looks for anchors that will break a handshape.
 let private findAnchorsInsideHandShapes (arrangement: InstrumentalArrangement) (level: Level) =
     let moverPhraseTimes =
         arrangement.Phrases
@@ -313,6 +313,7 @@ let private findAnchorsInsideHandShapes (arrangement: InstrumentalArrangement) (
     )
     |> Seq.map (fun anchor -> issue AnchorInsideHandShape anchor.Time)
 
+/// Looks for anchors very close to the end of unpitched slide notes.
 let private findUnpitchedSlideAnchors (level: Level) =
     let slideEnds =
         level.Notes
