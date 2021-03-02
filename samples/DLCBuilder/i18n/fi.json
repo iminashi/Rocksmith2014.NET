@@ -206,6 +206,8 @@
   "InvalidShowlightsHelp": "Tämä valoshowtiedosto kaataa pelin, kun kappale valitaan.",
   "AnchorInsideHandShape": "Ankkuri on handshapen sisällä",
   "AnchorInsideHandShapeHelp": "Ankkuri handshapen sisällä rikkoo handshapen.",
+  "AnchorCloseToUnpitchedSlide": "Ankkuri hyvin lähellä liu'un loppua",
+  "AnchorCloseToUnpitchedSlideHelp": "Ankkuri lähellä \"liuku pois sävelestä\" -nuotin loppua ei välttämättä näy pelissä.",
   "general": "Yleinen",
   "build": "Rakennus",
   "importHeader": "Tuonti",

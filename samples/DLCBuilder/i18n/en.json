@@ -206,6 +206,8 @@
   "InvalidShowlightsHelp": "This show lights file will crash the game when the song is selected.",
   "AnchorInsideHandShape": "Anchor is placed inside a handshape",
   "AnchorInsideHandShapeHelp": "An anchor placed inside a handshape will break the handshape.",
+  "AnchorCloseToUnpitchedSlide": "Anchor very close to an unpitched slide's end",
+  "AnchorCloseToUnpitchedSlideHelp": "An anchor close to the end of the sustain of an unpitched slide might not show up in the game.",
   "general": "General",
   "build": "Build",
   "importHeader": "Import",

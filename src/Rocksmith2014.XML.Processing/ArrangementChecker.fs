@@ -28,6 +28,7 @@ type IssueType =
     | ChordAtEndOfHandShape
     | FingeringAnchorMismatch
     | AnchorInsideHandShape
+    | AnchorCloseToUnpitchedSlide
     | AnchorNotOnNote of distance : int
     | LyricWithInvalidChar of invalidChar : char
     | InvalidShowlights
@@ -306,16 +307,27 @@ let private findAnchorsInsideHandShapes (arrangement: InstrumentalArrangement) (
 
     level.Anchors
     |> Seq.filter (fun anchor ->
-        level.HandShapes
-        |> Seq.exists (fun hs -> anchor.Time > hs.StartTime && anchor.Time < hs.EndTime)
+        level.HandShapes.Exists(fun hs -> anchor.Time > hs.StartTime && anchor.Time < hs.EndTime)
         &&
         not (Array.contains anchor.Time moverPhraseTimes)
     )
     |> Seq.map (fun anchor -> issue AnchorInsideHandShape anchor.Time)
 
+let private findUnpitchedSlideAnchors (level: Level) =
+    let slideEnds =
+        level.Notes
+        |> Seq.filter (fun n -> n.IsUnpitchedSlide)
+        |> Seq.map (fun n -> n.Time + n.Sustain)
+        |> Seq.toArray
+
+    level.Anchors
+    |> Seq.filter (fun anchor -> Array.exists (fun time -> abs (anchor.Time - time) < 4) slideEnds)
+    |> Seq.map (fun anchor -> issue AnchorCloseToUnpitchedSlide anchor.Time)
+
 let checkAnchors (arrangement: InstrumentalArrangement) (level: Level) =
     [ yield! findCloseAnchors level
-      yield! findAnchorsInsideHandShapes arrangement level ]
+      yield! findAnchorsInsideHandShapes arrangement level
+      yield! findUnpitchedSlideAnchors level ]
 
 /// Runs all the checks on the given arrangement.
 let runAllChecks (arr: InstrumentalArrangement) =

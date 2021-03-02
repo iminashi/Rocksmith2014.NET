@@ -450,6 +450,16 @@ let anchorTests =
             let results = checkAnchors testArr level
 
             Expect.isEmpty results "No issues created"
+
+        testCase "Detects anchor near the end of an unpitched slide" <| fun _ ->
+            let anchors = ResizeArray(seq { Anchor(1y, 500) })
+            let notes = ResizeArray(seq { Note(Time = 100, Sustain = 397, SlideUnpitchTo = 5y) })
+            let level = Level(Notes = notes, Anchors = anchors)
+
+            let results = checkAnchors testArr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type AnchorCloseToUnpitchedSlideSustain "Correct issue type"
     ]
 
 [<Tests>]
