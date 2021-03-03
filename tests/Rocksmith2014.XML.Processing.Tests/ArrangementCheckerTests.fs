@@ -459,7 +459,7 @@ let anchorTests =
             let results = checkAnchors testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type AnchorCloseToUnpitchedSlideSustain "Correct issue type"
+            Expect.equal results.Head.Type AnchorCloseToUnpitchedSlide "Correct issue type"
     ]
 
 [<Tests>]
