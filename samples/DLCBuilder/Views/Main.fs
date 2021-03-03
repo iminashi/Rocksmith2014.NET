@@ -303,12 +303,13 @@ let view (window: Window) (state: State) dispatch =
                                                     | :? Tone as tone -> tone |> Some |> SetSelectedTone |> dispatch
                                                     | _ -> ())
                                                 ListBox.onDoubleTapped (fun _ -> ShowToneEditor |> dispatch)
-                                                ListBox.onKeyDown (fun k ->
-                                                    match k.KeyModifiers, k.Key with
+                                                ListBox.onKeyDown (fun e ->
+                                                    e.Handled <- true
+                                                    match e.KeyModifiers, e.Key with
                                                     | KeyModifiers.None, Key.Delete -> dispatch DeleteTone
                                                     | KeyModifiers.Alt, Key.Up -> dispatch (MoveTone Up)
                                                     | KeyModifiers.Alt, Key.Down -> dispatch (MoveTone Down)
-                                                    | _ -> ())
+                                                    | _ -> e.Handled <- false)
                                             ]
                                         ]
                                     ]
