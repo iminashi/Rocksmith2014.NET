@@ -367,7 +367,11 @@ let view (window: Window) (state: State) dispatch =
                                 | IssueViewer issues ->
                                     IssueViewer.view dispatch issues
                                 | ToneEditor ->
-                                    ToneEditor.view state dispatch state.SelectedTone.Value
+                                    match state.SelectedTone with
+                                    | Some tone ->
+                                        ToneEditor.view state dispatch tone
+                                    | None ->
+                                        ErrorMessage.view dispatch "No tone selected. This should not happen." None
                             )
                         ]
                     ]

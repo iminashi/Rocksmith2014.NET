@@ -131,7 +131,8 @@ let addDescriptors (tone: Tone) =
 
 /// Adds the given tones into the project.
 let addTones (state: State) (tones: Tone list) =
-    { state with Project = { state.Project with Tones = List.map addDescriptors tones @ state.Project.Tones }
+    let tones = List.map addDescriptors tones
+    { state with Project = { state.Project with Tones = tones @ state.Project.Tones }
                  Overlay = NoOverlay }
 
 let [<Literal>] private CherubRock = "248750"

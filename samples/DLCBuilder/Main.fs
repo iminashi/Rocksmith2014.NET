@@ -76,7 +76,11 @@ let update (msg: Msg) (state: State) =
 
     | SetSelectedGearType gearType -> { state with SelectedGearType = gearType }, Cmd.none
 
-    | ShowToneEditor -> { state with Overlay = ToneEditor }, Cmd.none
+    | ShowToneEditor ->
+        if state.SelectedTone.IsSome then
+            { state with Overlay = ToneEditor }, Cmd.none
+        else
+            state, Cmd.none
 
     | NewProject ->
         state.CoverArt |> Option.iter(fun x -> x.Dispose())
@@ -218,12 +222,13 @@ let update (msg: Msg) (state: State) =
                 { state with Overlay = ErrorMessage(msg, None) }, Cmd.none
 
     | ShowImportToneSelector tones ->
-        let newState =
-            match tones with
-            | [||] -> { state with Overlay = ErrorMessage(translate "couldNotFindTonesError", None) }
-            | [| tone |] -> { state with Project = { project with Tones = (Utils.addDescriptors tone)::project.Tones } }
-            | _ -> { state with Overlay = ImportToneSelector tones; ImportTones = [] }
-        newState, Cmd.none
+        match tones with
+        | [||] ->
+            { state with Overlay = ErrorMessage(translate "couldNotFindTonesError", None) }, Cmd.none
+        | [| _ |] ->
+            state, Cmd.ofMsg (ImportTones (List.ofArray tones))
+        | _ ->
+            { state with Overlay = ImportToneSelector tones; ImportTones = [] }, Cmd.none
 
     | ProjectSaveAs ->
         let intialFileName =
