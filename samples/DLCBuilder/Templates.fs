@@ -2,6 +2,8 @@
 
 open Avalonia.FuncUI.Components
 open Avalonia.FuncUI.DSL
+open Avalonia.FuncUI
+open Avalonia.Media
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
 open Avalonia.Layout
@@ -9,6 +11,86 @@ open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open System
 open Media
+
+let private toneContextMenu state dispatch =
+    ContextMenu.create [
+        ContextMenu.isVisible (state.SelectedToneIndex <> -1)
+        ContextMenu.viewItems [
+            MenuItem.create [
+                MenuItem.header (translate "duplicate")
+                MenuItem.onClick (fun _ -> DuplicateTone |> dispatch)
+            ]
+
+            MenuItem.create [
+                MenuItem.header (translate "moveUp")
+                //MenuItem.inputGesture (KeyGesture(Key.Up, KeyModifiers.Alt))
+                MenuItem.onClick (fun _ -> Up |> MoveTone |> dispatch)
+            ]
+
+            MenuItem.create [
+                MenuItem.header (translate "moveDown")
+                //MenuItem.inputGesture (KeyGesture(Key.Down, KeyModifiers.Alt))
+                MenuItem.onClick (fun _ -> Down |> MoveTone |> dispatch)
+            ]
+
+            MenuItem.create [
+                MenuItem.header (translate "edit")
+                MenuItem.onClick (fun _ -> ShowToneEditor |> dispatch)
+            ]
+
+            MenuItem.create [
+                MenuItem.header (translate "export")
+                MenuItem.onClick (fun _ -> ExportSelectedTone |> dispatch)
+            ]
+
+            MenuItem.create [ MenuItem.header "-" ]
+
+            MenuItem.create [
+                MenuItem.header (translate "remove")
+                //MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))
+                MenuItem.onClick (fun _ -> dispatch DeleteTone)
+            ]
+        ]
+    ]
+
+let tone dispatch state index (t: Tone) =
+    let title =
+        if String.IsNullOrEmpty t.Key || t.Key = t.Name then
+            t.Name
+        else
+            t.Name + " [" + t.Key + "]"
+
+    let description =
+        if isNull t.ToneDescriptors || t.ToneDescriptors.Length = 0 then
+            String.Empty
+        else
+            ToneDescriptor.combineUINames t.ToneDescriptors
+
+    let bg =
+        if state.SelectedToneIndex = index then
+            SolidColorBrush.Parse "#0a528b" :> ISolidColorBrush
+        else
+            Brushes.Transparent
+
+    StackPanel.create [
+        StackPanel.background bg
+        StackPanel.onPointerPressed ((fun e -> index |> SetSelectedToneIndex |> dispatch), SubPatchOptions.OnChangeOf index)
+        StackPanel.onDoubleTapped (fun _ -> ShowToneEditor |> dispatch)
+        StackPanel.contextMenu (toneContextMenu state dispatch)
+        StackPanel.children [
+            TextBlock.create [
+                TextBlock.margin (6., 4., 6., 2.)
+                TextBlock.fontSize 16.
+                TextBlock.text title
+            ]
+            TextBlock.create [
+                TextBlock.margin (6., 4., 6., 2.)
+                TextBlock.foreground "#afafaf"
+                TextBlock.fontSize 14.
+                TextBlock.text description
+            ]
+        ]
+    ] |> generalize
 
 let toneDescriptor =
     DataTemplateView<ToneDescriptor>.create (fun desc ->

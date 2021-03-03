@@ -100,3 +100,6 @@ module List =
         | [] -> []
         | h::tail when h = oldItem -> newItem::tail
         | h::tail -> h::(update oldItem newItem tail)
+
+    /// Replaces the item at the given index with the new one.
+    let rec updateAt index newItem = List.mapi (fun i x -> if i = index then newItem else x)

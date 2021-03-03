@@ -112,7 +112,7 @@ type State =
       Config : Configuration
       CoverArt : Bitmap option
       SelectedArrangement : Arrangement option
-      SelectedTone : Tone option
+      SelectedToneIndex : int
       SelectedGear : ToneGear.GearData option
       SelectedGearType : ToneGear.GearType
       ShowSortFields : bool
@@ -149,7 +149,7 @@ type Msg =
     | SetConfiguration of config : Configuration
     | SetRecentFiles of string list
     | SetSelectedArrangement of selected : Arrangement option
-    | SetSelectedTone of selected : Tone option
+    | SetSelectedToneIndex of index : int
     | SetSelectedGear of ToneGear.GearData option
     | SetSelectedGearType of ToneGear.GearType
     | DeleteArrangement

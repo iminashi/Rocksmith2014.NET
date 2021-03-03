@@ -35,7 +35,7 @@ let init arg =
       Config = Configuration.Default
       CoverArt = None
       SelectedArrangement = None
-      SelectedTone = None
+      SelectedToneIndex = -1
       SelectedGear = None
       SelectedGearType = ToneGear.Amp
       ShowSortFields = false
@@ -62,8 +62,9 @@ let update (msg: Msg) (state: State) =
             match gear with
             | Some gear ->
                 let currentGear =
-                    state.SelectedTone
-                    |> Option.bind (fun tone -> ToneGear.getGearDataForCurrentPedal tone.GearList state.SelectedGearType)
+                    match state.SelectedToneIndex with
+                    | -1 -> None
+                    | index -> ToneGear.getGearDataForCurrentPedal state.Project.Tones.[index].GearList state.SelectedGearType
                 match currentGear with
                 // Don't change the cabinet if its name is the same as the current one
                 | Some data when gear.Type = "Cabinets" && data.Name = gear.Name ->
@@ -77,7 +78,7 @@ let update (msg: Msg) (state: State) =
     | SetSelectedGearType gearType -> { state with SelectedGearType = gearType }, Cmd.none
 
     | ShowToneEditor ->
-        if state.SelectedTone.IsSome then
+        if state.SelectedToneIndex <> -1 then
             { state with Overlay = ToneEditor }, Cmd.none
         else
             state, Cmd.none
@@ -88,7 +89,7 @@ let update (msg: Msg) (state: State) =
                      SavedProject = DLCProject.Empty
                      OpenProjectFile = None
                      SelectedArrangement = None
-                     SelectedTone = None
+                     SelectedToneIndex = -1
                      CoverArt = None }, Cmd.none
 
     | ImportTonesChanged item ->
@@ -106,13 +107,14 @@ let update (msg: Msg) (state: State) =
     | ImportTones tones -> Utils.addTones state tones, Cmd.none
 
     | ExportSelectedTone ->
-        match state.SelectedTone with
-        | Some tone ->
+        match state.SelectedToneIndex with
+        | -1 ->
+            state, Cmd.none
+        | index ->
+            let tone = state.Project.Tones.[index]
             let initialFileName = Some $"{tone.Name}.tone2014.xml"
             let dialog = Dialogs.saveFileDialog (translate "exportToneAs") (Dialogs.toneExportFilter()) initialFileName
             state, Cmd.OfAsync.perform dialog None (fun path -> ExportTone(tone, path))
-        | None ->
-            state, Cmd.none
 
     | ExportTone (tone, Some path) ->
         let task =
@@ -193,7 +195,7 @@ let update (msg: Msg) (state: State) =
             let coverArt = Utils.changeCoverArt state.CoverArt project.AlbumArtFile
 
             { state with Project = project; OpenProjectFile = None; CoverArt = coverArt
-                         SelectedArrangement = None; SelectedTone = None }, Cmd.none
+                         SelectedArrangement = None; SelectedToneIndex = -1 }, Cmd.none
         with e -> state, Cmd.ofMsg (ErrorOccurred e)
 
     | ImportTonesFromFile fileName ->
@@ -418,28 +420,22 @@ let update (msg: Msg) (state: State) =
 
     | SetSelectedArrangement selected -> { state with SelectedArrangement = selected }, Cmd.none
 
-    | SetSelectedTone selected ->
-        // Ignore the message if the tone editor is open
-        // Fix for weird infinite update loop
-        if state.Overlay <> ToneEditor then
-            // Change the selected gear type if it is not available in the newly selected tone
-            // Prevents creating gaps in the tone gear slots
-            let selectedGearType =
-                match selected with
-                | None -> state.SelectedGearType
-                | Some tone ->
-                    match state.SelectedGearType with
-                    | ToneGear.PrePedal i when tone.GearList.PrePedals.[i].IsNone ->
-                        ToneGear.PrePedal 0
-                    | ToneGear.PostPedal i when tone.GearList.PostPedals.[i].IsNone ->
-                        ToneGear.PostPedal 0
-                    | ToneGear.Rack i when tone.GearList.Racks.[i].IsNone ->
-                        ToneGear.Rack 0
-                    | _ ->
-                        state.SelectedGearType
-            { state with SelectedTone = selected; SelectedGearType = selectedGearType }, Cmd.none
-        else
-            state, Cmd.none
+    | SetSelectedToneIndex index ->
+        // Change the selected gear type if it is not available in the newly selected tone
+        // Prevents creating gaps in the tone gear slots
+        let selectedGearType =
+            let tone = state.Project.Tones.[index]
+            match state.SelectedGearType with
+            | ToneGear.PrePedal i when tone.GearList.PrePedals.[i].IsNone ->
+                ToneGear.PrePedal 0
+            | ToneGear.PostPedal i when tone.GearList.PostPedals.[i].IsNone ->
+                ToneGear.PostPedal 0
+            | ToneGear.Rack i when tone.GearList.Racks.[i].IsNone ->
+                ToneGear.Rack 0
+            | _ ->
+                state.SelectedGearType
+
+        { state with SelectedToneIndex = index; SelectedGearType = selectedGearType }, Cmd.none
 
     | DeleteArrangement ->
         let arrangements =
@@ -450,32 +446,35 @@ let update (msg: Msg) (state: State) =
 
     | DeleteTone ->
         let tones =
-             Utils.removeSelected project.Tones state.SelectedTone
+             List.removeAt state.SelectedToneIndex project.Tones
 
         { state with Project = { project with Tones = tones }
-                     SelectedTone = None }, Cmd.none
+                     SelectedToneIndex = -1 }, Cmd.none
 
     | DuplicateTone ->
-        match state.SelectedTone with
-        | None ->
+        match state.SelectedToneIndex with
+        | -1 ->
             state, Cmd.none
-        | Some tone ->
+        | index ->
+            let tone = state.Project.Tones.[index]
             let duplicate = { tone with Name = tone.Name + "2"; Key = String.Empty }
             { state with Project = { project with Tones = duplicate::state.Project.Tones } }, Cmd.none
 
     | MoveTone dir ->
-        let tones = 
-            match state.SelectedTone with
-            | None -> project.Tones
-            | Some selected ->
+        let tones, index = 
+            match state.SelectedToneIndex with
+            | -1 ->
+                project.Tones, state.SelectedToneIndex
+            | index ->
+                let selected = project.Tones.[index]
                 let change = match dir with Up -> -1 | Down -> 1 
-                let insertPos = (List.findIndex ((=) selected) project.Tones) + change
+                let insertPos = index + change
                 if insertPos >= 0 && insertPos < project.Tones.Length then
-                    List.remove selected project.Tones
-                    |> List.insertAt insertPos selected
+                    List.removeAt index project.Tones
+                    |> List.insertAt insertPos selected, insertPos
                 else
-                    project.Tones
-        { state with Project = { project with Tones = tones } }, Cmd.none
+                    project.Tones, state.SelectedToneIndex
+        { state with Project = { project with Tones = tones }; SelectedToneIndex = index }, Cmd.none
 
     | CreatePreviewAudio (SetupStartTime) ->
         let totalLength = Utils.getLength project.AudioFile.Path
@@ -552,7 +551,7 @@ let update (msg: Msg) (state: State) =
                      RecentFiles = recent
                      SelectedArrangement = None
                      RunningTasks = state.RunningTasks |> Set.remove PsarcImport
-                     SelectedTone = None }, Cmd.none
+                     SelectedToneIndex = -1 }, Cmd.none
 
     | EditInstrumental edit ->
         match state.SelectedArrangement with
@@ -565,9 +564,9 @@ let update (msg: Msg) (state: State) =
         | _ -> state, Cmd.none
 
     | EditTone edit ->
-         match state.SelectedTone with
-         | Some old -> editTone state edit old
-         | None -> state, Cmd.none
+         match state.SelectedToneIndex with
+         | -1 -> state, Cmd.none
+         | index -> editTone state edit index
 
     | EditProject edit -> { state with Project = editProject edit project }, Cmd.none
 

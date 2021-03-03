@@ -8,7 +8,6 @@ open Avalonia.Controls
 open Avalonia.Controls.Primitives
 open Avalonia.Controls.Shapes
 open Avalonia.FuncUI.DSL
-open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open DLCBuilder
 open Media
@@ -38,47 +37,6 @@ let private arrangementContextMenu state dispatch =
                 MenuItem.header (translate "remove")
                 //MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))
                 MenuItem.onClick (fun _ -> dispatch DeleteArrangement)
-            ]
-        ]
-    ]
-
-let private toneContextMenu state dispatch =
-    ContextMenu.create [
-        ContextMenu.isVisible state.SelectedTone.IsSome
-        ContextMenu.viewItems [
-            MenuItem.create [
-                MenuItem.header (translate "duplicate")
-                MenuItem.onClick (fun _ -> DuplicateTone |> dispatch)
-            ]
-
-            MenuItem.create [
-                MenuItem.header (translate "moveUp")
-                //MenuItem.inputGesture (KeyGesture(Key.Up, KeyModifiers.Alt))
-                MenuItem.onClick (fun _ -> Up |> MoveTone |> dispatch)
-            ]
-
-            MenuItem.create [
-                MenuItem.header (translate "moveDown")
-                //MenuItem.inputGesture (KeyGesture(Key.Down, KeyModifiers.Alt))
-                MenuItem.onClick (fun _ -> Down |> MoveTone |> dispatch)
-            ]
-
-            MenuItem.create [
-                MenuItem.header (translate "edit")
-                MenuItem.onClick (fun _ -> ShowToneEditor |> dispatch)
-            ]
-
-            MenuItem.create [
-                MenuItem.header (translate "export")
-                MenuItem.onClick (fun _ -> ExportSelectedTone |> dispatch)
-            ]
-
-            MenuItem.create [ MenuItem.header "-" ]
-
-            MenuItem.create [
-                MenuItem.header (translate "remove")
-                //MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))
-                MenuItem.onClick (fun _ -> dispatch DeleteTone)
             ]
         ]
     ]
@@ -290,26 +248,34 @@ let view (window: Window) (state: State) dispatch =
                                             ]
 
                                             // Tones list
-                                            ListBox.create [
-                                                ListBox.horizontalScrollBarVisibility ScrollBarVisibility.Auto
-                                                ListBox.contextMenu (toneContextMenu state dispatch)
-                                                ListBox.background Brushes.Transparent
-                                                ListBox.dataItems state.Project.Tones
-                                                ListBox.selectedItem (
-                                                    match state.SelectedTone with
-                                                    | Some t -> t
-                                                    | None -> Unchecked.defaultof<Tone>)
-                                                ListBox.onSelectedItemChanged (function
-                                                    | :? Tone as tone -> tone |> Some |> SetSelectedTone |> dispatch
-                                                    | _ -> ())
-                                                ListBox.onDoubleTapped (fun _ -> ShowToneEditor |> dispatch)
-                                                ListBox.onKeyDown (fun e ->
-                                                    e.Handled <- true
-                                                    match e.KeyModifiers, e.Key with
-                                                    | KeyModifiers.None, Key.Delete -> dispatch DeleteTone
-                                                    | KeyModifiers.Alt, Key.Up -> dispatch (MoveTone Up)
-                                                    | KeyModifiers.Alt, Key.Down -> dispatch (MoveTone Down)
-                                                    | _ -> e.Handled <- false)
+                                            ScrollViewer.create [
+                                                ScrollViewer.horizontalScrollBarVisibility ScrollBarVisibility.Auto
+                                                ScrollViewer.content (
+                                                    StackPanel.create [
+                                                        StackPanel.focusable true
+                                                        StackPanel.children (
+                                                            state.Project.Tones
+                                                            |> List.mapi (Templates.tone dispatch state)
+                                                        )
+                                                        StackPanel.onKeyDown ((fun e ->
+                                                            e.Handled <- true
+                                                            match e.KeyModifiers, e.Key with
+                                                            | KeyModifiers.None, Key.Delete ->
+                                                                dispatch DeleteTone
+                                                            | KeyModifiers.Alt, Key.Up ->
+                                                                dispatch (MoveTone Up)
+                                                            | KeyModifiers.Alt, Key.Down ->
+                                                                dispatch (MoveTone Down)
+                                                            | KeyModifiers.None, Key.Up ->
+                                                                if state.SelectedToneIndex > 0 then
+                                                                    dispatch (SetSelectedToneIndex (state.SelectedToneIndex - 1))
+                                                            | KeyModifiers.None, Key.Down ->
+                                                                if state.SelectedToneIndex <> state.Project.Tones.Length - 1 then
+                                                                    dispatch (SetSelectedToneIndex (state.SelectedToneIndex + 1))
+                                                            | _ ->
+                                                                e.Handled <- false), SubPatchOptions.OnChangeOf state.SelectedToneIndex)
+                                                    ]
+                                                )
                                             ]
                                         ]
                                     ]
@@ -319,15 +285,15 @@ let view (window: Window) (state: State) dispatch =
                                         Grid.column 1
                                         StackPanel.background "#252525"
                                         StackPanel.children [
-                                            match state.SelectedTone with
-                                            | None ->
+                                            match state.SelectedToneIndex with
+                                            | -1 ->
                                                 TextBlock.create [
                                                     TextBlock.text(translate "selectTonePrompt")
                                                     TextBlock.horizontalAlignment HorizontalAlignment.Center
                                                     TextBlock.verticalAlignment VerticalAlignment.Center
                                                 ]
-                                            | Some tone ->
-                                                ToneDetails.view state dispatch tone
+                                            | index ->
+                                                ToneDetails.view state dispatch state.Project.Tones.[index]
                                         ]
                                     ]
                                 ]
@@ -367,11 +333,11 @@ let view (window: Window) (state: State) dispatch =
                                 | IssueViewer issues ->
                                     IssueViewer.view dispatch issues
                                 | ToneEditor ->
-                                    match state.SelectedTone with
-                                    | Some tone ->
-                                        ToneEditor.view state dispatch tone
-                                    | None ->
+                                    match state.SelectedToneIndex with
+                                    | -1 ->
                                         ErrorMessage.view dispatch "No tone selected. This should not happen." None
+                                    | index ->
+                                        ToneEditor.view state dispatch state.Project.Tones.[index]
                             )
                         ]
                     ]

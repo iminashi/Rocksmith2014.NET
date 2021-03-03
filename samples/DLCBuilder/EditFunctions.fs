@@ -14,12 +14,11 @@ let private updateArrangement old updated state =
     { state with Project = { state.Project with Arrangements = arrangements }
                  SelectedArrangement = Some updated }
 
-let private updateTone old updated state =
+let private updateTone index updated state =
     let tones =
         state.Project.Tones
-        |> List.update old updated
-    { state with Project = { state.Project with Tones = tones } 
-                 SelectedTone = Some updated }
+        |> List.updateAt index updated
+    { state with Project = { state.Project with Tones = tones } }
 
 let private fixPriority state routeMask arr =
     if arr.Priority = ArrangementPriority.Main
@@ -202,7 +201,8 @@ let editProject edit project =
     | SetPreviewStartTime startTime ->
         { project with AudioPreviewStartTime = Some startTime }
 
-let editTone state edit (tone: Tone) =
+let editTone state edit index =
+    let tone = state.Project.Tones.[index]
     let updatedTone =
         match edit with
         | SetName name ->
@@ -304,7 +304,7 @@ let editTone state edit (tone: Tone) =
     if updatedTone = tone then
         state, Cmd.none
     else
-        updateTone tone updatedTone state, Cmd.none
+        updateTone index updatedTone state, Cmd.none
 
 let editVocals state edit old vocals =
     let updated =
