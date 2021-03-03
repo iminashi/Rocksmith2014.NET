@@ -442,7 +442,7 @@ let anchorTests =
 
             Expect.isEmpty results "No issues created"
 
-        testCase "Ignores anchors on phrases that will be moved" <| fun _ ->
+        testCase "Ignores anchors on phrases that will be moved (handshape check)" <| fun _ ->
             let anchors = ResizeArray(seq { Anchor(1y, 6500) })
             let handShapes = ResizeArray(seq { HandShape(StartTime = 6000, EndTime = 6550) })
             let level = Level(HandShapes = handShapes, Anchors = anchors)
@@ -460,6 +460,15 @@ let anchorTests =
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type AnchorCloseToUnpitchedSlide "Correct issue type"
+
+        testCase "Ignores anchors on phrases that will be moved (unpitched slide check)" <| fun _ ->
+            let anchors = ResizeArray(seq { Anchor(1y, 6500) })
+            let notes = ResizeArray(seq { Note(Time = 6200, Sustain = 300, SlideUnpitchTo = 5y) })
+            let level = Level(Notes = notes, Anchors = anchors)
+
+            let results = checkAnchors testArr level
+
+            Expect.isEmpty results "No issues created"
     ]
 
 [<Tests>]
