@@ -437,17 +437,27 @@ let update (msg: Msg) (state: State) =
 
     | DeleteArrangement ->
         let arrangements =
-            List.removeAt state.SelectedArrangementIndex project.Arrangements 
+            List.removeAt state.SelectedArrangementIndex project.Arrangements
+        let selectedIndex =
+            if arrangements.IsEmpty then
+                -1
+            else
+                min state.SelectedArrangementIndex (arrangements.Length - 1)
 
         { state with Project = { project with Arrangements = arrangements }
-                     SelectedArrangementIndex = -1 }, Cmd.none
+                     SelectedArrangementIndex = selectedIndex }, Cmd.none
 
     | DeleteTone ->
         let tones =
              List.removeAt state.SelectedToneIndex project.Tones
+        let selectedIndex =
+            if tones.IsEmpty then
+                -1
+            else
+                min state.SelectedToneIndex (tones.Length - 1)
 
         { state with Project = { project with Tones = tones }
-                     SelectedToneIndex = -1 }, Cmd.none
+                     SelectedToneIndex = selectedIndex }, Cmd.none
 
     | DuplicateTone ->
         match state.SelectedToneIndex with
