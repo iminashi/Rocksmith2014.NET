@@ -53,10 +53,19 @@ let private addTask newTask state =
 let private removeTask completedTask state =
     { state with RunningTasks = state.RunningTasks |> Set.remove completedTask }
 
-let getSelectedArrangement state =
+let private getSelectedArrangement state =
     match state.SelectedArrangementIndex with
     | -1 -> None
     | index -> Some state.Project.Arrangements.[index]
+
+let private removeSelected (initialList: List<_>) index =
+    let list = List.removeAt index initialList
+    let newIndex =
+        if list.IsEmpty then
+            -1
+        else
+            min index (list.Length - 1)
+    list, newIndex
 
 let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
@@ -436,28 +445,16 @@ let update (msg: Msg) (state: State) =
         { state with SelectedToneIndex = index; SelectedGearType = selectedGearType }, Cmd.none
 
     | DeleteArrangement ->
-        let arrangements =
-            List.removeAt state.SelectedArrangementIndex project.Arrangements
-        let selectedIndex =
-            if arrangements.IsEmpty then
-                -1
-            else
-                min state.SelectedArrangementIndex (arrangements.Length - 1)
+        let arrangements, index = removeSelected project.Arrangements state.SelectedArrangementIndex
 
         { state with Project = { project with Arrangements = arrangements }
-                     SelectedArrangementIndex = selectedIndex }, Cmd.none
+                     SelectedArrangementIndex = index }, Cmd.none
 
     | DeleteTone ->
-        let tones =
-             List.removeAt state.SelectedToneIndex project.Tones
-        let selectedIndex =
-            if tones.IsEmpty then
-                -1
-            else
-                min state.SelectedToneIndex (tones.Length - 1)
+        let tones, index = removeSelected project.Tones state.SelectedToneIndex
 
         { state with Project = { project with Tones = tones }
-                     SelectedToneIndex = selectedIndex }, Cmd.none
+                     SelectedToneIndex = index }, Cmd.none
 
     | DuplicateTone ->
         match state.SelectedToneIndex with
