@@ -7,12 +7,11 @@ open Elmish
 open System
 open ToneGear
 
-let private updateArrangement old updated state =
+let private updateArrangement index updated state =
     let arrangements =
         state.Project.Arrangements
-        |> List.update old updated
-    { state with Project = { state.Project with Arrangements = arrangements }
-                 SelectedArrangement = Some updated }
+        |> List.updateAt index updated
+    { state with Project = { state.Project with Arrangements = arrangements } }
 
 let private updateTone index updated state =
     let tones =
@@ -30,7 +29,7 @@ let private fixPriority state routeMask arr =
     else
         arr.Priority
 
-let editInstrumental state edit old inst =
+let editInstrumental state edit index inst =
     let updated, cmd =
         match edit with
         | SetArrangementName name ->
@@ -100,7 +99,7 @@ let editInstrumental state edit old inst =
         | SetCustomAudioVolume volume ->
             { inst with CustomAudio = Option.map (fun x -> { x with Volume = volume }) inst.CustomAudio }, Cmd.none
 
-    updateArrangement old (Instrumental updated) state, cmd
+    updateArrangement index (Instrumental updated) state, cmd
 
 let editConfig edit config =
     match edit with

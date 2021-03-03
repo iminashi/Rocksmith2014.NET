@@ -34,7 +34,7 @@ let init arg =
       RecentFiles = []
       Config = Configuration.Default
       CoverArt = None
-      SelectedArrangement = None
+      SelectedArrangementIndex = -1
       SelectedToneIndex = -1
       SelectedGear = None
       SelectedGearType = ToneGear.Amp
@@ -52,6 +52,11 @@ let private addTask newTask state =
 
 let private removeTask completedTask state =
     { state with RunningTasks = state.RunningTasks |> Set.remove completedTask }
+
+let getSelectedArrangement state =
+    match state.SelectedArrangementIndex with
+    | -1 -> None
+    | index -> Some state.Project.Arrangements.[index]
 
 let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
@@ -88,7 +93,7 @@ let update (msg: Msg) (state: State) =
         { state with Project = DLCProject.Empty
                      SavedProject = DLCProject.Empty
                      OpenProjectFile = None
-                     SelectedArrangement = None
+                     SelectedArrangementIndex = -1
                      SelectedToneIndex = -1
                      CoverArt = None }, Cmd.none
 
@@ -195,7 +200,7 @@ let update (msg: Msg) (state: State) =
             let coverArt = Utils.changeCoverArt state.CoverArt project.AlbumArtFile
 
             { state with Project = project; OpenProjectFile = None; CoverArt = coverArt
-                         SelectedArrangement = None; SelectedToneIndex = -1 }, Cmd.none
+                         SelectedArrangementIndex = -1; SelectedToneIndex = -1 }, Cmd.none
         with e -> state, Cmd.ofMsg (ErrorOccurred e)
 
     | ImportTonesFromFile fileName ->
@@ -281,7 +286,7 @@ let update (msg: Msg) (state: State) =
             state, Cmd.none
 
     | ConvertToWemCustom ->
-        match state.SelectedArrangement with
+        match getSelectedArrangement state with
         | Some (Instrumental { CustomAudio = Some audio }) ->
             addTask WemConversion state,
             Cmd.OfAsync.either (Wwise.convertToWem config.WwiseConsolePath) audio.Path BuildComplete (fun ex -> TaskFailed(ex, WemConversion))
@@ -332,15 +337,7 @@ let update (msg: Msg) (state: State) =
                         state.Project.Arrangements
                         |> List.update old updated
 
-                    let selected = 
-                        // Update the selected arrangement unless it was changed
-                        match state.SelectedArrangement with
-                        | Some arr when arr = old ->
-                            Some updated
-                        | _ ->
-                            state.SelectedArrangement
-                    { state with Project = { state.Project with Arrangements = arrangements }
-                                 SelectedArrangement = selected }
+                    { state with Project = { state.Project with Arrangements = arrangements } }
                 | _ ->
                     state
                     
@@ -418,7 +415,8 @@ let update (msg: Msg) (state: State) =
         | [||] -> newState, Cmd.none
         | _ -> { newState with Overlay = ErrorMessage(String.Join('\n', errors), None) }, Cmd.none
 
-    | SetSelectedArrangement selected -> { state with SelectedArrangement = selected }, Cmd.none
+    | SetSelectedArrangementIndex index ->
+        { state with SelectedArrangementIndex = index }, Cmd.none
 
     | SetSelectedToneIndex index ->
         // Change the selected gear type if it is not available in the newly selected tone
@@ -439,10 +437,10 @@ let update (msg: Msg) (state: State) =
 
     | DeleteArrangement ->
         let arrangements =
-            Utils.removeSelected project.Arrangements state.SelectedArrangement
+            List.removeAt state.SelectedArrangementIndex project.Arrangements 
 
         { state with Project = { project with Arrangements = arrangements }
-                     SelectedArrangement = None }, Cmd.none
+                     SelectedArrangementIndex = -1 }, Cmd.none
 
     | DeleteTone ->
         let tones =
@@ -549,19 +547,23 @@ let update (msg: Msg) (state: State) =
                      SavedProject = project
                      OpenProjectFile = Some projectFile
                      RecentFiles = recent
-                     SelectedArrangement = None
                      RunningTasks = state.RunningTasks |> Set.remove PsarcImport
+                     SelectedArrangementIndex = -1
                      SelectedToneIndex = -1 }, Cmd.none
 
     | EditInstrumental edit ->
-        match state.SelectedArrangement with
-        | Some (Instrumental inst as old) -> editInstrumental state edit old inst
-        | _ -> state, Cmd.none
+        match getSelectedArrangement state with
+        | Some (Instrumental inst) ->
+            editInstrumental state edit state.SelectedArrangementIndex inst
+        | _ ->
+            state, Cmd.none
 
     | EditVocals edit ->
-        match state.SelectedArrangement with
-        | Some (Vocals vocals as old) -> editVocals state edit old vocals
-        | _ -> state, Cmd.none
+        match getSelectedArrangement state with
+        | Some (Vocals vocals) ->
+            editVocals state edit state.SelectedArrangementIndex vocals
+        | _ ->
+            state, Cmd.none
 
     | EditTone edit ->
          match state.SelectedToneIndex with
@@ -620,7 +622,7 @@ let update (msg: Msg) (state: State) =
                      RunningTasks = state.RunningTasks |> Set.remove ArrangementCheck }, Cmd.none
 
     | ShowIssueViewer ->
-        match state.SelectedArrangement with
+        match getSelectedArrangement state with
         | Some arr ->
             let xmlFile = Arrangement.getFile arr
             { state with Overlay = IssueViewer (state.ArrangementIssues.[xmlFile]) }, Cmd.none

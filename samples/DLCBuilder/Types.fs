@@ -111,7 +111,7 @@ type State =
       RecentFiles : string list
       Config : Configuration
       CoverArt : Bitmap option
-      SelectedArrangement : Arrangement option
+      SelectedArrangementIndex : int
       SelectedToneIndex : int
       SelectedGear : ToneGear.GearData option
       SelectedGearType : ToneGear.GearType
@@ -148,7 +148,7 @@ type Msg =
     | SetAudioFile of fileName : string
     | SetConfiguration of config : Configuration
     | SetRecentFiles of string list
-    | SetSelectedArrangement of selected : Arrangement option
+    | SetSelectedArrangementIndex of index : int
     | SetSelectedToneIndex of index : int
     | SetSelectedGear of ToneGear.GearData option
     | SetSelectedGearType of ToneGear.GearType

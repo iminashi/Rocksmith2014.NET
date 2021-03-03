@@ -12,35 +12,6 @@ open Rocksmith2014.DLCProject
 open DLCBuilder
 open Media
 
-let private arrangementContextMenu state dispatch =
-    let isInstrumental = match state.SelectedArrangement with Some (Instrumental _) -> true | _ -> false
-    ContextMenu.create [
-        ContextMenu.isVisible state.SelectedArrangement.IsSome
-        ContextMenu.viewItems [
-            MenuItem.create [
-                MenuItem.header (translate "generateNewArrIDs")
-                MenuItem.isEnabled isInstrumental
-                MenuItem.onClick (fun _ -> GenerateNewIds |> EditInstrumental |> dispatch)
-                ToolTip.tip (translate "generateNewArrIDsToolTip")
-            ]
-
-            MenuItem.create [
-                MenuItem.header (translate "reloadToneKeys")
-                MenuItem.isEnabled isInstrumental
-                MenuItem.onClick (fun _ -> UpdateToneInfo |> EditInstrumental |> dispatch)
-                ToolTip.tip (translate "reloadToneKeysTooltip")
-            ]
-
-            MenuItem.create [ MenuItem.header "-" ]
-
-            MenuItem.create [
-                MenuItem.header (translate "remove")
-                //MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))
-                MenuItem.onClick (fun _ -> dispatch DeleteArrangement)
-            ]
-        ]
-    ]
-
 let view (window: Window) (state: State) dispatch =
     if state.RunningTasks.IsEmpty then
         window.Cursor <- Cursors.arrow
@@ -115,22 +86,29 @@ let view (window: Window) (state: State) dispatch =
                                             ]
 
                                             // Arrangement list
-                                            ListBox.create [
-                                                ListBox.contextMenu (arrangementContextMenu state dispatch)
-                                                ListBox.background Brushes.Transparent
-                                                ListBox.virtualizationMode ItemVirtualizationMode.None
-                                                ListBox.dataItems state.Project.Arrangements
-                                                ListBox.itemTemplate Templates.arrangement
-                                                match state.SelectedArrangement with
-                                                | Some a -> ListBox.selectedItem a
-                                                | None -> ()
-                                                ListBox.onSelectedItemChanged (function
-                                                    | :? Arrangement as arr -> arr |> Some |> SetSelectedArrangement |> dispatch
-                                                    | _ -> ())
-                                                ListBox.onKeyDown (fun k ->
-                                                    if k.Key = Key.Delete then
-                                                        k.Handled <- true
-                                                        dispatch DeleteArrangement)
+                                            ScrollViewer.create [
+                                                ScrollViewer.content (
+                                                    StackPanel.create [
+                                                        StackPanel.focusable true
+                                                        StackPanel.children (
+                                                            state.Project.Arrangements
+                                                            |> List.mapi (Templates.arrangement state dispatch)
+                                                        )
+                                                        StackPanel.onKeyDown ((fun e ->
+                                                            e.Handled <- true
+                                                            match e.KeyModifiers, e.Key with
+                                                            | KeyModifiers.None, Key.Delete ->
+                                                                dispatch DeleteArrangement
+                                                            | KeyModifiers.None, Key.Up ->
+                                                                if state.SelectedArrangementIndex > 0 then
+                                                                    dispatch (SetSelectedArrangementIndex (state.SelectedArrangementIndex - 1))
+                                                            | KeyModifiers.None, Key.Down ->
+                                                                if state.SelectedArrangementIndex <> state.Project.Arrangements.Length - 1 then
+                                                                    dispatch (SetSelectedArrangementIndex (state.SelectedArrangementIndex + 1))
+                                                            | _ ->
+                                                                e.Handled <- false), SubPatchOptions.OnChangeOf state.SelectedArrangementIndex)
+                                                    ]
+                                                )
                                             ]
                                         ]
                                     ]
@@ -141,15 +119,16 @@ let view (window: Window) (state: State) dispatch =
                                         StackPanel.background "#252525"
                                         StackPanel.verticalAlignment VerticalAlignment.Stretch
                                         StackPanel.children [
-                                            match state.SelectedArrangement with
-                                            | None ->
+                                            match state.SelectedArrangementIndex with
+                                            | -1 ->
                                                 TextBlock.create [
                                                     TextBlock.text (translate "selectArrangementPrompt")
                                                     TextBlock.horizontalAlignment HorizontalAlignment.Center
                                                     TextBlock.verticalAlignment VerticalAlignment.Center
                                                 ]
 
-                                            | Some arr ->
+                                            | index ->
+                                                let arr = state.Project.Arrangements.[index]
                                                 let xmlFile = Arrangement.getFile arr
 
                                                 // Arrangement name
@@ -255,7 +234,7 @@ let view (window: Window) (state: State) dispatch =
                                                         StackPanel.focusable true
                                                         StackPanel.children (
                                                             state.Project.Tones
-                                                            |> List.mapi (Templates.tone dispatch state)
+                                                            |> List.mapi (Templates.tone state dispatch)
                                                         )
                                                         StackPanel.onKeyDown ((fun e ->
                                                             e.Handled <- true
