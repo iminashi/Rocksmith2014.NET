@@ -43,12 +43,6 @@ let tests =
             Expect.hasLength newState.Project.Tones 1 "One tone was added to the project"
             Expect.equal newState.Project.Tones.Head.ToneDescriptors [| "$[35720]CLEAN" |] "A descriptor was added to the tone"
 
-        testCase "ShowImportToneSelector imports one tone immediately" <| fun _ ->
-            let newState, _ = Main.update (ShowImportToneSelector [| testTone |]) initialState
-
-            Expect.hasLength newState.Project.Tones 1 "One tone was added to the project"
-            Expect.equal newState.Project.Tones.Head.ToneDescriptors [| "$[35720]CLEAN" |] "A descriptor was added to the tone"
-
         testCase "ShowImportToneSelector opens tone selector for multiple tones" <| fun _ ->
             let newState, _ = Main.update (ShowImportToneSelector [| testTone; testTone |]) initialState
 

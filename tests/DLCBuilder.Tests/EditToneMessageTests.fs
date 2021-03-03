@@ -31,7 +31,7 @@ let tone: Tone =
       SortOrder = None }
 
 let project = { initialState.Project with Tones = [ tone ] }
-let state = { initialState with Project = project; SelectedTone = Some tone }
+let state = { initialState with Project = project; SelectedToneIndex = 0 }
 
 [<Tests>]
 let editToneTests =
@@ -46,7 +46,7 @@ let editToneTests =
                 |> List.fold (fun (state, _) message -> Main.update message state) (state, Cmd.none)
             let newTone = newState.Project.Tones |> List.head
 
-            Expect.equal newState.SelectedTone (Some newTone) "Tone is selected"
+            Expect.equal newState.SelectedToneIndex 0 "First tone is selected"
             Expect.equal newTone.Name "Test Tone" "Name is correct"
             Expect.equal newTone.Key "Test_key" "Key is correct"
             Expect.equal newTone.Volume -8.5 "Volume is correct"

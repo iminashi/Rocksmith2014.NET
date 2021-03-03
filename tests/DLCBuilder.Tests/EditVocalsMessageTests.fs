@@ -16,7 +16,7 @@ let vocals =
     |> Vocals
 
 let project = { initialState.Project with Arrangements = [ vocals ] }
-let state = { initialState with Project = project; SelectedArrangement = Some vocals }
+let state = { initialState with Project = project; SelectedArrangementIndex = 0 }
 
 [<Tests>]
 let editVocalsTests =
@@ -30,7 +30,7 @@ let editVocalsTests =
                 |> List.fold (fun (state, _) message -> Main.update message state) (state, Cmd.none)
             let newArr = newState.Project.Arrangements |> List.head
 
-            Expect.equal newState.SelectedArrangement (Some newArr) "Vocals arrangement is selected"
+            Expect.equal newState.SelectedArrangementIndex 0 "Vocals arrangement is selected"
             match newArr with
             | Vocals vocals ->
                 Expect.equal vocals.Japanese true "Japanese is true"
