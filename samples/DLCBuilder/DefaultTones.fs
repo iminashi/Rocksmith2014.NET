@@ -5,8 +5,9 @@ open System.Reflection
 open Rocksmith2014.Common.Manifest
 
 let private loadTone path = async {
-    let provider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())    
-    return! Tone.fromJsonStream (provider.GetFileInfo($"Tones/default_%s{path}.json").CreateReadStream()) }
+    let provider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
+    use toneFile = provider.GetFileInfo($"Tones/default_%s{path}.json").CreateReadStream()
+    return! Tone.fromJsonStream toneFile }
 
 let Lead = lazy Async.RunSynchronously (loadTone "lead")
 

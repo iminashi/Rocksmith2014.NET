@@ -94,7 +94,7 @@ let tone state dispatch index (t: Tone) =
         ]
     ] |> generalize
 
-/// Returns a template for a tone descriptor.
+/// Template for a tone descriptor.
 let toneDescriptor =
     DataTemplateView<ToneDescriptor>.create (fun desc ->
         TextBlock.create [
