@@ -30,10 +30,7 @@
     <EmbeddedResource Include="Tones\default_rhythm.json" />
     <EmbeddedResource Include="i18n\fi.json" />
     <EmbeddedResource Include="i18n\en.json" />
-    <Page Include="Styles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <AvaloniaResource Include="**\*.xaml" />
+    <AvaloniaResource Include="Styles.xaml" />
     <EmbeddedResource Include="ToneGearData.json" />
     <Compile Include="ToneGear.fs" />
     <Compile Include="DefaultTones.fs" />
@@ -73,10 +70,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Remove=".template.config\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\src\Rocksmith2014.Audio\Rocksmith2014.Audio.fsproj" />
     <ProjectReference Include="..\..\src\Rocksmith2014.DLCProject\Rocksmith2014.DLCProject.fsproj" />
     <ProjectReference Include="..\..\src\Rocksmith2014.XML.Processing\Rocksmith2014.XML.Processing.fsproj" />
@@ -90,16 +83,5 @@
   <ItemGroup>
     <Watch Include="**\*.xaml" />
     <Watch Include="**\*.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Watch Remove="DefaultTones.fs" />
-    <Watch Remove="HotKeys.fs" />
-    <Watch Remove="Views\ImportTonesSelector.fs" />
-    <Watch Remove="Views\PreviewStartSelector.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Assets\" />
   </ItemGroup>
 </Project>
