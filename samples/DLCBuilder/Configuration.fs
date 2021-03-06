@@ -67,10 +67,10 @@ module Configuration =
         member val CustomAppId : string = String.Empty with get, set
 
     let appDataFolder =
-        IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
 
     let private configFilePath =
-        IO.Path.Combine(appDataFolder, "config.json")
+        Path.Combine(appDataFolder, "config.json")
 
     /// Converts a configuration DTO into a configuration record.
     let private fromDto (dto: Dto) =

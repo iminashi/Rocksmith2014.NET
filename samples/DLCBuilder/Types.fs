@@ -28,7 +28,7 @@ type MoveDirection = Up | Down
 type VolumeTarget =
     | MainAudio
     | PreviewAudio
-    | CustomAudio of audioPath : string
+    | CustomAudio of audioPath : string * arrId : Guid
 
 type LongTask =
     | BuildPackage

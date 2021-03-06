@@ -83,7 +83,7 @@ let editInstrumental state edit index inst =
         | SetCustomAudioPath (Some path) ->
             let cmd =
                 if state.Config.AutoVolume && not <| String.endsWith ".wem" path then
-                    Cmd.ofMsg <| CalculateVolume(CustomAudio(path))
+                    Cmd.ofMsg <| CalculateVolume(CustomAudio(path, inst.PersistentID))
                 else
                     Cmd.none
         
