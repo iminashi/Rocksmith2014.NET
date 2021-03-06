@@ -9,37 +9,44 @@ open Elmish
 let editConfigTests =
     testList "EditConfig Message Tests" [
         testCase "SetCharterName, SetAutoVolume, SetShowAdvanced, SetRemoveDDOnImport" <| fun _ ->
+            let autoVolume = not initialState.Config.AutoVolume
+            let removeDD = not initialState.Config.RemoveDDOnImport
+            let showAdvanced = not initialState.Config.ShowAdvanced
             let messages = [ SetCharterName "Tester"
-                             SetAutoVolume true
-                             SetShowAdvanced true
-                             SetRemoveDDOnImport true ] |> List.map EditConfig
+                             SetAutoVolume autoVolume
+                             SetShowAdvanced showAdvanced
+                             SetRemoveDDOnImport removeDD ] |> List.map EditConfig
 
             let newState, _ =
                 messages
                 |> List.fold (fun (state, _) message -> Main.update message state) (initialState, Cmd.none)
                 
             Expect.equal newState.Config.CharterName "Tester" "Charter name is correct"
-            Expect.equal newState.Config.AutoVolume true "Auto volume is correct"
-            Expect.equal newState.Config.ShowAdvanced true "Show advanced is correct"
-            Expect.equal newState.Config.RemoveDDOnImport true "Remove DD on import is correct"
+            Expect.equal newState.Config.AutoVolume autoVolume "Auto volume is correct"
+            Expect.equal newState.Config.ShowAdvanced showAdvanced "Show advanced is correct"
+            Expect.equal newState.Config.RemoveDDOnImport removeDD "Remove DD on import is correct"
 
         testCase "SetGenerateDD, SetDDPhraseSearchEnabled, SetDDPhraseSearchThreshold, SetApplyImprovements" <| fun _ ->
-            let messages = [ SetGenerateDD false
-                             SetDDPhraseSearchEnabled false
+            let generateDD = not initialState.Config.GenerateDD
+            let phraseSearch = not initialState.Config.DDPhraseSearchEnabled
+            let applyImprovements = not initialState.Config.ApplyImprovements
+            let messages = [ SetGenerateDD generateDD
+                             SetDDPhraseSearchEnabled phraseSearch
                              SetDDPhraseSearchThreshold 50
-                             SetApplyImprovements false ] |> List.map EditConfig
+                             SetApplyImprovements applyImprovements ] |> List.map EditConfig
 
             let newState, _ =
                 messages
                 |> List.fold (fun (state, _) message -> Main.update message state) (initialState, Cmd.none)
                 
-            Expect.equal newState.Config.GenerateDD false "Generate DD is correct"
-            Expect.equal newState.Config.DDPhraseSearchEnabled false "DD phrase search enabled is correct"
+            Expect.equal newState.Config.GenerateDD generateDD "Generate DD is correct"
+            Expect.equal newState.Config.DDPhraseSearchEnabled phraseSearch "DD phrase search enabled is correct"
             Expect.equal newState.Config.DDPhraseSearchThreshold 50 "DD phrase search threshold is correct"
-            Expect.equal newState.Config.ApplyImprovements false "Apply improvements is correct"
+            Expect.equal newState.Config.ApplyImprovements applyImprovements "Apply improvements is correct"
 
         testCase "SetSaveDebugFiles, SetCustomAppId, SetConvertAudio" <| fun _ ->
-            let messages = [ SetSaveDebugFiles true
+            let saveDebug = not initialState.Config.SaveDebugFiles
+            let messages = [ SetSaveDebugFiles saveDebug
                              SetCustomAppId (Some "test")
                              SetConvertAudio ToWav ] |> List.map EditConfig
 
@@ -47,7 +54,7 @@ let editConfigTests =
                 messages
                 |> List.fold (fun (state, _) message -> Main.update message state) (initialState, Cmd.none)
                 
-            Expect.equal newState.Config.SaveDebugFiles true "Save debug files is correct"
+            Expect.equal newState.Config.SaveDebugFiles saveDebug "Save debug files is correct"
             Expect.equal newState.Config.CustomAppId (Some "test") "Custom app ID is correct"
             Expect.equal newState.Config.ConvertAudio ToWav "Convert audio is correct"
 
@@ -88,4 +95,11 @@ let editConfigTests =
             Expect.equal newState.Config.ProjectsFolderPath "ProjectFolder" "Projects folder path is correct"
             Expect.equal newState.Config.WwiseConsolePath (Some "WwiseConsole") "Wwise console path is correct"
             Expect.equal newState.Config.ProfilePath "profile_prfldb" "Profile path is correct"
+
+        testCase "SetOpenFolderAfterReleaseBuild" <| fun _ ->
+            let expected = not initialState.Config.OpenFolderAfterReleaseBuild
+
+            let newState, _ = Main.update (SetOpenFolderAfterReleaseBuild expected |> EditConfig) initialState
+                
+            Expect.equal newState.Config.OpenFolderAfterReleaseBuild expected "Open folder after release is correct"
     ]

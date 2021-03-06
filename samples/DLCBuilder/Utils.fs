@@ -158,10 +158,10 @@ let createBuildConfig buildType config project platforms =
     { Platforms = platforms
       Author = config.CharterName
       AppId = appId
-      GenerateDD = (buildType = Release) || config.GenerateDD
+      GenerateDD = config.GenerateDD || buildType = Release
       DDConfig = { PhraseSearch = phraseSearch }
       ApplyImprovements = config.ApplyImprovements
-      SaveDebugFiles = config.SaveDebugFiles
+      SaveDebugFiles = config.SaveDebugFiles && buildType <> Release
       AudioConversionTask = convTask }
 
 let convertAudio cliPath project =

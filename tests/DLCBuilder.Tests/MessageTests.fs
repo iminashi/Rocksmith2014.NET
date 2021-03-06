@@ -43,9 +43,14 @@ let messageTests =
                 failwith "Unexpected overlay type"
 
         testCase "BuildComplete removes build task" <| fun _ ->
-            let newState, _ = Main.update (BuildComplete()) { initialState with RunningTasks = Set([ BuildPackage ]) }
+            let newState, _ = Main.update (BuildComplete Test) { initialState with RunningTasks = Set([ BuildPackage ]) }
 
             Expect.isFalse (newState.RunningTasks.Contains BuildPackage) "Build task was removed"
+
+        testCase "ConversionComplete removes conversion task" <| fun _ ->
+            let newState, _ = Main.update (ConversionComplete ()) { initialState with RunningTasks = Set([ WemConversion ]) }
+
+            Expect.isFalse (newState.RunningTasks.Contains WemConversion) "Conversion task was removed"
 
         testCase "SetRecentFiles sets recent files" <| fun _ ->
             let newState, _ = Main.update (SetRecentFiles [ "recent_file" ]) initialState

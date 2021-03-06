@@ -22,6 +22,7 @@ type Configuration =
       SaveDebugFiles : bool
       AutoVolume : bool
       ConvertAudio : AudioConversionType
+      OpenFolderAfterReleaseBuild : bool
       Locale : Locale
       WwiseConsolePath : string option
       CustomAppId : string option }
@@ -41,6 +42,7 @@ type Configuration =
           SaveDebugFiles = false
           AutoVolume = true
           ConvertAudio = NoConversion
+          OpenFolderAfterReleaseBuild = true
           Locale = Locales.Default
           WwiseConsolePath = None
           CustomAppId = None }
@@ -62,6 +64,7 @@ module Configuration =
         member val SaveDebugFiles : bool = false with get, set
         member val AutoVolume : bool = true with get, set
         member val ConvertAudio : int = 0 with get, set
+        member val OpenFolderAfterReleaseBuild : bool = true with get, set
         member val Locale : string = "en" with get, set
         member val WwiseConsolePath : string = String.Empty with get, set
         member val CustomAppId : string = String.Empty with get, set
@@ -103,6 +106,7 @@ module Configuration =
           SaveDebugFiles = dto.SaveDebugFiles
           AutoVolume = dto.AutoVolume
           ConvertAudio = convertAudio
+          OpenFolderAfterReleaseBuild = dto.OpenFolderAfterReleaseBuild
           Locale = Locales.fromShortName dto.Locale
           WwiseConsolePath = Option.ofString dto.WwiseConsolePath
           CustomAppId = Option.ofString dto.CustomAppId }
@@ -130,6 +134,7 @@ module Configuration =
             ApplyImprovements = config.ApplyImprovements,
             AutoVolume = config.AutoVolume,
             ConvertAudio = convertAudio,
+            OpenFolderAfterReleaseBuild = config.OpenFolderAfterReleaseBuild,
             SaveDebugFiles = config.SaveDebugFiles,
             WwiseConsolePath = Option.toObj config.WwiseConsolePath,
             CustomAppId = Option.toObj config.CustomAppId)

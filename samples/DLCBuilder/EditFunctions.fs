@@ -148,6 +148,9 @@ let editConfig edit config =
     | SetProjectsFolderPath path ->
         { config with ProjectsFolderPath = path }
 
+    | SetOpenFolderAfterReleaseBuild openFolder ->
+        { config with OpenFolderAfterReleaseBuild = openFolder }
+
     | SetWwiseConsolePath path ->
         { config with WwiseConsolePath = Option.ofString path }
 

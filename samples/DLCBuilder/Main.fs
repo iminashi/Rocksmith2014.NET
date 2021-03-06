@@ -12,6 +12,7 @@ open Elmish
 open System
 open System.IO
 open EditFunctions
+open System.Diagnostics
 
 let init arg =
     let commands =
@@ -290,7 +291,7 @@ let update (msg: Msg) (state: State) =
             let task() = Utils.convertAudio config.WwiseConsolePath project
 
             addTask WemConversion state,
-            Cmd.OfAsync.either task () BuildComplete (fun ex -> TaskFailed(ex, WemConversion))
+            Cmd.OfAsync.either task () WemConversionComplete (fun ex -> TaskFailed(ex, WemConversion))
         else
             state, Cmd.none
 
@@ -298,7 +299,7 @@ let update (msg: Msg) (state: State) =
         match getSelectedArrangement state with
         | Some (Instrumental { CustomAudio = Some audio }) ->
             addTask WemConversion state,
-            Cmd.OfAsync.either (Wwise.convertToWem config.WwiseConsolePath) audio.Path BuildComplete (fun ex -> TaskFailed(ex, WemConversion))
+            Cmd.OfAsync.either (Wwise.convertToWem config.WwiseConsolePath) audio.Path WemConversionComplete (fun ex -> TaskFailed(ex, WemConversion))
         | _ ->
             state, Cmd.none
 
@@ -589,7 +590,7 @@ let update (msg: Msg) (state: State) =
             let buildConfig = Utils.createBuildConfig Test config project [ state.CurrentPlatform ]
             let task () = buildPackages path buildConfig project
 
-            addTask BuildPackage state, Cmd.OfAsync.either task () BuildComplete (fun ex -> TaskFailed(ex, BuildPackage))
+            addTask BuildPackage state, Cmd.OfAsync.either task () (fun () -> BuildComplete Test) (fun ex -> TaskFailed(ex, BuildPackage))
 
     | Build Release ->
         match BuildValidator.validate project with
@@ -610,13 +611,20 @@ let update (msg: Msg) (state: State) =
             let buildConfig = Utils.createBuildConfig Release config project (Set.toList config.ReleasePlatforms)
             let task () = buildPackages path buildConfig project
 
-            addTask BuildPackage state, Cmd.OfAsync.either task () BuildComplete (fun ex -> TaskFailed(ex, BuildPackage))
+            addTask BuildPackage state, Cmd.OfAsync.either task () (fun () -> BuildComplete Release) (fun ex -> TaskFailed(ex, BuildPackage))
 
-    | BuildComplete _ ->
-        let runningTasks =
-            Set([ BuildPackage; WemConversion ])
-            |> Set.difference state.RunningTasks
-        { state with RunningTasks = runningTasks }, Cmd.none
+    | BuildComplete buildType ->
+        if buildType = Release && config.OpenFolderAfterReleaseBuild then
+            let projectPath =
+                state.OpenProjectFile
+                |> Option.defaultValue project.AudioFile.Path
+                |> IO.Path.GetDirectoryName
+            Process.Start(ProcessStartInfo(projectPath, UseShellExecute = true)) |> ignore
+
+        { state with RunningTasks = state.RunningTasks.Remove BuildPackage }, Cmd.none
+
+    | WemConversionComplete _ ->
+        { state with RunningTasks = state.RunningTasks.Remove WemConversion }, Cmd.none
 
     | CheckArrangements ->
         let task() = async { return Utils.checkArrangements project }

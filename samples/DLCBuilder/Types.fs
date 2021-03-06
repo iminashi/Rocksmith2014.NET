@@ -86,6 +86,7 @@ type ConfigEdit =
     | SetSaveDebugFiles of bool
     | SetCustomAppId of string option
     | SetConvertAudio of AudioConversionType
+    | SetOpenFolderAfterReleaseBuild of bool
     | AddReleasePlatform of Platform
     | RemoveReleasePlatform of Platform
 
@@ -173,7 +174,8 @@ type Msg =
     | ShowImportToneSelector of tones : Tone array
     | ProjectLoaded of project : DLCProject * projectFile : string
     | Build of BuildType
-    | BuildComplete of unit
+    | BuildComplete of BuildType
+    | WemConversionComplete of unit
     | CheckArrangements
     | CheckCompleted of Map<string, ArrangementChecker.Issue list>
     | ConvertToWem
