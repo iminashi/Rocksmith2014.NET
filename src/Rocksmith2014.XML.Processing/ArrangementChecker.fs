@@ -137,7 +137,7 @@ let private isOnToneChange (arr: InstrumentalArrangement) time =
     not <| isNull arr.Tones.Changes
     && arr.Tones.Changes.Exists(fun t -> t.Time = time)
 
-/// Checks the notes in the arrangement for issues.
+/// Checks the notes in the level for issues.
 let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
     let ngSections = getNoguitarSections arrangement
 
@@ -178,7 +178,7 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
             issue NoteInsideNoguitarSection time
     ]
 
-/// Checks the chords in the arrangement for issues.
+/// Checks the chords in the level for issues.
 let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
     let ngSections = getNoguitarSections arrangement
 
@@ -236,7 +236,7 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
             issue NoteInsideNoguitarSection time
     ]
 
-/// Checks the handshapes in the arrangement for issues.
+/// Checks the handshapes in the level for issues.
 let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
     let handShapes = level.HandShapes
     let chordTemplates = arrangement.ChordTemplates
@@ -322,6 +322,7 @@ let private findUnpitchedSlideAnchors moverPhraseTimes (level: Level) =
     )
     |> Seq.map (fun anchor -> issue AnchorCloseToUnpitchedSlide anchor.Time)
 
+/// Checks the anchors in the level for issues.
 let checkAnchors (arrangement: InstrumentalArrangement) (level: Level) =
     let moverPhraseTimes =
         arrangement.Phrases
