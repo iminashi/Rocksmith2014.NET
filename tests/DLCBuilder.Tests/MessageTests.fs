@@ -48,7 +48,7 @@ let messageTests =
             Expect.isFalse (newState.RunningTasks.Contains BuildPackage) "Build task was removed"
 
         testCase "ConversionComplete removes conversion task" <| fun _ ->
-            let newState, _ = Main.update (ConversionComplete ()) { initialState with RunningTasks = Set([ WemConversion ]) }
+            let newState, _ = Main.update (WemConversionComplete ()) { initialState with RunningTasks = Set([ WemConversion ]) }
 
             Expect.isFalse (newState.RunningTasks.Contains WemConversion) "Conversion task was removed"
 
