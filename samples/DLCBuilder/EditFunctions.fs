@@ -308,9 +308,9 @@ let editTone state edit index =
     else
         updateTone index updatedTone state, Cmd.none
 
-let editVocals state edit old vocals =
+let editVocals state edit index vocals =
     let updated =
         match edit with
         | SetIsJapanese japanese -> { vocals with Japanese = japanese }
         | SetCustomFont font -> { vocals with CustomFont = font }
-    updateArrangement old (Vocals updated) state, Cmd.none
+    updateArrangement index (Vocals updated) state, Cmd.none
