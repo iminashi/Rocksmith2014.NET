@@ -21,7 +21,6 @@ type GearKnob =
       MaxValue : float32
       ValueStep : float32
       DefaultValue : float32
-      Index : int
       EnumValues : string[] option }
 
 type GearData =
@@ -42,7 +41,7 @@ let getKnobValuesForGear (gearList: Gear) gearSlot =
 
 let private getDefaultKnobValues gear =
     gear.Knobs
-    |> Option.map (Array.map (fun k -> k.Key, float32 k.DefaultValue) >> Map.ofArray)
+    |> Option.map (Array.map (fun knob -> knob.Key, knob.DefaultValue) >> Map.ofArray)
     |> Option.defaultValue Map.empty
 
 let createPedalForGear (gear: GearData) =
