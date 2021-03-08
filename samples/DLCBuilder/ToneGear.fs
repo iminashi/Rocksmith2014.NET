@@ -6,7 +6,7 @@ open System.Text.Json.Serialization
 open Rocksmith2014.Common.Manifest
 open Microsoft.Extensions.FileProviders
 
-type GearType =
+type GearSlot =
     | Amp
     | Cabinet
     | PrePedal of index : int
@@ -31,8 +31,8 @@ type GearData =
       Key : string
       Knobs : GearKnob array option }
 
-let getKnobValuesForGear (gearList: Gear) gearType  =
-    match gearType with
+let getKnobValuesForGear (gearList: Gear) gearSlot =
+    match gearSlot with
     | Amp -> Some gearList.Amp
     | Cabinet -> Some gearList.Cabinet
     | PrePedal index -> gearList.PrePedals.[index] 

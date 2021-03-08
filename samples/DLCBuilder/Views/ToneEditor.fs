@@ -14,8 +14,7 @@ open DLCBuilder
 open ToneGear
 open Media
 
-let private enablePedalSelector gearList gearType =
-    match gearType with
+let private enablePedalSelector gearList = function
     | Amp | Cabinet ->
         true
     | PrePedal index | PostPedal index | Rack index when index = 0 ->
@@ -27,9 +26,9 @@ let private enablePedalSelector gearList gearType =
     | Rack index ->
         gearList.Racks.[index - 1] |> Option.isSome
 
-let private toggleButton dispatch gearList selectedGearType (content: string) gearType  =
-    let isEnabled = enablePedalSelector gearList gearType
-    let isChecked = gearType = selectedGearType
+let private toggleButton dispatch gearList selectedGearSlot (content: string) gearSlot =
+    let isEnabled = enablePedalSelector gearList gearSlot
+    let isChecked = gearSlot = selectedGearSlot
 
     ToggleButton.create [
         ToggleButton.margin (0., 2.)
@@ -39,22 +38,12 @@ let private toggleButton dispatch gearList selectedGearType (content: string) ge
         ToggleButton.isChecked isChecked
         ToggleButton.isEnabled isEnabled
         if isEnabled then ToggleButton.cursor Cursors.hand
-        ToggleButton.onChecked (fun _ -> gearType |> SetSelectedGearType |> dispatch)
+        ToggleButton.onChecked (fun _ -> gearSlot |> SetSelectedGearSlot |> dispatch)
         ToggleButton.onClick (fun e ->
             let b = e.Source :?> ToggleButton
             b.IsChecked <- true
             e.Handled <- true
         )
-    ]
-
-let private valueRangeText column knob value =
-    TextBlock.create [
-        Grid.column column
-        TextBlock.text (string value)
-        TextBlock.isVisible knob.EnumValues.IsNone
-        TextBlock.fontSize 10.
-        TextBlock.foreground Brushes.Gray
-        TextBlock.verticalAlignment VerticalAlignment.Center
     ]
 
 let private gearTemplate =
@@ -66,49 +55,49 @@ let private gearTemplate =
         | _ ->
             TextBlock.create [ TextBlock.text $"{gear.Category}: {gear.Name}" ])
 
-let private gearTypeHeader locName =
+let private gearSlotHeader locName =
     TextBlock.create [
         TextBlock.fontSize 14.
         TextBlock.margin (0., 2.)
         TextBlock.text (translate locName)
       ] |> generalize
    
-let private pedalSelectors dispatch selectedGearType gearList (locName, pedalFunc) =
-    [ gearTypeHeader locName
+let private pedalSelectors dispatch selectedGearSlot gearList (locName, pedalFunc) =
+    [ gearSlotHeader locName
 
       for index in 0..3 do
-        let gearType = pedalFunc index
+        let gearSlot = pedalFunc index
         let content =
-            match getGearDataForCurrentPedal gearList gearType with
+            match getGearDataForCurrentPedal gearList gearSlot with
             | Some data -> data.Name
             | None -> String.Empty
-        toggleButton dispatch gearList selectedGearType content gearType 
+        toggleButton dispatch gearList selectedGearSlot content gearSlot 
         |> generalize ]
 
-let private gearTypeSelector state dispatch (gearList: Gear) =
+let private gearSlotSelector state dispatch (gearList: Gear) =
     let ampName = ampDict.[gearList.Amp.Key].Name
     let cabinetName =
         let c = cabinetDict.[gearList.Cabinet.Key] in $"{c.Name} - {c.Category}"
     StackPanel.create [
         StackPanel.children [
-            gearTypeHeader "amp"
-            toggleButton dispatch gearList state.SelectedGearType ampName Amp
+            gearSlotHeader "amp"
+            toggleButton dispatch gearList state.SelectedGearSlot ampName Amp
 
-            gearTypeHeader "cabinet"
-            toggleButton dispatch gearList state.SelectedGearType cabinetName Cabinet 
+            gearSlotHeader "cabinet"
+            toggleButton dispatch gearList state.SelectedGearSlot cabinetName Cabinet 
 
             yield! [ ("prePedals", PrePedal); ("loopPedals", PostPedal); ("rack", Rack) ]
-                   |> List.collect (pedalSelectors dispatch state.SelectedGearType gearList)
+                   |> List.collect (pedalSelectors dispatch state.SelectedGearSlot gearList)
         ]
     ] 
 
-let private gearSelector dispatch (gearList: Gear) gearType =
-    let gearData = getGearDataForCurrentPedal gearList gearType
+let private gearSelector dispatch (gearList: Gear) gearSlot =
+    let gearData = getGearDataForCurrentPedal gearList gearSlot
 
     ComboBox.create [
         ComboBox.virtualizationMode ItemVirtualizationMode.Simple
         ComboBox.dataItems (
-            match gearType with
+            match gearSlot with
             | Amp -> amps
             | Cabinet -> cabinetChoices
             | PrePedal _ | PostPedal _ -> pedals
@@ -141,7 +130,17 @@ let private formatValue knob value =
         | false, true  -> sprintf "%+.0f%s" value unit
         | false, false -> sprintf "%.0f%s" value unit
 
-let private knobSliders dispatch (gearList: Gear) gearType gear =
+let private valueRangeText column knob value =
+    TextBlock.create [
+        Grid.column column
+        TextBlock.text (string value)
+        TextBlock.isVisible knob.EnumValues.IsNone
+        TextBlock.fontSize 10.
+        TextBlock.foreground Brushes.Gray
+        TextBlock.verticalAlignment VerticalAlignment.Center
+    ]
+
+let private knobSliders dispatch (gearList: Gear) gearSlot gear =
     match gear with
     // Cabinets
     | { Knobs = None } as cabinet ->
@@ -177,7 +176,7 @@ let private knobSliders dispatch (gearList: Gear) gearType gear =
         knobs
         |> Array.mapi (fun i knob ->
             let currentValue =
-                getKnobValuesForGear gearList gearType
+                getKnobValuesForGear gearList gearSlot
                 |> Option.bind (Map.tryFind knob.Key)
                 |> Option.defaultValue knob.DefaultValue
 
@@ -234,26 +233,25 @@ let view state dispatch (tone: Tone) =
         Grid.columnDefinitions "*,*"
         Grid.rowDefinitions "*,auto"
         Grid.children [
-            gearTypeSelector state dispatch tone.GearList
+            gearSlotSelector state dispatch tone.GearList
 
             StackPanel.create [
                 Grid.column 1
                 StackPanel.margin (16., 0., 0., 0.)
                 StackPanel.children [
-                    yield gearSelector dispatch tone.GearList state.SelectedGearType
+                    yield gearSelector dispatch tone.GearList state.SelectedGearSlot
 
                     match state.SelectedGear with
+                    | None -> ()
                     | Some gear ->
-                        yield (
+                        yield
                             Button.create [
                                 Button.margin (0., 2.)
                                 Button.content (translate "remove")
-                                Button.isVisible (match state.SelectedGearType with Amp | Cabinet -> false | _ -> true)
+                                Button.isVisible (match state.SelectedGearSlot with Amp | Cabinet -> false | _ -> true)
                                 Button.onClick (fun _ -> RemovePedal |> EditTone |> dispatch)
-                            ])
-                        yield! knobSliders dispatch tone.GearList state.SelectedGearType gear
-                    | None ->
-                        ()
+                            ]
+                        yield! knobSliders dispatch tone.GearList state.SelectedGearSlot gear
                 ]
             ]
 

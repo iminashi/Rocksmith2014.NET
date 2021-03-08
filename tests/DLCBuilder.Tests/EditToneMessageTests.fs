@@ -73,7 +73,7 @@ let editToneTests =
             Expect.equal newTone.ToneDescriptors.[0] "$[35715]BASS" "First tone descriptor is correct"
 
         testCase "RemovePedal removes pre-pedal" <| fun _ ->
-            let state = { state with SelectedGearType = ToneGear.PrePedal 0 }
+            let state = { state with SelectedGearSlot = ToneGear.PrePedal 0 }
 
             let newState, _ = Main.update (EditTone RemovePedal) state
             let newTone = newState.Project.Tones |> List.head
@@ -81,7 +81,7 @@ let editToneTests =
             Expect.isNone newTone.GearList.PrePedals.[3] "Fourth pre-pedal slot is empty"
 
         testCase "RemovePedal removes post-pedal" <| fun _ ->
-            let state = { state with SelectedGearType = ToneGear.PostPedal 2 }
+            let state = { state with SelectedGearSlot = ToneGear.PostPedal 2 }
             let messages = [ RemovePedal; RemovePedal ] |> List.map EditTone
 
             let newState, _ =
@@ -94,7 +94,7 @@ let editToneTests =
             Expect.isNone newTone.GearList.PostPedals.[3] "Fourth post-pedal slot is empty"
 
         testCase "RemovePedal removes rack" <| fun _ ->
-            let state = { state with SelectedGearType = ToneGear.Rack 3 }
+            let state = { state with SelectedGearSlot = ToneGear.Rack 3 }
 
             let newState, _ = Main.update (EditTone RemovePedal) state
             let newTone = newState.Project.Tones |> List.head
@@ -102,7 +102,7 @@ let editToneTests =
             Expect.isNone newTone.GearList.Racks.[3] "Fourth rack slot is empty"
 
         testCase "SetPedal sets amp" <| fun _ ->
-            let state = { state with SelectedGearType = ToneGear.Amp }
+            let state = { state with SelectedGearSlot = ToneGear.Amp }
             let newAmp = ToneGear.amps.[0]
 
             let newState, _ = Main.update (EditTone (SetPedal newAmp)) state
@@ -113,7 +113,7 @@ let editToneTests =
             Expect.equal newTone.GearList.Amp.KnobValues.Count newAmp.Knobs.Value.Length "Knob value count is correct"
 
         testCase "SetPedal sets cabinet" <| fun _ ->
-            let state = { state with SelectedGearType = ToneGear.Cabinet }
+            let state = { state with SelectedGearSlot = ToneGear.Cabinet }
             let newCab = ToneGear.cabinetChoices.[0]
 
             let newState, _ = Main.update (EditTone (SetPedal newCab)) state
@@ -124,7 +124,7 @@ let editToneTests =
             Expect.equal newTone.GearList.Cabinet.KnobValues.Count 0 "There are no knob values"
 
         testCase "SetPedal sets pre-pedal" <| fun _ ->
-            let state = { state with SelectedGearType = ToneGear.PrePedal 0 }
+            let state = { state with SelectedGearSlot = ToneGear.PrePedal 0 }
             let newPedal = ToneGear.pedals.[0]
 
             let newState, _ = Main.update (EditTone (SetPedal newPedal)) state
@@ -135,7 +135,7 @@ let editToneTests =
             Expect.equal newTone.GearList.PrePedals.[0].Value.KnobValues.Count newPedal.Knobs.Value.Length "Knob value count is correct"
 
         testCase "SetPedal sets post-pedal" <| fun _ ->
-            let state = { state with SelectedGearType = ToneGear.PostPedal 1 }
+            let state = { state with SelectedGearSlot = ToneGear.PostPedal 1 }
             let newPedal = ToneGear.pedals.[1]
 
             let newState, _ = Main.update (EditTone (SetPedal newPedal)) state
@@ -146,7 +146,7 @@ let editToneTests =
             Expect.equal newTone.GearList.PostPedals.[1].Value.KnobValues.Count newPedal.Knobs.Value.Length "Knob value count is correct"
 
         testCase "SetPedal sets rack" <| fun _ ->
-            let state = { state with SelectedGearType = ToneGear.Rack 3 }
+            let state = { state with SelectedGearSlot = ToneGear.Rack 3 }
             let newPedal = ToneGear.pedals.[5]
 
             let newState, _ = Main.update (EditTone (SetPedal newPedal)) state
@@ -159,7 +159,7 @@ let editToneTests =
         testCase "SetKnobValue sets a knob value" <| fun _ ->
             let newPedal = ToneGear.pedals.[5]
             let knobKey = newPedal.Knobs.Value.[0].Key
-            let initialState = { state with SelectedGearType = ToneGear.PrePedal 0
+            let initialState = { state with SelectedGearSlot = ToneGear.PrePedal 0
                                             SelectedGear = Some newPedal }
             let messages = [ SetPedal newPedal
                              SetKnobValue(knobKey, 99f) ] |> List.map EditTone
@@ -174,7 +174,7 @@ let editToneTests =
         testCase "SetKnobValue does not add a new knob value" <| fun _ ->
             let newPedal = ToneGear.racks.[2]
             let knobKey = "noSuchKey"
-            let initialState = { state with SelectedGearType = ToneGear.Rack 1
+            let initialState = { state with SelectedGearSlot = ToneGear.Rack 1
                                             SelectedGear = Some newPedal }
             let messages = [ SetPedal newPedal
                              SetKnobValue(knobKey, 99f) ] |> List.map EditTone

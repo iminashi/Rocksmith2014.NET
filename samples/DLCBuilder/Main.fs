@@ -38,7 +38,7 @@ let init arg =
       SelectedArrangementIndex = -1
       SelectedToneIndex = -1
       SelectedGear = None
-      SelectedGearType = ToneGear.Amp
+      SelectedGearSlot = ToneGear.Amp
       ShowSortFields = false
       ShowJapaneseFields = false
       Overlay = NoOverlay
@@ -79,7 +79,7 @@ let update (msg: Msg) (state: State) =
                 let currentGear =
                     match state.SelectedToneIndex with
                     | -1 -> None
-                    | index -> ToneGear.getGearDataForCurrentPedal state.Project.Tones.[index].GearList state.SelectedGearType
+                    | index -> ToneGear.getGearDataForCurrentPedal state.Project.Tones.[index].GearList state.SelectedGearSlot
                 match currentGear with
                 // Don't change the cabinet if its name is the same as the current one
                 | Some data when gear.Type = "Cabinets" && data.Name = gear.Name ->
@@ -90,7 +90,7 @@ let update (msg: Msg) (state: State) =
 
         { state with SelectedGear = gear }, cmd
 
-    | SetSelectedGearType gearType -> { state with SelectedGearType = gearType }, Cmd.none
+    | SetSelectedGearSlot gearSlot -> { state with SelectedGearSlot = gearSlot }, Cmd.none
 
     | ShowToneEditor ->
         if state.SelectedToneIndex <> -1 then
@@ -428,11 +428,11 @@ let update (msg: Msg) (state: State) =
         { state with SelectedArrangementIndex = index }, Cmd.none
 
     | SetSelectedToneIndex index ->
-        // Change the selected gear type if it is not available in the newly selected tone
+        // Change the selected gear slot if it is not available in the newly selected tone
         // Prevents creating gaps in the tone gear slots
-        let selectedGearType =
+        let selectedGearSlot =
             let tone = state.Project.Tones.[index]
-            match state.SelectedGearType with
+            match state.SelectedGearSlot with
             | ToneGear.PrePedal i when tone.GearList.PrePedals.[i].IsNone ->
                 ToneGear.PrePedal 0
             | ToneGear.PostPedal i when tone.GearList.PostPedals.[i].IsNone ->
@@ -440,9 +440,9 @@ let update (msg: Msg) (state: State) =
             | ToneGear.Rack i when tone.GearList.Racks.[i].IsNone ->
                 ToneGear.Rack 0
             | _ ->
-                state.SelectedGearType
+                state.SelectedGearSlot
 
-        { state with SelectedToneIndex = index; SelectedGearType = selectedGearType }, Cmd.none
+        { state with SelectedToneIndex = index; SelectedGearSlot = selectedGearSlot }, Cmd.none
 
     | DeleteArrangement ->
         let arrangements, index = removeSelected project.Arrangements state.SelectedArrangementIndex

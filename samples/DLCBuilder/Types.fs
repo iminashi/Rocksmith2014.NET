@@ -115,7 +115,7 @@ type State =
       SelectedArrangementIndex : int
       SelectedToneIndex : int
       SelectedGear : ToneGear.GearData option
-      SelectedGearType : ToneGear.GearType
+      SelectedGearSlot : ToneGear.GearSlot
       ShowSortFields : bool
       ShowJapaneseFields : bool
       Overlay : OverlayContents
@@ -152,7 +152,7 @@ type Msg =
     | SetSelectedArrangementIndex of index : int
     | SetSelectedToneIndex of index : int
     | SetSelectedGear of ToneGear.GearData option
-    | SetSelectedGearType of ToneGear.GearType
+    | SetSelectedGearSlot of ToneGear.GearSlot
     | DeleteArrangement
     | DeleteTone
     | DuplicateTone

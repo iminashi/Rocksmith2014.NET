@@ -228,7 +228,7 @@ let editTone state edit index =
         | RemovePedal ->
             let remove index = Utils.removeAndShift index
             let gearList =
-                match state.SelectedGearType with
+                match state.SelectedGearSlot with
                 | PrePedal index ->
                     { tone.GearList with PrePedals = tone.GearList.PrePedals |> remove index }
                 | PostPedal index ->
@@ -242,7 +242,7 @@ let editTone state edit index =
 
         | SetPedal gear ->
             let currentPedal =
-                match state.SelectedGearType with
+                match state.SelectedGearSlot with
                 | Amp -> Some tone.GearList.Amp
                 | Cabinet -> Some tone.GearList.Cabinet
                 | PrePedal index -> tone.GearList.PrePedals.[index]
@@ -256,7 +256,7 @@ let editTone state edit index =
                 let newPedal = createPedalForGear gear
                 let setPedal index = Array.updateAt index (Some newPedal)
                 let gearList =
-                    match state.SelectedGearType with
+                    match state.SelectedGearSlot with
                     | Amp ->
                         { tone.GearList with Amp = newPedal }
                     | Cabinet ->
@@ -272,8 +272,8 @@ let editTone state edit index =
 
         | SetKnobValue (knobKey, value) ->              
             match state.SelectedGear with
-            | Some _ when state.SelectedGearType <> Cabinet ->
-                getKnobValuesForGear tone.GearList state.SelectedGearType
+            | Some _ when state.SelectedGearSlot <> Cabinet ->
+                getKnobValuesForGear tone.GearList state.SelectedGearSlot
                 // Update the value only if the key exists
                 |> Option.map (Map.change knobKey (Option.map (fun _ -> value)))
                 |> function
@@ -288,7 +288,7 @@ let editTone state edit index =
                                 pedal)
 
                     let gearList =
-                        match state.SelectedGearType with
+                        match state.SelectedGearSlot with
                         | Amp ->
                             { tone.GearList with Amp = { tone.GearList.Amp with KnobValues = updatedKnobs } }
                         | Cabinet ->
