@@ -62,11 +62,7 @@ let tone state dispatch index (t: Tone) =
             t.Name + " [" + t.Key + "]"
 
     let description =
-        if isNull t.ToneDescriptors || t.ToneDescriptors.Length = 0 then
-            String.Empty
-        else
-            // TODO: Translate descriptors
-            ToneDescriptor.combineUINames t.ToneDescriptors
+        String.Join(" ", Array.map (ToneDescriptor.uiNameToName >> translate) t.ToneDescriptors)
 
     let bg =
         if state.SelectedToneIndex = index then
@@ -97,8 +93,12 @@ let tone state dispatch index (t: Tone) =
 /// Template for a tone descriptor.
 let toneDescriptor =
     DataTemplateView<ToneDescriptor>.create (fun desc ->
+        let text =
+            let name = translate desc.Name
+            if desc.IsExtra then name + " *" else name
+
         TextBlock.create [
-            TextBlock.text <| translate desc.Name
+            TextBlock.text text
         ])
 
 let private arrangementContextMenu state dispatch =
@@ -157,9 +157,7 @@ let arrangement state dispatch index arr =
                 | RouteMask.Bass -> Brushes.bass
                 | _ -> Brushes.rhythm
     
-            sprintf "%s%s" baseName extra,
-            Icons.guitar,
-            color
+            $"{baseName}{extra}", Icons.guitar, color
     
         | Vocals v ->
             let name = Arrangement.getHumanizedName arr
