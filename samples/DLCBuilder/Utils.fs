@@ -189,9 +189,11 @@ let addDefaultTonesIfNeeded (project: DLCProject) =
                 None)
         |> List.distinctBy fst
         |> List.map (fun (key, routeMask) ->
-            match routeMask with
-            | RouteMask.Lead -> { DefaultTones.Lead.Value with Key = key }
-            | RouteMask.Bass -> { DefaultTones.Bass.Value with Key = key }
-            | _ -> { DefaultTones.Rhythm.Value with Key = key })
+            let tone =
+                match routeMask with
+                | RouteMask.Lead -> DefaultTones.Lead.Value
+                | RouteMask.Bass -> DefaultTones.Bass.Value
+                | _ -> DefaultTones.Rhythm.Value
+            { tone with Key = key })
 
     { project with Tones = neededTones @ project.Tones }
