@@ -59,14 +59,14 @@ let private getSelectedArrangement state =
     | -1 -> None
     | index -> Some state.Project.Arrangements.[index]
 
-let private removeSelected (initialList: List<_>) index =
+let private removeSelected initialList index =
     let list = List.removeAt index initialList
-    let newIndex =
+    let newSelectedIndex =
         if list.IsEmpty then
             -1
         else
             min index (list.Length - 1)
-    list, newIndex
+    list, newSelectedIndex
 
 let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
@@ -169,6 +169,7 @@ let update (msg: Msg) (state: State) =
             let! project, fileName = PsarcImporter.import psarcFile targetFolder
 
             match config.ConvertAudio with
+            | NoConversion -> ()
             | ToOgg | ToWav as conv ->
                 [ yield project.AudioFile
                   yield project.AudioPreviewFile
@@ -178,8 +179,6 @@ let update (msg: Msg) (state: State) =
                     if conv = ToOgg
                     then Conversion.wemToOgg path
                     else Conversion.wemToWav path)
-            | NoConversion ->
-                ()
 
             if config.RemoveDDOnImport then
                 do! project.Arrangements
@@ -288,10 +287,8 @@ let update (msg: Msg) (state: State) =
 
     | ConvertToWem ->
         if DLCProject.audioFilesExist project then
-            let task() = Utils.convertAudio config.WwiseConsolePath project
-
             addTask WemConversion state,
-            Cmd.OfAsync.either task () WemConversionComplete (fun ex -> TaskFailed(ex, WemConversion))
+            Cmd.OfAsync.either (Utils.convertAudio config.WwiseConsolePath) project WemConversionComplete (fun ex -> TaskFailed(ex, WemConversion))
         else
             state, Cmd.none
 
@@ -422,7 +419,7 @@ let update (msg: Msg) (state: State) =
 
         match errors with
         | [||] -> newState, Cmd.none
-        | _ -> { newState with Overlay = ErrorMessage(String.Join('\n', errors), None) }, Cmd.none
+        | _ -> { newState with Overlay = ErrorMessage(String.Join(Environment.NewLine, errors), None) }, Cmd.none
 
     | SetSelectedArrangementIndex index ->
         { state with SelectedArrangementIndex = index }, Cmd.none
@@ -515,9 +512,9 @@ let update (msg: Msg) (state: State) =
 
     | ShowConfigEditor -> { state with Overlay = ConfigEditor }, Cmd.none
     
-    | SetConfiguration config ->
-        if state.Config.Locale <> config.Locale then changeLocale config.Locale
-        { state with Config = config }, Cmd.none
+    | SetConfiguration newConfig ->
+        if config.Locale <> newConfig.Locale then changeLocale newConfig.Locale
+        { state with Config = newConfig }, Cmd.none
 
     | SetRecentFiles recent -> { state with RecentFiles = recent }, Cmd.none
 

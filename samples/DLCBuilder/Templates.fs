@@ -180,7 +180,6 @@ let arrangement state dispatch index arr =
         else
             Brushes.Transparent
 
-
     let xmlFile = Arrangement.getFile arr
     let hasIssues =
         if state.ArrangementIssues.ContainsKey xmlFile then

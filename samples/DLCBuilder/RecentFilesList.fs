@@ -40,4 +40,3 @@ let load () =
         use file = File.OpenRead path
         return! JsonSerializer.DeserializeAsync<string list>(file, jsonOptions) } )
     |> Option.defaultValue (async { return [] })
-
