@@ -152,7 +152,7 @@ let private generalConfig state dispatch =
             ]
 
             CheckBox.create [
-                CheckBox.content (translate "calculateVolumes")
+                CheckBox.content (translate "calculateVolumesAutomatically")
                 CheckBox.isChecked state.Config.AutoVolume
                 CheckBox.onChecked (fun _ -> true |> SetAutoVolume |> EditConfig |> dispatch)
                 CheckBox.onUnchecked (fun _ -> false |> SetAutoVolume |> EditConfig |> dispatch)
