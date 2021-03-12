@@ -75,7 +75,7 @@
   "removeDescriptionToolTip": "Poista kuvausosa.",
   "volume": "Äänenvoimakkuus",
   "toneVolumeToolTip": "Pienempi arvo = suurempi äänenvoimakkuus",
-  "startTime": "Alkuaika",
+  "startTime": "Alkuaika (s)",
   "create": "Luo",
   "cancel": "Peruuta",
   "error": "Virhe",

@@ -189,6 +189,7 @@ let private audioControls state dispatch =
 
                             // Select audio file
                             Button.create [
+                                Button.minWidth 75.
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
                                 Button.padding (10.0, 0.0)
                                 Button.content (translate "select")
@@ -242,6 +243,7 @@ let private audioControls state dispatch =
 
                             // Create preview audio
                             Button.create [
+                                Button.minWidth 75.
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
                                 Button.padding (10.0, 0.0)
                                 Button.content (translate "create")

@@ -39,7 +39,7 @@ let view state dispatch (audioLength: TimeSpan) =
                     // Start time
                     TextBlock.create [
                         TextBlock.text (translate "startTime")
-                        Button.verticalAlignment VerticalAlignment.Center
+                        TextBlock.verticalAlignment VerticalAlignment.Center
                     ]
                     NumericUpDown.create [
                         NumericUpDown.width 180.
@@ -48,6 +48,13 @@ let view state dispatch (audioLength: TimeSpan) =
                         NumericUpDown.value previewStart
                         NumericUpDown.formatString "F3"
                         NumericUpDown.onValueChanged (SetPreviewStartTime >> EditProject >> dispatch)
+                    ]
+                    TextBlock.create [
+                        let minutes = previewStart / 60. |> floor
+                        let seconds = previewStart - minutes * 60.
+                        TextBlock.width 100.
+                        TextBlock.text $"(%02i{int minutes}:%06.3f{seconds})"
+                        TextBlock.verticalAlignment VerticalAlignment.Center
                     ]
                 ]
             ]

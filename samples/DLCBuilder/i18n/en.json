@@ -75,7 +75,7 @@
   "removeDescriptionToolTip": "Click to remove a description part.",
   "volume": "Volume",
   "toneVolumeToolTip": "Lower value = louder volume",
-  "startTime": "Start Time",
+  "startTime": "Start Time (s)",
   "create": "Create",
   "cancel": "Cancel",
   "error": "Error",
