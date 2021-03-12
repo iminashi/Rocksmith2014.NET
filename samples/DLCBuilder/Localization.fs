@@ -13,8 +13,11 @@ type Locale =
     override this.ToString() = this.Name
 
 module Locales =
-    let Default = { Name = "English"; ShortName = "en" }
-    let All = [ Default; { Name = "Suomi"; ShortName = "fi" } ]
+    let All = [
+        { Name = "English"; ShortName = "en" }
+        { Name = "Suomi"; ShortName = "fi" }
+        { Name = "日本語"; ShortName = "jp" } ]
+    let Default = All.Head
 
     let fromShortName shortName =
         All
