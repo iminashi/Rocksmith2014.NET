@@ -294,7 +294,6 @@ let private findCloseAnchors (level: Level) =
     |> Seq.append anchorsNearChords
     |> Seq.map (fun (anchorTime, distance) ->
         issue (AnchorNotOnNote distance) anchorTime)
-    |> Seq.toList
 
 /// Looks for anchors that will break a handshape.
 let private findAnchorsInsideHandShapes moverPhraseTimes (level: Level) =
@@ -333,9 +332,10 @@ let checkAnchors (arrangement: InstrumentalArrangement) (level: Level) =
         |> Seq.map (fun x -> x.Time)
         |> Seq.toArray
 
-    [ yield! findCloseAnchors level
-      yield! findAnchorsInsideHandShapes moverPhraseTimes level
-      yield! findUnpitchedSlideAnchors moverPhraseTimes level ]
+    findCloseAnchors level
+    |> Seq.append (findAnchorsInsideHandShapes moverPhraseTimes level)
+    |> Seq.append (findUnpitchedSlideAnchors moverPhraseTimes level)
+    |> Seq.toList
 
 /// Runs all the checks on the given arrangement.
 let runAllChecks (arr: InstrumentalArrangement) =

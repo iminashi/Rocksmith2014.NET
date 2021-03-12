@@ -8,6 +8,13 @@ open Avalonia.Layout
 open Avalonia.Media
 open Rocksmith2014.Common
 open DLCBuilder
+open System.IO
+open System
+
+let private tryFindWwiseExecutable basePath =
+    let ext = if OperatingSystem.IsMacOS() then "sh" else "exe"
+    Directory.EnumerateFiles(basePath, $"WwiseConsole.{ext}", SearchOption.AllDirectories)
+    |> Seq.tryHead
 
 let private generalConfig state dispatch =
     StackPanel.create [
@@ -16,6 +23,7 @@ let private generalConfig state dispatch =
                 Grid.columnDefinitions "auto,5,*"
                 Grid.rowDefinitions "auto,auto,auto,auto,auto,auto"
                 Grid.children [
+                    // Language
                     TextBlock.create [
                         TextBlock.verticalAlignment VerticalAlignment.Center
                         TextBlock.text (translate "language")
@@ -30,6 +38,7 @@ let private generalConfig state dispatch =
                             | _ -> ())
                     ]
 
+                    // Charter Name
                     TextBlock.create [
                         Grid.row 1
                         TextBlock.verticalAlignment VerticalAlignment.Center
@@ -43,6 +52,7 @@ let private generalConfig state dispatch =
                         TextBox.onTextChanged (SetCharterName >> EditConfig >> dispatch)
                     ]
 
+                    // Profile Path
                     TextBlock.create [
                         Grid.row 2
                         TextBlock.verticalAlignment VerticalAlignment.Center
@@ -69,6 +79,7 @@ let private generalConfig state dispatch =
                         ]
                     ]
 
+                    // Test Folder
                     TextBlock.create [
                         Grid.row 3
                         TextBlock.verticalAlignment VerticalAlignment.Center
@@ -95,6 +106,7 @@ let private generalConfig state dispatch =
                         ]
                     ]
 
+                    // Projects Folder
                     TextBlock.create [
                         Grid.row 4
                         TextBlock.verticalAlignment VerticalAlignment.Center
@@ -120,6 +132,7 @@ let private generalConfig state dispatch =
                         ]
                     ]
 
+                    // WWise Console Path
                     TextBlock.create [
                         Grid.row 5
                         TextBlock.verticalAlignment VerticalAlignment.Center
@@ -144,6 +157,14 @@ let private generalConfig state dispatch =
                                 TextBox.text (Option.toObj state.Config.WwiseConsolePath)
                                 TextBox.watermark (translate "wwiseConsolePathPlaceholder")
                                 TextBox.onTextChanged (SetWwiseConsolePath >> EditConfig >> dispatch)
+                                TextBox.onLostFocus (fun e ->
+                                    let t = e.Source :?> TextBox
+                                    match t.Text with
+                                    | path when Directory.Exists path ->
+                                        tryFindWwiseExecutable path
+                                        |> Option.iter (SetWwiseConsolePath >> EditConfig >> dispatch)
+                                    | _ -> ()
+                                )
                                 ToolTip.tip (translate "wwiseConsolePathTooltip")
                             ]
                         ]
