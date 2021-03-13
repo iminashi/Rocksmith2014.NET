@@ -75,22 +75,21 @@ module Arrangement =
         | Showlights _ -> "Showlights"
         | Instrumental i -> i.Name.ToString()
 
-    /// Returns a humanized name of an arrangement.
-    let getHumanizedName arr =
+    /// Returns the localization string for the name and prefix of an arrangement.
+    let getNameAndPrefix arr =
         match arr with
         | Instrumental inst ->
             let prefix =
                 match inst.Priority with
-                | ArrangementPriority.Main -> String.Empty
-                | ArrangementPriority.Alternative -> "Alt. "
-                | ArrangementPriority.Bonus -> "Bonus "
-                | _ -> failwith "Impossible."
+                | ArrangementPriority.Alternative -> "Alt"
+                | ArrangementPriority.Bonus -> "Bonus"
+                | _ -> String.Empty
 
-            sprintf "%s%s" prefix (string inst.RouteMask)
+            $"{inst.RouteMask}Arr", prefix
 
-        | Vocals v when v.Japanese -> "Japanese Vocals"
-        | Vocals _ -> "Vocals"
-        | Showlights _ -> "Show Lights"
+        | Vocals v when v.Japanese -> "Japanese Vocals", String.Empty
+        | Vocals _ -> "Vocals", String.Empty
+        | Showlights _ -> "Showlights", String.Empty
 
     /// Returns the XML file of an arrangement.
     let getFile = function

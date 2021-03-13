@@ -29,8 +29,9 @@ let view state dispatch (i: Instrumental) =
                 ComboBox.isVisible (i.Name <> ArrangementName.Bass)
                 ComboBox.horizontalAlignment HorizontalAlignment.Left
                 ComboBox.margin 4.
-                ComboBox.width 100.
+                ComboBox.width 140.
                 ComboBox.dataItems [ ArrangementName.Lead; ArrangementName.Rhythm; ArrangementName.Combo ]
+                ComboBox.itemTemplate Templates.arrangementName
                 ComboBox.selectedItem i.Name
                 ComboBox.onSelectedItemChanged (function
                     | :? ArrangementName as name -> name |> SetArrangementName |> EditInstrumental |> dispatch

@@ -97,8 +97,14 @@ let toneDescriptor =
             let name = translate desc.Name
             if desc.IsExtra then name + " *" else name
 
+        TextBlock.create [ TextBlock.text text ])
+
+/// Template for an arrangement name.
+let arrangementName =
+    DataTemplateView<ArrangementName>.create (fun name ->
+        let locString = $"{name}Arr"
         TextBlock.create [
-            TextBlock.text text
+            TextBlock.text (translate locString)
         ])
 
 let private arrangementContextMenu state dispatch =
@@ -136,41 +142,51 @@ let private arrangementContextMenu state dispatch =
         ]
     ]
 
-/// Returns a template for an arrangement.
-let arrangement state dispatch index arr =
-    let name, icon, color =
-        match arr with
-        | Instrumental inst ->
-            let baseName = Arrangement.getHumanizedName arr
-    
+/// Returns the translated name for the arrangement.
+let translateArrangementName arr withExtra =
+    match arr with
+    | Instrumental inst ->
+        let baseName =
+            let n, p = Arrangement.getNameAndPrefix arr
+            if p.Length > 0 then
+                $"{translate p} {translate n}"
+            else
+                translate n
+
+        if withExtra then
             let extra =
                 if inst.Name = ArrangementName.Combo then
-                    " (Combo)"
+                    let c = translate "ComboArr" in $" ({c})"
                 elif inst.RouteMask = RouteMask.Bass && inst.BassPicked then
-                    " (Picked)"
+                    let p = translate "picked" in $" ({p})"
                 else
                     String.Empty
-    
+      
+            $"{baseName}{extra}"
+        else
+            baseName
+    | _ ->
+        Arrangement.getNameAndPrefix arr |> fst |> translate
+
+/// Returns a template for an arrangement.
+let arrangement state dispatch index arr =
+    let name = translateArrangementName arr true
+    let icon, color =
+        match arr with
+        | Instrumental inst ->
             let color =
                 match inst.RouteMask with
                 | RouteMask.Lead -> Brushes.lead
                 | RouteMask.Bass -> Brushes.bass
                 | _ -> Brushes.rhythm
     
-            $"{baseName}{extra}", Icons.guitar, color
+            Icons.guitar, color
     
         | Vocals v ->
-            let name = Arrangement.getHumanizedName arr
-            let color =
-                if v.Japanese then
-                    Brushes.jvocals
-                else
-                    Brushes.vocals
-    
-            name, Icons.microphone, color
+            Icons.microphone, if v.Japanese then Brushes.jvocals else Brushes.vocals
     
         | Showlights _ ->
-            Arrangement.getHumanizedName arr, Icons.spotlight, Brushes.showlights
+            Icons.spotlight, Brushes.showlights
     
     let bg =
         if state.SelectedArrangementIndex = index then
@@ -226,7 +242,12 @@ let arrangement state dispatch index arr =
                             let extra =
                                 match arr with
                                 | Instrumental inst ->
-                                    let tuning = Utils.getTuningName inst.Tuning
+                                    let tuning =
+                                        let tuningType, notes = Utils.getTuningName inst.Tuning
+                                        match tuningType with
+                                        | "DADGAD" -> tuningType
+                                        | _ when notes.Length > 0 -> translatef tuningType notes
+                                        | _ -> translate tuningType
                                     if inst.TuningPitch <> 440.0 then
                                         $"{tuning} (A{inst.TuningPitch})"
                                     else

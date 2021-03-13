@@ -246,5 +246,17 @@
   "moveUp": "Siirrä ylös",
   "moveDown": "Siirrä alas",
   "dd": "DD",
-  "openContainingFolderAfterBuild": "Avaa kansio buildin valmistuttua"
+  "openContainingFolderAfterBuild": "Avaa kansio buildin valmistuttua",
+  "Standard": "{0} vakioviritys",
+  "Drop": "{0}Pudotettu {1}",
+  "Custom Tuning": "Mukautettu viritys",
+  "Open": "Avoin {0}",
+  "ComboArr": "Yhdistelmä",
+  "LeadArr": "Lead",
+  "RhythmArr": "Rytmi",
+  "BassArr": "Basso",
+  "Alt": "Vaihtoeht.",
+  "Vocals": "Lyriikat",
+  "Japanese Vocals": "Japanilaiset lyriikat",
+  "Showlights": "Valoshow"
 }
