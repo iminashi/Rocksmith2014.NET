@@ -23,6 +23,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="README.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <AvaloniaResource Include="Assets\coverart_placeholder.png" />
     <EmbeddedResource Include="Assets\icon.ico" />
     <EmbeddedResource Include="Tones\default_bass.json" />

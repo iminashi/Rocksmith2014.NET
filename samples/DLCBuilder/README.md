@@ -24,7 +24,7 @@ Will be used when "Apply Improvements" is enabled.
 - Shorten handshapes for chord slides that include the slide-to notes
 - Shorten handshapes that are too close to the next handshape
 - Remove beats that come after the audio has ended
-- Add crowd events (one initial crowd tempo event + intro and outro applauses) unless the arrangment already has them
+- Add crowd events (one initial crowd tempo event + intro and outro applauses) unless the arrangement already has them
 - Allow moving of phrases/sections off-beat with a special phrase name "mover"
 - Custom events "w3" (width 3 anchor), "removebeats", "so" (slide-out handshape)
 
