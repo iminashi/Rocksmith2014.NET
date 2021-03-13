@@ -17,7 +17,7 @@
   "arrangements": "アレンジ",
   "selectArrangementPrompt": "アレンジを選択すると詳細が表示されます",
   "fromProfile": "プロフィールから",
-  "profileImportToolTip": "ロックスミスプロフィールからトーンをインポート (Ctrl+P)",
+  "profileImportToolTip": "ロックスミスプロフィールからトーンをインポート",
   "import": "インポート",
   "selectTonePrompt": "トーンを選択すると詳細が表示されます",
   "selectCoverArtToolTip": "クリックでカバーアートファイルを開く。\n画像は正方形で、サイズは出来れば512x512。",

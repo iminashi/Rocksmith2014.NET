@@ -211,7 +211,7 @@ let view (window: Window) (state: State) dispatch =
                                                         Button.content (translate "fromProfile")
                                                         Button.onClick (fun _ -> dispatch ImportProfileTones)
                                                         Button.isEnabled (IO.File.Exists state.Config.ProfilePath)
-                                                        ToolTip.tip (translate "profileImportToolTip")
+                                                        ToolTip.tip (translate "profileImportToolTip" + " (Ctrl + P)")
                                                     ]
 
                                                     // Import from file

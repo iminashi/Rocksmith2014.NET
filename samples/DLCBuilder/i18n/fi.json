@@ -17,7 +17,7 @@
   "arrangements": "Sovitukset",
   "selectArrangementPrompt": "Valitse sovitus muokataksesi sen yksityiskohtia",
   "fromProfile": "Profiilista",
-  "profileImportToolTip": "Tuo soundi Rocksmith profiilistasi (Ctrl+P)",
+  "profileImportToolTip": "Tuo soundi Rocksmith profiilistasi",
   "import": "Tuo",
   "selectTonePrompt": "Valitse soundi muokataksesi sen yksityiskohtia",
   "selectCoverArtToolTip": "Paina valitaksesi kansikuvan.\nKuvan täytyy olla neliön muotoinen, mieluiten 512x512.",
