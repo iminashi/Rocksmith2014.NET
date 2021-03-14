@@ -8,7 +8,7 @@ let wemPath = Path.ChangeExtension(TestFiles.WaveFile, "wem")
 
 [<Tests>]
 let wwiseTests =
-    testSequenced <| testList "Wwise Conversion Tests" [
+    testList "Wwise Conversion Tests" [
         testAsync "Wave file can be converted" {
             if File.Exists wemPath then File.Delete wemPath
 
@@ -16,7 +16,7 @@ let wwiseTests =
             let info = FileInfo(wemPath)          
 
             Expect.isTrue info.Exists "Wem file was created"
-            Expect.isGreaterThan info.Length 10_000L "File is larger than 10KB" }
+            Expect.isGreaterThan info.Length 100_000L "File is larger than 100KB" }
 
         testAsync "Vorbis file can be converted" {
             if File.Exists wemPath then File.Delete wemPath
@@ -25,5 +25,5 @@ let wwiseTests =
             let info = FileInfo(wemPath)
 
             Expect.isTrue info.Exists "Wem file was created"
-            Expect.isGreaterThan info.Length 10_000L "File is larger than 10KB" }
+            Expect.isGreaterThan info.Length 100_000L "File is larger than 100KB" }
     ]

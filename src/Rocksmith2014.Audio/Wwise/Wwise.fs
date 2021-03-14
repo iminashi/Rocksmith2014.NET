@@ -9,13 +9,6 @@ open Microsoft.Extensions.FileProviders
 open Rocksmith2014.Common
 open Rocksmith2014.Common.BinaryWriters
 
-/// Recursively removes files and subdirectories from a directory.
-let rec private cleanDirectory (path: string) =
-    Directory.EnumerateFiles path |> Seq.iter File.Delete
-    let subDirs = Directory.EnumerateDirectories path
-    subDirs |> Seq.iter cleanDirectory
-    subDirs |> Seq.iter Directory.Delete
-
 let private tryFindWwiseInstallation rootDir =
     match Path.Combine(rootDir, "Audiokinetic") with
     | dir when Directory.Exists dir ->
@@ -54,12 +47,11 @@ let private getCLIPath () =
 
     cliPath
 
-/// Creates a temporary directory and returns its path.
-let private getTempDirectory (sourcePath: string) =
-    let dir = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension sourcePath)
-    if Directory.Exists dir then cleanDirectory dir
-    else Directory.CreateDirectory dir |> ignore
-    dir
+/// Returns a path to an empty temporary directory.
+let private getTempDirectory () =
+    let dir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())
+    if Directory.Exists dir then Directory.Delete(dir, true)
+    (Directory.CreateDirectory dir).FullName
 
 /// Extracts the Wwise template into the target directory.
 let private extractTemplate targetDir =
@@ -69,7 +61,7 @@ let private extractTemplate targetDir =
 
 /// Extracts the Wwise template and copies the audio files into the Originals/SFX directory.
 let private loadTemplate sourcePath =
-    let templateDir = getTempDirectory sourcePath
+    let templateDir = getTempDirectory()
     let targetPath = Path.Combine(templateDir, "Originals", "SFX", "Audio.wav")
     extractTemplate templateDir
     
@@ -117,5 +109,4 @@ let convertToWem (cliPath: string option) (sourcePath: string) = async {
     if output.Length > 0 then failwith output
     
     copyWemFile destPath templateDir
-    cleanDirectory templateDir
-    Directory.Delete templateDir }
+    Directory.Delete(templateDir, true) }
