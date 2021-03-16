@@ -8,10 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="BWV0573.wav">
+    <Content Include="BWV0573_wave.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="BWV0573.ogg">
+    <None Include="BWV0573_vorbis.ogg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Compile Include="TestFiles.fs" />
