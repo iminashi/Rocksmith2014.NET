@@ -183,7 +183,10 @@ let private setupInstrumental part (inst: Instrumental) config =
 
     if xml.Version < 8uy then xml.FixHighDensity()
 
-    if config.ApplyImprovements then ArrangementImprover.applyAll xml
+    if config.ApplyImprovements then
+        ArrangementImprover.applyAll xml
+    else
+        EOFFixes.fixPhraseStartAnchors xml
 
     if xml.Levels.Count = 1 && config.GenerateDD then
         Generator.generateForArrangement config.DDConfig xml |> ignore
