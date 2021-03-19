@@ -175,8 +175,7 @@ let private setupInstrumental part (inst: Instrumental) config =
     xml.MetaData.Part <- int16 part
 
     // Set up correct tone IDs
-    for i = 0 to xml.Tones.Changes.Count - 1 do
-        xml.Tones.Changes.[i].Id <- byte <| Array.IndexOf(xml.Tones.Names, xml.Tones.Changes.[i].Name)
+    xml.Tones.Changes.ForEach(fun tone -> tone.Id <- byte <| Array.IndexOf(xml.Tones.Names, tone.Name))
     
     // Copy the tuning in case it was edited
     Array.Copy(inst.Tuning, xml.MetaData.Tuning.Strings, 6)
