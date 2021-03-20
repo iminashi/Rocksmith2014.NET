@@ -169,6 +169,17 @@ let eofFixTests =
             EOFFixes.fixChordSlideHandshapes arr
 
             Expect.equal hs.EndTime 1000 "Hand shape end time is correct"
+
+        testCase "Moves anchor to the beginning of phrase" <| fun _ ->
+            let anchor = Anchor(5y, 700)
+            let anchors = ResizeArray(seq { anchor })
+            let levels = ResizeArray(seq { Level(Anchors = anchors) })
+            let phraseIterations = ResizeArray(seq { PhraseIteration(650, 0); PhraseIteration(1000, 1) })
+            let arr = InstrumentalArrangement(Levels = levels, PhraseIterations = phraseIterations)
+
+            EOFFixes.fixPhraseStartAnchors arr
+
+            Expect.equal anchor.Time 650 "Anchor time is correct"
     ]
 
 [<Tests>]
