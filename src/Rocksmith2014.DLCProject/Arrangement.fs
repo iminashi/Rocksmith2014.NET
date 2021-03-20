@@ -2,6 +2,7 @@
 
 open System
 open System.IO
+open System.Text.RegularExpressions
 open System.Xml
 open Rocksmith2014.XML
 open Rocksmith2014.Common
@@ -170,8 +171,7 @@ module Arrangement =
             | "vocals" ->
                 // Attempt to infer whether the lyrics are Japanese from the filename
                 let isJapanese =
-                    fileName.Contains("jvocal", StringComparison.OrdinalIgnoreCase) ||
-                    fileName.Contains("jlyric", StringComparison.OrdinalIgnoreCase)
+                    Regex.IsMatch(fileName, "j.?(vocal|lyric)", RegexOptions.IgnoreCase)
     
                 // Try to find custom font for Japanese vocals
                 let customFont =
