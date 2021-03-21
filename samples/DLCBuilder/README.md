@@ -1,8 +1,8 @@
 # Rocksmith 2014 DLC Builder
 
-## Wwise 2019
+## Wwise 2019/2021
 
-Converting audio files to wem requires Wwise 2019 to be installed.
+Converting audio files to wem requires Wwise 2019 or 2021 to be installed.
 
 During the installation, check only "Authoring" in Packages and leave all Deployment Platforms and Plug-ins unchecked (unless you need them for something else).
 
