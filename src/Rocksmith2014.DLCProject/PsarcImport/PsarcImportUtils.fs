@@ -24,7 +24,7 @@ let getVolumeAndFileId (psarc: PSARC) platform bankName = async {
         
     return volume, fileId }
 
-/// Active pattern for detecting arrangement type from filename.
+/// Active pattern for detecting arrangement type from a filename.
 let (|VocalsFile|JVocalsFile|InstrumentalFile|) = function
     | Contains "jvocals" -> JVocalsFile
     | Contains "vocals" -> VocalsFile

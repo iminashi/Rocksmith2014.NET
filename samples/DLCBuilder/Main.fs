@@ -68,6 +68,9 @@ let private removeSelected initialList index =
             min index (list.Length - 1)
     list, newSelectedIndex
 
+let private exceptionToErrorMessage (e: exn) =
+    ErrorMessage (e.Message, Some $"{e.GetType().Name}: {e.Message}\n{e.StackTrace}")
+
 let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
 
@@ -641,10 +644,10 @@ let update (msg: Msg) (state: State) =
             state, Cmd.none
    
     | ErrorOccurred e ->
-        { state with Overlay = ErrorMessage (e.Message, Option.ofString e.StackTrace) }, Cmd.none
+        { state with Overlay = exceptionToErrorMessage e }, Cmd.none
 
-    | TaskFailed (ex, failedTask) ->          
-        { state with Overlay = ErrorMessage (ex.Message, Option.ofString ex.StackTrace)
+    | TaskFailed (e, failedTask) ->          
+        { state with Overlay = exceptionToErrorMessage e
                      RunningTasks = state.RunningTasks |> Set.remove failedTask }, Cmd.none
 
     | ChangeLocale newLocale ->

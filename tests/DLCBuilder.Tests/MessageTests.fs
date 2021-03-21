@@ -24,7 +24,11 @@ let messageTests =
 
             let newState, _ = Main.update (ErrorOccurred(ex)) initialState
 
-            Expect.equal newState.Overlay (ErrorMessage(ex.Message, None)) "Overlay is ErrorMessage"
+            match newState.Overlay with
+            | ErrorMessage (msg, _) ->
+                Expect.equal msg ex.Message "Overlay is ErrorMessage"
+            | _ ->
+                failwith "Wrong overlay type"
 
         testCase "CheckArrangements adds long running task" <| fun _ ->
             let newState, cmd = Main.update CheckArrangements initialState
