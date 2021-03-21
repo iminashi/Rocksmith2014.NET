@@ -102,7 +102,11 @@ let private getWwiseVersion = function
 /// Converts the source audio file into a wem file.
 let convertToWem (cliPath: string option) (sourcePath: string) = async {
     let destPath = Path.ChangeExtension(sourcePath, "wem")
-    let cliPath = cliPath |> Option.defaultWith getCLIPath
+    let cliPath =
+        match cliPath with
+        | Some (Contains "WwiseConsole" as path) -> path
+        | None -> getCLIPath()
+        | _ -> failwith "Path to Wwise console executable appears to be wrong.\nIt should be to WwiseConsole.exe on Windows or WwiseConsole.sh on macOS."
     let version = getWwiseVersion cliPath
     let templateDir = loadTemplate sourcePath version
 
