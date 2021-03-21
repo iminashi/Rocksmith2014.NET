@@ -41,6 +41,7 @@
     <Compile Include="Utils.fs" />
     <Compile Include="Conversion.fs" />
     <EmbeddedResource Include="Wwise\wwise2019.zip" />
+    <EmbeddedResource Include="Wwise\wwise2021.zip" />
     <Content Include="Tools\packed_codebooks.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -70,5 +71,4 @@
   <ItemGroup>
     <Folder Include="Tools\" />
   </ItemGroup>
-
 </Project>
