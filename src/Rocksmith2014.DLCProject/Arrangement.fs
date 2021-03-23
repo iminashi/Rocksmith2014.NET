@@ -33,7 +33,7 @@ type Instrumental =
       ScrollSpeed : float
       BassPicked : bool
       Tuning : int16 array
-      TuningPitch : double
+      TuningPitch : float
       BaseTone : string
       Tones : string list
       CustomAudio : AudioFile option

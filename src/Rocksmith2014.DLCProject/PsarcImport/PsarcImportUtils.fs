@@ -92,7 +92,7 @@ let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile
         elif arrProps.bonusArr = 1uy then ArrangementPriority.Bonus
         else ArrangementPriority.Alternative
       Tuning = (Option.get attributes.Tuning).ToArray()
-      TuningPitch = Utils.centsToTuningPitch(float attributes.CentOffset)
+      TuningPitch = Utils.centsToTuningPitch(attributes.CentOffset.GetValueOrDefault())
       RouteMask =
         if arrProps.pathBass = 1uy then RouteMask.Bass
         elif arrProps.pathLead = 1uy then RouteMask.Lead

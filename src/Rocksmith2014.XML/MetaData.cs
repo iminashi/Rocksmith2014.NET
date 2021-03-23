@@ -28,7 +28,7 @@ namespace Rocksmith2014.XML
         /// <summary>
         /// The tuning offset in cents from 440Hz.
         /// </summary>
-        public int CentOffset { get; set; }
+        public float CentOffset { get; set; }
 
         /// <summary>
         /// The length of the arrangement in milliseconds.
@@ -131,7 +131,7 @@ namespace Rocksmith2014.XML
                             metaData.Part = short.Parse(reader.ReadElementContentAsString(), NumberFormatInfo.InvariantInfo);
                             break;
                         case "centOffset":
-                            metaData.CentOffset = int.Parse(reader.ReadElementContentAsString(), NumberFormatInfo.InvariantInfo);
+                            metaData.CentOffset = float.Parse(reader.ReadElementContentAsString(), NumberFormatInfo.InvariantInfo);
                             break;
                         case "songLength":
                             metaData.SongLength = Utils.TimeCodeFromFloatString(reader.ReadElementContentAsString());

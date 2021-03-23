@@ -422,7 +422,7 @@ namespace Rocksmith2014.XML
                         MetaData.Part = short.Parse(reader.ReadElementContentAsString(), NumberFormatInfo.InvariantInfo);
                         break;
                     case "centOffset":
-                        MetaData.CentOffset = int.Parse(reader.ReadElementContentAsString(), NumberFormatInfo.InvariantInfo);
+                        MetaData.CentOffset = float.Parse(reader.ReadElementContentAsString(), NumberFormatInfo.InvariantInfo);
                         break;
                     case "songLength":
                         MetaData.SongLength = Utils.TimeCodeFromFloatString(reader.ReadElementContentAsString());
