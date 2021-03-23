@@ -168,6 +168,24 @@ let translateArrangementName arr withExtra =
     | _ ->
         Arrangement.getNameAndPrefix arr |> fst |> translate
 
+let private getExtraText = function
+    | Instrumental inst ->
+        let tuning =
+            let tuningType, notes = Utils.getTuningName inst.Tuning
+            match tuningType with
+            | "DADGAD" -> tuningType
+            | _ when notes.Length > 0 -> translatef tuningType notes
+            | _ -> translate tuningType
+        if inst.TuningPitch <> 440.0 then
+            $"{tuning} (A{inst.TuningPitch})"
+        else
+            tuning
+            
+    | Vocals { CustomFont = Some _ } ->
+        translate "customFont"
+    | _ ->
+        String.Empty
+
 /// Returns a template for an arrangement.
 let arrangement state dispatch index arr =
     let name = translateArrangementName arr true
@@ -208,6 +226,7 @@ let arrangement state dispatch index arr =
         DockPanel.children [
             match hasIssues with
             | Some hasIssues ->
+                // Validation Icon
                 Path.create [
                     DockPanel.dock Dock.Right
                     Path.fill (if hasIssues then Brushes.Red else Brushes.Green)
@@ -239,29 +258,11 @@ let arrangement state dispatch index arr =
                                 TextBlock.text name
                             ]
             
-                            let extra =
-                                match arr with
-                                | Instrumental inst ->
-                                    let tuning =
-                                        let tuningType, notes = Utils.getTuningName inst.Tuning
-                                        match tuningType with
-                                        | "DADGAD" -> tuningType
-                                        | _ when notes.Length > 0 -> translatef tuningType notes
-                                        | _ -> translate tuningType
-                                    if inst.TuningPitch <> 440.0 then
-                                        $"{tuning} (A{inst.TuningPitch})"
-                                    else
-                                        tuning
-            
-                                | Vocals { CustomFont = Some _ } ->
-                                    translate "customFont"
-                                | _ ->
-                                    String.Empty
-            
+                            // Extra Information
                             TextBlock.create [
                                 TextBlock.foreground "#afafaf"
                                 TextBlock.fontSize 14.
-                                TextBlock.text extra
+                                TextBlock.text (getExtraText arr)
                             ]
                         ]
                     ]
