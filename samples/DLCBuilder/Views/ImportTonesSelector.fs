@@ -11,11 +11,14 @@ let view dispatch (tones: Tone array) =
     StackPanel.create [
         StackPanel.spacing 8.
         StackPanel.children [
+            // Header
             TextBlock.create [
                 TextBlock.fontSize 16.
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
                 TextBlock.text (translate "selectImportTone")
             ]
+
+            // Tones list
             ListBox.create [
                 ListBox.name "tonesListBox"
                 ListBox.dataItems tones
@@ -25,11 +28,14 @@ let view dispatch (tones: Tone array) =
                 ListBox.maxHeight 300.
                 ListBox.onSelectedItemChanged (ImportTonesChanged >> dispatch)
             ]
+
+            // Buttons
             StackPanel.create [
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.horizontalAlignment HorizontalAlignment.Center
                 StackPanel.spacing 8.
                 StackPanel.children [
+                    // Import
                     Button.create [
                         Button.fontSize 16.
                         Button.padding (30., 10.)
@@ -37,12 +43,16 @@ let view dispatch (tones: Tone array) =
                         Button.onClick (fun _ -> dispatch ImportSelectedTones)
                         Button.isDefault true
                     ]
+
+                    // All
                     Button.create [
                         Button.fontSize 16.
                         Button.padding (20., 10.)
                         Button.content (translate "all")
                         Button.onClick (fun _ -> tones |> List.ofArray |> ImportTones |> dispatch)
                     ]
+
+                    // Cancel
                     Button.create [
                         Button.fontSize 16.
                         Button.padding (30., 10.)

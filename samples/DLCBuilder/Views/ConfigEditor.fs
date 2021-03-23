@@ -172,6 +172,7 @@ let private generalConfig state dispatch =
                 ]
             ]
 
+            // Calculate Volumes Automatically
             CheckBox.create [
                 CheckBox.content (translate "calculateVolumesAutomatically")
                 CheckBox.isChecked state.Config.AutoVolume
@@ -179,6 +180,7 @@ let private generalConfig state dispatch =
                 CheckBox.onUnchecked (fun _ -> false |> SetAutoVolume |> EditConfig |> dispatch)
             ]
 
+            // Show Advanced Features
             CheckBox.create [
                 CheckBox.content (translate "showAdvancedFeatures")
                 CheckBox.isChecked state.Config.ShowAdvanced
@@ -198,6 +200,7 @@ let private importConfig state dispatch =
 
     StackPanel.create [
         StackPanel.children [
+            // Header
             TextBlock.create [
                 TextBlock.text (translate "psarcImportHeader")
                 TextBlock.fontSize 16.
@@ -211,6 +214,7 @@ let private importConfig state dispatch =
                 Border.child (
                     StackPanel.create [
                         StackPanel.children [
+                            // Convert Audio Options
                             TextBlock.create [
                                 TextBlock.text (translate "convertWemOnImport")
                                 TextBlock.margin (0., 0., 0., 4.)
@@ -224,9 +228,9 @@ let private importConfig state dispatch =
                                     RadioButton.onChecked (fun _ -> conv |> SetConvertAudio |> EditConfig |> dispatch)
                                 ] |> generalize)
 
+                            // Remove DD Levels
                             CheckBox.create [
                                 CheckBox.content (translate "removeDDLevels")
-                                //CheckBox.margin (0., 8., 0., 4.)
                                 CheckBox.isChecked state.Config.RemoveDDOnImport
                                 CheckBox.onChecked (fun _ -> true |> SetRemoveDDOnImport |> EditConfig |> dispatch)
                                 CheckBox.onUnchecked (fun _ -> false |> SetRemoveDDOnImport |> EditConfig |> dispatch)
@@ -241,6 +245,7 @@ let private importConfig state dispatch =
 let private ddConfig state dispatch =
     StackPanel.create [
         StackPanel.children [
+            // Find Similar Phrases
             CheckBox.create [
                 CheckBox.margin (0., 2.)
                 CheckBox.verticalAlignment VerticalAlignment.Center
@@ -250,6 +255,7 @@ let private ddConfig state dispatch =
                 CheckBox.onUnchecked (fun _ -> false |> SetDDPhraseSearchEnabled |> EditConfig |> dispatch)
             ]
 
+            // Similarity Threshold
             TextBlock.create [
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text (translate "similarityThreshold")
@@ -282,6 +288,7 @@ let private ddConfig state dispatch =
 let private buildConfig state dispatch =
     StackPanel.create [
         StackPanel.children [
+            // Apply Improvements
             CheckBox.create [
                 CheckBox.verticalAlignment VerticalAlignment.Center
                 CheckBox.content (translate "applyImprovements")
@@ -290,6 +297,7 @@ let private buildConfig state dispatch =
                 CheckBox.onUnchecked (fun _ -> false |> SetApplyImprovements |> EditConfig |> dispatch)
             ]
 
+            // Release Build Options
             TextBlock.create [
                 TextBlock.text (translate "release")
                 TextBlock.fontSize 16.
@@ -306,6 +314,7 @@ let private buildConfig state dispatch =
                             StackPanel.create [
                                 StackPanel.orientation Orientation.Horizontal
                                 StackPanel.children [
+                                    // Release Platforms
                                     TextBlock.create [
                                         TextBlock.margin (0., 0., 10., 0.)
                                         TextBlock.verticalAlignment VerticalAlignment.Center
@@ -332,6 +341,7 @@ let private buildConfig state dispatch =
                                 ]
                             ]
 
+                            // Open Containing Folder
                             CheckBox.create [
                                 CheckBox.verticalAlignment VerticalAlignment.Center
                                 CheckBox.content (translate "openContainingFolderAfterBuild")
@@ -344,6 +354,7 @@ let private buildConfig state dispatch =
                 )
             ]
 
+            // Test Build Options
             TextBlock.create [
                 TextBlock.text (translate "test")
                 TextBlock.fontSize 16.
@@ -360,6 +371,7 @@ let private buildConfig state dispatch =
                             StackPanel.create [
                                 StackPanel.orientation Orientation.Horizontal
                                 StackPanel.children [
+                                    // App ID
                                     TextBlock.create [
                                         TextBlock.verticalAlignment VerticalAlignment.Center
                                         TextBlock.margin (0., 0., 10., 0.)
@@ -397,6 +409,7 @@ let private buildConfig state dispatch =
                                 ]
                             ]
 
+                            // Generate DD
                             CheckBox.create [
                                 CheckBox.verticalAlignment VerticalAlignment.Center
                                 CheckBox.content (translate "generateDD")
@@ -405,6 +418,7 @@ let private buildConfig state dispatch =
                                 CheckBox.onUnchecked (fun _ -> false |> SetGenerateDD |> EditConfig |> dispatch)
                             ]
 
+                            // Save Debug Files
                             CheckBox.create [
                                 CheckBox.verticalAlignment VerticalAlignment.Center
                                 CheckBox.content (translate "saveDebugFiles")

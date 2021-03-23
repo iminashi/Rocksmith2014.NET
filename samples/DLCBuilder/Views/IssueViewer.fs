@@ -46,6 +46,7 @@ let private viewForIssue issueType times =
     StackPanel.create [
         StackPanel.margin (0., 5.)
         StackPanel.children [
+            // Issue Type & Explanation
             Expander.create [
                 Expander.header (
                     TextBlock.create [
@@ -65,6 +66,7 @@ let private viewForIssue issueType times =
                 )
             ]
 
+            // Issue Times
             TextBlock.create [
                 TextBlock.text times
                 TextBlock.fontSize 14.
@@ -92,12 +94,14 @@ let view dispatch (issues: Issue list) =
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.horizontalAlignment HorizontalAlignment.Center
                 StackPanel.children [
+                    // Icon
                     Path.create [
                         Path.fill Brushes.Gray
                         Path.data Media.Icons.alertTriangle
                         Path.verticalAlignment VerticalAlignment.Center
                         Path.margin (0., 0., 14., 0.)
                     ]
+                    // Header Text
                     TextBlock.create [
                         TextBlock.fontSize 18.
                         TextBlock.text (translate "issues")
