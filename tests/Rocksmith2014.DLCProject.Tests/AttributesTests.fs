@@ -65,6 +65,18 @@ let attributeTests =
                 Expect.equal ap.openChords 1uy "Open chords is set"
                 Expect.equal ap.unpitchedSlides 1uy "Unpitched slides is set"
             | None -> failwith "Arrangement properties do not exist"
+
+        testCase "Bonus arrangement property is set for bonus arrangement" <| fun _ ->
+            let testLead = { testLead with Priority = ArrangementPriority.Bonus }
+            let project = { testProject with Arrangements = [ Instrumental testLead ] }
+
+            let attr = createAttributes project (FromInstrumental (testLead, testSng))
+        
+            match attr.ArrangementProperties with
+            | Some ap ->
+                Expect.equal ap.represent 0uy "Represent property is not set"
+                Expect.equal ap.bonusArr 1uy "Bonus arrangement property is set"
+            | None -> failwith "Arrangement properties do not exist"
         
         testCase "DNA riffs is set" <| fun _ ->
             let attr = createAttributes testProject (FromInstrumental (testLead, testSng))

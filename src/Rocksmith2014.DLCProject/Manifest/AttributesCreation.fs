@@ -190,7 +190,7 @@ let private createDynamicVisualDensity (levels: int) (arrangement: Arrangement) 
 /// Converts XML arrangement properties into manifest arrangement properties.
 let private convertArrangementProperties (arrProps: XML.ArrangementProperties) (instrumental: Instrumental) =
     { represent = btb (instrumental.Priority = ArrangementPriority.Main)
-      bonusArr = btb arrProps.BonusArrangement
+      bonusArr = btb (instrumental.Priority = ArrangementPriority.Bonus)
       standardTuning = btb arrProps.StandardTuning
       nonStandardChords = btb arrProps.NonStandardChords
       barreChords = btb arrProps.BarreChords
