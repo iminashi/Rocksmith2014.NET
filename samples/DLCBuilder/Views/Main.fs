@@ -68,6 +68,10 @@ let private arrangementPanel state dispatch =
                                     match e.KeyModifiers, e.Key with
                                     | KeyModifiers.None, Key.Delete ->
                                         dispatch DeleteArrangement
+                                    | KeyModifiers.Alt, Key.Up ->
+                                        dispatch (MoveArrangement Up)
+                                    | KeyModifiers.Alt, Key.Down ->
+                                        dispatch (MoveArrangement Down)
                                     | KeyModifiers.None, Key.Up ->
                                         if state.SelectedArrangementIndex > 0 then
                                             dispatch (SetSelectedArrangementIndex (state.SelectedArrangementIndex - 1))
@@ -103,7 +107,7 @@ let private arrangementPanel state dispatch =
                         // Arrangement name
                         TextBlock.create [
                             TextBlock.fontSize 17.
-                            TextBlock.text (Templates.translateArrangementName arr false)
+                            TextBlock.text (Templates.translateArrangementName arr state.Project false)
                             TextBlock.horizontalAlignment HorizontalAlignment.Center
                         ]
 

@@ -132,6 +132,18 @@ let private arrangementContextMenu state dispatch =
                 ToolTip.tip (translate "reloadToneKeysTooltip")
             ]
 
+            MenuItem.create [
+                MenuItem.header (translate "moveUp")
+                //MenuItem.inputGesture (KeyGesture(Key.Up, KeyModifiers.Alt))
+                MenuItem.onClick (fun _ -> Up |> MoveArrangement |> dispatch)
+            ]
+
+            MenuItem.create [
+                MenuItem.header (translate "moveDown")
+                //MenuItem.inputGesture (KeyGesture(Key.Down, KeyModifiers.Alt))
+                MenuItem.onClick (fun _ -> Down |> MoveArrangement |> dispatch)
+            ]
+
             MenuItem.create [ MenuItem.header "-" ]
 
             MenuItem.create [
@@ -142,8 +154,25 @@ let private arrangementContextMenu state dispatch =
         ]
     ]
 
+let private getArrangementNumber arr project =
+    match arr with
+    | Instrumental inst ->
+        let groups =
+            project.Arrangements
+            |> List.choose Arrangement.pickInstrumental
+            |> List.groupBy (fun a -> a.Priority, a.Name)
+            |> Map.ofList
+
+        let group = groups.[inst.Priority, inst.Name]
+        if group.Length > 1 then
+            sprintf " %i" (1 + (group |> List.findIndex (fun x -> x.PersistentID = inst.PersistentID)))
+        else
+            String.Empty
+    | _ ->
+        String.Empty
+
 /// Returns the translated name for the arrangement.
-let translateArrangementName arr withExtra =
+let translateArrangementName arr project withExtra =
     match arr with
     | Instrumental inst ->
         let baseName =
@@ -152,6 +181,9 @@ let translateArrangementName arr withExtra =
                 $"{translate p} {translate n}"
             else
                 translate n
+
+        let arrNumber = getArrangementNumber arr project
+        let baseName = $"{baseName}{arrNumber}"
 
         if withExtra then
             let extra =
@@ -188,7 +220,7 @@ let private getExtraText = function
 
 /// Returns a template for an arrangement.
 let arrangement state dispatch index arr =
-    let name = translateArrangementName arr true
+    let name = translateArrangementName arr state.Project true
     let icon, color =
         match arr with
         | Instrumental inst ->

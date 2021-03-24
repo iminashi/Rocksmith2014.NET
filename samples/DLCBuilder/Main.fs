@@ -71,6 +71,20 @@ let private removeSelected initialList index =
 let private exceptionToErrorMessage (e: exn) =
     ErrorMessage (e.Message, Some $"{e.GetType().Name}: {e.Message}\n{e.StackTrace}")
 
+let private moveSelected dir selectedIndex (list: List<_>) =
+    match selectedIndex with
+    | -1 ->
+        list, selectedIndex
+    | index ->
+        let selected = list.[index]
+        let change = match dir with Up -> -1 | Down -> 1 
+        let insertPos = index + change
+        if insertPos >= 0 && insertPos < list.Length then
+            List.removeAt index list
+            |> List.insertAt insertPos selected, insertPos
+        else
+            list, selectedIndex
+
 let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
 
@@ -466,20 +480,12 @@ let update (msg: Msg) (state: State) =
             { state with Project = { project with Tones = duplicate::state.Project.Tones } }, Cmd.none
 
     | MoveTone dir ->
-        let tones, index = 
-            match state.SelectedToneIndex with
-            | -1 ->
-                project.Tones, state.SelectedToneIndex
-            | index ->
-                let selected = project.Tones.[index]
-                let change = match dir with Up -> -1 | Down -> 1 
-                let insertPos = index + change
-                if insertPos >= 0 && insertPos < project.Tones.Length then
-                    List.removeAt index project.Tones
-                    |> List.insertAt insertPos selected, insertPos
-                else
-                    project.Tones, state.SelectedToneIndex
+        let tones, index = moveSelected dir state.SelectedToneIndex project.Tones
         { state with Project = { project with Tones = tones }; SelectedToneIndex = index }, Cmd.none
+
+    | MoveArrangement dir ->
+        let arrangements, index = moveSelected dir state.SelectedArrangementIndex project.Arrangements
+        { state with Project = { project with Arrangements = arrangements }; SelectedArrangementIndex = index }, Cmd.none
 
     | CreatePreviewAudio (SetupStartTime) ->
         let totalLength = Utils.getLength project.AudioFile.Path

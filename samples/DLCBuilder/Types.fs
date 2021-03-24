@@ -157,6 +157,7 @@ type Msg =
     | DeleteTone
     | DuplicateTone
     | MoveTone of MoveDirection
+    | MoveArrangement of MoveDirection
     | CreatePreviewAudio of PreviewAudioCreation
     | ShowSortFields of shown : bool
     | ShowJapaneseFields of shown : bool
