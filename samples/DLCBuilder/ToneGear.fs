@@ -30,6 +30,7 @@ type GearData =
       Key : string
       Knobs : GearKnob array option }
 
+/// Returns the knob values for the pedal in the given gear slot.
 let getKnobValuesForGear (gearList: Gear) gearSlot =
     match gearSlot with
     | Amp -> Some gearList.Amp
@@ -44,6 +45,7 @@ let private getDefaultKnobValues gear =
     |> Option.map (Array.map (fun knob -> knob.Key, knob.DefaultValue) >> Map.ofArray)
     |> Option.defaultValue Map.empty
 
+/// Creates a pedal with default knob values from the gear data.
 let createPedalForGear (gear: GearData) =
     { Key = gear.Key
       Type = gear.Type
@@ -54,7 +56,6 @@ let createPedalForGear (gear: GearData) =
 
 let private loadGearData () = async {
     let provider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
-    
     let options = JsonSerializerOptions(IgnoreNullValues = true)
     options.Converters.Add(JsonFSharpConverter())
     use gearDataFile = provider.GetFileInfo("ToneGearData.json").CreateReadStream()
@@ -81,6 +82,7 @@ let cabinetDict = toDict cabinets
 let pedalDict = toDict pedals
 let rackDict = toDict racks
 
+/// Returns the gear data for the pedal in the given gear slot.
 let getGearDataForCurrentPedal (gearList: Gear) = function
     | Amp ->
         Some ampDict.[gearList.Amp.Key]
