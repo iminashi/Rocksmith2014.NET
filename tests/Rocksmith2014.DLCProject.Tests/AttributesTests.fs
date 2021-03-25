@@ -61,9 +61,27 @@ let attributeTests =
         
             match attr.ArrangementProperties with
             | Some ap ->
+                Expect.equal ap.represent 1uy "Represent is set"
                 Expect.equal ap.standardTuning 1uy "Standard tuning is set"
                 Expect.equal ap.openChords 1uy "Open chords is set"
                 Expect.equal ap.unpitchedSlides 1uy "Unpitched slides is set"
+                Expect.equal ap.doubleStops 1uy "Double stops is set"
+                Expect.equal ap.tremolo 0uy "Tremolo is not set"
+                Expect.equal ap.pathLead 1uy "Path lead is set"
+                Expect.equal ap.pathRhythm 0uy "Path rhythm is not set"
+                Expect.equal ap.pathBass 0uy "Path bass is not set"
+            | None -> failwith "Arrangement properties do not exist"
+
+        testCase "Represent arrangement property is not set for alternative arrangement" <| fun _ ->
+            let testLead = { testLead with Priority = ArrangementPriority.Alternative }
+            let project = { testProject with Arrangements = [ Instrumental testLead ] }
+
+            let attr = createAttributes project (FromInstrumental (testLead, testSng))
+        
+            match attr.ArrangementProperties with
+            | Some ap ->
+                Expect.equal ap.represent 0uy "Represent property is not set"
+                Expect.equal ap.bonusArr 0uy "Bonus arrangement property is not set"
             | None -> failwith "Arrangement properties do not exist"
 
         testCase "Bonus arrangement property is set for bonus arrangement" <| fun _ ->
@@ -78,12 +96,12 @@ let attributeTests =
                 Expect.equal ap.bonusArr 1uy "Bonus arrangement property is set"
             | None -> failwith "Arrangement properties do not exist"
         
-        testCase "DNA riffs is set" <| fun _ ->
+        testCase "DNA riffs time is calculated" <| fun _ ->
             let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
         
             Expect.isGreaterThan attr.DNA_Riffs.Value 0. "DNA riffs is greater than zero"
         
-        testCase "Tone names are set" <| fun _ ->
+        testCase "Tone names are correct" <| fun _ ->
             let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
         
             Expect.equal attr.Tone_Base "Base_Tone" "Base tone name is correct"
@@ -109,7 +127,7 @@ let attributeTests =
             Expect.equal attr.DLCKey "SomeTest" "DLCKey is correct"
             Expect.equal attr.SongKey "SomeTest" "SongKey is correct"
             Expect.equal attr.SKU "RS2" "SKU is correct"
-            Expect.equal attr.Shipping true "Shipping is correct"
+            Expect.isTrue attr.Shipping "Shipping is true"
         
         testCase "Various attributes are correct (Instrumental)" <| fun _ ->
             let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
