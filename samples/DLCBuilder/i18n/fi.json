@@ -258,5 +258,8 @@
   "Alt": "Vaihtoeht.",
   "Vocals": "Lyriikat",
   "Japanese Vocals": "Japanilaiset lyriikat",
-  "Showlights": "Valoshow"
+  "Showlights": "Valoshow",
+  "MaxInstrumentals": "Projektissa on jo viisi instrumentaalisovitusta.",
+  "MaxVocals": "Projektissa on jo kaksi lyriikkasovitusta.",
+  "MaxShowlights": "Projektissa on jo valoshowsovitus."
 }

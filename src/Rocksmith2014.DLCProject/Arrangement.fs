@@ -191,8 +191,9 @@ module Arrangement =
                 let arr = Arrangement.Showlights { XML = fileName }
                 Ok (arr, None)
     
-            | _ -> Error (localize "unknownArrangementError")
-        with ex -> Error ex.Message
+            | _ ->
+                Error (fileName, localize "unknownArrangementError")
+        with ex -> Error (fileName, ex.Message)
     
     /// Reads the tone info from the arrangement's XML file.
     let updateToneInfo (inst: Instrumental) updateBaseTone =

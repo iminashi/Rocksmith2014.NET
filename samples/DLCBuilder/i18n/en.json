@@ -258,5 +258,8 @@
   "Alt": "Alt.",
   "Vocals": "Vocals",
   "Japanese Vocals": "Japanese Vocals",
-  "Showlights": "Show Lights"
+  "Showlights": "Show Lights",
+  "MaxInstrumentals": "There are already five instrumental arrangements in the project.",
+  "MaxVocals": "There are already two vocals arrangements in the project.",
+  "MaxShowlights": "There is already a show lights arrangement in the project."
 }

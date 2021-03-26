@@ -258,5 +258,8 @@
   "Alt": "オルタネイト",
   "Vocals": "ボーカル",
   "Japanese Vocals": "日本語ボーカル",
-  "Showlights": "ショーライト"
+  "Showlights": "ショーライト",
+  "MaxInstrumentals": "プロジェクトにはすでに五つのインストルメンタルアレンジがあります。",
+  "MaxVocals": "プロジェクトにはすでに二つのボーカルアレンジがあります。",
+  "MaxShowlights": "プロジェクトにはすでにショーライトアレンジがあります。"
 }

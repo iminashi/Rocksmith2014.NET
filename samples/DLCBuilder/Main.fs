@@ -10,9 +10,76 @@ open Rocksmith2014.DLCProject.PackageBuilder
 open Rocksmith2014.XML.Processing
 open Elmish
 open System
+open System.Diagnostics
 open System.IO
 open EditFunctions
-open System.Diagnostics
+
+type private ArrangementAddingResult =
+    | ShouldInclude
+    | MaxInstrumentals
+    | MaxShowlights
+    | MaxVocals
+
+let private addArrangements files state =
+    let results = Array.map (Arrangement.fromFile translate) files
+    
+    let shouldInclude arrangements arr =
+        let count f = (List.choose f arrangements).Length
+        match arr with
+        | Showlights _ when count Arrangement.pickShowlights = 1 -> MaxShowlights
+        | Instrumental _ when count Arrangement.pickInstrumental = 5 -> MaxInstrumentals
+        | Vocals _ when count Arrangement.pickVocals = 2 -> MaxVocals
+        | _ -> ShouldInclude
+       
+    let mainArrangementExists inst arrangements =
+        arrangements
+        |> List.exists (function
+            | Instrumental x ->
+                inst.RouteMask = x.RouteMask
+                && inst.Priority = x.Priority
+                && x.Priority = ArrangementPriority.Main
+            | _ -> false)
+
+    let createErrorMsg (path: string) error = $"%s{IO.Path.GetFileName path}:\n%s{error}"
+    
+    let arrangements, errors =
+        ((state.Project.Arrangements, []), results)
+        ||> Array.fold (fun (arrs, errors) result ->
+            match result with
+            | Ok (arr, _) ->
+                match shouldInclude arrs arr with
+                | ShouldInclude ->
+                    let arr =
+                        // Prevent multiple main arrangements of the same type
+                        match arr with
+                        | Instrumental inst when mainArrangementExists inst arrs ->
+                            Instrumental { inst with Priority = ArrangementPriority.Alternative }
+                        | _ ->
+                            arr
+                    arr::arrs, errors
+                | error ->
+                    let error = createErrorMsg (Arrangement.getFile arr) (translate (string error))
+                    arrs, error::errors
+            | Error (file, error) ->
+                let error = createErrorMsg file error
+                arrs, error::errors)
+    
+    let metadata = 
+        if state.Project.ArtistName = SortableString.Empty then
+            results
+            |> Array.tryPick (function Ok (_, md) -> md | Error _ -> None)
+        else
+            None
+       
+    let newState =
+        let project = Utils.addMetadata metadata state.Config.CharterName state.Project
+        { state with Project = { project with Arrangements = List.sortBy Arrangement.sorter arrangements } }
+    
+    match errors with
+    | [] ->
+        newState
+    | _ ->
+        { newState with Overlay = ErrorMessage(String.Join(String.replicate 2 Environment.NewLine, errors), None) }
 
 let init arg =
     let commands =
@@ -371,72 +438,7 @@ let update (msg: Msg) (state: State) =
                      Project = { project with AlbumArtFile = fileName } }, Cmd.none
 
     | AddArrangements (Some files) ->
-        let results = Array.map (Arrangement.fromFile translate) files
-
-        let shouldInclude arrangements arr =
-            match arr with
-            // Allow only one show lights arrangement
-            | Showlights _ when arrangements |> List.exists (function Showlights _ -> true | _ -> false) -> false
-
-            // Allow max five instrumental arrangements
-            | Instrumental _ when (arrangements |> List.choose Arrangement.pickInstrumental).Length = 5 -> false
-
-            // Allow max two vocals arrangements
-            | Vocals _ when (arrangements |> List.choose Arrangement.pickVocals).Length = 2 -> false
-            | _ -> true
-
-        let errors =
-            (files, results)
-            ||> Array.map2 (fun file result ->
-                match result with
-                | Ok _ -> None
-                | Error msg -> Some $"{file}:\n{msg}\n")
-            |> Array.choose id
-
-        let arrangements =
-            (project.Arrangements, results)
-            ||> Array.fold (fun state elem ->
-                match elem with
-                | Ok (arr, _) when shouldInclude state arr ->
-                    let arr =
-                        // Prevent multiple main arrangements of the same type
-                        match arr with
-                        | Instrumental inst when state |> List.exists (function
-                                | Instrumental x ->
-                                    inst.RouteMask = x.RouteMask
-                                    && x.Priority = ArrangementPriority.Main
-                                    && inst.Priority = ArrangementPriority.Main
-                                | _ -> false) ->
-                            Instrumental { inst with Priority = ArrangementPriority.Alternative }
-                        | _ -> arr
-                    arr::state
-                | _ -> state)
-            |> List.sortBy Arrangement.sorter
-
-        let metadata = 
-            if project.ArtistName = SortableString.Empty then
-                results
-                |> Array.tryPick (function Ok (_, md) -> md | Error _ -> None)
-            else
-                None
-
-        let newState = 
-            match metadata with
-            | Some md ->
-                { state with
-                    Project = { project with
-                                    DLCKey = DLCKey.create config.CharterName md.ArtistName md.Title
-                                    ArtistName = SortableString.Create md.ArtistName // Ignore the sort value from the XML
-                                    Title = SortableString.Create(md.Title, md.TitleSort)
-                                    AlbumName = SortableString.Create(md.AlbumName, md.AlbumNameSort)
-                                    Year = md.AlbumYear
-                                    Arrangements = arrangements } }
-            | None ->
-                { state with Project = { project with Arrangements = arrangements } }
-
-        match errors with
-        | [||] -> newState, Cmd.none
-        | _ -> { newState with Overlay = ErrorMessage(String.Join(Environment.NewLine, errors), None) }, Cmd.none
+        addArrangements files state, Cmd.none
 
     | SetSelectedArrangementIndex index ->
         { state with SelectedArrangementIndex = index }, Cmd.none
