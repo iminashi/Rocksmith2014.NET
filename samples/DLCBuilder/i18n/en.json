@@ -64,7 +64,7 @@
   "masterID": "Master ID",
   "persistentID": "Persistent ID",
   "generateNewArrIDs": "Generate New IDs",
-  "generateNewArrIDsToolTip": "Generates new identification IDs for this arrangement.\n\nThe in-game stats for the arrangement will be reset.",
+  "generateNewArrIDsToolTip": "Generates new identification data for this arrangement.\n\nThe in-game stats for the arrangement will be reset.",
   "japanese": "Japanese",
   "customFont": "Custom Font",
   "removeCustomFontToolTip": "Click to remove the custom font from the arrangement.",
