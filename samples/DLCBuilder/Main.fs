@@ -496,7 +496,7 @@ let update (msg: Msg) (state: State) =
         { state with Overlay = SelectPreviewStart length }, Cmd.none
 
     | CreatePreviewAudio (CreateFile) ->
-        match state.Project.AudioPreviewStartTime with
+        match project.AudioPreviewStartTime with
         | None ->
             state, Cmd.none
         | Some startTime ->

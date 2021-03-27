@@ -168,7 +168,9 @@ module DLCProject =
         let arrs =
             project.Arrangements
             |> List.map (function
-                | Instrumental inst -> Arrangement.updateToneInfo inst false |> Instrumental
+                | Instrumental inst when File.Exists inst.XML ->
+                    Arrangement.updateToneInfo inst false
+                    |> Instrumental
                 | other -> other)
 
         { project with Arrangements = arrs }
