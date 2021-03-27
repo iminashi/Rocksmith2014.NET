@@ -359,7 +359,7 @@
   <tonea>Tone_1</tonea>
   <toneb>Tone_2</toneb>
   <tonec>Tone_3</tonec>
-  <toned />
+  <toned>Tone_4</toned>
   <tones count="8">
     <tone time="42.956" id="1" name="Tone_1" />
     <tone time="52.676" id="0" name="Tone_2" />
@@ -374,12 +374,16 @@
     <section name="riff" number="1" startTime="11.500" />
     <section name="noguitar" number="1" startTime="25.000" />
   </sections>
-  <events count="7">
+  <events count="11">
     <event time="10.000" code="e1" />
     <event time="10.000" code="dna_none" />
     <event time="12.100" code="E3" />
     <event time="14.600" code="E13" />
     <event time="15.000" code="dna_riff" />
+    <event time="70.000" code="dna_none" />
+    <event time="75.000" code="dna_chord" />
+    <event time="85.000" code="dna_none" />
+    <event time="90.000" code="dna_solo" />
     <event time="110.999" code="D3" />
     <event time="119.999" code="E13" />
   </events>

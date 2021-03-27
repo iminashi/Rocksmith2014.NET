@@ -2,6 +2,7 @@
 module Common
 
 open System
+open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 
 let testLead =
@@ -12,7 +13,7 @@ let testLead =
       TuningPitch = 440.
       Tuning = [|0s;0s;0s;0s;0s;0s|]
       BaseTone = "Base_Tone"
-      Tones = ["Tone_1"; "Tone_2"; "Tone_3"]
+      Tones = ["Tone_1"; "Tone_2"; "Tone_3"; "Tone_4"]
       ScrollSpeed = 1.3
       BassPicked = false
       MasterID = 12345
@@ -48,18 +49,43 @@ let testJVocals =
       MasterID = 123456
       PersistentID = Guid.NewGuid() }
 
+let testTone =
+    let testGear =
+        let pedal =
+          { Type = "test"
+            KnobValues = Map.empty
+            Key = "test"
+            Category = None
+            Skin = None
+            SkinIndex = None }
+    
+        { Amp = pedal
+          Cabinet = pedal
+          Racks = Array.empty
+          PrePedals = Array.empty
+          PostPedals = Array.empty }
+
+    { GearList= testGear
+      ToneDescriptors = [| "Clean" |]
+      NameSeparator = " - "
+      Volume = -20.
+      MacVolume = None
+      Key = "Tone_1"
+      Name = "tone_name"
+      SortOrder = None }
+
 let testProject =
     { Version = "1.0"
       DLCKey = "SomeTest"
-      ArtistName = SortableString.Create "Artist"
+      ArtistName = SortableString.Create("Artist", "ArtistSort")
       JapaneseArtistName = None
       JapaneseTitle = None
-      Title = SortableString.Create "Title"
-      AlbumName = SortableString.Create "Album"
+      Title = SortableString.Create("Title", "TitleSort")
+      AlbumName = SortableString.Create("Album", "AlbumSort")
       Year = 2020
       AlbumArtFile = "cover.dds"
       AudioFile = { Path = "audio.ogg"; Volume = 1. }
       AudioPreviewFile = { Path = "audio_preview.wav"; Volume = 1. }
       AudioPreviewStartTime = None
       Arrangements = [ Instrumental testLead ]
-      Tones = [] }
+      Tones = [ testTone; { testTone with Key = "Tone_2" } ] }

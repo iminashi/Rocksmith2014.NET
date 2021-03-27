@@ -285,7 +285,8 @@ let private createTechniqueMap (sng: SNG) =
     techniques
 
 /// Initializes attributes that are common to all arrangements (manifest headers).
-let private initBase name dlcKey (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
+let private initBase name dlcKey (project: DLCProject) (arrangement: Arrangement) =
+    let attr = Attributes()
     attr.AlbumArt <- $"urn:image:dds:album_%s{dlcKey}"
     attr.ArrangementName <- Arrangement.getName arrangement true
     attr.DLCKey <- project.DLCKey
@@ -381,12 +382,12 @@ let private initSongComplete (partition: int)
     attr.PhraseIterations <- convertPhraseIterations sng
     attr.Phrases <- convertPhrases sng
     attr.Score_MaxNotes <- float32 sng.NoteCounts.Hard
-    attr.Score_PNV <- (100000.f / float32 sng.NoteCounts.Hard)
+    attr.Score_PNV <- (100_000.f / float32 sng.NoteCounts.Hard)
     attr.Sections <- convertSections sng
     attr.SongAverageTempo <- xmlMetaData.AverageTempo
     attr.SongOffset <- -sng.MetaData.StartTime
     attr.SongPartition <- partition
-    attr.TargetScore <- 100000
+    attr.TargetScore <- 100_000
     attr.Techniques <- createTechniqueMap sng
     attr.Tone_A <- getToneName 0 instrumental.Tones
     attr.Tone_B <- getToneName 1 instrumental.Tones
@@ -404,7 +405,6 @@ type AttributesConversion =
 
 /// Creates attributes for an arrangement.
 let private create isHeader (project: DLCProject) (conversion: AttributesConversion) =
-    let attributes = Attributes()
     let dlcKey = project.DLCKey.ToLowerInvariant()
     let partition = Partitioner.create project
 
@@ -412,7 +412,7 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
     | FromVocals v ->
         let arr = Vocals v
         let _, name = partition arr
-        let attr = initBase name dlcKey project arr attributes
+        let attr = initBase name dlcKey project arr
 
         if isHeader then
             attr
@@ -428,7 +428,7 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
         let xmlMetaData = XML.MetaData.Read(inst.XML)
 
         let attr =
-            initBase name dlcKey project arr attributes
+            initBase name dlcKey project arr
             |> initSongCommon xmlMetaData project inst sng
 
         if isHeader then

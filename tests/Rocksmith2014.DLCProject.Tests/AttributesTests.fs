@@ -46,6 +46,11 @@ let attributeTests =
             let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
         
             Expect.equal attr.Phrases.Length testSng.Phrases.Length "Phrase count is same"
+
+        testCase "Phrase iterations are created" <| fun _ ->
+            let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
+        
+            Expect.equal attr.PhraseIterations.Length testSng.PhraseIterations.Length "Phrase iteration count is same"
         
         testCase "Chords are created" <| fun _ ->
             let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
@@ -57,7 +62,7 @@ let attributeTests =
         
             Expect.isNonEmpty attr.Techniques "Technique map is not empty"
         
-        testCase "Arrangement properties are set" <| fun _ ->
+        testCase "Arrangement properties are set correctly" <| fun _ ->
             let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
         
             match attr.ArrangementProperties with
@@ -97,20 +102,25 @@ let attributeTests =
                 Expect.equal ap.bonusArr 1uy "Bonus arrangement property is set"
             | None -> failwith "Arrangement properties do not exist"
         
-        testCase "DNA riffs time is calculated" <| fun _ ->
+        testCase "DNA times are calculated" <| fun _ ->
             let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
         
             Expect.isGreaterThan attr.DNA_Riffs.Value 0. "DNA riffs is greater than zero"
+            Expect.isGreaterThan attr.DNA_Chords.Value 0. "DNA chords is greater than zero"
+            Expect.isGreaterThan attr.DNA_Solo.Value 0. "DNA solo is greater than zero"
         
-        testCase "Tone names are correct" <| fun _ ->
+        testCase "Tones are set correctly" <| fun _ ->
             let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
         
             Expect.equal attr.Tone_Base "Base_Tone" "Base tone name is correct"
             Expect.equal attr.Tone_A "Tone_1" "Tone A name is correct"
             Expect.equal attr.Tone_B "Tone_2" "Tone B name is correct"
             Expect.equal attr.Tone_C "Tone_3" "Tone C name is correct"
+            Expect.equal attr.Tone_D "Tone_4" "Tone D name is correct"
+            Expect.equal attr.Tone_Multiplayer "" "Tone Multiplayer name is an empty string"
+            Expect.hasLength attr.Tones 2 "Tones array contains two tones"
         
-        testCase "URN attributes are correct" <| fun _ ->
+        testCase "URN attributes are set correctly" <| fun _ ->
             let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
         
             Expect.equal attr.AlbumArt "urn:image:dds:album_sometest" "AlbumArt is correct"
@@ -120,9 +130,13 @@ let attributeTests =
             Expect.equal attr.SongAsset "urn:application:musicgame-song:sometest_lead" "SongAsset is correct"
             Expect.equal attr.SongXml "urn:application:xml:sometest_lead" "SongXml is correct"
         
-        testCase "Various attributes are correct (Common)" <| fun _ ->
+        testCase "Various attributes are set correctly (Common)" <| fun _ ->
             let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
         
+            Expect.equal attr.MasterID_PS3 (Nullable(-1)) "MasterID_PS3 is correct"
+            Expect.equal attr.MasterID_XBox360 (Nullable(-1)) "MasterID_XBox360 is correct"
+            Expect.isNull attr.JapaneseArtistName "Japanese artist name is null"
+            Expect.isNull attr.JapaneseSongName "Japanese song name is null"
             Expect.equal attr.ArrangementSort (Nullable(0)) "ArrangementSort is 0"
             Expect.equal attr.RelativeDifficulty (Nullable(0)) "RelativeDifficulty is 0"
             Expect.equal attr.DLCKey "SomeTest" "DLCKey is correct"
@@ -130,16 +144,48 @@ let attributeTests =
             Expect.equal attr.SKU "RS2" "SKU is correct"
             Expect.isTrue attr.Shipping "Shipping is true"
         
-        testCase "Various attributes are correct (Instrumental)" <| fun _ ->
+        testCase "Various attributes are set correctly (Instrumental)" <| fun _ ->
+            let expectedId = testLead.PersistentID.ToString("N").ToUpperInvariant()
+
             let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
         
             Expect.equal attr.MasterID_RDV 12345 "MasterID is correct"
+            Expect.equal attr.PersistentID expectedId "PersistentID is correct"
             Expect.equal attr.FullName "SomeTest_Lead" "FullName is correct"
             Expect.equal attr.PreviewBankPath "song_sometest_preview.bnk" "PreviewBankPath is correct"
             Expect.equal attr.SongBank "song_sometest.bnk" "SongBank is correct"
             Expect.equal attr.SongEvent "Play_SomeTest" "SongEvent is correct"
+            Expect.equal attr.ArrangementType (Nullable(0)) "ArrangementType is correct"
+            Expect.equal attr.LastConversionDateTime (testSng.MetaData.LastConversionDateTime) "LastConversionDateTime is correct"
 
-        testCase "Various attributes are correct (Instrumental with custom audio)" <| fun _ ->
+        testCase "Note count/score related attributes are set correctly (Instrumental)" <| fun _ ->
+            let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
+        
+            Expect.equal attr.NotesEasy (Nullable(float32 testSng.NoteCounts.Easy)) "NotesEasy is correct"
+            Expect.equal attr.NotesMedium (Nullable(float32 testSng.NoteCounts.Medium)) "NotesMedium is correct"
+            Expect.equal attr.NotesHard (Nullable(float32 testSng.NoteCounts.Hard)) "NotesHard is correct"
+            Expect.equal attr.Score_MaxNotes (Nullable(float32 testSng.NoteCounts.Hard)) "Score_MaxNotes is correct"
+            Expect.equal attr.MaxPhraseDifficulty (Nullable(testSng.Levels.Length - 1)) "MaxPhraseDifficulty is correct"
+            Expect.equal attr.TargetScore (Nullable(100_000)) "TargetScore is correct"
+            Expect.equal attr.Score_PNV.Value (100_000.f / float32 testSng.NoteCounts.Hard) "Score_PNV is correct"
+            Expect.isGreaterThan attr.EasyMastery.Value 0. "EasyMastery is greater than zero"
+            Expect.isGreaterThan attr.MediumMastery.Value 0. "MediumMastery is greater than zero"
+
+        testCase "Various metadata attributes are set correctly (Instrumental)" <| fun _ ->
+            let attr = createAttributes testProject (FromInstrumental (testLead, testSng))
+        
+            Expect.equal attr.AlbumName "Album" "Album name is correct"
+            Expect.equal attr.AlbumNameSort "AlbumSort" "Album name sort is correct"
+            Expect.equal attr.ArtistName "Artist" "Artist name is correct"
+            Expect.equal attr.ArtistNameSort "ArtistSort" "Artist name sort is correct"
+            Expect.equal attr.SongName "Title" "Song name is correct"
+            Expect.equal attr.SongNameSort "TitleSort" "Song name sort is correct"
+            Expect.equal attr.SongYear (Nullable(2020)) "Year is correct"
+            Expect.equal attr.SongLength (Nullable(testSng.MetaData.SongLength)) "Song length is correct"
+            Expect.equal attr.SongAverageTempo (Nullable(160.541f)) "Song average tempo is correct"
+            Expect.equal attr.SongOffset (Nullable(-10.f)) "Song offset is correct"
+
+        testCase "Various attributes are set correctly (Instrumental with custom audio)" <| fun _ ->
             let testArr = { testLead with CustomAudio = Some { Path = "Test.wem"; Volume = 0. } }
             let testProject = { testProject with Arrangements = [ Instrumental testArr ] }
             let attr = createAttributes testProject (FromInstrumental (testArr, testSng))
@@ -148,7 +194,7 @@ let attributeTests =
             Expect.equal attr.SongBank "song_sometest_lead.bnk" "SongBank is correct"
             Expect.equal attr.SongEvent "Play_SomeTest_lead" "SongEvent is correct"
         
-        testCase "Various attributes are correct (Vocals)" <| fun _ ->
+        testCase "Various attributes are set correctly (Vocals)" <| fun _ ->
             let project = { testProject with Arrangements = [ Vocals testVocals ] }
         
             let attr = createAttributes project (FromVocals testVocals)
@@ -159,7 +205,7 @@ let attributeTests =
             Expect.equal attr.InputEvent "Play_Tone_Standard_Mic" "InputEvent is correct"
             Expect.equal attr.JapaneseVocal (Nullable()) "JapaneseVocal is null"
         
-        testCase "Various attributes are correct (Japanese Vocals)" <| fun _ ->
+        testCase "Various attributes are set correctly (Japanese Vocals)" <| fun _ ->
             let project = { testProject with Arrangements = [ Vocals testJVocals ] }
         
             let attr = createAttributes project (FromVocals testJVocals)
@@ -174,7 +220,7 @@ let attributeTests =
         
             Expect.allEqual dvd (float32 testLead.ScrollSpeed) "Maximum scroll speed is correct"
 
-        testCase "CapoFret, Tuning and CentOffset are correct" <| fun _ ->
+        testCase "CapoFret, Tuning and CentOffset are set correctly" <| fun _ ->
             let tuning = Tuning.FromArray([| -1s; -2s; -3s; -4s; -5s; -6s |])
             let project = { testProject with Arrangements = [ Instrumental testLeadCapo ] }
 
@@ -183,4 +229,13 @@ let attributeTests =
             Expect.equal attr.CapoFret (Nullable(5.)) "Capo fret is correct"
             Expect.equal attr.Tuning (Some(tuning)) "Tuning is correct"
             Expect.equal attr.CentOffset (Nullable(50.)) "Cent offset is correct"
+
+        testCase "Japanese artist and song name are set correctly" <| fun _ ->
+            let project = { testProject with JapaneseArtistName = Some "アーティスト"
+                                             JapaneseTitle = Some "タイトル" }
+
+            let attr = createAttributes project (FromInstrumental (testLead, testSng))
+        
+            Expect.equal attr.JapaneseArtistName "アーティスト" "Japanese artist name is correct"
+            Expect.equal attr.JapaneseSongName "タイトル" "Japanese song name is correct"
     ]
