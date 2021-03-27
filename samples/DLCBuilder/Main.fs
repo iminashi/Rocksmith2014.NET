@@ -40,7 +40,7 @@ let private addArrangements files state =
                 && x.Priority = ArrangementPriority.Main
             | _ -> false)
 
-    let createErrorMsg (path: string) error = $"%s{IO.Path.GetFileName path}:\n%s{error}"
+    let createErrorMsg (path: string) error = $"%s{Path.GetFileName path}:\n%s{error}"
     
     let arrangements, errors =
         ((state.Project.Arrangements, []), results)
@@ -515,7 +515,22 @@ let update (msg: Msg) (state: State) =
                 Cmd.ofMsg (CalculateVolume PreviewAudio)
             else
                 Cmd.none
-        { state with Project = { project with AudioPreviewFile = previewFile } }, cmd
+
+        // Delete the old converted file if one exists
+        let overlay =
+            let wemPreview = Path.ChangeExtension(previewPath, "wem")
+            if File.Exists wemPreview then
+                try
+                    File.Delete wemPreview
+                    NoOverlay
+                with ex ->
+                    let msg = translatef "previewDeleteError" [| Path.GetFileName(wemPreview); ex.Message |]
+                    ErrorMessage(msg, ex.StackTrace |> Option.ofString)
+            else
+                NoOverlay
+
+        { state with Project = { project with AudioPreviewFile = previewFile }
+                     Overlay = overlay }, cmd
 
     | ShowSortFields shown -> { state with ShowSortFields = shown }, Cmd.none
     
@@ -626,7 +641,7 @@ let update (msg: Msg) (state: State) =
             let projectPath =
                 state.OpenProjectFile
                 |> Option.defaultValue project.AudioFile.Path
-                |> IO.Path.GetDirectoryName
+                |> Path.GetDirectoryName
             Process.Start(ProcessStartInfo(projectPath, UseShellExecute = true)) |> ignore
 
         { state with RunningTasks = state.RunningTasks.Remove BuildPackage }, Cmd.none

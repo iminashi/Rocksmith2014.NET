@@ -261,5 +261,6 @@
   "Showlights": "Show Lights",
   "MaxInstrumentals": "There are already five instrumental arrangements in the project.",
   "MaxVocals": "There are already two vocals arrangements in the project.",
-  "MaxShowlights": "There is already a show lights arrangement in the project."
+  "MaxShowlights": "There is already a show lights arrangement in the project.",
+  "previewDeleteError": "Deleting old preview file {0} failed with error \"{1}\".\nDelete this file manually for the new preview audio to be used."
 }
