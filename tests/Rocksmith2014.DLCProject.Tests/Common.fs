@@ -19,6 +19,21 @@ let testLead =
       PersistentID = Guid.NewGuid()
       CustomAudio = None }
 
+let testLeadCapo =
+    { XML = "instrumental_capo.xml"
+      Name = ArrangementName.Lead
+      RouteMask = RouteMask.Lead
+      Priority = ArrangementPriority.Main
+      TuningPitch = 452.89
+      Tuning = [|-1s;-2s;-3s;-4s;-5s;-6s|]
+      BaseTone = "Base_Tone"
+      Tones = ["Tone_1"; "Tone_2"; "Tone_3"]
+      ScrollSpeed = 1.3
+      BassPicked = false
+      MasterID = 12345
+      PersistentID = Guid.NewGuid()
+      CustomAudio = None }
+
 let testVocals =
     { XML = "vocals.xml"
       Japanese = false

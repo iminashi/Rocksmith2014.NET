@@ -26,6 +26,8 @@ type Attributes() =
     member val BassPick : Nullable<int> = Nullable() with get, set 
     
     member val BlockAsset : string = null with get, set
+
+    member val CapoFret : Nullable<float> = Nullable() with get, set
     
     member val CentOffset : Nullable<float> = Nullable() with get, set 
     

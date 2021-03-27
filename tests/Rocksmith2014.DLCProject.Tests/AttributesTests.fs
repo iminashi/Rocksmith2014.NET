@@ -8,6 +8,7 @@ open Rocksmith2014.XML
 open Rocksmith2014.DLCProject
 open Rocksmith2014.Conversion
 open Rocksmith2014.Common
+open Rocksmith2014.Common.Manifest
 
 let private testArr = InstrumentalArrangement.Load("instrumental.xml")
 let private testSng = ConvertInstrumental.xmlToSng testArr
@@ -172,4 +173,14 @@ let attributeTests =
             let dvd = attr.DynamicVisualDensity.[(testArr.Levels.Count - 1)..]
         
             Expect.allEqual dvd (float32 testLead.ScrollSpeed) "Maximum scroll speed is correct"
+
+        testCase "CapoFret, Tuning and CentOffset are correct" <| fun _ ->
+            let tuning = Tuning.FromArray([| -1s; -2s; -3s; -4s; -5s; -6s |])
+            let project = { testProject with Arrangements = [ Instrumental testLeadCapo ] }
+
+            let attr = createAttributes project (FromInstrumental (testLeadCapo, testSng))
+        
+            Expect.equal attr.CapoFret (Nullable(5.)) "Capo fret is correct"
+            Expect.equal attr.Tuning (Some(tuning)) "Tuning is correct"
+            Expect.equal attr.CentOffset (Nullable(50.)) "Cent offset is correct"
     ]

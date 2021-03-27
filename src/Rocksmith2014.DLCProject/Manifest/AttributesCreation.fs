@@ -331,6 +331,7 @@ let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Inst
     attr.AlbumNameSort <- project.AlbumName.SortValue
     attr.ArtistName <- project.ArtistName.Value
     attr.ArtistNameSort <- project.ArtistName.SortValue
+    if xmlMetaData.Capo > 0y then attr.CapoFret <- Nullable(float xmlMetaData.Capo)
     attr.CentOffset <- Utils.tuningPitchToCents instrumental.TuningPitch
     attr.DNA_Chords <- dnaChords
     attr.DNA_Riffs <- dnaRiffs
