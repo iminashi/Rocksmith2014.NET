@@ -2,7 +2,7 @@
   "unknownArrangementError": "Not a Rocksmith 2014 arrangement.",
   "select": "Select",
   "convert": "Convert",
-  "selectArrangement": "Select Arrangement",
+  "selectArrangement": "Select Arrangement(s)",
   "selectCoverArt": "Select Cover Art",
   "selectAudioFile": "Select Audio File",
   "selectCustomFont": "Select Custom Font Texture",
