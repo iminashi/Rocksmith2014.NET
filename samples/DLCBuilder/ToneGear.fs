@@ -58,7 +58,7 @@ let private loadGearData () = async {
     let provider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
     let options = JsonSerializerOptions(IgnoreNullValues = true)
     options.Converters.Add(JsonFSharpConverter())
-    use gearDataFile = provider.GetFileInfo("ToneGearData.json").CreateReadStream()
+    use gearDataFile = provider.GetFileInfo("Tones/ToneGearData.json").CreateReadStream()
     return! JsonSerializer.DeserializeAsync<GearData[]>(gearDataFile, options) }
 
 let allGear = loadGearData() |> Async.RunSynchronously

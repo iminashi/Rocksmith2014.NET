@@ -28,6 +28,7 @@
     </None>
     <AvaloniaResource Include="Assets\coverart_placeholder.png" />
     <EmbeddedResource Include="Assets\icon.ico" />
+    <EmbeddedResource Include="Tones\ToneGearData.json" />
     <EmbeddedResource Include="Tones\default_bass.json" />
     <EmbeddedResource Include="Tones\default_lead.json" />
     <EmbeddedResource Include="Tones\default_rhythm.json" />
@@ -35,7 +36,6 @@
     <EmbeddedResource Include="i18n\fi.json" />
     <EmbeddedResource Include="i18n\jp.json" />
     <AvaloniaResource Include="Styles.xaml" />
-    <EmbeddedResource Include="ToneGearData.json" />
     <Compile Include="ToneGear.fs" />
     <Compile Include="DefaultTones.fs" />
     <Compile Include="Localization.fs" />
