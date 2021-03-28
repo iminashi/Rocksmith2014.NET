@@ -64,14 +64,8 @@ let tone state dispatch index (t: Tone) =
     let description =
         String.Join(" ", Array.map (ToneDescriptor.uiNameToName >> translate) t.ToneDescriptors)
 
-    let bg =
-        if state.SelectedToneIndex = index then
-            SolidColorBrush.Parse "#0a528b" :> ISolidColorBrush
-        else
-            Brushes.Transparent
-
     StackPanel.create [
-        StackPanel.background bg
+        StackPanel.classes [ "listitem"; if state.SelectedToneIndex = index then "selected" ]
         StackPanel.onPointerPressed ((fun _ -> index |> SetSelectedToneIndex |> dispatch), SubPatchOptions.OnChangeOf index)
         StackPanel.onDoubleTapped (fun _ -> ShowToneEditor |> dispatch)
         StackPanel.contextMenu (toneContextMenu state dispatch)
@@ -238,12 +232,6 @@ let arrangement state dispatch index arr =
         | Showlights _ ->
             Icons.spotlight, Brushes.showlights
     
-    let bg =
-        if state.SelectedArrangementIndex = index then
-            SolidColorBrush.Parse "#0a528b" :> ISolidColorBrush
-        else
-            Brushes.Transparent
-
     let xmlFile = Arrangement.getFile arr
     let hasIssues =
         if state.ArrangementIssues.ContainsKey xmlFile then
@@ -252,7 +240,7 @@ let arrangement state dispatch index arr =
             None
 
     DockPanel.create [
-        DockPanel.background bg
+        DockPanel.classes [ "listitem"; if state.SelectedArrangementIndex = index then "selected" ]
         DockPanel.onPointerPressed ((fun _ -> index |> SetSelectedArrangementIndex |> dispatch), SubPatchOptions.OnChangeOf index)
         DockPanel.contextMenu (arrangementContextMenu state dispatch)
         DockPanel.children [

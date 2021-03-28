@@ -1,28 +1,40 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Style Selector="TextBox">
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-      <Setter Property="Margin" Value="4"/>
-    </Style>
-    <Style Selector="NumericUpDown">
-      <Setter Property="Margin" Value="4"/>
-    </Style>
-    <Style Selector="Button">
-      <Setter Property="Padding" Value="10,0"/>
-      <Setter Property="HorizontalAlignment" Value="Stretch"/>
-      <Setter Property="VerticalAlignment" Value="Stretch"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-    <Style Selector="ToggleButton">
-      <Setter Property="HorizontalAlignment" Value="Stretch"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-    </Style>
-    <Style Selector="ToggleButton:disabled">
-      <Setter Property="Opacity" Value="0.5"/>
-    </Style>
-    <Style Selector="ComboBox">
-      <Setter Property="HorizontalAlignment" Value="Stretch"/>
-    </Style>
+  <Style Selector="TextBox">
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Margin" Value="4"/>
+  </Style>
+  <Style Selector="NumericUpDown">
+    <Setter Property="Margin" Value="4"/>
+  </Style>
+  <Style Selector="Button">
+    <Setter Property="Padding" Value="10,0"/>
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="VerticalAlignment" Value="Stretch"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="ToggleButton">
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="ToggleButton:disabled">
+    <Setter Property="Opacity" Value="0.5"/>
+  </Style>
+  <Style Selector="ComboBox">
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+  </Style>
+  <Style Selector=":is(Panel).listitem">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector=":is(Panel).listitem:pointerover">
+    <Setter Property="Background" Value="#383838"/>
+  </Style>
+  <Style Selector=":is(Panel).selected">
+    <Setter Property="Background" Value="#0a528b"/>
+  </Style>
+  <Style Selector=":is(Panel).selected:pointerover">
+    <Setter Property="Background" Value="#185f99"/>
+  </Style>
 </Styles>
