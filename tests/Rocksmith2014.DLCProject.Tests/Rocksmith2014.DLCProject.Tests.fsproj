@@ -39,6 +39,8 @@
     <Compile Include="AggregateGraphTests.fs" />
     <Compile Include="ShowlightGeneratorTests.fs" />
     <Compile Include="SoundBankTests.fs" />
+    <Compile Include="StringValidatorTests.fs" />
+    <Compile Include="DLCKeyTests.fs" />
     <Compile Include="DLCProjectTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
