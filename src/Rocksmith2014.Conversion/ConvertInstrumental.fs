@@ -70,7 +70,6 @@ let sngToXml (attr: Manifest.Attributes option) (sng: SNG) =
         match attr with
         | Some attr ->
             let m = MetaData(Arrangement = attr.ArrangementName,
-                             Capo = sbyte (attr.CapoFret.GetValueOrDefault()),
                              CentOffset = float32 (attr.CentOffset.GetValueOrDefault()),
                              AverageTempo = attr.SongAverageTempo.GetValueOrDefault(),
                              Title = attr.SongName,
