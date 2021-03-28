@@ -181,7 +181,7 @@ let private audioControls state dispatch =
                                 NumericUpDown.maximum 45.
                                 NumericUpDown.increment 0.5
                                 NumericUpDown.value state.Project.AudioFile.Volume
-                                NumericUpDown.formatString "F1"
+                                NumericUpDown.formatString "+0.0;-0.0;0.0"
                                 NumericUpDown.isEnabled (not <| state.RunningTasks.Contains (VolumeCalculation MainAudio))
                                 NumericUpDown.onValueChanged (SetAudioVolume >> EditProject >> dispatch)
                                 ToolTip.tip (translate "audioVolumeToolTip")
@@ -235,7 +235,7 @@ let private audioControls state dispatch =
                                 NumericUpDown.maximum 45.
                                 NumericUpDown.increment 0.5
                                 NumericUpDown.value state.Project.AudioPreviewFile.Volume
-                                NumericUpDown.formatString "F1"
+                                NumericUpDown.formatString "+0.0;-0.0;0.0"
                                 NumericUpDown.isEnabled (not <| state.RunningTasks.Contains (VolumeCalculation PreviewAudio))
                                 NumericUpDown.onValueChanged (SetPreviewVolume >> EditProject >> dispatch)
                                 ToolTip.tip (translate "previewAudioVolumeToolTip")

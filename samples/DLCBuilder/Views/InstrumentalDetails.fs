@@ -358,7 +358,7 @@ let view state dispatch (i: Instrumental) =
                         i.CustomAudio
                         |> Option.map (fun x -> x.Volume)
                         |> Option.defaultValue state.Project.AudioFile.Volume)
-                    NumericUpDown.formatString "F1"
+                    NumericUpDown.formatString "+0.0;-0.0;0.0"
                     NumericUpDown.onValueChanged (SetCustomAudioVolume >> EditInstrumental >> dispatch)
                     ToolTip.tip (translate "audioVolumeToolTip")
                 ]
