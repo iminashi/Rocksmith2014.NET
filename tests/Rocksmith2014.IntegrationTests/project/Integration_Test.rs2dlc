@@ -1,0 +1,209 @@
+{
+  "Version": "1",
+  "DLCKey": "IntegrationTest",
+  "ArtistName": {
+    "Value": "Integration",
+    "SortValue": "Integration"
+  },
+  "Title": {
+    "Value": "The Test",
+    "SortValue": "Test"
+  },
+  "AlbumName": {
+    "Value": "Album Name",
+    "SortValue": "Album Name"
+  },
+  "Year": 2021,
+  "AlbumArtFile": "cover.png",
+  "AudioFile": {
+    "Path": "BWV0573.wav",
+    "Volume": -0.2
+  },
+  "AudioPreviewFile": {
+    "Path": "BWV0573_preview.wav",
+    "Volume": 0.3
+  },
+  "AudioPreviewStartTime": 10,
+  "Arrangements": [
+    {
+      "Case": "Instrumental",
+      "Fields": [
+        {
+          "XML": "arr_lead_RS2.xml",
+          "Name": 0,
+          "RouteMask": 1,
+          "Priority": 0,
+          "ScrollSpeed": 1.3,
+          "BassPicked": false,
+          "Tuning": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "TuningPitch": 440,
+          "BaseTone": "guitar",
+          "Tones": [],
+          "MasterID": 1670570628,
+          "PersistentID": "b3f22050-92af-43b9-bbe9-6441b8f99058"
+        }
+      ]
+    },
+    {
+      "Case": "Instrumental",
+      "Fields": [
+        {
+          "XML": "arr_bass_RS2.xml",
+          "Name": 3,
+          "RouteMask": 4,
+          "Priority": 0,
+          "ScrollSpeed": 1.3,
+          "BassPicked": false,
+          "Tuning": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "TuningPitch": 440,
+          "BaseTone": "bass",
+          "Tones": [],
+          "MasterID": 760361739,
+          "PersistentID": "5a1eca1a-5a23-4bf2-9df3-eb61adf20746"
+        }
+      ]
+    },
+    {
+      "Case": "Vocals",
+      "Fields": [
+        {
+          "XML": "arr_vocals_RS2.xml",
+          "Japanese": false,
+          "MasterID": 993295695,
+          "PersistentID": "c7e75c2c-0ec0-4e28-aa58-6fbc6e45f929"
+        }
+      ]
+    },
+    {
+      "Case": "Vocals",
+      "Fields": [
+        {
+          "XML": "arr_jvocals.xml",
+          "Japanese": true,
+          "CustomFont": "lyrics.dds",
+          "MasterID": 1985334287,
+          "PersistentID": "47b7836f-3036-4d08-b062-bd97c9fbf6e8"
+        }
+      ]
+    }
+  ],
+  "Tones": [
+    {
+      "GearList": {
+        "Rack1": {
+          "Type": "Racks",
+          "KnobValues": {
+            "Rack_StudioEQ_Bass": -2,
+            "Rack_StudioEQ_BassFreq": 120,
+            "Rack_StudioEQ_HiMid": 2.5,
+            "Rack_StudioEQ_HiMidFreq": 5,
+            "Rack_StudioEQ_HiMidQ": 0,
+            "Rack_StudioEQ_LoMid": -0.5,
+            "Rack_StudioEQ_LoMidFreq": 1600,
+            "Rack_StudioEQ_LoMidQ": 0,
+            "Rack_StudioEQ_Treble": 0,
+            "Rack_StudioEQ_TrebleFreq": 5.6
+          },
+          "Key": "Rack_StudioEQ",
+          "Category": "30785"
+        },
+        "Amp": {
+          "Type": "Amps",
+          "KnobValues": {
+            "Amp_OrangeAD50_Bass": 40,
+            "Amp_OrangeAD50_Gain": 60,
+            "Amp_OrangeAD50_Mid": 85,
+            "Amp_OrangeAD50_Treble": 80
+          },
+          "Key": "Amp_OrangeAD50"
+        },
+        "Cabinet": {
+          "Type": "Cabinets",
+          "KnobValues": {},
+          "Key": "Cab_OrangePPC212OB_Condenser_Cone"
+        },
+        "PostPedal1": {
+          "Type": "Pedals",
+          "KnobValues": {
+            "Pedal_SpringReverb_Depth": 50,
+            "Pedal_SpringReverb_Mix": 20,
+            "Pedal_SpringReverb_Time": 60
+          },
+          "Key": "Pedal_SpringReverb",
+          "Category": "Reverb"
+        }
+      },
+      "ToneDescriptors": [
+        "$[35751]MULTI-EFFECT",
+        "$[35722]DISTORTION"
+      ],
+      "NameSeparator": " - ",
+      "IsCustom": true,
+      "Volume": "-19.8",
+      "Key": "guitar",
+      "Name": "guitar"
+    },
+    {
+      "GearList": {
+        "Amp": {
+          "Type": "Amps",
+          "KnobValues": {
+            "Bass_Amp_CH350B_15000": -1,
+            "Bass_Amp_CH350B_250": -1,
+            "Bass_Amp_CH350B_2500": 1,
+            "Bass_Amp_CH350B_30": 3,
+            "Bass_Amp_CH350B_7500": -1,
+            "Bass_Amp_CH350B_800": 1,
+            "Bass_Amp_CH350B_90": 0,
+            "Bass_Amp_CH350B_Bass": 75,
+            "Bass_Amp_CH350B_Gain": 10,
+            "Bass_Amp_CH350B_Treble": 46
+          },
+          "Key": "Bass_Amp_CH350B",
+          "Skin": "urn:image:dds:gear_bass_amp_ch350b_2",
+          "SkinIndex": 2
+        },
+        "Cabinet": {
+          "Type": "Cabinets",
+          "KnobValues": {},
+          "Key": "Bass_Cab_CH410BC_57_OffAxis",
+          "Skin": "urn:image:dds:gear_bass_cab_ch410bc_2",
+          "SkinIndex": 2
+        },
+        "PostPedal1": {
+          "Type": "Pedals",
+          "KnobValues": {
+            "Bass_Pedal_MBComp_Compress": 37,
+            "Bass_Pedal_MBComp_Filter": 240,
+            "Bass_Pedal_MBComp_Rate": 30
+          },
+          "Key": "Bass_Pedal_MBComp",
+          "Category": "30781"
+        }
+      },
+      "ToneDescriptors": [
+        "$[35756]FUZZ",
+        "$[35715]BASS"
+      ],
+      "NameSeparator": " - ",
+      "IsCustom": true,
+      "Volume": "-21.9",
+      "Key": "bass",
+      "Name": "bass"
+    }
+  ]
+}
