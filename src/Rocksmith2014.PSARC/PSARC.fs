@@ -156,7 +156,10 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     /// Inflates the entry with the given file name into the output stream.
     member _.InflateFile (name: string, output: Stream) = async {
-        let entry = toc.[List.findIndex ((=) name) manifest]
+        let entry =
+            match List.tryFindIndex ((=) name) manifest with
+            | None -> raise <| FileNotFoundException($"PSARC did not contain file '{name}'", name)
+            | Some i -> toc.[i]
         do! inflateEntry entry output }
 
     /// Inflates the entry with the given file name into the target file.
