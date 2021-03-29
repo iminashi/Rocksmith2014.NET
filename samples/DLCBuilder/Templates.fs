@@ -59,7 +59,7 @@ let tone state dispatch index (t: Tone) =
         if String.IsNullOrEmpty t.Key || t.Key = t.Name then
             t.Name
         else
-            t.Name + " [" + t.Key + "]"
+            $"{t.Name} [{t.Key}]"
 
     let description =
         String.Join(" ", Array.map (ToneDescriptor.uiNameToName >> translate) t.ToneDescriptors)
@@ -89,7 +89,7 @@ let toneDescriptor =
     DataTemplateView<ToneDescriptor>.create (fun desc ->
         let text =
             let name = translate desc.Name
-            if desc.IsExtra then name + " *" else name
+            if desc.IsExtra then $"{name} *" else name
 
         TextBlock.create [ TextBlock.text text ])
 
