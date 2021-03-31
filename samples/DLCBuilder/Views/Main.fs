@@ -63,23 +63,24 @@ let private arrangementPanel state dispatch =
                                     state.Project.Arrangements
                                     |> List.mapi (Templates.arrangement state dispatch)
                                 )
-                                StackPanel.onKeyDown ((fun e ->
-                                    e.Handled <- true
-                                    match e.KeyModifiers, e.Key with
-                                    | KeyModifiers.None, Key.Delete ->
-                                        dispatch DeleteArrangement
-                                    | KeyModifiers.Alt, Key.Up ->
-                                        dispatch (MoveArrangement Up)
-                                    | KeyModifiers.Alt, Key.Down ->
-                                        dispatch (MoveArrangement Down)
-                                    | KeyModifiers.None, Key.Up ->
-                                        if state.SelectedArrangementIndex > 0 then
-                                            dispatch (SetSelectedArrangementIndex (state.SelectedArrangementIndex - 1))
-                                    | KeyModifiers.None, Key.Down ->
-                                        if state.SelectedArrangementIndex <> state.Project.Arrangements.Length - 1 then
-                                            dispatch (SetSelectedArrangementIndex (state.SelectedArrangementIndex + 1))
-                                    | _ ->
-                                        e.Handled <- false), SubPatchOptions.OnChangeOf state.SelectedArrangementIndex)
+                                if state.Overlay = NoOverlay then
+                                    StackPanel.onKeyDown ((fun e ->
+                                        e.Handled <- true
+                                        match e.KeyModifiers, e.Key with
+                                        | KeyModifiers.None, Key.Delete ->
+                                            dispatch DeleteArrangement
+                                        | KeyModifiers.Alt, Key.Up ->
+                                            dispatch (MoveArrangement Up)
+                                        | KeyModifiers.Alt, Key.Down ->
+                                            dispatch (MoveArrangement Down)
+                                        | KeyModifiers.None, Key.Up ->
+                                            if state.SelectedArrangementIndex > 0 then
+                                                dispatch (SetSelectedArrangementIndex (state.SelectedArrangementIndex - 1))
+                                        | KeyModifiers.None, Key.Down ->
+                                            if state.SelectedArrangementIndex <> state.Project.Arrangements.Length - 1 then
+                                                dispatch (SetSelectedArrangementIndex (state.SelectedArrangementIndex + 1))
+                                        | _ ->
+                                            e.Handled <- false), SubPatchOptions.OnChangeOf state.SelectedArrangementIndex)
                             ]
                         )
                     ]
@@ -200,23 +201,24 @@ let private tonesPanel state dispatch =
                                     state.Project.Tones
                                     |> List.mapi (Templates.tone state dispatch)
                                 )
-                                StackPanel.onKeyDown ((fun e ->
-                                    e.Handled <- true
-                                    match e.KeyModifiers, e.Key with
-                                    | KeyModifiers.None, Key.Delete ->
-                                        dispatch DeleteTone
-                                    | KeyModifiers.Alt, Key.Up ->
-                                        dispatch (MoveTone Up)
-                                    | KeyModifiers.Alt, Key.Down ->
-                                        dispatch (MoveTone Down)
-                                    | KeyModifiers.None, Key.Up ->
-                                        if state.SelectedToneIndex > 0 then
-                                            dispatch (SetSelectedToneIndex (state.SelectedToneIndex - 1))
-                                    | KeyModifiers.None, Key.Down ->
-                                        if state.SelectedToneIndex <> state.Project.Tones.Length - 1 then
-                                            dispatch (SetSelectedToneIndex (state.SelectedToneIndex + 1))
-                                    | _ ->
-                                        e.Handled <- false), SubPatchOptions.OnChangeOf state.SelectedToneIndex)
+                                if state.Overlay = NoOverlay then
+                                    StackPanel.onKeyDown ((fun e ->
+                                        e.Handled <- true
+                                        match e.KeyModifiers, e.Key with
+                                        | KeyModifiers.None, Key.Delete ->
+                                            dispatch DeleteTone
+                                        | KeyModifiers.Alt, Key.Up ->
+                                            dispatch (MoveTone Up)
+                                        | KeyModifiers.Alt, Key.Down ->
+                                            dispatch (MoveTone Down)
+                                        | KeyModifiers.None, Key.Up ->
+                                            if state.SelectedToneIndex > 0 then
+                                                dispatch (SetSelectedToneIndex (state.SelectedToneIndex - 1))
+                                        | KeyModifiers.None, Key.Down ->
+                                            if state.SelectedToneIndex <> state.Project.Tones.Length - 1 then
+                                                dispatch (SetSelectedToneIndex (state.SelectedToneIndex + 1))
+                                        | _ ->
+                                            e.Handled <- false), SubPatchOptions.OnChangeOf state.SelectedToneIndex)
                             ]
                         )
                     ]
