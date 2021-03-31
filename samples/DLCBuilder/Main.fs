@@ -106,6 +106,7 @@ let init arg =
       SelectedToneIndex = -1
       SelectedGear = None
       SelectedGearSlot = ToneGear.Amp
+      ManuallyEditingKnobKey = None
       ShowSortFields = false
       ShowJapaneseFields = false
       Overlay = NoOverlay
@@ -170,11 +171,14 @@ let update (msg: Msg) (state: State) =
                     Cmd.none
                 | _ ->
                     Cmd.ofMsg (gear |> SetPedal |> EditTone)
-            | _ -> Cmd.none
+            | None ->
+                Cmd.none
 
         { state with SelectedGear = gear }, cmd
 
     | SetSelectedGearSlot gearSlot -> { state with SelectedGearSlot = gearSlot }, Cmd.none
+
+    | SetManuallyEditingKnobKey key -> { state with ManuallyEditingKnobKey = key}, Cmd.none
 
     | ShowToneEditor ->
         if state.SelectedToneIndex <> -1 then

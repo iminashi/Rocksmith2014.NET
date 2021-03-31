@@ -115,6 +115,7 @@ type State =
       SelectedArrangementIndex : int
       SelectedToneIndex : int
       SelectedGear : ToneGear.GearData option
+      ManuallyEditingKnobKey : string option
       SelectedGearSlot : ToneGear.GearSlot
       ShowSortFields : bool
       ShowJapaneseFields : bool
@@ -153,6 +154,7 @@ type Msg =
     | SetSelectedToneIndex of index : int
     | SetSelectedGear of ToneGear.GearData option
     | SetSelectedGearSlot of ToneGear.GearSlot
+    | SetManuallyEditingKnobKey of string option
     | DeleteArrangement
     | DeleteTone
     | DuplicateTone

@@ -26,15 +26,18 @@
     <None Include="README.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <EmbeddedResource Include="i18n\en.json" />
+    <EmbeddedResource Include="i18n\fi.json" />
+    <EmbeddedResource Include="i18n\jp.json" />
     <AvaloniaResource Include="Assets\coverart_placeholder.png" />
     <EmbeddedResource Include="Assets\icon.ico" />
     <EmbeddedResource Include="Tones\ToneGearData.json" />
     <EmbeddedResource Include="Tones\default_bass.json" />
     <EmbeddedResource Include="Tones\default_lead.json" />
     <EmbeddedResource Include="Tones\default_rhythm.json" />
-    <EmbeddedResource Include="i18n\en.json" />
-    <EmbeddedResource Include="i18n\fi.json" />
-    <EmbeddedResource Include="i18n\jp.json" />
+    <Compile Include="Controls\AutoFocusTextBox.fs" />
+    <Compile Include="Controls\TitledTextBox.fs" />
+    <Watch Include="**\*.fs" />
     <AvaloniaResource Include="Styles.xaml" />
     <Compile Include="ToneGear.fs" />
     <Compile Include="DefaultTones.fs" />
@@ -45,7 +48,6 @@
     <Compile Include="Media.fs" />
     <Compile Include="Dialogs.fs" />
     <Compile Include="EditFunctions.fs" />
-    <Compile Include="TitledTextBox.fs" />
     <Compile Include="Templates.fs" />
     <Compile Include="Views\ProjectDetails.fs" />
     <Compile Include="Views\InstrumentalDetails.fs" />
@@ -86,6 +88,9 @@
 
   <ItemGroup>
     <Watch Include="**\*.xaml" />
-    <Watch Include="**\*.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Watch Remove="AutoFocusTextBox.fs" />
   </ItemGroup>
 </Project>

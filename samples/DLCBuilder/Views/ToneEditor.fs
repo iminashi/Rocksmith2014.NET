@@ -2,6 +2,7 @@
 
 open Avalonia.Layout
 open Avalonia.Media
+open Avalonia.Input
 open Avalonia.Controls
 open Avalonia.Controls.Primitives
 open Avalonia.FuncUI
@@ -117,18 +118,25 @@ let private gearSelector dispatch (gearList: Gear) gearSlot =
             |> SetSelectedGear |> dispatch)
     ]
 
+let private getFormatString knob =
+    let step = float knob.ValueStep
+    let hasDecimals = Math.Ceiling step > step
+    let canBeNegative = knob.MinValue < 0.0f
+    match hasDecimals, canBeNegative with
+    | true,  true  -> "+0.0;-0.0;0.0"
+    | true,  false -> "F1"
+    | false, true  -> "+0;-0;0"
+    | false, false -> "F0"
+
 let private formatValue knob value =
     match knob.EnumValues with
     | Some enums ->
         enums.[int value]
     | None ->
-        let step = knob.ValueStep |> float
-        let unit = if knob.UnitType = "number" then String.Empty else " " + knob.UnitType
-        match Math.Ceiling step > step, knob.MinValue < 0.0f with
-        | true,  true  -> sprintf "%+.1f%s" value unit
-        | true,  false -> sprintf "%.1f%s" value unit
-        | false, true  -> sprintf "%+.0f%s" value unit
-        | false, false -> sprintf "%.0f%s" value unit
+        let unit = if knob.UnitType = "number" then String.Empty else $" {knob.UnitType}"
+        let format = sprintf "{0:%s}%s" (getFormatString knob) unit
+        // Use String.Format to get culture specific decimal separators
+        String.Format(format, value)
 
 let private valueRangeText column knob value =
     TextBlock.create [
@@ -140,7 +148,7 @@ let private valueRangeText column knob value =
         TextBlock.verticalAlignment VerticalAlignment.Center
     ]
 
-let private knobSliders dispatch (gearList: Gear) gearSlot gear =
+let private knobSliders state dispatch (gearList: Gear) gearSlot gear =
     match gear with
     // Cabinets
     | { Knobs = None } as cabinet ->
@@ -193,16 +201,49 @@ let private knobSliders dispatch (gearList: Gear) gearSlot gear =
                                 TextBlock.horizontalAlignment HorizontalAlignment.Left
                             ]
                             // Current value
-                            TextBlock.create [
-                                DockPanel.dock Dock.Right
-                                TextBlock.horizontalAlignment HorizontalAlignment.Right
-                                TextBlock.text (formatValue knob currentValue)
-                            ]
+                            match state.ManuallyEditingKnobKey with
+                            | Some key when knob.Key = key ->
+                                // Editable text box
+                                AutoFocusTextBox.create [
+                                    DockPanel.dock Dock.Right
+                                    TextBox.minWidth 40.
+                                    TextBox.maxWidth 100.
+                                    TextBox.horizontalAlignment HorizontalAlignment.Right
+                                    TextBox.text <| currentValue.ToString(getFormatString knob)
+                                    TextBox.onLostFocus (fun _ -> None |> SetManuallyEditingKnobKey |> dispatch)
+                                    TextBox.onKeyDown ((fun e ->
+                                        if e.Key = Key.Enter then
+                                            let tb = e.Source :?> TextBox
+                                            match Single.TryParse(tb.Text) with
+                                            | true, value ->
+                                                let value = Math.Clamp(value, knob.MinValue, knob.MaxValue)
+                                                SetKnobValue (knob.Key, value) |> EditTone |> dispatch
+                                            | false, _ ->
+                                                ()
+                                            e.Handled <- true
+                                            None |> SetManuallyEditingKnobKey |> dispatch
+                                    ), SubPatchOptions.OnChangeOf knob)
+                                ]
+                            | _ ->
+                                TextBlock.create [
+                                    DockPanel.dock Dock.Right
+                                    TextBlock.background Brushes.Transparent
+                                    TextBlock.horizontalAlignment HorizontalAlignment.Right
+                                    TextBlock.text (formatValue knob currentValue)
+                                    if knob.EnumValues.IsNone then
+                                        TextBlock.cursor Cursors.hand
+                                        TextBlock.onTapped ((fun e ->
+                                            e.Handled <- true
+                                            knob.Key
+                                            |> Some
+                                            |> SetManuallyEditingKnobKey
+                                            |> dispatch), SubPatchOptions.OnChangeOf knob)
+                                ]
                         ]
                     ]
 
                     Grid.create [
-                        Grid.margin (6., -15., 6., -5.)
+                        Grid.margin (6., 0.)
                         Grid.columnDefinitions "auto,*,auto"
                         Grid.children [
                             valueRangeText 0 knob knob.MinValue
@@ -210,7 +251,7 @@ let private knobSliders dispatch (gearList: Gear) gearSlot gear =
 
                             Slider.create [
                                 Grid.column 1
-                                Slider.margin (4., 0.)
+                                Slider.margin (4., -10.)
                                 Slider.isSnapToTickEnabled true
                                 Slider.tickFrequency (float knob.ValueStep)
                                 Slider.smallChange (float knob.ValueStep)
@@ -251,7 +292,7 @@ let view state dispatch (tone: Tone) =
                                 Button.isVisible (match state.SelectedGearSlot with Amp | Cabinet -> false | _ -> true)
                                 Button.onClick (fun _ -> RemovePedal |> EditTone |> dispatch)
                             ]
-                        yield! knobSliders dispatch tone.GearList state.SelectedGearSlot gear
+                        yield! knobSliders state dispatch tone.GearList state.SelectedGearSlot gear
                 ]
             ]
 

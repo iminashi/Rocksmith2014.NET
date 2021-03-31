@@ -16,6 +16,7 @@ let initialState =
       SelectedToneIndex = -1
       SelectedGear = None
       SelectedGearSlot = ToneGear.Amp
+      ManuallyEditingKnobKey = None
       ShowSortFields = false
       ShowJapaneseFields = false
       Overlay = NoOverlay
