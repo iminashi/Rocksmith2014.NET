@@ -46,13 +46,18 @@ Memory use is more efficient. As an extreme example, building a complete discogr
 
 Reading the available tones from a profile file and opening the tone editor are much faster.
 
-### Features Not Available in the Toolkit
+### Features of DLC Builder Not Available in the Toolkit
 
 - Automatic calculation of volume values for audio
 - Optional checking of the arrangements for various issues
 - Creation of a preview audio file that has fade-in and fade-out similar to official files
 - Per-arrangement custom audio files
 - Multi-part tone descriptions with some extra options to select from
+
+### Features of the Toolkit Not Available in the DLC Builder
+
+- Console platform support
+- Support for Rocksmith 1
 
 ### Quality of Life
 
@@ -65,6 +70,7 @@ Reading the available tones from a profile file and opening the tone editor are 
 - Option to remove DD levels when importing a PSARC
 - Nicer looking tone editor that prevents gaps between gear slots
 - Command to generate new IDs per arrangement
+- No arbitrary limitations on what characters can be used in artist/song names or their sort values
 - The UI is localizable into different languages
 
 ### Generated Package Minutiae
