@@ -138,6 +138,13 @@ let private formatValue knob value =
         // Use String.Format to get culture specific decimal separators
         String.Format(format, value)
 
+let private parseKnobValue knob (text: string) =
+    match Single.TryParse text with
+    | true, value ->
+        Some (Math.Clamp(value, knob.MinValue, knob.MaxValue))
+    | false, _ ->
+        None
+
 let private valueRangeText column knob value =
     TextBlock.create [
         Grid.column column
@@ -213,14 +220,11 @@ let private knobSliders state dispatch (gearList: Gear) gearSlot gear =
                                     TextBox.onLostFocus (fun _ -> None |> SetManuallyEditingKnobKey |> dispatch)
                                     TextBox.onKeyDown ((fun e ->
                                         if e.Key = Key.Enter then
-                                            let tb = e.Source :?> TextBox
-                                            match Single.TryParse(tb.Text) with
-                                            | true, value ->
-                                                let value = Math.Clamp(value, knob.MinValue, knob.MaxValue)
-                                                SetKnobValue (knob.Key, value) |> EditTone |> dispatch
-                                            | false, _ ->
-                                                ()
                                             e.Handled <- true
+                                            let tb = e.Source :?> TextBox
+                                            parseKnobValue knob tb.Text
+                                            |> Option.iter (fun value -> SetKnobValue (knob.Key, value) |> EditTone |> dispatch)
+
                                             None |> SetManuallyEditingKnobKey |> dispatch
                                     ), SubPatchOptions.OnChangeOf knob)
                                 ]
