@@ -6,6 +6,8 @@ open System.IO
 open System.Text.Json
 open System.Text.Json.Serialization
 
+let [<Literal>] private MaxFiles = 5
+
 let private recentFilePath =
     Path.Combine(Configuration.appDataFolder, "recent.json")
 
@@ -25,7 +27,7 @@ let update newFile oldList =
     let updatedList =
         let list = List.remove newFile oldList
         newFile::list
-        |> List.truncate 3
+        |> List.truncate MaxFiles
 
     // Save the list if it changed
     if updatedList <> oldList then
@@ -38,5 +40,6 @@ let load () =
     recentFilePath
     |> File.tryMap (fun path -> async {
         use file = File.OpenRead path
-        return! JsonSerializer.DeserializeAsync<string list>(file, jsonOptions) } )
-    |> Option.defaultValue (async { return [] })
+        let! recent = JsonSerializer.DeserializeAsync<string list>(file, jsonOptions)
+        return List.filter File.Exists recent } )
+    |> Option.defaultValue (async { return List.empty })

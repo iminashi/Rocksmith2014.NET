@@ -262,5 +262,6 @@
   "MaxInstrumentals": "Projektissa on jo viisi instrumentaalisovitusta.",
   "MaxVocals": "Projektissa on jo kaksi lyriikkasovitusta.",
   "MaxShowlights": "Projektissa on jo valoshowsovitus.",
-  "previewDeleteError": "Vanhan tiedoston {0} poistaminen epäonnistui virheellä \"{1}\".\nPoista tämä tiedosto manuaalisesti, jotta uusi esikatseluaudio tulee käyttöön."
+  "previewDeleteError": "Vanhan tiedoston {0} poistaminen epäonnistui virheellä \"{1}\".\nPoista tämä tiedosto manuaalisesti, jotta uusi esikatseluaudio tulee käyttöön.",
+  "recentProjects": "Viimeksi avatut projektit"
 }
