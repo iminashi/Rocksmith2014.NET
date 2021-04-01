@@ -37,6 +37,7 @@
     <EmbeddedResource Include="Tones\default_rhythm.json" />
     <Compile Include="Controls\AutoFocusTextBox.fs" />
     <Compile Include="Controls\TitledTextBox.fs" />
+    <Compile Include="Controls\Extensions.fs" />
     <Watch Include="**\*.fs" />
     <AvaloniaResource Include="Styles.xaml" />
     <Compile Include="ToneGear.fs" />
@@ -92,5 +93,6 @@
 
   <ItemGroup>
     <Watch Remove="AutoFocusTextBox.fs" />
+    <Watch Remove="Controls\Extensions.fs" />
   </ItemGroup>
 </Project>

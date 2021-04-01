@@ -6,6 +6,7 @@ open Avalonia.FuncUI
 open Avalonia.Media
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
+open Avalonia.Input
 open Avalonia.Layout
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
@@ -23,13 +24,13 @@ let private toneContextMenu state dispatch =
 
             MenuItem.create [
                 MenuItem.header (translate "moveUp")
-                //MenuItem.inputGesture (KeyGesture(Key.Up, KeyModifiers.Alt))
+                MenuItem.inputGesture (KeyGesture(Key.Up, KeyModifiers.Alt))
                 MenuItem.onClick (fun _ -> Up |> MoveTone |> dispatch)
             ]
 
             MenuItem.create [
                 MenuItem.header (translate "moveDown")
-                //MenuItem.inputGesture (KeyGesture(Key.Down, KeyModifiers.Alt))
+                MenuItem.inputGesture (KeyGesture(Key.Down, KeyModifiers.Alt))
                 MenuItem.onClick (fun _ -> Down |> MoveTone |> dispatch)
             ]
 
@@ -47,7 +48,7 @@ let private toneContextMenu state dispatch =
 
             MenuItem.create [
                 MenuItem.header (translate "remove")
-                //MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))
+                MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))
                 MenuItem.onClick (fun _ -> dispatch DeleteTone)
             ]
         ]
@@ -128,13 +129,13 @@ let private arrangementContextMenu state dispatch =
 
             MenuItem.create [
                 MenuItem.header (translate "moveUp")
-                //MenuItem.inputGesture (KeyGesture(Key.Up, KeyModifiers.Alt))
+                MenuItem.inputGesture (KeyGesture(Key.Up, KeyModifiers.Alt))
                 MenuItem.onClick (fun _ -> Up |> MoveArrangement |> dispatch)
             ]
 
             MenuItem.create [
                 MenuItem.header (translate "moveDown")
-                //MenuItem.inputGesture (KeyGesture(Key.Down, KeyModifiers.Alt))
+                MenuItem.inputGesture (KeyGesture(Key.Down, KeyModifiers.Alt))
                 MenuItem.onClick (fun _ -> Down |> MoveArrangement |> dispatch)
             ]
 
@@ -142,7 +143,7 @@ let private arrangementContextMenu state dispatch =
 
             MenuItem.create [
                 MenuItem.header (translate "remove")
-                //MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))
+                MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))
                 MenuItem.onClick (fun _ -> dispatch DeleteArrangement)
             ]
         ]

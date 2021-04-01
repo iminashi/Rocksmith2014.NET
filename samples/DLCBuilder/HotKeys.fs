@@ -2,7 +2,7 @@
 
 open Avalonia.Input
 
-//let [<Literal>] private CtrlAlt = KeyModifiers.Control ||| KeyModifiers.Alt
+let [<Literal>] private CtrlAlt = KeyModifiers.Control ||| KeyModifiers.Alt
 let [<Literal>] private Ctrl = KeyModifiers.Control
 let [<Literal>] private None = KeyModifiers.None
 
@@ -16,8 +16,8 @@ let handleEvent dispatch (event: KeyEventArgs) =
     | Ctrl, Key.S ->
         dispatch ProjectSaveOrSaveAs
 
-    //| CtrlAlt, Key.S ->
-    //    dispatch ProjectSaveAs
+    | CtrlAlt, Key.S ->
+        dispatch ProjectSaveAs
 
     | Ctrl, Key.P ->
         dispatch ImportProfileTones
