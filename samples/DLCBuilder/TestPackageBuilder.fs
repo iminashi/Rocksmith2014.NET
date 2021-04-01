@@ -28,8 +28,8 @@ let private generateNewIds arrangements =
 /// Returns an async task for building the test package.
 let build platform config project =
     let isRocksmithRunning =
-        Process.GetProcesses()
-        |> Array.exists (fun x -> x.ProcessName = "Rocksmith2014")
+        Process.GetProcessesByName "Rocksmith2014"
+        |> (Array.isEmpty >> not)
 
     let packageFileName = createPackageName project
     let targetFolder = config.TestFolderPath
