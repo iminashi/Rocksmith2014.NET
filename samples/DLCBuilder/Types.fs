@@ -87,6 +87,7 @@ type ConfigEdit =
     | SetCustomAppId of string option
     | SetConvertAudio of AudioConversionType
     | SetOpenFolderAfterReleaseBuild of bool
+    | SetLoadPreviousProject of bool
     | AddReleasePlatform of Platform
     | RemoveReleasePlatform of Platform
 
@@ -148,13 +149,14 @@ type Msg =
     | AddArrangements of files : string[] option
     | SetCoverArt of fileName : string
     | SetAudioFile of fileName : string
-    | SetConfiguration of config : Configuration
-    | SetRecentFiles of string list
+    | SetConfiguration of config : Configuration * enableLoad : bool
+    | SetRecentFiles of files : string list
     | SetSelectedArrangementIndex of index : int
     | SetSelectedToneIndex of index : int
     | SetSelectedGear of ToneGear.GearData option
     | SetSelectedGearSlot of ToneGear.GearSlot
     | SetManuallyEditingKnobKey of string option
+    | DeleteTestBuilds
     | DeleteArrangement
     | DeleteTone
     | DuplicateTone

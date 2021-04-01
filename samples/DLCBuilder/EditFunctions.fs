@@ -151,6 +151,9 @@ let editConfig edit config =
     | SetOpenFolderAfterReleaseBuild openFolder ->
         { config with OpenFolderAfterReleaseBuild = openFolder }
 
+    | SetLoadPreviousProject load ->
+        { config with LoadPreviousOpenedProject = load }
+
     | SetWwiseConsolePath path ->
         { config with WwiseConsolePath = Option.ofString path }
 

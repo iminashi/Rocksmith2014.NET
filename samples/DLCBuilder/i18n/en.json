@@ -263,5 +263,8 @@
   "MaxVocals": "There are already two vocals arrangements in the project.",
   "MaxShowlights": "There is already a show lights arrangement in the project.",
   "previewDeleteError": "Deleting old preview file {0} failed with error \"{1}\".\nDelete this file manually for the new preview audio to be used.",
-  "recentProjects": "Recent Projects"
+  "recentProjects": "Recent Projects",
+  "deleteTestBuilds": "Delete Test Build(s)",
+  "deleteTestBuildsTooltip": "Deletes any test builds that exist for this project.",
+  "loadPreviousProjectAutomatically": "Load Previously Opened Project Automatically"
 }

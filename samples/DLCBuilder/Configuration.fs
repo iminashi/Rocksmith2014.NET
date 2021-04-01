@@ -23,6 +23,8 @@ type Configuration =
       AutoVolume : bool
       ConvertAudio : AudioConversionType
       OpenFolderAfterReleaseBuild : bool
+      LoadPreviousOpenedProject : bool
+      PreviousOpenedProject : string
       Locale : Locale
       WwiseConsolePath : string option
       CustomAppId : string option }
@@ -43,6 +45,8 @@ type Configuration =
           AutoVolume = true
           ConvertAudio = NoConversion
           OpenFolderAfterReleaseBuild = true
+          LoadPreviousOpenedProject = false
+          PreviousOpenedProject = String.Empty
           Locale = Locales.Default
           WwiseConsolePath = None
           CustomAppId = None }
@@ -65,6 +69,8 @@ module Configuration =
         member val AutoVolume : bool = true with get, set
         member val ConvertAudio : int = 0 with get, set
         member val OpenFolderAfterReleaseBuild : bool = true with get, set
+        member val LoadPreviousOpenedProject : bool = false with get, set
+        member val PreviousOpenedProject : string = String.Empty with get, set
         member val Locale : string = "en" with get, set
         member val WwiseConsolePath : string = String.Empty with get, set
         member val CustomAppId : string = String.Empty with get, set
@@ -107,6 +113,8 @@ module Configuration =
           AutoVolume = dto.AutoVolume
           ConvertAudio = convertAudio
           OpenFolderAfterReleaseBuild = dto.OpenFolderAfterReleaseBuild
+          LoadPreviousOpenedProject = dto.LoadPreviousOpenedProject
+          PreviousOpenedProject = dto.PreviousOpenedProject
           Locale = Locales.fromShortName dto.Locale
           WwiseConsolePath = Option.ofString dto.WwiseConsolePath
           CustomAppId = Option.ofString dto.CustomAppId }
@@ -135,6 +143,8 @@ module Configuration =
             AutoVolume = config.AutoVolume,
             ConvertAudio = convertAudio,
             OpenFolderAfterReleaseBuild = config.OpenFolderAfterReleaseBuild,
+            LoadPreviousOpenedProject = config.LoadPreviousOpenedProject,
+            PreviousOpenedProject = config.PreviousOpenedProject,
             SaveDebugFiles = config.SaveDebugFiles,
             WwiseConsolePath = Option.toObj config.WwiseConsolePath,
             CustomAppId = Option.toObj config.CustomAppId)

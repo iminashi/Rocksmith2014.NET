@@ -263,5 +263,8 @@
   "MaxVocals": "プロジェクトにはすでに二つのボーカルアレンジがあります。",
   "MaxShowlights": "プロジェクトにはすでにショーライトアレンジがあります。",
   "previewDeleteError": "古いプレビューファイル「{0}」を自動的にデリートすることができませんでした。次のエラーが発生「{1}」.\nこのファイルをデリートすると新しいプレビューオーディオが使用されます。",
-  "recentProjects": "最近のプロジェクト"
+  "recentProjects": "最近のプロジェクト",
+  "deleteTestBuilds": "テストビルドを削除する",
+  "deleteTestBuildsTooltip": "このプロジェクトのテストビルドを削除します。",
+  "loadPreviousProjectAutomatically": "前回のプロジェクトを自動的に開く"
 }

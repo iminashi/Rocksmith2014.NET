@@ -38,7 +38,6 @@
     <Compile Include="Controls\AutoFocusTextBox.fs" />
     <Compile Include="Controls\TitledTextBox.fs" />
     <Compile Include="Controls\Extensions.fs" />
-    <Watch Include="**\*.fs" />
     <AvaloniaResource Include="Styles.xaml" />
     <Compile Include="ToneGear.fs" />
     <Compile Include="DefaultTones.fs" />
@@ -50,6 +49,7 @@
     <Compile Include="Dialogs.fs" />
     <Compile Include="EditFunctions.fs" />
     <Compile Include="Templates.fs" />
+    <Compile Include="TestPackageBuilder.fs" />
     <Compile Include="Views\ProjectDetails.fs" />
     <Compile Include="Views\InstrumentalDetails.fs" />
     <Compile Include="Views\VocalsDetails.fs" />
@@ -89,10 +89,6 @@
 
   <ItemGroup>
     <Watch Include="**\*.xaml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Watch Remove="AutoFocusTextBox.fs" />
-    <Watch Remove="Controls\Extensions.fs" />
+    <Watch Include="**\*.fs" />
   </ItemGroup>
 </Project>

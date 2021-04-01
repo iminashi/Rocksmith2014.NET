@@ -180,6 +180,14 @@ let private generalConfig state dispatch =
                 CheckBox.onUnchecked (fun _ -> false |> SetAutoVolume |> EditConfig |> dispatch)
             ]
 
+            // Load Previously Opened Project Automatically
+            CheckBox.create [
+                CheckBox.content (translate "loadPreviousProjectAutomatically")
+                CheckBox.isChecked state.Config.LoadPreviousOpenedProject
+                CheckBox.onChecked (fun _ -> true |> SetLoadPreviousProject |> EditConfig |> dispatch)
+                CheckBox.onUnchecked (fun _ -> false |> SetLoadPreviousProject |> EditConfig |> dispatch)
+            ]
+
             // Show Advanced Features
             CheckBox.create [
                 CheckBox.content (translate "showAdvancedFeatures")

@@ -263,5 +263,8 @@
   "MaxVocals": "Projektissa on jo kaksi lyriikkasovitusta.",
   "MaxShowlights": "Projektissa on jo valoshowsovitus.",
   "previewDeleteError": "Vanhan tiedoston {0} poistaminen epäonnistui virheellä \"{1}\".\nPoista tämä tiedosto manuaalisesti, jotta uusi esikatseluaudio tulee käyttöön.",
-  "recentProjects": "Viimeksi avatut projektit"
+  "recentProjects": "Viimeksi avatut projektit",
+  "deleteTestBuilds": "Poista testibuildi(t)",
+  "deleteTestBuildsTooltip": "Poistaa kaikki tämän projektin mahdolliset testibuildit.",
+  "loadPreviousProjectAutomatically": "Lataa viimeisin avoinna ollut projekti automaattisesti"
 }

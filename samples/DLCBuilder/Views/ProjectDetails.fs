@@ -62,6 +62,8 @@ let private audioMenu notCalculatingVolume state dispatch =
     ]
 
 let private fileMenu state dispatch =
+    let separator = MenuItem.create [ MenuItem.header "-" ]
+
     Menu.create [
         Menu.fontSize 16.
         Menu.margin (0., 0., 4., 0.)
@@ -87,7 +89,7 @@ let private fileMenu state dispatch =
                         MenuItem.onClick (fun _ -> dispatch ProjectSaveAs)
                     ]
     
-                    MenuItem.create [ MenuItem.header "-" ]
+                    separator
     
                     // Import Toolkit template
                     MenuItem.create [
@@ -104,12 +106,22 @@ let private fileMenu state dispatch =
                         MenuItem.inputGesture (KeyGesture(Key.A, KeyModifiers.Control))
                         MenuItem.onClick (fun _ ->
                             Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder)
-                            |>dispatch)
+                            |> dispatch)
                     ]
     
-                    // Recent files
-                    MenuItem.create [ MenuItem.header "-" ]
+                    separator
 
+                    // Delete test builds
+                    MenuItem.create [
+                        MenuItem.header (translate "deleteTestBuilds")
+                        MenuItem.isEnabled (String.notEmpty state.Config.TestFolderPath && state.OpenProjectFile.IsSome)
+                        MenuItem.onClick (fun _ -> dispatch DeleteTestBuilds)
+                        ToolTip.tip (translate "deleteTestBuildsTooltip")
+                    ]
+
+                    separator
+
+                    // Recent files
                     MenuItem.create [
                         MenuItem.header (translate "recentProjects")
 

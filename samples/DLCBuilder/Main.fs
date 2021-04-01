@@ -92,7 +92,7 @@ let init arg =
                     None)
 
         Cmd.batch [
-            Cmd.OfAsync.perform Configuration.load () SetConfiguration
+            Cmd.OfAsync.perform Configuration.load () (fun config -> SetConfiguration(config, loadProject.IsNone)) 
             Cmd.OfAsync.perform RecentFilesList.load () SetRecentFiles
             yield! loadProject |> Option.toList
         ]
@@ -542,9 +542,16 @@ let update (msg: Msg) (state: State) =
 
     | ShowConfigEditor -> { state with Overlay = ConfigEditor }, Cmd.none
     
-    | SetConfiguration newConfig ->
-        if config.Locale <> newConfig.Locale then changeLocale newConfig.Locale
-        { state with Config = newConfig }, Cmd.none
+    | SetConfiguration (newConfig, enableLoad) ->
+        if config.Locale <> newConfig.Locale then
+            changeLocale newConfig.Locale
+        let cmd =
+            if enableLoad && newConfig.LoadPreviousOpenedProject && File.Exists newConfig.PreviousOpenedProject then
+                Cmd.ofMsg (OpenProject newConfig.PreviousOpenedProject)
+            else
+                Cmd.none
+            
+        { state with Config = newConfig }, cmd
 
     | SetRecentFiles recent -> { state with RecentFiles = recent }, Cmd.none
 
@@ -557,9 +564,17 @@ let update (msg: Msg) (state: State) =
     | ProjectSaved target ->
         let recent = RecentFilesList.update target state.RecentFiles
 
+        let newConfig = { config with PreviousOpenedProject = target }
+        let cmd =
+            if config.PreviousOpenedProject <> target then
+                Cmd.OfAsync.attempt Configuration.save config ErrorOccurred
+            else
+                Cmd.none
+
         { state with OpenProjectFile = Some target
                      SavedProject = project
-                     RecentFiles = recent }, Cmd.none
+                     RecentFiles = recent
+                     Config = newConfig }, cmd
 
     | ProjectSaveOrSaveAs ->
         let msg =
@@ -576,14 +591,22 @@ let update (msg: Msg) (state: State) =
         let project = DLCProject.updateToneInfo project
         let recent = RecentFilesList.update projectFile state.RecentFiles
 
+        let newConfig = { config with PreviousOpenedProject = projectFile }
+        let cmd =
+            if config.PreviousOpenedProject <> projectFile then
+                Cmd.OfAsync.attempt Configuration.save config ErrorOccurred
+            else
+                Cmd.none
+
         { state with CoverArt = coverArt
                      Project = project
                      SavedProject = project
                      OpenProjectFile = Some projectFile
                      RecentFiles = recent
                      RunningTasks = state.RunningTasks |> Set.remove PsarcImport
+                     Config = newConfig
                      SelectedArrangementIndex = -1
-                     SelectedToneIndex = -1 }, Cmd.none
+                     SelectedToneIndex = -1 }, cmd
 
     | EditInstrumental edit ->
         match getSelectedArrangement state with
@@ -608,16 +631,32 @@ let update (msg: Msg) (state: State) =
 
     | EditConfig edit -> { state with Config = editConfig edit config }, Cmd.none
 
+    | DeleteTestBuilds ->
+        let cmd =
+            try
+                let packageName = TestPackageBuilder.createPackageName project
+                let filesToDelete =
+                    if packageName.Length >= 5 then
+                        Directory.EnumerateFiles config.TestFolderPath
+                        |> Seq.filter (Path.GetFileName >> (String.startsWith packageName))
+                    else
+                        Seq.empty
+                // TODO: Show confirmation if deleting more than one file?
+                Seq.iter File.Delete filesToDelete
+                Cmd.none
+            with e ->
+                Cmd.ofMsg <| ErrorOccurred e
+        state, cmd
+
     | Build Test ->
         match BuildValidator.validate project with
         | Error error ->
             { state with Overlay = ErrorMessage(translate error, None) }, Cmd.none
         | Ok _ ->
-            let path = Path.Combine(config.TestFolderPath, project.DLCKey.ToLowerInvariant())
-            let buildConfig = Utils.createBuildConfig Test config project [ state.CurrentPlatform ]
-            let task () = buildPackages path buildConfig project
+            let task = TestPackageBuilder.build state.CurrentPlatform config
 
-            addTask BuildPackage state, Cmd.OfAsync.either task () (fun () -> BuildComplete Test) (fun ex -> TaskFailed(ex, BuildPackage))
+            addTask BuildPackage state,
+            Cmd.OfAsync.either task project (fun () -> BuildComplete Test) (fun ex -> TaskFailed(ex, BuildPackage))
 
     | Build Release ->
         match BuildValidator.validate project with
@@ -630,15 +669,16 @@ let update (msg: Msg) (state: State) =
                 |> Option.map Path.GetDirectoryName
                 |> Option.defaultWith (fun _ -> Path.GetDirectoryName project.AudioFile.Path)
 
-            let fn =
+            let fileName =
                 sprintf "%s_%s_v%s" project.ArtistName.SortValue project.Title.SortValue (project.Version.Replace('.', '_'))
                 |> StringValidator.fileName
 
-            let path = Path.Combine(releaseDir, fn)
+            let path = Path.Combine(releaseDir, fileName)
             let buildConfig = Utils.createBuildConfig Release config project (Set.toList config.ReleasePlatforms)
             let task () = buildPackages path buildConfig project
 
-            addTask BuildPackage state, Cmd.OfAsync.either task () (fun () -> BuildComplete Release) (fun ex -> TaskFailed(ex, BuildPackage))
+            addTask BuildPackage state,
+            Cmd.OfAsync.either task () (fun () -> BuildComplete Release) (fun ex -> TaskFailed(ex, BuildPackage))
 
     | BuildComplete buildType ->
         if buildType = Release && config.OpenFolderAfterReleaseBuild then

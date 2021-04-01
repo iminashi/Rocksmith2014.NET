@@ -96,10 +96,16 @@ let editConfigTests =
             Expect.equal newState.Config.WwiseConsolePath (Some "WwiseConsole") "Wwise console path is correct"
             Expect.equal newState.Config.ProfilePath "profile_prfldb" "Profile path is correct"
 
-        testCase "SetOpenFolderAfterReleaseBuild" <| fun _ ->
-            let expected = not initialState.Config.OpenFolderAfterReleaseBuild
+        testCase "SetOpenFolderAfterReleaseBuild, SetLoadPreviousProject" <| fun _ ->
+            let openFolder = not initialState.Config.OpenFolderAfterReleaseBuild
+            let loadProject = not initialState.Config.LoadPreviousOpenedProject
+            let messages = [ SetOpenFolderAfterReleaseBuild openFolder
+                             SetLoadPreviousProject loadProject ] |> List.map EditConfig
 
-            let newState, _ = Main.update (SetOpenFolderAfterReleaseBuild expected |> EditConfig) initialState
+            let newState, _ =
+                messages
+                |> List.fold (fun (state, _) message -> Main.update message state) (initialState, Cmd.none)
                 
-            Expect.equal newState.Config.OpenFolderAfterReleaseBuild expected "Open folder after release is correct"
+            Expect.equal newState.Config.OpenFolderAfterReleaseBuild openFolder "Open folder after release is correct"
+            Expect.equal newState.Config.LoadPreviousOpenedProject loadProject "Load previous opened project is correct"
     ]
