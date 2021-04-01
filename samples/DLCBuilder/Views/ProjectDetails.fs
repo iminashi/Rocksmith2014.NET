@@ -131,7 +131,7 @@ let private fileMenu state dispatch =
                                 MenuItem.create [
                                     MenuItem.header ($"_{i + 1} {IO.Path.GetFileName fileName}")
                                     MenuItem.onClick (
-                                        (fun _ -> OpenProject fileName |>dispatch),
+                                        (fun _ -> OpenProject fileName |> dispatch),
                                         SubPatchOptions.OnChangeOf state.RecentFiles)
                                 ] |> generalize
                             )

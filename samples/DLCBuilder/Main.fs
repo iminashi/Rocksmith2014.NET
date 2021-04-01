@@ -153,6 +153,16 @@ let private moveSelected dir selectedIndex (list: List<_>) =
         else
             list, selectedIndex
 
+let private buildPackage buildType build state =
+    match BuildValidator.validate state.Project with
+    | Error error ->
+        { state with Overlay = ErrorMessage(translate error, None) }, Cmd.none
+    | Ok _ ->
+        let task = build state.Config
+
+        addTask BuildPackage state,
+        Cmd.OfAsync.either task state.Project (fun () -> BuildComplete buildType) (fun ex -> TaskFailed(ex, BuildPackage))
+
 let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
 
@@ -567,7 +577,7 @@ let update (msg: Msg) (state: State) =
         let newConfig = { config with PreviousOpenedProject = target }
         let cmd =
             if config.PreviousOpenedProject <> target then
-                Cmd.OfAsync.attempt Configuration.save config ErrorOccurred
+                Cmd.OfAsync.attempt Configuration.save newConfig ErrorOccurred
             else
                 Cmd.none
 
@@ -594,7 +604,7 @@ let update (msg: Msg) (state: State) =
         let newConfig = { config with PreviousOpenedProject = projectFile }
         let cmd =
             if config.PreviousOpenedProject <> projectFile then
-                Cmd.OfAsync.attempt Configuration.save config ErrorOccurred
+                Cmd.OfAsync.attempt Configuration.save newConfig ErrorOccurred
             else
                 Cmd.none
 
@@ -632,53 +642,37 @@ let update (msg: Msg) (state: State) =
     | EditConfig edit -> { state with Config = editConfig edit config }, Cmd.none
 
     | DeleteTestBuilds ->
+        let packageName = TestPackageBuilder.createPackageName project
+        let filesToDelete =
+            if packageName.Length >= 5 && Directory.Exists config.TestFolderPath then
+                Directory.EnumerateFiles config.TestFolderPath
+                |> Seq.filter (Path.GetFileName >> (String.startsWith packageName))
+                |> List.ofSeq
+            else
+                List.empty
+
+        match filesToDelete with
+        | [] ->
+            state, Cmd.none
+        | [ _ ] as one ->
+            state, Cmd.ofMsg (DeleteConfirmed one)
+        | many ->
+            { state with Overlay = DeleteConfirmation(many) }, Cmd.none
+
+    | DeleteConfirmed files ->
         let cmd =
             try
-                let packageName = TestPackageBuilder.createPackageName project
-                let filesToDelete =
-                    if packageName.Length >= 5 then
-                        Directory.EnumerateFiles config.TestFolderPath
-                        |> Seq.filter (Path.GetFileName >> (String.startsWith packageName))
-                    else
-                        Seq.empty
-                // TODO: Show confirmation if deleting more than one file?
-                Seq.iter File.Delete filesToDelete
+                List.iter File.Delete files
                 Cmd.none
             with e ->
                 Cmd.ofMsg <| ErrorOccurred e
-        state, cmd
+        { state with Overlay = NoOverlay }, cmd
 
     | Build Test ->
-        match BuildValidator.validate project with
-        | Error error ->
-            { state with Overlay = ErrorMessage(translate error, None) }, Cmd.none
-        | Ok _ ->
-            let task = TestPackageBuilder.build state.CurrentPlatform config
-
-            addTask BuildPackage state,
-            Cmd.OfAsync.either task project (fun () -> BuildComplete Test) (fun ex -> TaskFailed(ex, BuildPackage))
+        buildPackage Test (TestPackageBuilder.build state.CurrentPlatform) state
 
     | Build Release ->
-        match BuildValidator.validate project with
-        | Error error ->
-            { state with Overlay = ErrorMessage(translate error, None) }, Cmd.none
-        | Ok _ ->
-            let project = Utils.addDefaultTonesIfNeeded project
-            let releaseDir =
-                state.OpenProjectFile
-                |> Option.map Path.GetDirectoryName
-                |> Option.defaultWith (fun _ -> Path.GetDirectoryName project.AudioFile.Path)
-
-            let fileName =
-                sprintf "%s_%s_v%s" project.ArtistName.SortValue project.Title.SortValue (project.Version.Replace('.', '_'))
-                |> StringValidator.fileName
-
-            let path = Path.Combine(releaseDir, fileName)
-            let buildConfig = Utils.createBuildConfig Release config project (Set.toList config.ReleasePlatforms)
-            let task () = buildPackages path buildConfig project
-
-            addTask BuildPackage state,
-            Cmd.OfAsync.either task () (fun () -> BuildComplete Release) (fun ex -> TaskFailed(ex, BuildPackage))
+        buildPackage Release (ReleasePackageBuilder.build state.OpenProjectFile) state
 
     | BuildComplete buildType ->
         if buildType = Release && config.OpenFolderAfterReleaseBuild then

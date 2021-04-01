@@ -50,6 +50,7 @@
     <Compile Include="EditFunctions.fs" />
     <Compile Include="Templates.fs" />
     <Compile Include="TestPackageBuilder.fs" />
+    <Compile Include="ReleasePackageBuilder.fs" />
     <Compile Include="Views\ProjectDetails.fs" />
     <Compile Include="Views\InstrumentalDetails.fs" />
     <Compile Include="Views\VocalsDetails.fs" />
@@ -57,6 +58,7 @@
     <Compile Include="Views\ToneEditor.fs" />
     <Compile Include="Views\PreviewStartSelector.fs" />
     <Compile Include="Views\ErrorMessage.fs" />
+    <Compile Include="Views\DeleteConfirmation.fs" />
     <Compile Include="Views\ImportTonesSelector.fs" />
     <Compile Include="Views\IssueViewer.fs" />
     <Compile Include="Views\ConfigEditor.fs" />

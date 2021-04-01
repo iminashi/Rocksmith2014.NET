@@ -17,6 +17,7 @@ type OverlayContents =
     | ConfigEditor
     | IssueViewer of issues : ArrangementChecker.Issue list
     | ToneEditor
+    | DeleteConfirmation of files : string list
 
 type PreviewAudioCreation =
     | SetupStartTime
@@ -157,6 +158,7 @@ type Msg =
     | SetSelectedGearSlot of ToneGear.GearSlot
     | SetManuallyEditingKnobKey of string option
     | DeleteTestBuilds
+    | DeleteConfirmed of files : string list
     | DeleteArrangement
     | DeleteTone
     | DuplicateTone

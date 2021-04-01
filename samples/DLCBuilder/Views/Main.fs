@@ -264,6 +264,8 @@ let private overlay state dispatch =
             ErrorMessage.view dispatch "No tone selected. This should not happen." None
         | index ->
             ToneEditor.view state dispatch state.Project.Tones.[index]
+    | DeleteConfirmation files ->
+        DeleteConfirmation.view dispatch files
 
 let view (window: Window) (state: State) dispatch =
     if state.RunningTasks.IsEmpty then

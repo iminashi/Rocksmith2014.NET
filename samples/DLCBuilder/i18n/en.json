@@ -80,6 +80,8 @@
   "cancel": "Cancel",
   "error": "Error",
   "ok": "OK",
+  "yes": "Yes",
+  "no": "No",
   "selectImportTone": "Select Tone to Import",
   "releasePlatforms": "Platforms",
   "charterName": "Charter Name",
@@ -266,5 +268,7 @@
   "recentProjects": "Recent Projects",
   "deleteTestBuilds": "Delete Test Build(s)",
   "deleteTestBuildsTooltip": "Deletes any test builds that exist for this project.",
-  "loadPreviousProjectAutomatically": "Load Previously Opened Project Automatically"
+  "loadPreviousProjectAutomatically": "Load Previously Opened Project Automatically",
+  "confirmDelete": "Confirm Delete",
+  "deleteConfirmation": "{0} files will be deleted. Are you sure?"
 }

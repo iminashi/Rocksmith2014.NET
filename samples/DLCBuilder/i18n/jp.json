@@ -80,6 +80,8 @@
   "cancel": "キャンセル",
   "error": "エラー",
   "ok": "OK",
+  "yes": "はい",
+  "no": "いいえ",
   "selectImportTone": "インポートするトーンを選択してください",
   "releasePlatforms": "プラットフォーム",
   "charterName": "クリエイター名",
@@ -266,5 +268,7 @@
   "recentProjects": "最近のプロジェクト",
   "deleteTestBuilds": "テストビルドを削除する",
   "deleteTestBuildsTooltip": "このプロジェクトのテストビルドを削除します。",
-  "loadPreviousProjectAutomatically": "前回のプロジェクトを自動的に開く"
+  "loadPreviousProjectAutomatically": "前回のプロジェクトを自動的に開く",
+  "confirmDelete": "削除確認",
+  "deleteConfirmation": "{0}個のファイルが削除されます。よろしいですか？"
 }

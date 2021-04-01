@@ -25,13 +25,14 @@ let private generateNewIds arrangements =
     | other ->
         other)
 
-/// Returns an async task for building the test package.
+/// Returns an async task for building a package for testing.
 let build platform config project =
     let isRocksmithRunning =
         Process.GetProcessesByName "Rocksmith2014"
         |> (Array.isEmpty >> not)
 
     let packageFileName = createPackageName project
+    if packageFileName.Length < 5 then failwith "DLC key length too short."
     let targetFolder = config.TestFolderPath
     let existingPackages =
         Directory.EnumerateFiles targetFolder

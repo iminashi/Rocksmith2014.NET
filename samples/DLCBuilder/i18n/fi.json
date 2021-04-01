@@ -80,6 +80,8 @@
   "cancel": "Peruuta",
   "error": "Virhe",
   "ok": "OK",
+  "yes": "Kyllä",
+  "no": "Ei",
   "selectImportTone": "Valitse tuotava soundi",
   "releasePlatforms": "Alustat",
   "charterName": "Tekijänimi",
@@ -266,5 +268,7 @@
   "recentProjects": "Viimeksi avatut projektit",
   "deleteTestBuilds": "Poista testibuildi(t)",
   "deleteTestBuildsTooltip": "Poistaa kaikki tämän projektin mahdolliset testibuildit.",
-  "loadPreviousProjectAutomatically": "Lataa viimeisin avoinna ollut projekti automaattisesti"
+  "loadPreviousProjectAutomatically": "Lataa viimeisin avoinna ollut projekti automaattisesti",
+  "confirmDelete": "Vahvista poisto",
+  "deleteConfirmation": "{0} tiedostoa poistetaan. Oletko varma?"
 }
