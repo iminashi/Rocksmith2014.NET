@@ -181,10 +181,12 @@ namespace Rocksmith2014.XML
         /// Throws an exception if the name of the root node for an instrumental arrangement is not "song".
         /// </summary>
         /// <param name="reader">An XML reader located at the node whose name to validate.</param>
-        internal static void ValidateRootName(XmlReader reader)
+        internal static void ValidateRootNameAndVersion(XmlReader reader)
         {
             if (reader.LocalName != "song")
                 throw new InvalidOperationException("Expected root node of the XML file to be \"song\", instead found: " + reader.LocalName);
+            if (byte.Parse(reader.GetAttribute("version"), NumberFormatInfo.InvariantInfo) < 7)
+                throw new NotSupportedException("Expected song version to be 7 or greater. Rocksmith 1 XML files are not supported.");
         }
     }
 }

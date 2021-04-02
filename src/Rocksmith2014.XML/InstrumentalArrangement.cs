@@ -140,6 +140,7 @@ namespace Rocksmith2014.XML
             using XmlReader reader = XmlReader.Create(fileName, settings);
 
             reader.MoveToContent();
+            Utils.ValidateRootNameAndVersion(reader);
             var arr = new InstrumentalArrangement();
             ((IXmlSerializable)arr).ReadXml(reader);
             return arr;
@@ -156,7 +157,7 @@ namespace Rocksmith2014.XML
 
             reader.MoveToContent();
 
-            Utils.ValidateRootName(reader);
+            Utils.ValidateRootNameAndVersion(reader);
 
             var tones = new ToneInfo();
 

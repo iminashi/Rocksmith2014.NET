@@ -111,7 +111,7 @@ namespace Rocksmith2014.XML
 
             reader.MoveToContent();
 
-            Utils.ValidateRootName(reader);
+            Utils.ValidateRootNameAndVersion(reader);
 
             var metaData = new MetaData();
 
