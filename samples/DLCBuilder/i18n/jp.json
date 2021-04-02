@@ -149,6 +149,7 @@
   "selectImportToolkitTemplate": "インポートするToolkitテンプレートを選択してください",
   "selectImportPsarc": "インポートするPSARCファイルを選択してください",
   "selectPsarcExtractFolder": "プロジェクトが作られるフォルダを開く",
+  "invalidDLCKey": "DLCキーの長さは{0}文字以上である必要があります。",
   "titleEmpty": "曲名とそのソート欄が空にしてはいけない。",
   "artistNameEmpty": "アーティスト名とそのソート欄が空にしてはいけない。",
   "albumArtNotFound": "カバーアートファイルが存在しません。",

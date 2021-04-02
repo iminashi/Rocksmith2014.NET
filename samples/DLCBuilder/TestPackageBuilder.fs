@@ -34,7 +34,7 @@ let build platform config project =
         |> (Array.isEmpty >> not)
 
     let packageFileName = createPackageName project
-    if packageFileName.Length < 5 then failwith "DLC key length too short."
+    if packageFileName.Length < DLCKey.MinimumLength then failwith "DLC key length too short."
     let targetFolder = config.TestFolderPath
     let existingPackages =
         Directory.EnumerateFiles targetFolder

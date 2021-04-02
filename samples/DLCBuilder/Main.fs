@@ -156,7 +156,12 @@ let private moveSelected dir selectedIndex (list: List<_>) =
 let private buildPackage buildType build state =
     match BuildValidator.validate state.Project with
     | Error error ->
-        { state with Overlay = ErrorMessage(translate error, None) }, Cmd.none
+        let msg =
+            if error = "invalidDLCKey" then
+                translatef error [| DLCKey.MinimumLength |]
+            else
+                translate error
+        { state with Overlay = ErrorMessage(msg, None) }, Cmd.none
     | Ok _ ->
         let task = build state.Config
 
@@ -644,7 +649,7 @@ let update (msg: Msg) (state: State) =
     | DeleteTestBuilds ->
         let packageName = TestPackageBuilder.createPackageName project
         let filesToDelete =
-            if packageName.Length >= 5 && Directory.Exists config.TestFolderPath then
+            if packageName.Length >= DLCKey.MinimumLength && Directory.Exists config.TestFolderPath then
                 Directory.EnumerateFiles config.TestFolderPath
                 |> Seq.filter (Path.GetFileName >> (String.startsWith packageName))
                 |> List.ofSeq

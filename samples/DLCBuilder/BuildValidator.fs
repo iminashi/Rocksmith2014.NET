@@ -15,7 +15,9 @@ let validate (project: DLCProject) =
         |> List.choose Arrangement.pickVocals
         |> List.groupBy (fun x -> x.Japanese)
 
-    if SortableString.IsEmpty project.Title then
+    if project.DLCKey.Length < DLCKey.MinimumLength then
+        Error "invalidDLCKey"
+    elif SortableString.IsEmpty project.Title then
         Error "titleEmpty"
     elif SortableString.IsEmpty project.ArtistName then
         Error "artistNameEmpty"

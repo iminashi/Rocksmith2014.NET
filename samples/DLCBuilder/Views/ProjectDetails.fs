@@ -294,7 +294,6 @@ let private buildControls state dispatch =
         noBuildInProgress
         && (not <| state.RunningTasks.Contains PsarcImport)
         && state.Project.Arrangements.Length > 0
-        && state.Project.DLCKey.Length >= 5
         && String.notEmpty state.Project.AudioFile.Path
 
     Grid.create [
