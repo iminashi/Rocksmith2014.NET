@@ -6,7 +6,6 @@ open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DD
 open Rocksmith2014.DLCProject
-open Rocksmith2014.DLCProject.PackageBuilder
 open Rocksmith2014.XML.Processing
 open Elmish
 open System

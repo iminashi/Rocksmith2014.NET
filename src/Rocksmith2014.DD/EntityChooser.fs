@@ -208,7 +208,7 @@ let choose (diffPercent: float)
                 removedLinkNexts.Add xn.String |> ignore
             | XmlNote xn ->
                 removedLinkNexts.Remove xn.String |> ignore
-            | XmlChord xc when xc.IsLinkNext ->
+            | XmlChord xc when xc.IsLinkNext && not <| isNull xc.ChordNotes ->
                 for cn in xc.ChordNotes do
                     if cn.IsLinkNext && not cn.IsSlide then
                         removedLinkNexts.Add cn.String |> ignore
