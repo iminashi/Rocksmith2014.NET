@@ -142,6 +142,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
           AudioFile = mainAudio
           AudioPreviewFile = previewAudio
           AudioPreviewStartTime = None
+          PitchShift = None
           Arrangements = arrangements
           Tones = tones |> List.map Tone.fromDto }
 

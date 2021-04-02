@@ -87,5 +87,6 @@ let testProject =
       AudioFile = { Path = "audio.ogg"; Volume = 1. }
       AudioPreviewFile = { Path = "audio_preview.wav"; Volume = 1. }
       AudioPreviewStartTime = None
+      PitchShift = None
       Arrangements = [ Instrumental testLead ]
       Tones = [ testTone; { testTone with Key = "Tone_2" } ] }

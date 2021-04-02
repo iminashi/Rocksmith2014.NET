@@ -59,6 +59,7 @@
     <Compile Include="Views\PreviewStartSelector.fs" />
     <Compile Include="Views\ErrorMessage.fs" />
     <Compile Include="Views\DeleteConfirmation.fs" />
+    <Compile Include="Views\PitchShifter.fs" />
     <Compile Include="Views\ImportTonesSelector.fs" />
     <Compile Include="Views\IssueViewer.fs" />
     <Compile Include="Views\ConfigEditor.fs" />

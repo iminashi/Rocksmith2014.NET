@@ -61,7 +61,7 @@ let private audioMenu notCalculatingVolume state dispatch =
         ]
     ]
 
-let private fileMenu state dispatch =
+let private fileMenu state dispatch canBuild =
     let separator = MenuItem.create [ MenuItem.header "-" ]
 
     Menu.create [
@@ -87,6 +87,13 @@ let private fileMenu state dispatch =
                         MenuItem.header (translate "saveProjectAs")
                         MenuItem.inputGesture (KeyGesture(Key.S, KeyModifiers.Control ||| KeyModifiers.Alt))
                         MenuItem.onClick (fun _ -> dispatch ProjectSaveAs)
+                    ]
+
+                    // Build Pitch Shifted
+                    MenuItem.create [
+                        MenuItem.header (translate "buildPitchShifted")
+                        MenuItem.isEnabled canBuild
+                        MenuItem.onClick (fun _ -> dispatch ShowPitchShifter)
                     ]
     
                     separator
@@ -323,7 +330,7 @@ let private buildControls state dispatch =
                         Button.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
                     ]
 
-                    fileMenu state dispatch
+                    fileMenu state dispatch canBuild
                 ]
             ]
 

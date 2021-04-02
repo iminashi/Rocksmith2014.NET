@@ -12,7 +12,8 @@
   "selectProjectFile": "Valitse projektitiedosto",
   "selectImportToneFile": "Valitse tiedosto josta tuoda soundi",
   "couldNotFindTonesError": "Ei löytynyt yhtään soundia.",
-  "saveProjectAs": "Tallenna projekti nimellä",
+  "saveProjectAs": "Tallenna projekti nimellä...",
+  "saveProjectAsDialog": "Tallenna projekti nimellä",
   "addArrangement": "Lisää",
   "arrangements": "Sovitukset",
   "selectArrangementPrompt": "Valitse sovitus muokataksesi sen yksityiskohtia",
@@ -63,6 +64,7 @@
   "scrollSpeedTooltip": "Oletus: 1.3 (suositeltu)\n\nMitä pienempi arvo, sitä nopeampi vieritysnopeus.",
   "masterID": "Mestari ID",
   "persistentID": "Pysyvä ID",
+  "generateAllIDs": "Generoi ID:t kaikille sovituksille",
   "generateNewArrIDs": "Generoi uudet ID:t",
   "generateNewArrIDsToolTip": "Luo uudet identifikaatiotiedot tälle sovitukselle.\n\nSovituksen tilastot pelissä resetoituvat.",
   "japanese": "Japaninkielinen",
@@ -142,8 +144,8 @@
   "Piano": "Piano",
   "Ukulele": "Ukulele",
   "toneDescriptorToolTip": "Tähdellä merkityt kuvaukset ovat merkkijonoja pelin lokalisaatiotiedostosta, jotka eivät liity soundeihin.\nKäyttö omalla vastuulla.",
-  "toolkitImport": "Tuo Toolkit työpohja",
-  "psarcImport": "Tuo PSARC tiedosto",
+  "toolkitImport": "Tuo Toolkit työpohja...",
+  "psarcImport": "Tuo PSARC tiedosto...",
   "selectImportToolkitTemplate": "Valitse tuotava Toolkit työpohja",
   "selectImportPsarc": "Valitse tuotava PSARC tiedosto",
   "selectPsarcExtractFolder": "Valitse kansio, jonne projekti luodaan",
@@ -270,5 +272,8 @@
   "deleteTestBuildsTooltip": "Poistaa kaikki tämän projektin mahdolliset testibuildit.",
   "loadPreviousProjectAutomatically": "Lataa viimeisin avoinna ollut projekti automaattisesti",
   "confirmDelete": "Vahvista poisto",
-  "deleteConfirmation": "{0} tiedostoa poistetaan. Oletko varma?"
+  "deleteConfirmation": "{0} tiedostoa poistetaan. Oletko varma?",
+  "buildPitchShifted": "Rakenna viritys muunnettuna...",
+  "pitchShifterExplanation": "Voit luoda version, jossa viritys on muutettu efektipedaalin avulla.",
+  "shiftTuningBy": "Muunna viritystä (puolisävelaskel):"
 }

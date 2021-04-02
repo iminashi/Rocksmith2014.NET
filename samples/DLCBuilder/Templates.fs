@@ -103,20 +103,22 @@ let arrangementName =
         ])
 
 let private arrangementContextMenu state dispatch =
-    let isInstrumental =
+    let isInstrumental, hasIds =
         match state.SelectedArrangementIndex with
-        | -1 -> false
+        | -1 -> false, false
         | index ->
             match state.Project.Arrangements.[index] with
-            | Instrumental _ -> true 
-            | _ -> false
+            | Instrumental _ -> true, true
+            | Vocals _ -> false, true
+            | _ -> false, false
+
     ContextMenu.create [
         ContextMenu.isVisible (state.SelectedArrangementIndex <> -1)
         ContextMenu.viewItems [
             MenuItem.create [
                 MenuItem.header (translate "generateNewArrIDs")
-                MenuItem.isEnabled isInstrumental
-                MenuItem.onClick (fun _ -> GenerateNewIds |> EditInstrumental |> dispatch)
+                MenuItem.isEnabled hasIds
+                MenuItem.onClick (fun _ -> GenerateNewIds |> dispatch)
                 ToolTip.tip (translate "generateNewArrIDsToolTip")
             ]
 
@@ -137,6 +139,13 @@ let private arrangementContextMenu state dispatch =
                 MenuItem.header (translate "moveDown")
                 MenuItem.inputGesture (KeyGesture(Key.Down, KeyModifiers.Alt))
                 MenuItem.onClick (fun _ -> Down |> MoveArrangement |> dispatch)
+            ]
+
+            MenuItem.create [ MenuItem.header "-" ]
+
+            MenuItem.create [
+                MenuItem.header (translate "generateAllIDs")
+                MenuItem.onClick (fun _ -> GenerateAllIds |> dispatch)
             ]
 
             MenuItem.create [ MenuItem.header "-" ]

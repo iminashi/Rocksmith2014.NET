@@ -35,6 +35,7 @@ let project =
       AudioFile = { Path = "audio.wem"; Volume = 12. }
       AudioPreviewFile = { Path = "preview.wem"; Volume = 12. }
       AudioPreviewStartTime = None
+      PitchShift = None
       Arrangements = []
       Tones = [] }
 

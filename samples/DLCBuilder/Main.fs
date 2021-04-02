@@ -359,7 +359,7 @@ let update (msg: Msg) (state: State) =
             |> Option.map Path.GetDirectoryName
             |> Option.orElse (Option.ofString config.ProjectsFolderPath)
 
-        let dialog = Dialogs.saveFileDialog (translate "saveProjectAs") (Dialogs.projectFilter()) intialFileName
+        let dialog = Dialogs.saveFileDialog (translate "saveProjectAsDialog") (Dialogs.projectFilter()) intialFileName
         state, Cmd.OfAsync.perform dialog initialDir SaveProject
 
     | SetAudioFile fileName ->
@@ -667,6 +667,25 @@ let update (msg: Msg) (state: State) =
             with e ->
                 Cmd.ofMsg <| ErrorOccurred e
         { state with Overlay = NoOverlay }, cmd
+
+    | GenerateNewIds ->
+        let arrangements =
+            project.Arrangements
+            |> List.mapi (fun i arr ->
+                if i = state.SelectedArrangementIndex then
+                    TestPackageBuilder.generateIds arr
+                else
+                    arr)
+        { state with Project = { project with Arrangements = arrangements } }, Cmd.none
+
+    | GenerateAllIds ->
+        let arrangements = TestPackageBuilder.generateAllIds project.Arrangements
+        { state with Project = { project with Arrangements = arrangements } }, Cmd.none
+
+    | ShowPitchShifter -> { state with Overlay = PitchShifter }, Cmd.none
+
+    | BuildPitchShifted ->
+        buildPackage Release (ReleasePackageBuilder.buildPitchShifted state.OpenProjectFile) state
 
     | Build Test ->
         buildPackage Test (TestPackageBuilder.build state.CurrentPlatform) state

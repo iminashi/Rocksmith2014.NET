@@ -39,6 +39,7 @@ let view dispatch (files: string list) =
             StackPanel.create [
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.horizontalAlignment HorizontalAlignment.Center
+                StackPanel.spacing 8.
                 StackPanel.children [
                     // Yes button
                     Button.create [
@@ -58,6 +59,5 @@ let view dispatch (files: string list) =
                     ]
                 ]
             ]
-
         ]
     ] :> IView

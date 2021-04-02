@@ -266,6 +266,8 @@ let private overlay state dispatch =
             ToneEditor.view state dispatch state.Project.Tones.[index]
     | DeleteConfirmation files ->
         DeleteConfirmation.view dispatch files
+    | PitchShifter ->
+        PitchShifter.view dispatch state
 
 let view (window: Window) (state: State) dispatch =
     if state.RunningTasks.IsEmpty then

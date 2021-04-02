@@ -18,6 +18,7 @@ type OverlayContents =
     | IssueViewer of issues : ArrangementChecker.Issue list
     | ToneEditor
     | DeleteConfirmation of files : string list
+    | PitchShifter
 
 type PreviewAudioCreation =
     | SetupStartTime
@@ -55,6 +56,7 @@ type ProjectEdit =
     | SetAudioVolume of float
     | SetPreviewVolume of float
     | SetPreviewStartTime of float
+    | SetPitchShift of int16
 
 type ToneEdit =
     | SetName of string
@@ -106,7 +108,6 @@ type InstrumentalEdit =
     | SetCustomAudioPath of string option
     | SetCustomAudioVolume of float
     | UpdateToneInfo
-    | GenerateNewIds
 
 type State =
     { Project : DLCProject
@@ -167,6 +168,8 @@ type Msg =
     | CreatePreviewAudio of PreviewAudioCreation
     | ShowSortFields of shown : bool
     | ShowJapaneseFields of shown : bool
+    | GenerateNewIds
+    | GenerateAllIds
     | EditInstrumental of InstrumentalEdit
     | EditVocals of VocalsEdit
     | EditTone of ToneEdit
@@ -179,7 +182,9 @@ type Msg =
     | ShowConfigEditor
     | ShowIssueViewer
     | ShowImportToneSelector of tones : Tone array
+    | ShowPitchShifter
     | ProjectLoaded of project : DLCProject * projectFile : string
+    | BuildPitchShifted
     | Build of BuildType
     | BuildComplete of BuildType
     | WemConversionComplete of unit

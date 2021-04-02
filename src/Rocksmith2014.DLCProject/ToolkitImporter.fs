@@ -174,6 +174,7 @@ let import (templatePath: string) =
       AudioFile = { Path = audioPath; Volume = float (itemText docEl "Volume") }
       AudioPreviewFile = { Path = previewPath; Volume = float (itemText docEl "PreviewVolume") }
       AudioPreviewStartTime = None
+      PitchShift = None
       Arrangements = arrangements
       Tones = tones }
     |> DLCProject.toAbsolutePaths (Path.GetDirectoryName templatePath) 

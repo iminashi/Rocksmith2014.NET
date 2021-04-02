@@ -49,7 +49,7 @@ type Tone =
                 " [" + this.Key + "]"
         sprintf "%s%s%s" this.Name key description
 
-[<AllowNullLiteral>]
+[<AllowNullLiteral; Sealed>]
 type PedalDto() =
     member val Type : string = null with get, set
     member val KnobValues : IDictionary<string, float32> = null with get, set

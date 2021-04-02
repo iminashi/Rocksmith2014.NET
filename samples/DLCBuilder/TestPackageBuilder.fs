@@ -11,9 +11,8 @@ open System.Text.RegularExpressions
 let createPackageName project =
     project.DLCKey.ToLowerInvariant()
 
-let private generateNewIds arrangements =
-    arrangements
-    |> List.map (function
+/// Generates new IDs for the given arrangement.
+let generateIds = function
     | Instrumental inst ->
         { inst with MasterID = RandomGenerator.next()
                     PersistentID = Guid.NewGuid() }
@@ -23,9 +22,12 @@ let private generateNewIds arrangements =
                       PersistentID = Guid.NewGuid() }
         |> Vocals
     | other ->
-        other)
+        other
+    
+/// Generates new IDs for all the arrangements.
+let generateAllIds arrangements = List.map generateIds arrangements
 
-/// Returns an async task for building a package for testing.
+/// Returns an async computation for building a package for testing.
 let build platform config project =
     let isRocksmithRunning =
         Process.GetProcessesByName "Rocksmith2014"
@@ -59,7 +61,7 @@ let build platform config project =
 
             project, packageFileName
         | true ->
-            let arrangements = generateNewIds project.Arrangements
+            let arrangements = generateAllIds project.Arrangements
             let versionString = $"v{maxVersion + 1}"
             let title =
                 { project.Title with Value = $"{project.Title.Value} {versionString}"

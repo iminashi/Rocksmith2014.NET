@@ -76,10 +76,6 @@ let editInstrumental state edit index inst =
         | SetPersistentId id ->
             { inst with PersistentID = id }, Cmd.none
 
-        | GenerateNewIds ->
-            { inst with MasterID = RandomGenerator.next()
-                        PersistentID = Guid.NewGuid() }, Cmd.none
-
         | SetCustomAudioPath (Some path) ->
             let cmd =
                 if state.Config.AutoVolume && not <| String.endsWith ".wem" path then
@@ -205,6 +201,9 @@ let editProject edit project =
 
     | SetPreviewStartTime startTime ->
         { project with AudioPreviewStartTime = Some startTime }
+
+    | SetPitchShift shift ->
+        { project with PitchShift = Some shift }
 
 let editTone state edit index =
     let tone = state.Project.Tones.[index]
