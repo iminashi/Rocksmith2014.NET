@@ -178,7 +178,7 @@ namespace Rocksmith2014.XML
         }
 
         /// <summary>
-        /// Throws an exception if the name of the root node for an instrumental arrangement is not "song".
+        /// Throws an exception if the name of the root node for an instrumental arrangement is not "song" or the version is less than 7.
         /// </summary>
         /// <param name="reader">An XML reader located at the node whose name to validate.</param>
         internal static void ValidateRootNameAndVersion(XmlReader reader)

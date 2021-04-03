@@ -34,12 +34,15 @@ let private pruneChordNotes diffPercent
                             (chord: Chord) =
     if chord.HasChordNotes then
         let cn = chord.ChordNotes
-        let removeNotes = cn.Count - noteCount
+        let notesToRemove = cn.Count - noteCount
 
-        for i = cn.Count - removeNotes to cn.Count - 1 do
+        if notesToRemove < 0 then
+            failwith $"Chord at time {float cn.[0].Time / 1000.} has less chord notes than its chord template."
+
+        for i = cn.Count - notesToRemove to cn.Count - 1 do
             if cn.[i].IsLinkNext then
                 removedLinkNexts.Add cn.[i].String |> ignore
-        cn.RemoveRange(cn.Count - removeNotes, removeNotes)
+        cn.RemoveRange(cn.Count - notesToRemove, notesToRemove)
 
         for n in cn do
             pruneTechniques diffPercent removedLinkNexts n
