@@ -136,6 +136,7 @@ let private getSectionUIName (name: string) =
     | "prechorus"  -> "$[34296] Pre Chorus [1]"
     | "preverse"   -> "$[34297] Pre Verse [1]"
     | "riff"       -> "$[34298] Riff [1]"
+    | "rifff"      -> "$[34298] Riff [1]" // Error in official file
     | "silence"    -> "$[34299] Silence [1]"
     | "solo"       -> "$[34300] Solo [1]"
     | "transition" -> "$[34301] Transition [1]"
