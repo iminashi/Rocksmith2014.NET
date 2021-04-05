@@ -48,9 +48,10 @@
     <Compile Include="Media.fs" />
     <Compile Include="Dialogs.fs" />
     <Compile Include="EditFunctions.fs" />
-    <Compile Include="Templates.fs" />
     <Compile Include="TestPackageBuilder.fs" />
     <Compile Include="ReleasePackageBuilder.fs" />
+    <Compile Include="Views\Menus.fs" />
+    <Compile Include="Views\Templates.fs" />
     <Compile Include="Views\ProjectDetails.fs" />
     <Compile Include="Views\InstrumentalDetails.fs" />
     <Compile Include="Views\VocalsDetails.fs" />

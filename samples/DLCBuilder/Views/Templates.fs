@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Templates
+﻿module DLCBuilder.Views.Templates
 
 open Avalonia.FuncUI.Components
 open Avalonia.FuncUI.DSL
@@ -6,53 +6,12 @@ open Avalonia.FuncUI
 open Avalonia.Media
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
-open Avalonia.Input
 open Avalonia.Layout
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open System
-open Media
-
-let private toneContextMenu state dispatch =
-    ContextMenu.create [
-        ContextMenu.isVisible (state.SelectedToneIndex <> -1)
-        ContextMenu.viewItems [
-            MenuItem.create [
-                MenuItem.header (translate "duplicate")
-                MenuItem.onClick (fun _ -> DuplicateTone |> dispatch)
-            ]
-
-            MenuItem.create [
-                MenuItem.header (translate "moveUp")
-                MenuItem.inputGesture (KeyGesture(Key.Up, KeyModifiers.Alt))
-                MenuItem.onClick (fun _ -> Up |> MoveTone |> dispatch)
-            ]
-
-            MenuItem.create [
-                MenuItem.header (translate "moveDown")
-                MenuItem.inputGesture (KeyGesture(Key.Down, KeyModifiers.Alt))
-                MenuItem.onClick (fun _ -> Down |> MoveTone |> dispatch)
-            ]
-
-            MenuItem.create [
-                MenuItem.header (translate "edit")
-                MenuItem.onClick (fun _ -> ShowToneEditor |> dispatch)
-            ]
-
-            MenuItem.create [
-                MenuItem.header (translate "export")
-                MenuItem.onClick (fun _ -> ExportSelectedTone |> dispatch)
-            ]
-
-            MenuItem.create [ MenuItem.header "-" ]
-
-            MenuItem.create [
-                MenuItem.header (translate "remove")
-                MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))
-                MenuItem.onClick (fun _ -> dispatch DeleteTone)
-            ]
-        ]
-    ]
+open DLCBuilder
+open DLCBuilder.Media
 
 /// Returns a template for a tone.
 let tone state dispatch index (t: Tone) =
@@ -69,7 +28,7 @@ let tone state dispatch index (t: Tone) =
         StackPanel.classes [ "listitem"; if state.SelectedToneIndex = index then "selected" ]
         StackPanel.onPointerPressed ((fun _ -> index |> SetSelectedToneIndex |> dispatch), SubPatchOptions.OnChangeOf index)
         StackPanel.onDoubleTapped (fun _ -> ShowToneEditor |> dispatch)
-        StackPanel.contextMenu (toneContextMenu state dispatch)
+        StackPanel.contextMenu (Menus.Context.tone state dispatch)
         StackPanel.children [
             TextBlock.create [
                 TextBlock.margin (6., 4., 6., 2.)
@@ -101,62 +60,6 @@ let arrangementName =
         TextBlock.create [
             TextBlock.text (translate locString)
         ])
-
-let private arrangementContextMenu state dispatch =
-    let isInstrumental, hasIds =
-        match state.SelectedArrangementIndex with
-        | -1 -> false, false
-        | index ->
-            match state.Project.Arrangements.[index] with
-            | Instrumental _ -> true, true
-            | Vocals _ -> false, true
-            | _ -> false, false
-
-    ContextMenu.create [
-        ContextMenu.isVisible (state.SelectedArrangementIndex <> -1)
-        ContextMenu.viewItems [
-            MenuItem.create [
-                MenuItem.header (translate "generateNewArrIDs")
-                MenuItem.isEnabled hasIds
-                MenuItem.onClick (fun _ -> GenerateNewIds |> dispatch)
-                ToolTip.tip (translate "generateNewArrIDsToolTip")
-            ]
-
-            MenuItem.create [
-                MenuItem.header (translate "reloadToneKeys")
-                MenuItem.isEnabled isInstrumental
-                MenuItem.onClick (fun _ -> UpdateToneInfo |> EditInstrumental |> dispatch)
-                ToolTip.tip (translate "reloadToneKeysTooltip")
-            ]
-
-            MenuItem.create [
-                MenuItem.header (translate "moveUp")
-                MenuItem.inputGesture (KeyGesture(Key.Up, KeyModifiers.Alt))
-                MenuItem.onClick (fun _ -> Up |> MoveArrangement |> dispatch)
-            ]
-
-            MenuItem.create [
-                MenuItem.header (translate "moveDown")
-                MenuItem.inputGesture (KeyGesture(Key.Down, KeyModifiers.Alt))
-                MenuItem.onClick (fun _ -> Down |> MoveArrangement |> dispatch)
-            ]
-
-            MenuItem.create [ MenuItem.header "-" ]
-
-            MenuItem.create [
-                MenuItem.header (translate "generateAllIDs")
-                MenuItem.onClick (fun _ -> GenerateAllIds |> dispatch)
-            ]
-
-            MenuItem.create [ MenuItem.header "-" ]
-
-            MenuItem.create [
-                MenuItem.header (translate "remove")
-                MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))
-                MenuItem.onClick (fun _ -> dispatch DeleteArrangement)
-            ]
-        ]
-    ]
 
 let private getArrangementNumber arr project =
     match arr with
@@ -252,7 +155,7 @@ let arrangement state dispatch index arr =
     DockPanel.create [
         DockPanel.classes [ "listitem"; if state.SelectedArrangementIndex = index then "selected" ]
         DockPanel.onPointerPressed ((fun _ -> index |> SetSelectedArrangementIndex |> dispatch), SubPatchOptions.OnChangeOf index)
-        DockPanel.contextMenu (arrangementContextMenu state dispatch)
+        DockPanel.contextMenu (Menus.Context.arrangement state dispatch)
         DockPanel.children [
             match hasIssues with
             | Some hasIssues ->

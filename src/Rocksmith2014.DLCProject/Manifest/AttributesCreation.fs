@@ -145,7 +145,7 @@ let private getSectionUIName (name: string) =
     | "verse"      -> "$[34304] Verse [1]"
     | "tapping"    -> "$[34305] Tapping [1]"
     | "noguitar"   -> "$[6091] No Guitar [1]"
-    | _            -> failwith "Unknown section name."
+    | name         -> failwith $"Unknown section name '{name}'."
 
 /// Converts SNG sections into manifest sections.
 let private convertSections (sng: SNG) =

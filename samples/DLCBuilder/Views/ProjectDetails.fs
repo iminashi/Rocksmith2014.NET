@@ -2,9 +2,7 @@
 
 open Avalonia
 open Avalonia.Controls
-open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
-open Avalonia.Input
 open Avalonia.Layout
 open Avalonia.Media
 open Avalonia.Media.Imaging
@@ -25,132 +23,8 @@ let private notBuilding state =
     |> Set.intersect (Set([ BuildPackage; WemConversion ]))
     |> Set.isEmpty
 
-let private audioMenu notCalculatingVolume state dispatch =
-    let noBuildInProgress = notBuilding state
-    let audioPath = state.Project.AudioFile.Path
-
-    Menu.create [
-        Menu.fontSize 16.
-        Menu.margin (0., 0., 4., 0.)
-        //Menu.background "#363636"
-        Menu.isVisible (String.notEmpty audioPath && not <| String.endsWith ".wem" audioPath)
-        Menu.viewItems [
-            MenuItem.create [
-                MenuItem.header (TextBlock.create [
-                    TextBlock.text "..."
-                    TextBlock.verticalAlignment VerticalAlignment.Center
-                ])
-
-                MenuItem.viewItems [
-                    // Calculate volumes
-                    MenuItem.create [
-                        MenuItem.header (translate "calculateVolumes")
-                        MenuItem.isEnabled (noBuildInProgress && notCalculatingVolume)
-                        MenuItem.onClick (fun _ -> dispatch CalculateVolumes)
-                    ]
-
-                    // Wem conversion
-                    MenuItem.create [
-                        MenuItem.header (translate "convert")
-                        MenuItem.isEnabled noBuildInProgress
-                        MenuItem.onClick (fun _ -> dispatch ConvertToWem)
-                        ToolTip.tip (translate "convertMultipleToWemTooltip")
-                    ]
-                ]
-            ]
-        ]
-    ]
-
-let private fileMenu state dispatch canBuild =
-    let separator = MenuItem.create [ MenuItem.header "-" ]
-
-    Menu.create [
-        Menu.fontSize 16.
-        Menu.margin (0., 0., 4., 0.)
-        Menu.viewItems [
-            MenuItem.create [
-                MenuItem.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
-                MenuItem.header (TextBlock.create [
-                    TextBlock.text "..."
-                    TextBlock.verticalAlignment VerticalAlignment.Center
-                ])
-                MenuItem.viewItems [
-                    // New project
-                    MenuItem.create [
-                        MenuItem.header (translate "newProject")
-                        MenuItem.inputGesture (KeyGesture(Key.N, KeyModifiers.Control))
-                        MenuItem.onClick (fun _ -> dispatch NewProject)
-                    ]
-
-                    // Save project as
-                    MenuItem.create [
-                        MenuItem.header (translate "saveProjectAs")
-                        MenuItem.inputGesture (KeyGesture(Key.S, KeyModifiers.Control ||| KeyModifiers.Alt))
-                        MenuItem.onClick (fun _ -> dispatch ProjectSaveAs)
-                    ]
-
-                    // Build Pitch Shifted
-                    MenuItem.create [
-                        MenuItem.header (translate "buildPitchShifted")
-                        MenuItem.isEnabled canBuild
-                        MenuItem.onClick (fun _ -> dispatch ShowPitchShifter)
-                    ]
-    
-                    separator
-    
-                    // Import Toolkit template
-                    MenuItem.create [
-                        MenuItem.header (translate "toolkitImport")
-                        MenuItem.inputGesture (KeyGesture(Key.T, KeyModifiers.Control))
-                        MenuItem.onClick (fun _ ->
-                            Msg.OpenFileDialog("selectImportToolkitTemplate", Dialogs.toolkitFilter, ImportToolkitTemplate)
-                            |> dispatch)
-                    ]
-    
-                    // Import PSARC file
-                    MenuItem.create [
-                        MenuItem.header (translate "psarcImport")
-                        MenuItem.inputGesture (KeyGesture(Key.A, KeyModifiers.Control))
-                        MenuItem.onClick (fun _ ->
-                            Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder)
-                            |> dispatch)
-                    ]
-    
-                    separator
-
-                    // Delete test builds
-                    MenuItem.create [
-                        MenuItem.header (translate "deleteTestBuilds")
-                        MenuItem.isEnabled (String.notEmpty state.Config.TestFolderPath && state.OpenProjectFile.IsSome)
-                        MenuItem.onClick (fun _ -> dispatch DeleteTestBuilds)
-                        ToolTip.tip (translate "deleteTestBuildsTooltip")
-                    ]
-
-                    separator
-
-                    // Recent files
-                    MenuItem.create [
-                        MenuItem.header (translate "recentProjects")
-
-                        MenuItem.viewItems (
-                            state.RecentFiles
-                            |> List.mapi (fun i fileName ->
-                                MenuItem.create [
-                                    MenuItem.header ($"_{i + 1} {IO.Path.GetFileName fileName}")
-                                    MenuItem.onClick (
-                                        (fun _ -> OpenProject fileName |> dispatch),
-                                        SubPatchOptions.OnChangeOf state.RecentFiles)
-                                ] |> generalize
-                            )
-                        )
-                    ]
-                ]
-                
-            ]
-        ]
-    ]
-
 let private audioControls state dispatch =
+    let noBuildInProgress = notBuilding state
     let audioPath = state.Project.AudioFile.Path
     let previewPath = state.Project.AudioPreviewFile.Path
     let previewExists = IO.File.Exists previewPath
@@ -225,7 +99,7 @@ let private audioControls state dispatch =
                                 ToolTip.tip (translate "selectAudioFile")
                             ]
 
-                            audioMenu notCalculatingVolume state dispatch
+                            Menus.audio notCalculatingVolume noBuildInProgress state dispatch
                         ]
                     ]
 
@@ -329,7 +203,7 @@ let private buildControls state dispatch =
                         Button.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
                     ]
 
-                    fileMenu state dispatch canBuild
+                    Menus.file state dispatch canBuild
                 ]
             ]
 
