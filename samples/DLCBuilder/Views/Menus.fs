@@ -98,6 +98,18 @@ let file state dispatch canBuild =
                             Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder)
                             |> dispatch)
                     ]
+
+                    MenuItem.create [
+                        MenuItem.header (translate "tools")
+                        MenuItem.viewItems [
+                            MenuItem.create [
+                                MenuItem.header (translate "unpackPSARC")
+                                MenuItem.onClick (fun _ ->
+                                    Msg.OpenFileDialog("selectUnpackPsarc", Dialogs.psarcFilter, UnpackPSARC)
+                                    |> dispatch)
+                            ]
+                        ]
+                    ]
     
                     separator
 

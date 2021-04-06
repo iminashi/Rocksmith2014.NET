@@ -6,6 +6,7 @@ open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DD
 open Rocksmith2014.DLCProject
+open Rocksmith2014.PSARC
 open Rocksmith2014.XML.Processing
 open Elmish
 open System
@@ -737,6 +738,14 @@ let update (msg: Msg) (state: State) =
     | ChangeLocale newLocale ->
         if state.Config.Locale <> newLocale then changeLocale newLocale
         { state with Config = { config with Locale = newLocale } }, Cmd.none
+
+    | UnpackPSARC file ->
+        let targetDirectory = Path.Combine(Path.GetDirectoryName file, Path.GetFileNameWithoutExtension file)
+        Directory.CreateDirectory targetDirectory |> ignore
+        let task () = async {
+            use psarc = PSARC.ReadFile file
+            do! psarc.ExtractFiles targetDirectory }
+        state, Cmd.OfAsync.attempt task () ErrorOccurred
 
     | HotKeyMsg msg ->
         match state.Overlay, msg with

@@ -195,6 +195,7 @@ type Msg =
     | CalculateVolumes
     | CalculateVolume of target : VolumeTarget
     | VolumeCalculated of volume : float * target : VolumeTarget
+    | UnpackPSARC of file : string
     | ChangeLocale of locale : Locale
     | ErrorOccurred of e : exn
     | TaskFailed of e : exn * failedTask : LongTask
