@@ -1,6 +1,6 @@
 ﻿// fsharplint:disable MemberNames
 [<AutoOpen>]
-module Extensions
+module FuncUIExtensions
 
 open Avalonia.Controls
 open Avalonia.Input

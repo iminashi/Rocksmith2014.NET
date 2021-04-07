@@ -37,7 +37,7 @@
     <EmbeddedResource Include="Tones\default_rhythm.json" />
     <Compile Include="Controls\AutoFocusTextBox.fs" />
     <Compile Include="Controls\TitledTextBox.fs" />
-    <Compile Include="Controls\Extensions.fs" />
+    <Compile Include="Controls\FuncUIExtensions.fs" />
     <AvaloniaResource Include="Styles.xaml" />
     <Compile Include="ToneGear.fs" />
     <Compile Include="DefaultTones.fs" />
