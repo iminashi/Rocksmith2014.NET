@@ -4,6 +4,7 @@ module Common
 open DLCBuilder
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
+open Avalonia.Controls.Selection
 open System
 
 let initialState =
@@ -20,7 +21,7 @@ let initialState =
       ShowSortFields = false
       ShowJapaneseFields = false
       Overlay = NoOverlay
-      ImportTones = []
+      SelectedImportTones = SelectionModel()
       RunningTasks = Set.empty
       CurrentPlatform = if OperatingSystem.IsMacOS() then Mac else PC
       OpenProjectFile = None

@@ -6,6 +6,7 @@ open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.XML.Processing
 open Avalonia.Controls
+open Avalonia.Controls.Selection
 open Avalonia.Media.Imaging
 open System
 
@@ -123,7 +124,7 @@ type State =
       ShowSortFields : bool
       ShowJapaneseFields : bool
       Overlay : OverlayContents
-      ImportTones : Tone list
+      SelectedImportTones : SelectionModel<Tone>
       OpenProjectFile : string option
       CurrentPlatform : Platform
       RunningTasks : LongTask Set
@@ -139,7 +140,6 @@ type Msg =
     | ImportToolkitTemplate of fileName : string
     | ImportTonesFromFile of fileName : string
     | ImportProfileTones
-    | ImportTonesChanged of item : obj
     | ImportSelectedTones
     | ImportTones of tones : Tone list
     | NewProject

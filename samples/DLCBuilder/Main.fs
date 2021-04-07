@@ -8,6 +8,7 @@ open Rocksmith2014.DD
 open Rocksmith2014.DLCProject
 open Rocksmith2014.PSARC
 open Rocksmith2014.XML.Processing
+open Avalonia.Controls.Selection
 open Elmish
 open System
 open System.Diagnostics
@@ -110,7 +111,8 @@ let init arg =
       ShowSortFields = false
       ShowJapaneseFields = false
       Overlay = NoOverlay
-      ImportTones = []
+      // TODO: Refactor to remove dependency on Avalonia class in the model?
+      SelectedImportTones = SelectionModel(SingleSelect = false)
       RunningTasks = Set.empty
       CurrentPlatform = if OperatingSystem.IsMacOS() then Mac else PC
       OpenProjectFile = None
@@ -210,17 +212,9 @@ let update (msg: Msg) (state: State) =
                      SelectedToneIndex = -1
                      CoverArt = None }, Cmd.none
 
-    | ImportTonesChanged item ->
-        if isNull item then
-            state, Cmd.none
-        else
-            let tones = [ item :?> Tone ]
-                //items
-                //|> Seq.cast<Tone>
-                //|> Seq.toList
-            { state with ImportTones = tones }, Cmd.none
-
-    | ImportSelectedTones -> Utils.addTones state state.ImportTones, Cmd.none
+    | ImportSelectedTones ->
+        let tones = state.SelectedImportTones.SelectedItems |> List.ofSeq
+        Utils.addTones state tones, Cmd.none
 
     | ImportTones tones -> Utils.addTones state tones, Cmd.none
 
@@ -347,7 +341,9 @@ let update (msg: Msg) (state: State) =
         | [| _ |] ->
             state, Cmd.ofMsg (ImportTones (List.ofArray tones))
         | _ ->
-            { state with Overlay = ImportToneSelector tones; ImportTones = [] }, Cmd.none
+            state.SelectedImportTones.Clear()
+            state.SelectedImportTones.Source <- null
+            { state with Overlay = ImportToneSelector tones }, Cmd.none
 
     | ProjectSaveAs ->
         let intialFileName =

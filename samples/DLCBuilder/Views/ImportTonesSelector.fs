@@ -7,7 +7,7 @@ open Avalonia.Layout
 open Rocksmith2014.Common.Manifest
 open DLCBuilder
 
-let view dispatch (tones: Tone array) =
+let view state dispatch (tones: Tone array) =
     StackPanel.create [
         StackPanel.spacing 8.
         StackPanel.children [
@@ -20,13 +20,9 @@ let view dispatch (tones: Tone array) =
 
             // Tones list
             ListBox.create [
-                ListBox.name "tonesListBox"
                 ListBox.dataItems tones
-                // Multiple selection mode is broken in Avalonia FuncUI
-                // https://github.com/AvaloniaUI/Avalonia/issues/3497
-                ListBox.selectionMode SelectionMode.Single
+                ListBox.selection state.SelectedImportTones
                 ListBox.maxHeight 300.
-                ListBox.onSelectedItemChanged (ImportTonesChanged >> dispatch)
             ]
 
             // Buttons
