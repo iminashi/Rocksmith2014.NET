@@ -242,20 +242,26 @@ let update (msg: Msg) (state: State) =
             | _ -> Cmd.none
         { state with Overlay = NoOverlay }, cmd
 
-    | ConditionalCmdDispatch (Some str, msg) -> state, Cmd.ofMsg (msg str)
-    | ConditionalCmdDispatch (None, _) -> state, Cmd.none
-
     | OpenFileDialog (locString, filter, msg) ->
-        let dialog = Dialogs.openFileDialog (translate locString) (filter())
-        state, Cmd.OfAsync.perform dialog None (fun file -> ConditionalCmdDispatch(file, msg))
+        let dialog = async {
+            match! Dialogs.openFileDialog (translate locString) (filter()) None with
+            | Some file -> return msg file
+            | None -> return Ignore }
+        state, Cmd.OfAsync.result dialog
+
+    | OpenMultiFileDialog (locString, filter, msg) ->
+        let dialog = async {
+            match! Dialogs.openMultiFileDialog (translate locString) (filter()) None with
+            | Some files -> return msg files
+            | None -> return Ignore }
+        state, Cmd.OfAsync.result dialog
 
     | OpenFolderDialog (locString, msg) ->
-        let dialog = Dialogs.openFolderDialog (translate locString)
-        state, Cmd.OfAsync.perform dialog None (fun folder -> ConditionalCmdDispatch(folder, msg))
-
-    | SelectOpenArrangement ->
-        let dialog = Dialogs.openMultiFileDialog (translate "selectArrangement") (Dialogs.xmlFileFilter())
-        state, Cmd.OfAsync.perform dialog None AddArrangements
+        let dialog = async {
+            match! Dialogs.openFolderDialog (translate locString) None with
+            | Some folder -> return msg folder
+            | None -> return Ignore }
+        state, Cmd.OfAsync.result dialog
 
     | SelectImportPsarcFolder psarcFile ->
         let dialog = Dialogs.openFolderDialog (translate "selectPsarcExtractFolder")
@@ -452,7 +458,7 @@ let update (msg: Msg) (state: State) =
         { state with CoverArt = Utils.changeCoverArt state.CoverArt fileName
                      Project = { project with AlbumArtFile = fileName } }, Cmd.none
 
-    | AddArrangements (Some files) ->
+    | AddArrangements files ->
         addArrangements files state, Cmd.none
 
     | SetSelectedArrangementIndex index ->
@@ -735,13 +741,8 @@ let update (msg: Msg) (state: State) =
         if state.Config.Locale <> newLocale then changeLocale newLocale
         { state with Config = { config with Locale = newLocale } }, Cmd.none
 
-    | UnpackPSARC file ->
-        let targetDirectory = Path.Combine(Path.GetDirectoryName file, Path.GetFileNameWithoutExtension file)
-        Directory.CreateDirectory targetDirectory |> ignore
-        let task () = async {
-            use psarc = PSARC.ReadFile file
-            do! psarc.ExtractFiles targetDirectory }
-        state, Cmd.OfAsync.attempt task () ErrorOccurred
+    | ToolsMsg msg ->
+        Tools.update msg state
 
     | HotKeyMsg msg ->
         match state.Overlay, msg with
@@ -752,5 +753,8 @@ let update (msg: Msg) (state: State) =
             state, Cmd.none
     
     // When the user canceled any of the dialogs
-    | AddArrangements None | SaveProject None | ImportPsarc (_, None) | ExportTone (_, None) ->
+    | SaveProject None | ImportPsarc (_, None) | ExportTone (_, None) ->
+        state, Cmd.none
+
+    | Ignore ->
         state, Cmd.none

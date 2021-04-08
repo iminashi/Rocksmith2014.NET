@@ -130,11 +130,14 @@ type State =
       RunningTasks : LongTask Set
       ArrangementIssues : Map<string, ArrangementChecker.Issue list> }
 
+type ToolsMsg =
+    | UnpackPSARC of file : string
+    | RemoveDD of files : string array
+
 type Msg =
     | OpenFileDialog of locTitle : string * filter : (unit -> ResizeArray<FileDialogFilter>) * msg : (string -> Msg)
+    | OpenMultiFileDialog of locTitle : string * filter : (unit -> ResizeArray<FileDialogFilter>) * msg : (string array -> Msg)
     | OpenFolderDialog of locTitle : string * msg : (string -> Msg)
-    | ConditionalCmdDispatch of opt : string option * msg : (string -> Msg)
-    | SelectOpenArrangement
     | SelectImportPsarcFolder of psarcFile : string
     | ImportPsarc of psarcFile : string * targetFolder : string option
     | ImportToolkitTemplate of fileName : string
@@ -148,7 +151,7 @@ type Msg =
     | ProjectSaveAs
     | ProjectSaved of targetFile : string
     | SaveProject of fileName : string option
-    | AddArrangements of files : string[] option
+    | AddArrangements of files : string array
     | SetCoverArt of fileName : string
     | SetAudioFile of fileName : string
     | SetConfiguration of config : Configuration * enableLoad : bool
@@ -195,8 +198,9 @@ type Msg =
     | CalculateVolumes
     | CalculateVolume of target : VolumeTarget
     | VolumeCalculated of volume : float * target : VolumeTarget
-    | UnpackPSARC of file : string
     | ChangeLocale of locale : Locale
     | ErrorOccurred of e : exn
     | TaskFailed of e : exn * failedTask : LongTask
+    | ToolsMsg of ToolsMsg
     | HotKeyMsg of Msg
+    | Ignore

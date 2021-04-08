@@ -67,6 +67,7 @@
     <Compile Include="Views\Main.fs" />
     <Compile Include="RecentFilesList.fs" />
     <Compile Include="BuildValidator.fs" />
+    <Compile Include="Tools.fs" />
     <Compile Include="Main.fs" />
     <Compile Include="HotKeys.fs" />
     <Compile Include="Program.fs" />
@@ -94,5 +95,9 @@
   <ItemGroup>
     <Watch Include="**\*.xaml" />
     <Watch Include="**\*.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Watch Remove="Tools.fs" />
   </ItemGroup>
 </Project>

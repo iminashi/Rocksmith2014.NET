@@ -71,14 +71,7 @@ let file state dispatch canBuild =
                         MenuItem.inputGesture (KeyGesture(Key.S, KeyModifiers.Control ||| KeyModifiers.Alt))
                         MenuItem.onClick (fun _ -> dispatch ProjectSaveAs)
                     ]
-
-                    // Build Pitch Shifted
-                    MenuItem.create [
-                        MenuItem.header (translate "buildPitchShifted")
-                        MenuItem.isEnabled canBuild
-                        MenuItem.onClick (fun _ -> dispatch ShowPitchShifter)
-                    ]
-    
+   
                     separator
     
                     // Import Toolkit template
@@ -99,13 +92,30 @@ let file state dispatch canBuild =
                             |> dispatch)
                     ]
 
+                    // Tools
                     MenuItem.create [
                         MenuItem.header (translate "tools")
                         MenuItem.viewItems [
+                            // Build Pitch Shifted
+                            MenuItem.create [
+                                MenuItem.header (translate "buildPitchShifted")
+                                MenuItem.isEnabled canBuild
+                                MenuItem.onClick (fun _ -> dispatch ShowPitchShifter)
+                            ]
+
+                            // Unpack PSARC
                             MenuItem.create [
                                 MenuItem.header (translate "unpackPSARC")
                                 MenuItem.onClick (fun _ ->
-                                    Msg.OpenFileDialog("selectUnpackPsarc", Dialogs.psarcFilter, UnpackPSARC)
+                                    Msg.OpenFileDialog("selectUnpackPsarc", Dialogs.psarcFilter, (UnpackPSARC >> ToolsMsg))
+                                    |> dispatch)
+                            ]
+
+                            // Remove DD
+                            MenuItem.create [
+                                MenuItem.header (translate "removeDD")
+                                MenuItem.onClick (fun _ ->
+                                    Msg.OpenMultiFileDialog("selectRemoveDDXML", Dialogs.xmlFileFilter, (RemoveDD >> ToolsMsg))
                                     |> dispatch)
                             ]
                         ]
