@@ -54,7 +54,9 @@ let view dispatch (v: Vocals) =
                         DockPanel.dock Dock.Right
                         Button.margin (0.0, 4.0, 4.0, 4.0)
                         Button.content "..."
-                        Button.onClick (fun _ -> dispatch (Msg.OpenFileDialog("selectCustomFont", Dialogs.ddsFileFilter, Some >> SetCustomFont >> EditVocals)))
+                        Button.onClick (fun _ ->
+                            Msg.OpenFileDialog("selectCustomFont", DDSFiles, Some >> SetCustomFont >> EditVocals)
+                            |> dispatch)
                         ToolTip.tip (translate "selectCustomFontToolTip")
                     ]
 

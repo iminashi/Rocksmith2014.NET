@@ -11,7 +11,7 @@ let handleEvent dispatch (event: KeyEventArgs) =
 
     match event.KeyModifiers, event.Key with
     | Ctrl, Key.O ->
-        dispatch (Msg.OpenFileDialog("selectProjectFile", Dialogs.projectFilter, OpenProject))
+        dispatch (Msg.OpenFileDialog("selectProjectFile", ProjectFiles, OpenProject))
 
     | Ctrl, Key.S ->
         dispatch ProjectSaveOrSaveAs
@@ -26,10 +26,10 @@ let handleEvent dispatch (event: KeyEventArgs) =
         dispatch NewProject
 
     | Ctrl, Key.T ->
-        dispatch (Msg.OpenFileDialog("selectImportToolkitTemplate", Dialogs.toolkitFilter, ImportToolkitTemplate))
+        dispatch (Msg.OpenFileDialog("selectImportToolkitTemplate", ToolkitTemplates, ImportToolkitTemplate))
 
     | Ctrl, Key.A ->
-        dispatch (Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder))
+        dispatch (Msg.OpenFileDialog("selectImportPsarc", PSARCFiles, SelectImportPsarcFolder))
 
     | None, Key.Escape ->
         dispatch CloseOverlay

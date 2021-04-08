@@ -1,5 +1,6 @@
 ﻿module DLCBuilder.Dialogs
 
+open System
 open System.Collections.Generic
 open Avalonia
 open Avalonia.Controls
@@ -13,22 +14,41 @@ let private createFilters name (extensions: string seq) =
     let filter = FileDialogFilter(Extensions = List(extensions), Name = name)
     List(seq { filter })
 
-let audioFileFilters () = createFilters (translate "audioFiles") (seq { "wav"; "ogg"; "wem" })
-let xmlFileFilter () = createFilters (translate "rocksmithArrangementFiles") (seq { "xml" })
-let imgFileFilter () = createFilters (translate "imageFiles") (seq { "png"; "jpg"; "dds" })
-let ddsFileFilter () = createFilters (translate "ddsTextureFiles") (seq { "dds" })
-let profileFilter () = createFilters (translate "profileFiles") (seq { "*" })
-let projectFilter () = createFilters (translate "projectFiles") (seq { "rs2dlc" })
-let psarcFilter () = createFilters (translate "psarcFiles") (seq { "psarc" })
-let toolkitFilter () = createFilters (translate "toolkitFiles") (seq { "dlc.xml" })
-let toneImportFilter () = createFilters (translate "toneImportFiles") (seq { "tone2014.xml"; "tone2014.json"; "psarc" })
-let toneExportFilter () = createFilters (translate "toneExportFiles") (seq { "tone2014.xml"; "tone2014.json" })
-let wwiseConsoleAppFilter (platform: Platform) () =
-    let fileExt =
-        match platform with
-        | PC -> "exe"
-        | Mac -> "sh"
-    createFilters $"WwiseConsole.{fileExt}" (seq { fileExt })
+let private createFileFilters filter =
+    let extensions =
+        match filter with
+        | AudioFiles ->
+            [ "wav"; "ogg"; "wem" ]
+        | RocksmithXMLFiles ->
+            [ "xml" ]
+        | ImageFiles ->
+            [ "png"; "jpg"; "dds" ]
+        | DDSFiles ->
+            [ "dds" ]
+        | ProfileFiles ->
+            [ "*" ]
+        | ProjectFiles ->
+            [ "rs2dlc" ]
+        | PSARCFiles ->
+            [ "psarc"]
+        | ToolkitTemplates ->
+            [ "dlc.xml" ]
+        | ToneImportFiles ->
+            [ "tone2014.xml"; "tone2014.json"; "psarc" ]
+        | ToneExportFiles ->
+            [ "tone2014.xml"; "tone2014.json" ]
+        | WwiseConsoleApplication ->
+            [ if OperatingSystem.IsWindows() then "exe" else "sh" ]
+
+    let name =
+        match filter with
+        | WwiseConsoleApplication ->
+            let ext = if OperatingSystem.IsWindows() then "exe" else "sh"
+            $"WwiseConsole.{ext}"
+        | other ->
+            other |> string |> translate
+
+    createFilters name extensions
 
 /// Shows an open folder dialog.
 let openFolderDialog title directory = async {
@@ -40,13 +60,13 @@ let openFolderDialog title directory = async {
     return Option.ofString result }
 
 /// Shows a save file dialog.
-let saveFileDialog title filters initialFileName directory = async {
+let saveFileDialog title filter initialFileName directory = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string>(fun () ->
             let dialog =
                 SaveFileDialog(
                     Title = title,
-                    Filters = filters,
+                    Filters = createFileFilters filter,
                     InitialFileName = Option.toObj initialFileName,
                     Directory = Option.toObj directory)
             dialog.ShowAsync window.Value)
@@ -54,13 +74,13 @@ let saveFileDialog title filters initialFileName directory = async {
     return Option.ofString result }
 
 let private createOpenFileDialog t f d m =
-    OpenFileDialog(Title = t, Filters = f, Directory = Option.toObj d, AllowMultiple = m)
+    OpenFileDialog(Title = t, Filters = createFileFilters f, Directory = Option.toObj d, AllowMultiple = m)
 
 /// Shows an open file dialog for selecting a single file.
-let openFileDialog title filters directory = async {
+let openFileDialog title filter directory = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string[]>(fun () ->
-            let dialog = createOpenFileDialog title filters directory false
+            let dialog = createOpenFileDialog title filter directory false
             dialog.ShowAsync window.Value)
     match result with
     | [| file |] -> return Some file

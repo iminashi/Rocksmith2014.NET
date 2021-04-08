@@ -36,7 +36,7 @@ let private arrangementPanel state dispatch =
                                 Button.padding (15.0, 5.0)
                                 Button.content (translate "addArrangement")
                                 Button.onClick (fun _ ->
-                                    Msg.OpenMultiFileDialog("selectArrangement", Dialogs.xmlFileFilter, AddArrangements)
+                                    Msg.OpenMultiFileDialog("selectArrangement", RocksmithXMLFiles, AddArrangements)
                                     |> dispatch)
                                 // 5 instrumentals, 2 vocals, 1 showlights
                                 Button.isEnabled (state.Project.Arrangements.Length < 8)
@@ -187,7 +187,7 @@ let private tonesPanel state dispatch =
                                 Button.padding (15.0, 5.0)
                                 Button.content (translate "import")
                                 Button.onClick (fun _ ->
-                                    Msg.OpenFileDialog("selectImportToneFile", Dialogs.toneImportFilter, ImportTonesFromFile)
+                                    Msg.OpenFileDialog("selectImportToneFile", ToneImportFiles, ImportTonesFromFile)
                                     |> dispatch)
                             ]
                         ]

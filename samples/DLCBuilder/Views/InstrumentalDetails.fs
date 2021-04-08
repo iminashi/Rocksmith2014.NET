@@ -294,7 +294,7 @@ let view state dispatch (i: Instrumental) =
                         Button.content "..."
                         Button.margin (0., 2., 0., 0.)
                         Button.onClick (fun _ ->
-                            Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, Some >> SetCustomAudioPath >> EditInstrumental)
+                            Msg.OpenFileDialog("selectAudioFile", AudioFiles, Some >> SetCustomAudioPath >> EditInstrumental)
                             |> dispatch)
                     ]
 

@@ -67,7 +67,7 @@ let private generalConfig state dispatch =
                                 Button.margin (0., 4.)
                                 Button.content "..."
                                 Button.onClick (fun _ ->
-                                    Msg.OpenFileDialog("selectProfile", Dialogs.profileFilter, SetProfilePath >> EditConfig)
+                                    Msg.OpenFileDialog("selectProfile", ProfileFiles, SetProfilePath >> EditConfig)
                                     |> dispatch)
                             ]
                             TextBox.create [
@@ -148,7 +148,7 @@ let private generalConfig state dispatch =
                                 Button.content "..."
                                 Button.onClick (fun _ ->
                                     Msg.OpenFileDialog("selectWwiseConsolePath",
-                                                       Dialogs.wwiseConsoleAppFilter state.CurrentPlatform,
+                                                       WwiseConsoleApplication,
                                                        SetWwiseConsolePath >> EditConfig)
                                     |> dispatch)
                             ]

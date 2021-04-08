@@ -79,7 +79,7 @@ let file state dispatch canBuild =
                         MenuItem.header (translate "toolkitImport")
                         MenuItem.inputGesture (KeyGesture(Key.T, KeyModifiers.Control))
                         MenuItem.onClick (fun _ ->
-                            Msg.OpenFileDialog("selectImportToolkitTemplate", Dialogs.toolkitFilter, ImportToolkitTemplate)
+                            Msg.OpenFileDialog("selectImportToolkitTemplate", ToolkitTemplates, ImportToolkitTemplate)
                             |> dispatch)
                     ]
     
@@ -88,7 +88,7 @@ let file state dispatch canBuild =
                         MenuItem.header (translate "psarcImport")
                         MenuItem.inputGesture (KeyGesture(Key.A, KeyModifiers.Control))
                         MenuItem.onClick (fun _ ->
-                            Msg.OpenFileDialog("selectImportPsarc", Dialogs.psarcFilter, SelectImportPsarcFolder)
+                            Msg.OpenFileDialog("selectImportPsarc", PSARCFiles, SelectImportPsarcFolder)
                             |> dispatch)
                     ]
 
@@ -107,7 +107,7 @@ let file state dispatch canBuild =
                             MenuItem.create [
                                 MenuItem.header (translate "unpackPSARC")
                                 MenuItem.onClick (fun _ ->
-                                    Msg.OpenFileDialog("selectUnpackPsarc", Dialogs.psarcFilter, (UnpackPSARC >> ToolsMsg))
+                                    Msg.OpenFileDialog("selectUnpackPsarc", PSARCFiles, (UnpackPSARC >> ToolsMsg))
                                     |> dispatch)
                             ]
 
@@ -115,7 +115,7 @@ let file state dispatch canBuild =
                             MenuItem.create [
                                 MenuItem.header (translate "removeDD")
                                 MenuItem.onClick (fun _ ->
-                                    Msg.OpenMultiFileDialog("selectRemoveDDXML", Dialogs.xmlFileFilter, (RemoveDD >> ToolsMsg))
+                                    Msg.OpenMultiFileDialog("selectRemoveDDXML", RocksmithXMLFiles, (RemoveDD >> ToolsMsg))
                                     |> dispatch)
                             ]
                         ]

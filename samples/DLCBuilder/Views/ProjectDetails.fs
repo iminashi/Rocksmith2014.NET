@@ -94,7 +94,7 @@ let private audioControls state dispatch =
                                 Button.content (translate "select")
                                 Button.isEnabled notCalculatingVolume
                                 Button.onClick (fun _ ->
-                                    Msg.OpenFileDialog("selectAudioFile", Dialogs.audioFileFilters, SetAudioFile)
+                                    Msg.OpenFileDialog("selectAudioFile", AudioFiles, SetAudioFile)
                                     |> dispatch)
                                 ToolTip.tip (translate "selectAudioFile")
                             ]
@@ -198,7 +198,7 @@ let private buildControls state dispatch =
                         Button.fontSize 16.
                         Button.content (translate "openProject")
                         Button.onClick (fun _ ->
-                            Msg.OpenFileDialog("selectProjectFile", Dialogs.projectFilter, OpenProject)
+                            Msg.OpenFileDialog("selectProjectFile", ProjectFiles, OpenProject)
                             |> dispatch)
                         Button.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
                     ]
@@ -410,7 +410,7 @@ let private coverArt state dispatch =
         Image.width 200.
         Image.height 200.
         Image.onTapped (fun _ ->
-            Msg.OpenFileDialog("selectCoverArt", Dialogs.imgFileFilter, SetCoverArt)
+            Msg.OpenFileDialog("selectCoverArt", ImageFiles, SetCoverArt)
             |> dispatch)
         Image.cursor Cursors.hand
         ToolTip.tip (translate "selectCoverArtToolTip")

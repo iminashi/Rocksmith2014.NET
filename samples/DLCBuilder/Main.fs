@@ -225,7 +225,7 @@ let update (msg: Msg) (state: State) =
         | index ->
             let tone = state.Project.Tones.[index]
             let initialFileName = Some $"{tone.Name}.tone2014.xml"
-            let dialog = Dialogs.saveFileDialog (translate "exportToneAs") (Dialogs.toneExportFilter()) initialFileName
+            let dialog = Dialogs.saveFileDialog (translate "exportToneAs") ToneExportFiles initialFileName
             state, Cmd.OfAsync.perform dialog None (fun path -> ExportTone(tone, path))
 
     | ExportTone (tone, Some path) ->
@@ -244,14 +244,14 @@ let update (msg: Msg) (state: State) =
 
     | OpenFileDialog (locString, filter, msg) ->
         let dialog = async {
-            match! Dialogs.openFileDialog (translate locString) (filter()) None with
+            match! Dialogs.openFileDialog (translate locString) filter None with
             | Some file -> return msg file
             | None -> return Ignore }
         state, Cmd.OfAsync.result dialog
 
     | OpenMultiFileDialog (locString, filter, msg) ->
         let dialog = async {
-            match! Dialogs.openMultiFileDialog (translate locString) (filter()) None with
+            match! Dialogs.openMultiFileDialog (translate locString) filter None with
             | Some files -> return msg files
             | None -> return Ignore }
         state, Cmd.OfAsync.result dialog
@@ -366,7 +366,7 @@ let update (msg: Msg) (state: State) =
             |> Option.map Path.GetDirectoryName
             |> Option.orElse (Option.ofString config.ProjectsFolderPath)
 
-        let dialog = Dialogs.saveFileDialog (translate "saveProjectAsDialog") (Dialogs.projectFilter()) intialFileName
+        let dialog = Dialogs.saveFileDialog (translate "saveProjectAsDialog") ProjectFiles intialFileName
         state, Cmd.OfAsync.perform dialog initialDir SaveProject
 
     | SetAudioFile fileName ->

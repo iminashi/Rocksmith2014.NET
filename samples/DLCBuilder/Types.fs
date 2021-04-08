@@ -134,9 +134,22 @@ type ToolsMsg =
     | UnpackPSARC of file : string
     | RemoveDD of files : string array
 
+type FileFilter =
+    | AudioFiles
+    | RocksmithXMLFiles
+    | ImageFiles
+    | DDSFiles
+    | ProfileFiles
+    | ProjectFiles
+    | PSARCFiles
+    | ToolkitTemplates
+    | ToneImportFiles
+    | ToneExportFiles
+    | WwiseConsoleApplication
+
 type Msg =
-    | OpenFileDialog of locTitle : string * filter : (unit -> ResizeArray<FileDialogFilter>) * msg : (string -> Msg)
-    | OpenMultiFileDialog of locTitle : string * filter : (unit -> ResizeArray<FileDialogFilter>) * msg : (string array -> Msg)
+    | OpenFileDialog of locTitle : string * filter : FileFilter * msg : (string -> Msg)
+    | OpenMultiFileDialog of locTitle : string * filter : FileFilter * msg : (string array -> Msg)
     | OpenFolderDialog of locTitle : string * msg : (string -> Msg)
     | SelectImportPsarcFolder of psarcFile : string
     | ImportPsarc of psarcFile : string * targetFolder : string option
