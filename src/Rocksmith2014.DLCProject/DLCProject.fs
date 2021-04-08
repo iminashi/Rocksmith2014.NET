@@ -99,7 +99,7 @@ module DLCProject =
           Tones = dto.Tones |> List.ofArray |> List.map Tone.fromDto }
 
     let private toAbsolutePath (baseDir: string) (fileName: string) =
-        if String.IsNullOrWhiteSpace fileName then
+        if String.IsNullOrWhiteSpace fileName || Path.IsPathFullyQualified fileName then
             fileName
         else
             Path.Combine(baseDir, fileName)

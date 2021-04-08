@@ -138,10 +138,17 @@ let import (templatePath: string) =
 
     let audioPath = itemText docEl "OggPath"
     let previewPath =
-        let fn = Path.GetFileNameWithoutExtension audioPath
-        let prevFile = fn + "_preview" + (Path.GetExtension audioPath)
-        let prevPath = Path.Combine (Path.GetDirectoryName templatePath, prevFile)
-        if File.Exists prevPath then prevFile else String.Empty
+        let audioFileName = Path.GetFileNameWithoutExtension audioPath
+        let previewFileName = $"{audioFileName}_preview{Path.GetExtension audioPath}"
+        let prevFile = Path.Combine(Path.GetDirectoryName audioPath, previewFileName)
+        let prevPath =
+            if Path.IsPathFullyQualified prevFile then
+                prevFile
+            else
+                Path.Combine(Path.GetDirectoryName templatePath, prevFile)
+        match File.Exists prevPath with
+        | true -> prevFile
+        | false -> String.Empty
 
     let arrangements =
         docEl.Item("Arrangements").ChildNodes
@@ -177,4 +184,4 @@ let import (templatePath: string) =
       PitchShift = None
       Arrangements = arrangements
       Tones = tones }
-    |> DLCProject.toAbsolutePaths (Path.GetDirectoryName templatePath) 
+    |> DLCProject.toAbsolutePaths (Path.GetDirectoryName templatePath)
