@@ -451,7 +451,7 @@ let update (msg: Msg) (state: State) =
                         project.Arrangements
                         |> List.update old updated
 
-                    { state with Project = {project with Arrangements = arrangements } }
+                    { state with Project = { project with Arrangements = arrangements } }
                 | _ ->
                     state
                     

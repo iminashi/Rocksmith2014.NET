@@ -282,5 +282,6 @@
   "confirmDelete": "Vahvista poisto",
   "deleteConfirmation": "{0} tiedostoa poistetaan. Oletko varma?",
   "pitchShifterExplanation": "Voit luoda version, jossa viritys on muutettu efektipedaalin avulla.",
-  "shiftTuningBy": "Muunna viritystä (puolisävelaskel):"
+  "shiftTuningBy": "Muunna viritystä (puolisävelaskel):",
+  "missingDefinitions": "Seuraavilta soundeilta puuttuu määritelmät:\n\n{0}"
 }

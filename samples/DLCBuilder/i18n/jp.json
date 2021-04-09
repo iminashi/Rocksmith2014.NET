@@ -282,5 +282,6 @@
   "confirmDelete": "削除確認",
   "deleteConfirmation": "{0}個のファイルが削除されます。よろしいですか？",
   "pitchShifterExplanation": "ピッチシフターエフェクトでチューニングを変更されたバージョンが作れます。",
-  "shiftTuningBy": "チューニングの変更(半音):"
+  "shiftTuningBy": "チューニングの変更(半音):",
+  "missingDefinitions": "次のトーンの定義が欠けている:\n\n{0}"
 }

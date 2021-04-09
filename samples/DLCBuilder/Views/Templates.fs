@@ -151,21 +151,25 @@ let arrangement state dispatch index arr =
         |> Map.tryFind xmlFile
         |> Option.map (List.isEmpty >> not)
 
-    let isMissingTones =
+    let missingTones =
         match arr with
         | Instrumental inst ->
-            seq { inst.BaseTone; yield! inst.Tones }
-            |> Seq.exists (fun toneKey ->
+            [ inst.BaseTone; yield! inst.Tones ]
+            |> List.distinct
+            |> List.filter (fun toneKey ->
                 state.Project.Tones
                 |> List.exists (fun pt -> pt.Key = toneKey)
                 |> not)
         | _ ->
-            false
+            []
 
     DockPanel.create [
         DockPanel.classes [ "listitem"; if state.SelectedArrangementIndex = index then "selected" ]
         DockPanel.onPointerPressed ((fun _ -> index |> SetSelectedArrangementIndex |> dispatch), SubPatchOptions.OnChangeOf index)
         DockPanel.contextMenu (Menus.Context.arrangement state dispatch)
+        if not <| missingTones.IsEmpty then
+            let tip = translatef "missingDefinitions" [| String.Join(", ", missingTones) |]
+            ToolTip.tip tip
         DockPanel.children [
             match hasIssues with
             | Some hasIssues ->
@@ -200,7 +204,7 @@ let arrangement state dispatch index arr =
                                 TextBlock.fontSize 16.
                                 TextBlock.text name
                                 TextBlock.foreground (
-                                    if isMissingTones then Brushes.Red else Brushes.White
+                                    if missingTones.IsEmpty then Brushes.White else Brushes.OrangeRed
                                 )
                             ]
             
