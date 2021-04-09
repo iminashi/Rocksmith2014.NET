@@ -26,7 +26,7 @@ let private createFileFilters filter =
         | DDSFiles ->
             [ "dds" ]
         | ProfileFiles ->
-            [ "*" ]
+            [ ]
         | ProjectFiles ->
             [ "rs2dlc" ]
         | PSARCFiles ->
