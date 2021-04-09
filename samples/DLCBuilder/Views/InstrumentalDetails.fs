@@ -49,7 +49,6 @@ let view state dispatch (i: Instrumental) =
                 Grid.column 1
                 Grid.row 1
                 StackPanel.orientation Orientation.Horizontal
-                StackPanel.margin 4.
                 StackPanel.children [
                     for priority in [ ArrangementPriority.Main; ArrangementPriority.Alternative; ArrangementPriority.Bonus ] ->
                         RadioButton.create [
@@ -85,7 +84,7 @@ let view state dispatch (i: Instrumental) =
             StackPanel.create [
                 Grid.column 1
                 Grid.row 2
-                StackPanel.margin 4.
+                StackPanel.margin (4.0, 0.0)
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.isVisible (i.Name = ArrangementName.Combo)
                 if i.Name = ArrangementName.Combo then
@@ -112,7 +111,7 @@ let view state dispatch (i: Instrumental) =
             CheckBox.create [
                 Grid.column 1
                 Grid.row 3
-                CheckBox.margin 4.
+                CheckBox.margin (4.0, 0.0)
                 CheckBox.isVisible (i.Name = ArrangementName.Bass)
                 CheckBox.isChecked i.BassPicked
                 CheckBox.onChecked (fun _ -> true |> SetBassPicked |> EditInstrumental |> dispatch)
@@ -129,12 +128,13 @@ let view state dispatch (i: Instrumental) =
             UniformGrid.create [
                 Grid.column 1
                 Grid.row 4
+                UniformGrid.margin (2.0, 0.0)
                 UniformGrid.columns 6
                 UniformGrid.horizontalAlignment HorizontalAlignment.Left
                 UniformGrid.children [
                     for str in 0..5 ->
                         TextBox.create [
-                            TextBox.margin 2.
+                            TextBox.margin (2., 0.)
                             TextBox.minWidth 40.
                             TextBox.width 40.
                             TextBox.text (string i.Tuning.[str])

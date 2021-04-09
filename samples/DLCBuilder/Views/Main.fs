@@ -13,6 +13,112 @@ open Rocksmith2014.DLCProject
 open DLCBuilder
 open Media
 
+let private arrangementList state dispatch =
+    ScrollViewer.create [
+        ScrollViewer.horizontalScrollBarVisibility ScrollBarVisibility.Auto
+        ScrollViewer.content (
+            StackPanel.create [
+                StackPanel.focusable true
+                StackPanel.children (
+                    state.Project.Arrangements
+                    |> List.mapi (Templates.arrangement state dispatch)
+                )
+                if state.Overlay = NoOverlay then
+                    StackPanel.onKeyDown ((fun e ->
+                        e.Handled <- true
+                        match e.KeyModifiers, e.Key with
+                        | KeyModifiers.None, Key.Delete ->
+                            dispatch DeleteArrangement
+                        | KeyModifiers.Alt, Key.Up ->
+                            dispatch (MoveArrangement Up)
+                        | KeyModifiers.Alt, Key.Down ->
+                            dispatch (MoveArrangement Down)
+                        | KeyModifiers.None, Key.Up ->
+                            if state.SelectedArrangementIndex > 0 then
+                                dispatch (SetSelectedArrangementIndex (state.SelectedArrangementIndex - 1))
+                        | KeyModifiers.None, Key.Down ->
+                            if state.SelectedArrangementIndex <> state.Project.Arrangements.Length - 1 then
+                                dispatch (SetSelectedArrangementIndex (state.SelectedArrangementIndex + 1))
+                        | _ ->
+                            e.Handled <- false), SubPatchOptions.OnChangeOf state.SelectedArrangementIndex)
+            ]
+        )
+    ]
+
+let private arrangementDetails state dispatch =
+    ScrollViewer.create [
+        Grid.column 1
+        ScrollViewer.content (
+            StackPanel.create [
+                StackPanel.background "#252525"
+                StackPanel.children [
+                    match state.SelectedArrangementIndex with
+                    | -1 ->
+                        TextBlock.create [
+                            TextBlock.text (translate "selectArrangementPrompt")
+                            TextBlock.horizontalAlignment HorizontalAlignment.Center
+                            TextBlock.verticalAlignment VerticalAlignment.Center
+                        ]
+
+                    | index ->
+                        let arr = state.Project.Arrangements.[index]
+                        let xmlFile = Arrangement.getFile arr
+
+                        StackPanel.create [
+                            StackPanel.orientation Orientation.Horizontal
+                            StackPanel.horizontalAlignment HorizontalAlignment.Center
+                            StackPanel.children [
+                                // Arrangement name
+                                TextBlock.create [
+                                    TextBlock.fontSize 17.
+                                    TextBlock.text (Templates.translateArrangementName arr state.Project false)
+                                    TextBlock.verticalAlignment VerticalAlignment.Bottom
+                                ]
+
+                                // Arrangement filename
+                                TextBlock.create [
+                                    TextBlock.fontSize 12.
+                                    TextBlock.margin (8., 0.)
+                                    TextBlock.text $"{IO.Path.GetFileName xmlFile}"
+                                    TextBlock.foreground "#cccccc"
+                                    TextBlock.verticalAlignment VerticalAlignment.Center
+                                ]
+                            ]
+                        ]
+
+                        // Validation Icon
+                        if state.ArrangementIssues.ContainsKey xmlFile then
+                            let noIssues = state.ArrangementIssues.[xmlFile].IsEmpty
+                            StackPanel.create [
+                                StackPanel.orientation Orientation.Horizontal
+                                StackPanel.background Brushes.Transparent
+                                if not noIssues then
+                                    StackPanel.onTapped (fun _ -> dispatch ShowIssueViewer)
+                                    StackPanel.cursor Cursors.hand
+                                StackPanel.children [
+                                    Path.create [
+                                        Path.fill (if noIssues then Brushes.Green else Brushes.Red)
+                                        Path.data (if noIssues then Icons.check else Icons.x)
+                                        Path.verticalAlignment VerticalAlignment.Center
+                                        Path.margin (0., 0., 6., 0.)
+                                    ]
+
+                                    TextBlock.create[
+                                        TextBlock.text (if noIssues then "OK" else translate "issues")
+                                        TextBlock.verticalAlignment VerticalAlignment.Center
+                                    ]
+                                ]
+                            ]
+
+                        match arr with
+                        | Showlights _ -> ()
+                        | Instrumental i -> InstrumentalDetails.view state dispatch i
+                        | Vocals v -> VocalsDetails.view dispatch v
+                ]
+            ]
+        )
+    ]
+
 let private arrangementPanel state dispatch =
     Grid.create [
         Grid.columnDefinitions "*,2.5*"
@@ -58,101 +164,45 @@ let private arrangementPanel state dispatch =
                     ]
 
                     // Arrangement list
-                    ScrollViewer.create [
-                        ScrollViewer.horizontalScrollBarVisibility ScrollBarVisibility.Auto
-                        ScrollViewer.content (
-                            StackPanel.create [
-                                StackPanel.focusable true
-                                StackPanel.children (
-                                    state.Project.Arrangements
-                                    |> List.mapi (Templates.arrangement state dispatch)
-                                )
-                                if state.Overlay = NoOverlay then
-                                    StackPanel.onKeyDown ((fun e ->
-                                        e.Handled <- true
-                                        match e.KeyModifiers, e.Key with
-                                        | KeyModifiers.None, Key.Delete ->
-                                            dispatch DeleteArrangement
-                                        | KeyModifiers.Alt, Key.Up ->
-                                            dispatch (MoveArrangement Up)
-                                        | KeyModifiers.Alt, Key.Down ->
-                                            dispatch (MoveArrangement Down)
-                                        | KeyModifiers.None, Key.Up ->
-                                            if state.SelectedArrangementIndex > 0 then
-                                                dispatch (SetSelectedArrangementIndex (state.SelectedArrangementIndex - 1))
-                                        | KeyModifiers.None, Key.Down ->
-                                            if state.SelectedArrangementIndex <> state.Project.Arrangements.Length - 1 then
-                                                dispatch (SetSelectedArrangementIndex (state.SelectedArrangementIndex + 1))
-                                        | _ ->
-                                            e.Handled <- false), SubPatchOptions.OnChangeOf state.SelectedArrangementIndex)
-                            ]
-                        )
-                    ]
+                    arrangementList state dispatch
                 ]
             ]
 
             // Arrangement details
-            StackPanel.create [
-                Grid.column 1
-                StackPanel.background "#252525"
-                StackPanel.verticalAlignment VerticalAlignment.Stretch
-                StackPanel.children [
-                    match state.SelectedArrangementIndex with
-                    | -1 ->
-                        TextBlock.create [
-                            TextBlock.text (translate "selectArrangementPrompt")
-                            TextBlock.horizontalAlignment HorizontalAlignment.Center
-                            TextBlock.verticalAlignment VerticalAlignment.Center
-                        ]
-
-                    | index ->
-                        let arr = state.Project.Arrangements.[index]
-                        let xmlFile = Arrangement.getFile arr
-
-                        // Arrangement name
-                        TextBlock.create [
-                            TextBlock.fontSize 17.
-                            TextBlock.text (Templates.translateArrangementName arr state.Project false)
-                            TextBlock.horizontalAlignment HorizontalAlignment.Center
-                        ]
-
-                        // Arrangement filename
-                        TextBlock.create [
-                            TextBlock.text (IO.Path.GetFileName xmlFile)
-                            TextBlock.horizontalAlignment HorizontalAlignment.Center
-                        ]
-
-                        // Validation Icon
-                        if state.ArrangementIssues.ContainsKey xmlFile then
-                            let noIssues = state.ArrangementIssues.[xmlFile].IsEmpty
-                            StackPanel.create [
-                                StackPanel.orientation Orientation.Horizontal
-                                StackPanel.background Brushes.Transparent
-                                if not noIssues then
-                                    StackPanel.onTapped (fun _ -> dispatch ShowIssueViewer)
-                                    StackPanel.cursor Cursors.hand
-                                StackPanel.children [
-                                    Path.create [
-                                        Path.fill (if noIssues then Brushes.Green else Brushes.Red)
-                                        Path.data (if noIssues then Icons.check else Icons.x)
-                                        Path.verticalAlignment VerticalAlignment.Center
-                                        Path.margin (0., 0., 6., 0.)
-                                    ]
-
-                                    TextBlock.create[
-                                        TextBlock.text (if noIssues then "OK" else translate "issues")
-                                        TextBlock.verticalAlignment VerticalAlignment.Center
-                                    ]
-                                ]
-                            ]
-
-                        match arr with
-                        | Showlights _ -> ()
-                        | Instrumental i -> InstrumentalDetails.view state dispatch i
-                        | Vocals v -> VocalsDetails.view dispatch v
-                ]
-            ]
+            arrangementDetails state dispatch
         ]
+    ]
+
+let private tonesList state dispatch =
+    ScrollViewer.create [
+        ScrollViewer.horizontalScrollBarVisibility ScrollBarVisibility.Auto
+        ScrollViewer.content (
+            StackPanel.create [
+                StackPanel.focusable true
+                StackPanel.children (
+                    state.Project.Tones
+                    |> List.mapi (Templates.tone state dispatch)
+                )
+                if state.Overlay = NoOverlay then
+                    StackPanel.onKeyDown ((fun e ->
+                        e.Handled <- true
+                        match e.KeyModifiers, e.Key with
+                        | KeyModifiers.None, Key.Delete ->
+                            dispatch DeleteTone
+                        | KeyModifiers.Alt, Key.Up ->
+                            dispatch (MoveTone Up)
+                        | KeyModifiers.Alt, Key.Down ->
+                            dispatch (MoveTone Down)
+                        | KeyModifiers.None, Key.Up ->
+                            if state.SelectedToneIndex > 0 then
+                                dispatch (SetSelectedToneIndex (state.SelectedToneIndex - 1))
+                        | KeyModifiers.None, Key.Down ->
+                            if state.SelectedToneIndex <> state.Project.Tones.Length - 1 then
+                                dispatch (SetSelectedToneIndex (state.SelectedToneIndex + 1))
+                        | _ ->
+                            e.Handled <- false), SubPatchOptions.OnChangeOf state.SelectedToneIndex)
+            ]
+        )
     ]
 
 let private tonesPanel state dispatch =
@@ -201,36 +251,7 @@ let private tonesPanel state dispatch =
                     ]
 
                     // Tones list
-                    ScrollViewer.create [
-                        ScrollViewer.horizontalScrollBarVisibility ScrollBarVisibility.Auto
-                        ScrollViewer.content (
-                            StackPanel.create [
-                                StackPanel.focusable true
-                                StackPanel.children (
-                                    state.Project.Tones
-                                    |> List.mapi (Templates.tone state dispatch)
-                                )
-                                if state.Overlay = NoOverlay then
-                                    StackPanel.onKeyDown ((fun e ->
-                                        e.Handled <- true
-                                        match e.KeyModifiers, e.Key with
-                                        | KeyModifiers.None, Key.Delete ->
-                                            dispatch DeleteTone
-                                        | KeyModifiers.Alt, Key.Up ->
-                                            dispatch (MoveTone Up)
-                                        | KeyModifiers.Alt, Key.Down ->
-                                            dispatch (MoveTone Down)
-                                        | KeyModifiers.None, Key.Up ->
-                                            if state.SelectedToneIndex > 0 then
-                                                dispatch (SetSelectedToneIndex (state.SelectedToneIndex - 1))
-                                        | KeyModifiers.None, Key.Down ->
-                                            if state.SelectedToneIndex <> state.Project.Tones.Length - 1 then
-                                                dispatch (SetSelectedToneIndex (state.SelectedToneIndex + 1))
-                                        | _ ->
-                                            e.Handled <- false), SubPatchOptions.OnChangeOf state.SelectedToneIndex)
-                            ]
-                        )
-                    ]
+                    tonesList state dispatch
                 ]
             ]
 
