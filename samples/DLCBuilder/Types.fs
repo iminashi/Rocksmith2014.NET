@@ -147,6 +147,15 @@ type FileFilter =
     | ToneExportFiles
     | WwiseConsoleApplication
 
+type BuildValidationError =
+    | InvalidDLCKey
+    | TitleEmpty
+    | ArtistNameEmpty
+    | AlbumArtNotFound
+    | PreviewNotFound
+    | MultipleTonesSameKey
+    | ConflictingVocals
+
 type Msg =
     | OpenFileDialog of locTitle : string * filter : FileFilter * msg : (string -> Msg)
     | OpenMultiFileDialog of locTitle : string * filter : FileFilter * msg : (string array -> Msg)

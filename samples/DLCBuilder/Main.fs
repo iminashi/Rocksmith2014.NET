@@ -161,10 +161,11 @@ let private buildPackage buildType build state =
     match BuildValidator.validate state.Project with
     | Error error ->
         let msg =
-            if error = "invalidDLCKey" then
-                translatef error [| DLCKey.MinimumLength |]
-            else
-                translate error
+            match error with
+            | InvalidDLCKey ->
+                translatef (string error) [| DLCKey.MinimumLength |]
+            | other ->
+                other |> string |> translate
         { state with Overlay = ErrorMessage(msg, None) }, Cmd.none
     | Ok _ ->
         let task = build state.Config
@@ -183,7 +184,7 @@ let update (msg: Msg) (state: State) =
                 let currentGear =
                     match state.SelectedToneIndex with
                     | -1 -> None
-                    | index -> ToneGear.getGearDataForCurrentPedal state.Project.Tones.[index].GearList state.SelectedGearSlot
+                    | index -> ToneGear.getGearDataForCurrentPedal project.Tones.[index].GearList state.SelectedGearSlot
                 match currentGear with
                 // Don't change the cabinet if its name is the same as the current one
                 | Some data when gear.Type = "Cabinets" && data.Name = gear.Name ->
@@ -225,7 +226,7 @@ let update (msg: Msg) (state: State) =
         | -1 ->
             state, Cmd.none
         | index ->
-            let tone = state.Project.Tones.[index]
+            let tone = project.Tones.[index]
             let initialFileName = Some $"{tone.Name}.tone2014.xml"
             let dialog = Dialogs.saveFileDialog (translate "exportToneAs") ToneExportFiles initialFileName
             state, Cmd.OfAsync.perform dialog None (fun path -> ExportTone(tone, path))
@@ -408,7 +409,7 @@ let update (msg: Msg) (state: State) =
             state, Cmd.none
 
     | CalculateVolumes ->
-        let previewPath = state.Project.AudioPreviewFile.Path
+        let previewPath = project.AudioPreviewFile.Path
         let doPreview = File.Exists previewPath && not <| String.endsWith "wem" previewPath
         let cmds =
             Cmd.batch [
@@ -447,10 +448,10 @@ let update (msg: Msg) (state: State) =
                         Instrumental { inst with CustomAudio = inst.CustomAudio |> Option.map (fun a -> { a with Volume = volume }) }
                         
                     let arrangements =
-                        state.Project.Arrangements
+                        project.Arrangements
                         |> List.update old updated
 
-                    { state with Project = { state.Project with Arrangements = arrangements } }
+                    { state with Project = {project with Arrangements = arrangements } }
                 | _ ->
                     state
                     
@@ -470,7 +471,7 @@ let update (msg: Msg) (state: State) =
         // Change the selected gear slot if it is not available in the newly selected tone
         // Prevents creating gaps in the tone gear slots
         let selectedGearSlot =
-            let tone = state.Project.Tones.[index]
+            let tone = project.Tones.[index]
             match state.SelectedGearSlot with
             | ToneGear.PrePedal i when tone.GearList.PrePedals.[i].IsNone ->
                 ToneGear.PrePedal 0
@@ -500,9 +501,9 @@ let update (msg: Msg) (state: State) =
         | -1 ->
             state, Cmd.none
         | index ->
-            let tone = state.Project.Tones.[index]
+            let tone = project.Tones.[index]
             let duplicate = { tone with Name = tone.Name + "2"; Key = String.Empty }
-            { state with Project = { project with Tones = duplicate::state.Project.Tones } }, Cmd.none
+            { state with Project = { project with Tones = duplicate::project.Tones } }, Cmd.none
 
     | MoveTone dir ->
         let tones, index = moveSelected dir state.SelectedToneIndex project.Tones
@@ -740,7 +741,7 @@ let update (msg: Msg) (state: State) =
                      RunningTasks = state.RunningTasks |> Set.remove failedTask }, Cmd.none
 
     | ChangeLocale newLocale ->
-        if state.Config.Locale <> newLocale then changeLocale newLocale
+        if config.Locale <> newLocale then changeLocale newLocale
         { state with Config = { config with Locale = newLocale } }, Cmd.none
 
     | ToolsMsg msg ->

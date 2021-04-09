@@ -293,6 +293,7 @@ let view (window: Window) (state: State) dispatch =
                 // Prevent tab navigation when an overlay is open
                 DockPanel.isEnabled (state.Overlay = NoOverlay)
                 DockPanel.children [
+                    // Main menu
                     Menu.create [
                         DockPanel.dock Dock.Top
                         Menu.background "#181818"
@@ -306,10 +307,11 @@ let view (window: Window) (state: State) dispatch =
                     Grid.create [
                         Grid.columnDefinitions "*,1.8*"
                         Grid.rowDefinitions "3*,2*"
-                        //Grid.showGridLines true
                         Grid.children [
+                            // Project details
                             ProjectDetails.view state dispatch
 
+                            // Arrangements
                             Border.create [
                                 Grid.column 1
                                 Border.background "#181818"
@@ -318,6 +320,7 @@ let view (window: Window) (state: State) dispatch =
                                 Border.child (arrangementPanel state dispatch)
                             ]
 
+                            // Tones
                             Border.create [
                                 Grid.column 1
                                 Grid.row 1
