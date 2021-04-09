@@ -7,6 +7,8 @@ open Avalonia.FuncUI.Elmish
 open Avalonia.FuncUI.Components.Hosts
 open Avalonia.Controls
 open Avalonia.Controls.ApplicationLifetimes
+open Avalonia.Media
+open Avalonia.Platform
 open Avalonia.Themes.Fluent
 open System
 open System.Reflection
@@ -19,10 +21,14 @@ type MainWindow() as this =
         use iconData = embeddedProvider.GetFileInfo("Assets/icon.ico").CreateReadStream()
         base.Icon <- WindowIcon(iconData)
         base.Title <- "Rocksmith 2014 DLC Builder"
-        base.Width <- 1200.0
-        base.Height <- 850.0
-        base.MinWidth <- 1100.0
-        base.MinHeight <- 750.0
+        //base.TransparencyLevelHint <- WindowTransparencyLevel.AcrylicBlur
+        //base.Background <- Brushes.Transparent
+        //base.ExtendClientAreaToDecorationsHint <- true
+        //base.ExtendClientAreaChromeHints <- ExtendClientAreaChromeHints.PreferSystemChrome
+        base.Width <- 1150.0
+        //base.Height <- 850.0
+        base.MinWidth <- 970.0
+        base.MinHeight <- 700.0
 
         let hotKeysSub _initialModel = Cmd.ofSub (HotKeys.handleEvent >> this.KeyDown.Add)
       
@@ -45,8 +51,6 @@ type App() =
     inherit Application()
 
     override this.Initialize() =
-        //this.Styles.Load "avares://Avalonia.Themes.Default/DefaultTheme.xaml"
-        //this.Styles.Load "avares://Avalonia.Themes.Default/Accents/BaseDark.xaml"
         this.Styles.Add (FluentTheme(baseUri = null, Mode = FluentThemeMode.Dark))
         this.Styles.Load "avares://DLCBuilder/Styles.xaml"
         this.Name <- "Rocksmith 2014 DLC Builder"

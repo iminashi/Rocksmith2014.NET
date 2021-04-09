@@ -12,7 +12,7 @@ let create title (generalProps: IAttr<StackPanel> list) (textBoxProps: IAttr<Tex
         StackPanel.orientation Orientation.Vertical
         StackPanel.children [
             TextBlock.create [
-                TextBlock.margin (8.0, 0.)
+                TextBlock.margin (4.0, 0.)
                 TextBlock.fontSize 12.0
                 TextBlock.text title
             ]

@@ -210,3 +210,14 @@ let addMetadata (md: MetaData option) charterName project =
             Year = md.AlbumYear }
     | None ->
         project
+
+let notBuilding state =
+    state.RunningTasks
+    |> Set.intersect (Set([ BuildPackage; WemConversion ]))
+    |> Set.isEmpty
+
+let canBuild state =
+    notBuilding state
+    && (not <| state.RunningTasks.Contains PsarcImport)
+    && state.Project.Arrangements.Length > 0
+    && String.notEmpty state.Project.AudioFile.Path

@@ -18,13 +18,7 @@ let private placeholderAlbumArt =
         let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
         new Bitmap(assets.Open(Uri("avares://DLCBuilder/Assets/coverart_placeholder.png")))
 
-let private notBuilding state =
-    state.RunningTasks
-    |> Set.intersect (Set([ BuildPackage; WemConversion ]))
-    |> Set.isEmpty
-
 let private audioControls state dispatch =
-    let noBuildInProgress = notBuilding state
     let audioPath = state.Project.AudioFile.Path
     let previewPath = state.Project.AudioPreviewFile.Path
     let previewExists = IO.File.Exists previewPath
@@ -99,7 +93,7 @@ let private audioControls state dispatch =
                                 ToolTip.tip (translate "selectAudioFile")
                             ]
 
-                            Menus.audio notCalculatingVolume noBuildInProgress state dispatch
+                            Menus.audio notCalculatingVolume state dispatch
                         ]
                     ]
 
@@ -163,66 +157,16 @@ let private audioControls state dispatch =
     ]
 
 let private buildControls state dispatch =
-    let noBuildInProgress = notBuilding state
-    let canBuild =
-        noBuildInProgress
-        && (not <| state.RunningTasks.Contains PsarcImport)
-        && state.Project.Arrangements.Length > 0
-        && String.notEmpty state.Project.AudioFile.Path
+    let canBuild = Utils.canBuild state
 
     Grid.create [
         Grid.verticalAlignment VerticalAlignment.Center
         Grid.horizontalAlignment HorizontalAlignment.Center
         Grid.columnDefinitions "*,*"
-        Grid.rowDefinitions "*,*,*"
-        //Grid.showGridLines true
         Grid.children [
-            // Configuration
-            Button.create [
-                Grid.columnSpan 2
-                Button.padding (15., 8.)
-                Button.margin 4.
-                Button.fontSize 16.
-                Button.content (translate "configuration")
-                Button.onClick (fun _ -> ShowConfigEditor |> dispatch)
-            ]
-
-            StackPanel.create [
-                Grid.row 1
-                StackPanel.orientation Orientation.Horizontal
-                StackPanel.children [
-                    // Open project
-                    Button.create [
-                        Button.padding (15., 8.)
-                        Button.margin (4., 4., 0., 4.)
-                        Button.fontSize 16.
-                        Button.content (translate "openProject")
-                        Button.onClick (fun _ ->
-                            Msg.OpenFileDialog("selectProjectFile", ProjectFiles, OpenProject)
-                            |> dispatch)
-                        Button.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
-                    ]
-
-                    Menus.file state dispatch canBuild
-                ]
-            ]
-
-            // Save project
-            Button.create [
-                Grid.column 1
-                Grid.row 1
-                Button.padding (15., 8.)
-                Button.margin 4.
-                Button.fontSize 16.
-                Button.content (translate "saveProject")
-                Button.onClick (fun _ -> dispatch ProjectSaveOrSaveAs)
-                Button.isEnabled (state.Project <> state.SavedProject)
-            ]
-
             // Build test
             Button.create [
-                Grid.row 2
-                Button.padding (15., 8.)
+                Button.padding (20., 8.)
                 Button.margin 4.
                 Button.fontSize 16.
                 Button.content (translate "buildTest")
@@ -233,8 +177,7 @@ let private buildControls state dispatch =
             // Build release
             Button.create [
                 Grid.column 1
-                Grid.row 2
-                Button.padding (15., 8.)
+                Button.padding (20., 8.)
                 Button.margin 4.
                 Button.fontSize 16.
                 Button.content (translate "buildRelease")

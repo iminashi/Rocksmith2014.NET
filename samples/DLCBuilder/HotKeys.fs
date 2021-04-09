@@ -25,6 +25,9 @@ let handleEvent dispatch (event: KeyEventArgs) =
     | Ctrl, Key.N ->
         dispatch NewProject
 
+    | Ctrl, Key.G ->
+        dispatch ShowConfigEditor
+
     | Ctrl, Key.T ->
         dispatch (Msg.OpenFileDialog("selectImportToolkitTemplate", ToolkitTemplates, ImportToolkitTemplate))
 

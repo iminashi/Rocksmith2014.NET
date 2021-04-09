@@ -12,7 +12,8 @@ open DLCBuilder
 
 let private separator = MenuItem.create [ MenuItem.header "-" ]
 
-let audio notCalculatingVolume noBuildInProgress state dispatch =
+let audio notCalculatingVolume state dispatch =
+    let noBuildInProgress = Utils.notBuilding state
     let audioPath = state.Project.AudioFile.Path
 
     Menu.create [
@@ -46,111 +47,142 @@ let audio notCalculatingVolume noBuildInProgress state dispatch =
         ]
     ]
 
-let file state dispatch canBuild =
-    Menu.create [
-        Menu.fontSize 16.
-        Menu.margin (0., 0., 4., 0.)
-        Menu.viewItems [
+let file state dispatch =
+    MenuItem.create [
+        MenuItem.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
+        MenuItem.header (translate "file")
+        MenuItem.viewItems [
+            // New project
             MenuItem.create [
-                MenuItem.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
-                MenuItem.header (TextBlock.create [
-                    TextBlock.text "..."
-                    TextBlock.verticalAlignment VerticalAlignment.Center
-                ])
-                MenuItem.viewItems [
-                    // New project
-                    MenuItem.create [
-                        MenuItem.header (translate "newProject")
-                        MenuItem.inputGesture (KeyGesture(Key.N, KeyModifiers.Control))
-                        MenuItem.onClick (fun _ -> dispatch NewProject)
-                    ]
+                MenuItem.header (translate "newProject")
+                MenuItem.inputGesture (KeyGesture(Key.N, KeyModifiers.Control))
+                MenuItem.onClick (fun _ -> dispatch NewProject)
+            ]
 
-                    // Save project as
-                    MenuItem.create [
-                        MenuItem.header (translate "saveProjectAs")
-                        MenuItem.inputGesture (KeyGesture(Key.S, KeyModifiers.Control ||| KeyModifiers.Alt))
-                        MenuItem.onClick (fun _ -> dispatch ProjectSaveAs)
-                    ]
+            // Open project
+            MenuItem.create [
+                MenuItem.header (translate "openProject")
+                MenuItem.inputGesture (KeyGesture(Key.O, KeyModifiers.Control))
+                MenuItem.onClick (fun _ ->
+                    Msg.OpenFileDialog("selectProjectFile", ProjectFiles, OpenProject)
+                    |> dispatch
+                )
+                Button.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
+            ]
+
+            // Save project
+            MenuItem.create [
+                MenuItem.header (translate "saveProject")
+                MenuItem.inputGesture (KeyGesture(Key.S, KeyModifiers.Control))
+                MenuItem.onClick (fun _ -> dispatch ProjectSaveOrSaveAs)
+                Button.isEnabled (state.Project <> state.SavedProject)
+            ]
+
+            // Save project as
+            MenuItem.create [
+                MenuItem.header (translate "saveProjectAs")
+                MenuItem.inputGesture (KeyGesture(Key.S, KeyModifiers.Control ||| KeyModifiers.Alt))
+                MenuItem.onClick (fun _ -> dispatch ProjectSaveAs)
+            ]
    
-                    separator
+            separator
+
+            // Configuration
+            MenuItem.create [
+                MenuItem.header (translate "configuration")
+                MenuItem.inputGesture (KeyGesture(Key.G, KeyModifiers.Control))
+                MenuItem.onClick (fun _ -> ShowConfigEditor |> dispatch)
+            ]
+
+            separator
     
-                    // Import Toolkit template
-                    MenuItem.create [
-                        MenuItem.header (translate "toolkitImport")
-                        MenuItem.inputGesture (KeyGesture(Key.T, KeyModifiers.Control))
-                        MenuItem.onClick (fun _ ->
-                            Msg.OpenFileDialog("selectImportToolkitTemplate", ToolkitTemplates, ImportToolkitTemplate)
-                            |> dispatch)
-                    ]
+            // Import Toolkit template
+            MenuItem.create [
+                MenuItem.header (translate "toolkitImport")
+                MenuItem.inputGesture (KeyGesture(Key.T, KeyModifiers.Control))
+                MenuItem.onClick (fun _ ->
+                    Msg.OpenFileDialog("selectImportToolkitTemplate", ToolkitTemplates, ImportToolkitTemplate)
+                    |> dispatch)
+            ]
     
-                    // Import PSARC file
-                    MenuItem.create [
-                        MenuItem.header (translate "psarcImport")
-                        MenuItem.inputGesture (KeyGesture(Key.A, KeyModifiers.Control))
-                        MenuItem.onClick (fun _ ->
-                            Msg.OpenFileDialog("selectImportPsarc", PSARCFiles, SelectImportPsarcFolder)
-                            |> dispatch)
-                    ]
+            // Import PSARC file
+            MenuItem.create [
+                MenuItem.header (translate "psarcImport")
+                MenuItem.inputGesture (KeyGesture(Key.A, KeyModifiers.Control))
+                MenuItem.onClick (fun _ ->
+                    Msg.OpenFileDialog("selectImportPsarc", PSARCFiles, SelectImportPsarcFolder)
+                    |> dispatch)
+            ]
+  
+            separator
 
-                    // Tools
-                    MenuItem.create [
-                        MenuItem.header (translate "tools")
-                        MenuItem.viewItems [
-                            // Build Pitch Shifted
-                            MenuItem.create [
-                                MenuItem.header (translate "buildPitchShifted")
-                                MenuItem.isEnabled canBuild
-                                MenuItem.onClick (fun _ -> dispatch ShowPitchShifter)
-                            ]
+            // Delete test builds
+            MenuItem.create [
+                MenuItem.header (translate "deleteTestBuilds")
+                MenuItem.isEnabled (String.notEmpty state.Config.TestFolderPath && state.OpenProjectFile.IsSome)
+                MenuItem.onClick (fun _ -> dispatch DeleteTestBuilds)
+                ToolTip.tip (translate "deleteTestBuildsTooltip")
+            ]
 
-                            // Unpack PSARC
-                            MenuItem.create [
-                                MenuItem.header (translate "unpackPSARC")
-                                MenuItem.onClick (fun _ ->
-                                    Msg.OpenFileDialog("selectUnpackPsarc", PSARCFiles, (UnpackPSARC >> ToolsMsg))
-                                    |> dispatch)
-                            ]
+            separator
 
-                            // Remove DD
-                            MenuItem.create [
-                                MenuItem.header (translate "removeDD")
-                                MenuItem.onClick (fun _ ->
-                                    Msg.OpenMultiFileDialog("selectRemoveDDXML", RocksmithXMLFiles, (RemoveDD >> ToolsMsg))
-                                    |> dispatch)
-                            ]
-                        ]
-                    ]
-    
-                    separator
+            // Recent files
+            MenuItem.create [
+                MenuItem.header (translate "recentProjects")
 
-                    // Delete test builds
-                    MenuItem.create [
-                        MenuItem.header (translate "deleteTestBuilds")
-                        MenuItem.isEnabled (String.notEmpty state.Config.TestFolderPath && state.OpenProjectFile.IsSome)
-                        MenuItem.onClick (fun _ -> dispatch DeleteTestBuilds)
-                        ToolTip.tip (translate "deleteTestBuildsTooltip")
-                    ]
+                MenuItem.viewItems (
+                    state.RecentFiles
+                    |> List.mapi (fun i fileName ->
+                        MenuItem.create [
+                            MenuItem.header ($"_{i + 1} {IO.Path.GetFileName fileName}")
+                            MenuItem.onClick (
+                                (fun _ -> OpenProject fileName |> dispatch),
+                                SubPatchOptions.OnChangeOf state.RecentFiles)
+                        ] |> generalize
+                    )
+                )
+            ]
 
-                    separator
+            separator
 
-                    // Recent files
-                    MenuItem.create [
-                        MenuItem.header (translate "recentProjects")
+            // Exit
+            MenuItem.create [
+                MenuItem.header (translate "exit")
+                if OperatingSystem.IsWindows() then
+                    MenuItem.inputGesture (KeyGesture(Key.F4, KeyModifiers.Alt))
+                MenuItem.onClick (fun _ -> dispatch CloseApplication)
+            ]
+        ]
+    ]
 
-                        MenuItem.viewItems (
-                            state.RecentFiles
-                            |> List.mapi (fun i fileName ->
-                                MenuItem.create [
-                                    MenuItem.header ($"_{i + 1} {IO.Path.GetFileName fileName}")
-                                    MenuItem.onClick (
-                                        (fun _ -> OpenProject fileName |> dispatch),
-                                        SubPatchOptions.OnChangeOf state.RecentFiles)
-                                ] |> generalize
-                            )
-                        )
-                    ]
-                ]
-                
+let tools state dispatch =
+    let canBuild = Utils.canBuild state
+
+    // Tools
+    MenuItem.create [
+        MenuItem.header (translate "tools")
+        MenuItem.viewItems [
+            // Build Pitch Shifted
+            MenuItem.create [
+                MenuItem.header (translate "buildPitchShifted")
+                MenuItem.isEnabled canBuild
+                MenuItem.onClick (fun _ -> dispatch ShowPitchShifter)
+            ]
+
+            // Unpack PSARC
+            MenuItem.create [
+                MenuItem.header (translate "unpackPSARC")
+                MenuItem.onClick (fun _ ->
+                    Msg.OpenFileDialog("selectUnpackPsarc", PSARCFiles, (UnpackPSARC >> ToolsMsg))
+                    |> dispatch)
+            ]
+
+            // Remove DD
+            MenuItem.create [
+                MenuItem.header (translate "removeDD")
+                MenuItem.onClick (fun _ ->
+                    Msg.OpenMultiFileDialog("selectRemoveDDXML", RocksmithXMLFiles, (RemoveDD >> ToolsMsg))
+                    |> dispatch)
             ]
         ]
     ]

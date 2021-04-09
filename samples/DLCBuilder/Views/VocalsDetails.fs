@@ -9,7 +9,7 @@ open DLCBuilder
 
 let view dispatch (v: Vocals) =
     Grid.create [
-        Grid.columnDefinitions "*,3*"
+        Grid.columnDefinitions "auto,*"
         Grid.rowDefinitions "*,*,*,*"
         Grid.margin (0.0, 4.0)
         //Grid.showGridLines true

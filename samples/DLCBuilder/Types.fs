@@ -216,4 +216,5 @@ type Msg =
     | TaskFailed of e : exn * failedTask : LongTask
     | ToolsMsg of ToolsMsg
     | HotKeyMsg of Msg
+    | CloseApplication
     | Ignore

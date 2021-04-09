@@ -147,10 +147,9 @@ let arrangement state dispatch index arr =
     
     let xmlFile = Arrangement.getFile arr
     let hasIssues =
-        if state.ArrangementIssues.ContainsKey xmlFile then
-            Some (not state.ArrangementIssues.[xmlFile].IsEmpty)
-        else
-            None
+        state.ArrangementIssues
+        |> Map.tryFind xmlFile
+        |> Option.map (List.isEmpty >> not)
 
     DockPanel.create [
         DockPanel.classes [ "listitem"; if state.SelectedArrangementIndex = index then "selected" ]

@@ -14,7 +14,7 @@ open Media
 
 let private arrangementPanel state dispatch =
     Grid.create [
-        Grid.columnDefinitions "245,*"
+        Grid.columnDefinitions "*,2.5*"
         Grid.children [
             DockPanel.create [
                 DockPanel.margin 4.
@@ -58,6 +58,7 @@ let private arrangementPanel state dispatch =
 
                     // Arrangement list
                     ScrollViewer.create [
+                        ScrollViewer.horizontalScrollBarVisibility ScrollBarVisibility.Auto
                         ScrollViewer.content (
                             StackPanel.create [
                                 StackPanel.focusable true
@@ -155,7 +156,7 @@ let private arrangementPanel state dispatch =
 
 let private tonesPanel state dispatch =
     Grid.create [
-        Grid.columnDefinitions "245,*"
+        Grid.columnDefinitions "*,2.5*"
         Grid.children [
             DockPanel.create [
                 DockPanel.margin 4.
@@ -170,7 +171,7 @@ let private tonesPanel state dispatch =
 
                     Grid.create [
                         DockPanel.dock Dock.Top
-                        Grid.columnDefinitions "auto,*"
+                        Grid.columnDefinitions "*,*"
                         Grid.children [
                             // Import from profile
                             Button.create [
@@ -284,33 +285,48 @@ let view (window: Window) (state: State) dispatch =
             $"{dot}Rocksmith 2014 DLC Builder - {project}"
         | None -> "Rocksmith 2014 DLC Builder"
 
-    Grid.create [
-        Grid.background "#040404"
-        Grid.children [
-            Grid.create [
-                // Prevent tab navigation when an overlay is open
-                Grid.isEnabled (state.Overlay = NoOverlay)
-                Grid.columnDefinitions "*,1.8*"
-                Grid.rowDefinitions "3*,2*"
-                //Grid.showGridLines true
-                Grid.children [
-                    ProjectDetails.view state dispatch
 
-                    Border.create [
-                        Grid.column 1
-                        Border.background "#181818"
-                        Border.cornerRadius 6.
-                        Border.margin 2.
-                        Border.child (arrangementPanel state dispatch)
+    Panel.create [
+        Panel.background "#040404"
+        Panel.children [
+            DockPanel.create [
+                // Prevent tab navigation when an overlay is open
+                DockPanel.isEnabled (state.Overlay = NoOverlay)
+                DockPanel.children [
+                    Menu.create [
+                        DockPanel.dock Dock.Top
+                        Menu.background "#181818"
+                        Menu.viewItems [
+                            Menus.file state dispatch
+
+                            Menus.tools state dispatch
+                        ]
                     ]
 
-                    Border.create [
-                        Grid.column 1
-                        Grid.row 1
-                        Border.background "#181818"
-                        Border.cornerRadius 6.
-                        Border.margin 2.
-                        Border.child (tonesPanel state dispatch)
+                    Grid.create [
+                        Grid.columnDefinitions "*,1.8*"
+                        Grid.rowDefinitions "3*,2*"
+                        //Grid.showGridLines true
+                        Grid.children [
+                            ProjectDetails.view state dispatch
+
+                            Border.create [
+                                Grid.column 1
+                                Border.background "#181818"
+                                Border.cornerRadius 6.
+                                Border.margin 2.
+                                Border.child (arrangementPanel state dispatch)
+                            ]
+
+                            Border.create [
+                                Grid.column 1
+                                Grid.row 1
+                                Border.background "#181818"
+                                Border.cornerRadius 6.
+                                Border.margin 2.
+                                Border.child (tonesPanel state dispatch)
+                            ]
+                        ]
                     ]
                 ]
             ]
