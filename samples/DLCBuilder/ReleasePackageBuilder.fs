@@ -10,7 +10,7 @@ let build (openProject: string option) config project =
     let releaseDir =
         openProject
         |> Option.map Path.GetDirectoryName
-        |> Option.defaultWith (fun _ -> Path.GetDirectoryName project.AudioFile.Path)
+        |> Option.defaultWith (fun _ -> Path.GetDirectoryName (Arrangement.getFile project.Arrangements.Head))
 
     let fileName =
         sprintf "%s_%s_v%s" project.ArtistName.SortValue project.Title.SortValue (project.Version.Replace('.', '_'))
