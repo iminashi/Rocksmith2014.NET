@@ -1,10 +1,24 @@
 ﻿module DLCBuilder.HotKeys
 
 open Avalonia.Input
+open System
 
-let [<Literal>] private CtrlAlt = KeyModifiers.Control ||| KeyModifiers.Alt
-let [<Literal>] private Ctrl = KeyModifiers.Control
-let [<Literal>] private None = KeyModifiers.None
+let [<Literal>] private CtrlAltMac = KeyModifiers.Meta ||| KeyModifiers.Alt
+let [<Literal>] private CtrlAltWin = KeyModifiers.Control ||| KeyModifiers.Alt
+
+let (|Ctrl|CtrlAlt|None|Other|) keyModifier =
+    if OperatingSystem.IsMacOS() then
+        match keyModifier with
+        | CtrlAltMac -> CtrlAlt
+        | KeyModifiers.Meta -> Ctrl
+        | KeyModifiers.None -> None
+        | _ -> Other
+    else
+        match keyModifier with
+        | CtrlAltWin -> CtrlAlt
+        | KeyModifiers.Control -> Ctrl
+        | KeyModifiers.None -> None
+        | _ -> Other
 
 let handleEvent dispatch (event: KeyEventArgs) =
     let dispatch msg = dispatch (HotKeyMsg msg)

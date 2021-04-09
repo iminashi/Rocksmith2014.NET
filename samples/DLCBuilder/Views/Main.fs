@@ -8,6 +8,7 @@ open Avalonia.Controls
 open Avalonia.Controls.Primitives
 open Avalonia.Controls.Shapes
 open Avalonia.FuncUI.DSL
+open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open DLCBuilder
 open Media
@@ -155,6 +156,11 @@ let private arrangementPanel state dispatch =
     ]
 
 let private tonesPanel state dispatch =
+    let ctrl =
+        match state.CurrentPlatform with
+        | Mac -> "⌘"
+        | PC -> "Ctrl+"
+
     Grid.create [
         Grid.columnDefinitions "*,2.5*"
         Grid.children [
@@ -179,7 +185,7 @@ let private tonesPanel state dispatch =
                                 Button.content (translate "fromProfile")
                                 Button.onClick (fun _ -> dispatch ImportProfileTones)
                                 Button.isEnabled (IO.File.Exists state.Config.ProfilePath)
-                                ToolTip.tip (translate "profileImportToolTip" + " (Ctrl+P)")
+                                ToolTip.tip (translate "profileImportToolTip" + $" ({ctrl}P)")
                             ]
 
                             // Import from file

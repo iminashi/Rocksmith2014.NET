@@ -10,6 +10,9 @@ open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open DLCBuilder
 
+let private keyModifierCtrl =
+    if OperatingSystem.IsMacOS() then KeyModifiers.Meta else KeyModifiers.Control
+
 let private separator = MenuItem.create [ MenuItem.header "-" ]
 
 let audio notCalculatingVolume state dispatch =
@@ -55,14 +58,14 @@ let file state dispatch =
             // New project
             MenuItem.create [
                 MenuItem.header (translate "newProject")
-                MenuItem.inputGesture (KeyGesture(Key.N, KeyModifiers.Control))
+                MenuItem.inputGesture (KeyGesture(Key.N, keyModifierCtrl))
                 MenuItem.onClick (fun _ -> dispatch NewProject)
             ]
 
             // Open project
             MenuItem.create [
                 MenuItem.header (translate "openProject")
-                MenuItem.inputGesture (KeyGesture(Key.O, KeyModifiers.Control))
+                MenuItem.inputGesture (KeyGesture(Key.O, keyModifierCtrl))
                 MenuItem.onClick (fun _ ->
                     Msg.OpenFileDialog("selectProjectFile", ProjectFiles, OpenProject)
                     |> dispatch
@@ -73,7 +76,7 @@ let file state dispatch =
             // Save project
             MenuItem.create [
                 MenuItem.header (translate "saveProject")
-                MenuItem.inputGesture (KeyGesture(Key.S, KeyModifiers.Control))
+                MenuItem.inputGesture (KeyGesture(Key.S, keyModifierCtrl))
                 MenuItem.onClick (fun _ -> dispatch ProjectSaveOrSaveAs)
                 Button.isEnabled (state.Project <> state.SavedProject)
             ]
@@ -81,7 +84,7 @@ let file state dispatch =
             // Save project as
             MenuItem.create [
                 MenuItem.header (translate "saveProjectAs")
-                MenuItem.inputGesture (KeyGesture(Key.S, KeyModifiers.Control ||| KeyModifiers.Alt))
+                MenuItem.inputGesture (KeyGesture(Key.S, keyModifierCtrl ||| KeyModifiers.Alt))
                 MenuItem.onClick (fun _ -> dispatch ProjectSaveAs)
             ]
    
@@ -90,7 +93,7 @@ let file state dispatch =
             // Configuration
             MenuItem.create [
                 MenuItem.header (translate "configuration")
-                MenuItem.inputGesture (KeyGesture(Key.G, KeyModifiers.Control))
+                MenuItem.inputGesture (KeyGesture(Key.G, keyModifierCtrl))
                 MenuItem.onClick (fun _ -> ShowConfigEditor |> dispatch)
             ]
 
@@ -99,7 +102,7 @@ let file state dispatch =
             // Import Toolkit template
             MenuItem.create [
                 MenuItem.header (translate "toolkitImport")
-                MenuItem.inputGesture (KeyGesture(Key.T, KeyModifiers.Control))
+                MenuItem.inputGesture (KeyGesture(Key.T, keyModifierCtrl))
                 MenuItem.onClick (fun _ ->
                     Msg.OpenFileDialog("selectImportToolkitTemplate", ToolkitTemplates, ImportToolkitTemplate)
                     |> dispatch)
@@ -108,7 +111,7 @@ let file state dispatch =
             // Import PSARC file
             MenuItem.create [
                 MenuItem.header (translate "psarcImport")
-                MenuItem.inputGesture (KeyGesture(Key.A, KeyModifiers.Control))
+                MenuItem.inputGesture (KeyGesture(Key.A, keyModifierCtrl))
                 MenuItem.onClick (fun _ ->
                     Msg.OpenFileDialog("selectImportPsarc", PSARCFiles, SelectImportPsarcFolder)
                     |> dispatch)
@@ -148,7 +151,10 @@ let file state dispatch =
             // Exit
             MenuItem.create [
                 MenuItem.header (translate "exit")
-                if OperatingSystem.IsWindows() then
+                match state.CurrentPlatform with
+                | Mac ->
+                    MenuItem.inputGesture (KeyGesture(Key.Q, KeyModifiers.Meta))
+                | PC ->
                     MenuItem.inputGesture (KeyGesture(Key.F4, KeyModifiers.Alt))
                 MenuItem.onClick (fun _ -> dispatch CloseApplication)
             ]
