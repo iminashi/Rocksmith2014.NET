@@ -67,6 +67,7 @@ let private arrangementDetails state dispatch =
                         StackPanel.create [
                             StackPanel.orientation Orientation.Horizontal
                             StackPanel.horizontalAlignment HorizontalAlignment.Center
+                            StackPanel.margin (0., 2., 0., 0.)
                             StackPanel.children [
                                 // Arrangement name
                                 TextBlock.create [

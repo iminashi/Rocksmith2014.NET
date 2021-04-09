@@ -13,22 +13,22 @@ open DLCBuilder
 let view state dispatch (i: Instrumental) =
     Grid.create [
         //Grid.showGridLines true
-        Grid.margin 4.
+        Grid.margin 6.
         Grid.columnDefinitions "auto,*"
         Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*,*,*,*"
         Grid.children [
             // Arrangement name (for non-bass arrangements)
             TextBlock.create [
                 TextBlock.isVisible (i.Name <> ArrangementName.Bass)
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text (translate "name")
-                TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
             ComboBox.create [
                 Grid.column 1
                 ComboBox.isVisible (i.Name <> ArrangementName.Bass)
                 ComboBox.horizontalAlignment HorizontalAlignment.Left
-                ComboBox.margin 4.
+                ComboBox.margin (4., 0.)
                 ComboBox.width 140.
                 ComboBox.dataItems [ ArrangementName.Lead; ArrangementName.Rhythm; ArrangementName.Combo ]
                 ComboBox.itemTemplate Templates.arrangementName
