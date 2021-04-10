@@ -204,7 +204,7 @@ let arrangement state dispatch index arr =
                                 TextBlock.fontSize 16.
                                 TextBlock.text name
                                 TextBlock.foreground (
-                                    if missingTones.IsEmpty then Brushes.White else Brushes.OrangeRed
+                                    if missingTones.IsEmpty then Brushes.White else Brushes.Red
                                 )
                             ]
             
