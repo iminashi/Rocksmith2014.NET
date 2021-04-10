@@ -4,10 +4,10 @@ using Xunit;
 
 namespace Rocksmith2014.XML.Tests
 {
-    public static class ReadMetaData
+    public static class MetaDataTests
     {
         [Fact]
-        public static void CanReadMetaData()
+        public static void CanBeReadFromXMLFile()
         {
             var metaData = MetaData.Read("instrumental.xml");
 

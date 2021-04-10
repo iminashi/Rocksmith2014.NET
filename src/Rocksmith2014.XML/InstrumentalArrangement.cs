@@ -328,7 +328,7 @@ namespace Rocksmith2014.XML
         /// Removes dynamic difficulty levels from the arrangement.
         /// </summary>
         /// <param name="matchPhrasesToSections">If true, recreates the phrases to match the sections.</param>
-        public async Task RemoveDD(bool matchPhrasesToSections)
+        public async Task RemoveDD(bool matchPhrasesToSections = false)
         {
             var trTrack = await GenerateTranscriptionTrack().ConfigureAwait(false);
 
