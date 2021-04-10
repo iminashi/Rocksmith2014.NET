@@ -143,6 +143,13 @@ let getPhraseIterationData (arr: InstrumentalArrangement) (iteration: PhraseIter
                 unique <- unique + 1
         unique
 
+    let tempoEstimate =
+        // Fix for files that have multiple phrase iterations at the same time stamp
+        if lengthMs <> 0 then
+            1000 * 60 * beats.Length / lengthMs
+        else
+            0
+
     { Name = phrase.Name
       MaxDifficulty = maxD
       StartTime = startTime
@@ -171,7 +178,7 @@ let getPhraseIterationData (arr: InstrumentalArrangement) (iteration: PhraseIter
       LengthMs = lengthMs
       LengthBeats = beats.Length
       UniqueLevels = uniqueLevels
-      TempoEstimate = 1000 * 60 * beats.Length / lengthMs
+      TempoEstimate = tempoEstimate
       AnchorCount = anchors.Length
       MaxChordStrings = mostChordNotes
       SoloPhrase = isSolo }
