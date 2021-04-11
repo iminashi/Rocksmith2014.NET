@@ -66,9 +66,7 @@ let private generalConfig state dispatch =
                                 DockPanel.dock Dock.Right
                                 Button.margin (0., 4.)
                                 Button.content "..."
-                                Button.onClick (fun _ ->
-                                    Msg.OpenFileDialog("selectProfile", ProfileFiles, SetProfilePath >> EditConfig)
-                                    |> dispatch)
+                                Button.onClick (fun _ -> Dialog.ProfileFile |> ShowDialog |> dispatch)
                             ]
                             TextBox.create [
                                 TextBox.margin (0., 4.)
@@ -93,9 +91,7 @@ let private generalConfig state dispatch =
                                 DockPanel.dock Dock.Right
                                 Button.margin (0., 4.)
                                 Button.content "..."
-                                Button.onClick (fun _ ->
-                                    Msg.OpenFolderDialog("selectTestFolder", SetTestFolderPath >> EditConfig)
-                                    |> dispatch)
+                                Button.onClick (fun _ -> Dialog.TestFolder |> ShowDialog |> dispatch)
                             ]
                             TextBox.create [
                                 TextBox.margin (0., 4.)
@@ -120,9 +116,7 @@ let private generalConfig state dispatch =
                                 DockPanel.dock Dock.Right
                                 Button.margin (0., 4.)
                                 Button.content "..."
-                                Button.onClick (fun _ ->
-                                    Msg.OpenFolderDialog("selectProjectFolder", SetProjectsFolderPath >> EditConfig)
-                                    |> dispatch)
+                                Button.onClick (fun _ -> Dialog.ProjectFolder |> ShowDialog |> dispatch)
                             ]
                             TextBox.create [
                                 TextBox.margin (0., 4.)
@@ -146,11 +140,7 @@ let private generalConfig state dispatch =
                                 DockPanel.dock Dock.Right
                                 Button.margin (0., 4.)
                                 Button.content "..."
-                                Button.onClick (fun _ ->
-                                    Msg.OpenFileDialog("selectWwiseConsolePath",
-                                                       WwiseConsoleApplication,
-                                                       SetWwiseConsolePath >> EditConfig)
-                                    |> dispatch)
+                                Button.onClick (fun _ -> Dialog.WwiseConsole |> ShowDialog |> dispatch)
                             ]
                             TextBox.create [
                                 TextBox.margin (0., 4.)

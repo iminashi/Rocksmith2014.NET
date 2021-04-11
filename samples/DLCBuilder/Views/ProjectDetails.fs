@@ -87,9 +87,7 @@ let private audioControls state dispatch =
                                 Button.padding (10.0, 0.0)
                                 Button.content (translate "select")
                                 Button.isEnabled notCalculatingVolume
-                                Button.onClick (fun _ ->
-                                    Msg.OpenFileDialog("selectAudioFile", AudioFiles, SetAudioFile)
-                                    |> dispatch)
+                                Button.onClick (fun _ -> Dialog.AudioFile false |> ShowDialog |> dispatch)
                                 ToolTip.tip (translate "selectAudioFile")
                             ]
 
@@ -352,9 +350,7 @@ let private coverArt state dispatch =
         Image.source (state.CoverArt |> Option.defaultWith placeholderAlbumArt.Force)
         Image.width 200.
         Image.height 200.
-        Image.onTapped (fun _ ->
-            Msg.OpenFileDialog("selectCoverArt", ImageFiles, SetCoverArt)
-            |> dispatch)
+        Image.onTapped (fun _ -> Dialog.CoverArt |> ShowDialog |> dispatch)
         Image.cursor Cursors.hand
         ToolTip.tip (translate "selectCoverArtToolTip")
     ]

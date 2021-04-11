@@ -25,13 +25,13 @@ let handleEvent dispatch (event: KeyEventArgs) =
 
     match event.KeyModifiers, event.Key with
     | Ctrl, Key.O ->
-        dispatch (Msg.OpenFileDialog("selectProjectFile", ProjectFiles, OpenProject))
+        dispatch (ShowDialog Dialog.OpenProject)
 
     | Ctrl, Key.S ->
         dispatch ProjectSaveOrSaveAs
 
     | CtrlAlt, Key.S ->
-        dispatch ProjectSaveAs
+        dispatch SaveProjectAs
 
     | Ctrl, Key.P ->
         dispatch ImportProfileTones
@@ -43,10 +43,10 @@ let handleEvent dispatch (event: KeyEventArgs) =
         dispatch ShowConfigEditor
 
     | Ctrl, Key.T ->
-        dispatch (Msg.OpenFileDialog("selectImportToolkitTemplate", ToolkitTemplates, ImportToolkitTemplate))
+        dispatch (ShowDialog Dialog.ToolkitImport)
 
     | Ctrl, Key.A ->
-        dispatch (Msg.OpenFileDialog("selectImportPsarc", PSARCFiles, SelectImportPsarcFolder))
+        dispatch (ShowDialog Dialog.PsarcImport)
 
     | None, Key.Escape ->
         dispatch CloseOverlay

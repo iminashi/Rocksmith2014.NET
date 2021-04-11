@@ -134,6 +134,26 @@ type ToolsMsg =
     | UnpackPSARC of file : string
     | RemoveDD of files : string array
 
+[<RequireQualifiedAccess>]
+type Dialog =
+    | OpenProject
+    | SaveProjectAs
+    | ToolkitImport
+    | PsarcImport
+    | PsarcImportTargetFolder of psarcPath : string
+    | PsarcUnpack
+    | RemoveDD
+    | TestFolder
+    | ProfileFile
+    | ProjectFolder
+    | AddArrangements
+    | ToneImport
+    | WwiseConsole
+    | CoverArt
+    | AudioFile of isCustom : bool
+    | CustomFont
+    | ExportTone of tone : Tone
+
 type FileFilter =
     | AudioFiles
     | RocksmithXMLFiles
@@ -157,11 +177,7 @@ type BuildValidationError =
     | ConflictingVocals
 
 type Msg =
-    | OpenFileDialog of locTitle : string * filter : FileFilter * msg : (string -> Msg)
-    | OpenMultiFileDialog of locTitle : string * filter : FileFilter * msg : (string array -> Msg)
-    | OpenFolderDialog of locTitle : string * msg : (string -> Msg)
-    | SelectImportPsarcFolder of psarcFile : string
-    | ImportPsarc of psarcFile : string * targetFolder : string option
+    | ImportPsarc of psarcFile : string * targetFolder : string
     | ImportToolkitTemplate of fileName : string
     | ImportTonesFromFile of fileName : string
     | ImportProfileTones
@@ -170,9 +186,9 @@ type Msg =
     | NewProject
     | OpenProject of fileName : string
     | ProjectSaveOrSaveAs
-    | ProjectSaveAs
+    | SaveProjectAs
+    | SaveProject of fileName : string
     | ProjectSaved of targetFile : string
-    | SaveProject of fileName : string option
     | AddArrangements of files : string array
     | SetCoverArt of fileName : string
     | SetAudioFile of fileName : string
@@ -202,7 +218,7 @@ type Msg =
     | EditConfig of ConfigEdit
     | CloseOverlay
     | ExportSelectedTone
-    | ExportTone of tone : Tone * targetPath : string option
+    | ExportTone of tone : Tone * targetPath : string
     | ShowToneEditor
     | ShowConfigEditor
     | ShowIssueViewer
@@ -224,6 +240,7 @@ type Msg =
     | ErrorOccurred of e : exn
     | TaskFailed of e : exn * failedTask : LongTask
     | ToolsMsg of ToolsMsg
+    | ShowDialog of Dialog
     | HotKeyMsg of Msg
     | CloseApplication
     | Ignore

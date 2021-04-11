@@ -66,10 +66,7 @@ let file state dispatch =
             MenuItem.create [
                 MenuItem.header (translate "openProject")
                 MenuItem.inputGesture (KeyGesture(Key.O, keyModifierCtrl))
-                MenuItem.onClick (fun _ ->
-                    Msg.OpenFileDialog("selectProjectFile", ProjectFiles, OpenProject)
-                    |> dispatch
-                )
+                MenuItem.onClick (fun _ -> Dialog.OpenProject |> ShowDialog |> dispatch)
                 Button.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
             ]
 
@@ -85,7 +82,7 @@ let file state dispatch =
             MenuItem.create [
                 MenuItem.header (translate "saveProjectAs")
                 MenuItem.inputGesture (KeyGesture(Key.S, keyModifierCtrl ||| KeyModifiers.Alt))
-                MenuItem.onClick (fun _ -> dispatch ProjectSaveAs)
+                MenuItem.onClick (fun _ -> dispatch SaveProjectAs)
             ]
    
             separator
@@ -103,18 +100,14 @@ let file state dispatch =
             MenuItem.create [
                 MenuItem.header (translate "toolkitImport")
                 MenuItem.inputGesture (KeyGesture(Key.T, keyModifierCtrl))
-                MenuItem.onClick (fun _ ->
-                    Msg.OpenFileDialog("selectImportToolkitTemplate", ToolkitTemplates, ImportToolkitTemplate)
-                    |> dispatch)
+                MenuItem.onClick (fun _ -> Dialog.ToolkitImport |> ShowDialog |> dispatch)
             ]
     
             // Import PSARC file
             MenuItem.create [
                 MenuItem.header (translate "psarcImport")
                 MenuItem.inputGesture (KeyGesture(Key.A, keyModifierCtrl))
-                MenuItem.onClick (fun _ ->
-                    Msg.OpenFileDialog("selectImportPsarc", PSARCFiles, SelectImportPsarcFolder)
-                    |> dispatch)
+                MenuItem.onClick (fun _ -> Dialog.PsarcImport |> ShowDialog |> dispatch)
             ]
   
             separator
@@ -178,17 +171,13 @@ let tools state dispatch =
             // Unpack PSARC
             MenuItem.create [
                 MenuItem.header (translate "unpackPSARC")
-                MenuItem.onClick (fun _ ->
-                    Msg.OpenFileDialog("selectUnpackPsarc", PSARCFiles, (UnpackPSARC >> ToolsMsg))
-                    |> dispatch)
+                MenuItem.onClick (fun _ -> Dialog.PsarcUnpack |> ShowDialog |> dispatch)
             ]
 
             // Remove DD
             MenuItem.create [
                 MenuItem.header (translate "removeDD")
-                MenuItem.onClick (fun _ ->
-                    Msg.OpenMultiFileDialog("selectRemoveDDXML", RocksmithXMLFiles, (RemoveDD >> ToolsMsg))
-                    |> dispatch)
+                MenuItem.onClick (fun _ -> Dialog.RemoveDD |> ShowDialog |> dispatch)
             ]
         ]
     ]

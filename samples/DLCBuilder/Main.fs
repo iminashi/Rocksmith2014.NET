@@ -227,11 +227,9 @@ let update (msg: Msg) (state: State) =
             state, Cmd.none
         | index ->
             let tone = project.Tones.[index]
-            let initialFileName = Some $"{tone.Name}.tone2014.xml"
-            let dialog = Dialogs.saveFileDialog (translate "exportToneAs") ToneExportFiles initialFileName
-            state, Cmd.OfAsync.perform dialog None (fun path -> ExportTone(tone, path))
+            state, Cmd.ofMsg (Dialog.ExportTone tone |> ShowDialog)
 
-    | ExportTone (tone, Some path) ->
+    | ExportTone (tone, path) ->
         let task =
             match path with
             | EndsWith "xml" -> Tone.exportXml path
@@ -245,32 +243,7 @@ let update (msg: Msg) (state: State) =
             | _ -> Cmd.none
         { state with Overlay = NoOverlay }, cmd
 
-    | OpenFileDialog (locString, filter, msg) ->
-        let dialog = async {
-            match! Dialogs.openFileDialog (translate locString) filter None with
-            | Some file -> return msg file
-            | None -> return Ignore }
-        state, Cmd.OfAsync.result dialog
-
-    | OpenMultiFileDialog (locString, filter, msg) ->
-        let dialog = async {
-            match! Dialogs.openMultiFileDialog (translate locString) filter None with
-            | Some files -> return msg files
-            | None -> return Ignore }
-        state, Cmd.OfAsync.result dialog
-
-    | OpenFolderDialog (locString, msg) ->
-        let dialog = async {
-            match! Dialogs.openFolderDialog (translate locString) None with
-            | Some folder -> return msg folder
-            | None -> return Ignore }
-        state, Cmd.OfAsync.result dialog
-
-    | SelectImportPsarcFolder psarcFile ->
-        let dialog = Dialogs.openFolderDialog (translate "selectPsarcExtractFolder")
-        state, Cmd.OfAsync.perform dialog None (fun folder -> ImportPsarc(psarcFile, folder))
-
-    | ImportPsarc (psarcFile, Some targetFolder) ->
+    | ImportPsarc (psarcFile, targetFolder) ->
         let task() = async {
             let! project, fileName = PsarcImporter.import psarcFile targetFolder
 
@@ -353,24 +326,6 @@ let update (msg: Msg) (state: State) =
             state.SelectedImportTones.Clear()
             state.SelectedImportTones.Source <- null
             { state with Overlay = ImportToneSelector tones }, Cmd.none
-
-    | ProjectSaveAs ->
-        let intialFileName =
-            state.OpenProjectFile
-            |> Option.map Path.GetFileName
-            |> Option.orElseWith (fun () ->
-                sprintf "%s_%s" project.ArtistName.SortValue project.Title.SortValue
-                |> StringValidator.fileName
-                |> sprintf "%s.rs2dlc"
-                |> Some)
-
-        let initialDir =
-            state.OpenProjectFile
-            |> Option.map Path.GetDirectoryName
-            |> Option.orElse (Option.ofString config.ProjectsFolderPath)
-
-        let dialog = Dialogs.saveFileDialog (translate "saveProjectAsDialog") ProjectFiles intialFileName
-        state, Cmd.OfAsync.perform dialog initialDir SaveProject
 
     | SetAudioFile fileName ->
         let audioFile = { project.AudioFile with Path = fileName }
@@ -575,10 +530,13 @@ let update (msg: Msg) (state: State) =
 
     | SetRecentFiles recent -> { state with RecentFiles = recent }, Cmd.none
 
-    | SaveProject (Some target) ->
+    | SaveProjectAs ->
+        state, Cmd.ofMsg (Dialog.SaveProjectAs |> ShowDialog)
+
+    | SaveProject targetPath ->
         let task() = async {
-            do! DLCProject.save target project
-            return target }
+            do! DLCProject.save targetPath project
+            return targetPath }
         state, Cmd.OfAsync.either task () ProjectSaved ErrorOccurred
 
     | ProjectSaved target ->
@@ -598,9 +556,9 @@ let update (msg: Msg) (state: State) =
 
     | ProjectSaveOrSaveAs ->
         let msg =
-            match state.OpenProjectFile with
-            | Some _ as fn -> SaveProject fn
-            | None -> ProjectSaveAs
+            state.OpenProjectFile
+            |> Option.map SaveProject
+            |> Option.defaultValue SaveProjectAs
         state, Cmd.ofMsg msg
 
     | OpenProject fileName ->
@@ -747,6 +705,9 @@ let update (msg: Msg) (state: State) =
     | ToolsMsg msg ->
         Tools.update msg state
 
+    | ShowDialog dialog ->
+        Dialogs.showDialog dialog state
+
     | HotKeyMsg msg ->
         match state.Overlay, msg with
         | NoOverlay, _ | _, CloseOverlay ->
@@ -760,8 +721,5 @@ let update (msg: Msg) (state: State) =
         state, Cmd.none
     
     // When the user canceled any of the dialogs
-    | SaveProject None | ImportPsarc (_, None) | ExportTone (_, None) ->
-        state, Cmd.none
-
     | Ignore ->
         state, Cmd.none

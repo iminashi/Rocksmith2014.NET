@@ -143,9 +143,7 @@ let private arrangementPanel state dispatch =
                             Button.create [
                                 Button.padding (15.0, 5.0)
                                 Button.content (translate "addArrangement")
-                                Button.onClick (fun _ ->
-                                    Msg.OpenMultiFileDialog("selectArrangement", RocksmithXMLFiles, AddArrangements)
-                                    |> dispatch)
+                                Button.onClick (fun _ -> Dialog.AddArrangements |> ShowDialog |> dispatch)
                                 // 5 instrumentals, 2 vocals, 1 showlights
                                 Button.isEnabled (state.Project.Arrangements.Length < 8)
                             ]
@@ -244,9 +242,7 @@ let private tonesPanel state dispatch =
                                 Grid.column 1
                                 Button.padding (15.0, 5.0)
                                 Button.content (translate "import")
-                                Button.onClick (fun _ ->
-                                    Msg.OpenFileDialog("selectImportToneFile", ToneImportFiles, ImportTonesFromFile)
-                                    |> dispatch)
+                                Button.onClick (fun _ -> Dialog.ToneImport |> ShowDialog |> dispatch)
                             ]
                         ]
                     ]
@@ -312,7 +308,6 @@ let view (window: Window) (state: State) dispatch =
             let dot = if state.SavedProject <> state.Project then "*" else String.Empty
             $"{dot}Rocksmith 2014 DLC Builder - {project}"
         | None -> "Rocksmith 2014 DLC Builder"
-
 
     Panel.create [
         Panel.background "#040404"

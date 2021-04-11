@@ -293,9 +293,7 @@ let view state dispatch (i: Instrumental) =
                         DockPanel.dock Dock.Right
                         Button.content "..."
                         Button.margin (0., 2., 0., 0.)
-                        Button.onClick (fun _ ->
-                            Msg.OpenFileDialog("selectAudioFile", AudioFiles, Some >> SetCustomAudioPath >> EditInstrumental)
-                            |> dispatch)
+                        Button.onClick (fun _ -> Dialog.AudioFile true |> ShowDialog |> dispatch)
                     ]
 
                     // Remove audio file
