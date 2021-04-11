@@ -20,36 +20,37 @@ let private createFilters name (extensions: string seq) =
 let private createFileFilters filter =
     let extensions =
         match filter with
-        | AudioFiles ->
+        | FileFilter.Audio ->
             [ "wav"; "ogg"; "wem" ]
-        | RocksmithXMLFiles ->
+        | FileFilter.XML ->
             [ "xml" ]
-        | ImageFiles ->
+        | FileFilter.Image ->
             [ "png"; "jpg"; "dds" ]
-        | DDSFiles ->
+        | FileFilter.DDS ->
             [ "dds" ]
-        | ProfileFiles ->
+        | FileFilter.Profile ->
             [ ]
-        | ProjectFiles ->
+        | FileFilter.Project ->
             [ "rs2dlc" ]
-        | PSARCFiles ->
+        | FileFilter.PSARC ->
             [ "psarc"]
-        | ToolkitTemplates ->
+        | FileFilter.ToolkitTemplate ->
             [ "dlc.xml" ]
-        | ToneImportFiles ->
+        | FileFilter.ToneImport ->
             [ "tone2014.xml"; "tone2014.json"; "psarc" ]
-        | ToneExportFiles ->
+        | FileFilter.ToneExport ->
             [ "tone2014.xml"; "tone2014.json" ]
-        | WwiseConsoleApplication ->
+        | FileFilter.WwiseConsoleApplication ->
             [ if OperatingSystem.IsWindows() then "exe" else "sh" ]
 
     let name =
         match filter with
-        | WwiseConsoleApplication ->
+        | FileFilter.WwiseConsoleApplication ->
             let ext = if OperatingSystem.IsWindows() then "exe" else "sh"
             $"WwiseConsole.{ext}"
         | other ->
-            other |> string |> translate
+            sprintf "%AFiles" other
+            |> translate
 
     createFilters name extensions
 
@@ -111,22 +112,22 @@ let showDialog dialogType state =
     let dialog = 
         match dialogType with
         | Dialog.OpenProject ->
-            ofd "selectProjectFile" ProjectFiles OpenProject
+            ofd "selectProjectFile" FileFilter.Project OpenProject
 
         | Dialog.ToolkitImport ->
-            ofd "selectImportToolkitTemplate" ToolkitTemplates ImportToolkitTemplate
+            ofd "selectImportToolkitTemplate" FileFilter.ToolkitTemplate ImportToolkitTemplate
 
         | Dialog.PsarcImport ->
-            ofd "selectImportPsarc" PSARCFiles (Dialog.PsarcImportTargetFolder >> ShowDialog)
+            ofd "selectImportPsarc" FileFilter.PSARC (Dialog.PsarcImportTargetFolder >> ShowDialog)
 
         | Dialog.PsarcImportTargetFolder psarcPath ->
             openFolderDialog "selectPsarcExtractFolder" None (fun folder -> ImportPsarc(psarcPath, folder))
 
         | Dialog.PsarcUnpack ->
-            ofd "selectUnpackPsarc" PSARCFiles (UnpackPSARC >> ToolsMsg)
+            ofd "selectUnpackPsarc" FileFilter.PSARC (UnpackPSARC >> ToolsMsg)
 
         | Dialog.RemoveDD ->
-            openMultiFileDialog "selectRemoveDDXML" RocksmithXMLFiles None (RemoveDD >> ToolsMsg)
+            openMultiFileDialog "selectRemoveDDXML" FileFilter.XML None (RemoveDD >> ToolsMsg)
 
         | Dialog.TestFolder ->
             openFolderDialog "selectTestFolder" None (SetTestFolderPath >> EditConfig)
@@ -135,33 +136,33 @@ let showDialog dialogType state =
             openFolderDialog "selectProjectFolder" None (SetProjectsFolderPath >> EditConfig)
 
         | Dialog.ProfileFile ->
-            ofd "selectProfile" ProfileFiles (SetProfilePath >> EditConfig)
+            ofd "selectProfile" FileFilter.Profile (SetProfilePath >> EditConfig)
 
         | Dialog.AddArrangements ->
-            openMultiFileDialog "selectArrangement" RocksmithXMLFiles None AddArrangements
+            openMultiFileDialog "selectArrangement" FileFilter.XML None AddArrangements
 
         | Dialog.ToneImport ->
-            ofd "selectImportToneFile" ToneImportFiles ImportTonesFromFile
+            ofd "selectImportToneFile" FileFilter.ToneImport ImportTonesFromFile
 
         | Dialog.WwiseConsole ->
-            ofd "selectWwiseConsolePath" WwiseConsoleApplication (SetWwiseConsolePath >> EditConfig)
+            ofd "selectWwiseConsolePath" FileFilter.WwiseConsoleApplication (SetWwiseConsolePath >> EditConfig)
             
         | Dialog.CoverArt ->
-            ofd "selectCoverArt" ImageFiles SetCoverArt
+            ofd "selectCoverArt" FileFilter.Image SetCoverArt
 
         | Dialog.AudioFile isCustom ->
             let msg =
                 match isCustom with
                 | true -> Some >> SetCustomAudioPath >> EditInstrumental
                 | false -> SetAudioFile
-            ofd "selectAudioFile" AudioFiles msg
+            ofd "selectAudioFile" FileFilter.Audio msg
 
         | Dialog.CustomFont ->
-            ofd "selectCustomFont" DDSFiles (Some >> SetCustomFont >> EditVocals)
+            ofd "selectCustomFont" FileFilter.DDS (Some >> SetCustomFont >> EditVocals)
 
         | Dialog.ExportTone tone ->
             let initialFileName = Some $"{tone.Name}.tone2014.xml"
-            saveFileDialog "exportToneAs" ToneExportFiles initialFileName None (fun path -> ExportTone(tone, path))
+            saveFileDialog "exportToneAs" FileFilter.ToneExport initialFileName None (fun path -> ExportTone(tone, path))
 
         | Dialog.SaveProjectAs ->
             let initialFileName =
@@ -178,6 +179,6 @@ let showDialog dialogType state =
                 |> Option.map Path.GetDirectoryName
                 |> Option.orElse (Option.ofString state.Config.ProjectsFolderPath)
 
-            saveFileDialog "saveProjectAsDialog" ProjectFiles initialFileName initialDir SaveProject
+            saveFileDialog "saveProjectAsDialog" FileFilter.Project initialFileName initialDir SaveProject
 
     state, Cmd.OfAsync.result dialog

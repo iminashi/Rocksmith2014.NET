@@ -154,17 +154,18 @@ type Dialog =
     | CustomFont
     | ExportTone of tone : Tone
 
+[<RequireQualifiedAccess>]
 type FileFilter =
-    | AudioFiles
-    | RocksmithXMLFiles
-    | ImageFiles
-    | DDSFiles
-    | ProfileFiles
-    | ProjectFiles
-    | PSARCFiles
-    | ToolkitTemplates
-    | ToneImportFiles
-    | ToneExportFiles
+    | Audio
+    | XML
+    | Image
+    | DDS
+    | Profile
+    | Project
+    | PSARC
+    | ToolkitTemplate
+    | ToneImport
+    | ToneExport
     | WwiseConsoleApplication
 
 type BuildValidationError =
