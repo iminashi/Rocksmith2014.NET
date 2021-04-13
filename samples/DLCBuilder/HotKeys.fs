@@ -5,20 +5,16 @@ open System
 
 let [<Literal>] private CtrlAltMac = KeyModifiers.Meta ||| KeyModifiers.Alt
 let [<Literal>] private CtrlAltWin = KeyModifiers.Control ||| KeyModifiers.Alt
+let private isMac = OperatingSystem.IsMacOS()
 
 let (|Ctrl|CtrlAlt|None|Other|) keyModifier =
-    if OperatingSystem.IsMacOS() then
-        match keyModifier with
-        | CtrlAltMac -> CtrlAlt
-        | KeyModifiers.Meta -> Ctrl
-        | KeyModifiers.None -> None
-        | _ -> Other
-    else
-        match keyModifier with
-        | CtrlAltWin -> CtrlAlt
-        | KeyModifiers.Control -> Ctrl
-        | KeyModifiers.None -> None
-        | _ -> Other
+    match keyModifier with
+    | CtrlAltMac when isMac -> CtrlAlt
+    | CtrlAltWin when not isMac -> CtrlAlt
+    | KeyModifiers.Meta when isMac -> Ctrl      
+    | KeyModifiers.Control when not isMac -> Ctrl
+    | KeyModifiers.None -> None
+    | _ -> Other
 
 let handleEvent dispatch (event: KeyEventArgs) =
     let dispatch msg = dispatch (HotKeyMsg msg)
