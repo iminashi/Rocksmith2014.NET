@@ -171,6 +171,7 @@ let tools state dispatch =
             // Unpack PSARC
             MenuItem.create [
                 MenuItem.header (translate "unpackPSARC")
+                MenuItem.isEnabled (not (state.RunningTasks |> Set.contains PsarcUnpack))
                 MenuItem.onClick (fun _ -> Dialog.PsarcUnpack |> ShowDialog |> dispatch)
             ]
 

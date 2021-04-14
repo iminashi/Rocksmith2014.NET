@@ -5,7 +5,6 @@ open Rocksmith2014.DLCProject
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.XML.Processing
-open Avalonia.Controls
 open Avalonia.Controls.Selection
 open Avalonia.Media.Imaging
 open System
@@ -37,8 +36,18 @@ type LongTask =
     | BuildPackage
     | WemConversion
     | PsarcImport
+    | PsarcUnpack
     | ArrangementCheck
     | VolumeCalculation of VolumeTarget
+
+type StatusMessage =
+    | TaskProgress of id:Guid * task:LongTask * progress:float
+    | MessageString of id:Guid * message:string
+
+module StatusMessage =
+    let getId = function
+    | TaskProgress (id, _, _) -> id
+    | MessageString (id, _) -> id
 
 type BuildType = Test | Release
 
@@ -127,6 +136,7 @@ type State =
       SelectedImportTones : SelectionModel<Tone>
       OpenProjectFile : string option
       CurrentPlatform : Platform
+      StatusMessages : StatusMessage list
       RunningTasks : LongTask Set
       ArrangementIssues : Map<string, ArrangementChecker.Issue list> }
 
@@ -231,7 +241,11 @@ type Msg =
     | BuildComplete of BuildType
     | WemConversionComplete of unit
     | CheckArrangements
+    | TaskProgressChanged of task : LongTask * progress : float
+    | AddStatusMessage of string
+    | RemoveStatusMessage of id : Guid
     | CheckCompleted of Map<string, ArrangementChecker.Issue list>
+    | PsarcUnpacked
     | ConvertToWem
     | ConvertToWemCustom
     | CalculateVolumes

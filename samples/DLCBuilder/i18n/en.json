@@ -283,5 +283,11 @@
   "deleteConfirmation": "{0} files will be deleted. Are you sure?",
   "pitchShifterExplanation": "You can create a version with the tuning changed using an effect pedal.",
   "shiftTuningBy": "Shift tuning by (half steps):",
-  "missingDefinitions": "Following tones are missing definitions:\n\n{0}"
+  "missingDefinitions": "Following tones are missing definitions:\n\n{0}",
+  "PsarcUnpack": "Unpacking PSARC...",
+  "ArrangementCheck": "Validating arrangements...",
+  "WemConversionComplete": "Wem conversion completed.",
+  "BuildPackageComplete": "Building package completed.",
+  "ValidationComplete": "Validation completed.",
+  "PsarcUnpackComplete": "PSARC unpacked."
 }

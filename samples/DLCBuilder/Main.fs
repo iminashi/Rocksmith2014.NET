@@ -17,6 +17,8 @@ open System.Diagnostics
 open System.IO
 open EditFunctions
 
+let checkProgress = Progress<float>()
+
 type private ArrangementAddingResult =
     | ShouldInclude
     | MaxInstrumentals
@@ -116,15 +118,10 @@ let init arg =
       // TODO: Refactor to remove dependency on Avalonia class in the model?
       SelectedImportTones = SelectionModel(SingleSelect = false)
       RunningTasks = Set.empty
+      StatusMessages = []
       CurrentPlatform = if OperatingSystem.IsMacOS() then Mac else PC
       OpenProjectFile = None
       ArrangementIssues = Map.empty }, commands
-
-let private addTask newTask state =
-    { state with RunningTasks = state.RunningTasks |> Set.add newTask }
-
-let private removeTask completedTask state =
-    { state with RunningTasks = state.RunningTasks |> Set.remove completedTask }
 
 let private getSelectedArrangement state =
     match state.SelectedArrangementIndex with
@@ -170,8 +167,12 @@ let private buildPackage buildType build state =
     | Ok _ ->
         let task = build state.Config
 
-        addTask BuildPackage state,
+        Utils.addTask BuildPackage state false,
         Cmd.OfAsync.either task state.Project (fun () -> BuildComplete buildType) (fun ex -> TaskFailed(ex, BuildPackage))
+
+let private removeStatusMessage (id: Guid) = async {
+    do! Async.Sleep 4000
+    return RemoveStatusMessage id }
 
 let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
@@ -276,7 +277,7 @@ let update (msg: Msg) (state: State) =
         let newState, onError =
             match config.ConvertAudio with
             | ToOgg | ToWav ->
-                addTask PsarcImport state, fun ex -> TaskFailed(ex, PsarcImport)
+                Utils.addTask PsarcImport state false, fun ex -> TaskFailed(ex, PsarcImport)
             | NoConversion ->
                 state, ErrorOccurred
 
@@ -350,7 +351,7 @@ let update (msg: Msg) (state: State) =
 
     | ConvertToWem ->
         if DLCProject.audioFilesExist project then
-            addTask WemConversion state,
+            Utils.addTask WemConversion state false,
             Cmd.OfAsync.either (Utils.convertAudio config.WwiseConsolePath) project WemConversionComplete (fun ex -> TaskFailed(ex, WemConversion))
         else
             state, Cmd.none
@@ -358,7 +359,7 @@ let update (msg: Msg) (state: State) =
     | ConvertToWemCustom ->
         match getSelectedArrangement state with
         | Some (Instrumental { CustomAudio = Some audio }) ->
-            addTask WemConversion state,
+            Utils.addTask WemConversion state false,
             Cmd.OfAsync.either (Wwise.convertToWem config.WwiseConsolePath) audio.Path WemConversionComplete (fun ex -> TaskFailed(ex, WemConversion))
         | _ ->
             state, Cmd.none
@@ -379,7 +380,7 @@ let update (msg: Msg) (state: State) =
             | PreviewAudio -> project.AudioPreviewFile.Path
             | CustomAudio (path, _) -> path
         let task () = async { return Volume.calculate path }
-        addTask (VolumeCalculation target) state,
+        Utils.addTask (VolumeCalculation target) state false,
         Cmd.OfAsync.either task () (fun v -> VolumeCalculated(v, target)) (fun ex -> TaskFailed(ex, (VolumeCalculation target)))
 
     | VolumeCalculated (volume, target) ->
@@ -410,7 +411,7 @@ let update (msg: Msg) (state: State) =
                 | _ ->
                     state
                     
-        removeTask (VolumeCalculation target) state, Cmd.none
+        Utils.removeTask (VolumeCalculation target) state, Cmd.none
 
     | SetCoverArt fileName ->
         { state with CoverArt = Utils.changeCoverArt state.CoverArt fileName
@@ -669,19 +670,45 @@ let update (msg: Msg) (state: State) =
                 |> Path.GetDirectoryName
             Process.Start(ProcessStartInfo(projectPath, UseShellExecute = true)) |> ignore
 
-        { state with RunningTasks = state.RunningTasks.Remove BuildPackage }, Cmd.none
+        { state with RunningTasks = state.RunningTasks.Remove BuildPackage },
+        Cmd.ofMsg (AddStatusMessage (translate "BuildPackageComplete"))
 
     | WemConversionComplete _ ->
-        { state with RunningTasks = state.RunningTasks.Remove WemConversion }, Cmd.none
+        { state with RunningTasks = state.RunningTasks.Remove WemConversion },
+        Cmd.ofMsg (AddStatusMessage (translate "WemConversionComplete"))
 
     | CheckArrangements ->
-        let task() = async { return Utils.checkArrangements project }
+        let task() = async { return Utils.checkArrangements project checkProgress }
 
-        addTask ArrangementCheck state, Cmd.OfAsync.either task () CheckCompleted (fun ex -> TaskFailed(ex, ArrangementCheck))
+        Utils.addTask ArrangementCheck state true,
+        Cmd.OfAsync.either task () CheckCompleted (fun ex -> TaskFailed(ex, ArrangementCheck))
 
     | CheckCompleted issues ->
-        { state with ArrangementIssues = issues
-                     RunningTasks = state.RunningTasks |> Set.remove ArrangementCheck }, Cmd.none
+        { Utils.removeTask ArrangementCheck state with ArrangementIssues = issues },
+        Cmd.ofMsg (AddStatusMessage (translate "ValidationComplete"))
+
+    | TaskProgressChanged (progressedTask, progress) ->
+        let messages =
+            state.StatusMessages
+            |> List.map (function
+                | TaskProgress (id, task, _) when task = progressedTask -> TaskProgress(id, task, progress)
+                | other -> other)
+        { state with StatusMessages = messages }, Cmd.none
+
+    | PsarcUnpacked ->
+        Utils.removeTask PsarcUnpack state,
+        Cmd.ofMsg (AddStatusMessage (translate "PsarcUnpackComplete"))
+        
+    | AddStatusMessage message ->
+        let id = Guid.NewGuid()
+        let messages = MessageString(id,  message)::state.StatusMessages
+        { state with StatusMessages = messages }, Cmd.OfAsync.result (removeStatusMessage id)
+
+    | RemoveStatusMessage removeId ->
+        let messages =
+            state.StatusMessages
+            |> List.filter (fun message -> StatusMessage.getId message <> removeId)
+        { state with StatusMessages = messages }, Cmd.none
 
     | ShowIssueViewer ->
         match getSelectedArrangement state with
@@ -694,9 +721,8 @@ let update (msg: Msg) (state: State) =
     | ErrorOccurred e ->
         { state with Overlay = exceptionToErrorMessage e }, Cmd.none
 
-    | TaskFailed (e, failedTask) ->          
-        { state with Overlay = exceptionToErrorMessage e
-                     RunningTasks = state.RunningTasks |> Set.remove failedTask }, Cmd.none
+    | TaskFailed (e, failedTask) ->
+        { Utils.removeTask failedTask state with Overlay = exceptionToErrorMessage e }, Cmd.none
 
     | ChangeLocale newLocale ->
         if config.Locale <> newLocale then changeLocale newLocale

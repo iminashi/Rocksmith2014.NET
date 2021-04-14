@@ -283,5 +283,11 @@
   "deleteConfirmation": "{0} tiedostoa poistetaan. Oletko varma?",
   "pitchShifterExplanation": "Voit luoda version, jossa viritys on muutettu efektipedaalin avulla.",
   "shiftTuningBy": "Muunna viritystä (puolisävelaskel):",
-  "missingDefinitions": "Seuraavilta soundeilta puuttuu määritelmät:\n\n{0}"
+  "missingDefinitions": "Seuraavilta soundeilta puuttuu määritelmät:\n\n{0}",
+  "PsarcUnpack": "Puretaan PSARC pakettia...",
+  "ArrangementCheck": "Tarkistetaan sovituksia...",
+  "WemConversionComplete": "Wem muunnos valmis.",
+  "BuildPackageComplete": "Paketin rakennus valmis.",
+  "ValidationComplete": "Tarkistus valmis.",
+  "PsarcUnpackComplete": "PSARC purettu."
 }

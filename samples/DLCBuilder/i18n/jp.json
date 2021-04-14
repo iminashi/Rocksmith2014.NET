@@ -283,5 +283,11 @@
   "deleteConfirmation": "{0}個のファイルが削除されます。よろしいですか？",
   "pitchShifterExplanation": "ピッチシフターエフェクトでチューニングを変更されたバージョンが作れます。",
   "shiftTuningBy": "チューニングの変更(半音):",
-  "missingDefinitions": "次のトーンの定義が欠けている:\n\n{0}"
+  "missingDefinitions": "次のトーンの定義が欠けている:\n\n{0}",
+  "PsarcUnpack": "PSARCファイル解凍中…",
+  "ArrangementCheck": "アレンジ検証中...",
+  "WemConversionComplete": "WEM変換完了。",
+  "BuildPackageComplete": "パッケージ組み立て完了。",
+  "ValidationComplete": "アレンジ検証完了。",
+  "PsarcUnpackComplete": "PSARC解凍完了。"
 }

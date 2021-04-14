@@ -32,6 +32,16 @@ type MainWindow() as this =
 
         let hotKeysSub _initialModel = Cmd.ofSub (HotKeys.handleEvent >> this.KeyDown.Add)
       
+        let checkProgressSub _ =
+            let sub dispatch =
+                Main.checkProgress.ProgressChanged.Add(fun progress -> TaskProgressChanged(ArrangementCheck, progress) |> dispatch)
+            Cmd.ofSub sub
+
+        let psarcUnpackProgressSub _ =
+            let sub dispatch =
+                Tools.psarcUnpackProgress.ProgressChanged.Add(fun progress -> TaskProgressChanged(PsarcUnpack, progress) |> dispatch)
+            Cmd.ofSub sub
+
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
         //this.VisualRoot.VisualRoot.Renderer.DrawDirtyRects <- true
 
@@ -39,12 +49,14 @@ type MainWindow() as this =
             match Environment.GetCommandLineArgs() with
             | [| _; arg |] -> Some arg
             | _ -> None
-
+            
         let view' = Views.Main.view this
 
         Program.mkProgram Main.init Main.update view'
         |> Program.withHost this
         |> Program.withSubscription hotKeysSub
+        |> Program.withSubscription checkProgressSub
+        |> Program.withSubscription psarcUnpackProgressSub
         |> Program.runWith arg
         
 type App() =

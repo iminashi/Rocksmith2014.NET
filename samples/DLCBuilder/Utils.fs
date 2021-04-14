@@ -94,28 +94,34 @@ let removeSelected list = function
     | Some selected -> List.remove selected list
 
 /// Checks the project's arrangements for issues.
-let checkArrangements (project: DLCProject) =
+let checkArrangements (project: DLCProject) (progress: IProgress<float>) =
+    let length = float project.Arrangements.Length
+
     project.Arrangements
-    |> List.map (function
-        | Instrumental inst ->
-            let issues =
-                InstrumentalArrangement.Load inst.XML
-                |> ArrangementChecker.runAllChecks
-            inst.XML, issues
-        | Vocals v when Option.isNone v.CustomFont ->
-            let issues =
-                Vocals.Load v.XML
-                |> ArrangementChecker.checkVocals
-                |> Option.toList
-            v.XML, issues
-        | Showlights sl ->
-            let issues =
-                 ShowLights.Load sl.XML
-                 |> ArrangementChecker.checkShowlights
-                 |> Option.toList
-            sl.XML, issues
-        | Vocals v ->
-            v.XML, [])
+    |> List.mapi (fun i arr ->
+        let result = 
+           match arr with
+            | Instrumental inst ->
+                let issues =
+                    InstrumentalArrangement.Load inst.XML
+                    |> ArrangementChecker.runAllChecks
+                inst.XML, issues
+            | Vocals v when Option.isNone v.CustomFont ->
+                let issues =
+                    Vocals.Load v.XML
+                    |> ArrangementChecker.checkVocals
+                    |> Option.toList
+                v.XML, issues
+            | Showlights sl ->
+                let issues =
+                     ShowLights.Load sl.XML
+                     |> ArrangementChecker.checkShowlights
+                     |> Option.toList
+                sl.XML, issues
+            | Vocals v ->
+                v.XML, []
+        progress.Report(float (i + 1) / length * 100.)
+        result)
     |> Map.ofList
 
 /// Adds descriptors to tones that have none.
@@ -221,3 +227,22 @@ let canBuild state =
     && (not <| state.RunningTasks.Contains PsarcImport)
     && state.Project.Arrangements.Length > 0
     && String.notEmpty state.Project.AudioFile.Path
+
+let addTask newTask state withProgressMessage =
+    let messages =
+        match withProgressMessage with
+        | true -> TaskProgress(Guid.NewGuid(), newTask, 0.)::state.StatusMessages
+        | false -> state.StatusMessages 
+
+    { state with RunningTasks = state.RunningTasks |> Set.add newTask
+                 StatusMessages = messages }
+
+let removeTask completedTask state =
+    let messages =
+        state.StatusMessages
+        |> List.filter (function
+            | TaskProgress (_, task, _) when task = completedTask -> false
+            | _ -> true)
+
+    { state with RunningTasks = state.RunningTasks |> Set.remove completedTask
+                 StatusMessages = messages }

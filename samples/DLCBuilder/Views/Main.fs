@@ -7,6 +7,7 @@ open Avalonia.Layout
 open Avalonia.Controls
 open Avalonia.Controls.Primitives
 open Avalonia.Controls.Shapes
+open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
@@ -356,6 +357,44 @@ let view (window: Window) (state: State) dispatch =
                     ]
                 ]
             ]
+
+            if not state.StatusMessages.IsEmpty then
+                Border.create [
+                    Border.horizontalAlignment HorizontalAlignment.Right
+                    Border.verticalAlignment VerticalAlignment.Bottom
+                    Border.padding (20., 10.)
+                    Border.cornerRadius 6.0
+                    Border.margin 12.
+                    Border.minWidth 250.
+                    Border.background Brushes.Black
+                    Border.child (
+                        StackPanel.create [
+                            StackPanel.children (
+                                state.StatusMessages
+                                |> List.map (function
+                                | TaskProgress (_, task, progress) ->
+                                    StackPanel.create [
+                                        StackPanel.horizontalAlignment HorizontalAlignment.Center
+                                        StackPanel.children [
+                                            TextBlock.create [
+                                                TextBlock.text (task |> string |> translate)
+                                            ]
+                                            ProgressBar.create [
+                                                ProgressBar.maximum 100.
+                                                ProgressBar.value progress
+                                            ]
+                                        ]
+                                    ] |> generalize
+                                | MessageString (_, message) ->
+                                    TextBlock.create [
+                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
+                                        TextBlock.text message
+                                    ] |> generalize
+                                )
+                            )
+                        ]
+                    )
+                ]
 
             match state.Overlay with
             | NoOverlay -> ()

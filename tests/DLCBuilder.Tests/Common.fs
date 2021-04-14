@@ -23,6 +23,7 @@ let initialState =
       Overlay = NoOverlay
       SelectedImportTones = SelectionModel()
       RunningTasks = Set.empty
+      StatusMessages = []
       CurrentPlatform = if OperatingSystem.IsMacOS() then Mac else PC
       OpenProjectFile = None
       ArrangementIssues = Map.empty }

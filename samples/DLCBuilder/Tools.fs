@@ -6,15 +6,20 @@ open Elmish
 open Rocksmith2014.PSARC
 open Rocksmith2014.XML
 
+let psarcUnpackProgress = Progress<float>()
+
 let update msg state =
     match msg with
     | UnpackPSARC file ->
         let targetDirectory = Path.Combine(Path.GetDirectoryName file, Path.GetFileNameWithoutExtension file)
         Directory.CreateDirectory targetDirectory |> ignore
+
         let task () = async {
             use psarc = PSARC.ReadFile file
-            do! psarc.ExtractFiles targetDirectory }
-        state, Cmd.OfAsync.attempt task () ErrorOccurred
+            do! psarc.ExtractFiles(targetDirectory, psarcUnpackProgress) }
+
+        Utils.addTask PsarcUnpack state true,
+        Cmd.OfAsync.either task () (fun () -> PsarcUnpacked) (fun ex -> TaskFailed(ex, PsarcUnpack))
 
     | RemoveDD files ->
         let task () =
