@@ -58,7 +58,7 @@ let private createFileFilters filter =
 let private openFolderDialog title directory msg = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string>(fun () ->
-            let dialog = OpenFolderDialog(Title = translate title, Directory = Option.toObj directory)
+            let dialog = OpenFolderDialog(Title = title, Directory = Option.toObj directory)
             dialog.ShowAsync window.Value)
 
     match result with
@@ -71,7 +71,7 @@ let private saveFileDialog title filter initialFileName directory msg = async {
         Dispatcher.UIThread.InvokeAsync<string>(fun () ->
             let dialog =
                 SaveFileDialog(
-                    Title = translate title,
+                    Title = title,
                     Filters = createFileFilters filter,
                     InitialFileName = Option.toObj initialFileName,
                     Directory = Option.toObj directory)
@@ -82,7 +82,7 @@ let private saveFileDialog title filter initialFileName directory msg = async {
     | path -> return msg path }
 
 let private createOpenFileDialog t f d m =
-    OpenFileDialog(Title = translate t, Filters = createFileFilters f, Directory = Option.toObj d, AllowMultiple = m)
+    OpenFileDialog(Title = t, Filters = createFileFilters f, Directory = Option.toObj d, AllowMultiple = m)
 
 /// Shows an open file dialog for selecting a single file.
 let private openFileDialog title filter directory msg = async {
@@ -104,65 +104,77 @@ let private openMultiFileDialog title filters directory msg = async {
     | null | [||] -> return Ignore
     | files -> return msg files }
    
+let private translateTitle dialogType =
+    let locString =
+        match dialogType with
+        | Dialog.PsarcImportTargetFolder _ -> "PsarcImportTargetFolderDialogTitle"
+        | Dialog.AudioFile _ -> "AudioFileDialogTitle"
+        | Dialog.ExportTone _ -> "ExportToneDialogTitle"
+        | other -> $"{other}DialogTitle"
+
+    translate locString
+
 /// Shows the given dialog type.
 let showDialog dialogType state =
+    let title = translateTitle dialogType
+
     // No initial directory
-    let ofd title filter msg = openFileDialog title filter None msg
+    let ofd filter msg = openFileDialog title filter None msg
 
     let dialog = 
         match dialogType with
         | Dialog.OpenProject ->
-            ofd "selectProjectFile" FileFilter.Project OpenProject
+            ofd FileFilter.Project OpenProject
 
         | Dialog.ToolkitImport ->
-            ofd "selectImportToolkitTemplate" FileFilter.ToolkitTemplate ImportToolkitTemplate
+            ofd FileFilter.ToolkitTemplate ImportToolkitTemplate
 
         | Dialog.PsarcImport ->
-            ofd "selectImportPsarc" FileFilter.PSARC (Dialog.PsarcImportTargetFolder >> ShowDialog)
+            ofd FileFilter.PSARC (Dialog.PsarcImportTargetFolder >> ShowDialog)
 
         | Dialog.PsarcImportTargetFolder psarcPath ->
-            openFolderDialog "selectPsarcExtractFolder" None (fun folder -> ImportPsarc(psarcPath, folder))
+            openFolderDialog title None (fun folder -> ImportPsarc(psarcPath, folder))
 
         | Dialog.PsarcUnpack ->
-            ofd "selectUnpackPsarc" FileFilter.PSARC (UnpackPSARC >> ToolsMsg)
+            ofd FileFilter.PSARC (UnpackPSARC >> ToolsMsg)
 
         | Dialog.RemoveDD ->
-            openMultiFileDialog "selectRemoveDDXML" FileFilter.XML None (RemoveDD >> ToolsMsg)
+            openMultiFileDialog title FileFilter.XML None (RemoveDD >> ToolsMsg)
 
         | Dialog.TestFolder ->
-            openFolderDialog "selectTestFolder" None (SetTestFolderPath >> EditConfig)
+            openFolderDialog title None (SetTestFolderPath >> EditConfig)
 
         | Dialog.ProjectFolder ->
-            openFolderDialog "selectProjectFolder" None (SetProjectsFolderPath >> EditConfig)
+            openFolderDialog title None (SetProjectsFolderPath >> EditConfig)
 
         | Dialog.ProfileFile ->
-            ofd "selectProfile" FileFilter.Profile (SetProfilePath >> EditConfig)
+            ofd FileFilter.Profile (SetProfilePath >> EditConfig)
 
         | Dialog.AddArrangements ->
-            openMultiFileDialog "selectArrangement" FileFilter.XML None AddArrangements
+            openMultiFileDialog title FileFilter.XML None AddArrangements
 
         | Dialog.ToneImport ->
-            ofd "selectImportToneFile" FileFilter.ToneImport ImportTonesFromFile
+            ofd FileFilter.ToneImport ImportTonesFromFile
 
         | Dialog.WwiseConsole ->
-            ofd "selectWwiseConsolePath" FileFilter.WwiseConsoleApplication (SetWwiseConsolePath >> EditConfig)
+            ofd FileFilter.WwiseConsoleApplication (SetWwiseConsolePath >> EditConfig)
             
         | Dialog.CoverArt ->
-            ofd "selectCoverArt" FileFilter.Image SetCoverArt
+            ofd FileFilter.Image SetCoverArt
 
         | Dialog.AudioFile isCustom ->
             let msg =
                 match isCustom with
                 | true -> Some >> SetCustomAudioPath >> EditInstrumental
                 | false -> SetAudioFile
-            ofd "selectAudioFile" FileFilter.Audio msg
+            ofd FileFilter.Audio msg
 
         | Dialog.CustomFont ->
-            ofd "selectCustomFont" FileFilter.DDS (Some >> SetCustomFont >> EditVocals)
+            ofd FileFilter.DDS (Some >> SetCustomFont >> EditVocals)
 
         | Dialog.ExportTone tone ->
             let initialFileName = Some $"{tone.Name}.tone2014.xml"
-            saveFileDialog "exportToneAs" FileFilter.ToneExport initialFileName None (fun path -> ExportTone(tone, path))
+            saveFileDialog title FileFilter.ToneExport initialFileName None (fun path -> ExportTone(tone, path))
 
         | Dialog.SaveProjectAs ->
             let initialFileName =
@@ -179,6 +191,6 @@ let showDialog dialogType state =
                 |> Option.map Path.GetDirectoryName
                 |> Option.orElse (Option.ofString state.Config.ProjectsFolderPath)
 
-            saveFileDialog "saveProjectAsDialog" FileFilter.Project initialFileName initialDir SaveProject
+            saveFileDialog title FileFilter.Project initialFileName initialDir SaveProject
 
     state, Cmd.OfAsync.result dialog

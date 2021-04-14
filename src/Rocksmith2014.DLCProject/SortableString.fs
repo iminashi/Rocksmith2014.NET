@@ -16,6 +16,7 @@ type SortableString =
                 sort
             |> StringValidator.sortField }
 
+    /// Returns true if the string's value or sort value is null or empty.
     static member IsEmpty(str) =
         String.IsNullOrEmpty str.Value || String.IsNullOrEmpty str.SortValue
 
