@@ -168,12 +168,17 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         do! this.InflateFile(name, file) }
 
     /// Extracts all the files from the PSARC into the given directory.
-    member _.ExtractFiles (baseDirectory: string) = async {
-        for entry in toc do
+    member _.ExtractFiles (baseDirectory: string, ?progress: IProgress<float>) = async {
+        let reportFrequency = max 4 (toc.Count / 50)
+        for i = 0 to toc.Count - 1 do
+            let entry = toc.[i]
             let path = Path.Combine(baseDirectory, Utils.fixDirSeparator (getName entry))
             Directory.CreateDirectory(Path.GetDirectoryName path) |> ignore
             use file = File.Create path
-            do! inflateEntry entry file }
+            do! inflateEntry entry file
+            match progress with
+            | Some progress when i % reportFrequency = 0 -> progress.Report(float (i + 1) / float toc.Count * 100.)
+            | _ -> () }
 
     /// Edits the contents of the PSARC with the given edit function.
     member _.Edit (options: EditOptions, editFunc: NamedEntry list -> NamedEntry list) = async {
