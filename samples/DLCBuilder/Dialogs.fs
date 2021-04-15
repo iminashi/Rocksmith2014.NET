@@ -127,10 +127,16 @@ let showDialog dialogType state =
             ofd FileFilter.Project OpenProject
 
         | Dialog.ToolkitImport ->
-            ofd FileFilter.ToolkitTemplate ImportToolkitTemplate
+            if state.RunningTasks.Contains PsarcImport then
+                async { return Ignore }
+            else
+                ofd FileFilter.ToolkitTemplate ImportToolkitTemplate
 
         | Dialog.PsarcImport ->
-            ofd FileFilter.PSARC (Dialog.PsarcImportTargetFolder >> ShowDialog)
+            if state.RunningTasks.Contains PsarcImport then
+                async { return Ignore }
+            else
+                ofd FileFilter.PSARC (Dialog.PsarcImportTargetFolder >> ShowDialog)
 
         | Dialog.PsarcImportTargetFolder psarcPath ->
             openFolderDialog title None (fun folder -> ImportPsarc(psarcPath, folder))

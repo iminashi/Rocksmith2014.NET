@@ -51,8 +51,9 @@ let audio notCalculatingVolume state dispatch =
     ]
 
 let file state dispatch =
+    let isImporting = state.RunningTasks.Contains PsarcImport
+
     MenuItem.create [
-        MenuItem.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
         MenuItem.header (translate "file")
         MenuItem.viewItems [
             // New project
@@ -99,6 +100,7 @@ let file state dispatch =
             // Import Toolkit template
             MenuItem.create [
                 MenuItem.header (translate "toolkitImport")
+                MenuItem.isEnabled (not isImporting)
                 MenuItem.inputGesture (KeyGesture(Key.T, keyModifierCtrl))
                 MenuItem.onClick (fun _ -> Dialog.ToolkitImport |> ShowDialog |> dispatch)
             ]
@@ -106,6 +108,7 @@ let file state dispatch =
             // Import PSARC file
             MenuItem.create [
                 MenuItem.header (translate "psarcImport")
+                MenuItem.isEnabled (not isImporting)
                 MenuItem.inputGesture (KeyGesture(Key.A, keyModifierCtrl))
                 MenuItem.onClick (fun _ -> Dialog.PsarcImport |> ShowDialog |> dispatch)
             ]
