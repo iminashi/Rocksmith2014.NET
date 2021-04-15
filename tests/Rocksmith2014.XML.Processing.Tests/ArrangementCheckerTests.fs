@@ -423,7 +423,7 @@ let anchorTests =
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type (AnchorNotOnNote 2) "Correct issue type"
 
-        testCase "Detects anchor inside hand shape" <| fun _ ->
+        testCase "Detects anchor inside handshape" <| fun _ ->
             let anchors = ResizeArray(seq { Anchor(1y, 200) })
             let handShapes = ResizeArray(seq { HandShape(StartTime = 100, EndTime = 400) })
             let level = Level(HandShapes = handShapes, Anchors = anchors)
@@ -433,7 +433,7 @@ let anchorTests =
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type AnchorInsideHandShape "Correct issue type"
 
-        testCase "No false positive for anchor at the start of hand shape" <| fun _ ->
+        testCase "No false positive for anchor at the start of handshape" <| fun _ ->
             let anchors = ResizeArray(seq { Anchor(1y, 100) })
             let handShapes = ResizeArray(seq { HandShape(StartTime = 100, EndTime = 400) })
             let level = Level(HandShapes = handShapes, Anchors = anchors)
@@ -441,6 +441,16 @@ let anchorTests =
             let results = checkAnchors testArr level
 
             Expect.isEmpty results "No issues created"
+
+        testCase "Detects anchor inside handshape at section boundary" <| fun _ ->
+            let anchors = ResizeArray(seq { Anchor(1y, 8000) })
+            let handShapes = ResizeArray(seq { HandShape(StartTime = 7000, EndTime = 9000) })
+            let level = Level(HandShapes = handShapes, Anchors = anchors)
+
+            let results = checkAnchors testArr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type AnchorInsideHandShapeAtPhraseBoundary "Correct issue type"
 
         testCase "Ignores anchors on phrases that will be moved (handshape check)" <| fun _ ->
             let anchors = ResizeArray(seq { Anchor(1y, 6500) })

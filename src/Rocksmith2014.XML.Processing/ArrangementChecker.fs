@@ -28,6 +28,7 @@ type IssueType =
     | ChordAtEndOfHandShape
     | FingeringAnchorMismatch
     | AnchorInsideHandShape
+    | AnchorInsideHandShapeAtPhraseBoundary
     | AnchorCloseToUnpitchedSlide
     | AnchorNotOnNote of distance : int
     | LyricWithInvalidChar of invalidChar : char
@@ -296,14 +297,17 @@ let private findCloseAnchors (level: Level) =
         issue (AnchorNotOnNote distance) anchorTime)
 
 /// Looks for anchors that will break a handshape.
-let private findAnchorsInsideHandShapes moverPhraseTimes (level: Level) =
+let private findAnchorsInsideHandShapes moverPhraseTimes phraseTimes (level: Level) =
     level.Anchors
     |> Seq.filter (fun anchor ->
         level.HandShapes.Exists(fun hs -> anchor.Time > hs.StartTime && anchor.Time < hs.EndTime)
         &&
-        not (Array.contains anchor.Time moverPhraseTimes)
-    )
-    |> Seq.map (fun anchor -> issue AnchorInsideHandShape anchor.Time)
+        not (Array.contains anchor.Time moverPhraseTimes))
+    |> Seq.map (fun anchor ->
+        if phraseTimes |> Set.contains anchor.Time then
+            issue AnchorInsideHandShapeAtPhraseBoundary anchor.Time
+        else
+            issue AnchorInsideHandShape anchor.Time)
 
 /// Looks for anchors very close to the end of unpitched slide notes.
 let private findUnpitchedSlideAnchors moverPhraseTimes (level: Level) =
@@ -317,8 +321,7 @@ let private findUnpitchedSlideAnchors moverPhraseTimes (level: Level) =
     |> Seq.filter (fun anchor ->
         Array.exists (fun time -> abs (anchor.Time - time) < 4) slideEnds
         &&
-        not (Array.contains anchor.Time moverPhraseTimes)
-    )
+        not (Array.contains anchor.Time moverPhraseTimes))
     |> Seq.map (fun anchor -> issue AnchorCloseToUnpitchedSlide anchor.Time)
 
 /// Checks the anchors in the level for issues.
@@ -332,8 +335,19 @@ let checkAnchors (arrangement: InstrumentalArrangement) (level: Level) =
         |> Seq.map (fun x -> x.Time)
         |> Seq.toArray
 
+    let phraseTimes =
+        let phraseTimes =
+            arrangement.PhraseIterations
+            |> Seq.map (fun pi -> pi.Time)
+        let sectionTimes =
+            arrangement.Sections
+            |> Seq.map (fun s -> s.Time)
+        phraseTimes
+        |> Seq.append sectionTimes
+        |> Set.ofSeq
+
     findCloseAnchors level
-    |> Seq.append (findAnchorsInsideHandShapes moverPhraseTimes level)
+    |> Seq.append (findAnchorsInsideHandShapes moverPhraseTimes phraseTimes level)
     |> Seq.append (findUnpitchedSlideAnchors moverPhraseTimes level)
     |> Seq.toList
 

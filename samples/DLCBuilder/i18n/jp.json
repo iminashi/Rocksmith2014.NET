@@ -224,6 +224,8 @@
   "InvalidShowlightsHelp": "ショーライトファイルには少なくともひとつのビームノートとひとつのフォッグノートがある必要があります。そうでないファイルはゲームをクラッシュします。",
   "AnchorInsideHandShape": "Handshape内にはアンカーがある",
   "AnchorInsideHandShapeHelp": "Handshape内にアンカーがあると、その時点でHandshapeが切断されます。",
+  "AnchorInsideHandShapeAtPhraseBoundary": "フレーズの境目がHandshapeを切断する",
+  "AnchorInsideHandShapeAtPhraseBoundaryHelp": "もし連続するコードがフレーズの境目を超えていると、EOFでは、\n新しいフレーズの最初のコードには「crazy」アトリビュートが必要。",
   "AnchorCloseToUnpitchedSlide": "グリッサンドの終わりに近いアンカーがある",
   "AnchorCloseToUnpitchedSlideHelp": "グリッサンドの終わり近くにアンカーがあると、そのアンカーがゲーム内では表示されない場合があります。",
   "general": "一般",
