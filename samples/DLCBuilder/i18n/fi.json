@@ -1,6 +1,7 @@
 ﻿{
   "unknownArrangementError": "Tämä ei ole Rocksmith 2014 sovitus.",
   "select": "Valitse",
+  "selectAudioFile": "Valitse äänitiedosto",
   "convert": "Muunna",
   "AddArrangementsDialogTitle": "Valitse lisättävät sovitukset",
   "CoverArtDialogTitle": "Valitse kansikuva",

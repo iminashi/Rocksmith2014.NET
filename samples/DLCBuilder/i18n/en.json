@@ -1,6 +1,7 @@
 ﻿{
   "unknownArrangementError": "Not a Rocksmith 2014 arrangement.",
   "select": "Select",
+  "selectAudioFile": "Select audio file",
   "convert": "Convert",
   "AddArrangementsDialogTitle": "Select Arrangement(s) to Add",
   "CoverArtDialogTitle": "Select Cover Art",

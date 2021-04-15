@@ -1,6 +1,7 @@
 ﻿{
   "unknownArrangementError": "ロックスミス2014のアレンジファイルではない。",
   "select": "選択",
+  "selectAudioFile": "オーディオファイルを開く",
   "convert": "変換",
   "AddArrangementsDialogTitle": "追加するアレンジファイルを選択してください",
   "CoverArtDialogTitle": "カバーアートファイルを選択してください",
