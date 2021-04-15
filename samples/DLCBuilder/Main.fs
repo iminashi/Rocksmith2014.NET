@@ -168,7 +168,7 @@ let private buildPackage buildType build state =
     | Ok _ ->
         let task = build state.Config
 
-        Utils.addTask BuildPackage state true,
+        Utils.addTask BuildPackage state,
         Cmd.OfAsync.either task state.Project (fun () -> BuildComplete buildType) (fun ex -> TaskFailed(ex, BuildPackage))
 
 let private removeStatusMessage (id: Guid) = async {
@@ -290,7 +290,7 @@ let update (msg: Msg) (state: State) =
 
             return project, fileName }
 
-        Utils.addTask PsarcImport state true,
+        Utils.addTask PsarcImport state,
         Cmd.OfAsync.either task () PsarcImported (fun ex -> TaskFailed(ex, PsarcImport))
 
     | PsarcImported (project, projectFile) ->
@@ -367,7 +367,7 @@ let update (msg: Msg) (state: State) =
 
     | ConvertToWem ->
         if DLCProject.audioFilesExist project then
-            Utils.addTask WemConversion state false,
+            Utils.addTask WemConversion state,
             Cmd.OfAsync.either (Utils.convertAudio config.WwiseConsolePath) project WemConversionComplete (fun ex -> TaskFailed(ex, WemConversion))
         else
             state, Cmd.none
@@ -375,7 +375,7 @@ let update (msg: Msg) (state: State) =
     | ConvertToWemCustom ->
         match getSelectedArrangement state with
         | Some (Instrumental { CustomAudio = Some audio }) ->
-            Utils.addTask WemConversion state false,
+            Utils.addTask WemConversion state,
             Cmd.OfAsync.either (Wwise.convertToWem config.WwiseConsolePath) audio.Path WemConversionComplete (fun ex -> TaskFailed(ex, WemConversion))
         | _ ->
             state, Cmd.none
@@ -396,7 +396,7 @@ let update (msg: Msg) (state: State) =
             | PreviewAudio -> project.AudioPreviewFile.Path
             | CustomAudio (path, _) -> path
         let task () = async { return Volume.calculate path }
-        Utils.addTask (VolumeCalculation target) state false,
+        Utils.addTask (VolumeCalculation target) state,
         Cmd.OfAsync.either task () (fun v -> VolumeCalculated(v, target)) (fun ex -> TaskFailed(ex, (VolumeCalculation target)))
 
     | VolumeCalculated (volume, target) ->
@@ -690,13 +690,13 @@ let update (msg: Msg) (state: State) =
         Cmd.ofMsg (AddStatusMessage (translate "BuildPackageComplete"))
 
     | WemConversionComplete _ ->
-        { state with RunningTasks = state.RunningTasks.Remove WemConversion },
+        Utils.removeTask WemConversion state,
         Cmd.ofMsg (AddStatusMessage (translate "WemConversionComplete"))
 
     | CheckArrangements ->
         let task() = async { return Utils.checkArrangements project arrangementCheckProgress }
 
-        Utils.addTask ArrangementCheck state true,
+        Utils.addTask ArrangementCheck state,
         Cmd.OfAsync.either task () CheckCompleted (fun ex -> TaskFailed(ex, ArrangementCheck))
 
     | CheckCompleted issues ->
@@ -707,7 +707,7 @@ let update (msg: Msg) (state: State) =
         let messages =
             state.StatusMessages
             |> List.map (function
-                | TaskProgress (id, task, _) when task = progressedTask -> TaskProgress(id, task, progress)
+                | TaskWithProgress (task, _) when task = progressedTask -> TaskWithProgress(task, progress)
                 | other -> other)
         { state with StatusMessages = messages }, Cmd.none
 
@@ -723,7 +723,9 @@ let update (msg: Msg) (state: State) =
     | RemoveStatusMessage removeId ->
         let messages =
             state.StatusMessages
-            |> List.filter (fun message -> StatusMessage.getId message <> removeId)
+            |> List.filter (function
+                | MessageString (id, _) when id = removeId -> false
+                | _ -> true)
         { state with StatusMessages = messages }, Cmd.none
 
     | ShowIssueViewer ->

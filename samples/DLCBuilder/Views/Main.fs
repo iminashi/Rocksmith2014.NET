@@ -372,7 +372,7 @@ let view (window: Window) (state: State) dispatch =
                             StackPanel.children (
                                 state.StatusMessages
                                 |> List.map (function
-                                | TaskProgress (_, task, progress) ->
+                                | TaskWithProgress (task, progress) ->
                                     StackPanel.create [
                                         StackPanel.horizontalAlignment HorizontalAlignment.Center
                                         StackPanel.children [
@@ -384,6 +384,17 @@ let view (window: Window) (state: State) dispatch =
                                                 ProgressBar.value progress
                                             ]
                                         ]
+                                    ] |> generalize
+                                | TaskWithoutProgress task ->
+                                    TextBlock.create [
+                                        TextBlock.text (
+                                            match task with
+                                            | VolumeCalculation (CustomAudio(_)) ->
+                                                translate $"VolumeCalculationCustomAudio"
+                                            | VolumeCalculation target ->
+                                                translate $"VolumeCalculation{target}"
+                                            | other ->
+                                                other |> string |> translate)
                                     ] |> generalize
                                 | MessageString (_, message) ->
                                     TextBlock.create [

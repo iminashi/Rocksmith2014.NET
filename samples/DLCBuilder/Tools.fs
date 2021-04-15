@@ -18,7 +18,7 @@ let update msg state =
             use psarc = PSARC.ReadFile file
             do! psarc.ExtractFiles(targetDirectory, psarcUnpackProgress) }
 
-        Utils.addTask PsarcUnpack state true,
+        Utils.addTask PsarcUnpack state,
         Cmd.OfAsync.either task () (fun () -> PsarcUnpacked) (fun ex -> TaskFailed(ex, PsarcUnpack))
 
     | RemoveDD files ->

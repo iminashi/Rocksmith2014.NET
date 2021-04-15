@@ -230,11 +230,15 @@ let canBuild state =
     && state.Project.Arrangements.Length > 0
     && String.notEmpty state.Project.AudioFile.Path
 
-let addTask newTask state withProgressMessage =
+let taskHasProgress = function
+    | BuildPackage | PsarcImport | PsarcUnpack | ArrangementCheck -> true
+    | _ -> false
+
+let addTask newTask state =
     let messages =
-        match withProgressMessage with
-        | true -> TaskProgress(Guid.NewGuid(), newTask, 0.)::state.StatusMessages
-        | false -> state.StatusMessages 
+        match taskHasProgress newTask with
+        | true -> TaskWithProgress(newTask, 0.)::state.StatusMessages
+        | false -> TaskWithoutProgress(newTask)::state.StatusMessages
 
     { state with RunningTasks = state.RunningTasks |> Set.add newTask
                  StatusMessages = messages }
@@ -243,7 +247,7 @@ let removeTask completedTask state =
     let messages =
         state.StatusMessages
         |> List.filter (function
-            | TaskProgress (_, task, _) when task = completedTask -> false
+            | TaskWithProgress (task, _) | TaskWithoutProgress (task) when task = completedTask -> false
             | _ -> true)
 
     { state with RunningTasks = state.RunningTasks |> Set.remove completedTask

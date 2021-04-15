@@ -41,13 +41,9 @@ type LongTask =
     | VolumeCalculation of VolumeTarget
 
 type StatusMessage =
-    | TaskProgress of id:Guid * task:LongTask * progress:float
+    | TaskWithoutProgress of taks:LongTask
+    | TaskWithProgress of task:LongTask * progress:float
     | MessageString of id:Guid * message:string
-
-module StatusMessage =
-    let getId = function
-    | TaskProgress (id, _, _) -> id
-    | MessageString (id, _) -> id
 
 type BuildType = Test | Release
 
