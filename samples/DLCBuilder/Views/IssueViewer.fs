@@ -89,6 +89,7 @@ let view dispatch (issues: Issue list) =
 
     StackPanel.create [
         StackPanel.spacing 8.
+        StackPanel.minWidth 500.
         StackPanel.children [
             StackPanel.create [
                 StackPanel.orientation Orientation.Horizontal
