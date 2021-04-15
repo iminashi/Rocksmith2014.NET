@@ -32,11 +32,12 @@ type BuildConfig =
       DDConfig: GeneratorConfig
       ApplyImprovements: bool
       SaveDebugFiles: bool
-      AudioConversionTask: Async<unit> }
+      AudioConversionTask: Async<unit>
+      ProgressReporter : IProgress<float> option }
 
 let private toDisposableList items = new DisposableList<_>(items)
 
-let private build (buildData: BuildData) targetFile project platform = async {
+let private build (buildData: BuildData) progress targetFile project platform = async {
     let readFile = Utils.getFileStreamForRead
     let partition = buildData.Partition
     let entry name data = { Name = name; Data = data }
@@ -85,6 +86,8 @@ let private build (buildData: BuildData) targetFile project platform = async {
         |> Async.Parallel
         |> Async.map (List.ofArray >> toDisposableList)
 
+    progress()
+
     use showlightsEntry =
         let slFile = (List.pick Arrangement.pickShowlights project.Arrangements).XML
         entry $"songs/arr/{key}_showlights.xml" (readFile slFile)
@@ -127,6 +130,8 @@ let private build (buildData: BuildData) targetFile project platform = async {
         new MemoryStream(Encoding.UTF8.GetBytes($"Toolkit version: DLC Builder pre-release\nPackage Author: {buildData.Author}\nPackage Version: {project.Version}\nPackage Comment: Remastered"))
         |> entry "toolkit.version"
 
+    progress()
+
     // Wait for the wem conversion to complete, if necessary
     do! buildData.AudioConversionTask
 
@@ -167,7 +172,9 @@ let private build (buildData: BuildData) targetFile project platform = async {
         yield! audioEntries.Items
         yield! fontEntry.Items
         yield toolkitEntry
-        yield appIdEntry ]) }
+        yield appIdEntry ])
+     
+    progress() }
 
 let private setupInstrumental part (inst: Instrumental) config =
     let xml = InstrumentalArrangement.Load inst.XML
@@ -211,12 +218,29 @@ let private addShowLights sngs project =
 
     { project with Arrangements = (Showlights { XML = xmlFile })::project.Arrangements }
 
+let private createProgressReporter maximum =
+    let mutable current = 0
+    let lockObj = obj()
+
+    fun () ->
+        lock lockObj (fun () ->
+            current <- current + 1
+            float current / float maximum * 100.)
+
 /// Builds packages for the given platforms.
 let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProject) = async {
     let! audioConversionTask = config.AudioConversionTask |> Async.StartChild
     let key = project.DLCKey.ToLowerInvariant()
     use coverArtFiles = DDS.createCoverArtImages project.AlbumArtFile |> toDisposableList
     let partition = Partitioner.create project
+
+    let progress =
+        match config.ProgressReporter with
+        | Some progress ->
+            let maximumProgress = 3 * config.Platforms.Length + 1
+            createProgressReporter maximumProgress >> progress.Report
+        | None ->
+            ignore
 
     let sngs =
         project.Arrangements
@@ -235,6 +259,8 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
                 Some(arr, sng)
             | Showlights _ -> None)
 
+    progress()
+
     // Check if a show lights arrangement is included
     let project =
         if project.Arrangements |> List.exists (Arrangement.pickShowlights >> Option.isSome) then
@@ -251,6 +277,6 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
           AudioConversionTask = audioConversionTask }
 
     do! config.Platforms
-        |> List.map (build data targetFile project)
+        |> List.map (build data progress targetFile project)
         |> Async.Parallel
         |> Async.Ignore }

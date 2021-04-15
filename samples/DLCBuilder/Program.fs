@@ -32,14 +32,13 @@ type MainWindow() as this =
 
         let hotKeysSub _initialModel = Cmd.ofSub (HotKeys.handleEvent >> this.KeyDown.Add)
       
-        let checkProgressSub _ =
+        let progressReportingSub _ =
             let sub dispatch =
-                Main.checkProgress.ProgressChanged.Add(fun progress -> TaskProgressChanged(ArrangementCheck, progress) |> dispatch)
-            Cmd.ofSub sub
-
-        let psarcUnpackProgressSub _ =
-            let sub dispatch =
-                Tools.psarcUnpackProgress.ProgressChanged.Add(fun progress -> TaskProgressChanged(PsarcUnpack, progress) |> dispatch)
+                let dispatchProgress task progress = TaskProgressChanged(task, progress) |> dispatch
+                Main.arrangementCheckProgress.ProgressChanged.Add(dispatchProgress ArrangementCheck)
+                Main.psarcImportProgress.ProgressChanged.Add(dispatchProgress PsarcImport)
+                Tools.psarcUnpackProgress.ProgressChanged.Add(dispatchProgress PsarcUnpack)
+                Utils.packageBuildProgress.ProgressChanged.Add(dispatchProgress BuildPackage)
             Cmd.ofSub sub
 
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
@@ -55,8 +54,7 @@ type MainWindow() as this =
         Program.mkProgram Main.init Main.update view'
         |> Program.withHost this
         |> Program.withSubscription hotKeysSub
-        |> Program.withSubscription checkProgressSub
-        |> Program.withSubscription psarcUnpackProgressSub
+        |> Program.withSubscription progressReportingSub
         |> Program.runWith arg
         
 type App() =

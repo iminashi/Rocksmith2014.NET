@@ -9,7 +9,7 @@ open System.Text.RegularExpressions
 open PsarcImportUtils
 
 /// Imports a PSARC from the given path into a DLCProject with the project created in the target directory.
-let import (psarcPath: string) (targetDirectory: string) = async {
+let import progress (psarcPath: string) (targetDirectory: string) = async {
     let platform = Platform.fromPackageFileName psarcPath
     let toTargetPath filename = Path.Combine(targetDirectory, filename)
 
@@ -57,6 +57,8 @@ let import (psarcPath: string) (targetDirectory: string) = async {
             return Some targetPath
         | None -> return None }
 
+    progress()
+
     let! targetAudioFilesById =
         psarcContents
         |> filterFilesWithExtension "bnk"
@@ -82,6 +84,8 @@ let import (psarcPath: string) (targetDirectory: string) = async {
             psarc.InflateFile(pathInPsarc, targetAudioFile.Path))
         |> Async.Sequential
         |> Async.Ignore
+
+    progress()
 
     let arrangements =
         sngs
@@ -153,5 +157,7 @@ let import (psarcPath: string) (targetDirectory: string) = async {
         |> toTargetPath
 
     do! DLCProject.save projectFile project
+
+    progress()
 
     return project, projectFile }

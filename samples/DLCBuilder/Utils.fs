@@ -142,6 +142,7 @@ let addTones (state: State) (tones: Tone list) =
                  Overlay = NoOverlay }
 
 let [<Literal>] private CherubRock = "248750"
+let packageBuildProgress = Progress<float>()
 
 let createBuildConfig buildType config project platforms =
     let convTask =
@@ -168,7 +169,8 @@ let createBuildConfig buildType config project platforms =
       DDConfig = { PhraseSearch = phraseSearch }
       ApplyImprovements = config.ApplyImprovements
       SaveDebugFiles = config.SaveDebugFiles && buildType <> Release
-      AudioConversionTask = convTask }
+      AudioConversionTask = convTask
+      ProgressReporter = Some (packageBuildProgress :> IProgress<float>) }
 
 let convertAudio cliPath project =
     [| project.AudioFile.Path; project.AudioPreviewFile.Path |]

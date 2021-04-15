@@ -18,7 +18,8 @@ let buildConfig =
       DDConfig = { PhraseSearch = WithThreshold 80 }
       ApplyImprovements = true
       SaveDebugFiles = false
-      AudioConversionTask = async { return () } }
+      AudioConversionTask = async { return () }
+      ProgressReporter = None }
 
 let [<Literal>] BuildDir = "./project/build"
 let psarcPathWin = $"{BuildDir}/test_v1_p.psarc"

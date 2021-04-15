@@ -189,6 +189,7 @@ type BuildValidationError =
 
 type Msg =
     | ImportPsarc of psarcFile : string * targetFolder : string
+    | PsarcImported of project : DLCProject * projectFile : string
     | ImportToolkitTemplate of fileName : string
     | ImportTonesFromFile of fileName : string
     | ImportProfileTones
@@ -196,6 +197,7 @@ type Msg =
     | ImportTones of tones : Tone list
     | NewProject
     | OpenProject of fileName : string
+    | ProjectLoaded of project : DLCProject * projectFile : string
     | ProjectSaveOrSaveAs
     | SaveProjectAs
     | SaveProject of fileName : string
@@ -235,7 +237,6 @@ type Msg =
     | ShowIssueViewer
     | ShowImportToneSelector of tones : Tone array
     | ShowPitchShifter
-    | ProjectLoaded of project : DLCProject * projectFile : string
     | BuildPitchShifted
     | Build of BuildType
     | BuildComplete of BuildType

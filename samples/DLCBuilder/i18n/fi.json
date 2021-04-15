@@ -286,8 +286,11 @@
   "missingDefinitions": "Seuraavilta soundeilta puuttuu määritelmät:\n\n{0}",
   "PsarcUnpack": "Puretaan PSARC pakettia...",
   "ArrangementCheck": "Tarkistetaan sovituksia...",
+  "BuildPackage": "Rakennetaan...",
+  "PsarcImport": "Tuodaan PSARC...",
   "WemConversionComplete": "Wem muunnos valmis.",
-  "BuildPackageComplete": "Paketin rakennus valmis.",
+  "BuildPackageComplete": "Paketin rakentaminen valmis.",
   "ValidationComplete": "Tarkistus valmis.",
-  "PsarcUnpackComplete": "PSARC purettu."
+  "PsarcUnpackComplete": "PSARC purettu.",
+  "PsarcImportComplete": "PSARC tuotu."
 }

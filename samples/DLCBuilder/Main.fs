@@ -17,7 +17,8 @@ open System.Diagnostics
 open System.IO
 open EditFunctions
 
-let checkProgress = Progress<float>()
+let arrangementCheckProgress = Progress<float>()
+let psarcImportProgress = Progress<float>()
 
 type private ArrangementAddingResult =
     | ShouldInclude
@@ -167,7 +168,7 @@ let private buildPackage buildType build state =
     | Ok _ ->
         let task = build state.Config
 
-        Utils.addTask BuildPackage state false,
+        Utils.addTask BuildPackage state true,
         Cmd.OfAsync.either task state.Project (fun () -> BuildComplete buildType) (fun ex -> TaskFailed(ex, BuildPackage))
 
 let private removeStatusMessage (id: Guid) = async {
@@ -246,10 +247,23 @@ let update (msg: Msg) (state: State) =
 
     | ImportPsarc (psarcFile, targetFolder) ->
         let task() = async {
-            let! project, fileName = PsarcImporter.import psarcFile targetFolder
+            let progress =
+                let maxProgress =
+                    3.
+                    + match config.ConvertAudio with NoConversion -> 0. | _ -> 1.
+                    + match config.RemoveDDOnImport with false -> 0. | true -> 1.
+                let mutable currentProgress = 0.
+
+                fun () ->
+                    currentProgress <- currentProgress + 1.
+                    currentProgress / maxProgress * 100.
+                >> (psarcImportProgress :> IProgress<float>).Report
+
+            let! project, fileName = PsarcImporter.import progress psarcFile targetFolder
 
             match config.ConvertAudio with
-            | NoConversion -> ()
+            | NoConversion ->
+                ()
             | ToOgg | ToWav as conv ->
                 [ yield project.AudioFile
                   yield project.AudioPreviewFile
@@ -259,6 +273,7 @@ let update (msg: Msg) (state: State) =
                     if conv = ToOgg
                     then Conversion.wemToOgg path
                     else Conversion.wemToWav path)
+                progress()
 
             if config.RemoveDDOnImport then
                 do! project.Arrangements
@@ -271,17 +286,18 @@ let update (msg: Msg) (state: State) =
                         | _ -> () })
                     |> Async.Sequential
                     |> Async.Ignore
+                progress()
 
             return project, fileName }
 
-        let newState, onError =
-            match config.ConvertAudio with
-            | ToOgg | ToWav ->
-                Utils.addTask PsarcImport state false, fun ex -> TaskFailed(ex, PsarcImport)
-            | NoConversion ->
-                state, ErrorOccurred
+        Utils.addTask PsarcImport state true,
+        Cmd.OfAsync.either task () PsarcImported (fun ex -> TaskFailed(ex, PsarcImport))
 
-        newState, Cmd.OfAsync.either task () ProjectLoaded onError
+    | PsarcImported (project, projectFile) ->
+        let cmd = Cmd.batch [
+            Cmd.ofMsg (AddStatusMessage (translate "PsarcImportComplete"))
+            Cmd.ofMsg (ProjectLoaded(project, projectFile)) ]
+        Utils.removeTask PsarcImport state, cmd
 
     | ImportToolkitTemplate fileName ->
         try
@@ -582,10 +598,10 @@ let update (msg: Msg) (state: State) =
                      SavedProject = project
                      OpenProjectFile = Some projectFile
                      RecentFiles = recent
-                     RunningTasks = state.RunningTasks |> Set.remove PsarcImport
                      Config = newConfig
                      SelectedArrangementIndex = -1
-                     SelectedToneIndex = -1 }, cmd
+                     SelectedToneIndex = -1 },
+        cmd
 
     | EditInstrumental edit ->
         match getSelectedArrangement state with
@@ -670,7 +686,7 @@ let update (msg: Msg) (state: State) =
                 |> Path.GetDirectoryName
             Process.Start(ProcessStartInfo(projectPath, UseShellExecute = true)) |> ignore
 
-        { state with RunningTasks = state.RunningTasks.Remove BuildPackage },
+        Utils.removeTask BuildPackage state,
         Cmd.ofMsg (AddStatusMessage (translate "BuildPackageComplete"))
 
     | WemConversionComplete _ ->
@@ -678,7 +694,7 @@ let update (msg: Msg) (state: State) =
         Cmd.ofMsg (AddStatusMessage (translate "WemConversionComplete"))
 
     | CheckArrangements ->
-        let task() = async { return Utils.checkArrangements project checkProgress }
+        let task() = async { return Utils.checkArrangements project arrangementCheckProgress }
 
         Utils.addTask ArrangementCheck state true,
         Cmd.OfAsync.either task () CheckCompleted (fun ex -> TaskFailed(ex, ArrangementCheck))

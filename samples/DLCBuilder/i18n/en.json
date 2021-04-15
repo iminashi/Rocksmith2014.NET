@@ -286,8 +286,11 @@
   "missingDefinitions": "Following tones are missing definitions:\n\n{0}",
   "PsarcUnpack": "Unpacking PSARC...",
   "ArrangementCheck": "Validating arrangements...",
+  "BuildPackage": "Building...",
+  "PsarcImport": "Importing PSARC...",
   "WemConversionComplete": "Wem conversion completed.",
-  "BuildPackageComplete": "Building package completed.",
+  "BuildPackageComplete": "Package building completed.",
   "ValidationComplete": "Validation completed.",
-  "PsarcUnpackComplete": "PSARC unpacked."
+  "PsarcUnpackComplete": "PSARC unpacked.",
+  "PsarcImportComplete": "PSARC imported."
 }
