@@ -26,7 +26,10 @@ let tone state dispatch index (t: Tone) =
 
     StackPanel.create [
         StackPanel.classes [ "listitem"; if state.SelectedToneIndex = index then "selected" ]
-        StackPanel.onPointerPressed ((fun _ -> index |> SetSelectedToneIndex |> dispatch), SubPatchOptions.OnChangeOf index)
+        StackPanel.onPointerPressed ((fun ev ->
+            ev.Handled <- true
+            index |> SetSelectedToneIndex |> dispatch),
+            SubPatchOptions.OnChangeOf index)
         StackPanel.onDoubleTapped (fun _ -> ShowToneEditor |> dispatch)
         StackPanel.contextMenu (Menus.Context.tone state dispatch)
         StackPanel.children [
@@ -165,7 +168,10 @@ let arrangement state dispatch index arr =
 
     DockPanel.create [
         DockPanel.classes [ "listitem"; if state.SelectedArrangementIndex = index then "selected" ]
-        DockPanel.onPointerPressed ((fun _ -> index |> SetSelectedArrangementIndex |> dispatch), SubPatchOptions.OnChangeOf index)
+        DockPanel.onPointerPressed ((fun ev ->
+            ev.Handled <- true
+            index |> SetSelectedArrangementIndex |> dispatch),
+            SubPatchOptions.OnChangeOf index)
         DockPanel.contextMenu (Menus.Context.arrangement state dispatch)
         if not <| missingTones.IsEmpty then
             let tip = translatef "missingDefinitions" [| String.Join(", ", missingTones) |]
