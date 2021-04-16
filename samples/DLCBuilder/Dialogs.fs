@@ -62,8 +62,8 @@ let private openFolderDialog title directory msg = async {
             dialog.ShowAsync window.Value)
 
     match result with
-    | null | "" -> return Ignore
-    | path -> return msg path }
+    | null | "" -> return None
+    | path -> return msg path |> Some }
 
 /// Shows a save file dialog.
 let private saveFileDialog title filter initialFileName directory msg = async {
@@ -78,8 +78,8 @@ let private saveFileDialog title filter initialFileName directory msg = async {
             dialog.ShowAsync window.Value)
 
     match result with
-    | null | "" -> return Ignore
-    | path -> return msg path }
+    | null | "" -> return None
+    | path -> return msg path |> Some }
 
 let private createOpenFileDialog t f d m =
     OpenFileDialog(Title = t, Filters = createFileFilters f, Directory = Option.toObj d, AllowMultiple = m)
@@ -91,8 +91,8 @@ let private openFileDialog title filter directory msg = async {
             let dialog = createOpenFileDialog title filter directory false
             dialog.ShowAsync window.Value)
     match result with
-    | [| file |] -> return msg file
-    | _ -> return Ignore }
+    | [| file |] -> return msg file |> Some
+    | _ -> return None }
 
 /// Shows an open file dialog that allows selecting multiple files.
 let private openMultiFileDialog title filters directory msg = async {
@@ -101,8 +101,8 @@ let private openMultiFileDialog title filters directory msg = async {
             let dialog = createOpenFileDialog title filters directory true
             dialog.ShowAsync window.Value)
     match result with
-    | null | [||] -> return Ignore
-    | files -> return msg files }
+    | null | [||] -> return None
+    | files -> return msg files |> Some }
 
 let private translateTitle dialogType =
     let locString =
@@ -128,13 +128,13 @@ let showDialog dialogType state =
 
         | Dialog.ToolkitImport ->
             if state.RunningTasks.Contains PsarcImport then
-                async { return Ignore }
+                async { return None }
             else
                 ofd FileFilter.ToolkitTemplate ImportToolkitTemplate
 
         | Dialog.PsarcImport ->
             if state.RunningTasks.Contains PsarcImport then
-                async { return Ignore }
+                async { return None }
             else
                 ofd FileFilter.PSARC (Dialog.PsarcImportTargetFolder >> ShowDialog)
 
@@ -199,4 +199,4 @@ let showDialog dialogType state =
 
             saveFileDialog title FileFilter.Project initialFileName initialDir SaveProject
 
-    state, Cmd.OfAsync.result dialog
+    state, Cmd.OfAsync.optionalResult dialog

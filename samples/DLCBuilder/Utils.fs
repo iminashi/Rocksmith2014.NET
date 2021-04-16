@@ -262,6 +262,6 @@ let autoSave =
         async {
             do! Async.Sleep 1000
             if thisId = id then
-                return AutoSaveProject
+                return Some AutoSaveProject
             else
-                return Ignore }
+                return None }

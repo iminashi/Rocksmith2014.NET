@@ -39,6 +39,7 @@
     <Compile Include="Controls\TitledTextBox.fs" />
     <Compile Include="Controls\FuncUIExtensions.fs" />
     <AvaloniaResource Include="Styles.xaml" />
+    <Compile Include="ElmishExtensions.fs" />
     <Compile Include="ToneGear.fs" />
     <Compile Include="DefaultTones.fs" />
     <Compile Include="Localization.fs" />

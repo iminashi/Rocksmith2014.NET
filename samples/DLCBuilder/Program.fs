@@ -61,7 +61,7 @@ type MainWindow(commandLineArgs: string array) as this =
                 let newState, cmd = Main.update msg state
                 let commands =
                     if shouldAutoSave newState state then
-                        let autoSaveCmd = Cmd.OfAsync.result (Utils.autoSave ())
+                        let autoSaveCmd = Cmd.OfAsync.optionalResult (Utils.autoSave ())
                         Cmd.batch [ autoSaveCmd; cmd ]
                     else
                         cmd

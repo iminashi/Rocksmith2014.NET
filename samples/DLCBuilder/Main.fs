@@ -787,7 +787,3 @@ let update (msg: Msg) (state: State) =
     | CloseApplication ->
         (Application.Current.ApplicationLifetime :?> IClassicDesktopStyleApplicationLifetime).Shutdown(0)
         state, Cmd.none
-
-    // When the user canceled any of the dialogs
-    | Ignore ->
-        state, Cmd.none

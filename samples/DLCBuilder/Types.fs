@@ -258,4 +258,3 @@ type Msg =
     | ShowDialog of Dialog
     | HotKeyMsg of Msg
     | CloseApplication
-    | Ignore
