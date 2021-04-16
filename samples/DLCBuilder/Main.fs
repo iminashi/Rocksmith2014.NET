@@ -295,7 +295,7 @@ let update (msg: Msg) (state: State) =
 
     | PsarcImported (project, projectFile) ->
         let cmd = Cmd.batch [
-            Cmd.ofMsg (AddStatusMessage (translate "PsarcImportComplete"))
+            Cmd.ofMsg (AddStatusMessage "PsarcImportComplete")
             Cmd.ofMsg (ProjectLoaded(project, projectFile)) ]
         Utils.removeTask PsarcImport state, cmd
 
@@ -679,19 +679,27 @@ let update (msg: Msg) (state: State) =
         buildPackage Release (ReleasePackageBuilder.build state.OpenProjectFile) state
 
     | BuildComplete buildType ->
-        if buildType = Release && config.OpenFolderAfterReleaseBuild then
-            let projectPath =
-                state.OpenProjectFile
-                |> Option.defaultValue project.AudioFile.Path
-                |> Path.GetDirectoryName
-            Process.Start(ProcessStartInfo(projectPath, UseShellExecute = true)) |> ignore
+        let error =
+            if buildType = Release && config.OpenFolderAfterReleaseBuild then
+                try
+                    let projectPath =
+                        ReleasePackageBuilder.getTargetDirectory state.OpenProjectFile project
+                    Process.Start(ProcessStartInfo(projectPath, UseShellExecute = true)) |> ignore
+                    None
+                with ex ->
+                    Some <| ErrorOccurred ex
+            else
+                None
 
-        Utils.removeTask BuildPackage state,
-        Cmd.ofMsg (AddStatusMessage (translate "BuildPackageComplete"))
+        let cmd = Cmd.batch [
+            yield! error |> Option.map Cmd.ofMsg |> Option.toList
+            Cmd.ofMsg (AddStatusMessage "BuildPackageComplete") ]
+
+        Utils.removeTask BuildPackage state, cmd
 
     | WemConversionComplete _ ->
         Utils.removeTask WemConversion state,
-        Cmd.ofMsg (AddStatusMessage (translate "WemConversionComplete"))
+        Cmd.ofMsg (AddStatusMessage "WemConversionComplete")
 
     | CheckArrangements ->
         let task() = async { return Utils.checkArrangements project arrangementCheckProgress }
@@ -701,7 +709,7 @@ let update (msg: Msg) (state: State) =
 
     | CheckCompleted issues ->
         { Utils.removeTask ArrangementCheck state with ArrangementIssues = issues },
-        Cmd.ofMsg (AddStatusMessage (translate "ValidationComplete"))
+        Cmd.ofMsg (AddStatusMessage "ValidationComplete")
 
     | TaskProgressChanged (progressedTask, progress) ->
         let messages =
@@ -713,10 +721,11 @@ let update (msg: Msg) (state: State) =
 
     | PsarcUnpacked ->
         Utils.removeTask PsarcUnpack state,
-        Cmd.ofMsg (AddStatusMessage (translate "PsarcUnpackComplete"))
+        Cmd.ofMsg (AddStatusMessage "PsarcUnpackComplete")
         
-    | AddStatusMessage message ->
+    | AddStatusMessage locString ->
         let id = Guid.NewGuid()
+        let message = translate locString
         let messages = MessageString(id,  message)::state.StatusMessages
         { state with StatusMessages = messages }, Cmd.OfAsync.result (removeStatusMessage id)
 

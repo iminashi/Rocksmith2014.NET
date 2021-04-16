@@ -239,7 +239,7 @@ type Msg =
     | WemConversionComplete of unit
     | CheckArrangements
     | TaskProgressChanged of task : LongTask * progress : float
-    | AddStatusMessage of string
+    | AddStatusMessage of locString : string
     | RemoveStatusMessage of id : Guid
     | CheckCompleted of Map<string, ArrangementChecker.Issue list>
     | PsarcUnpacked
