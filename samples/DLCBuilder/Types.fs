@@ -18,6 +18,7 @@ type OverlayContents =
     | IssueViewer of issues : ArrangementChecker.Issue list
     | ToneEditor
     | DeleteConfirmation of files : string list
+    | AbnormalExitMessage
     | PitchShifter
 
 type PreviewAudioCreation =
@@ -97,6 +98,7 @@ type ConfigEdit =
     | SetConvertAudio of AudioConversionType
     | SetOpenFolderAfterReleaseBuild of bool
     | SetLoadPreviousProject of bool
+    | SetAutoSave of bool
     | AddReleasePlatform of Platform
     | RemoveReleasePlatform of Platform
 
@@ -198,10 +200,11 @@ type Msg =
     | SaveProjectAs
     | SaveProject of fileName : string
     | ProjectSaved of targetFile : string
+    | AutoSaveProject
     | AddArrangements of files : string array
     | SetCoverArt of fileName : string
     | SetAudioFile of fileName : string
-    | SetConfiguration of config : Configuration * enableLoad : bool
+    | SetConfiguration of config : Configuration * enableLoad : bool * wasNormalExit : bool
     | SetRecentFiles of files : string list
     | SetSelectedArrangementIndex of index : int
     | SetSelectedToneIndex of index : int
@@ -228,11 +231,11 @@ type Msg =
     | CloseOverlay
     | ExportSelectedTone
     | ExportTone of tone : Tone * targetPath : string
+    | OpenPreviousProjectConfirmed
+    | ShowOverlay of OverlayContents
     | ShowToneEditor
-    | ShowConfigEditor
     | ShowIssueViewer
     | ShowImportToneSelector of tones : Tone array
-    | ShowPitchShifter
     | BuildPitchShifted
     | Build of BuildType
     | BuildComplete of BuildType

@@ -18,9 +18,10 @@ let private jsonOptions =
 
 /// Saves the recent files list into a file.
 let save (recentList: string list) = async {
-    Directory.CreateDirectory(Path.GetDirectoryName recentFilePath) |> ignore
-    use file = File.Create recentFilePath
-    do! JsonSerializer.SerializeAsync(file, recentList, jsonOptions) }
+    try
+        use file = File.Create recentFilePath
+        do! JsonSerializer.SerializeAsync(file, recentList, jsonOptions)
+    with ex -> Console.WriteLine ex.Message }
 
 /// Updates the list with a new filename.
 let update newFile oldList =

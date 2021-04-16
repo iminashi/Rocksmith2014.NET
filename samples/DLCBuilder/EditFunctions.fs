@@ -150,6 +150,9 @@ let editConfig edit config =
     | SetLoadPreviousProject load ->
         { config with LoadPreviousOpenedProject = load }
 
+    | SetAutoSave autoSave ->
+        { config with AutoSave = autoSave }
+
     | SetWwiseConsolePath path ->
         { config with WwiseConsolePath = Option.ofString path }
 

@@ -252,3 +252,16 @@ let removeTask completedTask state =
 
     { state with RunningTasks = state.RunningTasks |> Set.remove completedTask
                  StatusMessages = messages }
+
+let autoSave =
+    let mutable id = 0L
+
+    fun () ->
+        id <- id + 1L
+        let thisId = id
+        async {
+            do! Async.Sleep 1000
+            if thisId = id then
+                return AutoSaveProject
+            else
+                return Ignore }

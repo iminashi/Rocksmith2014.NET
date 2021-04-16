@@ -237,6 +237,7 @@
   "applyImprovements": "改善を適用",
   "saveDebugFiles": "ディバッグファイルを保存",
   "customAudioFile": "カスタムオーディオ",
+  "autoSave": "プロジェクトを自動的に保存",
   "calculateVolumesAutomatically": "自動的にボリューム値を計算",
   "calculateVolumes": "ボリューム値を計算する",
   "moreInfo": "追加情報",

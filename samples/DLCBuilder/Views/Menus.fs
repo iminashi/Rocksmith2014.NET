@@ -92,7 +92,7 @@ let file state dispatch =
             MenuItem.create [
                 MenuItem.header (translate "configuration")
                 MenuItem.inputGesture (KeyGesture(Key.G, keyModifierCtrl))
-                MenuItem.onClick (fun _ -> ShowConfigEditor |> dispatch)
+                MenuItem.onClick (fun _ -> ShowOverlay ConfigEditor |> dispatch)
             ]
 
             separator
@@ -168,7 +168,7 @@ let tools state dispatch =
             MenuItem.create [
                 MenuItem.header (translate "buildPitchShifted")
                 MenuItem.isEnabled canBuild
-                MenuItem.onClick (fun _ -> dispatch ShowPitchShifter)
+                MenuItem.onClick (fun _ -> ShowOverlay PitchShifter |> dispatch)
             ]
 
             // Unpack PSARC

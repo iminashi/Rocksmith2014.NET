@@ -36,7 +36,7 @@ let handleEvent dispatch (event: KeyEventArgs) =
         dispatch NewProject
 
     | Ctrl, Key.G ->
-        dispatch ShowConfigEditor
+        dispatch (ShowOverlay ConfigEditor)
 
     | Ctrl, Key.T ->
         dispatch (ShowDialog Dialog.ToolkitImport)

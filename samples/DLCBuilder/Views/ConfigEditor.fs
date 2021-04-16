@@ -177,6 +177,14 @@ let private generalConfig state dispatch =
                 CheckBox.onUnchecked (fun _ -> false |> SetLoadPreviousProject |> EditConfig |> dispatch)
             ]
 
+            // Auto Save
+            CheckBox.create [
+                CheckBox.content (translate "autoSave")
+                CheckBox.isChecked state.Config.AutoSave
+                CheckBox.onChecked (fun _ -> true |> SetAutoSave |> EditConfig |> dispatch)
+                CheckBox.onUnchecked (fun _ -> false |> SetAutoSave |> EditConfig |> dispatch)
+            ]
+
             // Show Advanced Features
             CheckBox.create [
                 CheckBox.content (translate "showAdvancedFeatures")
@@ -450,7 +458,7 @@ let private tabHeader (icon: Geometry) locText =
 let view state dispatch =
     DockPanel.create [
         DockPanel.width 600.
-        DockPanel.height 430.
+        DockPanel.height 460.
         DockPanel.children [
             // Close button
             Button.create [

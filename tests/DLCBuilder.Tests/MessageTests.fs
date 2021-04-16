@@ -61,8 +61,8 @@ let messageTests =
 
             Expect.equal newState.RecentFiles [ "recent_file" ] "Recent file list was changed"
 
-        testCase "ShowConfigEditor shows configuration editor" <| fun _ ->
-            let newState, _ = Main.update ShowConfigEditor initialState
+        testCase "ShowOverlay ConfigEditor shows configuration editor" <| fun _ ->
+            let newState, _ = Main.update (ShowOverlay ConfigEditor) initialState
 
             Expect.equal newState.Overlay ConfigEditor "Overlay is set to configuration editor"
     ]

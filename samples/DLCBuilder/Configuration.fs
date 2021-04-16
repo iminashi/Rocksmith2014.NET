@@ -21,6 +21,7 @@ type Configuration =
       ApplyImprovements : bool
       SaveDebugFiles : bool
       AutoVolume : bool
+      AutoSave : bool
       ConvertAudio : AudioConversionType
       OpenFolderAfterReleaseBuild : bool
       LoadPreviousOpenedProject : bool
@@ -43,6 +44,7 @@ type Configuration =
           ApplyImprovements = true
           SaveDebugFiles = false
           AutoVolume = true
+          AutoSave = false
           ConvertAudio = NoConversion
           OpenFolderAfterReleaseBuild = true
           LoadPreviousOpenedProject = false
@@ -67,6 +69,7 @@ module Configuration =
         member val ApplyImprovements : bool = true with get, set
         member val SaveDebugFiles : bool = false with get, set
         member val AutoVolume : bool = true with get, set
+        member val AutoSave : bool = false with get, set
         member val ConvertAudio : int = 0 with get, set
         member val OpenFolderAfterReleaseBuild : bool = true with get, set
         member val LoadPreviousOpenedProject : bool = false with get, set
@@ -76,10 +79,14 @@ module Configuration =
         member val CustomAppId : string = String.Empty with get, set
 
     let appDataFolder =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
+        let dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
+        (Directory.CreateDirectory dir).FullName
 
     let private configFilePath =
         Path.Combine(appDataFolder, "config.json")
+
+    let exitCheckFilePath =
+        Path.Combine(appDataFolder, "exit.check")
 
     /// Converts a configuration DTO into a configuration record.
     let private fromDto (dto: Dto) =
@@ -111,6 +118,7 @@ module Configuration =
           ApplyImprovements = dto.ApplyImprovements
           SaveDebugFiles = dto.SaveDebugFiles
           AutoVolume = dto.AutoVolume
+          AutoSave = dto.AutoSave
           ConvertAudio = convertAudio
           OpenFolderAfterReleaseBuild = dto.OpenFolderAfterReleaseBuild
           LoadPreviousOpenedProject = dto.LoadPreviousOpenedProject
@@ -141,6 +149,7 @@ module Configuration =
             RemoveDDOnImport = config.RemoveDDOnImport,
             ApplyImprovements = config.ApplyImprovements,
             AutoVolume = config.AutoVolume,
+            AutoSave = config.AutoSave,
             ConvertAudio = convertAudio,
             OpenFolderAfterReleaseBuild = config.OpenFolderAfterReleaseBuild,
             LoadPreviousOpenedProject = config.LoadPreviousOpenedProject,
@@ -163,7 +172,6 @@ module Configuration =
 
     /// Saves the configuration to the file defined in configFilePath.
     let save (config: Configuration) = async {
-        Directory.CreateDirectory(Path.GetDirectoryName configFilePath) |> ignore
         use file = File.Create configFilePath
         let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
         do! JsonSerializer.SerializeAsync(file, toDto config, options) }

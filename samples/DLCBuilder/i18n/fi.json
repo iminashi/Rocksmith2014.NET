@@ -237,6 +237,7 @@
   "applyImprovements": "Käytä parannuksia",
   "saveDebugFiles": "Luo debug tiedostoja",
   "customAudioFile": "Eri äänitiedosto",
+  "autoSave": "Projektin automaattitallennus",
   "calculateVolumesAutomatically": "Laske äänenvoimakkuudet automaattisesti",
   "calculateVolumes": "Laske äänenvoimakkuudet",
   "moreInfo": "Lisätietoja",

@@ -296,6 +296,8 @@ let private overlay state dispatch =
         DeleteConfirmation.view dispatch files
     | PitchShifter ->
         PitchShifter.view dispatch state
+    | AbnormalExitMessage ->
+        AbnormalExitMessage.view dispatch
 
 let view (window: Window) (state: State) dispatch =
     if state.RunningTasks.IsEmpty then

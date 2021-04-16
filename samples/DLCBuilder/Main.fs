@@ -87,8 +87,18 @@ let private addArrangements files state =
     | _ ->
         { newState with Overlay = ErrorMessage(String.Join(String.replicate 2 Environment.NewLine, errors), None) }
 
+let private createExitCheckFile () =
+    using (File.Create Configuration.exitCheckFilePath) ignore
+
 let init arg =
     let commands =
+        let wasNormalExit =
+            if File.Exists Configuration.exitCheckFilePath then
+                false
+            else
+                createExitCheckFile()
+                true
+
         let loadProject =
             arg
             |> Option.bind (function
@@ -98,7 +108,7 @@ let init arg =
                     None)
 
         Cmd.batch [
-            Cmd.OfAsync.perform Configuration.load () (fun config -> SetConfiguration(config, loadProject.IsNone)) 
+            Cmd.OfAsync.perform Configuration.load () (fun config -> SetConfiguration(config, loadProject.IsNone, wasNormalExit))
             Cmd.OfAsync.perform RecentFilesList.load () SetRecentFiles
             yield! loadProject |> Option.toList
         ]
@@ -532,14 +542,19 @@ let update (msg: Msg) (state: State) =
     
     | ShowJapaneseFields shown -> { state with ShowJapaneseFields = shown }, Cmd.none
 
-    | ShowConfigEditor -> { state with Overlay = ConfigEditor }, Cmd.none
+    | ShowOverlay overlay -> { state with Overlay = overlay }, Cmd.none
     
-    | SetConfiguration (newConfig, enableLoad) ->
+    | SetConfiguration (newConfig, enableLoad, wasNormalExit) ->
         if config.Locale <> newConfig.Locale then
             changeLocale newConfig.Locale
         let cmd =
-            if enableLoad && newConfig.LoadPreviousOpenedProject && File.Exists newConfig.PreviousOpenedProject then
-                Cmd.ofMsg (OpenProject newConfig.PreviousOpenedProject)
+            if enableLoad && File.Exists newConfig.PreviousOpenedProject then
+                if newConfig.LoadPreviousOpenedProject then
+                    Cmd.ofMsg (OpenProject newConfig.PreviousOpenedProject)
+                elif not wasNormalExit then
+                    Cmd.ofMsg (ShowOverlay AbnormalExitMessage)
+                else
+                    Cmd.none
             else
                 Cmd.none
             
@@ -577,6 +592,14 @@ let update (msg: Msg) (state: State) =
             |> Option.map SaveProject
             |> Option.defaultValue SaveProjectAs
         state, Cmd.ofMsg msg
+
+    | AutoSaveProject ->
+        match state.OpenProjectFile with
+        | Some projectPath -> state, Cmd.ofMsg (SaveProject projectPath)
+        | None -> state, Cmd.none
+
+    | OpenPreviousProjectConfirmed ->
+        { state with Overlay = NoOverlay }, Cmd.ofMsg (OpenProject config.PreviousOpenedProject)
 
     | OpenProject fileName ->
         state, Cmd.OfAsync.either DLCProject.load fileName (fun p -> ProjectLoaded(p, fileName)) ErrorOccurred
@@ -666,8 +689,6 @@ let update (msg: Msg) (state: State) =
     | GenerateAllIds ->
         let arrangements = TestPackageBuilder.generateAllIds project.Arrangements
         { state with Project = { project with Arrangements = arrangements } }, Cmd.none
-
-    | ShowPitchShifter -> { state with Overlay = PitchShifter }, Cmd.none
 
     | BuildPitchShifted ->
         buildPackage Release (ReleasePackageBuilder.buildPitchShifted state.OpenProjectFile) state

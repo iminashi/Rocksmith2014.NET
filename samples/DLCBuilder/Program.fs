@@ -14,9 +14,17 @@ open System
 open System.Reflection
 open Microsoft.Extensions.FileProviders
 open Rocksmith2014.Common
+open Rocksmith2014.DLCProject
+open System.IO
 
-type MainWindow() as this =
+type MainWindow(commandLineArgs: string array) as this =
     inherit HostWindow()
+
+    let shouldAutoSave newState oldState =
+        newState.Config.AutoSave &&
+        newState.OpenProjectFile.IsSome &&
+        newState.Project <> oldState.Project
+
     do
         let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
         use iconData = embeddedProvider.GetFileInfo("Assets/icon.ico").CreateReadStream()
@@ -45,16 +53,20 @@ type MainWindow() as this =
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
         //this.VisualRoot.VisualRoot.Renderer.DrawDirtyRects <- true
 
-        let arg =
-            match Environment.GetCommandLineArgs() with
-            | [| _; arg |] -> Some arg
-            | _ -> None
-
         let view' = Views.Main.view this
 
         // Add an exception handler to the update function
         let update' msg state =
-            try Main.update msg state
+            try
+                let newState, cmd = Main.update msg state
+                let commands =
+                    if shouldAutoSave newState state then
+                        let autoSaveCmd = Cmd.OfAsync.result (Utils.autoSave ())
+                        Cmd.batch [ autoSaveCmd; cmd ]
+                    else
+                        cmd
+
+                newState, commands
             with ex ->
                 let errorMessage =
                     $"Unhandled exception in the update function.\nMessage: {msg}\nException: {ex.Message}"
@@ -68,10 +80,17 @@ type MainWindow() as this =
         |> Program.withHost this
         |> Program.withSubscription hotKeysSub
         |> Program.withSubscription progressReportingSub
-        |> Program.runWith arg
+        #if DEBUG
+        |> Program.withTrace (fun msg state -> Diagnostics.Debug.WriteLine msg)
+        #endif
+        |> Program.runWith (Array.tryHead commandLineArgs)
 
 type App() =
     inherit Application()
+
+    let deleteExitCheckFile _ =
+        if File.Exists Configuration.exitCheckFilePath then
+            File.Delete Configuration.exitCheckFilePath
 
     override this.Initialize() =
         this.Styles.Add (FluentTheme(baseUri = null, Mode = FluentThemeMode.Dark))
@@ -81,7 +100,10 @@ type App() =
     override this.OnFrameworkInitializationCompleted() =
         match this.ApplicationLifetime with
         | :? IClassicDesktopStyleApplicationLifetime as desktopLifetime ->
-            desktopLifetime.MainWindow <- MainWindow()
+            // Delete the exit check file to indicate that the application exited normally
+            desktopLifetime.Exit.Add deleteExitCheckFile
+
+            desktopLifetime.MainWindow <- MainWindow(desktopLifetime.Args)
             base.OnFrameworkInitializationCompleted()
         | _ -> ()
 

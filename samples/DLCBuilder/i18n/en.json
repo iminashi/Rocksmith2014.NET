@@ -237,6 +237,7 @@
   "applyImprovements": "Apply Improvements",
   "saveDebugFiles": "Save Debug Files",
   "customAudioFile": "Custom Audio",
+  "autoSave": "Auto Save Project",
   "calculateVolumesAutomatically": "Calculate Volumes Automatically",
   "calculateVolumes": "Calculate Volumes",
   "moreInfo": "More Info",
