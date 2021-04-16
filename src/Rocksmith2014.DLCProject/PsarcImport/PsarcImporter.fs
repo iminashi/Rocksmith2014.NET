@@ -108,7 +108,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         |> Array.toList
         |> List.append [ Showlights { XML = toTargetPath "arr_showlights.xml" } ]
         |> List.sortBy Arrangement.sorter
-           
+
     let tones =
         fileAttributes
         |> Array.choose (fun (_, attr) -> Option.ofObj attr.Tones)

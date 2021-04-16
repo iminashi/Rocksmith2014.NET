@@ -41,7 +41,7 @@ let private getDNATime (sng: SNG) dnaId =
             | none ->
                 // Find the next DNA ID -> DNA None range
                 time + getTotal none (sng.DNAs.[none].Time - sng.DNAs.[next].Time)
-        
+
     getTotal 0 0.f |> float
 
 /// Calculates the times for the three types of DNA.
@@ -282,7 +282,7 @@ let private createTechniqueMap (sng: SNG) =
 
         if diffIds.Count > 0 then
             techniques.Add(string lvl, diffIds)
-            
+
     techniques
 
 /// Initializes attributes that are common to all arrangements (manifest headers).
@@ -366,7 +366,7 @@ let private initSongComplete (partition: int)
                              (instrumental: Instrumental)
                              (sng: SNG)
                              (attr: Attributes) =
-    let tones = 
+    let tones =
         let toneKeysUsed =
             [ instrumental.BaseTone; yield! instrumental.Tones ]
             |> Set.ofList

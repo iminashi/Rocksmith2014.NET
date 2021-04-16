@@ -68,7 +68,7 @@ let private loadTemplate sourcePath version =
     let templateDir = getTempDirectory()
     let targetPath = Path.Combine(templateDir, "Originals", "SFX", "Audio.wav")
     extractTemplate templateDir version
-    
+
     match sourcePath with
     | EndsWith ".wav" -> File.Copy(sourcePath, targetPath, overwrite=true)
     | EndsWith ".ogg" -> Conversion.oggToWav sourcePath targetPath
@@ -86,7 +86,7 @@ let private fixHeader (path: string) =
 /// Copies the wem file from the template cache directory into the destination path.
 let private copyWemFile (destPath: string) (templateDir: string) =
     let cachePath = Path.Combine(templateDir, ".cache", "Windows", "SFX")
-    
+
     let wemFiles = Seq.toArray <| Directory.EnumerateFiles(cachePath, "*.wem")
     if wemFiles.Length = 0 then
         failwith "Could not find converted Wwise audio file."
@@ -122,6 +122,6 @@ let convertToWem (cliPath: string option) (sourcePath: string) = async {
 
         let output = wwiseCli.StandardOutput.ReadToEnd()
         if output.Length > 0 then failwith output
-    
+
         copyWemFile destPath templateDir
     finally Directory.Delete(templateDir, true) }

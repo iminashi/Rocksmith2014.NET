@@ -58,7 +58,7 @@ let getHeaderPaddingSize = function PC | Mac -> 3
 module Result =
     /// Maps the result to Error e -> Error e | Ok x -> Ok ().
     let ignore x = Result.map ignore x
-        
+
 type ResultBuilder() =
     member _.Bind(x, f) = Result.bind f x
     member _.Return(x) = Ok x

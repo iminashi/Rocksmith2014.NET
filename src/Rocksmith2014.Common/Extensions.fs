@@ -38,7 +38,7 @@ module Array =
         let arr = Array.copy array
         arr.[index] <- newItem
         arr
-    
+
 [<RequireQualifiedAccess>]
 module Dictionary =
     /// Maps the result of IReadOnlyDictionary.TryGetValue into an option.
@@ -75,7 +75,7 @@ module List =
             | [] -> []
             | _::tail when current = index -> tail
             | h::tail -> h::(remove (current + 1) tail)
-    
+
         remove 0 list
 
     let insertAt index (item: 'a) (list: 'a list) =
@@ -84,7 +84,7 @@ module List =
             | [] -> [ item ]
             | l when current = index -> item::l
             | h::tail -> h::(insert (current + 1) tail)
-    
+
         insert 0 list
 
     /// Removes the item from the list.

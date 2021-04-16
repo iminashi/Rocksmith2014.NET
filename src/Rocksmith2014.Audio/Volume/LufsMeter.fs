@@ -23,11 +23,11 @@ module internal Helpers =
     let getChannelWeight = function 3 | 4 -> 1.41 | _ -> 1.
 
     let inline loudness mean = -0.691 + 10. * Math.Log10 mean
-    
+
     let meanSquareAverage = function
         | [||] -> 0.
         | arr -> Array.averageBy (fun x -> x.MeanSquare) arr
-    
+
     let inline gate gateLoudness = Array.filter (fun x -> x.Loudness > gateLoudness)
 
 type LufsMeter(blockDuration, overlap, sampleRate, numChannels) =
@@ -119,7 +119,7 @@ type LufsMeter(blockDuration, overlap, sampleRate, numChannels) =
         let absoluteGateGamma = -70.
         let absoluteGatedLoudness = precedingMeanSquareLoudness.ToArray() |> gate absoluteGateGamma
         let absoluteGatedMeanSquare = meanSquareAverage absoluteGatedLoudness
-        
+
         // The second at −10 dB relative to the level measured after application of the first threshold.
         let relativeGateGamma = loudness absoluteGatedMeanSquare - 10.
         let relativeGatedLoudness = absoluteGatedLoudness |> gate relativeGateGamma

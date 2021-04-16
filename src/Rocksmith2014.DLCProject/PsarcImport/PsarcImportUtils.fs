@@ -21,7 +21,7 @@ let getVolumeAndFileId (psarc: PSARC) platform bankName = async {
         match SoundBank.readFileId mem platform with
         | Ok vol -> vol
         | Error err -> failwith err
-        
+
     return volume, fileId }
 
 /// Active pattern for detecting arrangement type from a filename.

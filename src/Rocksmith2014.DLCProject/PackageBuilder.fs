@@ -173,7 +173,7 @@ let private build (buildData: BuildData) progress targetFile project platform = 
         yield! fontEntry.Items
         yield toolkitEntry
         yield appIdEntry ])
-     
+
     progress() }
 
 let private setupInstrumental part (inst: Instrumental) config =

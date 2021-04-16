@@ -192,7 +192,7 @@ let convertAnchor (notes: Note array) (noteTimes: int array) (level: XML.Level) 
                         startTime
                     else
                         firstNote.Time
-                    
+
             let lastNoteTime =
                 // The sustain of the last note is included, unless it is a slide
                 if lastNote.Mask ?= NoteMask.Slide || lastNote.Mask ?= NoteMask.Parent then

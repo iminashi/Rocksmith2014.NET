@@ -30,7 +30,7 @@ type SecondOrderIIRFilter(b0At48k, b1At48k, b2At48k, a1At48k, a2At48k, sampleRat
         b2 <- (vh - vb * k / q + vl * k * k) * commonFactor
         a1 <- 2. * (k * k - 1.) * commonFactor
         a2 <- (1. - k / q + k * k) * commonFactor
-            
+
     member _.ProcessBufferGeneral(buffer: float[][]) =
         for channel = 0 to numChannels - 1 do
             let samples = buffer.[channel]

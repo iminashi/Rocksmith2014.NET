@@ -82,16 +82,16 @@ let improve (arrangement: InstrumentalArrangement) =
 
                 chord.ChordNotes.FindAll(fun cn -> cn.IsUnpitchedSlide).ToArray(),
                 arrangement.ChordTemplates.[int chord.ChordId]
-            
+
         if notes.Length = 0 then
             failwith $"Invalid SlideOut event at {Utils.timeToString slideEvent.Time}"
-        
+
         // Create a new handshape at the slide end (add 1ms to include the sustain of the notes inside the handshape)
         let endTime = notes.[0].Time + notes.[0].Sustain + 1
         let startTime = endTime - (notes.[0].Sustain / 3)
         let chordId = int16 arrangement.ChordTemplates.Count
         level.HandShapes.InsertByTime(HandShape(chordId, startTime, endTime))
-        
+
         // Create a new chord template for the handshape
         let soChordTemplate = ChordTemplate()
         for note in notes do

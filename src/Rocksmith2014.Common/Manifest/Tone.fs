@@ -128,7 +128,7 @@ module Tone =
 
     let private getGearList (ns: string option) (gearList: XmlElement) =
         let getPedal = getPedal ns gearList
-    
+
         { Amp = getPedal "Amp" |> Option.get
           Cabinet = getPedal "Cabinet" |> Option.get
           PrePedals = [| 1..4 |] |> Array.map (fun i -> getPedal $"PrePedal{i}")
@@ -232,7 +232,7 @@ module Tone =
               Rack2 = tone.GearList.Racks |> tryGetPedal 1
               Rack3 = tone.GearList.Racks |> tryGetPedal 2
               Rack4 = tone.GearList.Racks |> tryGetPedal 3 }
-        
+
         { GearList = gear
           ToneDescriptors = tone.ToneDescriptors
           NameSeparator = tone.NameSeparator

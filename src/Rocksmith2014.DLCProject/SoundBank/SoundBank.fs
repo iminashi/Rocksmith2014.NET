@@ -321,7 +321,7 @@ let readVolume (stream: Stream) platform = result {
 
     do! seekToSection stream reader "HIRC"B |> Result.ignore
     do! seekToObject stream reader HierarchyID.Sound
-    
+
     // Skip 46 bytes to get to the parameter count
     seek stream 46L
 

@@ -12,7 +12,7 @@ type SymbolsHeader =
       Unk6 : int32 // Always zero
       Unk7 : int32 // Always zero
       Unk8 : int32 } // Always 2
-    
+
     interface IBinaryWritable with
         member this.Write(writer) =
             writer.WriteInt32 this.ID
@@ -23,7 +23,7 @@ type SymbolsHeader =
             writer.WriteInt32 this.Unk6
             writer.WriteInt32 this.Unk7
             writer.WriteInt32 this.Unk8
-    
+
     static member Read(reader: IBinaryReader) =
         { ID = reader.ReadInt32()
           Unk2 = reader.ReadInt32()
@@ -38,7 +38,7 @@ type SymbolsHeader =
 
 type SymbolsTexture =
     { Font : string
-      FontPathLength : int32 
+      FontPathLength : int32
       // Unknown value (int32): always zero
       Width : int32
       Height : int32 }

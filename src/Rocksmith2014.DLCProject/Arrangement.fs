@@ -119,7 +119,7 @@ module Arrangement =
             let rootName =
                 using (XmlReader.Create fileName)
                       (fun reader -> reader.MoveToContent() |> ignore; reader.LocalName)
-    
+
             match rootName with
             | "song" ->
                 let metadata = MetaData.Read fileName
@@ -133,12 +133,12 @@ module Arrangement =
                     toneInfo.Names
                     |> Array.choose Option.ofString
                     |> Array.toList
-    
+
                 let routeMask =
                     if metadata.ArrangementProperties.PathBass then RouteMask.Bass
                     elif metadata.ArrangementProperties.PathRhythm then RouteMask.Rhythm
                     else RouteMask.Lead
-    
+
                 let name =
                     match ArrangementName.TryParse metadata.Arrangement with
                     | true, name -> name
@@ -147,7 +147,7 @@ module Arrangement =
                         | RouteMask.Bass -> ArrangementName.Bass
                         | RouteMask.Rhythm -> ArrangementName.Rhythm
                         | _ -> ArrangementName.Lead
-    
+
                 let arr =
                     { XML = fileName
                       Name = name
@@ -167,17 +167,17 @@ module Arrangement =
                       CustomAudio = None }
                     |> Arrangement.Instrumental
                 Ok (arr, Some metadata)
-    
+
             | "vocals" ->
                 // Attempt to infer whether the lyrics are Japanese from the filename
                 let isJapanese =
                     Regex.IsMatch(fileName, "j.?(vocal|lyric)", RegexOptions.IgnoreCase)
-    
+
                 // Try to find custom font for Japanese vocals
                 let customFont =
                     let fontFile = Path.Combine(IO.Path.GetDirectoryName fileName, "lyrics.dds")
                     if isJapanese && File.Exists fontFile then Some fontFile else None
-    
+
                 let arr =
                     { XML = fileName
                       Japanese = isJapanese
@@ -186,15 +186,15 @@ module Arrangement =
                       PersistentID = Guid.NewGuid() }
                     |> Arrangement.Vocals
                 Ok (arr, None)
-    
+
             | "showlights" ->
                 let arr = Arrangement.Showlights { XML = fileName }
                 Ok (arr, None)
-    
+
             | _ ->
                 Error (fileName, localize "unknownArrangementError")
         with ex -> Error (fileName, ex.Message)
-    
+
     /// Reads the tone info from the arrangement's XML file.
     let updateToneInfo (inst: Instrumental) updateBaseTone =
         let toneInfo = InstrumentalArrangement.ReadToneNames inst.XML

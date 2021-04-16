@@ -97,28 +97,28 @@ module SNG =
     let unpack (input: Stream) (output: Stream) platform = async {
         use decrypted = MemoryStreamPool.Default.GetStream()
         let reader = BinaryReaders.getReader decrypted platform
-        
+
         Cryptography.decryptSNG input decrypted platform
-        
+
         let plainLength = reader.ReadUInt32()
         do! Compression.unzip decrypted output
         output.Position <- 0L }
-    
+
     /// Packs and encrypts an SNG from the input stream into the output stream.
     let pack (input: Stream) (output: Stream) platform = async {
         let header = 3
         let writer = BinaryWriters.getWriter output platform
         writer.WriteInt32 0x4A
         writer.WriteInt32 header
-        
+
         use payload = MemoryStreamPool.Default.GetStream()
         // Write the uncompressed length
         (BinaryWriters.getWriter payload platform).WriteInt32 (input.Length |> int32)
         do! Compression.asyncZip input payload
-        
+
         payload.Position <- 0L
         Cryptography.encryptSNG payload output platform None }
-    
+
     /// Unpacks the given encrypted SNG file and saves it with an "_unpacked.sng" postfix.
     let unpackFile fileName platform = async {
         use file = File.OpenRead fileName
@@ -127,24 +127,24 @@ module SNG =
                 (Path.GetDirectoryName(fileName),
                  Path.GetFileNameWithoutExtension(fileName)
                  + "_unpacked.sng")
-    
+
         use out = File.Open(targetFile, FileMode.Create, FileAccess.Write)
         do! unpack file out platform }
-    
+
     /// Reads an SNG from the stream.
     let fromStream (input: Stream) platform = async {
         use memory = MemoryStreamPool.Default.GetStream()
         let reader = BinaryReaders.getReader memory platform
-    
+
         do! unpack input memory platform
         return SNG.Read reader }
-    
+
     /// Reads an encrypted SNG file. 
     let readPackedFile fileName platform = async {
         use file = File.OpenRead fileName
         use memory = MemoryStreamPool.Default.GetStream()
         let reader = BinaryReaders.getReader memory platform
-    
+
         do! unpack file memory platform
         return SNG.Read reader }
 
@@ -152,7 +152,7 @@ module SNG =
     let readUnpackedFile fileName =
         use stream = File.OpenRead fileName
         let reader = LittleEndianBinaryReader(stream)
-    
+
         SNG.Read reader
 
     /// Saves an SNG (packed/encrypted) into the given stream.
@@ -161,17 +161,17 @@ module SNG =
         let writer = BinaryWriters.getWriter memory platform
         (sng :> IBinaryWritable).Write writer
         memory.Position <- 0L
-    
+
         do! pack memory output platform }
-    
+
     /// Saves an SNG (packed/encrypted) with the given filename.
     let savePackedFile fileName platform (sng: SNG) = async {
         use out = File.Open(fileName, FileMode.Create, FileAccess.Write)
         do! savePacked out platform sng }
-       
+
     /// Saves an SNG (plain) with the given filename.
     let saveUnpackedFile fileName (sng: SNG) =
         use stream = File.Open(fileName, FileMode.Create, FileAccess.Write)
         let writer = LittleEndianBinaryWriter(stream)
-    
+
         (sng :> IBinaryWritable).Write writer

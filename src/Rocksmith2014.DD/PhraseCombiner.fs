@@ -13,7 +13,7 @@ let private isEmpty (phrase: PhraseData) = phrase.NoteCount = 0 && phrase.ChordC
 let private calculateSimilarity fn fc (phrase1: PhraseData) (phrase2: PhraseData) =
     let noteSimilarity = fn phrase1.Notes phrase2.Notes
     let chordSimilarity = fc phrase1.Chords phrase2.Chords
-    
+
     let notesTotal = float <| phrase1.NoteCount + phrase2.NoteCount
     let chordsTotal = float <| phrase1.ChordCount + phrase2.ChordCount
 

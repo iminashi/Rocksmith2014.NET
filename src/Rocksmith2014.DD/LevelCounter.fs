@@ -30,7 +30,7 @@ let predictLevelCount (path: int) (p: DataExtractor.PhraseData) =
             MaxChordStrings = (p.MaxChordStrings |> float32),
             Solo = (if p.SoloPhrase then "1" else "0")
         )
-    
+
     // Load model and predict the output
     let result =
         lock lockObj (fun _ -> ConsumeModel.Predict(input))

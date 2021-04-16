@@ -138,7 +138,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             | _ -> failwith "Unexpected zType."
 
         blockSizeTable |> Array.iter write
-        
+
         tocData.Position <- 0L
         if encrypt then
             Cryptography.encrypt tocData source tocData.Length
@@ -202,7 +202,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
         // Update the manifest
         manifest <- List.map (fun entry -> entry.Name) editList
-        
+
         // Deflate entries
         let! protoEntries, data, blockTable = deflateEntries editList
 
@@ -225,7 +225,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             dataEntry.Position <- 0L
             do! dataEntry.CopyToAsync(source)
             do! dataEntry.DisposeAsync()
-            
+
         do! source.FlushAsync() }
 
     /// Creates a new empty PSARC using the given stream.
@@ -250,7 +250,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                 { Name = name; Data = Utils.getFileStreamForRead file } ]
         ) }
 
-    /// Initializes a PSARC from the input stream. 
+    /// Initializes a PSARC from the input stream.
     static member Read (input: Stream) = 
         let reader = BigEndianBinaryReader(input) :> IBinaryReader
         let header = Header.Read reader
@@ -269,7 +269,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
         new PSARC(input, header, toc, zLengths)
 
-    /// Initializes a PSARC from a file with the given name. 
+    /// Initializes a PSARC from a file with the given name.
     static member ReadFile (fileName: string) =
         Utils.openFileStreamForPSARC fileName
         |> PSARC.Read

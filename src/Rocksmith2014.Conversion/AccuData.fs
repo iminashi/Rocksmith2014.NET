@@ -13,7 +13,7 @@ type NoteCountsMutable() =
     [<DefaultValue>] val mutable Ignored : int
 
     member this.AsImmutable() =
-        { Easy = this.Easy; Medium = this.Medium; Hard = this.Hard; Ignored = this.Ignored;  }
+        { Easy = this.Easy; Medium = this.Medium; Hard = this.Hard; Ignored = this.Ignored }
 
 /// Represents data that is being accumulated when mapping XML notes/chords into SNG notes.
 type AccuData =
@@ -29,10 +29,10 @@ type AccuData =
     member this.AddNote(pi: int, difficulty: byte, heroLevels: XML.HeroLevels, ignored: bool) =
         let d = int difficulty
         this.NotesInPhraseIterationsAll.[d].[pi] <- this.NotesInPhraseIterationsAll.[d].[pi] + 1
-    
+
         if not ignored then
             this.NotesInPhraseIterationsExclIgnored.[d].[pi] <- this.NotesInPhraseIterationsExclIgnored.[d].[pi] + 1
-    
+
         if heroLevels.Easy = difficulty then
             Interlocked.Increment(&this.NoteCounts.Easy) |> ignore
 
@@ -43,7 +43,7 @@ type AccuData =
             Interlocked.Increment(&this.NoteCounts.Hard) |> ignore
             if ignored then
                 Interlocked.Increment(&this.NoteCounts.Ignored) |> ignore
-    
+
     /// Initializes a new AccuData object.
     static member Init(arr: XML.InstrumentalArrangement) =
         { StringMasks = Array.init arr.Sections.Count (fun _ -> Array.zeroCreate 36)

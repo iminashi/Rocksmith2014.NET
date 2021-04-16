@@ -9,7 +9,7 @@ type Chord =
       Fingers : int8[]
       Notes : int32[]
       Name : string }
-    
+
     interface IBinaryWritable with
         member this.Write(writer) =
             writer.WriteUInt32 (LanguagePrimitives.EnumToValue(this.Mask))
@@ -17,7 +17,7 @@ type Chord =
             this.Fingers |> Array.iter writer.WriteInt8
             this.Notes |> Array.iter writer.WriteInt32
             writeZeroTerminatedUTF8String 32 this.Name writer
-    
+
     static member Read(reader: IBinaryReader) =
         { Mask = reader.ReadUInt32() |> LanguagePrimitives.EnumOfValue
           Frets = Array.init 6 (fun _ -> reader.ReadInt8())

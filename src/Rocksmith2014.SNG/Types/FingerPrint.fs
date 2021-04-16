@@ -19,7 +19,7 @@ type FingerPrint =
             writer.WriteSingle this.LastNoteTime
 
     static member Read(reader: IBinaryReader) =
-        { ChordId = reader.ReadInt32() 
+        { ChordId = reader.ReadInt32()
           StartTime = reader.ReadSingle()
           EndTime = reader.ReadSingle()
           FirstNoteTime = reader.ReadSingle()

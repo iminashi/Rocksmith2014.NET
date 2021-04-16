@@ -101,7 +101,7 @@ let private importVocals (xmlFile: string) (arr: XmlNode) =
                 else
                     // Converts "path\to\x.glyphs.xml" to "x.dds"
                     Some (Path.ChangeExtension(Path.GetFileNameWithoutExtension glyphDefs.InnerText, "dds"))))
-        
+
     { XML = xmlFile
       Japanese = isJapanese 
       CustomFont = customFont

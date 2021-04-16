@@ -27,14 +27,14 @@ let getInflateStream (input: Stream) = new InflaterInputStream(input, IsStreamOw
 let blockZip blockSize (deflatedData: ResizeArray<Stream>) (zLengths: ResizeArray<uint32>) (input: Stream) = async {
     let mutable totalSize = 0L
     input.Position <- 0L
-    
+
     while input.Position < input.Length do
         let size = Math.Min(int (input.Length - input.Position), blockSize)
         let buffer = Array.zeroCreate<byte> size
         let! bytesRead = input.AsyncRead buffer
         let plainStream = new MemoryStream(buffer)
         let zipStream = MemoryStreamPool.Default.GetStream()
-    
+
         let data, length =
             zip size plainStream zipStream
             let packedSize = int zipStream.Length

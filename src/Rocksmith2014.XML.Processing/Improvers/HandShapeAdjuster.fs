@@ -46,7 +46,7 @@ let improve (arrangement: InstrumentalArrangement) =
                     else note32nd
                                 
                 let currentDistance = followingStartTime - precedingEndTime
-                
+
                 if currentDistance < minDistance then
                     let newEndTime =
                         let time = followingStartTime - minDistance
@@ -55,5 +55,5 @@ let improve (arrangement: InstrumentalArrangement) =
                             precedingStartTime + (precedingEndTime - precedingStartTime) / 2
                         else
                             time
-                
+
                     precedingHandshape.EndTime <- newEndTime

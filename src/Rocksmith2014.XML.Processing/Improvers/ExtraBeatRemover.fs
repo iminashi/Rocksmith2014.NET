@@ -18,6 +18,6 @@ let improve (arrangement: InstrumentalArrangement) =
     if audioEnd - penultimateBeat.Time <= lastBeat.Time - audioEnd then
         arrangement.Ebeats.Remove lastBeat |> ignore
         lastBeat <- penultimateBeat
-    
+
     // Move the last beat to the time audio ends
     lastBeat.Time <- audioEnd

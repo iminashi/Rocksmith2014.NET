@@ -133,7 +133,7 @@ let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
                 None
 
         | _ -> None
-    
+
 let private isOnToneChange (arr: InstrumentalArrangement) time =
     not <| isNull arr.Tones.Changes
     && arr.Tones.Changes.Exists(fun t -> t.Time = time)
@@ -149,19 +149,19 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
         // Check for notes with LinkNext and unpitched slide
         if note.IsLinkNext && note.IsUnpitchedSlide then
             issue UnpitchedSlideWithLinkNext time
-        
+
         // Check for notes with both harmonic and pinch harmonic attributes
         if note.IsHarmonic && note.IsPinchHarmonic then
             issue DoubleHarmonic time
-        
+
         // Check 23rd and 24th fret notes without ignore attribute
         if note.Fret >= 23y && not note.IsIgnore then
             issue MissingIgnore time
-        
+
         // Check 7th fret harmonic notes with sustain (and without ignore)
-        if not note.IsIgnore && note.Fret = 7y && note.IsHarmonic && note.Sustain > 0 then 
+        if not note.IsIgnore && note.Fret = 7y && note.IsHarmonic && note.Sustain > 0 then
             issue SeventhFretHarmonicWithSustain time
-            
+
         // Check for missing bend values
         if note.IsBend && note.BendValues.FindIndex(fun bv -> bv.Step <> 0.0f) = -1 then
             issue MissingBendValue time
@@ -250,7 +250,7 @@ let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
          | Some neighbour ->
             let neighbourAnchor = anchors.FindLast(fun a -> a.Time <= neighbour.StartTime)
             let neighbourTemplate = chordTemplates.[int neighbour.ChordId]
-    
+
             neighbourTemplate.Fingers |> Array.contains 1y && neighbourAnchor = activeAnchor
 
     [ for i = 0 to handShapes.Count - 1 do
@@ -260,13 +260,13 @@ let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
 
         let activeAnchor = anchors.FindLast(fun a -> a.Time <= handShape.StartTime)
         let chordTemplate = chordTemplates.[int handShape.ChordId]
-        
+
         // Check only handshapes that do not use the 1st finger
         if not (chordTemplate.Fingers |> Array.contains 1y) then
             let chordNotOk =
                 (chordTemplate.Frets, chordTemplate.Fingers)
                 ||> Array.exists2 (fun fret finger -> fret = activeAnchor.Fret && finger <> -1y)
-            
+
             if chordNotOk && not (isSameAnchorWith1stFinger previous activeAnchor ||
                                   isSameAnchorWith1stFinger next activeAnchor) then
                 issue FingeringAnchorMismatch handShape.StartTime

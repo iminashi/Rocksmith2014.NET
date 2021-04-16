@@ -135,7 +135,7 @@ let generate (targetFile: string) (sngs: (Arrangement * SNG) list) =
             sngs
             |> List.find (function Instrumental _, _ -> true | _ -> false))
 
-    let showlights = 
+    let showlights =
         [ yield! generateFogNotes sng
           yield! generateBeamNotes sng
           yield! generateLaserNotes sng ]

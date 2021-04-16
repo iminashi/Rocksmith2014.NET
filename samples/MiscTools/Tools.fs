@@ -22,7 +22,7 @@ open System.IO
 open System
 open Elmish
 
-let project = 
+let project =
     { Version = "1.0"
       DLCKey = "dummy"
       ArtistName = SortableString.Create "Artist"
@@ -52,31 +52,31 @@ let psarcFilters = createFilters (seq { "psarc" }) "PSARC Files"
 let wemFilters = createFilters (seq { "wem" }) "Wwise Audio Files"
 let bnkFilters = createFilters (seq { "bnk" }) "Sound Bank Files"
 
-let openFileDialogSingle title filters dispatch = 
+let openFileDialogSingle title filters dispatch =
     Dispatcher.UIThread.InvokeAsync(fun () ->
         OpenFileDialog(Title = title, AllowMultiple = false, Filters = filters)
            .ShowAsync(window.Force())
-           .ContinueWith(fun (t: Task<string[]>) -> 
+           .ContinueWith(fun (t: Task<string[]>) ->
                match t.Result with
                | [| file |] -> dispatch file
                | _ -> ())
     ) |> ignore
 
-let openFileDialogMulti title filters dispatch = 
+let openFileDialogMulti title filters dispatch =
     Dispatcher.UIThread.InvokeAsync(fun () ->
         OpenFileDialog(Title = title, AllowMultiple = true, Filters = filters)
            .ShowAsync(window.Force())
-           .ContinueWith(fun (t: Task<string[]>) -> 
+           .ContinueWith(fun (t: Task<string[]>) ->
                match t.Result with
                | null | [||] -> ()
                | files -> dispatch files)
     ) |> ignore
 
-let openFolderDialog title dispatch = 
+let openFolderDialog title dispatch =
     Dispatcher.UIThread.InvokeAsync(fun () ->
         OpenFolderDialog(Title = title)
            .ShowAsync(window.Force())
-           .ContinueWith(fun (t: Task<string>) -> 
+           .ContinueWith(fun (t: Task<string>) ->
                match t.Result with
                | null -> ()
                | file -> dispatch file)
@@ -128,7 +128,7 @@ let convertFileToSng platform (fileName: string) =
 
 let update (msg: Msg) (state: State) : State * Cmd<Msg> =
     try
-        match msg with      
+        match msg with
         | UnpackSNGFile file ->
             let t () = SNG.unpackFile file state.Platform
             state, Cmd.OfAsync.attempt t () Error

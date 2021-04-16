@@ -141,23 +141,23 @@ let private createChordNotes (pendingLinkNexts: Dictionary<int8, int16>) thisId 
         let slideUnpitchTo = Array.replicate 6 -1y
         let vibrato = Array.zeroCreate<int16> 6
         let bendData = Array.replicate 6 BendData32.Empty
-    
+
         for note in chord.ChordNotes do
             let strIndex = int note.String
-    
+
             slideTo.[strIndex] <- note.SlideTo
             slideUnpitchTo.[strIndex] <- note.SlideUnpitchTo
             vibrato.[strIndex] <- int16 note.Vibrato
-    
+
             if note.IsBend then
                 bendData.[strIndex] <- createBendData32 note
-    
+
             if note.IsLinkNext then
                 pendingLinkNexts.TryAdd(note.String, thisId) |> ignore
-        
+
         let chordNotes =
             { Mask = masks; BendData = bendData; SlideTo = slideTo; SlideUnpitchTo = slideUnpitchTo; Vibrato = vibrato }
-    
+
         let hash = hashChordNotes chordNotes
         lock accuData.ChordNotesMap (fun _ ->
             match accuData.ChordNotesMap.TryGetValue hash with
@@ -254,7 +254,7 @@ let convertNote (noteTimes: int[])
                    Pluck = if note.IsPluck then 1y else -1y
                    // Values not applicable to notes
                    ChordId = -1; ChordNoteId = -1; |}
-        
+
             // XML Chords
             | XmlChord chord ->
                 let template = xml.ChordTemplates.[int chord.ChordId]

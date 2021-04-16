@@ -14,14 +14,14 @@ type MainWindow() as this =
         base.Title <- "Tools"
         base.Width <- 800.0
         base.Height <- 700.0
-        
+
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
         //this.VisualRoot.VisualRoot.Renderer.DrawDirtyRects <- true
 
         Elmish.Program.mkProgram Tools.init Tools.update Tools.view
         |> Program.withHost this
         |> Program.run
-        
+
 type App() =
     inherit Application()
 

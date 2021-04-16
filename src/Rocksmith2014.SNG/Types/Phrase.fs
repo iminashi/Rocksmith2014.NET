@@ -5,7 +5,7 @@ open BinaryHelpers
 
 type Phrase =
     { Solo : int8
-      Disparity : int8 
+      Disparity : int8
       Ignore : int8
       // 1 byte padding
       MaxDifficulty : int32

@@ -35,7 +35,7 @@ module ConvertVocals =
     let sngToXml (sng: SNG) =
         sng.Vocals
         |> Utils.mapToResizeArray SngToXml.convertVocal
-    
+
     /// Extracts glyph data from the given SNG.
     let extractGlyphData (sng: SNG) =
         let glyphs =

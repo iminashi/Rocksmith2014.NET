@@ -10,19 +10,19 @@ type internal Header() =
 
     /// The file identifier string "PSAR".
     member val Magic = "PSAR"
-    
+
     /// The major file version, should be 1.
     member val VersionMajor = 1us with get, set
-    
+
     /// The minor file version, should be 4.
     member val VersionMinor = 4us with get, set
-    
+
     /// The method used for compressing the data, should be "zlib".
     member val CompressionMethod = "zlib"
-    
+
     /// The length of the ToC in bytes, including the header (32 bytes) and the block size table.
     member val ToCLength = 0u with get, set
-    
+
     /// The size of a ToC entry, default: 30 bytes.
     member val ToCEntrySize = 30u with get, set
 

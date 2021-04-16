@@ -54,7 +54,7 @@ let write (targetFile: string) (profileId: uint64) (jsonData: Stream) = async {
     // Write null-terminator
     jsonData.Seek(0L, SeekOrigin.End) |> ignore
     jsonData.WriteByte 0uy
-    
+
     use file = File.Create targetFile
 
     let writer = LittleEndianBinaryWriter(file) :> IBinaryWriter

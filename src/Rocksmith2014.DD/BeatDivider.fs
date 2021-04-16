@@ -13,9 +13,9 @@ let private getSubdivision startTime endTime time =
     let div =
         let pos = if pos - mid > 10. then pos - mid else pos
         dist / pos
-    
+
     int <| round div
-    
+
 let private getSubdivisionInsideMeasure phraseEndTime (beats: Ebeat list) (time: int) =
     let measure =
         beats
@@ -88,7 +88,7 @@ let getDivision (phraseData: PhraseData) (time: int) (entity: XmlEntity) : BeatD
     | Some b1, None ->
         // The note comes after the last beat in the phrase
         10 * getSubdivision b1.Time phraseEndTime time
-    
+
 let createDivisionMap (divisions: (int * BeatDivision) array) totalNotes =
     divisions
     |> Array.groupBy snd

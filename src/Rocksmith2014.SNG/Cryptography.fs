@@ -44,7 +44,7 @@ let private aesCtrTransformSIMD (input: Stream) (output: Stream) (key: byte[]) (
     while input.Position < input.Length do
         ignore <| counterEncryptor.TransformBlock(counter, 0, counter.Length, counterModeBlock, 0)
         increment counter
-    
+
         let bytesRead = input.Read(buffer, 0, blockSize)
         if bytesRead = blockSize then
             let v1 = Sse2.LoadVector128 bufPtr

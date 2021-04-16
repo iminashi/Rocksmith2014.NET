@@ -42,7 +42,7 @@ type LittleEndianBinaryReader(stream: Stream) =
             let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
             (this :> IBinaryReader).ReadSpan(Span<byte>(buffer, length))
             BinaryPrimitives.ReadUInt32LittleEndian(ReadOnlySpan(buffer, length))
-        
+
         member this.ReadUInt40() =
             let length = 8
             let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr

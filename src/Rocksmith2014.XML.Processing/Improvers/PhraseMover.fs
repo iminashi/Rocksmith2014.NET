@@ -44,7 +44,7 @@ let improve (arrangement: InstrumentalArrangement) =
 
             // Move phrase iteration
             iterationToMove.Time <- movetoTime
-            
+
             // Move section (if present)
             let sectionToMove = arrangement.Sections.FindByTime phraseTime
             if not <| isNull sectionToMove then

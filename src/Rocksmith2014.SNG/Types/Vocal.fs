@@ -8,14 +8,14 @@ type Vocal =
       Note : int32
       Length : float32
       Lyric : string }
-     
+
     interface IBinaryWritable with
         member this.Write(writer) =
             writer.WriteSingle this.Time
             writer.WriteInt32 this.Note
             writer.WriteSingle this.Length
             writeZeroTerminatedUTF8String 48 this.Lyric writer
-    
+
     static member Read(reader: IBinaryReader) =
         { Time = reader.ReadSingle()
           Note = reader.ReadInt32()

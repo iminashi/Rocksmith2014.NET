@@ -28,7 +28,7 @@ let private aesCfbDecryptSIMD (input: Stream) (output: Stream) (key: byte[]) len
 
     while input.Position < length do
         ignore <| transform.TransformBlock(buffer, 0, blockSize, vecBlock, 0)
-    
+
         let toRead = Math.Min(length - input.Position, int64 buffer.Length)
         let bytesRead = input.Read(buffer, 0, int toRead)
 
@@ -53,7 +53,7 @@ let private aesCfbDecrypt (input: Stream) (output: Stream) (key: byte[]) length 
 
     while input.Position < length do
         ignore <| transform.TransformBlock(buffer, 0, blockSize, vecBlock, 0)
-    
+
         let toRead = Math.Min(length - input.Position, int64 buffer.Length)
         let bytesRead = input.Read(buffer, 0, int toRead)
 
@@ -74,7 +74,7 @@ let private aesCfbEncryptSIMD (input: Stream) (output: Stream) (key: byte[]) len
 
     while input.Position < length do
         ignore <| transform.TransformBlock(buffer, 0, blockSize, vecBlock, 0)
-    
+
         let toRead = Math.Min(length - input.Position, int64 buffer.Length)
         let bytesRead = input.Read(buffer, 0, int toRead)
 
@@ -100,7 +100,7 @@ let private aesCfbEncrypt (input: Stream) (output: Stream) (key: byte[]) length 
 
     while input.Position < length do
         ignore <| transform.TransformBlock(buffer, 0, blockSize, vecBlock, 0)
-    
+
         let toRead = Math.Min(length - input.Position, int64 buffer.Length)
         let bytesRead = input.Read(buffer, 0, int toRead)
 
@@ -119,7 +119,7 @@ let decrypt (input: Stream) (output: Stream) (length: uint32) =
     output.Position <- 0L
 
 /// Encrypts a plain PSARC header from the input stream into the output stream.
-let encrypt (input: Stream) (output: Stream) length  =
+let encrypt (input: Stream) (output: Stream) length =
     if Sse2.IsSupported then
         aesCfbEncryptSIMD input output psarcKey length
     else

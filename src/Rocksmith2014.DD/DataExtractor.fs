@@ -109,7 +109,7 @@ let getPhraseIterationData (arr: InstrumentalArrangement) (iteration: PhraseIter
 
     let ignoreCount =
         (notes |> lengthBy (fun n -> n.IsIgnore)) + (chords |> lengthBy (fun c -> c.IsIgnore))
-    
+
     let tapCount = notes |> lengthBy (fun n -> n.IsTap)
     let tremoloCount = countNotesByPredicate (fun n -> n.IsTremolo) notes chords
     let bendCount = countNotesByPredicate (fun n -> n.IsBend) notes chords

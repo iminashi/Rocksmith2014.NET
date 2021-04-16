@@ -17,13 +17,13 @@ let readOnDiscIdsAndKeys () =
 /// Reads the IDs and keys from a PSARC with the given path.
 let readIDs rootDir path = async {
     printfn "Reading IDs from %s" (Path.GetRelativePath(rootDir, path))
-    
+
     use psarc = PSARC.ReadFile path
     let headerFile = psarc.Manifest |> List.find (String.endsWith "hsan")
     use mem = MemoryStreamPool.Default.GetStream()
     do! psarc.InflateFile(headerFile, mem)
     let! manifest = Manifest.fromJsonStream mem
-    
+
     let ids, songKeys =
         manifest.Entries
         |> Map.toList
@@ -31,7 +31,7 @@ let readIDs rootDir path = async {
         |> List.unzip
 
     return ids, List.distinct songKeys }
-    
+
 /// Reads IDs and keys from psarcs in the given directory and its subdirectories.
 let gatherDLCData (directory: string) = async {
     let! results =
@@ -123,7 +123,7 @@ let main argv =
         filterIds profile.["Stats"].["Songs"] |> printStats "Stats"
 
         profile.["SongListsRoot"].["SongLists"] :?> JArray
-        |> Seq.iter (fun songList -> songList :?> JArray |> filterKeys) 
+        |> Seq.iter (fun songList -> songList :?> JArray |> filterKeys)
 
         profile.["FavoritesListRoot"].["FavoritesList"] :?> JArray
         |> filterKeys

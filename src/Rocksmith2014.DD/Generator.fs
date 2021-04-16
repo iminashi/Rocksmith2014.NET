@@ -142,7 +142,7 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
                       ResizeArray(notes),
                       ResizeArray(chords),
                       ResizeArray(anchors),
-                      ResizeArray(handShapes))     
+                      ResizeArray(handShapes))
         )
 
 let generateForArrangement (config: GeneratorConfig) (arr: InstrumentalArrangement) =
