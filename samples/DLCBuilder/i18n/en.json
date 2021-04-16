@@ -300,5 +300,7 @@
   "BuildPackageComplete": "Package building completed.",
   "ValidationComplete": "Validation completed.",
   "PsarcUnpackComplete": "PSARC unpacked.",
-  "PsarcImportComplete": "PSARC imported."
+  "PsarcImportComplete": "PSARC imported.",
+  "programDidNotCloseProperly": "The program did not close properly",
+  "loadPreviouslyOpenedProject": "Load previously opened project?"
 }

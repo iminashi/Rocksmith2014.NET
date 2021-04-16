@@ -300,5 +300,7 @@
   "BuildPackageComplete": "パッケージ組み立て完了。",
   "ValidationComplete": "アレンジ検証完了。",
   "PsarcUnpackComplete": "PSARC解凍完了。",
-  "PsarcImportComplete": "PSARCインポート完了。"
+  "PsarcImportComplete": "PSARCインポート完了。",
+  "programDidNotCloseProperly": "プログラムが正常に終了しなかった",
+  "loadPreviouslyOpenedProject": "以前開いていたプロジェクトを再び開きますか?"
 }

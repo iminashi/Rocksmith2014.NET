@@ -24,7 +24,7 @@ let view dispatch =
                     ]
                     TextBlock.create [
                         TextBlock.fontSize 18.
-                        TextBlock.text ("Program did not close properly")
+                        TextBlock.text (translate "programDidNotCloseProperly")
                     ]
                 ]
             ]
@@ -32,7 +32,7 @@ let view dispatch =
             // Confirmation message
             TextBlock.create [
                 TextBlock.fontSize 16.
-                TextBlock.text ("Open previously opened project?")
+                TextBlock.text (translate "loadPreviouslyOpenedProject")
                 TextBlock.margin 10.0
             ]
 

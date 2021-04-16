@@ -300,5 +300,7 @@
   "BuildPackageComplete": "Paketin rakentaminen valmis.",
   "ValidationComplete": "Tarkistus valmis.",
   "PsarcUnpackComplete": "PSARC purettu.",
-  "PsarcImportComplete": "PSARC tuotu."
+  "PsarcImportComplete": "PSARC tuotu.",
+  "programDidNotCloseProperly": "Ohjelmaa ei suljettu normaalisti",
+  "loadPreviouslyOpenedProject": "Ladataanko viimeksi auki ollut projekti?"
 }
