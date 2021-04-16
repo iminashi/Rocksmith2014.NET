@@ -13,6 +13,7 @@ open Avalonia.Themes.Fluent
 open System
 open System.Reflection
 open Microsoft.Extensions.FileProviders
+open Rocksmith2014.Common
 
 type MainWindow() as this =
     inherit HostWindow()
@@ -31,7 +32,7 @@ type MainWindow() as this =
         base.MinHeight <- 700.0
 
         let hotKeysSub _initialModel = Cmd.ofSub (HotKeys.handleEvent >> this.KeyDown.Add)
-      
+
         let progressReportingSub _ =
             let sub dispatch =
                 let dispatchProgress task progress = TaskProgressChanged(task, progress) |> dispatch
@@ -48,15 +49,27 @@ type MainWindow() as this =
             match Environment.GetCommandLineArgs() with
             | [| _; arg |] -> Some arg
             | _ -> None
-            
+
         let view' = Views.Main.view this
 
-        Program.mkProgram Main.init Main.update view'
+        // Add an exception handler to the update function
+        let update' msg state =
+            try Main.update msg state
+            with ex ->
+                let errorMessage =
+                    $"Unhandled exception in the update function.\nMessage: {msg}\nException: {ex.Message}"
+                let newState =
+                    { state with StatusMessages = []
+                                 RunningTasks = Set.empty
+                                 Overlay = ErrorMessage(errorMessage, Option.ofString ex.StackTrace) }
+                newState, Cmd.none
+
+        Program.mkProgram Main.init update' view'
         |> Program.withHost this
         |> Program.withSubscription hotKeysSub
         |> Program.withSubscription progressReportingSub
         |> Program.runWith arg
-        
+
 type App() =
     inherit Application()
 

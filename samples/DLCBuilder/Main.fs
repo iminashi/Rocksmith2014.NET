@@ -28,7 +28,7 @@ type private ArrangementAddingResult =
 
 let private addArrangements files state =
     let results = Array.map (Arrangement.fromFile translate) files
-    
+
     let shouldInclude arrangements arr =
         let count f = (List.choose f arrangements).Length
         match arr with
@@ -36,7 +36,7 @@ let private addArrangements files state =
         | Instrumental _ when count Arrangement.pickInstrumental = 5 -> MaxInstrumentals
         | Vocals _ when count Arrangement.pickVocals = 2 -> MaxVocals
         | _ -> ShouldInclude
-       
+
     let mainArrangementExists inst arrangements =
         arrangements
         |> List.exists (function
@@ -47,7 +47,7 @@ let private addArrangements files state =
             | _ -> false)
 
     let createErrorMsg (path: string) error = $"%s{Path.GetFileName path}:\n%s{error}"
-    
+
     let arrangements, errors =
         ((state.Project.Arrangements, []), results)
         ||> Array.fold (fun (arrs, errors) result ->
@@ -69,18 +69,18 @@ let private addArrangements files state =
             | Error (file, error) ->
                 let error = createErrorMsg file error
                 arrs, error::errors)
-    
-    let metadata = 
+
+    let metadata =
         if state.Project.ArtistName = SortableString.Empty then
             results
             |> Array.tryPick (function Ok (_, md) -> md | Error _ -> None)
         else
             None
-       
+
     let newState =
         let project = Utils.addMetadata metadata state.Config.CharterName state.Project
         { state with Project = { project with Arrangements = List.sortBy Arrangement.sorter arrangements } }
-    
+
     match errors with
     | [] ->
         newState
@@ -679,20 +679,14 @@ let update (msg: Msg) (state: State) =
         buildPackage Release (ReleasePackageBuilder.build state.OpenProjectFile) state
 
     | BuildComplete buildType ->
-        let error =
+        let task() = async {
             if buildType = Release && config.OpenFolderAfterReleaseBuild then
-                try
-                    let projectPath =
-                        ReleasePackageBuilder.getTargetDirectory state.OpenProjectFile project
-                    Process.Start(ProcessStartInfo(projectPath, UseShellExecute = true)) |> ignore
-                    None
-                with ex ->
-                    Some <| ErrorOccurred ex
-            else
-                None
+                let projectPath =
+                    ReleasePackageBuilder.getTargetDirectory state.OpenProjectFile project
+                Process.Start(ProcessStartInfo(projectPath, UseShellExecute = true)) |> ignore }
 
         let cmd = Cmd.batch [
-            yield! error |> Option.map Cmd.ofMsg |> Option.toList
+            Cmd.OfAsync.attempt task () ErrorOccurred
             Cmd.ofMsg (AddStatusMessage "BuildPackageComplete") ]
 
         Utils.removeTask BuildPackage state, cmd
@@ -722,7 +716,7 @@ let update (msg: Msg) (state: State) =
     | PsarcUnpacked ->
         Utils.removeTask PsarcUnpack state,
         Cmd.ofMsg (AddStatusMessage "PsarcUnpackComplete")
-        
+
     | AddStatusMessage locString ->
         let id = Guid.NewGuid()
         let message = translate locString
@@ -744,7 +738,7 @@ let update (msg: Msg) (state: State) =
             { state with Overlay = IssueViewer (state.ArrangementIssues.[xmlFile]) }, Cmd.none
         | None ->
             state, Cmd.none
-   
+
     | ErrorOccurred e ->
         { state with Overlay = exceptionToErrorMessage e }, Cmd.none
 
@@ -772,7 +766,7 @@ let update (msg: Msg) (state: State) =
     | CloseApplication ->
         (Application.Current.ApplicationLifetime :?> IClassicDesktopStyleApplicationLifetime).Shutdown(0)
         state, Cmd.none
-    
+
     // When the user canceled any of the dialogs
     | Ignore ->
         state, Cmd.none
