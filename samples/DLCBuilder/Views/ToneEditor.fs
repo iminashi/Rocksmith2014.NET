@@ -62,7 +62,7 @@ let private gearSlotHeader locName =
         TextBlock.margin (0., 2.)
         TextBlock.text (translate locName)
       ] |> generalize
-   
+
 let private pedalSelectors dispatch selectedGearSlot gearList (locName, pedalFunc) =
     [ gearSlotHeader locName
 

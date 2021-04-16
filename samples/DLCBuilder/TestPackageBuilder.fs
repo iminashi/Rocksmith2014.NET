@@ -23,7 +23,7 @@ let generateIds = function
         |> Vocals
     | other ->
         other
-    
+
 /// Generates new IDs for all the arrangements.
 let generateAllIds arrangements = List.map generateIds arrangements
 

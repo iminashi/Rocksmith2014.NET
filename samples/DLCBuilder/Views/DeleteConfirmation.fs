@@ -28,7 +28,7 @@ let view dispatch (files: string list) =
                     ]
                 ]
             ]
-            
+
             // Confirmation message
             TextBlock.create [
                 TextBlock.fontSize 16.

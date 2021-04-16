@@ -302,7 +302,7 @@ let view (window: Window) (state: State) dispatch =
         window.Cursor <- Cursors.arrow
     else
         window.Cursor <- Cursors.wait
-        
+
     window.Title <-
         match state.OpenProjectFile with
         | Some project ->

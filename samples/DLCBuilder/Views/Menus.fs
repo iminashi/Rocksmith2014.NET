@@ -96,7 +96,7 @@ let file state dispatch =
             ]
 
             separator
-    
+
             // Import Toolkit template
             MenuItem.create [
                 MenuItem.header (translate "toolkitImport")
@@ -104,7 +104,7 @@ let file state dispatch =
                 MenuItem.inputGesture (KeyGesture(Key.T, keyModifierCtrl))
                 MenuItem.onClick (fun _ -> Dialog.ToolkitImport |> ShowDialog |> dispatch)
             ]
-    
+
             // Import PSARC file
             MenuItem.create [
                 MenuItem.header (translate "psarcImport")
@@ -112,7 +112,7 @@ let file state dispatch =
                 MenuItem.inputGesture (KeyGesture(Key.A, keyModifierCtrl))
                 MenuItem.onClick (fun _ -> Dialog.PsarcImport |> ShowDialog |> dispatch)
             ]
-  
+
             separator
 
             // Delete test builds
@@ -195,31 +195,31 @@ module Context =
                     MenuItem.header (translate "duplicate")
                     MenuItem.onClick (fun _ -> DuplicateTone |> dispatch)
                 ]
-    
+
                 MenuItem.create [
                     MenuItem.header (translate "moveUp")
                     MenuItem.inputGesture (KeyGesture(Key.Up, KeyModifiers.Alt))
                     MenuItem.onClick (fun _ -> Up |> MoveTone |> dispatch)
                 ]
-    
+
                 MenuItem.create [
                     MenuItem.header (translate "moveDown")
                     MenuItem.inputGesture (KeyGesture(Key.Down, KeyModifiers.Alt))
                     MenuItem.onClick (fun _ -> Down |> MoveTone |> dispatch)
                 ]
-    
+
                 MenuItem.create [
                     MenuItem.header (translate "edit")
                     MenuItem.onClick (fun _ -> ShowToneEditor |> dispatch)
                 ]
-    
+
                 MenuItem.create [
                     MenuItem.header (translate "export")
                     MenuItem.onClick (fun _ -> ExportSelectedTone |> dispatch)
                 ]
-    
+
                 separator
-    
+
                 MenuItem.create [
                     MenuItem.header (translate "remove")
                     MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))
@@ -237,7 +237,7 @@ module Context =
                 | Instrumental _ -> true, true
                 | Vocals _ -> false, true
                 | _ -> false, false
-    
+
         ContextMenu.create [
             ContextMenu.isVisible (state.SelectedArrangementIndex <> -1)
             ContextMenu.viewItems [
@@ -247,35 +247,35 @@ module Context =
                     MenuItem.onClick (fun _ -> GenerateNewIds |> dispatch)
                     ToolTip.tip (translate "generateNewArrIDsToolTip")
                 ]
-    
+
                 MenuItem.create [
                     MenuItem.header (translate "reloadToneKeys")
                     MenuItem.isEnabled isInstrumental
                     MenuItem.onClick (fun _ -> UpdateToneInfo |> EditInstrumental |> dispatch)
                     ToolTip.tip (translate "reloadToneKeysTooltip")
                 ]
-    
+
                 MenuItem.create [
                     MenuItem.header (translate "moveUp")
                     MenuItem.inputGesture (KeyGesture(Key.Up, KeyModifiers.Alt))
                     MenuItem.onClick (fun _ -> Up |> MoveArrangement |> dispatch)
                 ]
-    
+
                 MenuItem.create [
                     MenuItem.header (translate "moveDown")
                     MenuItem.inputGesture (KeyGesture(Key.Down, KeyModifiers.Alt))
                     MenuItem.onClick (fun _ -> Down |> MoveArrangement |> dispatch)
                 ]
-    
+
                 separator
-    
+
                 MenuItem.create [
                     MenuItem.header (translate "generateAllIDs")
                     MenuItem.onClick (fun _ -> GenerateAllIds |> dispatch)
                 ]
-    
+
                 separator
-    
+
                 MenuItem.create [
                     MenuItem.header (translate "remove")
                     MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))

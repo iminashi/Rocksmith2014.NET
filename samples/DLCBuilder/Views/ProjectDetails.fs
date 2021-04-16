@@ -113,7 +113,7 @@ let private audioControls state dispatch =
                                 )
                             ]
                         ]
-                    ]        
+                    ]
 
                     StackPanel.create [
                         StackPanel.orientation Orientation.Horizontal
@@ -341,7 +341,7 @@ let private projectInfo state dispatch =
                     ]
                 ]
             ]
-        ]  
+        ]
     ]
 
 let private coverArt state dispatch =

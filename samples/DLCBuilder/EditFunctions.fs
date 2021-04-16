@@ -82,7 +82,7 @@ let editInstrumental state edit index inst =
                     Cmd.ofMsg <| CalculateVolume(CustomAudio(path, inst.PersistentID))
                 else
                     Cmd.none
-        
+
             let customAudio =
                 match inst.CustomAudio with
                 | Some audio -> { audio with Path = path }
@@ -272,7 +272,7 @@ let editTone state edit index =
 
                 { tone with GearList = gearList }
 
-        | SetKnobValue (knobKey, value) ->              
+        | SetKnobValue (knobKey, value) ->
             match state.SelectedGear with
             | Some _ when state.SelectedGearSlot <> Cabinet ->
                 getKnobValuesForGear tone.GearList state.SelectedGearSlot

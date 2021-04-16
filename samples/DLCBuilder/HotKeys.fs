@@ -11,7 +11,7 @@ let (|Ctrl|CtrlAlt|None|Other|) keyModifier =
     match keyModifier with
     | CtrlAltMac when isMac -> CtrlAlt
     | CtrlAltWin when not isMac -> CtrlAlt
-    | KeyModifiers.Meta when isMac -> Ctrl      
+    | KeyModifiers.Meta when isMac -> Ctrl
     | KeyModifiers.Control when not isMac -> Ctrl
     | KeyModifiers.None -> None
     | _ -> Other

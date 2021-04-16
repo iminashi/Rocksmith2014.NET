@@ -100,7 +100,7 @@ let translateArrangementName arr project withExtra =
                     let p = translate "picked" in $" ({p})"
                 else
                     String.Empty
-      
+
             $"{baseName}{extra}"
         else
             baseName
@@ -119,7 +119,7 @@ let private getExtraText = function
             $"{tuning} (A{inst.TuningPitch})"
         else
             tuning
-            
+
     | Vocals { CustomFont = Some _ } ->
         translate "customFont"
     | _ ->
@@ -136,15 +136,15 @@ let arrangement state dispatch index arr =
                 | RouteMask.Lead -> Brushes.lead
                 | RouteMask.Bass -> Brushes.bass
                 | _ -> Brushes.rhythm
-    
+
             Icons.guitar, color
-    
+
         | Vocals v ->
             Icons.microphone, if v.Japanese then Brushes.jvocals else Brushes.vocals
-    
+
         | Showlights _ ->
             Icons.spotlight, Brushes.showlights
-    
+
     let xmlFile = Arrangement.getFile arr
     let hasIssues =
         state.ArrangementIssues
@@ -195,7 +195,7 @@ let arrangement state dispatch index arr =
                         Path.verticalAlignment VerticalAlignment.Center
                         Path.margin (0., 0., 6., 0.)
                     ]
-            
+
                     StackPanel.create [
                         StackPanel.verticalAlignment VerticalAlignment.Center
                         StackPanel.children [
@@ -207,7 +207,7 @@ let arrangement state dispatch index arr =
                                     if missingTones.IsEmpty then Brushes.White else Brushes.Red
                                 )
                             ]
-            
+
                             // Extra Information
                             TextBlock.create [
                                 TextBlock.foreground "#afafaf"

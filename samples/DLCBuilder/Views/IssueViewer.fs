@@ -110,7 +110,7 @@ let view dispatch (issues: Issue list) =
                     ]
                 ]
             ]
-            
+
             // Issues
             ScrollViewer.create [
                 ScrollViewer.maxHeight 500.

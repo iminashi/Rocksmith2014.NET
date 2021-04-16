@@ -73,7 +73,6 @@ let private generalConfig state dispatch =
                                 TextBox.text state.Config.ProfilePath
                                 TextBox.onTextChanged (SetProfilePath >> EditConfig >> dispatch)
                             ]
-
                         ]
                     ]
 

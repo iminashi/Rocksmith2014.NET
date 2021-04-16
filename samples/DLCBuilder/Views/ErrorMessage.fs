@@ -29,7 +29,7 @@ let view dispatch msg info =
                     ]
                 ]
             ]
-            
+
             // Message
             TextBlock.create [
                 TextBlock.fontSize 16.

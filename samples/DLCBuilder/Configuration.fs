@@ -148,7 +148,7 @@ module Configuration =
             SaveDebugFiles = config.SaveDebugFiles,
             WwiseConsolePath = Option.toObj config.WwiseConsolePath,
             CustomAppId = Option.toObj config.CustomAppId)
-    
+
     /// Loads a configuration from the file defined in configFilePath.
     let load () = async {
         if not <| File.Exists configFilePath then
@@ -160,7 +160,7 @@ module Configuration =
                 let! dto = JsonSerializer.DeserializeAsync<Dto>(file, options)
                 return fromDto dto
             with _ -> return Configuration.Default }
-    
+
     /// Saves the configuration to the file defined in configFilePath.
     let save (config: Configuration) = async {
         Directory.CreateDirectory(Path.GetDirectoryName configFilePath) |> ignore

@@ -21,7 +21,7 @@ let private validators = [
         |> List.choose Arrangement.pickVocals
         |> List.groupBy (fun x -> x.Japanese)
         |> List.exists (fun (_, list) -> list.Length > 1) ]
-    
+
 /// Validates the project for missing files and other errors.
 let validate (project: DLCProject) =
     (Ok(), validators)

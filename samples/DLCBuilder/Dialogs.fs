@@ -103,7 +103,7 @@ let private openMultiFileDialog title filters directory msg = async {
     match result with
     | null | [||] -> return Ignore
     | files -> return msg files }
-   
+
 let private translateTitle dialogType =
     let locString =
         match dialogType with

@@ -4,14 +4,13 @@ open Avalonia.FuncUI.DSL
 open Avalonia.FuncUI.Types
 open Avalonia.Controls
 open Avalonia.Layout
-open Avalonia.Media
 open DLCBuilder
 open Rocksmith2014.DLCProject
 
 let view dispatch state =
     StackPanel.create [
         StackPanel.spacing 8.
-        StackPanel.children [          
+        StackPanel.children [
             // Explanation
             TextBlock.create [
                 TextBlock.fontSize 16.
