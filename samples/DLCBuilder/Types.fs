@@ -204,7 +204,7 @@ type Msg =
     | AddArrangements of files : string array
     | SetCoverArt of fileName : string
     | SetAudioFile of fileName : string
-    | SetConfiguration of config : Configuration * enableLoad : bool * wasNormalExit : bool
+    | SetConfiguration of config : Configuration * enableLoad : bool * wasAbnormalExit : bool
     | SetRecentFiles of files : string list
     | SetSelectedArrangementIndex of index : int
     | SetSelectedToneIndex of index : int

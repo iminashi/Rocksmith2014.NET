@@ -92,12 +92,8 @@ let private createExitCheckFile () =
 
 let init arg =
     let commands =
-        let wasNormalExit =
-            if File.Exists Configuration.exitCheckFilePath then
-                false
-            else
-                createExitCheckFile()
-                true
+        let wasAbnormalExit = File.Exists Configuration.exitCheckFilePath
+        createExitCheckFile()
 
         let loadProject =
             arg
@@ -108,10 +104,9 @@ let init arg =
                     None)
 
         Cmd.batch [
-            Cmd.OfAsync.perform Configuration.load () (fun config -> SetConfiguration(config, loadProject.IsNone, wasNormalExit))
+            Cmd.OfAsync.perform Configuration.load () (fun config -> SetConfiguration(config, loadProject.IsNone, wasAbnormalExit))
             Cmd.OfAsync.perform RecentFilesList.load () SetRecentFiles
-            yield! loadProject |> Option.toList
-        ]
+            yield! loadProject |> Option.toList ]
 
     { Project = DLCProject.Empty
       SavedProject = DLCProject.Empty
@@ -544,14 +539,14 @@ let update (msg: Msg) (state: State) =
 
     | ShowOverlay overlay -> { state with Overlay = overlay }, Cmd.none
     
-    | SetConfiguration (newConfig, enableLoad, wasNormalExit) ->
+    | SetConfiguration (newConfig, enableLoad, wasAbnormalExit) ->
         if config.Locale <> newConfig.Locale then
             changeLocale newConfig.Locale
         let cmd =
             if enableLoad && File.Exists newConfig.PreviousOpenedProject then
                 if newConfig.LoadPreviousOpenedProject then
                     Cmd.ofMsg (OpenProject newConfig.PreviousOpenedProject)
-                elif not wasNormalExit then
+                elif wasAbnormalExit then
                     Cmd.ofMsg (ShowOverlay AbnormalExitMessage)
                 else
                     Cmd.none
