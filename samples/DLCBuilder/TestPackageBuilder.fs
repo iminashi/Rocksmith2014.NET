@@ -70,7 +70,7 @@ let build platform config project =
             { project with DLCKey = $"{project.DLCKey}{versionString}"
                            Title = title
                            Arrangements = arrangements },
-            packageFileName + $"_{versionString}"
+            $"{packageFileName}_{versionString}"
 
     let path = Path.Combine(targetFolder, packageFileName)
     let buildConfig = Utils.createBuildConfig Test config project [ platform ]
