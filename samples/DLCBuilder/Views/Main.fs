@@ -127,7 +127,7 @@ let private arrangementPanel state dispatch =
         Grid.children [
             DockPanel.create [
                 DockPanel.margin 4.
-                StackPanel.children [
+                DockPanel.children [
                     // Title
                     TextBlock.create [
                         DockPanel.dock Dock.Top
@@ -298,6 +298,8 @@ let private overlay state dispatch =
         PitchShifter.view dispatch state
     | AbnormalExitMessage ->
         AbnormalExitMessage.view dispatch
+    | AboutMessage ->
+        AboutMessage.view dispatch
 
 let view (window: Window) (state: State) dispatch =
     if state.RunningTasks.IsEmpty then
@@ -327,6 +329,8 @@ let view (window: Window) (state: State) dispatch =
                             Menus.file state dispatch
 
                             Menus.tools state dispatch
+
+                            Menus.help dispatch
                         ]
                     ]
 

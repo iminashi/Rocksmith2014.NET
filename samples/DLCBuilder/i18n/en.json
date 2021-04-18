@@ -302,5 +302,10 @@
   "PsarcUnpackComplete": "PSARC unpacked.",
   "PsarcImportComplete": "PSARC imported.",
   "programDidNotCloseProperly": "The program did not close properly",
-  "loadPreviouslyOpenedProject": "Load previously opened project?"
+  "loadPreviouslyOpenedProject": "Load previously opened project?",
+  "help": "_Help",
+  "about": "_About DLC Builder",
+  "programVersion": "Version:",
+  "gitHubPage": "GitHub page",
+  "aboutDisclaimer": "This is an open source software that is not affiliated with Ubisoft® or the Rocksmith™ team."
 }

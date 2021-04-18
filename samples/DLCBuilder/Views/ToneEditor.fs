@@ -79,18 +79,16 @@ let private gearSlotSelector state dispatch (gearList: Gear) =
     let ampName = ampDict.[gearList.Amp.Key].Name
     let cabinetName =
         let c = cabinetDict.[gearList.Cabinet.Key] in $"{c.Name} - {c.Category}"
-    StackPanel.create [
-        StackPanel.children [
-            gearSlotHeader "amp"
-            toggleButton dispatch gearList state.SelectedGearSlot ampName Amp
+    vStack [
+        gearSlotHeader "amp"
+        toggleButton dispatch gearList state.SelectedGearSlot ampName Amp
 
-            gearSlotHeader "cabinet"
-            toggleButton dispatch gearList state.SelectedGearSlot cabinetName Cabinet 
+        gearSlotHeader "cabinet"
+        toggleButton dispatch gearList state.SelectedGearSlot cabinetName Cabinet 
 
-            yield! [ ("prePedals", PrePedal); ("loopPedals", PostPedal); ("rack", Rack) ]
-                   |> List.collect (pedalSelectors dispatch state.SelectedGearSlot gearList)
-        ]
-    ] 
+        yield! [ ("prePedals", PrePedal); ("loopPedals", PostPedal); ("rack", Rack) ]
+                |> List.collect (pedalSelectors dispatch state.SelectedGearSlot gearList)
+    ]
 
 let private gearSelector dispatch (gearList: Gear) gearSlot =
     let gearData = getGearDataForCurrentPedal gearList gearSlot
@@ -159,28 +157,26 @@ let private knobSliders state dispatch (gearList: Gear) gearSlot gear =
     match gear with
     // Cabinets
     | { Knobs = None } as cabinet ->
-        StackPanel.create [
-            StackPanel.children [
-                let micPositions = micPositionsForCabinet.[cabinet.Name]
-                TextBlock.create [
-                    TextBlock.margin (0., 4.)
-                    TextBlock.text (translate <| if micPositions.Length = 1 then "nothingToConfigure" else "micPosition")
-                ]
-                StackPanel.create [
-                    StackPanel.isVisible (micPositions.Length > 1)
-                    StackPanel.children [
-                        yield! micPositions
-                        |> Array.map (fun cab ->
-                            RadioButton.create [
-                                RadioButton.content cab.Category
-                                RadioButton.isChecked (gearList.Cabinet.Key = cab.Key)
-                                // onChecked can cause an infinite update loop
-                                RadioButton.onClick ((fun _ ->
-                                    cab |> SetPedal |> EditTone |> dispatch
-                                ), SubPatchOptions.Always)
-                            ] |> generalize
-                        )
-                    ]
+        vStack [
+            let micPositions = micPositionsForCabinet.[cabinet.Name]
+            TextBlock.create [
+                TextBlock.margin (0., 4.)
+                TextBlock.text (translate <| if micPositions.Length = 1 then "nothingToConfigure" else "micPosition")
+            ]
+            StackPanel.create [
+                StackPanel.isVisible (micPositions.Length > 1)
+                StackPanel.children [
+                    yield! micPositions
+                    |> Array.map (fun cab ->
+                        RadioButton.create [
+                            RadioButton.content cab.Category
+                            RadioButton.isChecked (gearList.Cabinet.Key = cab.Key)
+                            // onChecked can cause an infinite update loop
+                            RadioButton.onClick ((fun _ ->
+                                cab |> SetPedal |> EditTone |> dispatch
+                            ), SubPatchOptions.Always)
+                        ] |> generalize
+                    )
                 ]
             ]
         ]

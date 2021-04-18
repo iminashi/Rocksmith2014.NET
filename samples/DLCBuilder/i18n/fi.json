@@ -302,5 +302,10 @@
   "PsarcUnpackComplete": "PSARC purettu.",
   "PsarcImportComplete": "PSARC tuotu.",
   "programDidNotCloseProperly": "Ohjelmaa ei suljettu normaalisti",
-  "loadPreviouslyOpenedProject": "Ladataanko viimeksi auki ollut projekti?"
+  "loadPreviouslyOpenedProject": "Ladataanko viimeksi auki ollut projekti?",
+  "help": "_Apua",
+  "about": "_Tietoja sovelluksesta",
+  "programVersion": "Versio:",
+  "gitHubPage": "GitHub sivu",
+  "aboutDisclaimer": "Tämä on avoimen lähdekoodin projekti, jolla ei ole tekemistä\nUbisoft® yhtiön tai Rocksmith™ kehitystiimin kanssa."
 }

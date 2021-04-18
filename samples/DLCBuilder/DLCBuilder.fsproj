@@ -37,6 +37,7 @@
     <EmbeddedResource Include="Tones\default_rhythm.json" />
     <Compile Include="Controls\AutoFocusTextBox.fs" />
     <Compile Include="Controls\TitledTextBox.fs" />
+    <Compile Include="Controls\Helpers.fs" />
     <Compile Include="Controls\FuncUIExtensions.fs" />
     <AvaloniaResource Include="Styles.xaml" />
     <Compile Include="ElmishExtensions.fs" />
@@ -61,6 +62,7 @@
     <Compile Include="Views\PreviewStartSelector.fs" />
     <Compile Include="Views\ErrorMessage.fs" />
     <Compile Include="Views\DeleteConfirmation.fs" />
+    <Compile Include="Views\AboutMessage.fs" />
     <Compile Include="Views\AbnormalExitMessage.fs" />
     <Compile Include="Views\PitchShifter.fs" />
     <Compile Include="Views\ImportTonesSelector.fs" />
@@ -97,9 +99,5 @@
   <ItemGroup>
     <Watch Include="**\*.xaml" />
     <Watch Include="**\*.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Watch Remove="Tools.fs" />
   </ItemGroup>
 </Project>

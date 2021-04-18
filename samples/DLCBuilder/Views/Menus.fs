@@ -186,6 +186,18 @@ let tools state dispatch =
         ]
     ]
 
+let help dispatch =
+    // Help
+    MenuItem.create [
+        MenuItem.header (translate "help")
+        MenuItem.viewItems [
+            // About
+            MenuItem.create [
+                MenuItem.header (translate "about")
+                MenuItem.onClick (fun _ -> ShowOverlay AboutMessage |> dispatch)
+            ]
+        ]
+    ]
 module Context =
     let tone state dispatch =
         ContextMenu.create [

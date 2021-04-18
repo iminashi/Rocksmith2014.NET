@@ -20,6 +20,7 @@ type OverlayContents =
     | DeleteConfirmation of files : string list
     | AbnormalExitMessage
     | PitchShifter
+    | AboutMessage
 
 type PreviewAudioCreation =
     | SetupStartTime

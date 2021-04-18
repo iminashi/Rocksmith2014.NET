@@ -302,5 +302,10 @@
   "PsarcUnpackComplete": "PSARC解凍完了。",
   "PsarcImportComplete": "PSARCインポート完了。",
   "programDidNotCloseProperly": "プログラムが正常に終了しなかった",
-  "loadPreviouslyOpenedProject": "以前開いていたプロジェクトを再び開きますか?"
+  "loadPreviouslyOpenedProject": "以前開いていたプロジェクトを再び開きますか?",
+  "help": "ヘルプ",
+  "about": "DLC Builderについて",
+  "programVersion": "バージョン:",
+  "gitHubPage": "GitHubページ",
+  "aboutDisclaimer": "このプログラムはUbisoft®とロックスミスチームと一切のかかわりがないオープンソースソフトウェア。"
 }
