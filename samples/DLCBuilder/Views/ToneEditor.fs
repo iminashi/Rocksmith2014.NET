@@ -209,7 +209,7 @@ let private knobSliders state dispatch (gearList: Gear) gearSlot gear =
                                 // Editable text box
                                 AutoFocusTextBox.create [
                                     DockPanel.dock Dock.Right
-                                    TextBox.minWidth 40.
+                                    TextBox.minWidth 45.
                                     TextBox.maxWidth 100.
                                     TextBox.horizontalAlignment HorizontalAlignment.Right
                                     TextBox.text <| currentValue.ToString(getFormatString knob)
@@ -219,7 +219,8 @@ let private knobSliders state dispatch (gearList: Gear) gearSlot gear =
                                             e.Handled <- true
                                             let tb = e.Source :?> TextBox
                                             parseKnobValue knob tb.Text
-                                            |> Option.iter (fun value -> SetKnobValue (knob.Key, value) |> EditTone |> dispatch)
+                                            |> Option.iter (fun value ->
+                                                SetKnobValue (knob.Key, value) |> EditTone |> dispatch)
 
                                             None |> SetManuallyEditingKnobKey |> dispatch
                                     ), SubPatchOptions.OnChangeOf knob)
