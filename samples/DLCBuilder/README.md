@@ -12,15 +12,23 @@ On Windows the program will try to find the Wwise installation automatically usi
 
 ## Test Build vs Release Build
 
-The test build will be built for the current platform into the folder specified in the configuration (creating a subfolder in the RS DLC folder is recommended). Generation of DD levels may be disabled and the App ID can be changed to a custom one.
+### Test Build
 
-The release build will build the package(s) (both Mac and PC by default) into the project folder. DD levels will be generated if the XML files do not already have them and the App ID is hard-coded to Cherub Rock.
+The package for the current platform will be built into the folder specified in the configuration (creating a subfolder in the RS DLC folder is recommended). Generation of DD levels may be disabled and the App ID can be changed to a custom one.
+
+- If RS is running, new packages will be created that have a different DLC key and arrangement IDs, with the version in the song title. This allows you to load a new test version into the game by triggering the DLC enumeration.
+- If RS is not running, any previous test builds will be replaced with a single package.
+
+### Release Build
+
+Will build the package(s) (both Mac and PC by default) into the project folder. DD levels will be generated if the XML files do not already have them and the App ID is hard-coded to Cherub Rock.
 
 ## Arrangement Improving Features from DDC Improver
 
 Will be used when "Apply Improvements" is enabled.
 
 - Fix incorrect crowd events (E0, E1, E2 -> e0, e1, e2)
+- Fix chord names (Amin -> Am)
 - Shorten handshapes for chord slides that include the slide-to notes
 - Shorten handshapes that are too close to the next handshape
 - Remove beats that come after the audio has ended
@@ -44,7 +52,7 @@ Depending on your hardware and the project, building of packages can be 6-10 tim
 
 Memory use is more efficient. As an extreme example, building a complete discography chart: DLC Builder ~250MB vs Toolkit ~2.4GB (the 32-bit version runs out of memory). In regular use however, the DLC Builder may use more memory due to the 64-bit architecture, the UI library used, use of memory pooling, etc.
 
-Reading the available tones from a profile file and opening the tone editor are much faster.
+Reading the available tones from a profile file, opening the tone editor and removing DD levels are much faster.
 
 ### Features of DLC Builder Not Available in the Toolkit
 
@@ -53,8 +61,9 @@ Reading the available tones from a profile file and opening the tone editor are 
 - Creation of a preview audio file that has fade-in and fade-out similar to official files
 - Per-arrangement custom audio files
 - Multi-part tone descriptions with some extra options to select from
+- Possibility to easily build a version of the project where the tuning is changed using a pitch shift pedal
 
-### Features of the Toolkit Not Available in the DLC Builder
+### Features of the Toolkit Not Available in DLC Builder
 
 - Console platform support
 - Support for Rocksmith 1
@@ -64,13 +73,15 @@ Reading the available tones from a profile file and opening the tone editor are 
 - Album art image is displayed in the UI
 - The UI contains a button for quickly importing tones from the profile
 - Common hotkeys: Ctrl+N, Ctrl+O, Ctrl+S, ...
-- Remembers five recently opened projects
+- Remembers the five recently opened projects
 - Better at opening templates created with old versions of the Toolkit than the Toolkit itself
 - The UI prevents you from creating two main arrangements (represent = 1) for the same path
 - Option to remove DD levels when importing a PSARC
 - Nicer looking tone editor that prevents gaps between gear slots
 - Command to generate new IDs per arrangement or for all arrangements
 - No arbitrary limitations on what characters can be used in artist/song names or their sort values
+- The program does not stop responding while building a package
+- The currently open project is not closed when the configuration is changed
 - The UI is localizable into different languages
 
 ### Generated Package Minutiae
