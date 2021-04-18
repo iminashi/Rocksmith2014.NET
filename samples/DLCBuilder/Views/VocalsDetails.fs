@@ -15,10 +15,9 @@ let view dispatch (v: Vocals) =
         //Grid.showGridLines true
         Grid.children [
             // Japanese lyrics
-            TextBlock.create [
+            locText "japanese" [
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "japanese")
             ]
             CheckBox.create [
                 Grid.column 1
@@ -29,11 +28,10 @@ let view dispatch (v: Vocals) =
             ]
 
             // Custom font
-            TextBlock.create [
+            locText "customFont" [
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "customFont")
             ]
             DockPanel.create [
                 Grid.column 1

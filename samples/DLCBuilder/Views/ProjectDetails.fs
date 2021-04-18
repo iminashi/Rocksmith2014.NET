@@ -36,8 +36,7 @@ let private audioControls state dispatch =
                 StackPanel.margin 4.
                 StackPanel.children [
                     // Header
-                    TextBlock.create [
-                        TextBlock.text (translate "audio")
+                    locText "audio" [
                         TextBlock.margin (0., 4.)
                         TextBlock.horizontalAlignment HorizontalAlignment.Center
                     ]
@@ -46,10 +45,9 @@ let private audioControls state dispatch =
                         StackPanel.orientation Orientation.Horizontal
                         StackPanel.children [
                             // Main audio filename
-                            TextBlock.create [
+                            locText "mainAudio" [
                                 TextBlock.margin (4.0, 4.0, 0.0, 4.0)
                                 TextBlock.verticalAlignment VerticalAlignment.Center
-                                TextBlock.text (translate "mainAudio")
                             ]
                             TextBlock.create [
                                 TextBlock.margin (4.0, 4.0, 0.0, 4.0)
@@ -99,9 +97,8 @@ let private audioControls state dispatch =
                         StackPanel.orientation Orientation.Horizontal
                         StackPanel.children [
                             // Preview audio filename
-                            TextBlock.create [
+                            locText "preview" [
                                 TextBlock.margin (4.0, 4.0, 0.0, 4.0)
-                                TextBlock.text (translate "preview")
                             ]
                             TextBlock.create [
                                 TextBlock.margin (4.0, 4.0, 0.0, 4.0)

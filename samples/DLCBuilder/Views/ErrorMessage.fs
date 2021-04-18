@@ -23,9 +23,8 @@ let view dispatch msg info =
                         Path.verticalAlignment VerticalAlignment.Center
                         Path.margin (0., 0., 14., 0.)
                     ]
-                    TextBlock.create [
+                    locText "error" [
                         TextBlock.fontSize 18.
-                        TextBlock.text (translate "error")
                     ]
                 ]
             ]

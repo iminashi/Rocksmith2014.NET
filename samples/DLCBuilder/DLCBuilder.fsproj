@@ -35,10 +35,6 @@
     <EmbeddedResource Include="Tones\default_bass.json" />
     <EmbeddedResource Include="Tones\default_lead.json" />
     <EmbeddedResource Include="Tones\default_rhythm.json" />
-    <Compile Include="Controls\AutoFocusTextBox.fs" />
-    <Compile Include="Controls\TitledTextBox.fs" />
-    <Compile Include="Controls\Helpers.fs" />
-    <Compile Include="Controls\FuncUIExtensions.fs" />
     <AvaloniaResource Include="Styles.xaml" />
     <Compile Include="ElmishExtensions.fs" />
     <Compile Include="ToneGear.fs" />
@@ -52,6 +48,10 @@
     <Compile Include="EditFunctions.fs" />
     <Compile Include="TestPackageBuilder.fs" />
     <Compile Include="ReleasePackageBuilder.fs" />
+    <Compile Include="Controls\Helpers.fs" />
+    <Compile Include="Controls\AutoFocusTextBox.fs" />
+    <Compile Include="Controls\TitledTextBox.fs" />
+    <Compile Include="Controls\FuncUIExtensions.fs" />
     <Compile Include="Views\Menus.fs" />
     <Compile Include="Views\Templates.fs" />
     <Compile Include="Views\ProjectDetails.fs" />

@@ -18,11 +18,10 @@ let view state dispatch (i: Instrumental) =
         Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*,*,*,*"
         Grid.children [
             // Arrangement name (for non-bass arrangements)
-            TextBlock.create [
+            locText "name" [
                 TextBlock.isVisible (i.Name <> ArrangementName.Bass)
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (translate "name")
             ]
             ComboBox.create [
                 Grid.column 1
@@ -39,11 +38,10 @@ let view state dispatch (i: Instrumental) =
             ]
 
             // Priority
-            TextBlock.create [
+            locText "priority"  [
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "priority")
             ]
             StackPanel.create [
                 Grid.column 1
@@ -74,12 +72,11 @@ let view state dispatch (i: Instrumental) =
             ]
 
             // Path (only for combo arrangements)
-            TextBlock.create [
+            locText "path" [
                 Grid.row 2
                 TextBlock.isVisible (i.Name = ArrangementName.Combo)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "path")
             ]
             StackPanel.create [
                 Grid.column 1
@@ -101,12 +98,11 @@ let view state dispatch (i: Instrumental) =
             ]
 
             // Bass pick
-            TextBlock.create [
+            locText "picked" [
                 Grid.row 3
                 TextBlock.isVisible (i.Name = ArrangementName.Bass)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "picked")
             ]
             CheckBox.create [
                 Grid.column 1
@@ -119,11 +115,10 @@ let view state dispatch (i: Instrumental) =
             ]
 
             // Tuning strings
-            TextBlock.create [
+            locText "tuning" [
                 Grid.row 4
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "tuning")
             ]
             UniformGrid.create [
                 Grid.column 1
@@ -148,11 +143,10 @@ let view state dispatch (i: Instrumental) =
             ]
 
             // Tuning Pitch
-            TextBlock.create [
+            locText "tuningPitch" [
                 Grid.row 5
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "tuningPitch")
             ]
             StackPanel.create [
                 Grid.column 1
@@ -177,11 +171,10 @@ let view state dispatch (i: Instrumental) =
             ]
 
             // Base Tone
-            TextBlock.create [
+            locText "baseTone" [
                 Grid.row 6
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "baseTone")
             ]
             TextBox.create [
                 Grid.column 1
@@ -192,12 +185,11 @@ let view state dispatch (i: Instrumental) =
             ]
 
             // Tone key list
-            TextBlock.create [
+            locText "tones" [
                 Grid.row 7
                 TextBlock.isVisible (i.Tones.Length > 0)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "tones")
             ]
             TextBlock.create [
                 Grid.column 1
@@ -210,12 +202,11 @@ let view state dispatch (i: Instrumental) =
             ]
 
             // Scroll speed
-            TextBlock.create [
+            locText "scrollSpeed" [
                 Grid.row 8
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "scrollSpeed")
             ]
             NumericUpDown.create [
                 Grid.column 1
@@ -232,12 +223,11 @@ let view state dispatch (i: Instrumental) =
             ]
 
             // Master ID
-            TextBlock.create [
+            locText "masterID" [
                 Grid.row 9
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "masterID")
             ]
             TextBox.create [
                 Grid.column 1
@@ -254,12 +244,11 @@ let view state dispatch (i: Instrumental) =
             ]
 
             // Persistent ID
-            TextBlock.create [
+            locText "persistentID" [
                 Grid.row 10
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "persistentID")
             ]
             TextBox.create [
                 Grid.column 1
@@ -276,12 +265,11 @@ let view state dispatch (i: Instrumental) =
             ]
 
             // Custom audio file
-            TextBlock.create [
+            locText "customAudioFile" [
                 Grid.row 11
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "customAudioFile")
             ]
             DockPanel.create [
                 Grid.column 1
@@ -333,11 +321,10 @@ let view state dispatch (i: Instrumental) =
 
             // Custom audio volume
             if state.Config.ShowAdvanced && i.CustomAudio.IsSome then
-                TextBlock.create [
+                locText "volume" [
                     Grid.row 12
                     TextBlock.verticalAlignment VerticalAlignment.Center
                     TextBlock.horizontalAlignment HorizontalAlignment.Center
-                    TextBlock.text (translate "volume")
                 ]
                 NumericUpDown.create [
                     Grid.column 1

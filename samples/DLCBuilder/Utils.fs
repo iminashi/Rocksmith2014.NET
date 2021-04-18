@@ -16,6 +16,7 @@ open Rocksmith2014.DLCProject.PackageBuilder
 open Rocksmith2014.XML.Processing
 open Rocksmith2014.XML
 open Rocksmith2014.Audio
+open System.Diagnostics
 
 /// Converts a Pfim DDS bitmap into an Avalonia bitmap.
 let private avaloniaBitmapFromDDS (fileName: string) =
@@ -265,3 +266,8 @@ let autoSave =
                 return Some AutoSaveProject
             else
                 return None }
+
+let openLink url =
+    ProcessStartInfo(url, UseShellExecute = true)
+    |> Process.Start
+    |> ignore

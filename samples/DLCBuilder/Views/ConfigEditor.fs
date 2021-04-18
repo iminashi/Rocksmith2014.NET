@@ -23,9 +23,8 @@ let private generalConfig state dispatch =
             Grid.rowDefinitions "auto,auto,auto,auto,auto,auto"
             Grid.children [
                 // Language
-                TextBlock.create [
+                locText "language" [
                     TextBlock.verticalAlignment VerticalAlignment.Center
-                    TextBlock.text (translate "language")
                 ]
                 ComboBox.create [
                     Grid.column 2
@@ -38,10 +37,9 @@ let private generalConfig state dispatch =
                 ]
 
                 // Charter Name
-                TextBlock.create [
+                locText "charterName" [
                     Grid.row 1
                     TextBlock.verticalAlignment VerticalAlignment.Center
-                    TextBlock.text (translate "charterName")
                 ]
                 TextBox.create [
                     Grid.column 2
@@ -52,10 +50,9 @@ let private generalConfig state dispatch =
                 ]
 
                 // Profile Path
-                TextBlock.create [
+                locText "profilePath" [
                     Grid.row 2
                     TextBlock.verticalAlignment VerticalAlignment.Center
-                    TextBlock.text (translate "profilePath")
                 ]
                 DockPanel.create [
                     Grid.column 2
@@ -76,10 +73,9 @@ let private generalConfig state dispatch =
                 ]
 
                 // Test Folder
-                TextBlock.create [
+                locText "testFolder" [
                     Grid.row 3
                     TextBlock.verticalAlignment VerticalAlignment.Center
-                    TextBlock.text (translate "testFolder")
                 ]
                 DockPanel.create [
                     Grid.column 2
@@ -101,10 +97,9 @@ let private generalConfig state dispatch =
                 ]
 
                 // Projects Folder
-                TextBlock.create [
+                locText "projectsFolder" [
                     Grid.row 4
                     TextBlock.verticalAlignment VerticalAlignment.Center
-                    TextBlock.text (translate "projectsFolder")
                 ]
                 DockPanel.create [
                     Grid.column 2
@@ -125,10 +120,9 @@ let private generalConfig state dispatch =
                 ]
 
                 // WWise Console Path
-                TextBlock.create [
+                locText "wwiseConsolePath" [
                     Grid.row 5
                     TextBlock.verticalAlignment VerticalAlignment.Center
-                    TextBlock.text (translate "wwiseConsolePath")
                 ]
                 DockPanel.create [
                     Grid.column 2
@@ -203,8 +197,7 @@ let private importConfig state dispatch =
 
     vStack [
         // Header
-        TextBlock.create [
-            TextBlock.text (translate "psarcImportHeader")
+        locText "psarcImportHeader" [
             TextBlock.fontSize 16.
             TextBlock.margin (4., 4., 0., 0.)
         ]
@@ -216,8 +209,7 @@ let private importConfig state dispatch =
             Border.child (
                 vStack [
                     // Convert Audio Options
-                    TextBlock.create [
-                        TextBlock.text (translate "convertWemOnImport")
+                    locText "convertWemOnImport" [
                         TextBlock.margin (0., 0., 0., 4.)
                     ]
                     yield! [ NoConversion; ToOgg; ToWav ]
@@ -254,9 +246,8 @@ let private ddConfig state dispatch =
         ]
 
         // Similarity Threshold
-        TextBlock.create [
+        locText "similarityThreshold" [
             TextBlock.verticalAlignment VerticalAlignment.Center
-            TextBlock.text (translate "similarityThreshold")
             TextBlock.isEnabled state.Config.DDPhraseSearchEnabled
         ]
         hStack [
@@ -291,8 +282,7 @@ let private buildConfig state dispatch =
         ]
 
         // Release Build Options
-        TextBlock.create [
-            TextBlock.text (translate "release")
+        locText "release" [
             TextBlock.fontSize 16.
             TextBlock.margin (4., 4., 0., 0.)
         ]
@@ -305,10 +295,9 @@ let private buildConfig state dispatch =
                 vStack [
                     hStack [
                         // Release Platforms
-                        TextBlock.create [
+                        locText "releasePlatforms" [
                             TextBlock.margin (0., 0., 10., 0.)
                             TextBlock.verticalAlignment VerticalAlignment.Center
-                            TextBlock.text (translate "releasePlatforms")
                         ]
                         CheckBox.create [
                             CheckBox.margin 2.
@@ -343,8 +332,7 @@ let private buildConfig state dispatch =
         ]
 
         // Test Build Options
-        TextBlock.create [
-            TextBlock.text (translate "test")
+        locText "test" [
             TextBlock.fontSize 16.
             TextBlock.margin (4., 4., 0., 0.)
         ]
@@ -357,10 +345,9 @@ let private buildConfig state dispatch =
                 vStack [
                     hStack [
                         // App ID
-                        TextBlock.create [
+                        locText "testingAppId" [
                             TextBlock.verticalAlignment VerticalAlignment.Center
                             TextBlock.margin (0., 0., 10., 0.)
-                            TextBlock.text (translate "testingAppId")
                         ]
                         vStack [
                             RadioButton.create [
@@ -372,9 +359,8 @@ let private buildConfig state dispatch =
                                 RadioButton.isChecked state.Config.CustomAppId.IsSome
                                 RadioButton.content (
                                     hStack [
-                                        TextBlock.create [
+                                        locText "custom" [
                                             TextBlock.verticalAlignment VerticalAlignment.Center
-                                            TextBlock.text (translate "custom")
                                         ]
                                         TextBox.create [
                                             TextBox.verticalAlignment VerticalAlignment.Center
@@ -410,7 +396,7 @@ let private buildConfig state dispatch =
         ]
     ]
 
-let private tabHeader (icon: Geometry) locText =
+let private tabHeader (icon: Geometry) locKey =
     vStack [
         Path.create [
             Path.fill Brushes.DarkGray
@@ -418,8 +404,7 @@ let private tabHeader (icon: Geometry) locText =
             Path.horizontalAlignment HorizontalAlignment.Center
         ]
 
-        TextBlock.create [
-            TextBlock.text (translate locText)
+        locText locKey [
             TextBlock.horizontalAlignment HorizontalAlignment.Center
             TextBlock.margin (0., 4., 0., 0.)
         ]

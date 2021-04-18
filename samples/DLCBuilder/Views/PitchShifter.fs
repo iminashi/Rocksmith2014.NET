@@ -12,9 +12,8 @@ let view dispatch state =
         StackPanel.spacing 8.
         StackPanel.children [
             // Explanation
-            TextBlock.create [
+            locText "pitchShifterExplanation" [
                 TextBlock.fontSize 16.
-                TextBlock.text (translate "pitchShifterExplanation")
                 TextBlock.margin 10.0
             ]
 
@@ -22,9 +21,9 @@ let view dispatch state =
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.horizontalAlignment HorizontalAlignment.Center
                 StackPanel.children [
-                    TextBlock.create [
+                    // Shift tuning by
+                    locText "shiftTuningBy" [
                         TextBlock.verticalAlignment VerticalAlignment.Center
-                        TextBlock.text (translate "shiftTuningBy")
                     ]
                     NumericUpDown.create [
                         NumericUpDown.minimum -24.

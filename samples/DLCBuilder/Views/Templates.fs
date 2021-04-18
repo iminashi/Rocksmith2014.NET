@@ -58,11 +58,7 @@ let toneDescriptor =
 
 /// Template for an arrangement name.
 let arrangementName =
-    DataTemplateView<ArrangementName>.create (fun name ->
-        let locString = $"{name}Arr"
-        TextBlock.create [
-            TextBlock.text (translate locString)
-        ])
+    DataTemplateView<ArrangementName>.create (fun name -> locText $"{name}Arr" [])
 
 let private getArrangementNumber arr project =
     match arr with

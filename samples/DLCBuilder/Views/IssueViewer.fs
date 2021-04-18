@@ -104,9 +104,8 @@ let view dispatch (issues: Issue list) =
                         Path.margin (0., 0., 14., 0.)
                     ]
                     // Header Text
-                    TextBlock.create [
+                    locText "issues" [
                         TextBlock.fontSize 18.
-                        TextBlock.text (translate "issues")
                     ]
                 ]
             ]

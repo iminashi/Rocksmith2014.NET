@@ -8,7 +8,6 @@ open Avalonia.Controls.Shapes
 open Avalonia.Media
 open DLCBuilder
 open DLCBuilder.Media
-open System.Diagnostics
 
 let view dispatch =
     DockPanel.create [
@@ -37,8 +36,7 @@ let view dispatch =
                 ]
 
                 hStack [
-                    TextBlock.create [
-                        TextBlock.text (translate "programVersion")
+                    locText "programVersion" [
                         TextBlock.margin 4.
                     ]
 
@@ -48,21 +46,17 @@ let view dispatch =
                     ]
                 ]
 
-                TextBlock.create [
-                    TextBlock.text (translate "aboutDisclaimer")
+                locText "aboutDisclaimer" [
                     TextBlock.margin (4., 8.)
                 ]
 
-                TextBlock.create [
+                locText "gitHubPage" [
                     TextBlock.classes [ "link" ]
-                    TextBlock.text (translate "gitHubPage")
                     TextBlock.cursor Cursors.hand
                     TextBlock.margin 4.
                     TextBlock.onTapped (fun ev ->
                         ev.Handled <- true
-                        ProcessStartInfo("https://github.com/iminashi/Rocksmith2014.NET", UseShellExecute = true)
-                        |> Process.Start
-                        |> ignore
+                        Utils.openLink "https://github.com/iminashi/Rocksmith2014.NET"
                     )
                 ]
             ]

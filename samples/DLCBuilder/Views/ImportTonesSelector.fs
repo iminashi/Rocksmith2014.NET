@@ -12,10 +12,9 @@ let view state dispatch (tones: Tone array) =
         StackPanel.spacing 8.
         StackPanel.children [
             // Header
-            TextBlock.create [
+            locText "selectImportTone" [
                 TextBlock.fontSize 16.
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "selectImportTone")
             ]
 
             // Tones list

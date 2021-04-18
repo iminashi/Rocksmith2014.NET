@@ -129,9 +129,8 @@ let private arrangementPanel state dispatch =
                 DockPanel.margin 4.
                 DockPanel.children [
                     // Title
-                    TextBlock.create [
+                    locText "arrangements" [
                         DockPanel.dock Dock.Top
-                        TextBlock.text (translate "arrangements")
                         TextBlock.margin (0.0, 4.0)
                         TextBlock.horizontalAlignment HorizontalAlignment.Center
                     ]
@@ -218,9 +217,8 @@ let private tonesPanel state dispatch =
                 DockPanel.margin 4.
                 DockPanel.children [
                     // Title
-                    TextBlock.create [
+                    locText "tones" [
                         DockPanel.dock Dock.Top
-                        TextBlock.text (translate "tones")
                         TextBlock.margin (0.0, 4.0)
                         TextBlock.horizontalAlignment HorizontalAlignment.Center
                     ]
@@ -260,8 +258,7 @@ let private tonesPanel state dispatch =
                 StackPanel.children [
                     match state.SelectedToneIndex with
                     | -1 ->
-                        TextBlock.create [
-                            TextBlock.text(translate "selectTonePrompt")
+                        locText "selectTonePrompt" [
                             TextBlock.horizontalAlignment HorizontalAlignment.Center
                             TextBlock.verticalAlignment VerticalAlignment.Center
                         ]

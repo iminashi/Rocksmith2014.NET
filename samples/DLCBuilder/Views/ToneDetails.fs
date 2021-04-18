@@ -46,10 +46,9 @@ let view state dispatch (tone: Tone) =
         Grid.margin 4.
         Grid.children [
             // Name
-            TextBlock.create [
+            locText "name" [
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "name")
             ]
             TextBox.create [
                 Grid.column 1
@@ -59,11 +58,10 @@ let view state dispatch (tone: Tone) =
             ]
 
             // Key
-            TextBlock.create [
+            locText "key" [
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "key")
             ]
             DockPanel.create [
                 Grid.row 1
@@ -92,11 +90,10 @@ let view state dispatch (tone: Tone) =
             ]
 
             // Descriptors
-            TextBlock.create [
+            locText "description" [
                 Grid.row 2
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "description")
             ]
             StackPanel.create [
                 Grid.column 1
@@ -128,11 +125,10 @@ let view state dispatch (tone: Tone) =
             ]
 
             // Volume
-            TextBlock.create [
+            locText "volume" [
                 Grid.row 3
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.text (translate "volume")
             ]
             NumericUpDown.create [
                 Grid.column 1

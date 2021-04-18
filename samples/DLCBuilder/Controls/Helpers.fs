@@ -4,6 +4,7 @@ module Helpers
 open Avalonia.FuncUI.DSL
 open Avalonia.Controls
 open Avalonia.Layout
+open DLCBuilder
 
 let hStack children =
     StackPanel.create [
@@ -16,3 +17,9 @@ let vStack children =
        StackPanel.orientation Orientation.Vertical
        StackPanel.children children
    ]
+
+let locText key attr =
+    TextBlock.create [
+        yield! attr
+        TextBlock.text (translate key)
+    ]

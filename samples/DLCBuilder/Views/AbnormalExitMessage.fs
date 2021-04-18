@@ -22,17 +22,15 @@ let view dispatch =
                         Path.verticalAlignment VerticalAlignment.Center
                         Path.margin (0., 0., 10., 0.)
                     ]
-                    TextBlock.create [
+                    locText "programDidNotCloseProperly" [
                         TextBlock.fontSize 18.
-                        TextBlock.text (translate "programDidNotCloseProperly")
                     ]
                 ]
             ]
 
             // Confirmation message
-            TextBlock.create [
+            locText "loadPreviouslyOpenedProject" [
                 TextBlock.fontSize 16.
-                TextBlock.text (translate "loadPreviouslyOpenedProject")
                 TextBlock.margin 10.0
             ]
 

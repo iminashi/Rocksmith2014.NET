@@ -16,17 +16,15 @@ let view state dispatch (audioLength: TimeSpan) =
         StackPanel.spacing 8.
         StackPanel.children [
             // Title
-            TextBlock.create [
+            locText "previewAudio" [
                 TextBlock.fontSize 18.
-                TextBlock.text (translate "previewAudio")
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
 
             // Explanation
-            TextBlock.create [
+            locText "previewExplanation" [
                 TextBlock.fontSize 14.
                 TextBlock.margin (0., 5.)
-                TextBlock.text (translate "previewExplanation")
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
 
@@ -37,8 +35,7 @@ let view state dispatch (audioLength: TimeSpan) =
                 StackPanel.spacing 8.
                 StackPanel.children [
                     // Start time
-                    TextBlock.create [
-                        TextBlock.text (translate "startTime")
+                    locText "startTime" [
                         TextBlock.verticalAlignment VerticalAlignment.Center
                     ]
                     NumericUpDown.create [

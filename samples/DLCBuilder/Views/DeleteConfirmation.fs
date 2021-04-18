@@ -22,9 +22,8 @@ let view dispatch (files: string list) =
                         Path.verticalAlignment VerticalAlignment.Center
                         Path.margin (0., 0., 10., 0.)
                     ]
-                    TextBlock.create [
+                    locText "confirmDelete" [
                         TextBlock.fontSize 18.
-                        TextBlock.text (translate "confirmDelete")
                     ]
                 ]
             ]
