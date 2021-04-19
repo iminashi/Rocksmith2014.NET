@@ -129,11 +129,17 @@ module Tone =
     let private getGearList (ns: string option) (gearList: XmlElement) =
         let getPedal = getPedal ns gearList
 
-        { Amp = getPedal "Amp" |> Option.get
-          Cabinet = getPedal "Cabinet" |> Option.get
-          PrePedals = [| 1..4 |] |> Array.map (fun i -> getPedal $"PrePedal{i}")
-          PostPedals = [| 1..4 |] |> Array.map (fun i -> getPedal $"PostPedal{i}")
-          Racks = [| 1..4 |] |> Array.map (fun i -> getPedal $"Rack{i}") }
+        match getPedal "Amp", getPedal "Cabinet" with
+        | Some amp, Some cabinet ->
+            { Amp = amp
+              Cabinet = cabinet
+              PrePedals = [| 1..4 |] |> Array.map (fun i -> getPedal $"PrePedal{i}")
+              PostPedals = [| 1..4 |] |> Array.map (fun i -> getPedal $"PostPedal{i}")
+              Racks = [| 1..4 |] |> Array.map (fun i -> getPedal $"Rack{i}") }
+        | None, _ ->
+            failwith "The tone is missing an amp."
+        | _, None ->
+            failwith "The tone is missing a cabinet."
 
     let private getDescriptors (descs: XmlElement) =
         descs.ChildNodes
