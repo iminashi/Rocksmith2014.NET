@@ -62,8 +62,8 @@ let private importInstrumental (xmlFile: string) (arr: XmlNode) =
         |> Seq.toArray
 
     let tones =
-        [ for t in 'A'..'D' -> Option.ofString (itemText arr (sprintf "Tone%c" t)) ]
-        |> List.choose id
+        [ 'A'..'D' ]
+        |> List.choose (sprintf "Tone%c" >> itemText arr >> Option.ofString)
 
     { XML = xmlFile
       Name = name
@@ -160,6 +160,10 @@ let import (templatePath: string) =
     let tones =
         docEl.Item("TonesRS2014").ChildNodes
         |> Seq.cast<XmlNode>
+        // Filter out invalid tones without amps or cabinets
+        |> Seq.filter (fun node ->
+            let gearList = node.Item("GearList", ToneNs)
+            not (gearList.Item("Amp", ToneNs).IsEmpty || gearList.Item("Cabinet", ToneNs).IsEmpty))
         |> Seq.map (Tone.importXml (Some ToneNs))
         |> Seq.toList
 
