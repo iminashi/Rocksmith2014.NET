@@ -8,15 +8,15 @@ open Rocksmith2014.SNG
 open System
 open System.Collections.Generic
 
-// There are two "iteration versions" of the attributes, version 2 and 3.
-//
-// Differences in version 3:
-// -The attributes are sorted differently (e.g. arrangement properties are sorted alphabetically)
-// -Whitespace differences
-// -Chords section is (at least partially) fixed
-// -The way DNA times are calculated seems to be different:
-//    *Version 2: Sum of all regions of DNA ID to DNA None (or the end of the song)
-//    *Version 3: Sum of all regions of DNA ID to different DNA ID (or the END phrase)
+(* There are two "iteration versions" of the attributes, version 2 and 3.
+
+   Differences in version 3:
+   -The attributes are sorted differently (e.g. arrangement properties are sorted alphabetically)
+   -Whitespace differences
+   -Chords section is (at least partially) fixed
+   -The way DNA times are calculated seems to be different:
+      *Version 2: Sum of all regions of DNA ID to DNA None (or the end of the song)
+      *Version 3: Sum of all regions of DNA ID to different DNA ID (or the END phrase) *)
 
 let inline private bti (b: bool) = Convert.ToInt32 b
 let inline private btb (b: bool) = Convert.ToByte b
@@ -225,19 +225,19 @@ let private convertArrangementProperties (arrProps: XML.ArrangementProperties) (
 
 /// Creates a chord ID map.
 let private createChordMap (sng: SNG) =
-    // Structure:
-    //
-    // "Difficulty level" : {
-    //      "Phrase iteration index" : [
-    //          Chord ID of a chord included in the manifest, i.e. a chord that has a name and is not an arpeggio.
-    //      ]
-    //  }
-    //
-    // In iteration version 2, the way this section is generated for official files is very broken:
-    //
-    // -For a particular difficulty level, the chord IDs of the last phrase iteration are repeated for every phrase iteration.
-    // -Some phrase iterations that have no chords or notes in that difficulty level are included.
-    // -Empty arrays may be included.
+    (* Structure:
+
+       "Difficulty level" : {
+            "Phrase iteration index" : [
+                Chord ID of a chord included in the manifest, i.e. a chord that has a name and is not an arpeggio.
+            ]
+        }
+
+       In iteration version 2, the way this section is generated for official files is very broken:
+
+       -For a particular difficulty level, the chord IDs of the last phrase iteration are repeated for every phrase iteration.
+       -Some phrase iterations that have no chords or notes in that difficulty level are included.
+       -Empty arrays may be included. *)
 
     let chords = Dictionary<string, Dictionary<string, int array>>()
 
@@ -261,10 +261,10 @@ let private createChordMap (sng: SNG) =
 
 /// Creates a technique ID map.
 let private createTechniqueMap (sng: SNG) =
-    // The structure of the map is the same as the chord map, but with technique IDs instead of chord IDs.
+    (* The structure of the map is the same as the chord map, but with technique IDs instead of chord IDs.
 
-    // In official files, the techniques of the last phrase iteration in a difficulty level seem to be missing,
-    // Or they are included in the first phrase iteration in the next level.
+       In official files, the techniques of the last phrase iteration in a difficulty level seem to be missing,
+       Or they are included in the first phrase iteration in the next level. *)
 
     let techniques = Dictionary<string, Dictionary<string, int array>>()
 
