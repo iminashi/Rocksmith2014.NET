@@ -23,6 +23,7 @@ let adjustHandShapes = HandShapeAdjuster.improve
 
 /// Applies all the improvements to the arrangement.
 let applyAll arrangement =
+    BasicFixes.validatePhraseNames arrangement
     eofFixes arrangement
     addCrowdEvents arrangement
     processChordNames arrangement

@@ -192,6 +192,7 @@ let private setupInstrumental part (inst: Instrumental) config =
     if config.ApplyImprovements then
         ArrangementImprover.applyAll xml
     else
+        BasicFixes.validatePhraseNames xml
         EOFFixes.fixPhraseStartAnchors xml
 
     if xml.Levels.Count = 1 && config.GenerateDD then

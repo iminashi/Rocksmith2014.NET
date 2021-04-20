@@ -376,3 +376,16 @@ let handShapeAdjusterTests =
             Expect.isTrue (hs1.EndTime < 2000) "Hand shape was shortened"
             Expect.isTrue (hs1.StartTime < hs1.EndTime) "Hand shape end comes after the start"
     ]
+
+[<Tests>]
+let basicFixTests =
+    testList "Arrangement Improver (Basic Fixes)" [
+        testCase "Filters characters in phrase names" <| fun _ ->
+            let phrases = ResizeArray(seq { Phrase("\"TEST\"", 0uy, PhraseMask.None)
+                                            Phrase("'TEST'_(2)", 0uy, PhraseMask.None) })
+            let arr = InstrumentalArrangement(Phrases = phrases)
+
+            BasicFixes.validatePhraseNames arr
+            Expect.equal phrases.[0].Name "TEST" "First phrase name was changed"
+            Expect.equal phrases.[1].Name "TEST_2" "Second phrase name was changed"
+    ]
