@@ -13,6 +13,7 @@ type EditMode = InMemory | TempFiles
 type EditOptions =
     { Mode: EditMode; EncryptTOC: bool }
 
+    /// Unpack entries into memory and encrypt the TOC.
     static member Default = { Mode = InMemory; EncryptTOC = true }
 
 type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, blockSizeTable: uint32[]) =
