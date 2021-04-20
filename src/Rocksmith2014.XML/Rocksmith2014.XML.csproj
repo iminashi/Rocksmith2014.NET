@@ -5,15 +5,16 @@
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <Platforms>AnyCPU;x64</Platforms>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
+    <AssemblyVersion>1.1.1.0</AssemblyVersion>
+    <FileVersion>1.1.1.0</FileVersion>
     <Company></Company>
     <Authors>Tapio Malmberg</Authors>
     <Copyright>Copyright © 2021</Copyright>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <Description>A library for reading, modifying and writing Rocksmith 2014 XML files.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/iminashi/Rocksmith2014.NET</PackageProjectUrl>
+    <PackageReleaseNotes>Fix off-by-one bug in ShowLight.IsBeam and IsFog methods.</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
