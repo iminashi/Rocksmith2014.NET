@@ -13,6 +13,10 @@ type SortableString =
              Both "Queensrÿche" and "Queensryche" are used. *)
 
         match value.ToLowerInvariant() with
+        | "a day to remember" ->
+            Some "A Day To Remember"
+        | "a flock of seagulls" ->
+            Some "A Flock of Seagulls"
         | "b.b. king" ->
             Some "BB King"
         | "blink-182" ->
@@ -39,7 +43,8 @@ type SortableString =
             Some "Motley Crue"
         | "t. rex" ->
             Some "T Rex"
-        | _ -> None
+        | _ ->
+            None
 
     /// Creates a sortable string with the given value and optional sort value.
     static member Create(value, ?sort) =
