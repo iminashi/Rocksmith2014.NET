@@ -15,7 +15,7 @@
   "RemoveDDDialogTitle": "Select Arrangements to Remove DD From",
   "ToolkitImportDialogTitle": "Select a Toolkit Template to Import",
   "PsarcImportDialogTitle": "Select a PSARC File to Import",
-  "PsarcUnpackDialogtitle": "Select a PSARC File to Unpack",
+  "PsarcUnpackDialogTitle": "Select a PSARC File to Unpack",
   "PsarcImportTargetFolderDialogTitle": "Select a Folder where the Project will be Created",
   "WwiseConsoleDialogTitle": "Select the Wwise 2019/2021 console application",
   "ExportToneDialogTitle": "Export Tone As",
