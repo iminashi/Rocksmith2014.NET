@@ -39,7 +39,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                     try
                         use memory = new MemoryStream(buffer, 0, size)
                         do! Compression.unzip memory output
-                    with _ ->
+                    with :? AggregateException as ex when ex.InnerException.Message.StartsWith("Unknown block") ->
                         // Assume it is uncompressed data
                         // Needed for unpacking audio.psarc
                         do! output.AsyncWrite(buffer, 0, size)
