@@ -34,9 +34,9 @@ module Brushes =
 
 [<RequireQualifiedAccess>]
 module Cursors =
-    let hand = Cursor(StandardCursorType.Hand)
-    let arrow = Cursor(StandardCursorType.Arrow)
-    let wait = Cursor(StandardCursorType.Wait)
+    let hand = new Cursor(StandardCursorType.Hand)
+    let arrow = new Cursor(StandardCursorType.Arrow)
+    let wait = new Cursor(StandardCursorType.Wait)
 
 [<RequireQualifiedAccess>]
 module Fonts =

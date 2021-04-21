@@ -34,6 +34,7 @@ type MainWindow(commandLineArgs: string array) as this =
         //base.Background <- Brushes.Transparent
         //base.ExtendClientAreaToDecorationsHint <- true
         //base.ExtendClientAreaChromeHints <- ExtendClientAreaChromeHints.PreferSystemChrome
+        //base.ExtendClientAreaTitleBarHeightHint <- -1.0
         base.Width <- 1150.0
         //base.Height <- 850.0
         base.MinWidth <- 970.0
