@@ -71,11 +71,6 @@ let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile
         let max = Math.Min(int attributes.MaxPhraseDifficulty, attributes.DynamicVisualDensity.Length - 1)
         float attributes.DynamicVisualDensity.[max]
 
-    let bassPicked =
-        match Option.ofNullable attributes.BassPick with
-        | Some x when x = 1 -> true
-        | _ -> false
-
     let customAudio =
         if attributes.SongBank = $"song_{dlcKey}.bnk" then
             None
@@ -99,7 +94,7 @@ let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile
       ScrollSpeed = scrollSpeed
       BaseTone = attributes.Tone_Base
       Tones = tones
-      BassPicked = bassPicked
+      BassPicked = arrProps.bassPick = 1uy
       MasterID = attributes.MasterID_RDV
       PersistentID = Guid.Parse(attributes.PersistentID)
       CustomAudio = customAudio }
