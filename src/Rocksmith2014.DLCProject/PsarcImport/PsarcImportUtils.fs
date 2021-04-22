@@ -9,20 +9,19 @@ open System.IO
 open System
 
 /// Reads the volume and file ID from the PSARC for the sound bank with the given name.
-let getVolumeAndFileId (psarc: PSARC) platform bankName = async {
-    use mem = MemoryStreamPool.Default.GetStream()
-    do! psarc.InflateFile(bankName, mem)
+let getVolumeAndFileId (psarc: PSARC) platform bankName =
+    use stream = psarc.GetEntryStream bankName
     let volume =
-        match SoundBank.readVolume mem platform with
+        match SoundBank.readVolume stream platform with
         | Ok vol -> vol
         | Error _ -> 0.0f
 
     let fileId =
-        match SoundBank.readFileId mem platform with
+        match SoundBank.readFileId stream platform with
         | Ok vol -> vol
         | Error err -> failwith err
 
-    return volume, fileId }
+    volume, fileId
 
 /// Active pattern for detecting arrangement type from a filename.
 let (|VocalsFile|JVocalsFile|InstrumentalFile|) = function

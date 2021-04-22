@@ -271,9 +271,8 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                     psarc.Manifest
                     |> List.filter (String.endsWith "sng")
                     |> List.map (fun x -> async {
-                        use mem = MemoryStreamPool.Default.GetStream()
-                        do! psarc.InflateFile(x, mem)
-                        let! sng = SNG.fromStream mem platform
+                        use stream = psarc.GetEntryStream x
+                        let! sng = SNG.fromStream stream platform
                         return {| File = x; SNG = sng |} })
                     |> Async.Sequential
 
@@ -281,9 +280,8 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                     psarc.Manifest
                     |> List.filter (String.endsWith "json")
                     |> List.map (fun x -> async {
-                        use mem = MemoryStreamPool.Default.GetStream()
-                        do! psarc.InflateFile(x, mem)
-                        let! manifest = Manifest.fromJsonStream mem
+                        use stream = psarc.GetEntryStream x
+                        let! manifest = Manifest.fromJsonStream stream
                         return {| File = x; Manifest = manifest |} })
                     |> Async.Sequential
 

@@ -38,9 +38,8 @@ let fixManifests (psarcs: seq<PSARC>) =
 let getAttributes (psarc: PSARC) = async {
     // Use the first (non-vocals) JSON file to determine if a fix is needed
     let jsonFile = psarc.Manifest |> List.find (fun x -> x.EndsWith "json" && not <| x.Contains "vocals")
-    use mem = MemoryStreamPool.Default.GetStream()
-    do! psarc.InflateFile(jsonFile, mem)
-    let! mani = Manifest.fromJsonStream mem
+    use stream = psarc.GetEntryStream jsonFile
+    let! mani = Manifest.fromJsonStream stream
     return Manifest.getSingletonAttributes mani }
 
 /// Returns a sequence of PSARCs where the Japanese song name is an empty string.

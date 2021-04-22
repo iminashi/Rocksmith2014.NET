@@ -40,7 +40,7 @@ let decrypt (input: Stream) (output: Stream) = async {
     do! dStream.CopyToAsync decrypted
 
     decrypted.Position <- 0L
-    do! Compression.unzip decrypted output
+    do! Compression.asyncUnzip decrypted output
     return header }
 
 /// Encrypts profile data from the input stream into the output stream.

@@ -32,9 +32,8 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         psarcContents
         |> filterFilesWithExtension "sng"
         |> List.map (fun file -> async {
-            use mem = MemoryStreamPool.Default.GetStream()
-            do! psarc.InflateFile(file, mem)
-            let! sng = SNG.fromStream mem platform
+            use stream = psarc.GetEntryStream file
+            let! sng = SNG.fromStream stream platform
             return file, sng })
         |> Async.Sequential
 
@@ -42,9 +41,8 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         psarcContents
         |> filterFilesWithExtension "json"
         |> List.map (fun file -> async {
-            use mem = MemoryStreamPool.Default.GetStream()
-            do! psarc.InflateFile(file, mem)
-            let! manifest = Manifest.fromJsonStream mem
+            use stream = psarc.GetEntryStream file
+            let! manifest = Manifest.fromJsonStream stream
             return file, Manifest.getSingletonAttributes manifest })
         |> Async.Sequential
 
@@ -52,23 +50,21 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         match List.tryFind (String.contains "assets/ui/lyrics") psarcContents with
         | Some font ->
             let targetPath = toTargetPath "lyrics.dds"
-            use file = File.Create targetPath
-            do! psarc.InflateFile(font, file)
+            do! psarc.InflateFile(font, targetPath)
             return Some targetPath
         | None -> return None }
 
     progress()
 
-    let! targetAudioFilesById =
+    let targetAudioFilesById =
         psarcContents
         |> filterFilesWithExtension "bnk"
-        |> List.map (fun bankName -> async {
-            let! volume, id = getVolumeAndFileId psarc platform bankName
+        |> List.map (fun bankName ->
+            let volume, id = getVolumeAndFileId psarc platform bankName
             let targetFilename = createTargetAudioFilename bankName
-            return string id, { Path = toTargetPath targetFilename; Volume = float volume } })
-        |> Async.Sequential
+            string id, { Path = toTargetPath targetFilename; Volume = float volume })
 
-    let targetAudioFiles = targetAudioFilesById |> Array.map snd
+    let targetAudioFiles = targetAudioFilesById |> List.map snd |> List.toArray
     let mainAudio = targetAudioFiles |> Array.find (fun audio -> String.endsWith $"{dlcKey}.wem" audio.Path)
     let previewAudio = targetAudioFiles |> Array.find (fun audio -> String.endsWith $"{dlcKey}_preview.wem" audio.Path)
 
@@ -78,7 +74,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         |> List.map (fun pathInPsarc ->
             let targetAudioFile =
                 targetAudioFilesById
-                |> Array.find (fun (id, _) -> String.contains id pathInPsarc)
+                |> List.find (fun (id, _) -> String.contains id pathInPsarc)
                 |> snd
                     
             psarc.InflateFile(pathInPsarc, targetAudioFile.Path))
@@ -126,9 +122,8 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         | false ->
             return "1"
         | true ->
-            use mem = MemoryStreamPool.Default.GetStream()
-            do! psarc.InflateFile("toolkit.version", mem)
-            let text = using (new StreamReader(mem)) (fun reader -> reader.ReadToEnd())
+            use stream = psarc.GetEntryStream "toolkit.version"
+            let text = using (new StreamReader(stream)) (fun reader -> reader.ReadToEnd())
             match Regex.Match(text, "Package Version: ([^\r\n]+)\r?\n") with
             | m when m.Success -> return m.Groups.[1].Captures.[0].Value
             | _ -> return "1" }

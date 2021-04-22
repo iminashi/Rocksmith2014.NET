@@ -20,9 +20,8 @@ let readIDs rootDir path = async {
 
     use psarc = PSARC.ReadFile path
     let headerFile = psarc.Manifest |> List.find (String.endsWith "hsan")
-    use mem = MemoryStreamPool.Default.GetStream()
-    do! psarc.InflateFile(headerFile, mem)
-    let! manifest = Manifest.fromJsonStream mem
+    use stream = psarc.GetEntryStream headerFile
+    let! manifest = Manifest.fromJsonStream stream
 
     let ids, songKeys =
         manifest.Entries

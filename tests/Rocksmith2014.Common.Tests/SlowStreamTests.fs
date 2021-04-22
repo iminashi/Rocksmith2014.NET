@@ -1,4 +1,5 @@
-﻿module SlowStreamTests
+﻿// fsharplint:disable MemberNames
+module SlowStreamTests
 
 open System
 open System.IO

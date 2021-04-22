@@ -21,6 +21,7 @@
     <Compile Include="Header.fs" />
     <Compile Include="Entry.fs" />
     <Compile Include="Utils.fs" />
+    <Compile Include="PSARCEntryStream.fs" />
     <Compile Include="PSARC.fs" />
   </ItemGroup>
 

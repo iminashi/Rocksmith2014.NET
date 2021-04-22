@@ -16,7 +16,12 @@ let zip bufferSize (input: Stream) (output: Stream) =
     input.CopyTo(zipStream, bufferSize)
 
 /// Unzips zlib data from the input stream into the output stream.
-let unzip (input: Stream) (output: Stream) = async {
+let unzip (input: Stream) (output: Stream) =
+    use inflateStream = new InflaterInputStream(input, IsStreamOwner = false)
+    inflateStream.CopyTo(output, 65536)
+
+/// Asynchronously unzips zlib data from the input stream into the output stream.
+let asyncUnzip (input: Stream) (output: Stream) = async {
     use inflateStream = new InflaterInputStream(input, IsStreamOwner = false)
     do! inflateStream.CopyToAsync(output, 65536) }
 

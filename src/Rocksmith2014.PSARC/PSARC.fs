@@ -38,7 +38,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                 if buffer.[0] = 0x78uy && buffer.[1] = 0xDAuy then
                     try
                         use memory = new MemoryStream(buffer, 0, size)
-                        do! Compression.unzip memory output
+                        do! Compression.asyncUnzip memory output
                     with :? AggregateException as ex when ex.InnerException.Message.StartsWith("Unknown block") ->
                         // Assume it is uncompressed data
                         // Needed for unpacking audio.psarc
@@ -146,6 +146,11 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         else
             tocData.CopyTo source
 
+    let tryFindEntry name =
+        match List.tryFindIndex ((=) name) manifest with
+        | None -> raise <| FileNotFoundException($"PSARC did not contain file '{name}'", name)
+        | Some i -> toc.[i]
+
     /// Gets the manifest.
     member _.Manifest = manifest
 
@@ -157,11 +162,13 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     /// Inflates the entry with the given file name into the output stream.
     member _.InflateFile (name: string, output: Stream) = async {
-        let entry =
-            match List.tryFindIndex ((=) name) manifest with
-            | None -> raise <| FileNotFoundException($"PSARC did not contain file '{name}'", name)
-            | Some i -> toc.[i]
+        let entry = tryFindEntry name
         do! inflateEntry entry output }
+
+    /// Returns an in-memory read stream for the entry with the given name.
+    member _.GetEntryStream (name: string) =
+        let entry = tryFindEntry name
+        new PSARCEntryStream(source, entry, int header.BlockSizeAlloc, blockSizeTable)
 
     /// Inflates the entry with the given file name into the target file.
     member this.InflateFile (name: string, targetFile: string) = async {

@@ -100,8 +100,8 @@ module SNG =
 
         Cryptography.decryptSNG input decrypted platform
 
-        let plainLength = reader.ReadUInt32()
-        do! Compression.unzip decrypted output
+        let _plainLength = reader.ReadUInt32()
+        do! Compression.asyncUnzip decrypted output
         output.Position <- 0L }
 
     /// Packs and encrypts an SNG from the input stream into the output stream.

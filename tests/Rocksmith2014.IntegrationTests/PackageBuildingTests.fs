@@ -79,18 +79,16 @@ let tests =
         testAsync "App ID file contains correct app ID" {
             use psarc = PSARC.ReadFile psarcPathWin
 
-            use mem = new MemoryStream()
-            do! psarc.InflateFile("appid.appid", mem)
-            let appid = using (new StreamReader(mem)) (fun r -> r.ReadToEnd())
+            use stream = psarc.GetEntryStream "appid.appid"
+            let appid = using (new StreamReader(stream)) (fun r -> r.ReadToEnd())
 
             Expect.equal appid buildConfig.AppId "App ID was the one defined in the build configuration" }
 
         testAsync "Mac package contains correct SNG file" {
             use psarc = PSARC.ReadFile psarcPathMac
 
-            use mem = new MemoryStream()
-            do! psarc.InflateFile("songs/bin/macos/integrationtest_lead.sng", mem)
-            let! sng = SNG.fromStream mem Mac
+            use stream = psarc.GetEntryStream "songs/bin/macos/integrationtest_lead.sng"
+            let! sng = SNG.fromStream stream Mac
 
             Expect.exists sng.Sections (fun s -> s.Name = "melody") "SNG contains melody section"
             Expect.isGreaterThan sng.Levels.Length 1 "SNG contains DD levels" }
@@ -98,9 +96,8 @@ let tests =
         testAsync "Mac package contains correct manifest file" {
             use psarc = PSARC.ReadFile psarcPathMac
 
-            use mem = new MemoryStream()
-            do! psarc.InflateFile("manifests/songs_dlc_integrationtest/integrationtest_bass.json", mem)
-            let! mani = (Manifest.fromJsonStream mem).AsTask() |> Async.AwaitTask
+            use stream = psarc.GetEntryStream "manifests/songs_dlc_integrationtest/integrationtest_bass.json"
+            let! mani = (Manifest.fromJsonStream stream).AsTask() |> Async.AwaitTask
             let attr = Manifest.getSingletonAttributes mani
 
             Expect.exists attr.Tones (fun t -> t.Key = "bass") "Attributes contain a tone with key bass" }
