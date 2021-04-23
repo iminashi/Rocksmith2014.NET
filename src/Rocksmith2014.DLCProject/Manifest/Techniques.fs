@@ -100,13 +100,13 @@ let getTechniques (sng: SNG) (note: Note) =
     if note.Mask = NoteMask.None || note.Mask = NoteMask.Single || note.Mask = (NoteMask.Single ||| NoteMask.Open) then
         Seq.empty
     else
-        let isHopo = hasFlag note NoteMask.HammerOn || hasFlag note NoteMask.PullOff
+        let isHopo = note.Mask &&& (NoteMask.HammerOn ||| NoteMask.PullOff) <> NoteMask.None
         let isPower = isPowerChord sng note
 
-        // Some technique numbers don't seem to match the description in the lesson technique database.
-        // The technique database has 45 as chord + fret hand mute, but that is already tech #2.
+        (* Some technique numbers don't seem to match the description in the lesson technique database.
+           The technique database has 45 as chord + fret hand mute, but that is already tech #2.
 
-        // This method will miss some techniques when they are on chord notes, otherwise it should be pretty complete.
+           This method will miss some techniques when they are on chord notes, otherwise it should be pretty complete. *)
 
         seq { // 0: Accent
               if hasFlag note NoteMask.Accent then 0
@@ -231,10 +231,10 @@ let getTechniques (sng: SNG) (note: Note) =
               // 46: Double stop bend (double stop tremolo in technique database)
               if isDoubleStopBend sng note then 46 }
 
-              // Not used:
-              // 22: Fret hand mute + pop
-              // 23: Fret hand mute + slap (found in "Living in America", but not included in the tech map)
-              // 24: Harmonic + pop
-              // 25: Harmonic + slap
-              // 32: Arpeggio
-              // 39: Unknown (not included in technique database, but could be "chord zone" or "non-standard chord")
+              (* Not used:
+                 22: Fret hand mute + pop
+                 23: Fret hand mute + slap (found in "Living in America", but not included in the tech map)
+                 24: Harmonic + pop
+                 25: Harmonic + slap
+                 32: Arpeggio
+                 39: Unknown (not included in technique database, but could be "chord zone" or "non-standard chord") *)
