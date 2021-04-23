@@ -29,5 +29,5 @@ let update msg state =
                     let arrangement = InstrumentalArrangement.Load file
                     do! arrangement.RemoveDD false
                     arrangement.Save file })
-            Async.Parallel(computations, Math.Max (1, Environment.ProcessorCount / 4))
+            Async.Parallel(computations, max 1 (Environment.ProcessorCount / 4))
         state, Cmd.OfAsync.attempt task () ErrorOccurred

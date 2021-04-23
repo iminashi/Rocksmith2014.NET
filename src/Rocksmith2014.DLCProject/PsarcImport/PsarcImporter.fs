@@ -20,7 +20,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         match psarcContents |> filterFilesWithExtension "xblock" with
         | [ xblock ] -> Path.GetFileNameWithoutExtension xblock
         | [] -> failwith "The package does not contain an xblock file."
-        | _ -> failwith "The package contains more than one xblock file\nSong packs cannot be imported."
+        | _ -> failwith "The package contains more than one xblock file.\nSong packs cannot be imported."
 
     let artFile = List.find (String.endsWith "256.dds") psarcContents
     do! psarc.InflateFile(artFile, toTargetPath "cover.dds")

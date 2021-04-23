@@ -16,12 +16,12 @@ let private profileKey = "\x72\x8B\x36\x9E\x24\xED\x01\x34\x76\x85\x11\x02\x18\x
 let private getDecryptStream (input: Stream) =
     use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.None)
     let decryptor = aes.CreateDecryptor(profileKey, null)
-    new CryptoStream(input, decryptor, CryptoStreamMode.Read, true)
+    new CryptoStream(input, decryptor, CryptoStreamMode.Read, leaveOpen = true)
 
 let private getEncryptStream (output: Stream) =
     use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.Zeros)
     let encryptor = aes.CreateEncryptor(profileKey, null)
-    new CryptoStream(output, encryptor, CryptoStreamMode.Write, true)
+    new CryptoStream(output, encryptor, CryptoStreamMode.Write, leaveOpen = true)
 
 let private readHeader (stream: Stream) =
     let reader = LittleEndianBinaryReader(stream) :> IBinaryReader
@@ -65,10 +65,14 @@ let write (targetFile: string) (profileId: uint64) (jsonData: Stream) = async {
 
     use zipped = MemoryStreamPool.Default.GetStream()
     jsonData.Position <- 0L
-    do! Compression.asyncZip jsonData zipped
+    Compression.zip 8192 jsonData zipped
 
     zipped.Position <- 0L
     do! encryptProfileData zipped file }
+
+type ToneImportError =
+    | NoTonesInProfile
+    | Exception of exn
 
 /// Reads an array of tones from the profile with the given path.
 let importTones (path: string) =
@@ -89,6 +93,6 @@ let importTones (path: string) =
             |> Array.map Tone.fromDto
             |> Ok
         else
-            Error "Profile contains no custom tones."
+            Error NoTonesInProfile
     with ex ->
-        Error ex.Message
+        Error (Exception ex)

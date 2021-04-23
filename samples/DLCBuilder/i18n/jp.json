@@ -307,5 +307,6 @@
   "about": "DLC Builderについて",
   "programVersion": "バージョン:",
   "gitHubPage": "GitHubページ",
-  "aboutDisclaimer": "このプログラムはUbisoft®とロックスミスチームと一切のかかわりがないオープンソースソフトウェア。"
+  "aboutDisclaimer": "このプログラムはUbisoft®とロックスミスチームと一切のかかわりがないオープンソースソフトウェア。",
+  "NoTonesInProfile": "プロフィールにはカスタムトーンが存在しません。"
 }

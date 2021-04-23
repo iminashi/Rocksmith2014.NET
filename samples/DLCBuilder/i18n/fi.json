@@ -307,5 +307,6 @@
   "about": "_Tietoja sovelluksesta",
   "programVersion": "Versio:",
   "gitHubPage": "GitHub sivu",
-  "aboutDisclaimer": "Tämä on avoimen lähdekoodin projekti, jolla ei ole tekemistä\nUbisoft® yhtiön tai Rocksmith™ kehitystiimin kanssa."
+  "aboutDisclaimer": "Tämä on avoimen lähdekoodin projekti, jolla ei ole tekemistä\nUbisoft® yhtiön tai Rocksmith™ kehitystiimin kanssa.",
+  "NoTonesInProfile": "Profiilissa ei ole soundeja."
 }

@@ -335,8 +335,10 @@ let update (msg: Msg) (state: State) =
             match Profile.importTones config.ProfilePath with
             | Ok toneArray ->
                 state, Cmd.ofMsg (ShowImportToneSelector toneArray)
-            | Error msg ->
-                { state with Overlay = ErrorMessage(msg, None) }, Cmd.none
+            | Error Profile.ToneImportError.NoTonesInProfile ->
+                { state with Overlay = ErrorMessage(translate "NoTonesInProfile", None) }, Cmd.none
+            | Error (Profile.ToneImportError.Exception ex) ->
+                { state with Overlay = ErrorMessage(ex.Message, Option.ofString ex.StackTrace) }, Cmd.none
 
     | ShowImportToneSelector tones ->
         match tones with
