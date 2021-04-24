@@ -192,8 +192,7 @@ let private setupInstrumental part (inst: Instrumental) config =
     if config.ApplyImprovements then
         ArrangementImprover.applyAll xml
     else
-        BasicFixes.validatePhraseNames xml
-        EOFFixes.fixPhraseStartAnchors xml
+        ArrangementImprover.applyMinimum xml
 
     if xml.Levels.Count = 1 && config.GenerateDD then
         Generator.generateForArrangement config.DDConfig xml |> ignore
@@ -213,7 +212,7 @@ let private getFontOption (key: string) =
 
 /// Inserts an automatically generated show lights arrangement into the project.
 let private addShowLights sngs project =
-    let projectPath = Path.GetDirectoryName project.AudioFile.Path
+    let projectPath = Path.GetDirectoryName (Arrangement.getFile project.Arrangements.Head)
     let xmlFile = Path.Combine(projectPath, "auto_showlights.xml")
     if not <| File.Exists xmlFile then ShowLightGenerator.generate xmlFile sngs
 

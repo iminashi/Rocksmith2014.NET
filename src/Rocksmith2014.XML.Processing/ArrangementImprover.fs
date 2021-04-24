@@ -31,3 +31,8 @@ let applyAll arrangement =
     removeExtraBeats arrangement
     movePhrases arrangement
     adjustHandShapes arrangement
+
+/// Applies the basic needed improvements to the arrangement.
+let applyMinimum arrangement =
+    BasicFixes.validatePhraseNames arrangement
+    EOFFixes.fixPhraseStartAnchors arrangement

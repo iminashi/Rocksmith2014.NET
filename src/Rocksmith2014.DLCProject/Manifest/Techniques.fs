@@ -71,7 +71,8 @@ let isDoubleStopNonAdjacentStrings sng note =
 let isChordSlide sng (note: Note) =
     note.Mask &&& (NoteMask.ChordNotes ||| NoteMask.DoubleStop) = NoteMask.ChordNotes
     &&
-    sng.ChordNotes.[note.ChordNotesId].SlideTo |> Array.exists (fun x -> x <> -1y)
+    sng.ChordNotes.[note.ChordNotesId].SlideTo
+    |> Array.exists (fun x -> x <> -1y)
 
 let isChordTremolo sng (note: Note) =
     note.Mask &&& (NoteMask.ChordNotes ||| NoteMask.DoubleStop) = NoteMask.ChordNotes
@@ -82,7 +83,8 @@ let isChordTremolo sng (note: Note) =
 let isDoubleStopSlide sng note =
     hasFlag note (NoteMask.DoubleStop ||| NoteMask.ChordNotes)
     &&
-    sng.ChordNotes.[note.ChordNotesId].SlideTo |> Array.exists (fun x -> x <> -1y)
+    sng.ChordNotes.[note.ChordNotesId].SlideTo
+    |> Array.exists (fun x -> x <> -1y)
 
 let isDoubleStopTremolo sng note =
     hasFlag note (NoteMask.DoubleStop ||| NoteMask.ChordNotes)
@@ -93,7 +95,8 @@ let isDoubleStopTremolo sng note =
 let isDoubleStopBend sng note =
     hasFlag note (NoteMask.DoubleStop ||| NoteMask.ChordNotes)
     &&
-    sng.ChordNotes.[note.ChordNotesId].BendData |> Array.exists (fun x -> x.UsedCount > 0)
+    sng.ChordNotes.[note.ChordNotesId].BendData
+    |> Array.exists (fun x -> x.UsedCount > 0)
 
 let getTechniques (sng: SNG) (note: Note) =
     if note.Mask = NoteMask.None || note.Mask = NoteMask.Single || note.Mask = (NoteMask.Single ||| NoteMask.Open) then
