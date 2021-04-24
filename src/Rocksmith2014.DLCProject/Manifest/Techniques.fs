@@ -24,13 +24,11 @@ let isDropDPower sng note =
     let frets = sng.Chords.[note.ChordId].Frets
     frets.[0] <> -1y && frets.[0] = frets.[1] && frets.[0] = frets.[2]
 
-let isChord note =
-    hasFlag note NoteMask.Chord
-    && not (hasFlag note NoteMask.Sustain)
-    && not (hasFlag note NoteMask.DoubleStop)
+let isChord (note: Note) =
+    note.Mask &&& (NoteMask.Chord ||| NoteMask.Sustain ||| NoteMask.DoubleStop) = NoteMask.Chord
 
-let isBarre sng note =
-    hasFlag note NoteMask.Chord && not (hasFlag note NoteMask.DoubleStop)
+let isBarre sng (note: Note) =
+    note.Mask &&& (NoteMask.Chord ||| NoteMask.DoubleStop) = NoteMask.Chord
     &&
     sng.Chords.[note.ChordId].Fingers
     |> Array.countBy id
@@ -43,7 +41,8 @@ let isObliqueBend sng note =
     |> Array.sumBy (fun b -> if b.UsedCount > 0 then 1 else 0) = 1
 
 let isCompoundBend note =
-    hasFlag note NoteMask.Bend && note.BendData.Length >= 3
+    hasFlag note NoteMask.Bend
+    && note.BendData.Length >= 3
     && note.BendData.[0].Step <> note.BendData.[1].Step
     && note.BendData.[1].Step <> note.BendData.[2].Step
 
@@ -69,13 +68,13 @@ let isDoubleStopAdjacentStrings sng note =
 let isDoubleStopNonAdjacentStrings sng note =
     hasFlag note NoteMask.DoubleStop && not <| isDoubleStopAdjacentStrings sng note
 
-let isChordSlide sng note =
-    hasFlag note NoteMask.ChordNotes && not (hasFlag note NoteMask.DoubleStop)
+let isChordSlide sng (note: Note) =
+    note.Mask &&& (NoteMask.ChordNotes ||| NoteMask.DoubleStop) = NoteMask.ChordNotes
     &&
     sng.ChordNotes.[note.ChordNotesId].SlideTo |> Array.exists (fun x -> x <> -1y)
 
-let isChordTremolo sng note =
-    hasFlag note NoteMask.ChordNotes && not (hasFlag note NoteMask.DoubleStop)
+let isChordTremolo sng (note: Note) =
+    note.Mask &&& (NoteMask.ChordNotes ||| NoteMask.DoubleStop) = NoteMask.ChordNotes
     &&
     sng.ChordNotes.[note.ChordNotesId].Mask
     |> Array.exists (fun x -> (x &&& NoteMask.Tremolo) <> NoteMask.None)
