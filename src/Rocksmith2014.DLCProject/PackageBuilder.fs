@@ -202,12 +202,12 @@ let private setupInstrumental part (inst: Instrumental) config =
 
     xml
 
-let private getFontOption (key: string) =
+let private getFontOption (dlcKey: string) =
     Option.map (fun fontFile ->
         let glyphs = 
             Path.ChangeExtension(fontFile, ".glyphs.xml")
             |> GlyphDefinitions.Load
-        FontOption.CustomFont (glyphs, $"assets/ui/lyrics/{key}/lyrics_{key}.dds"))
+        FontOption.CustomFont (glyphs, $"assets/ui/lyrics/{dlcKey}/lyrics_{dlcKey}.dds"))
     >> Option.defaultValue FontOption.DefaultFont
 
 /// Inserts an automatically generated show lights arrangement into the project.
@@ -230,7 +230,6 @@ let private createProgressReporter maximum =
 /// Builds packages for the given platforms.
 let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProject) = async {
     let! audioConversionTask = config.AudioConversionTask |> Async.StartChild
-    let key = project.DLCKey.ToLowerInvariant()
     use coverArtFiles = DDS.createCoverArtImages project.AlbumArtFile |> toDisposableList
     let partition = Partitioner.create project
 
@@ -253,9 +252,10 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
                     |> ConvertInstrumental.xmlToSng
                 Some(arr, sng)
             | Vocals v ->
+                let dlcKey = project.DLCKey.ToLowerInvariant()
                 let sng =
                     Vocals.Load v.XML
-                    |> ConvertVocals.xmlToSng (getFontOption key v.CustomFont)
+                    |> ConvertVocals.xmlToSng (getFontOption dlcKey v.CustomFont)
                 Some(arr, sng)
             | Showlights _ -> None)
 
