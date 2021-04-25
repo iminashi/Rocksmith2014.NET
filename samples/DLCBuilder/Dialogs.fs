@@ -157,7 +157,8 @@ let showDialog dialogType state =
             ofd FileFilter.Profile (SetProfilePath >> EditConfig)
 
         | Dialog.AddArrangements ->
-            openMultiFileDialog title FileFilter.XML None AddArrangements
+            let initialDir = state.OpenProjectFile |> Option.map Path.GetDirectoryName
+            openMultiFileDialog title FileFilter.XML initialDir AddArrangements
 
         | Dialog.ToneImport ->
             ofd FileFilter.ToneImport ImportTonesFromFile
