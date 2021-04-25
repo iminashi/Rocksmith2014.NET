@@ -69,7 +69,7 @@ let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile
 
     let scrollSpeed =
         let max = Math.Min(int attributes.MaxPhraseDifficulty, attributes.DynamicVisualDensity.Length - 1)
-        float attributes.DynamicVisualDensity.[max]
+        Math.Round(float attributes.DynamicVisualDensity.[max], 1, MidpointRounding.AwayFromZero)
 
     let customAudio =
         if attributes.SongBank = $"song_{dlcKey}.bnk" then

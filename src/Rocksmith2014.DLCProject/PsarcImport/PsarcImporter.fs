@@ -4,6 +4,7 @@ open Rocksmith2014.PSARC
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.SNG
+open System
 open System.IO
 open System.Text.RegularExpressions
 open PsarcImportUtils
@@ -62,7 +63,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         |> List.map (fun bankName ->
             let volume, id = getVolumeAndFileId psarc platform bankName
             let targetFilename = createTargetAudioFilename bankName
-            string id, { Path = toTargetPath targetFilename; Volume = float volume })
+            string id, { Path = toTargetPath targetFilename; Volume = Math.Round(float volume, 1) })
 
     let targetAudioFiles = targetAudioFilesById |> List.map snd |> List.toArray
     let mainAudio = targetAudioFiles |> Array.find (fun audio -> String.endsWith $"{dlcKey}.wem" audio.Path)
