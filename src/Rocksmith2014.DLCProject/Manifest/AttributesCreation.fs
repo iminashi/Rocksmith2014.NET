@@ -434,7 +434,7 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
 
         if isHeader then
             // Attributes unique to header
-            attr.BassPick <- if inst.BassPicked then Nullable(1) else Nullable()
+            if inst.BassPicked then attr.BassPick <- Nullable 1
             attr.Representative <- if inst.Priority = ArrangementPriority.Main then 1 else 0
             attr.RouteMask <- LanguagePrimitives.EnumToValue inst.RouteMask
             attr
