@@ -118,16 +118,16 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         |> Array.find (fun (file, _) -> not <| file.Contains "vocals")
         |> snd
 
-    let! version = async {
+    let version =
         match List.contains "toolkit.version" psarcContents with
         | false ->
-            return "1"
+            "1"
         | true ->
             use stream = psarc.GetEntryStream "toolkit.version"
             let text = using (new StreamReader(stream)) (fun reader -> reader.ReadToEnd())
             match Regex.Match(text, "Package Version: ([^\r\n]+)\r?\n") with
-            | m when m.Success -> return m.Groups.[1].Captures.[0].Value
-            | _ -> return "1" }
+            | m when m.Success -> m.Groups.[1].Captures.[0].Value
+            | _ -> "1"
 
     let project =
         { Version = version
