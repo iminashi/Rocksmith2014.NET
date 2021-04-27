@@ -113,7 +113,7 @@ let private translateTitle dialogType =
         | other -> $"{other}DialogTitle"
 
     translate locString
-
+   
 /// Shows the given dialog type.
 let showDialog dialogType state =
     let title = translateTitle dialogType
@@ -148,13 +148,15 @@ let showDialog dialogType state =
             openMultiFileDialog title FileFilter.XML None (RemoveDD >> ToolsMsg)
 
         | Dialog.TestFolder ->
-            openFolderDialog title None (SetTestFolderPath >> EditConfig)
+            let initialDir = state.Config.TestFolderPath |> Option.ofString
+            openFolderDialog title initialDir (SetTestFolderPath >> EditConfig)
 
         | Dialog.ProjectFolder ->
             openFolderDialog title None (SetProjectsFolderPath >> EditConfig)
 
         | Dialog.ProfileFile ->
-            ofd FileFilter.Profile (SetProfilePath >> EditConfig)
+            let initialDir = state.Config.ProfilePath |> Option.ofString |> Option.map Path.GetDirectoryName
+            openFileDialog title FileFilter.Profile initialDir (SetProfilePath >> EditConfig)
 
         | Dialog.AddArrangements ->
             let initialDir = state.OpenProjectFile |> Option.map Path.GetDirectoryName
@@ -164,20 +166,24 @@ let showDialog dialogType state =
             ofd FileFilter.ToneImport ImportTonesFromFile
 
         | Dialog.WwiseConsole ->
-            ofd FileFilter.WwiseConsoleApplication (SetWwiseConsolePath >> EditConfig)
+            let initialDir = state.Config.WwiseConsolePath |> Option.map Path.GetDirectoryName
+            openFileDialog title FileFilter.WwiseConsoleApplication initialDir (SetWwiseConsolePath >> EditConfig)
             
         | Dialog.CoverArt ->
-            ofd FileFilter.Image SetCoverArt
+            let initialDir = state.OpenProjectFile |> Option.map Path.GetDirectoryName
+            openFileDialog title FileFilter.Image initialDir SetCoverArt
 
         | Dialog.AudioFile isCustom ->
             let msg =
                 match isCustom with
                 | true -> Some >> SetCustomAudioPath >> EditInstrumental
                 | false -> SetAudioFile
-            ofd FileFilter.Audio msg
+            let initialDir = state.OpenProjectFile |> Option.map Path.GetDirectoryName
+            openFileDialog title FileFilter.Audio initialDir msg
 
         | Dialog.CustomFont ->
-            ofd FileFilter.DDS (Some >> SetCustomFont >> EditVocals)
+            let initialDir = state.OpenProjectFile |> Option.map Path.GetDirectoryName
+            openFileDialog title FileFilter.DDS initialDir (Some >> SetCustomFont >> EditVocals)
 
         | Dialog.ExportTone tone ->
             let initialFileName = Some $"{tone.Name}.tone2014.xml"
