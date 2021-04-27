@@ -27,7 +27,7 @@ type private ArrangementAddingResult =
     | MaxVocals
 
 let private addArrangements files state =
-    let results = Array.map (Arrangement.fromFile translate) files
+    let results = Array.map Arrangement.fromFile files
 
     let shouldInclude arrangements arr =
         let count f = (List.choose f arrangements).Length
@@ -66,8 +66,12 @@ let private addArrangements files state =
                 | error ->
                     let error = createErrorMsg (Arrangement.getFile arr) (translate (string error))
                     arrs, error::errors
-            | Error (file, error) ->
-                let error = createErrorMsg file error
+            | Error (UnknownArrangement file) ->
+                let message = translate "unknownArrangementError"
+                let error = createErrorMsg file message
+                arrs, error::errors
+            | Error (FailedWithException (file, ex)) ->
+                let error = createErrorMsg file ex.Message
                 arrs, error::errors)
 
     let metadata =

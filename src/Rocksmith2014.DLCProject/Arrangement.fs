@@ -55,6 +55,10 @@ type Arrangement =
     | Vocals of Vocals
     | Showlights of Showlights
 
+type ArrangementLoadError =
+    | UnknownArrangement of failedFile : string
+    | FailedWithException of failedFile : string * exn
+
 module Arrangement =
     /// Returns the master ID of an arrangement.
     let getMasterId = function
@@ -114,7 +118,7 @@ module Arrangement =
             7, 0
 
     /// Loads an arrangement from a file.
-    let fromFile localize (fileName: string) =
+    let fromFile (fileName: string) =
         try
             let rootName =
                 using (XmlReader.Create fileName)
@@ -192,8 +196,9 @@ module Arrangement =
                 Ok (arr, None)
 
             | _ ->
-                Error (fileName, localize "unknownArrangementError")
-        with ex -> Error (fileName, ex.Message)
+                Error (UnknownArrangement fileName)
+        with ex ->
+            Error (FailedWithException(fileName, ex))
 
     /// Reads the tone info from the arrangement's XML file.
     let updateToneInfo (inst: Instrumental) updateBaseTone =
