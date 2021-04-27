@@ -3,6 +3,7 @@
 open System
 open System.Collections.Generic
 
+[<Sealed>]
 type Attributes() =
     member val AlbumArt : string = "" with get, set
 

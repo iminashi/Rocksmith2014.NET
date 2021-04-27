@@ -8,6 +8,7 @@ open System.Runtime.Serialization
 open System.Text
 open System.Text.Json
 open System.Text.Json.Serialization
+open System.Text.RegularExpressions
 open System.Xml
 open Newtonsoft.Json
 
@@ -147,7 +148,14 @@ module Tone =
         |> Seq.map (fun x -> x.InnerText)
         |> Seq.toArray
 
-    let private volumeFromString (vol: string) = Math.Round(float vol, 1, MidpointRounding.AwayFromZero)
+    let private volumeFromString (vol: string) =
+        (* Some DLC have strange values:
+           -Love in an Elevator: "-26.250S"
+           -Valleri: "-19 .250"
+           Some CDLC use ',' as decimal separator *)
+        let vol = Regex.Replace(vol.Replace(',', '.'), "[^0-9.-]", "")
+        Math.Round(float vol, 1, MidpointRounding.AwayFromZero)
+
     let private volumeToString (vol: float) = vol.ToString(CultureInfo.InvariantCulture)
 
     /// Imports a tone from a Tone2014 XML structure using the optional XML namespace.
@@ -190,11 +198,21 @@ module Tone =
           Skin = Option.ofObj dto.Skin
           SkinIndex = Option.ofNullable dto.SkinIndex }
 
+    // Default cabinet used for CDLC tones that are missing a cabinet
+    let private defaultCabinet =
+        { Category = None; Type = "Cabinets"; Key = "Cab_Marshall1960TV_Ribbon_Cone"; KnobValues = Map.empty; Skin = None; SkinIndex = None }
+
     let fromDto dto : Tone =
         let gear =
             let fromDtoArray = Array.map (Option.ofObj >> Option.map pedalFromDto)
+            let cabinet =
+                dto.GearList.Cabinet
+                |> Option.ofObj
+                |> Option.map pedalFromDto
+                |> Option.defaultValue defaultCabinet
+
             { Amp = pedalFromDto dto.GearList.Amp
-              Cabinet = pedalFromDto dto.GearList.Cabinet
+              Cabinet = cabinet
               PrePedals = fromDtoArray [| dto.GearList.PrePedal1; dto.GearList.PrePedal2; dto.GearList.PrePedal3; dto.GearList.PrePedal4 |]
               PostPedals = fromDtoArray [| dto.GearList.PostPedal1; dto.GearList.PostPedal2; dto.GearList.PostPedal3; dto.GearList.PostPedal4 |]
               Racks = fromDtoArray [| dto.GearList.Rack1; dto.GearList.Rack2; dto.GearList.Rack3; dto.GearList.Rack4 |] }

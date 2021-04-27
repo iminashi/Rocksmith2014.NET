@@ -4,6 +4,7 @@ open Rocksmith2014.Common
 open System.Text
 open System
 
+[<Sealed>]
 type internal Header() =
     /// The length of a PSARC header in bytes (32 bytes).
     static member Length = 32
