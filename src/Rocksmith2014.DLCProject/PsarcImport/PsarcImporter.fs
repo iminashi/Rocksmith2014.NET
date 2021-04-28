@@ -33,7 +33,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         psarcContents
         |> filterFilesWithExtension "sng"
         |> List.map (fun file -> async {
-            use stream = psarc.GetEntryStream file
+            use! stream = psarc.GetEntryStream file
             let! sng = SNG.fromStream stream platform
             return file, sng })
         |> Async.Sequential
@@ -42,7 +42,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         psarcContents
         |> filterFilesWithExtension "json"
         |> List.map (fun file -> async {
-            use stream = psarc.GetEntryStream file
+            use! stream = psarc.GetEntryStream file
             let! manifest = Manifest.fromJsonStream stream
             return file, Manifest.getSingletonAttributes manifest })
         |> Async.Sequential
@@ -57,15 +57,16 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
 
     progress()
 
-    let targetAudioFilesById =
+    let! targetAudioFilesById =
         psarcContents
         |> filterFilesWithExtension "bnk"
-        |> List.map (fun bankName ->
-            let volume, id = getVolumeAndFileId psarc platform bankName
+        |> List.map (fun bankName -> async {
+            let! volume, id = getVolumeAndFileId psarc platform bankName
             let targetFilename = createTargetAudioFilename bankName
-            string id, { Path = toTargetPath targetFilename; Volume = Math.Round(float volume, 1) })
+            return string id, { Path = toTargetPath targetFilename; Volume = Math.Round(float volume, 1) } })
+        |> Async.Sequential
 
-    let targetAudioFiles = targetAudioFilesById |> List.map snd |> List.toArray
+    let targetAudioFiles = targetAudioFilesById |> Array.map snd
     let mainAudio = targetAudioFiles |> Array.find (fun audio -> String.endsWith $"{dlcKey}.wem" audio.Path)
     let previewAudio = targetAudioFiles |> Array.find (fun audio -> String.endsWith $"{dlcKey}_preview.wem" audio.Path)
 
@@ -75,7 +76,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         |> List.map (fun pathInPsarc ->
             let targetAudioFile =
                 targetAudioFilesById
-                |> List.find (fun (id, _) -> String.contains id pathInPsarc)
+                |> Array.find (fun (id, _) -> String.contains id pathInPsarc)
                 |> snd
                     
             psarc.InflateFile(pathInPsarc, targetAudioFile.Path))
@@ -118,16 +119,18 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         |> Array.find (fun (file, _) -> not <| file.Contains "vocals")
         |> snd
 
-    let version =
+    let! version = async {
         match List.contains "toolkit.version" psarcContents with
         | false ->
-            "1"
+            return "1"
         | true ->
-            use stream = psarc.GetEntryStream "toolkit.version"
+            use! stream = psarc.GetEntryStream "toolkit.version"
             let text = using (new StreamReader(stream)) (fun reader -> reader.ReadToEnd())
             match Regex.Match(text, "Package Version: ([^\r\n]+)\r?\n") with
-            | m when m.Success -> m.Groups.[1].Captures.[0].Value
-            | _ -> "1"
+            | m when m.Success ->
+                return m.Groups.[1].Captures.[0].Value
+            | _ ->
+                return "1" }
 
     let project =
         { Version = version

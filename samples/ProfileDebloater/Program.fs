@@ -20,7 +20,7 @@ let readIDs rootDir path = async {
 
     use psarc = PSARC.ReadFile path
     let headerFile = psarc.Manifest |> List.find (String.endsWith "hsan")
-    use stream = psarc.GetEntryStream headerFile
+    use! stream = psarc.GetEntryStream headerFile
     let! manifest = Manifest.fromJsonStream stream
 
     let ids, songKeys =

@@ -79,7 +79,7 @@ let tests =
         testAsync "App ID file contains correct app ID" {
             use psarc = PSARC.ReadFile psarcPathWin
 
-            use stream = psarc.GetEntryStream "appid.appid"
+            use! stream = psarc.GetEntryStream "appid.appid"
             let appid = using (new StreamReader(stream)) (fun r -> r.ReadToEnd())
 
             Expect.equal appid buildConfig.AppId "App ID was the one defined in the build configuration" }
@@ -87,7 +87,7 @@ let tests =
         testAsync "Mac package contains correct SNG file" {
             use psarc = PSARC.ReadFile psarcPathMac
 
-            use stream = psarc.GetEntryStream "songs/bin/macos/integrationtest_lead.sng"
+            use! stream = psarc.GetEntryStream "songs/bin/macos/integrationtest_lead.sng"
             let! sng = SNG.fromStream stream Mac
 
             Expect.exists sng.Sections (fun s -> s.Name = "melody") "SNG contains melody section"
@@ -96,7 +96,7 @@ let tests =
         testAsync "Mac package contains correct manifest file" {
             use psarc = PSARC.ReadFile psarcPathMac
 
-            use stream = psarc.GetEntryStream "manifests/songs_dlc_integrationtest/integrationtest_bass.json"
+            use! stream = psarc.GetEntryStream "manifests/songs_dlc_integrationtest/integrationtest_bass.json"
             let! mani = (Manifest.fromJsonStream stream).AsTask() |> Async.AwaitTask
             let attr = Manifest.getSingletonAttributes mani
 

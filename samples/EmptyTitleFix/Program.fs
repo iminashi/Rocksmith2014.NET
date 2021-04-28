@@ -38,7 +38,7 @@ let fixManifests (psarcs: seq<PSARC>) =
 let getAttributes (psarc: PSARC) = async {
     // Use the first (non-vocals) JSON file to determine if a fix is needed
     let jsonFile = psarc.Manifest |> List.find (fun x -> x.EndsWith "json" && not <| x.Contains "vocals")
-    use stream = psarc.GetEntryStream jsonFile
+    use! stream = psarc.GetEntryStream jsonFile
     let! mani = Manifest.fromJsonStream stream
     return Manifest.getSingletonAttributes mani }
 

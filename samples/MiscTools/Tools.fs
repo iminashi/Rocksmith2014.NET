@@ -271,7 +271,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                     psarc.Manifest
                     |> List.filter (String.endsWith "sng")
                     |> List.map (fun x -> async {
-                        use stream = psarc.GetEntryStream x
+                        use! stream = psarc.GetEntryStream x
                         let! sng = SNG.fromStream stream platform
                         return {| File = x; SNG = sng |} })
                     |> Async.Sequential
@@ -280,7 +280,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                     psarc.Manifest
                     |> List.filter (String.endsWith "json")
                     |> List.map (fun x -> async {
-                        use stream = psarc.GetEntryStream x
+                        use! stream = psarc.GetEntryStream x
                         let! manifest = Manifest.fromJsonStream stream
                         return {| File = x; Manifest = manifest |} })
                     |> Async.Sequential

@@ -38,7 +38,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                 if buffer.[0] = 0x78uy && buffer.[1] = 0xDAuy then
                     try
                         use memory = new MemoryStream(buffer, 0, size)
-                        do! Compression.asyncUnzip memory output
+                        Compression.unzip memory output
                     with :? AggregateException as ex when ex.InnerException.Message.StartsWith("Unknown block") ->
                         // Assume it is uncompressed data
                         // Needed for unpacking audio.psarc
@@ -166,9 +166,11 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         do! inflateEntry entry output }
 
     /// Returns an in-memory read stream for the entry with the given name.
-    member _.GetEntryStream (name: string) =
+    member _.GetEntryStream (name: string) = async {
         let entry = tryFindEntry name
-        new PSARCEntryStream(source, entry, int header.BlockSizeAlloc, blockSizeTable)
+        let memory = MemoryStreamPool.Default.GetStream(name, int entry.Length)
+        do! inflateEntry entry memory
+        return memory }
 
     /// Inflates the entry with the given file name into the target file.
     member this.InflateFile (name: string, targetFile: string) = async {
