@@ -10,9 +10,9 @@ open System.Text
 let private convertGraph (data: Stream) =
     let text = using (new StreamReader(data)) (fun reader -> reader.ReadToEnd())
     let newText = StringBuilder(text)
-                      .Replace("bin/generic", "bin/macos")
-                      .Replace("audio/windows", "audio/mac")
-                      .Replace("dx9", "macos")
+                    .Replace("bin/generic", "bin/macos")
+                    .Replace("audio/windows", "audio/mac")
+                    .Replace("dx9", "macos")
     let newData = MemoryStreamPool.Default.GetStream()
     use writer = new StreamWriter(newData, leaveOpen = true)
     writer.Write newText

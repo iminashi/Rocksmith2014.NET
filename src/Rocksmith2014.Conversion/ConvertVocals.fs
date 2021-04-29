@@ -15,10 +15,11 @@ type FontOption =
 module ConvertVocals =
     /// The default symbol textures used in SNG files that use the default font.
     let private defaultTextures =
-        [| { Font = @"assets\ui\lyrics\lyrics.dds"
-             FontPathLength = 27
-             Width = 1024
-             Height = 512 } |]
+        { Font = @"assets\ui\lyrics\lyrics.dds"
+          FontPathLength = 27
+          Width = 1024
+          Height = 512 }
+        |> Array.singleton
 
     /// The default symbol definitions used in SNG files that use the default font.
     let private defaultSymbols =

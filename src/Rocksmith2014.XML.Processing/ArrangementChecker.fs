@@ -245,9 +245,9 @@ let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
 
     // Logic to weed out some false positives
     let isSameAnchorWith1stFinger (neighbour: HandShape option) (activeAnchor: Anchor) =
-         match neighbour with
-         | None -> false
-         | Some neighbour ->
+        match neighbour with
+        | None -> false
+        | Some neighbour ->
             let neighbourAnchor = anchors.FindLast(fun a -> a.Time <= neighbour.StartTime)
             let neighbourTemplate = chordTemplates.[int neighbour.ChordId]
 

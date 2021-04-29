@@ -74,11 +74,11 @@ let convertSymbolDefinition (sngSymbol: SymbolDefinition) =
         InnerXMin = sngSymbol.Inner.xMin,
         InnerXMax = sngSymbol.Inner.xMax)
 
- /// Converts an SNG NewLinkedDifficulty into an XML NewLinkedDifficulty.
+/// Converts an SNG NewLinkedDifficulty into an XML NewLinkedDifficulty.
 let convertNLD (sngNld: NewLinkedDifficulty) =
     XML.NewLinkedDiff(sbyte sngNld.LevelBreak, sngNld.NLDPhrases)
 
- /// Converts an SNG Event into an XML Event.
+/// Converts an SNG Event into an XML Event.
 let convertEvent (sngEvent: Event) =
     XML.Event(sngEvent.Name, secToMs sngEvent.Time)
 

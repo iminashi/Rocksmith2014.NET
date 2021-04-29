@@ -42,7 +42,7 @@ let fixPhraseStartAnchors (arrangement: InstrumentalArrangement) =
             let firstAnchor =
                 arrangement.Levels.[0].Anchors.Find(fun a -> a.Time >= first.Time && a.Time < second.Time)
             if not <| isNull firstAnchor && firstAnchor.Time <> first.Time then
-               firstAnchor.Time <- first.Time)
+                firstAnchor.Time <- first.Time)
 
 /// Applies all the fixes.
 let fixAll arrangement =

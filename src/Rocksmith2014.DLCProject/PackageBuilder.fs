@@ -55,9 +55,9 @@ let private build (buildData: BuildData) progress targetFile project platform = 
             | Vocals v as arr -> FromVocals v |> attributes arr
             | Showlights _ -> None)
         |> List.map (fun (name, attr) -> async {
-           let data = MemoryStreamPool.Default.GetStream()
-           do! Manifest.create attr |> Manifest.toJsonStream data
-           return entry name data })
+            let data = MemoryStreamPool.Default.GetStream()
+            do! Manifest.create attr |> Manifest.toJsonStream data
+            return entry name data })
         |> Async.Parallel
         |> Async.map (List.ofArray >> toDisposableList)
 

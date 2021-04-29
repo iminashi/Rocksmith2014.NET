@@ -78,7 +78,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
                 targetAudioFilesById
                 |> Array.find (fun (id, _) -> String.contains id pathInPsarc)
                 |> snd
-                    
+
             psarc.InflateFile(pathInPsarc, targetAudioFile.Path))
         |> Async.Sequential
         |> Async.Ignore

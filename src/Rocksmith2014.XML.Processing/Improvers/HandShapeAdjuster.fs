@@ -44,7 +44,7 @@ let improve (arrangement: InstrumentalArrangement) =
                         (beat2.Time - beat1.Time) / 12
                     elif shortenBy16thNote then note32nd * 2
                     else note32nd
-                                
+
                 let currentDistance = followingStartTime - precedingEndTime
 
                 if currentDistance < minDistance then

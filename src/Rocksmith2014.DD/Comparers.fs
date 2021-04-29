@@ -75,7 +75,7 @@ let getSameElementCount eq elems1 elems2 =
         match list1, list2 with
         | head1::tail1, head2::tail2 ->
             if eq head1 head2 then
-                 getCount (count + 1) tail1 tail2
+                getCount (count + 1) tail1 tail2
             else
                 let tail1' = skipWhileNot eq head2 tail1
                 let count1 = getCount count tail1' list2
