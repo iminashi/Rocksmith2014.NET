@@ -32,24 +32,20 @@ let private pruneChordNotes diffPercent
                             (removedLinkNexts: HashSet<sbyte>)
                             (pendingLinkNexts: Dictionary<sbyte, Note>)
                             (chord: Chord) =
-    if chord.HasChordNotes then
-        let cn = chord.ChordNotes
-        let notesToRemove = cn.Count - noteCount
+    let cn = chord.ChordNotes
+    let notesToRemove = cn.Count - noteCount
 
-        if notesToRemove < 0 then
-            failwith $"Chord at time {float cn.[0].Time / 1000.} has less chord notes than its chord template."
+    if notesToRemove < 0 then
+        failwith $"Chord at time {float cn.[0].Time / 1000.} has less chord notes than its chord template."
 
-        for i = cn.Count - notesToRemove to cn.Count - 1 do
-            if cn.[i].IsLinkNext then
-                removedLinkNexts.Add cn.[i].String |> ignore
-        cn.RemoveRange(cn.Count - notesToRemove, notesToRemove)
+    for i = cn.Count - notesToRemove to cn.Count - 1 do
+        if cn.[i].IsLinkNext then
+            removedLinkNexts.Add cn.[i].String |> ignore
+    cn.RemoveRange(cn.Count - notesToRemove, notesToRemove)
 
-        for n in cn do
-            pruneTechniques diffPercent removedLinkNexts n
-            if n.IsLinkNext then pendingLinkNexts.Add(n.String, n)
-
-        if chord.IsLinkNext && cn.TrueForAll(fun x -> not x.IsLinkNext) then
-            chord.IsLinkNext <- false
+    for n in cn do
+        pruneTechniques diffPercent removedLinkNexts n
+        if n.IsLinkNext then pendingLinkNexts.Add(n.String, n)
 
 let private shouldExclude (diffPercent: float)
                           (division: BeatDivision)
@@ -286,9 +282,14 @@ let choose (diffPercent: float)
 
                         (XmlChord copy, None)::acc
                     else
-                        pruneChordNotes diffPercent allowedChordNotes removedLinkNexts pendingLinkNexts copy
+                        if copy.HasChordNotes then
+                            pruneChordNotes diffPercent allowedChordNotes removedLinkNexts pendingLinkNexts copy
 
-                        (XmlChord copy, Some { OriginalId = chord.ChordId; NoteCount = byte allowedChordNotes; Target = ChordTarget copy })::acc
+                        let templateRequest =
+                            { OriginalId = chord.ChordId
+                              NoteCount = byte allowedChordNotes
+                              Target = ChordTarget copy }
+                        (XmlChord copy, Some templateRequest)::acc
     )
     |> List.rev
     |> List.toArray
