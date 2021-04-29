@@ -642,9 +642,9 @@ let update (msg: Msg) (state: State) =
             state, Cmd.none
 
     | EditTone edit ->
-         match state.SelectedToneIndex with
-         | -1 -> state, Cmd.none
-         | index -> editTone state edit index
+        match state.SelectedToneIndex with
+        | -1 -> state, Cmd.none
+        | index -> editTone state edit index
 
     | EditProject edit -> { state with Project = editProject edit project }, Cmd.none
 

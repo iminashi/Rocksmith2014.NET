@@ -101,7 +101,7 @@ let checkArrangements (project: DLCProject) (progress: IProgress<float>) =
     project.Arrangements
     |> List.mapi (fun i arr ->
         let result = 
-           match arr with
+            match arr with
             | Instrumental inst ->
                 let issues =
                     InstrumentalArrangement.Load inst.XML
@@ -115,9 +115,9 @@ let checkArrangements (project: DLCProject) (progress: IProgress<float>) =
                 v.XML, issues
             | Showlights sl ->
                 let issues =
-                     ShowLights.Load sl.XML
-                     |> ArrangementChecker.checkShowlights
-                     |> Option.toList
+                    ShowLights.Load sl.XML
+                    |> ArrangementChecker.checkShowlights
+                    |> Option.toList
                 sl.XML, issues
             | Vocals v ->
                 v.XML, []

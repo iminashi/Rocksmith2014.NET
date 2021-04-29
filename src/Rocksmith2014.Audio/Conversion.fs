@@ -28,7 +28,7 @@ let private processFile cmd args (file: string) =
     if output.Contains("error", StringComparison.OrdinalIgnoreCase) then
         failwith $"Process failed with output:\n{output}"
 
-/// Converts a wem file into an vorbis file.
+/// Converts a wem file into a vorbis file.
 let wemToOgg wemfile =
     let oggFile = Path.ChangeExtension(wemfile, "ogg")
 

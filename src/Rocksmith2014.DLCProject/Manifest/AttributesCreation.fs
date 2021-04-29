@@ -248,7 +248,7 @@ let private createChordMap (sng: SNG) =
             let chordIds = 
                 sng.Levels.[lvl].HandShapes
                 |> Seq.filter (fun x -> 
-                   (String.notEmpty sng.Chords.[x.ChordId].Name) && (x.StartTime >= pi.StartTime && x.StartTime < pi.EndTime))
+                    (String.notEmpty sng.Chords.[x.ChordId].Name) && (x.StartTime >= pi.StartTime && x.StartTime < pi.EndTime))
                 |> Seq.map (fun x -> x.ChordId)
                 |> Set.ofSeq
             if chordIds.Count > 0 then
