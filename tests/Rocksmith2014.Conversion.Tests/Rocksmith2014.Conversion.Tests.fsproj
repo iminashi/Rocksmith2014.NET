@@ -8,6 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="chordnotes.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="instrumental_1level_chordsonly.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -43,8 +46,6 @@
     <Compile Include="Main.fs" />
   </ItemGroup>
 
-  <ItemGroup />
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\Rocksmith2014.Conversion\Rocksmith2014.Conversion.fsproj" />
   </ItemGroup>
@@ -53,7 +54,7 @@
     <PackageReference Include="Expecto" Version="9.0.2" />
     <PackageReference Include="Expecto.FsCheck" Version="9.0.2" />
     <PackageReference Include="Expecto.VisualStudio.TestAdapter" Version="10.0.2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.11.1" />
     <PackageReference Update="FSharp.Core" Version="5.0.0" />
   </ItemGroup>

@@ -5,6 +5,19 @@ open Rocksmith2014
 open System.Collections.Generic
 open System.Threading
 
+module internal ChordNotesHelper =
+    let comparer = 
+        { new IEqualityComparer<ChordNotes> with
+            member _.Equals(cn1, cn2) = cn1 = cn2
+
+            member _.GetHashCode(cn) =
+                int cn.Mask.[0]
+                + (int cn.Mask.[1] * 2)
+                + (int cn.Mask.[2] * 3)
+                + (int cn.Mask.[3] * 4)
+                + (int cn.Mask.[4] * 5)
+                + (int cn.Mask.[5] * 6) }
+
 /// The note count for each hero level and the number of ignored notes in the hard level.
 type NoteCountsMutable() =
     [<DefaultValue>] val mutable Easy : int
@@ -19,7 +32,7 @@ type NoteCountsMutable() =
 type AccuData =
     { StringMasks : int8[][]
       ChordNotes : ResizeArray<ChordNotes>
-      ChordNotesMap : Dictionary<int, int>
+      ChordNotesMap : Dictionary<ChordNotes, int>
       AnchorExtensions : ResizeArray<AnchorExtension>[]
       NotesInPhraseIterationsExclIgnored : int[][]
       NotesInPhraseIterationsAll : int[][]
@@ -48,7 +61,7 @@ type AccuData =
     static member Init(arr: XML.InstrumentalArrangement) =
         { StringMasks = Array.init arr.Sections.Count (fun _ -> Array.zeroCreate 36)
           ChordNotes = ResizeArray()
-          ChordNotesMap = Dictionary()
+          ChordNotesMap = Dictionary(ChordNotesHelper.comparer)
           AnchorExtensions = Array.init arr.Levels.Count (fun _ -> ResizeArray())
           NotesInPhraseIterationsExclIgnored = Array.init arr.Levels.Count (fun _ -> Array.zeroCreate arr.PhraseIterations.Count)
           NotesInPhraseIterationsAll = Array.init arr.Levels.Count (fun _ -> Array.zeroCreate arr.PhraseIterations.Count)

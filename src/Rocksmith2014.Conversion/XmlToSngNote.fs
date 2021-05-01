@@ -9,9 +9,6 @@ open System.Collections.Generic
 /// Calculates a hash value for a note.
 let private hashNote note = hash note |> uint32
 
-/// Calculates a hash value for a chord note.
-let private hashChordNotes cn = hash cn
-
 /// Mask bits that need to be considered when converting an XML chord note into SNG.
 let [<Literal>] private XmlChordNoteMask =
     XML.NoteMask.LinkNext ||| XML.NoteMask.Accent ||| XML.NoteMask.Tremolo
@@ -158,15 +155,14 @@ let private createChordNotes (pendingLinkNexts: Dictionary<int8, int16>) thisId 
         let chordNotes =
             { Mask = masks; BendData = bendData; SlideTo = slideTo; SlideUnpitchTo = slideUnpitchTo; Vibrato = vibrato }
 
-        let hash = hashChordNotes chordNotes
         lock accuData.ChordNotesMap (fun _ ->
-            match accuData.ChordNotesMap.TryGetValue hash with
+            match accuData.ChordNotesMap.TryGetValue chordNotes with
             | true, id ->
                 id
             | false, _ ->
                 let id = accuData.ChordNotes.Count
-                accuData.ChordNotes.Add(chordNotes)
-                accuData.ChordNotesMap.Add(hash, id)
+                accuData.ChordNotes.Add chordNotes
+                accuData.ChordNotesMap.Add(chordNotes, id)
                 id)
 
 /// Returns a function that is valid for converting notes in a single difficulty level.

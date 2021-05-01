@@ -65,4 +65,11 @@ let sngToXmlConversionTests =
             Expect.isTrue (level.Notes.[4].Mask ?= SNG.NoteMask.DoubleStop) "Chord #4 has double stop bit set"
             Expect.equal level.Notes.[6].Sustain 0.750f "Chord #6 has 0.75s sustain"
             Expect.isTrue (level.Notes.[7].Mask ?= SNG.NoteMask.Ignore) "Chord #7 has ignore bit set"
+
+        testCase "Instrumental Conversion (Chord notes whose hash values may clash)" <| fun _ ->
+            let xml = InstrumentalArrangement.Load "chordnotes.xml"
+
+            let sng = ConvertInstrumental.xmlToSng xml
+
+            Expect.hasLength sng.ChordNotes 2 "Two chord notes were created"
     ]
