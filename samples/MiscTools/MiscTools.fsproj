@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia.Desktop" Version="0.10.2" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.3" />
     <PackageReference Include="JaggerJo.Avalonia.FuncUI" Version="0.5.0-beta" />
     <PackageReference Include="JaggerJo.Avalonia.FuncUI.DSL" Version="0.5.0-beta" />
     <PackageReference Include="JaggerJo.Avalonia.FuncUI.Elmish" Version="0.5.0-beta" />
