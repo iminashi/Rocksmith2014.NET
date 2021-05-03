@@ -7,7 +7,7 @@ open Rocksmith2014.Conversion.Utils
 open System.Collections.Generic
 
 /// Calculates a hash value for a note.
-let private hashNote note = hash note |> uint32
+let inline private hashNote (note: Note) = hash note |> uint32
 
 /// Mask bits that need to be considered when converting an XML chord note into SNG.
 let [<Literal>] private XmlChordNoteMask =
@@ -155,7 +155,7 @@ let private createChordNotes (pendingLinkNexts: Dictionary<int8, int16>) thisId 
         let chordNotes =
             { Mask = masks; BendData = bendData; SlideTo = slideTo; SlideUnpitchTo = slideUnpitchTo; Vibrato = vibrato }
 
-        lock accuData.ChordNotesMap (fun _ ->
+        lock accuData.ChordNotesMap (fun () ->
             match accuData.ChordNotesMap.TryGetValue chordNotes with
             | true, id ->
                 id
@@ -223,7 +223,7 @@ let convertNote (noteTimes: int[])
 
                 let bendValues =
                     match note.BendValues with
-                    | null -> [||]
+                    | null -> Array.empty
                     | bendValues -> bendValues |> mapToArray convertBendValue
 
                 // Using TryAdd because of possible link next errors in CDLC

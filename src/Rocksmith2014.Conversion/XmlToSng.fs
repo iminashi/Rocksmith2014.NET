@@ -10,11 +10,13 @@ type NoteFlagger = Note option -> Note -> uint32
 
 // TODO: Duplicate code in Conversion and DD libraries
 
+[<Struct>]
 type XmlEntity =
     | XmlNote of XmlNote : XML.Note
     | XmlChord of XmlChord : XML.Chord
 
-let getTimeCode = function
+let inline getTimeCode entity =
+    match entity with
     | XmlNote xn -> xn.Time
     | XmlChord xc -> xc.Time
 

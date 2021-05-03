@@ -93,8 +93,10 @@ let private findIndex startIndex time (noteTimes: int array) =
 let findFirstAndLastTime (noteTimes: int array) startTime endTime =
     let firstIndex = findIndex 0 startTime noteTimes
     match firstIndex with
-    | -1 -> None
-    | index when noteTimes.[index] >= endTime -> None
+    | -1 ->
+        None
+    | index when noteTimes.[index] >= endTime ->
+        None
     | firstIndex ->
         let lastIndex =
             let i = findIndex firstIndex endTime noteTimes
