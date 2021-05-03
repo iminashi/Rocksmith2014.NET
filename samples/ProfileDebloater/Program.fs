@@ -15,9 +15,7 @@ let readOnDiscIdsAndKeys () =
     Set.ofSeq (readFromAppDir "onDiscKeys.txt")
 
 /// Reads the IDs and keys from a PSARC with the given path.
-let readIDs rootDir path = async {
-    printfn "Reading IDs from %s" (Path.GetRelativePath(rootDir, path))
-
+let readIDs path = async {
     use psarc = PSARC.ReadFile path
     let headerFile = psarc.Manifest |> List.find (String.endsWith "hsan")
     use! stream = psarc.GetEntryStream headerFile
@@ -31,12 +29,29 @@ let readIDs rootDir path = async {
 
     return ids, List.distinct songKeys }
 
+let printProgress current max =
+    Console.CursorLeft <- 0
+    Console.CursorTop <- 0
+    printfn "Reading IDs..."
+    let progress = (float current / float max)
+    let bar = String.replicate (int (60. * progress)) "="
+    printfn "[%-60s]" bar
+    
 /// Reads IDs and keys from psarcs in the given directory and its subdirectories.
-let gatherDLCData (directory: string) = async {
+let gatherDLCData verbose (directory: string) = async {
     let! results =
-        Directory.EnumerateFiles(directory, "*.psarc", SearchOption.AllDirectories)
-        |> Seq.filter (fun x -> not <| (x.Contains "inlay" || x.Contains "rs1compatibility"))
-        |> Seq.map (readIDs directory)
+        let files =
+            Directory.EnumerateFiles(directory, "*.psarc", SearchOption.AllDirectories)
+            |> Seq.filter (fun x -> not <| (x.Contains "inlay" || x.Contains "rs1compatibility"))
+            |> Seq.toArray
+        files
+        |> Array.mapi (fun i path->
+            if verbose then
+                printfn "Reading IDs from %s" (Path.GetRelativePath(directory, path))
+            else
+                printProgress (i + 1) files.Length
+
+            readIDs path)
         |> Async.Sequential
 
     let ids, keys =
@@ -61,6 +76,7 @@ let saveProfile originalPath id (profileJson: JToken) = async {
     let backUp = originalPath + ".backup"
     if File.Exists backUp then File.Delete backUp
     File.Copy(originalPath, backUp)
+    printfn "Backup file created."
 
     do! Profile.write originalPath id jsonData }
 
@@ -94,15 +110,20 @@ let filterJArrayKeys (keys: Set<string>) (array: JArray) =
 
 [<EntryPoint>]
 let main argv =
-    if argv.Length <> 2 then
+    if argv.Length < 2 then
         Console.WriteLine "Give as arguments: path to profile file and path to DLC directory."
     else async {
         let profilePath = argv.[0]
         let dlcDirectory = argv.[1]
+        let isVerbose = Array.tryItem 2 argv = Some "-v"
+
+        Console.Clear()
+        let cursorVisibleOld = Console.CursorVisible
+        Console.CursorVisible <- false
 
         let! ids, keys = async {
             let odIds, odKeys = readOnDiscIdsAndKeys()
-            let! dlcIds, dlcKeys = gatherDLCData dlcDirectory
+            let! dlcIds, dlcKeys = gatherDLCData isVerbose dlcDirectory
             return Set.union odIds (Set.ofList dlcIds), Set.union odKeys (Set.ofList dlcKeys) }
 
         let filterIds = filterJTokenIds ids
@@ -129,6 +150,8 @@ let main argv =
 
         Console.WriteLine "Saving profile file..."
 
-        do! saveProfile profilePath id profile }
+        do! saveProfile profilePath id profile
+        Console.WriteLine "Profile saved."
+        Console.CursorVisible <- cursorVisibleOld }
         |> Async.RunSynchronously
     0
