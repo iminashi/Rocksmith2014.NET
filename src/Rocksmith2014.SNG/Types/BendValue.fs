@@ -29,5 +29,4 @@ type BendValue =
 
     static member Create(time, step) = { Time = time; Step = step }
 
-module BendValue =
-    let Empty = { Time = 0.f; Step = 0.f }
+    static member Empty = { Time = 0.f; Step = 0.f }

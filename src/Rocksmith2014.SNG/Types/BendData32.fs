@@ -1,7 +1,9 @@
 ﻿namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
+open System
 
+[<CustomEquality; NoComparison>]
 type BendData32 =
     { BendValues : BendValue[]
       UsedCount : int32 }
@@ -15,5 +17,20 @@ type BendData32 =
         { BendValues = Array.init 32 (fun _ -> BendValue.Read reader)
           UsedCount = reader.ReadInt32() }
 
-module BendData32 =
-    let Empty = { BendValues = Array.replicate 32 BendValue.Empty; UsedCount = 0 }
+    interface IEquatable<BendData32> with
+        member this.Equals other =
+            (this.UsedCount = 0 && other.UsedCount = 0)
+            ||
+            (this.UsedCount = other.UsedCount && this.BendValues = other.BendValues)
+
+    override this.Equals other =
+        match other with
+        | :? BendData32 as bd -> (this :> IEquatable<_>).Equals bd
+        | _ -> false
+
+    override this.GetHashCode () =
+        if this.UsedCount = 0
+        then 0
+        else this.BendValues.GetHashCode()
+
+    static member Empty = { BendValues = Array.replicate 32 BendValue.Empty; UsedCount = 0 }

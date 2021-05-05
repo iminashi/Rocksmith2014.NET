@@ -5,19 +5,6 @@ open Rocksmith2014
 open System.Collections.Generic
 open System.Threading
 
-module internal ChordNotesHelper =
-    let comparer = 
-        { new IEqualityComparer<ChordNotes> with
-            member _.Equals(cn1, cn2) = cn1 = cn2
-
-            member _.GetHashCode(cn) =
-                int cn.Mask.[0]
-                + (int cn.Mask.[1] * 2)
-                + (int cn.Mask.[2] * 3)
-                + (int cn.Mask.[3] * 4)
-                + (int cn.Mask.[4] * 5)
-                + (int cn.Mask.[5] * 6) }
-
 /// The note count for each hero level and the number of ignored notes in the hard level.
 type NoteCountsMutable() =
     [<DefaultValue>] val mutable Easy : int
@@ -61,7 +48,7 @@ type AccuData =
     static member Init(arr: XML.InstrumentalArrangement) =
         { StringMasks = Array.init arr.Sections.Count (fun _ -> Array.zeroCreate 36)
           ChordNotes = ResizeArray()
-          ChordNotesMap = Dictionary(ChordNotesHelper.comparer)
+          ChordNotesMap = Dictionary()
           AnchorExtensions = Array.init arr.Levels.Count (fun _ -> ResizeArray())
           NotesInPhraseIterationsExclIgnored = Array.init arr.Levels.Count (fun _ -> Array.zeroCreate arr.PhraseIterations.Count)
           NotesInPhraseIterationsAll = Array.init arr.Levels.Count (fun _ -> Array.zeroCreate arr.PhraseIterations.Count)
