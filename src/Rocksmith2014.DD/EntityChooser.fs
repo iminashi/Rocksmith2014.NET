@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DD.EntityChooser
+﻿module internal Rocksmith2014.DD.EntityChooser
 
 open Rocksmith2014.XML
 open System.Collections.Generic

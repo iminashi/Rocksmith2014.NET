@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DD.LevelCounter
+﻿module internal Rocksmith2014.DD.LevelCounter
 
 open Rocksmith2014.DD.Model
 open System

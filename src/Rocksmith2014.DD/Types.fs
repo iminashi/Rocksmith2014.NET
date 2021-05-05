@@ -5,21 +5,26 @@ open Rocksmith2014.XML
 open System.Collections.Generic
 
 type XmlEntity =
-    | XmlNote of Note
-    | XmlChord of Chord
+    | XmlNote of xmlNote: Note
+    | XmlChord of xmlChord: Chord
 
-type RequestTarget = ChordTarget of Chord | HandShapeTarget of HandShape
+type RequestTarget =
+    | ChordTarget of chordTarget: Chord
+    | HandShapeTarget of handshapeTarget: HandShape
 
-type TemplateRequest = { OriginalId: int16
-                         NoteCount: byte
-                         Target: RequestTarget }
+type TemplateRequest =
+    { OriginalId: int16
+      NoteCount: byte
+      Target: RequestTarget }
 
-type DifficultyRange = { Low: float; High: float }
-
-type BeatDivision = int
-
-type PhraseSearch = SearchDisabled | WithThreshold of int
+type PhraseSearch =
+    | SearchDisabled
+    | WithThreshold of threshold: int
 
 type GeneratorConfig = { PhraseSearch: PhraseSearch }
 
-type DivisionMap = IReadOnlyDictionary<BeatDivision, DifficultyRange>
+type internal DifficultyRange = { Low: float; High: float }
+
+type internal BeatDivision = int
+
+type internal DivisionMap = IReadOnlyDictionary<BeatDivision, DifficultyRange>

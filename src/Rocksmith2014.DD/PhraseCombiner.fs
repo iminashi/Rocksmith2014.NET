@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DD.PhraseCombiner
+﻿module internal Rocksmith2014.DD.PhraseCombiner
 
 open System
 open System.Collections.Generic
@@ -84,7 +84,7 @@ let combineSamePhrases (config: GeneratorConfig)
     let sameDifficulties, differentDifficulties =
         match config.PhraseSearch with
         | SearchDisabled ->
-            findEmptyPhrases iterationData, [||]
+            findEmptyPhrases iterationData, Array.empty
         | WithThreshold threshold ->
             findSamePhrases threshold levelCounts iterationData
             |> Array.partition (fun x -> x.SameDifficulty)
@@ -98,7 +98,8 @@ let combineSamePhrases (config: GeneratorConfig)
             match Array.tryFind (fun x -> id = x.MainId || Array.contains id x.Ids) sameDifficulties with
             | Some data ->
                 match idMap.TryGetValue data.MainId with
-                | true, v -> v
+                | true, value ->
+                    value
                 | false, _ ->
                     idMap.Add(data.MainId, phraseId)
                     phraseId <- phraseId + 1
@@ -135,7 +136,7 @@ let combineSamePhrases (config: GeneratorConfig)
         let firstId = newPhraseIterations.[0].PhraseId
         let lastId = (Array.last newPhraseIterations).PhraseId
         let createdPhraseIds = HashSet<int>()
-        let mutable counter = 0
+        let mutable counter = -1
 
         newPhraseIterations
         |> Array.choose (fun pi ->
@@ -150,7 +151,7 @@ let combineSamePhrases (config: GeneratorConfig)
                     elif maxDiff = 0uy then "NOGUITAR"
                     else
                         counter <- counter + 1
-                        $"p{counter - 1}"
+                        $"p{counter}"
 
                 createdPhraseIds.Add pi.PhraseId |> ignore
                 Some <| Phrase(name, maxDiff, PhraseMask.None))

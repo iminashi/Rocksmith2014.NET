@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DD.BeatDivider
+﻿module internal Rocksmith2014.DD.BeatDivider
 
 open Rocksmith2014.DD.DataExtractor
 open Rocksmith2014.XML
