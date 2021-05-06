@@ -33,11 +33,11 @@ let mapToResizeArray map (array: 'a array) =
     ra
 
 /// Maps a ResizeArray into an array using the given map function.
-let mapToArray map (resizeArray: ResizeArray<'a>) =
+let mapToArray map (resizeArray: ResizeArray<_>) =
     Array.init resizeArray.Count (fun i -> map resizeArray.[i])
 
 /// Maps a ResizeArray into an array using the given map function, with index.
-let mapiToArray map (resizeArray: ResizeArray<'a>) =
+let mapiToArray map (resizeArray: ResizeArray<_>) =
     Array.init resizeArray.Count (fun i -> map i resizeArray.[i])
 
 /// Returns the average of the given array, zero for an empty array.

@@ -94,10 +94,12 @@ let private copyWemFile (destPath: string) (templateDir: string) =
     File.Copy(wemFiles.[0], destPath, overwrite=true)
     fixHeader destPath
 
-let private getWwiseVersion = function
-    | Contains "2019" -> Wwise2019
-    | Contains "2021" -> Wwise2021
-    | _ -> Wwise2019
+let private getWwiseVersion executablePath =
+    let version = FileVersionInfo.GetVersionInfo executablePath
+    match version.ProductMajorPart with
+    | 2019 -> Wwise2019
+    | 2021 -> Wwise2021
+    | version -> failwith $"Unsupported Wwise version {version}"
 
 /// Converts the source audio file into a wem file.
 let convertToWem (cliPath: string option) (sourcePath: string) = async {
