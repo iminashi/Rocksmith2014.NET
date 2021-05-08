@@ -1,7 +1,4 @@
-﻿[<AutoOpen>]
-module ElmishExtensions
-
-open Elmish
+﻿namespace Elmish
 
 [<RequireQualifiedAccess>]
 module Cmd =
