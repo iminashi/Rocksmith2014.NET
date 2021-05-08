@@ -77,21 +77,36 @@ let findAnchor time (anchors: ResizeArray<XML.Anchor>) =
 
 /// Finds the ID (if any) of the fingerprint for a note at the given time code.
 let findFingerPrintId time (fingerPrints: FingerPrint array) =
-    let mutable id = 0
-    while id <> fingerPrints.Length && not (time >= fingerPrints.[id].StartTime && time < fingerPrints.[id].EndTime) do
-        id <- id + 1
-    if id = fingerPrints.Length then -1 else id
+    let rec find index =
+        if index = fingerPrints.Length || time >= fingerPrints.[index].EndTime then
+            -1
+        elif time < fingerPrints.[index].StartTime then
+            find (index + 1)
+        else
+            index
+    find 0
 
 /// Finds the index of the first note that is equal or greater than the given time.
 let private findIndex startIndex time (noteTimes: int array) =
-    let mutable index = startIndex
-    while index <> noteTimes.Length && noteTimes.[index] < time do
-        index <- index + 1
-    if index = noteTimes.Length then -1 else index
+    let rec find index =
+        if index = noteTimes.Length then
+            -1
+        elif noteTimes.[index] >= time then
+            index
+        else
+            find (index + 1)
+    find startIndex
 
 /// Finds the indexes of the first and last notes in the given time range.
 let findFirstAndLastTime (noteTimes: int array) startTime endTime =
-    let firstIndex = findIndex 0 startTime noteTimes
+    let startIndex =
+        if noteTimes.Length = 0 then
+            0
+        else
+            let mid = noteTimes.Length / 2
+            if noteTimes.[mid] < startTime then mid else 0
+
+    let firstIndex = findIndex startIndex startTime noteTimes
     match firstIndex with
     | -1 ->
         None
