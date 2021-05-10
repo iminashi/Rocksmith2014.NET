@@ -18,10 +18,12 @@ type BendData32 =
           UsedCount = reader.ReadInt32() }
 
     interface IEquatable<BendData32> with
+        // Since bend values have timestamps, in theory, different chords should never have the same bend values
         member this.Equals other =
             (this.UsedCount = 0 && other.UsedCount = 0)
             ||
-            (this.UsedCount = other.UsedCount && this.BendValues = other.BendValues)
+            (this.UsedCount = other.UsedCount && 
+             ReadOnlySpan(this.BendValues, 0, this.UsedCount).SequenceEqual(ReadOnlySpan(other.BendValues, 0, other.UsedCount)))
 
     override this.Equals other =
         match other with
