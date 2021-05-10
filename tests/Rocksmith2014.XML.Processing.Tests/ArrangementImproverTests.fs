@@ -375,6 +375,18 @@ let handShapeAdjusterTests =
 
             Expect.isTrue (hs1.EndTime < 2000) "Hand shape was shortened"
             Expect.isTrue (hs1.StartTime < hs1.EndTime) "Hand shape end comes after the start"
+
+        testCase "Does not fail on handshapes that exceed the last beat" <| fun _ ->
+            let beats = ResizeArray(seq { Ebeat(500, -1s); Ebeat(1000, -1s); Ebeat(1500, -1s); Ebeat(2500, -1s) })
+            let hs1 = HandShape(0s, 2500, 2600)
+            let hs2 = HandShape(0s, 2600, 2800)
+            let handShapes = ResizeArray(seq { hs1; hs2 })
+            let levels = ResizeArray(seq { Level(HandShapes = handShapes) })
+            let arr = InstrumentalArrangement(Ebeats = beats, Levels = levels)
+
+            HandShapeAdjuster.improve arr
+
+            Expect.isTrue (hs1.EndTime < 2600) "Hand shape was shortened"
     ]
 
 [<Tests>]

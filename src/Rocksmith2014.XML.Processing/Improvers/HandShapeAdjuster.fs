@@ -27,7 +27,10 @@ let improve (arrangement: InstrumentalArrangement) =
 
             // Ignore nested handshapes
             if precedingEndTime < followingEndTime then
-                let beat2Index = arrangement.Ebeats.FindIndex(fun b -> b.Time > precedingEndTime)
+                let beat2Index =
+                    let i = arrangement.Ebeats.FindIndex(fun b -> b.Time > precedingEndTime)
+                    // For handshapes that come after the last beat (bad XML) use the last beat
+                    if i = -1 then arrangement.Ebeats.Count - 1 else i
                 let beat1 = arrangement.Ebeats.[beat2Index - 1]
                 let beat2 = arrangement.Ebeats.[beat2Index]
 
