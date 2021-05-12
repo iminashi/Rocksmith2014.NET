@@ -5,11 +5,20 @@ open System.IO
 open Elmish
 open Rocksmith2014.PSARC
 open Rocksmith2014.XML
+open Rocksmith2014.Audio
 
 let psarcUnpackProgress = Progress<float>()
 
 let update msg state =
     match msg with
+    | ConvertWemToOgg files ->
+        let task () = async {
+            files
+            |> Array.iter Conversion.wemToOgg }
+
+        Utils.addTask WemToOggConversion state,
+        Cmd.OfAsync.either task () (fun () -> WemToOggConversionCompleted) (fun ex -> TaskFailed(ex, WemToOggConversion))
+
     | UnpackPSARC file ->
         let targetDirectory = Path.Combine(Path.GetDirectoryName file, Path.GetFileNameWithoutExtension file)
         Directory.CreateDirectory targetDirectory |> ignore

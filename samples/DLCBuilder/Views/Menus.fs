@@ -183,6 +183,12 @@ let tools state dispatch =
                 MenuItem.header (translate "removeDD")
                 MenuItem.onClick (fun _ -> Dialog.RemoveDD |> ShowDialog |> dispatch)
             ]
+
+            // Convert Wem to Ogg
+            MenuItem.create [
+                MenuItem.header (translate "convertWemToOgg")
+                MenuItem.onClick (fun _ -> Dialog.WemFiles |> ShowDialog |> dispatch)
+            ]
         ]
     ]
 

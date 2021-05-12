@@ -739,6 +739,9 @@ let update (msg: Msg) (state: State) =
         Utils.removeTask PsarcUnpack state,
         Cmd.ofMsg (AddStatusMessage "PsarcUnpackComplete")
 
+    | WemToOggConversionCompleted ->
+        Utils.removeTask WemToOggConversion state, Cmd.none
+
     | AddStatusMessage locString ->
         let id = Guid.NewGuid()
         let message = translate locString

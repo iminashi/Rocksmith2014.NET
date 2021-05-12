@@ -22,6 +22,8 @@ let private createFileFilters filter =
         match filter with
         | FileFilter.Audio ->
             [ "wav"; "ogg"; "wem" ]
+        | FileFilter.Wem ->
+            [ "wem" ]
         | FileFilter.XML ->
             [ "xml" ]
         | FileFilter.Image ->
@@ -143,6 +145,9 @@ let showDialog dialogType state =
 
         | Dialog.PsarcUnpack ->
             ofd FileFilter.PSARC (UnpackPSARC >> ToolsMsg)
+
+        | Dialog.WemFiles ->
+            openMultiFileDialog title FileFilter.Wem None (ConvertWemToOgg >> ToolsMsg)
 
         | Dialog.RemoveDD ->
             openMultiFileDialog title FileFilter.XML None (RemoveDD >> ToolsMsg)

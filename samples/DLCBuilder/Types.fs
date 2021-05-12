@@ -39,6 +39,7 @@ type LongTask =
     | WemConversion
     | PsarcImport
     | PsarcUnpack
+    | WemToOggConversion
     | ArrangementCheck
     | VolumeCalculation of VolumeTarget
 
@@ -140,6 +141,7 @@ type State =
       ArrangementIssues : Map<string, ArrangementChecker.Issue list> }
 
 type ToolsMsg =
+    | ConvertWemToOgg of files : string array
     | UnpackPSARC of file : string
     | RemoveDD of files : string array
 
@@ -151,6 +153,7 @@ type Dialog =
     | PsarcImport
     | PsarcImportTargetFolder of psarcPath : string
     | PsarcUnpack
+    | WemFiles
     | RemoveDD
     | TestFolder
     | ProfileFile
@@ -172,6 +175,7 @@ type FileFilter =
     | Profile
     | Project
     | PSARC
+    | Wem
     | ToolkitTemplate
     | ToneImport
     | ToneExport
@@ -247,6 +251,7 @@ type Msg =
     | RemoveStatusMessage of id : Guid
     | CheckCompleted of Map<string, ArrangementChecker.Issue list>
     | PsarcUnpacked
+    | WemToOggConversionCompleted
     | ConvertToWem
     | ConvertToWemCustom
     | CalculateVolumes
