@@ -398,6 +398,26 @@ let basicFixTests =
             let arr = InstrumentalArrangement(Phrases = phrases)
 
             BasicFixes.validatePhraseNames arr
+
             Expect.equal phrases.[0].Name "TEST" "First phrase name was changed"
             Expect.equal phrases.[1].Name "TEST_2" "Second phrase name was changed"
+    ]
+
+[<Tests>]
+let integrationTests =
+    testList "Arrangement Improver Integration Tests" [
+        testCase "Extra anchors are not created when moving phrases" <| fun _ ->
+            let beats = ResizeArray(seq { Ebeat(900, 0s); Ebeat(1000, -1s); Ebeat(1200, -1s) })
+            let phrases = ResizeArray(seq { Phrase("mover2", 0uy, PhraseMask.None); Phrase("END", 0uy, PhraseMask.None) })
+            let iterations = ResizeArray(seq { PhraseIteration(1000, 0); PhraseIteration(1900, 1) })
+            let notes = ResizeArray(seq { Note(Time = 1000); Note(Time = 1200) })
+            let anchors = ResizeArray(seq { Anchor(1y, 1200) })
+            let levels = ResizeArray(seq { Level(Notes = notes, Anchors = anchors) })
+            let arr = InstrumentalArrangement(Phrases = phrases, PhraseIterations = iterations, Levels = levels, Ebeats = beats)
+            arr.MetaData.SongLength <- 2000
+
+            ArrangementImprover.applyAll arr
+
+            Expect.hasLength anchors 1 "No new anchors were created"
+            Expect.equal (anchors.[0].Time) 1200 "Anchor is at correct position"
     ]
