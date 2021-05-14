@@ -35,7 +35,7 @@ let improve (arrangement: InstrumentalArrangement) =
                 // If there is an anchor at the original position, but not at the new position, move it
                 if originalAnchorIndex <> -1 && movetoAnchorIndex = -1 then
                     let originalAnchor = anchors.[originalAnchorIndex]
-                    anchors.Insert(originalAnchorIndex + 1, Anchor(originalAnchor.Fret, movetoTime, originalAnchor.Width))
+                    anchors.InsertByTime(Anchor(originalAnchor.Fret, movetoTime, originalAnchor.Width))
 
                     // Remove anchor at original phrase position if no note or chord present
                     if level.Notes.FindIndexByTime phraseTime = -1 && level.Chords.FindIndexByTime phraseTime = -1 then
