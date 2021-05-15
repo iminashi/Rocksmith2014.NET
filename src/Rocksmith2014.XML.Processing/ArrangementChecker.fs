@@ -48,7 +48,8 @@ let checkCrowdEventPlacement (arrangement: InstrumentalArrangement) =
     let crowdEventRegex = Regex("e[0-2]|E3|D3$")
 
     match introApplauseStart, applauseEnd with
-    | null, _ -> []
+    | null, _ ->
+        List.empty
     | start, null ->
         [ issue ApplauseEventWithoutEnd start.Time ]
     | start, end' ->
@@ -132,7 +133,8 @@ let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
             else
                 None
 
-        | _ -> None
+        | _ ->
+            None
 
 let private isOnToneChange (arr: InstrumentalArrangement) time =
     not <| isNull arr.Tones.Changes

@@ -44,7 +44,7 @@ type LongTask =
     | VolumeCalculation of VolumeTarget
 
 type StatusMessage =
-    | TaskWithoutProgress of taks:LongTask
+    | TaskWithoutProgress of task:LongTask
     | TaskWithProgress of task:LongTask * progress:float
     | MessageString of id:Guid * message:string
 
