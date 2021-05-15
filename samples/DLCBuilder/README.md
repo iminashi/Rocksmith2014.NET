@@ -44,6 +44,20 @@ Will be used when "Apply Improvements" is enabled.
 - Removing of "anchor placeholder" notes
 - Creation of tone change events (pointless)
 
+## Using the Phrase Mover
+
+Phrases can be moved off beat by giving the phrase a special name: "mover#".
+
+This will move the phrase right by # notes, where the number must be 1 or more. 1 will move the phrase to the next note/chord.
+
+Chords and split chords count as one. If the phrase is located on the same timecode as a note/chord (sustain of a previous note does not count), it counts as one.
+
+![Screenshot of phrase moving](https://i.imgur.com/xM1zF6g.png)
+
+In the above case, the phrase and section will be moved to start at the G power chord.
+
+If an anchor (FHP) is set at the start of the phrase, it will be moved to the new position. The anchor at the old position is deleted if there is no note at that position.
+
 ## Differences to the Toolkit
 
 ### Performance
