@@ -82,7 +82,7 @@ type MainWindow(commandLineArgs: string array) as this =
         |> Program.withSubscription hotKeysSub
         |> Program.withSubscription progressReportingSub
         #if DEBUG
-        |> Program.withTrace (fun msg state -> Diagnostics.Debug.WriteLine msg)
+        |> Program.withTrace (fun msg _state -> Diagnostics.Debug.WriteLine msg)
         #endif
         |> Program.runWith (Array.tryHead commandLineArgs)
 
@@ -114,6 +114,5 @@ module Program =
         AppBuilder
             .Configure<App>()
             .UsePlatformDetect()
-            //.With(AvaloniaNativePlatformOptions(UseGpu = false))
             .UseSkia()
             .StartWithClassicDesktopLifetime(args)

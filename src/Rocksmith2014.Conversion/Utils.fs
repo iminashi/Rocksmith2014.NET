@@ -78,12 +78,12 @@ let findAnchor time (anchors: ResizeArray<XML.Anchor>) =
 /// Finds the ID (if any) of the fingerprint for a note at the given time code.
 let findFingerPrintId time (fingerPrints: FingerPrint array) =
     let rec find index =
-        if index = fingerPrints.Length || time >= fingerPrints.[index].EndTime then
+        if index = fingerPrints.Length || fingerPrints.[index].StartTime > time then
             -1
-        elif time < fingerPrints.[index].StartTime then
-            find (index + 1)
-        else
+        elif time >= fingerPrints.[index].StartTime && time < fingerPrints.[index].EndTime then
             index
+        else
+            find (index + 1)
     find 0
 
 /// Finds the index of the first note that is equal or greater than the given time.
