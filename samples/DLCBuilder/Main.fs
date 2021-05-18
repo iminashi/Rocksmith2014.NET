@@ -4,12 +4,10 @@ open Rocksmith2014
 open Rocksmith2014.Audio
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
-open Rocksmith2014.DD
 open Rocksmith2014.DLCProject
 open Rocksmith2014.PSARC
 open Rocksmith2014.XML.Processing
 open Avalonia
-open Avalonia.Controls.ApplicationLifetimes
 open Avalonia.Controls.Selection
 open Elmish
 open System
@@ -787,7 +785,3 @@ let update (msg: Msg) (state: State) =
         | _ ->
             // Ignore the message when an overlay is open
             state, Cmd.none
-
-    | CloseApplication ->
-        (Application.Current.ApplicationLifetime :?> IClassicDesktopStyleApplicationLifetime).Shutdown(0)
-        state, Cmd.none

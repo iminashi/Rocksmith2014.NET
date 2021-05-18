@@ -1,8 +1,10 @@
 ﻿module DLCBuilder.Views.Menus
 
+open Avalonia
 open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
 open Avalonia.Controls
+open Avalonia.Controls.ApplicationLifetimes
 open Avalonia.Input
 open Avalonia.Layout
 open System
@@ -152,7 +154,8 @@ let file state dispatch =
                     MenuItem.inputGesture (KeyGesture(Key.Q, KeyModifiers.Meta))
                 | PC ->
                     MenuItem.inputGesture (KeyGesture(Key.F4, KeyModifiers.Alt))
-                MenuItem.onClick (fun _ -> dispatch CloseApplication)
+                MenuItem.onClick (fun _ ->
+                    (Application.Current.ApplicationLifetime :?> IClassicDesktopStyleApplicationLifetime).Shutdown 0)
             ]
         ]
     ]

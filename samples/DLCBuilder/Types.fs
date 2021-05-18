@@ -263,4 +263,3 @@ type Msg =
     | ToolsMsg of ToolsMsg
     | ShowDialog of Dialog
     | HotKeyMsg of Msg
-    | CloseApplication
