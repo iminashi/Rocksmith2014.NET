@@ -73,24 +73,18 @@ let private skipWhileNot eq elem list =
 let getSameElementCount eq elems1 elems2 =
     let rec getCount count list1 list2 =
         match list1, list2 with
+        | head1::tail1, head2::tail2 when eq head1 head2 ->
+            getCount (count + 1) tail1 tail2
+        | _::l::tail1, _::r::tail2 when eq l r ->
+            getCount (count + 1) tail1 tail2
         | head1::tail1, head2::tail2 ->
-            if eq head1 head2 then
-                getCount (count + 1) tail1 tail2
-            else
-                let tail1' = skipWhileNot eq head2 tail1
-                let count1 = getCount count tail1' list2
+            let tail1' = skipWhileNot eq head2 tail1
+            let count1 = getCount count tail1' list2
 
-                let tail2' = skipWhileNot eq head1 tail2
-                let count2 = getCount count list1 tail2'
+            let tail2' = skipWhileNot eq head1 tail2
+            let count2 = getCount count list1 tail2'
 
-                let count3 =
-                    match tail1, tail2 with
-                    | h1::t1, h2::t2 when eq h1 h2 ->
-                        getCount (count + 1) t1 t2
-                    | _ ->
-                        0
-
-                max count1 count2 |> max count3
+            max count1 count2
         | _ ->
             count
 
