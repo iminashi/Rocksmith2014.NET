@@ -117,4 +117,14 @@ let tests =
             match id with
             | Ok id -> Expect.exists psarc.Manifest (String.contains (string id)) $"PSARC contains audio file with correct ID"
             | Error e -> failwith e }
+
+        testAsync "PC package contains correct lead tone" {
+            use psarc = PSARC.ReadFile psarcPathWin
+
+            use! file = psarc.GetEntryStream("manifests/songs_dlc_integrationtest/integrationtest_lead.json")
+            let! manifest = Manifest.fromJsonStream(file).AsTask() |> Async.AwaitTask
+            let attributes = Manifest.getSingletonAttributes manifest
+
+            Expect.equal attributes.Tones.[0].Key "guitar" "Tone key is correct"
+            Expect.equal attributes.Tones.[0].ToneDescriptors.[0] "$[35751]MULTI-EFFECT" "First tone descriptor is correct" }
     ]
