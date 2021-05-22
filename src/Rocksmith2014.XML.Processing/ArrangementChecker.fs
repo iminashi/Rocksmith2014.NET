@@ -232,7 +232,7 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
         // Check chords at the end of handshape (no "handshape sustain")
         let handShape = level.HandShapes.Find(fun hs -> hs.ChordId = chord.ChordId && time >= hs.StartTime && time <= hs.EndTime)
         if not <| isNull handShape && handShape.EndTime - time <= 5 then
-            issue ChordAtEndOfHandShape  time
+            issue ChordAtEndOfHandShape time
 
         // Check for chords inside noguitar sections
         if isInsideNoguitarSection ngSections time then

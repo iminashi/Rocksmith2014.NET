@@ -28,7 +28,7 @@ let generateIds = function
 let generateAllIds arrangements = List.map generateIds arrangements
 
 /// Returns an async computation for building a package for testing.
-let build platform config project =
+let build platform config project = async {
     let isRocksmithRunning =
         Process.GetProcessesByName "Rocksmith2014"
         |> (Array.isEmpty >> not)
@@ -75,4 +75,4 @@ let build platform config project =
     let path = Path.Combine(targetFolder, packageFileName)
     let buildConfig = Utils.createBuildConfig Test config project [ platform ]
 
-    PackageBuilder.buildPackages path buildConfig project
+    do! PackageBuilder.buildPackages path buildConfig project }

@@ -67,7 +67,7 @@ let view state dispatch (tone: Tone) =
                     // Remove key
                     Button.create [
                         DockPanel.dock Dock.Right
-                        ComboBox.margin 4.
+                        Button.margin 4.
                         Button.content "X"
                         Button.isEnabled (String.notEmpty tone.Key)
                         Button.onClick (fun _ -> String.Empty |> SetKey |> EditTone |> dispatch)

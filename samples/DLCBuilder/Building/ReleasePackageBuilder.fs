@@ -11,7 +11,7 @@ let getTargetDirectory (projectPath: string option) project =
     |> Path.GetDirectoryName
 
 /// Returns an async task for building packages for release.
-let build (openProject: string option) config project =
+let build (openProject: string option) config project = async {
     let project = Utils.addDefaultTonesIfNeeded project
     let releaseDir = getTargetDirectory openProject project
 
@@ -21,7 +21,7 @@ let build (openProject: string option) config project =
 
     let path = Path.Combine(releaseDir, fileName)
     let buildConfig = Utils.createBuildConfig Release config project (Set.toList config.ReleasePlatforms)
-    PackageBuilder.buildPackages path buildConfig project
+    do! PackageBuilder.buildPackages path buildConfig project }
 
 let private addPitchPedal index shift gearList =
     let knobs =
@@ -44,7 +44,7 @@ let private addPitchPedal index shift gearList =
 
     { gearList with PrePedals = prePedals }
 
-let buildPitchShifted (openProject: string option) config project =
+let buildPitchShifted (openProject: string option) config project = async {
     let shift = project.PitchShift |> Option.defaultValue 0s
     let title = { project.Title with SortValue = $"{project.Title.SortValue} Pitch" }
     let dlcKey = $"Pitch{project.DLCKey}"
@@ -68,7 +68,7 @@ let buildPitchShifted (openProject: string option) config project =
             | Some index ->
                 { tone with GearList = addPitchPedal index shift tone.GearList }
             | None ->
-                failwith $"Could not add pitch shift pre-pedal to tone {tone.Key}")
+                failwith $"Could not add pitch shift pedal to tone {tone.Key}.\nThere needs to be at least one free pre-pedal slot.")
 
     let pitchProject =
         { project with DLCKey = dlcKey
@@ -76,4 +76,4 @@ let buildPitchShifted (openProject: string option) config project =
                        Arrangements = arrangements
                        Tones = tones }
 
-    build openProject config pitchProject
+    do! build openProject config pitchProject }
