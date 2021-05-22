@@ -176,8 +176,8 @@ let private createDynamicVisualDensity (levels: int) (arrangement: Arrangement) 
     | Instrumental inst ->
         let floorLimit = 0.5 // Fastest allowed speed
         let beginSpeed = 5.0
-        let endSpeed = Math.Min(beginSpeed, Math.Max(floorLimit, inst.ScrollSpeed))
-        let maxLevel = Math.Min(levels, 20) - 1
+        let endSpeed = Math.Clamp(inst.ScrollSpeed, floorLimit, beginSpeed)
+        let maxLevel = (min levels 20) - 1
         let factor = if maxLevel > 0 then Math.Pow(endSpeed / beginSpeed, 1. / float maxLevel) else 1.
 
         Array.init 20 (fun i ->
