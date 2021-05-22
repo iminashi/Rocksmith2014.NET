@@ -88,6 +88,7 @@
   "generateAllIDs": "Generoi ID:t kaikille sovituksille",
   "generateNewArrIDs": "Generoi uudet ID:t",
   "generateNewArrIDsToolTip": "Luo uudet identifikaatiotiedot tälle sovitukselle.\n\nSovituksen tilastot pelissä resetoituvat.",
+  "applyLowTuningFix": "Käytä matalan virityksen korjausta",
   "japanese": "Japaninkielinen",
   "customFont": "Mukautettu fontti",
   "removeCustomFontToolTip": "Poista mukautettu fontti sovituksesta.",

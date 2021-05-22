@@ -88,6 +88,7 @@
   "generateAllIDs": "すべてのアレンジに新IDをジェネレート",
   "generateNewArrIDs": "新しいIDをジェネレート",
   "generateNewArrIDsToolTip": "このアレンジに新しいIDをジェネレートします。\n\nこのアレンジのゲーム内のデータがリセットされます。",
+  "applyLowTuningFix": "低いチューニング用の修正を適用",
   "japanese": "日本語",
   "customFont": "カスタムフォント",
   "removeCustomFontToolTip": "カスタムフォントをアレンジから取り除く",

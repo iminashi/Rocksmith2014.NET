@@ -689,6 +689,22 @@ let update (msg: Msg) (state: State) =
         let arrangements = TestPackageBuilder.generateAllIds project.Arrangements
         { state with Project = { project with Arrangements = arrangements } }, Cmd.none
 
+    | ApplyLowTuningFix ->
+        let arrangements =
+            project.Arrangements
+            |> List.mapi (fun i arr ->
+                if i = state.SelectedArrangementIndex then
+                    match arr with
+                    | Instrumental inst ->
+                        { inst with TuningPitch = inst.TuningPitch / 2.
+                                    Tuning = Array.map ((+) 12s) inst.Tuning }
+                        |> Instrumental
+                    | _ ->
+                        arr
+                else
+                    arr)
+        { state with Project = { project with Arrangements = arrangements } }, Cmd.none
+
     | BuildPitchShifted ->
         buildPackage Release (ReleasePackageBuilder.buildPitchShifted state.OpenProjectFile) state
 

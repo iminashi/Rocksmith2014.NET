@@ -88,6 +88,7 @@
   "generateAllIDs": "Generate IDs for All Arrangements",
   "generateNewArrIDs": "Generate New IDs",
   "generateNewArrIDsToolTip": "Generates new identification data for this arrangement.\n\nThe in-game stats for the arrangement will be reset.",
+  "applyLowTuningFix": "Apply Low Tuning Fix",
   "japanese": "Japanese",
   "customFont": "Custom Font",
   "removeCustomFontToolTip": "Click to remove the custom font from the arrangement.",

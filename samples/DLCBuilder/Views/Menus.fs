@@ -213,28 +213,33 @@ module Context =
         ContextMenu.create [
             ContextMenu.isVisible (state.SelectedToneIndex <> -1)
             ContextMenu.viewItems [
+                // Duplicate
                 MenuItem.create [
                     MenuItem.header (translate "duplicate")
                     MenuItem.onClick (fun _ -> DuplicateTone |> dispatch)
                 ]
 
+                // Move Up
                 MenuItem.create [
                     MenuItem.header (translate "moveUp")
                     MenuItem.inputGesture (KeyGesture(Key.Up, KeyModifiers.Alt))
                     MenuItem.onClick (fun _ -> Up |> MoveTone |> dispatch)
                 ]
 
+                // Move Down
                 MenuItem.create [
                     MenuItem.header (translate "moveDown")
                     MenuItem.inputGesture (KeyGesture(Key.Down, KeyModifiers.Alt))
                     MenuItem.onClick (fun _ -> Down |> MoveTone |> dispatch)
                 ]
 
+                // Edit
                 MenuItem.create [
                     MenuItem.header (translate "edit")
                     MenuItem.onClick (fun _ -> ShowToneEditor |> dispatch)
                 ]
 
+                // Export
                 MenuItem.create [
                     MenuItem.header (translate "export")
                     MenuItem.onClick (fun _ -> ExportSelectedTone |> dispatch)
@@ -242,6 +247,7 @@ module Context =
 
                 separator
 
+                // Remove
                 MenuItem.create [
                     MenuItem.header (translate "remove")
                     MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))
@@ -251,18 +257,19 @@ module Context =
         ]
 
     let arrangement state dispatch =
-        let isInstrumental, hasIds =
-            match state.SelectedArrangementIndex with
-            | -1 -> false, false
-            | index ->
-                match state.Project.Arrangements.[index] with
-                | Instrumental _ -> true, true
-                | Vocals _ -> false, true
-                | _ -> false, false
+        let isInstrumental, hasIds, canApplyTuningFix =
+            match List.tryItem state.SelectedArrangementIndex state.Project.Arrangements with
+            | Some (Instrumental inst) ->
+                true, true, inst.TuningPitch > 220.
+            | Some (Vocals _) ->
+                false, true, false
+            | _ ->
+                false, false, false
 
         ContextMenu.create [
             ContextMenu.isVisible (state.SelectedArrangementIndex <> -1)
             ContextMenu.viewItems [
+                // Generate New Arrangement IDs
                 MenuItem.create [
                     MenuItem.header (translate "generateNewArrIDs")
                     MenuItem.isEnabled hasIds
@@ -270,6 +277,7 @@ module Context =
                     ToolTip.tip (translate "generateNewArrIDsToolTip")
                 ]
 
+                // Reload Tone Keys
                 MenuItem.create [
                     MenuItem.header (translate "reloadToneKeys")
                     MenuItem.isEnabled isInstrumental
@@ -277,12 +285,21 @@ module Context =
                     ToolTip.tip (translate "reloadToneKeysTooltip")
                 ]
 
+                // Apply Low Tuning Fix
+                MenuItem.create [
+                    MenuItem.header (translate "applyLowTuningFix")
+                    MenuItem.isEnabled canApplyTuningFix
+                    MenuItem.onClick (fun _ -> ApplyLowTuningFix |> dispatch)
+                ]
+
+                // Move Up
                 MenuItem.create [
                     MenuItem.header (translate "moveUp")
                     MenuItem.inputGesture (KeyGesture(Key.Up, KeyModifiers.Alt))
                     MenuItem.onClick (fun _ -> Up |> MoveArrangement |> dispatch)
                 ]
 
+                // Move Down
                 MenuItem.create [
                     MenuItem.header (translate "moveDown")
                     MenuItem.inputGesture (KeyGesture(Key.Down, KeyModifiers.Alt))
@@ -291,6 +308,7 @@ module Context =
 
                 separator
 
+                // Generate New IDs for All Arrangements
                 MenuItem.create [
                     MenuItem.header (translate "generateAllIDs")
                     MenuItem.onClick (fun _ -> GenerateAllIds |> dispatch)
@@ -298,6 +316,7 @@ module Context =
 
                 separator
 
+                // Remove
                 MenuItem.create [
                     MenuItem.header (translate "remove")
                     MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))

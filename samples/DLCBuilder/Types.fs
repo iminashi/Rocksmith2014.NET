@@ -228,6 +228,7 @@ type Msg =
     | ShowJapaneseFields of shown : bool
     | GenerateNewIds
     | GenerateAllIds
+    | ApplyLowTuningFix
     | EditInstrumental of InstrumentalEdit
     | EditVocals of VocalsEdit
     | EditTone of ToneEdit
