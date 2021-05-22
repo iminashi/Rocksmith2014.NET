@@ -368,7 +368,7 @@ let private initSongComplete (partition: int)
                              (attr: Attributes) =
     let tones =
         let toneKeysUsed =
-            [ instrumental.BaseTone; yield! instrumental.Tones ]
+            instrumental.BaseTone::instrumental.Tones
             |> Set.ofList
         project.Tones
         |> List.filter (fun t -> toneKeysUsed.Contains t.Key)

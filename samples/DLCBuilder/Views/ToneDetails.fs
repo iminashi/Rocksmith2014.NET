@@ -32,12 +32,9 @@ let private createDescriptors dispatch (tone: Tone) =
 let view state dispatch (tone: Tone) =
     let keys =
         state.Project.Arrangements
-        |> List.collect (fun x ->
-            [ match x with
-              | Instrumental i ->
-                  yield i.BaseTone
-                  yield! i.Tones
-              | _ -> () ])
+        |> List.collect (function
+              | Instrumental i -> i.BaseTone::i.Tones
+              | _ -> List.empty)
         |> List.distinct
 
     Grid.create [

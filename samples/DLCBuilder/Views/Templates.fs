@@ -153,14 +153,14 @@ let arrangement state dispatch index arr =
     let missingTones =
         match arr with
         | Instrumental inst ->
-            [ inst.BaseTone; yield! inst.Tones ]
+            inst.BaseTone::inst.Tones
             |> List.distinct
             |> List.filter (fun toneKey ->
                 state.Project.Tones
                 |> List.exists (fun pt -> pt.Key = toneKey)
                 |> not)
         | _ ->
-            []
+            List.empty
 
     DockPanel.create [
         DockPanel.classes [ "listitem"; if state.SelectedArrangementIndex = index then "selected" ]
