@@ -304,7 +304,7 @@ let private findAnchorsInsideHandShapes moverPhraseTimes phraseTimes (level: Lev
     |> Seq.filter (fun anchor ->
         level.HandShapes.Exists(fun hs -> anchor.Time > hs.StartTime && anchor.Time < hs.EndTime)
         &&
-        not (Array.contains anchor.Time moverPhraseTimes))
+        not (Set.contains anchor.Time moverPhraseTimes))
     |> Seq.map (fun anchor ->
         if phraseTimes |> Set.contains anchor.Time then
             issue AnchorInsideHandShapeAtPhraseBoundary anchor.Time
@@ -323,7 +323,7 @@ let private findUnpitchedSlideAnchors moverPhraseTimes (level: Level) =
     |> Seq.filter (fun anchor ->
         Array.exists (fun time -> abs (anchor.Time - time) < 4) slideEnds
         &&
-        not (Array.contains anchor.Time moverPhraseTimes))
+        not (Set.contains anchor.Time moverPhraseTimes))
     |> Seq.map (fun anchor -> issue AnchorCloseToUnpitchedSlide anchor.Time)
 
 /// Checks the anchors in the level for issues.
@@ -335,7 +335,7 @@ let checkAnchors (arrangement: InstrumentalArrangement) (level: Level) =
         |> Seq.collect (fun (index, _) ->
             arrangement.PhraseIterations.FindAll(fun pi -> pi.PhraseId = index))
         |> Seq.map (fun x -> x.Time)
-        |> Seq.toArray
+        |> Set.ofSeq
 
     let phraseTimes =
         let phraseTimes =
