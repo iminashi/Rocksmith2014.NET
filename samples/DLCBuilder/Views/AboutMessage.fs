@@ -41,7 +41,7 @@ let view dispatch =
                     ]
 
                     TextBlock.create [
-                        TextBlock.text "Pre-release"
+                        TextBlock.text (Utils.createVersionString())
                         TextBlock.margin 4.
                     ]
                 ]

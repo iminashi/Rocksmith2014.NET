@@ -19,6 +19,7 @@ open System
 type private BuildData =
     { SNGs: (Arrangement * SNG) list
       CoverArtFiles: DisposableList<DDS.TempDDSFile>
+      BuilderVersion: string
       Author: string
       AppId: string
       Partition: Arrangement -> int * string
@@ -26,6 +27,7 @@ type private BuildData =
 
 type BuildConfig =
     { Platforms: Platform list
+      BuilderVersion: string
       Author: string
       AppId: string
       GenerateDD: bool
@@ -127,7 +129,7 @@ let private build (buildData: BuildData) progress targetFile project platform = 
         |> toDisposableList
 
     use toolkitEntry =
-        new MemoryStream(Encoding.UTF8.GetBytes($"Toolkit version: DLC Builder pre-release\nPackage Author: {buildData.Author}\nPackage Version: {project.Version}\nPackage Comment: Remastered"))
+        new MemoryStream(Encoding.UTF8.GetBytes($"Toolkit version: {buildData.BuilderVersion}\nPackage Author: {buildData.Author}\nPackage Version: {project.Version}\nPackage Comment: Remastered"))
         |> entry "toolkit.version"
 
     progress()
@@ -271,6 +273,7 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
     let data =
         { SNGs = sngs
           CoverArtFiles = coverArtFiles
+          BuilderVersion = config.BuilderVersion
           Author = config.Author
           AppId = config.AppId
           Partition = partition
