@@ -42,26 +42,14 @@ let view state dispatch (tone: Tone) =
         Grid.rowDefinitions "*,*,*,*,*"
         Grid.margin 4.
         Grid.children [
-            // Name
-            locText "name" [
-                TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.horizontalAlignment HorizontalAlignment.Center
-            ]
-            TextBox.create [
-                Grid.column 1
-                TextBox.text tone.Name
-                TextBox.onTextInput (fun arg -> arg.Text <- StringValidator.toneName arg.Text)
-                TextBox.onTextChanged (StringValidator.toneName >> SetName >> EditTone >> dispatch)
-            ]
-
             // Key
             locText "key" [
-                Grid.row 1
+                Grid.row 0
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
             DockPanel.create [
-                Grid.row 1
+                Grid.row 0
                 Grid.column 1
                 StackPanel.children [
                     // Remove key
@@ -84,6 +72,21 @@ let view state dispatch (tone: Tone) =
                         )
                     ]
                 ]
+            ]
+
+            // Name
+            locText "name" [
+                Grid.row 1
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+            ]
+            TextBox.create [
+                Grid.row 1
+                Grid.column 1
+                TextBox.text tone.Name
+                TextBox.onTextInput (fun arg -> arg.Text <- StringValidator.toneName arg.Text)
+                TextBox.onTextChanged (StringValidator.toneName >> SetName >> EditTone >> dispatch)
+                ToolTip.tip (translate "toneNameToolTip")
             ]
 
             // Descriptors

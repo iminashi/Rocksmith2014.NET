@@ -185,7 +185,7 @@ let view state dispatch (i: Instrumental) =
             ]
 
             // Tone key list
-            locText "tones" [
+            locText "toneKeys" [
                 Grid.row 7
                 TextBlock.isVisible (i.Tones.Length > 0)
                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -197,8 +197,9 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.textWrapping TextWrapping.Wrap
                 TextBlock.isVisible (i.Tones.Length > 0)
                 TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (String.Join(", ", i.Tones))
                 TextBlock.horizontalAlignment HorizontalAlignment.Left
+                TextBlock.text (String.Join(", ", i.Tones))
+                TextBlock.margin (4., 0.)
             ]
 
             // Scroll speed
