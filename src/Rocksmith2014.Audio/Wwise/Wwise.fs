@@ -72,7 +72,7 @@ let private loadTemplate sourcePath version =
     match sourcePath with
     | EndsWith ".wav" -> File.Copy(sourcePath, targetPath, overwrite=true)
     | EndsWith ".ogg" -> Conversion.oggToWav sourcePath targetPath
-    | _ -> failwith "Could not detect file type from extension."
+    | _ -> failwith "Could not detect audio file type from extension."
 
     templateDir
 

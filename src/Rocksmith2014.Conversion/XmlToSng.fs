@@ -43,8 +43,10 @@ let convertBeat () =
 
         let mask =
             if beatCounter = 0s then
-                BeatMask.FirstBeatOfMeasure
-                ||| if (currentMeasure % 2s) = 0s then BeatMask.EvenMeasure else BeatMask.None
+                if (currentMeasure % 2s) = 0s then
+                    BeatMask.FirstBeatOfMeasure ||| BeatMask.EvenMeasure
+                else
+                    BeatMask.FirstBeatOfMeasure
             else
                 BeatMask.None
 
@@ -64,8 +66,10 @@ let convertVocal (xmlVocal: XML.Vocal) =
 /// Converts an XML GlyphDefinition into an SNG SymbolDefinition.
 let convertSymbolDefinition (xmlGlyphDef: XML.GlyphDefinition) =
     { Symbol = xmlGlyphDef.Symbol
-      Outer = { xMin = xmlGlyphDef.OuterXMin; xMax = xmlGlyphDef.OuterXMax; yMin = xmlGlyphDef.OuterYMin; yMax = xmlGlyphDef.OuterYMax }
-      Inner = { xMin = xmlGlyphDef.InnerXMin; xMax = xmlGlyphDef.InnerXMax; yMin = xmlGlyphDef.InnerYMin; yMax = xmlGlyphDef.InnerYMax } }
+      Outer = { xMin = xmlGlyphDef.OuterXMin; xMax = xmlGlyphDef.OuterXMax
+                yMin = xmlGlyphDef.OuterYMin; yMax = xmlGlyphDef.OuterYMax }
+      Inner = { xMin = xmlGlyphDef.InnerXMin; xMax = xmlGlyphDef.InnerXMax
+                yMin = xmlGlyphDef.InnerYMin; yMax = xmlGlyphDef.InnerYMax } }
 
 /// Converts an XML Phrase into an SNG Phrase.
 let convertPhrase (xml: XML.InstrumentalArrangement) phraseId (xmlPhrase: XML.Phrase) =
@@ -162,7 +166,12 @@ let [<Literal>] private UninitFirstNote = 3.4028234663852886e+38f
 let [<Literal>] private UninitLastNote = 1.1754943508222875e-38f
 
 /// Converts an XML Anchor into an SNG Anchor.
-let convertAnchor (notes: Note array) (noteTimes: int array) (level: XML.Level) (xml: XML.InstrumentalArrangement) index (xmlAnchor: XML.Anchor) =
+let convertAnchor (notes: Note array)
+                  (noteTimes: int array)
+                  (level: XML.Level)
+                  (xml: XML.InstrumentalArrangement)
+                  (index: int)
+                  (xmlAnchor: XML.Anchor) =
     let startTime = msToSec xmlAnchor.Time
     let endTime =
         if index = level.Anchors.Count - 1 then
@@ -171,11 +180,11 @@ let convertAnchor (notes: Note array) (noteTimes: int array) (level: XML.Level) 
         else
             level.Anchors.[index + 1].Time
 
-    // It is likely impossible to get identical values when testing an official file SNG -> XML -> SNG
-    // Cases like these can be found:
-    //
-    // Note without any sustain: lastNoteTime = note.Time + 9ms
-    // Note with unpitched slide: lastNoteTime = note.Time + note.Sustain + 100ms
+    (* It is likely impossible to get identical values when testing an official file SNG -> XML -> SNG
+       Cases like these can be found:
+    
+       Note without any sustain: lastNoteTime = note.Time + 9ms
+       Note with unpitched slide: lastNoteTime = note.Time + note.Sustain + 100ms *)
 
     let firstNoteTime, lastNoteTime =
         match findFirstAndLastTime noteTimes xmlAnchor.Time endTime with
@@ -188,9 +197,9 @@ let convertAnchor (notes: Note array) (noteTimes: int array) (level: XML.Level) 
                 if firstIndex = 0 then
                     firstNote.Time
                 else
-                    let prev = notes.[firstIndex - 1]
+                    let prevNote = notes.[firstIndex - 1]
                     // If this anchor is at the end of a slide note, use the time where the target note would be
-                    if prev.Mask ?= NoteMask.Slide && prev.Time + prev.Sustain - startTime < 0.001f then
+                    if prevNote.Mask ?= NoteMask.Slide && prevNote.Time + prevNote.Sustain - startTime < 0.001f then
                         startTime
                     else
                         firstNote.Time
