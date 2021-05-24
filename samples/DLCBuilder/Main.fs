@@ -608,7 +608,7 @@ let update (msg: Msg) (state: State) =
             let task () = async {
                 let targetPath = Path.Combine(Configuration.appDataFolder, "update.zip")
                 let! updateFolder = OnlineUpdate.downloadUpdate targetPath update
-                let targetFolder = AppContext.BaseDirectory
+                let targetFolder = Path.GetDirectoryName(AppContext.BaseDirectory)
                 let updaterPath = Path.Combine(updateFolder, "updater", "Updater")
                 let startInfo = ProcessStartInfo(FileName = updaterPath, Arguments = $"\"{updateFolder}\" \"{targetFolder}\"")
                 use updater = new Process(StartInfo = startInfo)
