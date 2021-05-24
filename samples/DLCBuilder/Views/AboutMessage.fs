@@ -52,7 +52,6 @@ let view dispatch =
 
                 locText "gitHubPage" [
                     TextBlock.classes [ "link" ]
-                    TextBlock.cursor Cursors.hand
                     TextBlock.margin 4.
                     TextBlock.onTapped (fun ev ->
                         ev.Handled <- true

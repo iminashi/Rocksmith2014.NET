@@ -12,6 +12,7 @@ open Rocksmith2014.SNG
 
 let buildConfig =
     { Platforms = [ PC; Mac ]
+      BuilderVersion = "1.0"
       Author = "Author"
       AppId = "123456"
       GenerateDD = true

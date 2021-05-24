@@ -311,9 +311,14 @@
   "programDidNotCloseProperly": "Ohjelmaa ei suljettu normaalisti",
   "loadPreviouslyOpenedProject": "Ladataanko viimeksi auki ollut projekti?",
   "help": "_Apua",
+  "checkForUpdates": "Tarkista _päivitykset",
   "about": "_Tietoja sovelluksesta",
   "programVersion": "Versio:",
   "gitHubPage": "GitHub sivu",
   "aboutDisclaimer": "Tämä on avoimen lähdekoodin projekti, jolla ei ole tekemistä\nUbisoft® yhtiön tai Rocksmith™ kehitystiimin kanssa.",
-  "NoTonesInProfile": "Profiilissa ei ole soundeja."
+  "NoTonesInProfile": "Profiilissa ei ole soundeja.",
+  "newVersionAvailable": "Uusi versio saatavilla",
+  "updateAndRestart": "Päivitä ja uudelleenkäynnistä",
+  "details": "Tiedot",
+  "dismiss": "Poista"
 }

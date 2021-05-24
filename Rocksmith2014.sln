@@ -61,6 +61,8 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "DLCBuilder.Tests", "tests\D
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.IntegrationTests", "tests\Rocksmith2014.IntegrationTests\Rocksmith2014.IntegrationTests.fsproj", "{BD5FD1DF-0D83-4AF1-9C27-AD70A8EBA5D3}"
 EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Updater", "samples\Updater\Updater.fsproj", "{3852E1FE-CCB9-416F-964A-9482B4289546}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -247,6 +249,14 @@ Global
 		{BD5FD1DF-0D83-4AF1-9C27-AD70A8EBA5D3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BD5FD1DF-0D83-4AF1-9C27-AD70A8EBA5D3}.Release|x64.ActiveCfg = Release|x64
 		{BD5FD1DF-0D83-4AF1-9C27-AD70A8EBA5D3}.Release|x64.Build.0 = Release|x64
+		{3852E1FE-CCB9-416F-964A-9482B4289546}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3852E1FE-CCB9-416F-964A-9482B4289546}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3852E1FE-CCB9-416F-964A-9482B4289546}.Debug|x64.ActiveCfg = Debug|x64
+		{3852E1FE-CCB9-416F-964A-9482B4289546}.Debug|x64.Build.0 = Debug|x64
+		{3852E1FE-CCB9-416F-964A-9482B4289546}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3852E1FE-CCB9-416F-964A-9482B4289546}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3852E1FE-CCB9-416F-964A-9482B4289546}.Release|x64.ActiveCfg = Release|x64
+		{3852E1FE-CCB9-416F-964A-9482B4289546}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -278,6 +288,7 @@ Global
 		{03C0B8EE-E23F-4EED-8D3F-3538C1AB5FC7} = {0FF21B35-CA73-45A8-939A-F14614C11471}
 		{8189ABC1-7482-45F6-9955-497BD7914BFF} = {0FF21B35-CA73-45A8-939A-F14614C11471}
 		{BD5FD1DF-0D83-4AF1-9C27-AD70A8EBA5D3} = {0FF21B35-CA73-45A8-939A-F14614C11471}
+		{3852E1FE-CCB9-416F-964A-9482B4289546} = {5372FA3F-22E5-4217-B4E1-D439C943AEA0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0B1D2436-1840-458A-B570-F533FC009333}

@@ -26,4 +26,5 @@ let initialState =
       StatusMessages = []
       CurrentPlatform = if OperatingSystem.IsMacOS() then Mac else PC
       OpenProjectFile = None
+      AvailableUpdate = None
       ArrangementIssues = Map.empty }

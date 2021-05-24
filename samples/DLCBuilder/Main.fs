@@ -108,6 +108,7 @@ let init arg =
         Cmd.batch [
             Cmd.OfAsync.perform Configuration.load () (fun config -> SetConfiguration(config, loadProject.IsNone, wasAbnormalExit))
             Cmd.OfAsync.perform RecentFilesList.load () SetRecentFiles
+            if OperatingSystem.IsWindows() then Cmd.OfAsync.perform OnlineUpdate.checkForUpdates () SetAvailableUpdate
             yield! loadProject |> Option.toList ]
 
     { Project = DLCProject.Empty
@@ -129,7 +130,8 @@ let init arg =
       StatusMessages = []
       CurrentPlatform = if OperatingSystem.IsMacOS() then Mac else PC
       OpenProjectFile = None
-      ArrangementIssues = Map.empty }, commands
+      ArrangementIssues = Map.empty
+      AvailableUpdate = None }, commands
 
 let private getSelectedArrangement state =
     match state.SelectedArrangementIndex with
@@ -560,6 +562,62 @@ let update (msg: Msg) (state: State) =
         { state with Config = newConfig }, cmd
 
     | SetRecentFiles recent -> { state with RecentFiles = recent }, Cmd.none
+
+    | SetAvailableUpdate update ->
+        let messages =
+            match update with
+            | Some update ->
+                let statusMessages =
+                    state.StatusMessages
+                    |> List.filter (function UpdateMessage _ -> false | _ -> true)
+
+                UpdateMessage(update)::statusMessages
+            | _ -> 
+                state.StatusMessages
+
+        { state with StatusMessages = messages; AvailableUpdate = update }, Cmd.none
+
+    | DismissUpdateMessage ->
+        let statusMessages =
+            state.StatusMessages
+            |> List.filter (function UpdateMessage _ -> false | _ -> true)
+
+        { state with StatusMessages = statusMessages }, Cmd.none
+
+    | ShowUpdateInformation ->
+        let newState =
+            match state.AvailableUpdate with
+            | Some update ->
+                { state with Overlay = UpdateInformationDialog update }
+            | None ->
+                state
+        newState, Cmd.none
+
+    | CheckForUpdates ->
+        state, Cmd.OfAsync.either OnlineUpdate.checkForUpdates () UpdateCheckCompleted ErrorOccurred
+
+    | UpdateCheckCompleted availableUpdate ->
+        { state with AvailableUpdate = availableUpdate }, Cmd.ofMsg ShowUpdateInformation
+
+    | UpdateAndRestart ->
+        match state.AvailableUpdate with
+        | Some update ->
+            let statusMessages =
+                MessageString(Guid.NewGuid(), "Downloading update...")::state.StatusMessages
+
+            let task () = async {
+                let targetPath = Path.Combine(Configuration.appDataFolder, "update.zip")
+                let! updateFolder = OnlineUpdate.downloadUpdate targetPath update
+                let targetFolder = AppContext.BaseDirectory
+                let updaterPath = Path.Combine(updateFolder, "updater", "Updater")
+                let startInfo = ProcessStartInfo(FileName = updaterPath, Arguments = $"\"{updateFolder}\" \"{targetFolder}\"")
+                use updater = new Process(StartInfo = startInfo)
+                updater.Start() |> ignore
+                Environment.Exit 0 }
+
+            { state with StatusMessages = statusMessages; Overlay = NoOverlay }, Cmd.OfAsync.attempt task () ErrorOccurred
+        | None ->
+            state, Cmd.none
 
     | SaveProjectAs ->
         state, Cmd.ofMsg (Dialog.SaveProjectAs |> ShowDialog)

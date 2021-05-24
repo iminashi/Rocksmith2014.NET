@@ -311,9 +311,14 @@
   "programDidNotCloseProperly": "プログラムが正常に終了しなかった",
   "loadPreviouslyOpenedProject": "以前開いていたプロジェクトを再び開きますか?",
   "help": "ヘルプ",
+  "checkForUpdates": "アップデートのチェック",
   "about": "DLC Builderについて",
   "programVersion": "バージョン:",
   "gitHubPage": "GitHubページ",
   "aboutDisclaimer": "このプログラムはUbisoft®とロックスミスチームと一切のかかわりがないオープンソースソフトウェア。",
-  "NoTonesInProfile": "プロフィールにはカスタムトーンが存在しません。"
+  "NoTonesInProfile": "プロフィールにはカスタムトーンが存在しません。",
+  "newVersionAvailable": "新バージョン使用可能",
+  "updateAndRestart": "アップデートして再起動",
+  "details": "詳細",
+  "dismiss": "閉じる"
 }

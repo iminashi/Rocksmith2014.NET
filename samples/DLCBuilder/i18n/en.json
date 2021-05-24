@@ -311,9 +311,14 @@
   "programDidNotCloseProperly": "The program did not close properly",
   "loadPreviouslyOpenedProject": "Load previously opened project?",
   "help": "_Help",
+  "checkForUpdates": "_Check for Updates",
   "about": "_About DLC Builder",
   "programVersion": "Version:",
   "gitHubPage": "GitHub page",
   "aboutDisclaimer": "This is an open source software that is not affiliated with Ubisoft® or the Rocksmith™ team.",
-  "NoTonesInProfile": "Profile contains no custom tones."
+  "NoTonesInProfile": "Profile contains no custom tones.",
+  "newVersionAvailable": "New Version Available",
+  "updateAndRestart": "Update and Restart",
+  "details": "Details",
+  "dismiss": "Dismiss"
 }

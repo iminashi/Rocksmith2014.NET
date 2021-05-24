@@ -43,6 +43,7 @@
     <Compile Include="Tones\DefaultTones.fs" />
     <Compile Include="Localization.fs" />
     <Compile Include="Configuration.fs" />
+    <Compile Include="OnlineUpdate.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="Dialogs.fs" />
@@ -64,6 +65,7 @@
     <Compile Include="Views\PreviewStartSelector.fs" />
     <Compile Include="Views\ErrorMessage.fs" />
     <Compile Include="Views\DeleteConfirmation.fs" />
+    <Compile Include="Views\UpdateInfoMessage.fs" />
     <Compile Include="Views\AboutMessage.fs" />
     <Compile Include="Views\AbnormalExitMessage.fs" />
     <Compile Include="Views\PitchShifter.fs" />
@@ -83,6 +85,7 @@
     <PackageReference Include="JaggerJo.Avalonia.FuncUI" Version="0.5.0-beta" />
     <PackageReference Include="JaggerJo.Avalonia.FuncUI.DSL" Version="0.5.0-beta" />
     <PackageReference Include="JaggerJo.Avalonia.FuncUI.Elmish" Version="0.5.0-beta" />
+    <PackageReference Include="Octokit" Version="0.50.0" />
     <PackageReference Include="Pfim" Version="0.10.0" />
   </ItemGroup>
 
@@ -100,5 +103,9 @@
   <ItemGroup>
     <Watch Include="**\*.xaml" />
     <Watch Include="**\*.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Watch Remove="OnlineUpdate.fs" />
   </ItemGroup>
 </Project>

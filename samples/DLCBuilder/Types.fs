@@ -8,6 +8,7 @@ open Rocksmith2014.XML.Processing
 open Avalonia.Controls.Selection
 open Avalonia.Media.Imaging
 open System
+open OnlineUpdate
 
 type OverlayContents =
     | NoOverlay
@@ -21,6 +22,7 @@ type OverlayContents =
     | AbnormalExitMessage
     | PitchShifter
     | AboutMessage
+    | UpdateInformationDialog of update : UpdateInformation
 
 type PreviewAudioCreation =
     | SetupStartTime
@@ -47,6 +49,7 @@ type StatusMessage =
     | TaskWithoutProgress of task:LongTask
     | TaskWithProgress of task:LongTask * progress:float
     | MessageString of id:Guid * message:string
+    | UpdateMessage of updateInfo:UpdateInformation
 
 type BuildType = Test | Release
 
@@ -138,7 +141,8 @@ type State =
       CurrentPlatform : Platform
       StatusMessages : StatusMessage list
       RunningTasks : LongTask Set
-      ArrangementIssues : Map<string, ArrangementChecker.Issue list> }
+      ArrangementIssues : Map<string, ArrangementChecker.Issue list>
+      AvailableUpdate : UpdateInformation option }
 
 type ToolsMsg =
     | ConvertWemToOgg of files : string array
@@ -211,11 +215,17 @@ type Msg =
     | SetAudioFile of fileName : string
     | SetConfiguration of config : Configuration * enableLoad : bool * wasAbnormalExit : bool
     | SetRecentFiles of files : string list
+    | SetAvailableUpdate of update : UpdateInformation option
     | SetSelectedArrangementIndex of index : int
     | SetSelectedToneIndex of index : int
     | SetSelectedGear of ToneGear.GearData option
     | SetSelectedGearSlot of ToneGear.GearSlot
     | SetManuallyEditingKnobKey of string option
+    | CheckForUpdates
+    | UpdateCheckCompleted of update : UpdateInformation option
+    | DismissUpdateMessage
+    | ShowUpdateInformation
+    | UpdateAndRestart
     | DeleteTestBuilds
     | DeleteConfirmed of files : string list
     | DeleteArrangement

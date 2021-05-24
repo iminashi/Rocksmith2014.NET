@@ -39,6 +39,7 @@
   </Style>
   <Style Selector="TextBlock.link">
     <Setter Property="Foreground" Value="LightSkyBlue"/>
+    <Setter Property="Cursor" Value="Hand"/>
   </Style>
   <Style Selector="TextBlock.link:pointerover">
     <Setter Property="TextDecorations" Value="Underline"/>

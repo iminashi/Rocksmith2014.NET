@@ -297,6 +297,8 @@ let private overlay state dispatch =
         AbnormalExitMessage.view dispatch
     | AboutMessage ->
         AboutMessage.view dispatch
+    | UpdateInformationDialog update ->
+        UpdateInfoMessage.view update dispatch 
 
 let view (window: Window) (state: State) dispatch =
     if state.RunningTasks.IsEmpty then
@@ -388,6 +390,7 @@ let view (window: Window) (state: State) dispatch =
                                             ]
                                         ]
                                     ] |> generalize
+
                                 | TaskWithoutProgress task ->
                                     TextBlock.create [
                                         TextBlock.text (
@@ -399,10 +402,42 @@ let view (window: Window) (state: State) dispatch =
                                             | other ->
                                                 other |> string |> translate)
                                     ] |> generalize
+
                                 | MessageString (_, message) ->
                                     TextBlock.create [
                                         TextBlock.horizontalAlignment HorizontalAlignment.Center
                                         TextBlock.text message
+                                    ] |> generalize
+
+                                | UpdateMessage update ->
+                                    let message = $"New {update.AvailableUpdate.ToString().ToLowerInvariant()} version available."
+                                    StackPanel.create [
+                                        StackPanel.horizontalAlignment HorizontalAlignment.Center
+                                        StackPanel.children [
+                                            TextBlock.create [
+                                                TextBlock.text message
+                                            ]
+
+                                            UniformGrid.create [
+                                                UniformGrid.rows 1
+                                                UniformGrid.columns 2
+                                                UniformGrid.margin 4.
+                                                UniformGrid.children [
+                                                    TextBlock.create [
+                                                        TextBlock.classes [ "link" ]
+                                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
+                                                        TextBlock.text (translate "details")
+                                                        TextBlock.onTapped (fun _ -> ShowUpdateInformation |> dispatch)
+                                                    ]
+                                                    TextBlock.create [
+                                                        TextBlock.classes [ "link" ]
+                                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
+                                                        TextBlock.text (translate "dismiss")
+                                                        TextBlock.onTapped (fun _ -> DismissUpdateMessage |> dispatch)
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
                                     ] |> generalize
                                 )
                             )
