@@ -427,13 +427,15 @@ let view (window: Window) (state: State) dispatch =
                                                         TextBlock.classes [ "link" ]
                                                         TextBlock.horizontalAlignment HorizontalAlignment.Center
                                                         TextBlock.text (translate "details")
-                                                        TextBlock.onTapped (fun _ -> ShowUpdateInformation |> dispatch)
+                                                        TextBlock.onTapped (fun _ ->
+                                                            dispatch DismissUpdateMessage
+                                                            dispatch ShowUpdateInformation)
                                                     ]
                                                     TextBlock.create [
                                                         TextBlock.classes [ "link" ]
                                                         TextBlock.horizontalAlignment HorizontalAlignment.Center
                                                         TextBlock.text (translate "dismiss")
-                                                        TextBlock.onTapped (fun _ -> DismissUpdateMessage |> dispatch)
+                                                        TextBlock.onTapped (fun _ -> dispatch DismissUpdateMessage)
                                                     ]
                                                 ]
                                             ]

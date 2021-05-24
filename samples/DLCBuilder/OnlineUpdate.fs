@@ -35,9 +35,14 @@ let private getAvailableUpdateInformation (currentVersion: Version) (release: Re
     let availableUpdate =
         if latestVersion.Major > currentVersion.Major then
             Some AvailableUpdate.Major
-        elif latestVersion.Minor > currentVersion.Minor then
+        elif latestVersion.Major = currentVersion.Major
+             && latestVersion.Minor > currentVersion.Minor
+        then
             Some AvailableUpdate.Minor
-        elif latestVersion.Build > currentVersion.Build then
+        elif latestVersion.Major = currentVersion.Major
+             && latestVersion.Minor = currentVersion.Minor
+             && latestVersion.Build > currentVersion.Build
+        then
             Some AvailableUpdate.BugFix
         else
             None
