@@ -41,7 +41,7 @@ let view dispatch =
                     ]
 
                     TextBlock.create [
-                        TextBlock.text (Utils.createVersionString())
+                        TextBlock.text <| AppVersion.createVersionString()
                         TextBlock.margin 4.
                     ]
                 ]

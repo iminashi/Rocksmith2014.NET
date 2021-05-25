@@ -318,6 +318,12 @@
   "aboutDisclaimer": "このプログラムはUbisoft®とロックスミスチームと一切のかかわりがないオープンソースソフトウェア。",
   "NoTonesInProfile": "プロフィールにはカスタムトーンが存在しません。",
   "newVersionAvailable": "新バージョン使用可能",
+  "currentVersion": "現在のバージョン:",
+  "availableVersion": "新しいバージョン:",
+  "updateAvailable": "新しい{0}アップデートが使用可能",
+  "Major": "メジャー",
+  "Minor": "マイナー",
+  "BugFix": "修正",
   "updateAndRestart": "アップデートして再起動",
   "details": "詳細",
   "dismiss": "閉じる"

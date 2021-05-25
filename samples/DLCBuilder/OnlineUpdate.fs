@@ -2,7 +2,6 @@
 
 open Octokit
 open System
-open System.Reflection
 open System.Net.Http
 open System.IO
 open System.IO.Compression
@@ -29,8 +28,9 @@ let private tryGetLatestRelease () = async {
         Console.WriteLine $"Getting latest release failed with: {e.Message}"
         return None }
 
-let private getAvailableUpdateInformation (currentVersion: Version) (release: Release) =
+let private getAvailableUpdateInformation (release: Release) =
     let latestVersion = Version(release.TagName.Substring 1)
+    let currentVersion = AppVersion.current
 
     let availableUpdate =
         if latestVersion.Major > currentVersion.Major then
@@ -63,11 +63,8 @@ let private getAvailableUpdateInformation (currentVersion: Version) (release: Re
         None
 
 let checkForUpdates () = async {
-    let thisAsm = Assembly.GetExecutingAssembly()
-    let currentVersion = thisAsm.GetName().Version
-
     let! release = tryGetLatestRelease()
-    return release |> Option.bind (getAvailableUpdateInformation currentVersion) }
+    return release |> Option.bind getAvailableUpdateInformation }
 
 let private client = new HttpClient()
 

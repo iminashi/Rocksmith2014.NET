@@ -410,7 +410,8 @@ let view (window: Window) (state: State) dispatch =
                                     ] |> generalize
 
                                 | UpdateMessage update ->
-                                    let message = $"New {update.AvailableUpdate.ToString().ToLowerInvariant()} version available."
+                                    let verType = translate (update.AvailableUpdate.ToString())
+                                    let message = translatef "updateAvailable" [| verType |]
                                     StackPanel.create [
                                         StackPanel.horizontalAlignment HorizontalAlignment.Center
                                         StackPanel.children [

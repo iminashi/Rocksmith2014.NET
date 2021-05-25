@@ -3,7 +3,6 @@
 open Pfim
 open System
 open System.IO
-open System.Reflection
 open System.Runtime.InteropServices
 open Avalonia.Platform
 open Avalonia.Media.Imaging
@@ -143,11 +142,6 @@ let addTones (state: State) (tones: Tone list) =
     { state with Project = { state.Project with Tones = tones @ state.Project.Tones }
                  Overlay = NoOverlay }
 
-let createVersionString () =
-    let thisAsm = Assembly.GetExecutingAssembly()
-    let ver = thisAsm.GetName().Version
-    $"v{ver.Major}.{ver.Minor}.{ver.Build}"
-
 let [<Literal>] private CherubRock = "248750"
 let packageBuildProgress = Progress<float>()
 
@@ -170,7 +164,7 @@ let createBuildConfig buildType config project platforms =
         | _ -> CherubRock
 
     { Platforms = platforms
-      BuilderVersion = $"DLC Builder {createVersionString()}"
+      BuilderVersion = $"DLC Builder {AppVersion.createVersionString()}"
       Author = config.CharterName
       AppId = appId
       GenerateDD = config.GenerateDD || buildType = Release

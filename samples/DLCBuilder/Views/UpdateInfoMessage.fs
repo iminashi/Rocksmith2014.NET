@@ -30,15 +30,35 @@ let view (update: UpdateInformation) dispatch =
                 ]
             ]
 
-            TextBlock.create [
-                let version = update.UpdateVersion.ToString(3)
-                let date = update.ReleaseDate.ToString("d")
-                TextBlock.text <| $"{date} - v{version}"
+            // Current version
+            hStack [
+                locText "currentVersion" [ TextBlock.minWidth 120. ]
+
+                TextBlock.create [
+                    TextBlock.text <| AppVersion.createVersionString()
+                ]
+            ]
+
+            // Available version
+            hStack [
+                locText "availableVersion" [ TextBlock.minWidth 120. ]
+
+                TextBlock.create [
+                    let version = update.UpdateVersion.ToString(3)
+                    let date = update.ReleaseDate.ToString("d")
+                    TextBlock.text $"v{version} ({date})"
+                ]
             ]
 
             // Changes
-            TextBlock.create [
-                TextBlock.text <| update.Changes
+            ScrollViewer.create [
+                ScrollViewer.background "#181818"
+                ScrollViewer.maxHeight 200.
+                ScrollViewer.content (
+                    TextBlock.create [
+                        TextBlock.margin 8.
+                        TextBlock.text update.Changes
+                    ])
             ]
 
             StackPanel.create [
@@ -49,7 +69,7 @@ let view (update: UpdateInformation) dispatch =
                     // Update button
                     Button.create [
                         Button.fontSize 18.
-                        Button.padding (80., 10.)
+                        Button.padding (40., 10.)
                         Button.content (translate "updateAndRestart")
                         Button.onClick (fun _ -> dispatch UpdateAndRestart)
                     ]

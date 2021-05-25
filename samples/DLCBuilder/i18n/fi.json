@@ -318,6 +318,12 @@
   "aboutDisclaimer": "Tämä on avoimen lähdekoodin projekti, jolla ei ole tekemistä\nUbisoft® yhtiön tai Rocksmith™ kehitystiimin kanssa.",
   "NoTonesInProfile": "Profiilissa ei ole soundeja.",
   "newVersionAvailable": "Uusi versio saatavilla",
+  "currentVersion": "Nykyinen versio:",
+  "availableVersion": "Versio saatavilla:",
+  "updateAvailable": "Uusi {0}päivitys saatavilla.",
+  "Major": "ominaisuus",
+  "Minor": "pien",
+  "BugFix": "korjaus",
   "updateAndRestart": "Päivitä ja uudelleenkäynnistä",
   "details": "Tiedot",
   "dismiss": "Poista"
