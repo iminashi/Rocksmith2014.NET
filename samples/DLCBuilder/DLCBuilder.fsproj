@@ -10,7 +10,7 @@
     <Product>Rocksmith 2014 DLC Builder</Product>
     <Copyright>Copyright © 2021</Copyright>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
-    <Version>0.2.0</Version>
+    <Version>0.2.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -25,6 +25,9 @@
 
   <ItemGroup>
     <None Include="README.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="RELEASE_NOTES.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <EmbeddedResource Include="i18n\en.json" />

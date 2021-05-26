@@ -92,18 +92,24 @@ let private addArrangements files state =
 let private createExitCheckFile () =
     using (File.Create Configuration.exitCheckFilePath) ignore
 
-let init arg =
+let init args =
     let commands =
         let wasAbnormalExit = File.Exists Configuration.exitCheckFilePath
         createExitCheckFile()
 
         let loadProject =
-            arg
-            |> Option.bind (function
-                | EndsWith ".rs2dlc" as path ->
-                    Some <| Cmd.OfAsync.either DLCProject.load path (fun p -> ProjectLoaded(p, path)) ErrorOccurred
-                | _ ->
-                    None)
+            args
+            |> Array.tryFind (String.endsWith ".rs2dlc")
+            |> Option.map (fun path ->
+                Cmd.OfAsync.either DLCProject.load path (fun p -> ProjectLoaded(p, path)) ErrorOccurred)
+
+        // Delete temporary directory used for update
+        args
+        |> Array.tryFindIndex ((=) "--updated")
+        |> Option.iter (fun index ->
+            try
+                Directory.Delete(args.[index + 1], recursive = true)
+            with _ -> ())
 
         Cmd.batch [
             Cmd.OfAsync.perform Configuration.load () (fun config -> SetConfiguration(config, loadProject.IsNone, wasAbnormalExit))

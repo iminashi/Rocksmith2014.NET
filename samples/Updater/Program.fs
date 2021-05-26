@@ -24,9 +24,9 @@ let copyFiles sourceDirectory targetDirectory =
 
         File.Copy(path, targetPath, overwrite=true))
 
-let startBuilder directory =
+let startBuilder tempDirectory directory =
     let builderPath = Path.Combine(directory, "DLCBuilder")
-    let startInfo = ProcessStartInfo(FileName = builderPath)
+    let startInfo = ProcessStartInfo(FileName = builderPath, Arguments = $"--updated \"{tempDirectory}\"")
     use dlcBuilder = new Process(StartInfo = startInfo)
     dlcBuilder.Start() |> ignore
 
@@ -37,26 +37,22 @@ let main argv =
         let targetDirectory = argv.[1]
 
         try
-            try
-                printfn "Waiting for the DLC Builder process to exit..."
+            printfn "Waiting for the DLC Builder process to exit..."
 
-                async { do! waitForBuilderExit 0 } |> Async.RunSynchronously
+            async { do! waitForBuilderExit 0 } |> Async.RunSynchronously
 
-                printfn "Copying files..."
+            printfn "Copying files..."
 
-                copyFiles sourceDirectory targetDirectory
-                startBuilder targetDirectory
+            copyFiles sourceDirectory targetDirectory
+            startBuilder sourceDirectory targetDirectory
 
-                0
-            with e ->
-                printfn $"Update failed: {e.Message}"
-                printfn "%s" e.StackTrace
+            0
+        with e ->
+            printfn $"Update failed: {e.Message}"
+            printfn "%s" e.StackTrace
 
-                printfn "Press any key..."
-                Console.ReadLine() |> ignore
-                1
-        finally
-            // Delete the update files
-            Directory.Delete(sourceDirectory, recursive=true)
+            printfn "Press any key..."
+            Console.ReadLine() |> ignore
+            1
     else
         0

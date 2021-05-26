@@ -84,7 +84,7 @@ type MainWindow(commandLineArgs: string array) as this =
         #if DEBUG
         |> Program.withTrace (fun msg _state -> Diagnostics.Debug.WriteLine msg)
         #endif
-        |> Program.runWith (Array.tryHead commandLineArgs)
+        |> Program.runWith commandLineArgs
 
 type App() =
     inherit Application()
