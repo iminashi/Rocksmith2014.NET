@@ -1,0 +1,5 @@
+Run the following commands:
+
+chmod +x DLCBuilder
+chmod +x ./Tools/ww2ogg
+chmod +x ./Tools/revorb

@@ -200,15 +200,13 @@ let help dispatch =
     MenuItem.create [
         MenuItem.header (translate "help")
         MenuItem.viewItems [
+            // Check for Updates
+            MenuItem.create [
+                MenuItem.header (translate "checkForUpdates")
+                MenuItem.onClick (fun _ -> CheckForUpdates |> dispatch)
+            ]
 
-            if OperatingSystem.IsWindows() then
-                // Check for Updates
-                MenuItem.create [
-                    MenuItem.header (translate "checkForUpdates")
-                    MenuItem.onClick (fun _ -> CheckForUpdates |> dispatch)
-                ]
-
-                separator
+            separator
 
             // About
             MenuItem.create [

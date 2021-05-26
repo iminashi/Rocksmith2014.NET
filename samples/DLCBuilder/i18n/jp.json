@@ -325,6 +325,8 @@
   "currentVersion": "現在のバージョン:",
   "availableVersion": "新しいバージョン:",
   "updateAvailable": "新しい{0}アップデートが使用可能",
+  "noUpdate": "新しいアップデートがありません",
+  "downloadingUpdate": "アップデートをダウンロード中...",
   "Major": "メジャー",
   "Minor": "マイナー",
   "BugFix": "修正",

@@ -108,7 +108,7 @@ let init arg =
         Cmd.batch [
             Cmd.OfAsync.perform Configuration.load () (fun config -> SetConfiguration(config, loadProject.IsNone, wasAbnormalExit))
             Cmd.OfAsync.perform RecentFilesList.load () SetRecentFiles
-            if OperatingSystem.IsWindows() then Cmd.OfAsync.perform OnlineUpdate.checkForUpdates () SetAvailableUpdate
+            Cmd.OfAsync.perform OnlineUpdate.checkForUpdates () SetAvailableUpdate
             yield! loadProject |> Option.toList ]
 
     { Project = DLCProject.Empty
@@ -597,19 +597,26 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfAsync.either OnlineUpdate.checkForUpdates () UpdateCheckCompleted ErrorOccurred
 
     | UpdateCheckCompleted availableUpdate ->
-        { state with AvailableUpdate = availableUpdate }, Cmd.ofMsg ShowUpdateInformation
+        let newState = { state with AvailableUpdate = availableUpdate }
+        match availableUpdate with
+        | Some _ ->
+            newState, Cmd.ofMsg ShowUpdateInformation
+        | None ->
+            let id = Guid.NewGuid()
+            let messages = MessageString(id, translate "noUpdate")::state.StatusMessages
+            { newState with StatusMessages = messages }, Cmd.OfAsync.result (removeStatusMessage id)
 
     | UpdateAndRestart ->
         match state.AvailableUpdate with
         | Some update ->
             let statusMessages =
-                MessageString(Guid.NewGuid(), "Downloading update...")::state.StatusMessages
+                MessageString(Guid.NewGuid(), translate "downloadingUpdate")::state.StatusMessages
 
             let task () = async {
                 let targetPath = Path.Combine(Path.GetTempPath(), "dlc-builder-update.zip")
                 let! updateFolder = OnlineUpdate.downloadUpdate targetPath update
                 let targetFolder = Path.GetDirectoryName(AppContext.BaseDirectory)
-                let updaterPath = Path.Combine(updateFolder, "updater", "Updater")
+                let updaterPath = Path.Combine(updateFolder, "Updater", "Updater")
                 let startInfo = ProcessStartInfo(FileName = updaterPath, Arguments = $"\"{updateFolder}\" \"{targetFolder}\"")
                 use updater = new Process(StartInfo = startInfo)
                 updater.Start() |> ignore

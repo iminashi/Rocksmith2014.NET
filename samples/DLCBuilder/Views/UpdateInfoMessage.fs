@@ -9,6 +9,7 @@ open Avalonia.Media
 open DLCBuilder
 open DLCBuilder.Media
 open DLCBuilder.OnlineUpdate
+open System
 
 let view (update: UpdateInformation) dispatch =
     StackPanel.create [
@@ -72,6 +73,7 @@ let view (update: UpdateInformation) dispatch =
                         Button.padding (40., 10.)
                         Button.content (translate "updateAndRestart")
                         Button.onClick (fun _ -> dispatch UpdateAndRestart)
+                        Button.isEnabled <| OperatingSystem.IsWindows()
                     ]
 
                     // Close button

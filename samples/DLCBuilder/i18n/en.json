@@ -324,6 +324,8 @@
   "currentVersion": "Current version:",
   "availableVersion": "Available version:",
   "updateAvailable": "New {0} update available.",
+  "noUpdate": "No update available",
+  "downloadingUpdate": "Downloading update...",
   "Major": "major",
   "Minor": "minor",
   "BugFix": "bug fix",

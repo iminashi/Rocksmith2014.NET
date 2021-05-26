@@ -325,6 +325,8 @@
   "currentVersion": "Nykyinen versio:",
   "availableVersion": "Versio saatavilla:",
   "updateAvailable": "Uusi {0}päivitys saatavilla.",
+  "noUpdate": "Ei päivityksiä saatavilla",
+  "downloadingUpdate": "Ladataan päivitystä...",
   "Major": "ominaisuus",
   "Minor": "pien",
   "BugFix": "korjaus",
