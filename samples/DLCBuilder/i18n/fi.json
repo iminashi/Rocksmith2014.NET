@@ -313,7 +313,7 @@
   "help": "_Apua",
   "checkForUpdates": "Tarkista _päivitykset",
   "about": "_Tietoja sovelluksesta",
-  "programVersion": "Versio:",
+  "programVersion": "Versio: {0}",
   "gitHubPage": "GitHub sivu",
   "aboutDisclaimer": "Tämä on avoimen lähdekoodin projekti, jolla ei ole tekemistä\nUbisoft® yhtiön tai Rocksmith™ kehitystiimin kanssa.",
   "NoTonesInProfile": "Profiilissa ei ole soundeja.",

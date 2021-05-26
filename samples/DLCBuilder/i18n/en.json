@@ -313,7 +313,7 @@
   "help": "_Help",
   "checkForUpdates": "_Check for Updates",
   "about": "_About DLC Builder",
-  "programVersion": "Version:",
+  "programVersion": "Version: {0}",
   "gitHubPage": "GitHub page",
   "aboutDisclaimer": "This is an open source software that is not affiliated with Ubisoft® or the Rocksmith™ team.",
   "NoTonesInProfile": "Profile contains no custom tones.",

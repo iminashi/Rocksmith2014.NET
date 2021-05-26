@@ -313,7 +313,7 @@
   "help": "ヘルプ",
   "checkForUpdates": "アップデートのチェック",
   "about": "DLC Builderについて",
-  "programVersion": "バージョン:",
+  "programVersion": "バージョン: {0}",
   "gitHubPage": "GitHubページ",
   "aboutDisclaimer": "このプログラムはUbisoft®とロックスミスチームと一切のかかわりがないオープンソースソフトウェア。",
   "NoTonesInProfile": "プロフィールにはカスタムトーンが存在しません。",

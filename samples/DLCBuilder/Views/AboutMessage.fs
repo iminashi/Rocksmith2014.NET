@@ -30,26 +30,24 @@ let view dispatch =
                     TextBlock.margin 4.
                 ]
 
+                // Separator
                 Rectangle.create [
                     Rectangle.height 2.
                     Rectangle.fill Brushes.Gray
                 ]
 
-                hStack [
-                    locText "programVersion" [
-                        TextBlock.margin 4.
-                    ]
-
-                    TextBlock.create [
-                        TextBlock.text <| AppVersion.createVersionString()
-                        TextBlock.margin 4.
-                    ]
+                // Version
+                TextBlock.create [
+                    TextBlock.text (translatef "programVersion" [| AppVersion.current.ToString 3 |])
+                    TextBlock.margin 4.
                 ]
 
+                // Disclaimer
                 locText "aboutDisclaimer" [
                     TextBlock.margin (4., 8.)
                 ]
 
+                // GitHub Link
                 locText "gitHubPage" [
                     TextBlock.classes [ "link" ]
                     TextBlock.margin 4.
