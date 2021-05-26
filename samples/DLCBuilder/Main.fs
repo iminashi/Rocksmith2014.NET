@@ -108,8 +108,13 @@ let init args =
         |> Array.tryFindIndex ((=) "--updated")
         |> Option.iter (fun index ->
             try
-                Directory.Delete(args.[index + 1], recursive = true)
-            with _ -> ())
+                match Array.tryItem (index + 1) args with
+                | Some path when path.StartsWith(Path.GetTempPath()) ->
+                    Directory.Delete(path, recursive = true)
+                | _ ->
+                    ()
+            with _ ->
+                ())
 
         Cmd.batch [
             Cmd.OfAsync.perform Configuration.load () (fun config -> SetConfiguration(config, loadProject.IsNone, wasAbnormalExit))
