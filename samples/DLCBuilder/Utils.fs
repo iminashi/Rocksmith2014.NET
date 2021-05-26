@@ -145,6 +145,7 @@ let addTones (state: State) (tones: Tone list) =
 let [<Literal>] private CherubRock = "248750"
 let packageBuildProgress = Progress<float>()
 
+/// Creates a build configuration data structure.
 let createBuildConfig buildType config project platforms =
     let convTask =
         DLCProject.getFilesThatNeedConverting project
@@ -174,6 +175,7 @@ let createBuildConfig buildType config project platforms =
       AudioConversionTask = convTask
       ProgressReporter = Some (packageBuildProgress :> IProgress<float>) }
 
+/// Converts the project's audio and preview audio files to wem.
 let convertAudio cliPath project =
     [| project.AudioFile.Path; project.AudioPreviewFile.Path |]
     |> Array.map (Wwise.convertToWem cliPath)
@@ -221,21 +223,25 @@ let addMetadata (md: MetaData option) charterName project =
     | None ->
         project
 
+/// Returns true if a build or a wem conversion is not in progress.
 let notBuilding state =
     state.RunningTasks
     |> Set.intersect (Set([ BuildPackage; WemConversion ]))
     |> Set.isEmpty
 
+/// Returns true if the project can be built.
 let canBuild state =
     notBuilding state
     && (not <| state.RunningTasks.Contains PsarcImport)
     && state.Project.Arrangements.Length > 0
     && String.notEmpty state.Project.AudioFile.Path
 
+/// Returns true for tasks that report progress.
 let taskHasProgress = function
     | BuildPackage | PsarcImport | PsarcUnpack | ArrangementCheck -> true
     | _ -> false
 
+/// Adds a new long running task to the state.
 let addTask newTask state =
     let messages =
         match taskHasProgress newTask with
@@ -245,6 +251,7 @@ let addTask newTask state =
     { state with RunningTasks = state.RunningTasks |> Set.add newTask
                  StatusMessages = messages }
 
+/// Removes the completed task from the state.
 let removeTask completedTask state =
     let messages =
         state.StatusMessages
@@ -255,6 +262,7 @@ let removeTask completedTask state =
     { state with RunningTasks = state.RunningTasks |> Set.remove completedTask
                  StatusMessages = messages }
 
+/// Returns a function that returns a throttled auto save message.
 let autoSave =
     let mutable id = 0L
 
@@ -268,6 +276,7 @@ let autoSave =
             else
                 return None }
 
+/// Starts the given URL using the operating system shell.
 let openLink url =
     ProcessStartInfo(url, UseShellExecute = true)
     |> Process.Start

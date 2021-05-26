@@ -19,6 +19,7 @@ type UpdateInformation =
       Changes : string
       AssetUrl : string }
 
+/// Attempts to get the latest release from GitHub.
 let private tryGetLatestRelease () = async {
     try
         let github = GitHubClient(ProductHeaderValue("rs2014-dlc-builder"))
@@ -28,6 +29,7 @@ let private tryGetLatestRelease () = async {
         Console.WriteLine $"Getting latest release failed with: {e.Message}"
         return None }
 
+/// Returns the update information for the given release if it is newer than the current version.
 let private getAvailableUpdateInformation (release: Release) =
     let latestVersion = Version(release.TagName.Substring 1)
     let currentVersion = AppVersion.current
@@ -62,12 +64,14 @@ let private getAvailableUpdateInformation (release: Release) =
     | _ ->
         None
 
+/// Fetches the latest release and returns the information for the available update.
 let checkForUpdates () = async {
     let! release = tryGetLatestRelease()
     return release |> Option.bind getAvailableUpdateInformation }
 
 let private client = new HttpClient()
 
+/// Downloads a file from the source URL to the target path.
 let private downloadFile (targetPath: string) (sourceUrl: string) = async {
     let! response = client.GetAsync sourceUrl
     response.EnsureSuccessStatusCode() |> ignore
@@ -75,6 +79,7 @@ let private downloadFile (targetPath: string) (sourceUrl: string) = async {
     use file = File.Create targetPath
     do! stream.CopyToAsync file }
 
+/// Downloads the update asset, unzips it and returns the directory it was extracted to.
 let downloadUpdate (targetPath: string) (update: UpdateInformation) = async {
     do! downloadFile targetPath update.AssetUrl
 
