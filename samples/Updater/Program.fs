@@ -13,38 +13,50 @@ let rec waitForBuilderExit count = async {
             do! Async.Sleep 200
             do! waitForBuilderExit (count + 1) }
 
+let copyFiles sourceDirectory targetDirectory =
+    Directory.EnumerateFiles(sourceDirectory, "*.*", SearchOption.AllDirectories)
+    |> Seq.iter (fun path ->
+        let targetPath =
+            let rel = Path.GetRelativePath(sourceDirectory, path)
+            Path.Combine(targetDirectory, rel)
+
+        Directory.CreateDirectory(Path.GetDirectoryName targetPath) |> ignore
+
+        File.Copy(path, targetPath, overwrite=true))
+
+let startBuilder directory =
+    let builderPath = Path.Combine(directory, "DLCBuilder")
+    let startInfo = ProcessStartInfo(FileName = builderPath)
+    use dlcBuilder = new Process(StartInfo = startInfo)
+    dlcBuilder.Start() |> ignore
+
 [<EntryPoint>]
 let main argv =
-    try
-        if argv.Length >= 2 then
-            printfn "Waiting for the DLC Builder process to exit..."
+    if argv.Length >= 2 then
+        let sourceDirectory = argv.[0]
+        let targetDirectory = argv.[1]
 
-            async { do! waitForBuilderExit 0 } |> Async.RunSynchronously
+        try
+            try
+                printfn "Waiting for the DLC Builder process to exit..."
 
-            printfn "Copying files..."
+                async { do! waitForBuilderExit 0 } |> Async.RunSynchronously
 
-            let sourceDirectory = argv.[0]
-            let targetDirectory = argv.[1]
+                printfn "Copying files..."
 
-            Directory.EnumerateFiles(sourceDirectory, "*.*", SearchOption.AllDirectories)
-            |> Seq.iter (fun path ->
-                let targetPath =
-                    let rel = Path.GetRelativePath(sourceDirectory, path)
-                    Path.Combine(targetDirectory, rel)
+                copyFiles sourceDirectory targetDirectory
+                startBuilder targetDirectory
 
-                Directory.CreateDirectory(Path.GetDirectoryName targetPath) |> ignore
+                0
+            with e ->
+                printfn $"Update failed: {e.Message}"
+                printfn "%s" e.StackTrace
 
-                File.Copy(path, targetPath, overwrite=true))
-
-            let builderPath = Path.Combine(targetDirectory, "DLCBuilder")
-            let startInfo = ProcessStartInfo(FileName = builderPath)
-            use dlcBuilder = new Process(StartInfo = startInfo)
-            dlcBuilder.Start() |> ignore
+                printfn "Press any key..."
+                Console.ReadLine() |> ignore
+                1
+        finally
+            // Delete the update files
+            Directory.Delete(sourceDirectory, recursive=true)
+    else
         0
-    with e ->
-        printfn $"Update failed: {e.Message}"
-        printfn "%s" e.StackTrace
-
-        printfn "Press any key..."
-        Console.ReadLine() |> ignore
-        1

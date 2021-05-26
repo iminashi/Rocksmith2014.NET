@@ -83,10 +83,12 @@ let private downloadFile (targetPath: string) (sourceUrl: string) = async {
 let downloadUpdate (targetPath: string) (update: UpdateInformation) = async {
     do! downloadFile targetPath update.AssetUrl
 
-    let extractDir = Path.Combine(Path.GetDirectoryName targetPath, "update")
+    let extractDir = Path.Combine(Path.GetDirectoryName targetPath, Guid.NewGuid().ToString())
     if Directory.Exists extractDir then
         Directory.Delete(extractDir, recursive=true)
     Directory.CreateDirectory extractDir |> ignore
 
     ZipFile.ExtractToDirectory(targetPath, extractDir)
+    File.Delete targetPath
+
     return extractDir }

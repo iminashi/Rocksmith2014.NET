@@ -606,7 +606,7 @@ let update (msg: Msg) (state: State) =
                 MessageString(Guid.NewGuid(), "Downloading update...")::state.StatusMessages
 
             let task () = async {
-                let targetPath = Path.Combine(Configuration.appDataFolder, "update.zip")
+                let targetPath = Path.Combine(Path.GetTempPath(), "dlc-builder-update.zip")
                 let! updateFolder = OnlineUpdate.downloadUpdate targetPath update
                 let targetFolder = Path.GetDirectoryName(AppContext.BaseDirectory)
                 let updaterPath = Path.Combine(updateFolder, "updater", "Updater")
