@@ -15,28 +15,36 @@ let rec waitForBuilderExit count = async {
 
 [<EntryPoint>]
 let main argv =
-    if argv.Length >= 2 then
-        printfn "Waiting for the DLC Builder process to exit..."
+    try
+        if argv.Length >= 2 then
+            printfn "Waiting for the DLC Builder process to exit..."
 
-        async { do! waitForBuilderExit 0 } |> Async.RunSynchronously
+            async { do! waitForBuilderExit 0 } |> Async.RunSynchronously
 
-        printfn "Copying files..."
+            printfn "Copying files..."
 
-        let sourceDirectory = argv.[0]
-        let targetDirectory = argv.[1]
+            let sourceDirectory = argv.[0]
+            let targetDirectory = argv.[1]
 
-        Directory.EnumerateFiles(sourceDirectory, "*.*", SearchOption.AllDirectories)
-        |> Seq.iter (fun path ->
-            let targetPath =
-                let rel = Path.GetRelativePath(sourceDirectory, path)
-                Path.Combine(targetDirectory, rel)
+            Directory.EnumerateFiles(sourceDirectory, "*.*", SearchOption.AllDirectories)
+            |> Seq.iter (fun path ->
+                let targetPath =
+                    let rel = Path.GetRelativePath(sourceDirectory, path)
+                    Path.Combine(targetDirectory, rel)
 
-            Directory.CreateDirectory(Path.GetDirectoryName targetPath) |> ignore
+                Directory.CreateDirectory(Path.GetDirectoryName targetPath) |> ignore
 
-            File.Copy(path, targetPath, overwrite=true))
+                File.Copy(path, targetPath, overwrite=true))
 
-        let builderPath = Path.Combine(targetDirectory, "DLCBuilder")
-        let startInfo = ProcessStartInfo(FileName = builderPath)
-        use updater = new Process(StartInfo = startInfo)
-        updater.Start() |> ignore
-    0
+            let builderPath = Path.Combine(targetDirectory, "DLCBuilder")
+            let startInfo = ProcessStartInfo(FileName = builderPath)
+            use dlcBuilder = new Process(StartInfo = startInfo)
+            dlcBuilder.Start() |> ignore
+        0
+    with e ->
+        printfn $"Update failed: {e.Message}"
+        printfn "%s" e.StackTrace
+
+        printfn "Press any key..."
+        Console.ReadLine() |> ignore
+        1
