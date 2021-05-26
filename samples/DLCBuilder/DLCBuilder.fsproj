@@ -43,6 +43,7 @@
     <Compile Include="Tones\DefaultTones.fs" />
     <Compile Include="Localization.fs" />
     <Compile Include="Configuration.fs" />
+    <Compile Include="AppVersion.fs" />
     <Compile Include="OnlineUpdate.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="Utils.fs" />
@@ -103,9 +104,5 @@
   <ItemGroup>
     <Watch Include="**\*.xaml" />
     <Watch Include="**\*.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Watch Remove="OnlineUpdate.fs" />
   </ItemGroup>
 </Project>
