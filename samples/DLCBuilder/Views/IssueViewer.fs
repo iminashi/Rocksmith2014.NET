@@ -38,6 +38,7 @@ let private isImportant = function
     | MissingLinkNextChordNotes
     | AnchorInsideHandShape
     | AnchorInsideHandShapeAtPhraseBoundary
+    | FirstPhraseNotEmpty
     | InvalidShowlights -> true
     | _ -> false
 

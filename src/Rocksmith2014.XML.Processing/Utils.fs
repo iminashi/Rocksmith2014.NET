@@ -26,3 +26,38 @@ let internal findTimeOfNthNoteFrom (level: Level) (startTime: int) (nthNote: int
     |> Seq.sort
     |> Seq.skip (nthNote - 1)
     |> Seq.head
+
+let private getMinTime (first: int option) (second: int option) =
+    match first, second with
+    | None, None ->
+        failwith "Cannot compare missing values."
+    | Some first, None ->
+        first
+    | None, Some second ->
+        second
+    | Some first, Some second ->
+        min first second
+
+let getFirstNoteTime (arrangement: InstrumentalArrangement) =
+    let firstPhraseLevel =
+        if arrangement.Levels.Count = 1 then
+            arrangement.Levels.[0]
+        else
+            // Find the first phrase that has difficulty levels
+            let firstPhraseIteration =
+                arrangement.PhraseIterations.Find(fun pi ->
+                    arrangement.Phrases.[pi.PhraseId].MaxDifficulty > 0uy)
+            let firstPhrase = arrangement.Phrases.[firstPhraseIteration.PhraseId]
+            arrangement.Levels.[int firstPhrase.MaxDifficulty]
+
+    let firstNote =
+        firstPhraseLevel.Notes
+        |> Seq.tryHead
+        |> Option.map (fun n -> n.Time)
+
+    let firstChord =
+        firstPhraseLevel.Chords
+        |> Seq.tryHead
+        |> Option.map (fun c -> c.Time)
+
+    getMinTime firstNote firstChord

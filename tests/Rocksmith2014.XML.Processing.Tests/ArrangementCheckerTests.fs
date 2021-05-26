@@ -523,3 +523,32 @@ let showLightsTests =
 
             Expect.isNone result "Checker returned None"
     ]
+
+[<Tests>]
+let phraseTests =
+    testList "Arrangement Checker (Phrases)" [
+        testCase "Detects non-empty first phrase" <| fun _ ->
+            let sections = ResizeArray(seq { Section("riff", 1500, 1s); Section("noguitar", 2000, 2s) })
+            let phrases = ResizeArray(seq { Phrase("COUNT", 0uy, PhraseMask.None); Phrase("riff", 0uy, PhraseMask.None); Phrase("END", 0uy, PhraseMask.None) })
+            let phraseIterations = ResizeArray(seq { PhraseIteration(1000, 0); PhraseIteration(1500, 1); PhraseIteration(2000, 2) })
+            let notes = ResizeArray(seq { Note(Time = 1100) })
+            let levels = ResizeArray(seq { Level(0y, Notes = notes) })
+            let phraseTestArr = InstrumentalArrangement(Sections = sections, Phrases = phrases, PhraseIterations = phraseIterations, Levels = levels)
+
+            let results = checkPhrases phraseTestArr
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type FirstPhraseNotEmpty "Correct issue type"
+
+        testCase "Detects missing END phrase" <| fun _ ->
+            let phrases = ResizeArray(seq { Phrase("COUNT", 0uy, PhraseMask.None); Phrase("riff", 0uy, PhraseMask.None) })
+            let phraseIterations = ResizeArray(seq { PhraseIteration(1000, 0); PhraseIteration(1500, 1) })
+            let notes = ResizeArray(seq { Note(Time = 1600) })
+            let levels = ResizeArray(seq { Level(0y, Notes = notes) })
+            let noEndTestArr = InstrumentalArrangement(Sections = sections, Phrases = phrases, PhraseIterations = phraseIterations, Levels = levels)
+
+            let results = checkPhrases noEndTestArr
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type NoEndPhrase "Correct issue type"
+    ]

@@ -31,6 +31,8 @@ type IssueType =
     | AnchorInsideHandShapeAtPhraseBoundary
     | AnchorCloseToUnpitchedSlide
     | AnchorNotOnNote of distance : int
+    | FirstPhraseNotEmpty
+    | NoEndPhrase
     | LyricWithInvalidChar of invalidChar : char
     | InvalidShowlights
 
@@ -353,6 +355,21 @@ let checkAnchors (arrangement: InstrumentalArrangement) (level: Level) =
     |> Seq.append (findUnpitchedSlideAnchors moverPhraseTimes level)
     |> Seq.toList
 
+/// Checks the phrases in the arrangement for issues.
+let checkPhrases (arr: InstrumentalArrangement) =
+    if arr.PhraseIterations.Count >= 2 then
+        let firstNoteTime = Utils.getFirstNoteTime arr
+
+        [ // Check for notes inside the first phrase
+          if firstNoteTime < arr.PhraseIterations.[1].Time then
+            issue FirstPhraseNotEmpty firstNoteTime
+
+          // Check for missing END phrase
+          if not <|arr.Phrases.Exists(fun p -> p.Name.Equals("END", StringComparison.OrdinalIgnoreCase)) then
+            issue NoEndPhrase 0 ]
+    else
+        List.empty
+
 /// Runs all the checks on the given arrangement.
 let runAllChecks (arr: InstrumentalArrangement) =
     let results =
@@ -365,6 +382,7 @@ let runAllChecks (arr: InstrumentalArrangement) =
         |> List.concat
 
     [ yield! checkCrowdEventPlacement arr
+      yield! checkPhrases arr
       yield! results ]
     |> List.distinct
     |> List.sortBy (fun issue -> issue.TimeCode)
