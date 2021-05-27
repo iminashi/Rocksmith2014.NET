@@ -64,17 +64,19 @@ let publishUpdater platform =
     |> DotNet.publish (createConfig "updater" platform)
 
 let createMacAppBundle buildDir =
-    if not <| RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then
-        Shell.cd buildDir
-        [ "DLCBuilder"; "./Tools/ww2ogg"; "./Tools/revorb" ]
-        |> List.iter (chmod "+x")
-
     // Create the app bundle directory structure and copy the build contents
     let contentsDir = publishDir </> "DLC Builder.app" </> "Contents"
     let resourceDir = contentsDir </> "Resources"
     Directory.CreateDirectory(contentsDir) |> ignore
     Directory.Move(buildDir, contentsDir </> "MacOS")
     Directory.CreateDirectory(resourceDir) |> ignore
+
+    // Run chmod on the executables if not building on Windows
+    if not <| RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then
+        printfn "Setting executables permissions..."
+        Shell.cd (contentsDir </> "MacOS")
+        [ "DLCBuilder"; "./Tools/ww2ogg"; "./Tools/revorb" ]
+        |> List.iter (chmod "+x")
 
     // Copy the icon
     let macSourceDir = dlcBuilderDir </> "macOS"
