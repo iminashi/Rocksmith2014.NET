@@ -131,9 +131,10 @@ let createGitHubRelease file =
     GitHub.createClientWithToken token
     |> GitHub.createRelease gitOwner gitName tagName setParams
     |> GitHub.uploadFile file
+    |> GitHub.publishDraft
     |> Async.RunSynchronously
 
-let addFileAndPublish file =
+let addFileToRelease file =
     let token =
         match Environment.GetEnvironmentVariable "github_token" with
         | null -> failwith "github_token environment variable is not set."
@@ -144,6 +145,5 @@ let addFileAndPublish file =
     GitHub.createClientWithToken token
     |> GitHub.getReleaseByTag gitOwner gitName tagName
     |> GitHub.uploadFile file
-    //|> GitHub.publishDraft
     |> Async.RunSynchronously
 

@@ -5,4 +5,4 @@ open Publish
 cleanPublishDirectory()
 publishBuilder MacOS
 createZipArchive MacOS
-|> addFileAndPublish
+|> addFileToRelease
