@@ -59,6 +59,12 @@ let chmod arg file =
     |> Proc.run
     |> ignore
 
+let zip workingDir targetFile dirToZip =
+    Shell.cd workingDir
+    CreateProcess.fromRawCommand "zip" [ "-r"; targetFile; dirToZip ]
+    |> Proc.run
+    |> ignore
+
 let publishUpdater platform =
     samplesDir </> "Updater" </> "Updater.fsproj"
     |> DotNet.publish (createConfig "updater" platform)
@@ -73,7 +79,7 @@ let createMacAppBundle buildDir =
 
     // Run chmod on the executables if not building on Windows
     if not <| RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then
-        printfn "Setting executables permissions..."
+        printfn "Setting executable permissions..."
         Shell.cd (contentsDir </> "MacOS")
         [ "DLCBuilder"; "./Tools/ww2ogg"; "./Tools/revorb" ]
         |> List.iter (chmod "+x")
@@ -112,7 +118,10 @@ let createZipArchive platform =
             publishDir,
             publishDir </> "DLC Builder.app"
 
-    !! $"{dirToZip}/**" |> Zip.zip workingDir targetFile
+    if RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then
+        !! $"{dirToZip}/**" |> Zip.zip workingDir targetFile
+    else
+        zip workingDir targetFile dirToZip
 
     targetFile
 
