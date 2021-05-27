@@ -1,3 +1,7 @@
+## 0.2.2 (Released 2021-05-27)
+
+- Test release for setting up GitHub Action.
+
 ## 0.2.1 (Released 2021-05-26)
 
 - Fix temporary file deletion in the auto-updater.

@@ -3,6 +3,8 @@
 #r "nuget: Fake.DotNet.Cli"
 #r "nuget: Fake.IO.FileSystem"
 #r "nuget: Fake.IO.Zip"
+//Required for FAKE to work on Linux
+#r "nuget: MSBuild.StructuredLogger"
 
 open Fake.Api
 open Fake.Core
@@ -35,7 +37,9 @@ let release =
     Path.Combine(dlcBuilderDir, "RELEASE_NOTES.md")
     |> ReleaseNotes.load
 
-let cleanPublishDirectory () = Directory.Delete(publishDir, recursive = true)
+let cleanPublishDirectory () =
+    if Directory.Exists publishDir then
+        Directory.Delete(publishDir, recursive = true)
 
 let createConfig appName platform (arg: DotNet.PublishOptions) =
     let targetDir = publishDir </> $"{appName}-{platform}"
@@ -50,8 +54,8 @@ let createConfig appName platform (arg: DotNet.PublishOptions) =
                SelfContained = Some isMac
                MSBuildParams = msBuildParams }
 
-let makeExecutable file =
-    CreateProcess.fromRawCommand "chmod" [ "+x"; file ]
+let chmod arg file =
+    CreateProcess.fromRawCommand "chmod" [ arg; file ]
     |> Proc.run
     |> ignore
 
@@ -62,9 +66,8 @@ let publishUpdater platform =
 let createMacAppBundle buildDir =
     if not <| RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then
         Shell.cd buildDir
-        makeExecutable "DLCBuilder"
-        makeExecutable "./Tools/ww2ogg"
-        makeExecutable "./Tools/revorb"
+        [ "DLCBuilder"; "./Tools/ww2ogg"; "./Tools/revorb" ]
+        |> List.iter (chmod "+x")
 
     // Create the app bundle directory structure and copy the build contents
     let contentsDir = publishDir </> "DLC Builder.app" </> "Contents"
@@ -96,24 +99,22 @@ let publishBuilder platform =
     | MacOS ->
         createMacAppBundle targetDir
 
-let createZipArchives () =
-    [ Windows; MacOS ]
-    |> List.map (fun platform ->
-        let targetFile = publishDir </> $"DLCBuilder-{platform}-{release.NugetVersion}.zip"
-        let workingDir, dirToZip =
-            match platform with
-            | Windows ->
-                let dir = publishDir </> "dlcbuilder-win"
-                dir, dir
-            | MacOS ->
-                publishDir,
-                publishDir </> "DLC Builder.app"
+let createZipArchive platform =
+    let targetFile = publishDir </> $"DLCBuilder-{platform}-{release.NugetVersion}.zip"
+    let workingDir, dirToZip =
+        match platform with
+        | Windows ->
+            let dir = publishDir </> "dlcbuilder-win"
+            dir, dir
+        | MacOS ->
+            publishDir,
+            publishDir </> "DLC Builder.app"
 
-        !! $"{dirToZip}/**" |> Zip.zip workingDir targetFile
+    !! $"{dirToZip}/**" |> Zip.zip workingDir targetFile
 
-        targetFile)
+    targetFile
 
-let createGitHubRelease files =
+let createGitHubRelease file =
     let token =
         match Environment.GetEnvironmentVariable "github_token" with
         | null -> failwith "github_token environment variable is not set."
@@ -129,14 +130,20 @@ let createGitHubRelease files =
 
     GitHub.createClientWithToken token
     |> GitHub.createRelease gitOwner gitName tagName setParams
-    |> GitHub.uploadFiles files
-    |> GitHub.publishDraft
+    |> GitHub.uploadFile file
     |> Async.RunSynchronously
 
-cleanPublishDirectory()
-publishUpdater Windows
-publishBuilder Windows
-publishBuilder MacOS
+let addFileAndPublish file =
+    let token =
+        match Environment.GetEnvironmentVariable "github_token" with
+        | null -> failwith "github_token environment variable is not set."
+        | s -> s
 
-createZipArchives()
-|> createGitHubRelease
+    let tagName = $"v{release.NugetVersion}"
+
+    GitHub.createClientWithToken token
+    |> GitHub.getReleaseByTag gitOwner gitName tagName
+    |> GitHub.uploadFile file
+    //|> GitHub.publishDraft
+    |> Async.RunSynchronously
+
