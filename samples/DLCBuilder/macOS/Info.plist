@@ -3,9 +3,9 @@
 <plist version="1.0">
   <dict>
     <key>CFBundleName</key>
-    <string>DLCBuilder</string>
-    <key>CFBundleDisplayName</key>
     <string>DLC Builder</string>
+    <key>CFBundleDisplayName</key>
+    <string>Rocksmith 2014 DLC Builder</string>
     <key>CFBundleIdentifier</key>
     <string>com.iminashi.dlcbuilder</string>
     <key>CFBundleVersion</key>
