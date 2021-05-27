@@ -17,5 +17,5 @@ jobs:
         dotnet-version: 5.0.x
     - name: Run publish script
       env:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.CI_GITHUB_TOKEN }}
       run: dotnet fsi publish_mac.fsx
