@@ -3,8 +3,13 @@ using System.Collections.Generic;
 
 namespace Rocksmith2014.XML.Extensions
 {
-    public static class StringExtensions
+    public static class GeneralExtensions
     {
+        /// <summary>
+        /// Returns true if the string contains the given substring (case ignored).
+        /// </summary>
+        /// <param name="this">The string to being tested.</param>
+        /// <param name="substring">The substring to find.</param>
         public static bool IgnoreCaseContains(this string @this, string substring)
             => @this.IndexOf(substring, StringComparison.OrdinalIgnoreCase) >= 0;
 
