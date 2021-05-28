@@ -28,7 +28,7 @@ namespace Rocksmith2014.XML.Tests
         [Fact]
         public static void BeamRangeTest()
         {
-            var sl = new ShowLight();
+            var sl = new ShowLight(50, ShowLight.FogMin);
 
             for (byte note = ShowLight.BeamMin; note <= ShowLight.BeamMax; note++)
             {

@@ -141,5 +141,26 @@ namespace Rocksmith2014.XML.Tests
             Assert.Equal(chord1.ChordId, chord2.ChordId);
             Assert.Equal(chord1.Mask, chord2.Mask);
         }
+
+        [Fact]
+        public static void HasChordNotesReturnsCorrectValue()
+        {
+            var chord = new Chord
+            {
+                ChordNotes = new List<Note>
+                {
+                    new Note { String = 0, Fret = 5 },
+                    new Note { String = 1, Fret = 7 }
+                }
+            };
+
+            chord.HasChordNotes.Should().BeTrue();
+
+            chord.ChordNotes.Clear();
+            chord.HasChordNotes.Should().BeFalse();
+
+            chord.ChordNotes = null;
+            chord.HasChordNotes.Should().BeFalse();
+        }
     }
 }
