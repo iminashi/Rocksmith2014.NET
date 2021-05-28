@@ -1,6 +1,9 @@
 ﻿
 using FluentAssertions;
 
+using System.Collections.Generic;
+using System.IO;
+
 using Xunit;
 
 namespace Rocksmith2014.XML.Tests
@@ -44,6 +47,34 @@ namespace Rocksmith2014.XML.Tests
 
             sl.Note = ShowLight.BeamMin - 1;
             sl.IsBeam().Should().BeFalse();
+        }
+
+        [Fact]
+        public static void ListOfShowlightsCanBeSavedToXmlFile()
+        {
+            var showlights = new List<ShowLight> {
+                new(10_00, ShowLight.BeamMin),
+                new(10_000, ShowLight.FogMax),
+                new(12_000, ShowLight.BeamOff),
+            };
+
+            ShowLights.Save("showlights_save_test.xml", showlights);
+            var content = File.ReadAllText("showlights_save_test.xml");
+
+            content.Should().Contain("<showlights count=\"3\">");
+            content.Should().Contain("<showlight time=\"12.000\" note=\"42\" />");
+        }
+
+        [Fact]
+        public static void ListOfShowlightsCanBeReadFromXmlFile()
+        {
+            var showlights = ShowLights.Load("Showlights.xml");
+
+            showlights.Should().HaveCount(226);
+
+            //  <showlight time="18.731" note="35" />
+            showlights[5].Time.Should().Be(18_731);
+            showlights[5].Note.Should().Be(35);
         }
     }
 }
