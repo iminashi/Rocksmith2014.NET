@@ -58,6 +58,8 @@ let pcTests =
 
             let! project, path = PsarcImporter.import ignore "./psarc/test_p.psarc" PCImportDir
 
+            Expect.equal project.JapaneseArtistName (Some "アーティスト") "Japanese artist name is correct"
+            Expect.equal project.JapaneseTitle (Some "曲名") "Japanese title is correct"
             testProject project path }
 
         testCase "Project files were created" <| fun _ ->
@@ -73,6 +75,8 @@ let macTests =
 
             let! project, path = PsarcImporter.import ignore "./psarc/test_m.psarc" MacImportDir
 
+            Expect.isNone project.JapaneseArtistName "Japanese artist name is not set"
+            Expect.isNone project.JapaneseTitle "Japanese title is not set"
             testProject project path }
 
         testCase "Project files were created" <| fun _ ->
