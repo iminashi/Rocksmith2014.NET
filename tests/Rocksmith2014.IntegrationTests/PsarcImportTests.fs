@@ -38,20 +38,21 @@ let testProject project path =
             ())
 
 let testFiles importPath =
+    let exists fileName = File.Exists (Path.Combine(importPath, fileName))
     expectedArrangements
     |> List.iter (fun arr ->
         let file = $"arr_{arr}.xml"
-        Expect.isTrue (File.Exists (Path.Combine(importPath, file))) $"Arrangement file {file} exists")
+        Expect.isTrue (exists file) $"Arrangement file {file} exists")
 
-    Expect.isTrue (File.Exists (Path.Combine(importPath, "integrationtest.wem"))) "Main audio file exists"
-    Expect.isTrue (File.Exists (Path.Combine(importPath, "integrationtest_preview.wem"))) "Preview audio file exists"
-    Expect.isTrue (File.Exists (Path.Combine(importPath, "lyrics.dds"))) "Custom lyrics art file exists"
-    Expect.isTrue (File.Exists (Path.Combine(importPath, "lyrics.glyphs.xml"))) "Custom lyrics glyphs file exists"
-    Expect.isTrue (File.Exists (Path.Combine(importPath, "cover.dds"))) "Cover art file exists"
+    Expect.isTrue (exists "integrationtest.wem") "Main audio file exists"
+    Expect.isTrue (exists "integrationtest_preview.wem") "Preview audio file exists"
+    Expect.isTrue (exists "lyrics.dds") "Custom lyrics art file exists"
+    Expect.isTrue (exists "lyrics.glyphs.xml") "Custom lyrics glyphs file exists"
+    Expect.isTrue (exists "cover.dds") "Cover art file exists"
 
 [<Tests>]
 let pcTests =
-    testSequenced <| testList "PC PSARC Import Tests" [
+    testList "PC PSARC Import Tests" [
         testAsync "PSARC can be imported" {
             if Directory.Exists PCImportDir then Directory.Delete(PCImportDir, true)
             Directory.CreateDirectory(PCImportDir) |> ignore
@@ -68,7 +69,7 @@ let pcTests =
 
 [<Tests>]
 let macTests =
-    testSequenced <| testList "Mac PSARC Import Tests" [
+    testList "Mac PSARC Import Tests" [
         testAsync "PSARC can be imported" {
             if Directory.Exists MacImportDir then Directory.Delete(MacImportDir, true)
             Directory.CreateDirectory(MacImportDir) |> ignore
