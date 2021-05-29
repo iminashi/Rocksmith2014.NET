@@ -18,8 +18,7 @@ open EditFunctions
 let arrangementCheckProgress = Progress<float>()
 let psarcImportProgress = Progress<float>()
 
-type private ArrangementAddingResult =
-    | ShouldInclude
+type private ArrangementAddingError =
     | MaxInstrumentals
     | MaxShowlights
     | MaxVocals
@@ -28,12 +27,12 @@ let private addArrangements files state =
     let results = Array.map Arrangement.fromFile files
 
     let shouldInclude arrangements arr =
-        let count f = (List.choose f arrangements).Length
+        let count f = List.choose f arrangements |> List.length
         match arr with
-        | Showlights _ when count Arrangement.pickShowlights = 1 -> MaxShowlights
-        | Instrumental _ when count Arrangement.pickInstrumental = 5 -> MaxInstrumentals
-        | Vocals _ when count Arrangement.pickVocals = 2 -> MaxVocals
-        | _ -> ShouldInclude
+        | Showlights _ when count Arrangement.pickShowlights = 1 -> Error MaxShowlights
+        | Instrumental _ when count Arrangement.pickInstrumental = 5 -> Error MaxInstrumentals
+        | Vocals _ when count Arrangement.pickVocals = 2 -> Error MaxVocals
+        | _ -> Ok arr
 
     let mainArrangementExists inst arrangements =
         arrangements
@@ -52,18 +51,14 @@ let private addArrangements files state =
             match result with
             | Ok (arr, _) ->
                 match shouldInclude arrs arr with
-                | ShouldInclude ->
-                    let arr =
-                        // Prevent multiple main arrangements of the same type
-                        match arr with
-                        | Instrumental inst when mainArrangementExists inst arrs ->
-                            Instrumental { inst with Priority = ArrangementPriority.Alternative }
-                        | _ ->
-                            arr
+                | Ok (Instrumental inst) when mainArrangementExists inst arrs ->
+                    // Prevent multiple main arrangements of the same type
+                    Instrumental { inst with Priority = ArrangementPriority.Alternative }::arrs, errors
+                | Ok arr ->
                     arr::arrs, errors
-                | error ->
-                    let error = createErrorMsg (Arrangement.getFile arr) (translate (string error))
-                    arrs, error::errors
+                | Error error ->
+                    let errorMsg = createErrorMsg (Arrangement.getFile arr) (translate (string error))
+                    arrs, errorMsg::errors
             | Error (UnknownArrangement file) ->
                 let message = translate "unknownArrangementError"
                 let error = createErrorMsg file message
@@ -145,17 +140,14 @@ let init args =
       AvailableUpdate = None }, commands
 
 let private getSelectedArrangement state =
-    match state.SelectedArrangementIndex with
-    | -1 -> None
-    | index -> Some state.Project.Arrangements.[index]
+    List.tryItem state.SelectedArrangementIndex state.Project.Arrangements
+
+let private getSelectedTone state =
+    List.tryItem state.SelectedToneIndex state.Project.Tones
 
 let private removeSelected initialList index =
     let list = List.removeAt index initialList
-    let newSelectedIndex =
-        if list.IsEmpty then
-            -1
-        else
-            min index (list.Length - 1)
+    let newSelectedIndex = min index (list.Length - 1)
     list, newSelectedIndex
 
 let private exceptionToErrorMessage (e: exn) =
@@ -195,6 +187,16 @@ let private removeStatusMessage (id: Guid) = async {
     do! Async.Sleep 4000
     return RemoveStatusMessage id }
 
+let private updateRecentFilesAndConfig projectFile state =
+    let recent = RecentFilesList.update projectFile state.RecentFiles
+    let newConfig = { state.Config with PreviousOpenedProject = projectFile }
+    let cmd =
+        if state.Config.PreviousOpenedProject <> projectFile then
+            Cmd.OfAsync.attempt Configuration.save newConfig ErrorOccurred
+        else
+            Cmd.none
+    recent, newConfig, cmd
+
 let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
 
@@ -204,9 +206,8 @@ let update (msg: Msg) (state: State) =
             match gear with
             | Some gear ->
                 let currentGear =
-                    match state.SelectedToneIndex with
-                    | -1 -> None
-                    | index -> ToneGear.getGearDataForCurrentPedal project.Tones.[index].GearList state.SelectedGearSlot
+                    getSelectedTone state
+                    |> Option.bind (fun tone -> ToneGear.getGearDataForCurrentPedal tone.GearList state.SelectedGearSlot)
                 match currentGear with
                 // Don't change the cabinet if its name is the same as the current one
                 | Some data when gear.Type = "Cabinets" && data.Name = gear.Name ->
@@ -223,10 +224,9 @@ let update (msg: Msg) (state: State) =
     | SetManuallyEditingKnobKey key -> { state with ManuallyEditingKnobKey = key}, Cmd.none
 
     | ShowToneEditor ->
-        if state.SelectedToneIndex <> -1 then
-            { state with Overlay = ToneEditor }, Cmd.none
-        else
-            state, Cmd.none
+        match getSelectedTone state with
+        | Some _ -> { state with Overlay = ToneEditor }, Cmd.none
+        | None -> state, Cmd.none
 
     | NewProject ->
         state.CoverArt |> Option.iter(fun x -> x.Dispose())
@@ -244,12 +244,11 @@ let update (msg: Msg) (state: State) =
     | ImportTones tones -> Utils.addTones state tones, Cmd.none
 
     | ExportSelectedTone ->
-        match state.SelectedToneIndex with
-        | -1 ->
-            state, Cmd.none
-        | index ->
-            let tone = project.Tones.[index]
-            state, Cmd.ofMsg (Dialog.ExportTone tone |> ShowDialog)
+        let cmd =
+            getSelectedTone state
+            |> Option.map (Dialog.ExportTone >> ShowDialog >> Cmd.ofMsg)
+            |> Option.defaultValue Cmd.none
+        state, cmd
 
     | ExportTone (tone, path) ->
         let task =
@@ -359,8 +358,8 @@ let update (msg: Msg) (state: State) =
         match tones with
         | [||] ->
             { state with Overlay = ErrorMessage(translate "couldNotFindTonesError", None) }, Cmd.none
-        | [| _ |] ->
-            state, Cmd.ofMsg (ImportTones (List.ofArray tones))
+        | [| one |] ->
+            state, Cmd.ofMsg (ImportTones (List.singleton one))
         | _ ->
             state.SelectedImportTones.Clear()
             state.SelectedImportTones.Source <- null
@@ -430,9 +429,8 @@ let update (msg: Msg) (state: State) =
                 { state with Project = { project with AudioPreviewFile = { project.AudioPreviewFile with Volume = volume } } }
             | CustomAudio (_, arrId) ->
                 project.Arrangements
-                |> List.tryPick (fun arr ->
-                    match arr with
-                    | Instrumental inst when inst.PersistentID = arrId ->
+                |> List.tryPick (function
+                    | Instrumental inst as arr when inst.PersistentID = arrId ->
                         Some arr
                     | _ ->
                         None)
@@ -491,13 +489,12 @@ let update (msg: Msg) (state: State) =
                      SelectedToneIndex = index }, Cmd.none
 
     | DuplicateTone ->
-        match state.SelectedToneIndex with
-        | -1 ->
-            state, Cmd.none
-        | index ->
-            let tone = project.Tones.[index]
-            let duplicate = { tone with Name = tone.Name + "2"; Key = String.Empty }
-            { state with Project = { project with Tones = duplicate::project.Tones } }, Cmd.none
+        let duplicate =
+            getSelectedTone state
+            |> Option.map (fun tone ->
+                { tone with Name = tone.Name + "2"; Key = String.Empty })
+            |> Option.toList
+        { state with Project = { project with Tones = duplicate @ project.Tones } }, Cmd.none
 
     | MoveTone dir ->
         let tones, index = moveSelected dir state.SelectedToneIndex project.Tones
@@ -529,23 +526,19 @@ let update (msg: Msg) (state: State) =
     | CreatePreviewAudio (FileCreated previewPath) ->
         let previewFile = { project.AudioPreviewFile with Path = previewPath }
         let cmd =
-            if config.AutoVolume then
-                Cmd.ofMsg (CalculateVolume PreviewAudio)
-            else
-                Cmd.none
+            match config.AutoVolume with
+            | true -> Cmd.ofMsg (CalculateVolume PreviewAudio)
+            | false -> Cmd.none
 
         // Delete the old converted file if one exists
         let overlay =
             let wemPreview = Path.ChangeExtension(previewPath, "wem")
-            if File.Exists wemPreview then
-                try
-                    File.Delete wemPreview
-                    NoOverlay
-                with ex ->
-                    let msg = translatef "previewDeleteError" [| Path.GetFileName(wemPreview); ex.Message |]
-                    ErrorMessage(msg, ex.StackTrace |> Option.ofString)
-            else
+            try
+                File.tryMap File.Delete wemPreview |> ignore
                 NoOverlay
+            with ex ->
+                let msg = translatef "previewDeleteError" [| Path.GetFileName(wemPreview); ex.Message |]
+                ErrorMessage(msg, ex.StackTrace |> Option.ofString)
 
         { state with Project = { project with AudioPreviewFile = previewFile }
                      Overlay = overlay }, cmd
@@ -647,14 +640,7 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfAsync.either task () ProjectSaved ErrorOccurred
 
     | ProjectSaved target ->
-        let recent = RecentFilesList.update target state.RecentFiles
-
-        let newConfig = { config with PreviousOpenedProject = target }
-        let cmd =
-            if config.PreviousOpenedProject <> target then
-                Cmd.OfAsync.attempt Configuration.save newConfig ErrorOccurred
-            else
-                Cmd.none
+        let recent, newConfig, cmd = updateRecentFilesAndConfig target state
 
         { state with OpenProjectFile = Some target
                      SavedProject = project
@@ -682,14 +668,7 @@ let update (msg: Msg) (state: State) =
     | ProjectLoaded (project, projectFile) ->
         let coverArt = Utils.changeCoverArt state.CoverArt project.AlbumArtFile
         let project = DLCProject.updateToneInfo project
-        let recent = RecentFilesList.update projectFile state.RecentFiles
-
-        let newConfig = { config with PreviousOpenedProject = projectFile }
-        let cmd =
-            if config.PreviousOpenedProject <> projectFile then
-                Cmd.OfAsync.attempt Configuration.save newConfig ErrorOccurred
-            else
-                Cmd.none
+        let recent, newConfig, cmd = updateRecentFilesAndConfig projectFile state
 
         { state with CoverArt = coverArt
                      Project = project

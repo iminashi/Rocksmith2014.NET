@@ -9,7 +9,7 @@ let [<Literal>] private BufferSize = 50_000
 let private calculateLoudness (sampleProvider: ISampleProvider) =
     let buffer = ArrayPool<float32>.Shared.Rent BufferSize
     let channels = sampleProvider.WaveFormat.Channels
-    let lufsMeter = LufsMeter(float sampleProvider.WaveFormat.SampleRate, sampleProvider.WaveFormat.Channels)
+    let lufsMeter = LufsMeter(float sampleProvider.WaveFormat.SampleRate, channels)
 
     let rec loop () =
         match sampleProvider.Read(buffer, 0, BufferSize) with
