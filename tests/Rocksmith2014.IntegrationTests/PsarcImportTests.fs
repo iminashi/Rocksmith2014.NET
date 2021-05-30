@@ -52,7 +52,7 @@ let testFiles importPath =
 
 [<Tests>]
 let pcTests =
-    testList "PC PSARC Import Tests" [
+    testSequenced <| testList "PC PSARC Import Tests" [
         testAsync "PSARC can be imported" {
             if Directory.Exists PCImportDir then Directory.Delete(PCImportDir, true)
             Directory.CreateDirectory(PCImportDir) |> ignore
@@ -69,7 +69,7 @@ let pcTests =
 
 [<Tests>]
 let macTests =
-    testList "Mac PSARC Import Tests" [
+    testSequenced <| testList "Mac PSARC Import Tests" [
         testAsync "PSARC can be imported" {
             if Directory.Exists MacImportDir then Directory.Delete(MacImportDir, true)
             Directory.CreateDirectory(MacImportDir) |> ignore
