@@ -567,7 +567,11 @@ let update (msg: Msg) (state: State) =
 
     | SetRecentFiles recent -> { state with RecentFiles = recent }, Cmd.none
 
-    | SetAvailableUpdate update ->
+    | SetAvailableUpdate (Error _) ->
+        // Don't show an error message if the update check when starting the program fails
+        state, Cmd.none
+
+    | SetAvailableUpdate (Ok update) ->
         let messages =
             match update with
             | Some update ->
@@ -600,15 +604,15 @@ let update (msg: Msg) (state: State) =
     | CheckForUpdates ->
         state, Cmd.OfAsync.either OnlineUpdate.checkForUpdates () UpdateCheckCompleted ErrorOccurred
 
-    | UpdateCheckCompleted availableUpdate ->
-        let newState = { state with AvailableUpdate = availableUpdate }
-        match availableUpdate with
-        | Some _ ->
-            newState, Cmd.ofMsg ShowUpdateInformation
-        | None ->
-            let id = Guid.NewGuid()
-            let messages = MessageString(id, translate "noUpdate")::state.StatusMessages
-            { newState with StatusMessages = messages }, Cmd.OfAsync.result (removeStatusMessage id)
+    | UpdateCheckCompleted (Error msg) ->
+        { state with AvailableUpdate = None; Overlay = ErrorMessage(msg, None) }, Cmd.none
+
+    | UpdateCheckCompleted (Ok update) ->
+        let msg =
+            match update with
+            | Some _ -> ShowUpdateInformation
+            | None -> AddStatusMessage "noUpdate"
+        { state with AvailableUpdate = update }, Cmd.ofMsg msg
 
     | UpdateAndRestart ->
         match state.AvailableUpdate with
@@ -616,17 +620,8 @@ let update (msg: Msg) (state: State) =
             let statusMessages =
                 MessageString(Guid.NewGuid(), translate "downloadingUpdate")::state.StatusMessages
 
-            let task () = async {
-                let targetPath = Path.Combine(Path.GetTempPath(), "dlc-builder-update.zip")
-                let! updateFolder = OnlineUpdate.downloadUpdate targetPath update
-                let targetFolder = Path.GetDirectoryName(AppContext.BaseDirectory)
-                let updaterPath = Path.Combine(updateFolder, "Updater", "Updater")
-                let startInfo = ProcessStartInfo(FileName = updaterPath, Arguments = $"\"{updateFolder}\" \"{targetFolder}\"")
-                use updater = new Process(StartInfo = startInfo)
-                updater.Start() |> ignore
-                Environment.Exit 0 }
-
-            { state with StatusMessages = statusMessages; Overlay = NoOverlay }, Cmd.OfAsync.attempt task () ErrorOccurred
+            { state with StatusMessages = statusMessages; Overlay = NoOverlay },
+            Cmd.OfAsync.attempt OnlineUpdate.downloadAndApplyUpdate update ErrorOccurred
         | None ->
             state, Cmd.none
 

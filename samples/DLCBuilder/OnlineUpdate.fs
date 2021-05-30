@@ -5,6 +5,7 @@ open System
 open System.Net.Http
 open System.IO
 open System.IO.Compression
+open System.Diagnostics
 
 [<RequireQualifiedAccess>]
 type AvailableUpdate =
@@ -24,10 +25,9 @@ let private tryGetLatestRelease () = async {
     try
         let github = GitHubClient(ProductHeaderValue("rs2014-dlc-builder"))
         let! release = github.Repository.Release.GetLatest("iminashi", "Rocksmith2014.NET")
-        return (Some release)
+        return (Ok release)
     with e ->
-        Console.WriteLine $"Getting latest release failed with: {e.Message}"
-        return None }
+        return (Error $"Getting latest release failed with: {e.Message}") }
 
 /// Returns the update information for the given release if it is newer than the current version.
 let private getAvailableUpdateInformation (release: Release) =
@@ -51,7 +51,9 @@ let private getAvailableUpdateInformation (release: Release) =
 
     let asset =
         release.Assets
-        |> Seq.tryFind (fun ass -> ass.Name.Contains("win", StringComparison.OrdinalIgnoreCase))
+        |> Seq.tryFind (fun ass ->
+            let subStr = if OperatingSystem.IsMacOS() then "mac" else "win"
+            ass.Name.Contains(subStr, StringComparison.OrdinalIgnoreCase))
 
     match availableUpdate, asset with
     | Some update, Some asset ->
@@ -67,7 +69,7 @@ let private getAvailableUpdateInformation (release: Release) =
 /// Fetches the latest release and returns the information for the available update.
 let checkForUpdates () = async {
     let! release = tryGetLatestRelease()
-    return release |> Option.bind getAvailableUpdateInformation }
+    return release |> Result.map getAvailableUpdateInformation }
 
 let private client = new HttpClient()
 
@@ -92,3 +94,16 @@ let downloadUpdate (targetPath: string) (update: UpdateInformation) = async {
     File.Delete targetPath
 
     return extractDir }
+
+/// Downloads the update and starts the Updater process.
+let downloadAndApplyUpdate (update: UpdateInformation) = async {
+    let downloadPath = Path.Combine(Path.GetTempPath(), "dlc-builder-update.zip")
+    let targetFolder = Path.GetDirectoryName(AppContext.BaseDirectory)
+
+    let! updateFolder = downloadUpdate downloadPath update
+    let updaterPath = Path.Combine(updateFolder, "Updater", "Updater")
+    
+    let startInfo = ProcessStartInfo(FileName = updaterPath, Arguments = $"\"{updateFolder}\" \"{targetFolder}\"")
+    use updater = new Process(StartInfo = startInfo)
+    updater.Start() |> ignore
+    Environment.Exit 0 }

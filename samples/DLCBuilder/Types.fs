@@ -215,14 +215,14 @@ type Msg =
     | SetAudioFile of fileName : string
     | SetConfiguration of config : Configuration * enableLoad : bool * wasAbnormalExit : bool
     | SetRecentFiles of files : string list
-    | SetAvailableUpdate of update : UpdateInformation option
+    | SetAvailableUpdate of update : Result<UpdateInformation option, string>
     | SetSelectedArrangementIndex of index : int
     | SetSelectedToneIndex of index : int
     | SetSelectedGear of ToneGear.GearData option
     | SetSelectedGearSlot of ToneGear.GearSlot
     | SetManuallyEditingKnobKey of string option
     | CheckForUpdates
-    | UpdateCheckCompleted of update : UpdateInformation option
+    | UpdateCheckCompleted of update : Result<UpdateInformation option, string>
     | DismissUpdateMessage
     | ShowUpdateInformation
     | UpdateAndRestart
