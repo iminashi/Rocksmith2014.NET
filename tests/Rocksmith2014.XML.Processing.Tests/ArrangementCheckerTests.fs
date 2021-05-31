@@ -190,10 +190,22 @@ let noteTests =
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type LinkNextSlideMismatch "Correct issue type"
 
-        testCase "Detects linknext bend value mismatch" <| fun _ ->
+        testCase "Detects linknext bend value mismatch (1/2)" <| fun _ ->
             let bv1 = ResizeArray(seq { BendValue(1050, 1f) })
             let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100, BendValues = bv1)
                                           Note(Fret = 1y, Time = 1100) })
+            let level = Level(Notes = notes)
+
+            let results = checkNotes testArr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type LinkNextBendMismatch "Correct issue type"
+
+        testCase "Detects linknext bend value mismatch (2/2)" <| fun _ ->
+            let bv1 = ResizeArray(seq { BendValue(1050, 1f) })
+            let bv2 = ResizeArray(seq { BendValue(1100, 2f) })
+            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100, BendValues = bv1)
+                                          Note(Fret = 1y, Time = 1100, BendValues = bv2) })
             let level = Level(Notes = notes)
 
             let results = checkNotes testArr level

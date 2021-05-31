@@ -14,7 +14,7 @@ type AvailableUpdate =
     | BugFix
 
 type UpdateInformation =
-    { AvailableUpdate : AvailableUpdate 
+    { AvailableUpdate : AvailableUpdate
       UpdateVersion : Version
       ReleaseDate : DateTimeOffset
       Changes : string
@@ -102,7 +102,7 @@ let downloadAndApplyUpdate (update: UpdateInformation) = async {
 
     let! updateFolder = downloadUpdate downloadPath update
     let updaterPath = Path.Combine(updateFolder, "Updater", "Updater")
-    
+
     let startInfo = ProcessStartInfo(FileName = updaterPath, Arguments = $"\"{updateFolder}\" \"{targetFolder}\"")
     use updater = new Process(StartInfo = startInfo)
     updater.Start() |> ignore
