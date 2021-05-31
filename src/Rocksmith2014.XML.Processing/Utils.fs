@@ -55,7 +55,7 @@ let getFirstNoteTime (arrangement: InstrumentalArrangement) =
                 arrangement.Levels.[int firstPhrase.MaxDifficulty]
             | None ->
                 // There are DD levels, but no phrases where MaxDifficulty > 0
-                // Find the first level that has notes of chords
+                // Find the first level that has notes or chords
                 arrangement.Levels
                 |> Seq.find (fun level -> level.Notes.Count > 0 || level.Chords.Count > 0)
 

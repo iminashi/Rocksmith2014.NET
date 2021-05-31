@@ -15,4 +15,16 @@ let tests =
             let time = Utils.getFirstNoteTime arr
 
             Expect.equal time 4000 "First note time is correct"
+
+        testCase "getFirstNoteTime finds first note when there are DD levels" <| fun _ ->
+            let phrases = ResizeArray(seq { Phrase("default", 0uy, PhraseMask.None); Phrase("riff", 1uy, PhraseMask.None) })
+            let phraseIterations = ResizeArray(seq { PhraseIteration(0, 0); PhraseIteration(5000, 1) })
+            let arr = InstrumentalArrangement(Phrases = phrases, PhraseIterations = phraseIterations)
+            let notes = ResizeArray(seq { Note(Time = 5400) })
+            let chords = ResizeArray(seq { Chord(Time = 5000) })
+            arr.Levels <- ResizeArray(seq { Level(0y); Level(1y, Notes = notes, Chords = chords)  })
+
+            let time = Utils.getFirstNoteTime arr
+
+            Expect.equal time 5000 "First note time is correct"
     ]
