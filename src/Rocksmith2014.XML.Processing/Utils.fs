@@ -45,10 +45,19 @@ let getFirstNoteTime (arrangement: InstrumentalArrangement) =
         else
             // Find the first phrase that has difficulty levels
             let firstPhraseIteration =
-                arrangement.PhraseIterations.Find(fun pi ->
+                arrangement.PhraseIterations
+                |> Seq.tryFind (fun pi ->
                     arrangement.Phrases.[pi.PhraseId].MaxDifficulty > 0uy)
-            let firstPhrase = arrangement.Phrases.[firstPhraseIteration.PhraseId]
-            arrangement.Levels.[int firstPhrase.MaxDifficulty]
+
+            match firstPhraseIteration with
+            | Some firstPhraseIteration ->
+                let firstPhrase = arrangement.Phrases.[firstPhraseIteration.PhraseId]
+                arrangement.Levels.[int firstPhrase.MaxDifficulty]
+            | None ->
+                // There are DD levels, but no phrases where MaxDifficulty > 0
+                // Find the first level that has notes of chords
+                arrangement.Levels
+                |> Seq.find (fun level -> level.Notes.Count > 0 || level.Chords.Count > 0)
 
     let firstNote =
         firstPhraseLevel.Notes
