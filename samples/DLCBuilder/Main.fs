@@ -34,14 +34,13 @@ let private addArrangements files state =
         | Vocals _ when count Arrangement.pickVocals = 2 -> Error MaxVocals
         | _ -> Ok arr
 
-    let mainArrangementExists inst arrangements =
+    let mainArrangementExists newInst arrangements =
         arrangements
-        |> List.exists (function
-            | Instrumental x ->
-                inst.RouteMask = x.RouteMask
-                && inst.Priority = x.Priority
-                && x.Priority = ArrangementPriority.Main
-            | _ -> false)
+        |> List.choose Arrangement.pickInstrumental
+        |> List.exists (fun oldInst ->
+            newInst.RouteMask = oldInst.RouteMask
+            && newInst.Priority = oldInst.Priority
+            && oldInst.Priority = ArrangementPriority.Main)
 
     let createErrorMsg (path: string) error = $"%s{Path.GetFileName path}:\n%s{error}"
 
@@ -229,7 +228,7 @@ let update (msg: Msg) (state: State) =
         | None -> state, Cmd.none
 
     | NewProject ->
-        state.CoverArt |> Option.iter(fun x -> x.Dispose())
+        state.CoverArt |> Option.iter (fun x -> x.Dispose())
         { state with Project = DLCProject.Empty
                      SavedProject = DLCProject.Empty
                      OpenProjectFile = None
@@ -284,11 +283,8 @@ let update (msg: Msg) (state: State) =
             | NoConversion ->
                 ()
             | ToOgg | ToWav as conv ->
-                [ yield project.AudioFile
-                  yield project.AudioPreviewFile
-                  yield! project.Arrangements
-                         |> List.choose (function Instrumental i -> i.CustomAudio | _ -> None) ]
-                |> List.iter (fun { Path=path } ->
+                DLCProject.getAudioFiles project
+                |> Seq.iter (fun { Path=path } ->
                     if conv = ToOgg
                     then Conversion.wemToOgg path
                     else Conversion.wemToWav path)
@@ -296,13 +292,11 @@ let update (msg: Msg) (state: State) =
 
             if config.RemoveDDOnImport then
                 do! project.Arrangements
-                    |> List.map (fun a -> async {
-                        match a with
-                        | Instrumental i ->
-                            let arr = XML.InstrumentalArrangement.Load i.XML
-                            do! arr.RemoveDD false
-                            arr.Save i.XML
-                        | _ -> () })
+                    |> List.choose Arrangement.pickInstrumental
+                    |> List.map (fun inst -> async {
+                        let arr = XML.InstrumentalArrangement.Load inst.XML
+                        do! arr.RemoveDD false
+                        arr.Save inst.XML })
                     |> Async.Sequential
                     |> Async.Ignore
                 progress()
@@ -421,33 +415,24 @@ let update (msg: Msg) (state: State) =
         Cmd.OfAsync.either task () (fun v -> VolumeCalculated(v, target)) (fun ex -> TaskFailed(ex, (VolumeCalculation target)))
 
     | VolumeCalculated (volume, target) ->
-        let state =
+        let project =
             match target with
             | MainAudio ->
-                { state with Project = { project with AudioFile = { project.AudioFile with Volume = volume } } }
+                { project with AudioFile = { project.AudioFile with Volume = volume } }
             | PreviewAudio ->
-                { state with Project = { project with AudioPreviewFile = { project.AudioPreviewFile with Volume = volume } } }
+                { project with AudioPreviewFile = { project.AudioPreviewFile with Volume = volume } }
             | CustomAudio (_, arrId) ->
-                project.Arrangements
-                |> List.tryPick (function
-                    | Instrumental inst as arr when inst.PersistentID = arrId ->
-                        Some arr
-                    | _ ->
-                        None)
-                |> function
-                | Some (Instrumental inst as old) ->
-                    let updated =
-                        Instrumental { inst with CustomAudio = inst.CustomAudio |> Option.map (fun a -> { a with Volume = volume }) }
-                        
-                    let arrangements =
-                        project.Arrangements
-                        |> List.update old updated
+                let arrangements =
+                    project.Arrangements
+                    |> List.map (function
+                        | Instrumental inst when inst.PersistentID = arrId ->
+                            let audio = inst.CustomAudio |> Option.map (fun a -> { a with Volume = volume })
+                            Instrumental { inst with CustomAudio = audio }
+                        | other ->
+                            other)
+                { project with Arrangements = arrangements }
 
-                    { state with Project = { project with Arrangements = arrangements } }
-                | _ ->
-                    state
-                    
-        Utils.removeTask (VolumeCalculation target) state, Cmd.none
+        Utils.removeTask (VolumeCalculation target) { state with Project = project }, Cmd.none
 
     | SetCoverArt fileName ->
         { state with CoverArt = Utils.changeCoverArt state.CoverArt fileName
@@ -562,13 +547,13 @@ let update (msg: Msg) (state: State) =
                     Cmd.none
             else
                 Cmd.none
-            
+
         { state with Config = newConfig }, cmd
 
     | SetRecentFiles recent -> { state with RecentFiles = recent }, Cmd.none
 
     | SetAvailableUpdate (Error _) ->
-        // Don't show an error message if the update check when starting the program fails
+        // Don't show an error message if the update check fails when starting the program
         state, Cmd.none
 
     | SetAvailableUpdate (Ok update) ->
@@ -741,18 +726,16 @@ let update (msg: Msg) (state: State) =
 
     | ApplyLowTuningFix ->
         let arrangements =
-            project.Arrangements
-            |> List.mapi (fun i arr ->
-                if i = state.SelectedArrangementIndex then
-                    match arr with
-                    | Instrumental inst ->
-                        { inst with TuningPitch = inst.TuningPitch / 2.
-                                    Tuning = Array.map ((+) 12s) inst.Tuning }
-                        |> Instrumental
-                    | _ ->
-                        arr
-                else
-                    arr)
+            match getSelectedArrangement state with
+            | Some (Instrumental inst) ->
+                let updated =
+                    { inst with TuningPitch = inst.TuningPitch / 2.
+                                Tuning = Array.map ((+) 12s) inst.Tuning }
+                    |> Instrumental
+                project.Arrangements |> List.updateAt state.SelectedArrangementIndex updated
+            | _ ->
+                project.Arrangements
+
         { state with Project = { project with Arrangements = arrangements } }, Cmd.none
 
     | BuildPitchShifted ->

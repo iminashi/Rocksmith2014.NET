@@ -186,12 +186,16 @@ module DLCProject =
         &&
         File.Exists project.AudioPreviewFile.Path
 
-    /// Returns the paths to the audio files that need converting to wem.
-    let getFilesThatNeedConverting (project: DLCProject) =
+    /// Returns a sequence of the audio files in the project.
+    let getAudioFiles (project: DLCProject) =
         seq { project.AudioFile
               project.AudioPreviewFile
               yield! project.Arrangements
                      |> List.choose (function Instrumental i -> i.CustomAudio | _ -> None) }
+
+    /// Returns the paths to the audio files that need converting to wem.
+    let getFilesThatNeedConverting (project: DLCProject) =
+        getAudioFiles project
         |> Seq.map (fun audio -> audio.Path)
         |> Seq.filter (fun path ->
             not <| String.endsWith "wem" path
