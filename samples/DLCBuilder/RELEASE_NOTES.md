@@ -1,3 +1,7 @@
+## 0.x.x (Released 2021-xx-xx)
+
+- Fixed a possible null reference exception when adding crowd events.
+
 ## 0.2.2 (Released 2021-05-27)
 
 - Test release for setting up GitHub Action.
