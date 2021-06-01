@@ -29,42 +29,42 @@ let private tryGetLatestRelease () = async {
     with e ->
         return (Error $"Getting latest release failed with: {e.Message}") }
 
+let private getAvailableUpdate (latestVersion: Version) =
+    let currentVersion = AppVersion.current
+
+    if latestVersion.Major > currentVersion.Major then
+        Some AvailableUpdate.Major
+    elif latestVersion.Major = currentVersion.Major
+         && latestVersion.Minor > currentVersion.Minor
+    then
+        Some AvailableUpdate.Minor
+    elif latestVersion.Major = currentVersion.Major
+         && latestVersion.Minor = currentVersion.Minor
+         && latestVersion.Build > currentVersion.Build
+    then
+        Some AvailableUpdate.BugFix
+    else
+        None
+
+let private tryGetReleaseAsset (release: Release) =
+    let platform = if OperatingSystem.IsMacOS() then "mac" else "win"
+    release.Assets
+    |> Seq.tryFind (fun ass ->
+        ass.Name.Contains(platform, StringComparison.OrdinalIgnoreCase))
+
 /// Returns the update information for the given release if it is newer than the current version.
 let private getAvailableUpdateInformation (release: Release) =
     let latestVersion = Version(release.TagName.Substring 1)
-    let currentVersion = AppVersion.current
+    let availableUpdate = getAvailableUpdate latestVersion       
+    let asset = tryGetReleaseAsset release
 
-    let availableUpdate =
-        if latestVersion.Major > currentVersion.Major then
-            Some AvailableUpdate.Major
-        elif latestVersion.Major = currentVersion.Major
-             && latestVersion.Minor > currentVersion.Minor
-        then
-            Some AvailableUpdate.Minor
-        elif latestVersion.Major = currentVersion.Major
-             && latestVersion.Minor = currentVersion.Minor
-             && latestVersion.Build > currentVersion.Build
-        then
-            Some AvailableUpdate.BugFix
-        else
-            None
-
-    let asset =
-        release.Assets
-        |> Seq.tryFind (fun ass ->
-            let subStr = if OperatingSystem.IsMacOS() then "mac" else "win"
-            ass.Name.Contains(subStr, StringComparison.OrdinalIgnoreCase))
-
-    match availableUpdate, asset with
-    | Some update, Some asset ->
+    (availableUpdate, asset)
+    ||> Option.map2 (fun update asset ->
         { AvailableUpdate = update
           UpdateVersion = latestVersion
           ReleaseDate = release.CreatedAt
           Changes = release.Body
-          AssetUrl = asset.BrowserDownloadUrl }
-        |> Some
-    | _ ->
-        None
+          AssetUrl = asset.BrowserDownloadUrl })
 
 /// Fetches the latest release and returns the information for the available update.
 let checkForUpdates () = async {
