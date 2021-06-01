@@ -332,5 +332,6 @@
   "BugFix": "korjaus",
   "updateAndRestart": "Päivitä ja uudelleenkäynnistä",
   "details": "Tiedot",
-  "dismiss": "Poista"
+  "dismiss": "Poista",
+  "goToDownloadPage": "Siirry lataussivulle"
 }

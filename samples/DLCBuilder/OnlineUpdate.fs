@@ -100,27 +100,10 @@ let downloadUpdate (targetPath: string) (update: UpdateInformation) = async {
 /// Downloads the update and starts the Updater process.
 let downloadAndApplyUpdate (update: UpdateInformation) = async {
     let downloadPath = Path.Combine(Path.GetTempPath(), "dlc-builder-update.zip")
-    let targetFolder =
-        let appDir = Path.GetDirectoryName(AppContext.BaseDirectory)
-        if isMac then
-            // On macOS the executable is in the folder DLC Builder.app/Contents/MacOS/
-            // Get the path to the Contents directory
-            Directory.GetParent(appDir).FullName
-        else
-            appDir
+    let targetFolder = Path.GetDirectoryName(AppContext.BaseDirectory)
 
-    let! extractDir = downloadUpdate downloadPath update
-    let updaterPath =
-        if isMac then
-            Path.Combine(extractDir, "DLC Builder.app", "Contents", "MacOS", "Updater")
-        else
-            Path.Combine(extractDir, "Updater", "Updater")
-
-    let updateFolder =
-        if isMac then
-            Path.Combine(extractDir, "DLC Builder.app", "Contents")
-        else
-            extractDir
+    let! updateFolder = downloadUpdate downloadPath update
+    let updaterPath = Path.Combine(updateFolder, "Updater", "Updater")
 
     let startInfo = ProcessStartInfo(FileName = updaterPath, Arguments = $"\"{updateFolder}\" \"{targetFolder}\"")
     use updater = new Process(StartInfo = startInfo)

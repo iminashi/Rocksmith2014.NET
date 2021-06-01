@@ -86,7 +86,7 @@ let createMacAppBundle buildDir =
     if not <| RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then
         printfn "Setting executable permissions..."
         Shell.cd (contentsDir </> "MacOS")
-        [ "DLCBuilder"; "Updater"; "./Tools/ww2ogg"; "./Tools/revorb" ]
+        [ "DLCBuilder"; "./Tools/ww2ogg"; "./Tools/revorb" ]
         |> List.iter (chmod "+x")
 
     // Copy the icon
@@ -116,8 +116,8 @@ let publishBuilder platform =
                   targetDir </> "Updater" </> updaterExecutable, overwrite = true)
     | MacOS ->
         // Copy the updater into the target folder
-        File.Copy(publishDir </> $"updater-{platform}" </> updaterExecutable,
-                  targetDir </> updaterExecutable, overwrite = true)
+        //File.Copy(publishDir </> $"updater-{platform}" </> updaterExecutable,
+        //          targetDir </> updaterExecutable, overwrite = true)
         createMacAppBundle targetDir
 
 let createZipArchive platform =

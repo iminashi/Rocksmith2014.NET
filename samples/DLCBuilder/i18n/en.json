@@ -332,5 +332,6 @@
   "newVersionAvailable": "New Version Available",
   "updateAndRestart": "Update and Restart",
   "details": "Details",
-  "dismiss": "Dismiss"
+  "dismiss": "Dismiss",
+  "goToDownloadPage": "Go to Download Page"
 }

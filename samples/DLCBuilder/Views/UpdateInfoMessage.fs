@@ -9,6 +9,7 @@ open Avalonia.Media
 open DLCBuilder
 open DLCBuilder.Media
 open DLCBuilder.OnlineUpdate
+open System
 
 let view (update: UpdateInformation) dispatch =
     StackPanel.create [
@@ -70,8 +71,17 @@ let view (update: UpdateInformation) dispatch =
                     Button.create [
                         Button.fontSize 18.
                         Button.padding (40., 10.)
-                        Button.content (translate "updateAndRestart")
-                        Button.onClick (fun _ -> dispatch UpdateAndRestart)
+                        Button.content (
+                            if OperatingSystem.IsMacOS() then
+                                translate "goToDownloadPage"
+                            else
+                                translate "updateAndRestart")
+                        Button.onClick (fun _ ->
+                            if OperatingSystem.IsMacOS() then
+                                Utils.openLink "https://github.com/iminashi/Rocksmith2014.NET/releases"
+                                dispatch CloseOverlay
+                            else
+                                dispatch UpdateAndRestart)
                     ]
 
                     // Close button
