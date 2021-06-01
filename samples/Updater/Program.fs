@@ -25,10 +25,21 @@ let copyFiles sourceDirectory targetDirectory =
         File.Copy(path, targetPath, overwrite=true))
 
 let startBuilder tempDirectory directory =
-    let builderPath = Path.Combine(directory, "DLCBuilder")
-    let startInfo = ProcessStartInfo(FileName = builderPath, Arguments = $"--updated \"{tempDirectory}\"")
-    use dlcBuilder = new Process(StartInfo = startInfo)
-    dlcBuilder.Start() |> ignore
+    try
+        let builderPath =
+            if OperatingSystem.IsMacOS() then
+                Path.Combine(directory, "MacOS", "DLCBuilder")
+            else
+                Path.Combine(directory, "DLCBuilder")
+        let startInfo = ProcessStartInfo(FileName = builderPath, Arguments = $"--updated \"{tempDirectory}\"")
+        use dlcBuilder = new Process(StartInfo = startInfo)
+        dlcBuilder.Start() |> ignore
+    with e ->
+        printfn $"Starting DLC Builder failed: {e.Message}"
+        printfn "%s" e.StackTrace
+
+        printfn "Press any key..."
+        Console.ReadLine() |> ignore
 
 [<EntryPoint>]
 let main argv =

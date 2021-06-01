@@ -20,6 +20,8 @@ type UpdateInformation =
       Changes : string
       AssetUrl : string }
 
+let private isMac = OperatingSystem.IsMacOS()
+
 /// Attempts to get the latest release from GitHub.
 let private tryGetLatestRelease () = async {
     try
@@ -47,7 +49,7 @@ let private getAvailableUpdate (latestVersion: Version) =
         None
 
 let private tryGetReleaseAsset (release: Release) =
-    let platform = if OperatingSystem.IsMacOS() then "mac" else "win"
+    let platform = if isMac then "mac" else "win"
     release.Assets
     |> Seq.tryFind (fun ass ->
         ass.Name.Contains(platform, StringComparison.OrdinalIgnoreCase))
@@ -98,10 +100,27 @@ let downloadUpdate (targetPath: string) (update: UpdateInformation) = async {
 /// Downloads the update and starts the Updater process.
 let downloadAndApplyUpdate (update: UpdateInformation) = async {
     let downloadPath = Path.Combine(Path.GetTempPath(), "dlc-builder-update.zip")
-    let targetFolder = Path.GetDirectoryName(AppContext.BaseDirectory)
+    let targetFolder =
+        let appDir = Path.GetDirectoryName(AppContext.BaseDirectory)
+        if isMac then
+            // On macOS the executable is in the folder DLC Builder.app/Contents/MacOS/
+            // Get the path to the Contents directory
+            Directory.GetParent(appDir).FullName
+        else
+            appDir
 
-    let! updateFolder = downloadUpdate downloadPath update
-    let updaterPath = Path.Combine(updateFolder, "Updater", "Updater")
+    let! extractDir = downloadUpdate downloadPath update
+    let updaterPath =
+        if isMac then
+            Path.Combine(extractDir, "DLC Builder.app", "Contents", "MacOS", "Updater")
+        else
+            Path.Combine(extractDir, "Updater", "Updater")
+
+    let updateFolder =
+        if isMac then
+            Path.Combine(extractDir, "DLC Builder.app", "Contents")
+        else
+            extractDir
 
     let startInfo = ProcessStartInfo(FileName = updaterPath, Arguments = $"\"{updateFolder}\" \"{targetFolder}\"")
     use updater = new Process(StartInfo = startInfo)

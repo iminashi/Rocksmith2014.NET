@@ -1,6 +1,7 @@
-## 0.x.x (Released 2021-xx-xx)
+## 0.2.3 (Released 2021-06-01)
 
 - Fixed a possible null reference exception when adding crowd events.
+- Improved the auto-update.
 
 ## 0.2.2 (Released 2021-05-27)
 

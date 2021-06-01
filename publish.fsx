@@ -30,8 +30,13 @@ let gitName = "Rocksmith2014.NET"
 let publishDir = __SOURCE_DIRECTORY__ </> "publish"
 let samplesDir = __SOURCE_DIRECTORY__ </> "samples"
 let dlcBuilderDir = samplesDir </> "DLCBuilder"
-let msBuildParams =
-    { MSBuild.CliArguments.Create() with Properties = [ "PublishSingleFile", "true" ] }
+let msBuildParams trim =
+    let properties =
+        [ "PublishSingleFile", "true"
+          if trim then
+            "PublishTrimmed", "true"
+            "TrimMode", "link" ]
+    { MSBuild.CliArguments.Create() with Properties = properties }
 
 let release =
     Path.Combine(dlcBuilderDir, "RELEASE_NOTES.md")
@@ -41,7 +46,7 @@ let cleanPublishDirectory () =
     if Directory.Exists publishDir then
         Directory.Delete(publishDir, recursive = true)
 
-let createConfig appName platform (arg: DotNet.PublishOptions) =
+let createConfig appName platform trim (arg: DotNet.PublishOptions) =
     let targetDir = publishDir </> $"{appName}-{platform}"
     let runTime, isMac =
         match platform with
@@ -52,7 +57,7 @@ let createConfig appName platform (arg: DotNet.PublishOptions) =
                Configuration = DotNet.BuildConfiguration.Release
                Runtime = Some runTime
                SelfContained = Some isMac
-               MSBuildParams = msBuildParams }
+               MSBuildParams = msBuildParams trim }
 
 let chmod arg file =
     CreateProcess.fromRawCommand "chmod" [ arg; file ]
@@ -67,7 +72,7 @@ let zip workingDir targetFile dirToZip =
 
 let publishUpdater platform =
     samplesDir </> "Updater" </> "Updater.fsproj"
-    |> DotNet.publish (createConfig "updater" platform)
+    |> DotNet.publish (createConfig "updater" platform (platform = MacOS))
 
 let createMacAppBundle buildDir =
     // Create the app bundle directory structure and copy the build contents
@@ -81,7 +86,7 @@ let createMacAppBundle buildDir =
     if not <| RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then
         printfn "Setting executable permissions..."
         Shell.cd (contentsDir </> "MacOS")
-        [ "DLCBuilder"; "./Tools/ww2ogg"; "./Tools/revorb" ]
+        [ "DLCBuilder"; "Updater"; "./Tools/ww2ogg"; "./Tools/revorb" ]
         |> List.iter (chmod "+x")
 
     // Copy the icon
@@ -95,16 +100,24 @@ let createMacAppBundle buildDir =
 
 let publishBuilder platform =
     dlcBuilderDir </> "DLCBuilder.fsproj"
-    |> DotNet.publish (createConfig "dlcbuilder" platform)
+    |> DotNet.publish (createConfig "dlcbuilder" platform false)
 
     let targetDir = publishDir </> $"dlcbuilder-{platform}"
+    let updaterExecutable =
+        match platform with
+        | MacOS -> "Updater"
+        | Windows -> "Updater.exe"
+
     match platform with
     | Windows ->
-        // Copy the updater
+        // Copy the updater into a subfolder
         Directory.CreateDirectory(targetDir </> "Updater") |> ignore
-        File.Copy(publishDir </> "updater-win" </> "Updater.exe",
-                  targetDir </> "Updater" </> "Updater.exe", overwrite = true)
+        File.Copy(publishDir </> $"updater-{platform}" </> updaterExecutable,
+                  targetDir </> "Updater" </> updaterExecutable, overwrite = true)
     | MacOS ->
+        // Copy the updater into the target folder
+        File.Copy(publishDir </> $"updater-{platform}" </> updaterExecutable,
+                  targetDir </> updaterExecutable, overwrite = true)
         createMacAppBundle targetDir
 
 let createZipArchive platform =
@@ -157,4 +170,3 @@ let addFileToRelease file =
     |> GitHub.getReleaseByTag gitOwner gitName tagName
     |> GitHub.uploadFile file
     |> Async.RunSynchronously
-
