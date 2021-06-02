@@ -157,9 +157,7 @@ let editConfig edit config =
         { config with WwiseConsolePath = Option.ofString path }
 
     | SetProfilePath path ->
-        match path with
-        | EndsWith "_PRFLDB" -> { config with ProfilePath = path }
-        | _ -> config
+        { config with ProfilePath = path }
 
 let editProject edit project =
     match edit with
