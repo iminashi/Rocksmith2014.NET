@@ -21,6 +21,7 @@
   "WwiseConsoleDialogTitle": "Wwise 2019/2021コンソールアプリケーションを開く",
   "ExportToneDialogTitle": "トーンをエクスポート",
   "SaveProjectAsDialogTitle": "名前を付けてプロジェクトを保存",
+  "ToneInjectDialogTitle": "プロフィールに読み込むトーンを選択してください",
   "couldNotFindTonesError": "トーンを見つかる事ができませんでした",
   "addArrangement": "追加",
   "arrangements": "アレンジ",
@@ -333,5 +334,6 @@
   "updateAndRestart": "アップデートして再起動",
   "details": "詳細",
   "dismiss": "閉じる",
-  "goToDownloadPage": "ダウンロードサイトへ移動"
+  "goToDownloadPage": "ダウンロードサイトへ移動",
+  "injectTonesIntoProfile": "プロフィールにトーンを読み込む..."
 }

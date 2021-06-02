@@ -7,6 +7,7 @@ open Rocksmith2014.Common
 open Rocksmith2014.Common.BinaryReaders
 open Rocksmith2014.Common.Manifest
 open Newtonsoft.Json
+open Newtonsoft.Json.Linq
 open BinaryWriters
 
 type ProfileHeader = { Version: uint32; ID: uint64; UncompressedLength: uint32 }
@@ -69,6 +70,32 @@ let write (targetFile: string) (profileId: uint64) (jsonData: Stream) = async {
 
     zipped.Position <- 0L
     do! encryptProfileData zipped file }
+
+/// Reads a profile from the given path and returns the profile JToken and ID.
+let readAsJToken path = async {
+    use profileFile = File.OpenRead path
+    use mem = MemoryStreamPool.Default.GetStream()
+    let! header = decrypt profileFile mem
+
+    mem.Position <- 0L
+    use textReader = new StreamReader(mem)
+    use reader = new JsonTextReader(textReader)
+
+    return JToken.ReadFrom reader, header.ID }
+
+/// Saves the profile data into the target path.
+let saveJToken targetPath id (json: JToken) = async {
+    use jsonData = MemoryStreamPool.Default.GetStream()
+    use streamWriter = new StreamWriter(jsonData, NewLine = "\n")
+    use writer = new JsonTextWriter(streamWriter,
+                                    Formatting = Formatting.Indented,
+                                    Indentation = 0,
+                                    StringEscapeHandling = StringEscapeHandling.EscapeNonAscii)
+
+    json.WriteTo writer
+    writer.Flush()
+
+    do! write targetPath id jsonData }
 
 type ToneImportError =
     | NoTonesInProfile

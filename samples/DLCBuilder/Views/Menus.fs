@@ -192,6 +192,13 @@ let tools state dispatch =
                 MenuItem.header (translate "convertWemToOgg")
                 MenuItem.onClick (fun _ -> Dialog.WemFiles |> ShowDialog |> dispatch)
             ]
+
+            // Inject Tones into Profile
+            MenuItem.create [
+                MenuItem.header (translate "injectTonesIntoProfile")
+                MenuItem.onClick (fun _ -> Dialog.ToneInject |> ShowDialog |> dispatch)
+                MenuItem.isEnabled (String.notEmpty state.Config.ProfilePath)
+            ]
         ]
     ]
 

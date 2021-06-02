@@ -21,6 +21,7 @@
   "WwiseConsoleDialogTitle": "Valitse Wwise 2019/2021 konsolisovellus",
   "ExportToneDialogTitle": "Vie soundi nimellä",
   "SaveProjectAsDialogTitle": "Tallenna projekti nimellä",
+  "ToneInjectDialogTitle": "Valitse profiiliin ladattavat soundit",
   "couldNotFindTonesError": "Ei löytynyt yhtään soundia.",
   "addArrangement": "Lisää",
   "arrangements": "Sovitukset",
@@ -333,5 +334,6 @@
   "updateAndRestart": "Päivitä ja uudelleenkäynnistä",
   "details": "Tiedot",
   "dismiss": "Poista",
-  "goToDownloadPage": "Siirry lataussivulle"
+  "goToDownloadPage": "Siirry lataussivulle",
+  "injectTonesIntoProfile": "Lataa soundeja profiiliin..."
 }

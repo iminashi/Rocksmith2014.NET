@@ -3,7 +3,6 @@ open System.IO
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.PSARC
-open Newtonsoft.Json
 open Newtonsoft.Json.Linq
 
 let readFromAppDir file =
@@ -61,37 +60,6 @@ let gatherDLCData verbose (directory: string) = async {
 
     return List.collect id ids, List.collect id keys }
 
-/// Saves the profile data, backing up the existing profile file.
-let saveProfile originalPath id (profileJson: JToken) = async {
-    use jsonData = MemoryStreamPool.Default.GetStream()
-    use streamWriter = new StreamWriter(jsonData, NewLine = "\n")
-    use writer = new JsonTextWriter(streamWriter,
-                                    Formatting = Formatting.Indented,
-                                    Indentation = 0,
-                                    StringEscapeHandling = StringEscapeHandling.EscapeNonAscii)
-
-    profileJson.WriteTo writer
-    writer.Flush()
-
-    let backUp = originalPath + ".backup"
-    if File.Exists backUp then File.Delete backUp
-    File.Copy(originalPath, backUp)
-    printfn "Backup file created."
-
-    do! Profile.write originalPath id jsonData }
-
-/// Reads a profile from the given path.
-let readProfile path = async {
-    use profileFile = File.OpenRead path
-    use mem = MemoryStreamPool.Default.GetStream()
-    let! header = Profile.decrypt profileFile mem
-
-    mem.Position <- 0L
-    use textReader = new StreamReader(mem)
-    use reader = new JsonTextReader(textReader)
-
-    return JToken.ReadFrom reader, header.ID }
-
 /// Removes the children whose names are not in the IDs set from the JToken.
 let filterJTokenIds (ids: Set<string>) (token: JToken) =
     let filtered =
@@ -107,6 +75,9 @@ let filterJArrayKeys (keys: Set<string>) (array: JArray) =
     |> Seq.filter (fun x -> not <| keys.Contains(x.Value<string>()))
     |> Seq.toArray
     |> Array.iter (array.Remove >> ignore)
+
+let backupProfile profilePath =
+    File.Copy(profilePath, $"%s{profilePath}.backup", overwrite=true)
 
 [<EntryPoint>]
 let main argv =
@@ -133,7 +104,7 @@ let main argv =
 
         Console.WriteLine "Reading profile..."
 
-        let! profile, id = readProfile profilePath
+        let! profile, id = Profile.readAsJToken profilePath
 
         Console.WriteLine "Debloating profile..."
 
@@ -150,7 +121,10 @@ let main argv =
 
         Console.WriteLine "Saving profile file..."
 
-        do! saveProfile profilePath id profile
+        backupProfile profilePath
+        printfn "Backup file created."
+
+        do! Profile.saveJToken profilePath id profile
         Console.WriteLine "Profile saved."
         Console.CursorVisible <- cursorVisibleOld }
         |> Async.RunSynchronously

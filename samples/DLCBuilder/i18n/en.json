@@ -21,6 +21,7 @@
   "WwiseConsoleDialogTitle": "Select the Wwise 2019/2021 console application",
   "ExportToneDialogTitle": "Export Tone As",
   "SaveProjectAsDialogTitle": "Save Project As",
+  "ToneInjectDialogTitle": "Select Tones to Inject into Profile",
   "couldNotFindTonesError": "Could not find any tones.",
   "addArrangement": "Add",
   "arrangements": "Arrangements",
@@ -333,5 +334,6 @@
   "updateAndRestart": "Update and Restart",
   "details": "Details",
   "dismiss": "Dismiss",
-  "goToDownloadPage": "Go to Download Page"
+  "goToDownloadPage": "Go to Download Page",
+  "injectTonesIntoProfile": "Inject Tones into Profile..."
 }

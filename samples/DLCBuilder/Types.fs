@@ -148,6 +148,7 @@ type ToolsMsg =
     | ConvertWemToOgg of files : string array
     | UnpackPSARC of file : string
     | RemoveDD of files : string array
+    | InjectTonesToProfile of files : string array
 
 [<RequireQualifiedAccess>]
 type Dialog =
@@ -164,6 +165,7 @@ type Dialog =
     | ProjectFolder
     | AddArrangements
     | ToneImport
+    | ToneInject
     | WwiseConsole
     | CoverArt
     | AudioFile of isCustom : bool

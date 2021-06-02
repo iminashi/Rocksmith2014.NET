@@ -170,6 +170,9 @@ let showDialog dialogType state =
         | Dialog.ToneImport ->
             ofd FileFilter.ToneImport ImportTonesFromFile
 
+        | Dialog.ToneInject ->
+            openMultiFileDialog title FileFilter.ToneImport None (InjectTonesToProfile >> ToolsMsg)
+
         | Dialog.WwiseConsole ->
             let initialDir = state.Config.WwiseConsolePath |> Option.map Path.GetDirectoryName
             openFileDialog title FileFilter.WwiseConsoleApplication initialDir (SetWwiseConsolePath >> EditConfig)
