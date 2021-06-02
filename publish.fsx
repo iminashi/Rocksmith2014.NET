@@ -74,51 +74,12 @@ let publishUpdater platform =
     samplesDir </> "Updater" </> "Updater.fsproj"
     |> DotNet.publish (createConfig "updater" platform (platform = MacOS))
 
-let createMacAppBundle buildDir =
-    // Create the app bundle directory structure and copy the build contents
-    let contentsDir = publishDir </> "DLC Builder.app" </> "Contents"
-    let resourceDir = contentsDir </> "Resources"
-    Directory.CreateDirectory(contentsDir) |> ignore
-    Directory.Move(buildDir, contentsDir </> "MacOS")
-    Directory.CreateDirectory(resourceDir) |> ignore
-
-    // Run chmod on the executables if not building on Windows
-    if not <| RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then
-        printfn "Setting executable permissions..."
-        Shell.cd (contentsDir </> "MacOS")
-        [ "DLCBuilder"; "./Tools/ww2ogg"; "./Tools/revorb" ]
-        |> List.iter (chmod "+x")
-
-    // Copy the icon
-    let macSourceDir = dlcBuilderDir </> "macOS"
-    File.Copy(macSourceDir </> "icon.icns", resourceDir </> "icon.icns")
-
-    // Create Info.plist with the program version set
-    File.readAsString (macSourceDir </> "Info.plist")
-    |> String.replace "%VERSION%" release.NugetVersion
-    |> File.writeString false (contentsDir </> "Info.plist")
-
 let publishBuilder platform =
     dlcBuilderDir </> "DLCBuilder.fsproj"
     |> DotNet.publish (createConfig "dlcbuilder" platform false)
 
-    let targetDir = publishDir </> $"dlcbuilder-{platform}"
-    let updaterExecutable =
-        match platform with
-        | MacOS -> "Updater"
-        | Windows -> "Updater.exe"
-
-    match platform with
-    | Windows ->
-        // Copy the updater into a subfolder
-        Directory.CreateDirectory(targetDir </> "Updater") |> ignore
-        File.Copy(publishDir </> $"updater-{platform}" </> updaterExecutable,
-                  targetDir </> "Updater" </> updaterExecutable, overwrite = true)
-    | MacOS ->
-        // Copy the updater into the target folder
-        //File.Copy(publishDir </> $"updater-{platform}" </> updaterExecutable,
-        //          targetDir </> updaterExecutable, overwrite = true)
-        createMacAppBundle targetDir
+    // Return the target directory
+    publishDir </> $"dlcbuilder-{platform}"
 
 let createZipArchive platform =
     let targetFile = publishDir </> $"DLCBuilder-{platform}-{release.NugetVersion}.zip"
