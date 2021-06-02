@@ -20,8 +20,6 @@ module ToneInjector =
 
     /// Converts an array of tones into a JArray.
     let private createToneJArray (tones: Tone array) =
-        let serializer = JsonSerializer(NullValueHandling = NullValueHandling.Ignore)
-    
         let dtos =
             tones
             |> Array.truncate 50
@@ -30,7 +28,7 @@ module ToneInjector =
                 { dto with SortOrder = Nullable(float32 (i + 1))
                            IsCustom = Nullable(true) })
 
-        JArray.FromObject(dtos, serializer)
+        JArray.FromObject(dtos, JsonSerializer(NullValueHandling = NullValueHandling.Ignore))
 
     /// Replaces the custom tones in the profile file with tones read from the files.
     let injectTones profilePath toneFiles = async  {
@@ -89,7 +87,7 @@ let update msg state =
             Async.Parallel(computations, max 1 (Environment.ProcessorCount / 4))
         state, Cmd.OfAsync.attempt task () ErrorOccurred
 
-    | InjectTonesToProfile files ->
+    | InjectTonesIntoProfile files ->
         let cmd =
             if String.notEmpty state.Config.ProfilePath then
                 let task() = async { do! ToneInjector.injectTones state.Config.ProfilePath files }

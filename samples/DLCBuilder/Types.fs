@@ -148,7 +148,7 @@ type ToolsMsg =
     | ConvertWemToOgg of files : string array
     | UnpackPSARC of file : string
     | RemoveDD of files : string array
-    | InjectTonesToProfile of files : string array
+    | InjectTonesIntoProfile of files : string array
 
 [<RequireQualifiedAccess>]
 type Dialog =
