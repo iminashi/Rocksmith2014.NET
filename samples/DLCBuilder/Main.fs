@@ -95,25 +95,13 @@ let init args =
             |> Array.tryFind (String.endsWith ".rs2dlc")
             |> Option.map (fun path ->
                 Cmd.OfAsync.either DLCProject.load path (fun p -> ProjectLoaded(p, path)) ErrorOccurred)
-
-        // Delete temporary directory used for update
-        args
-        |> Array.tryFindIndex ((=) "--updated")
-        |> Option.iter (fun index ->
-            try
-                match Array.tryItem (index + 1) args with
-                | Some path when path.StartsWith(Path.GetTempPath()) ->
-                    Directory.Delete(path, recursive = true)
-                | _ ->
-                    ()
-            with _ ->
-                ())
+            |> Option.toList
 
         Cmd.batch [
-            Cmd.OfAsync.perform Configuration.load () (fun config -> SetConfiguration(config, loadProject.IsNone, wasAbnormalExit))
+            Cmd.OfAsync.perform Configuration.load () (fun config -> SetConfiguration(config, loadProject.IsEmpty, wasAbnormalExit))
             Cmd.OfAsync.perform RecentFilesList.load () SetRecentFiles
             Cmd.OfAsync.perform OnlineUpdate.checkForUpdates () SetAvailableUpdate
-            yield! loadProject |> Option.toList ]
+            yield! loadProject ]
 
     { Project = DLCProject.Empty
       SavedProject = DLCProject.Empty

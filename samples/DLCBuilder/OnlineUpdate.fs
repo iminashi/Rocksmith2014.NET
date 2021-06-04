@@ -4,7 +4,6 @@ open Octokit
 open System
 open System.Net.Http
 open System.IO
-open System.IO.Compression
 open System.Diagnostics
 
 [<RequireQualifiedAccess>]
@@ -83,29 +82,12 @@ let private downloadFile (targetPath: string) (sourceUrl: string) = async {
     use file = File.Create targetPath
     do! stream.CopyToAsync file }
 
-/// Downloads the update asset, unzips it and returns the directory it was extracted to.
-let downloadUpdate (targetPath: string) (update: UpdateInformation) = async {
-    do! downloadFile targetPath update.AssetUrl
-
-    let extractDir = Path.Combine(Path.GetDirectoryName targetPath, Guid.NewGuid().ToString())
-    if Directory.Exists extractDir then
-        Directory.Delete(extractDir, recursive=true)
-    Directory.CreateDirectory extractDir |> ignore
-
-    ZipFile.ExtractToDirectory(targetPath, extractDir)
-    File.Delete targetPath
-
-    return extractDir }
-
 /// Downloads the update and starts the Updater process.
 let downloadAndApplyUpdate (update: UpdateInformation) = async {
-    let downloadPath = Path.Combine(Path.GetTempPath(), "dlc-builder-update.zip")
-    let targetFolder = Path.GetDirectoryName(AppContext.BaseDirectory)
+    let updatePath = Path.Combine(Configuration.appDataFolder, "update.exe")
+    do! downloadFile updatePath update.AssetUrl
 
-    let! updateFolder = downloadUpdate downloadPath update
-    let updaterPath = Path.Combine(updateFolder, "Updater", "Updater")
-
-    let startInfo = ProcessStartInfo(FileName = updaterPath, Arguments = $"\"{updateFolder}\" \"{targetFolder}\"")
-    use updater = new Process(StartInfo = startInfo)
-    updater.Start() |> ignore
+    let startInfo = ProcessStartInfo(FileName = updatePath, Arguments = $"/silent")
+    use update = new Process(StartInfo = startInfo)
+    update.Start() |> ignore
     Environment.Exit 0 }
