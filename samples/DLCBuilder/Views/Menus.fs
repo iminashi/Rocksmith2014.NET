@@ -198,6 +198,7 @@ let tools state dispatch =
                 MenuItem.header (translate "injectTonesIntoProfile")
                 MenuItem.onClick (fun _ -> Dialog.ToneInject |> ShowDialog |> dispatch)
                 MenuItem.isEnabled (String.notEmpty state.Config.ProfilePath)
+                ToolTip.tip (translate "injectTonesIntoProfileToolTip")
             ]
         ]
     ]

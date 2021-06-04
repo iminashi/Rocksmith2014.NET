@@ -335,5 +335,6 @@
   "details": "Details",
   "dismiss": "Dismiss",
   "goToDownloadPage": "Go to Download Page",
-  "injectTonesIntoProfile": "Inject Tones into Profile..."
+  "injectTonesIntoProfile": "Inject Tones into Profile...",
+  "injectTonesIntoProfileToolTip": "Select tones to be loaded into the profile file set in the configuration.\n\nNOTE:\nThe existing custom tones in the profile will be replaced.\nIt is recommended that you create a backup of your profile before use."
 }

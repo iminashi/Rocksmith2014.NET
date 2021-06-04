@@ -335,5 +335,6 @@
   "details": "Tiedot",
   "dismiss": "Poista",
   "goToDownloadPage": "Siirry lataussivulle",
-  "injectTonesIntoProfile": "Lataa soundeja profiiliin..."
+  "injectTonesIntoProfile": "Lataa soundeja profiiliin...",
+  "injectTonesIntoProfileToolTip": "Valitse soundit, jotka ladataan asetuksissa asetetuun profiilitiedostoon.\n\nHUOMIO:\nProfiilissa olevat soundit korvataan.\nOn suositeltavaa tehdä profiilista varmuuskopio ennen käyttöä."
 }
