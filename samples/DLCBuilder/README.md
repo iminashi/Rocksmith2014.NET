@@ -1,5 +1,10 @@
 # Rocksmith 2014 DLC Builder
 
+## System Requirements
+
+- Windows 8.1 (x64) or greater with [.NET 5 runtime](https://dotnet.microsoft.com/download) installed
+- macOS 10.13 (x64) or greater
+
 ## Wwise 2019/2021
 
 Converting audio files to wem requires Wwise 2019 or 2021 to be installed.
