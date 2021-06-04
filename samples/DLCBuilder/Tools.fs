@@ -33,18 +33,19 @@ module ToneInjector =
     /// Replaces the custom tones in the profile file with tones read from the files.
     let injectTones profilePath toneFiles = async  {
         let! tones =
-            toneFiles
-            |> Array.map (fun path -> async {
-                match path with
-                | EndsWith "xml" ->
-                    return Tone.fromXmlFile path |> Array.singleton
-                | EndsWith "json" ->
-                    return! Tone.fromJsonFile path |> Async.map Array.singleton
-                | EndsWith "psarc" ->
-                    return! Utils.importTonesFromPSARC path
-                | _ ->
-                    return Array.empty })
-            |> Async.Parallel
+            let tasks =
+                toneFiles
+                |> Array.map (fun path -> async {
+                    match path with
+                    | EndsWith "xml" ->
+                        return Tone.fromXmlFile path |> Array.singleton
+                    | EndsWith "json" ->
+                        return! Tone.fromJsonFile path |> Async.map Array.singleton
+                    | EndsWith "psarc" ->
+                        return! Utils.importTonesFromPSARC path
+                    | _ ->
+                        return Array.empty })
+            Async.Parallel(tasks, Environment.ProcessorCount)
             |> Async.map Array.concat
 
         let! profile, id = Profile.readAsJToken profilePath

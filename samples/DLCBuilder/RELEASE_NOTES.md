@@ -1,3 +1,9 @@
+## 0.3.0 (Released 2021-06-xx)
+
+- Added "Inject Tones into Profile" feature (in the tools menu).
+- Fixed DD generation failing with an exception when the arrangement contains certain LinkNext errors.
+- Downgraded Magick.NET version to fix a crash on macOS 10.13.
+
 ## 0.2.3 (Released 2021-06-01)
 
 - Fixed a possible null reference exception when adding crowd events.
