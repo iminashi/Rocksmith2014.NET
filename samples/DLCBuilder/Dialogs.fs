@@ -116,6 +116,9 @@ let private translateTitle dialogType =
 
     translate locString
    
+let private getProjectPath state =
+    state.OpenProjectFile |> Option.map Path.GetDirectoryName
+
 /// Shows the given dialog type.
 let showDialog dialogType state =
     let title = translateTitle dialogType
@@ -164,7 +167,7 @@ let showDialog dialogType state =
             openFileDialog title FileFilter.Profile initialDir (SetProfilePath >> EditConfig)
 
         | Dialog.AddArrangements ->
-            let initialDir = state.OpenProjectFile |> Option.map Path.GetDirectoryName
+            let initialDir = getProjectPath state
             openMultiFileDialog title FileFilter.XML initialDir AddArrangements
 
         | Dialog.ToneImport ->
@@ -178,7 +181,7 @@ let showDialog dialogType state =
             openFileDialog title FileFilter.WwiseConsoleApplication initialDir (SetWwiseConsolePath >> EditConfig)
             
         | Dialog.CoverArt ->
-            let initialDir = state.OpenProjectFile |> Option.map Path.GetDirectoryName
+            let initialDir = getProjectPath state
             openFileDialog title FileFilter.Image initialDir SetCoverArt
 
         | Dialog.AudioFile isCustom ->
@@ -186,11 +189,11 @@ let showDialog dialogType state =
                 match isCustom with
                 | true -> Some >> SetCustomAudioPath >> EditInstrumental
                 | false -> SetAudioFile
-            let initialDir = state.OpenProjectFile |> Option.map Path.GetDirectoryName
+            let initialDir = getProjectPath state
             openFileDialog title FileFilter.Audio initialDir msg
 
         | Dialog.CustomFont ->
-            let initialDir = state.OpenProjectFile |> Option.map Path.GetDirectoryName
+            let initialDir = getProjectPath state
             openFileDialog title FileFilter.DDS initialDir (Some >> SetCustomFont >> EditVocals)
 
         | Dialog.ExportTone tone ->
