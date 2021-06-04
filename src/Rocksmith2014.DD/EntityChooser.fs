@@ -45,7 +45,7 @@ let private pruneChordNotes diffPercent
 
     for n in cn do
         pruneTechniques diffPercent removedLinkNexts n
-        if n.IsLinkNext then pendingLinkNexts.Add(n.String, n)
+        if n.IsLinkNext then pendingLinkNexts.TryAdd(n.String, n) |> ignore
 
 let private shouldExclude (diffPercent: float)
                           (division: BeatDivision)
@@ -264,7 +264,7 @@ let choose (diffPercent: float)
                 if allowedChordNotes <= 1 then
                     // Convert the chord into a note
                     let note = noteFromChord diffPercent removedLinkNexts template chord
-                    if note.IsLinkNext then pendingLinkNexts.Add(note.String, note)
+                    if note.IsLinkNext then pendingLinkNexts.TryAdd(note.String, note) |> ignore
 
                     (XmlNote note, None)::acc
                 else
@@ -278,7 +278,7 @@ let choose (diffPercent: float)
                         if copy.HasChordNotes then
                             for cn in copy.ChordNotes do
                                 pruneTechniques diffPercent removedLinkNexts cn
-                                if cn.IsLinkNext then pendingLinkNexts.Add(cn.String, cn)
+                                if cn.IsLinkNext then pendingLinkNexts.TryAdd(cn.String, cn) |> ignore
 
                         (XmlChord copy, None)::acc
                     else
