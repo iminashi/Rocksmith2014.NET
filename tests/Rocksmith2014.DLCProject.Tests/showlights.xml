@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<showlights count="8">
+  <showlight time="6.132" note="28" />
+  <showlight time="6.132" note="54" />
+  <showlight time="16.481" note="52" />
+  <showlight time="17.231" note="57" />
+  <showlight time="17.981" note="42" />
+  <showlight time="18.731" note="35" />
+  <showlight time="19.481" note="52" />
+  <showlight time="20.081" note="42" />
+</showlights>

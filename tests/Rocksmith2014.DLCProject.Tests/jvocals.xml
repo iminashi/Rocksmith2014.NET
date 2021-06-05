@@ -1,0 +1,11 @@
+﻿<?xml version='1.0' encoding='UTF-8'?>
+<vocals count="8">
+  <vocal time="25.330" note="254" length="0.600" lyric="Test"/>
+  <vocal time="26.530" note="254" length="0.600" lyric="lyrics+"/>
+  <vocal time="27.730" note="254" length="0.525" lyric="Lo-"/>
+  <vocal time="28.330" note="254" length="0.225" lyric="rem"/>
+  <vocal time="28.630" note="254" length="0.075" lyric="ip-"/>
+  <vocal time="28.780" note="254" length="0.600" lyric="sum+"/>
+  <vocal time="30.130" note="254" length="0.600" lyric="Dolor"/>
+  <vocal time="31.330" note="254" length="0.600" lyric="sit+"/>
+</vocals>

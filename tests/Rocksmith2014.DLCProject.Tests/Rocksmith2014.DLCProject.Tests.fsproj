@@ -32,7 +32,14 @@
     <None Include="instrumental_capo.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="jvocals.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="showlights.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Compile Include="Common.fs" />
+    <Compile Include="ArrangementTests.fs" />
     <Compile Include="AttributesTechniquesTests.fs" />
     <Compile Include="AttributesTests.fs" />
     <Compile Include="ManifestTests.fs" />
