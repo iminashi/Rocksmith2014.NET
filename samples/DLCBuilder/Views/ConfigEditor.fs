@@ -7,6 +7,7 @@ open Avalonia.Controls.Shapes
 open Avalonia.Layout
 open Avalonia.Media
 open Rocksmith2014.Common
+open Rocksmith2014.DD
 open DLCBuilder
 open System.IO
 open System
@@ -268,6 +269,23 @@ let private ddConfig state dispatch =
                 TextBlock.text "%"
             ]
         ]
+
+        // Level Count Generation
+        locText "phraseLevelCountGeneration" [
+            TextBlock.margin (0., 20., 0., 0.)
+        ]
+        vStack (
+            [ LevelCountGeneration.Simple; LevelCountGeneration.MLModel ]
+            |> List.map (fun option ->
+                RadioButton.create [
+                    RadioButton.content (translate (string option))
+                    RadioButton.isChecked (state.Config.DDLevelCountGeneration = option)
+                    RadioButton.onClick (fun _ ->
+                        option |> SetDDLevelCountGeneration |> EditConfig |> dispatch
+                    )
+                    ToolTip.tip (translate ($"{option}ToolTip"))
+                ] |> generalize)
+        )
     ]
 
 let private buildConfig state dispatch =

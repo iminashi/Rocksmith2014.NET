@@ -169,7 +169,7 @@ let createBuildConfig buildType config project platforms =
       Author = config.CharterName
       AppId = appId
       GenerateDD = config.GenerateDD || buildType = Release
-      DDConfig = { PhraseSearch = phraseSearch }
+      DDConfig = { PhraseSearch = phraseSearch; LevelCountGeneration = config.DDLevelCountGeneration }
       ApplyImprovements = config.ApplyImprovements
       SaveDebugFiles = config.SaveDebugFiles && buildType <> Release
       AudioConversionTask = convTask

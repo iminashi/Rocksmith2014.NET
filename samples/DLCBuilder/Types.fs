@@ -4,6 +4,7 @@ module DLCBuilder.Types
 open Rocksmith2014.DLCProject
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
+open Rocksmith2014.DD
 open Rocksmith2014.XML.Processing
 open Avalonia.Controls.Selection
 open Avalonia.Media.Imaging
@@ -97,6 +98,7 @@ type ConfigEdit =
     | SetGenerateDD of bool
     | SetDDPhraseSearchEnabled of bool
     | SetDDPhraseSearchThreshold of int
+    | SetDDLevelCountGeneration of LevelCountGeneration
     | SetApplyImprovements of bool
     | SetSaveDebugFiles of bool
     | SetCustomAppId of string option

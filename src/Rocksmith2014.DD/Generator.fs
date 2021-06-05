@@ -2,7 +2,6 @@
 
 open Rocksmith2014.XML
 open System.Collections.Generic
-open LevelCounter
 
 let private lockObj = obj()
 
@@ -72,7 +71,7 @@ let private applyChordId (templates: ResizeArray<ChordTemplate>) =
         | ChordTarget chord -> chord.ChordId <- id
         | HandShapeTarget hs -> hs.ChordId <- id
 
-let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtractor.PhraseData) =
+let private generateLevels (config: GeneratorConfig) (arr: InstrumentalArrangement) (phraseData: DataExtractor.PhraseData) =
     // Generate one level for empty phrases
     if phraseData.NoteCount + phraseData.ChordCount = 0 then
         // Copy anchors only
@@ -80,9 +79,6 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
         level.Anchors.AddRange phraseData.Anchors
         [| level |]
     else
-        // Determine the number of levels to generate for this phrase
-        //let levelCount = predictLevelCount (DataExtractor.getPath arr) phraseData
-
         let entities = createXmlEntityArray phraseData.Notes phraseData.Chords
         let divisions =
             entities
@@ -99,7 +95,13 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
         let noteTimeToDivision = readOnlyDict divisions
         let divisionMap = BeatDivider.createDivisionMap divisions entities.Length
 
-        let levelCount = getSimpleLevelCount phraseData divisionMap
+        // Determine the number of levels to generate for this phrase
+        let levelCount =
+            match config.LevelCountGeneration with
+            | LevelCountGeneration.Simple ->
+                LevelCounter.getSimpleLevelCount phraseData divisionMap
+            | LevelCountGeneration.MLModel ->
+                LevelCounter.predictLevelCount (DataExtractor.getPath arr) phraseData
 
         let applyChordId' = applyChordId arr.ChordTemplates
 
@@ -145,6 +147,7 @@ let private generateLevels (arr: InstrumentalArrangement) (phraseData: DataExtra
                       ResizeArray(handShapes))
         )
 
+/// Generates DD levels for an arrangement.
 let generateForArrangement (config: GeneratorConfig) (arr: InstrumentalArrangement) =
     let phraseIterations = arr.PhraseIterations.ToArray()
     let phraseIterationData =
@@ -154,7 +157,7 @@ let generateForArrangement (config: GeneratorConfig) (arr: InstrumentalArrangeme
     // Create the difficulty levels
     let levels =
         phraseIterationData
-        |> Array.Parallel.map (generateLevels arr)
+        |> Array.Parallel.map (generateLevels config arr)
 
     let generatedLevelCount = levels |> Array.map Array.length
 
@@ -189,6 +192,7 @@ let generateForArrangement (config: GeneratorConfig) (arr: InstrumentalArrangeme
 
     arr
 
+/// Generates DD levels for an arrangement loaded from a file and saves it into the target file.
 let generateForFile config fileName targetFile =
     let arr =
         InstrumentalArrangement.Load fileName

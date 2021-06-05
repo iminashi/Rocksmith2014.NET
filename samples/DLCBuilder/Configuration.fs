@@ -1,6 +1,7 @@
 ﻿namespace DLCBuilder
 
 open Rocksmith2014.Common
+open Rocksmith2014.DD
 open System
 open System.IO
 open System.Text.Json
@@ -17,6 +18,7 @@ type Configuration =
       GenerateDD : bool
       DDPhraseSearchEnabled : bool
       DDPhraseSearchThreshold : int
+      DDLevelCountGeneration : LevelCountGeneration
       RemoveDDOnImport : bool
       ApplyImprovements : bool
       SaveDebugFiles : bool
@@ -40,6 +42,7 @@ type Configuration =
           GenerateDD = true
           DDPhraseSearchEnabled = true
           DDPhraseSearchThreshold = 80
+          DDLevelCountGeneration = LevelCountGeneration.Simple
           RemoveDDOnImport = false
           ApplyImprovements = true
           SaveDebugFiles = false
@@ -65,6 +68,7 @@ module Configuration =
         member val GenerateDD : bool = true with get, set
         member val DDPhraseSearchEnabled : bool = true with get, set
         member val DDPhraseSearchThreshold : int = 80 with get, set
+        member val DDLevelCountGeneration : int = 0 with get, set
         member val RemoveDDOnImport : bool = false with get, set
         member val ApplyImprovements : bool = true with get, set
         member val SaveDebugFiles : bool = false with get, set
@@ -105,6 +109,11 @@ module Configuration =
             | 2 -> ToWav
             | _ -> NoConversion
 
+        let levelCountGeneration =
+            match dto.DDLevelCountGeneration with
+            | 1 -> LevelCountGeneration.MLModel
+            | _ -> LevelCountGeneration.Simple
+
         { ReleasePlatforms = platforms
           ProfilePath = dto.ProfilePath
           TestFolderPath = dto.TestFolderPath
@@ -114,6 +123,7 @@ module Configuration =
           GenerateDD = dto.GenerateDD
           DDPhraseSearchEnabled = dto.DDPhraseSearchEnabled
           DDPhraseSearchThreshold = threshold
+          DDLevelCountGeneration = levelCountGeneration
           RemoveDDOnImport = dto.RemoveDDOnImport
           ApplyImprovements = dto.ApplyImprovements
           SaveDebugFiles = dto.SaveDebugFiles
@@ -135,6 +145,11 @@ module Configuration =
             | ToOgg -> 1
             | ToWav -> 2
 
+        let levelCountGeneration =
+            match config.DDLevelCountGeneration with
+            | LevelCountGeneration.Simple -> 0
+            | LevelCountGeneration.MLModel -> 1
+
         Dto(ReleasePC = (config.ReleasePlatforms |> Set.contains PC),
             ReleaseMac = (config.ReleasePlatforms |> Set.contains Mac),
             ProfilePath = config.ProfilePath,
@@ -146,6 +161,7 @@ module Configuration =
             GenerateDD = config.GenerateDD,
             DDPhraseSearchEnabled = config.DDPhraseSearchEnabled,
             DDPhraseSearchThreshold = config.DDPhraseSearchThreshold,
+            DDLevelCountGeneration = levelCountGeneration,
             RemoveDDOnImport = config.RemoveDDOnImport,
             ApplyImprovements = config.ApplyImprovements,
             AutoVolume = config.AutoVolume,

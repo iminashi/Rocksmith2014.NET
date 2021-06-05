@@ -21,7 +21,14 @@ type PhraseSearch =
     | SearchDisabled
     | WithThreshold of threshold: int
 
-type GeneratorConfig = { PhraseSearch: PhraseSearch }
+[<RequireQualifiedAccess>]
+type LevelCountGeneration =
+    | Simple
+    | MLModel
+
+type GeneratorConfig =
+    { PhraseSearch: PhraseSearch
+      LevelCountGeneration: LevelCountGeneration }
 
 type internal DifficultyRange = { Low: float; High: float }
 

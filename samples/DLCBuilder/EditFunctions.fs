@@ -120,6 +120,9 @@ let editConfig edit config =
     | SetDDPhraseSearchThreshold threshold ->
         { config with DDPhraseSearchThreshold = threshold }
 
+    | SetDDLevelCountGeneration lcg ->
+        { config with DDLevelCountGeneration = lcg }
+
     | SetApplyImprovements improve ->
         { config with ApplyImprovements = improve }
 

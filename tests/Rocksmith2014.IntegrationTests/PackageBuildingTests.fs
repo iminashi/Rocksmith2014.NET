@@ -16,7 +16,7 @@ let buildConfig =
       Author = "Author"
       AppId = "123456"
       GenerateDD = true
-      DDConfig = { PhraseSearch = WithThreshold 80 }
+      DDConfig = { PhraseSearch = WithThreshold 80; LevelCountGeneration = LevelCountGeneration.Simple }
       ApplyImprovements = true
       SaveDebugFiles = false
       AudioConversionTask = async { return () }
