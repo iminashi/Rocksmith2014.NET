@@ -127,20 +127,22 @@ module Arrangement =
             match rootName with
             | "song" ->
                 let metadata = MetaData.Read fileName
+                let arrProp = metadata.ArrangementProperties
                 let toneInfo = InstrumentalArrangement.ReadToneNames fileName
+
                 let baseTone =
-                    if isNull toneInfo.BaseToneName then
-                        metadata.Arrangement.ToLowerInvariant() + "_base"
-                    else
-                        toneInfo.BaseToneName
+                    match toneInfo.BaseToneName with
+                    | null -> $"{metadata.Arrangement.ToLowerInvariant()}_base"
+                    | toneKey -> toneKey
+
                 let tones =
                     toneInfo.Names
                     |> Array.choose Option.ofString
                     |> Array.toList
 
                 let routeMask =
-                    if metadata.ArrangementProperties.PathBass then RouteMask.Bass
-                    elif metadata.ArrangementProperties.PathRhythm then RouteMask.Rhythm
+                    if arrProp.PathBass then RouteMask.Bass
+                    elif arrProp.PathRhythm then RouteMask.Rhythm
                     else RouteMask.Lead
 
                 let name =
@@ -156,8 +158,8 @@ module Arrangement =
                     { XML = fileName
                       Name = name
                       Priority =
-                        if metadata.ArrangementProperties.Represent then ArrangementPriority.Main
-                        elif metadata.ArrangementProperties.BonusArrangement then ArrangementPriority.Bonus
+                        if arrProp.Represent then ArrangementPriority.Main
+                        elif arrProp.BonusArrangement then ArrangementPriority.Bonus
                         else ArrangementPriority.Alternative
                       Tuning = metadata.Tuning.Strings
                       TuningPitch = Utils.centsToTuningPitch(float metadata.CentOffset)
@@ -165,7 +167,7 @@ module Arrangement =
                       ScrollSpeed = 1.3
                       BaseTone = baseTone
                       Tones = tones
-                      BassPicked = metadata.ArrangementProperties.BassPick
+                      BassPicked = arrProp.BassPick
                       MasterID = RandomGenerator.next()
                       PersistentID = Guid.NewGuid()
                       CustomAudio = None }
@@ -179,7 +181,7 @@ module Arrangement =
 
                 // Try to find custom font for Japanese vocals
                 let customFont =
-                    let fontFile = Path.Combine(IO.Path.GetDirectoryName fileName, "lyrics.dds")
+                    let fontFile = Path.Combine(Path.GetDirectoryName fileName, "lyrics.dds")
                     if isJapanese && File.Exists fontFile then Some fontFile else None
 
                 let arr =
