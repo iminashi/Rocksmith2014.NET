@@ -11,8 +11,7 @@ let view dispatch (v: Vocals) =
     Grid.create [
         Grid.columnDefinitions "auto,*"
         Grid.rowDefinitions "*,*,*,*"
-        Grid.margin (0.0, 4.0)
-        //Grid.showGridLines true
+        Grid.margin 6.
         Grid.children [
             // Japanese lyrics
             locText "japanese" [
