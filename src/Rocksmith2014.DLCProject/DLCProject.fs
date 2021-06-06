@@ -111,11 +111,13 @@ module DLCProject =
             project.Arrangements
             |> List.map (function
                 | Instrumental i ->
-                    Instrumental { i with XML = abs i.XML
-                                          CustomAudio = Option.map (fun x -> { x with Path = abs x.Path }) i.CustomAudio }
+                    { i with XML = abs i.XML
+                             CustomAudio = Option.map (fun x -> { x with Path = abs x.Path }) i.CustomAudio }
+                    |> Instrumental
                 | Vocals v ->
-                    Vocals { v with XML = abs v.XML
-                                    CustomFont = Option.map abs v.CustomFont }
+                    { v with XML = abs v.XML
+                             CustomFont = Option.map abs v.CustomFont }
+                    |> Vocals
                 | Showlights s ->
                     Showlights { s with XML = abs s.XML })
 
@@ -137,11 +139,13 @@ module DLCProject =
             project.Arrangements
             |> List.map (function
                 | Instrumental i ->
-                    Instrumental { i with XML = rel i.XML
-                                          CustomAudio = Option.map (fun x -> { x with Path = rel x.Path }) i.CustomAudio }
+                    { i with XML = rel i.XML
+                             CustomAudio = Option.map (fun x -> { x with Path = rel x.Path }) i.CustomAudio }
+                    |> Instrumental
                 | Vocals v ->
-                    Vocals { v with XML = rel v.XML
-                                    CustomFont = Option.map rel v.CustomFont }
+                    { v with XML = rel v.XML
+                             CustomFont = Option.map rel v.CustomFont }
+                    |> Vocals
                 | Showlights s ->
                     Showlights { s with XML = rel s.XML })
 
@@ -166,7 +170,7 @@ module DLCProject =
         options.Converters.Add(JsonFSharpConverter())
         use file = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan ||| FileOptions.Asynchronous)
         let! project = JsonSerializer.DeserializeAsync<Dto>(file, options)
-        return toAbsolutePaths (Path.GetDirectoryName fileName) (fromDto project)  }
+        return toAbsolutePaths (Path.GetDirectoryName fileName) (fromDto project) }
 
     /// Updates the tone names for the instrumental arrangements in the project from the XML files.
     let updateToneInfo (project: DLCProject) =
