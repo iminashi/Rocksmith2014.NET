@@ -94,10 +94,6 @@ let previewPathFromMainAudio (audioPath: string) =
     let ext = Path.GetExtension audioPath
     Path.Combine(dir, $"{fn}_preview{ext}")
 
-/// Removes an option from the list if it is Some.
-let removeSelected list selected =
-    Option.foldBack List.remove selected list
-
 /// Checks the project's arrangements for issues.
 let checkArrangements (project: DLCProject) (progress: IProgress<float>) =
     let length = float project.Arrangements.Length
