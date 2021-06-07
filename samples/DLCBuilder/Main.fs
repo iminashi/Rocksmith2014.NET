@@ -246,8 +246,10 @@ let update (msg: Msg) (state: State) =
     | CloseOverlay ->
         let cmd =
             match state.Overlay with
-            | ConfigEditor -> Cmd.OfAsync.attempt Configuration.save config ErrorOccurred
-            | _ -> Cmd.none
+            | ConfigEditor ->
+                Cmd.OfAsync.attempt Configuration.save config ErrorOccurred
+            | _ ->
+                Cmd.none
         { state with Overlay = NoOverlay }, cmd
 
     | ImportPsarc (psarcFile, targetFolder) ->
@@ -589,13 +591,17 @@ let update (msg: Msg) (state: State) =
     | UpdateAndRestart ->
         match state.AvailableUpdate with
         | Some update ->
+            let messageId = Guid.NewGuid()
             let statusMessages =
-                MessageString(Guid.NewGuid(), translate "downloadingUpdate")::state.StatusMessages
+                MessageString(messageId, translate "downloadingUpdate")::state.StatusMessages
 
             { state with StatusMessages = statusMessages; Overlay = NoOverlay },
-            Cmd.OfAsync.attempt OnlineUpdate.downloadAndApplyUpdate update ErrorOccurred
+            Cmd.OfAsync.attempt OnlineUpdate.downloadAndApplyUpdate update (fun e -> UpdateFailed(messageId, e))
         | None ->
             state, Cmd.none
+
+    | UpdateFailed (messageId, error) ->
+        { state with Overlay = exceptionToErrorMessage error }, Cmd.ofMsg (RemoveStatusMessage messageId)
 
     | SaveProjectAs ->
         state, Cmd.ofMsg (Dialog.SaveProjectAs |> ShowDialog)

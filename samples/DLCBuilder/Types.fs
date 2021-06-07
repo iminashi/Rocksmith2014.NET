@@ -230,6 +230,7 @@ type Msg =
     | DismissUpdateMessage
     | ShowUpdateInformation
     | UpdateAndRestart
+    | UpdateFailed of messageId : Guid * error : exn
     | DeleteTestBuilds
     | DeleteConfirmed of files : string list
     | DeleteArrangement

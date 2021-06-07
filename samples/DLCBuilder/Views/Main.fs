@@ -452,8 +452,8 @@ let view (window: Window) (state: State) dispatch =
             match state.Overlay with
             | NoOverlay -> ()
             | _ ->
-                Grid.create [
-                    Grid.children [
+                Panel.create [
+                    Panel.children [
                         Rectangle.create [
                             Rectangle.fill "#99000000"
                             Rectangle.onTapped (fun _ -> CloseOverlay |> dispatch)
