@@ -311,7 +311,8 @@ let view (window: Window) (state: State) dispatch =
         | Some project ->
             let dot = if state.SavedProject <> state.Project then "*" else String.Empty
             $"{dot}Rocksmith 2014 DLC Builder - {project}"
-        | None -> "Rocksmith 2014 DLC Builder"
+        | None ->
+            "Rocksmith 2014 DLC Builder"
 
     Panel.create [
         Panel.background "#040404"

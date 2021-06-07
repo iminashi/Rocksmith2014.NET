@@ -2,6 +2,7 @@
 
 open Pfim
 open System
+open System.Diagnostics
 open System.IO
 open System.Runtime.InteropServices
 open Avalonia.Platform
@@ -16,14 +17,14 @@ open Rocksmith2014.DLCProject.PackageBuilder
 open Rocksmith2014.XML.Processing
 open Rocksmith2014.XML
 open Rocksmith2014.Audio
-open System.Diagnostics
 
 /// Converts a Pfim DDS bitmap into an Avalonia bitmap.
 let private avaloniaBitmapFromDDS (fileName: string) =
     use image = Pfim.FromFile fileName
     let pxFormat, data, stride =
         match image.Format with
-        | ImageFormat.R5g6b5 -> PixelFormat.Rgb565, image.Data, image.Stride
+        | ImageFormat.R5g6b5 ->
+            PixelFormat.Rgb565, image.Data, image.Stride
         | ImageFormat.Rgb24 ->
             let pixels = image.DataLen / 3
             let newDataLen = pixels * 4
@@ -36,7 +37,8 @@ let private avaloniaBitmapFromDDS (fileName: string) =
 
             let stride = image.Width * 4
             PixelFormat.Bgra8888, newData, stride
-        | _ -> PixelFormat.Bgra8888, image.Data, image.Stride
+        | _ ->
+            PixelFormat.Bgra8888, image.Data, image.Stride
     let pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned)
     let addr = pinnedArray.AddrOfPinnedObject()
     let bm = new Bitmap(pxFormat, AlphaFormat.Unpremul, addr, PixelSize(image.Width, image.Height), Vector(96., 96.), stride)
@@ -46,8 +48,10 @@ let private avaloniaBitmapFromDDS (fileName: string) =
 /// Loads a bitmap from the given path.
 let loadBitmap (path: string) =
     match path with
-    | EndsWith "dds" -> avaloniaBitmapFromDDS path
-    | _ -> new Bitmap(path)
+    | EndsWith "dds" ->
+        avaloniaBitmapFromDDS path
+    | _ ->
+        new Bitmap(path)
 
 /// Disposes the old cover art and loads a new one from the given path.
 let changeCoverArt (coverArt: Bitmap option) newPath =
@@ -59,20 +63,21 @@ let importTonesFromPSARC (psarcPath: string) = async {
     use psarc = PSARC.ReadFile psarcPath
     let! jsons =
         psarc.Manifest
-        |> List.filter (String.endsWith "json")
-        |> List.map (fun x -> async {
-            let data = MemoryStreamPool.Default.GetStream()
-            do! psarc.InflateFile(x, data)
-            return data })
+        |> Seq.filter (String.endsWith "json")
+        |> Seq.map psarc.GetEntryStream
         |> Async.Sequential
 
     let! manifests =
         jsons
         |> Array.map (fun data -> async {
             try
-                let! a = using data Manifest.fromJsonStream
-                return Some (Manifest.getSingletonAttributes a)
-            with _ -> return None })
+                try
+                    let! manifest = Manifest.fromJsonStream data
+                    return Some (Manifest.getSingletonAttributes manifest)
+                finally
+                    data.Dispose()
+            with _ ->
+                return None })
         |> Async.Parallel
 
     return
@@ -90,9 +95,8 @@ let previewPathFromMainAudio (audioPath: string) =
     Path.Combine(dir, $"{fn}_preview{ext}")
 
 /// Removes an option from the list if it is Some.
-let removeSelected list = function
-    | None -> list
-    | Some selected -> List.remove selected list
+let removeSelected list selected =
+    Option.foldBack List.remove selected list
 
 /// Checks the project's arrangements for issues.
 let checkArrangements (project: DLCProject) (progress: IProgress<float>) =
@@ -103,26 +107,20 @@ let checkArrangements (project: DLCProject) (progress: IProgress<float>) =
         let result = 
             match arr with
             | Instrumental inst ->
-                let issues =
-                    InstrumentalArrangement.Load inst.XML
-                    |> ArrangementChecker.runAllChecks
-                inst.XML, issues
+                InstrumentalArrangement.Load inst.XML
+                |> ArrangementChecker.runAllChecks
             | Vocals v when Option.isNone v.CustomFont ->
-                let issues =
-                    Vocals.Load v.XML
-                    |> ArrangementChecker.checkVocals
-                    |> Option.toList
-                v.XML, issues
+                Vocals.Load v.XML
+                |> ArrangementChecker.checkVocals
+                |> Option.toList
+            | Vocals _ ->
+                List.empty
             | Showlights sl ->
-                let issues =
-                    ShowLights.Load sl.XML
-                    |> ArrangementChecker.checkShowlights
-                    |> Option.toList
-                sl.XML, issues
-            | Vocals v ->
-                v.XML, []
+                ShowLights.Load sl.XML
+                |> ArrangementChecker.checkShowlights
+                |> Option.toList
         progress.Report(float (i + 1) / length * 100.)
-        result)
+        Arrangement.getFile arr ,result)
     |> Map.ofList
 
 /// Adds descriptors to tones that have none.
@@ -132,7 +130,8 @@ let addDescriptors (tone: Tone) =
         | null | [||] ->
             ToneDescriptor.getDescriptionsOrDefault tone.Name
             |> Array.map (fun x -> x.UIName)
-        | descriptors -> descriptors
+        | descriptors ->
+            descriptors
 
     { tone with ToneDescriptors = descs; SortOrder = None; NameSeparator = " - " }
 
@@ -154,10 +153,9 @@ let createBuildConfig buildType config project platforms =
         |> Async.Ignore
 
     let phraseSearch =
-        if config.DDPhraseSearchEnabled then
-            WithThreshold config.DDPhraseSearchThreshold
-        else
-            SearchDisabled
+        match config.DDPhraseSearchEnabled with
+        | true -> WithThreshold config.DDPhraseSearchThreshold
+        | false -> SearchDisabled
 
     let appId =
         match buildType, config.CustomAppId with
@@ -238,26 +236,31 @@ let canBuild state =
 
 /// Returns true for tasks that report progress.
 let taskHasProgress = function
-    | BuildPackage | PsarcImport | PsarcUnpack | ArrangementCheck -> true
-    | _ -> false
+    | BuildPackage | PsarcImport | PsarcUnpack | ArrangementCheck ->
+        true
+    | _ ->
+        false
 
 /// Adds a new long running task to the state.
 let addTask newTask state =
-    let messages =
+    let message =
         match taskHasProgress newTask with
-        | true -> TaskWithProgress(newTask, 0.)::state.StatusMessages
-        | false -> TaskWithoutProgress(newTask)::state.StatusMessages
+        | true -> TaskWithProgress(newTask, 0.)
+        | false -> TaskWithoutProgress(newTask)
 
     { state with RunningTasks = state.RunningTasks |> Set.add newTask
-                 StatusMessages = messages }
+                 StatusMessages = message::state.StatusMessages }
 
 /// Removes the completed task from the state.
 let removeTask completedTask state =
     let messages =
         state.StatusMessages
         |> List.filter (function
-            | TaskWithProgress (task, _) | TaskWithoutProgress (task) when task = completedTask -> false
-            | _ -> true)
+            | TaskWithProgress (task, _)
+            | TaskWithoutProgress (task) when task = completedTask ->
+                false
+            | _ ->
+                true)
 
     { state with RunningTasks = state.RunningTasks |> Set.remove completedTask
                  StatusMessages = messages }
