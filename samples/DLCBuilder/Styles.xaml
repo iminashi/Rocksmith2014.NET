@@ -25,10 +25,10 @@
   <Style Selector="ComboBox">
     <Setter Property="HorizontalAlignment" Value="Stretch"/>
   </Style>
-  <Style Selector=":is(Panel).listitem">
+  <Style Selector=":is(Panel).list-item">
     <Setter Property="Background" Value="Transparent"/>
   </Style>
-  <Style Selector=":is(Panel).listitem:pointerover">
+  <Style Selector=":is(Panel).list-item:pointerover">
     <Setter Property="Background" Value="#383838"/>
   </Style>
   <Style Selector=":is(Panel).selected">

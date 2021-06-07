@@ -73,7 +73,7 @@ let private arrangementDetails state dispatch =
                                 // Arrangement name
                                 TextBlock.create [
                                     TextBlock.fontSize 17.
-                                    TextBlock.text (Templates.translateArrangementName arr state.Project false)
+                                    TextBlock.text (Templates.translateArrangementName arr state.Project Templates.NameOnly)
                                     TextBlock.verticalAlignment VerticalAlignment.Bottom
                                 ]
 

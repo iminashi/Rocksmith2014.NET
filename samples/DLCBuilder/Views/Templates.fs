@@ -25,7 +25,7 @@ let tone state dispatch index (t: Tone) =
         String.Join(" ", Array.map (ToneDescriptor.uiNameToName >> translate) t.ToneDescriptors)
 
     StackPanel.create [
-        StackPanel.classes [ "listitem"; if state.SelectedToneIndex = index then "selected" ]
+        StackPanel.classes [ "list-item"; if state.SelectedToneIndex = index then "selected" ]
         StackPanel.onPointerPressed ((fun ev ->
             ev.Handled <- true
             index |> SetSelectedToneIndex |> dispatch),
@@ -33,11 +33,13 @@ let tone state dispatch index (t: Tone) =
         StackPanel.onDoubleTapped (fun _ -> ShowToneEditor |> dispatch)
         StackPanel.contextMenu (Menus.Context.tone state dispatch)
         StackPanel.children [
+            // Title
             TextBlock.create [
                 TextBlock.margin (6., 4., 6., 2.)
                 TextBlock.fontSize 16.
                 TextBlock.text title
             ]
+            // Description
             TextBlock.create [
                 TextBlock.margin (6., 4., 6., 2.)
                 TextBlock.foreground "#afafaf"
@@ -71,14 +73,21 @@ let private getArrangementNumber arr project =
 
         let group = groups.[inst.Priority, inst.Name]
         if group.Length > 1 then
-            sprintf " %i" (1 + (group |> List.findIndex (fun x -> x.PersistentID = inst.PersistentID)))
+            let index =
+                group
+                |> List.findIndex (fun x -> x.PersistentID = inst.PersistentID)
+            sprintf " %i" (1 + index)
         else
             String.Empty
     | _ ->
         String.Empty
 
+type ArrangementNameExtraInfo =
+    | NameOnly
+    | WithExtra
+
 /// Returns the translated name for the arrangement.
-let translateArrangementName arr project withExtra =
+let translateArrangementName arr project info =
     match arr with
     | Instrumental inst ->
         let baseName =
@@ -91,7 +100,10 @@ let translateArrangementName arr project withExtra =
         let arrNumber = getArrangementNumber arr project
         let baseName = $"{baseName}{arrNumber}"
 
-        if withExtra then
+        match info with
+        | NameOnly ->
+            baseName
+        | WithExtra ->
             let extra =
                 if inst.Name = ArrangementName.Combo then
                     let c = translate "ComboArr" in $" ({c})"
@@ -101,8 +113,6 @@ let translateArrangementName arr project withExtra =
                     String.Empty
 
             $"{baseName}{extra}"
-        else
-            baseName
     | _ ->
         Arrangement.getNameAndPrefix arr |> fst |> translate
 
@@ -111,9 +121,12 @@ let private getExtraText = function
         let tuning =
             let tuningType, notes = Utils.getTuningName inst.Tuning
             match tuningType with
-            | "DADGAD" -> tuningType
-            | _ when notes.Length > 0 -> translatef tuningType notes
-            | _ -> translate tuningType
+            | "DADGAD" ->
+                tuningType
+            | _ when notes.Length > 0 ->
+                translatef tuningType notes
+            | _ ->
+                translate tuningType
         if inst.TuningPitch <> 440.0 then
             $"{tuning} (A{inst.TuningPitch})"
         else
@@ -126,7 +139,7 @@ let private getExtraText = function
 
 /// Returns a template for an arrangement.
 let arrangement state dispatch index arr =
-    let name = translateArrangementName arr state.Project true
+    let name = translateArrangementName arr state.Project WithExtra
     let icon, color =
         match arr with
         | Instrumental inst ->
@@ -163,15 +176,15 @@ let arrangement state dispatch index arr =
             List.empty
 
     DockPanel.create [
-        DockPanel.classes [ "listitem"; if state.SelectedArrangementIndex = index then "selected" ]
+        DockPanel.classes [ "list-item"; if state.SelectedArrangementIndex = index then "selected" ]
         DockPanel.onPointerPressed ((fun ev ->
             ev.Handled <- true
             index |> SetSelectedArrangementIndex |> dispatch),
             SubPatchOptions.OnChangeOf index)
         DockPanel.contextMenu (Menus.Context.arrangement state dispatch)
-        if not <| missingTones.IsEmpty then
-            let tip = translatef "missingDefinitions" [| String.Join(", ", missingTones) |]
-            ToolTip.tip tip
+        if missingTones.Length <> 0 then
+            translatef "missingDefinitions" [| String.Join(", ", missingTones) |]
+            |> ToolTip.tip
         DockPanel.children [
             match hasIssues with
             | Some hasIssues ->
@@ -183,7 +196,8 @@ let arrangement state dispatch index arr =
                     Path.verticalAlignment VerticalAlignment.Center
                     Path.margin (0., 0., 6., 0.)
                 ]
-            | None -> ()
+            | None ->
+                ()
 
             StackPanel.create [
                 StackPanel.margin (6., 8.)
