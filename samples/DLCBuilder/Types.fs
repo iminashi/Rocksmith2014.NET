@@ -174,21 +174,6 @@ type Dialog =
     | CustomFont
     | ExportTone of tone : Tone
 
-[<RequireQualifiedAccess>]
-type FileFilter =
-    | Audio
-    | XML
-    | Image
-    | DDS
-    | Profile
-    | Project
-    | PSARC
-    | Wem
-    | ToolkitTemplate
-    | ToneImport
-    | ToneExport
-    | WwiseConsoleApplication
-
 type BuildValidationError =
     | InvalidDLCKey
     | TitleEmpty

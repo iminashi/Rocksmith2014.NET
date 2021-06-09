@@ -10,6 +10,21 @@ open Elmish
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 
+[<RequireQualifiedAccess>]
+type FileFilter =
+    | Audio
+    | XML
+    | Image
+    | DDS
+    | Profile
+    | Project
+    | PSARC
+    | Wem
+    | ToolkitTemplate
+    | ToneImport
+    | ToneExport
+    | WwiseConsoleApplication
+
 let private window =
     lazy (Application.Current.ApplicationLifetime :?> ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime).MainWindow
 
@@ -60,28 +75,24 @@ let private createFileFilters filter =
 let private openFolderDialog title directory msg = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string>(fun () ->
-            let dialog = OpenFolderDialog(Title = title, Directory = Option.toObj directory)
-            dialog.ShowAsync window.Value)
+            OpenFolderDialog(Title = title, Directory = Option.toObj directory)
+                .ShowAsync window.Value)
 
-    match result with
-    | null | "" -> return None
-    | path -> return msg path |> Some }
+    return Option.ofString result
+           |> Option.map msg }
 
 /// Shows a save file dialog.
 let private saveFileDialog title filter initialFileName directory msg = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string>(fun () ->
-            let dialog =
-                SaveFileDialog(
-                    Title = title,
-                    Filters = createFileFilters filter,
-                    InitialFileName = Option.toObj initialFileName,
-                    Directory = Option.toObj directory)
-            dialog.ShowAsync window.Value)
+            SaveFileDialog(Title = title,
+                           Filters = createFileFilters filter,
+                           InitialFileName = Option.toObj initialFileName,
+                           Directory = Option.toObj directory)
+                .ShowAsync window.Value)
 
-    match result with
-    | null | "" -> return None
-    | path -> return msg path |> Some }
+    return Option.ofString result
+           |> Option.map msg }
 
 let private createOpenFileDialog t f d m =
     OpenFileDialog(Title = t, Filters = createFileFilters f, Directory = Option.toObj d, AllowMultiple = m)
@@ -90,21 +101,24 @@ let private createOpenFileDialog t f d m =
 let private openFileDialog title filter directory msg = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string[]>(fun () ->
-            let dialog = createOpenFileDialog title filter directory false
-            dialog.ShowAsync window.Value)
-    match result with
-    | [| file |] -> return msg file |> Some
-    | _ -> return None }
+            (createOpenFileDialog title filter directory false).ShowAsync window.Value)
+
+    return Option.ofObj result
+           |> Option.bind Array.tryExactlyOne
+           |> Option.map msg }
 
 /// Shows an open file dialog that allows selecting multiple files.
 let private openMultiFileDialog title filters directory msg = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string[]>(fun () ->
-            let dialog = createOpenFileDialog title filters directory true
-            dialog.ShowAsync window.Value)
-    match result with
-    | null | [||] -> return None
-    | files -> return msg files |> Some }
+            (createOpenFileDialog title filters directory true).ShowAsync window.Value)
+
+    return
+        match result with
+        | null | [||] ->
+            None
+        | files ->
+            msg files |> Some }
 
 let private translateTitle dialogType =
     let locString =
@@ -115,7 +129,7 @@ let private translateTitle dialogType =
         | other -> $"{other}DialogTitle"
 
     translate locString
-   
+
 let private getProjectDirectory state =
     state.OpenProjectFile |> Option.map Path.GetDirectoryName
 
