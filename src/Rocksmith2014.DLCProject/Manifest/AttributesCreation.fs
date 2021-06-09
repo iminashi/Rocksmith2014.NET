@@ -385,7 +385,7 @@ let private initSongComplete (partition: int)
     attr.Score_MaxNotes <- float32 sng.NoteCounts.Hard
     attr.Score_PNV <- (100_000.f / float32 sng.NoteCounts.Hard)
     attr.Sections <- convertSections sng
-    attr.SongAverageTempo <- xmlMetaData.AverageTempo
+    attr.SongAverageTempo <- if xmlMetaData.AverageTempo <= 0.f then 120.f else xmlMetaData.AverageTempo
     attr.SongOffset <- -sng.MetaData.StartTime
     attr.SongPartition <- partition
     attr.TargetScore <- 100_000

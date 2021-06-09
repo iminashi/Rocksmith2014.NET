@@ -107,10 +107,10 @@ module Tone =
             let skinIndex = node pedal "SkinIndex"
 
             let knobValues =
-                let knobs = node pedal "KnobValues"
-                if isNull knobs then
+                match node pedal "KnobValues" with
+                | null ->
                     Map.empty
-                else
+                | knobs ->
                     knobs.ChildNodes
                     |> Seq.cast<XmlNode>
                     |> Seq.map (fun knob ->
@@ -237,9 +237,10 @@ module Tone =
     let toDto (tone: Tone) =
         let tryGetPedal index pedalArray =
             pedalArray
-            |> Option.ofObj
-            |> Option.bind (Array.tryItem index >> Option.bind id >> Option.map toPedalDto)
-            |> Option.defaultValue null
+            |> Array.tryItem index
+            |> Option.bind id
+            |> Option.map toPedalDto
+            |> Option.toObj
 
         let gear =
             { Amp = toPedalDto tone.GearList.Amp
