@@ -7,5 +7,5 @@ let current =
     let thisAsm = Assembly.GetExecutingAssembly()
     thisAsm.GetName().Version
 
-/// Creates a three part version string prefixed with "v".
-let createVersionString () = $"v{current.ToString(3)}"
+/// A three part version string prefixed with "v".
+let versionString= $"v{current.ToString(3)}"

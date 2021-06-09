@@ -21,7 +21,8 @@ let save (recentList: string list) = async {
     try
         use file = File.Create recentFilePath
         do! JsonSerializer.SerializeAsync(file, recentList, jsonOptions)
-    with ex -> Console.WriteLine ex.Message }
+    with ex ->
+        Console.WriteLine ex.Message }
 
 /// Updates the list with a new filename.
 let update newFile oldList =

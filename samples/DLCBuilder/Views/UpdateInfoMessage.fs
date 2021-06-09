@@ -36,7 +36,7 @@ let view (update: UpdateInformation) dispatch =
                 locText "currentVersion" [ TextBlock.minWidth 120. ]
 
                 TextBlock.create [
-                    TextBlock.text <| AppVersion.createVersionString()
+                    TextBlock.text AppVersion.versionString
                 ]
             ]
 

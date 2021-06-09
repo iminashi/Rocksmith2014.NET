@@ -19,15 +19,21 @@ let private updateTone index updated state =
         |> List.updateAt index updated
     { state with Project = { state.Project with Tones = tones } }
 
-let private fixPriority state routeMask arr =
-    if arr.Priority = ArrangementPriority.Main
-       && state.Project.Arrangements |> List.exists (function
-            | Instrumental inst when inst <> arr ->
-                inst.RouteMask = routeMask && inst.Priority = ArrangementPriority.Main
-            | _ -> false) then
+/// Changes the priority of the arrangement if a main arrangement of the type already exists.
+let private fixPriority state routeMask inst =
+    let samePriorityExists arrangements =
+        arrangements
+        |> List.choose Arrangement.pickInstrumental
+        |> List.exists (fun existing ->
+            existing <> inst
+            && existing.RouteMask = routeMask
+            && existing.Priority = ArrangementPriority.Main)
+
+    if inst.Priority = ArrangementPriority.Main && samePriorityExists state.Project.Arrangements
+    then
         ArrangementPriority.Alternative
     else
-        arr.Priority
+        inst.Priority
 
 let editInstrumental state edit index inst =
     let updated, cmd =
@@ -35,13 +41,17 @@ let editInstrumental state edit index inst =
         | SetArrangementName name ->
             let routeMask =
                 match name with
-                | ArrangementName.Lead -> RouteMask.Lead
-                | ArrangementName.Rhythm -> RouteMask.Rhythm
+                | ArrangementName.Lead ->
+                    RouteMask.Lead
+                | ArrangementName.Rhythm ->
+                    RouteMask.Rhythm
                 | ArrangementName.Combo ->
                     // The name of a bass arrangement cannot currently be changed
                     if inst.RouteMask = RouteMask.Bass then RouteMask.Rhythm else inst.RouteMask
-                | ArrangementName.Bass -> RouteMask.Bass
-                | _ -> failwith "Impossible failure."
+                | ArrangementName.Bass ->
+                    RouteMask.Bass
+                | _ ->
+                    failwith "Impossible failure."
             let priority = fixPriority state routeMask inst
             { inst with Name = name; RouteMask = routeMask; Priority = priority }, Cmd.none
 
@@ -84,10 +94,11 @@ let editInstrumental state edit index inst =
                     Cmd.none
 
             let customAudio =
-                match inst.CustomAudio with
-                | Some audio -> { audio with Path = path }
-                | None -> { Path = path; Volume = state.Project.AudioFile.Volume }
-            { inst with CustomAudio = Some customAudio }, cmd
+                inst.CustomAudio
+                |> Option.map (fun audio -> { audio with Path = path })
+                |> Option.orElseWith (fun () -> Some { Path = path; Volume = state.Project.AudioFile.Volume })
+
+            { inst with CustomAudio = customAudio }, cmd
 
         | SetCustomAudioPath None ->
             { inst with CustomAudio = None }, Cmd.none
@@ -307,7 +318,8 @@ let editTone state edit index =
                             { tone.GearList with Racks = tone.GearList.Racks |> updateKnobs index }
 
                     { tone with GearList = gearList }
-            | _ -> tone
+            | _ ->
+                tone
 
     if updatedTone = tone then
         state, Cmd.none
@@ -317,6 +329,9 @@ let editTone state edit index =
 let editVocals state edit index vocals =
     let updated =
         match edit with
-        | SetIsJapanese japanese -> { vocals with Japanese = japanese }
-        | SetCustomFont font -> { vocals with CustomFont = font }
+        | SetIsJapanese japanese ->
+            { vocals with Japanese = japanese }
+        | SetCustomFont font ->
+            { vocals with CustomFont = font }
+
     updateArrangement index (Vocals updated) state, Cmd.none

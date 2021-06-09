@@ -184,7 +184,8 @@ module Configuration =
                 let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
                 let! dto = JsonSerializer.DeserializeAsync<Dto>(file, options)
                 return fromDto dto
-            with _ -> return Configuration.Default }
+            with _ ->
+                return Configuration.Default }
 
     /// Saves the configuration to the file defined in configFilePath.
     let save (config: Configuration) = async {

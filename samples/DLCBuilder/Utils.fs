@@ -100,13 +100,13 @@ let checkArrangements (project: DLCProject) (progress: IProgress<float>) =
 
     project.Arrangements
     |> List.mapi (fun i arr ->
-        let result = 
+        let result =
             match arr with
             | Instrumental inst ->
                 InstrumentalArrangement.Load inst.XML
                 |> ArrangementChecker.runAllChecks
-            | Vocals v when Option.isNone v.CustomFont ->
-                Vocals.Load v.XML
+            | Vocals { CustomFont = None; XML = xml } ->
+                Vocals.Load xml
                 |> ArrangementChecker.checkVocals
                 |> Option.toList
             | Vocals _ ->
@@ -159,7 +159,7 @@ let createBuildConfig buildType config project platforms =
         | _ -> CherubRock
 
     { Platforms = platforms
-      BuilderVersion = $"DLC Builder {AppVersion.createVersionString()}"
+      BuilderVersion = $"DLC Builder {AppVersion.versionString}"
       Author = config.CharterName
       AppId = appId
       GenerateDD = config.GenerateDD || buildType = Release
