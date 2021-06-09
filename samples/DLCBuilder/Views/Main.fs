@@ -273,7 +273,7 @@ let private overlay state dispatch =
     match state.Overlay with
     | NoOverlay ->
         failwith "This can not happen."
-    | ErrorMessage(msg, info) ->
+    | ErrorMessage (msg, info) ->
         ErrorMessage.view dispatch msg info
     | SelectPreviewStart audioLength ->
         PreviewStartSelector.view state dispatch audioLength
@@ -298,7 +298,74 @@ let private overlay state dispatch =
     | AboutMessage ->
         AboutMessage.view dispatch
     | UpdateInformationDialog update ->
-        UpdateInfoMessage.view update dispatch 
+        UpdateInfoMessage.view update dispatch
+
+let private statusMessageContents dispatch = function
+    | TaskWithProgress (task, progress) ->
+        StackPanel.create [
+            StackPanel.horizontalAlignment HorizontalAlignment.Center
+            StackPanel.children [
+                TextBlock.create [
+                    TextBlock.text (task |> string |> translate)
+                ]
+                ProgressBar.create [
+                    ProgressBar.maximum 100.
+                    ProgressBar.value progress
+                ]
+            ]
+        ] |> generalize
+
+    | TaskWithoutProgress task ->
+        TextBlock.create [
+            TextBlock.text (
+                match task with
+                | VolumeCalculation (CustomAudio(_)) ->
+                    translate $"VolumeCalculationCustomAudio"
+                | VolumeCalculation target ->
+                    translate $"VolumeCalculation{target}"
+                | other ->
+                    other |> string |> translate)
+        ] |> generalize
+
+    | MessageString (_, message) ->
+        TextBlock.create [
+            TextBlock.horizontalAlignment HorizontalAlignment.Center
+            TextBlock.text message
+        ] |> generalize
+
+    | UpdateMessage update ->
+        let verType = translate (update.AvailableUpdate.ToString())
+        let message = translatef "updateAvailable" [| verType |]
+        StackPanel.create [
+            StackPanel.horizontalAlignment HorizontalAlignment.Center
+            StackPanel.children [
+                TextBlock.create [
+                    TextBlock.text message
+                ]
+
+                UniformGrid.create [
+                    UniformGrid.rows 1
+                    UniformGrid.columns 2
+                    UniformGrid.margin 4.
+                    UniformGrid.children [
+                        TextBlock.create [
+                            TextBlock.classes [ "link" ]
+                            TextBlock.horizontalAlignment HorizontalAlignment.Center
+                            TextBlock.text (translate "details")
+                            TextBlock.onTapped (fun _ ->
+                                dispatch DismissUpdateMessage
+                                dispatch ShowUpdateInformation)
+                        ]
+                        TextBlock.create [
+                            TextBlock.classes [ "link" ]
+                            TextBlock.horizontalAlignment HorizontalAlignment.Center
+                            TextBlock.text (translate "dismiss")
+                            TextBlock.onTapped (fun _ -> dispatch DismissUpdateMessage)
+                        ]
+                    ]
+                ]
+            ]
+        ] |> generalize
 
 let view (window: Window) (state: State) dispatch =
     if state.RunningTasks.IsEmpty then
@@ -365,92 +432,27 @@ let view (window: Window) (state: State) dispatch =
             ]
 
             if not state.StatusMessages.IsEmpty then
-                Border.create [
-                    Border.horizontalAlignment HorizontalAlignment.Right
-                    Border.verticalAlignment VerticalAlignment.Bottom
-                    Border.padding (20., 10.)
-                    Border.cornerRadius 6.0
-                    Border.margin 12.
-                    Border.minWidth 250.
-                    Border.background Brushes.Black
-                    Border.child (
-                        StackPanel.create [
-                            StackPanel.children (
-                                state.StatusMessages
-                                |> List.map (function
-                                | TaskWithProgress (task, progress) ->
-                                    StackPanel.create [
-                                        StackPanel.horizontalAlignment HorizontalAlignment.Center
-                                        StackPanel.children [
-                                            TextBlock.create [
-                                                TextBlock.text (task |> string |> translate)
-                                            ]
-                                            ProgressBar.create [
-                                                ProgressBar.maximum 100.
-                                                ProgressBar.value progress
-                                            ]
-                                        ]
-                                    ] |> generalize
-
-                                | TaskWithoutProgress task ->
-                                    TextBlock.create [
-                                        TextBlock.text (
-                                            match task with
-                                            | VolumeCalculation (CustomAudio(_)) ->
-                                                translate $"VolumeCalculationCustomAudio"
-                                            | VolumeCalculation target ->
-                                                translate $"VolumeCalculation{target}"
-                                            | other ->
-                                                other |> string |> translate)
-                                    ] |> generalize
-
-                                | MessageString (_, message) ->
-                                    TextBlock.create [
-                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                                        TextBlock.text message
-                                    ] |> generalize
-
-                                | UpdateMessage update ->
-                                    let verType = translate (update.AvailableUpdate.ToString())
-                                    let message = translatef "updateAvailable" [| verType |]
-                                    StackPanel.create [
-                                        StackPanel.horizontalAlignment HorizontalAlignment.Center
-                                        StackPanel.children [
-                                            TextBlock.create [
-                                                TextBlock.text message
-                                            ]
-
-                                            UniformGrid.create [
-                                                UniformGrid.rows 1
-                                                UniformGrid.columns 2
-                                                UniformGrid.margin 4.
-                                                UniformGrid.children [
-                                                    TextBlock.create [
-                                                        TextBlock.classes [ "link" ]
-                                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                                                        TextBlock.text (translate "details")
-                                                        TextBlock.onTapped (fun _ ->
-                                                            dispatch DismissUpdateMessage
-                                                            dispatch ShowUpdateInformation)
-                                                    ]
-                                                    TextBlock.create [
-                                                        TextBlock.classes [ "link" ]
-                                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                                                        TextBlock.text (translate "dismiss")
-                                                        TextBlock.onTapped (fun _ -> dispatch DismissUpdateMessage)
-                                                    ]
-                                                ]
-                                            ]
-                                        ]
-                                    ] |> generalize
-                                )
-                            )
-                        ]
+                StackPanel.create [
+                    StackPanel.horizontalAlignment HorizontalAlignment.Right
+                    StackPanel.verticalAlignment VerticalAlignment.Bottom
+                    StackPanel.margin 8.
+                    StackPanel.children (
+                        state.StatusMessages
+                        |> List.map (fun message ->
+                            Border.create [
+                                Border.margin (0., 1.)
+                                Border.padding (20., 10.)
+                                Border.cornerRadius 6.0
+                                Border.minWidth 250.
+                                Border.background Brushes.Black
+                                Border.child (statusMessageContents dispatch message)
+                            ] |> generalize)
                     )
                 ]
 
             match state.Overlay with
-            | NoOverlay -> ()
+            | NoOverlay ->
+                ()
             | _ ->
                 Panel.create [
                     Panel.children [
