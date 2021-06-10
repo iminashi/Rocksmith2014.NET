@@ -52,9 +52,8 @@ type SortableString =
         { Value = value
           SortValue =
             if String.IsNullOrWhiteSpace sort then
-                match SortableString.TryGetOfficialArtistNameSortValue value with
-                | Some sortValue -> sortValue
-                | None -> StringValidator.removeArticles value
+                SortableString.TryGetOfficialArtistNameSortValue value
+                |> Option.defaultWith (fun () -> StringValidator.removeArticles value)
             else
                 sort
             |> StringValidator.sortField }

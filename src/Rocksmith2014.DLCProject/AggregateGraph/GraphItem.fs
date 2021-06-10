@@ -73,7 +73,9 @@ module GraphItem =
         | Some llid, Some logPath ->
             writer.WriteLine(lineTemplate, uuid, TagType.LLID, llid)
             writer.WriteLine(lineTemplate, uuid, TagType.LogPath, logPath)
-        | None, None -> ()
-        | _ -> failwith "LLID and Log Path must both have a value."
+        | None, None ->
+            ()
+        | _ ->
+            failwith "LLID and Log Path must both have a value."
 
         writer.Write(lineTemplate, uuid, TagType.RelPath, item.RelPath)
