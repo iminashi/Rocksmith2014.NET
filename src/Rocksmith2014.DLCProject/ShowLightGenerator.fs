@@ -29,9 +29,9 @@ let private toMidiNote (sng: SNG) (note: Note) =
         | -1 ->
             Midi.toMidiNote (int note.StringIndex) note.FretId sng.MetaData.Tuning sng.MetaData.CapoFretId false
         | chordId ->
-            match sng.Chords.[chordId].Notes |> Array.tryFind (fun x -> x > 0) with
-            | Some n -> n
-            | None -> 0
+            sng.Chords.[chordId].Notes
+            |> Array.tryFind (fun x -> x > 0)
+            |> Option.defaultValue 0
 
     { Time = note.Time; Note = midiValue }
 
@@ -59,7 +59,8 @@ let private getFogNoteForSection () =
     let sectionFogNotes = Dictionary<string, ShowLight>()
 
     fun (current: ShowLight list) time sectionName ->
-        Dictionary.tryGetValue sectionName sectionFogNotes
+        sectionFogNotes
+        |> Dictionary.tryGetValue sectionName
         |> Option.defaultWith (fun () ->
             let prevNote =
                 match List.tryHead current with
@@ -101,8 +102,8 @@ let private generateBeamNotes (sng: SNG) =
 
 /// Generates laser notes from the SNG.
 let private generateLaserNotes (sng: SNG) =
-    // The lasers will be enabled at the first solo section, if one is present.
-    // If there is no solo sections, the lasers are set on at 60% into the song.
+    (* The lasers will be enabled at the first solo section, if one is present.
+       If there are no solo sections, the lasers are set on at 60% into the song. *)
     let lasersOn =
         let time =
             match tryFindSoloSection sng.Sections with
@@ -133,7 +134,8 @@ let generate (targetFile: string) (sngs: (Arrangement * SNG) list) =
             | _ -> false)
         |> Option.defaultWith (fun () ->
             sngs
-            |> List.find (function Instrumental _, _ -> true | _ -> false))
+            |> List.tryFind (function Instrumental _, _ -> true | _ -> false)
+            |> Option.defaultWith (fun () -> failwith "An instrumental arrangement is required for generating showlights."))
 
     let showlights =
         [ yield! generateFogNotes sng
