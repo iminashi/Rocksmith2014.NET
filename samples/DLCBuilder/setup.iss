@@ -44,8 +44,7 @@ Source: "LdaNative.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "libHarfBuzzSharp.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "libSkiaSharp.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "MLModel.zip"; DestDir: "{app}"; Flags: ignoreversion
-Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion
-Source: "RELEASE_NOTES.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "ReadMe.html"; DestDir: "{app}"; Flags: ignoreversion isreadme
 Source: "Tools\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 

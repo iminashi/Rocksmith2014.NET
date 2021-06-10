@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>README</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      word-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="rocksmith-2014-dlc-builder">Rocksmith 2014 DLC Builder</h1>
+<h2 id="system-requirements">System Requirements</h2>
+<ul>
+<li>Windows 8.1 (x64) or greater with <a href="https://dotnet.microsoft.com/download">.NET 5 runtime</a> installed</li>
+<li>macOS 10.13 (x64) or greater</li>
+</ul>
+<h2 id="wwise-20192021">Wwise 2019/2021</h2>
+<p>Converting audio files to wem requires Wwise 2019 or 2021 to be installed.</p>
+<p>During the installation, check only “Authoring” in Packages and leave all Deployment Platforms and Plug-ins unchecked (unless you need them for something else).</p>
+<p><strong>After the installation, you may need to run Wwise once, otherwise the automatic conversion may not work.</strong></p>
+<p>On Windows the program will try to find the Wwise installation automatically using the WWISEROOT environment variable, which can be set from the Wwise Launcher, or from the default installation path in Program Files. You can also manually set the Wwise console executable path in the configuration.</p>
+<h2 id="test-build-vs-release-build">Test Build vs Release Build</h2>
+<h3 id="test-build">Test Build</h3>
+<p>The package for the current platform will be built into the folder specified in the configuration (creating a subfolder in the RS DLC folder is recommended). Generation of DD levels may be disabled and the App ID can be changed to a custom one.</p>
+<ul>
+<li>If RS is running, new packages will be created that have a different DLC key and arrangement IDs, with the version in the song title. This allows you to load a new test version into the game by triggering the DLC enumeration.</li>
+<li>If RS is not running, any previous test builds will be replaced with a single package.</li>
+</ul>
+<h3 id="release-build">Release Build</h3>
+<p>Will build the package(s) (both Mac and PC by default) into the project folder. DD levels will be generated if the XML files do not already have them and the App ID is hard-coded to Cherub Rock.</p>
+<h2 id="arrangement-improving-features-from-ddc-improver">Arrangement Improving Features from DDC Improver</h2>
+<p>Will be used when “Apply Improvements” is enabled.</p>
+<ul>
+<li>Fix incorrect crowd events (E0, E1, E2 -&gt; e0, e1, e2)</li>
+<li>Fix chord names (Amin -&gt; Am)</li>
+<li>Shorten handshapes for chord slides that include the slide-to notes</li>
+<li>Shorten handshapes that are too close to the next handshape</li>
+<li>Remove beats that come after the audio has ended</li>
+<li>Add crowd events (one initial crowd tempo event + intro and outro applauses) unless the arrangement already has them</li>
+<li>Allow moving of phrases/sections off-beat with a special phrase name “mover”</li>
+<li>Custom events “w3” (width 3 anchor), “removebeats”, “so” (slide-out handshape)</li>
+</ul>
+<h3 id="features-not-currently-ported">Features not (Currently) Ported</h3>
+<ul>
+<li>Moving of phrases with special “moveto” phrase name (“mover” is more convenient to use and should not fail in case the sync is adjusted)</li>
+<li>“FIXOPEN” special chord name (rarely needed, the implementation was not very good)</li>
+<li>“OF” (one fret) special chord name (rarely needed, can also be created manually in most cases)</li>
+<li>Removing of “anchor placeholder” notes</li>
+<li>Creation of tone change events (pointless)</li>
+</ul>
+<h2 id="using-the-phrase-mover">Using the Phrase Mover</h2>
+<p>Phrases can be moved off beat by giving the phrase a special name: “mover#”.</p>
+<p>This will move the phrase right by # notes, where the number must be 1 or more. 1 will move the phrase to the next note/chord.</p>
+<p>Chords and split chords count as one. If the phrase is located on the same timecode as a note/chord (sustain of a previous note does not count), it counts as one.</p>
+<figure>
+<img src="https://i.imgur.com/xM1zF6g.png" alt="Screenshot of phrase moving" /><figcaption aria-hidden="true">Screenshot of phrase moving</figcaption>
+</figure>
+<p>In the above case, the phrase and section will be moved to start at the G power chord.</p>
+<p>If an anchor (FHP) is set at the start of the phrase, it will be moved to the new position. The anchor at the old position is deleted if there is no note at that position.</p>
+<h2 id="differences-to-the-toolkit">Differences to the Toolkit</h2>
+<h3 id="performance">Performance</h3>
+<p>Depending on your hardware and the project, building of packages can be 6-10 times faster compared to the Toolkit + DDC.</p>
+<p>Memory use is more efficient. As an extreme example, building a complete discography chart: DLC Builder ~250MB vs Toolkit ~2.4GB (the 32-bit version runs out of memory). In regular use however, the DLC Builder may use more memory due to the 64-bit architecture, the UI library used, use of memory pooling, etc.</p>
+<p>Reading the available tones from a profile file, opening the tone editor and removing DD levels are much faster.</p>
+<h3 id="features-of-dlc-builder-not-available-in-the-toolkit">Features of DLC Builder Not Available in the Toolkit</h3>
+<ul>
+<li>Automatic calculation of volume values for audio</li>
+<li>Optional checking of the arrangements for various issues</li>
+<li>Creation of a preview audio file that has fade-in and fade-out similar to official files</li>
+<li>Per-arrangement custom audio files</li>
+<li>Multi-part tone descriptions with some extra options to select from</li>
+<li>Possibility to easily build a version of the project where the tuning is changed using a pitch shift pedal</li>
+</ul>
+<h3 id="features-of-the-toolkit-not-available-in-dlc-builder">Features of the Toolkit Not Available in DLC Builder</h3>
+<ul>
+<li>Console platform support</li>
+<li>Support for Rocksmith 1</li>
+</ul>
+<h3 id="quality-of-life">Quality of Life</h3>
+<ul>
+<li>Album art image is displayed in the UI</li>
+<li>The UI contains a button for quickly importing tones from the profile</li>
+<li>Common hotkeys: Ctrl+N, Ctrl+O, Ctrl+S, …</li>
+<li>Remembers the five recently opened projects</li>
+<li>Better at opening templates created with old versions of the Toolkit than the Toolkit itself</li>
+<li>The UI prevents you from creating two main arrangements (represent = 1) for the same path</li>
+<li>Option to remove DD levels when importing a PSARC</li>
+<li>Nicer looking tone editor that prevents gaps between gear slots</li>
+<li>Command to generate new IDs per arrangement or for all arrangements</li>
+<li>No arbitrary limitations on what characters can be used in artist/song names or their sort values</li>
+<li>The program does not stop responding while building a package</li>
+<li>The currently open project is not closed when the configuration is changed</li>
+<li>The UI is localizable into different languages</li>
+</ul>
+<h3 id="generated-package-minutiae">Generated Package Minutiae</h3>
+<p>Since the Toolkit generates packages that work just fine, most of it probably does not matter, but some of the details in the generated manifest, SNG and aggregate graph files are closer to official ones.</p>
+<h2 id="differences-in-the-dd-generator-compared-to-ddc">Differences in the DD Generator Compared to DDC</h2>
+<ul>
+<li>Will not create or move phrases</li>
+<li>Will always generate at least two difficulty levels for any kind of phrase that has notes/chords</li>
+<li>Preserves anchors in noguitar sections</li>
+<li>Should not create cases where a note is followed by a pull-off note on the same fret/string</li>
+</ul>
+<h2 id="external-tools-used">External Tools Used</h2>
+<ul>
+<li><a href="https://github.com/hcs64/ww2ogg">ww2ogg</a></li>
+<li><a href="https://github.com/jonboydell/revorb-nix">revorb</a></li>
+</ul>
+</body>
+</html>

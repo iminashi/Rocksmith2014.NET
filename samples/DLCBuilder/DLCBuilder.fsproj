@@ -25,10 +25,13 @@
 
   <ItemGroup>
     <None Include="README.md">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Include="RELEASE_NOTES.md">
+    <Content Include="ReadMe.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="RELEASE_NOTES.md">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <EmbeddedResource Include="i18n\en.json" />
     <EmbeddedResource Include="i18n\fi.json" />
@@ -108,4 +111,6 @@
     <Watch Include="**\*.xaml" />
     <Watch Include="**\*.fs" />
   </ItemGroup>
+
+  <ItemGroup />
 </Project>
