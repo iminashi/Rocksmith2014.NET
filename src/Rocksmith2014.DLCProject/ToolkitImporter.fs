@@ -28,30 +28,31 @@ let private itemText (root: XmlNode) name = root.Item(name).InnerText
 let private importInstrumental (xmlFile: string) (arr: XmlNode) =
     let priority =
         try
-            let bonusArr = itemText arr "BonusArr" = "true"
+            let isBonusArr = itemText arr "BonusArr" = "true"
 
             // "Properties" in the tag name is misspelled
-            match Option.ofObj (arr.Item "ArrangementPropeties") with
-            | None ->
+            match arr.Item "ArrangementPropeties" with
+            | null ->
                 // Arrangement properties do not exist in old files
-                if bonusArr then ArrangementPriority.Bonus else ArrangementPriority.Main
-            | Some arrProp ->
-                let tryGetPriority ns =
+                if isBonusArr then ArrangementPriority.Bonus else ArrangementPriority.Main
+            | arrProp ->
+                let getPriority ns =
                     let represent =
                         let r = arr.Item "Represent"
                         // The Represent tag is not present in old files
                         notNull r && r.InnerText = "true"
                     if represent || arrProp.Item("Represent", ns).InnerText = "1" then
                         ArrangementPriority.Main
-                    elif bonusArr || arrProp.Item("BonusArr", ns).InnerText = "1" then
+                    elif isBonusArr || arrProp.Item("BonusArr", ns).InnerText = "1" then
                         ArrangementPriority.Bonus
                     else
                         ArrangementPriority.Alternative
 
                 // The XML namespace was renamed at some point.
-                try tryGetPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.XML"
-                with _ -> tryGetPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.Xml"
-        with _ -> ArrangementPriority.Main
+                try getPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.XML"
+                with _ -> getPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.Xml"
+        with _ ->
+            ArrangementPriority.Main
 
     let name = getName arr |> ArrangementName.Parse
 
@@ -117,10 +118,14 @@ let private importArrangement (arr: XmlNode) =
            .InnerText
 
     match itemText arr "ArrangementType" with
-    | "Guitar" | "Bass" -> importInstrumental xml arr
-    | "Vocal" -> importVocals xml arr
-    | "ShowLight" -> Showlights { XML = xml }
-    | unknown -> failwith (sprintf "Unknown arrangement type: %s" unknown)
+    | "Guitar" | "Bass" ->
+        importInstrumental xml arr
+    | "Vocal" ->
+        importVocals xml arr
+    | "ShowLight" ->
+        Showlights { XML = xml }
+    | unknown ->
+        failwith $"Unknown arrangement type: {unknown}"
 
 /// Converts a Toolkit template from the given path into a DLCProject.
 let import (templatePath: string) =

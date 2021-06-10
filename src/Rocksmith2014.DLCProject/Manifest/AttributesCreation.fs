@@ -29,13 +29,12 @@ let private getJapaneseVocal = function
 let private getDNATime (sng: SNG) dnaId =
     let rec getTotal i time =
         // Find the index of a DNA with the given ID
-        let di = Array.FindIndex(sng.DNAs, i, (fun x -> x.DnaId = dnaId))
-        match di with
-        | -1 -> time
+        match Array.FindIndex(sng.DNAs, i, (fun x -> x.DnaId = dnaId)) with
+        | -1 ->
+            time
         | next ->
             // Find the index of the next DNA None
-            let ni = Array.FindIndex(sng.DNAs, next, (fun x -> x.DnaId = DNA.None))
-            match ni with 
+            match Array.FindIndex(sng.DNAs, next, (fun x -> x.DnaId = DNA.None)) with 
             | -1 ->
                 time + (sng.MetaData.SongLength - sng.DNAs.[next].Time)
             | none ->
@@ -171,7 +170,8 @@ let private convertPhrases (sng: SNG) =
 /// Creates a dynamic visual density array for the arrangement.
 let private createDynamicVisualDensity (levels: int) (arrangement: Arrangement) =
     match arrangement with
-    | Vocals _ -> Array.replicate 20 2.f
+    | Vocals _ ->
+        Array.replicate 20 2.f
 
     | Instrumental inst ->
         let floorLimit = 0.5 // Fastest allowed speed
@@ -245,7 +245,7 @@ let private createChordMap (sng: SNG) =
         let diffIds = Dictionary<string, int array>()
         for i = 0 to sng.PhraseIterations.Length - 1 do
             let pi = sng.PhraseIterations.[i]
-            let chordIds = 
+            let chordIds =
                 sng.Levels.[lvl].HandShapes
                 |> Seq.filter (fun x -> 
                     (String.notEmpty sng.Chords.[x.ChordId].Name) && (x.StartTime >= pi.StartTime && x.StartTime < pi.EndTime))
@@ -272,7 +272,7 @@ let private createTechniqueMap (sng: SNG) =
         let diffIds = Dictionary<string, int array>()
         for i = 0 to sng.PhraseIterations.Length - 2 do
             let pi = sng.PhraseIterations.[i]
-            let techIds = 
+            let techIds =
                 sng.Levels.[lvl].Notes
                 |> Seq.filter (fun x -> (x.Time > pi.StartTime && x.Time <= pi.EndTime)) // Weird division into phrase iterations intentional
                 |> Seq.collect (Techniques.getTechniques sng)
