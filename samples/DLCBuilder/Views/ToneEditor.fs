@@ -72,7 +72,7 @@ let private pedalSelectors dispatch selectedGearSlot gearList (locName, pedalFun
             match getGearDataForCurrentPedal gearList gearSlot with
             | Some data -> data.Name
             | None -> String.Empty
-        toggleButton dispatch gearList selectedGearSlot content gearSlot 
+        toggleButton dispatch gearList selectedGearSlot content gearSlot
         |> generalize ]
 
 let private gearSlotSelector state dispatch (gearList: Gear) =
@@ -84,7 +84,7 @@ let private gearSlotSelector state dispatch (gearList: Gear) =
         toggleButton dispatch gearList state.SelectedGearSlot ampName Amp
 
         gearSlotHeader "cabinet"
-        toggleButton dispatch gearList state.SelectedGearSlot cabinetName Cabinet 
+        toggleButton dispatch gearList state.SelectedGearSlot cabinetName Cabinet
 
         yield! [ ("prePedals", PrePedal); ("loopPedals", PostPedal); ("rack", Rack) ]
                 |> List.collect (pedalSelectors dispatch state.SelectedGearSlot gearList)
@@ -107,8 +107,10 @@ let private gearSelector dispatch (gearList: Gear) gearSlot =
             | Some data when data.Type = "Cabinets" ->
                 cabinetChoices
                 |> Array.find (fun x -> x.Name = data.Name)
-            | Some data -> data
-            | None -> Unchecked.defaultof<GearData>)
+            | Some data ->
+                data
+            | None ->
+                Unchecked.defaultof<GearData>)
         ComboBox.onSelectedItemChanged (fun item ->
             match item with
             | :? GearData as gear -> Some gear
@@ -118,7 +120,7 @@ let private gearSelector dispatch (gearList: Gear) gearSlot =
 
 let private getFormatString knob =
     let step = float knob.ValueStep
-    let hasDecimals = Math.Ceiling step > step
+    let hasDecimals = ceil step > step
     let canBeNegative = knob.MinValue < 0.0f
     match hasDecimals, canBeNegative with
     | true,  true  -> "+0.0;-0.0;0.0"
@@ -165,8 +167,8 @@ let private knobSliders state dispatch (gearList: Gear) gearSlot gear =
             ]
             StackPanel.create [
                 StackPanel.isVisible (micPositions.Length > 1)
-                StackPanel.children [
-                    yield! micPositions
+                StackPanel.children (
+                    micPositions
                     |> Array.map (fun cab ->
                         RadioButton.create [
                             RadioButton.content cab.Category
@@ -175,9 +177,9 @@ let private knobSliders state dispatch (gearList: Gear) gearSlot gear =
                             RadioButton.onClick ((fun _ ->
                                 cab |> SetPedal |> EditTone |> dispatch
                             ), SubPatchOptions.Always)
-                        ] |> generalize
-                    )
-                ]
+                        ] |> generalize)
+                    |> Array.toList
+                )
             ]
         ]
         |> generalize
@@ -203,6 +205,7 @@ let private knobSliders state dispatch (gearList: Gear) gearSlot gear =
                                 TextBlock.text knob.Name
                                 TextBlock.horizontalAlignment HorizontalAlignment.Left
                             ]
+
                             // Current value
                             match state.ManuallyEditingKnobKey with
                             | Some key when knob.Key = key ->
@@ -231,8 +234,8 @@ let private knobSliders state dispatch (gearList: Gear) gearSlot gear =
                                     TextBlock.background Brushes.Transparent
                                     TextBlock.horizontalAlignment HorizontalAlignment.Right
                                     TextBlock.text (formatValue knob currentValue)
+                                    TextBlock.cursor (if knob.EnumValues.IsNone then Cursors.hand else Cursors.arrow)
                                     if knob.EnumValues.IsNone then
-                                        TextBlock.cursor Cursors.hand
                                         TextBlock.onTapped ((fun e ->
                                             e.Handled <- true
                                             knob.Key
@@ -284,8 +287,10 @@ let view state dispatch (tone: Tone) =
                     yield gearSelector dispatch tone.GearList state.SelectedGearSlot
 
                     match state.SelectedGear with
-                    | None -> ()
+                    | None ->
+                        ()
                     | Some gear ->
+                        // Remove Button
                         yield
                             Button.create [
                                 Button.margin (0., 2.)

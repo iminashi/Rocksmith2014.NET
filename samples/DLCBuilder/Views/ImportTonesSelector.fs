@@ -22,6 +22,7 @@ let view state dispatch (tones: Tone array) =
                 ListBox.dataItems tones
                 ListBox.selection state.SelectedImportTones
                 ListBox.maxHeight 300.
+                ListBox.width 320.
             ]
 
             // Buttons
