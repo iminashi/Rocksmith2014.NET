@@ -17,6 +17,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="toolkit-old.dlc.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="toolkit-new.dlc.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="test.bnk">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -50,8 +56,11 @@
     <Compile Include="StringValidatorTests.fs" />
     <Compile Include="DLCKeyTests.fs" />
     <Compile Include="DLCProjectTests.fs" />
+    <Compile Include="ToolkitImportTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
+
+  <ItemGroup />
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="3.0.3">
