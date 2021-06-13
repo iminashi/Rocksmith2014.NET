@@ -85,11 +85,11 @@ let sngToXml (attr: Manifest.Attributes option) (sng: SNG) =
             | Some arrProps ->
                 m.ArrangementProperties <- convertArrProps arrProps
             | None ->
-                () 
+                ()
             m
 
     metaData.Part <- sng.MetaData.Part
-    metaData.Capo <- Math.Max(sng.MetaData.CapoFretId, 0y)
+    metaData.Capo <- max sng.MetaData.CapoFretId 0y
     metaData.LastConversionDateTime <- sng.MetaData.LastConversionDateTime
     metaData.SongLength <- Utils.secToMs sng.MetaData.SongLength
 
@@ -166,7 +166,7 @@ let xmlToSng (arr: InstrumentalArrangement) =
     // For whatever reason, the string masks from a section need to be included in the section before it
     processStringMasks accuData.StringMasks arr.Levels.Count
 
-    let firstNoteTime = 
+    let firstNoteTime =
         let mutable time = Single.MaxValue
         for level in levels do
             if level.Notes.Length > 0 && level.Notes.[0].Time < time then

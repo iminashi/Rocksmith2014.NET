@@ -53,8 +53,8 @@ module ConvertVocals =
 
         let headers, textures, symbols =
             match font with
-            | DefaultFont -> defaultHeaders, defaultTextures, defaultSymbols.Value
-
+            | DefaultFont ->
+                defaultHeaders, defaultTextures, defaultSymbols.Value
             | CustomFont (glyphs, assetPath) ->
                 [| SymbolsHeader.Default |],
                 [| { Font = assetPath
@@ -83,5 +83,5 @@ module ConvertVocals =
             | None -> DefaultFont
 
         Vocals.Load xmlFile
-        |> xmlToSng glyphs 
+        |> xmlToSng glyphs
         |> SNG.savePackedFile targetFile platform

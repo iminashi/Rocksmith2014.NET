@@ -4,7 +4,6 @@ open Rocksmith2014
 open Rocksmith2014.SNG
 open Rocksmith2014.Conversion.Utils
 open Rocksmith2014.Common
-open System
 
 /// Converts an SNG Beat into an XML Ebeat.
 let convertBeat (sngBeat: Beat) =
@@ -149,7 +148,7 @@ let convertNote (sngNote: Note) =
              MaxBend = sngNote.MaxBend,
              BendValues = bendValues,
              // Default value used for tap in XML is 0, in SNG it is -1
-             Tap = Math.Max(0y, sngNote.Tap))
+             Tap = max 0y sngNote.Tap)
 
 /// Converts an SNG NoteMask into an XML ChordMask.
 let convertChordMask (sngMask: NoteMask) =
@@ -180,8 +179,10 @@ let private createChordNotes (sng: SNG) (chord: Note) =
 
     let chordNotes =
         match chord.ChordNotesId with
-        | id when id = -1 || id >= sng.ChordNotes.Length -> ValueNone
-        | id -> ValueSome sng.ChordNotes.[id]
+        | id when id = -1 || id >= sng.ChordNotes.Length ->
+            ValueNone
+        | id ->
+            ValueSome sng.ChordNotes.[id]
 
     for i = 0 to 5 do
         if template.Frets.[i] <> -1y then
@@ -199,7 +200,7 @@ let private createChordNotes (sng: SNG) (chord: Note) =
                 cn.Vibrato <- byte chordNotes.Vibrato.[i]
                 cn.BendValues <- convertBendData32 chordNotes.BendData.[i])
 
-            xmlNotes.Add(cn)
+            xmlNotes.Add cn
             
     xmlNotes
 
