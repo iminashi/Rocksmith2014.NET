@@ -63,7 +63,7 @@ In the above case, the phrase and section will be moved to start at the G power 
 
 If an anchor (FHP) is set at the start of the phrase, it will be moved to the new position. The anchor at the old position is deleted if there is no note at that position.
 
-## Differences to the Toolkit
+## Differences to the [Toolkit](https://www.rscustom.net/)
 
 ### Performance
 

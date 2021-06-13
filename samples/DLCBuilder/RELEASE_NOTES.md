@@ -1,9 +1,11 @@
-## 0.3.0 (Released 2021-06-xx)
+## 0.3.0 (Released 2021-06-13)
 
-- Added "Inject Tones into Profile" feature (in the tools menu).
+- The Windows version now uses an installer and automatic update from earlier versions will not work. Please download the installer from the GitHub page.
+- Added "Inject Tones into Profile" feature (in the Tools menu).
 - Added option to choose the method for determining the number of levels to generate for a phrase (simple or machine learning model).
-- Fixed DD generation failing with an exception when the arrangement contains certain LinkNext errors.
+- The DD generation no longer fails with an exception when the arrangement contains certain linknext errors.
 - Downgraded Magick.NET version to fix a crash on macOS 10.13.
+- Minor UI fixes.
 
 ## 0.2.3 (Released 2021-06-01)
 
