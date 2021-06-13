@@ -73,7 +73,7 @@ let private getFogNoteForSection () =
         ShowLight(toMs time, note)
 
 /// Generates fog notes from the sections in the SNG.
-let private generateFogNotes (sng: SNG) =
+let generateFogNotes (sng: SNG) =
     let getFog = getFogNoteForSection ()
 
     ((String.Empty, []), sng.Sections)
@@ -86,7 +86,7 @@ let private generateFogNotes (sng: SNG) =
     |> snd
 
 /// Generates beam notes from the notes in the SNG.
-let private generateBeamNotes (sng: SNG) =
+let generateBeamNotes (sng: SNG) =
     let minTime = 0.35f
 
     ([], getMidiNotes sng)
@@ -102,7 +102,7 @@ let private generateBeamNotes (sng: SNG) =
     |> List.map (fun (time, beam) -> ShowLight(toMs time, beam))
 
 /// Generates laser notes from the SNG.
-let private generateLaserNotes (sng: SNG) =
+let generateLaserNotes (sng: SNG) =
     (* The lasers will be enabled at the first solo section, if one is present.
        If there are no solo sections, the lasers are set on at 60% into the song. *)
     let lasersOn =
@@ -125,8 +125,8 @@ let private validateShowLights songLength (slList: ShowLight list) =
         // Add an extra fog note at the end to prevent a glitch
         ShowLight(toMs songLength, ShowLight.FogMax) ]
 
-/// Generates show lights and saves them into the target file.
-let generate (targetFile: string) (sngs: (Arrangement * SNG) list) =
+/// Generates show lights.
+let generate (sngs: (Arrangement * SNG) list) =
     // Select an instrumental arrangement to generate the show lights from
     let _, sng =
         sngs
@@ -138,12 +138,12 @@ let generate (targetFile: string) (sngs: (Arrangement * SNG) list) =
             |> List.tryFind (function Instrumental _, _ -> true | _ -> false)
             |> Option.defaultWith (fun () -> failwith "An instrumental arrangement is required for generating showlights."))
 
-    let showlights =
-        [ yield! generateFogNotes sng
-          yield! generateBeamNotes sng
-          yield! generateLaserNotes sng ]
-        |> validateShowLights sng.MetaData.SongLength
-        |> List.sortBy (fun x -> x.Time)
-        |> ResizeArray
+    [ yield! generateFogNotes sng
+      yield! generateBeamNotes sng
+      yield! generateLaserNotes sng ]
+    |> validateShowLights sng.MetaData.SongLength
+    |> List.sortBy (fun x -> x.Time)
 
-    ShowLights.Save(targetFile, showlights)
+/// Generates show lights and saves them into the target file.
+let generateFile (targetFile: string) (sngs: (Arrangement * SNG) list) =
+    ShowLights.Save(targetFile, ResizeArray(generate sngs))

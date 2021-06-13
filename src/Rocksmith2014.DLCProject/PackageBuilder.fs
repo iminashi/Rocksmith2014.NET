@@ -216,7 +216,7 @@ let private getFontOption (dlcKey: string) =
 let private addShowLights sngs project =
     let projectPath = Path.GetDirectoryName (Arrangement.getFile project.Arrangements.Head)
     let xmlFile = Path.Combine(projectPath, "auto_showlights.xml")
-    if not <| File.Exists xmlFile then ShowLightGenerator.generate xmlFile sngs
+    if not <| File.Exists xmlFile then ShowLightGenerator.generateFile xmlFile sngs
 
     { project with Arrangements = (Showlights { XML = xmlFile })::project.Arrangements }
 

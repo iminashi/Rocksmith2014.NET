@@ -68,6 +68,8 @@ let sngToXml (attr: Manifest.Attributes option) (sng: SNG) =
 
     let metaData =
         match attr with
+        | None ->
+            MetaData()
         | Some attr ->
             let m = MetaData(Arrangement = attr.ArrangementName,
                              CentOffset = float32 (attr.CentOffset.GetValueOrDefault()),
@@ -82,10 +84,9 @@ let sngToXml (attr: Manifest.Attributes option) (sng: SNG) =
             match attr.ArrangementProperties with
             | Some arrProps ->
                 m.ArrangementProperties <- convertArrProps arrProps
-            | None -> ()
-                
+            | None ->
+                () 
             m
-        | None -> MetaData()
 
     metaData.Part <- sng.MetaData.Part
     metaData.Capo <- Math.Max(sng.MetaData.CapoFretId, 0y)
@@ -144,8 +145,9 @@ let xmlToSng (arr: InstrumentalArrangement) =
     let phrases =
         arr.Phrases |> mapiToArray (XmlToSng.convertPhrase arr)
     let phraseExtraInfo =
-        if arr.PhraseProperties.Count = 0 then [||]
-        else arr.PhraseProperties |> mapToArray XmlToSng.convertPhraseExtraInfo
+        match arr.PhraseProperties with
+        | null -> Array.empty
+        | props -> props |> mapToArray XmlToSng.convertPhraseExtraInfo
     let chords =
         arr.ChordTemplates |> mapToArray (XmlToSng.convertChord arr)
     let phraseIterations =
@@ -158,7 +160,6 @@ let xmlToSng (arr: InstrumentalArrangement) =
         arr.Tones.Changes |> mapToArray XmlToSng.convertTone
     let dnas = XmlToSng.createDNAs arr
     let levels =
-        //arr.Levels |> mapToArray convertLevel
         arr.Levels.ToArray()
         |> Array.Parallel.map convertLevel
 
@@ -180,14 +181,14 @@ let xmlToSng (arr: InstrumentalArrangement) =
       Phrases = phrases
       Chords = chords
       ChordNotes = accuData.ChordNotes.ToArray()
-      Vocals = [||]
-      SymbolsHeaders = [||]
-      SymbolsTextures = [||]
-      SymbolDefinitions = [||]
+      Vocals = Array.empty
+      SymbolsHeaders = Array.empty
+      SymbolsTextures = Array.empty
+      SymbolDefinitions = Array.empty
       PhraseIterations = phraseIterations
       PhraseExtraInfo = phraseExtraInfo
       NewLinkedDifficulties = nlds
-      Actions = [||]
+      Actions = Array.empty
       Events = events
       Tones = tones
       DNAs = dnas
