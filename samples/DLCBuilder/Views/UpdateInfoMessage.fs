@@ -55,10 +55,12 @@ let view (update: UpdateInformation) dispatch =
             ScrollViewer.create [
                 ScrollViewer.background "#181818"
                 ScrollViewer.maxHeight 200.
+                ScrollViewer.maxWidth 700.
                 ScrollViewer.content (
                     TextBlock.create [
                         TextBlock.margin 8.
                         TextBlock.text update.Changes
+                        TextBlock.textWrapping TextWrapping.Wrap
                     ])
             ]
 
