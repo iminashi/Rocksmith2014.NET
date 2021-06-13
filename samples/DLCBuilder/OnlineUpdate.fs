@@ -87,7 +87,7 @@ let downloadAndApplyUpdate (update: UpdateInformation) = async {
     let updatePath = Path.Combine(Configuration.appDataFolder, "update.exe")
     do! downloadFile updatePath update.AssetUrl
 
-    let startInfo = ProcessStartInfo(FileName = updatePath, Arguments = $"/silent")
+    let startInfo = ProcessStartInfo(FileName = updatePath, Arguments = $"/SILENT /CLOSEAPPLICATIONS")
     use update = new Process(StartInfo = startInfo)
     update.Start() |> ignore
     Environment.Exit 0 }
