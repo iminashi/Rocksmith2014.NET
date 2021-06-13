@@ -18,7 +18,7 @@ open Media
 let private enablePedalSelector gearList = function
     | Amp | Cabinet ->
         true
-    | PrePedal index | PostPedal index | Rack index when index = 0 ->
+    | PrePedal 0 | PostPedal 0 | Rack 0 ->
         true
     | PrePedal index ->
         gearList.PrePedals.[index - 1] |> Option.isSome
