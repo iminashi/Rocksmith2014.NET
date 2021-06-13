@@ -20,14 +20,13 @@ type Anchor =
             writer.WriteSingle this.LastNoteTime
             writer.WriteInt8 this.FretId
             // Write three bytes of padding
-            writer.WriteInt16 0s; writer.WriteInt8 0y
+            writer.WriteUInt24 0u
             writer.WriteInt32 this.Width
             writer.WriteInt32 this.PhraseIterationId
 
     static member Read(reader: IBinaryReader) =
         // Read three bytes of padding
-        let readPadding () =
-            reader.ReadInt16() |> ignore; reader.ReadInt8() |> ignore
+        let readPadding () = reader.ReadUInt24() |> ignore
 
         { StartTime = reader.ReadSingle()
           EndTime = reader.ReadSingle()

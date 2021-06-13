@@ -47,4 +47,5 @@ let handleEvent dispatch (event: KeyEventArgs) =
     | None, Key.Escape ->
         dispatch CloseOverlay
 
-    | _ -> ()
+    | _ ->
+        ()

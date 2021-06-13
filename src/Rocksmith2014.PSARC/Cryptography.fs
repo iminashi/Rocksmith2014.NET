@@ -127,5 +127,7 @@ let encrypt (input: Stream) (output: Stream) length =
 
 /// Calculates an MD5 hash for the given string.
 let md5Hash (name: string) =
-    if String.IsNullOrEmpty name then Array.zeroCreate<byte> 16
-    else using (new MD5CryptoServiceProvider()) (fun md5 -> md5.ComputeHash(Encoding.ASCII.GetBytes(name)))
+    if String.IsNullOrEmpty name then
+        Array.zeroCreate<byte> 16
+    else
+        using (new MD5CryptoServiceProvider()) (fun md5 -> md5.ComputeHash(Encoding.ASCII.GetBytes name))

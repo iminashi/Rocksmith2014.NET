@@ -120,10 +120,11 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         // Update and write the table of contents
         toc.Clear()
         let mutable offset = uint64 header.ToCLength
-        protoEntries |> Array.iteri (fun i (proto, size) ->
+        protoEntries
+        |> Array.iteri (fun i (proto, size) ->
             let entry = { proto with Offset = offset; ID = i }
             offset <- offset + uint64 size
-            // Don't add the manifest to the TOC
+            // Don't add the manifest to the ToC
             if i <> 0 then toc.Add entry
             entry.Write tocWriter)
 
@@ -165,17 +166,17 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         let entry = tryFindEntry name
         do! inflateEntry entry output }
 
+    /// Inflates the entry with the given file name into the target file.
+    member this.InflateFile (name: string, targetFile: string) = async {
+        use file = File.Create targetFile
+        do! this.InflateFile(name, file) }
+
     /// Returns an in-memory read stream for the entry with the given name.
     member _.GetEntryStream (name: string) = async {
         let entry = tryFindEntry name
         let memory = MemoryStreamPool.Default.GetStream(name, int entry.Length)
         do! inflateEntry entry memory
         return memory }
-
-    /// Inflates the entry with the given file name into the target file.
-    member this.InflateFile (name: string, targetFile: string) = async {
-        use file = File.Create targetFile
-        do! this.InflateFile(name, file) }
 
     /// Extracts all the files from the PSARC into the given directory.
     member _.ExtractFiles (baseDirectory: string, ?progress: IProgress<float>) = async {
@@ -187,8 +188,10 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             use file = File.Create path
             do! inflateEntry entry file
             match progress with
-            | Some progress when i % reportFrequency = 0 -> progress.Report(float (i + 1) / float toc.Count * 100.)
-            | _ -> () }
+            | Some progress when i % reportFrequency = 0 ->
+                progress.Report(float (i + 1) / float toc.Count * 100.)
+            | _ ->
+                () }
 
     /// Edits the contents of the PSARC with the given edit function.
     member _.Edit (options: EditOptions, editFunc: NamedEntry list -> NamedEntry list) = async {
@@ -239,7 +242,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         do! source.FlushAsync() }
 
     /// Creates a new empty PSARC using the given stream.
-    static member CreateEmpty(stream) = new PSARC(stream, Header(), ResizeArray(), [||])
+    static member CreateEmpty(stream) = new PSARC(stream, Header(), ResizeArray(), Array.empty)
 
     /// Creates a new PSARC into the given stream with the given contents.
     static member Create(stream, encrypt, content) = async {

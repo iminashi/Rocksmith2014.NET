@@ -6,7 +6,7 @@ open System
 
 [<Sealed>]
 type internal Header() =
-    /// The length of a PSARC header in bytes (32 bytes).
+    /// The length of a PSARC header in bytes (32).
     static member Length = 32
 
     /// The file identifier string "PSAR".
