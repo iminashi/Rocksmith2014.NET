@@ -56,20 +56,21 @@ let rec private getRandomFogNote (excludeNote: byte) =
 let private getBeamNote (midiNote: int) = byte <| ShowLight.BeamMin + (byte midiNote % 12uy)
 
 let private getFogNoteForSection () =
-    let sectionFogNotes = Dictionary<string, ShowLight>()
+    let sectionFogNotes = Dictionary<string, byte>()
 
     fun (current: ShowLight list) time sectionName ->
-        sectionFogNotes
-        |> Dictionary.tryGetValue sectionName
-        |> Option.defaultWith (fun () ->
-            let prevNote =
-                match List.tryHead current with
-                | Some x -> x.Note
-                | None -> 0uy
-            let note = getRandomFogNote prevNote
-            let fog = ShowLight(toMs time, note)
-            sectionFogNotes.[sectionName] <- fog
-            fog)
+        let note =
+            sectionFogNotes
+            |> Dictionary.tryGetValue sectionName
+            |> Option.defaultWith (fun () ->
+                let prevNote =
+                    match List.tryHead current with
+                    | Some x -> x.Note
+                    | None -> 0uy
+                let note = getRandomFogNote prevNote
+                sectionFogNotes.[sectionName] <- note
+                note)
+        ShowLight(toMs time, note)
 
 /// Generates fog notes from the sections in the SNG.
 let private generateFogNotes (sng: SNG) =
