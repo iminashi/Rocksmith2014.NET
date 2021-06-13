@@ -13,7 +13,11 @@ let readZeroTerminatedUTF8String length (reader: IBinaryReader) =
 
 let writeZeroTerminatedUTF8String length (str: string) (writer: IBinaryWriter) =
     let arr = Array.zeroCreate length
-    Encoding.UTF8.GetBytes(str.AsSpan(), arr.AsSpan()) |> ignore
+    let utf8Bytes = Encoding.UTF8.GetBytes str
+    // Always leave space for the null terminator
+    let length = min utf8Bytes.Length (length - 1)
+
+    Buffer.BlockCopy(utf8Bytes, 0, arr, 0, length)
     writer.WriteBytes arr
 
 /// Reads an array that is preceded by its length from the IBinaryReader using the given read function.
