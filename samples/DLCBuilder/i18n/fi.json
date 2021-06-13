@@ -227,6 +227,8 @@
   "AnchorNotOnNoteHelp": "Ankkureiden pitäisi olla juuri nuotin kohdalla ongelmien välttämiseksi.",
   "LyricWithInvalidChar": "Sanoitus sisältää merkin ({0}), jota ei ole oletusfontissa",
   "LyricWithInvalidCharHelp": "Tarvitaan mukautettu fontti, jotta tämä merkki näkyy pelissä.",
+  "LyricTooLong": "Seuraava sanoituksen osa on liian pitkä:\n\"{0}\"",
+  "LyricTooLongHelp": "Suurin sallittu pituus sanoituksen osalle on 47 tavua UTF-8 koodattuna. Tätä pidemmät osat lyhennetään automaatisesti.",
   "InvalidShowlights": "Valoshowssa pitää olla vähintään yksi \"fog\" nuotti ja yksi \"beam\" nuotti",
   "InvalidShowlightsHelp": "Tämä valoshowtiedosto kaataa pelin, kun kappale valitaan.",
   "AnchorInsideHandShape": "Ankkuri on handshapen sisällä",

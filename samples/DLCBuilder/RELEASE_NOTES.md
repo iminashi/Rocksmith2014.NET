@@ -1,3 +1,8 @@
+## 0.3.1 (Released 2021-06-1x)
+
+- The program will no longer create packages that crash the game if there are a lyrics that are too long for the binary format used by the game.
+- Fixed a bug in the showlight generator that caused it to create duplicates.
+
 ## 0.3.0 (Released 2021-06-13)
 
 - The Windows version now uses an installer and automatic update from earlier versions will not work. Please download the installer from the GitHub page.

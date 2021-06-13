@@ -227,6 +227,8 @@
   "AnchorNotOnNoteHelp": "Anchors should be placed exactly on notes to avoid issues.",
   "LyricWithInvalidChar": "The lyrics contain a character ({0}) not in the default font",
   "LyricWithInvalidCharHelp": "A custom font is needed for the character to be displayed in-game.",
+  "LyricTooLong": "The following lyric is too long:\n\"{0}\"",
+  "LyricTooLongHelp": "The maximum length of a lyric is 47 bytes when encoded in UTF-8. Lyrics longer than that will be truncated automatically.",
   "InvalidShowlights": "The show lights need to contain at least one fog note and one beam note",
   "InvalidShowlightsHelp": "This show lights file will crash the game when the song is selected.",
   "AnchorInsideHandShape": "Anchor is placed inside a handshape",

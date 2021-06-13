@@ -499,16 +499,33 @@ let vocalsTests =
         testCase "Detects character not in default font" <| fun _ ->
             let vocals = ResizeArray(seq { Vocal(0, 50, "Test"); Vocal(100, 50, "Nope:あ") })
 
-            let result = checkVocals vocals
+            let result = checkVocals false vocals
 
-            Expect.isSome result "Checker returned an issue"
+            Expect.equal result.Head.Type (LyricWithInvalidChar 'あ') "Issue type is correct"
 
-        testCase "Accepts character in default font" <| fun _ ->
+        testCase "Accepts characters in default font" <| fun _ ->
             let vocals = ResizeArray(seq { Vocal(0, 50, "Test"); Vocal(100, 50, "ÄöÖÅå"); Vocal(200, 50, "àè- +?&#\"") })
 
-            let result = checkVocals vocals
+            let result = checkVocals false vocals
 
-            Expect.isNone result "Checker returned None"
+            Expect.isEmpty result "Checker returned an empty list"
+
+        testCase "Detects lyric that is too long (ASCII)" <| fun _ ->
+            let lyric = String.replicate 48 "A"
+            let vocals = ResizeArray(seq { Vocal(0, 50, lyric) })
+
+            let result = checkVocals false vocals
+
+            Expect.equal result.Head.Type (LyricTooLong lyric) "Issue type is correct"
+
+        testCase "Detects lyric that is too long (non-ASCII)" <| fun _ ->
+            let lyric = String.replicate 16 "あ" // 48 bytes in UTF8
+            let vocals = ResizeArray(seq { Vocal(0, 50, lyric) })
+
+            let result = checkVocals true vocals
+
+            Expect.hasLength result 1 "One issue created"
+            Expect.equal result.Head.Type (LyricTooLong lyric) "Issue type is correct"
     ]
 
 [<Tests>]

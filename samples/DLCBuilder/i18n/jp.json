@@ -227,6 +227,8 @@
   "AnchorNotOnNoteHelp": "アンカーをノートぴったりにしておきましょう。",
   "LyricWithInvalidChar": "歌詞にはデフォルトフォントには含まれていない文字がある ({0})",
   "LyricWithInvalidCharHelp": "ゲーム内でこの文字を表示されるにはカスタムフォントが必要である。",
+  "LyricTooLong": "次の歌詞が長すぎる:\n\"{0}\"",
+  "LyricTooLongHelp": "一つの歌詞の最大長はUTF-8エンコードで47バイト。これより長い歌詞は自動的に短縮されます。",
   "InvalidShowlights": "ショーライトがフォッグもしくはビームノートがいない",
   "InvalidShowlightsHelp": "ショーライトファイルには少なくともひとつのビームノートとひとつのフォッグノートがある必要があります。そうでないファイルはゲームをクラッシュします。",
   "AnchorInsideHandShape": "Handshape内にはアンカーがある",

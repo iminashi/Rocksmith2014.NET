@@ -21,6 +21,9 @@ let private getIssueHeaderAndHelp issueType =
     | LyricWithInvalidChar invalidChar ->
         translatef "LyricWithInvalidChar" [| invalidChar |],
         translate "LyricWithInvalidCharHelp"
+    | LyricTooLong invalidLyric ->
+        translatef "LyricTooLong" [| invalidLyric |],
+        translate "LyricTooLongHelp"
     | other ->
         let locStr = string other
         translate locStr,
@@ -39,6 +42,7 @@ let private isImportant = function
     | AnchorInsideHandShape
     | AnchorInsideHandShapeAtPhraseBoundary
     | FirstPhraseNotEmpty
+    | LyricTooLong _
     | InvalidShowlights -> true
     | _ -> false
 

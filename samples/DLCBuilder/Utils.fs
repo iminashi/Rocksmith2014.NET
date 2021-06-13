@@ -105,12 +105,9 @@ let checkArrangements (project: DLCProject) (progress: IProgress<float>) =
             | Instrumental inst ->
                 InstrumentalArrangement.Load inst.XML
                 |> ArrangementChecker.runAllChecks
-            | Vocals { CustomFont = None; XML = xml } ->
+            | Vocals { CustomFont = font; XML = xml } ->
                 Vocals.Load xml
-                |> ArrangementChecker.checkVocals
-                |> Option.toList
-            | Vocals _ ->
-                List.empty
+                |> ArrangementChecker.checkVocals font.IsSome
             | Showlights sl ->
                 ShowLights.Load sl.XML
                 |> ArrangementChecker.checkShowlights

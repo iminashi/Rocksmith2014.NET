@@ -1,9 +1,10 @@
 ﻿module Rocksmith2014.XML.Processing.ArrangementChecker
 
 open Rocksmith2014.XML
-open System.Runtime.CompilerServices
-open System.Text.RegularExpressions
 open System
+open System.Runtime.CompilerServices
+open System.Text
+open System.Text.RegularExpressions
 
 let [<Literal>] LyricsCharset = """ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_abcdefghijklmnopqrstuvwxyz{|}~¡¢¥¦§¨ª«°²³´•¸¹º»¼½¾¿ÀÁÂÄÅÆÇÈÉÊËÌÎÏÑÒÓÔÖØÙÚÛÜÞßàáâäåæçèéêëìíîïñòóôöøùúûüŒœŠšž„…€™␀★➨"""
 
@@ -34,6 +35,7 @@ type IssueType =
     | FirstPhraseNotEmpty
     | NoEndPhrase
     | LyricWithInvalidChar of invalidChar : char
+    | LyricTooLong of lyric : string
     | InvalidShowlights
 
 type Issue = { Type : IssueType; TimeCode: int }
@@ -266,7 +268,7 @@ let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
         let chordTemplate = chordTemplates.[int handShape.ChordId]
 
         // Check only handshapes that do not use the 1st finger
-        if not (chordTemplate.Fingers |> Array.contains 1y) then
+        if not (chordTemplate.Fingers |> Array.contains 1y) && not <| isNull activeAnchor then
             let chordNotOk =
                 (chordTemplate.Frets, chordTemplate.Fingers)
                 ||> Array.exists2 (fun fret finger -> fret = activeAnchor.Fret && finger <> -1y)
@@ -387,8 +389,7 @@ let runAllChecks (arr: InstrumentalArrangement) =
     |> List.distinct
     |> List.sortBy (fun issue -> issue.TimeCode)
 
-/// Checks the vocals for characters not in the default font.
-let checkVocals (vocals: ResizeArray<Vocal>) =
+let private findInvalidCharLyric (vocals: ResizeArray<Vocal>) =
     vocals
     |> Seq.tryPick (fun vocal ->
         vocal.Lyric
@@ -396,6 +397,17 @@ let checkVocals (vocals: ResizeArray<Vocal>) =
         |> Option.map (fun i -> vocal, vocal.Lyric.[i]))
     |> Option.map (fun (invalidVocal, invalidChar) ->
         issue (LyricWithInvalidChar invalidChar) invalidVocal.Time)
+
+/// Checks the vocals for issues.
+let checkVocals hasCustomFont (vocals: ResizeArray<Vocal>) =
+    [ // Check for too long lyrics
+      yield! vocals
+             |> Seq.filter (fun vocal -> Encoding.UTF8.GetByteCount vocal.Lyric > 47)
+             |> Seq.map (fun vocal -> issue (LyricTooLong vocal.Lyric) vocal.Time)
+
+      // Check for characters not included in the default font
+      if not <| hasCustomFont then
+         yield! findInvalidCharLyric vocals |> Option.toList ]
 
 /// Checks that the show lights have at least one beam and one fog note.
 let checkShowlights (showLights: ResizeArray<ShowLight>) =
