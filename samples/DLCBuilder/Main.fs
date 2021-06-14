@@ -649,6 +649,7 @@ let update (msg: Msg) (state: State) =
                      OpenProjectFile = Some projectFile
                      RecentFiles = recent
                      Config = newConfig
+                     ArrangementIssues = Map.empty
                      SelectedArrangementIndex = -1
                      SelectedToneIndex = -1 },
         cmd
