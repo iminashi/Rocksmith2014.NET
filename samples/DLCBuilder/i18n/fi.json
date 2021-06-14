@@ -189,6 +189,8 @@
   "validate": "Validoi",
   "NoteInsideNoguitarSection": "Nuotti \"noguitar\"-osan sisällä",
   "NoteInsideNoguitarSectionHelp": "Osan, jonka nimi on \"noguitar\" sisällä ei pitäisi olla nuotteja.",
+  "ApplauseEventWithoutEnd": "Aploditapahtumalta puuttuu loppu",
+  "ApplauseEventWithoutEndHelp": "E3 ja D3 aploditapahtumia pitää seurata tapahtuma E13, joka päättää ne.",
   "EventBetweenIntroApplause": "Odottamaton tapahtuma ({0}) introaploditapahtumien välissä",
   "EventBetweenIntroApplauseHelp": "Yleisön nopeuden asettavat tapahtumat (e0, e1, e2) eivät toimi oikein E3 ja E13 tapahtumien välissä.",
   "NoteLinkedToChord": "Nuotti linkitetty sointuun",

@@ -189,6 +189,8 @@
   "validate": "Validate",
   "NoteInsideNoguitarSection": "Note inside a noguitar section",
   "NoteInsideNoguitarSectionHelp": "There is a note or a chord inside a section named \"noguitar\".",
+  "ApplauseEventWithoutEnd": "An applause event is missing the event that ends it",
+  "ApplauseEventWithoutEndHelp": "The E3 and D3 applause events need to be followed by the event E13 that ends them.",
   "EventBetweenIntroApplause": "Unexpected event ({0}) between intro applause events",
   "EventBetweenIntroApplauseHelp": "Crowd speed events (e0, e1, e2) do not work correctly when placed between the E3 and E13 events.",
   "NoteLinkedToChord": "Note linked to a chord",

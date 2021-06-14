@@ -2,6 +2,8 @@
 
 - The program will no longer create packages that crash the game if there are lyrics that are too long for the binary format used by the game.
 - Fixed a bug in the showlight generator that caused it to create duplicates.
+- Fixed import of PSARC files where the main audio is also used for the preview.
+- Added missing localization string.
 
 ## 0.3.0 (Released 2021-06-13)
 

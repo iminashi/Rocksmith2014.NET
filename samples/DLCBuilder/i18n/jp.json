@@ -189,6 +189,8 @@
   "validate": "検証",
   "NoteInsideNoguitarSection": "NOGUITARセクション内ノート",
   "NoteInsideNoguitarSectionHelp": "NOGUITARというセクションなのに、中にはノートもしくはコードがあります。",
+  "ApplauseEventWithoutEnd": "拍手イベントの後に拍手終了イベントがない",
+  "ApplauseEventWithoutEndHelp": "E3とD3拍手イベントを終わらせるにはE13イベントが必要。",
   "EventBetweenIntroApplause": "拍手イベントの間には予期しないイベント({0})がある",
   "EventBetweenIntroApplauseHelp": "観客速度イベント(e0, e1, e2)がE3とE13イベントの間に入っていると正しく作動しません。",
   "NoteLinkedToChord": "コードにリンクされたノート",
