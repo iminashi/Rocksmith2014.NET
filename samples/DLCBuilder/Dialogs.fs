@@ -114,11 +114,8 @@ let private openMultiFileDialog title filters directory msg = async {
             (createOpenFileDialog title filters directory true).ShowAsync window.Value)
 
     return
-        match result with
-        | null | [||] ->
-            None
-        | files ->
-            msg files |> Some }
+        Option.ofArray result
+        |> Option.map msg }
 
 let private translateTitle dialogType =
     let locString =

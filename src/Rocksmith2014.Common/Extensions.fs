@@ -52,6 +52,9 @@ module Option =
     /// Creates an option from a string, where a null or whitespace string equals None.
     let ofString s = if String.IsNullOrWhiteSpace s then None else Some s
 
+    /// Creates an option from an array, where null or an empty array equals None.
+    let ofArray a = match a with null | [||] -> None | _ -> Some a
+
 [<RequireQualifiedAccess>]
 module String =
     /// Returns true if the string is not null or whitespace.

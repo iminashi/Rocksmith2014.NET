@@ -119,12 +119,11 @@ let checkArrangements (project: DLCProject) (progress: IProgress<float>) =
 /// Adds descriptors to tones that have none.
 let addDescriptors (tone: Tone) =
     let descs =
-        match tone.ToneDescriptors with
-        | null | [||] ->
+        tone.ToneDescriptors
+        |> Option.ofArray
+        |> Option.defaultWith (fun () ->
             ToneDescriptor.getDescriptionsOrDefault tone.Name
-            |> Array.map (fun x -> x.UIName)
-        | descriptors ->
-            descriptors
+            |> Array.map (fun x -> x.UIName))
 
     { tone with ToneDescriptors = descs; SortOrder = None; NameSeparator = " - " }
 
