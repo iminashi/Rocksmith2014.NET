@@ -181,6 +181,7 @@ let view state dispatch (i: Instrumental) =
                 Grid.row 6
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
                 TextBox.text i.BaseTone
+                TextBox.hasErrors (String.IsNullOrWhiteSpace i.BaseTone)
                 TextBox.onTextChanged (StringValidator.toneName >> SetBaseTone >> EditInstrumental >> dispatch)
             ]
 

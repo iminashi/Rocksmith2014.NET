@@ -307,6 +307,7 @@
   "deleteConfirmation": "{0} files will be deleted. Are you sure?",
   "pitchShifterExplanation": "You can create a version with the tuning changed using an effect pedal.",
   "shiftTuningBy": "Shift tuning by (half steps):",
+  "emptyBaseTone": "The base tone key for the arrangement has not been entered.",
   "missingDefinitions": "Following tones are missing definitions:\n\n{0}",
   "PsarcUnpack": "Unpacking PSARC...",
   "WemToOggConversion": "Converting to ogg format....",

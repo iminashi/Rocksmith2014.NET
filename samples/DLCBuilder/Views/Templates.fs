@@ -175,6 +175,13 @@ let arrangement state dispatch index arr =
         | _ ->
             List.empty
 
+    let isEmptyBaseToneKey =
+        match arr with
+        | Instrumental inst when String.IsNullOrWhiteSpace inst.BaseTone ->
+            true
+        | _ ->
+            false
+
     DockPanel.create [
         DockPanel.classes [ "list-item"; if state.SelectedArrangementIndex = index then "selected" ]
         DockPanel.onPointerPressed ((fun ev ->
@@ -182,7 +189,9 @@ let arrangement state dispatch index arr =
             index |> SetSelectedArrangementIndex |> dispatch),
             SubPatchOptions.OnChangeOf index)
         DockPanel.contextMenu (Menus.Context.arrangement state dispatch)
-        if missingTones.Length <> 0 then
+        if isEmptyBaseToneKey then
+            ToolTip.tip (translate "emptyBaseTone")
+        elif missingTones.Length <> 0 then
             translatef "missingDefinitions" [| String.Join(", ", missingTones) |]
             |> ToolTip.tip
         DockPanel.children [

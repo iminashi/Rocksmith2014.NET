@@ -307,6 +307,7 @@
   "deleteConfirmation": "{0}個のファイルが削除されます。よろしいですか？",
   "pitchShifterExplanation": "ピッチシフターエフェクトでチューニングを変更されたバージョンが作れます。",
   "shiftTuningBy": "チューニングの変更(半音):",
+  "emptyBaseTone": "アレンジの基礎トーンキーが欠けている。",
   "missingDefinitions": "次のトーンの定義が欠けている:\n\n{0}",
   "PsarcUnpack": "PSARCファイル解凍中...",
   "WemToOggConversion": "OGGフォーマットに変換中...",

@@ -307,6 +307,7 @@
   "deleteConfirmation": "{0} tiedostoa poistetaan. Oletko varma?",
   "pitchShifterExplanation": "Voit luoda version, jossa viritys on muutettu efektipedaalin avulla.",
   "shiftTuningBy": "Muunna viritystä (puolisävelaskel):",
+  "emptyBaseTone": "Sovitukselta puuttuu perus-soundin avain.",
   "missingDefinitions": "Seuraavilta soundeilta puuttuu määritelmät:\n\n{0}",
   "PsarcUnpack": "Puretaan PSARC pakettia...",
   "WemToOggConversion": "Muunnetaan ogg muotoon...",
