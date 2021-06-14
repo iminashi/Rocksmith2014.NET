@@ -71,15 +71,13 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
     let previewAudio = targetAudioFiles |> Array.find (fun audio -> String.endsWith $"{dlcKey}_preview.wem" audio.Path)
 
     // Extract audio files
-    do! psarcContents
-        |> filterFilesWithExtension "wem"
-        |> List.map (fun pathInPsarc ->
-            let targetAudioFile =
-                targetAudioFilesById
-                |> Array.find (fun (id, _) -> String.contains id pathInPsarc)
-                |> snd
-
-            psarc.InflateFile(pathInPsarc, targetAudioFile.Path))
+    do! targetAudioFilesById
+        |> Array.map (fun (id, targetFile) -> async {
+            match psarcContents |> List.tryFind (String.contains id) with
+            | Some psarcPath ->
+                do! psarc.InflateFile(psarcPath, targetFile.Path)
+            | None ->
+                () })
         |> Async.Sequential
         |> Async.Ignore
 
