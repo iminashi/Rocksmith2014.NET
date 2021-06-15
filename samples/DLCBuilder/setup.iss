@@ -43,9 +43,10 @@ Source: "FastTreeNative.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "LdaNative.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "libHarfBuzzSharp.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "libSkiaSharp.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "Magick.Native-Q8-x64.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "MLModel.zip"; DestDir: "{app}"; Flags: ignoreversion
 Source: "ReadMe.html"; DestDir: "{app}"; Flags: ignoreversion isreadme
-Source: "Tools\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "Tools\*"; DestDir: "{app}\Tools"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]
