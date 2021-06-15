@@ -223,8 +223,12 @@ let convertNote (noteTimes: int[])
 
                 let bendValues =
                     match note.BendValues with
-                    | null -> Array.empty
-                    | bendValues -> bendValues |> mapToArray convertBendValue
+                    | null ->
+                        Array.empty
+                    | bendValues ->
+                        // More than 32 bend values will crash the game
+                        bendValues
+                        |> mapToArrayMaxSize 32 convertBendValue
 
                 // Using TryAdd because of possible link next errors in CDLC
                 if note.IsLinkNext then pendingLinkNexts.TryAdd(note.String, this) |> ignore

@@ -36,6 +36,10 @@ let mapToResizeArray map (array: 'a array) =
 let mapToArray map (resizeArray: ResizeArray<_>) =
     Array.init resizeArray.Count (fun i -> map resizeArray.[i])
 
+/// Maps a ResizeArray into an array using the given map function, specifying a maximum size.
+let mapToArrayMaxSize maxSize map (resizeArray: ResizeArray<_>) =
+    Array.init (min resizeArray.Count maxSize) (fun i -> map resizeArray.[i])
+
 /// Maps a ResizeArray into an array using the given map function, with index.
 let mapiToArray map (resizeArray: ResizeArray<_>) =
     Array.init resizeArray.Count (fun i -> map i resizeArray.[i])
