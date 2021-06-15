@@ -197,7 +197,10 @@ let private setupInstrumental part (inst: Instrumental) config =
         ArrangementImprover.applyMinimum xml
 
     if xml.Levels.Count = 1 && config.GenerateDD then
-        Generator.generateForArrangement config.DDConfig xml |> ignore
+        try
+            Generator.generateForArrangement config.DDConfig xml |> ignore
+        with e ->
+            raise <| Exception($"Error generating DD:\n{e.Message}", e)
 
     if config.SaveDebugFiles then
         xml.Save(Path.ChangeExtension(inst.XML, "debug.xml"))
@@ -246,20 +249,25 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
     let sngs =
         project.Arrangements
         |> List.choose (fun arr ->
-            match arr with
-            | Instrumental inst ->
-                let part = partition arr |> fst
-                let sng =
-                    setupInstrumental part inst config
-                    |> ConvertInstrumental.xmlToSng
-                Some(arr, sng)
-            | Vocals v ->
-                let dlcKey = project.DLCKey.ToLowerInvariant()
-                let sng =
-                    Vocals.Load v.XML
-                    |> ConvertVocals.xmlToSng (getFontOption dlcKey v.CustomFont)
-                Some(arr, sng)
-            | Showlights _ -> None)
+            try
+                match arr with
+                | Instrumental inst ->
+                    let part = partition arr |> fst
+                    let sng =
+                        setupInstrumental part inst config
+                        |> ConvertInstrumental.xmlToSng
+                    Some(arr, sng)
+                | Vocals v ->
+                    let dlcKey = project.DLCKey.ToLowerInvariant()
+                    let sng =
+                        Vocals.Load v.XML
+                        |> ConvertVocals.xmlToSng (getFontOption dlcKey v.CustomFont)
+                    Some(arr, sng)
+                | Showlights _ ->
+                    None
+            with e ->
+                let failedFile = Arrangement.getFile arr |> Path.GetFileName
+                raise <| Exception($"Converting file {failedFile} failed.\n\n{e.Message}", e))
 
     progress()
 

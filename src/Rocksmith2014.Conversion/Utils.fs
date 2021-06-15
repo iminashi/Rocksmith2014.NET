@@ -68,7 +68,7 @@ let findSectionId time (sections: ResizeArray<XML.Section>) =
 let findAnchor time (anchors: ResizeArray<XML.Anchor>) =
     let rec find index =
         if index < 0 then
-            failwith "No anchor found for note."
+            failwithf "No anchor found for note at time %.3f." (msToSec time)
         elif anchors.[index].Time <= time then
             anchors.[index]
         else
