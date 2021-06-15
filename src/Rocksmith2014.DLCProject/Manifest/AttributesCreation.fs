@@ -111,7 +111,7 @@ let private convertChordTemplates (sng: SNG) = [|
 /// Returns a matching UI name for a section name.
 let private getSectionUIName (name: string) =
     // Official files may have names like "riff 1" or "solo7"
-    match name |> String.filter Char.IsLetter with
+    match name.ToLowerInvariant() |> String.filter Char.IsLetter with
     | "fadein"     -> "$[34276] Fade In [1]"
     | "fadeout"    -> "$[34277] Fade Out [1]"
     | "buildup"    -> "$[34278] Buildup [1]"
