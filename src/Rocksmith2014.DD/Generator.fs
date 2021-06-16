@@ -163,22 +163,20 @@ let generateForArrangement (config: GeneratorConfig) (arr: InstrumentalArrangeme
 
     let maxDiff =
         levels
-        |> Array.maxBy (fun l -> l.Length)
-        |> fun l -> l.Length
+        |> Array.map (fun l -> l.Length)
+        |> Array.max
 
     // Combine the data in the levels
     let combinedLevels =
         Seq.init maxDiff (fun diff -> 
             let level = Level(sbyte diff)
             levels
-            |> Array.iter
-                (fun lvl ->
-                    if diff < lvl.Length then
-                        level.Anchors.AddRange(lvl.[diff].Anchors)
-                        level.Notes.AddRange(lvl.[diff].Notes)
-                        level.HandShapes.AddRange(lvl.[diff].HandShapes)
-                        level.Chords.AddRange(lvl.[diff].Chords)
-                )
+            |> Array.iter (fun lvl ->
+                if diff < lvl.Length then
+                    level.Anchors.AddRange(lvl.[diff].Anchors)
+                    level.Notes.AddRange(lvl.[diff].Notes)
+                    level.HandShapes.AddRange(lvl.[diff].HandShapes)
+                    level.Chords.AddRange(lvl.[diff].Chords))
             level
         )
 

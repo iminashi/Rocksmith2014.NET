@@ -46,34 +46,36 @@ type Game =
 let create (platform: Platform) (project: DLCProject) =
     let dlcName = project.DLCKey.ToLowerInvariant()
     let partition = Partitioner.create project
+    let prop name value = Property.Create(name, value)
 
     { EntitySet =
         project.Arrangements
         |> List.choose (function
-            | Showlights _ -> None
+            | Showlights _ ->
+                None
             | arr ->
                 let fileName = partition arr |> snd
 
                 let properties = [|
                     match platform with
-                    | PC | Mac -> Property.Create("Header", $"urn:database:hsan-db:songs_dlc_{dlcName}")
-                    Property.Create("Manifest", $"urn:database:json-db:{dlcName}_{fileName}")
-                    Property.Create("SngAsset", $"urn:application:musicgame-song:{dlcName}_{fileName}")
-                    Property.Create("AlbumArtSmall", $"urn:image:dds:album_{dlcName}_64")
-                    Property.Create("AlbumArtMedium", $"urn:image:dds:album_{dlcName}_128")
-                    Property.Create("AlbumArtLarge", $"urn:image:dds:album_{dlcName}_256")
+                    | PC | Mac -> prop "Header" $"urn:database:hsan-db:songs_dlc_{dlcName}"
+                    prop "Manifest" $"urn:database:json-db:{dlcName}_{fileName}"
+                    prop "SngAsset" $"urn:application:musicgame-song:{dlcName}_{fileName}"
+                    prop "AlbumArtSmall" $"urn:image:dds:album_{dlcName}_64"
+                    prop "AlbumArtMedium" $"urn:image:dds:album_{dlcName}_128"
+                    prop "AlbumArtLarge" $"urn:image:dds:album_{dlcName}_256"
                     let lyricArt = 
                         match arr with
                         | Vocals { CustomFont = Some _ } -> $"urn:image:dds:lyrics_{dlcName}"
                         | _ -> String.Empty
-                    Property.Create("LyricArt", lyricArt)
-                    Property.Create("ShowLightsXMLAsset", $"urn:application:xml:{dlcName}_showlights")
+                    prop "LyricArt" lyricArt
+                    prop "ShowLightsXMLAsset" $"urn:application:xml:{dlcName}_showlights"
                     let soundBank =
                         match arr with
                         | Instrumental { CustomAudio = Some _ } -> $"urn:audio:wwise-sound-bank:song_{dlcName}_{fileName}"
                         | _ -> $"urn:audio:wwise-sound-bank:song_{dlcName}"
-                    Property.Create("SoundBank", soundBank)
-                    Property.Create("PreviewSoundBank", $"urn:audio:wwise-sound-bank:song_{dlcName}_preview") |]
+                    prop "SoundBank" soundBank
+                    prop "PreviewSoundBank" $"urn:audio:wwise-sound-bank:song_{dlcName}_preview" |]
 
                 { Id = (Arrangement.getPersistentId arr).ToString("N")
                   ModelName = "RSEnumerable_Song"

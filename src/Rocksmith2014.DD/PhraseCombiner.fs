@@ -6,7 +6,7 @@ open Rocksmith2014.XML
 open DataExtractor
 open Comparers
 
-type private CombinationData = { MainId: int; Ids: int array; SameDifficulty: bool }
+type private CombinationData = { MainId: int; Ids: int array; IsSameDifficulty: bool }
 
 let private isEmpty (phrase: PhraseData) = phrase.NoteCount = 0 && phrase.ChordCount = 0
 
@@ -52,7 +52,8 @@ let private findSamePhrases threshold (levelCounts: int array) (iterationData: P
                 else
                     None)
             |> function
-            | [||] -> None
+            | [||] ->
+                None
             | ids ->
                 // Save the IDs that were matched
                 matchedPhrases.UnionWith ids
@@ -63,7 +64,7 @@ let private findSamePhrases threshold (levelCounts: int array) (iterationData: P
                     |> Array.map (fun id -> levelCounts.[id])
                     |> Utils.allSame
 
-                Some { MainId = mainId; Ids = ids; SameDifficulty = isSameDifficulty })
+                Some { MainId = mainId; Ids = ids; IsSameDifficulty = isSameDifficulty })
     |> Array.choose id
 
 let private findEmptyPhrases (iterationData: PhraseData array) =
@@ -73,7 +74,7 @@ let private findEmptyPhrases (iterationData: PhraseData array) =
         |> Array.choose id
 
     if emptyIds.Length > 1 then
-        Array.singleton { MainId = emptyIds.[0]; Ids = emptyIds.[1..]; SameDifficulty = true }
+        Array.singleton { MainId = emptyIds.[0]; Ids = emptyIds.[1..]; IsSameDifficulty = true }
     else
         Array.empty
 
@@ -87,11 +88,11 @@ let combineSamePhrases (config: GeneratorConfig)
             findEmptyPhrases iterationData, Array.empty
         | WithThreshold threshold ->
             findSamePhrases threshold levelCounts iterationData
-            |> Array.partition (fun x -> x.SameDifficulty)
+            |> Array.partition (fun x -> x.IsSameDifficulty)
 
     // Create a mapping to the new phrase IDs after phrases with the same content have been combined
     let newPhraseIds =
-        let mutable phraseId = 0
+        let mutable phraseId = -1
         let idMap = Dictionary<int, int>()
 
         Array.init iterations.Length (fun id ->
@@ -101,12 +102,12 @@ let combineSamePhrases (config: GeneratorConfig)
                 | true, value ->
                     value
                 | false, _ ->
-                    idMap.Add(data.MainId, phraseId)
                     phraseId <- phraseId + 1
-                    phraseId - 1
+                    idMap.Add(data.MainId, phraseId)
+                    phraseId
             | None ->
                 phraseId <- phraseId + 1
-                phraseId - 1)
+                phraseId)
 
     // Create phrase iterations
     let newPhraseIterations =
@@ -144,11 +145,13 @@ let combineSamePhrases (config: GeneratorConfig)
                 None
             else
                 let maxDiff = pi.HeroLevels.Hard
-
                 let name =
-                    if pi.PhraseId = firstId then "COUNT"
-                    elif pi.PhraseId = lastId then "END"
-                    elif maxDiff = 0uy then "NOGUITAR"
+                    if pi.PhraseId = firstId then
+                        "COUNT"
+                    elif pi.PhraseId = lastId then
+                        "END"
+                    elif maxDiff = 0uy then
+                        "NOGUITAR"
                     else
                         counter <- counter + 1
                         $"p{counter}"
