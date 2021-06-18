@@ -93,8 +93,10 @@ let getSameElementCount eq elems1 elems2 =
 /// Calculates the similarity in percents between the two lists.
 let getSimilarityPercent eq l1 l2 =
     match l1, l2 with
-    | [], [] -> 100.
-    | [], _ | _, [] -> 0.
+    | [], [] ->
+        100.
+    | [], _ | _, [] ->
+        0.
     | _ ->
         let sameCount = getSameElementCount eq l1 l2 |> float
         let maxCount = max l1.Length l2.Length |> float
@@ -103,8 +105,10 @@ let getSimilarityPercent eq l1 l2 =
 /// Calculates the maximum possible similarity in percents between two lists based on their lengths.
 let getMaxSimilarityFastest l1 l2 =
     match l1, l2 with
-    | [], [] -> 100.
-    | [], _ | _, [] -> 0.
+    | [], [] ->
+        100.
+    | [], _ | _, [] ->
+        0.
     | _ ->
         let maxLength = max l1.Length l2.Length
         let minLength = min l1.Length l2.Length
@@ -119,8 +123,10 @@ let getMaxSimilarityFast projection l1 l2 =
     let createMap = (List.countBy projection) >> Map.ofList
 
     match l1, l2 with
-    | [], [] -> 100.
-    | [], _ | _, [] -> 0.
+    | [], [] ->
+        100.
+    | [], _ | _, [] ->
+        0.
     | _ ->
         let map1 = createMap l1
         let map2 = createMap l2
@@ -128,7 +134,7 @@ let getMaxSimilarityFast projection l1 l2 =
         let sameCount =
             (0, map1)
             ||> Map.fold (fun state key count1 ->
-                match map2 |> Map.tryFind key with
+                match map2.TryFind key with
                 | Some count2 ->
                     state + count1 + count2 - max count1 count2
                 | None ->

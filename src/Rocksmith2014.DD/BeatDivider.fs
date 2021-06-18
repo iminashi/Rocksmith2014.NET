@@ -39,18 +39,20 @@ let private getSubdivisionInsideMeasure phraseEndTime (beats: Ebeat list) (time:
 let private phraseDivisions = [| 0; 3; 2; 3; 1; 3; 2; 3; 4 |]
 
 let private getDivisionInPhrase startTime endTime time =
-    let dist = float <| endTime - startTime
-    let divisionLength = dist / 9.
-    let pos = float <| time - startTime
+    let distance = float <| endTime - startTime
+    let divisionLength = distance / float phraseDivisions.Length
+    let position = float <| time - startTime
 
-    let rec findDiv curr =
-        if pos >= divisionLength * float curr && pos < divisionLength * float (curr + 1) then
+    let rec findDivIndex curr =
+        let low = divisionLength * float curr
+        let high = divisionLength * float (curr + 1)
+        if position >= low && position < high then
             curr
         else
-            findDiv (curr + 1)
+            findDivIndex (curr + 1)
 
-    let div = findDiv 0
-    phraseDivisions.[div]
+    let divsionIndex = findDivIndex 0
+    phraseDivisions.[divsionIndex]
 
 let getDivision (phraseData: PhraseData) (time: int) (entity: XmlEntity) : BeatDivision =
     let { StartTime=phraseStartTime; EndTime=phraseEndTime; Beats=beats } = phraseData
@@ -97,8 +99,10 @@ let createDivisionMap (divisions: (int * BeatDivision) array) totalNotes =
     |> Seq.fold (fun acc (division, notes) ->
         let low =
             match List.tryHead acc with
-            | None -> 0.
-            | Some (_, range) -> range.High
+            | None ->
+                0.
+            | Some (_, range) ->
+                range.High
         let high = low + (float notes / float totalNotes)
 
         (division, { Low = low; High = high })::acc

@@ -2,6 +2,7 @@
 module internal Rocksmith2014.DD.Utils
 
 open Rocksmith2014.XML
+open System
 
 let getRange<'T when 'T :> IHasTimeCode> startTime endTime (s: ResizeArray<'T>) =
     s.FindAll(fun e -> e.Time >= startTime && e.Time < endTime)
@@ -9,7 +10,7 @@ let getRange<'T when 'T :> IHasTimeCode> startTime endTime (s: ResizeArray<'T>) 
 
 let getNoteCount (template: ChordTemplate) =
     template.Frets
-    |> Array.fold (fun acc elem -> if elem >= 0y then acc + 1 else acc) 0
+    |> Array.sumBy (fun fret -> Convert.ToInt32(fret >= 0y))
 
 let inline getTimeCode entity =
     match entity with

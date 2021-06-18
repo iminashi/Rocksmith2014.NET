@@ -17,8 +17,10 @@ let private isArpeggio (entities: XmlEntity array) (hs: HandShape) =
     let handShapeNotes =
         entities
         |> Array.choose (function
-            | XmlNote n when isInsideHandShape hs n.Time -> Some n
-            | _ -> None)
+            | XmlNote n when isInsideHandShape hs n.Time ->
+                Some n
+            | _ ->
+                None)
 
     match handShapeNotes with
     | [||] ->
@@ -52,5 +54,8 @@ let choose (diffPercent: float)
             Some (hs, None)
         else
             let copy = HandShape(hs)
-            Some (copy, Some { OriginalId = hs.ChordId; NoteCount = byte allowedNotes; Target = HandShapeTarget copy })
+            let request = { OriginalId = hs.ChordId
+                            NoteCount = byte allowedNotes
+                            Target = HandShapeTarget copy }
+            Some (copy, Some request)
     )

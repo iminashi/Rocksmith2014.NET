@@ -27,11 +27,15 @@ let private getSimilarity threshold (phrase1: PhraseData) (phrase2: PhraseData) 
         let simFastest = calculateSimilarity getMaxSimilarityFastest getMaxSimilarityFastest phrase1 phrase2
 
         let simFast =
-            if simFastest < threshold then 0
-            else calculateSimilarity (getMaxSimilarityFast noteProjection) (getMaxSimilarityFast chordProjection) phrase1 phrase2
+            if simFastest < threshold then
+                0
+            else
+                calculateSimilarity (getMaxSimilarityFast noteProjection) (getMaxSimilarityFast chordProjection) phrase1 phrase2
 
-        if simFast < threshold then 0
-        else calculateSimilarity (getSimilarityPercent sameNote) (getSimilarityPercent sameChord) phrase1 phrase2
+        if simFast < threshold then
+            0
+        else
+            calculateSimilarity (getSimilarityPercent sameNote) (getSimilarityPercent sameChord) phrase1 phrase2
 
 let private findSamePhrases threshold (levelCounts: int array) (iterationData: PhraseData array) =
     // Ignore the first and last phrases (COUNT, END)

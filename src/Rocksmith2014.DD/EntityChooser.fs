@@ -114,7 +114,8 @@ let private isFirstChordInHs (entities: XmlEntity list) (handShapes: HandShape l
         let prevChord =
             entities
             |> List.tryFind (function
-                | XmlNote _ -> false
+                | XmlNote _ ->
+                    false
                 | XmlChord c ->
                     c.HasChordNotes
                     && c.ChordId = chord.ChordId
@@ -152,7 +153,7 @@ let private noteFromChord (diffPercent: float)
         n
     else
         // Create the note from the chord template
-        let string = template.Frets |> Array.findIndex (fun x -> x <> -1y)
+        let string = template.Frets |> Array.findIndex ((<>) -1y)
         Note(Time = chord.Time,
              String = sbyte string,
              Fret = template.Frets.[string],
@@ -187,13 +188,12 @@ let choose (diffPercent: float)
         let division = noteTimeToDivision.[getTimeCode e]
         let range = divisionMap.[division]
 
-        /// Always include notes without techniques that are linked into
         let includeAlways =
-            // TODO: Always include notes at the same time code when link next is used?
             match e with
             | XmlChord _ ->
                 false
             | XmlNote n ->
+                // Always include notes without techniques that are linked into
                 n.Mask &&& (~~~ (NoteMask.Ignore ||| NoteMask.LinkNext)) = NoteMask.None
                 && pendingLinkNexts.ContainsKey n.String
                 && not (n.IsSlide || n.IsUnpitchedSlide || n.IsBend || n.IsVibrato)
