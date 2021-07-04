@@ -32,4 +32,8 @@
     <ProjectReference Include="..\..\src\Rocksmith2014.PSARC\Rocksmith2014.PSARC.fsproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="5.0.2" />
+  </ItemGroup>
+
 </Project>

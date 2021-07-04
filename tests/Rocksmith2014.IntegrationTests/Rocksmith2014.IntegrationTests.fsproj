@@ -65,4 +65,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Rocksmith2014.DLCProject\Rocksmith2014.DLCProject.fsproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="5.0.2" />
+  </ItemGroup>
 </Project>
