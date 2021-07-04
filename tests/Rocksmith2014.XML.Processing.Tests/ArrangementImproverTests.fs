@@ -130,9 +130,32 @@ let eofFixTests =
             let levels = ResizeArray(seq { Level(Chords = chords) })
             let arr = InstrumentalArrangement(Levels = levels)
 
-            EOFFixes.fixChordLinkNext arr
+            EOFFixes.addMissingChordLinkNext arr
 
             Expect.isTrue chord.IsLinkNext "LinkNext was enabled"
+
+        testCase "Removes incorrect chord note linknexts" <| fun _ ->
+            let cn = ResizeArray(seq { Note(IsLinkNext = true) })
+            let chords = ResizeArray(seq { Chord(ChordNotes = cn, IsLinkNext = true) })
+            let levels = ResizeArray(seq { Level(Chords = chords) })
+            let arr = InstrumentalArrangement(Levels = levels)
+
+            EOFFixes.removeInvalidChordNoteLinkNexts arr
+
+            Expect.isFalse cn.[0].IsLinkNext "LinkNext was removed from chord note"
+
+        testCase "Chord note linknext is not removed when there is 1ms gap" <| fun _ ->
+            let cn = ResizeArray(seq { Note(String = 0y, Sustain = 499, IsLinkNext = true)
+                                       Note(String = 1y, Sustain = 499, IsLinkNext = true) })
+            let chords = ResizeArray(seq { Chord(ChordNotes = cn, IsLinkNext = true) })
+            let notes = ResizeArray(seq { Note(String = 0y, Time = 500) })
+            let levels = ResizeArray(seq { Level(Chords = chords, Notes = notes) })
+            let arr = InstrumentalArrangement(Levels = levels)
+
+            EOFFixes.removeInvalidChordNoteLinkNexts arr
+
+            Expect.isTrue cn.[0].IsLinkNext "First chord note has LinkNext"
+            Expect.isFalse cn.[1].IsLinkNext "Second chord note does not have LinkNext"
 
         testCase "Fixes incorrect crowd events" <| fun _ ->
             let events = ResizeArray(seq { Event("E0", 100); Event("E1", 200); Event("E2", 300) })

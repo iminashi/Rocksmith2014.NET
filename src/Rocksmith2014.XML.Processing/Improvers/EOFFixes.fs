@@ -4,7 +4,7 @@ open Rocksmith2014.XML
 open System.Text.RegularExpressions
 
 /// Adds linknext to chords that have linknext chord notes, but are missing the attribute.
-let fixChordLinkNext (arrangement: InstrumentalArrangement) =
+let addMissingChordLinkNext (arrangement: InstrumentalArrangement) =
     arrangement.Levels
     |> Seq.collect (fun l -> l.Chords)
     |> Seq.filter (fun chord ->
@@ -12,6 +12,27 @@ let fixChordLinkNext (arrangement: InstrumentalArrangement) =
         && not chord.IsLinkNext
         && chord.ChordNotes.Exists(fun cn -> cn.IsLinkNext))
     |> Seq.iter (fun chord -> chord.IsLinkNext <- true)
+
+/// Removes linknext from chord notes that are not immediately followed by a note on the same string.
+let removeInvalidChordNoteLinkNexts (arrangement: InstrumentalArrangement) =
+    arrangement.Levels
+    |> Seq.iter (fun level ->
+        level.Chords
+        |> Seq.filter (fun x -> x.IsLinkNext)
+        |> Seq.iter (fun chord ->
+            chord.ChordNotes
+            |> Seq.iter (fun cn ->
+                if cn.IsLinkNext then
+                    match level.Notes.Find(fun n -> n.Time > cn.Time && n.String = cn.String) with
+                    | null ->
+                        cn.IsLinkNext <- false
+                    | note when note.Time - cn.Time - cn.Sustain > 2 ->
+                        cn.IsLinkNext <- false
+                    | _ ->
+                        ()
+            )
+        )
+    )
 
 /// Fixes incorrect crowd events: E0, E1, E2.
 let fixCrowdEvents (arrangement: InstrumentalArrangement) =
@@ -47,6 +68,7 @@ let fixPhraseStartAnchors (arrangement: InstrumentalArrangement) =
 /// Applies all the fixes.
 let fixAll arrangement =
     fixCrowdEvents arrangement
-    fixChordLinkNext arrangement
+    addMissingChordLinkNext arrangement
+    removeInvalidChordNoteLinkNexts arrangement
     fixChordSlideHandshapes arrangement
     fixPhraseStartAnchors arrangement
