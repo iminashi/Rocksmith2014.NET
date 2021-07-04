@@ -18,7 +18,7 @@ let removeInvalidChordNoteLinkNexts (arrangement: InstrumentalArrangement) =
     arrangement.Levels
     |> Seq.iter (fun level ->
         level.Chords
-        |> Seq.filter (fun x -> x.IsLinkNext)
+        |> Seq.filter (fun x -> x.IsLinkNext && x.HasChordNotes)
         |> Seq.iter (fun chord ->
             chord.ChordNotes
             |> Seq.iter (fun cn ->
