@@ -12,6 +12,8 @@ open DLCBuilder
 
 let private createDescriptors dispatch (tone: Tone) =
     UniformGrid.create [
+        Grid.column 1
+        Grid.row 2
         UniformGrid.columns tone.ToneDescriptors.Length
         UniformGrid.children [
             for i = 0 to tone.ToneDescriptors.Length - 1 do
@@ -102,18 +104,17 @@ let view state dispatch (tone: Tone) =
             ]
 
             // Descriptors
-            locText "description" [
-                Grid.row 2
-                TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.horizontalAlignment HorizontalAlignment.Center
-            ]
             StackPanel.create [
-                Grid.column 1
                 Grid.row 2
                 StackPanel.children [
-                    createDescriptors dispatch tone
+                    locText "description" [
+                        TextBlock.verticalAlignment VerticalAlignment.Center
+                        TextBlock.horizontalAlignment HorizontalAlignment.Center
+                    ]
+
                     StackPanel.create [
                         StackPanel.orientation Orientation.Horizontal
+                        StackPanel.horizontalAlignment HorizontalAlignment.Center
                         StackPanel.children [
                             // Add description part
                             Button.create [
@@ -135,6 +136,7 @@ let view state dispatch (tone: Tone) =
                     ]
                 ]
             ]
+            createDescriptors dispatch tone
 
             // Volume
             locText "volume" [
@@ -162,6 +164,7 @@ let view state dispatch (tone: Tone) =
                 Grid.columnSpan 2
                 Grid.columnDefinitions "*, *"
                 Grid.children [
+                    // Edit Button
                     Button.create [
                         Button.content (translate "edit")
                         Button.onClick (fun _ -> ShowToneEditor |> dispatch)
@@ -169,6 +172,7 @@ let view state dispatch (tone: Tone) =
                         Button.padding (8., 4.)
                     ]
 
+                    // Export Button
                     Button.create [
                         Grid.column 1
                         Button.content (translate "export")
