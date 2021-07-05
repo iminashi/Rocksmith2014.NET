@@ -228,7 +228,11 @@ let editTone state edit index =
             { tone with Name = name }
 
         | SetKey key ->
-            { tone with Key = key }
+            // When the name field is hidden, keep the key in sync with the name
+            if not state.Config.ShowAdvanced && key <> String.Empty then
+                { tone with Key = key; Name = key }
+            else
+                { tone with Key = key }
 
         | SetVolume volume ->
             { tone with Volume = volume }

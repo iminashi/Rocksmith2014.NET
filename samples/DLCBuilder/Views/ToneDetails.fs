@@ -21,9 +21,12 @@ let private createDescriptors dispatch (tone: Tone) =
                     ComboBox.itemTemplate Templates.toneDescriptor
                     ComboBox.selectedItem (ToneDescriptor.uiNameToDesc.[tone.ToneDescriptors.[i]])
                     ComboBox.onSelectedItemChanged (function
-                        | :? ToneDescriptor as td -> ChangeDescriptor(i, td) |> EditTone |> dispatch
-                        | _ -> ()
-                    )
+                        | :? ToneDescriptor as td -> 
+                            ChangeDescriptor(i, td)
+                            |> EditTone
+                            |> dispatch
+                        | _ ->
+                            ())
                     ToolTip.tip (translate "toneDescriptorToolTip")
                 ]
         ]
@@ -33,8 +36,10 @@ let view state dispatch (tone: Tone) =
     let keys =
         state.Project.Arrangements
         |> List.collect (function
-              | Instrumental i -> i.BaseTone::i.Tones
-              | _ -> List.empty)
+            | Instrumental i ->
+                i.BaseTone::i.Tones
+            | _ ->
+                List.empty)
         |> List.distinct
 
     Grid.create [
@@ -67,7 +72,7 @@ let view state dispatch (tone: Tone) =
                         ComboBox.dataItems keys
                         ComboBox.selectedItem tone.Key
                         ComboBox.onSelectedItemChanged (function
-                            | :? string as key -> key |> (SetKey >> EditTone >> dispatch)
+                            | :? string as key -> key |> SetKey |> EditTone |> dispatch
                             | _ -> ()
                         )
                     ]
@@ -77,6 +82,7 @@ let view state dispatch (tone: Tone) =
             // Name
             locText "name" [
                 Grid.row 1
+                TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
@@ -84,8 +90,14 @@ let view state dispatch (tone: Tone) =
                 Grid.row 1
                 Grid.column 1
                 TextBox.text tone.Name
+                TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.onTextInput (fun arg -> arg.Text <- StringValidator.toneName arg.Text)
-                TextBox.onTextChanged (StringValidator.toneName >> SetName >> EditTone >> dispatch)
+                TextBox.onLostFocus (fun arg ->
+                    (arg.Source :?> TextBox).Text
+                    |> StringValidator.toneName
+                    |> SetName
+                    |> EditTone
+                    |> dispatch)
                 ToolTip.tip (translate "toneNameToolTip")
             ]
 
