@@ -2,11 +2,11 @@
 
 open System
 open System.IO
-open System.Xml.Serialization
-open System.Xml
 open System.Text
-open Rocksmith2014.DLCProject
+open System.Xml
+open System.Xml.Serialization
 open Rocksmith2014.Common
+open Rocksmith2014.DLCProject
 
 [<XmlRoot("set"); CLIMutable>]
 type Set =
@@ -55,6 +55,19 @@ let create (platform: Platform) (project: DLCProject) =
                 None
             | arr ->
                 let fileName = partition arr |> snd
+                let lyricArt = 
+                    match arr with
+                    | Vocals { CustomFont = Some _ } ->
+                        $"urn:image:dds:lyrics_{dlcName}"
+                    | _ ->
+                        String.Empty
+
+                let soundBank =
+                    match arr with
+                    | Instrumental { CustomAudio = Some _ } ->
+                        $"urn:audio:wwise-sound-bank:song_{dlcName}_{fileName}"
+                    | _ ->
+                        $"urn:audio:wwise-sound-bank:song_{dlcName}"
 
                 let properties = [|
                     match platform with
@@ -64,16 +77,8 @@ let create (platform: Platform) (project: DLCProject) =
                     prop "AlbumArtSmall" $"urn:image:dds:album_{dlcName}_64"
                     prop "AlbumArtMedium" $"urn:image:dds:album_{dlcName}_128"
                     prop "AlbumArtLarge" $"urn:image:dds:album_{dlcName}_256"
-                    let lyricArt = 
-                        match arr with
-                        | Vocals { CustomFont = Some _ } -> $"urn:image:dds:lyrics_{dlcName}"
-                        | _ -> String.Empty
                     prop "LyricArt" lyricArt
                     prop "ShowLightsXMLAsset" $"urn:application:xml:{dlcName}_showlights"
-                    let soundBank =
-                        match arr with
-                        | Instrumental { CustomAudio = Some _ } -> $"urn:audio:wwise-sound-bank:song_{dlcName}_{fileName}"
-                        | _ -> $"urn:audio:wwise-sound-bank:song_{dlcName}"
                     prop "SoundBank" soundBank
                     prop "PreviewSoundBank" $"urn:audio:wwise-sound-bank:song_{dlcName}_preview" |]
 

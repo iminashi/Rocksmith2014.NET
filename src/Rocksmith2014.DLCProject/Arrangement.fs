@@ -4,8 +4,8 @@ open System
 open System.IO
 open System.Text.RegularExpressions
 open System.Xml
-open Rocksmith2014.XML
 open Rocksmith2014.Common
+open Rocksmith2014.XML
 
 type ArrangementName =
     | Lead = 0
@@ -75,26 +75,38 @@ module Arrangement =
     /// Returns the name of an arrangement.
     let getName (arr: Arrangement) isGeneric =
         match arr with
-        | Vocals v when v.Japanese && not isGeneric -> "JVocals"
-        | Vocals _ -> "Vocals"
-        | Showlights _ -> "Showlights"
-        | Instrumental i -> i.Name.ToString()
+        | Vocals { Japanese = true } when not isGeneric ->
+            "JVocals"
+        | Vocals _ ->
+            "Vocals"
+        | Showlights _ ->
+            "Showlights"
+        | Instrumental i ->
+            i.Name.ToString()
 
     /// Returns the localization string for the name and prefix of an arrangement.
     let getNameAndPrefix arr =
-        match arr with
-        | Instrumental inst ->
-            let prefix =
-                match inst.Priority with
-                | ArrangementPriority.Alternative -> "Alt"
-                | ArrangementPriority.Bonus -> "Bonus"
-                | _ -> String.Empty
+        let prefix =
+            match arr with
+            | Instrumental { Priority = ArrangementPriority.Alternative } ->
+                "Alt"
+            | Instrumental { Priority = ArrangementPriority.Bonus } ->
+                "Bonus"
+            | _ ->
+                String.Empty
 
-            $"{inst.RouteMask}Arr", prefix
+        let name =
+            match arr with
+            | Instrumental inst ->
+                $"{inst.RouteMask}Arr"
+            | Vocals { Japanese = true } ->
+                "Japanese Vocals"
+            | Vocals _ ->
+                "Vocals"
+            | Showlights _ -> 
+                "Showlights"
 
-        | Vocals v when v.Japanese -> "Japanese Vocals", String.Empty
-        | Vocals _ -> "Vocals", String.Empty
-        | Showlights _ -> "Showlights", String.Empty
+        name, prefix
 
     /// Returns the XML file of an arrangement.
     let getFile = function
