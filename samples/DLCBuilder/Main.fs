@@ -732,11 +732,17 @@ let update (msg: Msg) (state: State) =
 
         { state with Project = { project with Arrangements = arrangements } }, Cmd.none
 
-    | BuildPitchShifted ->
+    | Build _ when not <| Utils.canBuild state ->
+        state, Cmd.none
+
+    | Build PitchShifted ->
         buildPackage Release (ReleasePackageBuilder.buildPitchShifted state.OpenProjectFile) state
 
     | Build Test ->
-        buildPackage Test (TestPackageBuilder.build state.CurrentPlatform) state
+        if String.notEmpty config.TestFolderPath then
+            buildPackage Test (TestPackageBuilder.build state.CurrentPlatform) state
+        else
+            state, Cmd.none
 
     | Build Release ->
         buildPackage Release (ReleasePackageBuilder.build state.OpenProjectFile) state

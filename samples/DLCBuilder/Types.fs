@@ -52,7 +52,7 @@ type StatusMessage =
     | MessageString of id:Guid * message:string
     | UpdateMessage of updateInfo:UpdateInformation
 
-type BuildType = Test | Release
+type BuildType = Test | Release | PitchShifted
 
 type ProjectEdit =
     | SetDLCKey of string
@@ -242,7 +242,6 @@ type Msg =
     | ShowToneEditor
     | ShowIssueViewer
     | ShowImportToneSelector of tones : Tone array
-    | BuildPitchShifted
     | Build of BuildType
     | BuildComplete of BuildType
     | WemConversionComplete of unit

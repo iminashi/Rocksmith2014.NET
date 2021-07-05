@@ -44,6 +44,12 @@ let handleEvent dispatch (event: KeyEventArgs) =
     | Ctrl, Key.A ->
         dispatch (ShowDialog Dialog.PsarcImport)
 
+    | Ctrl, Key.B ->
+        dispatch (Build Test)
+
+    | Ctrl, Key.R ->
+        dispatch (Build Release)
+
     | None, Key.Escape ->
         dispatch CloseOverlay
 

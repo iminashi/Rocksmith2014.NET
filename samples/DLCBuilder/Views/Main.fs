@@ -395,6 +395,8 @@ let view (window: Window) (state: State) dispatch =
                         Menu.viewItems [
                             Menus.file state dispatch
 
+                            Menus.build state dispatch
+
                             Menus.tools state dispatch
 
                             Menus.help dispatch

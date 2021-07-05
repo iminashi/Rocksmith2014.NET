@@ -36,15 +36,13 @@ let messageTests =
             Expect.isTrue (newState.RunningTasks.Contains ArrangementCheck) "Correct task was added"
             Expect.isNonEmpty cmd "Command was created"
 
-        testCase "Build Release fails with empty project" <| fun _ ->
-            let newState, _ = Main.update (Build Release) initialState
+        testCase "Build Release does nothing with empty project" <| fun _ ->
+            Expect.isFalse (Utils.canBuild initialState) "Empty project cannot be built"
 
-            match newState.Overlay with
-            | ErrorMessage (message, info) ->
-                Expect.isNotEmpty message "Message is not empty"
-                Expect.isNone info "No extra information"
-            | _ ->
-                failwith "Unexpected overlay type"
+            let newState, cmd = Main.update (Build Release) initialState
+
+            Expect.equal newState initialState "State was not changed"
+            Expect.isTrue cmd.IsEmpty "No command was returned"
 
         testCase "BuildComplete removes build task" <| fun _ ->
             let newState, _ = Main.update (BuildComplete Test) { initialState with RunningTasks = Set([ BuildPackage ]) }

@@ -1,3 +1,9 @@
+## 0.4.0 (Released 2021-07-xx)
+
+- The field for the tone name will be shown only when "Show Advanced Features" is enabled.
+- Added a new automatic fix that removes the linknext attribute from chord notes that are not immediately followed by a note on the same string.
+- Added new shortcut keys: Ctrl+B - Build Test, Ctrl+R - Build Release.
+
 ## 0.3.1 (Released 2021-06-15)
 
 - The program will no longer create packages that crash the game if there are lyrics that are too long for the binary format used by the game.

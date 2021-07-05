@@ -87,7 +87,7 @@ let file state dispatch =
                 MenuItem.inputGesture (KeyGesture(Key.S, keyModifierCtrl ||| KeyModifiers.Alt))
                 MenuItem.onClick (fun _ -> dispatch SaveProjectAs)
             ]
-   
+
             separator
 
             // Configuration
@@ -160,20 +160,43 @@ let file state dispatch =
         ]
     ]
 
-let tools state dispatch =
+let build state dispatch =
     let canBuild = Utils.canBuild state
 
+    // Build
+    MenuItem.create [
+        MenuItem.header (translate "buildMenu")
+        MenuItem.viewItems [
+            // Build Test
+            MenuItem.create [
+                MenuItem.header (translate "testMenuItem")
+                MenuItem.isEnabled (canBuild  && String.notEmpty state.Config.TestFolderPath)
+                MenuItem.onClick (fun _ -> Build Test |> dispatch)
+                MenuItem.inputGesture (KeyGesture(Key.B, keyModifierCtrl))
+            ]
+
+            // Build Release
+            MenuItem.create [
+                MenuItem.header (translate "releaseMenuItem")
+                MenuItem.isEnabled canBuild
+                MenuItem.onClick (fun _ -> Build Release |> dispatch)
+                MenuItem.inputGesture (KeyGesture(Key.R, keyModifierCtrl))
+            ]
+
+            // Build Pitch Shifted
+            MenuItem.create [
+                MenuItem.header (translate "pitchShifted")
+                MenuItem.isEnabled canBuild
+                MenuItem.onClick (fun _ -> ShowOverlay PitchShifter |> dispatch)
+            ]
+        ]
+    ]
+
+let tools state dispatch =
     // Tools
     MenuItem.create [
         MenuItem.header (translate "tools")
         MenuItem.viewItems [
-            // Build Pitch Shifted
-            MenuItem.create [
-                MenuItem.header (translate "buildPitchShifted")
-                MenuItem.isEnabled canBuild
-                MenuItem.onClick (fun _ -> ShowOverlay PitchShifter |> dispatch)
-            ]
-
             // Unpack PSARC
             MenuItem.create [
                 MenuItem.header (translate "unpackPSARC")

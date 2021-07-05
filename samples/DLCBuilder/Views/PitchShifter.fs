@@ -49,7 +49,7 @@ let view dispatch state =
                         Button.isEnabled (state.Project.PitchShift |> Option.exists ((<>) 0s))
                         Button.onClick (fun _ ->
                             dispatch CloseOverlay
-                            dispatch BuildPitchShifted)
+                            dispatch (Build PitchShifted))
                     ]
 
                     // Cancel button
