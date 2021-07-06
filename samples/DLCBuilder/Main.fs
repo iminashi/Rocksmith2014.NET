@@ -474,6 +474,13 @@ let update (msg: Msg) (state: State) =
         let tones, index = moveSelected dir state.SelectedToneIndex project.Tones
         { state with Project = { project with Tones = tones }; SelectedToneIndex = index }, Cmd.none
 
+    | AddDbTone id ->
+        match ToneCollection.getToneById id with
+        | Some tone ->
+            { state with Project = { project with Tones = tone::project.Tones} }, Cmd.none
+        | None ->
+            state, Cmd.none
+
     | MoveArrangement dir ->
         let arrangements, index = moveSelected dir state.SelectedArrangementIndex project.Arrangements
         { state with Project = { project with Arrangements = arrangements }; SelectedArrangementIndex = index }, Cmd.none

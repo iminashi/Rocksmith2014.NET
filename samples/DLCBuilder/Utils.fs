@@ -257,7 +257,7 @@ let removeTask completedTask state =
     { state with RunningTasks = state.RunningTasks |> Set.remove completedTask
                  StatusMessages = messages }
 
-/// Returns a function that returns a throttled auto save message.
+/// Returns a throttled auto save message.
 let autoSave =
     let mutable id = 0L
 

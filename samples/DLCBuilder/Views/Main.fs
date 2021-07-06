@@ -225,7 +225,7 @@ let private tonesPanel state dispatch =
 
                     Grid.create [
                         DockPanel.dock Dock.Top
-                        Grid.columnDefinitions "*,*"
+                        Grid.columnDefinitions "*,*,*"
                         Grid.children [
                             // Import from profile
                             Button.create [
@@ -236,9 +236,20 @@ let private tonesPanel state dispatch =
                                 ToolTip.tip (translate "profileImportToolTip" + $" ({ctrl}P)")
                             ]
 
-                            // Import from file
                             Button.create [
                                 Grid.column 1
+                                Button.padding (15.0, 5.0)
+                                Button.content "+"
+                                Button.onClick (fun _ ->
+                                    let tones = ToneCollection.getDbTones() |> Seq.toArray
+                                    ToneCollection (tones, String.Empty)
+                                    |> ShowOverlay
+                                    |> dispatch)
+                            ]
+
+                            // Import from file
+                            Button.create [
+                                Grid.column 2
                                 Button.padding (15.0, 5.0)
                                 Button.content (translate "import")
                                 Button.onClick (fun _ -> Dialog.ToneImport |> ShowDialog |> dispatch)
@@ -289,6 +300,8 @@ let private overlay state dispatch =
             ErrorMessage.view dispatch "No tone selected. This should not happen." None
         | index ->
             ToneEditor.view state dispatch state.Project.Tones.[index]
+    | ToneCollection (tones, searchString) ->
+        ToneCollectionOverlay.view state dispatch tones searchString
     | DeleteConfirmation files ->
         DeleteConfirmation.view dispatch files
     | PitchShifter ->
