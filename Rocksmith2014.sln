@@ -61,6 +61,8 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.IntegrationTe
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Updater", "samples\Updater\Updater.fsproj", "{3852E1FE-CCB9-416F-964A-9482B4289546}"
 EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "ToneCollector", "samples\ToneCollector\ToneCollector.fsproj", "{5739C3FF-B7C5-49BA-BF2F-FF9ACE63E703}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -247,6 +249,14 @@ Global
 		{3852E1FE-CCB9-416F-964A-9482B4289546}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3852E1FE-CCB9-416F-964A-9482B4289546}.Release|x64.ActiveCfg = Release|x64
 		{3852E1FE-CCB9-416F-964A-9482B4289546}.Release|x64.Build.0 = Release|x64
+		{5739C3FF-B7C5-49BA-BF2F-FF9ACE63E703}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5739C3FF-B7C5-49BA-BF2F-FF9ACE63E703}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5739C3FF-B7C5-49BA-BF2F-FF9ACE63E703}.Debug|x64.ActiveCfg = Debug|x64
+		{5739C3FF-B7C5-49BA-BF2F-FF9ACE63E703}.Debug|x64.Build.0 = Debug|x64
+		{5739C3FF-B7C5-49BA-BF2F-FF9ACE63E703}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5739C3FF-B7C5-49BA-BF2F-FF9ACE63E703}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5739C3FF-B7C5-49BA-BF2F-FF9ACE63E703}.Release|x64.ActiveCfg = Release|Any CPU
+		{5739C3FF-B7C5-49BA-BF2F-FF9ACE63E703}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -278,6 +288,7 @@ Global
 		{8189ABC1-7482-45F6-9955-497BD7914BFF} = {0FF21B35-CA73-45A8-939A-F14614C11471}
 		{BD5FD1DF-0D83-4AF1-9C27-AD70A8EBA5D3} = {0FF21B35-CA73-45A8-939A-F14614C11471}
 		{3852E1FE-CCB9-416F-964A-9482B4289546} = {5372FA3F-22E5-4217-B4E1-D439C943AEA0}
+		{5739C3FF-B7C5-49BA-BF2F-FF9ACE63E703} = {5372FA3F-22E5-4217-B4E1-D439C943AEA0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0B1D2436-1840-458A-B570-F533FC009333}
