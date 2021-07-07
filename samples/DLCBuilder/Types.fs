@@ -19,7 +19,7 @@ type OverlayContents =
     | ConfigEditor
     | IssueViewer of issues : ArrangementChecker.Issue list
     | ToneEditor
-    | ToneCollection of tones : ToneCollection.DbTone array * searchString : string
+    | ToneCollection of api : ToneCollection.ITonesApi * tones : ToneCollection.OfficialTone array * searchString : string
     | DeleteConfirmation of files : string list
     | AbnormalExitMessage
     | PitchShifter
@@ -223,7 +223,7 @@ type Msg =
     | DeleteTone
     | DuplicateTone
     | MoveTone of MoveDirection
-    | AddDbTone of id : int64
+    | AddDbTone of api : ToneCollection.ITonesApi * id : int64
     | MoveArrangement of MoveDirection
     | CreatePreviewAudio of PreviewAudioCreation
     | ShowSortFields of shown : bool

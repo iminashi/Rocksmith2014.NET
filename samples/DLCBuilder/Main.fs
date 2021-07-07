@@ -28,10 +28,14 @@ let private addArrangements files state =
     let shouldInclude arrangements arr =
         let count f = List.choose f arrangements |> List.length
         match arr with
-        | Showlights _ when count Arrangement.pickShowlights = 1 -> Error MaxShowlights
-        | Instrumental _ when count Arrangement.pickInstrumental = 5 -> Error MaxInstrumentals
-        | Vocals _ when count Arrangement.pickVocals = 2 -> Error MaxVocals
-        | _ -> Ok arr
+        | Showlights _ when count Arrangement.pickShowlights = 1 ->
+            Error MaxShowlights
+        | Instrumental _ when count Arrangement.pickInstrumental = 5 ->
+            Error MaxInstrumentals
+        | Vocals _ when count Arrangement.pickVocals = 2 ->
+            Error MaxVocals
+        | _ ->
+            Ok arr
 
     let mainArrangementExists newInst arrangements =
         arrangements
@@ -248,6 +252,9 @@ let update (msg: Msg) (state: State) =
             match state.Overlay with
             | ConfigEditor ->
                 Cmd.OfAsync.attempt Configuration.save config ErrorOccurred
+            | ToneCollection (api, _, _) ->
+                api.Dispose()
+                Cmd.none
             | _ ->
                 Cmd.none
         { state with Overlay = NoOverlay }, cmd
@@ -474,8 +481,8 @@ let update (msg: Msg) (state: State) =
         let tones, index = moveSelected dir state.SelectedToneIndex project.Tones
         { state with Project = { project with Tones = tones }; SelectedToneIndex = index }, Cmd.none
 
-    | AddDbTone id ->
-        match ToneCollection.getToneById id with
+    | AddDbTone (api, id) ->
+        match api.GetToneById id with
         | Some tone ->
             { state with Project = { project with Tones = tone::project.Tones} }, Cmd.none
         | None ->

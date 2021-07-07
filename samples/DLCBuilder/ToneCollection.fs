@@ -1,13 +1,14 @@
 ﻿module DLCBuilder.ToneCollection
 
 open Dapper
+open System
 open System.Data.SQLite
 open System.IO
 open System.Text.Json
 open System.Text.Json.Serialization
 open Rocksmith2014.Common.Manifest
 
-type DbTone =
+type OfficialTone =
     { Id: int64
       Artist: string
       Title: string
@@ -15,54 +16,57 @@ type DbTone =
       BassTone: bool
       Description: string }
 
-type DbToneDefinition =
-    { Definition : string }
+type ITonesApi =
+    inherit IDisposable
+    abstract member GetToneById : int64 -> Tone option
+    abstract member GetTones : string option -> OfficialTone seq
+
+type private ToneDefinition = { Definition : string }
 
 let private dbPath =
     Path.Combine(Configuration.appDataFolder, "tones", "official.db")
 
 let private connectionString = $"Data Source={dbPath};Read Only=True"
 
-let private deserialize dbToneDef =
+let private deserialize toneDef =
     let options = JsonSerializerOptions(IgnoreNullValues = true)
     options.Converters.Add(JsonFSharpConverter())
 
-    JsonSerializer.Deserialize<ToneDto>(dbToneDef.Definition, options)
+    JsonSerializer.Deserialize<ToneDto>(toneDef.Definition, options)
     |> Tone.fromDto
 
-let getToneById (id: int64) =
-    use connection = new SQLiteConnection(connectionString)
+let createApi () =
+    let connection = new SQLiteConnection(connectionString)
     connection.Open()
 
-    let results =
-        connection.Query<DbToneDefinition>(
-            "SELECT definition FROM tones WHERE id = @id",
-            dict [ "id", box id ])
+    { new ITonesApi with
+        member _.Dispose() = connection.Dispose()
 
-    results
-    |> Seq.tryHead
-    |> Option.map deserialize
+        member _.GetToneById (id: int64) =
+            $"SELECT definition FROM tones WHERE id = {id}"
+            |> connection.Query<ToneDefinition>  
+            |> Seq.tryHead
+            |> Option.map deserialize
 
-let getDbTones () =
-    use connection = new SQLiteConnection(connectionString)
-    connection.Open()
+        member _.GetTones (searchString: string option) =
+            let sql =
+                let columns = "id, artist, title, name, basstone, description"
 
-    """SELECT id, artist, title, name, basstone, description
-       FROM tones
-       LIMIT 10"""
-    |>connection.Query<DbTone>
-
-let searchDbTones (searchString: string) =
-    use connection = new SQLiteConnection(connectionString)
-    connection.Open()
-
-    let like = $"%%{searchString.ToLowerInvariant()}%%"
-
-    $"""SELECT id, artist, title, name, basstone, description
-        FROM tones
-        WHERE ( LOWER(name) LIKE '{like}'
-                OR LOWER(artist) LIKE '{like}'
-                OR LOWER(title) LIKE '{like}'
-                OR LOWER(description) LIKE '{like}' )
-        LIMIT 10"""
-    |>connection.Query<DbTone>
+                match searchString with
+                | None ->
+                    $"SELECT {columns} FROM tones LIMIT 10"
+                | Some searchString ->
+                    let like =
+                        searchString.ToLowerInvariant().Split ' '
+                        |> String.concat "%"
+                        |> sprintf "%%%s%%"
+        
+                    $"""SELECT {columns}
+                        FROM tones
+                        WHERE ( LOWER(name) LIKE '{like}'
+                                OR (LOWER(artist || title)) LIKE '{like}'
+                                OR LOWER(description) LIKE '{like}' )
+                        LIMIT 10"""
+        
+            connection.Query<OfficialTone> sql
+    }

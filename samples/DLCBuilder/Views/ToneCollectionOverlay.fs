@@ -13,19 +13,18 @@ open Rocksmith2014.Common
 open Avalonia.Media
 
 let private translateDescription (description: string) =
-    let translated = 
-        description.Split('|')
-        |> Array.map translate
-    String.Join(' ', translated)
+    description.Split('|')
+    |> Array.map translate
+    |> String.concat " "
     
-let private dbToneTemplate dispatch =
-    DataTemplateView<DbTone>.create (fun dbTone ->
+let private dbToneTemplate dispatch (api: ITonesApi) =
+    DataTemplateView<OfficialTone>.create (fun dbTone ->
         hStack [
             Button.create [
                 Button.content "ADD"
                 Button.padding (10., 5.)
                 Button.verticalAlignment VerticalAlignment.Center
-                Button.onClick (fun _ -> dispatch (AddDbTone dbTone.Id))
+                Button.onClick (fun _ -> dispatch (AddDbTone (api, dbTone.Id)))
             ]
 
             StackPanel.create [
@@ -39,7 +38,7 @@ let private dbToneTemplate dispatch =
             ]
         ])
 
-let view state dispatch (tones: DbTone array) searchString =
+let view state dispatch (api: ITonesApi) (tones: OfficialTone array) searchString =
     DockPanel.create [
         DockPanel.children [
             // Search text box
@@ -48,9 +47,14 @@ let view state dispatch (tones: DbTone array) searchString =
                 Panel.children [
                     TextBox.create [
                         TextBox.text searchString
+                        TextBox.watermark (translate "search")
                         TextBox.onTextChanged ((fun text ->
-                            let tones = ToneCollection.searchDbTones text |> Seq.toArray
-                            ToneCollection (tones, text)
+                            let tones =
+                                text
+                                |> Option.ofString
+                                |> api.GetTones
+                                |> Seq.toArray
+                            ToneCollection (api, tones, text)
                             |> ShowOverlay
                             |> dispatch
                         ), OnChangeOf tones)
@@ -63,7 +67,7 @@ let view state dispatch (tones: DbTone array) searchString =
                         Button.margin (0., 0., 10., 2.)
                         Button.padding 0.
                         Button.onClick ((fun _ ->
-                            ToneCollection (tones, String.Empty)
+                            ToneCollection (api, tones, String.Empty)
                             |> ShowOverlay
                             |> dispatch
                         ), OnChangeOf tones)
@@ -91,7 +95,7 @@ let view state dispatch (tones: DbTone array) searchString =
                 ListBox.height 400.
                 ListBox.width 500.
                 ListBox.dataItems tones
-                ListBox.itemTemplate (dbToneTemplate dispatch)
+                ListBox.itemTemplate (dbToneTemplate dispatch api)
             ]
         ]
     ] |> generalize

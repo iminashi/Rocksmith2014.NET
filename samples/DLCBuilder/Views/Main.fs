@@ -241,8 +241,9 @@ let private tonesPanel state dispatch =
                                 Button.padding (15.0, 5.0)
                                 Button.content "+"
                                 Button.onClick (fun _ ->
-                                    let tones = ToneCollection.getDbTones() |> Seq.toArray
-                                    ToneCollection (tones, String.Empty)
+                                    let api = ToneCollection.createApi()
+                                    let tones = api.GetTones None |> Seq.toArray
+                                    ToneCollection (api, tones, String.Empty)
                                     |> ShowOverlay
                                     |> dispatch)
                             ]
@@ -300,8 +301,8 @@ let private overlay state dispatch =
             ErrorMessage.view dispatch "No tone selected. This should not happen." None
         | index ->
             ToneEditor.view state dispatch state.Project.Tones.[index]
-    | ToneCollection (tones, searchString) ->
-        ToneCollectionOverlay.view state dispatch tones searchString
+    | ToneCollection (api, tones, searchString) ->
+        ToneCollectionOverlay.view state dispatch api tones searchString
     | DeleteConfirmation files ->
         DeleteConfirmation.view dispatch files
     | PitchShifter ->
