@@ -7,6 +7,12 @@ open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.PSARC
 
+type ToneData =
+    { Tone: ToneDto
+      ArtistName: string
+      Title: string
+      IsBass: bool }
+
 let execute (connection: SQLiteConnection) sql =
     using (new SQLiteCommand(sql, connection))
           (fun x -> x.ExecuteNonQuery() |> ignore)
@@ -50,21 +56,13 @@ let getUniqueTones (psarc: PSARC) = async {
                 let isBass =
                     m.ArrangementProperties
                     |> Option.exists (fun x -> x.pathBass = 1uy)
-                Some(m.Tones |> Array.map (fun dto -> dto, isBass)))
+                Some(m.Tones |> Array.map (fun dto ->
+                    { Tone = dto
+                      ArtistName = m.ArtistName.Trim()
+                      Title = m.SongName.Trim()
+                      IsBass = isBass })))
         |> Array.concat
-        |> Array.distinctBy (fun (t, _) -> t.Key) }
-
-let getHeaderAttributes (psarc: PSARC) = async {
-    let! headerData =
-        psarc.Manifest
-        |> Seq.find (String.endsWith ".hsan")
-        |> psarc.GetEntryStream
-
-    let! manifest = Manifest.fromJsonStream headerData
-    return manifest.Entries
-           |> Map.toSeq
-           |> Seq.find (fun (_, x) -> String.notEmpty x.Attributes.ArtistName)
-           |> (fun (_, x) -> x.Attributes) }
+        |> Array.distinctBy (fun x -> x.Tone.Key) }
 
 let insertSql =
     """INSERT INTO tones(artist, title, name, basstone, description, definition)
@@ -72,32 +70,38 @@ let insertSql =
 
 let scanPsarcs (connection: SQLiteConnection) directory =
     Directory.EnumerateFiles(directory, "*.psarc")
+    |> Seq.distinctBy (fun path ->
+        // Ignore _p & _m duplicate files
+        let fn = Path.GetFileNameWithoutExtension path
+        fn.Substring(0, fn.Length - 2))
     |> Seq.map (fun path -> async {
         printfn "PSARC file %s" (Path.GetFileNameWithoutExtension path)
 
-        use psarc = PSARC.ReadFile path
+        let! tones = async {
+            use psarc = PSARC.ReadFile path
+            return! getUniqueTones psarc }
 
-        let! attributes = getHeaderAttributes psarc
-        let! tones = getUniqueTones psarc
-
-        printfn "%s - %s" attributes.ArtistName attributes.SongName
         printfn "Inserting into DB tones:"
 
         tones
-        |> Array.iter (fun (tone, isBass) ->
+        |> Array.iter (fun data ->
             let description =
-                String.Join("|", Array.map ToneDescriptor.uiNameToName tone.ToneDescriptors)
+                match data.Tone.ToneDescriptors with
+                | null ->
+                    String.Empty
+                | descs ->
+                    String.Join("|", Array.map ToneDescriptor.uiNameToName descs)
             let definition =
-                JsonSerializer.Serialize({ tone with SortOrder = Nullable()
-                                                     MacVolume = null }, options)
+                JsonSerializer.Serialize({ data.Tone with SortOrder = Nullable()
+                                                          MacVolume = null }, options)
 
-            printfn "    \"%s\"" tone.Name
+            printfn "    \"%s\" (%s - %s)" data.Tone.Name data.ArtistName data.Title
 
             use command = new SQLiteCommand(insertSql, connection)
-            command.Parameters.AddWithValue("@artist", attributes.ArtistName.Trim()) |> ignore
-            command.Parameters.AddWithValue("@title", attributes.SongName.Trim()) |> ignore
-            command.Parameters.AddWithValue("@name", tone.Name) |> ignore
-            command.Parameters.AddWithValue("@basstone", isBass) |> ignore
+            command.Parameters.AddWithValue("@artist", data.ArtistName) |> ignore
+            command.Parameters.AddWithValue("@title", data.Title) |> ignore
+            command.Parameters.AddWithValue("@name", data.Tone.Name) |> ignore
+            command.Parameters.AddWithValue("@basstone", data.IsBass) |> ignore
             command.Parameters.AddWithValue("@description", description) |> ignore
             command.Parameters.AddWithValue("@definition", definition) |> ignore
 
