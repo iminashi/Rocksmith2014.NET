@@ -54,19 +54,19 @@ let createApi () =
 
                 match searchString with
                 | None ->
-                    $"SELECT {columns} FROM tones LIMIT 10"
+                    $"SELECT {columns} FROM tones LIMIT 15"
                 | Some searchString ->
                     let like =
-                        searchString.ToLowerInvariant().Split ' '
+                        searchString.ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries)
                         |> String.concat "%"
                         |> sprintf "%%%s%%"
         
                     $"""SELECT {columns}
                         FROM tones
                         WHERE ( LOWER(name) LIKE '{like}'
-                                OR (LOWER(artist || title)) LIKE '{like}'
-                                OR LOWER(description) LIKE '{like}' )
-                        LIMIT 10"""
+                                OR
+                                LOWER(description || artist || title || artist || description) LIKE '{like}' ) 
+                        LIMIT 15"""
         
             connection.Query<OfficialTone> sql
     }

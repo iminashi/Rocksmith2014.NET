@@ -2,22 +2,23 @@
 
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
-open Avalonia.FuncUI.DSL
-open Avalonia.Layout
 open Avalonia.FuncUI
 open Avalonia.FuncUI.Components
-open DLCBuilder
-open DLCBuilder.ToneCollection
-open System
-open Rocksmith2014.Common
+open Avalonia.FuncUI.DSL
+open Avalonia.Layout
 open Avalonia.Media
+open DLCBuilder
+open DLCBuilder.Media
+open DLCBuilder.ToneCollection
+open Rocksmith2014.Common
+open System
 
 let private translateDescription (description: string) =
     description.Split('|')
     |> Array.map translate
     |> String.concat " "
     
-let private dbToneTemplate dispatch (api: ITonesApi) =
+let private officialToneTemplate dispatch (api: ITonesApi) =
     DataTemplateView<OfficialTone>.create (fun dbTone ->
         hStack [
             Button.create [
@@ -27,13 +28,18 @@ let private dbToneTemplate dispatch (api: ITonesApi) =
                 Button.onClick (fun _ -> dispatch (AddDbTone (api, dbTone.Id)))
             ]
 
+            Path.create [
+                Path.verticalAlignment VerticalAlignment.Center
+                Path.fill (if dbTone.BassTone then Brushes.bass else Brushes.lead)
+                Path.data Media.Icons.guitar
+            ]
+
             StackPanel.create [
                 StackPanel.margin 4.
                 StackPanel.children [
                     TextBlock.create [ TextBlock.text $"{dbTone.Artist} - {dbTone.Title}" ]
                     TextBlock.create [ TextBlock.text dbTone.Name ]
                     TextBlock.create [ TextBlock.text (translateDescription dbTone.Description) ]
-                    TextBlock.create [ TextBlock.text (if dbTone.BassTone then "BASS" else "GUITAR") ]
                 ]
             ]
         ])
@@ -95,7 +101,7 @@ let view state dispatch (api: ITonesApi) (tones: OfficialTone array) searchStrin
                 ListBox.height 400.
                 ListBox.width 500.
                 ListBox.dataItems tones
-                ListBox.itemTemplate (dbToneTemplate dispatch api)
+                ListBox.itemTemplate (officialToneTemplate dispatch api)
             ]
         ]
     ] |> generalize
