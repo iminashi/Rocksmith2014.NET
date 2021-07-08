@@ -10,7 +10,9 @@ open Dapper
 
 type ToneData =
     { Artist: string
+      ArtistSort: string
       Title: string
+      TitleSort: string
       Name: string
       Key: string
       BassTone: bool
@@ -83,7 +85,9 @@ let getUniqueTones (psarc: PSARC) = async {
                     { Name = dto.Name
                       Key = dto.Key
                       Artist = m.ArtistName.Trim()
+                      ArtistSort = m.ArtistNameSort.Trim()
                       Title = m.SongName.Trim()
+                      TitleSort = m.SongNameSort.Trim()
                       BassTone = isBass
                       Description = description
                       Definition = definition })
@@ -92,8 +96,8 @@ let getUniqueTones (psarc: PSARC) = async {
         |> Array.distinctBy (fun x -> x.Key) }
 
 let insertSql =
-    """INSERT INTO tones(artist, title, name, basstone, description, definition)
-       VALUES (@artist, @title, @name, @basstone, @description, @definition)"""
+    """INSERT INTO tones(artist, artistSort, title, titleSort, name, basstone, description, definition)
+       VALUES (@artist, @artistSort, @title, @titleSort, @name, @basstone, @description, @definition)"""
 
 let scanPsarcs (connection: SQLiteConnection) directory =
     seq {
@@ -136,7 +140,9 @@ let main argv =
         """CREATE TABLE Tones (
         Id INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT,
         Artist VARCHAR(100) NOT NULL,
+        ArtistSort VARCHAR(100) NOT NULL,
         Title VARCHAR(100) NOT NULL,
+        TitleSort VARCHAR(100) NOT NULL,
         Name VARCHAR(100) NOT NULL,
         BassTone BOOLEAN NOT NULL,
         Description VARCHAR(100) NOT NULL,
