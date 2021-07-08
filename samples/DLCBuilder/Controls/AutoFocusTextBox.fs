@@ -12,7 +12,11 @@ type AutoFocusTextBox() =
     override _.OnInitialized() =
         base.OnInitialized()
         base.Focus()
-        base.CaretIndex <- base.Text.Length
+        match base.Text with
+        | null ->
+            ()
+        | text ->
+            base.CaretIndex <- text.Length
 
 [<RequireQualifiedAccess>]
 module AutoFocusTextBox =

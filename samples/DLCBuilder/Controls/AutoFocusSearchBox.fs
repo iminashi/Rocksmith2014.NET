@@ -14,7 +14,7 @@ type AutoFocusSearchBox() =
     inherit UserControl()
 
     let textBox =
-        TextBox(Watermark = translate "search")
+        AutoFocusTextBox(Watermark = translate "search")
 
     let deleteButton =
         Border(Background = Brushes.Transparent,
@@ -39,21 +39,13 @@ type AutoFocusSearchBox() =
         panel.Children.Add deleteButton
         base.Content <- panel
 
-    let mutable textChanged : string -> unit = ignore
-    let mutable textChangedSubscription : IDisposable option = None
-
     member _.TextBox = textBox
 
-    member _.TextChanged
-        with get() = textChanged
-        and set(value) =
-            textChangedSubscription |> Option.iter (fun x -> x.Dispose())
-            textChanged <- value
-            textChangedSubscription <- Some (textBox.GetObservable(TextBox.TextProperty).Subscribe value)
+    member val TextChanged : string -> unit = ignore with get, set
 
     override this.OnInitialized() =
         base.OnInitialized()
-        textBox.Focus()
+        textBox.GetObservable(TextBox.TextProperty).Add this.TextChanged
 
 [<RequireQualifiedAccess>]
 module AutoFocusSearchBox =
