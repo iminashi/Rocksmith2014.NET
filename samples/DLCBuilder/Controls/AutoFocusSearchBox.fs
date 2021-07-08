@@ -17,20 +17,19 @@ type AutoFocusSearchBox() =
         TextBox(Watermark = translate "search")
 
     let deleteButton =
-        Button(Background = Brushes.Transparent,
+        Border(Background = Brushes.Transparent,
                IsVisible = false,
                HorizontalAlignment = HorizontalAlignment.Right,
                VerticalAlignment = VerticalAlignment.Center,
                Margin = Thickness(0., 0., 10., 2.),
-               Padding = Thickness(0.),
                Cursor = Media.Cursors.hand,
-               Content = Path(Fill = Brushes.Gray, Data = Media.Icons.x))
+               Child = Path(Fill = Brushes.Gray, Data = Media.Icons.x))
 
     do
         textBox.KeyUp.Add (fun _ ->
             deleteButton.IsVisible <- not <| String.IsNullOrEmpty textBox.Text)
 
-        deleteButton.Click.Add (fun _ ->
+        deleteButton.Tapped.Add (fun _ ->
             deleteButton.IsVisible <- false
             textBox.Clear()
             textBox.Focus())
