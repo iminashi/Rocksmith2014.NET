@@ -64,8 +64,12 @@ let view state dispatch (i: Instrumental) =
                                      &&
                                      state.Project.Arrangements
                                      |> List.exists (function
-                                         | Instrumental other -> i.RouteMask = other.RouteMask && other.Priority = ArrangementPriority.Main
-                                         | _ -> false))
+                                         | Instrumental other ->
+                                            i.RouteMask = other.RouteMask
+                                            &&
+                                            other.Priority = ArrangementPriority.Main
+                                         | _ ->
+                                            false))
                             )
                         ]
                 ]
@@ -136,8 +140,12 @@ let view state dispatch (i: Instrumental) =
                             TextBox.onLostFocus (fun arg ->
                                 let txtBox = arg.Source :?> TextBox
                                 match Int16.TryParse txtBox.Text with
-                                | true, newTuning -> SetTuning (str, newTuning) |> EditInstrumental |> dispatch
-                                | false, _ -> ())
+                                | true, newTuning ->
+                                    SetTuning (str, newTuning)
+                                    |> EditInstrumental
+                                    |> dispatch
+                                | false, _ ->
+                                    ())
                         ]
                 ]
             ]
@@ -176,13 +184,19 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
-            TextBox.create [
+            AutoCompleteBox.create [
                 Grid.column 1
                 Grid.row 6
-                TextBox.horizontalAlignment HorizontalAlignment.Stretch
-                TextBox.text i.BaseTone
-                TextBox.hasErrors (String.IsNullOrWhiteSpace i.BaseTone)
-                TextBox.onTextChanged (StringValidator.toneName >> SetBaseTone >> EditInstrumental >> dispatch)
+                AutoCompleteBox.margin (4.0, 0.0)
+                AutoCompleteBox.dataItems (
+                    state.Project.Tones
+                    |> List.choose (fun t -> Option.ofString t.Key)
+                    |> List.distinct
+                )
+                AutoCompleteBox.horizontalAlignment HorizontalAlignment.Stretch
+                AutoCompleteBox.text i.BaseTone
+                AutoCompleteBox.hasErrors (String.IsNullOrWhiteSpace i.BaseTone)
+                AutoCompleteBox.onTextChanged (StringValidator.toneName >> SetBaseTone >> EditInstrumental >> dispatch)
             ]
 
             // Tone key list
@@ -195,12 +209,12 @@ let view state dispatch (i: Instrumental) =
             TextBlock.create [
                 Grid.column 1
                 Grid.row 7
+                TextBlock.margin (4., 2.)
                 TextBlock.textWrapping TextWrapping.Wrap
                 TextBlock.isVisible (i.Tones.Length > 0)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Left
                 TextBlock.text (String.Join(", ", i.Tones))
-                TextBlock.margin (4., 0.)
             ]
 
             // Scroll speed
