@@ -12,6 +12,7 @@ open DLCBuilder
 let view dispatch msg info =
     StackPanel.create [
         StackPanel.spacing 8.
+        StackPanel.maxWidth 750.
         StackPanel.children [
             StackPanel.create [
                 StackPanel.orientation Orientation.Horizontal
@@ -34,10 +35,12 @@ let view dispatch msg info =
                 TextBlock.fontSize 16.
                 TextBlock.text msg
                 TextBlock.margin 10.0
+                TextBlock.textWrapping TextWrapping.Wrap
             ]
 
             match info with
-            | None -> ()
+            | None ->
+                ()
             | Some moreInfo ->
                 Expander.create [
                     Expander.header (translate "moreInfo")
