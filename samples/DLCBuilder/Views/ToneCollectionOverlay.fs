@@ -1,17 +1,16 @@
 ﻿module DLCBuilder.Views.ToneCollectionOverlay
 
+open Avalonia
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
 open Avalonia.FuncUI
 open Avalonia.FuncUI.Components
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
-open Avalonia.Media
 open DLCBuilder
 open DLCBuilder.Media
 open DLCBuilder.ToneCollection
 open Rocksmith2014.Common
-open System
 
 let private translateDescription (description: string) =
     description.Split('|')
@@ -48,43 +47,17 @@ let view state dispatch (api: ITonesApi) (tones: OfficialTone array) searchStrin
     DockPanel.create [
         DockPanel.children [
             // Search text box
-            Panel.create [
+            AutoFocusSearchBox.create [
                 DockPanel.dock Dock.Top
-                Panel.children [
-                    TextBox.create [
-                        TextBox.text searchString
-                        TextBox.watermark (translate "search")
-                        TextBox.onTextChanged ((fun text ->
-                            let tones =
-                                text
-                                |> Option.ofString
-                                |> api.GetTones
-                                |> Seq.toArray
-                            ToneCollection (api, tones, text)
-                            |> ShowOverlay
-                            |> dispatch
-                        ), OnChangeOf tones)
-                    ]
-                    Button.create [
-                        Button.isVisible (String.notEmpty searchString)
-                        Button.background Brushes.Transparent
-                        Button.horizontalAlignment HorizontalAlignment.Right
-                        Button.verticalAlignment VerticalAlignment.Center
-                        Button.margin (0., 0., 10., 2.)
-                        Button.padding 0.
-                        Button.onClick ((fun _ ->
-                            ToneCollection (api, tones, String.Empty)
-                            |> ShowOverlay
-                            |> dispatch
-                        ), OnChangeOf tones)
-                        Button.content (
-                            Path.create [
-                                Path.fill Brushes.Gray
-                                Path.data Media.Icons.x
-                            ]
-                        )
-                    ]
-                ]
+                AutoFocusSearchBox.onTextChanged (fun text ->
+                    let tones =
+                        text
+                        |> Option.ofString
+                        |> api.GetTones
+                        |> Seq.toArray
+                    ToneCollection (api, tones, text)
+                    |> ShowOverlay
+                    |> dispatch)
             ]
 
             // Close button

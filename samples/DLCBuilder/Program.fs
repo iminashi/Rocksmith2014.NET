@@ -11,11 +11,11 @@ open Avalonia.Media
 open Avalonia.Platform
 open Avalonia.Themes.Fluent
 open System
+open System.IO
 open System.Reflection
 open Microsoft.Extensions.FileProviders
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
-open System.IO
 
 type MainWindow(commandLineArgs: string array) as this =
     inherit HostWindow()
