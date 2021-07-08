@@ -6,12 +6,16 @@ open System.Text.Json.Serialization
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.PSARC
+open Dapper
 
 type ToneData =
-    { Tone: ToneDto
-      ArtistName: string
+    { Artist: string
       Title: string
-      IsBass: bool }
+      Name: string
+      Key: string
+      BassTone: bool
+      Description: string
+      Definition: string }
 
 let execute (connection: SQLiteConnection) sql =
     using (new SQLiteCommand(sql, connection))
@@ -46,67 +50,70 @@ let getUniqueTones (psarc: PSARC) = async {
 
     return
         manifests
-        |> Array.choose (fun m ->
+        |> Array.Parallel.choose (fun m ->
             match m with
             | None ->
                 None
             | Some m when isNull m.Tones ->
                 None
             | Some m ->
-                let isBass =
-                    m.ArrangementProperties
-                    |> Option.exists (fun x -> x.pathBass = 1uy)
-                Some(m.Tones |> Array.map (fun dto ->
-                    { Tone = dto
-                      ArtistName = m.ArtistName.Trim()
+                m.Tones
+                |> Array.map (fun dto ->
+                    let isBass =
+                        match m.ArrangementProperties with
+                        | Some { pathBass = 1uy } ->
+                            true
+                        | _ ->
+                            // Some guitar arrangements may contain a tone from the bass arrangment
+                            dto.ToneDescriptors
+                            |> Option.ofObj
+                            |> Option.exists (Array.contains "$[35715]BASS")
+
+                    let description =
+                        match dto.ToneDescriptors with
+                        | null ->
+                            String.Empty
+                        | descs ->
+                            String.Join("|", Array.map ToneDescriptor.uiNameToName descs)
+
+                    let definition =
+                        JsonSerializer.Serialize({ dto with SortOrder = Nullable()
+                                                            MacVolume = null }, options)
+
+                    { Name = dto.Name
+                      Key = dto.Key
+                      Artist = m.ArtistName.Trim()
                       Title = m.SongName.Trim()
-                      IsBass = isBass })))
+                      BassTone = isBass
+                      Description = description
+                      Definition = definition })
+                |> Some)
         |> Array.concat
-        |> Array.distinctBy (fun x -> x.Tone.Key) }
+        |> Array.distinctBy (fun x -> x.Key) }
 
 let insertSql =
     """INSERT INTO tones(artist, title, name, basstone, description, definition)
        VALUES (@artist, @title, @name, @basstone, @description, @definition)"""
 
 let scanPsarcs (connection: SQLiteConnection) directory =
-    Directory.EnumerateFiles(directory, "*.psarc")
+    seq {
+        yield Path.Combine(directory, "songs.psarc")
+        yield! Directory.EnumerateFiles(Path.Combine(directory, "dlc"), "*.psarc") }
     |> Seq.distinctBy (fun path ->
         // Ignore _p & _m duplicate files
         let fn = Path.GetFileNameWithoutExtension path
         fn.Substring(0, fn.Length - 2))
     |> Seq.map (fun path -> async {
-        printfn "PSARC file %s" (Path.GetFileNameWithoutExtension path)
+        printfn "File %s:" (Path.GetFileName path)
 
         let! tones = async {
             use psarc = PSARC.ReadFile path
             return! getUniqueTones psarc }
 
-        printfn "Inserting into DB tones:"
-
         tones
         |> Array.iter (fun data ->
-            let description =
-                match data.Tone.ToneDescriptors with
-                | null ->
-                    String.Empty
-                | descs ->
-                    String.Join("|", Array.map ToneDescriptor.uiNameToName descs)
-            let definition =
-                JsonSerializer.Serialize({ data.Tone with SortOrder = Nullable()
-                                                          MacVolume = null }, options)
-
-            printfn "    \"%s\" (%s - %s)" data.Tone.Name data.ArtistName data.Title
-
-            use command = new SQLiteCommand(insertSql, connection)
-            command.Parameters.AddWithValue("@artist", data.ArtistName) |> ignore
-            command.Parameters.AddWithValue("@title", data.Title) |> ignore
-            command.Parameters.AddWithValue("@name", data.Tone.Name) |> ignore
-            command.Parameters.AddWithValue("@basstone", data.IsBass) |> ignore
-            command.Parameters.AddWithValue("@description", description) |> ignore
-            command.Parameters.AddWithValue("@definition", definition) |> ignore
-
-            command.ExecuteNonQuery() |> ignore
-        )
+            printfn "    \"%s\" (%s - %s)" data.Name data.Artist data.Title
+            connection.Execute(insertSql, data) |> ignore)
     })
     |> Async.Sequential
     |> Async.Ignore
