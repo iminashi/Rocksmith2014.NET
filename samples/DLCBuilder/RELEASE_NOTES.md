@@ -1,8 +1,10 @@
 ## 0.4.0 (Released 2021-07-xx)
 
-- The field for the tone name will be shown only when "Show Advanced Features" is enabled.
+- The field for the tone name is now shown only when "Show Advanced Features" is enabled.
 - Added a new automatic fix that removes the linknext attribute from chord notes that are not immediately followed by a note on the same string.
 - Added new shortcut keys: Ctrl+B - Build Test, Ctrl+R - Build Release.
+- Changed shortcut key "Toolkit Import" from Ctrl+T to Ctrl+I.
+- UI improvements.
 
 ## 0.3.1 (Released 2021-06-15)
 

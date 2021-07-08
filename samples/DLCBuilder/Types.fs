@@ -19,7 +19,7 @@ type OverlayContents =
     | ConfigEditor
     | IssueViewer of issues : ArrangementChecker.Issue list
     | ToneEditor
-    | ToneCollection of api : ToneCollection.ITonesApi * tones : ToneCollection.OfficialTone array * searchString : string
+    | ToneCollection of state : ToneCollection.State
     | DeleteConfirmation of files : string list
     | AbnormalExitMessage
     | PitchShifter
@@ -32,6 +32,7 @@ type PreviewAudioCreation =
     | FileCreated of path : string
 
 type MoveDirection = Up | Down
+type PageDirection = Left | Right
 
 type VolumeTarget =
     | MainAudio
@@ -221,9 +222,13 @@ type Msg =
     | DeleteConfirmed of files : string list
     | DeleteArrangement
     | DeleteTone
+    | AddNewTone
     | DuplicateTone
     | MoveTone of MoveDirection
+    | ShowToneCollection
     | AddDbTone of api : ToneCollection.ITonesApi * id : int64
+    | SearchOfficialTones of searchString : string
+    | ChangeToneCollectionPage of direction : PageDirection
     | MoveArrangement of MoveDirection
     | CreatePreviewAudio of PreviewAudioCreation
     | ShowSortFields of shown : bool

@@ -103,7 +103,7 @@ let file state dispatch =
             MenuItem.create [
                 MenuItem.header (translate "toolkitImport")
                 MenuItem.isEnabled (not isImporting)
-                MenuItem.inputGesture (KeyGesture(Key.T, keyModifierCtrl))
+                MenuItem.inputGesture (KeyGesture(Key.I, keyModifierCtrl))
                 MenuItem.onClick (fun _ -> Dialog.ToolkitImport |> ShowDialog |> dispatch)
             ]
 
@@ -363,3 +363,50 @@ module Context =
                 ]
             ]
         ]
+
+let addTone state dispatch =
+    Menu.create [
+        Menu.viewItems [
+            MenuItem.create [
+                MenuItem.header (TextBlock.create [
+                    TextBlock.fontSize 24.
+                    TextBlock.text "+"
+                    TextBlock.verticalAlignment VerticalAlignment.Center
+                ])
+
+                MenuItem.viewItems [
+                    // Add a new "empty" tone
+                    MenuItem.create [
+                        MenuItem.header (translate "newTone")
+                        MenuItem.onClick (fun _ -> dispatch AddNewTone)
+                    ]
+
+                    separator
+
+                    // Import from profile
+                    MenuItem.create [
+                        MenuItem.header (translate "fromProfile")
+                        MenuItem.onClick (fun _ -> dispatch ImportProfileTones)
+                        MenuItem.isEnabled (IO.File.Exists state.Config.ProfilePath)
+                        MenuItem.inputGesture (KeyGesture(Key.P, keyModifierCtrl))
+                        ToolTip.tip (translate "profileImportToolTip")
+                    ]
+
+                    // Add from collection
+                    MenuItem.create [
+                        MenuItem.header (translate "fromCollection")
+                        MenuItem.onClick (fun _ -> ShowToneCollection |> dispatch)
+                        MenuItem.inputGesture (KeyGesture(Key.T, keyModifierCtrl))
+                    ]
+
+                    separator
+
+                    // Import from file
+                    MenuItem.create [
+                        MenuItem.header (translate "importToneFromFile")
+                        MenuItem.onClick (fun _ -> Dialog.ToneImport |> ShowDialog |> dispatch)
+                    ]
+                ]
+            ]
+        ]
+    ]

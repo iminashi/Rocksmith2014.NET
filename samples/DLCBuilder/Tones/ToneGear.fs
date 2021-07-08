@@ -94,3 +94,22 @@ let getGearDataForCurrentPedal (gearList: Gear) = function
         gearList.PostPedals.[index] |> Option.map (fun x -> pedalDict.[x.Key])
     | Rack index ->
         gearList.Racks.[index] |> Option.map (fun x -> rackDict.[x.Key])
+
+let emptyTone =
+    lazy
+        let gear =
+            let noPedals = Array.replicate 4 None
+            { Amp = ampDict.Values |> Seq.head |> createPedalForGear
+              Cabinet = cabinetDict.Values |> Seq.head |> createPedalForGear
+              Racks = noPedals
+              PrePedals = noPedals
+              PostPedals = noPedals }
+
+        { GearList = gear
+          ToneDescriptors = [| "$[35720]CLEAN" |]
+          NameSeparator = " - "
+          Volume = -12.
+          MacVolume = None
+          Key = "new_tone"
+          Name = "new_tone"
+          SortOrder = None }

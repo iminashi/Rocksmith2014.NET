@@ -217,45 +217,18 @@ let private tonesPanel state dispatch =
                 DockPanel.margin 4.
                 DockPanel.children [
                     // Title
-                    locText "tones" [
+                    StackPanel.create [
                         DockPanel.dock Dock.Top
-                        TextBlock.margin (0.0, 4.0)
-                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                    ]
-
-                    Grid.create [
-                        DockPanel.dock Dock.Top
-                        Grid.columnDefinitions "*,*,*"
-                        Grid.children [
-                            // Import from profile
-                            Button.create [
-                                Button.padding (15.0, 5.0)
-                                Button.content (translate "fromProfile")
-                                Button.onClick (fun _ -> dispatch ImportProfileTones)
-                                Button.isEnabled (IO.File.Exists state.Config.ProfilePath)
-                                ToolTip.tip (translate "profileImportToolTip" + $" ({ctrl}P)")
+                        StackPanel.orientation Orientation.Horizontal
+                        StackPanel.horizontalAlignment HorizontalAlignment.Center
+                        StackPanel.children [
+                            locText "tones" [
+                                TextBlock.margin (0.0, 4.0)
+                                TextBlock.verticalAlignment VerticalAlignment.Center
                             ]
 
-                            Button.create [
-                                Grid.column 1
-                                Button.padding (15.0, 5.0)
-                                Button.content "+"
-                                Button.onClick (fun _ ->
-                                    let api = ToneCollection.createApi()
-                                    let tones = api.GetTones None |> Seq.toArray
-                                    ToneCollection (api, tones, String.Empty)
-                                    |> ShowOverlay
-                                    |> dispatch)
-                            ]
-
-                            // Import from file
-                            Button.create [
-                                Grid.column 2
-                                Button.padding (15.0, 5.0)
-                                Button.content (translate "import")
-                                Button.onClick (fun _ -> Dialog.ToneImport |> ShowDialog |> dispatch)
-                            ]
-                        ]
+                            Menus.addTone state dispatch 
+                        ] 
                     ]
 
                     // Tones list
@@ -301,8 +274,8 @@ let private overlay state dispatch =
             ErrorMessage.view dispatch "No tone selected. This should not happen." None
         | index ->
             ToneEditor.view state dispatch state.Project.Tones.[index]
-    | ToneCollection (api, tones, searchString) ->
-        ToneCollectionOverlay.view state dispatch api tones searchString
+    | ToneCollection collectionState ->
+        ToneCollectionOverlay.view dispatch collectionState
     | DeleteConfirmation files ->
         DeleteConfirmation.view dispatch files
     | PitchShifter ->

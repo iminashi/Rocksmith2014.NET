@@ -39,6 +39,9 @@ let handleEvent dispatch (event: KeyEventArgs) =
         dispatch (ShowOverlay ConfigEditor)
 
     | Ctrl, Key.T ->
+        dispatch ShowToneCollection
+
+    | Ctrl, Key.I ->
         dispatch (ShowDialog Dialog.ToolkitImport)
 
     | Ctrl, Key.A ->

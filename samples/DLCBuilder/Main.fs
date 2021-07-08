@@ -13,6 +13,7 @@ open System
 open System.Diagnostics
 open System.IO
 open EditFunctions
+open DLCBuilder
 
 let arrangementCheckProgress = Progress<float>()
 let psarcImportProgress = Progress<float>()
@@ -88,6 +89,22 @@ let private addArrangements files state =
 
 let private createExitCheckFile () =
     using (File.Create Configuration.exitCheckFilePath) ignore
+
+let private createToneCollectionOverlay (collectionState: ToneCollection.State) searchString page =
+    let tones =
+        let search = Option.ofString searchString
+        collectionState.Api.GetTones(search, page)
+        |> Seq.toArray
+    let totalPages =
+        tones
+        |> Array.tryHead
+        |> Option.map (fun x -> ceil (float x.TotalRows / 5.) |> int)
+        |> Option.defaultValue 0
+
+    ToneCollection ({ collectionState with Tones = tones
+                                           SearchString = searchString
+                                           CurrentPage = page
+                                           TotalPages = totalPages })
 
 let init args =
     let commands =
@@ -252,8 +269,8 @@ let update (msg: Msg) (state: State) =
             match state.Overlay with
             | ConfigEditor ->
                 Cmd.OfAsync.attempt Configuration.save config ErrorOccurred
-            | ToneCollection (api, _, _) ->
-                api.Dispose()
+            | ToneCollection c ->
+                c.Api.Dispose()
                 Cmd.none
             | _ ->
                 Cmd.none
@@ -468,6 +485,10 @@ let update (msg: Msg) (state: State) =
 
         { state with Project = { project with Tones = tones }
                      SelectedToneIndex = index }, Cmd.none
+    | AddNewTone ->
+        let newTone = ToneGear.emptyTone.Value
+
+        { state with Project = { project with Tones = newTone::project.Tones } }, Cmd.none
 
     | DuplicateTone ->
         let duplicate =
@@ -480,6 +501,32 @@ let update (msg: Msg) (state: State) =
     | MoveTone dir ->
         let tones, index = moveSelected dir state.SelectedToneIndex project.Tones
         { state with Project = { project with Tones = tones }; SelectedToneIndex = index }, Cmd.none
+
+    | ShowToneCollection ->
+        { state with Overlay = ToneCollection (ToneCollection.State.Init()) }, Cmd.none
+
+    | SearchOfficialTones searchString ->
+        match state.Overlay with
+        | ToneCollection collectionState ->
+            let overay = createToneCollectionOverlay collectionState searchString 1
+
+            { state with Overlay = overay }, Cmd.none
+        | _ ->
+            state, Cmd.none
+
+    | ChangeToneCollectionPage direction ->
+        match state.Overlay with
+        | ToneCollection collectionState ->
+            let page = collectionState.CurrentPage + match direction with Right -> 1 | Left -> -1
+            if page < 1 || page > collectionState.TotalPages then
+                state, Cmd.none
+            else
+                let overay =
+                    createToneCollectionOverlay collectionState collectionState.SearchString page
+
+                { state with Overlay = overay }, Cmd.none
+        | _ ->
+            state, Cmd.none
 
     | AddDbTone (api, id) ->
         match api.GetToneById id with
