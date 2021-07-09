@@ -90,22 +90,6 @@ let private addArrangements files state =
 let private createExitCheckFile () =
     using (File.Create Configuration.exitCheckFilePath) ignore
 
-let private createToneCollectionOverlay (collectionState: ToneCollection.State) searchString page =
-    let tones =
-        let search = Option.ofString searchString
-        collectionState.Api.GetTones(search, page)
-        |> Seq.toArray
-    let totalPages =
-        tones
-        |> Array.tryHead
-        |> Option.map (fun x -> ceil (float x.TotalRows / 5.) |> int)
-        |> Option.defaultValue 0
-
-    ToneCollection ({ collectionState with Tones = tones
-                                           SearchString = searchString
-                                           CurrentPage = page
-                                           TotalPages = totalPages })
-
 let init args =
     let commands =
         let wasAbnormalExit = File.Exists Configuration.exitCheckFilePath
@@ -270,7 +254,7 @@ let update (msg: Msg) (state: State) =
             | ConfigEditor ->
                 Cmd.OfAsync.attempt Configuration.save config ErrorOccurred
             | ToneCollection c ->
-                c.Api.Dispose()
+                ToneCollection.disposeCollection c.ActiveCollection
                 Cmd.none
             | _ ->
                 Cmd.none
@@ -485,6 +469,7 @@ let update (msg: Msg) (state: State) =
 
         { state with Project = { project with Tones = tones }
                      SelectedToneIndex = index }, Cmd.none
+
     | AddNewTone ->
         let newTone = ToneGear.emptyTone.Value
 
@@ -508,9 +493,20 @@ let update (msg: Msg) (state: State) =
     | SearchOfficialTones searchString ->
         match state.Overlay with
         | ToneCollection collectionState ->
-            let overay = createToneCollectionOverlay collectionState searchString 1
+            let overlay = collectionState.Update(searchString=searchString, page=1) |> ToneCollection
 
-            { state with Overlay = overay }, Cmd.none
+            { state with Overlay = overlay }, Cmd.none
+        | _ ->
+            state, Cmd.none
+
+    | ChangeToneCollection activeTab ->
+        match state.Overlay with
+        | ToneCollection collectionState ->
+            let overlay =
+                collectionState.Update(active=activeTab, searchString=None, page=1)
+                |> ToneCollection
+
+            { state with Overlay = overlay }, Cmd.none
         | _ ->
             state, Cmd.none
 
@@ -521,18 +517,23 @@ let update (msg: Msg) (state: State) =
             if page < 1 || page > collectionState.TotalPages then
                 state, Cmd.none
             else
-                let overay =
-                    createToneCollectionOverlay collectionState collectionState.SearchString page
+                let overlay =
+                    collectionState.Update(page=page)
+                    |> ToneCollection
 
-                { state with Overlay = overay }, Cmd.none
+                { state with Overlay = overlay }, Cmd.none
         | _ ->
             state, Cmd.none
 
-    | AddDbTone (api, id) ->
-        match api.GetToneById id with
-        | Some tone ->
-            { state with Project = { project with Tones = tone::project.Tones} }, Cmd.none
-        | None ->
+    | AddDbTone id ->
+        match state.Overlay with
+        | ToneCollection collectionState ->
+            match ToneCollection.getToneById collectionState.ActiveCollection id with
+            | Some tone ->
+                { state with Project = { project with Tones = tone::project.Tones} }, Cmd.none
+            | None ->
+                state, Cmd.none
+        | _ ->
             state, Cmd.none
 
     | MoveArrangement dir ->

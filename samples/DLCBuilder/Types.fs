@@ -226,8 +226,9 @@ type Msg =
     | DuplicateTone
     | MoveTone of MoveDirection
     | ShowToneCollection
-    | AddDbTone of api : ToneCollection.ITonesApi * id : int64
-    | SearchOfficialTones of searchString : string
+    | ChangeToneCollection of activeTab : ToneCollection.ActiveTab
+    | AddDbTone of id : int64
+    | SearchOfficialTones of searchString : string option
     | ChangeToneCollectionPage of direction : PageDirection
     | MoveArrangement of MoveDirection
     | CreatePreviewAudio of PreviewAudioCreation

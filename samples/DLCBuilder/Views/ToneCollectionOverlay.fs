@@ -6,27 +6,28 @@ open Avalonia.Controls.Shapes
 open Avalonia.FuncUI
 open Avalonia.FuncUI.Components
 open Avalonia.FuncUI.DSL
+open Avalonia.Input
 open Avalonia.Layout
 open Avalonia.Media
 open DLCBuilder
 open DLCBuilder.Media
 open DLCBuilder.ToneCollection
 open Rocksmith2014.Common
-open Avalonia.Input
+open System
 
 let private translateDescription (description: string) =
     description.Split('|')
     |> Array.map translate
     |> String.concat " "
     
-let private officialToneTemplate dispatch (api: ITonesApi) =
+let private officialToneTemplate dispatch (api: IOfficialTonesApi) =
     DataTemplateView<OfficialTone>.create (fun dbTone ->
         hStack [
             Button.create [
                 Button.content "+"
                 Button.padding (10., 5.)
                 Button.verticalAlignment VerticalAlignment.Stretch
-                Button.onClick (fun _ -> dispatch (AddDbTone (api, dbTone.Id)))
+                Button.onClick (fun _ -> dispatch (AddDbTone dbTone.Id))
             ]
 
             Path.create [
@@ -45,24 +46,14 @@ let private officialToneTemplate dispatch (api: ITonesApi) =
             ]
         ])
 
-let view dispatch (collectionState: ToneCollection.State) =
+let private collectionView dispatch (collectionState: ToneCollection.State) =
     DockPanel.create [
         DockPanel.children [
             // Search text box
             AutoFocusSearchBox.create [
                 DockPanel.dock Dock.Top
-                AutoFocusSearchBox.onTextChanged (SearchOfficialTones >> dispatch)
+                AutoFocusSearchBox.onTextChanged (Option.ofString >> SearchOfficialTones >> dispatch)
             ]
-
-            // Close button
-            //Button.create [
-            //    DockPanel.dock Dock.Bottom
-            //    Button.fontSize 16.
-            //    Button.padding (50., 10.)
-            //    Button.horizontalAlignment HorizontalAlignment.Center
-            //    Button.content (translate "close")
-            //    Button.onClick (fun _ -> CloseOverlay |> dispatch)
-            //]
 
             // Pagination
             Grid.create [
@@ -90,7 +81,11 @@ let view dispatch (collectionState: ToneCollection.State) =
                         TextBlock.margin 8.
                         TextBlock.minWidth 80.
                         TextBlock.textAlignment TextAlignment.Center
-                        TextBlock.text ($"{collectionState.CurrentPage} / {collectionState.TotalPages}")
+                        TextBlock.text (
+                            if collectionState.TotalPages = 0 then
+                                String.Empty
+                             else
+                                $"{collectionState.CurrentPage} / {collectionState.TotalPages}")
                     ]
                     Border.create [
                         let isEnabled = collectionState.CurrentPage < collectionState.TotalPages
@@ -110,33 +105,81 @@ let view dispatch (collectionState: ToneCollection.State) =
                 ]
             ]
 
-            // Tones list
-            ListBox.create [
-                ListBox.height 410.
-                ListBox.width 500.
-                ListBox.dataItems collectionState.Tones
-                ListBox.itemTemplate (officialToneTemplate dispatch collectionState.Api)
-                ListBox.onKeyDown (fun arg ->
-                    match arg.Key with
-                    | Key.Left ->
-                        arg.Handled <- true
-                        ChangeToneCollectionPage Left |> dispatch
-                    | Key.Right ->
-                        arg.Handled <- true
-                        ChangeToneCollectionPage Right |> dispatch
-                    | Key.Enter ->
-                        match arg.Source with
-                        | :? ListBoxItem as item ->
-                            match item.DataContext with
-                            | :? OfficialTone as selectedTone ->
-                                arg.Handled <- true
-                                dispatch (AddDbTone (collectionState.Api, selectedTone.Id))
+            match collectionState.ActiveCollection with
+            | ActiveCollection.Official None ->
+                TextBlock.create [
+                    TextBlock.horizontalAlignment HorizontalAlignment.Center
+                    TextBlock.verticalAlignment VerticalAlignment.Center
+                    TextBlock.text "Official tones file not found."
+                ]
+            | ActiveCollection.Official (Some api) ->
+                // Tones list
+                ListBox.create [
+                    ListBox.height 410.
+                    ListBox.width 500.
+                    ListBox.dataItems collectionState.Tones
+                    ListBox.itemTemplate (officialToneTemplate dispatch api)
+                    ListBox.onKeyDown (fun arg ->
+                        match arg.Key with
+                        | Key.Left ->
+                            arg.Handled <- true
+                            ChangeToneCollectionPage Left |> dispatch
+                        | Key.Right ->
+                            arg.Handled <- true
+                            ChangeToneCollectionPage Right |> dispatch
+                        | Key.Enter ->
+                            match arg.Source with
+                            | :? ListBoxItem as item ->
+                                match item.DataContext with
+                                | :? OfficialTone as selectedTone ->
+                                    arg.Handled <- true
+                                    dispatch (AddDbTone selectedTone.Id)
+                                | _ ->
+                                    ()
                             | _ ->
                                 ()
                         | _ ->
                             ()
+                    )
+                ]
+            | ActiveCollection.User api ->
+                TextBlock.create [ TextBlock.text "TODO" ]
+        ]
+    ]
+
+let view dispatch collectionState =
+    TabControl.create [
+        TabControl.width 520.
+        TabControl.height 550.
+        TabControl.viewItems [
+            TabItem.create [
+                TabItem.header "Official"
+                TabItem.content (
+                    match collectionState.ActiveCollection with
+                    | ActiveCollection.Official _ ->
+                        collectionView dispatch collectionState
+                        |> generalize
                     | _ ->
-                        ()
+                        Panel.create [] |> generalize)
+                TabItem.onIsSelectedChanged (fun isSelected ->
+                    if isSelected then
+                        ActiveTab.Official |> ChangeToneCollection |> dispatch
+                )
+            ]
+
+            TabItem.create [
+                TabItem.header "User"
+                TabItem.content (
+                    match collectionState.ActiveCollection with
+                    | ActiveCollection.User _ ->
+                        collectionView dispatch collectionState
+                        |> generalize
+                    | _ ->
+                        Panel.create [] |> generalize
+                )
+                TabItem.onIsSelectedChanged (fun isSelected ->
+                    if isSelected then
+                        ActiveTab.User |> ChangeToneCollection |> dispatch
                 )
             ]
         ]
