@@ -224,11 +224,13 @@ type Msg =
     | DeleteTone
     | AddNewTone
     | DuplicateTone
+    | AddToneToCollection
     | MoveTone of MoveDirection
     | ShowToneCollection
     | ChangeToneCollection of activeTab : ToneCollection.ActiveTab
     | AddDbTone of id : int64
-    | SearchOfficialTones of searchString : string option
+    | DeleteUserTone of id : int64
+    | SearchToneCollection of searchString : string option
     | ChangeToneCollectionPage of direction : PageDirection
     | MoveArrangement of MoveDirection
     | CreatePreviewAudio of PreviewAudioCreation

@@ -354,5 +354,9 @@
   "injectTonesIntoProfile": "プロフィールにトーンを読み込む...",
   "injectTonesIntoProfileToolTip": "設定で入力されたプロフィールファイルにトーンを読み込みます。\n\n注意:\nプロフィールに存在するカスタムトーンが上書きされます。\nプロフィールファイルを事前にバックアップする事を推奨します。",
   "search": "検索",
-  "toneAddedToProject": "プロジェクトにトーンが追加されました。"
+  "toneAddedToProject": "プロジェクトにトーンが追加されました。",
+  "toneAddedToCollection": "トーンがユーザーのコレクションに追加されました。",
+  "addToCollection": "コレクションに追加",
+  "official": "公式",
+  "user": "ユーザー"
 }

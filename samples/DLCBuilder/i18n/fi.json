@@ -354,5 +354,9 @@
   "injectTonesIntoProfile": "Lataa soundeja profiiliin...",
   "injectTonesIntoProfileToolTip": "Valitse soundit, jotka ladataan asetuksissa asetetuun profiilitiedostoon.\n\nHUOMIO:\nProfiilissa olevat soundit korvataan.\nOn suositeltavaa tehdä profiilista varmuuskopio ennen käyttöä.",
   "search": "Haku",
-  "toneAddedToProject": "Soundi lisättiin projektiin."
+  "toneAddedToProject": "Soundi lisättiin projektiin.",
+  "toneAddedToCollection": "Suondi lisättiin käyttäjän kokoelmaan.",
+  "addToCollection": "Lisää kokoelmaan",
+  "official": "Viralliset",
+  "user": "Omat"
 }

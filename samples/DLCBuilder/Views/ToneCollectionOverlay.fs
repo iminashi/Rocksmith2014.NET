@@ -20,8 +20,8 @@ let private translateDescription (description: string) =
     |> Array.map translate
     |> String.concat " "
     
-let private officialToneTemplate dispatch (api: IOfficialTonesApi) =
-    DataTemplateView<OfficialTone>.create (fun dbTone ->
+let private toneTemplate dispatch =
+    DataTemplateView<DbTone>.create (fun dbTone ->
         hStack [
             Button.create [
                 Button.content "+"
@@ -39,12 +39,59 @@ let private officialToneTemplate dispatch (api: IOfficialTonesApi) =
             StackPanel.create [
                 StackPanel.margin 4.
                 StackPanel.children [
-                    TextBlock.create [ TextBlock.text $"{dbTone.Artist} - {dbTone.Title}" ]
+                    TextBlock.create [
+                        TextBlock.text (
+                            if String.notEmpty dbTone.Artist && String.notEmpty dbTone.Title then
+                                $"{dbTone.Artist} - {dbTone.Title}"
+                            else
+                                String.Empty)
+                    ]
                     TextBlock.create [ TextBlock.text dbTone.Name ]
                     TextBlock.create [ TextBlock.text (translateDescription dbTone.Description) ]
                 ]
             ]
         ])
+
+let tonesList dispatch collectionState isOfficial =
+    ListBox.create [
+        ListBox.height 410.
+        ListBox.width 500.
+        ListBox.dataItems collectionState.Tones
+        ListBox.itemTemplate (toneTemplate dispatch)
+        ListBox.onKeyDown (fun arg ->
+            match arg.Key with
+            | Key.Left ->
+                arg.Handled <- true
+                ChangeToneCollectionPage Left |> dispatch
+            | Key.Right ->
+                arg.Handled <- true
+                ChangeToneCollectionPage Right |> dispatch
+            | Key.Enter ->
+                match arg.Source with
+                | :? ListBoxItem as item ->
+                    match item.DataContext with
+                    | :? DbTone as selectedTone ->
+                        arg.Handled <- true
+                        AddDbTone selectedTone.Id |> dispatch
+                    | _ ->
+                        ()
+                | _ ->
+                    ()
+            | Key.Delete when not isOfficial ->
+                match arg.Source with
+                | :? ListBoxItem as item ->
+                    match item.DataContext with
+                    | :? DbTone as selectedTone ->
+                        arg.Handled <- true
+                        DeleteUserTone selectedTone.Id |> dispatch
+                    | _ ->
+                        ()
+                | _ ->
+                    ()
+            | _ ->
+                ()
+        )
+    ]
 
 let private collectionView dispatch (collectionState: ToneCollection.State) =
     DockPanel.create [
@@ -52,7 +99,7 @@ let private collectionView dispatch (collectionState: ToneCollection.State) =
             // Search text box
             AutoFocusSearchBox.create [
                 DockPanel.dock Dock.Top
-                AutoFocusSearchBox.onTextChanged (Option.ofString >> SearchOfficialTones >> dispatch)
+                AutoFocusSearchBox.onTextChanged (Option.ofString >> SearchToneCollection >> dispatch)
             ]
 
             // Pagination
@@ -106,44 +153,19 @@ let private collectionView dispatch (collectionState: ToneCollection.State) =
             ]
 
             match collectionState.ActiveCollection with
+            // Database file not found message
             | ActiveCollection.Official None ->
                 TextBlock.create [
                     TextBlock.horizontalAlignment HorizontalAlignment.Center
                     TextBlock.verticalAlignment VerticalAlignment.Center
                     TextBlock.text "Official tones file not found."
                 ]
-            | ActiveCollection.Official (Some api) ->
-                // Tones list
-                ListBox.create [
-                    ListBox.height 410.
-                    ListBox.width 500.
-                    ListBox.dataItems collectionState.Tones
-                    ListBox.itemTemplate (officialToneTemplate dispatch api)
-                    ListBox.onKeyDown (fun arg ->
-                        match arg.Key with
-                        | Key.Left ->
-                            arg.Handled <- true
-                            ChangeToneCollectionPage Left |> dispatch
-                        | Key.Right ->
-                            arg.Handled <- true
-                            ChangeToneCollectionPage Right |> dispatch
-                        | Key.Enter ->
-                            match arg.Source with
-                            | :? ListBoxItem as item ->
-                                match item.DataContext with
-                                | :? OfficialTone as selectedTone ->
-                                    arg.Handled <- true
-                                    dispatch (AddDbTone selectedTone.Id)
-                                | _ ->
-                                    ()
-                            | _ ->
-                                ()
-                        | _ ->
-                            ()
-                    )
-                ]
-            | ActiveCollection.User api ->
-                TextBlock.create [ TextBlock.text "TODO" ]
+
+            // Tones list
+            | ActiveCollection.Official _ ->
+                tonesList dispatch collectionState true
+            | ActiveCollection.User _ ->
+                tonesList dispatch collectionState false
         ]
     ]
 
@@ -153,7 +175,7 @@ let view dispatch collectionState =
         TabControl.height 550.
         TabControl.viewItems [
             TabItem.create [
-                TabItem.header "Official"
+                TabItem.header (translate "official")
                 TabItem.content (
                     match collectionState.ActiveCollection with
                     | ActiveCollection.Official _ ->
@@ -168,7 +190,7 @@ let view dispatch collectionState =
             ]
 
             TabItem.create [
-                TabItem.header "User"
+                TabItem.header (translate "user")
                 TabItem.content (
                     match collectionState.ActiveCollection with
                     | ActiveCollection.User _ ->

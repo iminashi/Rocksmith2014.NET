@@ -13,7 +13,6 @@ open System
 open System.Diagnostics
 open System.IO
 open EditFunctions
-open DLCBuilder
 
 let arrangementCheckProgress = Progress<float>()
 let psarcImportProgress = Progress<float>()
@@ -475,6 +474,11 @@ let update (msg: Msg) (state: State) =
 
         { state with Project = { project with Tones = newTone::project.Tones } }, Cmd.none
 
+    | AddToneToCollection ->
+        getSelectedTone state
+        |> Option.iter (ToneCollection.addToUserCollection project)
+        state, Cmd.ofMsg (AddStatusMessage "toneAddedToCollection")
+
     | DuplicateTone ->
         let duplicate =
             getSelectedTone state
@@ -494,7 +498,7 @@ let update (msg: Msg) (state: State) =
 
         { state with Overlay = overlay }, Cmd.none
 
-    | SearchOfficialTones searchString ->
+    | SearchToneCollection searchString ->
         match state.Overlay with
         | ToneCollection collectionState ->
             let overlay =
@@ -543,6 +547,18 @@ let update (msg: Msg) (state: State) =
                 Cmd.ofMsg (AddStatusMessage "toneAddedToProject")
             | None ->
                 state, Cmd.none
+        | _ ->
+            state, Cmd.none
+
+    | DeleteUserTone id ->
+        match state.Overlay with
+        | ToneCollection collectionState ->
+            let overlay =
+                collectionState
+                |> ToneCollection.State.deleteUserTone id
+                |> ToneCollection
+
+            { state with Overlay = overlay }, Cmd.none
         | _ ->
             state, Cmd.none
 

@@ -8,9 +8,10 @@ open System.Text.Json
 open System.Text.Json.Serialization
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
+open Rocksmith2014.DLCProject
 
 [<CLIMutable>]
-type OfficialTone =
+type DbTone =
     { Id: int64
       Artist: string
       Title: string
@@ -19,17 +20,27 @@ type OfficialTone =
       Description: string
       TotalRows: int64 }
 
+type DbToneData =
+    { Artist: string
+      ArtistSort: string
+      Title: string
+      TitleSort: string
+      Name: string
+      BassTone: bool
+      Description: string
+      Definition: string }
+
 type IOfficialTonesApi =
     inherit IDisposable
     abstract member GetToneById : int64 -> Tone option
-    abstract member GetTones : string option * int -> OfficialTone array
+    abstract member GetTones : string option * int -> DbTone array
 
 type IUserTonesApi =
     inherit IDisposable
     abstract member GetToneById : int64 -> Tone option
-    abstract member GetTones : string option * int -> OfficialTone array
+    abstract member GetTones : string option * int -> DbTone array
     abstract member DeleteToneById : int64 -> unit
-    abstract member AddTone : Tone -> unit
+    abstract member AddTone : DbToneData -> unit
 
 type private ToneDefinition = { Definition : string }
 
@@ -107,7 +118,7 @@ let tryCreateOfficialTonesApi () =
 
             member _.GetTones(searchString, pageNumber) =
                 createQuery searchString pageNumber
-                |> connection.Query<OfficialTone>
+                |> connection.Query<DbTone>
                 |> Seq.toArray }
         |> Some
     else
@@ -133,7 +144,7 @@ let private ensureUserTonesDbCreated () =
                Definition VARCHAR(8000) NOT NULL)"""
 
         using (new SQLiteCommand(sql, connection))
-              (fun x -> x.ExecuteNonQuery() |> ignore)      
+              (fun x -> x.ExecuteNonQuery() |> ignore)
 
 let createUserTonesApi () =
     ensureUserTonesDbCreated()
@@ -151,14 +162,19 @@ let createUserTonesApi () =
 
         member _.GetTones(searchString, pageNumber) =
             createQuery searchString pageNumber
-            |> connection.Query<OfficialTone>
+            |> connection.Query<DbTone>
             |> Seq.toArray
             
-        member this.AddTone(arg1: Tone): unit = 
-            raise (System.NotImplementedException())
+        member _.AddTone(data: DbToneData) =
+            let sql =
+                """INSERT INTO tones(artist, artistSort, title, titleSort, name, basstone, description, definition)
+                   VALUES (@artist, @artistSort, @title, @titleSort, @name, @basstone, @description, @definition)"""
+            connection.Execute(sql, data) |> ignore
 
-        member this.DeleteToneById(arg1: int64): unit = 
-            raise (System.NotImplementedException()) }
+        member _.DeleteToneById(id: int64) =
+            let sql = $"DELETE FROM tones WHERE id = {id}"
+            using (new SQLiteCommand(sql, connection))
+                  (fun x -> x.ExecuteNonQuery() |> ignore) }
 
 [<RequireQualifiedAccess>]
 type ActiveCollection =
@@ -200,9 +216,34 @@ let getTones collection searchString page =
     | ActiveCollection.User api ->
         api.GetTones(searchString, page)
 
+let addToUserCollection (project: DLCProject) (tone: Tone) =
+    use collection = createUserTonesApi()
+    
+    let description = String.Join("|", Array.map ToneDescriptor.uiNameToName tone.ToneDescriptors)
+
+    let options = JsonSerializerOptions(WriteIndented = false, IgnoreNullValues = true)
+    options.Converters.Add(JsonFSharpConverter())
+
+    let definition =
+        let dto = Tone.toDto { tone with SortOrder = None; MacVolume = None }
+        JsonSerializer.Serialize(dto, options)
+
+    let isBass =
+        tone.ToneDescriptors |> Array.contains "$[35715]BASS"
+    
+    { Artist = project.ArtistName.Value
+      ArtistSort = project.ArtistName.SortValue
+      Title = project.Title.Value
+      TitleSort = project.Title.SortValue
+      Name = tone.Name
+      BassTone = isBass
+      Description = description
+      Definition = definition }
+    |> collection.AddTone
+
 type State =
     { ActiveCollection : ActiveCollection
-      Tones : OfficialTone array
+      Tones : DbTone array
       SearchString : string option
       CurrentPage : int
       TotalPages : int }
@@ -271,3 +312,15 @@ module State =
                 SearchString = searchString
                 CurrentPage = page
                 TotalPages = getTotalPages tones }
+
+    let deleteUserTone id collectionState =
+        match collectionState.ActiveCollection with
+        | ActiveCollection.User api ->
+            api.DeleteToneById id
+            let tones = getTones collectionState.ActiveCollection collectionState.SearchString collectionState.CurrentPage
+            
+            { collectionState with
+                Tones = tones
+                TotalPages = getTotalPages tones }
+        | _ ->
+            collectionState

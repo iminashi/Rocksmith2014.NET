@@ -252,6 +252,12 @@ module Context =
         ContextMenu.create [
             ContextMenu.isVisible (state.SelectedToneIndex <> -1)
             ContextMenu.viewItems [
+                // Add to collection
+                MenuItem.create [
+                    MenuItem.header (translate "addToCollection")
+                    MenuItem.onClick (fun _ -> AddToneToCollection |> dispatch)
+                ]
+
                 // Duplicate
                 MenuItem.create [
                     MenuItem.header (translate "duplicate")
