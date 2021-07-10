@@ -420,25 +420,6 @@ let view (window: Window) (state: State) dispatch =
                 ]
             ]
 
-            if not state.StatusMessages.IsEmpty then
-                StackPanel.create [
-                    StackPanel.horizontalAlignment HorizontalAlignment.Right
-                    StackPanel.verticalAlignment VerticalAlignment.Bottom
-                    StackPanel.margin 8.
-                    StackPanel.children (
-                        state.StatusMessages
-                        |> List.map (fun message ->
-                            Border.create [
-                                Border.margin (0., 1.)
-                                Border.padding (20., 10.)
-                                Border.cornerRadius 6.0
-                                Border.minWidth 250.
-                                Border.background Brushes.Black
-                                Border.child (statusMessageContents dispatch message)
-                            ] |> generalize)
-                    )
-                ]
-
             match state.Overlay with
             | NoOverlay ->
                 ()
@@ -458,6 +439,25 @@ let view (window: Window) (state: State) dispatch =
                             Border.child (overlay state dispatch)
                         ]
                     ]
+                ]
+
+            if not state.StatusMessages.IsEmpty then
+                StackPanel.create [
+                    StackPanel.horizontalAlignment HorizontalAlignment.Right
+                    StackPanel.verticalAlignment VerticalAlignment.Bottom
+                    StackPanel.margin 8.
+                    StackPanel.children (
+                        state.StatusMessages
+                        |> List.map (fun message ->
+                            Border.create [
+                                Border.margin (0., 1.)
+                                Border.padding (20., 10.)
+                                Border.cornerRadius 6.0
+                                Border.minWidth 250.
+                                Border.background Brushes.Black
+                                Border.child (statusMessageContents dispatch message)
+                            ] |> generalize)
+                    )
                 ]
         ]
     ]
