@@ -353,5 +353,6 @@
   "goToDownloadPage": "ダウンロードサイトへ移動",
   "injectTonesIntoProfile": "プロフィールにトーンを読み込む...",
   "injectTonesIntoProfileToolTip": "設定で入力されたプロフィールファイルにトーンを読み込みます。\n\n注意:\nプロフィールに存在するカスタムトーンが上書きされます。\nプロフィールファイルを事前にバックアップする事を推奨します。",
-  "search": "検索"
+  "search": "検索",
+  "toneAddedToProject": "プロジェクトにトーンが追加されました。"
 }

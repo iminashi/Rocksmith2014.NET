@@ -488,12 +488,19 @@ let update (msg: Msg) (state: State) =
         { state with Project = { project with Tones = tones }; SelectedToneIndex = index }, Cmd.none
 
     | ShowToneCollection ->
-        { state with Overlay = ToneCollection (ToneCollection.State.Init()) }, Cmd.none
+        let overlay =
+            ToneCollection.State.init ToneCollection.ActiveTab.Official
+            |> ToneCollection
+
+        { state with Overlay = overlay }, Cmd.none
 
     | SearchOfficialTones searchString ->
         match state.Overlay with
         | ToneCollection collectionState ->
-            let overlay = collectionState.Update(searchString=searchString, page=1) |> ToneCollection
+            let overlay =
+                collectionState
+                |> ToneCollection.State.changeSearch searchString
+                |> ToneCollection
 
             { state with Overlay = overlay }, Cmd.none
         | _ ->
@@ -503,7 +510,8 @@ let update (msg: Msg) (state: State) =
         match state.Overlay with
         | ToneCollection collectionState ->
             let overlay =
-                collectionState.Update(active=activeTab, searchString=None, page=1)
+                collectionState
+                |> ToneCollection.State.changeCollection activeTab
                 |> ToneCollection
 
             { state with Overlay = overlay }, Cmd.none
@@ -518,7 +526,8 @@ let update (msg: Msg) (state: State) =
                 state, Cmd.none
             else
                 let overlay =
-                    collectionState.Update(page=page)
+                    collectionState
+                    |> ToneCollection.State.changePage page
                     |> ToneCollection
 
                 { state with Overlay = overlay }, Cmd.none
@@ -530,7 +539,8 @@ let update (msg: Msg) (state: State) =
         | ToneCollection collectionState ->
             match ToneCollection.getToneById collectionState.ActiveCollection id with
             | Some tone ->
-                { state with Project = { project with Tones = tone::project.Tones} }, Cmd.none
+                { state with Project = { project with Tones = tone::project.Tones} },
+                Cmd.ofMsg (AddStatusMessage "toneAddedToProject")
             | None ->
                 state, Cmd.none
         | _ ->

@@ -160,12 +160,6 @@ let createUserTonesApi () =
         member this.DeleteToneById(arg1: int64): unit = 
             raise (System.NotImplementedException()) }
 
-let private getTotalPages tones =
-    tones
-    |> Array.tryHead
-    |> Option.map (fun x -> ceil (float x.TotalRows / 5.) |> int)
-    |> Option.defaultValue 0
-
 [<RequireQualifiedAccess>]
 type ActiveCollection =
     | Official of IOfficialTonesApi option
@@ -213,38 +207,15 @@ type State =
       CurrentPage : int
       TotalPages : int }
 
-    member this.Update (?active: ActiveTab, ?searchString: string option, ?page: int) =
-        let page = defaultArg page 1
-        let searchString = defaultArg searchString this.SearchString
+module State =
+    let private getTotalPages tones =
+        tones
+        |> Array.tryHead
+        |> Option.map (fun x -> ceil (float x.TotalRows / 5.) |> int)
+        |> Option.defaultValue 0
 
-        let collection =
-            match active, this.ActiveCollection with
-            | None, _
-            | Some ActiveTab.Official, ActiveCollection.Official _
-            | Some ActiveTab.User, ActiveCollection.User _ ->
-                this.ActiveCollection
-
-            | Some newTab, old ->
-                disposeCollection old
-                createCollection newTab
-
-        let tones =
-            if page = this.CurrentPage &&
-               searchString = this.SearchString &&
-               collection = this.ActiveCollection then
-                // Don't query the database if nothing actually changed
-                this.Tones
-            else
-                getTones collection searchString page
-
-        { this with ActiveCollection = collection
-                    Tones = tones
-                    SearchString = searchString
-                    CurrentPage = page
-                    TotalPages = getTotalPages tones }
-
-    static member Init (?tab: ActiveTab) =
-        let collection = createCollection (defaultArg tab ActiveTab.Official)
+    let init (tab: ActiveTab) =
+        let collection = createCollection tab
         let tones = getTones collection None 1
 
         { ActiveCollection = collection
@@ -252,3 +223,51 @@ type State =
           SearchString = None
           CurrentPage = 1
           TotalPages = getTotalPages tones }
+
+    let changePage page collectionState =
+        if page = collectionState.CurrentPage then
+            collectionState
+        else
+            let tones = getTones collectionState.ActiveCollection collectionState.SearchString page
+
+            { collectionState with
+                Tones = tones
+                CurrentPage = page }
+
+    let changeSearch searchString collectionState =
+        if searchString = collectionState.SearchString then
+            collectionState
+        else
+            let page = 1
+            let tones = getTones collectionState.ActiveCollection searchString page
+
+            { collectionState with
+                Tones = tones
+                SearchString = searchString
+                CurrentPage = page
+                TotalPages = getTotalPages tones }
+
+    let changeCollection tab collectionState =
+        let collection =
+            match tab, collectionState.ActiveCollection with
+            | ActiveTab.Official, ActiveCollection.Official _
+            | ActiveTab.User, ActiveCollection.User _ ->
+                collectionState.ActiveCollection
+
+            | newTab, old ->
+                disposeCollection old
+                createCollection newTab
+
+        if collection = collectionState.ActiveCollection then
+            collectionState
+        else
+            let page = 1
+            let searchString = None
+            let tones = getTones collection searchString page
+
+            { collectionState with
+                ActiveCollection = collection
+                Tones = tones
+                SearchString = searchString
+                CurrentPage = page
+                TotalPages = getTotalPages tones }
