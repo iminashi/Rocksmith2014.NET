@@ -22,6 +22,15 @@ let private translateDescription (description: string) =
     
 let private toneTemplate dispatch =
     DataTemplateView<DbTone>.create (fun dbTone ->
+        let brush =
+            if dbTone.BassTone then
+                Brushes.bass
+            elif dbTone.Name.Contains("lead", StringComparison.OrdinalIgnoreCase)
+                 || dbTone.Name.Contains("solo", StringComparison.OrdinalIgnoreCase) then
+                Brushes.lead
+            else
+                Brushes.rhythm
+
         hStack [
             Button.create [
                 Button.content "+"
@@ -32,7 +41,7 @@ let private toneTemplate dispatch =
 
             Path.create [
                 Path.verticalAlignment VerticalAlignment.Center
-                Path.fill (if dbTone.BassTone then Brushes.bass else Brushes.lead)
+                Path.fill brush
                 Path.data Media.Icons.guitar
             ]
 
