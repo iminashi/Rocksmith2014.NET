@@ -69,6 +69,13 @@ module String =
     /// Returns true if the string contains the given value (case sensitive).
     let contains (substr: string) (str: string) = str.Contains(substr, StringComparison.Ordinal)
 
+    /// Returns the string if it is shorter than the max length, otherwise a substring of it.
+    let truncate (maxLength: int) (str: string) =
+        if str.Length > maxLength then
+            str.Substring(0, maxLength)
+        else
+            str
+
 [<RequireQualifiedAccess>]
 module List =
     /// Removes the item at the given index form the list.

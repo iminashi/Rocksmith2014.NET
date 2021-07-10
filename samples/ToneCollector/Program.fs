@@ -82,12 +82,12 @@ let getUniqueTones (psarc: PSARC) = async {
                         JsonSerializer.Serialize({ dto with SortOrder = Nullable()
                                                             MacVolume = null }, options)
 
-                    { Name = dto.Name
+                    { Name = dto.Name |> String.truncate 100
                       Key = dto.Key
-                      Artist = m.ArtistName.Trim()
-                      ArtistSort = m.ArtistNameSort.Trim()
-                      Title = m.SongName.Trim()
-                      TitleSort = m.SongNameSort.Trim()
+                      Artist = m.ArtistName.Trim() |> String.truncate 100
+                      ArtistSort = m.ArtistNameSort.Trim() |> String.truncate 100
+                      Title = m.SongName.Trim() |> String.truncate 100
+                      TitleSort = m.SongNameSort.Trim() |> String.truncate 100
                       BassTone = isBass
                       Description = description
                       Definition = definition })

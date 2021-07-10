@@ -231,11 +231,11 @@ let addToUserCollection (project: DLCProject) (tone: Tone) =
     let isBass =
         tone.ToneDescriptors |> Array.contains "$[35715]BASS"
     
-    { Artist = project.ArtistName.Value
-      ArtistSort = project.ArtistName.SortValue
-      Title = project.Title.Value
-      TitleSort = project.Title.SortValue
-      Name = tone.Name
+    { Artist = project.ArtistName.Value.Trim() |> String.truncate 100
+      ArtistSort = project.ArtistName.SortValue.Trim() |> String.truncate 100
+      Title = project.Title.Value.Trim() |> String.truncate 100
+      TitleSort = project.Title.SortValue.Trim() |> String.truncate 100
+      Name = tone.Name |> String.truncate 100
       BassTone = isBass
       Description = description
       Definition = definition }
