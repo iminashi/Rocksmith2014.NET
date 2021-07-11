@@ -43,13 +43,14 @@ let private toneTemplate dispatch isOfficial =
                         ]
                     ])
             StackPanel.background Brushes.Transparent
+            StackPanel.width 470.
             StackPanel.orientation Orientation.Horizontal
             StackPanel.children [
                 Button.create [
                     Button.content "+"
                     Button.padding (10., 5.)
                     Button.verticalAlignment VerticalAlignment.Stretch
-                    Button.onClick (fun _ -> dispatch (AddDbTone dbTone.Id))
+                    Button.onClick (fun _ -> AddDbTone dbTone.Id |> dispatch)
                 ]
 
                 Path.create [
