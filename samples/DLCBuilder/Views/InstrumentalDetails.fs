@@ -1,9 +1,9 @@
 ﻿module DLCBuilder.Views.InstrumentalDetails
 
-open Avalonia.FuncUI.DSL
-open Avalonia.Layout
 open Avalonia.Controls
 open Avalonia.Controls.Primitives
+open Avalonia.FuncUI.DSL
+open Avalonia.Layout
 open Avalonia.Media
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
@@ -12,7 +12,6 @@ open DLCBuilder
 
 let view state dispatch (i: Instrumental) =
     Grid.create [
-        //Grid.showGridLines true
         Grid.margin 6.
         Grid.columnDefinitions "auto,*"
         Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*,*,*,*"
@@ -33,8 +32,10 @@ let view state dispatch (i: Instrumental) =
                 ComboBox.itemTemplate Templates.arrangementName
                 ComboBox.selectedItem i.Name
                 ComboBox.onSelectedItemChanged (function
-                    | :? ArrangementName as name -> name |> SetArrangementName |> EditInstrumental |> dispatch
-                    | _ -> ())
+                    | :? ArrangementName as name ->
+                        name |> SetArrangementName |> EditInstrumental |> dispatch
+                    | _ ->
+                        ())
             ]
 
             // Priority
@@ -254,8 +255,10 @@ let view state dispatch (i: Instrumental) =
                 TextBox.onLostFocus (fun arg ->
                     let txtBox = arg.Source :?> TextBox
                     match Int32.TryParse txtBox.Text with
-                    | true, masterId -> SetMasterId masterId |> EditInstrumental |> dispatch
-                    | false, _ -> ()
+                    | true, masterId ->
+                        SetMasterId masterId |> EditInstrumental |> dispatch
+                    | false, _ ->
+                        ()
                 )
             ]
 
@@ -275,8 +278,10 @@ let view state dispatch (i: Instrumental) =
                 TextBox.onLostFocus (fun arg ->
                     let txtBox = arg.Source :?> TextBox
                     match Guid.TryParse txtBox.Text with
-                    | true, id -> SetPersistentId id |> EditInstrumental |> dispatch
-                    | false, _ -> ()
+                    | true, id ->
+                        SetPersistentId id |> EditInstrumental |> dispatch
+                    | false, _ ->
+                        ()
                 )
             ]
 
@@ -318,8 +323,10 @@ let view state dispatch (i: Instrumental) =
                         Button.isEnabled (not <| state.RunningTasks.Contains WemConversion)
                         Button.isVisible (
                             match i.CustomAudio with
-                            | Some audio when not <| String.endsWith ".wem" audio.Path -> true
-                            | _ -> false)
+                            | Some audio when not <| String.endsWith ".wem" audio.Path ->
+                                true
+                            | _ ->
+                                false)
                         Button.onClick (fun _ -> ConvertToWemCustom |> dispatch)
                         ToolTip.tip (translate "convertToWemTooltip")
                     ]

@@ -1,5 +1,7 @@
 ﻿module DLCBuilder.Main
 
+open Avalonia.Controls.Selection
+open Elmish
 open Rocksmith2014
 open Rocksmith2014.Audio
 open Rocksmith2014.Common
@@ -7,8 +9,6 @@ open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open Rocksmith2014.PSARC
 open Rocksmith2014.XML.Processing
-open Avalonia.Controls.Selection
-open Elmish
 open System
 open System.Diagnostics
 open System.IO

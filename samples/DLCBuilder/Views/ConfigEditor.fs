@@ -1,16 +1,16 @@
 ﻿module DLCBuilder.Views.ConfigEditor
 
-open Avalonia.FuncUI
-open Avalonia.FuncUI.DSL
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
+open Avalonia.FuncUI
+open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Media
 open Rocksmith2014.Common
 open Rocksmith2014.DD
-open DLCBuilder
-open System.IO
 open System
+open System.IO
+open DLCBuilder
 
 let private tryFindWwiseExecutable basePath =
     let ext = if OperatingSystem.IsMacOS() then "sh" else "exe"
@@ -142,12 +142,9 @@ let private generalConfig state dispatch =
                             TextBox.onTextChanged (SetWwiseConsolePath >> EditConfig >> dispatch)
                             TextBox.onLostFocus (fun e ->
                                 let t = e.Source :?> TextBox
-                                match t.Text with
-                                | path when Directory.Exists path ->
-                                    tryFindWwiseExecutable path
-                                    |> Option.iter (SetWwiseConsolePath >> EditConfig >> dispatch)
-                                | _ -> ()
-                            )
+                                if Directory.Exists t.Text then
+                                    tryFindWwiseExecutable t.Text
+                                    |> Option.iter (SetWwiseConsolePath >> EditConfig >> dispatch))
                             ToolTip.tip (translate "wwiseConsolePathTooltip")
                         ]
                     ]
@@ -281,8 +278,7 @@ let private ddConfig state dispatch =
                     RadioButton.content (translate (string option))
                     RadioButton.isChecked (state.Config.DDLevelCountGeneration = option)
                     RadioButton.onClick (fun _ ->
-                        option |> SetDDLevelCountGeneration |> EditConfig |> dispatch
-                    )
+                        option |> SetDDLevelCountGeneration |> EditConfig |> dispatch)
                     ToolTip.tip (translate ($"{option}ToolTip"))
                 ] |> generalize)
         )

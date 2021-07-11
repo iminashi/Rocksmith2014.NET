@@ -1,9 +1,9 @@
 ﻿module DLCBuilder.Views.DeleteConfirmation
 
-open Avalonia.FuncUI.DSL
-open Avalonia.FuncUI.Types
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
+open Avalonia.FuncUI
+open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Media
 open DLCBuilder
@@ -46,7 +46,8 @@ let view dispatch (files: string list) =
                         Button.padding (80., 10.)
                         Button.content (translate "yes")
                         Button.onClick ((fun _ ->
-                            files |> DeleteConfirmed |> dispatch), SubPatchOptions.Always)
+                            files |> DeleteConfirmed |> dispatch),
+                            SubPatchOptions.Always)
                     ]
 
                     // No button
@@ -59,4 +60,4 @@ let view dispatch (files: string list) =
                 ]
             ]
         ]
-    ] :> IView
+    ] |> generalize

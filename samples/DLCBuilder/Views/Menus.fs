@@ -1,10 +1,10 @@
 ﻿module DLCBuilder.Views.Menus
 
 open Avalonia
-open Avalonia.FuncUI
-open Avalonia.FuncUI.DSL
 open Avalonia.Controls
 open Avalonia.Controls.ApplicationLifetimes
+open Avalonia.FuncUI
+open Avalonia.FuncUI.DSL
 open Avalonia.Input
 open Avalonia.Layout
 open System

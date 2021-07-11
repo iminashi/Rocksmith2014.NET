@@ -1,8 +1,8 @@
 ﻿module DLCBuilder.Views.ImportTonesSelector
 
-open Avalonia.FuncUI.DSL
-open Avalonia.FuncUI.Types
 open Avalonia.Controls
+open Avalonia.FuncUI
+open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Rocksmith2014.Common.Manifest
 open DLCBuilder
@@ -58,4 +58,4 @@ let view state dispatch (tones: Tone array) =
                 ]
             ]
         ]
-    ] :> IView
+    ] |> generalize

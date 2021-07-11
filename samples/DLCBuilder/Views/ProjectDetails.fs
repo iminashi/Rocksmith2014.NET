@@ -7,8 +7,8 @@ open Avalonia.Layout
 open Avalonia.Media
 open Avalonia.Media.Imaging
 open Avalonia.Platform
-open Rocksmith2014.DLCProject
 open Rocksmith2014.Common
+open Rocksmith2014.DLCProject
 open System
 open DLCBuilder
 open Media

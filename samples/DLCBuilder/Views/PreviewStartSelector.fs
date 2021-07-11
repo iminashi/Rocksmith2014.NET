@@ -1,10 +1,10 @@
 ﻿module DLCBuilder.Views.PreviewStartSelector
 
-open System
-open Avalonia.FuncUI.DSL
 open Avalonia.Controls
+open Avalonia.FuncUI
+open Avalonia.FuncUI.DSL
 open Avalonia.Layout
-open Avalonia.FuncUI.Types
+open System
 open DLCBuilder
 
 let view state dispatch (audioLength: TimeSpan) =
@@ -67,7 +67,7 @@ let view state dispatch (audioLength: TimeSpan) =
                         Button.fontSize 16.
                         Button.padding (50., 10.)
                         Button.content (translate "create")
-                        Button.onClick (fun _ -> (CreatePreviewAudio CreateFile) |> dispatch)
+                        Button.onClick (fun _ -> CreatePreviewAudio CreateFile |> dispatch)
                     ]
 
                     // Cancel
@@ -80,4 +80,4 @@ let view state dispatch (audioLength: TimeSpan) =
                 ]
             ]
         ]
-    ] :> IView
+    ] |> generalize

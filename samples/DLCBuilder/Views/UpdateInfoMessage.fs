@@ -1,10 +1,10 @@
 ﻿module DLCBuilder.Views.UpdateInfoMessage
 
+open Avalonia.Controls
+open Avalonia.Controls.Shapes
 open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
-open Avalonia.Controls
 open Avalonia.Layout
-open Avalonia.Controls.Shapes
 open Avalonia.Media
 open DLCBuilder
 open DLCBuilder.Media

@@ -1,9 +1,9 @@
 ﻿module DLCBuilder.AbnormalExitMessage
 
-open Avalonia.FuncUI.DSL
-open Avalonia.FuncUI.Types
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
+open Avalonia.FuncUI
+open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Media
 open DLCBuilder
@@ -57,4 +57,4 @@ let view dispatch =
                 ]
             ]
         ]
-    ] :> IView
+    ] |> generalize

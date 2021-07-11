@@ -1,12 +1,12 @@
 ﻿module DLCBuilder.Views.Templates
 
-open Avalonia.FuncUI.Components
-open Avalonia.FuncUI.DSL
-open Avalonia.FuncUI
-open Avalonia.Media
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
+open Avalonia.FuncUI
+open Avalonia.FuncUI.Components
+open Avalonia.FuncUI.DSL
 open Avalonia.Layout
+open Avalonia.Media
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open System

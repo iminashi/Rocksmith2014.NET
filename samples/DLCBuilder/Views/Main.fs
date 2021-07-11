@@ -1,16 +1,16 @@
 ﻿module DLCBuilder.Views.Main
 
-open System
 open Avalonia
-open Avalonia.Input
-open Avalonia.Layout
 open Avalonia.Controls
 open Avalonia.Controls.Primitives
 open Avalonia.Controls.Shapes
 open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
+open Avalonia.Input
+open Avalonia.Layout
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
+open System
 open DLCBuilder
 open Media
 

@@ -1,9 +1,9 @@
 ﻿module DLCBuilder.Views.IssueViewer
 
-open Avalonia.FuncUI.DSL
-open Avalonia.FuncUI.Types
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
+open Avalonia.FuncUI
+open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Media
 open Rocksmith2014.XML.Processing.Utils
@@ -80,7 +80,7 @@ let private viewForIssue issueType times =
                 TextBlock.textWrapping TextWrapping.Wrap
             ]
         ]
-    ] :> IView
+    ] |> generalize
 
 let view dispatch (issues: Issue list) =
     let issues =
@@ -135,4 +135,4 @@ let view dispatch (issues: Issue list) =
                 Button.onClick (fun _ -> dispatch CloseOverlay)
             ]
         ]
-    ] :> IView
+    ] |> generalize

@@ -1,16 +1,16 @@
 ﻿module DLCBuilder.Views.ToneEditor
 
-open Avalonia.Layout
-open Avalonia.Media
-open Avalonia.Input
 open Avalonia.Controls
 open Avalonia.Controls.Primitives
 open Avalonia.FuncUI
 open Avalonia.FuncUI.Components
 open Avalonia.FuncUI.DSL
-open System
-open Rocksmith2014.Common.Manifest
+open Avalonia.Input
+open Avalonia.Layout
+open Avalonia.Media
 open Rocksmith2014.Common
+open Rocksmith2014.Common.Manifest
+open System
 open DLCBuilder
 open ToneGear
 open Media

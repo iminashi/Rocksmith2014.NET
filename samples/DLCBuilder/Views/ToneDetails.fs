@@ -74,9 +74,10 @@ let view state dispatch (tone: Tone) =
                         ComboBox.dataItems keys
                         ComboBox.selectedItem tone.Key
                         ComboBox.onSelectedItemChanged (function
-                            | :? string as key -> key |> SetKey |> EditTone |> dispatch
-                            | _ -> ()
-                        )
+                            | :? string as key ->
+                                key |> SetKey |> EditTone |> dispatch
+                            | _ ->
+                                ())
                     ]
                 ]
             ]

@@ -1,12 +1,12 @@
 ﻿module DLCBuilder.Tools
 
-open System
-open System.IO
 open Elmish
-open Rocksmith2014.PSARC
-open Rocksmith2014.XML
 open Rocksmith2014.Audio
 open Rocksmith2014.Common
+open Rocksmith2014.PSARC
+open Rocksmith2014.XML
+open System
+open System.IO
 
 let psarcUnpackProgress = Progress<float>()
 

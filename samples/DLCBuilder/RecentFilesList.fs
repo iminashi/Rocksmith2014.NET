@@ -12,9 +12,8 @@ let private recentFilePath =
     Path.Combine(Configuration.appDataFolder, "recent.json")
 
 let private jsonOptions =
-    let options = JsonSerializerOptions()
-    options.Converters.Add(JsonFSharpConverter())
-    options
+    JsonSerializerOptions()
+    |> apply (fun o -> o.Converters.Add(JsonFSharpConverter()))
 
 /// Saves the recent files list into a file.
 let save (recentList: string list) = async {

@@ -1,11 +1,11 @@
 ﻿module DLCBuilder.Views.PitchShifter
 
-open Avalonia.FuncUI.DSL
-open Avalonia.FuncUI.Types
 open Avalonia.Controls
+open Avalonia.FuncUI
+open Avalonia.FuncUI.DSL
 open Avalonia.Layout
-open DLCBuilder
 open Rocksmith2014.DLCProject
+open DLCBuilder
 
 let view dispatch state =
     StackPanel.create [
@@ -62,4 +62,4 @@ let view dispatch state =
                 ]
             ]
         ]
-    ] :> IView
+    ] |> generalize

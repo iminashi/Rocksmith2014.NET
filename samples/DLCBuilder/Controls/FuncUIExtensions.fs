@@ -3,10 +3,10 @@
 module FuncUIExtensions
 
 open Avalonia.Controls
-open Avalonia.Input
+open Avalonia.Controls.Selection
 open Avalonia.FuncUI.Types
 open Avalonia.FuncUI.Builder
-open Avalonia.Controls.Selection
+open Avalonia.Input
 open Avalonia.Media
 
 type MenuItem with
