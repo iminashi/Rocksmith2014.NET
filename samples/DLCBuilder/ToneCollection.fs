@@ -43,8 +43,6 @@ type IUserTonesApi =
     abstract member DeleteToneById : int64 -> unit
     abstract member AddTone : DbToneData -> unit
 
-type private ToneDefinition = { Definition : string }
-
 let private officialTonesDbPath =
     Path.Combine(Configuration.appDataFolder, "tones", "official.db")
 
@@ -59,11 +57,11 @@ let private createConnection (connectionString: string) =
     connection.Open()
     connection
 
-let private deserialize toneDef =
+let private deserialize (definition: string) =
     let options = JsonSerializerOptions(IgnoreNullValues = true)
     options.Converters.Add(JsonFSharpConverter())
 
-    JsonSerializer.Deserialize<ToneDto>(toneDef.Definition, options)
+    JsonSerializer.Deserialize<ToneDto>(definition, options)
     |> Tone.fromDto
 
 let private createQuery (searchString: string option) pageNumber =
@@ -114,7 +112,7 @@ let tryCreateOfficialTonesApi () =
 
             member _.GetToneById(id: int64) =
                 $"SELECT definition FROM tones WHERE id = {id}"
-                |> connection.Query<ToneDefinition>  
+                |> connection.Query<string>  
                 |> Seq.tryHead
                 |> Option.map deserialize
 
@@ -160,7 +158,7 @@ let createUserTonesApi () =
 
         member _.GetToneById(id: int64) =
             $"SELECT definition FROM tones WHERE id = {id}"
-            |> connection.Query<ToneDefinition>  
+            |> connection.Query<string>  
             |> Seq.tryHead
             |> Option.map deserialize
 
