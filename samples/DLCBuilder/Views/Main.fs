@@ -27,6 +27,7 @@ let private arrangementList state dispatch =
                 if state.Overlay = NoOverlay then
                     StackPanel.onKeyDown ((fun e ->
                         e.Handled <- true
+                        let arrIndex = state.SelectedArrangementIndex
                         match e.KeyModifiers, e.Key with
                         | KeyModifiers.None, Key.Delete ->
                             dispatch DeleteArrangement
@@ -34,12 +35,10 @@ let private arrangementList state dispatch =
                             dispatch (MoveArrangement Up)
                         | KeyModifiers.Alt, Key.Down ->
                             dispatch (MoveArrangement Down)
-                        | KeyModifiers.None, Key.Up ->
-                            if state.SelectedArrangementIndex > 0 then
-                                dispatch (SetSelectedArrangementIndex (state.SelectedArrangementIndex - 1))
-                        | KeyModifiers.None, Key.Down ->
-                            if state.SelectedArrangementIndex <> state.Project.Arrangements.Length - 1 then
-                                dispatch (SetSelectedArrangementIndex (state.SelectedArrangementIndex + 1))
+                        | KeyModifiers.None, Key.Up when arrIndex > 0 ->
+                            dispatch (SetSelectedArrangementIndex (arrIndex - 1))
+                        | KeyModifiers.None, Key.Down when arrIndex <> state.Project.Arrangements.Length - 1 ->
+                            dispatch (SetSelectedArrangementIndex (arrIndex + 1))
                         | _ ->
                             e.Handled <- false), SubPatchOptions.OnChangeOf state.SelectedArrangementIndex)
             ]
@@ -185,6 +184,7 @@ let private tonesList state dispatch =
                 if state.Overlay = NoOverlay then
                     StackPanel.onKeyDown ((fun e ->
                         e.Handled <- true
+                        let toneIndex = state.SelectedToneIndex
                         match e.KeyModifiers, e.Key with
                         | KeyModifiers.None, Key.Delete ->
                             dispatch DeleteTone
@@ -192,12 +192,10 @@ let private tonesList state dispatch =
                             dispatch (MoveTone Up)
                         | KeyModifiers.Alt, Key.Down ->
                             dispatch (MoveTone Down)
-                        | KeyModifiers.None, Key.Up ->
-                            if state.SelectedToneIndex > 0 then
-                                dispatch (SetSelectedToneIndex (state.SelectedToneIndex - 1))
-                        | KeyModifiers.None, Key.Down ->
-                            if state.SelectedToneIndex <> state.Project.Tones.Length - 1 then
-                                dispatch (SetSelectedToneIndex (state.SelectedToneIndex + 1))
+                        | KeyModifiers.None, Key.Up when toneIndex > 0 ->
+                            dispatch (SetSelectedToneIndex (toneIndex - 1))
+                        | KeyModifiers.None, Key.Down when toneIndex <> state.Project.Tones.Length - 1 ->
+                            dispatch (SetSelectedToneIndex (toneIndex + 1))
                         | _ ->
                             e.Handled <- false), SubPatchOptions.OnChangeOf state.SelectedToneIndex)
             ]
@@ -205,11 +203,6 @@ let private tonesList state dispatch =
     ]
 
 let private tonesPanel state dispatch =
-    let ctrl =
-        match state.CurrentPlatform with
-        | Mac -> "⌘"
-        | PC -> "Ctrl+"
-
     Grid.create [
         Grid.columnDefinitions "*,2.5*"
         Grid.children [
