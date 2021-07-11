@@ -69,6 +69,13 @@ type MainWindow(commandLineArgs: string array) as this =
 
                 newState, commands
             with ex ->
+                // Close the DB connection in case of an unexpected error
+                match state.Overlay with
+                | ToneCollection cs ->
+                    ToneCollection.disposeCollection cs.ActiveCollection
+                | _ ->
+                    ()
+
                 let errorMessage =
                     $"Unhandled exception in the update function.\nMessage: {msg}\nException: {ex.Message}"
                 let newState =
