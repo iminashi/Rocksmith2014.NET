@@ -53,16 +53,20 @@ let private officialTonesConnectionString = $"Data Source={officialTonesDbPath};
 let private userTonesConnectionString = $"Data Source={userTonesDbPath}"
 
 let private createConnection (connectionString: string) =
-    let connection = new SQLiteConnection(connectionString)
-    connection.Open()
-    connection
+    new SQLiteConnection(connectionString)
+    |> apply (fun c -> c.Open())
+
+let private serializerOptions () =
+    JsonSerializerOptions(WriteIndented = false, IgnoreNullValues = true)
+    |> apply (fun options -> options.Converters.Add(JsonFSharpConverter()))
 
 let private deserialize (definition: string) =
-    let options = JsonSerializerOptions(IgnoreNullValues = true)
-    options.Converters.Add(JsonFSharpConverter())
-
-    JsonSerializer.Deserialize<ToneDto>(definition, options)
+    JsonSerializer.Deserialize<ToneDto>(definition, serializerOptions())
     |> Tone.fromDto
+
+let private serialize (tone: Tone) =
+    let dto = Tone.toDto { tone with SortOrder = None; MacVolume = None }
+    JsonSerializer.Serialize(dto, serializerOptions())
 
 let private createQuery (searchString: string option) pageNumber =
     let limit = 5
@@ -225,13 +229,6 @@ let private addToneDataToUserCollection (data: DbToneData) =
 let addToUserCollection (project: DLCProject) (tone: Tone) =
     let description = String.Join("|", Array.map ToneDescriptor.uiNameToName tone.ToneDescriptors)
 
-    let options = JsonSerializerOptions(WriteIndented = false, IgnoreNullValues = true)
-    options.Converters.Add(JsonFSharpConverter())
-
-    let definition =
-        let dto = Tone.toDto { tone with SortOrder = None; MacVolume = None }
-        JsonSerializer.Serialize(dto, options)
-
     let isBass =
         tone.ToneDescriptors |> Array.contains "$[35715]BASS"
     
@@ -242,7 +239,7 @@ let addToUserCollection (project: DLCProject) (tone: Tone) =
       Name = tone.Name |> String.truncate 100
       BassTone = isBass
       Description = description
-      Definition = definition }
+      Definition = serialize tone }
     |> addToneDataToUserCollection
 
 type State =
