@@ -498,89 +498,6 @@ let update (msg: Msg) (state: State) =
 
         { state with Overlay = overlay }, Cmd.none
 
-    | SearchToneCollection searchString ->
-        match state.Overlay with
-        | ToneCollection collectionState ->
-            let overlay =
-                collectionState
-                |> ToneCollection.State.changeSearch searchString
-                |> ToneCollection
-
-            { state with Overlay = overlay }, Cmd.none
-        | _ ->
-            state, Cmd.none
-
-    | ChangeToneCollection activeTab ->
-        match state.Overlay with
-        | ToneCollection collectionState ->
-            let overlay =
-                collectionState
-                |> ToneCollection.State.changeCollection activeTab
-                |> ToneCollection
-
-            { state with Overlay = overlay }, Cmd.none
-        | _ ->
-            state, Cmd.none
-
-    | ChangeToneCollectionPage direction ->
-        match state.Overlay with
-        | ToneCollection collectionState ->
-            let page = collectionState.CurrentPage + match direction with Right -> 1 | Left -> -1
-            if page < 1 || page > collectionState.TotalPages then
-                state, Cmd.none
-            else
-                let overlay =
-                    collectionState
-                    |> ToneCollection.State.changePage page
-                    |> ToneCollection
-
-                { state with Overlay = overlay }, Cmd.none
-        | _ ->
-            state, Cmd.none
-
-    | ToneCollectionSelectedToneChanged selectedTone ->
-        match state.Overlay with
-        | ToneCollection collectionState ->
-            let overlay =
-                { collectionState with SelectedTone = selectedTone }
-                |> ToneCollection
-
-            { state with Overlay = overlay }, Cmd.none
-        | _ ->
-            state, Cmd.none
-
-    | AddOfficalToneToUserCollection ->
-        match state.Overlay with
-        | ToneCollection collectionState ->
-            ToneCollection.State.addSelectedToneToUserCollection collectionState
-            state, Cmd.ofMsg (AddStatusMessage "toneAddedToCollection")
-        | _ ->
-            state, Cmd.none
-
-    | AddDbTone id ->
-        match state.Overlay with
-        | ToneCollection collectionState ->
-            match ToneCollection.getToneById collectionState.ActiveCollection id with
-            | Some tone ->
-                { state with Project = { project with Tones = tone::project.Tones} },
-                Cmd.ofMsg (AddStatusMessage "toneAddedToProject")
-            | None ->
-                state, Cmd.none
-        | _ ->
-            state, Cmd.none
-
-    | DeleteUserTone id ->
-        match state.Overlay with
-        | ToneCollection collectionState ->
-            let overlay =
-                collectionState
-                |> ToneCollection.State.deleteUserTone id
-                |> ToneCollection
-
-            { state with Overlay = overlay }, Cmd.none
-        | _ ->
-            state, Cmd.none
-
     | MoveArrangement dir ->
         let arrangements, index = moveSelected dir state.SelectedArrangementIndex project.Arrangements
         { state with Project = { project with Arrangements = arrangements }; SelectedArrangementIndex = index }, Cmd.none
@@ -933,6 +850,67 @@ let update (msg: Msg) (state: State) =
 
     | ShowDialog dialog ->
         Dialogs.showDialog dialog state
+
+    | ToneCollectionMsg msg ->
+        match state.Overlay with
+        | ToneCollection collectionState -> 
+            match msg with
+            | SearchToneCollection searchString ->
+                let overlay =
+                    collectionState
+                    |> ToneCollection.State.changeSearch searchString
+                    |> ToneCollection
+
+                { state with Overlay = overlay }, Cmd.none
+
+            | ChangeToneCollection activeTab ->
+                let overlay =
+                    collectionState
+                    |> ToneCollection.State.changeCollection activeTab
+                    |> ToneCollection
+
+                { state with Overlay = overlay }, Cmd.none
+
+            | ChangeToneCollectionPage direction ->
+                let page = collectionState.CurrentPage + match direction with Right -> 1 | Left -> -1
+                if page < 1 || page > collectionState.TotalPages then
+                    state, Cmd.none
+                else
+                    let overlay =
+                        collectionState
+                        |> ToneCollection.State.changePage page
+                        |> ToneCollection
+
+                    { state with Overlay = overlay }, Cmd.none
+
+            | ToneCollectionSelectedToneChanged selectedTone ->
+                let overlay =
+                    { collectionState with SelectedTone = selectedTone }
+                    |> ToneCollection
+
+                { state with Overlay = overlay }, Cmd.none
+
+            | AddOfficalToneToUserCollection ->
+                ToneCollection.State.addSelectedToneToUserCollection collectionState
+                state, Cmd.ofMsg (AddStatusMessage "toneAddedToCollection")
+
+            | AddDbTone id ->
+                match ToneCollection.getToneById collectionState.ActiveCollection id with
+                | Some tone ->
+                    { state with Project = { project with Tones = tone::project.Tones} },
+                    Cmd.ofMsg (AddStatusMessage "toneAddedToProject")
+                | None ->
+                    state, Cmd.none
+
+            | DeleteUserTone id ->
+                let overlay =
+                    collectionState
+                    |> ToneCollection.State.deleteUserTone id
+                    |> ToneCollection
+
+                { state with Overlay = overlay }, Cmd.none
+        | _ ->
+            state, Cmd.none
 
     | HotKeyMsg msg ->
         match state.Overlay, msg with

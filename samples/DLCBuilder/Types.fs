@@ -154,6 +154,15 @@ type ToolsMsg =
     | RemoveDD of files : string array
     | InjectTonesIntoProfile of files : string array
 
+type ToneCollectionMsg =
+    | ChangeToneCollection of activeTab : ToneCollection.ActiveTab
+    | AddDbTone of id : int64
+    | DeleteUserTone of id : int64
+    | SearchToneCollection of searchString : string option
+    | ChangeToneCollectionPage of direction : PageDirection
+    | ToneCollectionSelectedToneChanged of selectedTone : ToneCollection.DbTone option
+    | AddOfficalToneToUserCollection
+
 [<RequireQualifiedAccess>]
 type Dialog =
     | OpenProject
@@ -227,13 +236,6 @@ type Msg =
     | AddToneToCollection
     | MoveTone of MoveDirection
     | ShowToneCollection
-    | ChangeToneCollection of activeTab : ToneCollection.ActiveTab
-    | AddDbTone of id : int64
-    | DeleteUserTone of id : int64
-    | SearchToneCollection of searchString : string option
-    | ChangeToneCollectionPage of direction : PageDirection
-    | ToneCollectionSelectedToneChanged of selectedTone : ToneCollection.DbTone option
-    | AddOfficalToneToUserCollection
     | MoveArrangement of MoveDirection
     | CreatePreviewAudio of PreviewAudioCreation
     | ShowSortFields of shown : bool
@@ -273,5 +275,6 @@ type Msg =
     | ErrorOccurred of e : exn
     | TaskFailed of e : exn * failedTask : LongTask
     | ToolsMsg of ToolsMsg
+    | ToneCollectionMsg of ToneCollectionMsg
     | ShowDialog of Dialog
     | HotKeyMsg of Msg
