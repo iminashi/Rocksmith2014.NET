@@ -33,6 +33,7 @@ type DbToneData =
 type IOfficialTonesApi =
     inherit IDisposable
     abstract member GetToneById : int64 -> Tone option
+    abstract member GetToneDataById : int64 -> DbToneData option
     abstract member GetTones : string option * int -> DbTone array
 
 type IUserTonesApi =
@@ -104,9 +105,10 @@ let private createQuery (searchString: string option) pageNumber =
     """
 
 let tryCreateOfficialTonesApi () =
-    if File.Exists officialTonesDbPath then
+    officialTonesDbPath
+    |> File.tryMap (fun _ ->
         let connection = createConnection officialTonesConnectionString
-
+        
         { new IOfficialTonesApi with
             member _.Dispose() = connection.Dispose()
 
@@ -116,13 +118,15 @@ let tryCreateOfficialTonesApi () =
                 |> Seq.tryHead
                 |> Option.map deserialize
 
+            member _.GetToneDataById(id: int64) =
+                $"SELECT artist, artistsort, title, titlesort, name, basstone, description, definition FROM tones WHERE id = {id}"
+                |> connection.Query<DbToneData>  
+                |> Seq.tryHead
+
             member _.GetTones(searchString, pageNumber) =
                 createQuery searchString pageNumber
                 |> connection.Query<DbTone>
-                |> Seq.toArray }
-        |> Some
-    else
-        None
+                |> Seq.toArray })
 
 let private ensureUserTonesDbCreated () =
     if not <| File.Exists userTonesDbPath then
@@ -216,9 +220,11 @@ let getTones collection searchString page =
     | ActiveCollection.User api ->
         api.GetTones(searchString, page)
 
-let addToUserCollection (project: DLCProject) (tone: Tone) =
+let private addToneDataToUserCollection (data: DbToneData) =
     use collection = createUserTonesApi()
-    
+    collection.AddTone data
+
+let addToUserCollection (project: DLCProject) (tone: Tone) =
     let description = String.Join("|", Array.map ToneDescriptor.uiNameToName tone.ToneDescriptors)
 
     let options = JsonSerializerOptions(WriteIndented = false, IgnoreNullValues = true)
@@ -239,11 +245,12 @@ let addToUserCollection (project: DLCProject) (tone: Tone) =
       BassTone = isBass
       Description = description
       Definition = definition }
-    |> collection.AddTone
+    |> addToneDataToUserCollection
 
 type State =
     { ActiveCollection : ActiveCollection
       Tones : DbTone array
+      SelectedTone : DbTone option
       SearchString : string option
       CurrentPage : int
       TotalPages : int }
@@ -261,6 +268,7 @@ module State =
 
         { ActiveCollection = collection
           Tones = tones
+          SelectedTone = None
           SearchString = None
           CurrentPage = 1
           TotalPages = getTotalPages tones }
@@ -324,3 +332,11 @@ module State =
                 TotalPages = getTotalPages tones }
         | _ ->
             collectionState
+
+    let addSelectedToneToUserCollection collectionState =
+        match collectionState with
+        | { SelectedTone = Some selected; ActiveCollection = ActiveCollection.Official (Some api) } ->
+            api.GetToneDataById selected.Id
+            |> Option.iter addToneDataToUserCollection
+        | _ ->
+            ()

@@ -357,6 +357,7 @@
   "toneAddedToProject": "Soundi lisättiin projektiin.",
   "toneAddedToCollection": "Suondi lisättiin käyttäjän kokoelmaan.",
   "addToCollection": "Lisää kokoelmaan",
+  "addToUserTones": "Lisää omaan kokoelmaan",
   "official": "Viralliset",
   "user": "Omat"
 }

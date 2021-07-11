@@ -20,7 +20,7 @@ let private translateDescription (description: string) =
     |> Array.map translate
     |> String.concat " "
     
-let private toneTemplate dispatch =
+let private toneTemplate dispatch isOfficial =
     DataTemplateView<DbTone>.create (fun dbTone ->
         let brush =
             if dbTone.BassTone then
@@ -31,32 +31,46 @@ let private toneTemplate dispatch =
             else
                 Brushes.rhythm
 
-        hStack [
-            Button.create [
-                Button.content "+"
-                Button.padding (10., 5.)
-                Button.verticalAlignment VerticalAlignment.Stretch
-                Button.onClick (fun _ -> dispatch (AddDbTone dbTone.Id))
-            ]
+        StackPanel.create [
+            if isOfficial then
+                StackPanel.contextMenu (
+                    ContextMenu.create [
+                        ContextMenu.viewItems [
+                            MenuItem.create [
+                                MenuItem.header (translate "addToUserTones")
+                                MenuItem.onClick (fun _ -> AddOfficalToneToUserCollection |> dispatch)
+                            ]
+                        ]
+                    ])
+            StackPanel.background Brushes.Transparent
+            StackPanel.orientation Orientation.Horizontal
+            StackPanel.children [
+                Button.create [
+                    Button.content "+"
+                    Button.padding (10., 5.)
+                    Button.verticalAlignment VerticalAlignment.Stretch
+                    Button.onClick (fun _ -> dispatch (AddDbTone dbTone.Id))
+                ]
 
-            Path.create [
-                Path.verticalAlignment VerticalAlignment.Center
-                Path.fill brush
-                Path.data Media.Icons.guitar
-            ]
+                Path.create [
+                    Path.verticalAlignment VerticalAlignment.Center
+                    Path.fill brush
+                    Path.data Media.Icons.guitar
+                ]
 
-            StackPanel.create [
-                StackPanel.margin 4.
-                StackPanel.children [
-                    TextBlock.create [
-                        TextBlock.text (
-                            if String.notEmpty dbTone.Artist && String.notEmpty dbTone.Title then
-                                $"{dbTone.Artist} - {dbTone.Title}"
-                            else
-                                String.Empty)
+                StackPanel.create [
+                    StackPanel.margin 4.
+                    StackPanel.children [
+                        TextBlock.create [
+                            TextBlock.text (
+                                if String.notEmpty dbTone.Artist && String.notEmpty dbTone.Title then
+                                    $"{dbTone.Artist} - {dbTone.Title}"
+                                else
+                                    String.Empty)
+                        ]
+                        TextBlock.create [ TextBlock.text dbTone.Name ]
+                        TextBlock.create [ TextBlock.text (translateDescription dbTone.Description) ]
                     ]
-                    TextBlock.create [ TextBlock.text dbTone.Name ]
-                    TextBlock.create [ TextBlock.text (translateDescription dbTone.Description) ]
                 ]
             ]
         ])
@@ -66,7 +80,12 @@ let tonesList dispatch collectionState isOfficial =
         ListBox.height 410.
         ListBox.width 500.
         ListBox.dataItems collectionState.Tones
-        ListBox.itemTemplate (toneTemplate dispatch)
+        ListBox.itemTemplate (toneTemplate dispatch isOfficial)
+        ListBox.onSelectedItemChanged (function
+            | :? DbTone as tone ->
+                tone |> Some |> ToneCollectionSelectedToneChanged |> dispatch
+            | _ ->
+                None |> ToneCollectionSelectedToneChanged |> dispatch)
         ListBox.onKeyDown (fun arg ->
             match arg.Key with
             | Key.Left ->

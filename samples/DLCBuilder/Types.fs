@@ -232,6 +232,8 @@ type Msg =
     | DeleteUserTone of id : int64
     | SearchToneCollection of searchString : string option
     | ChangeToneCollectionPage of direction : PageDirection
+    | ToneCollectionSelectedToneChanged of selectedTone : ToneCollection.DbTone option
+    | AddOfficalToneToUserCollection
     | MoveArrangement of MoveDirection
     | CreatePreviewAudio of PreviewAudioCreation
     | ShowSortFields of shown : bool

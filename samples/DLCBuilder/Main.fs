@@ -538,6 +538,25 @@ let update (msg: Msg) (state: State) =
         | _ ->
             state, Cmd.none
 
+    | ToneCollectionSelectedToneChanged selectedTone ->
+        match state.Overlay with
+        | ToneCollection collectionState ->
+            let overlay =
+                { collectionState with SelectedTone = selectedTone }
+                |> ToneCollection
+
+            { state with Overlay = overlay }, Cmd.none
+        | _ ->
+            state, Cmd.none
+
+    | AddOfficalToneToUserCollection ->
+        match state.Overlay with
+        | ToneCollection collectionState ->
+            ToneCollection.State.addSelectedToneToUserCollection collectionState
+            state, Cmd.ofMsg (AddStatusMessage "toneAddedToCollection")
+        | _ ->
+            state, Cmd.none
+
     | AddDbTone id ->
         match state.Overlay with
         | ToneCollection collectionState ->
