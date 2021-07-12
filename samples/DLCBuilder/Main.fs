@@ -789,10 +789,13 @@ let update (msg: Msg) (state: State) =
         Cmd.ofMsg (AddStatusMessage "WemConversionComplete")
 
     | CheckArrangements ->
-        let task() = async { return Utils.checkArrangements project arrangementCheckProgress }
+        if Utils.canRunValidation state then
+            let task() = async { return Utils.checkArrangements project arrangementCheckProgress }
 
-        Utils.addTask ArrangementCheck state,
-        Cmd.OfAsync.either task () CheckCompleted (fun ex -> TaskFailed(ex, ArrangementCheck))
+            Utils.addTask ArrangementCheck state,
+            Cmd.OfAsync.either task () CheckCompleted (fun ex -> TaskFailed(ex, ArrangementCheck))
+        else
+            state, Cmd.none
 
     | CheckCompleted issues ->
         { Utils.removeTask ArrangementCheck state with ArrangementIssues = issues },

@@ -128,20 +128,22 @@ let private arrangementPanel state dispatch =
                 DockPanel.margin 4.
                 DockPanel.children [
                     // Title
-                    locText "arrangements" [
+                    StackPanel.create [
                         DockPanel.dock Dock.Top
-                        TextBlock.margin (0.0, 4.0)
-                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                    ]
+                        StackPanel.orientation Orientation.Horizontal
+                        StackPanel.horizontalAlignment HorizontalAlignment.Center
+                        StackPanel.children [
+                            locText "arrangements" [
+                                TextBlock.margin (0.0, 4.0)
+                                TextBlock.verticalAlignment VerticalAlignment.Center
+                            ]
 
-                    Grid.create [
-                        DockPanel.dock Dock.Top
-                        Grid.columnDefinitions "*,*"
-                        Grid.children [
                             // Add arrangement
                             Button.create [
-                                Button.padding (15.0, 5.0)
-                                Button.content (translate "addArrangement")
+                                Button.padding (8.0, 5.0)
+                                Button.content "+"
+                                Button.fontSize 24.
+                                Button.background Brushes.Transparent
                                 Button.onClick (fun _ -> Dialog.AddArrangements |> ShowDialog |> dispatch)
                                 // 5 instrumentals, 2 vocals, 1 showlights
                                 Button.isEnabled (state.Project.Arrangements.Length < 8)
@@ -149,16 +151,17 @@ let private arrangementPanel state dispatch =
 
                             // Validate arrangements
                             Button.create [
-                                Grid.column 1
-                                Button.padding (10.0, 5.0)
-                                Button.content (translate "validate")
+                                Button.padding (8.0, 5.0)
+                                Button.content (
+                                    Path.create [
+                                        Path.data Icons.pick
+                                        Path.fill Brushes.White
+                                    ])
+                                Button.background Brushes.Transparent
                                 Button.onClick (fun _ -> dispatch CheckArrangements)
-                                Button.isEnabled (
-                                    state.Project.Arrangements.Length > 0
-                                    &&
-                                    not (state.RunningTasks |> Set.contains ArrangementCheck))
+                                Button.isEnabled (Utils.canRunValidation state)
                             ]
-                        ]
+                        ] 
                     ]
 
                     // Arrangement list
@@ -375,6 +378,8 @@ let view (window: Window) (state: State) dispatch =
                         Menu.background "#181818"
                         Menu.viewItems [
                             Menus.file state dispatch
+
+                            Menus.project state dispatch
 
                             Menus.build state dispatch
 

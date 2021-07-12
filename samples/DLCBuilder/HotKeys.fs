@@ -53,6 +53,12 @@ let handleEvent dispatch (event: KeyEventArgs) =
     | Ctrl, Key.R ->
         dispatch (Build Release)
 
+    | Ctrl, Key.V ->
+        dispatch CheckArrangements
+
+    | Ctrl, Key.OemPlus ->
+        dispatch (ShowDialog Dialog.AddArrangements)
+
     | None, Key.Escape ->
         dispatch CloseOverlay
 

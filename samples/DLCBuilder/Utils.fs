@@ -276,3 +276,9 @@ let openLink url =
     ProcessStartInfo(url, UseShellExecute = true)
     |> Process.Start
     |> ignore
+
+/// Returns true if the arrangement validation may be executed.
+let canRunValidation state =
+    state.Project.Arrangements.Length > 0
+    &&
+    not (state.RunningTasks |> Set.contains ArrangementCheck)

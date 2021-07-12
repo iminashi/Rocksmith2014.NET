@@ -5,6 +5,7 @@ open Avalonia.Controls
 open Avalonia.Controls.ApplicationLifetimes
 open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
+open Avalonia.FuncUI.Types
 open Avalonia.Input
 open Avalonia.Layout
 open System
@@ -113,16 +114,6 @@ let file state dispatch =
                 MenuItem.isEnabled (not isImporting)
                 MenuItem.inputGesture (KeyGesture(Key.A, keyModifierCtrl))
                 MenuItem.onClick (fun _ -> Dialog.PsarcImport |> ShowDialog |> dispatch)
-            ]
-
-            separator
-
-            // Delete test builds
-            MenuItem.create [
-                MenuItem.header (translate "deleteTestBuilds")
-                MenuItem.isEnabled (String.notEmpty state.Config.TestFolderPath && state.OpenProjectFile.IsSome)
-                MenuItem.onClick (fun _ -> dispatch DeleteTestBuilds)
-                ToolTip.tip (translate "deleteTestBuildsTooltip")
             ]
 
             separator
@@ -370,6 +361,41 @@ module Context =
             ]
         ]
 
+let private addToneItems state dispatch : IView list =
+    [
+        // Add a new "empty" tone
+        MenuItem.create [
+            MenuItem.header (translate "newTone")
+            MenuItem.onClick (fun _ -> dispatch AddNewTone)
+        ]
+
+        separator
+
+        // Import from profile
+        MenuItem.create [
+            MenuItem.header (translate "fromProfile")
+            MenuItem.onClick (fun _ -> dispatch ImportProfileTones)
+            MenuItem.isEnabled (IO.File.Exists state.Config.ProfilePath)
+            MenuItem.inputGesture (KeyGesture(Key.P, keyModifierCtrl))
+            ToolTip.tip (translate "profileImportToolTip")
+        ]
+
+        // Add from collection
+        MenuItem.create [
+            MenuItem.header (translate "fromCollection")
+            MenuItem.onClick (fun _ -> ShowToneCollection |> dispatch)
+            MenuItem.inputGesture (KeyGesture(Key.T, keyModifierCtrl))
+        ]
+
+        separator
+
+        // Import from file
+        MenuItem.create [
+            MenuItem.header (translate "importToneFromFile")
+            MenuItem.onClick (fun _ -> Dialog.ToneImport |> ShowDialog |> dispatch)
+        ]
+    ]
+
 let addTone state dispatch =
     Menu.create [
         Menu.viewItems [
@@ -380,39 +406,54 @@ let addTone state dispatch =
                     TextBlock.verticalAlignment VerticalAlignment.Center
                 ])
 
-                MenuItem.viewItems [
-                    // Add a new "empty" tone
-                    MenuItem.create [
-                        MenuItem.header (translate "newTone")
-                        MenuItem.onClick (fun _ -> dispatch AddNewTone)
-                    ]
+                MenuItem.viewItems (addToneItems state dispatch)
+            ]
+        ]
+    ]
 
-                    separator
+let project state dispatch =
+    MenuItem.create [
+        MenuItem.header (translate "projectMenu")
 
-                    // Import from profile
-                    MenuItem.create [
-                        MenuItem.header (translate "fromProfile")
-                        MenuItem.onClick (fun _ -> dispatch ImportProfileTones)
-                        MenuItem.isEnabled (IO.File.Exists state.Config.ProfilePath)
-                        MenuItem.inputGesture (KeyGesture(Key.P, keyModifierCtrl))
-                        ToolTip.tip (translate "profileImportToolTip")
-                    ]
+        MenuItem.viewItems [
+            // Add Arrangement
+            MenuItem.create [
+                MenuItem.header (translate "addArrangement")
+                MenuItem.onClick (fun _ -> Dialog.AddArrangements |> ShowDialog |> dispatch)
+                MenuItem.inputGesture (KeyGesture(Key.OemPlus, keyModifierCtrl))
+            ]
 
-                    // Add from collection
-                    MenuItem.create [
-                        MenuItem.header (translate "fromCollection")
-                        MenuItem.onClick (fun _ -> ShowToneCollection |> dispatch)
-                        MenuItem.inputGesture (KeyGesture(Key.T, keyModifierCtrl))
-                    ]
+            // Validate Arrangements
+            MenuItem.create [
+                MenuItem.header (translate "validateArrangements")
+                MenuItem.onClick (fun _ -> dispatch CheckArrangements)
+                MenuItem.inputGesture (KeyGesture(Key.V, keyModifierCtrl))
+                MenuItem.isEnabled (Utils.canRunValidation state)
+            ]
 
-                    separator
+            // Generate New IDs for All Arrangements
+            MenuItem.create [
+                MenuItem.header (translate "generateAllIDs")
+                MenuItem.onClick (fun _ -> GenerateAllIds |> dispatch)
+                MenuItem.isEnabled (state.Project.Arrangements.Length > 0)
+            ]
 
-                    // Import from file
-                    MenuItem.create [
-                        MenuItem.header (translate "importToneFromFile")
-                        MenuItem.onClick (fun _ -> Dialog.ToneImport |> ShowDialog |> dispatch)
-                    ]
-                ]
+            separator
+
+            // Add Tone Menu
+            MenuItem.create [
+                MenuItem.header (translate "addTone")
+                MenuItem.viewItems (addToneItems state dispatch)
+            ]
+
+            separator
+
+            // Delete test builds
+            MenuItem.create [
+                MenuItem.header (translate "deleteTestBuilds")
+                MenuItem.isEnabled (String.notEmpty state.Config.TestFolderPath && state.OpenProjectFile.IsSome)
+                MenuItem.onClick (fun _ -> dispatch DeleteTestBuilds)
+                ToolTip.tip (translate "deleteTestBuildsTooltip")
             ]
         ]
     ]
