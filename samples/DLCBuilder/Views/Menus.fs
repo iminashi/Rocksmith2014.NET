@@ -249,11 +249,7 @@ module Context =
                     MenuItem.onClick (fun _ -> AddToneToCollection |> dispatch)
                 ]
 
-                // Duplicate
-                MenuItem.create [
-                    MenuItem.header (translate "duplicate")
-                    MenuItem.onClick (fun _ -> DuplicateTone |> dispatch)
-                ]
+                separator
 
                 // Move Up
                 MenuItem.create [
@@ -267,6 +263,14 @@ module Context =
                     MenuItem.header (translate "moveDown")
                     MenuItem.inputGesture (KeyGesture(Key.Down, KeyModifiers.Alt))
                     MenuItem.onClick (fun _ -> Down |> MoveTone |> dispatch)
+                ]
+
+                separator
+
+                // Duplicate
+                MenuItem.create [
+                    MenuItem.header (translate "duplicate")
+                    MenuItem.onClick (fun _ -> DuplicateTone |> dispatch)
                 ]
 
                 // Edit
@@ -327,6 +331,8 @@ module Context =
                     MenuItem.isEnabled canApplyTuningFix
                     MenuItem.onClick (fun _ -> ApplyLowTuningFix |> dispatch)
                 ]
+
+                separator
 
                 // Move Up
                 MenuItem.create [
