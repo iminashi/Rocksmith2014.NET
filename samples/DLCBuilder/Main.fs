@@ -105,6 +105,7 @@ let init args =
             Cmd.OfAsync.perform Configuration.load () (fun config -> SetConfiguration(config, loadProject.IsEmpty, wasAbnormalExit))
             Cmd.OfAsync.perform RecentFilesList.load () SetRecentFiles
             Cmd.OfAsync.perform OnlineUpdate.checkForUpdates () SetAvailableUpdate
+            Cmd.OfAsync.perform ToneGear.loadRepository () SetToneRepository
             yield! loadProject ]
 
     { Project = DLCProject.Empty
@@ -127,7 +128,8 @@ let init args =
       CurrentPlatform = if OperatingSystem.IsMacOS() then Mac else PC
       OpenProjectFile = None
       ArrangementIssues = Map.empty
-      AvailableUpdate = None }, commands
+      AvailableUpdate = None
+      ToneGearRepository = None }, commands
 
 let private getSelectedArrangement state =
     List.tryItem state.SelectedArrangementIndex state.Project.Arrangements
@@ -192,22 +194,27 @@ let update (msg: Msg) (state: State) =
 
     match msg with
     | SetSelectedGear gear ->
-        let cmd =
-            match gear with
-            | Some gear ->
-                let currentGear =
-                    getSelectedTone state
-                    |> Option.bind (fun tone -> ToneGear.getGearDataForCurrentPedal tone.GearList state.SelectedGearSlot)
-                match currentGear with
-                // Don't change the cabinet if its name is the same as the current one
-                | Some data when gear.Type = "Cabinets" && data.Name = gear.Name ->
+        match state.ToneGearRepository with
+        | Some repo ->
+            let cmd =
+                match gear with
+                | Some gear ->
+                    let currentGear =
+                        getSelectedTone state
+                        |> Option.bind (fun tone ->
+                            ToneGear.getGearDataForCurrentPedal repo tone.GearList state.SelectedGearSlot)
+                    match currentGear with
+                    // Don't change the cabinet if its name is the same as the current one
+                    | Some data when gear.Type = "Cabinets" && data.Name = gear.Name ->
+                        Cmd.none
+                    | _ ->
+                        Cmd.ofMsg (gear |> SetPedal |> EditTone)
+                | None ->
                     Cmd.none
-                | _ ->
-                    Cmd.ofMsg (gear |> SetPedal |> EditTone)
-            | None ->
-                Cmd.none
 
-        { state with SelectedGear = gear }, cmd
+            { state with SelectedGear = gear }, cmd
+        | None ->
+            state, Cmd.none
 
     | SetSelectedGearSlot gearSlot -> { state with SelectedGearSlot = gearSlot }, Cmd.none
 
@@ -470,9 +477,13 @@ let update (msg: Msg) (state: State) =
                      SelectedToneIndex = index }, Cmd.none
 
     | AddNewTone ->
-        let newTone = ToneGear.emptyTone.Value
+        match state.ToneGearRepository with
+        | Some repository ->
+            let newTone = ToneGear.emptyTone repository
 
-        { state with Project = { project with Tones = newTone::project.Tones } }, Cmd.none
+            { state with Project = { project with Tones = newTone::project.Tones } }, Cmd.none
+        | None ->
+            state, Cmd.none
 
     | AddToneToCollection ->
         getSelectedTone state
@@ -582,6 +593,9 @@ let update (msg: Msg) (state: State) =
                 state.StatusMessages
 
         { state with StatusMessages = messages; AvailableUpdate = update }, Cmd.none
+
+    | SetToneRepository repository ->
+        { state with ToneGearRepository = Some repository }, Cmd.none
 
     | DismissUpdateMessage ->
         let statusMessages =

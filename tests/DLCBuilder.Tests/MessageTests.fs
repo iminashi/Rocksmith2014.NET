@@ -30,12 +30,6 @@ let messageTests =
             | _ ->
                 failwith "Wrong overlay type"
 
-        testCase "CheckArrangements adds long running task" <| fun _ ->
-            let newState, cmd = Main.update CheckArrangements initialState
-
-            Expect.isTrue (newState.RunningTasks.Contains ArrangementCheck) "Correct task was added"
-            Expect.isNonEmpty cmd "Command was created"
-
         testCase "Build Release does nothing with empty project" <| fun _ ->
             Expect.isFalse (Utils.canBuild initialState) "Empty project cannot be built"
 

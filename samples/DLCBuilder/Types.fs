@@ -146,7 +146,8 @@ type State =
       StatusMessages : StatusMessage list
       RunningTasks : LongTask Set
       ArrangementIssues : Map<string, ArrangementChecker.Issue list>
-      AvailableUpdate : UpdateInformation option }
+      AvailableUpdate : UpdateInformation option
+      ToneGearRepository: ToneGear.Repository option }
 
 type ToolsMsg =
     | ConvertWemToOgg of files : string array
@@ -216,6 +217,7 @@ type Msg =
     | SetConfiguration of config : Configuration * enableLoad : bool * wasAbnormalExit : bool
     | SetRecentFiles of files : string list
     | SetAvailableUpdate of update : Result<UpdateInformation option, string>
+    | SetToneRepository of repository : ToneGear.Repository
     | SetSelectedArrangementIndex of index : int
     | SetSelectedToneIndex of index : int
     | SetSelectedGear of ToneGear.GearData option

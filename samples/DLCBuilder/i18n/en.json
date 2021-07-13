@@ -361,5 +361,6 @@
   "addToCollection": "Add to Collection",
   "addToUserTones": "Add to User Collection",
   "official": "Official",
-  "user": "User"
+  "user": "User",
+  "loadingToneGearData": "Loading tone gear data..."
 }

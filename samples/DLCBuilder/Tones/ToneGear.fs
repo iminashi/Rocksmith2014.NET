@@ -1,5 +1,6 @@
 ﻿module DLCBuilder.ToneGear
 
+open System.Collections.Generic
 open System.Reflection
 open System.Text.Json
 open System.Text.Json.Serialization
@@ -29,6 +30,18 @@ type GearData =
       Category : string
       Key : string
       Knobs : GearKnob array option }
+
+type Repository =
+    { Amps: GearData array
+      AmpDict: IReadOnlyDictionary<string, GearData>
+      Cabinets: GearData array
+      CabinetDict: IReadOnlyDictionary<string, GearData>
+      Pedals: GearData array
+      PedalDict: IReadOnlyDictionary<string, GearData>
+      Racks: GearData array
+      RackDict: IReadOnlyDictionary<string, GearData>
+      CabinetChoices: GearData array
+      MicPositionsForCabinet: IReadOnlyDictionary<string, GearData array> }
 
 /// Returns the knob values for the pedal in the given gear slot.
 let getKnobValuesForGear (gearList: Gear) gearSlot =
@@ -61,55 +74,71 @@ let private loadGearData () = async {
     use gearDataFile = provider.GetFileInfo("Tones/ToneGearData.json").CreateReadStream()
     return! JsonSerializer.DeserializeAsync<GearData[]>(gearDataFile, options) }
 
-let allGear = loadGearData() |> Async.RunSynchronously
+let loadRepository () = async {
+    let! allGear = loadGearData()
 
-let private filterSort type' sortBy = allGear |> Array.filter (fun x -> x.Type = type') |> Array.sortBy sortBy
-let private toDict = Array.map (fun x -> x.Key, x) >> readOnlyDict
+    let filterSort type' sortBy =
+        allGear
+        |> Array.filter (fun x -> x.Type = type')
+        |> Array.sortBy sortBy
+    let toDict = Array.map (fun x -> x.Key, x) >> readOnlyDict
+    
+    let data =
+        [| "Amps", (fun x -> x.Name)
+           "Cabinets", (fun x -> x.Name)
+           "Pedals", (fun x -> x.Category + x.Name)
+           "Racks", (fun x -> x.Category + x.Name) |]
+        |> Array.Parallel.map (fun (gearType, sorter) ->
+            let result = filterSort gearType sorter
+            let dict = toDict result
+            result, dict)
+    
+    let cabinets = fst data.[1]
+    let cabinetChoices = cabinets |> Array.distinctBy (fun x -> x.Name)
+    let micPositionsForCabinet =
+        cabinets
+        |> Array.groupBy (fun x -> x.Name)
+        |> readOnlyDict
 
-let amps = filterSort "Amps" (fun x -> x.Name)
-let cabinets = filterSort "Cabinets" (fun x -> x.Name)
-let pedals = filterSort "Pedals" (fun x -> x.Category, x.Name)
-let racks = filterSort "Racks" (fun x -> x.Category, x.Name)
-
-let cabinetChoices = cabinets |> Array.distinctBy (fun x -> x.Name)
-let micPositionsForCabinet =
-    cabinets
-    |> Array.groupBy (fun x -> x.Name)
-    |> readOnlyDict
-
-let ampDict = toDict amps
-let cabinetDict = toDict cabinets
-let pedalDict = toDict pedals
-let rackDict = toDict racks
+    return
+        { Amps = fst data.[0]
+          AmpDict = snd data.[0]
+          Cabinets = cabinets
+          CabinetDict = snd data.[1]
+          Pedals = fst data.[2]
+          PedalDict = snd data.[2]
+          Racks = fst data.[3]
+          RackDict = snd data.[3]
+          CabinetChoices = cabinetChoices
+          MicPositionsForCabinet = micPositionsForCabinet } }
 
 /// Returns the gear data for the pedal in the given gear slot.
-let getGearDataForCurrentPedal (gearList: Gear) = function
+let getGearDataForCurrentPedal repository (gearList: Gear) = function
     | Amp ->
-        Some ampDict.[gearList.Amp.Key]
+        Some repository.AmpDict.[gearList.Amp.Key]
     | Cabinet ->
-        Some cabinetDict.[gearList.Cabinet.Key]
+        Some repository.CabinetDict.[gearList.Cabinet.Key]
     | PrePedal index ->
-        gearList.PrePedals.[index] |> Option.map (fun x -> pedalDict.[x.Key])
+        gearList.PrePedals.[index] |> Option.map (fun x -> repository.PedalDict.[x.Key])
     | PostPedal index ->
-        gearList.PostPedals.[index] |> Option.map (fun x -> pedalDict.[x.Key])
+        gearList.PostPedals.[index] |> Option.map (fun x -> repository.PedalDict.[x.Key])
     | Rack index ->
-        gearList.Racks.[index] |> Option.map (fun x -> rackDict.[x.Key])
+        gearList.Racks.[index] |> Option.map (fun x -> repository.RackDict.[x.Key])
 
-let emptyTone =
-    lazy
-        let gear =
-            let noPedals = Array.replicate 4 None
-            { Amp = ampDict.Values |> Seq.head |> createPedalForGear
-              Cabinet = cabinetDict.Values |> Seq.head |> createPedalForGear
-              Racks = noPedals
-              PrePedals = noPedals
-              PostPedals = noPedals }
+let emptyTone repository =
+    let gear =
+        let noPedals = Array.replicate 4 None
+        { Amp = repository.AmpDict.Values |> Seq.head |> createPedalForGear
+          Cabinet = repository.CabinetDict.Values |> Seq.head |> createPedalForGear
+          Racks = noPedals
+          PrePedals = noPedals
+          PostPedals = noPedals }
 
-        { GearList = gear
-          ToneDescriptors = [| "$[35720]CLEAN" |]
-          NameSeparator = " - "
-          Volume = -12.
-          MacVolume = None
-          Key = "new_tone"
-          Name = "new_tone"
-          SortOrder = None }
+    { GearList = gear
+      ToneDescriptors = [| "$[35720]CLEAN" |]
+      NameSeparator = " - "
+      Volume = -12.
+      MacVolume = None
+      Key = "new_tone"
+      Name = "new_tone"
+      SortOrder = None }

@@ -27,4 +27,5 @@ let initialState =
       CurrentPlatform = if OperatingSystem.IsMacOS() then Mac else PC
       OpenProjectFile = None
       AvailableUpdate = None
-      ArrangementIssues = Map.empty }
+      ArrangementIssues = Map.empty
+      ToneGearRepository = None }

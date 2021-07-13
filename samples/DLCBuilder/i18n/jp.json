@@ -361,5 +361,6 @@
   "addToCollection": "コレクションに追加",
   "addToUserTones": "自分のコレクションに追加",
   "official": "公式",
-  "user": "ユーザー"
+  "user": "ユーザー",
+  "loadingToneGearData": "トーンギアデータロード中..."
 }

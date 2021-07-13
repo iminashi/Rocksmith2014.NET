@@ -361,5 +361,6 @@
   "addToCollection": "Lisää kokoelmaan",
   "addToUserTones": "Lisää omaan kokoelmaan",
   "official": "Viralliset",
-  "user": "Omat"
+  "user": "Omat",
+  "loadingToneGearData": "Ladataan soundieditorin dataa..."
 }
