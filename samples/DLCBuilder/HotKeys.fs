@@ -56,7 +56,8 @@ let handleEvent dispatch (event: KeyEventArgs) =
     | Ctrl, Key.V ->
         dispatch CheckArrangements
 
-    | Ctrl, Key.OemPlus ->
+    | Ctrl, Key.OemPlus
+    | Ctrl, Key.Add ->
         dispatch (ShowDialog Dialog.AddArrangements)
 
     | None, Key.Escape ->
