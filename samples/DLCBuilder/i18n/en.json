@@ -70,8 +70,10 @@
   "tools": "_Tools",
   "buildMenu": "_Build",
   "projectMenu": "_Project",
-  "addArrangement": "_Add Arrangement...",
-  "validateArrangements": "_Validate Arrangements",
+  "addArrangementMenuItem": "_Add Arrangement...",
+  "addArrangementToolTip": "Add new arrangements to the project.",
+  "validateArrangementsMenuItem": "_Validate Arrangements",
+  "validateArrangementsToolTip": "Validate arrangements.",
   "addTone": "Add _Tone",
   "testMenuItem": "_Test",
   "releaseMenuItem": "_Release",
@@ -363,5 +365,5 @@
   "official": "Official",
   "user": "User",
   "loadingToneGearData": "Loading tone gear data...",
-  "officialTonesDbNotFound": "The official tones database has not been installed."
+  "officialTonesDbNotFound": "An official tone database has not been installed."
 }

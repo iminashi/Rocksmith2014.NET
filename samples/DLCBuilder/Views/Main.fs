@@ -139,27 +139,32 @@ let private arrangementPanel state dispatch =
                             ]
 
                             // Add arrangement
-                            Button.create [
-                                Button.padding (8.0, 5.0)
-                                Button.content "+"
-                                Button.fontSize 24.
-                                Button.background Brushes.Transparent
-                                Button.onClick (fun _ -> Dialog.AddArrangements |> ShowDialog |> dispatch)
+                            Border.create [
+                                Border.classes [ "icon-btn" ]
+                                Border.padding (4., 4., 10., 6.)
+                                Border.child (
+                                    Path.create [
+                                        Path.data Icons.plus
+                                        Path.fill Brushes.White
+                                    ])
+                                Border.onTapped (fun _ -> Dialog.AddArrangements |> ShowDialog |> dispatch)
                                 // 5 instrumentals, 2 vocals, 1 showlights
-                                Button.isEnabled (state.Project.Arrangements.Length < 8)
+                                Border.isEnabled (state.Project.Arrangements.Length < 8)
+                                ToolTip.tip (translate "addArrangementToolTip")
                             ]
 
                             // Validate arrangements
-                            Button.create [
-                                Button.padding (8.0, 5.0)
-                                Button.content (
+                            Border.create [
+                                Border.classes [ "icon-btn" ]
+                                Border.padding (6., 4., 10., 6.)
+                                Border.child (
                                     Path.create [
-                                        Path.data Icons.pick
+                                        Path.data Icons.checkList
                                         Path.fill Brushes.White
                                     ])
-                                Button.background Brushes.Transparent
-                                Button.onClick (fun _ -> dispatch CheckArrangements)
-                                Button.isEnabled (Utils.canRunValidation state)
+                                Border.onTapped (fun _ -> dispatch CheckArrangements)
+                                Border.isEnabled (Utils.canRunValidation state)
+                                ToolTip.tip (translate "validateArrangementsToolTip")
                             ]
                         ] 
                     ]

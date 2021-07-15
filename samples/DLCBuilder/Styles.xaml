@@ -44,4 +44,13 @@
   <Style Selector="TextBlock.link:pointerover">
     <Setter Property="TextDecorations" Value="Underline"/>
   </Style>
+  <Style Selector="Border.icon-btn">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="Border.icon-btn:pointerover">
+    <Setter Property="Background" Value="#383838"/>
+  </Style>
+  <Style Selector="Border.icon-btn:disabled">
+    <Setter Property="Opacity" Value="0.5"/>
+  </Style>
 </Styles>

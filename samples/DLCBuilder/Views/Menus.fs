@@ -3,6 +3,7 @@
 open Avalonia
 open Avalonia.Controls
 open Avalonia.Controls.ApplicationLifetimes
+open Avalonia.Controls.Shapes
 open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
 open Avalonia.FuncUI.Types
@@ -406,11 +407,12 @@ let addTone state dispatch =
     Menu.create [
         Menu.viewItems [
             MenuItem.create [
-                MenuItem.header (TextBlock.create [
-                    TextBlock.fontSize 24.
-                    TextBlock.text "+"
-                    TextBlock.verticalAlignment VerticalAlignment.Center
-                ])
+                MenuItem.padding (6., 0., 10., 4.)
+                MenuItem.header (
+                    Path.create [
+                        Path.data Media.Icons.plus
+                        Path.fill Media.Brushes.White
+                    ])
 
                 MenuItem.viewItems (addToneItems state dispatch)
             ]
@@ -424,14 +426,14 @@ let project state dispatch =
         MenuItem.viewItems [
             // Add Arrangement
             MenuItem.create [
-                MenuItem.header (translate "addArrangement")
+                MenuItem.header (translate "addArrangementMenuItem")
                 MenuItem.onClick (fun _ -> Dialog.AddArrangements |> ShowDialog |> dispatch)
                 MenuItem.inputGesture (KeyGesture(Key.OemPlus, keyModifierCtrl))
             ]
 
             // Validate Arrangements
             MenuItem.create [
-                MenuItem.header (translate "validateArrangements")
+                MenuItem.header (translate "validateArrangementsMenuItem")
                 MenuItem.onClick (fun _ -> dispatch CheckArrangements)
                 MenuItem.inputGesture (KeyGesture(Key.V, keyModifierCtrl))
                 MenuItem.isEnabled (Utils.canRunValidation state)
