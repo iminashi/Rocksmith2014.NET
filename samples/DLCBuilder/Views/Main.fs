@@ -54,10 +54,10 @@ let private arrangementDetails state dispatch =
                 StackPanel.children [
                     match state.SelectedArrangementIndex with
                     | -1 ->
-                        TextBlock.create [
-                            TextBlock.text (translate "selectArrangementPrompt")
+                        locText "selectArrangementPrompt" [
+                            TextBlock.foreground Brushes.Gray
+                            TextBlock.margin 4.
                             TextBlock.horizontalAlignment HorizontalAlignment.Center
-                            TextBlock.verticalAlignment VerticalAlignment.Center
                         ]
 
                     | index ->
@@ -128,18 +128,19 @@ let private arrangementPanel state dispatch =
                 DockPanel.margin 4.
                 DockPanel.children [
                     // Title
-                    StackPanel.create [
+                    Grid.create [
                         DockPanel.dock Dock.Top
-                        StackPanel.orientation Orientation.Horizontal
-                        StackPanel.horizontalAlignment HorizontalAlignment.Center
-                        StackPanel.children [
+                        Grid.columnDefinitions "*,auto,auto"
+                        Grid.rowDefinitions "auto,auto"
+                        Grid.children [
                             locText "arrangements" [
-                                TextBlock.margin (0.0, 4.0)
+                                TextBlock.margin (8., 4., 0., 4.)
                                 TextBlock.verticalAlignment VerticalAlignment.Center
                             ]
 
                             // Add arrangement
                             Border.create [
+                                Grid.column 1
                                 Border.classes [ "icon-btn" ]
                                 Border.padding (4., 4., 10., 6.)
                                 Border.child (
@@ -155,6 +156,7 @@ let private arrangementPanel state dispatch =
 
                             // Validate arrangements
                             Border.create [
+                                Grid.column 2
                                 Border.classes [ "icon-btn" ]
                                 Border.padding (6., 4., 10., 6.)
                                 Border.child (
@@ -165,6 +167,13 @@ let private arrangementPanel state dispatch =
                                 Border.onTapped (fun _ -> dispatch CheckArrangements)
                                 Border.isEnabled (Utils.canRunValidation state)
                                 ToolTip.tip (translate "validateArrangementsToolTip")
+                            ]
+                            
+                            Rectangle.create [
+                                Grid.row 1
+                                Grid.columnSpan 3
+                                Rectangle.height 1.
+                                Rectangle.fill Brushes.Gray
                             ]
                         ] 
                     ]
@@ -218,17 +227,24 @@ let private tonesPanel state dispatch =
                 DockPanel.margin 4.
                 DockPanel.children [
                     // Title
-                    StackPanel.create [
+                    Grid.create [
                         DockPanel.dock Dock.Top
-                        StackPanel.orientation Orientation.Horizontal
-                        StackPanel.horizontalAlignment HorizontalAlignment.Center
-                        StackPanel.children [
+                        Grid.columnDefinitions "*,auto"
+                        Grid.rowDefinitions "auto,auto"
+                        Grid.children [
                             locText "tones" [
-                                TextBlock.margin (0.0, 4.0)
+                                TextBlock.margin (8., 4., 0., 4.)
                                 TextBlock.verticalAlignment VerticalAlignment.Center
                             ]
 
-                            Menus.addTone state dispatch 
+                            Menus.addTone state dispatch
+                            
+                            Rectangle.create [
+                                Grid.row 1
+                                Grid.columnSpan 2
+                                Rectangle.height 1.
+                                Rectangle.fill Brushes.Gray
+                            ]
                         ] 
                     ]
 
@@ -245,8 +261,9 @@ let private tonesPanel state dispatch =
                     match state.SelectedToneIndex with
                     | -1 ->
                         locText "selectTonePrompt" [
+                            TextBlock.foreground Brushes.Gray
+                            TextBlock.margin 4.
                             TextBlock.horizontalAlignment HorizontalAlignment.Center
-                            TextBlock.verticalAlignment VerticalAlignment.Center
                         ]
                     | index ->
                         ToneDetails.view state dispatch state.Project.Tones.[index]
@@ -308,7 +325,7 @@ let private statusMessageContents dispatch = function
         TextBlock.create [
             TextBlock.text (
                 match task with
-                | VolumeCalculation (CustomAudio(_)) ->
+                | VolumeCalculation (CustomAudio _) ->
                     translate $"VolumeCalculationCustomAudio"
                 | VolumeCalculation target ->
                     translate $"VolumeCalculation{target}"
@@ -396,7 +413,7 @@ let view (window: Window) (state: State) dispatch =
 
                     Grid.create [
                         Grid.columnDefinitions "*,1.8*"
-                        Grid.rowDefinitions "3*,2*"
+                        Grid.rowDefinitions "3.4*,2.6*"
                         Grid.children [
                             // Project details
                             ProjectDetails.view state dispatch

@@ -249,7 +249,7 @@ let removeTask completedTask state =
         state.StatusMessages
         |> List.filter (function
             | TaskWithProgress (task, _)
-            | TaskWithoutProgress (task) when task = completedTask ->
+            | TaskWithoutProgress task when task = completedTask ->
                 false
             | _ ->
                 true)

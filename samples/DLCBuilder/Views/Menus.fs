@@ -127,7 +127,7 @@ let file state dispatch =
                     state.RecentFiles
                     |> List.mapi (fun i fileName ->
                         MenuItem.create [
-                            MenuItem.header ($"_{i + 1} {IO.Path.GetFileName fileName}")
+                            MenuItem.header $"_{i + 1} {IO.Path.GetFileName fileName}"
                             MenuItem.onClick (
                                 (fun _ -> OpenProject fileName |> dispatch),
                                 SubPatchOptions.OnChangeOf state.RecentFiles)
@@ -405,6 +405,7 @@ let private addToneItems state dispatch : IView list =
 
 let addTone state dispatch =
     Menu.create [
+        Grid.column 1
         Menu.viewItems [
             MenuItem.create [
                 MenuItem.padding (6., 0., 10., 4.)

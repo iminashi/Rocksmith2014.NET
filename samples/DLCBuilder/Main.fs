@@ -513,13 +513,13 @@ let update (msg: Msg) (state: State) =
         let arrangements, index = moveSelected dir state.SelectedArrangementIndex project.Arrangements
         { state with Project = { project with Arrangements = arrangements }; SelectedArrangementIndex = index }, Cmd.none
 
-    | CreatePreviewAudio (SetupStartTime) ->
+    | CreatePreviewAudio SetupStartTime ->
         let totalLength = Utils.getLength project.AudioFile.Path
         // Remove the length of the preview from the total length
         let length = totalLength - TimeSpan.FromSeconds 28.
         { state with Overlay = SelectPreviewStart length }, Cmd.none
 
-    | CreatePreviewAudio (CreateFile) ->
+    | CreatePreviewAudio CreateFile ->
         match project.AudioPreviewStartTime with
         | None ->
             state, Cmd.none
@@ -848,7 +848,7 @@ let update (msg: Msg) (state: State) =
         match getSelectedArrangement state with
         | Some arr ->
             let xmlFile = Arrangement.getFile arr
-            { state with Overlay = IssueViewer (state.ArrangementIssues.[xmlFile]) }, Cmd.none
+            { state with Overlay = IssueViewer state.ArrangementIssues.[xmlFile] }, Cmd.none
         | None ->
             state, Cmd.none
 
