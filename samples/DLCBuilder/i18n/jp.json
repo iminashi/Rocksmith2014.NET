@@ -362,5 +362,6 @@
   "addToUserTones": "自分のコレクションに追加",
   "official": "公式",
   "user": "ユーザー",
-  "loadingToneGearData": "トーンギアデータロード中..."
+  "loadingToneGearData": "トーンギアデータロード中...",
+  "officialTonesDbNotFound": "公式トーンデータベースがインストールされていない。"
 }

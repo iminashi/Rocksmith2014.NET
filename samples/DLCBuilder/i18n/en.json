@@ -357,10 +357,11 @@
   "injectTonesIntoProfileToolTip": "Select tones to be loaded into the profile file set in the configuration.\n\nNOTE:\nThe existing custom tones in the profile will be replaced.\nIt is recommended that you create a backup of your profile before use.",
   "search": "Search",
   "toneAddedToProject": "The tone was added to the project.",
-  "toneAddedToCollection": "The tone was added to the user tones.",
+  "toneAddedToCollection": "The tone was added to the user collection.",
   "addToCollection": "Add to Collection",
   "addToUserTones": "Add to User Collection",
   "official": "Official",
   "user": "User",
-  "loadingToneGearData": "Loading tone gear data..."
+  "loadingToneGearData": "Loading tone gear data...",
+  "officialTonesDbNotFound": "The official tones database has not been installed."
 }

@@ -5,7 +5,7 @@
 - The textbox for the tone name is now shown only when "Show Advanced Features" is enabled.
 - Added new shortcut keys: Ctrl+B - Build Test, Ctrl+R - Build Release, Ctrl+V - Validate Arrangments.
 - Changed shortcut key "Toolkit Import" from Ctrl+T to Ctrl+I.
-- Improve start-up time slightly by loading the tone gear data in the background.
+- The tone gear data is now loaded in the background when the application starts.
 - UI improvements.
 
 ## 0.3.1 (Released 2021-06-15)

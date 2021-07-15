@@ -362,5 +362,6 @@
   "addToUserTones": "Lisää omaan kokoelmaan",
   "official": "Viralliset",
   "user": "Omat",
-  "loadingToneGearData": "Ladataan soundieditorin dataa..."
+  "loadingToneGearData": "Ladataan soundieditorin dataa...",
+  "officialTonesDbNotFound": "Virallisten soundien tietokantaa ei ole asennettu."
 }

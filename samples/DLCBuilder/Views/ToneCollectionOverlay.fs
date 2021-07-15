@@ -187,7 +187,7 @@ let private collectionView dispatch (collectionState: ToneCollection.State) =
                 TextBlock.create [
                     TextBlock.horizontalAlignment HorizontalAlignment.Center
                     TextBlock.verticalAlignment VerticalAlignment.Center
-                    TextBlock.text "Official tones file not found."
+                    TextBlock.text (translate "officialTonesDbNotFound")
                 ]
 
             // Tones list
