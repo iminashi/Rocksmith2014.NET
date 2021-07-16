@@ -68,43 +68,48 @@ let private serialize (tone: Tone) =
     let dto = Tone.toDto { tone with SortOrder = None; MacVolume = None }
     JsonSerializer.Serialize(dto, serializerOptions())
 
-let private createQuery (searchString: string option) pageNumber =
+let private executeQuery (connection: SQLiteConnection) (searchString: string option) pageNumber =
     let limit = 5
     let offset = (pageNumber - 1) * limit
 
     let whereClause =
         match searchString with
-        | Some searchString ->
-            let like =
-                searchString.ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                |> String.concat "%"
-                |> sprintf "%%%s%%"
-            $"""WHERE ( LOWER(name) LIKE '{like}'
-                OR
-                LOWER(description || artist || title || artist || description) LIKE '{like}' )"""
+        | Some _ ->
+            $"WHERE LOWER(name || description || artist || title || artist || description) LIKE @like"
         | None ->
             String.Empty
 
-    $"""
-    WITH Data_CTE
-    AS
-    (
-        SELECT id, artist, artistsort, title, titlesort, name, basstone, description
-        FROM tones
-        {whereClause}
-    ),
-    Count_CTE 
-    AS 
-    (
-        SELECT COUNT(*) AS TotalRows FROM Data_CTE
-    )
-    SELECT *
-    FROM Data_CTE
-    CROSS JOIN Count_CTE
-    ORDER BY artistsort, titlesort
-    LIMIT {limit}
-    OFFSET {offset}
-    """
+    let sql =
+        $"""
+        WITH Data_CTE
+        AS
+        (
+            SELECT id, artist, artistsort, title, titlesort, name, basstone, description
+            FROM tones
+            {whereClause}
+        ),
+        Count_CTE 
+        AS 
+        (
+            SELECT COUNT(*) AS TotalRows FROM Data_CTE
+        )
+        SELECT *
+        FROM Data_CTE
+        CROSS JOIN Count_CTE
+        ORDER BY artistsort, titlesort
+        LIMIT {limit}
+        OFFSET {offset}
+        """
+
+    match searchString with
+    | Some searchString ->
+        let like =
+            searchString.ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            |> String.concat "%"
+            |> sprintf "%%%s%%"
+        connection.Query<DbTone>(sql, dict [ "like", box like ])
+    | None ->
+        connection.Query<DbTone>(sql)
 
 let tryCreateOfficialTonesApi () =
     officialTonesDbPath
@@ -126,8 +131,7 @@ let tryCreateOfficialTonesApi () =
                 |> Seq.tryHead
 
             member _.GetTones(searchString, pageNumber) =
-                createQuery searchString pageNumber
-                |> connection.Query<DbTone>
+                executeQuery connection searchString pageNumber
                 |> Seq.toArray })
 
 let private ensureUserTonesDbCreated () =
@@ -167,8 +171,7 @@ let createUserTonesApi () =
             |> Option.map deserialize
 
         member _.GetTones(searchString, pageNumber) =
-            createQuery searchString pageNumber
-            |> connection.Query<DbTone>
+            executeQuery connection searchString pageNumber
             |> Seq.toArray
             
         member _.AddTone(data: DbToneData) =
