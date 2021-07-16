@@ -66,7 +66,7 @@ let getUniqueTones (psarc: PSARC) = async {
                         | Some { pathBass = 1uy } ->
                             true
                         | _ ->
-                            // Some guitar arrangements may contain a tone from the bass arrangment
+                            // Some guitar arrangements may contain a tone from the bass arrangement
                             dto.ToneDescriptors
                             |> Option.ofObj
                             |> Option.exists (Array.contains "$[35715]BASS")
@@ -122,18 +122,18 @@ let scanPsarcs (connection: SQLiteConnection) directory =
     |> Async.Sequential
     |> Async.Ignore
     |> Async.RunSynchronously
- 
+
 [<EntryPoint>]
 let main argv =
     if not <| File.Exists databaseFilename then
         createDataBase ()
 
-    let connectionString = $"Data Source={databaseFilename};" 
-    
+    let connectionString = $"Data Source={databaseFilename};"
+
     use connection = new SQLiteConnection(connectionString)
     connection.Open()
-    let execute = execute connection 
-    
+    let execute = execute connection
+
     execute "DROP TABLE IF EXISTS Tones"
 
     execute
