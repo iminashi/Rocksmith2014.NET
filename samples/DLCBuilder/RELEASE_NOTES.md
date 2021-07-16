@@ -1,10 +1,10 @@
 ## 0.4.0 (Released 2021-07-xx)
 
-- Added a tone collection feature where the user can save tones or add official tones into a project (separate download).
+- Added a tone collection feature where the user can save tones or add official tones (separate download) into a project.
 - Added a new automatic fix that removes the linknext attribute from chord notes that are not immediately followed by a note on the same string.
-- The textbox for the tone name is now shown only when "Show Advanced Features" is enabled.
+- The textbox for the tone name is now shown only when the "Show Advanced Features" option is enabled.
 - Added new shortcut keys: Ctrl+B - Build Test, Ctrl+R - Build Release, Ctrl+V - Validate Arrangments.
-- Changed shortcut key "Toolkit Import" from Ctrl+T to Ctrl+I.
+- Changed the shortcut key "Toolkit Import" from Ctrl+T to Ctrl+I.
 - The tone gear data is now loaded in the background when the application starts.
 - UI improvements.
 
