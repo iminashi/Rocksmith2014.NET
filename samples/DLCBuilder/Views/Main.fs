@@ -125,7 +125,7 @@ let private arrangementPanel state dispatch =
         Grid.columnDefinitions "*,2.5*"
         Grid.children [
             DockPanel.create [
-                DockPanel.margin 4.
+                DockPanel.margin (4., 4., 0., 4.)
                 DockPanel.children [
                     // Title
                     Grid.create [
@@ -168,14 +168,14 @@ let private arrangementPanel state dispatch =
                                 Border.isEnabled (Utils.canRunValidation state)
                                 ToolTip.tip (translate "validateArrangementsToolTip")
                             ]
-                            
+
                             Rectangle.create [
                                 Grid.row 1
                                 Grid.columnSpan 3
                                 Rectangle.height 1.
                                 Rectangle.fill Brushes.Gray
                             ]
-                        ] 
+                        ]
                     ]
 
                     // Arrangement list
@@ -224,7 +224,7 @@ let private tonesPanel state dispatch =
         Grid.columnDefinitions "*,2.5*"
         Grid.children [
             DockPanel.create [
-                DockPanel.margin 4.
+                DockPanel.margin (4., 4., 0., 4.)
                 DockPanel.children [
                     // Title
                     Grid.create [
@@ -238,14 +238,14 @@ let private tonesPanel state dispatch =
                             ]
 
                             Menus.addTone state dispatch
-                            
+
                             Rectangle.create [
                                 Grid.row 1
                                 Grid.columnSpan 2
                                 Rectangle.height 1.
                                 Rectangle.fill Brushes.Gray
                             ]
-                        ] 
+                        ]
                     ]
 
                     // Tones list

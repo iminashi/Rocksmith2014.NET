@@ -98,7 +98,7 @@
   "scrollSpeedTooltip": "Oletus: 1.3 (suositeltu)\n\nMitä pienempi arvo, sitä nopeampi vieritysnopeus.",
   "masterID": "Mestari ID",
   "persistentID": "Pysyvä ID",
-  "generateAllIDs": "_Generoi ID:t kaikille sovituksille",
+  "generateAllIDs": "_Generoi uudet ID:t kaikille sovituksille",
   "generateNewArrIDs": "Generoi uudet ID:t",
   "generateNewArrIDsToolTip": "Luo uudet identifikaatiotiedot tälle sovitukselle.\n\nSovituksen tilastot pelissä resetoituvat.",
   "applyLowTuningFix": "Käytä matalan virityksen korjausta",
