@@ -192,8 +192,7 @@ let view state dispatch (i: Instrumental) =
                 AutoCompleteBox.dataItems (
                     state.Project.Tones
                     |> List.choose (fun t -> Option.ofString t.Key)
-                    |> List.distinct
-                )
+                    |> List.distinct)
                 AutoCompleteBox.horizontalAlignment HorizontalAlignment.Stretch
                 AutoCompleteBox.text i.BaseTone
                 AutoCompleteBox.hasErrors (String.IsNullOrWhiteSpace i.BaseTone)
@@ -210,7 +209,7 @@ let view state dispatch (i: Instrumental) =
             TextBlock.create [
                 Grid.column 1
                 Grid.row 7
-                TextBlock.margin (4., 2.)
+                TextBlock.margin 4.
                 TextBlock.textWrapping TextWrapping.Wrap
                 TextBlock.isVisible (i.Tones.Length > 0)
                 TextBlock.verticalAlignment VerticalAlignment.Center

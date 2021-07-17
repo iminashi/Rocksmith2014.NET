@@ -64,52 +64,57 @@ let private arrangementDetails state dispatch =
                         let arr = state.Project.Arrangements.[index]
                         let xmlFile = Arrangement.getFile arr
 
-                        StackPanel.create [
-                            StackPanel.orientation Orientation.Horizontal
-                            StackPanel.horizontalAlignment HorizontalAlignment.Center
-                            StackPanel.margin (0., 2., 0., 0.)
-                            StackPanel.children [
-                                // Arrangement name
-                                TextBlock.create [
-                                    TextBlock.fontSize 17.
-                                    TextBlock.text (Templates.translateArrangementName arr state.Project Templates.NameOnly)
-                                    TextBlock.verticalAlignment VerticalAlignment.Bottom
+                        Panel.create [
+                            Panel.margin (0., 2., 0., 0.)
+                            Panel.children [
+                                StackPanel.create [
+                                    StackPanel.orientation Orientation.Horizontal
+                                    StackPanel.horizontalAlignment HorizontalAlignment.Center
+                                    StackPanel.children [
+                                        // Arrangement name
+                                        TextBlock.create [
+                                            TextBlock.fontSize 17.
+                                            TextBlock.text (Templates.translateArrangementName arr state.Project Templates.NameOnly)
+                                            TextBlock.verticalAlignment VerticalAlignment.Bottom
+                                        ]
+
+                                        // Arrangement filename
+                                        TextBlock.create [
+                                            TextBlock.fontSize 12.
+                                            TextBlock.margin (8., 0.)
+                                            TextBlock.text $"{IO.Path.GetFileName xmlFile}"
+                                            TextBlock.foreground "#cccccc"
+                                            TextBlock.verticalAlignment VerticalAlignment.Center
+                                        ]
+                                    ]
                                 ]
 
-                                // Arrangement filename
-                                TextBlock.create [
-                                    TextBlock.fontSize 12.
-                                    TextBlock.margin (8., 0.)
-                                    TextBlock.text $"{IO.Path.GetFileName xmlFile}"
-                                    TextBlock.foreground "#cccccc"
-                                    TextBlock.verticalAlignment VerticalAlignment.Center
-                                ]
+                                // Validation Icon
+                                if state.ArrangementIssues.ContainsKey xmlFile then
+                                    let noIssues = state.ArrangementIssues.[xmlFile].IsEmpty
+                                    StackPanel.create [
+                                        StackPanel.margin (12., 0.)
+                                        StackPanel.orientation Orientation.Horizontal
+                                        StackPanel.background Brushes.Transparent
+                                        if not noIssues then
+                                            StackPanel.onTapped (fun _ -> dispatch ShowIssueViewer)
+                                            StackPanel.cursor Cursors.hand
+                                        StackPanel.children [
+                                            Path.create [
+                                                Path.fill (if noIssues then Brushes.Green else Brushes.Red)
+                                                Path.data (if noIssues then Icons.check else Icons.x)
+                                                Path.verticalAlignment VerticalAlignment.Center
+                                                Path.margin (0., 0., 6., 0.)
+                                            ]
+
+                                            TextBlock.create[
+                                                TextBlock.text (if noIssues then "OK" else translate "issues")
+                                                TextBlock.verticalAlignment VerticalAlignment.Center
+                                            ]
+                                        ]
+                                    ]
                             ]
                         ]
-
-                        // Validation Icon
-                        if state.ArrangementIssues.ContainsKey xmlFile then
-                            let noIssues = state.ArrangementIssues.[xmlFile].IsEmpty
-                            StackPanel.create [
-                                StackPanel.orientation Orientation.Horizontal
-                                StackPanel.background Brushes.Transparent
-                                if not noIssues then
-                                    StackPanel.onTapped (fun _ -> dispatch ShowIssueViewer)
-                                    StackPanel.cursor Cursors.hand
-                                StackPanel.children [
-                                    Path.create [
-                                        Path.fill (if noIssues then Brushes.Green else Brushes.Red)
-                                        Path.data (if noIssues then Icons.check else Icons.x)
-                                        Path.verticalAlignment VerticalAlignment.Center
-                                        Path.margin (0., 0., 6., 0.)
-                                    ]
-
-                                    TextBlock.create[
-                                        TextBlock.text (if noIssues then "OK" else translate "issues")
-                                        TextBlock.verticalAlignment VerticalAlignment.Center
-                                    ]
-                                ]
-                            ]
 
                         match arr with
                         | Showlights _ -> ()
