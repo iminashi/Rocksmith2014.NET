@@ -1,4 +1,4 @@
-﻿open System
+open System
 open System.Data.SQLite
 open System.IO
 open System.Text.Json
@@ -102,11 +102,7 @@ let insertSql =
 let scanPsarcs (connection: SQLiteConnection) directory =
     seq {
         yield Path.Combine(directory, "songs.psarc")
-        yield! Directory.EnumerateFiles(Path.Combine(directory, "dlc"), "*.psarc") }
-    |> Seq.distinctBy (fun path ->
-        // Ignore _p & _m duplicate files
-        let fn = Path.GetFileNameWithoutExtension path
-        fn.Substring(0, fn.Length - 2))
+        yield! Directory.EnumerateFiles(Path.Combine(directory, "dlc"), "*_p.psarc") }
     |> Seq.map (fun path -> async {
         printfn "File %s:" (Path.GetFileName path)
 
