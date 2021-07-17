@@ -75,7 +75,7 @@ let private executeQuery (connection: SQLiteConnection) (searchString: string op
     let whereClause =
         match searchString with
         | Some _ ->
-            $"WHERE LOWER(name || description || artist || title || artist || description) LIKE @like"
+            "WHERE LOWER(name || description || artist || title || artist || description) LIKE @like"
         | None ->
             String.Empty
 
@@ -88,8 +88,8 @@ let private executeQuery (connection: SQLiteConnection) (searchString: string op
             FROM tones
             {whereClause}
         ),
-        Count_CTE 
-        AS 
+        Count_CTE
+        AS
         (
             SELECT COUNT(*) AS TotalRows FROM Data_CTE
         )
@@ -115,19 +115,19 @@ let tryCreateOfficialTonesApi () =
     officialTonesDbPath
     |> File.tryMap (fun _ ->
         let connection = createConnection officialTonesConnectionString
-        
+
         { new IOfficialTonesApi with
             member _.Dispose() = connection.Dispose()
 
             member _.GetToneById(id: int64) =
                 $"SELECT definition FROM tones WHERE id = {id}"
-                |> connection.Query<string>  
+                |> connection.Query<string>
                 |> Seq.tryHead
                 |> Option.map deserialize
 
             member _.GetToneDataById(id: int64) =
                 $"SELECT artist, artistsort, title, titlesort, name, basstone, description, definition FROM tones WHERE id = {id}"
-                |> connection.Query<DbToneData>  
+                |> connection.Query<DbToneData>
                 |> Seq.tryHead
 
             member _.GetTones(searchString, pageNumber) =
@@ -166,14 +166,14 @@ let createUserTonesApi () =
 
         member _.GetToneById(id: int64) =
             $"SELECT definition FROM tones WHERE id = {id}"
-            |> connection.Query<string>  
+            |> connection.Query<string>
             |> Seq.tryHead
             |> Option.map deserialize
 
         member _.GetTones(searchString, pageNumber) =
             executeQuery connection searchString pageNumber
             |> Seq.toArray
-            
+
         member _.AddTone(data: DbToneData) =
             let sql =
                 """INSERT INTO tones(artist, artistSort, title, titleSort, name, basstone, description, definition)
@@ -234,7 +234,7 @@ let addToUserCollection (project: DLCProject) (tone: Tone) =
 
     let isBass =
         tone.ToneDescriptors |> Array.contains "$[35715]BASS"
-    
+
     { Artist = project.ArtistName.Value.Trim() |> String.truncate 100
       ArtistSort = project.ArtistName.SortValue.Trim() |> String.truncate 100
       Title = project.Title.Value.Trim() |> String.truncate 100
@@ -324,7 +324,7 @@ module State =
         | ActiveCollection.User api ->
             api.DeleteToneById id
             let tones = getTones collectionState.ActiveCollection collectionState.SearchString collectionState.CurrentPage
-            
+
             { collectionState with
                 Tones = tones
                 TotalPages = getTotalPages tones }
