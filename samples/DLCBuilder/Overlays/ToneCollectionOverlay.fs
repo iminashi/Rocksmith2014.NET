@@ -1,6 +1,5 @@
 ﻿module DLCBuilder.Views.ToneCollectionOverlay
 
-open Avalonia
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
 open Avalonia.FuncUI
@@ -19,7 +18,7 @@ let private translateDescription (description: string) =
     description.Split('|')
     |> Array.map translate
     |> String.concat " "
-    
+
 let private toneTemplate dispatch isOfficial =
     DataTemplateView<DbTone>.create (fun dbTone ->
         let brush =
@@ -56,7 +55,7 @@ let private toneTemplate dispatch isOfficial =
                 Path.create [
                     Path.verticalAlignment VerticalAlignment.Center
                     Path.fill brush
-                    Path.data Media.Icons.guitar
+                    Path.data Icons.guitar
                 ]
 
                 StackPanel.create [
@@ -122,17 +121,8 @@ let tonesList dispatch collectionState isOfficial =
         )
     ]
 
-let private collectionView dispatch (collectionState: ToneCollection.State) =
-    DockPanel.create [
-        DockPanel.children [
-            // Search text box
-            AutoFocusSearchBox.create [
-                DockPanel.dock Dock.Top
-                AutoFocusSearchBox.onTextChanged (Option.ofString >> SearchToneCollection >> dispatch)
-            ]
-
-            // Pagination
-            Grid.create [
+let private paginationControls dispatch (collectionState: ToneCollection.State) =
+    Grid.create [
                 DockPanel.dock Dock.Bottom
                 Grid.horizontalAlignment HorizontalAlignment.Center
                 Grid.margin 4.
@@ -181,6 +171,18 @@ let private collectionView dispatch (collectionState: ToneCollection.State) =
                 ]
             ]
 
+let private collectionView dispatch (collectionState: ToneCollection.State) =
+    DockPanel.create [
+        DockPanel.children [
+            // Search text box
+            AutoFocusSearchBox.create [
+                DockPanel.dock Dock.Top
+                AutoFocusSearchBox.onTextChanged (Option.ofString >> SearchToneCollection >> dispatch)
+            ]
+
+            // Pagination
+            paginationControls dispatch collectionState
+
             match collectionState.ActiveCollection with
             // Database file not found message
             | ActiveCollection.Official None ->
@@ -189,7 +191,6 @@ let private collectionView dispatch (collectionState: ToneCollection.State) =
                     TextBlock.verticalAlignment VerticalAlignment.Center
                     TextBlock.text (translate "officialTonesDbNotFound")
                 ]
-
             // Tones list
             | ActiveCollection.Official _ ->
                 tonesList dispatch collectionState true
@@ -203,6 +204,7 @@ let view dispatch collectionState =
         TabControl.width 520.
         TabControl.height 550.
         TabControl.viewItems [
+            // Official tab
             TabItem.create [
                 TabItem.header (translate "official")
                 TabItem.content (
@@ -218,6 +220,7 @@ let view dispatch collectionState =
                 )
             ]
 
+            // User tab
             TabItem.create [
                 TabItem.header (translate "user")
                 TabItem.content (

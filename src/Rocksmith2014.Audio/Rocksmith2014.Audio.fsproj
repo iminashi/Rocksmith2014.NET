@@ -37,17 +37,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Types.fs" />
-    <Compile Include="Utils.fs" />
-    <Compile Include="Conversion.fs" />
-    <EmbeddedResource Include="Wwise\wwise2019.zip" />
-    <EmbeddedResource Include="Wwise\wwise2021.zip" />
     <Content Include="Tools\packed_codebooks.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Tools\packed_codebooks_aoTuV_603.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Compile Include="Types.fs" />
+    <Compile Include="Utils.fs" />
+    <Compile Include="Conversion.fs" />
+    <EmbeddedResource Include="Wwise\wwise2019.zip" />
+    <EmbeddedResource Include="Wwise\wwise2021.zip" />
     <Compile Include="Wwise\Wwise.fs" />
     <Compile Include="Volume\SecondOrderIIRFilter.fs" />
     <Compile Include="Volume\LufsMeter.fs" />

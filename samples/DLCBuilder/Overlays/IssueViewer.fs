@@ -119,11 +119,7 @@ let view dispatch (issues: Issue list) =
             ScrollViewer.create [
                 ScrollViewer.maxHeight 500.
                 ScrollViewer.maxWidth 600.
-                ScrollViewer.content (
-                    StackPanel.create [
-                        StackPanel.children issues
-                    ]
-                )
+                ScrollViewer.content (vStack issues)
             ]
 
             // OK button
