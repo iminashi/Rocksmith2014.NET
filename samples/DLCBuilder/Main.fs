@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Main
+module DLCBuilder.Main
 
 open Avalonia.Controls.Selection
 open Elmish
@@ -98,14 +98,14 @@ let init args =
             args
             |> Array.tryFind (String.endsWith ".rs2dlc")
             |> Option.map (fun path ->
-                Cmd.OfAsync.either DLCProject.load path (fun p -> ProjectLoaded(p, path)) ErrorOccurred)
+                Cmd.OfAsyncImmediate.either DLCProject.load path (fun p -> ProjectLoaded(p, path)) ErrorOccurred)
             |> Option.toList
 
         Cmd.batch [
-            Cmd.OfAsync.perform Configuration.load () (fun config -> SetConfiguration(config, loadProject.IsEmpty, wasAbnormalExit))
-            Cmd.OfAsync.perform RecentFilesList.load () SetRecentFiles
-            Cmd.OfAsync.perform OnlineUpdate.checkForUpdates () SetAvailableUpdate
-            Cmd.OfAsync.perform ToneGear.loadRepository () SetToneRepository
+            Cmd.OfAsyncImmediate.perform Configuration.load () (fun config -> SetConfiguration(config, loadProject.IsEmpty, wasAbnormalExit))
+            Cmd.OfAsyncImmediate.perform RecentFilesList.load () SetRecentFiles
+            Cmd.OfAsyncImmediate.perform OnlineUpdate.checkForUpdates () SetAvailableUpdate
+            Cmd.OfAsyncImmediate.perform ToneGear.loadRepository () SetToneRepository
             yield! loadProject ]
 
     { Project = DLCProject.Empty

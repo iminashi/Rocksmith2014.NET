@@ -1,4 +1,4 @@
-﻿module DLCBuilder.ToneGear
+module DLCBuilder.ToneGear
 
 open System.Collections.Generic
 open System.Reflection
