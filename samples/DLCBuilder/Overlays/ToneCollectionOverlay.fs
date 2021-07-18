@@ -200,41 +200,59 @@ let private collectionView dispatch (collectionState: ToneCollection.State) =
     ]
 
 let view dispatch collectionState =
-    TabControl.create [
-        TabControl.width 520.
-        TabControl.height 550.
-        TabControl.viewItems [
-            // Official tab
-            TabItem.create [
-                TabItem.header (translate "official")
-                TabItem.content (
-                    match collectionState.ActiveCollection with
-                    | ActiveCollection.Official _ ->
-                        collectionView dispatch collectionState
-                        |> generalize
-                    | _ ->
-                        Panel.create [] |> generalize)
-                TabItem.onIsSelectedChanged (fun isSelected ->
-                    if isSelected then
-                        ActiveTab.Official |> ChangeToneCollection |> dispatch
-                )
+    let dispatch' = ToneCollectionMsg >> dispatch
+    Panel.create [
+        Panel.children [
+            TabControl.create [
+                TabControl.width 520.
+                TabControl.height 550.
+                TabControl.viewItems [
+                    // Official tab
+                    TabItem.create [
+                        TabItem.header (translate "official")
+                        TabItem.content (
+                            match collectionState.ActiveCollection with
+                            | ActiveCollection.Official _ ->
+                                collectionView dispatch' collectionState
+                                |> generalize
+                            | _ ->
+                                Panel.create [] |> generalize)
+                        TabItem.onIsSelectedChanged (fun isSelected ->
+                            if isSelected then
+                                ActiveTab.Official |> ChangeToneCollection |> dispatch'
+                        )
+                    ]
+
+                    // User tab
+                    TabItem.create [
+                        TabItem.header (translate "user")
+                        TabItem.content (
+                            match collectionState.ActiveCollection with
+                            | ActiveCollection.User _ ->
+                                collectionView dispatch' collectionState
+                                |> generalize
+                            | _ ->
+                                Panel.create [] |> generalize
+                        )
+                        TabItem.onIsSelectedChanged (fun isSelected ->
+                            if isSelected then
+                                ActiveTab.User |> ChangeToneCollection |> dispatch'
+                        )
+                    ]
+                ]
             ]
 
-            // User tab
-            TabItem.create [
-                TabItem.header (translate "user")
-                TabItem.content (
-                    match collectionState.ActiveCollection with
-                    | ActiveCollection.User _ ->
-                        collectionView dispatch collectionState
-                        |> generalize
-                    | _ ->
-                        Panel.create [] |> generalize
-                )
-                TabItem.onIsSelectedChanged (fun isSelected ->
-                    if isSelected then
-                        ActiveTab.User |> ChangeToneCollection |> dispatch
-                )
+            Border.create [
+                Border.cursor Cursors.hand
+                Border.background Brushes.Transparent
+                Border.horizontalAlignment HorizontalAlignment.Right
+                Border.verticalAlignment VerticalAlignment.Top
+                Border.onTapped (fun _ -> dispatch CloseOverlay)
+                Border.child (
+                    Path.create [
+                        Path.data Icons.x
+                        Path.fill Brushes.DarkGray
+                    ])
             ]
         ]
     ] |> generalize

@@ -79,6 +79,7 @@ let private gearSlotSelector repository state dispatch (gearList: Gear) =
     let ampName = repository.AmpDict.[gearList.Amp.Key].Name
     let cabinetName =
         let c = repository.CabinetDict.[gearList.Cabinet.Key] in $"{c.Name} - {c.Category}"
+
     vStack [
         gearSlotHeader "amp"
         toggleButton dispatch gearList state.SelectedGearSlot ampName Amp
@@ -88,6 +89,14 @@ let private gearSlotSelector repository state dispatch (gearList: Gear) =
 
         yield! [ ("prePedals", PrePedal); ("loopPedals", PostPedal); ("rack", Rack) ]
                 |> List.collect (pedalSelectors dispatch repository state.SelectedGearSlot gearList)
+
+        Button.create [
+            Button.content (translate "close")
+            Button.horizontalAlignment HorizontalAlignment.Center
+            Button.margin (0., 8.)
+            Button.padding (20., 8.)
+            Button.onClick (fun _ -> dispatch CloseOverlay)
+        ]
     ]
 
 let private gearSelector dispatch repository (gearList: Gear) gearSlot =
@@ -281,7 +290,7 @@ let view state dispatch (tone: Tone) =
     | Some repository ->
         Grid.create [
             Grid.width 620.
-            Grid.minHeight 640.
+            Grid.minHeight 635.
             Grid.columnDefinitions "*,*"
             Grid.children [
                 gearSlotSelector repository state dispatch tone.GearList

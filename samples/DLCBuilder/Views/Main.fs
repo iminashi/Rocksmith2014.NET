@@ -298,7 +298,6 @@ let private overlay state dispatch =
         | index ->
             ToneEditor.view state dispatch state.Project.Tones.[index]
     | ToneCollection collectionState ->
-        let dispatch = ToneCollectionMsg >> dispatch
         ToneCollectionOverlay.view dispatch collectionState
     | DeleteConfirmation files ->
         DeleteConfirmation.view dispatch files
