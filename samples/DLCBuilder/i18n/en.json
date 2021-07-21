@@ -98,7 +98,7 @@
   "scrollSpeedTooltip": "Default: 1.3 (Recommended)\n\nThe lower the value, the faster the scroll speed.",
   "masterID": "Master ID",
   "persistentID": "Persistent ID",
-  "generateAllIDs": "_Generate new IDs for All Arrangements",
+  "generateAllIDs": "_Generate New IDs for All Arrangements",
   "generateNewArrIDs": "Generate New IDs",
   "generateNewArrIDsToolTip": "Generates new identification data for this arrangement.\n\nThe in-game stats for the arrangement will be reset.",
   "applyLowTuningFix": "Apply Low Tuning Fix",
