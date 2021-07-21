@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Tools
+module DLCBuilder.Tools
 
 open Elmish
 open Rocksmith2014.Audio
@@ -66,6 +66,17 @@ let update msg state =
         Utils.addTask WemToOggConversion state,
         Cmd.OfAsync.either task () (fun () -> WemToOggConversionCompleted) (fun ex -> TaskFailed(ex, WemToOggConversion))
 
+    | ConvertAudioToWem files ->
+        let task () = async {
+            let t =
+                files
+                |> Array.map (Wwise.convertToWem state.Config.WwiseConsolePath)
+
+            do! Async.Parallel(t, 4) |> Async.Ignore }
+
+        Utils.addTask WemConversion state,
+        Cmd.OfAsync.either task () WemConversionComplete (fun ex -> TaskFailed(ex, WemConversion))
+
     | UnpackPSARC file ->
         let targetDirectory = Path.Combine(Path.GetDirectoryName file, Path.GetFileNameWithoutExtension file)
         Directory.CreateDirectory targetDirectory |> ignore
@@ -76,6 +87,11 @@ let update msg state =
 
         Utils.addTask PsarcUnpack state,
         Cmd.OfAsync.either task () (fun () -> PsarcUnpacked) (fun ex -> TaskFailed(ex, PsarcUnpack))
+
+    | PackDirectoryIntoPSARC (directory, targetFile) ->
+        let task () = PSARC.PackDirectory(directory, targetFile, true)
+        
+        state, Cmd.OfAsync.attempt task () ErrorOccurred
 
     | RemoveDD files ->
         let task () =

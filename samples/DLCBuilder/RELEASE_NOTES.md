@@ -5,7 +5,7 @@
 - The textbox for the tone name is now shown only when the "Show Advanced Features" option is enabled.
 - Added new shortcut keys: Ctrl+B - Build Test, Ctrl+R - Build Release, Ctrl+V - Validate Arrangments.
 - Changed the shortcut key "Toolkit Import" from Ctrl+T to Ctrl+I.
-- The tone gear data is now loaded in the background when the application starts.
+- Added "Pack Directory into PSARC" and "Convert Audio to Wem" into the tools menu.
 - UI improvements.
 
 ## 0.3.1 (Released 2021-06-15)

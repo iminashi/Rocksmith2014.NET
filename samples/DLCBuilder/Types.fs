@@ -1,4 +1,4 @@
-﻿[<AutoOpen>]
+[<AutoOpen>]
 module DLCBuilder.Types
 
 open Rocksmith2014.DLCProject
@@ -151,7 +151,9 @@ type State =
 
 type ToolsMsg =
     | ConvertWemToOgg of files : string array
+    | ConvertAudioToWem of files : string array
     | UnpackPSARC of file : string
+    | PackDirectoryIntoPSARC of directory : string * targetFile : string
     | RemoveDD of files : string array
     | InjectTonesIntoProfile of files : string array
 
@@ -172,7 +174,10 @@ type Dialog =
     | PsarcImport
     | PsarcImportTargetFolder of psarcPath : string
     | PsarcUnpack
+    | PsarcPackDirectory
+    | PsarcPackTargetFile of directory : string
     | WemFiles
+    | AudioFileConversion
     | RemoveDD
     | TestFolder
     | ProfileFile

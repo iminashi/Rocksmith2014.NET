@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.Menus
+module DLCBuilder.Views.Menus
 
 open Avalonia
 open Avalonia.Controls
@@ -196,16 +196,32 @@ let tools state dispatch =
                 MenuItem.onClick (fun _ -> Dialog.PsarcUnpack |> ShowDialog |> dispatch)
             ]
 
-            // Remove DD
+            // Pack Directory into PSARC
             MenuItem.create [
-                MenuItem.header (translate "removeDD")
-                MenuItem.onClick (fun _ -> Dialog.RemoveDD |> ShowDialog |> dispatch)
+                MenuItem.header (translate "packDirectoryIntoPSARC")
+                MenuItem.onClick (fun _ -> Dialog.PsarcPackDirectory |> ShowDialog |> dispatch)
             ]
+
+            separator
 
             // Convert Wem to Ogg
             MenuItem.create [
                 MenuItem.header (translate "convertWemToOgg")
                 MenuItem.onClick (fun _ -> Dialog.WemFiles |> ShowDialog |> dispatch)
+            ]
+
+            // Convert Audio to Wem
+            MenuItem.create [
+                MenuItem.header (translate "convertAudioToWem")
+                MenuItem.onClick (fun _ -> Dialog.AudioFileConversion |> ShowDialog |> dispatch)
+            ]
+
+            separator
+
+            // Remove DD
+            MenuItem.create [
+                MenuItem.header (translate "removeDD")
+                MenuItem.onClick (fun _ -> Dialog.RemoveDD |> ShowDialog |> dispatch)
             ]
 
             // Inject Tones into Profile

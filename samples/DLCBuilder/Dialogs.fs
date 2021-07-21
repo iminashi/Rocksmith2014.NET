@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Dialogs
+module DLCBuilder.Dialogs
 
 open System
 open System.Collections.Generic
@@ -20,6 +20,7 @@ type FileFilter =
     | Project
     | PSARC
     | Wem
+    | WavOgg
     | ToolkitTemplate
     | ToneImport
     | ToneExport
@@ -35,6 +36,8 @@ let private createFilters name (extensions: string seq) =
 let private createFileFilters filter =
     let extensions =
         match filter with
+        | FileFilter.WavOgg ->
+            [ "wav"; "ogg" ]
         | FileFilter.Audio ->
             [ "wav"; "ogg"; "wem" ]
         | FileFilter.Wem ->
@@ -123,6 +126,7 @@ let private translateTitle dialogType =
         | Dialog.PsarcImportTargetFolder _ -> "PsarcImportTargetFolderDialogTitle"
         | Dialog.AudioFile _ -> "AudioFileDialogTitle"
         | Dialog.ExportTone _ -> "ExportToneDialogTitle"
+        | Dialog.PsarcPackTargetFile _ -> "PsarcPackTargetFileDialogTitle"
         | other -> $"{other}DialogTitle"
 
     translate locString
@@ -160,8 +164,25 @@ let showDialog dialogType state =
         | Dialog.PsarcUnpack ->
             ofd FileFilter.PSARC (UnpackPSARC >> ToolsMsg)
 
+        | Dialog.PsarcPackDirectory ->
+            openFolderDialog title None (Dialog.PsarcPackTargetFile >> ShowDialog)
+
+        | Dialog.PsarcPackTargetFile directory ->
+            let initialFileName =
+                directory.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries)
+                |> Array.last
+                |> sprintf "%s.psarc"
+                |> Some
+
+            let initialDirectory = Directory.GetParent(directory).FullName |> Some
+
+            saveFileDialog title FileFilter.PSARC initialFileName initialDirectory (fun targetFile -> PackDirectoryIntoPSARC(directory, targetFile) |> ToolsMsg)
+
         | Dialog.WemFiles ->
             openMultiFileDialog title FileFilter.Wem None (ConvertWemToOgg >> ToolsMsg)
+
+        | Dialog.AudioFileConversion ->
+            openMultiFileDialog title FileFilter.WavOgg None (ConvertAudioToWem >> ToolsMsg)
 
         | Dialog.RemoveDD ->
             openMultiFileDialog title FileFilter.XML None (RemoveDD >> ToolsMsg)
