@@ -1,14 +1,69 @@
-﻿module DLCBuilder.Views.InstrumentalDetails
+module DLCBuilder.Views.InstrumentalDetails
 
+open Avalonia
 open Avalonia.Controls
 open Avalonia.Controls.Primitives
+open Avalonia.Controls.Shapes
+open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
+open Avalonia.Input
 open Avalonia.Layout
 open Avalonia.Media
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open System
 open DLCBuilder
+
+let private tuningTextBox dispatch (tuning: int16 array) stringIndex =
+    TextBox.create [
+        TextBox.margin (2., 0.)
+        TextBox.minWidth 40.
+        TextBox.width 40.
+        TextBox.text (string tuning.[stringIndex])
+        TextBox.onLostFocus (fun arg ->
+            let txtBox = arg.Source :?> TextBox
+            match Int16.TryParse txtBox.Text with
+            | true, newTuning ->
+                SetTuning (stringIndex, newTuning)
+                |> EditInstrumental
+                |> dispatch
+            | false, _ ->
+                ())
+        TextBox.onKeyUp (fun arg ->
+            match arg.Key with
+            | Key.Down
+            | Key.Up ->
+                arg.Handled <- true
+                let dir = if arg.Key = Key.Down then Down else Up
+                ChangeTuning (stringIndex, dir)
+                |> EditInstrumental
+                |> dispatch
+            | _ ->
+                ())
+    ] |> generalize
+
+let private tuningChangeRepeatButton dispatch direction =
+    RepeatButton.create [
+        if direction = Down then Grid.row 1
+        RepeatButton.verticalAlignment VerticalAlignment.Stretch
+        RepeatButton.padding (2., 2., 6., 4.)
+        RepeatButton.content (
+            ViewBox.create [
+                Viewbox.width 14.
+                Viewbox.height 14.
+                Viewbox.child (
+                    Path.create [
+                        Path.data (if direction = Up then Media.Icons.chevronUp else Media.Icons.chevronDown)
+                        Path.fill Brushes.White
+                    ]
+                )
+            ])
+        RepeatButton.onClick (fun _ ->
+            ChangeTuningAll direction
+            |> EditInstrumental
+            |> dispatch
+        )
+    ]
 
 let view state dispatch (i: Instrumental) =
     Grid.create [
@@ -125,29 +180,25 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
-            UniformGrid.create [
+            StackPanel.create [
                 Grid.column 1
                 Grid.row 4
-                UniformGrid.margin (2.0, 0.0)
-                UniformGrid.columns 6
-                UniformGrid.horizontalAlignment HorizontalAlignment.Left
-                UniformGrid.children [
-                    for str in 0..5 ->
-                        TextBox.create [
-                            TextBox.margin (2., 0.)
-                            TextBox.minWidth 40.
-                            TextBox.width 40.
-                            TextBox.text (string i.Tuning.[str])
-                            TextBox.onLostFocus (fun arg ->
-                                let txtBox = arg.Source :?> TextBox
-                                match Int16.TryParse txtBox.Text with
-                                | true, newTuning ->
-                                    SetTuning (str, newTuning)
-                                    |> EditInstrumental
-                                    |> dispatch
-                                | false, _ ->
-                                    ())
+                StackPanel.orientation Orientation.Horizontal
+                StackPanel.children [
+                    UniformGrid.create [
+                        UniformGrid.margin (2.0, 0.0)
+                        UniformGrid.columns 6
+                        UniformGrid.horizontalAlignment HorizontalAlignment.Left
+                        UniformGrid.children (List.init 6 (tuningTextBox dispatch i.Tuning))
+                    ]
+
+                    Grid.create [
+                        Grid.rowDefinitions "15,15"
+                        Grid.children [
+                            tuningChangeRepeatButton dispatch Up
+                            tuningChangeRepeatButton dispatch Down
                         ]
+                    ]
                 ]
             ]
 

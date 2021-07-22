@@ -1,6 +1,13 @@
-﻿module Rocksmith2014.DLCProject.Utils
+module Rocksmith2014.DLCProject.Utils
 
 open System
+open System.Runtime.CompilerServices
+
+[<Extension>]
+type SpanExtensions =
+    [<Extension>]
+    static member inline AllSame(this: Span<'T>, value: 'T) =
+        this.Trim(value).IsEmpty
 
 /// Converts a tuning pitch into cents.
 let tuningPitchToCents (pitch: float) =
@@ -17,11 +24,11 @@ let getTuningName (tuning: int16 array) : string * obj array =
     let first = tuning.[0]
 
     // Standard tunings
-    if first > -11s && first < 3s && Array.forall ((=) first) tuning then
+    if first > -11s && first < 3s && tuning.AsSpan().AllSame(first) then
         let i = int (first + 12s) % 12
         "Standard", [| roots.[i] |]
     // Drop tunings
-    elif Array.forall ((=) tuning.[1]) tuning.[2..] && first = tuning.[1] - 2s then
+    elif first > -12s && first = tuning.[1] - 2s && tuning.AsSpan(1).AllSame(tuning.[1]) then
         let i = int (first + 12s) % 12
         let j = int (tuning.[1] + 12s) % 12
         let root = if first < -2s then roots.[j] + " " else String.Empty

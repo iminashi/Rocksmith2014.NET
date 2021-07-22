@@ -1,4 +1,4 @@
-﻿module DLCBuilder.EditFunctions
+module DLCBuilder.EditFunctions
 
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
@@ -67,6 +67,15 @@ let editInstrumental state edit index inst =
 
         | SetTuning (index, newTuning) ->
             { inst with Tuning = inst.Tuning |> Array.updateAt index newTuning }, Cmd.none
+
+        | ChangeTuning (index, direction) ->
+            let change = match direction with Up -> 1s | Down -> -1s
+            let newTuning = inst.Tuning.[index] + change
+            { inst with Tuning = inst.Tuning |> Array.updateAt index newTuning }, Cmd.none
+
+        | ChangeTuningAll direction ->
+            let change = match direction with Up -> 1s | Down -> -1s
+            { inst with Tuning = inst.Tuning |> Array.map ((+) change) }, Cmd.none
 
         | SetTuningPitch pitch ->
             { inst with TuningPitch = pitch }, Cmd.none
