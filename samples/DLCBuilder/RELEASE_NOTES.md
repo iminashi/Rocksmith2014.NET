@@ -6,7 +6,10 @@
 - Added new shortcut keys: Ctrl+B - Build Test, Ctrl+R - Build Release, Ctrl+V - Validate Arrangments.
 - Changed the shortcut key "Toolkit Import" from Ctrl+T to Ctrl+I.
 - Added "Pack Directory into PSARC" and "Convert Audio to Wem" into the tools menu.
-- UI improvements.
+- The tuning of a string can be changed with up and down arrow buttons.
+- Added buttons for changing the tuning of all strings simultaneously.
+- Fixed an exception when using very low drop tunings.
+- Various UI improvements.
 
 ## 0.3.1 (Released 2021-06-15)
 
