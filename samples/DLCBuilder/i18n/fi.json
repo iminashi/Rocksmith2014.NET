@@ -118,7 +118,6 @@
   "addDescriptionToolTip": "Lisää kuvausosa.",
   "removeDescriptionToolTip": "Poista kuvausosa.",
   "volume": "Äänenvoimakkuus",
-  "toneVolumeToolTip": "Pienempi arvo = suurempi äänenvoimakkuus.",
   "toneNameToolTip": "Ei normaalisti näy pelissä.",
   "startTime": "Alkuaika (s)",
   "create": "Luo",

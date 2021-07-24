@@ -118,7 +118,6 @@
   "addDescriptionToolTip": "Click to add a description part.",
   "removeDescriptionToolTip": "Click to remove a description part.",
   "volume": "Volume",
-  "toneVolumeToolTip": "Lower value = louder volume.",
   "toneNameToolTip": "Not normally visible in-game.",
   "startTime": "Start Time (s)",
   "create": "Create",

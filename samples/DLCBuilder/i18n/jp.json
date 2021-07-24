@@ -118,7 +118,6 @@
   "addDescriptionToolTip": "デスクリプション部分を追加する",
   "removeDescriptionToolTip": "デスクリプション部分を除去する",
   "volume": "ボリューム",
-  "toneVolumeToolTip": "より低い数値 = より大きいボリューム",
   "toneNameToolTip": "普段、ゲーム内では表示されない",
   "startTime": "開始時間 (秒)",
   "create": "作成",
