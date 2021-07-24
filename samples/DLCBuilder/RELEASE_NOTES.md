@@ -2,13 +2,14 @@
 
 - Added a tone collection feature where the user can save tones or add official tones (separate download) into a project.
 - Added a new automatic fix that removes the linknext attribute from chord notes that are not immediately followed by a note on the same string.
+- The tone volume setting now uses positive numbers with the range being: 0.1 (very quiet) ... 36.0 (very loud)
 - The textbox for the tone name is now shown only when the "Show Advanced Features" option is enabled.
-- Added new shortcut keys: Ctrl+B - Build Test, Ctrl+R - Build Release, Ctrl+V - Validate Arrangments.
+- Added new shortcut keys: Ctrl+B - Build Test, Ctrl+R - Build Release, Ctrl+V - Validate Arrangements.
 - Changed the shortcut key "Toolkit Import" from Ctrl+T to Ctrl+I.
 - Added "Pack Directory into PSARC" and "Convert Audio to Wem" into the tools menu.
-- The tuning of a string can be changed with up and down arrow buttons.
+- The tuning of a string can be changed with the up and down arrow keys.
 - Added buttons for changing the tuning of all strings simultaneously.
-- Fixed an exception when using very low drop tunings.
+- Fixed an exception when entering a very low drop tuning.
 - Various UI improvements.
 
 ## 0.3.1 (Released 2021-06-15)
