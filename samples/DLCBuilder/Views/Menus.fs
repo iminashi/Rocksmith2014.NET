@@ -224,6 +224,8 @@ let tools state dispatch =
                 MenuItem.onClick (fun _ -> Dialog.RemoveDD |> ShowDialog |> dispatch)
             ]
 
+            separator
+
             // Inject Tones into Profile
             MenuItem.create [
                 MenuItem.header (translate "injectTonesIntoProfile")

@@ -244,7 +244,8 @@ let editTone state edit index =
                 { tone with Key = key }
 
         | SetVolume volume ->
-            { tone with Volume = volume }
+            // The volume is displayed as a positive number in the UI and needs to be made negative
+            { tone with Volume = -volume }
 
         | AddDescriptor ->
             { tone with ToneDescriptors = tone.ToneDescriptors |> Array.append [| ToneDescriptor.all.[0].UIName |] }

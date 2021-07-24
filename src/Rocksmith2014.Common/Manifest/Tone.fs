@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.Common.Manifest
+namespace Rocksmith2014.Common.Manifest
 
 open System
 open System.Collections.Generic
@@ -156,7 +156,7 @@ module Tone =
         let vol = Regex.Replace(vol.Replace(',', '.'), "[^0-9.-]", "")
         Math.Round(float vol, 1, MidpointRounding.AwayFromZero)
 
-    let private volumeToString (vol: float) = vol.ToString(CultureInfo.InvariantCulture)
+    let private volumeToString (vol: float) = vol.ToString("0.000", CultureInfo.InvariantCulture)
 
     /// Imports a tone from a Tone2014 XML structure using the optional XML namespace.
     let importXml (ns: string option) (xmlNode: XmlNode) =
@@ -291,7 +291,8 @@ module Tone =
     /// Exports a tone into an XML file in a format that is compatible with the Toolkit.
     let exportXml (path: string) (tone: Tone) = async {
         let serializer = DataContractSerializer(typeof<ToneDto>)
-        using (XmlWriter.Create(path, XmlWriterSettings(Indent = true))) (fun writer -> serializer.WriteObject(writer, toDto tone))
+        using (XmlWriter.Create(path, XmlWriterSettings(Indent = true)))
+              (fun writer -> serializer.WriteObject(writer, toDto tone))
 
         // Read the file back and fix it up to be importable in the Toolkit
         let! text = File.ReadAllTextAsync path

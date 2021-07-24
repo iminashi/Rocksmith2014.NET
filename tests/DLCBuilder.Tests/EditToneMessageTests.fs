@@ -1,4 +1,4 @@
-﻿module EditToneMessageTests
+module EditToneMessageTests
 
 open Expecto
 open DLCBuilder
@@ -41,7 +41,7 @@ let editToneTests =
         testCase "SetName, SetKey, SetVolume" <| fun _ ->
             let messages = [ SetName "Test Tone"
                              SetKey "Test_key"
-                             SetVolume -8.5 ] |> List.map EditTone
+                             SetVolume 8.5 ] |> List.map EditTone
 
             let newState, _ =
                 messages

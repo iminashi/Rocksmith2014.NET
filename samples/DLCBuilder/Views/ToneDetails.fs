@@ -1,9 +1,11 @@
-﻿module DLCBuilder.Views.ToneDetails
+module DLCBuilder.Views.ToneDetails
 
 open Avalonia.Controls
 open Avalonia.Controls.Primitives
+open Avalonia.Controls.Shapes
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
+open Avalonia.Media
 open System
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
@@ -145,18 +147,46 @@ let view state dispatch (tone: Tone) =
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
-            NumericUpDown.create [
+            StackPanel.create [
                 Grid.column 1
                 Grid.row 3
-                NumericUpDown.horizontalAlignment HorizontalAlignment.Left
-                NumericUpDown.width 140.
-                NumericUpDown.value tone.Volume
-                NumericUpDown.minimum -45.
-                NumericUpDown.maximum 45.
-                NumericUpDown.increment 0.1
-                NumericUpDown.formatString "F1"
-                NumericUpDown.onValueChanged (SetVolume >> EditTone >> dispatch)
-                ToolTip.tip (translate "toneVolumeToolTip")
+                StackPanel.orientation Orientation.Horizontal
+                StackPanel.children [
+                    NumericUpDown.create [
+                        NumericUpDown.horizontalAlignment HorizontalAlignment.Left
+                        NumericUpDown.verticalAlignment VerticalAlignment.Center
+                        NumericUpDown.width 140.
+                        NumericUpDown.value (-tone.Volume)
+                        NumericUpDown.minimum 0.1
+                        NumericUpDown.maximum 36.
+                        NumericUpDown.increment 0.1
+                        NumericUpDown.formatString "F1"
+                        NumericUpDown.onValueChanged (SetVolume >> EditTone >> dispatch)
+                    ]
+
+                    Path.create [
+                        Path.data Media.Icons.volumeLow
+                        Path.fill Brushes.Gray
+                        Path.verticalAlignment VerticalAlignment.Center
+                        Path.margin (4., 0.)
+                    ]
+
+                    Slider.create [
+                        Slider.width 190.
+                        Slider.minimum 0.1
+                        Slider.maximum 36.
+                        Slider.value (-tone.Volume)
+                        Slider.onValueChanged (SetVolume >> EditTone >> dispatch)
+                        Slider.minHeight 0.
+                    ]
+
+                    Path.create [
+                        Path.data Media.Icons.volumeHigh
+                        Path.fill Brushes.Gray
+                        Path.verticalAlignment VerticalAlignment.Center
+                        Path.margin (4., 0.)
+                    ]
+                ]
             ]
 
             // Buttons (Edit & Export)

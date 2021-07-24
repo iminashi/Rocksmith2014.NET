@@ -74,9 +74,9 @@ type ProjectEdit =
     | SetPitchShift of int16
 
 type ToneEdit =
-    | SetName of string
-    | SetKey of string
-    | SetVolume of float
+    | SetName of toneName:string
+    | SetKey of toneKey:string
+    | SetVolume of volume:float
     | ChangeDescriptor of index:int * descriptor:ToneDescriptor
     | AddDescriptor
     | RemoveDescriptor
