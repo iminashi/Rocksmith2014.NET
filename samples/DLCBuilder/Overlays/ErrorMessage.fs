@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.ErrorMessage
+module DLCBuilder.Views.ErrorMessage
 
 open Avalonia.Controls
 open Avalonia.Controls.Primitives
@@ -46,7 +46,7 @@ let view dispatch msg info =
                     Expander.header (translate "moreInfo")
                     Expander.content (
                         TextBox.create [
-                            TextBox.maxWidth 450.
+                            TextBox.maxWidth 650.
                             TextBox.maxHeight 450.
                             TextBox.horizontalScrollBarVisibility ScrollBarVisibility.Auto
                             TextBox.verticalScrollBarVisibility ScrollBarVisibility.Auto
