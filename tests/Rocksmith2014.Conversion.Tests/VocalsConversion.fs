@@ -1,8 +1,8 @@
 module Rocksmith2014.Conversion.Tests.VocalsConversion
 
 open Expecto
-open Rocksmith2014.Common
 open Rocksmith2014
+open Rocksmith2014.Common
 open Rocksmith2014.Conversion
 open Rocksmith2014.SNG
 open System.IO

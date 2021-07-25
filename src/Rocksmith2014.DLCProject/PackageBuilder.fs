@@ -1,20 +1,20 @@
-﻿module Rocksmith2014.DLCProject.PackageBuilder
+module Rocksmith2014.DLCProject.PackageBuilder
 
 open Rocksmith2014.Common
-open Rocksmith2014.Common.Platform
 open Rocksmith2014.Common.Manifest
-open Rocksmith2014.DLCProject.Manifest.AttributesCreation
-open Rocksmith2014.XML
-open Rocksmith2014.XML.Processing
-open Rocksmith2014.SNG
-open Rocksmith2014.PSARC
+open Rocksmith2014.Common.Platform
 open Rocksmith2014.Conversion
 open Rocksmith2014.DD
+open Rocksmith2014.DLCProject.Manifest.AttributesCreation
+open Rocksmith2014.PSARC
+open Rocksmith2014.SNG
+open Rocksmith2014.XML
+open Rocksmith2014.XML.Processing
 open Microsoft.Extensions.FileProviders
+open System
 open System.IO
 open System.Reflection
 open System.Text
-open System
 
 type private BuildData =
     { SNGs: (Arrangement * SNG) list

@@ -1,10 +1,10 @@
 module Rocksmith2014.Conversion.Tests.InstrumentalConversionTest
 
 open Expecto
-open Rocksmith2014.XML
 open Rocksmith2014
-open Rocksmith2014.Conversion.Utils
 open Rocksmith2014.Conversion
+open Rocksmith2014.Conversion.Utils
+open Rocksmith2014.XML
 
 [<Tests>]
 let instrumentalConversionTests =
