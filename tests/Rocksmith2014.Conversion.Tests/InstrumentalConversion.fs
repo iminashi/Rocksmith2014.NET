@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Conversion.Tests.InstrumentalConversionTest
+module Rocksmith2014.Conversion.Tests.InstrumentalConversionTest
 
 open Expecto
 open Rocksmith2014.XML
@@ -7,9 +7,9 @@ open Rocksmith2014.Conversion.Utils
 open Rocksmith2014.Conversion
 
 [<Tests>]
-let sngToXmlConversionTests =
-    testList "XML Files → SNG" [
-        testCase "Instrumental Conversion (Notes Only)" <| fun _ ->
+let instrumentalConversionTests =
+    testList "Instrumental Conversion Tests" [
+        testCase "Notes Only" <| fun _ ->
             let xml = InstrumentalArrangement.Load("instrumental_1level_notesonly.xml")
             
             let sng = ConvertInstrumental.xmlToSng xml
@@ -39,7 +39,7 @@ let sngToXmlConversionTests =
             Expect.isTrue (level.Notes.[15].Mask ?= SNG.NoteMask.Parent) "Note #15 has parent bit set"
             Expect.equal level.Notes.[16].Vibrato 80s "Note #16 has vibrato set to 80"
         
-        testCase "Instrumental Conversion (Chords Only)" <| fun _ ->
+        testCase "Chords Only" <| fun _ ->
             let xml = InstrumentalArrangement.Load("instrumental_1level_chordsonly.xml")
             
             let sng = ConvertInstrumental.xmlToSng xml
@@ -69,7 +69,7 @@ let sngToXmlConversionTests =
             Expect.equal level.Notes.[6].Sustain 0.750f "Chord #6 has 0.75s sustain"
             Expect.isTrue (level.Notes.[7].Mask ?= SNG.NoteMask.Ignore) "Chord #7 has ignore bit set"
 
-        testCase "Instrumental Conversion (Chord notes whose hash values may clash)" <| fun _ ->
+        testCase "Chord notes whose hash values may clash" <| fun _ ->
             let xml = InstrumentalArrangement.Load "chordnotes.xml"
 
             let sng = ConvertInstrumental.xmlToSng xml
