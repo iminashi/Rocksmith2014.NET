@@ -25,7 +25,8 @@ let private toneTemplate dispatch isOfficial =
             if dbTone.BassTone then
                 Brushes.bass
             elif dbTone.Name.Contains("lead", StringComparison.OrdinalIgnoreCase)
-                 || dbTone.Name.Contains("solo", StringComparison.OrdinalIgnoreCase) then
+                 || dbTone.Name.Contains("solo", StringComparison.OrdinalIgnoreCase)
+            then
                 Brushes.lead
             else
                 Brushes.rhythm
@@ -124,53 +125,53 @@ let tonesList dispatch collectionState isOfficial =
 
 let private paginationControls dispatch (collectionState: ToneCollection.State) =
     Grid.create [
-                DockPanel.dock Dock.Bottom
-                Grid.horizontalAlignment HorizontalAlignment.Center
-                Grid.margin 4.
-                Grid.columnDefinitions "*,auto,*"
-                Grid.children [
-                    Border.create [
-                        let isEnabled = collectionState.CurrentPage > 1
-                        Border.background Brushes.Transparent
-                        Border.isEnabled isEnabled
-                        Border.cursor (if isEnabled then Cursors.hand else Cursors.arrow)
-                        Border.onTapped (fun _ -> ChangeToneCollectionPage Left |> dispatch)
-                        Border.child (
-                            Path.create [
-                                Path.data Icons.chevronLeft
-                                Path.fill (if isEnabled then Brushes.DarkGray else Brushes.DimGray)
-                                Path.margin (8., 4.)
-                            ]
-                        )
+        DockPanel.dock Dock.Bottom
+        Grid.horizontalAlignment HorizontalAlignment.Center
+        Grid.margin 4.
+        Grid.columnDefinitions "*,auto,*"
+        Grid.children [
+            Border.create [
+                let isEnabled = collectionState.CurrentPage > 1
+                Border.background Brushes.Transparent
+                Border.isEnabled isEnabled
+                Border.cursor (if isEnabled then Cursors.hand else Cursors.arrow)
+                Border.onTapped (fun _ -> ChangeToneCollectionPage Left |> dispatch)
+                Border.child (
+                    Path.create [
+                        Path.data Icons.chevronLeft
+                        Path.fill (if isEnabled then Brushes.DarkGray else Brushes.DimGray)
+                        Path.margin (8., 4.)
                     ]
-                    TextBlock.create [
-                        Grid.column 1
-                        TextBlock.margin 8.
-                        TextBlock.minWidth 80.
-                        TextBlock.textAlignment TextAlignment.Center
-                        TextBlock.text (
-                            if collectionState.TotalPages = 0 then
-                                String.Empty
-                             else
-                                $"{collectionState.CurrentPage} / {collectionState.TotalPages}")
-                    ]
-                    Border.create [
-                        let isEnabled = collectionState.CurrentPage < collectionState.TotalPages
-                        Grid.column 2
-                        Border.background Brushes.Transparent
-                        Border.isEnabled isEnabled
-                        Border.cursor (if isEnabled then Cursors.hand else Cursors.arrow)
-                        Border.onTapped (fun _ -> ChangeToneCollectionPage Right |> dispatch)
-                        Border.child (
-                            Path.create [
-                                Path.data Icons.chevronRight
-                                Path.fill (if isEnabled then Brushes.DarkGray else Brushes.DimGray)
-                                Path.margin (8., 4.)
-                            ]
-                        )
-                    ]
-                ]
+                )
             ]
+            TextBlock.create [
+                Grid.column 1
+                TextBlock.margin 8.
+                TextBlock.minWidth 80.
+                TextBlock.textAlignment TextAlignment.Center
+                TextBlock.text (
+                    if collectionState.TotalPages = 0 then
+                        String.Empty
+                        else
+                        $"{collectionState.CurrentPage} / {collectionState.TotalPages}")
+            ]
+            Border.create [
+                let isEnabled = collectionState.CurrentPage < collectionState.TotalPages
+                Grid.column 2
+                Border.background Brushes.Transparent
+                Border.isEnabled isEnabled
+                Border.cursor (if isEnabled then Cursors.hand else Cursors.arrow)
+                Border.onTapped (fun _ -> ChangeToneCollectionPage Right |> dispatch)
+                Border.child (
+                    Path.create [
+                        Path.data Icons.chevronRight
+                        Path.fill (if isEnabled then Brushes.DarkGray else Brushes.DimGray)
+                        Path.margin (8., 4.)
+                    ]
+                )
+            ]
+        ]
+    ]
 
 let private collectionView dispatch (collectionState: ToneCollection.State) =
     DockPanel.create [
