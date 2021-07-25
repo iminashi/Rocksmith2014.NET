@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.ToneCollectionOverlay
+module DLCBuilder.Views.ToneCollectionOverlay
 
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
@@ -44,6 +44,7 @@ let private toneTemplate dispatch isOfficial =
             StackPanel.background Brushes.Transparent
             StackPanel.width 470.
             StackPanel.orientation Orientation.Horizontal
+            StackPanel.onDoubleTapped (fun _ -> AddDbTone dbTone.Id |> dispatch)
             StackPanel.children [
                 Button.create [
                     Button.content "+"
