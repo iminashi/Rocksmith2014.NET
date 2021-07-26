@@ -1,4 +1,4 @@
-## 0.4.0 (Released 2021-07-xx)
+## 0.4.0 (Released 2021-07-26)
 
 - Added a tone collection feature where the user can save tones or add official tones (separate download) into a project.
 - Added a new automatic fix that removes the linknext attribute from chord notes that are not immediately followed by a note on the same string.
