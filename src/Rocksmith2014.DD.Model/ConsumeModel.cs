@@ -10,7 +10,7 @@ namespace Rocksmith2014.DD.Model
     {
         private static readonly Lazy<PredictionEngine<ModelInput, ModelOutput>> PredictionEngine = new Lazy<PredictionEngine<ModelInput, ModelOutput>>(CreatePredictionEngine);
 
-        public static string MLNetModelPath = Path.GetFullPath("MLModel.zip");
+        public static string MLNetModelPath = Path.Combine(AppContext.BaseDirectory, "MLModel.zip");
 
         // For more info on consuming ML.NET models, visit https://aka.ms/mlnet-consume
         // Method for consuming model in your app

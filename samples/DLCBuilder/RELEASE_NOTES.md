@@ -1,3 +1,7 @@
+## 0.4.1 (Released 2021-07-27)
+
+- Fixed bug in loading of the ML model.
+
 ## 0.4.0 (Released 2021-07-26)
 
 - Added a tone collection feature where the user can save tones or add official tones (separate download) into a project.
