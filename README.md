@@ -6,7 +6,7 @@
 
 ### DLC Builder
 
-![DLC Builder screenshot](https://i.imgur.com/bXfuU99.png)
+![DLC Builder screenshot](./.github/images/screenshot.png)
 
 Cross-platform desktop app for creating CDLC. [More information](https://github.com/iminashi/Rocksmith2014.NET/blob/main/samples/DLCBuilder/README.md)
 
