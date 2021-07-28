@@ -370,5 +370,8 @@
   "official": "Viralliset",
   "user": "Omat",
   "loadingToneGearData": "Ladataan soundieditorin dataa...",
-  "officialTonesDbNotFound": "Virallisten soundien tietokantaa ei ole asennettu."
+  "officialTonesDbNotFound": "Virallisten soundien tietokantaa ei ole asennettu.",
+  "save": "Tallenna",
+  "removeArtistInfo": "Poista artisti- ja kappalenimi",
+  "bassTone": "Bassosoundi"
 }

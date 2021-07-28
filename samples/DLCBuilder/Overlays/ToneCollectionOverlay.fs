@@ -32,26 +32,31 @@ let private toneTemplate dispatch isOfficial =
                 Brushes.rhythm
 
         StackPanel.create [
-            if isOfficial then
-                StackPanel.contextMenu (
-                    ContextMenu.create [
-                        ContextMenu.viewItems [
+            StackPanel.contextMenu (
+                ContextMenu.create [
+                    ContextMenu.viewItems [
+                        if isOfficial then
                             MenuItem.create [
                                 MenuItem.header (translate "addToUserTones")
                                 MenuItem.onClick (fun _ -> AddOfficalToneToUserCollection |> dispatch)
                             ]
-                        ]
-                    ])
+                        else
+                            MenuItem.create [
+                                MenuItem.header (translate "edit")
+                                MenuItem.onClick (fun _ -> SetUserToneEditor (Some dbTone.Id) |> dispatch)
+                            ]
+                    ]
+                ])
             StackPanel.background Brushes.Transparent
             StackPanel.width 470.
             StackPanel.orientation Orientation.Horizontal
-            StackPanel.onDoubleTapped (fun _ -> AddDbTone dbTone.Id |> dispatch)
+            StackPanel.onDoubleTapped (fun _ -> AddSelectedToneFromCollection |> dispatch)
             StackPanel.children [
                 Button.create [
                     Button.content "+"
                     Button.padding (10., 5.)
                     Button.verticalAlignment VerticalAlignment.Stretch
-                    Button.onClick (fun _ -> AddDbTone dbTone.Id |> dispatch)
+                    Button.onClick (fun _ -> AddSelectedToneFromCollection |> dispatch)
                 ]
 
                 Path.create [
@@ -89,37 +94,18 @@ let tonesList dispatch collectionState isOfficial =
             | _ ->
                 None |> ToneCollectionSelectedToneChanged |> dispatch)
         ListBox.onKeyDown (fun arg ->
+            arg.Handled <- true
             match arg.Key with
             | Key.Left ->
-                arg.Handled <- true
                 ChangeToneCollectionPage Left |> dispatch
             | Key.Right ->
-                arg.Handled <- true
                 ChangeToneCollectionPage Right |> dispatch
             | Key.Enter ->
-                match arg.Source with
-                | :? ListBoxItem as item ->
-                    match item.DataContext with
-                    | :? DbTone as selectedTone ->
-                        arg.Handled <- true
-                        AddDbTone selectedTone.Id |> dispatch
-                    | _ ->
-                        ()
-                | _ ->
-                    ()
+                AddSelectedToneFromCollection |> dispatch
             | Key.Delete when not isOfficial ->
-                match arg.Source with
-                | :? ListBoxItem as item ->
-                    match item.DataContext with
-                    | :? DbTone as selectedTone ->
-                        arg.Handled <- true
-                        DeleteUserTone selectedTone.Id |> dispatch
-                    | _ ->
-                        ()
-                | _ ->
-                    ()
+                DeleteSelectedUserTone |> dispatch
             | _ ->
-                ()
+                arg.Handled <- false
         )
     ]
 
@@ -201,6 +187,73 @@ let private collectionView dispatch (collectionState: ToneCollection.State) =
         ]
     ]
 
+let private userToneEditor dispatch data =
+    Grid.create [
+        Grid.verticalAlignment VerticalAlignment.Center
+        Grid.rowDefinitions "auto,auto,auto,auto,auto,auto,auto,auto"
+        Grid.children [
+            Button.create [
+                Grid.row 0
+                Button.content (translate "removeArtistInfo")
+                Button.horizontalAlignment HorizontalAlignment.Center
+                Button.padding (20., 5.)
+                Button.onClick (fun _ -> UserToneEdit.RemoveArtistInfo |> EditUserToneData |> dispatch)
+            ]
+
+            TitledTextBox.create "artistName" [ Grid.row 1 ]
+                [ TextBox.text data.Artist
+                  FixedTextBox.onTextChanged (UserToneEdit.SetArtist >> EditUserToneData >> dispatch) ]
+
+            TitledTextBox.create "artistNameSort" [ Grid.row 2 ]
+                [ TextBox.text data.ArtistSort
+                  FixedTextBox.onTextChanged (UserToneEdit.SetArtistSort >> EditUserToneData >> dispatch) ]
+
+            TitledTextBox.create "title" [ Grid.row 3 ]
+                [ TextBox.text data.Title
+                  FixedTextBox.onTextChanged (UserToneEdit.SetTitle >> EditUserToneData >> dispatch) ]
+
+            TitledTextBox.create "titleSort" [ Grid.row 4 ]
+                [ TextBox.text data.TitleSort
+                  FixedTextBox.onTextChanged (UserToneEdit.SetTitleSort >> EditUserToneData >> dispatch) ]
+
+            TitledTextBox.create "name" [ Grid.row 5 ]
+                [ TextBox.text data.Name
+                  TextBox.onTextInput (fun e -> e.Text <- Rocksmith2014.DLCProject.StringValidator.toneName e.Text)
+                  FixedTextBox.onTextChanged (UserToneEdit.SetName >> EditUserToneData >> dispatch) ]
+
+            CheckBox.create [
+                Grid.row 6
+                CheckBox.content (translate "bassTone")
+                CheckBox.isChecked data.BassTone
+                CheckBox.onChecked (fun _ -> true |> UserToneEdit.SetIsBass |> EditUserToneData |> dispatch)
+                CheckBox.onUnchecked (fun _ -> false |> UserToneEdit.SetIsBass |> EditUserToneData |> dispatch)
+            ]
+
+            StackPanel.create [
+                Grid.row 7
+                StackPanel.orientation Orientation.Horizontal
+                StackPanel.horizontalAlignment HorizontalAlignment.Center
+                StackPanel.children [
+                    Button.create [
+                        Button.margin 4.
+                        Button.fontSize 16.
+                        Button.padding (20., 5.)
+                        Button.content (translate "save")
+                        Button.isEnabled (String.notEmpty data.Name)
+                        Button.onClick (fun _ -> ApplyUserToneEdit |> dispatch)
+                    ]
+                    Button.create [
+                        Button.margin 4.
+                        Button.fontSize 16.
+                        Button.padding (20., 5.)
+                        Button.content (translate "cancel")
+                        Button.onClick (fun _ -> SetUserToneEditor None |> dispatch)
+                    ]
+                ]
+            ]
+        ]
+    ]
+
 let view dispatch collectionState =
     let dispatch' = ToneCollectionMsg >> dispatch
     Panel.create [
@@ -208,6 +261,7 @@ let view dispatch collectionState =
             TabControl.create [
                 TabControl.width 520.
                 TabControl.height 550.
+                TabControl.isEnabled collectionState.EditingUserTone.IsNone
                 TabControl.viewItems [
                     // Official tab
                     TabItem.create [
@@ -244,12 +298,26 @@ let view dispatch collectionState =
                 ]
             ]
 
+            match collectionState.EditingUserTone with
+            | Some (_, data) ->
+                Panel.create [
+                    Panel.background "#343434"
+                    Panel.children [ userToneEditor dispatch' data ]
+                ]
+            | None ->
+                ()
+
             Border.create [
                 Border.cursor Cursors.hand
                 Border.background Brushes.Transparent
                 Border.horizontalAlignment HorizontalAlignment.Right
                 Border.verticalAlignment VerticalAlignment.Top
+                Border.focusable true
                 Border.onTapped (fun _ -> dispatch CloseOverlay)
+                Border.onKeyUp (fun args ->
+                    if args.Key = Key.Space then
+                        args.Handled <- true
+                        dispatch CloseOverlay)
                 Border.child (
                     Path.create [
                         Path.data Icons.x

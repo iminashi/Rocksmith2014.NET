@@ -917,25 +917,82 @@ let update (msg: Msg) (state: State) =
 
                 { state with Overlay = overlay }, Cmd.none
 
+            | SetUserToneEditor id ->
+                let overlay =
+                    match id with
+                    | Some id ->
+                        let data =
+                            match collectionState.ActiveCollection with
+                            | ToneCollection.ActiveCollection.User api ->
+                                api.GetToneDataById id
+                            | _ ->
+                                None
+                            |> Option.get
+
+                        { collectionState with EditingUserTone = Some(id, data) }
+                    | None ->
+                        { collectionState with EditingUserTone = None }
+                    |> ToneCollection
+
+                { state with Overlay = overlay }, Cmd.none
+
+            | EditUserToneData edit ->
+                let overlay =
+                    let editedTone =
+                        collectionState.EditingUserTone
+                        |> Option.map (Utils.mapSnd (editUserTone edit))
+
+                    { collectionState with EditingUserTone = editedTone }
+                    |> ToneCollection
+
+                { state with Overlay = overlay }, Cmd.none
+
+            | ApplyUserToneEdit ->
+                match collectionState with
+                | { EditingUserTone = Some(id, data)
+                    ActiveCollection = ToneCollection.ActiveCollection.User api } ->
+                    api.UpdateData(id, data)
+                | _ ->
+                    ()
+
+                let overlay =
+                    { collectionState with EditingUserTone = None }
+                    |> ToneCollection.State.refresh
+                    |> ToneCollection
+
+                { state with Overlay = overlay }, Cmd.none
+
             | AddOfficalToneToUserCollection ->
                 ToneCollection.State.addSelectedToneToUserCollection collectionState
                 state, Cmd.ofMsg (AddStatusMessage "toneAddedToCollection")
 
-            | AddDbTone id ->
-                match ToneCollection.getToneById collectionState.ActiveCollection id with
-                | Some tone ->
-                    { state with Project = { project with Tones = tone::project.Tones} },
-                    Cmd.ofMsg (AddStatusMessage "toneAddedToProject")
+            | AddSelectedToneFromCollection ->
+                match collectionState.SelectedTone with
+                | Some selectedTone ->
+                    match ToneCollection.getToneById collectionState.ActiveCollection selectedTone.Id with
+                    | Some tone ->
+                        // Needed if the user has changed the tone name in the collection
+                        let tone = { tone with Name = selectedTone.Name
+                                               Key = selectedTone.Name }
+
+                        { state with Project = { project with Tones = tone::project.Tones} },
+                        Cmd.ofMsg (AddStatusMessage "toneAddedToProject")
+                    | None ->
+                        state, Cmd.none
                 | None ->
                     state, Cmd.none
 
-            | DeleteUserTone id ->
-                let overlay =
-                    collectionState
-                    |> ToneCollection.State.deleteUserTone id
-                    |> ToneCollection
+            | DeleteSelectedUserTone ->
+                match collectionState.SelectedTone with
+                | Some selectedTone ->
+                    let overlay =
+                        collectionState
+                        |> ToneCollection.State.deleteUserTone selectedTone.Id
+                        |> ToneCollection
 
-                { state with Overlay = overlay }, Cmd.none
+                    { state with Overlay = overlay }, Cmd.none
+                | None ->
+                    state, Cmd.none
         | _ ->
             state, Cmd.none
 

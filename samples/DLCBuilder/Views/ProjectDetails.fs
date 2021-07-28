@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.ProjectDetails
+module DLCBuilder.Views.ProjectDetails
 
 open Avalonia
 open Avalonia.Controls
@@ -190,37 +190,32 @@ let private projectInfo state dispatch =
         //Grid.showGridLines true
         Grid.children [
             // DLC Key
-            TitledTextBox.create (translate "dlcKey") [ Grid.column 0; Grid.row 0 ] [
+            TitledTextBox.create "dlcKey" [ Grid.column 0; Grid.row 0 ] [
                 TextBox.text state.Project.DLCKey
-                // Cannot filter pasted text: https://github.com/AvaloniaUI/Avalonia/issues/2611
                 TextBox.onTextInput (fun e -> e.Text <- StringValidator.dlcKey e.Text)
-                TextBox.onTextChanged (StringValidator.dlcKey >> SetDLCKey >> EditProject >> dispatch)
-                // Display the validated DLC key if invalid characters were pasted into the textbox
-                TextBox.onLostFocus ((fun e ->
-                    (e.Source :?> TextBox).Text <- state.Project.DLCKey),
-                    SubPatchOptions.OnChangeOf state.Project.DLCKey)
+                FixedTextBox.onTextChanged (StringValidator.dlcKey >> SetDLCKey >> EditProject >> dispatch)
                 ToolTip.tip (translate "dlcKeyTooltip")
             ]
 
             // Version
-            TitledTextBox.create (translate "version") [ Grid.column 1; Grid.row 0 ] [
+            TitledTextBox.create "version" [ Grid.column 1; Grid.row 0 ] [
                 TextBox.horizontalAlignment HorizontalAlignment.Left
                 TextBox.width 65.
                 TextBox.text state.Project.Version
-                TextBox.onTextChanged (SetVersion >> EditProject >> dispatch)
+                FixedTextBox.onTextChanged (SetVersion >> EditProject >> dispatch)
             ]
 
             // Artist name
-            TitledTextBox.create (translate "artistName")
+            TitledTextBox.create "artistName"
                 [ Grid.column 0
                   Grid.row 1
                   StackPanel.isVisible (not state.ShowSortFields && not state.ShowJapaneseFields) ]
                 [ TextBox.text state.Project.ArtistName.Value
-                  TextBox.onTextChanged (StringValidator.field >> SetArtistName >> EditProject >> dispatch)
+                  FixedTextBox.onTextChanged (StringValidator.field >> SetArtistName >> EditProject >> dispatch)
                 ]
 
             // Artist name sort
-            TitledTextBox.create (translate "artistNameSort")
+            TitledTextBox.create "artistNameSort"
                 [ Grid.column 0
                   Grid.row 1
                   StackPanel.isVisible (state.ShowSortFields && not state.ShowJapaneseFields) ]
@@ -234,27 +229,27 @@ let private projectInfo state dispatch =
                 ]
 
             // Japanese artist name
-            TitledTextBox.create (translate "japaneseArtistName")
+            TitledTextBox.create "japaneseArtistName"
                 [ Grid.column 0
                   Grid.row 1
                   StackPanel.isVisible state.ShowJapaneseFields ]
                 [ TextBox.text (defaultArg state.Project.JapaneseArtistName String.Empty)
                   TextBox.fontFamily Fonts.japanese
                   TextBox.fontSize 15.
-                  TextBox.onTextChanged (StringValidator.field >> Option.ofString >> SetJapaneseArtistName >> EditProject >> dispatch)
+                  FixedTextBox.onTextChanged (StringValidator.field >> Option.ofString >> SetJapaneseArtistName >> EditProject >> dispatch)
                 ]
 
             // Title
-            TitledTextBox.create (translate "title")
+            TitledTextBox.create "title"
                 [ Grid.column 0
                   Grid.row 2
                   StackPanel.isVisible (not state.ShowSortFields && not state.ShowJapaneseFields) ]
                 [ TextBox.text state.Project.Title.Value
-                  TextBox.onTextChanged (StringValidator.field >> SetTitle >> EditProject >> dispatch)
+                  FixedTextBox.onTextChanged (StringValidator.field >> SetTitle >> EditProject >> dispatch)
                 ]
 
             // Title sort
-            TitledTextBox.create (translate "titleSort")
+            TitledTextBox.create "titleSort"
                 [ Grid.column 0
                   Grid.row 2
                   StackPanel.isVisible state.ShowSortFields ]
@@ -268,27 +263,27 @@ let private projectInfo state dispatch =
                 ]
 
             // Japanese title
-            TitledTextBox.create (translate "japaneseTitle")
+            TitledTextBox.create "japaneseTitle"
                 [ Grid.column 0
                   Grid.row 2
                   StackPanel.isVisible state.ShowJapaneseFields ]
                 [ TextBox.text (defaultArg state.Project.JapaneseTitle String.Empty)
                   TextBox.fontFamily Fonts.japanese
                   TextBox.fontSize 15.
-                  TextBox.onTextChanged (StringValidator.field >> Option.ofString >> SetJapaneseTitle >> EditProject >> dispatch)
+                  FixedTextBox.onTextChanged (StringValidator.field >> Option.ofString >> SetJapaneseTitle >> EditProject >> dispatch)
                 ]
 
             // Album name
-            TitledTextBox.create (translate "albumName")
+            TitledTextBox.create "albumName"
                 [ Grid.column 0
                   Grid.row 3
                   StackPanel.isVisible (not state.ShowSortFields) ]
                 [ TextBox.text state.Project.AlbumName.Value
-                  TextBox.onTextChanged (StringValidator.field >> SetAlbumName >> EditProject >> dispatch)
+                  FixedTextBox.onTextChanged (StringValidator.field >> SetAlbumName >> EditProject >> dispatch)
                 ]
 
             // Album name sort
-            TitledTextBox.create (translate "albumNameSort")
+            TitledTextBox.create "albumNameSort"
                 [ Grid.column 0
                   Grid.row 3
                   StackPanel.isVisible state.ShowSortFields ]
@@ -302,13 +297,13 @@ let private projectInfo state dispatch =
                 ]
 
             // Year
-            TitledTextBox.create (translate "year")
+            TitledTextBox.create "year"
                 [ Grid.column 1
                   Grid.row 3 ]
                 [ TextBox.horizontalAlignment HorizontalAlignment.Left
                   TextBox.width 65.
                   TextBox.text (string state.Project.Year)
-                  TextBox.onTextChanged (fun text ->
+                  FixedTextBox.onTextChanged (fun text ->
                     match Int32.TryParse text with
                     | true, year -> year |> SetYear |> EditProject |> dispatch
                     | false, _ -> ())

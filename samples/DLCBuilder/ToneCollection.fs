@@ -1,4 +1,4 @@
-﻿module DLCBuilder.ToneCollection
+module DLCBuilder.ToneCollection
 
 open Dapper
 open System
@@ -40,8 +40,10 @@ type IUserTonesApi =
     inherit IDisposable
     abstract member GetToneById : int64 -> Tone option
     abstract member GetTones : string option * int -> DbTone array
+    abstract member GetToneDataById : int64 -> DbToneData option
     abstract member DeleteToneById : int64 -> unit
     abstract member AddTone : DbToneData -> unit
+    abstract member UpdateData : int64 * DbToneData -> unit
 
 let private officialTonesDbPath =
     Path.Combine(Configuration.appDataFolder, "tones", "official.db")
@@ -96,7 +98,7 @@ let private executeQuery (connection: SQLiteConnection) (searchString: string op
         SELECT *
         FROM Data_CTE
         CROSS JOIN Count_CTE
-        ORDER BY artistsort, titlesort
+        ORDER BY artistsort, titlesort, name
         LIMIT {limit}
         OFFSET {offset}
         """
@@ -174,6 +176,23 @@ let createUserTonesApi () =
             executeQuery connection searchString pageNumber
             |> Seq.toArray
 
+        member _.GetToneDataById(id: int64) =
+            $"SELECT artist, artistsort, title, titlesort, name, basstone, description, definition FROM tones WHERE id = {id}"
+            |> connection.Query<DbToneData>
+            |> Seq.tryHead
+
+        member _.UpdateData(id: int64, data: DbToneData) =
+            let sql =
+                $"""UPDATE tones
+                    SET artist = @artist,
+                        artistsort = @artistSort,
+                        title = @title,
+                        titlesort = @titleSort,
+                        name = @name,
+                        basstone = @basstone
+                    WHERE id = {id}"""
+            connection.Execute(sql, data) |> ignore
+
         member _.AddTone(data: DbToneData) =
             let sql =
                 """INSERT INTO tones(artist, artistSort, title, titleSort, name, basstone, description, definition)
@@ -250,6 +269,7 @@ type State =
       Tones : DbTone array
       SelectedTone : DbTone option
       SearchString : string option
+      EditingUserTone : (int64 * DbToneData) option
       CurrentPage : int
       TotalPages : int }
 
@@ -269,6 +289,7 @@ module State =
           SelectedTone = None
           SearchString = None
           CurrentPage = 1
+          EditingUserTone = None
           TotalPages = getTotalPages tones }
 
     let changePage page collectionState =
@@ -280,6 +301,11 @@ module State =
             { collectionState with
                 Tones = tones
                 CurrentPage = page }
+
+    let refresh collectionState =
+        let tones = getTones collectionState.ActiveCollection collectionState.SearchString collectionState.CurrentPage
+        
+        { collectionState with Tones = tones }
 
     let changeSearch searchString collectionState =
         if searchString = collectionState.SearchString then

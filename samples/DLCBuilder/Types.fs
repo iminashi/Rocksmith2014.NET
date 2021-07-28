@@ -128,6 +128,16 @@ type InstrumentalEdit =
     | SetCustomAudioVolume of float
     | UpdateToneInfo
 
+[<RequireQualifiedAccess>]
+type UserToneEdit =
+    | SetArtist of string
+    | SetArtistSort of string
+    | SetTitle of string
+    | SetTitleSort of string
+    | SetName of string
+    | SetIsBass of bool
+    | RemoveArtistInfo
+
 type State =
     { Project : DLCProject
       SavedProject : DLCProject
@@ -161,12 +171,15 @@ type ToolsMsg =
 
 type ToneCollectionMsg =
     | ChangeToneCollection of activeTab : ToneCollection.ActiveTab
-    | AddDbTone of id : int64
-    | DeleteUserTone of id : int64
+    | AddSelectedToneFromCollection
+    | DeleteSelectedUserTone
     | SearchToneCollection of searchString : string option
     | ChangeToneCollectionPage of direction : PageDirection
     | ToneCollectionSelectedToneChanged of selectedTone : ToneCollection.DbTone option
     | AddOfficalToneToUserCollection
+    | SetUserToneEditor of id : int64 option
+    | EditUserToneData of UserToneEdit
+    | ApplyUserToneEdit
 
 [<RequireQualifiedAccess>]
 type Dialog =

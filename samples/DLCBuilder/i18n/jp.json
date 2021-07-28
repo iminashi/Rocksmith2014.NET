@@ -370,5 +370,8 @@
   "official": "公式",
   "user": "ユーザー",
   "loadingToneGearData": "トーンギアデータロード中...",
-  "officialTonesDbNotFound": "公式トーンデータベースがインストールされていない。"
+  "officialTonesDbNotFound": "公式トーンデータベースがインストールされていない。",
+  "save": "保存",
+  "removeArtistInfo": "アーティスト名と曲名を削除",
+  "bassTone": "ベーストーン"
 }
