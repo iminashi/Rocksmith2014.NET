@@ -146,4 +146,8 @@ let main argv =
 
     scanPsarcs connection argv.[0]
 
+    // Delete the test tone
+    execute
+       """DELETE FROM tones WHERE description = ''"""
+
     0

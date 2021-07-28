@@ -44,7 +44,7 @@ module ToneDescriptor =
           UIName = "$[35753]DELAY"
           IsExtra = false }
 
-        // (Likely) unused in official content
+        // Unused in official content
         { Name = "Direct"
           Aliases = [ "direct" ]
           UIName = "$[35752]DIRECT"
@@ -165,7 +165,7 @@ module ToneDescriptor =
           UIName = "$[35728]VIBRATO"
           IsExtra = false }
 
-        // (Likely) unused in official content
+        // Unused in official content
         { Name = "Vocal"
           Aliases = [ "vocal"; "vox" ]
           UIName = "$[35718]VOCAL"
