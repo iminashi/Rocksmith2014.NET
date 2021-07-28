@@ -70,10 +70,9 @@ let private toneTemplate dispatch isOfficial =
                     StackPanel.children [
                         TextBlock.create [
                             TextBlock.text (
-                                if String.notEmpty dbTone.Artist && String.notEmpty dbTone.Title then
-                                    $"{dbTone.Artist} - {dbTone.Title}"
-                                else
-                                    String.Empty)
+                                [ dbTone.Artist; dbTone.Title ]
+                                |> List.filter String.notEmpty
+                                |> String.concat " - ")
                         ]
                         TextBlock.create [ TextBlock.text dbTone.Name ]
                         TextBlock.create [ TextBlock.text (translateDescription dbTone.Description) ]
