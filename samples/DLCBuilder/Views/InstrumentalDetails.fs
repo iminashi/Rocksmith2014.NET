@@ -76,7 +76,7 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
                 TextBlock.verticalAlignment VerticalAlignment.Center
             ]
-            ComboBox.create [
+            FixedComboBox.create [
                 Grid.column 1
                 ComboBox.isVisible (i.Name <> ArrangementName.Bass)
                 ComboBox.horizontalAlignment HorizontalAlignment.Left
@@ -84,8 +84,8 @@ let view state dispatch (i: Instrumental) =
                 ComboBox.width 140.
                 ComboBox.dataItems [ ArrangementName.Lead; ArrangementName.Rhythm; ArrangementName.Combo ]
                 ComboBox.itemTemplate Templates.arrangementName
-                ComboBox.selectedItem i.Name
-                ComboBox.onSelectedItemChanged (function
+                FixedComboBox.selectedItem i.Name
+                FixedComboBox.onSelectedItemChanged (function
                     | :? ArrangementName as name ->
                         name |> SetArrangementName |> EditInstrumental |> dispatch
                     | _ ->

@@ -55,7 +55,7 @@ type FixedTextBox() =
         // Keep the same callback once set
         let comparer _ = true
 
-        AttrBuilder<'t>.CreateProperty<string -> unit>("OnChange", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
+        AttrBuilder<'t>.CreateProperty<string -> unit>("OnTextChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
 
     static member text<'t when 't :> FixedTextBox>(text: string) =
         let getter : 't -> string = fun c -> c.Text

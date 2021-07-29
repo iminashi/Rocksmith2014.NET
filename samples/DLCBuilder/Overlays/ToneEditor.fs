@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.ToneEditor
+module DLCBuilder.Views.ToneEditor
 
 open Avalonia.Controls
 open Avalonia.Controls.Primitives
@@ -262,7 +262,7 @@ let private knobSliders state dispatch repository (gearList: Gear) gear =
                             valueRangeText 0 knob knob.MinValue
                             valueRangeText 2 knob knob.MaxValue
 
-                            Slider.create [
+                            ToneKnobSlider.create [
                                 Grid.column 1
                                 Slider.margin (4., -10.)
                                 Slider.isSnapToTickEnabled true
@@ -270,10 +270,9 @@ let private knobSliders state dispatch repository (gearList: Gear) gear =
                                 Slider.smallChange (float knob.ValueStep)
                                 Slider.maximum (float knob.MaxValue)
                                 Slider.minimum (float knob.MinValue)
-                                Slider.value (float currentValue)
-                                Slider.onValueChanged ((fun value ->
-                                    SetKnobValue (knob.Key, float32 value) |> EditTone |> dispatch),
-                                    SubPatchOptions.Always)
+                                ToneKnobSlider.knobKey knob.Key
+                                ToneKnobSlider.value (float currentValue)
+                                ToneKnobSlider.onKnobValueChanged (SetKnobValue >> EditTone >> dispatch)
                             ]
                         ]
                     ]

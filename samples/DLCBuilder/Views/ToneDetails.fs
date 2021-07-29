@@ -19,12 +19,12 @@ let private createDescriptors dispatch (tone: Tone) =
         UniformGrid.columns tone.ToneDescriptors.Length
         UniformGrid.children [
             for i = 0 to tone.ToneDescriptors.Length - 1 do
-                yield ComboBox.create [
+                yield FixedComboBox.create [
                     ComboBox.margin 4.
                     ComboBox.dataItems ToneDescriptor.all
                     ComboBox.itemTemplate Templates.toneDescriptor
-                    ComboBox.selectedItem (ToneDescriptor.uiNameToDesc.[tone.ToneDescriptors.[i]])
-                    ComboBox.onSelectedItemChanged (function
+                    FixedComboBox.selectedItem (ToneDescriptor.uiNameToDesc.[tone.ToneDescriptors.[i]])
+                    FixedComboBox.onSelectedItemChanged (function
                         | :? ToneDescriptor as td -> 
                             ChangeDescriptor(i, td)
                             |> EditTone
@@ -70,12 +70,12 @@ let view state dispatch (tone: Tone) =
                         Button.onClick (fun _ -> String.Empty |> SetKey |> EditTone |> dispatch)
                     ]
 
-                    ComboBox.create [
+                    FixedComboBox.create [
                         ComboBox.margin 4.
                         ComboBox.minHeight 26.
                         ComboBox.dataItems keys
-                        ComboBox.selectedItem tone.Key
-                        ComboBox.onSelectedItemChanged (function
+                        FixedComboBox.selectedItem tone.Key
+                        FixedComboBox.onSelectedItemChanged (function
                             | :? string as key ->
                                 key |> SetKey |> EditTone |> dispatch
                             | _ ->
@@ -166,13 +166,12 @@ let view state dispatch (tone: Tone) =
                         Path.margin (4., 0.)
                     ]
 
-                    Slider.create [
+                    FixedSlider.create [
                         Slider.width 190.
                         Slider.minimum 0.1
                         Slider.maximum 36.
-                        Slider.value (-tone.Volume)
-                        Slider.onValueChanged (SetVolume >> EditTone >> dispatch)
-                        Slider.minHeight 0.
+                        FixedSlider.value (-tone.Volume)
+                        FixedSlider.onValueChanged (SetVolume >> EditTone >> dispatch)
                     ]
 
                     Path.create [
