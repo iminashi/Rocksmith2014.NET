@@ -191,7 +191,7 @@ let private projectInfo state dispatch =
         Grid.children [
             // DLC Key
             TitledTextBox.create "dlcKey" [ Grid.column 0; Grid.row 0 ] [
-                TextBox.text state.Project.DLCKey
+                FixedTextBox.text state.Project.DLCKey
                 TextBox.onTextInput (fun e -> e.Text <- StringValidator.dlcKey e.Text)
                 FixedTextBox.onTextChanged (StringValidator.dlcKey >> SetDLCKey >> EditProject >> dispatch)
                 ToolTip.tip (translate "dlcKeyTooltip")
@@ -201,7 +201,7 @@ let private projectInfo state dispatch =
             TitledTextBox.create "version" [ Grid.column 1; Grid.row 0 ] [
                 TextBox.horizontalAlignment HorizontalAlignment.Left
                 TextBox.width 65.
-                TextBox.text state.Project.Version
+                FixedTextBox.text state.Project.Version
                 FixedTextBox.onTextChanged (SetVersion >> EditProject >> dispatch)
             ]
 
@@ -210,7 +210,7 @@ let private projectInfo state dispatch =
                 [ Grid.column 0
                   Grid.row 1
                   StackPanel.isVisible (not state.ShowSortFields && not state.ShowJapaneseFields) ]
-                [ TextBox.text state.Project.ArtistName.Value
+                [ FixedTextBox.text state.Project.ArtistName.Value
                   FixedTextBox.onTextChanged (StringValidator.field >> SetArtistName >> EditProject >> dispatch)
                 ]
 
@@ -219,7 +219,7 @@ let private projectInfo state dispatch =
                 [ Grid.column 0
                   Grid.row 1
                   StackPanel.isVisible (state.ShowSortFields && not state.ShowJapaneseFields) ]
-                [ TextBox.text state.Project.ArtistName.SortValue
+                [ FixedTextBox.text state.Project.ArtistName.SortValue
                   TextBox.onLostFocus (fun e -> 
                     let txtBox = e.Source :?> TextBox
                     let validValue = StringValidator.sortField txtBox.Text
@@ -233,7 +233,7 @@ let private projectInfo state dispatch =
                 [ Grid.column 0
                   Grid.row 1
                   StackPanel.isVisible state.ShowJapaneseFields ]
-                [ TextBox.text (defaultArg state.Project.JapaneseArtistName String.Empty)
+                [ FixedTextBox.text (defaultArg state.Project.JapaneseArtistName String.Empty)
                   TextBox.fontFamily Fonts.japanese
                   TextBox.fontSize 15.
                   FixedTextBox.onTextChanged (StringValidator.field >> Option.ofString >> SetJapaneseArtistName >> EditProject >> dispatch)
@@ -244,7 +244,7 @@ let private projectInfo state dispatch =
                 [ Grid.column 0
                   Grid.row 2
                   StackPanel.isVisible (not state.ShowSortFields && not state.ShowJapaneseFields) ]
-                [ TextBox.text state.Project.Title.Value
+                [ FixedTextBox.text state.Project.Title.Value
                   FixedTextBox.onTextChanged (StringValidator.field >> SetTitle >> EditProject >> dispatch)
                 ]
 
@@ -253,7 +253,7 @@ let private projectInfo state dispatch =
                 [ Grid.column 0
                   Grid.row 2
                   StackPanel.isVisible state.ShowSortFields ]
-                [ TextBox.text state.Project.Title.SortValue
+                [ FixedTextBox.text state.Project.Title.SortValue
                   TextBox.onLostFocus (fun e -> 
                     let txtBox = e.Source :?> TextBox
                     let validValue = StringValidator.sortField txtBox.Text
@@ -267,7 +267,7 @@ let private projectInfo state dispatch =
                 [ Grid.column 0
                   Grid.row 2
                   StackPanel.isVisible state.ShowJapaneseFields ]
-                [ TextBox.text (defaultArg state.Project.JapaneseTitle String.Empty)
+                [ FixedTextBox.text (defaultArg state.Project.JapaneseTitle String.Empty)
                   TextBox.fontFamily Fonts.japanese
                   TextBox.fontSize 15.
                   FixedTextBox.onTextChanged (StringValidator.field >> Option.ofString >> SetJapaneseTitle >> EditProject >> dispatch)
@@ -278,7 +278,7 @@ let private projectInfo state dispatch =
                 [ Grid.column 0
                   Grid.row 3
                   StackPanel.isVisible (not state.ShowSortFields) ]
-                [ TextBox.text state.Project.AlbumName.Value
+                [ FixedTextBox.text state.Project.AlbumName.Value
                   FixedTextBox.onTextChanged (StringValidator.field >> SetAlbumName >> EditProject >> dispatch)
                 ]
 
@@ -287,7 +287,7 @@ let private projectInfo state dispatch =
                 [ Grid.column 0
                   Grid.row 3
                   StackPanel.isVisible state.ShowSortFields ]
-                [ TextBox.text state.Project.AlbumName.SortValue
+                [ FixedTextBox.text state.Project.AlbumName.SortValue
                   TextBox.onLostFocus (fun e -> 
                     let txtBox = e.Source :?> TextBox
                     let validValue = StringValidator.sortField txtBox.Text
@@ -302,7 +302,7 @@ let private projectInfo state dispatch =
                   Grid.row 3 ]
                 [ TextBox.horizontalAlignment HorizontalAlignment.Left
                   TextBox.width 65.
-                  TextBox.text (string state.Project.Year)
+                  FixedTextBox.text (string state.Project.Year)
                   FixedTextBox.onTextChanged (fun text ->
                     match Int32.TryParse text with
                     | true, year -> year |> SetYear |> EditProject |> dispatch

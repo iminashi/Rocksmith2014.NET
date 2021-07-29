@@ -15,14 +15,13 @@ open System
 open DLCBuilder
 
 let private tuningTextBox dispatch (tuning: int16 array) stringIndex =
-    TextBox.create [
+    FixedTextBox.create [
         TextBox.margin (2., 0.)
         TextBox.minWidth 40.
         TextBox.width 40.
-        TextBox.text (string tuning.[stringIndex])
-        TextBox.onLostFocus (fun arg ->
-            let txtBox = arg.Source :?> TextBox
-            match Int16.TryParse txtBox.Text with
+        FixedTextBox.text (string tuning.[stringIndex])
+        FixedTextBox.onTextChanged (fun text ->
+            match Int16.TryParse text with
             | true, newTuning ->
                 SetTuning (stringIndex, newTuning)
                 |> EditInstrumental
@@ -296,12 +295,12 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
-            TextBox.create [
+            FixedTextBox.create [
                 Grid.column 1
                 Grid.row 9
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
-                TextBox.text (string i.MasterID)
+                FixedTextBox.text (string i.MasterID)
                 TextBox.onLostFocus (fun arg ->
                     let txtBox = arg.Source :?> TextBox
                     match Int32.TryParse txtBox.Text with
@@ -319,12 +318,12 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
-            TextBox.create [
+            FixedTextBox.create [
                 Grid.column 1
                 Grid.row 10
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
-                TextBox.text (i.PersistentID.ToString("N"))
+                FixedTextBox.text (i.PersistentID.ToString("N"))
                 TextBox.onLostFocus (fun arg ->
                     let txtBox = arg.Source :?> TextBox
                     match Guid.TryParse txtBox.Text with

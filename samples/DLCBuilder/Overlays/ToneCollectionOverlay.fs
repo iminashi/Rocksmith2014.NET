@@ -202,23 +202,23 @@ let private userToneEditor dispatch data =
             ]
 
             TitledTextBox.create "artistName" [ Grid.row 1 ]
-                [ TextBox.text data.Artist
+                [ FixedTextBox.text data.Artist
                   FixedTextBox.onTextChanged (UserToneEdit.SetArtist >> EditUserToneData >> dispatch) ]
 
             TitledTextBox.create "artistNameSort" [ Grid.row 2 ]
-                [ TextBox.text data.ArtistSort
+                [ FixedTextBox.text data.ArtistSort
                   FixedTextBox.onTextChanged (UserToneEdit.SetArtistSort >> EditUserToneData >> dispatch) ]
 
             TitledTextBox.create "title" [ Grid.row 3 ]
-                [ TextBox.text data.Title
+                [ FixedTextBox.text data.Title
                   FixedTextBox.onTextChanged (UserToneEdit.SetTitle >> EditUserToneData >> dispatch) ]
 
             TitledTextBox.create "titleSort" [ Grid.row 4 ]
-                [ TextBox.text data.TitleSort
+                [ FixedTextBox.text data.TitleSort
                   FixedTextBox.onTextChanged (UserToneEdit.SetTitleSort >> EditUserToneData >> dispatch) ]
 
             TitledTextBox.create "name" [ Grid.row 5 ]
-                [ TextBox.text data.Name
+                [ FixedTextBox.text data.Name
                   TextBox.onTextInput (fun e -> e.Text <- Rocksmith2014.DLCProject.StringValidator.toneName e.Text)
                   FixedTextBox.onTextChanged (UserToneEdit.SetName >> EditUserToneData >> dispatch) ]
 

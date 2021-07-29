@@ -8,40 +8,29 @@ open Avalonia.FuncUI.Types
 open Avalonia.Input
 open Avalonia.Input.Platform
 open Avalonia.Styling
-open System.Threading
 open System
 open System.Reactive.Linq
 
-[<AutoOpen>]
-module private Extension =
-    // Copy-paste from FuncUI source except for the skip part
-    type AttrBuilder<'view> with
-        static member CreateSubscriptionSkipFirst<'arg>(property: AvaloniaProperty<'arg>, func: 'arg -> unit, ?subPatchOptions: SubPatchOptions) : IAttr<'view> =
-            let subscribeFunc (control: IControl, _handler: Delegate) =
-                let cts = new CancellationTokenSource()
-                control
-                    .GetObservable(property)
-                    // Skip the initial value of the observable to avoid unnecessary messages and infinite update loops
-                    .Skip(1)
-                    .Subscribe(func, cts.Token)
-                cts
-            
-            let attr = Attr<'view>.Subscription {
-                Name = property.Name + ".PropertySub"
-                Subscribe = subscribeFunc
-                Func = Action<_>(func)
-                FuncType = func.GetType()
-                Scope =
-                    match Option.defaultValue Never subPatchOptions with
-                    | Always -> Guid.NewGuid() |> box
-                    | Never -> null
-                    | OnChangeOf t -> t
-            }
-            attr :> IAttr<'view>
-
 type FixedTextBox() =
     inherit TextBox()
+    let mutable sub : IDisposable = null
+    let mutable changeCallback : string -> unit = ignore
+
     interface IStyleable with member _.StyleKey = typeof<TextBox>
+
+    member val NoNotify = false with get, set
+
+    member this.OnTextChangedCallback
+        with get() : string -> unit = changeCallback
+        and set(v) =
+            if not <| isNull sub then sub.Dispose()
+            changeCallback <- v
+            sub <-
+                this.GetObservable(TextBox.TextProperty)
+                    // Skip initial value
+                    .Skip(1)
+                    .Where(fun _ -> not <| this.NoNotify)
+                    .Subscribe(changeCallback)
 
     // Workaround for the inability to validate text that is pasted into the textbox
     // https://github.com/AvaloniaUI/Avalonia/issues/2611
@@ -60,8 +49,23 @@ type FixedTextBox() =
         else
             base.OnKeyDown(e)
 
-    static member onTextChanged<'t when 't :> TextBox>(func: string -> unit, ?subPatchOptions) =
-        AttrBuilder<'t>.CreateSubscriptionSkipFirst<string>(TextBox.TextProperty, func, ?subPatchOptions = subPatchOptions)
+    static member onTextChanged<'t when 't :> FixedTextBox> fn =
+        let getter : 't -> (string -> unit) = fun c -> c.OnTextChangedCallback
+        let setter : ('t * (string -> unit)) -> unit = fun (c, f) -> c.OnTextChangedCallback <- f
+        // Keep the same callback once set
+        let comparer _ = true
+
+        AttrBuilder<'t>.CreateProperty<string -> unit>("OnChange", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
+
+    static member text<'t when 't :> FixedTextBox>(text: string) =
+        let getter : 't -> string = fun c -> c.Text
+        let setter : 't * string -> unit = fun (c, v) ->
+            // Ignore notifications originating from code
+            c.NoNotify <- true
+            c.Text <- v
+            c.NoNotify <- false
+
+        AttrBuilder<'t>.CreateProperty<string>("Text", text, ValueSome getter, ValueSome setter, ValueNone)
 
 [<AutoOpen>]
 module FixedTextBox =

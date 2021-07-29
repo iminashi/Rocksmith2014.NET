@@ -91,18 +91,13 @@ let view state dispatch (tone: Tone) =
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
-            TextBox.create [
+            FixedTextBox.create [
                 Grid.row 1
                 Grid.column 1
-                TextBox.text tone.Name
+                FixedTextBox.text tone.Name
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.onTextInput (fun arg -> arg.Text <- StringValidator.toneName arg.Text)
-                TextBox.onLostFocus (fun arg ->
-                    (arg.Source :?> TextBox).Text
-                    |> StringValidator.toneName
-                    |> SetName
-                    |> EditTone
-                    |> dispatch)
+                FixedTextBox.onTextChanged (StringValidator.toneName >> SetName >> EditTone >> dispatch)
                 ToolTip.tip (translate "toneNameToolTip")
             ]
 
