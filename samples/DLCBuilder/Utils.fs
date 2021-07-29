@@ -282,5 +282,3 @@ let canRunValidation state =
     state.Project.Arrangements.Length > 0
     &&
     not (state.RunningTasks |> Set.contains ArrangementCheck)
-
-let mapSnd f (x, y) = (x, f y)

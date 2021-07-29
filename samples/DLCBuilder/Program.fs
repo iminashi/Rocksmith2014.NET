@@ -1,4 +1,4 @@
-﻿namespace DLCBuilder
+namespace DLCBuilder
 
 open Elmish
 open Avalonia
@@ -72,7 +72,7 @@ type MainWindow(commandLineArgs: string array) as this =
                 // Close the DB connection in case of an unexpected error
                 match state.Overlay with
                 | ToneCollection cs ->
-                    ToneCollection.disposeCollection cs.ActiveCollection
+                    ToneCollection.CollectionState.disposeCollection cs.ActiveCollection
                 | _ ->
                     ()
 

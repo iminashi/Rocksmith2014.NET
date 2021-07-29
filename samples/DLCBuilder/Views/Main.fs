@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.Main
+module DLCBuilder.Views.Main
 
 open Avalonia
 open Avalonia.Controls

@@ -43,7 +43,7 @@ let private toneTemplate dispatch isOfficial =
                         else
                             MenuItem.create [
                                 MenuItem.header (translate "edit")
-                                MenuItem.onClick (fun _ -> SetUserToneEditor (Some dbTone.Id) |> dispatch)
+                                MenuItem.onClick (fun _ -> ShowUserToneEditor |> dispatch)
                             ]
                     ]
                 ])
@@ -103,12 +103,14 @@ let tonesList dispatch collectionState isOfficial =
                 AddSelectedToneFromCollection |> dispatch
             | Key.Delete when not isOfficial ->
                 DeleteSelectedUserTone |> dispatch
+            | Key.E when not isOfficial ->
+                ShowUserToneEditor |> dispatch
             | _ ->
                 arg.Handled <- false
         )
     ]
 
-let private paginationControls dispatch (collectionState: ToneCollection.State) =
+let private paginationControls dispatch (collectionState: ToneCollectionState) =
     Grid.create [
         DockPanel.dock Dock.Bottom
         Grid.horizontalAlignment HorizontalAlignment.Center
@@ -158,7 +160,7 @@ let private paginationControls dispatch (collectionState: ToneCollection.State) 
         ]
     ]
 
-let private collectionView dispatch (collectionState: ToneCollection.State) =
+let private collectionView dispatch (collectionState: ToneCollectionState) =
     DockPanel.create [
         DockPanel.children [
             // Search text box
@@ -246,7 +248,7 @@ let private userToneEditor dispatch data =
                         Button.fontSize 16.
                         Button.padding (20., 5.)
                         Button.content (translate "cancel")
-                        Button.onClick (fun _ -> SetUserToneEditor None |> dispatch)
+                        Button.onClick (fun _ -> HideUserToneEditor |> dispatch)
                     ]
                 ]
             ]
@@ -298,7 +300,7 @@ let view dispatch collectionState =
             ]
 
             match collectionState.EditingUserTone with
-            | Some (_, data) ->
+            | Some data ->
                 Panel.create [
                     Panel.background "#343434"
                     Panel.children [ userToneEditor dispatch' data ]

@@ -45,17 +45,22 @@
     <Compile Include="Tones\ToneGear.fs" />
     <Compile Include="Tones\DefaultTones.fs" />
     <AvaloniaResource Include="Styles.xaml" />
+    <Compile Include="AppVersion.fs" />
     <Compile Include="Media.fs" />
     <Compile Include="ElmishExtensions.fs" />
     <Compile Include="Localization.fs" />
     <Compile Include="Configuration.fs" />
-    <Compile Include="ToneCollection.fs" />
-    <Compile Include="AppVersion.fs" />
+    <Compile Include="RecentFilesList.fs" />
+    <Compile Include="ToneCollection\Types.fs" />
+    <Compile Include="ToneCollection\Database.fs" />
+    <Compile Include="ToneCollection\State.fs" />
+    <Compile Include="ToneCollection\MessageHandler.fs" />
     <Compile Include="OnlineUpdate.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="Dialogs.fs" />
     <Compile Include="EditFunctions.fs" />
+    <Compile Include="Tools.fs" />
     <Compile Include="Building\BuildValidator.fs" />
     <Compile Include="Building\TestPackageBuilder.fs" />
     <Compile Include="Building\ReleasePackageBuilder.fs" />
@@ -84,8 +89,6 @@
     <Compile Include="Views\VocalsDetails.fs" />
     <Compile Include="Views\ToneDetails.fs" />
     <Compile Include="Views\Main.fs" />
-    <Compile Include="RecentFilesList.fs" />
-    <Compile Include="Tools.fs" />
     <Compile Include="Main.fs" />
     <Compile Include="HotKeys.fs" />
     <Compile Include="Program.fs" />
@@ -111,10 +114,5 @@
 
   <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="5.0.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Watch Include="**\*.xaml" />
-    <Watch Include="**\*.fs" />
   </ItemGroup>
 </Project>

@@ -10,6 +10,7 @@ open Avalonia.Controls.Selection
 open Avalonia.Media.Imaging
 open System
 open OnlineUpdate
+open DLCBuilder.ToneCollection
 
 type OverlayContents =
     | NoOverlay
@@ -19,7 +20,7 @@ type OverlayContents =
     | ConfigEditor
     | IssueViewer of issues : ArrangementChecker.Issue list
     | ToneEditor
-    | ToneCollection of state : ToneCollection.State
+    | ToneCollection of state : ToneCollectionState
     | DeleteConfirmation of files : string list
     | AbnormalExitMessage
     | PitchShifter
@@ -32,7 +33,6 @@ type PreviewAudioCreation =
     | FileCreated of path : string
 
 type MoveDirection = Up | Down
-type PageDirection = Left | Right
 
 type VolumeTarget =
     | MainAudio
@@ -128,16 +128,6 @@ type InstrumentalEdit =
     | SetCustomAudioVolume of float
     | UpdateToneInfo
 
-[<RequireQualifiedAccess>]
-type UserToneEdit =
-    | SetArtist of string
-    | SetArtistSort of string
-    | SetTitle of string
-    | SetTitleSort of string
-    | SetName of string
-    | SetIsBass of bool
-    | RemoveArtistInfo
-
 type State =
     { Project : DLCProject
       SavedProject : DLCProject
@@ -168,18 +158,6 @@ type ToolsMsg =
     | PackDirectoryIntoPSARC of directory : string * targetFile : string
     | RemoveDD of files : string array
     | InjectTonesIntoProfile of files : string array
-
-type ToneCollectionMsg =
-    | ChangeToneCollection of activeTab : ToneCollection.ActiveTab
-    | AddSelectedToneFromCollection
-    | DeleteSelectedUserTone
-    | SearchToneCollection of searchString : string option
-    | ChangeToneCollectionPage of direction : PageDirection
-    | ToneCollectionSelectedToneChanged of selectedTone : ToneCollection.DbTone option
-    | AddOfficalToneToUserCollection
-    | SetUserToneEditor of id : int64 option
-    | EditUserToneData of UserToneEdit
-    | ApplyUserToneEdit
 
 [<RequireQualifiedAccess>]
 type Dialog =
@@ -297,6 +275,6 @@ type Msg =
     | ErrorOccurred of e : exn
     | TaskFailed of e : exn * failedTask : LongTask
     | ToolsMsg of ToolsMsg
-    | ToneCollectionMsg of ToneCollectionMsg
+    | ToneCollectionMsg of ToneCollection.Msg
     | ShowDialog of Dialog
     | HotKeyMsg of Msg
