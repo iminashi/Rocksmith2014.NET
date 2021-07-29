@@ -455,24 +455,30 @@ let update (msg: Msg) (state: State) =
         addArrangements files state, Cmd.none
 
     | SetSelectedArrangementIndex index ->
-        { state with SelectedArrangementIndex = index }, Cmd.none
+        if index < project.Arrangements.Length then
+            { state with SelectedArrangementIndex = index }, Cmd.none
+        else
+            state, Cmd.none
 
     | SetSelectedToneIndex index ->
-        // Change the selected gear slot if it is not available in the newly selected tone
-        // Prevents creating gaps in the tone gear slots
-        let selectedGearSlot =
-            let tone = project.Tones.[index]
-            match state.SelectedGearSlot with
-            | ToneGear.PrePedal i when tone.GearList.PrePedals.[i].IsNone ->
-                ToneGear.PrePedal 0
-            | ToneGear.PostPedal i when tone.GearList.PostPedals.[i].IsNone ->
-                ToneGear.PostPedal 0
-            | ToneGear.Rack i when tone.GearList.Racks.[i].IsNone ->
-                ToneGear.Rack 0
-            | _ ->
-                state.SelectedGearSlot
+        if index < project.Tones.Length then
+            // Change the selected gear slot if it is not available in the newly selected tone
+            // Prevents creating gaps in the tone gear slots
+            let selectedGearSlot =
+                let tone = project.Tones.[index]
+                match state.SelectedGearSlot with
+                | ToneGear.PrePedal i when tone.GearList.PrePedals.[i].IsNone ->
+                    ToneGear.PrePedal 0
+                | ToneGear.PostPedal i when tone.GearList.PostPedals.[i].IsNone ->
+                    ToneGear.PostPedal 0
+                | ToneGear.Rack i when tone.GearList.Racks.[i].IsNone ->
+                    ToneGear.Rack 0
+                | _ ->
+                    state.SelectedGearSlot
 
-        { state with SelectedToneIndex = index; SelectedGearSlot = selectedGearSlot }, Cmd.none
+            { state with SelectedToneIndex = index; SelectedGearSlot = selectedGearSlot }, Cmd.none
+        else
+            state, Cmd.none
 
     | DeleteArrangement ->
         let arrangements, index = removeSelected project.Arrangements state.SelectedArrangementIndex

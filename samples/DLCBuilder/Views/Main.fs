@@ -35,6 +35,8 @@ let private arrangementList state dispatch =
                             dispatch (MoveArrangement Up)
                         | KeyModifiers.Alt, Key.Down ->
                             dispatch (MoveArrangement Down)
+                        | KeyModifiers.None, (Key.Up | Key.Down) when arrIndex = -1 ->
+                            dispatch (SetSelectedArrangementIndex 0)
                         | KeyModifiers.None, Key.Up when arrIndex > 0 ->
                             dispatch (SetSelectedArrangementIndex (arrIndex - 1))
                         | KeyModifiers.None, Key.Down when arrIndex <> state.Project.Arrangements.Length - 1 ->
@@ -146,6 +148,7 @@ let private arrangementPanel state dispatch =
                             // Add arrangement
                             Border.create [
                                 Grid.column 1
+                                Border.focusable true
                                 Border.classes [ "icon-btn" ]
                                 Border.padding (4., 4., 10., 6.)
                                 Border.child (
@@ -154,6 +157,10 @@ let private arrangementPanel state dispatch =
                                         Path.fill Brushes.White
                                     ])
                                 Border.onTapped (fun _ -> Dialog.AddArrangements |> ShowDialog |> dispatch)
+                                Border.onKeyDown (fun args ->
+                                    if args.Key = Key.Space then
+                                        args.Handled <- true
+                                        Dialog.AddArrangements |> ShowDialog |> dispatch)
                                 // 5 instrumentals, 2 vocals, 1 showlights
                                 Border.isEnabled (state.Project.Arrangements.Length < 8)
                                 ToolTip.tip (translate "addArrangementToolTip")
@@ -162,6 +169,7 @@ let private arrangementPanel state dispatch =
                             // Validate arrangements
                             Border.create [
                                 Grid.column 2
+                                Border.focusable true
                                 Border.classes [ "icon-btn" ]
                                 Border.padding (6., 4., 10., 6.)
                                 Border.child (
@@ -170,6 +178,10 @@ let private arrangementPanel state dispatch =
                                         Path.fill Brushes.White
                                     ])
                                 Border.onTapped (fun _ -> dispatch CheckArrangements)
+                                Border.onKeyDown (fun args ->
+                                    if args.Key = Key.Space then
+                                        args.Handled <- true
+                                        dispatch CheckArrangements)
                                 Border.isEnabled (Utils.canRunValidation state)
                                 ToolTip.tip (translate "validateArrangementsToolTip")
                             ]
@@ -214,6 +226,8 @@ let private tonesList state dispatch =
                             dispatch (MoveTone Up)
                         | KeyModifiers.Alt, Key.Down ->
                             dispatch (MoveTone Down)
+                        | KeyModifiers.None, (Key.Up | Key.Down) when toneIndex = -1 ->
+                            dispatch (SetSelectedToneIndex 0)
                         | KeyModifiers.None, Key.Up when toneIndex > 0 ->
                             dispatch (SetSelectedToneIndex (toneIndex - 1))
                         | KeyModifiers.None, Key.Down when toneIndex <> state.Project.Tones.Length - 1 ->
