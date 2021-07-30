@@ -8,8 +8,8 @@ open System.Text.Json
 open System.Text.Json.Serialization
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
-open DLCBuilder
 open Rocksmith2014.DLCProject
+open DLCBuilder
 
 let private officialTonesDbPath =
     Path.Combine(Configuration.appDataFolder, "tones", "official.db")
@@ -192,19 +192,25 @@ let addToneDataToUserCollection (data: DbToneData) =
     use collection = createUserTonesApi()
     collection.AddTone data
 
+let private prepareString (str: string) =
+    String.truncate 100 (str.Trim())
+
 let addToUserCollection (project: DLCProject) (tone: Tone) =
-    let description = String.Join("|", Array.map ToneDescriptor.uiNameToName tone.ToneDescriptors)
+    let description =
+        tone.ToneDescriptors
+        |> Array.map ToneDescriptor.uiNameToName
+        |> String.concat "|"
 
     let isBass =
         tone.ToneDescriptors
         |> Array.contains "$[35715]BASS"
 
     { Id = 0L
-      Artist = project.ArtistName.Value.Trim() |> String.truncate 100
-      ArtistSort = project.ArtistName.SortValue.Trim() |> String.truncate 100
-      Title = project.Title.Value.Trim() |> String.truncate 100
-      TitleSort = project.Title.SortValue.Trim() |> String.truncate 100
-      Name = tone.Name |> String.truncate 100
+      Artist = prepareString project.ArtistName.Value
+      ArtistSort = prepareString project.ArtistName.SortValue
+      Title = prepareString project.Title.Value
+      TitleSort = prepareString project.Title.SortValue
+      Name = prepareString tone.Name
       BassTone = isBass
       Description = description
       Definition = serialize tone }
