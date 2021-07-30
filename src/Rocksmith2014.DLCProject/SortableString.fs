@@ -9,6 +9,8 @@ type SortableString =
     static member private TryGetOfficialArtistNameSortValue(value: string) =
         (* Earth, Wind & Fire:
              Both "Earth, Wind & Fire" and "Earth wind and fire" are used.
+           Panic! at the Disco:
+             Both "Panic! at the Disco" and "Panic at the Disco" are used.
            Queensrÿche:
              Both "Queensrÿche" and "Queensryche" are used. *)
 
