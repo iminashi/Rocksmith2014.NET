@@ -27,8 +27,12 @@ type FixedComboBox() =
                 this.GetObservable(ComboBox.SelectedItemProperty)
                     // Skip initial value
                     .Skip(1)
-                    .Where(fun _ -> not <| this.NoNotify)
+                    .Where(fun _ -> not this.NoNotify)
                     .Subscribe(changeCallback)
+
+    override _.OnDetachedFromVisualTree(e) =
+        if not <| isNull sub then sub.Dispose()
+        base.OnDetachedFromVisualTree(e)
 
     static member onSelectedItemChanged<'t when 't :> FixedComboBox> fn =
         let getter : 't -> (obj -> unit) = fun c -> c.OnValueChangedCallback

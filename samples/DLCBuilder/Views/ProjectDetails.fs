@@ -66,15 +66,15 @@ let private audioControls state dispatch =
                         StackPanel.orientation Orientation.Horizontal
                         StackPanel.children [
                             // Main volume
-                            NumericUpDown.create [
+                            FixedNumericUpDown.create [
                                 NumericUpDown.margin (2.0, 2.0, 2.0, 2.0)
                                 NumericUpDown.minimum -45.
                                 NumericUpDown.maximum 45.
                                 NumericUpDown.increment 0.5
-                                NumericUpDown.value state.Project.AudioFile.Volume
                                 NumericUpDown.formatString "+0.0;-0.0;0.0"
                                 NumericUpDown.isEnabled (not <| state.RunningTasks.Contains (VolumeCalculation MainAudio))
-                                NumericUpDown.onValueChanged (SetAudioVolume >> EditProject >> dispatch)
+                                FixedNumericUpDown.value state.Project.AudioFile.Volume
+                                FixedNumericUpDown.onValueChanged (SetAudioVolume >> EditProject >> dispatch)
                                 ToolTip.tip (translate "audioVolumeToolTip")
                             ]
 
@@ -116,16 +116,16 @@ let private audioControls state dispatch =
                         StackPanel.orientation Orientation.Horizontal
                         StackPanel.children [
                             // Preview audio volume
-                            NumericUpDown.create [
+                            FixedNumericUpDown.create [
                                 NumericUpDown.margin (2.0, 2.0, 2.0, 2.0)
                                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                                 NumericUpDown.minimum -45.
                                 NumericUpDown.maximum 45.
                                 NumericUpDown.increment 0.5
-                                NumericUpDown.value state.Project.AudioPreviewFile.Volume
                                 NumericUpDown.formatString "+0.0;-0.0;0.0"
                                 NumericUpDown.isEnabled (not <| state.RunningTasks.Contains (VolumeCalculation PreviewAudio))
-                                NumericUpDown.onValueChanged (SetPreviewVolume >> EditProject >> dispatch)
+                                FixedNumericUpDown.value state.Project.AudioPreviewFile.Volume
+                                FixedNumericUpDown.onValueChanged (SetPreviewVolume >> EditProject >> dispatch)
                                 ToolTip.tip (translate "previewAudioVolumeToolTip")
                             ]
 

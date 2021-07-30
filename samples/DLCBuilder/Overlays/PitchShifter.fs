@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.PitchShifter
+module DLCBuilder.Views.PitchShifter
 
 open Avalonia.Controls
 open Avalonia.FuncUI
@@ -25,13 +25,13 @@ let view dispatch state =
                     locText "shiftTuningBy" [
                         TextBlock.verticalAlignment VerticalAlignment.Center
                     ]
-                    NumericUpDown.create [
+                    FixedNumericUpDown.create [
                         NumericUpDown.minimum -24.
                         NumericUpDown.maximum 24.
                         NumericUpDown.increment 1.
                         NumericUpDown.formatString "+0;-0;0"
-                        NumericUpDown.value (state.Project.PitchShift |> Option.defaultValue 0s |> float)
-                        NumericUpDown.onValueChanged (int16 >> SetPitchShift >> EditProject >> dispatch)
+                        FixedNumericUpDown.value (state.Project.PitchShift |> Option.defaultValue 0s |> float)
+                        FixedNumericUpDown.onValueChanged (int16 >> SetPitchShift >> EditProject >> dispatch)
                     ]
                 ]
             ]

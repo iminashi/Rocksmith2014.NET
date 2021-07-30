@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.PreviewStartSelector
+module DLCBuilder.Views.PreviewStartSelector
 
 open Avalonia.Controls
 open Avalonia.FuncUI
@@ -38,13 +38,13 @@ let view state dispatch (audioLength: TimeSpan) =
                     locText "startTime" [
                         TextBlock.verticalAlignment VerticalAlignment.Center
                     ]
-                    NumericUpDown.create [
+                    FixedNumericUpDown.create [
                         NumericUpDown.width 180.
                         NumericUpDown.minimum 0.
                         NumericUpDown.maximum audioLength.TotalSeconds
-                        NumericUpDown.value previewStart
                         NumericUpDown.formatString "F3"
-                        NumericUpDown.onValueChanged (SetPreviewStartTime >> EditProject >> dispatch)
+                        FixedNumericUpDown.value previewStart
+                        FixedNumericUpDown.onValueChanged (SetPreviewStartTime >> EditProject >> dispatch)
                     ]
                     TextBlock.create [
                         let minutes = previewStart / 60. |> floor

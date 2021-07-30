@@ -69,6 +69,7 @@
     <Compile Include="Controls\FixedSlider.fs" />
     <Compile Include="Controls\ToneKnobSlider.fs" />
     <Compile Include="Controls\FixedComboBox.fs" />
+    <Compile Include="Controls\FixedNumericUpDown.fs" />
     <Compile Include="Controls\AutoFocusTextBox.fs" />
     <Compile Include="Controls\AutoFocusSearchBox.fs" />
     <Compile Include="Controls\TitledTextBox.fs" />

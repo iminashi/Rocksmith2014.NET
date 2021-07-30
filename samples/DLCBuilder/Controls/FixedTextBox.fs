@@ -29,7 +29,7 @@ type FixedTextBox() =
                 this.GetObservable(TextBox.TextProperty)
                     // Skip initial value
                     .Skip(1)
-                    .Where(fun _ -> not <| this.NoNotify)
+                    .Where(fun _ -> not this.NoNotify)
                     .Subscribe(changeCallback)
 
     // Workaround for the inability to validate text that is pasted into the textbox
@@ -43,11 +43,15 @@ type FixedTextBox() =
                 let! text =
                     (AvaloniaLocator.Current.GetService(typeof<IClipboard>) :?> IClipboard).GetTextAsync()
                     |> Async.AwaitTask
-                this.RaiseEvent(TextInputEventArgs(RoutedEvent = InputElement.TextInputEvent, Text = text))
+                this.RaiseEvent(TextInputEventArgs(RoutedEvent = InputElement.TextInputEvent, Text = text, Source = this))
             } |> Async.StartImmediate
             e.Handled <- true
         else
             base.OnKeyDown(e)
+
+    override _.OnDetachedFromVisualTree(e) =
+        if not <| isNull sub then sub.Dispose()
+        base.OnDetachedFromVisualTree(e)
 
     static member onTextChanged<'t when 't :> FixedTextBox> fn =
         let getter : 't -> (string -> unit) = fun c -> c.OnTextChangedCallback

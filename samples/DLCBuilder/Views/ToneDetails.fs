@@ -147,16 +147,16 @@ let view state dispatch (tone: Tone) =
                 Grid.row 3
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.children [
-                    NumericUpDown.create [
+                    FixedNumericUpDown.create [
                         NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                         NumericUpDown.verticalAlignment VerticalAlignment.Center
                         NumericUpDown.width 140.
-                        NumericUpDown.value (-tone.Volume)
                         NumericUpDown.minimum 0.1
                         NumericUpDown.maximum 36.
                         NumericUpDown.increment 0.1
                         NumericUpDown.formatString "F1"
-                        NumericUpDown.onValueChanged (SetVolume >> EditTone >> dispatch)
+                        FixedNumericUpDown.value (-tone.Volume)
+                        FixedNumericUpDown.onValueChanged (SetVolume >> EditTone >> dispatch)
                     ]
 
                     Path.create [

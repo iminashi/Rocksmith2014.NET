@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.ConfigEditor
+module DLCBuilder.Views.ConfigEditor
 
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
@@ -27,14 +27,16 @@ let private generalConfig state dispatch =
                 locText "language" [
                     TextBlock.verticalAlignment VerticalAlignment.Center
                 ]
-                ComboBox.create [
+                FixedComboBox.create [
                     Grid.column 2
                     ComboBox.verticalAlignment VerticalAlignment.Center
                     ComboBox.dataItems Locales.All
-                    ComboBox.selectedItem state.Config.Locale
-                    ComboBox.onSelectedItemChanged (function
-                        | :? Locale as l -> l |> ChangeLocale |> dispatch
-                        | _ -> ())
+                    FixedComboBox.selectedItem state.Config.Locale
+                    FixedComboBox.onSelectedItemChanged (function
+                        | :? Locale as locale ->
+                            locale |> ChangeLocale |> dispatch
+                        | _ ->
+                            ())
                 ]
 
                 // Charter Name
@@ -42,12 +44,12 @@ let private generalConfig state dispatch =
                     Grid.row 1
                     TextBlock.verticalAlignment VerticalAlignment.Center
                 ]
-                TextBox.create [
+                FixedTextBox.create [
                     Grid.column 2
                     Grid.row 1
                     TextBox.margin (0., 4.)
-                    TextBox.text state.Config.CharterName
-                    TextBox.onTextChanged (SetCharterName >> EditConfig >> dispatch)
+                    FixedTextBox.text state.Config.CharterName
+                    FixedTextBox.onTextChanged (SetCharterName >> EditConfig >> dispatch)
                 ]
 
                 // Profile Path
@@ -65,10 +67,10 @@ let private generalConfig state dispatch =
                             Button.content "..."
                             Button.onClick (fun _ -> Dialog.ProfileFile |> ShowDialog |> dispatch)
                         ]
-                        TextBox.create [
+                        FixedTextBox.create [
                             TextBox.margin (0., 4.)
-                            TextBox.text state.Config.ProfilePath
-                            TextBox.onTextChanged (SetProfilePath >> EditConfig >> dispatch)
+                            FixedTextBox.text state.Config.ProfilePath
+                            FixedTextBox.onTextChanged (SetProfilePath >> EditConfig >> dispatch)
                         ]
                     ]
                 ]
@@ -88,11 +90,11 @@ let private generalConfig state dispatch =
                             Button.content "..."
                             Button.onClick (fun _ -> Dialog.TestFolder |> ShowDialog |> dispatch)
                         ]
-                        TextBox.create [
+                        FixedTextBox.create [
                             TextBox.margin (0., 4.)
-                            TextBox.text state.Config.TestFolderPath
+                            FixedTextBox.text state.Config.TestFolderPath
                             TextBox.watermark (translate "testFolderPlaceholder")
-                            TextBox.onTextChanged (SetTestFolderPath >> EditConfig >> dispatch)
+                            FixedTextBox.onTextChanged (SetTestFolderPath >> EditConfig >> dispatch)
                         ]
                     ]
                 ]
@@ -112,10 +114,10 @@ let private generalConfig state dispatch =
                             Button.content "..."
                             Button.onClick (fun _ -> Dialog.ProjectFolder |> ShowDialog |> dispatch)
                         ]
-                        TextBox.create [
+                        FixedTextBox.create [
                             TextBox.margin (0., 4.)
-                            TextBox.text state.Config.ProjectsFolderPath
-                            TextBox.onTextChanged (SetProjectsFolderPath >> EditConfig >> dispatch)
+                            FixedTextBox.text state.Config.ProjectsFolderPath
+                            FixedTextBox.onTextChanged (SetProjectsFolderPath >> EditConfig >> dispatch)
                         ]
                     ]
                 ]
@@ -135,11 +137,11 @@ let private generalConfig state dispatch =
                             Button.content "..."
                             Button.onClick (fun _ -> Dialog.WwiseConsole |> ShowDialog |> dispatch)
                         ]
-                        TextBox.create [
+                        FixedTextBox.create [
                             TextBox.margin (0., 4.)
-                            TextBox.text (Option.toObj state.Config.WwiseConsolePath)
                             TextBox.watermark (translate "wwiseConsolePathPlaceholder")
-                            TextBox.onTextChanged (SetWwiseConsolePath >> EditConfig >> dispatch)
+                            FixedTextBox.text (Option.toObj state.Config.WwiseConsolePath)
+                            FixedTextBox.onTextChanged (SetWwiseConsolePath >> EditConfig >> dispatch)
                             TextBox.onLostFocus (fun e ->
                                 let t = e.Source :?> TextBox
                                 if Directory.Exists t.Text then
@@ -249,15 +251,15 @@ let private ddConfig state dispatch =
             TextBlock.isEnabled state.Config.DDPhraseSearchEnabled
         ]
         hStack [
-            NumericUpDown.create [
+            FixedNumericUpDown.create [
                 NumericUpDown.margin (0., 2., 2., 2.)
                 NumericUpDown.width 140.
-                NumericUpDown.value (float state.Config.DDPhraseSearchThreshold)
                 NumericUpDown.isEnabled state.Config.DDPhraseSearchEnabled
-                NumericUpDown.onValueChanged (int >> SetDDPhraseSearchThreshold >> EditConfig >> dispatch)
                 NumericUpDown.minimum 0.
                 NumericUpDown.maximum 100.
                 NumericUpDown.formatString "F0"
+                FixedNumericUpDown.value (float state.Config.DDPhraseSearchThreshold)
+                FixedNumericUpDown.onValueChanged (int >> SetDDPhraseSearchThreshold >> EditConfig >> dispatch)
             ]
 
             TextBlock.create [
@@ -376,11 +378,11 @@ let private buildConfig state dispatch =
                                         locText "custom" [
                                             TextBlock.verticalAlignment VerticalAlignment.Center
                                         ]
-                                        TextBox.create [
+                                        FixedTextBox.create [
                                             TextBox.verticalAlignment VerticalAlignment.Center
                                             TextBox.width 120.
-                                            TextBox.text (Option.toObj state.Config.CustomAppId)
-                                            TextBox.onTextChanged (Option.ofString >> SetCustomAppId >> EditConfig >> dispatch)
+                                            FixedTextBox.text (Option.toObj state.Config.CustomAppId)
+                                            FixedTextBox.onTextChanged (Option.ofString >> SetCustomAppId >> EditConfig >> dispatch)
                                         ]
                                     ]
                                 )

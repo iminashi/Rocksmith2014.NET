@@ -27,8 +27,12 @@ type FixedSlider() =
                 this.GetObservable(Slider.ValueProperty)
                     // Skip initial value
                     .Skip(1)
-                    .Where(fun _ -> not <| this.NoNotify)
+                    .Where(fun _ -> not this.NoNotify)
                     .Subscribe(changeCallback)
+
+    override _.OnDetachedFromVisualTree(e) =
+        if not <| isNull sub then sub.Dispose()
+        base.OnDetachedFromVisualTree(e)
 
     static member onValueChanged<'t when 't :> FixedSlider> fn =
         let getter : 't -> (double -> unit) = fun c -> c.OnValueChangedCallback
