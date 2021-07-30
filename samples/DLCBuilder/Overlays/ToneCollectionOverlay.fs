@@ -13,6 +13,7 @@ open DLCBuilder.Media
 open DLCBuilder.ToneCollection
 open Rocksmith2014.Common
 open System
+open System.Text.RegularExpressions
 
 let private translateDescription (description: string) =
     description.Split('|')
@@ -24,9 +25,7 @@ let private toneTemplate dispatch isOfficial =
         let brush =
             if dbTone.BassTone then
                 Brushes.bass
-            elif dbTone.Name.Contains("lead", StringComparison.OrdinalIgnoreCase)
-                 || dbTone.Name.Contains("solo", StringComparison.OrdinalIgnoreCase)
-            then
+            elif Regex.IsMatch(dbTone.Name, "lead|solo", RegexOptions.IgnoreCase) then
                 Brushes.lead
             else
                 Brushes.rhythm
