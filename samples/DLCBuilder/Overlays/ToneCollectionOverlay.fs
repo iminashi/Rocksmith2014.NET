@@ -45,6 +45,13 @@ let private toneTemplate dispatch isOfficial =
                                 MenuItem.header (translate "edit")
                                 MenuItem.onClick (fun _ -> ShowUserToneEditor |> dispatch)
                             ]
+
+                            MenuItem.create [ MenuItem.header "-" ]
+
+                            MenuItem.create [
+                                MenuItem.header (translate "remove")
+                                MenuItem.onClick (fun _ -> DeleteSelectedUserTone |> dispatch)
+                            ]
                     ]
                 ])
             StackPanel.background Brushes.Transparent
