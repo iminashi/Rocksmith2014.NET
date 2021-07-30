@@ -48,7 +48,7 @@ type MainWindow(commandLineArgs: string array) as this =
                 Main.arrangementCheckProgress.ProgressChanged.Add(dispatchProgress ArrangementCheck)
                 Main.psarcImportProgress.ProgressChanged.Add(dispatchProgress PsarcImport)
                 Tools.psarcUnpackProgress.ProgressChanged.Add(dispatchProgress PsarcUnpack)
-                Utils.packageBuildProgress.ProgressChanged.Add(dispatchProgress BuildPackage)
+                StateUtils.packageBuildProgress.ProgressChanged.Add(dispatchProgress BuildPackage)
             Cmd.ofSub sub
 
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
@@ -62,7 +62,7 @@ type MainWindow(commandLineArgs: string array) as this =
                 let newState, cmd = Main.update msg state
                 let commands =
                     if shouldAutoSave newState state then
-                        let autoSaveCmd = Cmd.OfAsync.optionalResult (Utils.autoSave ())
+                        let autoSaveCmd = Cmd.OfAsync.optionalResult (StateUtils.autoSave ())
                         Cmd.batch [ autoSaveCmd; cmd ]
                     else
                         cmd

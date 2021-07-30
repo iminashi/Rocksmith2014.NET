@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.DLCProject
+namespace Rocksmith2014.DLCProject
 
 open System
 open System.IO
@@ -144,8 +144,10 @@ module Arrangement =
 
                 let baseTone =
                     match toneInfo.BaseToneName with
-                    | null -> $"{metadata.Arrangement.ToLowerInvariant()}_base"
-                    | toneKey -> toneKey
+                    | null ->
+                        $"{metadata.Arrangement.ToLowerInvariant()}_base"
+                    | toneKey ->
+                        toneKey
 
                 let tones =
                     toneInfo.Names
@@ -159,7 +161,8 @@ module Arrangement =
 
                 let name =
                     match ArrangementName.TryParse metadata.Arrangement with
-                    | true, name -> name
+                    | true, name ->
+                        name
                     | false, _ ->
                         match routeMask with
                         | RouteMask.Bass -> ArrangementName.Bass

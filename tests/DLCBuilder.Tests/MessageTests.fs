@@ -1,4 +1,4 @@
-﻿module MessageTests
+module MessageTests
 
 open Expecto
 open DLCBuilder
@@ -31,7 +31,7 @@ let messageTests =
                 failwith "Wrong overlay type"
 
         testCase "Build Release does nothing with empty project" <| fun _ ->
-            Expect.isFalse (Utils.canBuild initialState) "Empty project cannot be built"
+            Expect.isFalse (StateUtils.canBuild initialState) "Empty project cannot be built"
 
             let newState, cmd = Main.update (Build Release) initialState
 

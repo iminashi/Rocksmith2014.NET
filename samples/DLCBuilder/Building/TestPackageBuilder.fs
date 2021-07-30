@@ -1,4 +1,4 @@
-﻿module DLCBuilder.TestPackageBuilder
+module DLCBuilder.TestPackageBuilder
 
 open Rocksmith2014.DLCProject
 open Rocksmith2014.Common
@@ -73,6 +73,6 @@ let build platform config project = async {
             $"{packageFileName}_{versionString}"
 
     let path = Path.Combine(targetFolder, packageFileName)
-    let buildConfig = Utils.createBuildConfig Test config project [ platform ]
+    let buildConfig = StateUtils.createBuildConfig Test config project [ platform ]
 
     do! PackageBuilder.buildPackages path buildConfig project }

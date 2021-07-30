@@ -46,6 +46,7 @@
     <Compile Include="Tones\DefaultTones.fs" />
     <AvaloniaResource Include="Styles.xaml" />
     <Compile Include="AppVersion.fs" />
+    <Compile Include="Utils.fs" />
     <Compile Include="Media.fs" />
     <Compile Include="ElmishExtensions.fs" />
     <Compile Include="Localization.fs" />
@@ -57,7 +58,7 @@
     <Compile Include="ToneCollection\MessageHandler.fs" />
     <Compile Include="OnlineUpdate.fs" />
     <Compile Include="Types.fs" />
-    <Compile Include="Utils.fs" />
+    <Compile Include="StateUtils.fs" />
     <Compile Include="Dialogs.fs" />
     <Compile Include="EditFunctions.fs" />
     <Compile Include="Tools.fs" />

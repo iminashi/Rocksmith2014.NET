@@ -182,7 +182,7 @@ let private arrangementPanel state dispatch =
                                     if args.Key = Key.Space then
                                         args.Handled <- true
                                         dispatch CheckArrangements)
-                                Border.isEnabled (Utils.canRunValidation state)
+                                Border.isEnabled (StateUtils.canRunValidation state)
                                 ToolTip.tip (translate "validateArrangementsToolTip")
                             ]
 

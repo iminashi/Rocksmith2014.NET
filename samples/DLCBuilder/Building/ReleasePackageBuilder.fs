@@ -1,4 +1,4 @@
-﻿module DLCBuilder.ReleasePackageBuilder
+module DLCBuilder.ReleasePackageBuilder
 
 open System.IO
 open Rocksmith2014.DLCProject
@@ -20,7 +20,7 @@ let build (openProject: string option) config project = async {
         |> StringValidator.fileName
 
     let path = Path.Combine(releaseDir, fileName)
-    let buildConfig = Utils.createBuildConfig Release config project (Set.toList config.ReleasePlatforms)
+    let buildConfig = StateUtils.createBuildConfig Release config project (Set.toList config.ReleasePlatforms)
     do! PackageBuilder.buildPackages path buildConfig project }
 
 let private addPitchPedal index shift gearList =

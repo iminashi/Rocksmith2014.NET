@@ -152,7 +152,7 @@ let private audioControls state dispatch =
     ]
 
 let private buildControls state dispatch =
-    let canBuild = Utils.canBuild state
+    let canBuild = StateUtils.canBuild state
 
     Grid.create [
         Grid.verticalAlignment VerticalAlignment.Center

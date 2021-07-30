@@ -12,78 +12,10 @@ open System
 open System.Diagnostics
 open System.IO
 open EditFunctions
+open StateUtils
 
 let arrangementCheckProgress = Progress<float>()
 let psarcImportProgress = Progress<float>()
-
-type private ArrangementAddingError =
-    | MaxInstrumentals
-    | MaxShowlights
-    | MaxVocals
-
-let private addArrangements files state =
-    let results = Array.map Arrangement.fromFile files
-
-    let shouldInclude arrangements arr =
-        let count f = List.choose f arrangements |> List.length
-        match arr with
-        | Showlights _ when count Arrangement.pickShowlights = 1 ->
-            Error MaxShowlights
-        | Instrumental _ when count Arrangement.pickInstrumental = 5 ->
-            Error MaxInstrumentals
-        | Vocals _ when count Arrangement.pickVocals = 2 ->
-            Error MaxVocals
-        | _ ->
-            Ok arr
-
-    let mainArrangementExists newInst arrangements =
-        arrangements
-        |> List.choose Arrangement.pickInstrumental
-        |> List.exists (fun oldInst ->
-            newInst.RouteMask = oldInst.RouteMask
-            && newInst.Priority = oldInst.Priority
-            && oldInst.Priority = ArrangementPriority.Main)
-
-    let createErrorMsg (path: string) error = $"%s{Path.GetFileName path}:\n%s{error}"
-
-    let arrangements, errors =
-        ((state.Project.Arrangements, []), results)
-        ||> Array.fold (fun (arrs, errors) result ->
-            match result with
-            | Ok (arr, _) ->
-                match shouldInclude arrs arr with
-                | Ok (Instrumental inst) when mainArrangementExists inst arrs ->
-                    // Prevent multiple main arrangements of the same type
-                    Instrumental { inst with Priority = ArrangementPriority.Alternative }::arrs, errors
-                | Ok arr ->
-                    arr::arrs, errors
-                | Error error ->
-                    let errorMsg = createErrorMsg (Arrangement.getFile arr) (translate (string error))
-                    arrs, errorMsg::errors
-            | Error (UnknownArrangement file) ->
-                let message = translate "unknownArrangementError"
-                let error = createErrorMsg file message
-                arrs, error::errors
-            | Error (FailedWithException (file, ex)) ->
-                let error = createErrorMsg file ex.Message
-                arrs, error::errors)
-
-    let metadata =
-        if state.Project.ArtistName = SortableString.Empty then
-            results
-            |> Array.tryPick (function Ok (_, md) -> md | Error _ -> None)
-        else
-            None
-
-    let newState =
-        let project = Utils.addMetadata metadata state.Config.CharterName state.Project
-        { state with Project = { project with Arrangements = List.sortBy Arrangement.sorter arrangements } }
-
-    match errors with
-    | [] ->
-        newState
-    | _ ->
-        { newState with Overlay = ErrorMessage(String.Join(String.replicate 2 Environment.NewLine, errors), None) }
 
 let private createExitCheckFile () =
     using (File.Create Configuration.exitCheckFilePath) ignore
@@ -179,22 +111,8 @@ let private buildPackage buildType build state =
     | Ok _ ->
         let task = build state.Config
 
-        Utils.addTask BuildPackage state,
+        addTask BuildPackage state,
         Cmd.OfAsync.either task state.Project (fun () -> BuildComplete buildType) (fun ex -> TaskFailed(ex, BuildPackage))
-
-let private removeStatusMessage (id: Guid) = async {
-    do! Async.Sleep 4000
-    return RemoveStatusMessage id }
-
-let private updateRecentFilesAndConfig projectFile state =
-    let recent = RecentFilesList.update projectFile state.RecentFiles
-    let newConfig = { state.Config with PreviousOpenedProject = projectFile }
-    let cmd =
-        if state.Config.PreviousOpenedProject <> projectFile then
-            Cmd.OfAsync.attempt Configuration.save newConfig ErrorOccurred
-        else
-            Cmd.none
-    recent, newConfig, cmd
 
 let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
@@ -243,9 +161,9 @@ let update (msg: Msg) (state: State) =
 
     | ImportSelectedTones ->
         let tones = Views.ImportTonesSelector.getSelectedTones()
-        Utils.addTones state tones, Cmd.none
+        addTones state tones, Cmd.none
 
-    | ImportTones tones -> Utils.addTones state tones, Cmd.none
+    | ImportTones tones -> addTones state tones, Cmd.none
 
     | ExportSelectedTone ->
         let cmd =
@@ -313,14 +231,14 @@ let update (msg: Msg) (state: State) =
 
             return project, fileName }
 
-        Utils.addTask PsarcImport state,
+        addTask PsarcImport state,
         Cmd.OfAsync.either task () PsarcImported (fun ex -> TaskFailed(ex, PsarcImport))
 
     | PsarcImported (project, projectFile) ->
         let cmd = Cmd.batch [
             Cmd.ofMsg (AddStatusMessage "PsarcImportComplete")
             Cmd.ofMsg (ProjectLoaded(project, projectFile)) ]
-        Utils.removeTask PsarcImport state, cmd
+        removeTask PsarcImport state, cmd
 
     | ImportToolkitTemplate fileName ->
         try
@@ -390,7 +308,7 @@ let update (msg: Msg) (state: State) =
 
     | ConvertToWem ->
         if DLCProject.audioFilesExist project then
-            Utils.addTask WemConversion state,
+            addTask WemConversion state,
             Cmd.OfAsync.either (Utils.convertAudio config.WwiseConsolePath) project WemConversionComplete (fun ex -> TaskFailed(ex, WemConversion))
         else
             state, Cmd.none
@@ -398,7 +316,7 @@ let update (msg: Msg) (state: State) =
     | ConvertToWemCustom ->
         match getSelectedArrangement state with
         | Some (Instrumental { CustomAudio = Some audio }) ->
-            Utils.addTask WemConversion state,
+            addTask WemConversion state,
             Cmd.OfAsync.either (Wwise.convertToWem config.WwiseConsolePath) audio.Path WemConversionComplete (fun ex -> TaskFailed(ex, WemConversion))
         | _ ->
             state, Cmd.none
@@ -419,7 +337,7 @@ let update (msg: Msg) (state: State) =
             | PreviewAudio -> project.AudioPreviewFile.Path
             | CustomAudio (path, _) -> path
         let task () = async { return Volume.calculate path }
-        Utils.addTask (VolumeCalculation target) state,
+        addTask (VolumeCalculation target) state,
         Cmd.OfAsync.either task () (fun v -> VolumeCalculated(v, target)) (fun ex -> TaskFailed(ex, (VolumeCalculation target)))
 
     | VolumeCalculated (volume, target) ->
@@ -440,7 +358,7 @@ let update (msg: Msg) (state: State) =
                             other)
                 { project with Arrangements = arrangements }
 
-        Utils.removeTask (VolumeCalculation target) { state with Project = project }, Cmd.none
+        removeTask (VolumeCalculation target) { state with Project = project }, Cmd.none
 
     | SetCoverArt fileName ->
         { state with CoverArt = Utils.changeCoverArt state.CoverArt fileName
@@ -781,7 +699,7 @@ let update (msg: Msg) (state: State) =
 
         { state with Project = { project with Arrangements = arrangements } }, Cmd.none
 
-    | Build _ when not <| Utils.canBuild state ->
+    | Build _ when not <| canBuild state ->
         state, Cmd.none
 
     | Build PitchShifted ->
@@ -807,23 +725,23 @@ let update (msg: Msg) (state: State) =
             Cmd.OfAsync.attempt task () ErrorOccurred
             Cmd.ofMsg (AddStatusMessage "BuildPackageComplete") ]
 
-        Utils.removeTask BuildPackage state, cmd
+        removeTask BuildPackage state, cmd
 
     | WemConversionComplete _ ->
-        Utils.removeTask WemConversion state,
+        removeTask WemConversion state,
         Cmd.ofMsg (AddStatusMessage "WemConversionComplete")
 
     | CheckArrangements ->
-        if Utils.canRunValidation state then
+        if canRunValidation state then
             let task() = async { return Utils.checkArrangements project arrangementCheckProgress }
 
-            Utils.addTask ArrangementCheck state,
+            addTask ArrangementCheck state,
             Cmd.OfAsync.either task () CheckCompleted (fun ex -> TaskFailed(ex, ArrangementCheck))
         else
             state, Cmd.none
 
     | CheckCompleted issues ->
-        { Utils.removeTask ArrangementCheck state with ArrangementIssues = issues },
+        { removeTask ArrangementCheck state with ArrangementIssues = issues },
         Cmd.ofMsg (AddStatusMessage "ValidationComplete")
 
     | TaskProgressChanged (progressedTask, progress) ->
@@ -835,11 +753,11 @@ let update (msg: Msg) (state: State) =
         { state with StatusMessages = messages }, Cmd.none
 
     | PsarcUnpacked ->
-        Utils.removeTask PsarcUnpack state,
+        removeTask PsarcUnpack state,
         Cmd.ofMsg (AddStatusMessage "PsarcUnpackComplete")
 
     | WemToOggConversionCompleted ->
-        Utils.removeTask WemToOggConversion state, Cmd.none
+        removeTask WemToOggConversion state, Cmd.none
 
     | AddStatusMessage locString ->
         let id = Guid.NewGuid()
@@ -867,7 +785,7 @@ let update (msg: Msg) (state: State) =
         { state with Overlay = exceptionToErrorMessage e }, Cmd.none
 
     | TaskFailed (e, failedTask) ->
-        { Utils.removeTask failedTask state with Overlay = exceptionToErrorMessage e }, Cmd.none
+        { removeTask failedTask state with Overlay = exceptionToErrorMessage e }, Cmd.none
 
     | ChangeLocale newLocale ->
         if config.Locale <> newLocale then changeLocale newLocale
@@ -883,18 +801,16 @@ let update (msg: Msg) (state: State) =
         match state.Overlay with
         | ToneCollection collectionState ->
             let newCollectionState, effect = ToneCollection.MessageHandler.update collectionState msg
-            let overlay = ToneCollection newCollectionState
+            let newState = { state with Overlay = ToneCollection newCollectionState }
 
             match effect with
             | ToneCollection.Nothing ->
-                { state with Overlay = overlay }, Cmd.none
+                newState, Cmd.none
             | ToneCollection.AddToneToProject tone ->
-                { state with Project = { project with Tones = tone::project.Tones }
-                             Overlay = overlay },
+                { newState with Project = { project with Tones = tone::project.Tones } },
                 Cmd.ofMsg (AddStatusMessage "toneAddedToProject")
             | ToneCollection.ShowToneAddedToCollectionMessage ->
-                { state with Overlay = overlay },
-                Cmd.ofMsg (AddStatusMessage "toneAddedToCollection")
+                newState, Cmd.ofMsg (AddStatusMessage "toneAddedToCollection")
         | _ ->
             state, Cmd.none
 

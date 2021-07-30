@@ -20,7 +20,7 @@ let private keyModifierCtrl =
 let private separator = MenuItem.create [ MenuItem.header "-" ]
 
 let audio notCalculatingVolume state dispatch =
-    let noBuildInProgress = Utils.notBuilding state
+    let noBuildInProgress = StateUtils.notBuilding state
     let audioPath = state.Project.AudioFile.Path
 
     Menu.create [
@@ -153,7 +153,7 @@ let file state dispatch =
     ]
 
 let build state dispatch =
-    let canBuild = Utils.canBuild state
+    let canBuild = StateUtils.canBuild state
 
     // Build
     MenuItem.create [
@@ -455,7 +455,7 @@ let project state dispatch =
                 MenuItem.header (translate "validateArrangementsMenuItem")
                 MenuItem.onClick (fun _ -> dispatch CheckArrangements)
                 MenuItem.inputGesture (KeyGesture(Key.V, keyModifierCtrl))
-                MenuItem.isEnabled (Utils.canRunValidation state)
+                MenuItem.isEnabled (StateUtils.canRunValidation state)
             ]
 
             // Generate New IDs for All Arrangements

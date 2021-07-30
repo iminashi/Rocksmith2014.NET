@@ -63,7 +63,7 @@ let update msg state =
             files
             |> Array.iter Conversion.wemToOgg }
 
-        Utils.addTask WemToOggConversion state,
+        StateUtils.addTask WemToOggConversion state,
         Cmd.OfAsync.either task () (fun () -> WemToOggConversionCompleted) (fun ex -> TaskFailed(ex, WemToOggConversion))
 
     | ConvertAudioToWem files ->
@@ -74,7 +74,7 @@ let update msg state =
 
             do! Async.Parallel(t, 4) |> Async.Ignore }
 
-        Utils.addTask WemConversion state,
+        StateUtils.addTask WemConversion state,
         Cmd.OfAsync.either task () WemConversionComplete (fun ex -> TaskFailed(ex, WemConversion))
 
     | UnpackPSARC file ->
@@ -85,7 +85,7 @@ let update msg state =
             use psarc = PSARC.ReadFile file
             do! psarc.ExtractFiles(targetDirectory, psarcUnpackProgress) }
 
-        Utils.addTask PsarcUnpack state,
+        StateUtils.addTask PsarcUnpack state,
         Cmd.OfAsync.either task () (fun () -> PsarcUnpacked) (fun ex -> TaskFailed(ex, PsarcUnpack))
 
     | PackDirectoryIntoPSARC (directory, targetFile) ->

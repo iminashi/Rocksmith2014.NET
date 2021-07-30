@@ -31,6 +31,11 @@ type PreviewAudioCreation =
     | CreateFile
     | FileCreated of path : string
 
+type ArrangementAddingError =
+    | MaxInstrumentals
+    | MaxShowlights
+    | MaxVocals
+
 type MoveDirection = Up | Down
 
 type VolumeTarget =
