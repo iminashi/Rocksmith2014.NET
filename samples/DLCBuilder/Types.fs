@@ -6,7 +6,6 @@ open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DD
 open Rocksmith2014.XML.Processing
-open Avalonia.Controls.Selection
 open Avalonia.Media.Imaging
 open System
 open OnlineUpdate
@@ -142,7 +141,6 @@ type State =
       ShowSortFields : bool
       ShowJapaneseFields : bool
       Overlay : OverlayContents
-      SelectedImportTones : SelectionModel<Tone>
       OpenProjectFile : string option
       CurrentPlatform : Platform
       StatusMessages : StatusMessage list

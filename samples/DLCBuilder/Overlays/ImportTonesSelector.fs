@@ -1,13 +1,22 @@
 ﻿module DLCBuilder.Views.ImportTonesSelector
 
 open Avalonia.Controls
+open Avalonia.Controls.Selection
 open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Rocksmith2014.Common.Manifest
 open DLCBuilder
 
-let view state dispatch (tones: Tone array) =
+let private selectedTones = SelectionModel<Tone>(SingleSelect = false)
+
+let getSelectedTones () =
+    Seq.toList selectedTones.SelectedItems
+
+let view dispatch (tones: Tone array) =
+    selectedTones.Clear()
+    selectedTones.Source <- null
+
     StackPanel.create [
         StackPanel.spacing 8.
         StackPanel.children [
@@ -20,7 +29,7 @@ let view state dispatch (tones: Tone array) =
             // Tones list
             ListBox.create [
                 ListBox.dataItems tones
-                ListBox.selection state.SelectedImportTones
+                ListBox.selection selectedTones
                 ListBox.maxHeight 300.
                 ListBox.width 320.
             ]

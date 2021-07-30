@@ -1,6 +1,5 @@
 module DLCBuilder.Main
 
-open Avalonia.Controls.Selection
 open Elmish
 open Rocksmith2014
 open Rocksmith2014.Audio
@@ -121,8 +120,6 @@ let init args =
       ShowSortFields = false
       ShowJapaneseFields = false
       Overlay = NoOverlay
-      // TODO: Refactor to remove dependency on Avalonia class in the model?
-      SelectedImportTones = SelectionModel(SingleSelect = false)
       RunningTasks = Set.empty
       StatusMessages = []
       CurrentPlatform = if OperatingSystem.IsMacOS() then Mac else PC
@@ -161,7 +158,7 @@ let private moveSelected dir selectedIndex (list: List<_>) =
         list, selectedIndex
     | index ->
         let selected = list.[index]
-        let change = match dir with Up -> -1 | Down -> 1 
+        let change = match dir with Up -> -1 | Down -> 1
         let insertPos = index + change
         if insertPos >= 0 && insertPos < list.Length then
             List.removeAt index list
@@ -245,7 +242,7 @@ let update (msg: Msg) (state: State) =
                      CoverArt = None }, Cmd.none
 
     | ImportSelectedTones ->
-        let tones = state.SelectedImportTones.SelectedItems |> List.ofSeq
+        let tones = Views.ImportTonesSelector.getSelectedTones()
         Utils.addTones state tones, Cmd.none
 
     | ImportTones tones -> Utils.addTones state tones, Cmd.none
@@ -368,8 +365,6 @@ let update (msg: Msg) (state: State) =
         | [| one |] ->
             state, Cmd.ofMsg (ImportTones (List.singleton one))
         | _ ->
-            state.SelectedImportTones.Clear()
-            state.SelectedImportTones.Source <- null
             { state with Overlay = ImportToneSelector tones }, Cmd.none
 
     | SetAudioFile fileName ->
@@ -569,11 +564,11 @@ let update (msg: Msg) (state: State) =
                      Overlay = overlay }, cmd
 
     | ShowSortFields shown -> { state with ShowSortFields = shown }, Cmd.none
-    
+
     | ShowJapaneseFields shown -> { state with ShowJapaneseFields = shown }, Cmd.none
 
     | ShowOverlay overlay -> { state with Overlay = overlay }, Cmd.none
-    
+
     | SetConfiguration (newConfig, enableLoad, wasAbnormalExit) ->
         if config.Locale <> newConfig.Locale then
             changeLocale newConfig.Locale
@@ -605,7 +600,7 @@ let update (msg: Msg) (state: State) =
                     |> List.filter (function UpdateMessage _ -> false | _ -> true)
 
                 UpdateMessage(update)::statusMessages
-            | _ -> 
+            | _ ->
                 state.StatusMessages
 
         { state with StatusMessages = messages; AvailableUpdate = update }, Cmd.none
@@ -886,7 +881,7 @@ let update (msg: Msg) (state: State) =
 
     | ToneCollectionMsg msg ->
         match state.Overlay with
-        | ToneCollection collectionState -> 
+        | ToneCollection collectionState ->
             let newCollectionState, effect = ToneCollection.MessageHandler.update collectionState msg
             let overlay = ToneCollection newCollectionState
 
