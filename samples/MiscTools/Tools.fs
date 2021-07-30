@@ -1,4 +1,4 @@
-﻿module TestApp.Tools
+module TestApp.Tools
 
 open Avalonia
 open Avalonia.Controls
@@ -85,6 +85,7 @@ let openFolderDialog title dispatch =
 let ofdSng = openFileDialogSingle "Select File" sngFilters
 let ofdXml = openFileDialogSingle "Select File" xmlFilters
 let ofdPsarc = openFileDialogSingle "Select File" psarcFilters
+let ofdPsarcs = openFileDialogMulti "Select Files" psarcFilters
 let ofdWem = openFileDialogSingle "Select File" wemFilters
 let ofdBnk = openFileDialogSingle "Select File" bnkFilters
 let ofdAll = openFileDialogSingle "Select File" null
@@ -107,7 +108,7 @@ type Msg =
     | PackDirectoryPSARC of path:string
     | ConvertPCtoMac of path:string
     | CreateManifest of file:string
-    | ExtractSNGtoXML of file:string
+    | ExtractSNGtoXML of files:string array
     | ChangePlatform of Platform
     | SetConvertAudio of bool
     | SetConvertSNG of bool
@@ -259,45 +260,46 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
 
             state, Cmd.OfAsync.attempt t () Error
 
-        | ExtractSNGtoXML file -> 
-            let targetDirectory = Path.Combine(Path.GetDirectoryName(file), "xml")
-            Directory.CreateDirectory(targetDirectory) |> ignore
-
+        | ExtractSNGtoXML files -> 
             let t () = async {
-                let platform = Platform.fromPackageFileName file
-                use psarc = PSARC.ReadFile file
+                for file in files do
+                    let targetDirectory = Path.Combine(Path.GetDirectoryName(file), "xml")
+                    Directory.CreateDirectory(targetDirectory) |> ignore
 
-                let! sngs =
-                    psarc.Manifest
-                    |> List.filter (String.endsWith "sng")
-                    |> List.map (fun x -> async {
-                        use! stream = psarc.GetEntryStream x
-                        let! sng = SNG.fromStream stream platform
-                        return {| File = x; SNG = sng |} })
-                    |> Async.Sequential
+                    let platform = Platform.fromPackageFileName file
+                    use psarc = PSARC.ReadFile file
 
-                let! manifests =
-                    psarc.Manifest
-                    |> List.filter (String.endsWith "json")
-                    |> List.map (fun x -> async {
-                        use! stream = psarc.GetEntryStream x
-                        let! manifest = Manifest.fromJsonStream stream
-                        return {| File = x; Manifest = manifest |} })
-                    |> Async.Sequential
+                    let! sngs =
+                        psarc.Manifest
+                        |> List.filter (String.endsWith "sng")
+                        |> List.map (fun x -> async {
+                            use! stream = psarc.GetEntryStream x
+                            let! sng = SNG.fromStream stream platform
+                            return {| File = x; SNG = sng |} })
+                        |> Async.Sequential
 
-                sngs
-                |> Array.Parallel.iter (fun s ->
-                    let targetFile = Path.Combine(targetDirectory, Path.ChangeExtension(Path.GetFileName s.File, "xml"))
-                    if s.File.Contains "vocals" then
-                        let vocals = ConvertVocals.sngToXml s.SNG
-                        Vocals.Save(targetFile, vocals)
-                    else
-                        let attributes =
-                            manifests
-                            |> Seq.tryFind (fun m -> Path.GetFileNameWithoutExtension m.File = Path.GetFileNameWithoutExtension s.File)
-                            |> Option.map (fun m -> Manifest.getSingletonAttributes m.Manifest)
-                        let xml = ConvertInstrumental.sngToXml attributes s.SNG
-                        xml.Save targetFile)
+                    let! manifests =
+                        psarc.Manifest
+                        |> List.filter (String.endsWith "json")
+                        |> List.map (fun x -> async {
+                            use! stream = psarc.GetEntryStream x
+                            let! manifest = Manifest.fromJsonStream stream
+                            return {| File = x; Manifest = manifest |} })
+                        |> Async.Sequential
+
+                    sngs
+                    |> Array.Parallel.iter (fun s ->
+                        let targetFile = Path.Combine(targetDirectory, Path.ChangeExtension(Path.GetFileName s.File, "xml"))
+                        if s.File.Contains "vocals" then
+                            let vocals = ConvertVocals.sngToXml s.SNG
+                            Vocals.Save(targetFile, vocals)
+                        else
+                            let attributes =
+                                manifests
+                                |> Seq.tryFind (fun m -> Path.GetFileNameWithoutExtension m.File = Path.GetFileNameWithoutExtension s.File)
+                                |> Option.map (fun m -> Manifest.getSingletonAttributes m.Manifest)
+                            let xml = ConvertInstrumental.sngToXml attributes s.SNG
+                            xml.Save targetFile)
                 }
             state, Cmd.OfAsync.attempt t () Error
 
@@ -459,7 +461,7 @@ let view (state: State) dispatch =
                     ]
 
                     Button.create [
-                        Button.onClick (fun _ -> ofdPsarc (ExtractSNGtoXML >> dispatch))
+                        Button.onClick (fun _ -> ofdPsarcs (ExtractSNGtoXML >> dispatch))
                         Button.content "Convert SNG to XML from PSARC..."
                     ]
 
