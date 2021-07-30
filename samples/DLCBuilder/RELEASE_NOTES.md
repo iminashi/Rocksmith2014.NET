@@ -1,3 +1,8 @@
+## 0.5.0 (Released 2021-08-xx)
+
+- The metadata for the tones in the user collection can now be edited (via context menu or E key).
+- Minor UI improvements.
+
 ## 0.4.1 (Released 2021-07-27)
 
 - Fixed bug in loading of the ML model.
