@@ -178,3 +178,10 @@ let openLink url =
     ProcessStartInfo(url, UseShellExecute = true)
     |> Process.Start
     |> ignore
+
+/// Removes the item at the given index from the list.
+/// Returns an index that is within the new list or -1 if it is empty.
+let removeSelected initialList index =
+    let list = List.removeAt index initialList
+    let newSelectedIndex = min index (list.Length - 1)
+    list, newSelectedIndex

@@ -60,17 +60,6 @@ let init args =
       AvailableUpdate = None
       ToneGearRepository = None }, commands
 
-let private getSelectedArrangement state =
-    List.tryItem state.SelectedArrangementIndex state.Project.Arrangements
-
-let private getSelectedTone state =
-    List.tryItem state.SelectedToneIndex state.Project.Tones
-
-let private removeSelected initialList index =
-    let list = List.removeAt index initialList
-    let newSelectedIndex = min index (list.Length - 1)
-    list, newSelectedIndex
-
 let private exceptionToErrorMessage (ex: exn) =
     let exnInfo (e: exn) =
         $"{e.GetType().Name}: {e.Message}\n{e.StackTrace}"
@@ -108,7 +97,7 @@ let private buildPackage buildType build state =
             | other ->
                 other |> string |> translate
         { state with Overlay = ErrorMessage(msg, None) }, Cmd.none
-    | Ok _ ->
+    | Ok () ->
         let task = build state.Config
 
         addTask BuildPackage state,
@@ -394,13 +383,13 @@ let update (msg: Msg) (state: State) =
             state, Cmd.none
 
     | DeleteArrangement ->
-        let arrangements, index = removeSelected project.Arrangements state.SelectedArrangementIndex
+        let arrangements, index = Utils.removeSelected project.Arrangements state.SelectedArrangementIndex
 
         { state with Project = { project with Arrangements = arrangements }
                      SelectedArrangementIndex = index }, Cmd.none
 
     | DeleteTone ->
-        let tones, index = removeSelected project.Tones state.SelectedToneIndex
+        let tones, index = Utils.removeSelected project.Tones state.SelectedToneIndex
 
         { state with Project = { project with Tones = tones }
                      SelectedToneIndex = index }, Cmd.none

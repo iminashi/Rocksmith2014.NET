@@ -14,6 +14,12 @@ let [<Literal>] private CherubRock = "248750"
 
 let packageBuildProgress = Progress<float>()
 
+let getSelectedArrangement state =
+    List.tryItem state.SelectedArrangementIndex state.Project.Arrangements
+
+let getSelectedTone state =
+    List.tryItem state.SelectedToneIndex state.Project.Tones
+
 /// Adds the given tones into the project.
 let addTones (state: State) (tones: Tone list) =
     let tones = List.map Utils.addDescriptors tones
@@ -99,6 +105,7 @@ let removeTask completedTask state =
     { state with RunningTasks = state.RunningTasks |> Set.remove completedTask
                  StatusMessages = messages }
 
+/// Updates the configuration and the recent files with the project filename.
 let updateRecentFilesAndConfig projectFile state =
     let recent = RecentFilesList.update projectFile state.RecentFiles
     let newConfig = { state.Config with PreviousOpenedProject = projectFile }
@@ -109,7 +116,7 @@ let updateRecentFilesAndConfig projectFile state =
             Cmd.none
     recent, newConfig, cmd
 
-/// Returns a throttled auto save message.
+/// Returns a throttled auto-save message.
 let autoSave =
     let mutable id = 0L
 
@@ -123,12 +130,14 @@ let autoSave =
             else
                 return None }
 
+/// Returns a delayed message to remove the status message with the given ID.
 let removeStatusMessage (id: Guid) = async {
     do! Async.Sleep 4000
     return RemoveStatusMessage id }
 
-let addArrangements files state =
-    let results = Array.map Arrangement.fromFile files
+/// Adds the arrangements from the given filenames into the project in the state.
+let addArrangements fileNames state =
+    let results = Array.map Arrangement.fromFile fileNames
 
     let shouldInclude arrangements arr =
         let count f = List.choose f arrangements |> List.length
@@ -164,14 +173,14 @@ let addArrangements files state =
                 | Ok arr ->
                     arr::arrs, errors
                 | Error error ->
-                    let errorMsg = createErrorMsg (Arrangement.getFile arr) (translate (string error))
+                    let errorMsg = createErrorMsg (Arrangement.getFile arr) (translate <| string error)
                     arrs, errorMsg::errors
-            | Error (UnknownArrangement file) ->
+            | Error (UnknownArrangement path) ->
                 let message = translate "unknownArrangementError"
-                let error = createErrorMsg file message
+                let error = createErrorMsg path message
                 arrs, error::errors
-            | Error (FailedWithException (file, ex)) ->
-                let error = createErrorMsg file ex.Message
+            | Error (FailedWithException (path, ex)) ->
+                let error = createErrorMsg path ex.Message
                 arrs, error::errors)
 
     let metadata =
@@ -189,8 +198,6 @@ let addArrangements files state =
     | [] ->
         newState
     | _ ->
-        let errorMessage =
-            errors
-            |> String.concat (String.replicate 2 Environment.NewLine)
+        let errorMessage = errors |> String.concat "\n\n"
 
         { newState with Overlay = ErrorMessage(errorMessage, None) }
