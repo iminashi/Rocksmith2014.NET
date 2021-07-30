@@ -1,9 +1,8 @@
-﻿module ToneImportTests
+module ToneImportTests
 
 open Expecto
 open DLCBuilder
 open Rocksmith2014.Common.Manifest
-open Avalonia.Controls.Selection
 
 let testPedal =
     { Type = "Test"
@@ -31,15 +30,6 @@ let testTone: Tone =
 [<Tests>]
 let tests =
     testList "Tone Import Tests" [
-        testCase "ImportSelectedTones imports selected tones" <| fun _ ->
-            let selection = SelectionModel([ testTone; testTone ], SingleSelect = false)
-            selection.SelectAll()
-            let state = { initialState with SelectedImportTones = selection }
-            let newState, _ = Main.update ImportSelectedTones state
-
-            Expect.hasLength newState.Project.Tones 2 "Two tones were added to the project"
-            Expect.equal newState.Project.Tones.Head.ToneDescriptors [| "$[35720]CLEAN" |] "A descriptor was added to the tone"
-
         testCase "ImportTones imports tones" <| fun _ ->
             let newState, _ = Main.update (ImportTones [ testTone ]) initialState
 
