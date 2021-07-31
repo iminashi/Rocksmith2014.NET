@@ -30,9 +30,9 @@ type FixedComboBox() =
                     .Where(fun _ -> not this.NoNotify)
                     .Subscribe(changeCallback)
 
-    override _.OnDetachedFromVisualTree(e) =
+    override _.OnDetachedFromLogicalTree(e) =
         if not <| isNull sub then sub.Dispose()
-        base.OnDetachedFromVisualTree(e)
+        base.OnDetachedFromLogicalTree(e)
 
     static member onSelectedItemChanged<'t when 't :> FixedComboBox> fn =
         let getter : 't -> (obj -> unit) = fun c -> c.OnValueChangedCallback

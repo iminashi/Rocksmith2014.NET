@@ -30,9 +30,9 @@ type FixedSlider() =
                     .Where(fun _ -> not this.NoNotify)
                     .Subscribe(changeCallback)
 
-    override _.OnDetachedFromVisualTree(e) =
+    override _.OnDetachedFromLogicalTree(e) =
         if not <| isNull sub then sub.Dispose()
-        base.OnDetachedFromVisualTree(e)
+        base.OnDetachedFromLogicalTree(e)
 
     static member onValueChanged<'t when 't :> FixedSlider> fn =
         let getter : 't -> (double -> unit) = fun c -> c.OnValueChangedCallback

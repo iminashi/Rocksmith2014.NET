@@ -33,9 +33,9 @@ type ToneKnobSlider() =
                     .Select(fun value -> this.KnobKey, float32 value)
                     .Subscribe(changeCallback)
 
-    override _.OnDetachedFromVisualTree(e) =
+    override _.OnDetachedFromLogicalTree(e) =
         if not <| isNull sub then sub.Dispose()
-        base.OnDetachedFromVisualTree(e)
+        base.OnDetachedFromLogicalTree(e)
 
     static member onKnobValueChanged<'t when 't :> ToneKnobSlider> fn =
         let getter : 't -> (string * float32 -> unit) = fun c -> c.OnValueChangedCallback

@@ -49,9 +49,9 @@ type FixedTextBox() =
         else
             base.OnKeyDown(e)
 
-    override _.OnDetachedFromVisualTree(e) =
+    override _.OnDetachedFromLogicalTree(e) =
         if not <| isNull sub then sub.Dispose()
-        base.OnDetachedFromVisualTree(e)
+        base.OnDetachedFromLogicalTree(e)
 
     static member onTextChanged<'t when 't :> FixedTextBox> fn =
         let getter : 't -> (string -> unit) = fun c -> c.OnTextChangedCallback

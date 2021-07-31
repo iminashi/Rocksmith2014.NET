@@ -30,9 +30,9 @@ type FixedNumericUpDown() =
                     .Where(fun _ -> not this.NoNotify)
                     .Subscribe(changeCallback)
 
-    override _.OnDetachedFromVisualTree(e) =
+    override _.OnDetachedFromLogicalTree(e) =
         if not <| isNull sub then sub.Dispose()
-        base.OnDetachedFromVisualTree(e)
+        base.OnDetachedFromLogicalTree(e)
 
     static member onValueChanged<'t when 't :> FixedNumericUpDown> fn =
         let getter : 't -> (float -> unit) = fun c -> c.OnValueChangedCallback
