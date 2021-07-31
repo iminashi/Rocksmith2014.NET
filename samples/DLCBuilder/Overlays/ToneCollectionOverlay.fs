@@ -43,6 +43,7 @@ let private toneTemplate dispatch isOfficial =
                             MenuItem.create [
                                 MenuItem.header (translate "edit")
                                 MenuItem.onClick (fun _ -> ShowUserToneEditor |> dispatch)
+                                MenuItem.inputGesture (KeyGesture(Key.E))
                             ]
 
                             MenuItem.create [ MenuItem.header "-" ]
@@ -50,6 +51,7 @@ let private toneTemplate dispatch isOfficial =
                             MenuItem.create [
                                 MenuItem.header (translate "remove")
                                 MenuItem.onClick (fun _ -> DeleteSelectedUserTone |> dispatch)
+                                MenuItem.inputGesture (KeyGesture(Key.Delete))
                             ]
                     ]
                 ])
