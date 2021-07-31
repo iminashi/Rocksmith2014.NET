@@ -7,12 +7,22 @@ open Avalonia.Controls.Shapes
 open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
 open Avalonia.Input
+open Avalonia.Interactivity
 open Avalonia.Layout
 open Avalonia.Media
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open System
 open DLCBuilder
+
+let private validateTextBox (source: IInteractive) isValid errorKey =
+    let txtBox = source :?> TextBox
+    let isValid = isValid txtBox.Text
+    if not isValid then
+        txtBox.SetValue(DataValidationErrors.ErrorsProperty, [ translate errorKey ]) |> ignore
+
+    txtBox.SetValue(DataValidationErrors.HasErrorsProperty, not isValid)
+    |> ignore
 
 let private tuningTextBox dispatch (tuning: int16 array) stringIndex =
     FixedTextBox.create [
@@ -245,7 +255,8 @@ let view state dispatch (i: Instrumental) =
                     |> List.distinct)
                 AutoCompleteBox.horizontalAlignment HorizontalAlignment.Stretch
                 AutoCompleteBox.text i.BaseTone
-                AutoCompleteBox.hasErrors (String.IsNullOrWhiteSpace i.BaseTone)
+                AutoCompleteBox.onKeyUp (fun args ->
+                    validateTextBox args.Source String.notEmpty "enterBaseToneKey")
                 AutoCompleteBox.onTextChanged (StringValidator.toneName >> SetBaseTone >> EditInstrumental >> dispatch)
             ]
 
@@ -302,14 +313,10 @@ let view state dispatch (i: Instrumental) =
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
                 FixedTextBox.text (string i.MasterID)
                 TextBox.onKeyUp (fun args ->
-                    let txtBox = args.Source :?> TextBox
-                    let parsed, number = Int32.TryParse txtBox.Text
-                    let isValid = parsed && number > 0
-                    if not isValid then
-                        txtBox.SetValue(DataValidationErrors.ErrorsProperty, [ translate "enterNumberLargerThanZero" ]) |> ignore
-
-                    txtBox.SetValue(DataValidationErrors.HasErrorsProperty, not isValid)
-                    |> ignore)
+                    let isValid (text: string) =
+                        let parsed, number = Int32.TryParse text
+                        parsed && number > 0
+                    validateTextBox args.Source isValid "enterNumberLargerThanZero")
                 TextBox.onLostFocus (fun arg ->
                     let txtBox = arg.Source :?> TextBox
                     match Int32.TryParse txtBox.Text with
@@ -334,13 +341,7 @@ let view state dispatch (i: Instrumental) =
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
                 FixedTextBox.text (i.PersistentID.ToString("N"))
                 TextBox.onKeyUp (fun args ->
-                    let txtBox = args.Source :?> TextBox
-                    let isValid, _ = Guid.TryParse txtBox.Text
-                    if not isValid then
-                        txtBox.SetValue(DataValidationErrors.ErrorsProperty, [ translate "enterAValidGUID" ]) |> ignore
-
-                    txtBox.SetValue(DataValidationErrors.HasErrorsProperty, not isValid)
-                    |> ignore)
+                    validateTextBox args.Source (Guid.TryParse >> fst) "enterAValidGUID")
                 TextBox.onLostFocus (fun arg ->
                     let txtBox = arg.Source :?> TextBox
                     match Guid.TryParse txtBox.Text with

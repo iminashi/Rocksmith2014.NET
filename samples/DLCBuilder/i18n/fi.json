@@ -375,5 +375,6 @@
   "removeArtistInfo": "Poista artisti- ja kappalenimi",
   "bassTone": "Bassosoundi",
   "enterAValidGUID": "Anna kelvollinen GUID.",
-  "enterNumberLargerThanZero": "Anna positiivinen numero."
+  "enterNumberLargerThanZero": "Anna positiivinen numero.",
+  "enterBaseToneKey": "Anna perus-soundiavain."
 }

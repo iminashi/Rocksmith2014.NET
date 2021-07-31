@@ -375,5 +375,6 @@
   "removeArtistInfo": "アーティスト名と曲名を削除",
   "bassTone": "ベーストーン",
   "enterAValidGUID": "正当なGUIDを入力してください。",
-  "enterNumberLargerThanZero": "正数を入力してください。"
+  "enterNumberLargerThanZero": "正数を入力してください。",
+  "enterBaseToneKey": "ベーストーンキーを入力してください。"
 }

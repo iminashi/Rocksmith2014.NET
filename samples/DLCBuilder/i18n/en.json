@@ -375,5 +375,6 @@
   "removeArtistInfo": "Remove Artist and Title",
   "bassTone": "Bass Tone",
   "enterAValidGUID": "Enter a valid GUID.",
-  "enterNumberLargerThanZero": "Enter a number larger than zero."
+  "enterNumberLargerThanZero": "Enter a number larger than zero.",
+  "enterBaseToneKey": "Base tone key cannot be empty."
 }
