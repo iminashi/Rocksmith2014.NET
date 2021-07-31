@@ -185,3 +185,14 @@ let removeSelected initialList index =
     let list = List.removeAt index initialList
     let newSelectedIndex = min index (list.Length - 1)
     list, newSelectedIndex
+
+/// Removes DD from the arrangements in the project.
+let removeDD project =
+    project.Arrangements
+    |> List.choose Arrangement.pickInstrumental
+    |> List.map (fun inst -> async {
+        let arr = InstrumentalArrangement.Load inst.XML
+        do! arr.RemoveDD false
+        arr.Save inst.XML })
+    |> Async.Sequential
+    |> Async.Ignore

@@ -208,14 +208,7 @@ let update (msg: Msg) (state: State) =
                 progress()
 
             if config.RemoveDDOnImport then
-                do! project.Arrangements
-                    |> List.choose Arrangement.pickInstrumental
-                    |> List.map (fun inst -> async {
-                        let arr = XML.InstrumentalArrangement.Load inst.XML
-                        do! arr.RemoveDD false
-                        arr.Save inst.XML })
-                    |> Async.Sequential
-                    |> Async.Ignore
+                do! Utils.removeDD project
                 progress()
 
             return project, fileName }
