@@ -8,6 +8,8 @@ open Avalonia.FuncUI.Types
 open Avalonia.Styling
 open System
 open System.Reactive.Linq
+open System.Collections
+open Rocksmith2014.Common
 
 type FixedComboBox() =
     inherit ComboBox()
@@ -51,6 +53,19 @@ type FixedComboBox() =
             c.NoNotify <- false
 
         AttrBuilder<'t>.CreateProperty<obj>("SelectedItem", value, ValueSome getter, ValueSome setter, ValueNone)
+
+    // Fix for the selection being lost in the UI when the items are changed.
+    static member dataItems<'t when 't :> FixedComboBox>(items: IEnumerable) =
+        let getter : 't -> IEnumerable = fun c -> c.Items
+        let setter : 't * IEnumerable -> unit = fun (c, v) ->
+            let wasSelected = c.SelectedItem
+            c.Items <- v
+            if notNull wasSelected && items |> Seq.cast<obj> |> Seq.contains wasSelected then
+                c.NoNotify <- true
+                c.SelectedItem <- wasSelected
+                c.NoNotify <- false
+
+        AttrBuilder<'t>.CreateProperty<IEnumerable>("DataItems", items, ValueSome getter, ValueSome setter, ValueNone)
 
 [<AutoOpen>]
 module FixedComboBox =

@@ -44,6 +44,7 @@ let view state dispatch (tone: Tone) =
                 i.BaseTone::i.Tones
             | _ ->
                 List.empty)
+        |> List.filter String.notEmpty
         |> List.distinct
 
     Grid.create [
@@ -73,7 +74,7 @@ let view state dispatch (tone: Tone) =
                     FixedComboBox.create [
                         ComboBox.margin 4.
                         ComboBox.minHeight 26.
-                        ComboBox.dataItems keys
+                        FixedComboBox.dataItems keys
                         FixedComboBox.selectedItem tone.Key
                         FixedComboBox.onSelectedItemChanged (function
                             | :? string as key ->
