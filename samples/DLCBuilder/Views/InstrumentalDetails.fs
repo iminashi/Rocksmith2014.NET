@@ -114,7 +114,7 @@ let view state dispatch (i: Instrumental) =
                             RadioButton.groupName "Priority"
                             RadioButton.content (translate(string priority))
                             RadioButton.isChecked (i.Priority = priority)
-                            RadioButton.onChecked (fun _ -> priority |> SetPriority |> EditInstrumental |> dispatch)
+                            RadioButton.onClick (fun _ -> priority |> SetPriority |> EditInstrumental |> dispatch)
                             RadioButton.isEnabled (
                                 // Disable the main option if a main arrangement of the type already exists
                                 i.Priority = priority
@@ -155,7 +155,7 @@ let view state dispatch (i: Instrumental) =
                                 RadioButton.groupName "RouteMask"
                                 RadioButton.content (string mask)
                                 RadioButton.isChecked (i.RouteMask = mask)
-                                RadioButton.onChecked (fun _ -> mask |> SetRouteMask |> EditInstrumental |> dispatch)
+                                RadioButton.onClick (fun _ -> mask |> SetRouteMask |> EditInstrumental |> dispatch)
                             ]
                     ]
             ]
