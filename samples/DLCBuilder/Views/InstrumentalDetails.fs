@@ -68,7 +68,7 @@ let private tuningChangeRepeatButton dispatch direction =
         )
     ]
 
-let view state dispatch (i: Instrumental) =
+let view state dispatch (inst: Instrumental) =
     Grid.create [
         Grid.margin 6.
         Grid.columnDefinitions "auto,*"
@@ -76,19 +76,19 @@ let view state dispatch (i: Instrumental) =
         Grid.children [
             // Arrangement name (for non-bass arrangements)
             locText "name" [
-                TextBlock.isVisible (i.Name <> ArrangementName.Bass)
+                TextBlock.isVisible (inst.Name <> ArrangementName.Bass)
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
                 TextBlock.verticalAlignment VerticalAlignment.Center
             ]
             FixedComboBox.create [
                 Grid.column 1
-                ComboBox.isVisible (i.Name <> ArrangementName.Bass)
+                ComboBox.isVisible (inst.Name <> ArrangementName.Bass)
                 ComboBox.horizontalAlignment HorizontalAlignment.Left
                 ComboBox.margin (4., 0.)
                 ComboBox.width 140.
                 ComboBox.dataItems [ ArrangementName.Lead; ArrangementName.Rhythm; ArrangementName.Combo ]
                 ComboBox.itemTemplate Templates.arrangementName
-                FixedComboBox.selectedItem i.Name
+                FixedComboBox.selectedItem inst.Name
                 FixedComboBox.onSelectedItemChanged (function
                     | :? ArrangementName as name ->
                         name |> SetArrangementName |> EditInstrumental |> dispatch
@@ -113,18 +113,18 @@ let view state dispatch (i: Instrumental) =
                             RadioButton.minWidth 0.
                             RadioButton.groupName "Priority"
                             RadioButton.content (translate(string priority))
-                            RadioButton.isChecked (i.Priority = priority)
+                            RadioButton.isChecked (inst.Priority = priority)
                             RadioButton.onClick (fun _ -> priority |> SetPriority |> EditInstrumental |> dispatch)
                             RadioButton.isEnabled (
                                 // Disable the main option if a main arrangement of the type already exists
-                                i.Priority = priority
+                                inst.Priority = priority
                                 ||
                                 not (priority = ArrangementPriority.Main
                                      &&
                                      state.Project.Arrangements
                                      |> List.exists (function
                                          | Instrumental other ->
-                                            i.RouteMask = other.RouteMask
+                                            inst.RouteMask = other.RouteMask
                                             &&
                                             other.Priority = ArrangementPriority.Main
                                          | _ ->
@@ -137,7 +137,7 @@ let view state dispatch (i: Instrumental) =
             // Path (only for combo arrangements)
             locText "path" [
                 Grid.row 2
-                TextBlock.isVisible (i.Name = ArrangementName.Combo)
+                TextBlock.isVisible (inst.Name = ArrangementName.Combo)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
@@ -146,15 +146,15 @@ let view state dispatch (i: Instrumental) =
                 Grid.row 2
                 StackPanel.margin (4.0, 0.0)
                 StackPanel.orientation Orientation.Horizontal
-                StackPanel.isVisible (i.Name = ArrangementName.Combo)
-                if i.Name = ArrangementName.Combo then
+                StackPanel.isVisible (inst.Name = ArrangementName.Combo)
+                if inst.Name = ArrangementName.Combo then
                     StackPanel.children [
                         for mask in [ RouteMask.Lead; RouteMask.Rhythm ] ->
                             RadioButton.create [
                                 RadioButton.margin (2.0, 0.0)
                                 RadioButton.groupName "RouteMask"
                                 RadioButton.content (string mask)
-                                RadioButton.isChecked (i.RouteMask = mask)
+                                RadioButton.isChecked (inst.RouteMask = mask)
                                 RadioButton.onClick (fun _ -> mask |> SetRouteMask |> EditInstrumental |> dispatch)
                             ]
                     ]
@@ -163,7 +163,7 @@ let view state dispatch (i: Instrumental) =
             // Bass pick
             locText "picked" [
                 Grid.row 3
-                TextBlock.isVisible (i.Name = ArrangementName.Bass)
+                TextBlock.isVisible (inst.Name = ArrangementName.Bass)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
@@ -171,8 +171,8 @@ let view state dispatch (i: Instrumental) =
                 Grid.column 1
                 Grid.row 3
                 CheckBox.margin (4.0, 0.0)
-                CheckBox.isVisible (i.Name = ArrangementName.Bass)
-                CheckBox.isChecked i.BassPicked
+                CheckBox.isVisible (inst.Name = ArrangementName.Bass)
+                CheckBox.isChecked inst.BassPicked
                 CheckBox.onChecked (fun _ -> true |> SetBassPicked |> EditInstrumental |> dispatch)
                 CheckBox.onUnchecked (fun _ -> false |> SetBassPicked |> EditInstrumental |> dispatch)
             ]
@@ -192,7 +192,7 @@ let view state dispatch (i: Instrumental) =
                         UniformGrid.margin (2.0, 0.0)
                         UniformGrid.columns 6
                         UniformGrid.horizontalAlignment HorizontalAlignment.Left
-                        UniformGrid.children (List.init 6 (tuningTextBox dispatch i.Tuning))
+                        UniformGrid.children (List.init 6 (tuningTextBox dispatch inst.Tuning))
                     ]
 
                     Grid.create [
@@ -223,12 +223,12 @@ let view state dispatch (i: Instrumental) =
                         NumericUpDown.maximum 50000.0
                         NumericUpDown.increment 1.0
                         NumericUpDown.formatString "F2"
-                        FixedNumericUpDown.value i.TuningPitch
+                        FixedNumericUpDown.value inst.TuningPitch
                         FixedNumericUpDown.onValueChanged (SetTuningPitch >> EditInstrumental >> dispatch)
                     ]
                     TextBlock.create [
                         TextBlock.verticalAlignment VerticalAlignment.Center
-                        TextBlock.text (sprintf "%+.0f %s" (Utils.tuningPitchToCents i.TuningPitch) (translate "cents"))
+                        TextBlock.text (sprintf "%+.0f %s" (Utils.tuningPitchToCents inst.TuningPitch) (translate "cents"))
                     ]
                 ]
             ]
@@ -250,14 +250,14 @@ let view state dispatch (i: Instrumental) =
                 AutoCompleteBox.horizontalAlignment HorizontalAlignment.Stretch
                 FixedAutoCompleteBox.validationErrorMessage (translate "enterBaseToneKey")
                 FixedAutoCompleteBox.validation String.notEmpty
-                FixedAutoCompleteBox.text i.BaseTone
+                FixedAutoCompleteBox.text inst.BaseTone
                 FixedAutoCompleteBox.onTextChanged (StringValidator.toneName >> SetBaseTone >> EditInstrumental >> dispatch)
             ]
 
             // Tone key list
             locText "toneKeys" [
                 Grid.row 7
-                TextBlock.isVisible (i.Tones.Length > 0)
+                TextBlock.isVisible (inst.Tones.Length > 0)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
@@ -266,10 +266,10 @@ let view state dispatch (i: Instrumental) =
                 Grid.row 7
                 TextBlock.margin 4.
                 TextBlock.textWrapping TextWrapping.Wrap
-                TextBlock.isVisible (i.Tones.Length > 0)
+                TextBlock.isVisible (inst.Tones.Length > 0)
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Left
-                TextBlock.text (String.Join(", ", i.Tones))
+                TextBlock.text (String.Join(", ", inst.Tones))
             ]
 
             // Scroll speed
@@ -289,7 +289,7 @@ let view state dispatch (i: Instrumental) =
                 NumericUpDown.maximum 5.0
                 NumericUpDown.minimum 0.5
                 NumericUpDown.formatString "F1"
-                FixedNumericUpDown.value i.ScrollSpeed
+                FixedNumericUpDown.value inst.ScrollSpeed
                 FixedNumericUpDown.onValueChanged (SetScrollSpeed >> EditInstrumental >> dispatch)
             ]
 
@@ -305,7 +305,7 @@ let view state dispatch (i: Instrumental) =
                 Grid.row 9
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
-                FixedTextBox.text (string i.MasterID)
+                FixedTextBox.text (string inst.MasterID)
                 FixedTextBox.validationErrorMessage (translate "enterNumberLargerThanZero")
                 FixedTextBox.validation isNumberGreaterThanZero
                 TextBox.onLostFocus (fun arg ->
@@ -330,7 +330,7 @@ let view state dispatch (i: Instrumental) =
                 Grid.row 10
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
-                FixedTextBox.text (i.PersistentID.ToString("N"))
+                FixedTextBox.text (inst.PersistentID.ToString("N"))
                 FixedTextBox.validationErrorMessage (translate "enterAValidGUID")
                 FixedTextBox.validation (Guid.TryParse >> fst)
                 TextBox.onLostFocus (fun arg ->
@@ -368,7 +368,7 @@ let view state dispatch (i: Instrumental) =
                         DockPanel.dock Dock.Right
                         Button.margin (0., 2., 2., 0.)
                         Button.content "X"
-                        Button.isVisible i.CustomAudio.IsSome
+                        Button.isVisible inst.CustomAudio.IsSome
                         Button.onClick (fun _ -> None |> SetCustomAudioPath |> EditInstrumental |> dispatch)
                         ToolTip.tip (translate "removeCustomAudioTooltip")
                     ]
@@ -380,7 +380,7 @@ let view state dispatch (i: Instrumental) =
                         Button.content "W"
                         Button.isEnabled (not <| state.RunningTasks.Contains WemConversion)
                         Button.isVisible (
-                            match i.CustomAudio with
+                            match inst.CustomAudio with
                             | Some audio when not <| String.endsWith ".wem" audio.Path ->
                                 true
                             | _ ->
@@ -393,7 +393,7 @@ let view state dispatch (i: Instrumental) =
                     TextBlock.create [
                         TextBlock.margin (4., 2., 0., 0.)
                         TextBlock.text (
-                            Option.map (fun x -> IO.Path.GetFileName x.Path) i.CustomAudio
+                            Option.map (fun x -> IO.Path.GetFileName x.Path) inst.CustomAudio
                             |> Option.defaultValue (translate "noAudioFile")
                         )
                     ]
@@ -401,7 +401,7 @@ let view state dispatch (i: Instrumental) =
             ]
 
             // Custom audio volume
-            if state.Config.ShowAdvanced && i.CustomAudio.IsSome then
+            if state.Config.ShowAdvanced && inst.CustomAudio.IsSome then
                 locText "volume" [
                     Grid.row 12
                     TextBlock.verticalAlignment VerticalAlignment.Center
@@ -411,8 +411,8 @@ let view state dispatch (i: Instrumental) =
                     Grid.column 1
                     Grid.row 12
                     NumericUpDown.isEnabled (
-                        match i.CustomAudio with
-                        | Some audio when state.RunningTasks.Contains(VolumeCalculation(CustomAudio(audio.Path, i.PersistentID))) ->
+                        match inst.CustomAudio with
+                        | Some audio when state.RunningTasks.Contains(VolumeCalculation(CustomAudio(audio.Path, inst.PersistentID))) ->
                             false
                         | _ ->
                             true)
@@ -422,7 +422,7 @@ let view state dispatch (i: Instrumental) =
                     NumericUpDown.increment 0.5
                     NumericUpDown.formatString "+0.0;-0.0;0.0"
                     FixedNumericUpDown.value (
-                        i.CustomAudio
+                        inst.CustomAudio
                         |> Option.map (fun x -> x.Volume)
                         |> Option.defaultValue state.Project.AudioFile.Volume)
                     FixedNumericUpDown.onValueChanged (SetCustomAudioVolume >> EditInstrumental >> dispatch)
