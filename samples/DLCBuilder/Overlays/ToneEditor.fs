@@ -265,12 +265,7 @@ let private knobSliders state dispatch repository (gearList: Gear) gear =
                             ToneKnobSlider.create [
                                 Grid.column 1
                                 Slider.margin (4., -10.)
-                                Slider.isSnapToTickEnabled true
-                                Slider.tickFrequency (float knob.ValueStep)
-                                Slider.smallChange (float knob.ValueStep)
-                                Slider.maximum (float knob.MaxValue)
-                                Slider.minimum (float knob.MinValue)
-                                ToneKnobSlider.knobKey knob.Key
+                                ToneKnobSlider.knob knob
                                 ToneKnobSlider.value (float currentValue)
                                 ToneKnobSlider.onKnobValueChanged (SetKnobValue >> EditTone >> dispatch)
                             ]

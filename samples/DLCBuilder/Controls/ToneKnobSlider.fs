@@ -8,17 +8,39 @@ open Avalonia.FuncUI.Types
 open Avalonia.Styling
 open System
 open System.Reactive.Linq
+open DLCBuilder.ToneGear
 
-type ToneKnobSlider() =
+module private Default =
+    let Knob =
+        { Name = String.Empty
+          Key = String.Empty
+          UnitType = "number"
+          MinValue = 1f
+          MaxValue = 100f
+          ValueStep = 1f
+          DefaultValue = 50f
+          EnumValues = None }
+
+type ToneKnobSlider() as this =
     inherit Slider()
+    let mutable gearKnob = Default.Knob
     let mutable sub : IDisposable = null
     let mutable changeCallback : string * float32 -> unit = ignore
+
+    do this.IsSnapToTickEnabled <- true
 
     interface IStyleable with member _.StyleKey = typeof<Slider>
 
     member val NoNotify = false with get, set
 
-    member val KnobKey = "" with get, set
+    member this.Knob
+        with get() = gearKnob
+        and set(knob) =
+            gearKnob <- knob
+            this.TickFrequency <- float knob.ValueStep
+            this.SmallChange <- float knob.ValueStep
+            this.Minimum <- float knob.MinValue
+            this.Maximum <- float knob.MaxValue
 
     member this.OnValueChangedCallback
         with get() : string * float32 -> unit = changeCallback
@@ -30,7 +52,7 @@ type ToneKnobSlider() =
                     // Skip initial value
                     .Skip(1)
                     .Where(fun _ -> not this.NoNotify)
-                    .Select(fun value -> this.KnobKey, float32 value)
+                    .Select(fun value -> this.Knob.Key, float32 value)
                     .Subscribe(changeCallback)
 
     override _.OnDetachedFromLogicalTree(e) =
@@ -45,11 +67,11 @@ type ToneKnobSlider() =
 
         AttrBuilder<'t>.CreateProperty<string * float32 -> unit>("OnKnobValueChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
 
-    static member knobKey<'t when 't :> ToneKnobSlider>(knobKey: string) =
-        let getter : 't -> string = (fun c -> c.KnobKey)
-        let setter : 't * string -> unit = (fun (c, v) -> c.KnobKey <- v)
+    static member knob<'t when 't :> ToneKnobSlider>(knob: GearKnob) =
+        let getter : 't -> GearKnob = (fun c -> c.Knob)
+        let setter : 't * GearKnob -> unit = (fun (c, v) -> c.Knob <- v)
 
-        AttrBuilder<'t>.CreateProperty<string>("KnobKey", knobKey, ValueSome getter, ValueSome setter, ValueNone)
+        AttrBuilder<'t>.CreateProperty<GearKnob>("Knob", knob, ValueSome getter, ValueSome setter, ValueNone)
 
     static member value<'t when 't :> ToneKnobSlider>(value: double) =
         let getter : 't -> double = fun c -> c.Value
