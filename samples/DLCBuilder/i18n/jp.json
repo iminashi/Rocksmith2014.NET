@@ -193,6 +193,7 @@
   "MultipleTonesSameKey": "一つのトーンキーには複数のトーンが設置されています。",
   "ConflictingVocals": "重複しているボーカルアレンジがあります。\nどちらか一つを日本語ボーカルにする必要があります。",
   "PreviewNotFound": "プレビューオーディオファイルが存在しません。",
+  "MissingBaseToneKey": "プロジェクトのアレンジの一つにベーストーンキーがない。",
   "wemAudioNotFound": "Wwise WEMフォーマットのオーディオファイルが存在しません。",
   "noAudioFile": "不在",
   "cents": "セント",

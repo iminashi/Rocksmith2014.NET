@@ -1,7 +1,8 @@
-﻿module DLCBuilder.BuildValidator
+module DLCBuilder.BuildValidator
 
-open Rocksmith2014.DLCProject
 open Rocksmith2014.Common
+open Rocksmith2014.DLCProject
+open System
 open System.IO
 
 let private validators = [
@@ -10,6 +11,11 @@ let private validators = [
     ArtistNameEmpty,  fun project -> SortableString.IsEmpty project.ArtistName
     AlbumArtNotFound, fun project -> not <| File.Exists project.AlbumArtFile
     PreviewNotFound,  fun project -> not <| File.Exists project.AudioPreviewFile.Path
+    MissingBaseToneKey,
+    fun project ->
+        project.Arrangements
+        |> List.choose Arrangement.pickInstrumental
+        |> List.exists (fun inst -> String.IsNullOrWhiteSpace inst.BaseTone)
     MultipleTonesSameKey,
     fun project ->
         project.Tones
