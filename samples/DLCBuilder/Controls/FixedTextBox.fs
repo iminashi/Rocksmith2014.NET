@@ -10,6 +10,7 @@ open Avalonia.Input.Platform
 open Avalonia.Styling
 open System
 open System.Reactive.Linq
+open Rocksmith2014.Common
 
 type FixedTextBox() =
     inherit TextBox()
@@ -27,23 +28,20 @@ type FixedTextBox() =
     member this.ValidationCallback
         with get() : string -> bool = validationCallback
         and set(v) =
-            if not <| isNull validationSub then validationSub.Dispose()
+            if notNull validationSub then validationSub.Dispose()
             validationCallback <- v
             validationSub <-
                 this.GetObservable(TextBox.TextProperty)
                     .Where(fun _ -> this.ValidationErrorMessage <> "")
                     .Subscribe(fun text ->
                         let isValid = validationCallback text
-                        if not isValid then
-                            this.SetValue(DataValidationErrors.ErrorsProperty, seq { box this.ValidationErrorMessage }) |> ignore
-
-                        this.SetValue(DataValidationErrors.HasErrorsProperty, not isValid)
+                        this.SetValue(DataValidationErrors.ErrorsProperty, if isValid then null else seq { box this.ValidationErrorMessage })
                         |> ignore)
 
     member this.OnTextChangedCallback
         with get() : string -> unit = changeCallback
         and set(v) =
-            if not <| isNull textChangedSub then textChangedSub.Dispose()
+            if notNull textChangedSub then textChangedSub.Dispose()
             changeCallback <- v
             textChangedSub <-
                 this.GetObservable(TextBox.TextProperty)
@@ -70,8 +68,8 @@ type FixedTextBox() =
             base.OnKeyDown(e)
 
     override _.OnDetachedFromLogicalTree(e) =
-        if not <| isNull textChangedSub then textChangedSub.Dispose()
-        if not <| isNull validationSub then validationSub.Dispose()
+        if notNull textChangedSub then textChangedSub.Dispose()
+        if notNull validationSub then validationSub.Dispose()
         base.OnDetachedFromLogicalTree(e)
 
     static member onTextChanged<'t when 't :> FixedTextBox> fn =

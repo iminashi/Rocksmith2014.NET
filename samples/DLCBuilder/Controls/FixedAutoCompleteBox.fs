@@ -8,6 +8,7 @@ open Avalonia.FuncUI.Types
 open Avalonia.Styling
 open System
 open System.Reactive.Linq
+open Rocksmith2014.Common
 
 type FixedAutoCompleteBox() =
     inherit AutoCompleteBox()
@@ -25,27 +26,20 @@ type FixedAutoCompleteBox() =
     member this.ValidationCallback
         with get() : string -> bool = validationCallback
         and set(v) =
-            if not <| isNull validationSub then validationSub.Dispose()
+            if notNull validationSub then validationSub.Dispose()
             validationCallback <- v
             validationSub <-
                 this.GetObservable(AutoCompleteBox.TextProperty)
                     .Where(fun _ -> this.ValidationErrorMessage <> "")
                     .Subscribe(fun text ->
                         let isValid = validationCallback text
-                        if not isValid then
-                            this.SetValue(DataValidationErrors.ErrorsProperty, seq { box this.ValidationErrorMessage }) |> ignore
-                        else
-                            this.SetValue(DataValidationErrors.ErrorsProperty, null) |> ignore
-
-                        // Does not seem to work on AutoCompleteBox
-                        //this.SetValue(DataValidationErrors.HasErrorsProperty, not isValid)
-                        //|> ignore
-                    )
+                        this.SetValue(DataValidationErrors.ErrorsProperty, if isValid then null else seq { box this.ValidationErrorMessage })
+                        |> ignore)
 
     member this.OnTextChangedCallback
         with get() : string -> unit = changeCallback
         and set(v) =
-            if not <| isNull textChangedSub then textChangedSub.Dispose()
+            if notNull textChangedSub then textChangedSub.Dispose()
             changeCallback <- v
             textChangedSub <-
                 this.GetObservable(AutoCompleteBox.TextProperty)
@@ -55,8 +49,8 @@ type FixedAutoCompleteBox() =
                     .Subscribe(changeCallback)
 
     override _.OnDetachedFromLogicalTree(e) =
-        if not <| isNull textChangedSub then textChangedSub.Dispose()
-        if not <| isNull validationSub then validationSub.Dispose()
+        if notNull textChangedSub then textChangedSub.Dispose()
+        if notNull validationSub then validationSub.Dispose()
         base.OnDetachedFromLogicalTree(e)
 
     static member onTextChanged<'t when 't :> FixedAutoCompleteBox> fn =

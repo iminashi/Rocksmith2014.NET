@@ -23,7 +23,7 @@ type FixedComboBox() =
     member this.OnValueChangedCallback
         with get() : obj -> unit = changeCallback
         and set(v) =
-            if not <| isNull sub then sub.Dispose()
+            if notNull sub then sub.Dispose()
             changeCallback <- v
             sub <-
                 this.GetObservable(ComboBox.SelectedItemProperty)
@@ -33,7 +33,7 @@ type FixedComboBox() =
                     .Subscribe(changeCallback)
 
     override _.OnDetachedFromLogicalTree(e) =
-        if not <| isNull sub then sub.Dispose()
+        if notNull sub then sub.Dispose()
         base.OnDetachedFromLogicalTree(e)
 
     static member onSelectedItemChanged<'t when 't :> FixedComboBox> fn =

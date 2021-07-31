@@ -9,6 +9,7 @@ open Avalonia.Styling
 open System
 open System.Reactive.Linq
 open DLCBuilder.ToneGear
+open Rocksmith2014.Common
 
 module private Default =
     let Knob =
@@ -45,7 +46,7 @@ type ToneKnobSlider() as this =
     member this.OnValueChangedCallback
         with get() : string * float32 -> unit = changeCallback
         and set(v) =
-            if not <| isNull sub then sub.Dispose()
+            if notNull sub then sub.Dispose()
             changeCallback <- v
             sub <-
                 this.GetObservable(Slider.ValueProperty)
@@ -56,7 +57,7 @@ type ToneKnobSlider() as this =
                     .Subscribe(changeCallback)
 
     override _.OnDetachedFromLogicalTree(e) =
-        if not <| isNull sub then sub.Dispose()
+        if notNull sub then sub.Dispose()
         base.OnDetachedFromLogicalTree(e)
 
     static member onKnobValueChanged<'t when 't :> ToneKnobSlider> fn =

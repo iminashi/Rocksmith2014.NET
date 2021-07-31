@@ -8,6 +8,7 @@ open Avalonia.FuncUI.Types
 open Avalonia.Styling
 open System
 open System.Reactive.Linq
+open Rocksmith2014.Common
 
 type FixedNumericUpDown() =
     inherit NumericUpDown()
@@ -21,7 +22,7 @@ type FixedNumericUpDown() =
     member this.OnValueChangedCallback
         with get() : float -> unit = changeCallback
         and set(v) =
-            if not <| isNull sub then sub.Dispose()
+            if notNull sub then sub.Dispose()
             changeCallback <- v
             sub <-
                 this.GetObservable(NumericUpDown.ValueProperty)
@@ -31,7 +32,7 @@ type FixedNumericUpDown() =
                     .Subscribe(changeCallback)
 
     override _.OnDetachedFromLogicalTree(e) =
-        if not <| isNull sub then sub.Dispose()
+        if notNull sub then sub.Dispose()
         base.OnDetachedFromLogicalTree(e)
 
     static member onValueChanged<'t when 't :> FixedNumericUpDown> fn =
