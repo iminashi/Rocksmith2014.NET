@@ -5,20 +5,18 @@ open Avalonia
 open Avalonia.Controls
 open Avalonia.FuncUI.Builder
 open Avalonia.FuncUI.Types
-open Avalonia.Input
-open Avalonia.Input.Platform
 open Avalonia.Styling
 open System
 open System.Reactive.Linq
 
-type FixedTextBox() =
-    inherit TextBox()
+type FixedAutoCompleteBox() =
+    inherit AutoCompleteBox()
     let mutable textChangedSub : IDisposable = null
     let mutable validationSub : IDisposable = null
     let mutable changeCallback : string -> unit = ignore
     let mutable validationCallback : string -> bool = fun _ -> true
 
-    interface IStyleable with member _.StyleKey = typeof<TextBox>
+    interface IStyleable with member _.StyleKey = typeof<AutoCompleteBox>
 
     member val NoNotify = false with get, set
 
@@ -30,15 +28,19 @@ type FixedTextBox() =
             if not <| isNull validationSub then validationSub.Dispose()
             validationCallback <- v
             validationSub <-
-                this.GetObservable(TextBox.TextProperty)
+                this.GetObservable(AutoCompleteBox.TextProperty)
                     .Where(fun _ -> this.ValidationErrorMessage <> "")
                     .Subscribe(fun text ->
                         let isValid = validationCallback text
                         if not isValid then
                             this.SetValue(DataValidationErrors.ErrorsProperty, seq { box this.ValidationErrorMessage }) |> ignore
+                        else
+                            this.SetValue(DataValidationErrors.ErrorsProperty, null) |> ignore
 
-                        this.SetValue(DataValidationErrors.HasErrorsProperty, not isValid)
-                        |> ignore)
+                        // Does not seem to work on AutoCompleteBox
+                        //this.SetValue(DataValidationErrors.HasErrorsProperty, not isValid)
+                        //|> ignore
+                    )
 
     member this.OnTextChangedCallback
         with get() : string -> unit = changeCallback
@@ -46,35 +48,18 @@ type FixedTextBox() =
             if not <| isNull textChangedSub then textChangedSub.Dispose()
             changeCallback <- v
             textChangedSub <-
-                this.GetObservable(TextBox.TextProperty)
+                this.GetObservable(AutoCompleteBox.TextProperty)
                     // Skip initial value
                     .Skip(1)
                     .Where(fun _ -> not this.NoNotify)
                     .Subscribe(changeCallback)
-
-    // Workaround for the inability to validate text that is pasted into the textbox
-    // https://github.com/AvaloniaUI/Avalonia/issues/2611
-    override this.OnKeyDown(e) =
-        let keymap = AvaloniaLocator.Current.GetService<PlatformHotkeyConfiguration>()
-        let matchGesture (gestures: ResizeArray<KeyGesture>) = gestures.Exists(fun g -> g.Matches e)
-
-        if matchGesture keymap.Paste then
-            async {
-                let! text =
-                    (AvaloniaLocator.Current.GetService(typeof<IClipboard>) :?> IClipboard).GetTextAsync()
-                    |> Async.AwaitTask
-                this.RaiseEvent(TextInputEventArgs(RoutedEvent = InputElement.TextInputEvent, Text = text, Source = this))
-            } |> Async.StartImmediate
-            e.Handled <- true
-        else
-            base.OnKeyDown(e)
 
     override _.OnDetachedFromLogicalTree(e) =
         if not <| isNull textChangedSub then textChangedSub.Dispose()
         if not <| isNull validationSub then validationSub.Dispose()
         base.OnDetachedFromLogicalTree(e)
 
-    static member onTextChanged<'t when 't :> FixedTextBox> fn =
+    static member onTextChanged<'t when 't :> FixedAutoCompleteBox> fn =
         let getter : 't -> (string -> unit) = fun c -> c.OnTextChangedCallback
         let setter : ('t * (string -> unit)) -> unit = fun (c, f) -> c.OnTextChangedCallback <- f
         // Keep the same callback once set
@@ -82,19 +67,19 @@ type FixedTextBox() =
 
         AttrBuilder<'t>.CreateProperty<string -> unit>("OnTextChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
 
-    static member validation<'t when 't :> FixedTextBox> fn =
+    static member validation<'t when 't :> FixedAutoCompleteBox> fn =
         let getter : 't -> (string -> bool) = fun c -> c.ValidationCallback
         let setter : ('t * (string -> bool)) -> unit = fun (c, f) -> c.ValidationCallback <- f
 
         AttrBuilder<'t>.CreateProperty<string -> bool>("Validation", fn, ValueSome getter, ValueSome setter, ValueNone)
 
-    static member validationErrorMessage<'t when 't :> FixedTextBox> message =
+    static member validationErrorMessage<'t when 't :> FixedAutoCompleteBox> message =
         let getter : 't -> string = fun c -> c.ValidationErrorMessage
         let setter : ('t * string) -> unit = fun (c, v) -> c.ValidationErrorMessage <- v
 
         AttrBuilder<'t>.CreateProperty<string>("ValidationErrorMessage", message, ValueSome getter, ValueSome setter, ValueNone)
 
-    static member text<'t when 't :> FixedTextBox>(text: string) =
+    static member text<'t when 't :> FixedAutoCompleteBox>(text: string) =
         let getter : 't -> string = fun c -> c.Text
         let setter : 't * string -> unit = fun (c, v) ->
             // Ignore notifications originating from code
@@ -105,6 +90,6 @@ type FixedTextBox() =
         AttrBuilder<'t>.CreateProperty<string>("Text", text, ValueSome getter, ValueSome setter, ValueNone)
 
 [<AutoOpen>]
-module FixedTextBox =
-    let create (attrs: IAttr<FixedTextBox> list): IView<FixedTextBox> =
-        ViewBuilder.Create<FixedTextBox>(attrs)
+module FixedAutoCompleteBox =
+    let create (attrs: IAttr<FixedAutoCompleteBox> list): IView<FixedAutoCompleteBox> =
+        ViewBuilder.Create<FixedAutoCompleteBox>(attrs)

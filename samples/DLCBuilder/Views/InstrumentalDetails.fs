@@ -239,7 +239,7 @@ let view state dispatch (i: Instrumental) =
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
-            AutoCompleteBox.create [
+            FixedAutoCompleteBox.create [
                 Grid.column 1
                 Grid.row 6
                 AutoCompleteBox.margin (4.0, 0.0)
@@ -248,8 +248,10 @@ let view state dispatch (i: Instrumental) =
                     |> List.choose (fun t -> Option.ofString t.Key)
                     |> List.distinct)
                 AutoCompleteBox.horizontalAlignment HorizontalAlignment.Stretch
-                AutoCompleteBox.text i.BaseTone
-                AutoCompleteBox.onTextChanged (StringValidator.toneName >> SetBaseTone >> EditInstrumental >> dispatch)
+                FixedAutoCompleteBox.validationErrorMessage (translate "enterBaseToneKey")
+                FixedAutoCompleteBox.validation String.notEmpty
+                FixedAutoCompleteBox.text i.BaseTone
+                FixedAutoCompleteBox.onTextChanged (StringValidator.toneName >> SetBaseTone >> EditInstrumental >> dispatch)
             ]
 
             // Tone key list
