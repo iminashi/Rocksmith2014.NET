@@ -301,12 +301,21 @@ let view state dispatch (i: Instrumental) =
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
                 FixedTextBox.text (string i.MasterID)
+                TextBox.onKeyUp (fun args ->
+                    let txtBox = args.Source :?> TextBox
+                    let parsed, number = Int32.TryParse txtBox.Text
+                    let isValid = parsed && number > 0
+                    if not isValid then
+                        txtBox.SetValue(DataValidationErrors.ErrorsProperty, [ translate "enterNumberLargerThanZero" ]) |> ignore
+
+                    txtBox.SetValue(DataValidationErrors.HasErrorsProperty, not isValid)
+                    |> ignore)
                 TextBox.onLostFocus (fun arg ->
                     let txtBox = arg.Source :?> TextBox
                     match Int32.TryParse txtBox.Text with
-                    | true, masterId ->
+                    | true, masterId when masterId > 0 ->
                         SetMasterId masterId |> EditInstrumental |> dispatch
-                    | false, _ ->
+                    | _ ->
                         ()
                 )
             ]
@@ -324,6 +333,14 @@ let view state dispatch (i: Instrumental) =
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
                 FixedTextBox.text (i.PersistentID.ToString("N"))
+                TextBox.onKeyUp (fun args ->
+                    let txtBox = args.Source :?> TextBox
+                    let isValid, _ = Guid.TryParse txtBox.Text
+                    if not isValid then
+                        txtBox.SetValue(DataValidationErrors.ErrorsProperty, [ translate "enterAValidGUID" ]) |> ignore
+
+                    txtBox.SetValue(DataValidationErrors.HasErrorsProperty, not isValid)
+                    |> ignore)
                 TextBox.onLostFocus (fun arg ->
                     let txtBox = arg.Source :?> TextBox
                     match Guid.TryParse txtBox.Text with

@@ -373,5 +373,7 @@
   "officialTonesDbNotFound": "公式トーンデータベースがインストールされていない。",
   "save": "保存",
   "removeArtistInfo": "アーティスト名と曲名を削除",
-  "bassTone": "ベーストーン"
+  "bassTone": "ベーストーン",
+  "enterAValidGUID": "正当なGUIDを入力してください。",
+  "enterNumberLargerThanZero": "正数を入力してください。"
 }

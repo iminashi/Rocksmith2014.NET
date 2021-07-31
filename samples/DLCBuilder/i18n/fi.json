@@ -373,5 +373,7 @@
   "officialTonesDbNotFound": "Virallisten soundien tietokantaa ei ole asennettu.",
   "save": "Tallenna",
   "removeArtistInfo": "Poista artisti- ja kappalenimi",
-  "bassTone": "Bassosoundi"
+  "bassTone": "Bassosoundi",
+  "enterAValidGUID": "Anna kelvollinen GUID.",
+  "enterNumberLargerThanZero": "Anna positiivinen numero."
 }

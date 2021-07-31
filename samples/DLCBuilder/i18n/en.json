@@ -373,5 +373,7 @@
   "officialTonesDbNotFound": "An official tone database has not been installed.",
   "save": "Save",
   "removeArtistInfo": "Remove Artist and Title",
-  "bassTone": "Bass Tone"
+  "bassTone": "Bass Tone",
+  "enterAValidGUID": "Enter a valid GUID.",
+  "enterNumberLargerThanZero": "Enter a number larger than zero."
 }
