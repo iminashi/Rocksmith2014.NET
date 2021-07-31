@@ -195,6 +195,7 @@ type BuildValidationError =
     | PreviewNotFound
     | MultipleTonesSameKey
     | ConflictingVocals
+    | MissingBaseToneKey
 
 type Msg =
     | ImportPsarc of psarcFile : string * targetFolder : string

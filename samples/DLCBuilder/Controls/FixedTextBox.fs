@@ -13,19 +13,39 @@ open System.Reactive.Linq
 
 type FixedTextBox() =
     inherit TextBox()
-    let mutable sub : IDisposable = null
+    let mutable textChangedSub : IDisposable = null
+    let mutable validationSub : IDisposable = null
     let mutable changeCallback : string -> unit = ignore
+    let mutable validationCallback : string -> bool = fun _ -> true
 
     interface IStyleable with member _.StyleKey = typeof<TextBox>
 
     member val NoNotify = false with get, set
 
+    member val ValidationErrorMessage = "" with get, set
+
+    member this.ValidationCallback
+        with get() : string -> bool = validationCallback
+        and set(v) =
+            if not <| isNull validationSub then validationSub.Dispose()
+            validationCallback <- v
+            validationSub <-
+                this.GetObservable(TextBox.TextProperty)
+                    .Where(fun _ -> this.ValidationErrorMessage <> "")
+                    .Subscribe(fun text ->
+                        let isValid = validationCallback text
+                        if not isValid then
+                            this.SetValue(DataValidationErrors.ErrorsProperty, [ this.ValidationErrorMessage ])
+
+                        this.SetValue(DataValidationErrors.HasErrorsProperty, not isValid)
+                        |> ignore)
+
     member this.OnTextChangedCallback
         with get() : string -> unit = changeCallback
         and set(v) =
-            if not <| isNull sub then sub.Dispose()
+            if not <| isNull textChangedSub then textChangedSub.Dispose()
             changeCallback <- v
-            sub <-
+            textChangedSub <-
                 this.GetObservable(TextBox.TextProperty)
                     // Skip initial value
                     .Skip(1)
@@ -50,7 +70,8 @@ type FixedTextBox() =
             base.OnKeyDown(e)
 
     override _.OnDetachedFromLogicalTree(e) =
-        if not <| isNull sub then sub.Dispose()
+        if not <| isNull textChangedSub then textChangedSub.Dispose()
+        if not <| isNull validationSub then validationSub.Dispose()
         base.OnDetachedFromLogicalTree(e)
 
     static member onTextChanged<'t when 't :> FixedTextBox> fn =
@@ -60,6 +81,18 @@ type FixedTextBox() =
         let comparer _ = true
 
         AttrBuilder<'t>.CreateProperty<string -> unit>("OnTextChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
+
+    static member validation<'t when 't :> FixedTextBox> fn =
+        let getter : 't -> (string -> bool) = fun c -> c.ValidationCallback
+        let setter : ('t * (string -> bool)) -> unit = fun (c, f) -> c.ValidationCallback <- f
+
+        AttrBuilder<'t>.CreateProperty<string -> bool>("Validation", fn, ValueSome getter, ValueSome setter, ValueNone)
+
+    static member validationErrorMessage<'t when 't :> FixedTextBox> message =
+        let getter : 't -> string = fun c -> c.ValidationErrorMessage
+        let setter : ('t * string) -> unit = fun (c, v) -> c.ValidationErrorMessage <- v
+
+        AttrBuilder<'t>.CreateProperty<string>("ValidationErrorMessage", message, ValueSome getter, ValueSome setter, ValueNone)
 
     static member text<'t when 't :> FixedTextBox>(text: string) =
         let getter : 't -> string = fun c -> c.Text
