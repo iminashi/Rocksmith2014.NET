@@ -1,4 +1,4 @@
-﻿// fsharplint:disable MemberNames
+// fsharplint:disable MemberNames
 namespace DLCBuilder
 
 open Avalonia
@@ -14,7 +14,7 @@ type AutoFocusSearchBox() =
     inherit UserControl()
 
     let textBox =
-        AutoFocusTextBox(Watermark = translate "search")
+        AutoFocusTextBox(Watermark = translate "Search")
 
     let deleteButton =
         Border(Background = Brushes.Transparent,

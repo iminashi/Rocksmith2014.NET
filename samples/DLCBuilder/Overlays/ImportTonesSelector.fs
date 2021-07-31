@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.ImportTonesSelector
+module DLCBuilder.Views.ImportTonesSelector
 
 open Avalonia.Controls
 open Avalonia.Controls.Selection
@@ -21,7 +21,7 @@ let view dispatch (tones: Tone array) =
         StackPanel.spacing 8.
         StackPanel.children [
             // Header
-            locText "selectImportTone" [
+            locText "SelectTonesToImport" [
                 TextBlock.fontSize 16.
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
@@ -44,7 +44,7 @@ let view dispatch (tones: Tone array) =
                     Button.create [
                         Button.fontSize 16.
                         Button.padding (30., 10.)
-                        Button.content (translate "import")
+                        Button.content (translate "Import")
                         Button.onClick (fun _ -> dispatch ImportSelectedTones)
                         Button.isDefault true
                     ]
@@ -53,7 +53,7 @@ let view dispatch (tones: Tone array) =
                     Button.create [
                         Button.fontSize 16.
                         Button.padding (20., 10.)
-                        Button.content (translate "all")
+                        Button.content (translate "All")
                         Button.onClick (fun _ -> tones |> List.ofArray |> ImportTones |> dispatch)
                     ]
 
@@ -61,7 +61,7 @@ let view dispatch (tones: Tone array) =
                     Button.create [
                         Button.fontSize 16.
                         Button.padding (30., 10.)
-                        Button.content (translate "cancel")
+                        Button.content (translate "Cancel")
                         Button.onClick (fun _ -> dispatch CloseOverlay)
                     ]
                 ]

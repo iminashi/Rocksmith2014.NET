@@ -176,7 +176,7 @@ let addArrangements fileNames state =
                     let errorMsg = createErrorMsg (Arrangement.getFile arr) (translate <| string error)
                     arrs, errorMsg::errors
             | Error (UnknownArrangement path) ->
-                let message = translate "unknownArrangementError"
+                let message = translate "UnknownArrangementError"
                 let error = createErrorMsg path message
                 arrs, error::errors
             | Error (FailedWithException (path, ex)) ->

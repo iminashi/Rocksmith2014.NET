@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.UpdateInfoMessage
+module DLCBuilder.Views.UpdateInfoMessage
 
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
@@ -25,7 +25,7 @@ let view (update: UpdateInformation) dispatch =
                         Path.verticalAlignment VerticalAlignment.Center
                         Path.margin (0., 0., 10., 0.)
                     ]
-                    locText "newVersionAvailable" [
+                    locText "NewVersionAvailable" [
                         TextBlock.fontSize 18.
                     ]
                 ]
@@ -33,7 +33,7 @@ let view (update: UpdateInformation) dispatch =
 
             // Current version
             hStack [
-                locText "currentVersion" [ TextBlock.minWidth 120. ]
+                locText "CurrentVersion" [ TextBlock.minWidth 120. ]
 
                 TextBlock.create [
                     TextBlock.text AppVersion.versionString
@@ -42,7 +42,7 @@ let view (update: UpdateInformation) dispatch =
 
             // Available version
             hStack [
-                locText "availableVersion" [ TextBlock.minWidth 120. ]
+                locText "AvailableVersion" [ TextBlock.minWidth 120. ]
 
                 TextBlock.create [
                     let version = update.UpdateVersion.ToString(3)
@@ -75,9 +75,9 @@ let view (update: UpdateInformation) dispatch =
                         Button.padding (40., 10.)
                         Button.content (
                             if OperatingSystem.IsMacOS() then
-                                translate "goToDownloadPage"
+                                translate "GoToDownloadPage"
                             else
-                                translate "updateAndRestart")
+                                translate "UpdateAndRestart")
                         Button.onClick (fun _ ->
                             if OperatingSystem.IsMacOS() then
                                 Utils.openLink "https://github.com/iminashi/Rocksmith2014.NET/releases"
@@ -90,7 +90,7 @@ let view (update: UpdateInformation) dispatch =
                     Button.create [
                         Button.fontSize 18.
                         Button.padding (80., 10.)
-                        Button.content (translate "close")
+                        Button.content (translate "Close")
                         Button.onClick (fun _ -> dispatch CloseOverlay)
                     ]
                 ]

@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.AboutMessage
+module DLCBuilder.Views.AboutMessage
 
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
@@ -18,7 +18,7 @@ let view dispatch =
                 Button.fontSize 16.
                 Button.padding (50., 10.)
                 Button.horizontalAlignment HorizontalAlignment.Center
-                Button.content (translate "close")
+                Button.content (translate "Close")
                 Button.onClick (fun _ -> CloseOverlay |> dispatch)
             ]
 
@@ -38,17 +38,17 @@ let view dispatch =
 
                 // Version
                 TextBlock.create [
-                    TextBlock.text (translatef "programVersion" [| AppVersion.current.ToString 3 |])
+                    TextBlock.text (translatef "ProgramVersion" [| AppVersion.current.ToString 3 |])
                     TextBlock.margin 4.
                 ]
 
                 // Disclaimer
-                locText "aboutDisclaimer" [
+                locText "AboutDisclaimer" [
                     TextBlock.margin (4., 8.)
                 ]
 
                 // GitHub Link
-                locText "gitHubPage" [
+                locText "GitHubPage" [
                     TextBlock.classes [ "link" ]
                     TextBlock.margin 4.
                     TextBlock.onTapped (fun ev ->

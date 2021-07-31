@@ -24,7 +24,7 @@ let view dispatch msg info =
                         Path.verticalAlignment VerticalAlignment.Center
                         Path.margin (0., 0., 14., 0.)
                     ]
-                    locText "error" [
+                    locText "Error" [
                         TextBlock.fontSize 18.
                     ]
                 ]
@@ -43,7 +43,7 @@ let view dispatch msg info =
                 ()
             | Some moreInfo ->
                 Expander.create [
-                    Expander.header (translate "moreInfo")
+                    Expander.header (translate "AdditionalInformation")
                     Expander.content (
                         TextBox.create [
                             TextBox.maxWidth 650.
@@ -60,7 +60,7 @@ let view dispatch msg info =
                 Button.fontSize 18.
                 Button.padding (80., 10.)
                 Button.horizontalAlignment HorizontalAlignment.Center
-                Button.content (translate "ok")
+                Button.content (translate "OK")
                 Button.onClick (fun _ -> dispatch CloseOverlay)
             ]
         ]

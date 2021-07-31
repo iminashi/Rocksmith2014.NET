@@ -31,7 +31,7 @@ let private createDescriptors dispatch (tone: Tone) =
                             |> dispatch
                         | _ ->
                             ())
-                    ToolTip.tip (translate "toneDescriptorToolTip")
+                    ToolTip.tip (translate "ToneDescriptorToolTip")
                 ]
         ]
     ]
@@ -53,7 +53,7 @@ let view state dispatch (tone: Tone) =
         Grid.margin 4.
         Grid.children [
             // Key
-            locText "key" [
+            locText "Key" [
                 Grid.row 0
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -86,7 +86,7 @@ let view state dispatch (tone: Tone) =
             ]
 
             // Name
-            locText "name" [
+            locText "Name" [
                 Grid.row 1
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -99,14 +99,14 @@ let view state dispatch (tone: Tone) =
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.onTextInput (fun arg -> arg.Text <- StringValidator.toneName arg.Text)
                 FixedTextBox.onTextChanged (StringValidator.toneName >> SetName >> EditTone >> dispatch)
-                ToolTip.tip (translate "toneNameToolTip")
+                ToolTip.tip (translate "ToneNameToolTip")
             ]
 
             // Descriptors
             StackPanel.create [
                 Grid.row 2
                 StackPanel.children [
-                    locText "description" [
+                    locText "Description" [
                         TextBlock.verticalAlignment VerticalAlignment.Center
                         TextBlock.horizontalAlignment HorizontalAlignment.Center
                     ]
@@ -121,7 +121,7 @@ let view state dispatch (tone: Tone) =
                                 Button.margin 4.
                                 Button.content "+"
                                 Button.onClick (fun _ -> AddDescriptor |> EditTone |> dispatch)
-                                ToolTip.tip (translate "addDescriptionToolTip")
+                                ToolTip.tip (translate "AddDescriptionToolTip")
                             ]
                             // Remove description part
                             Button.create [
@@ -129,7 +129,7 @@ let view state dispatch (tone: Tone) =
                                 Button.margin 4.
                                 Button.content "-"
                                 Button.onClick (fun _ -> RemoveDescriptor |> EditTone |> dispatch)
-                                ToolTip.tip (translate "removeDescriptionToolTip")
+                                ToolTip.tip (translate "RemoveDescriptionToolTip")
                             ]
                         ]
                     ]
@@ -138,7 +138,7 @@ let view state dispatch (tone: Tone) =
             createDescriptors dispatch tone
 
             // Volume
-            locText "volume" [
+            locText "Volume" [
                 Grid.row 3
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -192,7 +192,7 @@ let view state dispatch (tone: Tone) =
                 Grid.children [
                     // Edit Button
                     Button.create [
-                        Button.content (translate "edit")
+                        Button.content (translate "Edit")
                         Button.onClick (fun _ -> ShowToneEditor |> dispatch)
                         Button.margin 2.
                         Button.padding (8., 4.)
@@ -201,7 +201,7 @@ let view state dispatch (tone: Tone) =
                     // Export Button
                     Button.create [
                         Grid.column 1
-                        Button.content (translate "export")
+                        Button.content (translate "Export")
                         Button.onClick (fun _ -> ExportSelectedTone |> dispatch)
                         Button.margin 2.
                         Button.padding (8., 4.)

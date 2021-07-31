@@ -36,12 +36,12 @@ let private toneTemplate dispatch isOfficial =
                     ContextMenu.viewItems [
                         if isOfficial then
                             MenuItem.create [
-                                MenuItem.header (translate "addToUserTones")
+                                MenuItem.header (translate "AddToUserCollectionMenuItem")
                                 MenuItem.onClick (fun _ -> AddOfficalToneToUserCollection |> dispatch)
                             ]
                         else
                             MenuItem.create [
-                                MenuItem.header (translate "edit")
+                                MenuItem.header (translate "EditMenuItem")
                                 MenuItem.onClick (fun _ -> ShowUserToneEditor |> dispatch)
                                 MenuItem.inputGesture (KeyGesture(Key.E))
                             ]
@@ -49,7 +49,7 @@ let private toneTemplate dispatch isOfficial =
                             MenuItem.create [ MenuItem.header "-" ]
 
                             MenuItem.create [
-                                MenuItem.header (translate "remove")
+                                MenuItem.header (translate "RemoveMenuItem")
                                 MenuItem.onClick (fun _ -> DeleteSelectedUserTone |> dispatch)
                                 MenuItem.inputGesture (KeyGesture(Key.Delete))
                             ]
@@ -186,7 +186,7 @@ let private collectionView dispatch (collectionState: ToneCollectionState) =
                 TextBlock.create [
                     TextBlock.horizontalAlignment HorizontalAlignment.Center
                     TextBlock.verticalAlignment VerticalAlignment.Center
-                    TextBlock.text (translate "officialTonesDbNotFound")
+                    TextBlock.text (translate "OfficialTonesDbNotFound")
                 ]
             // Tones list
             | ActiveCollection.Official _ ->
@@ -203,36 +203,36 @@ let private userToneEditor dispatch data =
         Grid.children [
             Button.create [
                 Grid.row 0
-                Button.content (translate "removeArtistInfo")
+                Button.content (translate "RemoveArtistInfo")
                 Button.horizontalAlignment HorizontalAlignment.Center
                 Button.padding (20., 5.)
                 Button.onClick (fun _ -> UserToneEdit.RemoveArtistInfo |> EditUserToneData |> dispatch)
             ]
 
-            TitledTextBox.create "artistName" [ Grid.row 1 ]
+            TitledTextBox.create "ArtistName" [ Grid.row 1 ]
                 [ FixedTextBox.text data.Artist
                   FixedTextBox.onTextChanged (UserToneEdit.SetArtist >> EditUserToneData >> dispatch) ]
 
-            TitledTextBox.create "artistNameSort" [ Grid.row 2 ]
+            TitledTextBox.create "ArtistNameSort" [ Grid.row 2 ]
                 [ FixedTextBox.text data.ArtistSort
                   FixedTextBox.onTextChanged (UserToneEdit.SetArtistSort >> EditUserToneData >> dispatch) ]
 
-            TitledTextBox.create "title" [ Grid.row 3 ]
+            TitledTextBox.create "Title" [ Grid.row 3 ]
                 [ FixedTextBox.text data.Title
                   FixedTextBox.onTextChanged (UserToneEdit.SetTitle >> EditUserToneData >> dispatch) ]
 
-            TitledTextBox.create "titleSort" [ Grid.row 4 ]
+            TitledTextBox.create "TitleSort" [ Grid.row 4 ]
                 [ FixedTextBox.text data.TitleSort
                   FixedTextBox.onTextChanged (UserToneEdit.SetTitleSort >> EditUserToneData >> dispatch) ]
 
-            TitledTextBox.create "name" [ Grid.row 5 ]
+            TitledTextBox.create "Name" [ Grid.row 5 ]
                 [ FixedTextBox.text data.Name
                   TextBox.onTextInput (fun e -> e.Text <- Rocksmith2014.DLCProject.StringValidator.toneName e.Text)
                   FixedTextBox.onTextChanged (UserToneEdit.SetName >> EditUserToneData >> dispatch) ]
 
             CheckBox.create [
                 Grid.row 6
-                CheckBox.content (translate "bassTone")
+                CheckBox.content (translate "BassTone")
                 CheckBox.isChecked data.BassTone
                 CheckBox.onChecked (fun _ -> true |> UserToneEdit.SetIsBass |> EditUserToneData |> dispatch)
                 CheckBox.onUnchecked (fun _ -> false |> UserToneEdit.SetIsBass |> EditUserToneData |> dispatch)
@@ -247,7 +247,7 @@ let private userToneEditor dispatch data =
                         Button.margin 4.
                         Button.fontSize 16.
                         Button.padding (20., 5.)
-                        Button.content (translate "save")
+                        Button.content (translate "Save")
                         Button.isEnabled (String.notEmpty data.Name)
                         Button.onClick (fun _ -> ApplyUserToneEdit |> dispatch)
                     ]
@@ -255,7 +255,7 @@ let private userToneEditor dispatch data =
                         Button.margin 4.
                         Button.fontSize 16.
                         Button.padding (20., 5.)
-                        Button.content (translate "cancel")
+                        Button.content (translate "Cancel")
                         Button.onClick (fun _ -> HideUserToneEditor |> dispatch)
                     ]
                 ]
@@ -274,7 +274,7 @@ let view dispatch collectionState =
                 TabControl.viewItems [
                     // Official tab
                     TabItem.create [
-                        TabItem.header (translate "official")
+                        TabItem.header (translate "Official")
                         TabItem.content (
                             match collectionState.ActiveCollection with
                             | ActiveCollection.Official _ ->
@@ -290,7 +290,7 @@ let view dispatch collectionState =
 
                     // User tab
                     TabItem.create [
-                        TabItem.header (translate "user")
+                        TabItem.header (translate "User")
                         TabItem.content (
                             match collectionState.ActiveCollection with
                             | ActiveCollection.User _ ->

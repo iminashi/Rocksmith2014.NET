@@ -12,7 +12,7 @@ let view dispatch state =
         StackPanel.spacing 8.
         StackPanel.children [
             // Explanation
-            locText "pitchShifterExplanation" [
+            locText "PitchShifterExplanation" [
                 TextBlock.fontSize 16.
                 TextBlock.margin 10.0
             ]
@@ -22,7 +22,7 @@ let view dispatch state =
                 StackPanel.horizontalAlignment HorizontalAlignment.Center
                 StackPanel.children [
                     // Shift tuning by
-                    locText "shiftTuningBy" [
+                    locText "ShiftTuningBy" [
                         TextBlock.verticalAlignment VerticalAlignment.Center
                     ]
                     FixedNumericUpDown.create [
@@ -45,7 +45,7 @@ let view dispatch state =
                     Button.create [
                         Button.fontSize 18.
                         Button.padding (80., 10.)
-                        Button.content (translate "create")
+                        Button.content (translate "Create")
                         Button.isEnabled (state.Project.PitchShift |> Option.exists ((<>) 0s))
                         Button.onClick (fun _ ->
                             dispatch CloseOverlay
@@ -56,7 +56,7 @@ let view dispatch state =
                     Button.create [
                         Button.fontSize 18.
                         Button.padding (80., 10.)
-                        Button.content (translate "cancel")
+                        Button.content (translate "Cancel")
                         Button.onClick (fun _ -> dispatch CloseOverlay)
                     ]
                 ]

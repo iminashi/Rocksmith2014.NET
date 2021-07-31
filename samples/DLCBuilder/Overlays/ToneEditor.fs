@@ -81,17 +81,17 @@ let private gearSlotSelector repository state dispatch (gearList: Gear) =
         let c = repository.CabinetDict.[gearList.Cabinet.Key] in $"{c.Name} - {c.Category}"
 
     vStack [
-        gearSlotHeader "amp"
+        gearSlotHeader "Amp"
         toggleButton dispatch gearList state.SelectedGearSlot ampName Amp
 
-        gearSlotHeader "cabinet"
+        gearSlotHeader "Cabinet"
         toggleButton dispatch gearList state.SelectedGearSlot cabinetName Cabinet
 
-        yield! [ ("prePedals", PrePedal); ("loopPedals", PostPedal); ("rack", Rack) ]
+        yield! [ ("PrePedals", PrePedal); ("LoopPedals", PostPedal); ("Rack", Rack) ]
                 |> List.collect (pedalSelectors dispatch repository state.SelectedGearSlot gearList)
 
         Button.create [
-            Button.content (translate "close")
+            Button.content (translate "Close")
             Button.horizontalAlignment HorizontalAlignment.Center
             Button.margin (0., 8.)
             Button.padding (20., 8.)
@@ -172,7 +172,7 @@ let private knobSliders state dispatch repository (gearList: Gear) gear =
             let micPositions = repository.MicPositionsForCabinet.[cabinet.Name]
             TextBlock.create [
                 TextBlock.margin (0., 4.)
-                TextBlock.text (translate <| if micPositions.Length = 1 then "nothingToConfigure" else "micPosition")
+                TextBlock.text (translate <| if micPositions.Length = 1 then "NothingToConfigure" else "MicPosition")
             ]
             StackPanel.create [
                 StackPanel.isVisible (micPositions.Length > 1)
@@ -277,7 +277,7 @@ let private knobSliders state dispatch repository (gearList: Gear) gear =
 let view state dispatch (tone: Tone) =
     match state.ToneGearRepository with
     | None ->
-        locText "loadingToneGearData" [
+        locText "LoadingToneGearData" [
             TextBox.horizontalAlignment HorizontalAlignment.Center
             TextBox.verticalAlignment VerticalAlignment.Center
         ] |> generalize
@@ -303,7 +303,7 @@ let view state dispatch (tone: Tone) =
                             yield
                                 Button.create [
                                     Button.margin (0., 2.)
-                                    Button.content (translate "remove")
+                                    Button.content (translate "Remove")
                                     Button.isVisible (match state.SelectedGearSlot with Amp | Cabinet -> false | _ -> true)
                                     Button.onClick (fun _ -> RemovePedal |> EditTone |> dispatch)
                                 ]

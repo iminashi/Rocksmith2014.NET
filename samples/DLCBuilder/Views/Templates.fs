@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.Templates
+module DLCBuilder.Views.Templates
 
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
@@ -108,7 +108,7 @@ let translateArrangementName arr project info =
                 if inst.Name = ArrangementName.Combo then
                     let c = translate "ComboArr" in $" ({c})"
                 elif inst.RouteMask = RouteMask.Bass && inst.BassPicked then
-                    let p = translate "picked" in $" ({p})"
+                    let p = translate "Picked" in $" ({p})"
                 else
                     String.Empty
 
@@ -133,7 +133,7 @@ let private getExtraText = function
             tuning
 
     | Vocals { CustomFont = Some _ } ->
-        translate "customFont"
+        translate "CustomFont"
     | _ ->
         String.Empty
 
@@ -190,9 +190,9 @@ let arrangement state dispatch index arr =
             SubPatchOptions.OnChangeOf index)
         DockPanel.contextMenu (Menus.Context.arrangement state dispatch)
         if isEmptyBaseToneKey then
-            ToolTip.tip (translate "emptyBaseTone")
+            ToolTip.tip (translate "EmptyBaseToneToolTip")
         elif missingTones.Length <> 0 then
-            translatef "missingDefinitions" [| String.Join(", ", missingTones) |]
+            translatef "MissingToneDefinitionsToolTip" [| String.Join(", ", missingTones) |]
             |> ToolTip.tip
         DockPanel.children [
             match hasIssues with

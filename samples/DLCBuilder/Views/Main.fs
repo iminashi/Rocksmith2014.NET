@@ -56,7 +56,7 @@ let private arrangementDetails state dispatch =
                 StackPanel.children [
                     match state.SelectedArrangementIndex with
                     | -1 ->
-                        locText "selectArrangementPrompt" [
+                        locText "SelectArrangementPrompt" [
                             TextBlock.foreground Brushes.Gray
                             TextBlock.margin 4.
                             TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -110,7 +110,7 @@ let private arrangementDetails state dispatch =
                                             ]
 
                                             TextBlock.create[
-                                                TextBlock.text (if noIssues then "OK" else translate "issues")
+                                                TextBlock.text <| translate (if noIssues then "OK" else "Issues")
                                                 TextBlock.verticalAlignment VerticalAlignment.Center
                                             ]
                                         ]
@@ -140,7 +140,7 @@ let private arrangementPanel state dispatch =
                         Grid.columnDefinitions "*,auto,auto"
                         Grid.rowDefinitions "auto,auto"
                         Grid.children [
-                            locText "arrangements" [
+                            locText "Arrangements" [
                                 TextBlock.margin (8., 4., 0., 4.)
                                 TextBlock.verticalAlignment VerticalAlignment.Center
                             ]
@@ -163,7 +163,7 @@ let private arrangementPanel state dispatch =
                                         Dialog.AddArrangements |> ShowDialog |> dispatch)
                                 // 5 instrumentals, 2 vocals, 1 showlights
                                 Border.isEnabled (state.Project.Arrangements.Length < 8)
-                                ToolTip.tip (translate "addArrangementToolTip")
+                                ToolTip.tip (translate "AddArrangementToolTip")
                             ]
 
                             // Validate arrangements
@@ -183,7 +183,7 @@ let private arrangementPanel state dispatch =
                                         args.Handled <- true
                                         dispatch CheckArrangements)
                                 Border.isEnabled (StateUtils.canRunValidation state)
-                                ToolTip.tip (translate "validateArrangementsToolTip")
+                                ToolTip.tip (translate "ValidateArrangementsToolTip")
                             ]
 
                             Rectangle.create [
@@ -251,7 +251,7 @@ let private tonesPanel state dispatch =
                         Grid.columnDefinitions "*,auto"
                         Grid.rowDefinitions "auto,auto"
                         Grid.children [
-                            locText "tones" [
+                            locText "Tones" [
                                 TextBlock.margin (8., 4., 0., 4.)
                                 TextBlock.verticalAlignment VerticalAlignment.Center
                             ]
@@ -279,7 +279,7 @@ let private tonesPanel state dispatch =
                 StackPanel.children [
                     match state.SelectedToneIndex with
                     | -1 ->
-                        locText "selectTonePrompt" [
+                        locText "SelectTonePrompt" [
                             TextBlock.foreground Brushes.Gray
                             TextBlock.margin 4.
                             TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -359,7 +359,7 @@ let private statusMessageContents dispatch = function
 
     | UpdateMessage update ->
         let verType = translate (update.AvailableUpdate.ToString())
-        let message = translatef "updateAvailable" [| verType |]
+        let message = translatef "UpdateAvailable" [| verType |]
         StackPanel.create [
             StackPanel.horizontalAlignment HorizontalAlignment.Center
             StackPanel.children [
@@ -375,7 +375,7 @@ let private statusMessageContents dispatch = function
                         TextBlock.create [
                             TextBlock.classes [ "link" ]
                             TextBlock.horizontalAlignment HorizontalAlignment.Center
-                            TextBlock.text (translate "details")
+                            TextBlock.text (translate "Details")
                             TextBlock.onTapped (fun _ ->
                                 dispatch DismissUpdateMessage
                                 dispatch ShowUpdateInformation)
@@ -383,7 +383,7 @@ let private statusMessageContents dispatch = function
                         TextBlock.create [
                             TextBlock.classes [ "link" ]
                             TextBlock.horizontalAlignment HorizontalAlignment.Center
-                            TextBlock.text (translate "dismiss")
+                            TextBlock.text (translate "Dismiss")
                             TextBlock.onTapped (fun _ -> dispatch DismissUpdateMessage)
                         ]
                     ]

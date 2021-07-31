@@ -75,7 +75,7 @@ let view state dispatch (inst: Instrumental) =
         Grid.rowDefinitions "*,*,*,*,*,*,*,*,*,*,*,*,*"
         Grid.children [
             // Arrangement name (for non-bass arrangements)
-            locText "name" [
+            locText "Name" [
                 TextBlock.isVisible (inst.Name <> ArrangementName.Bass)
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -97,7 +97,7 @@ let view state dispatch (inst: Instrumental) =
             ]
 
             // Priority
-            locText "priority"  [
+            locText "Priority"  [
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -135,7 +135,7 @@ let view state dispatch (inst: Instrumental) =
             ]
 
             // Path (only for combo arrangements)
-            locText "path" [
+            locText "Path" [
                 Grid.row 2
                 TextBlock.isVisible (inst.Name = ArrangementName.Combo)
                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -161,7 +161,7 @@ let view state dispatch (inst: Instrumental) =
             ]
 
             // Bass pick
-            locText "picked" [
+            locText "Picked" [
                 Grid.row 3
                 TextBlock.isVisible (inst.Name = ArrangementName.Bass)
                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -178,7 +178,7 @@ let view state dispatch (inst: Instrumental) =
             ]
 
             // Tuning strings
-            locText "tuning" [
+            locText "Tuning" [
                 Grid.row 4
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -206,7 +206,7 @@ let view state dispatch (inst: Instrumental) =
             ]
 
             // Tuning Pitch
-            locText "tuningPitch" [
+            locText "TuningPitch" [
                 Grid.row 5
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -234,7 +234,7 @@ let view state dispatch (inst: Instrumental) =
             ]
 
             // Base Tone
-            locText "baseTone" [
+            locText "BaseToneKey" [
                 Grid.row 6
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -248,14 +248,14 @@ let view state dispatch (inst: Instrumental) =
                     |> List.choose (fun t -> Option.ofString t.Key)
                     |> List.distinct)
                 AutoCompleteBox.horizontalAlignment HorizontalAlignment.Stretch
-                FixedAutoCompleteBox.validationErrorMessage (translate "enterBaseToneKey")
+                FixedAutoCompleteBox.validationErrorMessage (translate "EnterBaseToneKey")
                 FixedAutoCompleteBox.validation String.notEmpty
                 FixedAutoCompleteBox.text inst.BaseTone
                 FixedAutoCompleteBox.onTextChanged (StringValidator.toneName >> SetBaseTone >> EditInstrumental >> dispatch)
             ]
 
             // Tone key list
-            locText "toneKeys" [
+            locText "ToneKeys" [
                 Grid.row 7
                 TextBlock.isVisible (inst.Tones.Length > 0)
                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -273,7 +273,7 @@ let view state dispatch (inst: Instrumental) =
             ]
 
             // Scroll speed
-            locText "scrollSpeed" [
+            locText "ScrollSpeed" [
                 Grid.row 8
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -282,7 +282,7 @@ let view state dispatch (inst: Instrumental) =
             FixedNumericUpDown.create [
                 Grid.column 1
                 Grid.row 8
-                ToolTip.tip (translate "scrollSpeedTooltip")
+                ToolTip.tip (translate "ScrollSpeedToolTip")
                 NumericUpDown.isVisible state.Config.ShowAdvanced
                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                 NumericUpDown.increment 0.1
@@ -294,7 +294,7 @@ let view state dispatch (inst: Instrumental) =
             ]
 
             // Master ID
-            locText "masterID" [
+            locText "MasterID" [
                 Grid.row 9
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -306,7 +306,7 @@ let view state dispatch (inst: Instrumental) =
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
                 FixedTextBox.text (string inst.MasterID)
-                FixedTextBox.validationErrorMessage (translate "enterNumberLargerThanZero")
+                FixedTextBox.validationErrorMessage (translate "EnterNumberLargerThanZero")
                 FixedTextBox.validation isNumberGreaterThanZero
                 TextBox.onLostFocus (fun arg ->
                     let txtBox = arg.Source :?> TextBox
@@ -319,7 +319,7 @@ let view state dispatch (inst: Instrumental) =
             ]
 
             // Persistent ID
-            locText "persistentID" [
+            locText "PersistentID" [
                 Grid.row 10
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -331,7 +331,7 @@ let view state dispatch (inst: Instrumental) =
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
                 FixedTextBox.text (inst.PersistentID.ToString("N"))
-                FixedTextBox.validationErrorMessage (translate "enterAValidGUID")
+                FixedTextBox.validationErrorMessage (translate "EnterAValidGUID")
                 FixedTextBox.validation (Guid.TryParse >> fst)
                 TextBox.onLostFocus (fun arg ->
                     let txtBox = arg.Source :?> TextBox
@@ -344,7 +344,7 @@ let view state dispatch (inst: Instrumental) =
             ]
 
             // Custom audio file
-            locText "customAudioFile" [
+            locText "CustomAudioFile" [
                 Grid.row 11
                 TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -370,7 +370,7 @@ let view state dispatch (inst: Instrumental) =
                         Button.content "X"
                         Button.isVisible inst.CustomAudio.IsSome
                         Button.onClick (fun _ -> None |> SetCustomAudioPath |> EditInstrumental |> dispatch)
-                        ToolTip.tip (translate "removeCustomAudioTooltip")
+                        ToolTip.tip (translate "RemoveCustomAudioToolTip")
                     ]
 
                     // Convert to wem
@@ -386,7 +386,7 @@ let view state dispatch (inst: Instrumental) =
                             | _ ->
                                 false)
                         Button.onClick (fun _ -> ConvertToWemCustom |> dispatch)
-                        ToolTip.tip (translate "convertToWemTooltip")
+                        ToolTip.tip (translate "ConvertToWemToolTip")
                     ]
 
                     // Audio file path
@@ -394,7 +394,7 @@ let view state dispatch (inst: Instrumental) =
                         TextBlock.margin (4., 2., 0., 0.)
                         TextBlock.text (
                             Option.map (fun x -> IO.Path.GetFileName x.Path) inst.CustomAudio
-                            |> Option.defaultValue (translate "noAudioFile")
+                            |> Option.defaultValue (translate "NoAudioFile")
                         )
                     ]
                 ]
@@ -402,7 +402,7 @@ let view state dispatch (inst: Instrumental) =
 
             // Custom audio volume
             if state.Config.ShowAdvanced && inst.CustomAudio.IsSome then
-                locText "volume" [
+                locText "Volume" [
                     Grid.row 12
                     TextBlock.verticalAlignment VerticalAlignment.Center
                     TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -426,7 +426,7 @@ let view state dispatch (inst: Instrumental) =
                         |> Option.map (fun x -> x.Volume)
                         |> Option.defaultValue state.Project.AudioFile.Volume)
                     FixedNumericUpDown.onValueChanged (SetCustomAudioVolume >> EditInstrumental >> dispatch)
-                    ToolTip.tip (translate "audioVolumeToolTip")
+                    ToolTip.tip (translate "AudioVolumeToolTip")
                 ]
         ]
     ]

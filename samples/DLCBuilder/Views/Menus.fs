@@ -37,17 +37,17 @@ let audio notCalculatingVolume state dispatch =
                 MenuItem.viewItems [
                     // Calculate volumes
                     MenuItem.create [
-                        MenuItem.header (translate "calculateVolumes")
+                        MenuItem.header (translate "CalculateVolumes")
                         MenuItem.isEnabled (noBuildInProgress && notCalculatingVolume)
                         MenuItem.onClick (fun _ -> dispatch CalculateVolumes)
                     ]
 
                     // Wem conversion
                     MenuItem.create [
-                        MenuItem.header (translate "convert")
+                        MenuItem.header (translate "Convert")
                         MenuItem.isEnabled noBuildInProgress
                         MenuItem.onClick (fun _ -> dispatch ConvertToWem)
-                        ToolTip.tip (translate "convertMultipleToWemTooltip")
+                        ToolTip.tip (translate "ConvertMultipleToWemToolTip")
                     ]
                 ]
             ]
@@ -58,18 +58,18 @@ let file state dispatch =
     let isImporting = state.RunningTasks.Contains PsarcImport
 
     MenuItem.create [
-        MenuItem.header (translate "fileMenuItem")
+        MenuItem.header (translate "FileMenuItem")
         MenuItem.viewItems [
             // New project
             MenuItem.create [
-                MenuItem.header (translate "newProject")
+                MenuItem.header (translate "NewProjectMenuItem")
                 MenuItem.inputGesture (KeyGesture(Key.N, keyModifierCtrl))
                 MenuItem.onClick (fun _ -> dispatch NewProject)
             ]
 
             // Open project
             MenuItem.create [
-                MenuItem.header (translate "openProject")
+                MenuItem.header (translate "OpenProjectMenuItem")
                 MenuItem.inputGesture (KeyGesture(Key.O, keyModifierCtrl))
                 MenuItem.onClick (fun _ -> Dialog.OpenProject |> ShowDialog |> dispatch)
                 Button.isEnabled (not <| state.RunningTasks.Contains PsarcImport)
@@ -77,7 +77,7 @@ let file state dispatch =
 
             // Save project
             MenuItem.create [
-                MenuItem.header (translate "saveProject")
+                MenuItem.header (translate "SaveProjectMenuItem")
                 MenuItem.inputGesture (KeyGesture(Key.S, keyModifierCtrl))
                 MenuItem.onClick (fun _ -> dispatch ProjectSaveOrSaveAs)
                 Button.isEnabled (state.Project <> state.SavedProject)
@@ -85,7 +85,7 @@ let file state dispatch =
 
             // Save project as
             MenuItem.create [
-                MenuItem.header (translate "saveProjectAs")
+                MenuItem.header (translate "SaveProjectAsMenuItem")
                 MenuItem.inputGesture (KeyGesture(Key.S, keyModifierCtrl ||| KeyModifiers.Alt))
                 MenuItem.onClick (fun _ -> dispatch SaveProjectAs)
             ]
@@ -94,7 +94,7 @@ let file state dispatch =
 
             // Configuration
             MenuItem.create [
-                MenuItem.header (translate "configuration")
+                MenuItem.header (translate "ConfigurationMenuItem")
                 MenuItem.inputGesture (KeyGesture(Key.G, keyModifierCtrl))
                 MenuItem.onClick (fun _ -> ShowOverlay ConfigEditor |> dispatch)
             ]
@@ -103,7 +103,7 @@ let file state dispatch =
 
             // Import Toolkit template
             MenuItem.create [
-                MenuItem.header (translate "toolkitImport")
+                MenuItem.header (translate "ImportToolkitTemplateMenuItem")
                 MenuItem.isEnabled (not isImporting)
                 MenuItem.inputGesture (KeyGesture(Key.I, keyModifierCtrl))
                 MenuItem.onClick (fun _ -> Dialog.ToolkitImport |> ShowDialog |> dispatch)
@@ -111,7 +111,7 @@ let file state dispatch =
 
             // Import PSARC file
             MenuItem.create [
-                MenuItem.header (translate "psarcImport")
+                MenuItem.header (translate "ImportPSARCFileMenuItem")
                 MenuItem.isEnabled (not isImporting)
                 MenuItem.inputGesture (KeyGesture(Key.A, keyModifierCtrl))
                 MenuItem.onClick (fun _ -> Dialog.PsarcImport |> ShowDialog |> dispatch)
@@ -121,7 +121,7 @@ let file state dispatch =
 
             // Recent files
             MenuItem.create [
-                MenuItem.header (translate "recentProjects")
+                MenuItem.header (translate "RecentProjectsMenuItem")
 
                 MenuItem.viewItems (
                     state.RecentFiles
@@ -140,7 +140,7 @@ let file state dispatch =
 
             // Exit
             MenuItem.create [
-                MenuItem.header (translate "exit")
+                MenuItem.header (translate "ExitMenuItem")
                 match state.CurrentPlatform with
                 | Mac ->
                     MenuItem.inputGesture (KeyGesture(Key.Q, KeyModifiers.Meta))
@@ -157,11 +157,11 @@ let build state dispatch =
 
     // Build
     MenuItem.create [
-        MenuItem.header (translate "buildMenu")
+        MenuItem.header (translate "BuildMenuItem")
         MenuItem.viewItems [
             // Build Test
             MenuItem.create [
-                MenuItem.header (translate "testMenuItem")
+                MenuItem.header (translate "TestMenuItem")
                 MenuItem.isEnabled (canBuild  && String.notEmpty state.Config.TestFolderPath)
                 MenuItem.onClick (fun _ -> Build Test |> dispatch)
                 MenuItem.inputGesture (KeyGesture(Key.B, keyModifierCtrl))
@@ -169,7 +169,7 @@ let build state dispatch =
 
             // Build Release
             MenuItem.create [
-                MenuItem.header (translate "releaseMenuItem")
+                MenuItem.header (translate "ReleaseMenuItem")
                 MenuItem.isEnabled canBuild
                 MenuItem.onClick (fun _ -> Build Release |> dispatch)
                 MenuItem.inputGesture (KeyGesture(Key.R, keyModifierCtrl))
@@ -177,7 +177,7 @@ let build state dispatch =
 
             // Build Pitch Shifted
             MenuItem.create [
-                MenuItem.header (translate "pitchShifted")
+                MenuItem.header (translate "PitchShiftedMenuItem")
                 MenuItem.isEnabled canBuild
                 MenuItem.onClick (fun _ -> ShowOverlay PitchShifter |> dispatch)
             ]
@@ -187,18 +187,18 @@ let build state dispatch =
 let tools state dispatch =
     // Tools
     MenuItem.create [
-        MenuItem.header (translate "tools")
+        MenuItem.header (translate "ToolsMenuItem")
         MenuItem.viewItems [
             // Unpack PSARC
             MenuItem.create [
-                MenuItem.header (translate "unpackPSARC")
+                MenuItem.header (translate "UnpackPSARCMenuItem")
                 MenuItem.isEnabled (not (state.RunningTasks |> Set.contains PsarcUnpack))
                 MenuItem.onClick (fun _ -> Dialog.PsarcUnpack |> ShowDialog |> dispatch)
             ]
 
             // Pack Directory into PSARC
             MenuItem.create [
-                MenuItem.header (translate "packDirectoryIntoPSARC")
+                MenuItem.header (translate "PackDirectoryIntoPSARCMenuItem")
                 MenuItem.onClick (fun _ -> Dialog.PsarcPackDirectory |> ShowDialog |> dispatch)
             ]
 
@@ -206,13 +206,13 @@ let tools state dispatch =
 
             // Convert Wem to Ogg
             MenuItem.create [
-                MenuItem.header (translate "convertWemToOgg")
+                MenuItem.header (translate "ConvertWemToOggMenuItem")
                 MenuItem.onClick (fun _ -> Dialog.WemFiles |> ShowDialog |> dispatch)
             ]
 
             // Convert Audio to Wem
             MenuItem.create [
-                MenuItem.header (translate "convertAudioToWem")
+                MenuItem.header (translate "ConvertAudioToWemMenuItem")
                 MenuItem.onClick (fun _ -> Dialog.AudioFileConversion |> ShowDialog |> dispatch)
             ]
 
@@ -220,7 +220,7 @@ let tools state dispatch =
 
             // Remove DD
             MenuItem.create [
-                MenuItem.header (translate "removeDD")
+                MenuItem.header (translate "RemoveDDMenuItem")
                 MenuItem.onClick (fun _ -> Dialog.RemoveDD |> ShowDialog |> dispatch)
             ]
 
@@ -228,10 +228,10 @@ let tools state dispatch =
 
             // Inject Tones into Profile
             MenuItem.create [
-                MenuItem.header (translate "injectTonesIntoProfile")
+                MenuItem.header (translate "InjectTonesIntoProfileMenuItem")
                 MenuItem.onClick (fun _ -> Dialog.ToneInject |> ShowDialog |> dispatch)
                 MenuItem.isEnabled (String.notEmpty state.Config.ProfilePath)
-                ToolTip.tip (translate "injectTonesIntoProfileToolTip")
+                ToolTip.tip (translate "InjectTonesIntoProfileToolTip")
             ]
         ]
     ]
@@ -239,11 +239,11 @@ let tools state dispatch =
 let help dispatch =
     // Help
     MenuItem.create [
-        MenuItem.header (translate "help")
+        MenuItem.header (translate "HelpMenuItem")
         MenuItem.viewItems [
             // Check for Updates
             MenuItem.create [
-                MenuItem.header (translate "checkForUpdates")
+                MenuItem.header (translate "CheckForUpdatesMenuItem")
                 MenuItem.onClick (fun _ -> CheckForUpdates |> dispatch)
             ]
 
@@ -251,7 +251,7 @@ let help dispatch =
 
             // About
             MenuItem.create [
-                MenuItem.header (translate "about")
+                MenuItem.header (translate "AboutMenuItem")
                 MenuItem.onClick (fun _ -> ShowOverlay AboutMessage |> dispatch)
             ]
         ]
@@ -264,7 +264,7 @@ module Context =
             ContextMenu.viewItems [
                 // Add to collection
                 MenuItem.create [
-                    MenuItem.header (translate "addToCollection")
+                    MenuItem.header (translate "AddToCollectionMenuItem")
                     MenuItem.onClick (fun _ -> AddToneToCollection |> dispatch)
                 ]
 
@@ -272,14 +272,14 @@ module Context =
 
                 // Move Up
                 MenuItem.create [
-                    MenuItem.header (translate "moveUp")
+                    MenuItem.header (translate "MoveUpMenuItem")
                     MenuItem.inputGesture (KeyGesture(Key.Up, KeyModifiers.Alt))
                     MenuItem.onClick (fun _ -> Up |> MoveTone |> dispatch)
                 ]
 
                 // Move Down
                 MenuItem.create [
-                    MenuItem.header (translate "moveDown")
+                    MenuItem.header (translate "MoveDownMenuItem")
                     MenuItem.inputGesture (KeyGesture(Key.Down, KeyModifiers.Alt))
                     MenuItem.onClick (fun _ -> Down |> MoveTone |> dispatch)
                 ]
@@ -288,19 +288,19 @@ module Context =
 
                 // Duplicate
                 MenuItem.create [
-                    MenuItem.header (translate "duplicate")
+                    MenuItem.header (translate "DuplicateMenuItem")
                     MenuItem.onClick (fun _ -> DuplicateTone |> dispatch)
                 ]
 
                 // Edit
                 MenuItem.create [
-                    MenuItem.header (translate "edit")
+                    MenuItem.header (translate "EditMenuItem")
                     MenuItem.onClick (fun _ -> ShowToneEditor |> dispatch)
                 ]
 
                 // Export
                 MenuItem.create [
-                    MenuItem.header (translate "export")
+                    MenuItem.header (translate "ExportMenuItem")
                     MenuItem.onClick (fun _ -> ExportSelectedTone |> dispatch)
                 ]
 
@@ -308,7 +308,7 @@ module Context =
 
                 // Remove
                 MenuItem.create [
-                    MenuItem.header (translate "remove")
+                    MenuItem.header (translate "RemoveMenuItem")
                     MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))
                     MenuItem.onClick (fun _ -> dispatch DeleteTone)
                 ]
@@ -330,23 +330,23 @@ module Context =
             ContextMenu.viewItems [
                 // Generate New Arrangement IDs
                 MenuItem.create [
-                    MenuItem.header (translate "generateNewArrIDs")
+                    MenuItem.header (translate "GenerateNewArrIDsMenuItem")
                     MenuItem.isEnabled hasIds
                     MenuItem.onClick (fun _ -> GenerateNewIds |> dispatch)
-                    ToolTip.tip (translate "generateNewArrIDsToolTip")
+                    ToolTip.tip (translate "GenerateNewArrIDsToolTip")
                 ]
 
                 // Reload Tone Keys
                 MenuItem.create [
-                    MenuItem.header (translate "reloadToneKeys")
+                    MenuItem.header (translate "ReloadToneKeysMenuItem")
                     MenuItem.isEnabled isInstrumental
                     MenuItem.onClick (fun _ -> UpdateToneInfo |> EditInstrumental |> dispatch)
-                    ToolTip.tip (translate "reloadToneKeysTooltip")
+                    ToolTip.tip (translate "ReloadToneKeysToolTip")
                 ]
 
                 // Apply Low Tuning Fix
                 MenuItem.create [
-                    MenuItem.header (translate "applyLowTuningFix")
+                    MenuItem.header (translate "ApplyLowTuningFixMenuItem")
                     MenuItem.isEnabled canApplyTuningFix
                     MenuItem.onClick (fun _ -> ApplyLowTuningFix |> dispatch)
                 ]
@@ -355,14 +355,14 @@ module Context =
 
                 // Move Up
                 MenuItem.create [
-                    MenuItem.header (translate "moveUp")
+                    MenuItem.header (translate "MoveUpMenuItem")
                     MenuItem.inputGesture (KeyGesture(Key.Up, KeyModifiers.Alt))
                     MenuItem.onClick (fun _ -> Up |> MoveArrangement |> dispatch)
                 ]
 
                 // Move Down
                 MenuItem.create [
-                    MenuItem.header (translate "moveDown")
+                    MenuItem.header (translate "MoveDownMenuItem")
                     MenuItem.inputGesture (KeyGesture(Key.Down, KeyModifiers.Alt))
                     MenuItem.onClick (fun _ -> Down |> MoveArrangement |> dispatch)
                 ]
@@ -371,7 +371,7 @@ module Context =
 
                 // Generate New IDs for All Arrangements
                 MenuItem.create [
-                    MenuItem.header (translate "generateAllIDs")
+                    MenuItem.header (translate "GenerateNewIDsAllMenuItem")
                     MenuItem.onClick (fun _ -> GenerateAllIds |> dispatch)
                 ]
 
@@ -379,7 +379,7 @@ module Context =
 
                 // Remove
                 MenuItem.create [
-                    MenuItem.header (translate "remove")
+                    MenuItem.header (translate "RemoveMenuItem")
                     MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))
                     MenuItem.onClick (fun _ -> dispatch DeleteArrangement)
                 ]
@@ -390,7 +390,7 @@ let private addToneItems state dispatch : IView list =
     [
         // Add a new "empty" tone
         MenuItem.create [
-            MenuItem.header (translate "newTone")
+            MenuItem.header (translate "NewToneMenuItem")
             MenuItem.onClick (fun _ -> dispatch AddNewTone)
         ]
 
@@ -398,16 +398,16 @@ let private addToneItems state dispatch : IView list =
 
         // Import from profile
         MenuItem.create [
-            MenuItem.header (translate "fromProfile")
+            MenuItem.header (translate "FromProfileMenuItem")
             MenuItem.onClick (fun _ -> dispatch ImportProfileTones)
             MenuItem.isEnabled (IO.File.Exists state.Config.ProfilePath)
             MenuItem.inputGesture (KeyGesture(Key.P, keyModifierCtrl))
-            ToolTip.tip (translate "profileImportToolTip")
+            ToolTip.tip (translate "ProfileImportToolTip")
         ]
 
         // Add from collection
         MenuItem.create [
-            MenuItem.header (translate "fromCollection")
+            MenuItem.header (translate "FromCollectionMenuItem")
             MenuItem.onClick (fun _ -> ShowToneCollection |> dispatch)
             MenuItem.inputGesture (KeyGesture(Key.T, keyModifierCtrl))
         ]
@@ -416,7 +416,7 @@ let private addToneItems state dispatch : IView list =
 
         // Import from file
         MenuItem.create [
-            MenuItem.header (translate "importToneFromFile")
+            MenuItem.header (translate "ImportToneFromFileMenuItem")
             MenuItem.onClick (fun _ -> Dialog.ToneImport |> ShowDialog |> dispatch)
         ]
     ]
@@ -440,19 +440,19 @@ let addTone state dispatch =
 
 let project state dispatch =
     MenuItem.create [
-        MenuItem.header (translate "projectMenu")
+        MenuItem.header (translate "ProjectMenuItem")
 
         MenuItem.viewItems [
             // Add Arrangement
             MenuItem.create [
-                MenuItem.header (translate "addArrangementMenuItem")
+                MenuItem.header (translate "AddArrangementMenuItem")
                 MenuItem.onClick (fun _ -> Dialog.AddArrangements |> ShowDialog |> dispatch)
                 MenuItem.inputGesture (KeyGesture(Key.OemPlus, keyModifierCtrl))
             ]
 
             // Validate Arrangements
             MenuItem.create [
-                MenuItem.header (translate "validateArrangementsMenuItem")
+                MenuItem.header (translate "ValidateArrangementsMenuItem")
                 MenuItem.onClick (fun _ -> dispatch CheckArrangements)
                 MenuItem.inputGesture (KeyGesture(Key.V, keyModifierCtrl))
                 MenuItem.isEnabled (StateUtils.canRunValidation state)
@@ -460,7 +460,7 @@ let project state dispatch =
 
             // Generate New IDs for All Arrangements
             MenuItem.create [
-                MenuItem.header (translate "generateAllIDs")
+                MenuItem.header (translate "GenerateNewIDsAllMenuItem")
                 MenuItem.onClick (fun _ -> GenerateAllIds |> dispatch)
                 MenuItem.isEnabled (state.Project.Arrangements.Length > 0)
             ]
@@ -469,7 +469,7 @@ let project state dispatch =
 
             // Add Tone Menu
             MenuItem.create [
-                MenuItem.header (translate "addTone")
+                MenuItem.header (translate "AddToneMenuItem")
                 MenuItem.viewItems (addToneItems state dispatch)
             ]
 
@@ -477,10 +477,10 @@ let project state dispatch =
 
             // Delete test builds
             MenuItem.create [
-                MenuItem.header (translate "deleteTestBuilds")
+                MenuItem.header (translate "DeleteTestBuildsMenuItem")
                 MenuItem.isEnabled (String.notEmpty state.Config.TestFolderPath && state.OpenProjectFile.IsSome)
                 MenuItem.onClick (fun _ -> dispatch DeleteTestBuilds)
-                ToolTip.tip (translate "deleteTestBuildsTooltip")
+                ToolTip.tip (translate "DeleteTestBuildsToolTip")
             ]
         ]
     ]

@@ -262,7 +262,7 @@ let update (msg: Msg) (state: State) =
     | ShowImportToneSelector tones ->
         match tones with
         | [||] ->
-            { state with Overlay = ErrorMessage(translate "couldNotFindTonesError", None) }, Cmd.none
+            { state with Overlay = ErrorMessage(translate "CouldNotFindTonesError", None) }, Cmd.none
         | [| one |] ->
             state, Cmd.ofMsg (ImportTones (List.singleton one))
         | _ ->
@@ -400,7 +400,7 @@ let update (msg: Msg) (state: State) =
     | AddToneToCollection ->
         getSelectedTone state
         |> Option.iter (ToneCollection.Database.addToUserCollection project)
-        state, Cmd.ofMsg (AddStatusMessage (translate "toneAddedToCollection"))
+        state, Cmd.ofMsg (AddStatusMessage (translate "ToneAddedToCollection"))
 
     | DuplicateTone ->
         let duplicate =
@@ -458,7 +458,7 @@ let update (msg: Msg) (state: State) =
                 File.tryMap File.Delete wemPreview |> ignore
                 NoOverlay
             with ex ->
-                let msg = translatef "previewDeleteError" [| Path.GetFileName(wemPreview); ex.Message |]
+                let msg = translatef "PreviewDeleteError" [| Path.GetFileName(wemPreview); ex.Message |]
                 ErrorMessage(msg, ex.StackTrace |> Option.ofString)
 
         { state with Project = { project with AudioPreviewFile = previewFile }
@@ -535,7 +535,7 @@ let update (msg: Msg) (state: State) =
         let msg =
             match update with
             | Some _ -> ShowUpdateInformation
-            | None -> AddStatusMessage (translate "noUpdate")
+            | None -> AddStatusMessage (translate "NoUpdateAvailable")
         { state with AvailableUpdate = update }, Cmd.ofMsg msg
 
     | UpdateAndRestart ->
@@ -543,7 +543,7 @@ let update (msg: Msg) (state: State) =
         | Some update ->
             let messageId = Guid.NewGuid()
             let statusMessages =
-                MessageString(messageId, translate "downloadingUpdate")::state.StatusMessages
+                MessageString(messageId, translate "DownloadingUpdate")::state.StatusMessages
 
             { state with StatusMessages = statusMessages; Overlay = NoOverlay },
             Cmd.OfAsync.attempt OnlineUpdate.downloadAndApplyUpdate update (fun e -> UpdateFailed(messageId, e))
@@ -639,7 +639,7 @@ let update (msg: Msg) (state: State) =
 
         match filesToDelete with
         | [] ->
-            state, Cmd.ofMsg <| AddStatusMessage (translate "noTestBuildsFound")
+            state, Cmd.ofMsg <| AddStatusMessage (translate "NoTestBuildsFound")
         | [ _ ] as one ->
             state, Cmd.ofMsg (DeleteConfirmed one)
         | many ->
@@ -650,7 +650,7 @@ let update (msg: Msg) (state: State) =
             try
                 List.iter File.Delete files
                 let f = translate (if files.Length = 1 then "file" else "files")
-                let message = translatef "filesDeleted" [| files.Length; f |]
+                let message = translatef "FilesDeleted" [| files.Length; f |]
                 Cmd.ofMsg <| AddStatusMessage message
             with e ->
                 Cmd.ofMsg <| ErrorOccurred e
@@ -792,9 +792,9 @@ let update (msg: Msg) (state: State) =
                 newState, Cmd.none
             | ToneCollection.AddToneToProject tone ->
                 { newState with Project = { project with Tones = tone::project.Tones } },
-                Cmd.ofMsg (AddStatusMessage (translate "toneAddedToProject"))
+                Cmd.ofMsg (AddStatusMessage (translate "ToneAddedToProject"))
             | ToneCollection.ShowToneAddedToCollectionMessage ->
-                newState, Cmd.ofMsg (AddStatusMessage (translate "toneAddedToCollection"))
+                newState, Cmd.ofMsg (AddStatusMessage (translate "ToneAddedToCollection"))
         | _ ->
             state, Cmd.none
 

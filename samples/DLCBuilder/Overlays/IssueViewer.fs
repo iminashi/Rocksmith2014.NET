@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.IssueViewer
+module DLCBuilder.Views.IssueViewer
 
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
@@ -109,7 +109,7 @@ let view dispatch (issues: Issue list) =
                         Path.margin (0., 0., 14., 0.)
                     ]
                     // Header Text
-                    locText "issues" [
+                    locText "Issues" [
                         TextBlock.fontSize 18.
                     ]
                 ]
@@ -127,7 +127,7 @@ let view dispatch (issues: Issue list) =
                 Button.fontSize 18.
                 Button.padding (80., 10.)
                 Button.horizontalAlignment HorizontalAlignment.Center
-                Button.content (translate "ok")
+                Button.content (translate "OK")
                 Button.onClick (fun _ -> dispatch CloseOverlay)
             ]
         ]

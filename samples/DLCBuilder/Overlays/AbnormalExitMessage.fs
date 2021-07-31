@@ -1,4 +1,4 @@
-﻿module DLCBuilder.AbnormalExitMessage
+module DLCBuilder.AbnormalExitMessage
 
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
@@ -22,14 +22,14 @@ let view dispatch =
                         Path.verticalAlignment VerticalAlignment.Center
                         Path.margin (0., 0., 10., 0.)
                     ]
-                    locText "programDidNotCloseProperly" [
+                    locText "ProgramDidNotCloseProperly" [
                         TextBlock.fontSize 18.
                     ]
                 ]
             ]
 
             // Confirmation message
-            locText "loadPreviouslyOpenedProject" [
+            locText "LoadPreviouslyOpenedProject" [
                 TextBlock.fontSize 16.
                 TextBlock.margin 10.0
             ]
@@ -43,7 +43,7 @@ let view dispatch =
                     Button.create [
                         Button.fontSize 18.
                         Button.padding (80., 10.)
-                        Button.content (translate "yes")
+                        Button.content (translate "Yes")
                         Button.onClick (fun _ -> dispatch OpenPreviousProjectConfirmed)
                     ]
 
@@ -51,7 +51,7 @@ let view dispatch =
                     Button.create [
                         Button.fontSize 18.
                         Button.padding (80., 10.)
-                        Button.content (translate "no")
+                        Button.content (translate "No")
                         Button.onClick (fun _ -> dispatch CloseOverlay)
                     ]
                 ]

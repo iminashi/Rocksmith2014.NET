@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.VocalsDetails
+module DLCBuilder.Views.VocalsDetails
 
 open Avalonia.Controls
 open Avalonia.FuncUI.DSL
@@ -14,7 +14,7 @@ let view dispatch (v: Vocals) =
         Grid.margin 6.
         Grid.children [
             // Japanese lyrics
-            locText "japanese" [
+            locText "Japanese" [
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
@@ -27,7 +27,7 @@ let view dispatch (v: Vocals) =
             ]
 
             // Custom font
-            locText "customFont" [
+            locText "CustomFont" [
                 Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -43,7 +43,7 @@ let view dispatch (v: Vocals) =
                         Button.content "X"
                         Button.isVisible (Option.isSome v.CustomFont)
                         Button.onClick (fun _ -> None |> SetCustomFont |> EditVocals |> dispatch)
-                        ToolTip.tip (translate "removeCustomFontToolTip")
+                        ToolTip.tip (translate "RemoveCustomFontToolTip")
                     ]
 
                     // Select font
@@ -52,7 +52,7 @@ let view dispatch (v: Vocals) =
                         Button.margin (0.0, 4.0, 4.0, 4.0)
                         Button.content "..."
                         Button.onClick (fun _ -> Dialog.CustomFont |> ShowDialog |> dispatch)
-                        ToolTip.tip (translate "selectCustomFontToolTip")
+                        ToolTip.tip (translate "SelectCustomFontToolTip")
                     ]
 
                     // Custom font filename
@@ -62,7 +62,7 @@ let view dispatch (v: Vocals) =
                         TextBlock.text (
                             v.CustomFont
                             |> Option.map Path.GetFileName
-                            |> Option.defaultValue (translate "none"))
+                            |> Option.defaultValue (translate "None"))
                     ]
                 ]
             ]

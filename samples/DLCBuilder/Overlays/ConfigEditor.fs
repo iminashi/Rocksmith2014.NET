@@ -24,7 +24,7 @@ let private generalConfig state dispatch =
             Grid.rowDefinitions "auto,auto,auto,auto,auto,auto"
             Grid.children [
                 // Language
-                locText "language" [
+                locText "Language" [
                     TextBlock.verticalAlignment VerticalAlignment.Center
                 ]
                 FixedComboBox.create [
@@ -40,7 +40,7 @@ let private generalConfig state dispatch =
                 ]
 
                 // Charter Name
-                locText "charterName" [
+                locText "CharterName" [
                     Grid.row 1
                     TextBlock.verticalAlignment VerticalAlignment.Center
                 ]
@@ -53,7 +53,7 @@ let private generalConfig state dispatch =
                 ]
 
                 // Profile Path
-                locText "profilePath" [
+                locText "ProfilePath" [
                     Grid.row 2
                     TextBlock.verticalAlignment VerticalAlignment.Center
                 ]
@@ -76,7 +76,7 @@ let private generalConfig state dispatch =
                 ]
 
                 // Test Folder
-                locText "testFolder" [
+                locText "TestFolder" [
                     Grid.row 3
                     TextBlock.verticalAlignment VerticalAlignment.Center
                 ]
@@ -93,14 +93,14 @@ let private generalConfig state dispatch =
                         FixedTextBox.create [
                             TextBox.margin (0., 4.)
                             FixedTextBox.text state.Config.TestFolderPath
-                            TextBox.watermark (translate "testFolderPlaceholder")
+                            TextBox.watermark (translate "TestFolderPlaceholder")
                             FixedTextBox.onTextChanged (SetTestFolderPath >> EditConfig >> dispatch)
                         ]
                     ]
                 ]
 
                 // Projects Folder
-                locText "projectsFolder" [
+                locText "ProjectsFolder" [
                     Grid.row 4
                     TextBlock.verticalAlignment VerticalAlignment.Center
                 ]
@@ -122,8 +122,8 @@ let private generalConfig state dispatch =
                     ]
                 ]
 
-                // WWise Console Path
-                locText "wwiseConsolePath" [
+                // Wwise Console Path
+                locText "WwiseConsolePath" [
                     Grid.row 5
                     TextBlock.verticalAlignment VerticalAlignment.Center
                 ]
@@ -139,7 +139,7 @@ let private generalConfig state dispatch =
                         ]
                         FixedTextBox.create [
                             TextBox.margin (0., 4.)
-                            TextBox.watermark (translate "wwiseConsolePathPlaceholder")
+                            TextBox.watermark (translate "WwiseConsolePathPlaceholder")
                             FixedTextBox.text (Option.toObj state.Config.WwiseConsolePath)
                             FixedTextBox.onTextChanged (SetWwiseConsolePath >> EditConfig >> dispatch)
                             TextBox.onLostFocus (fun e ->
@@ -147,7 +147,7 @@ let private generalConfig state dispatch =
                                 if Directory.Exists t.Text then
                                     tryFindWwiseExecutable t.Text
                                     |> Option.iter (SetWwiseConsolePath >> EditConfig >> dispatch))
-                            ToolTip.tip (translate "wwiseConsolePathTooltip")
+                            ToolTip.tip (translate "WwiseConsolePathToolTip")
                         ]
                     ]
                 ]
@@ -156,7 +156,7 @@ let private generalConfig state dispatch =
 
         // Calculate Volumes Automatically
         CheckBox.create [
-            CheckBox.content (translate "calculateVolumesAutomatically")
+            CheckBox.content (translate "CalculateVolumesAutomatically")
             CheckBox.isChecked state.Config.AutoVolume
             CheckBox.onChecked (fun _ -> true |> SetAutoVolume |> EditConfig |> dispatch)
             CheckBox.onUnchecked (fun _ -> false |> SetAutoVolume |> EditConfig |> dispatch)
@@ -164,7 +164,7 @@ let private generalConfig state dispatch =
 
         // Load Previously Opened Project Automatically
         CheckBox.create [
-            CheckBox.content (translate "loadPreviousProjectAutomatically")
+            CheckBox.content (translate "LoadPreviousProjectAutomatically")
             CheckBox.isChecked state.Config.LoadPreviousOpenedProject
             CheckBox.onChecked (fun _ -> true |> SetLoadPreviousProject |> EditConfig |> dispatch)
             CheckBox.onUnchecked (fun _ -> false |> SetLoadPreviousProject |> EditConfig |> dispatch)
@@ -172,7 +172,7 @@ let private generalConfig state dispatch =
 
         // Auto Save
         CheckBox.create [
-            CheckBox.content (translate "autoSave")
+            CheckBox.content (translate "AutoSaveProject")
             CheckBox.isChecked state.Config.AutoSave
             CheckBox.onChecked (fun _ -> true |> SetAutoSave |> EditConfig |> dispatch)
             CheckBox.onUnchecked (fun _ -> false |> SetAutoSave |> EditConfig |> dispatch)
@@ -180,7 +180,7 @@ let private generalConfig state dispatch =
 
         // Show Advanced Features
         CheckBox.create [
-            CheckBox.content (translate "showAdvancedFeatures")
+            CheckBox.content (translate "ShowAdvancedFeatures")
             CheckBox.isChecked state.Config.ShowAdvanced
             CheckBox.onChecked (fun _ -> true |> SetShowAdvanced |> EditConfig |> dispatch)
             CheckBox.onUnchecked (fun _ -> false |> SetShowAdvanced |> EditConfig |> dispatch)
@@ -190,14 +190,14 @@ let private generalConfig state dispatch =
 let private importConfig state dispatch =
     let localize conv =
         match conv with
-        | NoConversion -> "noConversion"
-        | ToOgg -> "toOggFile"
-        | ToWav -> "toWavFile"
+        | NoConversion -> "NoConversion"
+        | ToOgg -> "ToOggFiles"
+        | ToWav -> "ToWaveFiles"
         |> translate
 
     vStack [
         // Header
-        locText "psarcImportHeader" [
+        locText "PSARCImportHeader" [
             TextBlock.fontSize 16.
             TextBlock.margin (4., 4., 0., 0.)
         ]
@@ -209,7 +209,7 @@ let private importConfig state dispatch =
             Border.child (
                 vStack [
                     // Convert Audio Options
-                    locText "convertWemOnImport" [
+                    locText "ConvertWemOnImport" [
                         TextBlock.margin (0., 0., 0., 4.)
                     ]
                     yield! [ NoConversion; ToOgg; ToWav ]
@@ -223,7 +223,7 @@ let private importConfig state dispatch =
 
                     // Remove DD Levels
                     CheckBox.create [
-                        CheckBox.content (translate "removeDDLevels")
+                        CheckBox.content (translate "RemoveDDLevels")
                         CheckBox.isChecked state.Config.RemoveDDOnImport
                         CheckBox.onChecked (fun _ -> true |> SetRemoveDDOnImport |> EditConfig |> dispatch)
                         CheckBox.onUnchecked (fun _ -> false |> SetRemoveDDOnImport |> EditConfig |> dispatch)
@@ -239,14 +239,14 @@ let private ddConfig state dispatch =
         CheckBox.create [
             CheckBox.margin (0., 2.)
             CheckBox.verticalAlignment VerticalAlignment.Center
-            CheckBox.content (translate "findSimilarPhrases")
+            CheckBox.content (translate "FindSimilarPhrases")
             CheckBox.isChecked state.Config.DDPhraseSearchEnabled
             CheckBox.onChecked (fun _ -> true |> SetDDPhraseSearchEnabled |> EditConfig |> dispatch)
             CheckBox.onUnchecked (fun _ -> false |> SetDDPhraseSearchEnabled |> EditConfig |> dispatch)
         ]
 
         // Similarity Threshold
-        locText "similarityThreshold" [
+        locText "SimilarityThreshold" [
             TextBlock.verticalAlignment VerticalAlignment.Center
             TextBlock.isEnabled state.Config.DDPhraseSearchEnabled
         ]
@@ -270,7 +270,7 @@ let private ddConfig state dispatch =
         ]
 
         // Level Count Generation
-        locText "phraseLevelCountGeneration" [
+        locText "PhraseLevelCountGeneration" [
             TextBlock.margin (0., 20., 0., 0.)
         ]
         vStack (
@@ -291,14 +291,14 @@ let private buildConfig state dispatch =
         // Apply Improvements
         CheckBox.create [
             CheckBox.verticalAlignment VerticalAlignment.Center
-            CheckBox.content (translate "applyImprovements")
+            CheckBox.content (translate "ApplyImprovements")
             CheckBox.isChecked state.Config.ApplyImprovements
             CheckBox.onChecked (fun _ -> true |> SetApplyImprovements |> EditConfig |> dispatch)
             CheckBox.onUnchecked (fun _ -> false |> SetApplyImprovements |> EditConfig |> dispatch)
         ]
 
         // Release Build Options
-        locText "release" [
+        locText "Release" [
             TextBlock.fontSize 16.
             TextBlock.margin (4., 4., 0., 0.)
         ]
@@ -311,7 +311,7 @@ let private buildConfig state dispatch =
                 vStack [
                     hStack [
                         // Release Platforms
-                        locText "releasePlatforms" [
+                        locText "Platforms" [
                             TextBlock.margin (0., 0., 10., 0.)
                             TextBlock.verticalAlignment VerticalAlignment.Center
                         ]
@@ -338,7 +338,7 @@ let private buildConfig state dispatch =
                     // Open Containing Folder
                     CheckBox.create [
                         CheckBox.verticalAlignment VerticalAlignment.Center
-                        CheckBox.content (translate "openContainingFolderAfterBuild")
+                        CheckBox.content (translate "OpenContainingFolderAfterBuild")
                         CheckBox.isChecked state.Config.OpenFolderAfterReleaseBuild
                         CheckBox.onChecked (fun _ -> true |> SetOpenFolderAfterReleaseBuild |> EditConfig |> dispatch)
                         CheckBox.onUnchecked (fun _ -> false |> SetOpenFolderAfterReleaseBuild |> EditConfig |> dispatch)
@@ -348,7 +348,7 @@ let private buildConfig state dispatch =
         ]
 
         // Test Build Options
-        locText "test" [
+        locText "Test" [
             TextBlock.fontSize 16.
             TextBlock.margin (4., 4., 0., 0.)
         ]
@@ -361,7 +361,7 @@ let private buildConfig state dispatch =
                 vStack [
                     hStack [
                         // App ID
-                        locText "testingAppId" [
+                        locText "AppID" [
                             TextBlock.verticalAlignment VerticalAlignment.Center
                             TextBlock.margin (0., 0., 10., 0.)
                         ]
@@ -375,7 +375,7 @@ let private buildConfig state dispatch =
                                 RadioButton.isChecked state.Config.CustomAppId.IsSome
                                 RadioButton.content (
                                     hStack [
-                                        locText "custom" [
+                                        locText "Custom" [
                                             TextBlock.verticalAlignment VerticalAlignment.Center
                                         ]
                                         FixedTextBox.create [
@@ -393,7 +393,7 @@ let private buildConfig state dispatch =
                     // Generate DD
                     CheckBox.create [
                         CheckBox.verticalAlignment VerticalAlignment.Center
-                        CheckBox.content (translate "generateDD")
+                        CheckBox.content (translate "GenerateDDLevels")
                         CheckBox.isChecked state.Config.GenerateDD
                         CheckBox.onChecked (fun _ -> true |> SetGenerateDD |> EditConfig |> dispatch)
                         CheckBox.onUnchecked (fun _ -> false |> SetGenerateDD |> EditConfig |> dispatch)
@@ -402,7 +402,7 @@ let private buildConfig state dispatch =
                     // Save Debug Files
                     CheckBox.create [
                         CheckBox.verticalAlignment VerticalAlignment.Center
-                        CheckBox.content (translate "saveDebugFiles")
+                        CheckBox.content (translate "SaveDebugFiles")
                         CheckBox.isChecked state.Config.SaveDebugFiles
                         CheckBox.onChecked (fun _ -> true |> SetSaveDebugFiles |> EditConfig |> dispatch)
                         CheckBox.onUnchecked (fun _ -> false |> SetSaveDebugFiles |> EditConfig |> dispatch)
@@ -437,7 +437,7 @@ let view state dispatch =
                 Button.fontSize 16.
                 Button.padding (50., 10.)
                 Button.horizontalAlignment HorizontalAlignment.Center
-                Button.content (translate "close")
+                Button.content (translate "Close")
                 Button.onClick (fun _ -> CloseOverlay |> dispatch)
             ]
 
@@ -445,22 +445,22 @@ let view state dispatch =
                 TabControl.viewItems [
                     TabItem.create [
                         TabItem.horizontalAlignment HorizontalAlignment.Center
-                        TabItem.header (tabHeader Media.Icons.cog "general")
+                        TabItem.header (tabHeader Media.Icons.cog "General")
                         TabItem.content (generalConfig state dispatch)
                     ]
                     TabItem.create [
                         TabItem.horizontalAlignment HorizontalAlignment.Center
-                        TabItem.header (tabHeader Media.Icons.package "build")
+                        TabItem.header (tabHeader Media.Icons.package "Build")
                         TabItem.content (buildConfig state dispatch)
                     ]
                     TabItem.create [
                         TabItem.horizontalAlignment HorizontalAlignment.Center
-                        TabItem.header (tabHeader Media.Icons.bars "dd")
+                        TabItem.header (tabHeader Media.Icons.bars "DD")
                         TabItem.content (ddConfig state dispatch)
                     ]
                     TabItem.create [
                         TabItem.horizontalAlignment HorizontalAlignment.Center
-                        TabItem.header (tabHeader Media.Icons.import "importHeader")
+                        TabItem.header (tabHeader Media.Icons.import "ImportHeader")
                         TabItem.content (importConfig state dispatch)
                     ]
                 ]

@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.DeleteConfirmation
+module DLCBuilder.Views.DeleteConfirmation
 
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
@@ -22,7 +22,7 @@ let view dispatch (files: string list) =
                         Path.verticalAlignment VerticalAlignment.Center
                         Path.margin (0., 0., 10., 0.)
                     ]
-                    locText "confirmDelete" [
+                    locText "ConfirmDelete" [
                         TextBlock.fontSize 18.
                     ]
                 ]
@@ -31,7 +31,7 @@ let view dispatch (files: string list) =
             // Confirmation message
             TextBlock.create [
                 TextBlock.fontSize 16.
-                TextBlock.text (translatef "deleteConfirmation" [| files.Length |])
+                TextBlock.text (translatef "DeleteConfirmation" [| files.Length |])
                 TextBlock.margin 10.0
             ]
 
@@ -44,7 +44,7 @@ let view dispatch (files: string list) =
                     Button.create [
                         Button.fontSize 18.
                         Button.padding (80., 10.)
-                        Button.content (translate "yes")
+                        Button.content (translate "Yes")
                         Button.onClick ((fun _ ->
                             files |> DeleteConfirmed |> dispatch),
                             SubPatchOptions.Always)
@@ -54,7 +54,7 @@ let view dispatch (files: string list) =
                     Button.create [
                         Button.fontSize 18.
                         Button.padding (80., 10.)
-                        Button.content (translate "no")
+                        Button.content (translate "No")
                         Button.onClick (fun _ -> dispatch CloseOverlay)
                     ]
                 ]
