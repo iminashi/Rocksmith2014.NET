@@ -218,7 +218,7 @@ let update (msg: Msg) (state: State) =
 
     | PsarcImported (project, projectFile) ->
         let cmd = Cmd.batch [
-            Cmd.ofMsg (AddStatusMessage "PsarcImportComplete")
+            Cmd.ofMsg (AddStatusMessage (translate "PsarcImportComplete"))
             Cmd.ofMsg (ProjectLoaded(project, projectFile)) ]
         removeTask PsarcImport state, cmd
 
@@ -229,7 +229,8 @@ let update (msg: Msg) (state: State) =
 
             { state with Project = project; OpenProjectFile = None; CoverArt = coverArt
                          SelectedArrangementIndex = -1; SelectedToneIndex = -1 }, Cmd.none
-        with e -> state, Cmd.ofMsg (ErrorOccurred e)
+        with e ->
+            state, Cmd.ofMsg (ErrorOccurred e)
 
     | ImportTonesFromFile fileName ->
         let task () =
@@ -399,7 +400,7 @@ let update (msg: Msg) (state: State) =
     | AddToneToCollection ->
         getSelectedTone state
         |> Option.iter (ToneCollection.Database.addToUserCollection project)
-        state, Cmd.ofMsg (AddStatusMessage "toneAddedToCollection")
+        state, Cmd.ofMsg (AddStatusMessage (translate "toneAddedToCollection"))
 
     | DuplicateTone ->
         let duplicate =
@@ -534,7 +535,7 @@ let update (msg: Msg) (state: State) =
         let msg =
             match update with
             | Some _ -> ShowUpdateInformation
-            | None -> AddStatusMessage "noUpdate"
+            | None -> AddStatusMessage (translate "noUpdate")
         { state with AvailableUpdate = update }, Cmd.ofMsg msg
 
     | UpdateAndRestart ->
@@ -638,7 +639,7 @@ let update (msg: Msg) (state: State) =
 
         match filesToDelete with
         | [] ->
-            state, Cmd.none
+            state, Cmd.ofMsg <| AddStatusMessage (translate "noTestBuildsFound")
         | [ _ ] as one ->
             state, Cmd.ofMsg (DeleteConfirmed one)
         | many ->
@@ -648,7 +649,9 @@ let update (msg: Msg) (state: State) =
         let cmd =
             try
                 List.iter File.Delete files
-                Cmd.none
+                let f = translate (if files.Length = 1 then "file" else "files")
+                let message = translatef "filesDeleted" [| files.Length; f |]
+                Cmd.ofMsg <| AddStatusMessage message
             with e ->
                 Cmd.ofMsg <| ErrorOccurred e
         { state with Overlay = NoOverlay }, cmd
@@ -705,13 +708,13 @@ let update (msg: Msg) (state: State) =
 
         let cmd = Cmd.batch [
             Cmd.OfAsync.attempt task () ErrorOccurred
-            Cmd.ofMsg (AddStatusMessage "BuildPackageComplete") ]
+            Cmd.ofMsg (AddStatusMessage (translate "BuildPackageComplete")) ]
 
         removeTask BuildPackage state, cmd
 
     | WemConversionComplete _ ->
         removeTask WemConversion state,
-        Cmd.ofMsg (AddStatusMessage "WemConversionComplete")
+        Cmd.ofMsg (AddStatusMessage (translate "WemConversionComplete"))
 
     | CheckArrangements ->
         if canRunValidation state then
@@ -724,7 +727,7 @@ let update (msg: Msg) (state: State) =
 
     | CheckCompleted issues ->
         { removeTask ArrangementCheck state with ArrangementIssues = issues },
-        Cmd.ofMsg (AddStatusMessage "ValidationComplete")
+        Cmd.ofMsg (AddStatusMessage (translate "ValidationComplete"))
 
     | TaskProgressChanged (progressedTask, progress) ->
         let messages =
@@ -736,14 +739,13 @@ let update (msg: Msg) (state: State) =
 
     | PsarcUnpacked ->
         removeTask PsarcUnpack state,
-        Cmd.ofMsg (AddStatusMessage "PsarcUnpackComplete")
+        Cmd.ofMsg (AddStatusMessage (translate "PsarcUnpackComplete"))
 
     | WemToOggConversionCompleted ->
         removeTask WemToOggConversion state, Cmd.none
 
-    | AddStatusMessage locString ->
+    | AddStatusMessage message ->
         let id = Guid.NewGuid()
-        let message = translate locString
         let messages = MessageString(id,  message)::state.StatusMessages
         { state with StatusMessages = messages }, Cmd.OfAsync.result (removeStatusMessage id)
 
@@ -790,9 +792,9 @@ let update (msg: Msg) (state: State) =
                 newState, Cmd.none
             | ToneCollection.AddToneToProject tone ->
                 { newState with Project = { project with Tones = tone::project.Tones } },
-                Cmd.ofMsg (AddStatusMessage "toneAddedToProject")
+                Cmd.ofMsg (AddStatusMessage (translate "toneAddedToProject"))
             | ToneCollection.ShowToneAddedToCollectionMessage ->
-                newState, Cmd.ofMsg (AddStatusMessage "toneAddedToCollection")
+                newState, Cmd.ofMsg (AddStatusMessage (translate "toneAddedToCollection"))
         | _ ->
             state, Cmd.none
 

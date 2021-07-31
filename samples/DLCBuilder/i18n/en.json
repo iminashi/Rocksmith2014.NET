@@ -59,7 +59,7 @@
   "previewAudioExistsToolTip": "Preview audio file exists, click to create a new one.",
   "previewAudioDoesNotExistToolTip": "Preview audio file does not exist, click to create one.",
   "configuration": "_Configuration",
-  "file": "_File",
+  "fileMenuItem": "_File",
   "exit": "E_xit",
   "newProject": "_New Project",
   "openProject": "_Open Project...",
@@ -377,5 +377,9 @@
   "bassTone": "Bass Tone",
   "enterAValidGUID": "Enter a valid GUID.",
   "enterNumberLargerThanZero": "Enter a number larger than zero.",
-  "enterBaseToneKey": "Base tone key cannot be empty."
+  "enterBaseToneKey": "Base tone key cannot be empty.",
+  "noTestBuildsFound": "No test builds found.",
+  "file": "file",
+  "files": "files",
+  "filesDeleted": "{0} {1} deleted."
 }

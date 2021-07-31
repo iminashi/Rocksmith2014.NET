@@ -265,7 +265,7 @@ type Msg =
     | WemConversionComplete of unit
     | CheckArrangements
     | TaskProgressChanged of task : LongTask * progress : float
-    | AddStatusMessage of locString : string
+    | AddStatusMessage of message : string
     | RemoveStatusMessage of id : Guid
     | CheckCompleted of Map<string, ArrangementChecker.Issue list>
     | PsarcUnpacked

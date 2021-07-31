@@ -58,7 +58,7 @@ let file state dispatch =
     let isImporting = state.RunningTasks.Contains PsarcImport
 
     MenuItem.create [
-        MenuItem.header (translate "file")
+        MenuItem.header (translate "fileMenuItem")
         MenuItem.viewItems [
             // New project
             MenuItem.create [

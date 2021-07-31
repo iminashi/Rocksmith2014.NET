@@ -59,7 +59,7 @@
   "previewAudioExistsToolTip": "プレビューオーディオが存在します。クリックで新しいのが作れます。",
   "previewAudioDoesNotExistToolTip": "プレビューオーディオが存在しません。クリックして作りましょう。",
   "configuration": "設定",
-  "file": "ファイル",
+  "fileMenuItem": "ファイル",
   "exit": "終了",
   "newProject": "新規プロジェクト",
   "openProject": "プロジェクトを開く...",
@@ -377,5 +377,9 @@
   "bassTone": "ベーストーン",
   "enterAValidGUID": "正当なGUIDを入力してください。",
   "enterNumberLargerThanZero": "正数を入力してください。",
-  "enterBaseToneKey": "ベーストーンキーを入力してください。"
+  "enterBaseToneKey": "ベーストーンキーを入力してください。",
+  "noTestBuildsFound": "テストビルドを見つかりませんでした。",
+  "file": "ファイル",
+  "files": "ファイル",
+  "filesDeleted": "{0}個の{1}が削除されました。"
 }

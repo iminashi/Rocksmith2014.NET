@@ -59,7 +59,7 @@
   "previewAudioExistsToolTip": "Esikatseluäänitiedosto on olemassa, paina luodaksesi uuden.",
   "previewAudioDoesNotExistToolTip": "Esikatseluäänitiedostoa ei löydy, paina luodaksesi sellaisen.",
   "configuration": "A_setukset",
-  "file": "_Tiedosto",
+  "fileMenuItem": "_Tiedosto",
   "exit": "_Lopeta",
   "newProject": "_Uusi projekti",
   "openProject": "_Avaa projekti...",
@@ -377,5 +377,9 @@
   "bassTone": "Bassosoundi",
   "enterAValidGUID": "Anna kelvollinen GUID.",
   "enterNumberLargerThanZero": "Anna positiivinen numero.",
-  "enterBaseToneKey": "Anna perus-soundiavain."
+  "enterBaseToneKey": "Anna perus-soundiavain.",
+  "noTestBuildsFound": "Yhtään testibuildia ei löytynyt.",
+  "file": "tiedosto",
+  "files": "tiedostoa",
+  "filesDeleted": "{0} {1} poistettiin."
 }
