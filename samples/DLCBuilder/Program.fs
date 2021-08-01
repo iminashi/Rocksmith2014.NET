@@ -23,10 +23,14 @@ type MainWindow(commandLineArgs: string array) as this =
 
     let autoSaveSubject = new Subject<unit>()
 
-    let shouldAutoSave newState oldState =
-        newState.Config.AutoSave &&
-        newState.OpenProjectFile.IsSome &&
-        newState.Project <> oldState.Project
+    let shouldAutoSave newState oldState msg =
+        match msg with
+        | ProjectLoaded _ ->
+            false
+        | _ ->
+            newState.Config.AutoSave &&
+            newState.OpenProjectFile.IsSome &&
+            newState.Project <> oldState.Project
 
     do
         let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
@@ -70,7 +74,7 @@ type MainWindow(commandLineArgs: string array) as this =
         let update' msg state =
             try
                 let newState, cmd = Main.update msg state
-                if shouldAutoSave newState state then autoSaveSubject.OnNext()
+                if shouldAutoSave newState state msg then autoSaveSubject.OnNext()
 
                 newState, cmd
             with ex ->
