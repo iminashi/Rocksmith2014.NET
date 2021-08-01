@@ -69,6 +69,7 @@ let build platform config project = async {
 
             { project with DLCKey = $"{project.DLCKey}{versionString}"
                            Title = title
+                           JapaneseTitle = project.JapaneseTitle |> Option.map (fun title -> $"{title} {versionString}")
                            Arrangements = arrangements },
             $"{packageFileName}_{versionString}"
 
