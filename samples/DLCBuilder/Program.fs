@@ -12,12 +12,16 @@ open Avalonia.Platform
 open Avalonia.Themes.Fluent
 open System
 open System.IO
+open System.Reactive.Linq
+open System.Reactive.Subjects
 open System.Reflection
 open Microsoft.Extensions.FileProviders
 open Rocksmith2014.Common
 
 type MainWindow(commandLineArgs: string array) as this =
     inherit HostWindow()
+
+    let autoSaveSubject = new Subject<unit>()
 
     let shouldAutoSave newState oldState =
         newState.Config.AutoSave &&
@@ -41,6 +45,13 @@ type MainWindow(commandLineArgs: string array) as this =
 
         let hotKeysSub _initialModel = Cmd.ofSub (HotKeys.handleEvent >> this.KeyDown.Add)
 
+        let autoSaveSub _ =
+            let sub dispatch =
+                autoSaveSubject
+                    .Throttle(TimeSpan.FromSeconds 1.)
+                    .Add(fun () -> dispatch AutoSaveProject)
+            Cmd.ofSub sub
+
         let progressReportingSub _ =
             let sub dispatch =
                 let dispatchProgress task progress = TaskProgressChanged(task, progress) |> dispatch
@@ -59,14 +70,9 @@ type MainWindow(commandLineArgs: string array) as this =
         let update' msg state =
             try
                 let newState, cmd = Main.update msg state
-                let commands =
-                    if shouldAutoSave newState state then
-                        let autoSaveCmd = Cmd.OfAsync.optionalResult (StateUtils.autoSave ())
-                        Cmd.batch [ autoSaveCmd; cmd ]
-                    else
-                        cmd
+                if shouldAutoSave newState state then autoSaveSubject.OnNext()
 
-                newState, commands
+                newState, cmd
             with ex ->
                 // Close the DB connection in case of an unexpected error
                 match state.Overlay with
@@ -78,7 +84,7 @@ type MainWindow(commandLineArgs: string array) as this =
                 let errorMessage =
                     $"Unhandled exception in the update function.\nMessage: {msg}\nException: {ex.Message}"
                 let newState =
-                    { state with StatusMessages = []
+                    { state with StatusMessages = List.empty
                                  RunningTasks = Set.empty
                                  Overlay = ErrorMessage(errorMessage, Option.ofString ex.StackTrace) }
                 newState, Cmd.none
@@ -87,6 +93,7 @@ type MainWindow(commandLineArgs: string array) as this =
         |> Program.withHost this
         |> Program.withSubscription hotKeysSub
         |> Program.withSubscription progressReportingSub
+        |> Program.withSubscription autoSaveSub
         #if DEBUG
         |> Program.withTrace (fun msg _state -> Diagnostics.Debug.WriteLine msg)
         #endif

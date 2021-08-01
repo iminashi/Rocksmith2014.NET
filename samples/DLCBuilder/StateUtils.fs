@@ -116,20 +116,6 @@ let updateRecentFilesAndConfig projectFile state =
             Cmd.none
     recent, newConfig, cmd
 
-/// Returns a throttled auto-save message.
-let autoSave =
-    let mutable id = 0L
-
-    fun () ->
-        id <- id + 1L
-        let thisId = id
-        async {
-            do! Async.Sleep 1000
-            if thisId = id then
-                return Some AutoSaveProject
-            else
-                return None }
-
 /// Returns a delayed message to remove the status message with the given ID.
 let removeStatusMessage (id: Guid) = async {
     do! Async.Sleep 4000
