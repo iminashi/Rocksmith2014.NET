@@ -383,5 +383,6 @@
   "NoTestBuildsFound": "テストビルドを見つかりませんでした。",
   "file": "ファイル",
   "files": "ファイル",
-  "FilesDeleted": "{0}個の{1}が削除されました。"
+  "FilesDeleted": "{0}個の{1}が削除されました。",
+  "RemoveKeyToolTip": "キーを削除する。"
 }

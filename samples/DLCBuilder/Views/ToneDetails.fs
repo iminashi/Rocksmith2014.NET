@@ -69,6 +69,7 @@ let view state dispatch (tone: Tone) =
                         Button.content "X"
                         Button.isEnabled (String.notEmpty tone.Key)
                         Button.onClick (fun _ -> String.Empty |> SetKey |> EditTone |> dispatch)
+                        ToolTip.tip (translate "RemoveKeyToolTip")
                     ]
 
                     FixedComboBox.create [

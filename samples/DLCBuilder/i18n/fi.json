@@ -383,5 +383,6 @@
   "NoTestBuildsFound": "Yhtään testibuildia ei löytynyt.",
   "file": "tiedosto",
   "files": "tiedostoa",
-  "FilesDeleted": "{0} {1} poistettiin."
+  "FilesDeleted": "{0} {1} poistettiin.",
+  "RemoveKeyToolTip": "Poista avain."
 }

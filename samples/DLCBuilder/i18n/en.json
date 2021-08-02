@@ -383,5 +383,6 @@
   "NoTestBuildsFound": "No test builds found.",
   "file": "file",
   "files": "files",
-  "FilesDeleted": "{0} {1} deleted."
+  "FilesDeleted": "{0} {1} deleted.",
+  "RemoveKeyToolTip": "Remove key."
 }
