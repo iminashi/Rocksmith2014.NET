@@ -88,7 +88,7 @@ let private toIssueView issues =
             |> List.map (fun issue ->
                 TextBlock.create [
                     TextBlock.margin (10., 2.)
-                    TextBlock.fontSize 15.
+                    TextBlock.fontSize 16.
                     TextBlock.fontFamily Media.Fonts.monospace
                     TextBlock.text (timeToString issue.TimeCode)
                 ] |> generalize)
