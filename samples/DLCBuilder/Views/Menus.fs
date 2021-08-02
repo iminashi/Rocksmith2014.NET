@@ -475,6 +475,14 @@ let project state dispatch =
 
             separator
 
+            MenuItem.create [
+                MenuItem.header (translate "OpenProjectFolderMenuItem")
+                MenuItem.onClick (fun _ -> OpenProjectFolder |> dispatch)
+                MenuItem.isEnabled state.OpenProjectFile.IsSome
+            ]
+
+            separator
+
             // Delete test builds
             MenuItem.create [
                 MenuItem.header (translate "DeleteTestBuildsMenuItem")

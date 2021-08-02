@@ -70,6 +70,7 @@
   "RecentProjectsMenuItem": "_Viimeksi avatut projektit",
   "DeleteTestBuildsMenuItem": "_Poista testibuildit",
   "DeleteTestBuildsToolTip": "Poistaa kaikki tämän projektin mahdolliset testibuildit.",
+  "OpenProjectFolderMenuItem": "Avaa projektin _kansio",
   "ToolsMenuItem": "T_yökalut",
   "BuildMenuItem": "_Rakenna",
   "ProjectMenuItem": "_Projekti",

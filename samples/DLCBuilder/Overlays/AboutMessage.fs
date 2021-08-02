@@ -20,6 +20,7 @@ let view dispatch =
                 Button.horizontalAlignment HorizontalAlignment.Center
                 Button.content (translate "Close")
                 Button.onClick (fun _ -> CloseOverlay |> dispatch)
+                Button.isDefault true
             ]
 
             vStack [
@@ -53,7 +54,7 @@ let view dispatch =
                     TextBlock.margin 4.
                     TextBlock.onTapped (fun ev ->
                         ev.Handled <- true
-                        Utils.openLink "https://github.com/iminashi/Rocksmith2014.NET"
+                        Utils.openWithShell "https://github.com/iminashi/Rocksmith2014.NET"
                     )
                 ]
             ]

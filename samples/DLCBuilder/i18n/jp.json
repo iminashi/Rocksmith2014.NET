@@ -70,6 +70,7 @@
   "RecentProjectsMenuItem": "最近のプロジェクト",
   "DeleteTestBuildsMenuItem": "テストビルドを削除する",
   "DeleteTestBuildsToolTip": "このプロジェクトのテストビルドを削除します。",
+  "OpenProjectFolderMenuItem": "プロジェクトフォルダーを開く",
   "ToolsMenuItem": "ツール",
   "BuildMenuItem": "ビルド",
   "ProjectMenuItem": "プロジェクト",

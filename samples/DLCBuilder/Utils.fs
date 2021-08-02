@@ -173,9 +173,9 @@ let addMetadata (md: MetaData option) charterName project =
     | None ->
         project
 
-/// Starts the given URL using the operating system shell.
-let openLink url =
-    ProcessStartInfo(url, UseShellExecute = true)
+/// Starts the given path or URL using the operating system shell.
+let openWithShell pathOrUrl =
+    ProcessStartInfo(pathOrUrl, UseShellExecute = true)
     |> Process.Start
     |> ignore
 

@@ -80,7 +80,7 @@ let view (update: UpdateInformation) dispatch =
                                 translate "UpdateAndRestart")
                         Button.onClick (fun _ ->
                             if OperatingSystem.IsMacOS() then
-                                Utils.openLink "https://github.com/iminashi/Rocksmith2014.NET/releases"
+                                Utils.openWithShell "https://github.com/iminashi/Rocksmith2014.NET/releases"
                                 dispatch CloseOverlay
                             else
                                 dispatch UpdateAndRestart)

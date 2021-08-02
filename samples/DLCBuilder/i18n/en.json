@@ -70,6 +70,7 @@
   "RecentProjectsMenuItem": "_Recent Projects",
   "DeleteTestBuildsMenuItem": "_Delete Test Builds",
   "DeleteTestBuildsToolTip": "Deletes any test builds that exist for this project.",
+  "OpenProjectFolderMenuItem": "Open Project _Folder",
   "ToolsMenuItem": "_Tools",
   "BuildMenuItem": "_Build",
   "ProjectMenuItem": "_Project",

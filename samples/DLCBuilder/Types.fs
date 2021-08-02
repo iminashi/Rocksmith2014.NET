@@ -215,6 +215,7 @@ type Msg =
     | SaveProject of fileName : string
     | ProjectSaved of targetFile : string
     | AutoSaveProject
+    | OpenProjectFolder
     | AddArrangements of files : string array
     | SetCoverArt of fileName : string
     | SetAudioFile of fileName : string

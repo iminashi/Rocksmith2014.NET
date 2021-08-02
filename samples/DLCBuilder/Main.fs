@@ -695,9 +695,8 @@ let update (msg: Msg) (state: State) =
     | BuildComplete buildType ->
         let task() = async {
             if buildType = Release && config.OpenFolderAfterReleaseBuild then
-                let projectPath =
-                    ReleasePackageBuilder.getTargetDirectory state.OpenProjectFile project
-                Process.Start(ProcessStartInfo(projectPath, UseShellExecute = true)) |> ignore }
+                ReleasePackageBuilder.getTargetDirectory state.OpenProjectFile project
+                |> Utils.openWithShell }
 
         let cmd = Cmd.batch [
             Cmd.OfAsync.attempt task () ErrorOccurred
@@ -757,6 +756,11 @@ let update (msg: Msg) (state: State) =
             { state with Overlay = IssueViewer state.ArrangementIssues.[xmlFile] }, Cmd.none
         | None ->
             state, Cmd.none
+
+    | OpenProjectFolder ->
+        state.OpenProjectFile
+        |> Option.iter (Path.GetDirectoryName >> Utils.openWithShell)
+        state, Cmd.none
 
     | ErrorOccurred e ->
         { state with Overlay = exceptionToErrorMessage e }, Cmd.none
