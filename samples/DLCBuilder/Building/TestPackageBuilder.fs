@@ -27,6 +27,17 @@ let generateIds = function
 /// Generates new IDs for all the arrangements.
 let generateAllIds arrangements = List.map generateIds arrangements
 
+/// Returns a list of paths to the test builds for the project.
+let getTestBuildFiles config project =
+    let packageName = createPackageName project
+
+    if packageName.Length >= DLCKey.MinimumLength && Directory.Exists config.TestFolderPath then
+        Directory.EnumerateFiles config.TestFolderPath
+        |> Seq.filter (Path.GetFileName >> (String.startsWith packageName))
+        |> List.ofSeq
+    else
+        List.empty
+
 /// Returns an async computation for building a package for testing.
 let build platform config project = async {
     let isRocksmithRunning =

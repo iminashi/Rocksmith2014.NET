@@ -628,16 +628,7 @@ let update (msg: Msg) (state: State) =
     | EditConfig edit -> { state with Config = editConfig edit config }, Cmd.none
 
     | DeleteTestBuilds ->
-        let packageName = TestPackageBuilder.createPackageName project
-        let filesToDelete =
-            if packageName.Length >= DLCKey.MinimumLength && Directory.Exists config.TestFolderPath then
-                Directory.EnumerateFiles config.TestFolderPath
-                |> Seq.filter (Path.GetFileName >> (String.startsWith packageName))
-                |> List.ofSeq
-            else
-                List.empty
-
-        match filesToDelete with
+        match TestPackageBuilder.getTestBuildFiles config project with
         | [] ->
             state, Cmd.ofMsg <| AddStatusMessage (translate "NoTestBuildsFound")
         | [ _ ] as one ->
