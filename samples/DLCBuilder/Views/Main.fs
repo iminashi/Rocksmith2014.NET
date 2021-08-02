@@ -300,7 +300,7 @@ let private overlay state dispatch =
     | SelectPreviewStart audioLength ->
         PreviewStartSelector.view state dispatch audioLength
     | ImportToneSelector tones ->
-        ImportTonesSelector.view dispatch tones
+        ImportTonesSelector.view state dispatch tones
     | ConfigEditor ->
         ConfigEditor.view state dispatch
     | IssueViewer issues ->

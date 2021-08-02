@@ -141,6 +141,7 @@ type State =
       SelectedArrangementIndex : int
       SelectedToneIndex : int
       SelectedGear : ToneGear.GearData option
+      SelectedImportTones : Tone list
       ManuallyEditingKnobKey : string option
       SelectedGearSlot : ToneGear.GearSlot
       ShowSortFields : bool
@@ -204,6 +205,8 @@ type Msg =
     | ImportTonesFromFile of fileName : string
     | ImportProfileTones
     | ImportTones of tones : Tone list
+    | ImportSelectedTones
+    | SetSelectedImportTones of selectedTones : Tone list
     | NewProject
     | OpenProject of fileName : string
     | ProjectLoaded of project : DLCProject * projectFile : string

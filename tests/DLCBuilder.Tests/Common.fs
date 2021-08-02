@@ -16,6 +16,7 @@ let initialState =
       SelectedToneIndex = -1
       SelectedGear = None
       SelectedGearSlot = ToneGear.Amp
+      SelectedImportTones = List.empty
       ManuallyEditingKnobKey = None
       ShowSortFields = false
       ShowJapaneseFields = false

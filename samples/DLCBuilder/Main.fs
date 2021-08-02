@@ -48,6 +48,7 @@ let init args =
       SelectedToneIndex = -1
       SelectedGear = None
       SelectedGearSlot = ToneGear.Amp
+      SelectedImportTones = List.empty
       ManuallyEditingKnobKey = None
       ShowSortFields = false
       ShowJapaneseFields = false
@@ -148,6 +149,10 @@ let update (msg: Msg) (state: State) =
                      SelectedToneIndex = -1
                      CoverArt = None }, Cmd.none
 
+    | SetSelectedImportTones tones -> { state with SelectedImportTones = tones }, Cmd.none
+
+    | ImportSelectedTones -> state, Cmd.ofMsg (ImportTones state.SelectedImportTones)
+
     | ImportTones tones -> addTones state tones, Cmd.none
 
     | ExportSelectedTone ->
@@ -174,6 +179,7 @@ let update (msg: Msg) (state: State) =
                 Cmd.none
             | _ ->
                 Cmd.none
+
         { state with Overlay = NoOverlay }, cmd
 
     | ImportPsarc (psarcFile, targetFolder) ->
@@ -262,7 +268,7 @@ let update (msg: Msg) (state: State) =
         | [| one |] ->
             state, Cmd.ofMsg (ImportTones (List.singleton one))
         | _ ->
-            { state with Overlay = ImportToneSelector tones }, Cmd.none
+            { state with SelectedImportTones = []; Overlay = ImportToneSelector tones }, Cmd.none
 
     | SetAudioFile fileName ->
         let audioFile = { project.AudioFile with Path = fileName }
