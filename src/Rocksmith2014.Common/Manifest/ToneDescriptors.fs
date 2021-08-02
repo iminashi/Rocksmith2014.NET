@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.Common.Manifest
+namespace Rocksmith2014.Common.Manifest
 
 open System
 
@@ -131,7 +131,7 @@ module ToneDescriptor =
           IsExtra = true }
 
         { Name = "Processed"
-          Aliases = [ "synth"; "sustain" ]
+          Aliases = [ "synth"; "sustain"; "processed" ]
           UIName = "$[35734]PROCESSED"
           IsExtra = false }
 
@@ -156,7 +156,7 @@ module ToneDescriptor =
           IsExtra = false }
 
         { Name = "Ukulele"
-          Aliases = [ "uke" ]
+          Aliases = [ "ukulele"; "uke" ]
           UIName = "$[27204]UKULELE"
           IsExtra = true }
 

@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.Common
+namespace Rocksmith2014.Common
 
 open System
 open System.Collections.Generic
@@ -56,7 +56,10 @@ module Option =
     let ofString s = if String.IsNullOrWhiteSpace s then None else Some s
 
     /// Creates an option from an array, where null or an empty array equals None.
-    let ofArray a = match a with null | [||] -> None | _ -> Some a
+    let ofArray a =
+        match a with
+        | null | [||] -> None
+        | array -> Some array
 
 [<RequireQualifiedAccess>]
 module String =
