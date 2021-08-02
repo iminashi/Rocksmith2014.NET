@@ -196,3 +196,21 @@ let removeDD project =
         arr.Save inst.XML })
     |> Async.Sequential
     |> Async.Ignore
+
+module FocusHelper =
+    open Avalonia.Controls
+    open Avalonia.Input
+
+    let private window =
+        lazy (Application.Current.ApplicationLifetime :?> ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime).MainWindow
+
+    let mutable elementThatHadFocus : IInputElement = null
+
+    let storeFocusedElement () =
+        elementThatHadFocus <- FocusManager.Instance.Current
+        // Blur the focus from the element
+        window.Value.Focus()
+
+    let restoreFocus () =
+        if notNull elementThatHadFocus then 
+            elementThatHadFocus.Focus()

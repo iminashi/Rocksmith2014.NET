@@ -76,6 +76,15 @@ type MainWindow(commandLineArgs: string array) as this =
                 let newState, cmd = Main.update msg state
                 if shouldAutoSave newState state msg then autoSaveSubject.OnNext()
 
+                // Workaround for focus issues when opening / closing overlays
+                match state, newState with
+                | { Overlay = NoOverlay }, { Overlay = overlay } when overlay <> NoOverlay ->
+                    Utils.FocusHelper.storeFocusedElement()
+                | { Overlay = overlay }, { Overlay = NoOverlay } when overlay <> NoOverlay ->
+                    Utils.FocusHelper.restoreFocus()
+                | _ ->
+                    ()
+
                 newState, cmd
             with ex ->
                 // Close the DB connection in case of an unexpected error
