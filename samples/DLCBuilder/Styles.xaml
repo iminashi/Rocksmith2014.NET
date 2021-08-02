@@ -44,13 +44,19 @@
   <Style Selector="TextBlock.link:pointerover">
     <Setter Property="TextDecorations" Value="Underline"/>
   </Style>
-  <Style Selector="Border.icon-btn">
+  <Style Selector="Button.icon-btn">
     <Setter Property="Background" Value="Transparent"/>
   </Style>
-  <Style Selector="Border.icon-btn:pointerover">
+  <Style Selector="Button.icon-btn:pointerover">
     <Setter Property="Background" Value="#383838"/>
   </Style>
-  <Style Selector="Border.icon-btn:disabled">
+  <Style Selector="Button.icon-btn:disabled">
     <Setter Property="Opacity" Value="0.5"/>
+  </Style>
+  <Style Selector="Button.icon-btn:disabled /template/ ContentPresenter">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="Button.icon-btn /template/ ContentPresenter">
+    <Setter Property="CornerRadius" Value="0" />
   </Style>
 </Styles>

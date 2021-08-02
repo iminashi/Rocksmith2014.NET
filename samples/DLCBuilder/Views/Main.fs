@@ -100,7 +100,12 @@ let private arrangementDetails state dispatch =
                                         StackPanel.background Brushes.Transparent
                                         if not noIssues then
                                             StackPanel.onTapped (fun _ -> dispatch ShowIssueViewer)
+                                            StackPanel.onKeyDown (fun args ->
+                                                if args.Key = Key.Space then
+                                                    args.Handled <- true
+                                                    dispatch ShowIssueViewer)
                                             StackPanel.cursor Cursors.hand
+                                            StackPanel.focusable true
                                         StackPanel.children [
                                             Path.create [
                                                 Path.fill (if noIssues then Brushes.Green else Brushes.Red)
@@ -146,43 +151,33 @@ let private arrangementPanel state dispatch =
                             ]
 
                             // Add arrangement
-                            Border.create [
+                            Button.create [
                                 Grid.column 1
-                                Border.focusable true
-                                Border.classes [ "icon-btn" ]
-                                Border.padding (4., 4., 10., 6.)
-                                Border.child (
+                                Button.classes [ "icon-btn" ]
+                                Button.padding (4., 4., 10., 6.)
+                                Button.content (
                                     Path.create [
                                         Path.data Icons.plus
                                         Path.fill Brushes.White
                                     ])
-                                Border.onTapped (fun _ -> Dialog.AddArrangements |> ShowDialog |> dispatch)
-                                Border.onKeyDown (fun args ->
-                                    if args.Key = Key.Space then
-                                        args.Handled <- true
-                                        Dialog.AddArrangements |> ShowDialog |> dispatch)
+                                Button.onClick (fun _ -> Dialog.AddArrangements |> ShowDialog |> dispatch)
                                 // 5 instrumentals, 2 vocals, 1 showlights
-                                Border.isEnabled (state.Project.Arrangements.Length < 8)
+                                Button.isEnabled (state.Project.Arrangements.Length < 8)
                                 ToolTip.tip (translate "AddArrangementToolTip")
                             ]
 
                             // Validate arrangements
-                            Border.create [
+                            Button.create [
                                 Grid.column 2
-                                Border.focusable true
-                                Border.classes [ "icon-btn" ]
-                                Border.padding (6., 4., 10., 6.)
-                                Border.child (
+                                Button.classes [ "icon-btn" ]
+                                Button.padding (6., 4., 10., 6.)
+                                Button.content (
                                     Path.create [
                                         Path.data Icons.checkList
                                         Path.fill Brushes.White
                                     ])
-                                Border.onTapped (fun _ -> dispatch CheckArrangements)
-                                Border.onKeyDown (fun args ->
-                                    if args.Key = Key.Space then
-                                        args.Handled <- true
-                                        dispatch CheckArrangements)
-                                Border.isEnabled (StateUtils.canRunValidation state)
+                                Button.onClick (fun _ -> dispatch CheckArrangements)
+                                Button.isEnabled (StateUtils.canRunValidation state)
                                 ToolTip.tip (translate "ValidateArrangementsToolTip")
                             ]
 

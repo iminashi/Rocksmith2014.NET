@@ -129,6 +129,7 @@ let view dispatch (issues: Issue list) =
                 Button.horizontalAlignment HorizontalAlignment.Center
                 Button.content (translate "OK")
                 Button.onClick (fun _ -> dispatch CloseOverlay)
+                Button.isDefault true
             ]
         ]
     ] |> generalize
