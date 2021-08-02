@@ -59,4 +59,8 @@
   <Style Selector="Button.icon-btn /template/ ContentPresenter">
     <Setter Property="CornerRadius" Value="0" />
   </Style>
+  <Style Selector="TextBlock.issue-header">
+    <Setter Property="Padding" Value="14,4" />
+    <Setter Property="FontSize" Value="18" />
+  </Style>
 </Styles>

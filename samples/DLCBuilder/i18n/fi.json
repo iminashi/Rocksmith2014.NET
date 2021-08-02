@@ -385,5 +385,7 @@
   "file": "tiedosto",
   "files": "tiedostoa",
   "FilesDeleted": "{0} {1} poistettiin.",
-  "RemoveKeyToolTip": "Poista avain."
+  "RemoveKeyToolTip": "Poista avain.",
+  "ImportantIssues": "Vakava ongelmat",
+  "MinorIssues": "Vähäpätöiset ongelmat"
 }

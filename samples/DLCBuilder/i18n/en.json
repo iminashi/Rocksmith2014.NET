@@ -385,5 +385,7 @@
   "file": "file",
   "files": "files",
   "FilesDeleted": "{0} {1} deleted.",
-  "RemoveKeyToolTip": "Remove key."
+  "RemoveKeyToolTip": "Remove key.",
+  "ImportantIssues": "Important Issues",
+  "MinorIssues": "Minor Issues"
 }

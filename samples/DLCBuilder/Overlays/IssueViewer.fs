@@ -58,7 +58,6 @@ let private viewForIssue issueType times =
                     TextBlock.create [
                         TextBlock.text header
                         TextBlock.fontSize 16.
-                        TextBlock.fontWeight (if isImportant issueType then FontWeight.Bold else FontWeight.Normal)
                     ]
                 )
                 Expander.content (
@@ -73,25 +72,34 @@ let private viewForIssue issueType times =
             ]
 
             // Issue Times
-            TextBlock.create [
-                TextBlock.text times
-                TextBlock.fontSize 14.
-                TextBlock.maxWidth 550.
-                TextBlock.textWrapping TextWrapping.Wrap
+            WrapPanel.create [
+                WrapPanel.maxWidth 600.
+                WrapPanel.children times
             ]
         ]
     ] |> generalize
 
+let private toIssueView issues =
+    issues
+    |> List.groupBy (fun issue -> issue.Type)
+    |> List.map (fun (issueType, issues) ->
+        let issueTimes =
+            issues
+            |> List.map (fun issue ->
+                TextBlock.create [
+                    TextBlock.margin (10., 2.)
+                    TextBlock.fontSize 15.
+                    TextBlock.fontFamily Media.Fonts.monospace
+                    TextBlock.text (timeToString issue.TimeCode)
+                ] |> generalize)
+
+        viewForIssue issueType issueTimes)
+
 let view dispatch (issues: Issue list) =
-    let issues =
+    let importantIssues, minorIssues =
         issues
-        |> List.groupBy (fun issue -> issue.Type)
-        |> List.map (fun (issueType, issues) ->
-            let issueTimes =
-                issues
-                |> List.map (fun issue -> timeToString issue.TimeCode)
-                |> List.reduce (fun acc elem -> acc + ", " + elem)
-            viewForIssue issueType issueTimes)
+        |> List.partition (fun x -> isImportant x.Type)
+        |> fun (i, u) -> toIssueView i, toIssueView u
 
     StackPanel.create [
         StackPanel.spacing 8.
@@ -115,11 +123,42 @@ let view dispatch (issues: Issue list) =
                 ]
             ]
 
-            // Issues
             ScrollViewer.create [
                 ScrollViewer.maxHeight 500.
-                ScrollViewer.maxWidth 600.
-                ScrollViewer.content (vStack issues)
+                ScrollViewer.maxWidth 650.
+                ScrollViewer.content (
+                    vStack [
+                        // Important issues
+                        Border.create [
+                            Border.cornerRadius 8.
+                            Border.borderThickness 2.
+                            Border.borderBrush Brushes.Gray
+                            Border.background "#222"
+                            Border.child (
+                                TextBlock.create [
+                                    TextBlock.classes [ "issue-header" ]
+                                    TextBlock.text (translate "ImportantIssues")
+                                ]
+                            )
+                        ]
+                        vStack importantIssues
+
+                        // Minor issues
+                        Border.create [
+                            Border.cornerRadius 8.
+                            Border.borderThickness 2.
+                            Border.borderBrush Brushes.Gray
+                            Border.background "#222"
+                            Border.child (
+                                TextBlock.create [
+                                    TextBlock.classes [ "issue-header" ]
+                                    TextBlock.text (translate "MinorIssues")
+                                ]
+                            )
+                        ]
+                        vStack minorIssues
+                    ]
+                )
             ]
 
             // OK button
