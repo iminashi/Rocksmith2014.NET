@@ -3,6 +3,7 @@ module DLCBuilder.Views.ProjectDetails
 open Avalonia
 open Avalonia.Controls
 open Avalonia.FuncUI.DSL
+open Avalonia.Input
 open Avalonia.Layout
 open Avalonia.Media
 open Avalonia.Media.Imaging
@@ -343,7 +344,12 @@ let private coverArt state dispatch =
         Image.width 200.
         Image.height 200.
         Image.onTapped (fun _ -> Dialog.CoverArt |> ShowDialog |> dispatch)
+        Image.onKeyDown (fun args ->
+            if args.Key = Key.Space then
+                args.Handled <- true
+                Dialog.CoverArt |> ShowDialog |> dispatch)
         Image.cursor Cursors.hand
+        Image.focusable true
         ToolTip.tip (translate "SelectCoverArtToolTip")
     ]
 

@@ -9,7 +9,6 @@ open Rocksmith2014.DLCProject
 open Rocksmith2014.PSARC
 open Rocksmith2014.XML.Processing
 open System
-open System.Diagnostics
 open System.IO
 open EditFunctions
 open StateUtils
