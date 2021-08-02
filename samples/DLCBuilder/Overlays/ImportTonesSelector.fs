@@ -10,7 +10,7 @@ open DLCBuilder
 
 let private selectedTones = SelectionModel<Tone>(SingleSelect = false)
 
-let getSelectedTones () =
+let private getSelectedTones () =
     Seq.toList selectedTones.SelectedItems
 
 let view dispatch (tones: Tone array) =
@@ -45,7 +45,7 @@ let view dispatch (tones: Tone array) =
                         Button.fontSize 16.
                         Button.padding (30., 10.)
                         Button.content (translate "Import")
-                        Button.onClick (fun _ -> dispatch ImportSelectedTones)
+                        Button.onClick (fun _ -> getSelectedTones() |> ImportTones |> dispatch)
                         Button.isDefault true
                     ]
 

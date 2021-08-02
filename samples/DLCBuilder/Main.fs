@@ -148,10 +148,6 @@ let update (msg: Msg) (state: State) =
                      SelectedToneIndex = -1
                      CoverArt = None }, Cmd.none
 
-    | ImportSelectedTones ->
-        let tones = Views.ImportTonesSelector.getSelectedTones()
-        addTones state tones, Cmd.none
-
     | ImportTones tones -> addTones state tones, Cmd.none
 
     | ExportSelectedTone ->

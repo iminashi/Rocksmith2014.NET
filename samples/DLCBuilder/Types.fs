@@ -203,7 +203,6 @@ type Msg =
     | ImportToolkitTemplate of fileName : string
     | ImportTonesFromFile of fileName : string
     | ImportProfileTones
-    | ImportSelectedTones
     | ImportTones of tones : Tone list
     | NewProject
     | OpenProject of fileName : string
