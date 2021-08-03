@@ -22,7 +22,7 @@ On Windows the program will try to find the Wwise installation automatically usi
 The package for the current platform will be built into the folder specified in the configuration (creating a subfolder in the RS DLC folder is recommended). Generation of DD levels may be disabled and the App ID can be changed to a custom one.
 
 - If RS is running, new packages will be created that have a different DLC key and arrangement IDs, with the version in the song title. This allows you to load a new test version into the game by triggering the DLC enumeration.
-- If RS is not running, any previous test builds will be replaced with a single package.
+- If RS is not running, any previous test builds for the project will be replaced with a single package.
 
 ### Release Build
 
@@ -81,16 +81,18 @@ Reading the available tones from a profile file, opening the tone editor and rem
 - Per-arrangement custom audio files
 - Multi-part tone descriptions with some extra options to select from
 - Possibility to easily build a version of the project where the tuning is changed using a pitch shift pedal
+- Tone collection for storing tones or adding an official tone into a project
+- Inject tones into a profile file
 
 ### Features of the Toolkit Not Available in DLC Builder
 
-- Console platform support
+- Support for console platforms
 - Support for Rocksmith 1
 
 ### Quality of Life
 
 - Album art image is displayed in the UI
-- The UI contains a button for quickly importing tones from the profile
+- Importing tones from the profile is more convenient
 - Common hotkeys: Ctrl+N, Ctrl+O, Ctrl+S, ...
 - Remembers the five recently opened projects
 - Better at opening templates created with old versions of the Toolkit than the Toolkit itself
