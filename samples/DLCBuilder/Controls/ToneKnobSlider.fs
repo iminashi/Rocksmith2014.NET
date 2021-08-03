@@ -70,7 +70,10 @@ type ToneKnobSlider() as this =
 
     static member knob<'t when 't :> ToneKnobSlider>(knob: GearKnob) =
         let getter : 't -> GearKnob = (fun c -> c.Knob)
-        let setter : 't * GearKnob -> unit = (fun (c, v) -> c.Knob <- v)
+        let setter : 't * GearKnob -> unit = (fun (c, v) ->
+            c.NoNotify <- true
+            c.Knob <- v
+            c.NoNotify <- false)
 
         AttrBuilder<'t>.CreateProperty<GearKnob>("Knob", knob, ValueSome getter, ValueSome setter, ValueNone)
 
