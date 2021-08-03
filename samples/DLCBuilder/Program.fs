@@ -137,6 +137,22 @@ type App() =
 module Program =
     [<EntryPoint>]
     let main(args: string[]) =
+        // Set up logging for unhandled exceptions
+        AppDomain.CurrentDomain.UnhandledException.Add(fun ex ->
+            let logMessage =
+                match ex.ExceptionObject with
+                | :? Exception as e ->
+                    let baseInfo = $"Unhandled exception ({DateTime.Now})\n{e.GetType().Name}\nMessage: {e.Message}\nSource: {e.Source}\nTarget Site: {e.TargetSite}\nStack Trace:\n{e.StackTrace}"
+                    if notNull e.InnerException then
+                        let inner = e.InnerException
+                        $"{baseInfo}\n\nInner Exception:\nMessage:{inner.Message}\nSource: {inner.Source}\nTarget Site: {inner.TargetSite}\nStack Trace:\n{inner.StackTrace}"
+                    else
+                        baseInfo
+                | unknown ->
+                    $"Unknown exception object: {unknown}"
+            let path = Path.Combine(Configuration.appDataFolder, "crash_log.txt")
+            File.WriteAllText(path, logMessage))
+
         AppBuilder
             .Configure<App>()
             .UsePlatformDetect()
