@@ -290,7 +290,7 @@ let private knobProgressBar gearData (pedal: Pedal option) knobName : IView list
         ])
 
 let private pedals repository title gearList gearSlot =
-    seq {
+    [
         TextBlock.create [
             TextBlock.text (translate title)
             TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -300,27 +300,40 @@ let private pedals repository title gearList gearSlot =
             match getGearDataForCurrentPedal repository gearList (gearSlot i) with
             | Some gearData ->
                 let pedal = getPedalForSlot gearList (gearSlot i)
-                TextBlock.create [
-                    TextBlock.text gearData.Name
-                ]
 
-                StackPanel.create [
-                    StackPanel.margin (10., 0.)
-                    StackPanel.children (
-                        [ "Mix"; "Gain"; "Rate" ]
-                        |> List.tryPick (knobProgressBar gearData pedal)
-                        |> Option.defaultValue List.empty)
+                Border.create [
+                    Border.margin (0., 2.)
+                    Border.padding 6.
+                    Border.background "#222"
+                    Border.cornerRadius 4.
+                    Border.child (
+                        StackPanel.create [
+                            StackPanel.children [
+                                TextBlock.create [
+                                    TextBlock.text gearData.Name
+                                ]
+
+                                StackPanel.create [
+                                    StackPanel.margin (10., 0.)
+                                    StackPanel.children (
+                                        [ "Mix"; "Gain"; "Rate" ]
+                                        |> List.tryPick (knobProgressBar gearData pedal)
+                                        |> Option.defaultValue List.empty)
+                                ]
+                            ]
+                        ]
+                    )
                 ]
             | None ->
                 ()
-    }
+    ]
 
 let private separator =
     Rectangle.create [
         Rectangle.height 2.
         Rectangle.fill Brushes.Gray
         Rectangle.margin (0., 10.)
-    ]
+    ] |> generalize
 
 let private toneInfoPanel state collectionState =
     StackPanel.create [
@@ -338,73 +351,52 @@ let private toneInfoPanel state collectionState =
                     let ampGear =
                         getGearDataForCurrentPedal repository tone.GearList GearSlot.Amp
                         |> Option.get
+                    let ampBar = knobProgressBar ampGear (Some tone.GearList.Amp)
 
                     TextBlock.create [
                         TextBlock.text (translate "Amp")
                         TextBlock.horizontalAlignment HorizontalAlignment.Center
                     ]
-                    TextBlock.create [
-                        TextBlock.text ampGear.Name
+
+                    Border.create [
+                        Border.margin (0., 2.)
+                        Border.padding 6.
+                        Border.background "#222"
+                        Border.cornerRadius 4.
+                        Border.child (
+                            StackPanel.create [
+                                StackPanel.children [
+                                    TextBlock.create [
+                                        TextBlock.text ampGear.Name
+                                    ]
+
+                                    let gainBar =
+                                        [ "Gain"; "Vol 1"; "Volume" ]
+                                        |> List.tryPick ampBar
+                                        |> Option.orElseWith (fun () ->
+                                            // Marshall Plexi has two loudness values
+                                            let l1 = ampBar "Loudness 1"
+                                            let l2 = ampBar "Loudness 2"
+                                                
+                                            Option.map2 List.append l1 l2)
+
+                                    match gainBar with
+                                    | Some g ->
+                                        StackPanel.create [
+                                            StackPanel.margin (10., 0.)
+                                            StackPanel.children g
+                                        ]
+                                    | None ->
+                                        ()
+                                ]
+                            ]
+                        )
                     ]
 
-                    let gainKnob =
-                        ampGear.Knobs
-                        |> Option.bind (Array.tryFind (fun x -> x.Name = "Gain" || x.Name = "Vol 1"))
-                    match gainKnob with
-                    | Some gainKnob ->
-                        StackPanel.create [
-                            StackPanel.margin (10., 0.)
-                            StackPanel.children [
-                                TextBlock.create [ TextBlock.text "Gain" ]
-                                ProgressBar.create [
-                                    ProgressBar.minimum (float gainKnob.MinValue)
-                                    ProgressBar.maximum (float gainKnob.MaxValue)
-                                    ProgressBar.value (float (tone.GearList.Amp.KnobValues |> Map.find gainKnob.Key))
-                                ]
-                            ]
-                        ]
-                    | None ->
-                        // Marshall Plexi has two loudness values
-                        let l1 =
-                            ampGear.Knobs
-                            |> Option.bind (Array.tryFind (fun x -> x.Name = "Loudness 1"))
-                        let l2 =
-                            ampGear.Knobs
-                            |> Option.bind (Array.tryFind (fun x -> x.Name = "Loudness 2"))
-                        match l1, l2 with
-                        | Some knob1, Some knob2 ->
-                            StackPanel.create [
-                                StackPanel.margin (10., 0.)
-                                StackPanel.children [
-                                    TextBlock.create [ TextBlock.text "Loudness 1" ]
-                                    ProgressBar.create [
-                                        ProgressBar.minimum (float knob1.MinValue)
-                                        ProgressBar.maximum (float knob1.MaxValue)
-                                        ProgressBar.value (float (tone.GearList.Amp.KnobValues |> Map.find knob1.Key))
-                                    ]
-
-                                    TextBlock.create [ TextBlock.text "Loudness 2" ]
-                                    ProgressBar.create [
-                                        ProgressBar.minimum (float knob2.MinValue)
-                                        ProgressBar.maximum (float knob2.MaxValue)
-                                        ProgressBar.value (float (tone.GearList.Amp.KnobValues |> Map.find knob2.Key))
-                                    ]
-                                ]
-                            ]
-                        | _ ->
-                            ()
-
-                    separator
-
-                    yield! pedals repository "PrePedals" tone.GearList GearSlot.PrePedal
-
-                    separator
-
-                    yield! pedals repository "LoopPedals" tone.GearList GearSlot.PostPedal
-
-                    separator
-
-                    yield! pedals repository "Rack" tone.GearList GearSlot.Rack
+                    yield!
+                        [ ("PrePedals", GearSlot.PrePedal); ("LoopPedals", GearSlot.PostPedal); ("Rack",GearSlot.Rack) ]
+                        |> List.collect (fun (name, func) ->
+                            separator::(pedals repository name tone.GearList func))
         ]
     ]
 
