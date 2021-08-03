@@ -16,6 +16,7 @@ open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open System
 open System.Text.RegularExpressions
+open Avalonia.FuncUI.Types
 
 let private translateDescription (description: string) =
     description.Split('|')
@@ -272,23 +273,21 @@ let private userToneEditor dispatch data =
         ]
     ]
 
-let private knobProgressBar gearData (pedal: Pedal option) knobName =
+let private knobProgressBar gearData (pedal: Pedal option) knobName : IView list option =
     gearData.Knobs
     |> Option.bind (Array.tryFind (fun x -> x.Name = knobName))
     |> Option.map (fun knob ->
-        seq {
-            TextBlock.create [ TextBlock.text knobName ] |> generalize
+        [
+            TextBlock.create [ TextBlock.text knobName ]
             ProgressBar.create [
                 ProgressBar.minimum (float knob.MinValue)
                 ProgressBar.maximum (float knob.MaxValue)
                 ProgressBar.value (
                     pedal
-                    |> Option.map (fun x -> x.KnobValues |> Map.find knob.Key)
-                    |> Option.defaultValue 1f
-                    |> float
-                )
+                    |> Option.map (fun x -> x.KnobValues |> Map.find knob.Key |> float)
+                    |> Option.defaultValue 1.)
             ]
-        })
+        ])
 
 let private pedals repository title gearList gearSlot =
     seq {
@@ -307,12 +306,10 @@ let private pedals repository title gearList gearSlot =
 
                 StackPanel.create [
                     StackPanel.margin (10., 0.)
-                    StackPanel.children [
-                        yield!
-                            [ "Mix"; "Gain"; "Rate" ]
-                            |> List.tryPick (knobProgressBar gearData pedal)
-                            |> Option.defaultValue Seq.empty
-                    ]
+                    StackPanel.children (
+                        [ "Mix"; "Gain"; "Rate" ]
+                        |> List.tryPick (knobProgressBar gearData pedal)
+                        |> Option.defaultValue List.empty)
                 ]
             | None ->
                 ()
