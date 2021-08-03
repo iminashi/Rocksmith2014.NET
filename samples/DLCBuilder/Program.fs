@@ -132,15 +132,16 @@ type App() =
 
             desktopLifetime.MainWindow <- MainWindow(desktopLifetime.Args)
             base.OnFrameworkInitializationCompleted()
-        | _ -> ()
+        | _ ->
+            ()
 
 module Program =
     [<EntryPoint>]
     let main(args: string[]) =
         // Set up logging for unhandled exceptions
-        AppDomain.CurrentDomain.UnhandledException.Add(fun ex ->
+        AppDomain.CurrentDomain.UnhandledException.Add <| fun args ->
             let logMessage =
-                match ex.ExceptionObject with
+                match args.ExceptionObject with
                 | :? Exception as e ->
                     let baseInfo = $"Unhandled exception ({DateTime.Now})\n{e.GetType().Name}\nMessage: {e.Message}\nSource: {e.Source}\nTarget Site: {e.TargetSite}\nStack Trace:\n{e.StackTrace}"
                     if notNull e.InnerException then
@@ -151,7 +152,7 @@ module Program =
                 | unknown ->
                     $"Unknown exception object: {unknown}"
             let path = Path.Combine(Configuration.appDataFolder, "crash_log.txt")
-            File.WriteAllText(path, logMessage))
+            File.WriteAllText(path, logMessage)
 
         AppBuilder
             .Configure<App>()
