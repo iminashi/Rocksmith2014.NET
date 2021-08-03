@@ -387,5 +387,7 @@
   "FilesDeleted": "{0} {1} poistettiin.",
   "RemoveKeyToolTip": "Poista avain.",
   "ImportantIssues": "Vakava ongelmat",
-  "MinorIssues": "Vähäpätöiset ongelmat"
+  "MinorIssues": "Vähäpätöiset ongelmat",
+  "ValidateAgain": "Tarkista sovitus uudelleen",
+  "NoIssuesFound": "Yhtään ongelmaa ei löytynyt!"
 }

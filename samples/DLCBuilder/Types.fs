@@ -17,7 +17,7 @@ type OverlayContents =
     | ImportToneSelector of tones : Tone array
     | SelectPreviewStart of audioLength : TimeSpan
     | ConfigEditor
-    | IssueViewer of issues : ArrangementChecker.Issue list
+    | IssueViewer of arrangement : Arrangement
     | ToneEditor
     | ToneCollection of state : ToneCollectionState
     | DeleteConfirmation of files : string list
@@ -49,7 +49,8 @@ type LongTask =
     | PsarcImport
     | PsarcUnpack
     | WemToOggConversion
-    | ArrangementCheck
+    | ArrangementCheckAll
+    | ArrangementCheckOne
     | VolumeCalculation of VolumeTarget
 
 type StatusMessage =
@@ -266,11 +267,13 @@ type Msg =
     | Build of BuildType
     | BuildComplete of BuildType
     | WemConversionComplete of unit
+    | CheckArrangement of arrangement : Arrangement
     | CheckArrangements
     | TaskProgressChanged of task : LongTask * progress : float
     | AddStatusMessage of message : string
     | RemoveStatusMessage of id : Guid
-    | CheckCompleted of Map<string, ArrangementChecker.Issue list>
+    | CheckOneCompleted of string * ArrangementChecker.Issue list
+    | CheckAllCompleted of Map<string, ArrangementChecker.Issue list>
     | PsarcUnpacked
     | WemToOggConversionCompleted
     | ConvertToWem

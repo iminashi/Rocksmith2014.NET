@@ -387,5 +387,7 @@
   "FilesDeleted": "{0} {1} deleted.",
   "RemoveKeyToolTip": "Remove key.",
   "ImportantIssues": "Important Issues",
-  "MinorIssues": "Minor Issues"
+  "MinorIssues": "Minor Issues",
+  "ValidateAgain": "Validate Arrangement Again",
+  "NoIssuesFound": "No issues found!"
 }

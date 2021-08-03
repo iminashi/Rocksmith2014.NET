@@ -92,24 +92,26 @@ let previewPathFromMainAudio (audioPath: string) =
     let ext = Path.GetExtension audioPath
     Path.Combine(dir, $"{fn}_preview{ext}")
 
+let checkArrangement arrangement =
+    match arrangement with
+    | Instrumental inst ->
+        InstrumentalArrangement.Load inst.XML
+        |> ArrangementChecker.runAllChecks
+    | Vocals { CustomFont = font; XML = xml } ->
+        Vocals.Load xml
+        |> ArrangementChecker.checkVocals font.IsSome
+    | Showlights sl ->
+        ShowLights.Load sl.XML
+        |> ArrangementChecker.checkShowlights
+        |> Option.toList
+
 /// Checks the project's arrangements for issues.
 let checkArrangements (project: DLCProject) (progress: IProgress<float>) =
     let length = float project.Arrangements.Length
 
     project.Arrangements
     |> List.mapi (fun i arr ->
-        let result =
-            match arr with
-            | Instrumental inst ->
-                InstrumentalArrangement.Load inst.XML
-                |> ArrangementChecker.runAllChecks
-            | Vocals { CustomFont = font; XML = xml } ->
-                Vocals.Load xml
-                |> ArrangementChecker.checkVocals font.IsSome
-            | Showlights sl ->
-                ShowLights.Load sl.XML
-                |> ArrangementChecker.checkShowlights
-                |> Option.toList
+        let result = checkArrangement arr
         progress.Report(float (i + 1) / length * 100.)
         Arrangement.getFile arr ,result)
     |> Map.ofList

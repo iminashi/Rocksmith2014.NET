@@ -298,8 +298,8 @@ let private overlay state dispatch =
         ImportTonesSelector.view state dispatch tones
     | ConfigEditor ->
         ConfigEditor.view state dispatch
-    | IssueViewer issues ->
-        IssueViewer.view dispatch issues
+    | IssueViewer arrangement ->
+        IssueViewer.view state dispatch arrangement
     | ToneEditor ->
         match state.SelectedToneIndex with
         | -1 ->

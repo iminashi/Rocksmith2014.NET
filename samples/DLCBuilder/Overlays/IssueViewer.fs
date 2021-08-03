@@ -6,6 +6,7 @@ open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Media
+open Rocksmith2014.DLCProject
 open Rocksmith2014.XML.Processing.Utils
 open Rocksmith2014.XML.Processing.ArrangementChecker
 open DLCBuilder
@@ -95,11 +96,14 @@ let private toIssueView issues =
 
         viewForIssue issueType issueTimes)
 
-let view dispatch (issues: Issue list) =
-    let importantIssues, minorIssues =
-        issues
-        |> List.partition (fun x -> isImportant x.Type)
-        |> fun (i, u) -> toIssueView i, toIssueView u
+let view state dispatch (arrangement: Arrangement) =
+    let issues =
+        state.ArrangementIssues
+        |> Map.tryFind (Arrangement.getFile arrangement)
+        |> Option.map (fun issues ->
+            issues    
+            |> List.partition (fun x -> isImportant x.Type)
+            |> fun (i, u) -> toIssueView i, toIssueView u)
 
     StackPanel.create [
         StackPanel.spacing 8.
@@ -123,40 +127,66 @@ let view dispatch (issues: Issue list) =
                 ]
             ]
 
+            // Validate Again Button
+            Button.create [
+                Button.content (translate "ValidateAgain")
+                Button.padding (0., 4.)
+                Button.onClick (fun _ -> arrangement |> CheckArrangement |> dispatch)
+                Button.isEnabled (not (state.RunningTasks |> Set.contains ArrangementCheckOne))
+            ]
+
             ScrollViewer.create [
                 ScrollViewer.maxHeight 500.
                 ScrollViewer.maxWidth 650.
                 ScrollViewer.content (
                     vStack [
-                        // Important issues
-                        Border.create [
-                            Border.cornerRadius 8.
-                            Border.borderThickness 2.
-                            Border.borderBrush Brushes.Gray
-                            Border.background "#222"
-                            Border.child (
+                        match issues with
+                        | None ->
+                            // Should not happen unless the program ends up in an invalid state
+                            TextBlock.create [
+                                TextBlock.text "ERROR: Validation issues for the arrangement could not be found."
+                                TextBlock.horizontalAlignment HorizontalAlignment.Center
+                                TextBlock.verticalAlignment VerticalAlignment.Center
+                            ]
+                        | Some (importantIssues, minorIssues) ->
+                            if importantIssues.IsEmpty && minorIssues.IsEmpty then
                                 TextBlock.create [
-                                    TextBlock.classes [ "issue-header" ]
-                                    TextBlock.text (translate "ImportantIssues")
+                                    TextBlock.text (translate "NoIssuesFound")
+                                    TextBlock.horizontalAlignment HorizontalAlignment.Center
+                                    TextBlock.verticalAlignment VerticalAlignment.Center
                                 ]
-                            )
-                        ]
-                        vStack importantIssues
 
-                        // Minor issues
-                        Border.create [
-                            Border.cornerRadius 8.
-                            Border.borderThickness 2.
-                            Border.borderBrush Brushes.Gray
-                            Border.background "#222"
-                            Border.child (
-                                TextBlock.create [
-                                    TextBlock.classes [ "issue-header" ]
-                                    TextBlock.text (translate "MinorIssues")
+                            // Important issues
+                            if not importantIssues.IsEmpty then
+                                Border.create [
+                                    Border.cornerRadius 8.
+                                    Border.borderThickness 2.
+                                    Border.borderBrush Brushes.Gray
+                                    Border.background "#222"
+                                    Border.child (
+                                        TextBlock.create [
+                                            TextBlock.classes [ "issue-header" ]
+                                            TextBlock.text (translate "ImportantIssues")
+                                        ]
+                                    )
                                 ]
-                            )
-                        ]
-                        vStack minorIssues
+                                vStack importantIssues
+
+                            // Minor issues
+                            if not minorIssues.IsEmpty then
+                                Border.create [
+                                    Border.cornerRadius 8.
+                                    Border.borderThickness 2.
+                                    Border.borderBrush Brushes.Gray
+                                    Border.background "#222"
+                                    Border.child (
+                                        TextBlock.create [
+                                            TextBlock.classes [ "issue-header" ]
+                                            TextBlock.text (translate "MinorIssues")
+                                        ]
+                                    )
+                                ]
+                                vStack minorIssues
                     ]
                 )
             ]

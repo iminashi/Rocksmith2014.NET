@@ -387,5 +387,7 @@
   "FilesDeleted": "{0}個の{1}が削除されました。",
   "RemoveKeyToolTip": "キーを削除する。",
   "ImportantIssues": "重要な問題点",
-  "MinorIssues": "重要でない問題点"
+  "MinorIssues": "重要でない問題点",
+  "ValidateAgain": "このアレンジを再検証する",
+  "NoIssuesFound": "アレンジに問題点がありません。"
 }

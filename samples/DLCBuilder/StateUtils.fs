@@ -72,11 +72,11 @@ let canBuild state =
 let canRunValidation state =
     state.Project.Arrangements.Length > 0
     &&
-    not (state.RunningTasks |> Set.contains ArrangementCheck)
+    not (state.RunningTasks |> Set.contains ArrangementCheckAll)
 
 /// Returns true for tasks that report progress.
 let taskHasProgress = function
-    | BuildPackage | PsarcImport | PsarcUnpack | ArrangementCheck ->
+    | BuildPackage | PsarcImport | PsarcUnpack | ArrangementCheckAll ->
         true
     | _ ->
         false

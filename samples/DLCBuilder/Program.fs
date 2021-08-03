@@ -59,7 +59,7 @@ type MainWindow(commandLineArgs: string array) as this =
         let progressReportingSub _ =
             let sub dispatch =
                 let dispatchProgress task progress = TaskProgressChanged(task, progress) |> dispatch
-                Main.arrangementCheckProgress.ProgressChanged.Add(dispatchProgress ArrangementCheck)
+                Main.arrangementCheckProgress.ProgressChanged.Add(dispatchProgress ArrangementCheckAll)
                 Main.psarcImportProgress.ProgressChanged.Add(dispatchProgress PsarcImport)
                 Tools.psarcUnpackProgress.ProgressChanged.Add(dispatchProgress PsarcUnpack)
                 StateUtils.packageBuildProgress.ProgressChanged.Add(dispatchProgress BuildPackage)

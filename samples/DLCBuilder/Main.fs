@@ -707,17 +707,33 @@ let update (msg: Msg) (state: State) =
         removeTask WemConversion state,
         Cmd.ofMsg (AddStatusMessage (translate "WemConversionComplete"))
 
+    | CheckArrangement arrangement ->
+        let task() = async {
+            let path = Arrangement.getFile arrangement
+            return path, Utils.checkArrangement arrangement }
+
+        addTask ArrangementCheckOne state,
+        Cmd.OfAsync.either task () CheckOneCompleted (fun ex -> TaskFailed(ex, ArrangementCheckOne))
+
+    | CheckOneCompleted (xmlFile, issues) ->
+        let issueMap =
+            state.ArrangementIssues
+            |> Map.add xmlFile issues
+
+        { removeTask ArrangementCheckOne state with ArrangementIssues = issueMap },
+        Cmd.ofMsg (AddStatusMessage (translate "ValidationComplete"))
+
     | CheckArrangements ->
         if canRunValidation state then
             let task() = async { return Utils.checkArrangements project arrangementCheckProgress }
 
-            addTask ArrangementCheck state,
-            Cmd.OfAsync.either task () CheckCompleted (fun ex -> TaskFailed(ex, ArrangementCheck))
+            addTask ArrangementCheckAll state,
+            Cmd.OfAsync.either task () CheckAllCompleted (fun ex -> TaskFailed(ex, ArrangementCheckAll))
         else
             state, Cmd.none
 
-    | CheckCompleted issues ->
-        { removeTask ArrangementCheck state with ArrangementIssues = issues },
+    | CheckAllCompleted issues ->
+        { removeTask ArrangementCheckAll state with ArrangementIssues = issues },
         Cmd.ofMsg (AddStatusMessage (translate "ValidationComplete"))
 
     | TaskProgressChanged (progressedTask, progress) ->
@@ -751,8 +767,7 @@ let update (msg: Msg) (state: State) =
     | ShowIssueViewer ->
         match getSelectedArrangement state with
         | Some arr ->
-            let xmlFile = Arrangement.getFile arr
-            { state with Overlay = IssueViewer state.ArrangementIssues.[xmlFile] }, Cmd.none
+            { state with Overlay = IssueViewer arr }, Cmd.none
         | None ->
             state, Cmd.none
 
