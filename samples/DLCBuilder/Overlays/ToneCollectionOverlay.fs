@@ -11,7 +11,9 @@ open Avalonia.Media
 open DLCBuilder
 open DLCBuilder.Media
 open DLCBuilder.ToneCollection
+open DLCBuilder.ToneGear
 open Rocksmith2014.Common
+open Rocksmith2014.Common.Manifest
 open System
 open System.Text.RegularExpressions
 
@@ -270,48 +272,191 @@ let private userToneEditor dispatch data =
         ]
     ]
 
-let view dispatch collectionState =
+let private knobProgressBar gearData (pedal: Pedal option) knobName =
+    gearData.Knobs
+    |> Option.bind (Array.tryFind (fun x -> x.Name = knobName))
+    |> Option.map (fun knob ->
+        seq {
+            TextBlock.create [ TextBlock.text knobName ] |> generalize
+            ProgressBar.create [
+                ProgressBar.minimum (float knob.MinValue)
+                ProgressBar.maximum (float knob.MaxValue)
+                ProgressBar.value (
+                    pedal
+                    |> Option.map (fun x -> x.KnobValues |> Map.find knob.Key)
+                    |> Option.defaultValue 1f
+                    |> float
+                )
+            ]
+        })
+
+let private pedals repository title gearList gearSlot =
+    seq {
+        TextBlock.create [
+            TextBlock.text (translate title)
+            TextBlock.horizontalAlignment HorizontalAlignment.Center
+        ] |> generalize
+
+        for i = 0 to 3 do
+            match getGearDataForCurrentPedal repository gearList (gearSlot i) with
+            | Some gearData ->
+                let pedal = getPedalForSlot gearList (gearSlot i)
+                TextBlock.create [
+                    TextBlock.text gearData.Name
+                ]
+
+                StackPanel.create [
+                    StackPanel.margin (10., 0.)
+                    StackPanel.children [
+                        yield!
+                            [ "Mix"; "Gain"; "Rate" ]
+                            |> List.tryPick (knobProgressBar gearData pedal)
+                            |> Option.defaultValue Seq.empty
+                    ]
+                ]
+            | None ->
+                ()
+    }
+
+let private separator =
+    Rectangle.create [
+        Rectangle.height 2.
+        Rectangle.fill Brushes.Gray
+        Rectangle.margin (0., 10.)
+    ]
+
+let private toneInfoPanel state collectionState =
+    StackPanel.create [
+        StackPanel.margin (0., 40., 0., 0.)
+        StackPanel.width 230.
+        StackPanel.children [
+            match state.ToneGearRepository with
+            | None ->
+                ()
+            | Some repository ->
+                match CollectionState.getSelectedToneDefinition collectionState with
+                | None ->
+                    ()
+                | Some tone ->
+                    let ampGear =
+                        getGearDataForCurrentPedal repository tone.GearList GearSlot.Amp
+                        |> Option.get
+
+                    TextBlock.create [
+                        TextBlock.text (translate "Amp")
+                        TextBlock.horizontalAlignment HorizontalAlignment.Center
+                    ]
+                    TextBlock.create [
+                        TextBlock.text ampGear.Name
+                    ]
+
+                    let gainKnob =
+                        ampGear.Knobs
+                        |> Option.bind (Array.tryFind (fun x -> x.Name = "Gain" || x.Name = "Vol 1"))
+                    match gainKnob with
+                    | Some gainKnob ->
+                        StackPanel.create [
+                            StackPanel.margin (10., 0.)
+                            StackPanel.children [
+                                TextBlock.create [ TextBlock.text "Gain" ]
+                                ProgressBar.create [
+                                    ProgressBar.minimum (float gainKnob.MinValue)
+                                    ProgressBar.maximum (float gainKnob.MaxValue)
+                                    ProgressBar.value (float (tone.GearList.Amp.KnobValues |> Map.find gainKnob.Key))
+                                ]
+                            ]
+                        ]
+                    | None ->
+                        // Marshall Plexi has two loudness values
+                        let l1 =
+                            ampGear.Knobs
+                            |> Option.bind (Array.tryFind (fun x -> x.Name = "Loudness 1"))
+                        let l2 =
+                            ampGear.Knobs
+                            |> Option.bind (Array.tryFind (fun x -> x.Name = "Loudness 2"))
+                        match l1, l2 with
+                        | Some knob1, Some knob2 ->
+                            StackPanel.create [
+                                StackPanel.margin (10., 0.)
+                                StackPanel.children [
+                                    TextBlock.create [ TextBlock.text "Loudness 1" ]
+                                    ProgressBar.create [
+                                        ProgressBar.minimum (float knob1.MinValue)
+                                        ProgressBar.maximum (float knob1.MaxValue)
+                                        ProgressBar.value (float (tone.GearList.Amp.KnobValues |> Map.find knob1.Key))
+                                    ]
+
+                                    TextBlock.create [ TextBlock.text "Loudness 2" ]
+                                    ProgressBar.create [
+                                        ProgressBar.minimum (float knob2.MinValue)
+                                        ProgressBar.maximum (float knob2.MaxValue)
+                                        ProgressBar.value (float (tone.GearList.Amp.KnobValues |> Map.find knob2.Key))
+                                    ]
+                                ]
+                            ]
+                        | _ ->
+                            ()
+
+                    separator
+
+                    yield! pedals repository "PrePedals" tone.GearList GearSlot.PrePedal
+
+                    separator
+
+                    yield! pedals repository "LoopPedals" tone.GearList GearSlot.PostPedal
+
+                    separator
+
+                    yield! pedals repository "Rack" tone.GearList GearSlot.Rack
+        ]
+    ]
+
+let view state dispatch collectionState =
     let dispatch' = ToneCollectionMsg >> dispatch
     Panel.create [
         Panel.children [
-            TabControl.create [
-                TabControl.width 520.
-                TabControl.height 550.
-                TabControl.isEnabled collectionState.EditingUserTone.IsNone
-                TabControl.viewItems [
-                    // Official tab
-                    TabItem.create [
-                        TabItem.header (translate "Official")
-                        TabItem.content (
-                            match collectionState.ActiveCollection with
-                            | ActiveCollection.Official _ ->
-                                collectionView dispatch' collectionState
-                                |> generalize
-                            | _ ->
-                                Panel.create [] |> generalize)
-                        TabItem.onIsSelectedChanged (fun isSelected ->
-                            if isSelected then
-                                ActiveTab.Official |> ChangeToneCollection |> dispatch'
-                        )
-                    ]
+            hStack [
+                TabControl.create [
+                    TabControl.width 520.
+                    TabControl.height 550.
+                    TabControl.isEnabled collectionState.EditingUserTone.IsNone
+                    TabControl.viewItems [
+                        // Official tab
+                        TabItem.create [
+                            TabItem.header (translate "Official")
+                            TabItem.content (
+                                match collectionState.ActiveCollection with
+                                | ActiveCollection.Official _ ->
+                                    collectionView dispatch' collectionState
+                                    |> generalize
+                                | _ ->
+                                    Panel.create [] |> generalize)
+                            TabItem.onIsSelectedChanged (fun isSelected ->
+                                if isSelected then
+                                    ActiveTab.Official |> ChangeToneCollection |> dispatch'
+                            )
+                        ]
 
-                    // User tab
-                    TabItem.create [
-                        TabItem.header (translate "User")
-                        TabItem.content (
-                            match collectionState.ActiveCollection with
-                            | ActiveCollection.User _ ->
-                                collectionView dispatch' collectionState
-                                |> generalize
-                            | _ ->
-                                Panel.create [] |> generalize
-                        )
-                        TabItem.onIsSelectedChanged (fun isSelected ->
-                            if isSelected then
-                                ActiveTab.User |> ChangeToneCollection |> dispatch'
-                        )
+                        // User tab
+                        TabItem.create [
+                            TabItem.header (translate "User")
+                            TabItem.content (
+                                match collectionState.ActiveCollection with
+                                | ActiveCollection.User _ ->
+                                    collectionView dispatch' collectionState
+                                    |> generalize
+                                | _ ->
+                                    Panel.create [] |> generalize
+                            )
+                            TabItem.onIsSelectedChanged (fun isSelected ->
+                                if isSelected then
+                                    ActiveTab.User |> ChangeToneCollection |> dispatch'
+                            )
+                        ]
                     ]
                 ]
+
+                toneInfoPanel state collectionState
             ]
 
             match collectionState.EditingUserTone with

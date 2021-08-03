@@ -43,14 +43,22 @@ type Repository =
       CabinetChoices: GearData array
       MicPositionsForCabinet: IReadOnlyDictionary<string, GearData array> }
 
+let getPedalForSlot (gearList: Gear) gearSlot =
+    match gearSlot with
+    | Amp ->
+        Some gearList.Amp
+    | Cabinet ->
+        Some gearList.Cabinet
+    | PrePedal index ->
+        gearList.PrePedals.[index] 
+    | PostPedal index ->
+        gearList.PostPedals.[index]
+    | Rack index ->
+        gearList.Racks.[index]
+
 /// Returns the knob values for the pedal in the given gear slot.
 let getKnobValuesForGear (gearList: Gear) gearSlot =
-    match gearSlot with
-    | Amp -> Some gearList.Amp
-    | Cabinet -> Some gearList.Cabinet
-    | PrePedal index -> gearList.PrePedals.[index] 
-    | PostPedal index -> gearList.PostPedals.[index]
-    | Rack index -> gearList.Racks.[index]
+    getPedalForSlot gearList gearSlot
     |> Option.map (fun x -> x.KnobValues)
 
 let private getDefaultKnobValues gear =

@@ -79,6 +79,7 @@ let changeCollection tab collectionState =
             Tones = tones
             SearchString = searchString
             CurrentPage = page
+            SelectedTone = None
             TotalPages = getTotalPages tones }
 
 let deleteUserTone id collectionState =
@@ -100,3 +101,14 @@ let addSelectedToneToUserCollection collectionState =
         |> Option.iter Database.addToneDataToUserCollection
     | _ ->
         ()
+
+let getSelectedToneDefinition collectionState =
+    collectionState.SelectedTone
+    |> Option.bind (fun tone ->
+        match collectionState.ActiveCollection with
+        | ActiveCollection.Official (Some api) ->
+            api.GetToneById tone.Id
+        | ActiveCollection.User api ->
+            api.GetToneById tone.Id
+        | _ ->
+            None)
