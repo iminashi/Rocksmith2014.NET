@@ -96,6 +96,7 @@ let private arrangementDetails state dispatch =
                                     let noIssues = state.ArrangementIssues.[xmlFile].IsEmpty
                                     StackPanel.create [
                                         StackPanel.margin (12., 0.)
+                                        StackPanel.horizontalAlignment HorizontalAlignment.Left
                                         StackPanel.orientation Orientation.Horizontal
                                         StackPanel.background Brushes.Transparent
                                         if not noIssues then
