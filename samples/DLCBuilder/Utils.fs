@@ -2,6 +2,7 @@ module DLCBuilder.Utils
 
 open Pfim
 open System
+open System.Collections.Generic
 open System.Diagnostics
 open System.IO
 open System.Runtime.InteropServices
@@ -206,13 +207,17 @@ module FocusHelper =
     let private window =
         lazy (Application.Current.ApplicationLifetime :?> ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime).MainWindow
 
-    let mutable elementThatHadFocus : IInputElement = null
+    let private previouslyFocused = Stack<IInputElement>()
 
     let storeFocusedElement () =
-        elementThatHadFocus <- FocusManager.Instance.Current
+        if notNull FocusManager.Instance.Current then
+            previouslyFocused.Push(FocusManager.Instance.Current)
+
         // Blur the focus from the element
         window.Value.Focus()
 
     let restoreFocus () =
-        if notNull elementThatHadFocus then 
-            elementThatHadFocus.Focus()
+        if previouslyFocused.Count > 0 then 
+            previouslyFocused.Pop().Focus()
+        else
+            window.Value.Focus()

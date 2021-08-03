@@ -42,7 +42,9 @@ let private toneTemplate dispatch isOfficial =
                         else
                             MenuItem.create [
                                 MenuItem.header (translate "EditMenuItem")
-                                MenuItem.onClick (fun _ -> ShowUserToneEditor |> dispatch)
+                                MenuItem.onClick (fun _ ->
+                                    Utils.FocusHelper.storeFocusedElement()
+                                    ShowUserToneEditor |> dispatch)
                                 MenuItem.inputGesture (KeyGesture(Key.E))
                             ]
 
@@ -112,6 +114,7 @@ let tonesList dispatch collectionState isOfficial =
             | Key.Delete when not isOfficial ->
                 DeleteSelectedUserTone |> dispatch
             | Key.E when not isOfficial ->
+                Utils.FocusHelper.storeFocusedElement()
                 ShowUserToneEditor |> dispatch
             | _ ->
                 arg.Handled <- false
@@ -249,14 +252,18 @@ let private userToneEditor dispatch data =
                         Button.padding (20., 5.)
                         Button.content (translate "Save")
                         Button.isEnabled (String.notEmpty data.Name)
-                        Button.onClick (fun _ -> ApplyUserToneEdit |> dispatch)
+                        Button.onClick (fun _ ->
+                            Utils.FocusHelper.restoreFocus()
+                            ApplyUserToneEdit |> dispatch)
                     ]
                     Button.create [
                         Button.margin 4.
                         Button.fontSize 16.
                         Button.padding (20., 5.)
                         Button.content (translate "Cancel")
-                        Button.onClick (fun _ -> HideUserToneEditor |> dispatch)
+                        Button.onClick (fun _ ->
+                            Utils.FocusHelper.restoreFocus()
+                            HideUserToneEditor |> dispatch)
                     ]
                 ]
             ]
