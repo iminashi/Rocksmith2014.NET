@@ -190,6 +190,9 @@ let editProject edit project =
     | SetVersion version ->
         { project with Version = version }
 
+    | SetAlbumArt path ->
+        { project with AlbumArtFile = path }
+
     | SetArtistName artist ->
         { project with ArtistName = { project.ArtistName with Value = artist } }
 
@@ -315,7 +318,7 @@ let editTone state edit index =
                         Array.mapi (fun i pedal ->
                             if i = index then
                                 pedal |> Option.map (fun p -> { p with KnobValues = updatedKnobs })
-                            else 
+                            else
                                 pedal)
 
                     let gearList =

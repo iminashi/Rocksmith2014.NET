@@ -52,11 +52,6 @@ let loadBitmap (path: string) =
     | _ ->
         new Bitmap(path)
 
-/// Disposes the old cover art and loads a new one from the given path.
-let changeCoverArt (coverArt: Bitmap option) newPath =
-    coverArt |> Option.iter (fun old -> old.Dispose())
-    File.tryMap loadBitmap newPath
-
 /// Imports tones from a PSARC file.
 let importTonesFromPSARC (psarcPath: string) = async {
     use psarc = PSARC.ReadFile psarcPath
@@ -217,7 +212,7 @@ module FocusHelper =
         window.Value.Focus()
 
     let restoreFocus () =
-        if previouslyFocused.Count > 0 then 
+        if previouslyFocused.Count > 0 then
             previouslyFocused.Pop().Focus()
         else
             window.Value.Focus()

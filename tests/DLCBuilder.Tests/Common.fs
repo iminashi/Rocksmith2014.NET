@@ -11,7 +11,6 @@ let initialState =
       SavedProject = DLCProject.Empty
       RecentFiles = []
       Config = { Configuration.Default with ShowAdvanced = true }
-      CoverArt = None
       SelectedArrangementIndex = -1
       SelectedToneIndex = -1
       SelectedGear = None

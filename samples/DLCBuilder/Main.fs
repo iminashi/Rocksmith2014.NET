@@ -42,7 +42,6 @@ let init args =
       SavedProject = DLCProject.Empty
       RecentFiles = []
       Config = Configuration.Default
-      CoverArt = None
       SelectedArrangementIndex = -1
       SelectedToneIndex = -1
       SelectedGear = None
@@ -140,13 +139,11 @@ let update (msg: Msg) (state: State) =
         | None -> state, Cmd.none
 
     | NewProject ->
-        state.CoverArt |> Option.iter (fun x -> x.Dispose())
         { state with Project = DLCProject.Empty
                      SavedProject = DLCProject.Empty
                      OpenProjectFile = None
                      SelectedArrangementIndex = -1
-                     SelectedToneIndex = -1
-                     CoverArt = None }, Cmd.none
+                     SelectedToneIndex = -1 }, Cmd.none
 
     | SetSelectedImportTones tones -> { state with SelectedImportTones = tones }, Cmd.none
 
@@ -226,9 +223,8 @@ let update (msg: Msg) (state: State) =
     | ImportToolkitTemplate fileName ->
         try
             let project = ToolkitImporter.import fileName
-            let coverArt = Utils.changeCoverArt state.CoverArt project.AlbumArtFile
 
-            { state with Project = project; OpenProjectFile = None; CoverArt = coverArt
+            { state with Project = project; OpenProjectFile = None
                          SelectedArrangementIndex = -1; SelectedToneIndex = -1 }, Cmd.none
         with e ->
             state, Cmd.ofMsg (ErrorOccurred e)
@@ -343,10 +339,6 @@ let update (msg: Msg) (state: State) =
                 { project with Arrangements = arrangements }
 
         removeTask (VolumeCalculation target) { state with Project = project }, Cmd.none
-
-    | SetCoverArt fileName ->
-        { state with CoverArt = Utils.changeCoverArt state.CoverArt fileName
-                     Project = { project with AlbumArtFile = fileName } }, Cmd.none
 
     | AddArrangements files ->
         addArrangements files state, Cmd.none
@@ -590,12 +582,10 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfAsync.either DLCProject.load fileName (fun p -> ProjectLoaded(p, fileName)) ErrorOccurred
 
     | ProjectLoaded (project, projectFile) ->
-        let coverArt = Utils.changeCoverArt state.CoverArt project.AlbumArtFile
         let project = DLCProject.updateToneInfo project
         let recent, newConfig, cmd = updateRecentFilesAndConfig projectFile state
 
-        { state with CoverArt = coverArt
-                     Project = project
+        { state with Project = project
                      SavedProject = project
                      OpenProjectFile = Some projectFile
                      RecentFiles = recent

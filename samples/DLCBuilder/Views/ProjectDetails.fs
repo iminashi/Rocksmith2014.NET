@@ -14,10 +14,36 @@ open System
 open DLCBuilder
 open Media
 
-let private placeholderAlbumArt =
-    lazy
+module private AlbumArt =
+    let private placeholder =
         let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
         new Bitmap(assets.Open(Uri("avares://DLCBuilder/Assets/coverart_placeholder.png")))
+
+    let mutable cachedBitmap : string * Bitmap option = String.Empty, None
+
+    /// Disposes any cached bitmap.
+    let invalidate () =
+        cachedBitmap |> snd |> Option.iter (fun bmp -> bmp.Dispose())
+        cachedBitmap <- (String.Empty, None)
+
+    let private tryLoadBitmap path =
+        try
+           Some (Utils.loadBitmap path)
+        with _ ->
+            None
+
+    let get path =
+        match cachedBitmap with
+        | _ when String.IsNullOrWhiteSpace path ->
+            None
+        | cachedPath, bmpOption when cachedPath = path ->
+            bmpOption
+        | _, bmp ->
+            bmp |> Option.iter (fun bmp -> bmp.Dispose())
+            let newBmp = tryLoadBitmap path
+            cachedBitmap <- path, newBmp
+            newBmp
+        |> Option.defaultValue placeholder
 
 let private audioControls state dispatch =
     let audioPath = state.Project.AudioFile.Path
@@ -221,7 +247,7 @@ let private projectInfo state dispatch =
                   Grid.row 1
                   StackPanel.isVisible (state.ShowSortFields && not state.ShowJapaneseFields) ]
                 [ FixedTextBox.text state.Project.ArtistName.SortValue
-                  TextBox.onLostFocus (fun e -> 
+                  TextBox.onLostFocus (fun e ->
                     let txtBox = e.Source :?> TextBox
                     let validValue = StringValidator.sortField txtBox.Text
                     txtBox.Text <- validValue
@@ -255,7 +281,7 @@ let private projectInfo state dispatch =
                   Grid.row 2
                   StackPanel.isVisible state.ShowSortFields ]
                 [ FixedTextBox.text state.Project.Title.SortValue
-                  TextBox.onLostFocus (fun e -> 
+                  TextBox.onLostFocus (fun e ->
                     let txtBox = e.Source :?> TextBox
                     let validValue = StringValidator.sortField txtBox.Text
                     txtBox.Text <- validValue
@@ -289,7 +315,7 @@ let private projectInfo state dispatch =
                   Grid.row 3
                   StackPanel.isVisible state.ShowSortFields ]
                 [ FixedTextBox.text state.Project.AlbumName.SortValue
-                  TextBox.onLostFocus (fun e -> 
+                  TextBox.onLostFocus (fun e ->
                     let txtBox = e.Source :?> TextBox
                     let validValue = StringValidator.sortField txtBox.Text
                     txtBox.Text <- validValue
@@ -340,13 +366,16 @@ let private projectInfo state dispatch =
 let private coverArt state dispatch =
     Image.create [
         DockPanel.dock Dock.Top
-        Image.source (state.CoverArt |> Option.defaultWith placeholderAlbumArt.Force)
+        Image.source (AlbumArt.get state.Project.AlbumArtFile)
         Image.width 200.
         Image.height 200.
-        Image.onTapped (fun _ -> Dialog.CoverArt |> ShowDialog |> dispatch)
+        Image.onTapped (fun _ ->
+            AlbumArt.invalidate()
+            Dialog.CoverArt |> ShowDialog |> dispatch)
         Image.onKeyDown (fun args ->
             if args.Key = Key.Space then
                 args.Handled <- true
+                AlbumArt.invalidate()
                 Dialog.CoverArt |> ShowDialog |> dispatch)
         Image.cursor Cursors.hand
         Image.focusable true

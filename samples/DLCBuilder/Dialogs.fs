@@ -141,7 +141,7 @@ let showDialog dialogType state =
     // No initial directory
     let ofd filter msg = openFileDialog title filter None msg
 
-    let dialog = 
+    let dialog =
         match dialogType with
         | Dialog.OpenProject ->
             ofd FileFilter.Project OpenProject
@@ -211,10 +211,10 @@ let showDialog dialogType state =
         | Dialog.WwiseConsole ->
             let initialDir = state.Config.WwiseConsolePath |> Option.map Path.GetDirectoryName
             openFileDialog title FileFilter.WwiseConsoleApplication initialDir (SetWwiseConsolePath >> EditConfig)
-            
+
         | Dialog.CoverArt ->
             let initialDir = getProjectDirectory state
-            openFileDialog title FileFilter.Image initialDir SetCoverArt
+            openFileDialog title FileFilter.Image initialDir (SetAlbumArt >> EditProject)
 
         | Dialog.AudioFile isCustom ->
             let msg =

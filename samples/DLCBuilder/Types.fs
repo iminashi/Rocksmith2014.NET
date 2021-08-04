@@ -6,7 +6,6 @@ open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DD
 open Rocksmith2014.XML.Processing
-open Avalonia.Media.Imaging
 open System
 open OnlineUpdate
 open DLCBuilder.ToneCollection
@@ -64,6 +63,7 @@ type BuildType = Test | Release | PitchShifted
 type ProjectEdit =
     | SetDLCKey of string
     | SetVersion of string
+    | SetAlbumArt of string
     | SetArtistName of string
     | SetArtistNameSort of string
     | SetJapaneseArtistName of string option
@@ -138,7 +138,6 @@ type State =
       SavedProject : DLCProject
       RecentFiles : string list
       Config : Configuration
-      CoverArt : Bitmap option
       SelectedArrangementIndex : int
       SelectedToneIndex : int
       SelectedGear : ToneGear.GearData option
@@ -218,7 +217,6 @@ type Msg =
     | AutoSaveProject
     | OpenProjectFolder
     | AddArrangements of files : string array
-    | SetCoverArt of fileName : string
     | SetAudioFile of fileName : string
     | SetConfiguration of config : Configuration * enableLoad : bool * wasAbnormalExit : bool
     | SetRecentFiles of files : string list
