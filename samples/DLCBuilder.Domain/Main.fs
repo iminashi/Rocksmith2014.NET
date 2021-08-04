@@ -16,52 +16,6 @@ open StateUtils
 let arrangementCheckProgress = Progress<float>()
 let psarcImportProgress = Progress<float>()
 
-let private createExitCheckFile () =
-    using (File.Create Configuration.exitCheckFilePath) ignore
-
-let init albumArtLoader databaseConnector args =
-    let commands =
-        let wasAbnormalExit = File.Exists Configuration.exitCheckFilePath
-        createExitCheckFile()
-
-        let loadProject =
-            args
-            |> Array.tryFind (String.endsWith ".rs2dlc")
-            |> Option.map (fun path ->
-                Cmd.OfAsyncImmediate.either DLCProject.load path (fun p -> ProjectLoaded(p, path)) ErrorOccurred)
-            |> Option.toList
-
-        Cmd.batch [
-            Cmd.OfAsyncImmediate.perform Configuration.load () (fun config -> SetConfiguration(config, loadProject.IsEmpty, wasAbnormalExit))
-            Cmd.OfAsyncImmediate.perform RecentFilesList.load () SetRecentFiles
-            Cmd.OfAsyncImmediate.perform OnlineUpdate.checkForUpdates () SetAvailableUpdate
-            Cmd.OfAsyncImmediate.perform ToneGear.loadRepository () SetToneRepository
-            yield! loadProject ]
-
-    { Project = DLCProject.Empty
-      SavedProject = DLCProject.Empty
-      RecentFiles = []
-      Config = Configuration.Default
-      SelectedArrangementIndex = -1
-      SelectedToneIndex = -1
-      SelectedGear = None
-      SelectedGearSlot = ToneGear.Amp
-      SelectedImportTones = List.empty
-      ManuallyEditingKnobKey = None
-      ShowSortFields = false
-      ShowJapaneseFields = false
-      Overlay = NoOverlay
-      RunningTasks = Set.empty
-      StatusMessages = []
-      CurrentPlatform = if OperatingSystem.IsMacOS() then Mac else PC
-      OpenProjectFile = None
-      ArrangementIssues = Map.empty
-      AvailableUpdate = None
-      ToneGearRepository = None
-      AlbumArtLoadTime = None
-      AlbumArtLoader = albumArtLoader
-      DatabaseConnector = databaseConnector }, commands
-
 let private exceptionToErrorMessage (ex: exn) =
     let exnInfo (e: exn) =
         $"{e.GetType().Name}: {e.Message}\n{e.StackTrace}"

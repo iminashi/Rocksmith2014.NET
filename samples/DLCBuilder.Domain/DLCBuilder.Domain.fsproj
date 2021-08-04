@@ -46,6 +46,7 @@
     <Compile Include="Building\TestPackageBuilder.fs" />
     <Compile Include="Building\ReleasePackageBuilder.fs" />
     <Compile Include="Tools.fs" />
+    <Compile Include="InitState.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 

@@ -114,7 +114,7 @@ type MainWindow(commandLineArgs: string array) as this =
                 (OfficialDataBasePath <| Path.Combine(appDataTones, "official.db"))
                 (UserDataBasePath <| Path.Combine(appDataTones, "user.db"))
 
-        let init' = Main.init (AvaloniaBitmapLoader.createInterface()) databaseConnector
+        let init' = InitState.init (AvaloniaBitmapLoader.createInterface()) databaseConnector
 
         Program.mkProgram init' update' view'
         |> Program.withHost this
