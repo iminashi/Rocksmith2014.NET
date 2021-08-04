@@ -10,19 +10,6 @@ open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 
-let mutable private officialTonesDbPath = ""
-
-let mutable private userTonesDbPath = ""
-
-let mutable private officialTonesConnectionString = ""
-let mutable private userTonesConnectionString = ""
-
-let init officialDbPath userDbPath =
-    officialTonesDbPath <- officialDbPath
-    userTonesDbPath <- userDbPath
-    officialTonesConnectionString <- $"Data Source={officialTonesDbPath};Read Only=True"
-    userTonesConnectionString <- $"Data Source={userTonesDbPath}"
-
 let private createConnection (connectionString: string) =
     new SQLiteConnection(connectionString)
     |> apply (fun c -> c.Open())
@@ -93,10 +80,10 @@ let private getToneDataById (connection: SQLiteConnection) id =
     |> connection.Query<DbToneData>
     |> Seq.tryHead
 
-let tryCreateOfficialTonesApi () =
-    officialTonesDbPath
+let private tryCreateOfficialTonesApi (OfficialDataBasePath dbPath) =
+    dbPath
     |> File.tryMap (fun _ ->
-        let connection = createConnection officialTonesConnectionString
+        let connection = createConnection $"Data Source={dbPath};Read Only=True"
 
         { new IOfficialTonesApi with
             member _.Dispose() = connection.Dispose()
@@ -108,12 +95,12 @@ let tryCreateOfficialTonesApi () =
                 executeQuery connection searchString pageNumber
                 |> Seq.toArray })
 
-let private ensureUserTonesDbCreated () =
-    if not <| File.Exists userTonesDbPath then
-        Directory.CreateDirectory(Path.GetDirectoryName userTonesDbPath) |> ignore
-        SQLiteConnection.CreateFile userTonesDbPath
+let private ensureUserTonesDbCreated (UserDataBasePath dbPath) connectionString =
+    if not <| File.Exists dbPath then
+        Directory.CreateDirectory(Path.GetDirectoryName dbPath) |> ignore
+        SQLiteConnection.CreateFile dbPath
 
-        use connection = createConnection userTonesConnectionString
+        use connection = createConnection connectionString
 
         let sql =
             """CREATE TABLE Tones (
@@ -130,10 +117,13 @@ let private ensureUserTonesDbCreated () =
         using (new SQLiteCommand(sql, connection))
               (fun x -> x.ExecuteNonQuery() |> ignore)
 
-let createUserTonesApi () =
-    ensureUserTonesDbCreated()
+let private createUserTonesApi dbPath =
+    let connectionString =
+        let (UserDataBasePath path) = dbPath in $"Data Source={path}"
 
-    let connection = createConnection userTonesConnectionString
+    ensureUserTonesDbCreated dbPath connectionString
+
+    let connection = createConnection connectionString
 
     { new IUserTonesApi with
         member _.Dispose() = connection.Dispose()
@@ -168,13 +158,20 @@ let createUserTonesApi () =
             using (new SQLiteCommand(sql, connection))
                   (fun x -> x.ExecuteNonQuery() |> ignore) }
 
-let createCollection = function
-    | ActiveTab.Official ->
-        tryCreateOfficialTonesApi() |> ActiveCollection.Official
-    | ActiveTab.User ->
-        createUserTonesApi() |> ActiveCollection.User
+let createConnector officialTonesDbPath userTonesDbPath =
+    { new IDatabaseConnector with
+        member _.TryCreateOfficialTonesApi() =
+            tryCreateOfficialTonesApi officialTonesDbPath
+        member _.CreateUserTonesApi() =
+            createUserTonesApi userTonesDbPath }
 
-let getToneFromCollection collection id =
+let internal createCollection (connector: IDatabaseConnector) = function
+    | ActiveTab.Official ->
+        connector.TryCreateOfficialTonesApi() |> ActiveCollection.Official
+    | ActiveTab.User ->
+        connector.CreateUserTonesApi() |> ActiveCollection.User
+
+let internal getToneFromCollection collection id =
     match collection with
     | ActiveCollection.Official maybeApi ->
         maybeApi
@@ -182,7 +179,7 @@ let getToneFromCollection collection id =
     | ActiveCollection.User api ->
         api.GetToneById id
 
-let getTones collection searchString page =
+let internal getTones collection searchString page =
     match collection with
     | ActiveCollection.Official maybeApi ->
         maybeApi
@@ -191,14 +188,14 @@ let getTones collection searchString page =
     | ActiveCollection.User api ->
         api.GetTones(searchString, page)
 
-let addToneDataToUserCollection (data: DbToneData) =
-    use collection = createUserTonesApi()
+let internal addToneDataToUserCollection (connector: IDatabaseConnector) (data: DbToneData) =
+    use collection = connector.CreateUserTonesApi()
     collection.AddTone data
 
 let private prepareString (str: string) =
     String.truncate 100 (str.Trim())
 
-let addToUserCollection (project: DLCProject) (tone: Tone) =
+let addToneToUserCollection (connector: IDatabaseConnector) (project: DLCProject) (tone: Tone) =
     let description =
         tone.ToneDescriptors
         |> Array.map ToneDescriptor.uiNameToName
@@ -217,4 +214,4 @@ let addToUserCollection (project: DLCProject) (tone: Tone) =
       BassTone = isBass
       Description = description
       Definition = serialize tone }
-    |> addToneDataToUserCollection
+    |> addToneDataToUserCollection connector

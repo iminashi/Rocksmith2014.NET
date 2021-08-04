@@ -3,6 +3,12 @@ namespace ToneCollection
 open Rocksmith2014.Common.Manifest
 open System
 
+[<Struct>]
+type UserDataBasePath = UserDataBasePath of string
+
+[<Struct>]
+type OfficialDataBasePath = OfficialDataBasePath of string
+
 [<CLIMutable>]
 type DbTone =
     { Id: int64
@@ -39,6 +45,10 @@ type IUserTonesApi =
     abstract member AddTone : DbToneData -> unit
     abstract member UpdateData : DbToneData -> unit
 
+type IDatabaseConnector =
+    abstract member TryCreateOfficialTonesApi : unit -> IOfficialTonesApi option
+    abstract member CreateUserTonesApi : unit -> IUserTonesApi
+
 [<RequireQualifiedAccess>]
 type ActiveCollection =
     | Official of IOfficialTonesApi option
@@ -51,6 +61,7 @@ type ActiveTab =
 
 type ToneCollectionState =
     { ActiveCollection : ActiveCollection
+      Connector : IDatabaseConnector
       Tones : DbTone array
       SelectedTone : DbTone option
       SearchString : string option

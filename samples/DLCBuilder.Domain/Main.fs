@@ -19,7 +19,7 @@ let psarcImportProgress = Progress<float>()
 let private createExitCheckFile () =
     using (File.Create Configuration.exitCheckFilePath) ignore
 
-let init albumArtLoader args =
+let init albumArtLoader databaseConnector args =
     let commands =
         let wasAbnormalExit = File.Exists Configuration.exitCheckFilePath
         createExitCheckFile()
@@ -59,7 +59,8 @@ let init albumArtLoader args =
       AvailableUpdate = None
       ToneGearRepository = None
       AlbumArtLoadTime = None
-      AlbumArtLoader = albumArtLoader }, commands
+      AlbumArtLoader = albumArtLoader
+      DatabaseConnector = databaseConnector }, commands
 
 let private exceptionToErrorMessage (ex: exn) =
     let exnInfo (e: exn) =
@@ -396,7 +397,8 @@ let update (msg: Msg) (state: State) =
 
     | AddToneToCollection ->
         getSelectedTone state
-        |> Option.iter (ToneCollection.Database.addToUserCollection project)
+        |> Option.iter (ToneCollection.Database.addToneToUserCollection state.DatabaseConnector project)
+
         state, Cmd.ofMsg (AddStatusMessage (translate "ToneAddedToCollection"))
 
     | DuplicateTone ->
@@ -413,7 +415,7 @@ let update (msg: Msg) (state: State) =
 
     | ShowToneCollection ->
         let overlay =
-            ToneCollection.CollectionState.init ToneCollection.ActiveTab.Official
+            ToneCollection.CollectionState.init state.DatabaseConnector ToneCollection.ActiveTab.Official
             |> ToneCollection
 
         { state with Overlay = overlay }, Cmd.none

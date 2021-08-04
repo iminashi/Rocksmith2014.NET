@@ -159,7 +159,8 @@ type State =
       ToneGearRepository: ToneGear.Repository option
       /// For forcing a view update if the user loads the same album art file, but the file has been modified.
       AlbumArtLoadTime : DateTime option
-      AlbumArtLoader : IBitmapLoader }
+      AlbumArtLoader : IBitmapLoader
+      DatabaseConnector : ToneCollection.IDatabaseConnector }
 
 type ToolsMsg =
     | ConvertWemToOgg of files : string array

@@ -9,11 +9,12 @@ let private getTotalPages tones =
     |> Option.map (fun x -> ceil (float x.TotalRows / 5.) |> int)
     |> Option.defaultValue 0
 
-let init (tab: ActiveTab) =
-    let collection = createCollection tab
+let init (connector: IDatabaseConnector) (tab: ActiveTab) =
+    let collection = createCollection connector tab
     let tones = getTones collection None 1
 
     { ActiveCollection = collection
+      Connector = connector
       Tones = tones
       SelectedTone = None
       SearchString = None
@@ -65,7 +66,7 @@ let changeCollection tab collectionState =
 
         | newTab, old ->
             disposeCollection old
-            createCollection newTab
+            createCollection collectionState.Connector newTab
 
     if collection = collectionState.ActiveCollection then
         collectionState
@@ -98,7 +99,7 @@ let addSelectedToneToUserCollection collectionState =
     match collectionState with
     | { SelectedTone = Some selected; ActiveCollection = ActiveCollection.Official (Some api) } ->
         api.GetToneDataById selected.Id
-        |> Option.iter addToneDataToUserCollection
+        |> Option.iter (addToneDataToUserCollection collectionState.Connector)
     | _ ->
         ()
 

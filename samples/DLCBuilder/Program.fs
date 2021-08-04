@@ -17,6 +17,7 @@ open System.Reactive.Subjects
 open System.Reflection
 open Microsoft.Extensions.FileProviders
 open Rocksmith2014.Common
+open ToneCollection
 
 type MainWindow(commandLineArgs: string array) as this =
     inherit HostWindow()
@@ -95,7 +96,7 @@ type MainWindow(commandLineArgs: string array) as this =
                 // Close the DB connection in case of an unexpected error
                 match state.Overlay with
                 | ToneCollection cs ->
-                    ToneCollection.CollectionState.disposeCollection cs.ActiveCollection
+                    CollectionState.disposeCollection cs.ActiveCollection
                 | _ ->
                     ()
 
@@ -107,13 +108,15 @@ type MainWindow(commandLineArgs: string array) as this =
                                  Overlay = ErrorMessage(errorMessage, Option.ofString ex.StackTrace) }
                 newState, Cmd.none
 
-        let oDb = Path.Combine(Configuration.appDataFolder, "tones", "official.db")
-        let uDb = Path.Combine(Configuration.appDataFolder, "tones", "user.db")
-        ToneCollection.Database.init oDb uDb
+        let databaseConnector =
+            let appDataTones = Path.Combine(Configuration.appDataFolder, "tones")
+            Database.createConnector
+                (OfficialDataBasePath <| Path.Combine(appDataTones, "official.db"))
+                (UserDataBasePath <| Path.Combine(appDataTones, "user.db"))
 
-        let init = Main.init (AvaloniaBitmapLoader.createInterface())
+        let init' = Main.init (AvaloniaBitmapLoader.createInterface()) databaseConnector
 
-        Program.mkProgram init update' view'
+        Program.mkProgram init' update' view'
         |> Program.withHost this
         |> Program.withSubscription hotKeysSub
         |> Program.withSubscription progressReportingSub

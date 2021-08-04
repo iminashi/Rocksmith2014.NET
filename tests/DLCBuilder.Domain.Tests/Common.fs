@@ -11,6 +11,19 @@ let albumArtLoaderStub =
         member _.InvalidateCache() = ()
         member _.TryLoad _ = true }
 
+let toneDatabaseStub =
+    { new ToneCollection.IDatabaseConnector with
+        member _.TryCreateOfficialTonesApi() = None
+        member _.CreateUserTonesApi() =
+            { new ToneCollection.IUserTonesApi with
+                member _.Dispose() = ()
+                member _.GetToneById _ = None
+                member _.GetTones(_, _) = Array.empty
+                member _.GetToneDataById _ = None
+                member _.DeleteToneById _  = ()
+                member _.AddTone _ = ()
+                member _.UpdateData _ = () } }
+
 let initialState =
     { Project = DLCProject.Empty
       SavedProject = DLCProject.Empty
@@ -33,4 +46,5 @@ let initialState =
       ArrangementIssues = Map.empty
       ToneGearRepository = None
       AlbumArtLoadTime = None
-      AlbumArtLoader = albumArtLoaderStub }
+      AlbumArtLoader = albumArtLoaderStub
+      DatabaseConnector = toneDatabaseStub }
