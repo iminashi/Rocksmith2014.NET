@@ -390,5 +390,6 @@
   "ImportantIssues": "Vakava ongelmat",
   "MinorIssues": "Vähäpätöiset ongelmat",
   "ValidateAgain": "Tarkista sovitus uudelleen",
-  "NoIssuesFound": "Yhtään ongelmaa ei löytynyt!"
+  "NoIssuesFound": "Yhtään ongelmaa ei löytynyt!",
+  "LoadingCoverArtFailed": "Kansikuvatiedoston \"{0}\" lataaminen epäonnistui!"
 }

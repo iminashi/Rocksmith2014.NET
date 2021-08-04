@@ -58,6 +58,7 @@
     <Compile Include="ToneCollection\MessageHandler.fs" />
     <Compile Include="OnlineUpdate.fs" />
     <Compile Include="Types.fs" />
+    <Compile Include="AvaloniaBitmapLoader.fs" />
     <Compile Include="StateUtils.fs" />
     <Compile Include="Dialogs.fs" />
     <Compile Include="EditFunctions.fs" />

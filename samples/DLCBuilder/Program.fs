@@ -102,7 +102,9 @@ type MainWindow(commandLineArgs: string array) as this =
                                  Overlay = ErrorMessage(errorMessage, Option.ofString ex.StackTrace) }
                 newState, Cmd.none
 
-        Program.mkProgram Main.init update' view'
+        let init = Main.init (AvaloniaBitmapLoader.createInterface())
+
+        Program.mkProgram init update' view'
         |> Program.withHost this
         |> Program.withSubscription hotKeysSub
         |> Program.withSubscription progressReportingSub

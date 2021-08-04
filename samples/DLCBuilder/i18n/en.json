@@ -390,5 +390,6 @@
   "ImportantIssues": "Important Issues",
   "MinorIssues": "Minor Issues",
   "ValidateAgain": "Validate Arrangement Again",
-  "NoIssuesFound": "No issues found!"
+  "NoIssuesFound": "No issues found!",
+  "LoadingCoverArtFailed": "Loading cover art file \"{0}\" failed!"
 }

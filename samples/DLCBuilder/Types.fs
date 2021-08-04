@@ -10,6 +10,10 @@ open System
 open OnlineUpdate
 open DLCBuilder.ToneCollection
 
+type IBitmapLoader =
+    abstract member InvalidateCache : unit -> unit
+    abstract member TryLoad : string -> bool
+
 type OverlayContents =
     | NoOverlay
     | ErrorMessage of message : string * moreInfo : string option
@@ -153,7 +157,10 @@ type State =
       RunningTasks : LongTask Set
       ArrangementIssues : Map<string, ArrangementChecker.Issue list>
       AvailableUpdate : UpdateInformation option
-      ToneGearRepository: ToneGear.Repository option }
+      ToneGearRepository: ToneGear.Repository option
+      /// For forcing a view update if the user loads the same album art file, but the file has been modified.
+      AlbumArtLoadTime : DateTime option
+      AlbumArtLoader : IBitmapLoader }
 
 type ToolsMsg =
     | ConvertWemToOgg of files : string array

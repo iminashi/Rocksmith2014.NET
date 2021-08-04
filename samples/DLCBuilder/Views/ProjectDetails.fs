@@ -14,36 +14,9 @@ open System
 open DLCBuilder
 open Media
 
-module private AlbumArt =
-    let private placeholder =
-        let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
-        new Bitmap(assets.Open(Uri("avares://DLCBuilder/Assets/coverart_placeholder.png")))
-
-    let mutable cachedBitmap : string * Bitmap option = String.Empty, None
-
-    /// Disposes any cached bitmap.
-    let invalidate () =
-        cachedBitmap |> snd |> Option.iter (fun bmp -> bmp.Dispose())
-        cachedBitmap <- (String.Empty, None)
-
-    let private tryLoadBitmap path =
-        try
-           Some (Utils.loadBitmap path)
-        with _ ->
-            None
-
-    let get path =
-        match cachedBitmap with
-        | _ when String.IsNullOrWhiteSpace path ->
-            None
-        | cachedPath, bmpOption when cachedPath = path ->
-            bmpOption
-        | _, bmp ->
-            bmp |> Option.iter (fun bmp -> bmp.Dispose())
-            let newBmp = tryLoadBitmap path
-            cachedBitmap <- path, newBmp
-            newBmp
-        |> Option.defaultValue placeholder
+let private placeholder =
+    let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
+    new Bitmap(assets.Open(Uri("avares://DLCBuilder/Assets/coverart_placeholder.png")))
 
 let private audioControls state dispatch =
     let audioPath = state.Project.AudioFile.Path
@@ -364,22 +337,32 @@ let private projectInfo state dispatch =
     ]
 
 let private coverArt state dispatch =
-    Image.create [
+    let albumArt = AvaloniaBitmapLoader.getBitmap ()
+    let brush, toolTip =
+        if String.notEmpty state.Project.AlbumArtFile && albumArt.IsNone then
+            Brushes.DarkRed, translatef "LoadingCoverArtFailed" [| IO.Path.GetFileName state.Project.AlbumArtFile  |]
+        else
+            Brushes.Black, translate "SelectCoverArtToolTip"
+
+    Border.create [
         DockPanel.dock Dock.Top
-        Image.source (AlbumArt.get state.Project.AlbumArtFile)
-        Image.width 200.
-        Image.height 200.
-        Image.onTapped (fun _ ->
-            AlbumArt.invalidate()
-            Dialog.CoverArt |> ShowDialog |> dispatch)
-        Image.onKeyDown (fun args ->
-            if args.Key = Key.Space then
-                args.Handled <- true
-                AlbumArt.invalidate()
-                Dialog.CoverArt |> ShowDialog |> dispatch)
-        Image.cursor Cursors.hand
-        Image.focusable true
-        ToolTip.tip (translate "SelectCoverArtToolTip")
+        Border.borderThickness 2.
+        Border.horizontalAlignment HorizontalAlignment.Center
+        Border.borderBrush brush
+        Border.child (
+            Image.create [
+                Image.source (albumArt |> Option.defaultValue placeholder)
+                Image.width 200.
+                Image.height 200.
+                Image.onTapped (fun _ -> Dialog.CoverArt |> ShowDialog |> dispatch)
+                Image.onKeyDown (fun args ->
+                    if args.Key = Key.Space then
+                        args.Handled <- true
+                        Dialog.CoverArt |> ShowDialog |> dispatch)
+                Image.cursor Cursors.hand
+                Image.focusable true
+                ToolTip.tip toolTip
+            ])
     ]
 
 let view state dispatch =

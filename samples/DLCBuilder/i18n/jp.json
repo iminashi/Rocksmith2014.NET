@@ -390,5 +390,6 @@
   "ImportantIssues": "重要な問題点",
   "MinorIssues": "重要でない問題点",
   "ValidateAgain": "このアレンジを再検証する",
-  "NoIssuesFound": "アレンジに問題点がありません。"
+  "NoIssuesFound": "アレンジに問題点がありません。",
+  "LoadingCoverArtFailed": "カバーアートファイル「{0}」のロードに失敗しました!"
 }

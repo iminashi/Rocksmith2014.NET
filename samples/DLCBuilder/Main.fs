@@ -19,7 +19,7 @@ let psarcImportProgress = Progress<float>()
 let private createExitCheckFile () =
     using (File.Create Configuration.exitCheckFilePath) ignore
 
-let init args =
+let init albumArtLoader args =
     let commands =
         let wasAbnormalExit = File.Exists Configuration.exitCheckFilePath
         createExitCheckFile()
@@ -57,7 +57,9 @@ let init args =
       OpenProjectFile = None
       ArrangementIssues = Map.empty
       AvailableUpdate = None
-      ToneGearRepository = None }, commands
+      ToneGearRepository = None
+      AlbumArtLoadTime = None
+      AlbumArtLoader = albumArtLoader }, commands
 
 let private exceptionToErrorMessage (ex: exn) =
     let exnInfo (e: exn) =
@@ -139,9 +141,11 @@ let update (msg: Msg) (state: State) =
         | None -> state, Cmd.none
 
     | NewProject ->
+        state.AlbumArtLoader.InvalidateCache()
         { state with Project = DLCProject.Empty
                      SavedProject = DLCProject.Empty
                      OpenProjectFile = None
+                     AlbumArtLoadTime = None
                      SelectedArrangementIndex = -1
                      SelectedToneIndex = -1 }, Cmd.none
 
@@ -584,6 +588,11 @@ let update (msg: Msg) (state: State) =
     | ProjectLoaded (project, projectFile) ->
         let project = DLCProject.updateToneInfo project
         let recent, newConfig, cmd = updateRecentFilesAndConfig projectFile state
+        let albumArtLoadTime =
+            if state.AlbumArtLoader.TryLoad project.AlbumArtFile then
+                Some DateTime.Now
+            else
+                None
 
         { state with Project = project
                      SavedProject = project
@@ -591,6 +600,7 @@ let update (msg: Msg) (state: State) =
                      RecentFiles = recent
                      Config = newConfig
                      ArrangementIssues = Map.empty
+                     AlbumArtLoadTime = albumArtLoadTime
                      SelectedArrangementIndex = -1
                      SelectedToneIndex = -1 },
         cmd
@@ -614,7 +624,15 @@ let update (msg: Msg) (state: State) =
         | -1 -> state, Cmd.none
         | index -> editTone state edit index
 
-    | EditProject edit -> { state with Project = editProject edit project }, Cmd.none
+    | EditProject edit ->
+        let newState =
+            match edit with
+            | SetAlbumArt path when state.AlbumArtLoader.TryLoad path ->
+                { state with AlbumArtLoadTime = Some DateTime.Now }
+            | _ ->
+                state
+
+        { newState with Project = editProject edit project }, Cmd.none
 
     | EditConfig edit -> { state with Config = editConfig edit config }, Cmd.none
 
