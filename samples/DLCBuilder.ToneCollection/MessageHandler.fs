@@ -1,9 +1,8 @@
-module DLCBuilder.ToneCollection.MessageHandler
+module ToneCollection.MessageHandler
 
-open DLCBuilder
-open DLCBuilder.ToneCollection.CollectionState
 open Rocksmith2014.Common.Manifest
 open System
+open CollectionState
 
 type OptionBuilder() =
     member _.Bind(x, f) = Option.bind f x
@@ -11,7 +10,7 @@ type OptionBuilder() =
 
 let option = OptionBuilder()
 
-let editUserTone edit (userTone: ToneCollection.DbToneData) =
+let editUserTone edit (userTone: DbToneData) =
     match edit with
     | UserToneEdit.SetArtist artist ->
         { userTone with Artist = artist
@@ -53,7 +52,7 @@ let update (state: ToneCollectionState) msg =
             state, Effect.Nothing
         else
             changePage page state, Effect.Nothing
- 
+
     | ToneCollectionSelectedToneChanged selectedTone ->
         { state with SelectedTone = selectedTone }, Effect.Nothing
 

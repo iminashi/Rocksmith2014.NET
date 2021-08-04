@@ -797,8 +797,9 @@ let update (msg: Msg) (state: State) =
     | ToolsMsg msg ->
         Tools.update msg state
 
-    | ShowDialog dialog ->
-        Dialogs.showDialog dialog state
+    | ShowDialog _ ->
+        // Handled elsewhere as a side effect
+        state, Cmd.none
 
     | ToneCollectionMsg msg ->
         match state.Overlay with

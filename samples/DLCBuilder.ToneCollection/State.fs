@@ -1,7 +1,7 @@
-module DLCBuilder.ToneCollection.CollectionState
+module ToneCollection.CollectionState
 
 open Rocksmith2014.Common
-open DLCBuilder.ToneCollection.Database
+open Database
 
 let private getTotalPages tones =
     tones
@@ -40,7 +40,7 @@ let changePage page collectionState =
 
 let refresh collectionState =
     let tones = getTones collectionState.ActiveCollection collectionState.SearchString collectionState.CurrentPage
-        
+
     { collectionState with Tones = tones }
 
 let changeSearch searchString collectionState =
@@ -98,7 +98,7 @@ let addSelectedToneToUserCollection collectionState =
     match collectionState with
     | { SelectedTone = Some selected; ActiveCollection = ActiveCollection.Official (Some api) } ->
         api.GetToneDataById selected.Id
-        |> Option.iter Database.addToneDataToUserCollection
+        |> Option.iter addToneDataToUserCollection
     | _ ->
         ()
 

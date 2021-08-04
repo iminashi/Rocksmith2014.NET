@@ -55,7 +55,7 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.Audio", "src\
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.Audio.Tests", "tests\Rocksmith2014.Audio.Tests\Rocksmith2014.Audio.Tests.fsproj", "{03C0B8EE-E23F-4EED-8D3F-3538C1AB5FC7}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "DLCBuilder.Tests", "tests\DLCBuilder.Tests\DLCBuilder.Tests.fsproj", "{8189ABC1-7482-45F6-9955-497BD7914BFF}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "DLCBuilder.Domain.Tests", "tests\DLCBuilder.Domain.Tests\DLCBuilder.Domain.Tests.fsproj", "{8189ABC1-7482-45F6-9955-497BD7914BFF}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.IntegrationTests", "tests\Rocksmith2014.IntegrationTests\Rocksmith2014.IntegrationTests.fsproj", "{BD5FD1DF-0D83-4AF1-9C27-AD70A8EBA5D3}"
 EndProject
@@ -67,6 +67,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Testing", "samples\Testing\Testing.fsproj", "{053BBA9C-02F1-47FD-A357-A1570012A2EA}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "DLCBuilder.Domain", "samples\DLCBuilder.Domain\DLCBuilder.Domain.fsproj", "{7E458AB1-517D-4D35-8274-96C3D3F0E45B}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "DLCBuilder.ToneCollection", "samples\DLCBuilder.ToneCollection\DLCBuilder.ToneCollection.fsproj", "{C1C19572-7B2D-491C-942D-EE4EDB1EE6B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -262,6 +266,22 @@ Global
 		{053BBA9C-02F1-47FD-A357-A1570012A2EA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{053BBA9C-02F1-47FD-A357-A1570012A2EA}.Release|x64.ActiveCfg = Release|x64
 		{053BBA9C-02F1-47FD-A357-A1570012A2EA}.Release|x64.Build.0 = Release|x64
+		{7E458AB1-517D-4D35-8274-96C3D3F0E45B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E458AB1-517D-4D35-8274-96C3D3F0E45B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E458AB1-517D-4D35-8274-96C3D3F0E45B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7E458AB1-517D-4D35-8274-96C3D3F0E45B}.Debug|x64.Build.0 = Debug|Any CPU
+		{7E458AB1-517D-4D35-8274-96C3D3F0E45B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E458AB1-517D-4D35-8274-96C3D3F0E45B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E458AB1-517D-4D35-8274-96C3D3F0E45B}.Release|x64.ActiveCfg = Release|Any CPU
+		{7E458AB1-517D-4D35-8274-96C3D3F0E45B}.Release|x64.Build.0 = Release|Any CPU
+		{C1C19572-7B2D-491C-942D-EE4EDB1EE6B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1C19572-7B2D-491C-942D-EE4EDB1EE6B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1C19572-7B2D-491C-942D-EE4EDB1EE6B2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C1C19572-7B2D-491C-942D-EE4EDB1EE6B2}.Debug|x64.Build.0 = Debug|Any CPU
+		{C1C19572-7B2D-491C-942D-EE4EDB1EE6B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1C19572-7B2D-491C-942D-EE4EDB1EE6B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1C19572-7B2D-491C-942D-EE4EDB1EE6B2}.Release|x64.ActiveCfg = Release|Any CPU
+		{C1C19572-7B2D-491C-942D-EE4EDB1EE6B2}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -294,6 +314,8 @@ Global
 		{BD5FD1DF-0D83-4AF1-9C27-AD70A8EBA5D3} = {0FF21B35-CA73-45A8-939A-F14614C11471}
 		{5739C3FF-B7C5-49BA-BF2F-FF9ACE63E703} = {5372FA3F-22E5-4217-B4E1-D439C943AEA0}
 		{053BBA9C-02F1-47FD-A357-A1570012A2EA} = {5372FA3F-22E5-4217-B4E1-D439C943AEA0}
+		{7E458AB1-517D-4D35-8274-96C3D3F0E45B} = {5372FA3F-22E5-4217-B4E1-D439C943AEA0}
+		{C1C19572-7B2D-491C-942D-EE4EDB1EE6B2} = {5372FA3F-22E5-4217-B4E1-D439C943AEA0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0B1D2436-1840-458A-B570-F533FC009333}

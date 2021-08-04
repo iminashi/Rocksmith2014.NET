@@ -1,4 +1,4 @@
-namespace DLCBuilder.ToneCollection
+namespace ToneCollection
 
 open Rocksmith2014.Common.Manifest
 open System
@@ -43,12 +43,12 @@ type IUserTonesApi =
 type ActiveCollection =
     | Official of IOfficialTonesApi option
     | User of IUserTonesApi
-      
+
 [<RequireQualifiedAccess>]
 type ActiveTab =
     | Official
     | User
-      
+
 type ToneCollectionState =
     { ActiveCollection : ActiveCollection
       Tones : DbTone array

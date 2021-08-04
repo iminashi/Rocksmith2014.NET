@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <Platforms>x64</Platforms>
+    <WarnOn>3390;$(WarnOn)</WarnOn>
+    <Version>0.4.1</Version>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="5.0.2" />
+    <PackageReference Include="Elmish" Version="3.1.0" />
+    <PackageReference Include="Octokit" Version="0.50.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="i18n\en.json" />
+    <EmbeddedResource Include="i18n\fi.json" />
+    <EmbeddedResource Include="i18n\jp.json" />
+    <EmbeddedResource Include="Tones\tone_gear_data.json" />
+    <EmbeddedResource Include="Tones\default_bass.json" />
+    <EmbeddedResource Include="Tones\default_lead.json" />
+    <EmbeddedResource Include="Tones\default_rhythm.json" />
+    <Compile Include="Tones\ToneGear.fs" />
+    <Compile Include="Tones\DefaultTones.fs" />
+    <Compile Include="AppVersion.fs" />
+    <Compile Include="Localization.fs" />
+    <Compile Include="Configuration.fs" />
+    <Compile Include="RecentFilesList.fs" />
+    <Compile Include="OnlineUpdate.fs" />
+    <Compile Include="Utils.fs" />
+    <Compile Include="Types.fs" />
+    <Compile Include="StateUtils.fs" />
+    <Compile Include="EditFunctions.fs" />
+    <Compile Include="Building\BuildValidator.fs" />
+    <Compile Include="Building\TestPackageBuilder.fs" />
+    <Compile Include="Building\ReleasePackageBuilder.fs" />
+    <Compile Include="Tools.fs" />
+    <Compile Include="Main.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Rocksmith2014.Audio\Rocksmith2014.Audio.fsproj" />
+    <ProjectReference Include="..\..\src\Rocksmith2014.DLCProject\Rocksmith2014.DLCProject.fsproj" />
+    <ProjectReference Include="..\DLCBuilder.ToneCollection\DLCBuilder.ToneCollection.fsproj" />
+  </ItemGroup>
+
+</Project>

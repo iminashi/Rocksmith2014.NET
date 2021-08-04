@@ -73,15 +73,20 @@ type MainWindow(commandLineArgs: string array) as this =
         // Add an exception handler to the update function
         let update' msg state =
             try
-                let newState, cmd = Main.update msg state
+                let newState, cmd =
+                    match msg with
+                    | ShowDialog dialog ->
+                        state, Dialogs.showDialog dialog state
+                    | _ ->
+                        Main.update msg state
                 if shouldAutoSave newState state msg then autoSaveSubject.OnNext()
 
                 // Workaround for focus issues when opening / closing overlays
                 match state, newState with
                 | { Overlay = NoOverlay }, { Overlay = overlay } when overlay <> NoOverlay ->
-                    Utils.FocusHelper.storeFocusedElement()
+                    FocusHelper.storeFocusedElement()
                 | { Overlay = overlay }, { Overlay = NoOverlay } when overlay <> NoOverlay ->
-                    Utils.FocusHelper.restoreRootFocus()
+                    FocusHelper.restoreRootFocus()
                 | _ ->
                     ()
 
@@ -101,6 +106,10 @@ type MainWindow(commandLineArgs: string array) as this =
                                  RunningTasks = Set.empty
                                  Overlay = ErrorMessage(errorMessage, Option.ofString ex.StackTrace) }
                 newState, Cmd.none
+
+        let oDb = Path.Combine(Configuration.appDataFolder, "tones", "official.db")
+        let uDb = Path.Combine(Configuration.appDataFolder, "tones", "user.db")
+        ToneCollection.Database.init oDb uDb
 
         let init = Main.init (AvaloniaBitmapLoader.createInterface())
 

@@ -249,4 +249,4 @@ let showDialog dialogType state =
 
             saveFileDialog title FileFilter.Project initialFileName initialDir SaveProject
 
-    state, Cmd.OfAsync.optionalResult dialog
+    Cmd.OfAsync.optionalResult dialog

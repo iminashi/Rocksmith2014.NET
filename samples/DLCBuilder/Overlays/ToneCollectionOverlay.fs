@@ -10,13 +10,13 @@ open Avalonia.Layout
 open Avalonia.Media
 open DLCBuilder
 open DLCBuilder.Media
-open DLCBuilder.ToneCollection
 open DLCBuilder.ToneGear
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open System
 open System.Text.RegularExpressions
 open Avalonia.FuncUI.Types
+open ToneCollection
 
 let private translateDescription (description: string) =
     description.Split('|')
@@ -46,7 +46,7 @@ let private toneTemplate dispatch isOfficial =
                             MenuItem.create [
                                 MenuItem.header (translate "EditMenuItem")
                                 MenuItem.onClick (fun _ ->
-                                    Utils.FocusHelper.storeFocusedElement()
+                                    FocusHelper.storeFocusedElement()
                                     ShowUserToneEditor |> dispatch)
                                 MenuItem.inputGesture (KeyGesture(Key.E))
                             ]
@@ -117,7 +117,7 @@ let tonesList dispatch collectionState isOfficial =
             | Key.Delete when not isOfficial ->
                 DeleteSelectedUserTone |> dispatch
             | Key.E when not isOfficial ->
-                Utils.FocusHelper.storeFocusedElement()
+                FocusHelper.storeFocusedElement()
                 ShowUserToneEditor |> dispatch
             | _ ->
                 arg.Handled <- false
@@ -256,7 +256,7 @@ let private userToneEditor dispatch data =
                         Button.content (translate "Save")
                         Button.isEnabled (String.notEmpty data.Name)
                         Button.onClick (fun _ ->
-                            Utils.FocusHelper.restoreFocus()
+                            FocusHelper.restoreFocus()
                             ApplyUserToneEdit |> dispatch)
                     ]
                     Button.create [
@@ -265,7 +265,7 @@ let private userToneEditor dispatch data =
                         Button.padding (20., 5.)
                         Button.content (translate "Cancel")
                         Button.onClick (fun _ ->
-                            Utils.FocusHelper.restoreFocus()
+                            FocusHelper.restoreFocus()
                             HideUserToneEditor |> dispatch)
                     ]
                 ]
@@ -377,7 +377,7 @@ let private toneInfoPanel state collectionState =
                                             // Marshall Plexi has two loudness values
                                             let l1 = ampBar "Loudness 1"
                                             let l2 = ampBar "Loudness 2"
-                                                
+
                                             Option.map2 List.append l1 l2)
 
                                     match gainBar with

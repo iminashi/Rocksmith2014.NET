@@ -1,4 +1,4 @@
-module DLCBuilder.ToneCollection.Database
+module ToneCollection.Database
 
 open Dapper
 open System
@@ -9,16 +9,19 @@ open System.Text.Json.Serialization
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
-open DLCBuilder
 
-let private officialTonesDbPath =
-    Path.Combine(Configuration.appDataFolder, "tones", "official.db")
+let mutable private officialTonesDbPath = ""
 
-let private userTonesDbPath =
-    Path.Combine(Configuration.appDataFolder, "tones", "user.db")
+let mutable private userTonesDbPath = ""
 
-let private officialTonesConnectionString = $"Data Source={officialTonesDbPath};Read Only=True"
-let private userTonesConnectionString = $"Data Source={userTonesDbPath}"
+let mutable private officialTonesConnectionString = ""
+let mutable private userTonesConnectionString = ""
+
+let init officialDbPath userDbPath =
+    officialTonesDbPath <- officialDbPath
+    userTonesDbPath <- userDbPath
+    officialTonesConnectionString <- $"Data Source={officialTonesDbPath};Read Only=True"
+    userTonesConnectionString <- $"Data Source={userTonesDbPath}"
 
 let private createConnection (connectionString: string) =
     new SQLiteConnection(connectionString)

@@ -50,7 +50,7 @@ let getPedalForSlot (gearList: Gear) gearSlot =
     | Cabinet ->
         Some gearList.Cabinet
     | PrePedal index ->
-        gearList.PrePedals.[index] 
+        gearList.PrePedals.[index]
     | PostPedal index ->
         gearList.PostPedals.[index]
     | Rack index ->
@@ -79,7 +79,7 @@ let private loadGearData () = async {
     let provider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
     let options = JsonSerializerOptions(IgnoreNullValues = true)
     options.Converters.Add(JsonFSharpConverter())
-    use gearDataFile = provider.GetFileInfo("Tones/ToneGearData.json").CreateReadStream()
+    use gearDataFile = provider.GetFileInfo("Tones/tone_gear_data.json").CreateReadStream()
     return! JsonSerializer.DeserializeAsync<GearData[]>(gearDataFile, options) }
 
 let loadRepository () = async {
@@ -90,7 +90,7 @@ let loadRepository () = async {
         |> Array.filter (fun x -> x.Type = type')
         |> Array.sortBy sortBy
     let toDict = Array.map (fun x -> x.Key, x) >> readOnlyDict
-    
+
     let data =
         [| "Amps", (fun x -> x.Name)
            "Cabinets", (fun x -> x.Name)
@@ -100,7 +100,7 @@ let loadRepository () = async {
             let result = filterSort gearType sorter
             let dict = toDict result
             result, dict)
-    
+
     let cabinets = fst data.[1]
     let cabinetChoices = cabinets |> Array.distinctBy (fun x -> x.Name)
     let micPositionsForCabinet =

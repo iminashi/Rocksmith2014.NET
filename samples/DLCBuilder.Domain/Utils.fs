@@ -1,10 +1,8 @@
 module DLCBuilder.Utils
 
 open System
-open System.Collections.Generic
 open System.Diagnostics
 open System.IO
-open Avalonia
 open Rocksmith2014.Audio
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
@@ -155,34 +153,3 @@ let removeDD project =
         arr.Save inst.XML })
     |> Async.Sequential
     |> Async.Ignore
-
-module FocusHelper =
-    open Avalonia.Controls
-    open Avalonia.Input
-
-    let private window =
-        lazy (Application.Current.ApplicationLifetime :?> ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime).MainWindow
-
-    let private previouslyFocused = Stack<IInputElement>()
-
-    let storeFocusedElement () =
-        if notNull FocusManager.Instance.Current then
-            previouslyFocused.Push(FocusManager.Instance.Current)
-
-        // Blur the focus from the element
-        window.Value.Focus()
-
-    let restoreFocus () =
-        if previouslyFocused.Count > 0 then
-            previouslyFocused.Pop().Focus()
-        else
-            window.Value.Focus()
-
-    // Restores the focus to the oldest element in the stack.
-    let restoreRootFocus () =
-        let mutable element : IInputElement = null
-        while previouslyFocused.Count > 0 do element <- previouslyFocused.Pop()
-        if notNull element then
-            element.Focus()
-        else
-            window.Value.Focus()

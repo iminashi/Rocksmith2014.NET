@@ -8,7 +8,6 @@ open Rocksmith2014.DD
 open Rocksmith2014.XML.Processing
 open System
 open OnlineUpdate
-open DLCBuilder.ToneCollection
 
 type IBitmapLoader =
     abstract member InvalidateCache : unit -> unit
@@ -22,7 +21,7 @@ type OverlayContents =
     | ConfigEditor
     | IssueViewer of arrangement : Arrangement
     | ToneEditor
-    | ToneCollection of state : ToneCollectionState
+    | ToneCollection of state : ToneCollection.ToneCollectionState
     | DeleteConfirmation of files : string list
     | AbnormalExitMessage
     | PitchShifter

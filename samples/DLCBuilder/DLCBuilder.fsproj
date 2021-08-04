@@ -10,6 +10,7 @@
     <Product>Rocksmith 2014 DLC Builder</Product>
     <Copyright>Copyright © 2021</Copyright>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
+    <WarnOn>3390;$(WarnOn)</WarnOn>
     <Version>0.4.1</Version>
   </PropertyGroup>
 
@@ -33,39 +34,14 @@
     <None Include="RELEASE_NOTES.md">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <EmbeddedResource Include="i18n\en.json" />
-    <EmbeddedResource Include="i18n\fi.json" />
-    <EmbeddedResource Include="i18n\jp.json" />
     <AvaloniaResource Include="Assets\coverart_placeholder.png" />
     <EmbeddedResource Include="Assets\icon.ico" />
-    <EmbeddedResource Include="Tones\ToneGearData.json" />
-    <EmbeddedResource Include="Tones\default_bass.json" />
-    <EmbeddedResource Include="Tones\default_lead.json" />
-    <EmbeddedResource Include="Tones\default_rhythm.json" />
-    <Compile Include="Tones\ToneGear.fs" />
-    <Compile Include="Tones\DefaultTones.fs" />
     <AvaloniaResource Include="Styles.xaml" />
-    <Compile Include="AppVersion.fs" />
-    <Compile Include="Utils.fs" />
+    <Compile Include="FocusHelper.fs" />
     <Compile Include="Media.fs" />
     <Compile Include="ElmishExtensions.fs" />
-    <Compile Include="Localization.fs" />
-    <Compile Include="Configuration.fs" />
-    <Compile Include="RecentFilesList.fs" />
-    <Compile Include="ToneCollection\Types.fs" />
-    <Compile Include="ToneCollection\Database.fs" />
-    <Compile Include="ToneCollection\State.fs" />
-    <Compile Include="ToneCollection\MessageHandler.fs" />
-    <Compile Include="OnlineUpdate.fs" />
-    <Compile Include="Types.fs" />
     <Compile Include="AvaloniaBitmapLoader.fs" />
-    <Compile Include="StateUtils.fs" />
     <Compile Include="Dialogs.fs" />
-    <Compile Include="EditFunctions.fs" />
-    <Compile Include="Tools.fs" />
-    <Compile Include="Building\BuildValidator.fs" />
-    <Compile Include="Building\TestPackageBuilder.fs" />
-    <Compile Include="Building\ReleasePackageBuilder.fs" />
     <Compile Include="Controls\Helpers.fs" />
     <Compile Include="Controls\FixedTextBox.fs" />
     <Compile Include="Controls\FixedAutoCompleteBox.fs" />
@@ -97,20 +73,16 @@
     <Compile Include="Views\VocalsDetails.fs" />
     <Compile Include="Views\ToneDetails.fs" />
     <Compile Include="Views\Main.fs" />
-    <Compile Include="Main.fs" />
     <Compile Include="HotKeys.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia.Desktop" Version="0.10.6" />
-    <PackageReference Include="Dapper" Version="2.0.90" />
     <PackageReference Include="JaggerJo.Avalonia.FuncUI" Version="0.5.0-beta" />
     <PackageReference Include="JaggerJo.Avalonia.FuncUI.DSL" Version="0.5.0-beta" />
     <PackageReference Include="JaggerJo.Avalonia.FuncUI.Elmish" Version="0.5.0-beta" />
-    <PackageReference Include="Octokit" Version="0.50.0" />
     <PackageReference Include="Pfim" Version="0.10.0" />
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.114.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -118,6 +90,7 @@
     <ProjectReference Include="..\..\src\Rocksmith2014.DLCProject\Rocksmith2014.DLCProject.fsproj" />
     <ProjectReference Include="..\..\src\Rocksmith2014.XML.Processing\Rocksmith2014.XML.Processing.fsproj" />
     <ProjectReference Include="..\..\src\Rocksmith2014.XML\Rocksmith2014.XML.csproj" />
+    <ProjectReference Include="..\DLCBuilder.Domain\DLCBuilder.Domain.fsproj" />
   </ItemGroup>
 
   <ItemGroup>
