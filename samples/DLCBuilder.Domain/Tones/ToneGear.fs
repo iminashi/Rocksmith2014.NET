@@ -99,9 +99,10 @@ let loadRepository () = async {
         |> Array.Parallel.map (fun (gearType, sorter) ->
             let result = filterSort gearType sorter
             let dict = toDict result
-            result, dict)
+            gearType, {| Array = result; Dictionary = dict |})
+        |> readOnlyDict
 
-    let cabinets = fst data.[1]
+    let cabinets = data.["Cabinets"].Array
     let cabinetChoices = cabinets |> Array.distinctBy (fun x -> x.Name)
     let micPositionsForCabinet =
         cabinets
@@ -109,14 +110,14 @@ let loadRepository () = async {
         |> readOnlyDict
 
     return
-        { Amps = fst data.[0]
-          AmpDict = snd data.[0]
+        { Amps = data.["Amps"].Array
+          AmpDict = data.["Amps"].Dictionary
           Cabinets = cabinets
-          CabinetDict = snd data.[1]
-          Pedals = fst data.[2]
-          PedalDict = snd data.[2]
-          Racks = fst data.[3]
-          RackDict = snd data.[3]
+          CabinetDict = data.["Cabinets"].Dictionary
+          Pedals = data.["Pedals"].Array
+          PedalDict = data.["Pedals"].Dictionary
+          Racks = data.["Racks"].Array
+          RackDict = data.["Racks"].Dictionary
           CabinetChoices = cabinetChoices
           MicPositionsForCabinet = micPositionsForCabinet } }
 
