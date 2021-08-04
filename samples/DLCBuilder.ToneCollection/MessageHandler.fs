@@ -87,7 +87,7 @@ let update (state: ToneCollectionState) msg =
 
         refresh { state with EditingUserTone = None }, Effect.Nothing
 
-    | AddOfficalToneToUserCollection ->
+    | AddOfficialToneToUserCollection ->
         state
         |> addSelectedToneToUserCollection
 

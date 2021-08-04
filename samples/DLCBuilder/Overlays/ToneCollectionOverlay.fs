@@ -40,7 +40,7 @@ let private toneTemplate dispatch isOfficial =
                         if isOfficial then
                             MenuItem.create [
                                 MenuItem.header (translate "AddToUserCollectionMenuItem")
-                                MenuItem.onClick (fun _ -> AddOfficalToneToUserCollection |> dispatch)
+                                MenuItem.onClick (fun _ -> AddOfficialToneToUserCollection |> dispatch)
                             ]
                         else
                             MenuItem.create [

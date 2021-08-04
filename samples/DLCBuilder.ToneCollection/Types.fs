@@ -77,7 +77,7 @@ type Msg =
     | SearchToneCollection of searchString : string option
     | ChangeToneCollectionPage of direction : PageDirection
     | ToneCollectionSelectedToneChanged of selectedTone : DbTone option
-    | AddOfficalToneToUserCollection
+    | AddOfficialToneToUserCollection
     | ShowUserToneEditor
     | HideUserToneEditor
     | EditUserToneData of UserToneEdit
