@@ -81,7 +81,7 @@ type MainWindow(commandLineArgs: string array) as this =
                 | { Overlay = NoOverlay }, { Overlay = overlay } when overlay <> NoOverlay ->
                     Utils.FocusHelper.storeFocusedElement()
                 | { Overlay = overlay }, { Overlay = NoOverlay } when overlay <> NoOverlay ->
-                    Utils.FocusHelper.restoreFocus()
+                    Utils.FocusHelper.restoreRootFocus()
                 | _ ->
                     ()
 
