@@ -37,9 +37,9 @@
     <AvaloniaResource Include="Assets\coverart_placeholder.png" />
     <EmbeddedResource Include="Assets\icon.ico" />
     <AvaloniaResource Include="Styles.xaml" />
+    <Compile Include="ElmishExtensions.fs" />
     <Compile Include="FocusHelper.fs" />
     <Compile Include="Media.fs" />
-    <Compile Include="ElmishExtensions.fs" />
     <Compile Include="AvaloniaBitmapLoader.fs" />
     <Compile Include="Dialogs.fs" />
     <Compile Include="Controls\Helpers.fs" />
