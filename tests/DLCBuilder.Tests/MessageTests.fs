@@ -3,6 +3,7 @@ module MessageTests
 open Expecto
 open DLCBuilder
 open System
+open Rocksmith2014.DLCProject
 
 [<Tests>]
 let messageTests =
@@ -57,4 +58,44 @@ let messageTests =
             let newState, _ = Main.update (ShowOverlay ConfigEditor) initialState
 
             Expect.equal newState.Overlay ConfigEditor "Overlay is set to configuration editor"
+
+        testCase "NewProject invalidates bitmap cache" <| fun _ ->
+            let mutable wasInvalidated = false
+            let bitmapLoaderMock =
+                { new IBitmapLoader with
+                    member _.InvalidateCache() = wasInvalidated <- true
+                    member _.TryLoad _ = true }
+            let state = { initialState with AlbumArtLoader = bitmapLoaderMock
+                                            AlbumArtLoadTime = Some DateTime.Now }
+
+            let newState, _ = Main.update NewProject state
+
+            Expect.isTrue wasInvalidated "Cache was invalidated"
+            Expect.isNone newState.AlbumArtLoadTime "Load time was set to none"
+
+        testCase "ProjectLoaded calls IBitmapLoader TryLoad" <| fun _ ->
+            let mutable wasCalled = false
+            let bitmapLoaderMock =
+                { new IBitmapLoader with
+                    member _.InvalidateCache() = ()
+                    member _.TryLoad _ = wasCalled <- true; true }
+            let state = { initialState with AlbumArtLoader = bitmapLoaderMock }
+
+            let newState, _ = Main.update (ProjectLoaded (DLCProject.Empty, "")) state
+
+            Expect.isTrue wasCalled "TryLoad was called"
+            Expect.isSome newState.AlbumArtLoadTime "Load time has a value"
+
+        testCase "SetAlbumArt calls IBitmapLoader TryLoad" <| fun _ ->
+            let mutable wasCalled = false
+            let bitmapLoaderMock =
+                { new IBitmapLoader with
+                    member _.InvalidateCache() = ()
+                    member _.TryLoad _ = wasCalled <- true; true }
+            let state = { initialState with AlbumArtLoader = bitmapLoaderMock }
+
+            let newState, _ = Main.update (EditProject (SetAlbumArt "")) state
+
+            Expect.isTrue wasCalled "TryLoad was called"
+            Expect.isSome newState.AlbumArtLoadTime "Load time has a value"
     ]

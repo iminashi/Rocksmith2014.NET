@@ -1,10 +1,11 @@
-﻿module DLCBuilder.AvaloniaBitmapLoader
+module DLCBuilder.AvaloniaBitmapLoader
 
 open Avalonia
 open Avalonia.Media.Imaging
 open Avalonia.Platform
 open Pfim
 open Rocksmith2014.Common
+open System
 open System.Runtime.InteropServices
 
 let mutable private cached : Bitmap option = None
@@ -36,21 +37,25 @@ let private avaloniaBitmapFromDDS (fileName: string) =
     pinnedArray.Free()
     bm
 
-/// Tries to load and cache a bitmap from the given path, returning false if the loading fails.
+/// Tries to load and cache a bitmap from the given path.
+/// Returns false if the file does not exist or the loading fails.
 let private tryLoadBitmap path =
     cached |> Option.iter (fun x -> x.Dispose())
 
-    try
-        cached <-
-            match path with
-            | EndsWith "dds" ->
-                avaloniaBitmapFromDDS path
-            | _ ->
-                new Bitmap(path)
-            |> Some
-        true
-    with _ ->
+    if not <| IO.File.Exists path then
         false
+    else
+        try
+            cached <-
+                match path with
+                | EndsWith "dds" ->
+                    avaloniaBitmapFromDDS path
+                | _ ->
+                    new Bitmap(path)
+                |> Some
+            true
+        with _ ->
+            false
 
 /// Disposes of any cached bitmap.
 let private invalidate () =
