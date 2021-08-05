@@ -57,7 +57,8 @@ let private buildPackage buildType build state =
         let task = build state.Config
 
         addTask BuildPackage state,
-        Cmd.OfAsync.either task state.Project (fun () -> BuildComplete buildType) (fun ex -> TaskFailed(ex, BuildPackage))
+        Cmd.OfAsync.either task state.Project (fun () -> BuildComplete buildType)
+                                              (fun ex -> TaskFailed(ex, BuildPackage))
 
 let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
@@ -248,7 +249,9 @@ let update (msg: Msg) (state: State) =
     | ConvertToWem ->
         if DLCProject.audioFilesExist project then
             addTask WemConversion state,
-            Cmd.OfAsync.either (Utils.convertAudio config.WwiseConsolePath) project WemConversionComplete (fun ex -> TaskFailed(ex, WemConversion))
+            Cmd.OfAsync.either (Utils.convertAudio config.WwiseConsolePath) project
+                               WemConversionComplete
+                               (fun ex -> TaskFailed(ex, WemConversion))
         else
             state, Cmd.none
 
@@ -256,7 +259,9 @@ let update (msg: Msg) (state: State) =
         match getSelectedArrangement state with
         | Some (Instrumental { CustomAudio = Some audio }) ->
             addTask WemConversion state,
-            Cmd.OfAsync.either (Wwise.convertToWem config.WwiseConsolePath) audio.Path WemConversionComplete (fun ex -> TaskFailed(ex, WemConversion))
+            Cmd.OfAsync.either (Wwise.convertToWem config.WwiseConsolePath) audio.Path
+                               WemConversionComplete
+                               (fun ex -> TaskFailed(ex, WemConversion))
         | _ ->
             state, Cmd.none
 
@@ -277,7 +282,8 @@ let update (msg: Msg) (state: State) =
             | CustomAudio (path, _) -> path
         let task () = async { return Volume.calculate path }
         addTask (VolumeCalculation target) state,
-        Cmd.OfAsync.either task () (fun v -> VolumeCalculated(v, target)) (fun ex -> TaskFailed(ex, (VolumeCalculation target)))
+        Cmd.OfAsync.either task () (fun v -> VolumeCalculated(v, target))
+                                   (fun ex -> TaskFailed(ex, (VolumeCalculation target)))
 
     | VolumeCalculated (volume, target) ->
         let project =
@@ -376,7 +382,8 @@ let update (msg: Msg) (state: State) =
 
     | MoveArrangement dir ->
         let arrangements, index = moveSelected dir state.SelectedArrangementIndex project.Arrangements
-        { state with Project = { project with Arrangements = arrangements }; SelectedArrangementIndex = index }, Cmd.none
+        { state with Project = { project with Arrangements = arrangements }
+                     SelectedArrangementIndex = index }, Cmd.none
 
     | CreatePreviewAudio SetupStartTime ->
         let totalLength = Utils.getLength project.AudioFile.Path
