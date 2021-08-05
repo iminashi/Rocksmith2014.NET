@@ -10,7 +10,8 @@
     <Product>Rocksmith 2014 DLC Builder</Product>
     <Copyright>Copyright © 2021</Copyright>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
-    <WarnOn>3390;$(WarnOn)</WarnOn>
+    <WarnOn>1182;3390;$(WarnOn)</WarnOn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Version>0.4.1</Version>
   </PropertyGroup>
 

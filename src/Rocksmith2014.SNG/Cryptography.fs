@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.SNG.Cryptography
+module Rocksmith2014.SNG.Cryptography
 
 open System.Security.Cryptography
 open System.Runtime.Intrinsics.X86
@@ -76,7 +76,7 @@ let private aesCtrTransform (input: Stream) (output: Stream) (key: byte[]) (iv: 
 let decryptSNG (input: Stream) (output: Stream) (platform: Platform) =
     let reader = BinaryReaders.getReader input platform
     if reader.ReadUInt32() <> 0x4Au then invalidOp "Not a valid SNG file."
-    let header = reader.ReadUInt32()
+    let _header = reader.ReadUInt32()
     let iv = reader.ReadBytes(16)
     let key = getKey platform
 

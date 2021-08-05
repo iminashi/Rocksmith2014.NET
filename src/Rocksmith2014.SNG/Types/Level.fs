@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
 open BinaryHelpers
@@ -36,6 +36,6 @@ type Level =
           HandShapes = readArray reader FingerPrint.Read
           Arpeggios = readArray reader FingerPrint.Read
           Notes = readArray reader Note.Read
-          AverageNotesPerIteration = readArray reader (fun r -> reader.ReadSingle())
+          AverageNotesPerIteration = readArray reader (fun r -> r.ReadSingle())
           NotesInPhraseIterationsExclIgnored = readArray reader (fun r -> r.ReadInt32())
           NotesInPhraseIterationsAll = readArray reader (fun r -> r.ReadInt32()) }
