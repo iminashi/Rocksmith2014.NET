@@ -8,6 +8,7 @@
     <Authors>iminashi</Authors>
     <NeutralLanguage>en</NeutralLanguage>
     <Product>Rocksmith 2014 DLC Builder</Product>
+    <AssemblyTitle>Rocksmith 2014 DLC Builder</AssemblyTitle>
     <Copyright>Copyright © 2021</Copyright>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
     <WarnOn>1182;3390;$(WarnOn)</WarnOn>
