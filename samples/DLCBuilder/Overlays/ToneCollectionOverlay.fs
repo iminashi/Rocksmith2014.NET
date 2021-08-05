@@ -102,16 +102,16 @@ let tonesList dispatch collectionState isOfficial =
         ListBox.itemTemplate (toneTemplate dispatch isOfficial)
         ListBox.onSelectedItemChanged (function
             | :? DbTone as tone ->
-                tone |> Some |> ToneCollectionSelectedToneChanged |> dispatch
+                tone |> Some |> SelectedToneChanged |> dispatch
             | _ ->
-                None |> ToneCollectionSelectedToneChanged |> dispatch)
+                None |> SelectedToneChanged |> dispatch)
         ListBox.onKeyDown (fun arg ->
             arg.Handled <- true
             match arg.Key with
             | Key.Left ->
-                ChangeToneCollectionPage Left |> dispatch
+                ChangePage Left |> dispatch
             | Key.Right ->
-                ChangeToneCollectionPage Right |> dispatch
+                ChangePage Right |> dispatch
             | Key.Enter ->
                 AddSelectedToneFromCollection |> dispatch
             | Key.Delete when not isOfficial ->
@@ -138,7 +138,7 @@ let private paginationControls dispatch (collectionState: ToneCollectionState) =
                 Border.background Brushes.Transparent
                 Border.isEnabled isEnabled
                 Border.cursor (if isEnabled then Cursors.hand else Cursors.arrow)
-                Border.onTapped (fun _ -> ChangeToneCollectionPage Left |> dispatch)
+                Border.onTapped (fun _ -> ChangePage Left |> dispatch)
                 Border.child (
                     Path.create [
                         Path.data Icons.chevronLeft
@@ -164,7 +164,7 @@ let private paginationControls dispatch (collectionState: ToneCollectionState) =
                 Border.background Brushes.Transparent
                 Border.isEnabled isEnabled
                 Border.cursor (if isEnabled then Cursors.hand else Cursors.arrow)
-                Border.onTapped (fun _ -> ChangeToneCollectionPage Right |> dispatch)
+                Border.onTapped (fun _ -> ChangePage Right |> dispatch)
                 Border.child (
                     Path.create [
                         Path.data Icons.chevronRight
@@ -182,7 +182,7 @@ let private collectionView dispatch (collectionState: ToneCollectionState) =
             // Search text box
             AutoFocusSearchBox.create [
                 DockPanel.dock Dock.Top
-                AutoFocusSearchBox.onTextChanged (Option.ofString >> SearchToneCollection >> dispatch)
+                AutoFocusSearchBox.onTextChanged (Option.ofString >> SearchCollection >> dispatch)
             ]
 
             // Pagination
@@ -425,7 +425,7 @@ let view state dispatch collectionState =
                                     Panel.create [] |> generalize)
                             TabItem.onIsSelectedChanged (fun isSelected ->
                                 if isSelected then
-                                    ActiveTab.Official |> ChangeToneCollection |> dispatch'
+                                    ActiveTab.Official |> ChangeCollection |> dispatch'
                             )
                         ]
 
@@ -438,11 +438,10 @@ let view state dispatch collectionState =
                                     collectionView dispatch' collectionState
                                     |> generalize
                                 | _ ->
-                                    Panel.create [] |> generalize
-                            )
+                                    Panel.create [] |> generalize)
                             TabItem.onIsSelectedChanged (fun isSelected ->
                                 if isSelected then
-                                    ActiveTab.User |> ChangeToneCollection |> dispatch'
+                                    ActiveTab.User |> ChangeCollection |> dispatch'
                             )
                         ]
                     ]

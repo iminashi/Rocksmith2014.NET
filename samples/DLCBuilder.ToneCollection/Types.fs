@@ -83,16 +83,16 @@ type UserToneEdit =
     | RemoveArtistInfo
 
 type Msg =
-    | ChangeToneCollection of activeTab : ActiveTab
+    | ChangeCollection of activeTab : ActiveTab
     | AddSelectedToneFromCollection
     | DeleteSelectedUserTone
-    | SearchToneCollection of searchString : string option
-    | ChangeToneCollectionPage of direction : PageDirection
-    | ToneCollectionSelectedToneChanged of selectedTone : DbTone option
+    | SearchCollection of searchString : string option
+    | ChangePage of direction : PageDirection
+    | SelectedToneChanged of selectedTone : DbTone option
     | AddOfficialToneToUserCollection
     | ShowUserToneEditor
     | HideUserToneEditor
-    | EditUserToneData of UserToneEdit
+    | EditUserToneData of edit : UserToneEdit
     | ApplyUserToneEdit
 
 type Effect =

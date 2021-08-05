@@ -40,20 +40,20 @@ let editUserTone edit (userTone: DbToneData) =
 
 let update (state: ToneCollectionState) msg =
     match msg with
-    | SearchToneCollection searchString ->
+    | SearchCollection searchString ->
         changeSearch searchString state, Effect.Nothing
 
-    | ChangeToneCollection activeTab ->
+    | ChangeCollection activeTab ->
         changeCollection activeTab state, Effect.Nothing
 
-    | ChangeToneCollectionPage direction ->
+    | ChangePage direction ->
         let page = state.QueryOptions.PageNumber + match direction with Right -> 1 | Left -> -1
         if page < 1 || page > state.TotalPages then
             state, Effect.Nothing
         else
             changePage page state, Effect.Nothing
 
-    | ToneCollectionSelectedToneChanged selectedTone ->
+    | SelectedToneChanged selectedTone ->
         { state with SelectedTone = selectedTone }, Effect.Nothing
 
     | ShowUserToneEditor ->
@@ -102,9 +102,10 @@ let update (state: ToneCollectionState) msg =
                 let tone = { tone with Name = selectedTone.Name
                                        Key = selectedTone.Name }
 
-                return Effect.AddToneToProject tone }
+                return Effect.AddToneToProject tone
+            } |> Option.defaultValue Effect.Nothing
 
-        state, Option.defaultValue Effect.Nothing effect
+        state, effect
 
     | DeleteSelectedUserTone ->
         match state.SelectedTone with
