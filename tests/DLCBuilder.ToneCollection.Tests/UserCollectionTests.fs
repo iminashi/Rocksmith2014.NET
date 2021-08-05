@@ -69,7 +69,9 @@ let tests =
             | Some tone ->
                 Expect.equal tone.Id 1L "ID was auto generated"
                 Expect.equal tone.Artist updatedTone.Artist "Artist is correct"
+                Expect.equal tone.ArtistSort updatedTone.ArtistSort "Artist is correct"
                 Expect.equal tone.Title updatedTone.Title "Title is correct"
+                Expect.equal tone.TitleSort updatedTone.TitleSort "Title is correct"
                 Expect.equal tone.Name updatedTone.Name "Name is correct"
                 Expect.equal tone.BassTone updatedTone.BassTone "BassTone is correct"
                 Expect.equal tone.Description "CLEAN|EFFECT" "Description is correct"
