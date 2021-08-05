@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Conversion.Tests.XmlObjectsToSngTests
+module Rocksmith2014.Conversion.Tests.XmlObjectsToSngTests
 
 open Expecto
 open Rocksmith2014
@@ -676,7 +676,7 @@ let xmlToSngConversionTests =
             let accuData = AccuData.Init(testArr)
             let convert = createNoteConvertFunction accuData testArr (testArr.Levels.[0]) 0
         
-            let sng = convert 0 (XmlToSng.XmlNote note)
+            let _sng = convert 0 (XmlToSng.XmlNote note)
         
             Expect.equal accuData.AnchorExtensions.[0].Count 1 "Anchor extension was created"
             Expect.equal accuData.AnchorExtensions.[0].[0].BeatTime 1.3f "Time is correct"
@@ -718,9 +718,9 @@ let xmlToSngConversionTests =
             let accuData = AccuData.Init(testArr)
             let convert = createNoteConvertFunction accuData testArr (testArr.Levels.[0]) 0
         
-            let sng1 = convert 0 (XmlToSng.XmlNote note1)
-            let sng2 = convert 1 (XmlToSng.XmlNote note2)
-            let sng3 = convert 2 (XmlToSng.XmlNote note3)
+            let _sng1 = convert 0 (XmlToSng.XmlNote note1)
+            let _sng2 = convert 1 (XmlToSng.XmlNote note2)
+            let _sng3 = convert 2 (XmlToSng.XmlNote note3)
         
             Expect.equal accuData.StringMasks.[0].[0] 5y "String mask for section 0, difficulty 0 is 5"
             Expect.equal accuData.StringMasks.[1].[0] 32y "String mask for section 1, difficulty 0 is 32"

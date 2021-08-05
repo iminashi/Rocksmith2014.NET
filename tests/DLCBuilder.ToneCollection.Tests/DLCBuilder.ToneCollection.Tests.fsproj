@@ -6,7 +6,8 @@
     <GenerateProgramFile>false</GenerateProgramFile>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <Platforms>x64</Platforms>
-    <WarnOn>3390;$(WarnOn)</WarnOn>
+    <WarnOn>1182;3390;$(WarnOn)</WarnOn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

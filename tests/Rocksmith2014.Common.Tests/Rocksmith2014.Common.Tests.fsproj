@@ -6,6 +6,8 @@
     <GenerateProgramFile>false</GenerateProgramFile>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <Platforms>x64</Platforms>
+    <WarnOn>1182;3390;$(WarnOn)</WarnOn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,7 +35,7 @@
     <PackageReference Include="Expecto.FsCheck" Version="9.0.2" />
     <PackageReference Include="Expecto.VisualStudio.TestAdapter" Version="10.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
-    <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.12.3" />
+    <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.12.4" />
     <ProjectReference Include="..\..\src\Rocksmith2014.Common\Rocksmith2014.Common.fsproj" />
     <PackageReference Update="FSharp.Core" Version="5.0.2" />
   </ItemGroup>
