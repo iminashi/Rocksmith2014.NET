@@ -206,6 +206,7 @@ let private collectionView dispatch (collectionState: ToneCollectionState) =
 
 let private userToneEditor dispatch data =
     Grid.create [
+        Grid.width 500.
         Grid.verticalAlignment VerticalAlignment.Center
         Grid.rowDefinitions "auto,auto,auto,auto,auto,auto,auto,auto"
         Grid.children [
@@ -253,8 +254,8 @@ let private userToneEditor dispatch data =
                 StackPanel.children [
                     Button.create [
                         Button.margin 4.
-                        Button.fontSize 16.
-                        Button.padding (20., 5.)
+                        Button.fontSize 18.
+                        Button.padding (30., 10.)
                         Button.content (translate "Save")
                         Button.isEnabled (String.notEmpty data.Name)
                         Button.onClick (fun _ ->
@@ -263,8 +264,8 @@ let private userToneEditor dispatch data =
                     ]
                     Button.create [
                         Button.margin 4.
-                        Button.fontSize 16.
-                        Button.padding (20., 5.)
+                        Button.fontSize 18.
+                        Button.padding (30., 10.)
                         Button.content (translate "Cancel")
                         Button.onClick (fun _ ->
                             FocusHelper.restoreFocus()
