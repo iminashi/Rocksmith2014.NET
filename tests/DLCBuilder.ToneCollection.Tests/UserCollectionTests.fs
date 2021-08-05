@@ -7,6 +7,8 @@ open ToneCollection
 let officialPath = Path.GetFullPath("none.db")
 let userPath = Path.GetFullPath("user_test.db")
 
+let queryOptions = { Search = None; PageNumber = 1 }
+
 let connector =
     Database.createConnector (OfficialDataBasePath officialPath) (UserDataBasePath userPath)
 
@@ -36,7 +38,7 @@ let tests =
                   Definition = "n/a" }
 
             api.AddTone testTone
-            let tones = api.GetTones(None, 1)
+            let tones = api.GetTones(queryOptions)
 
             Expect.hasLength tones 1 "One tone returned"
             Expect.equal tones.[0].Id 1L "ID was auto generated"
@@ -78,7 +80,7 @@ let tests =
             use api = connector.CreateUserTonesApi()
 
             api.DeleteToneById 1L
-            let tones = api.GetTones(None, 1)
+            let tones = api.GetTones(queryOptions)
 
             Expect.isEmpty tones "No tones returned"
     ]

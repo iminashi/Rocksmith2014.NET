@@ -91,8 +91,8 @@ let private tryCreateOfficialTonesApi (OfficialDataBasePath dbPath) =
             member _.GetToneById(id: int64) = getToneById connection id
             member _.GetToneDataById(id: int64) = getToneDataById connection id
 
-            member _.GetTones(searchString, pageNumber) =
-                executeQuery connection searchString pageNumber
+            member _.GetTones(options) =
+                executeQuery connection options.Search options.PageNumber
                 |> Seq.toArray })
 
 let private ensureUserTonesDbCreated (UserDataBasePath dbPath) connectionString =
@@ -131,8 +131,8 @@ let private createUserTonesApi dbPath =
         member _.GetToneById(id: int64) = getToneById connection id
         member _.GetToneDataById(id: int64) = getToneDataById connection id
 
-        member _.GetTones(searchString, pageNumber) =
-            executeQuery connection searchString pageNumber
+        member _.GetTones(options) =
+            executeQuery connection options.Search options.PageNumber
             |> Seq.toArray
 
         member _.UpdateData(data: DbToneData) =
@@ -179,14 +179,14 @@ let internal getToneFromCollection collection id =
     | ActiveCollection.User api ->
         api.GetToneById id
 
-let internal getTones collection searchString page =
+let internal getTones collection searchOptions =
     match collection with
     | ActiveCollection.Official maybeApi ->
         maybeApi
-        |> Option.map (fun x -> x.GetTones(searchString, page))
+        |> Option.map (fun x -> x.GetTones(searchOptions))
         |> Option.defaultValue Array.empty
     | ActiveCollection.User api ->
-        api.GetTones(searchString, page)
+        api.GetTones(searchOptions)
 
 let internal addToneDataToUserCollection (connector: IDatabaseConnector) (data: DbToneData) =
     use collection = connector.CreateUserTonesApi()

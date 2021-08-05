@@ -11,14 +11,14 @@ let private getTotalPages tones =
 
 let init (connector: IDatabaseConnector) (tab: ActiveTab) =
     let collection = createCollection connector tab
-    let tones = getTones collection None 1
+    let queryOptions = { Search = None; PageNumber = 1 }
+    let tones = getTones collection queryOptions
 
     { ActiveCollection = collection
       Connector = connector
       Tones = tones
       SelectedTone = None
-      SearchString = None
-      CurrentPage = 1
+      QueryOptions = queryOptions
       EditingUserTone = None
       TotalPages = getTotalPages tones }
 
@@ -30,31 +30,31 @@ let disposeCollection = function
         api.Dispose()
 
 let changePage page collectionState =
-    if page = collectionState.CurrentPage then
+    if page = collectionState.QueryOptions.PageNumber then
         collectionState
     else
-        let tones = getTones collectionState.ActiveCollection collectionState.SearchString page
+        let queryOptions = { collectionState.QueryOptions with PageNumber = page }
+        let tones = getTones collectionState.ActiveCollection queryOptions
 
         { collectionState with
             Tones = tones
-            CurrentPage = page }
+            QueryOptions = queryOptions }
 
 let refresh collectionState =
-    let tones = getTones collectionState.ActiveCollection collectionState.SearchString collectionState.CurrentPage
+    let tones = getTones collectionState.ActiveCollection collectionState.QueryOptions
 
     { collectionState with Tones = tones }
 
 let changeSearch searchString collectionState =
-    if searchString = collectionState.SearchString then
+    if searchString = collectionState.QueryOptions.Search then
         collectionState
     else
-        let page = 1
-        let tones = getTones collectionState.ActiveCollection searchString page
+        let queryOptions = { Search = searchString; PageNumber = 1 }
+        let tones = getTones collectionState.ActiveCollection queryOptions
 
         { collectionState with
             Tones = tones
-            SearchString = searchString
-            CurrentPage = page
+            QueryOptions = queryOptions
             TotalPages = getTotalPages tones }
 
 let changeCollection tab collectionState =
@@ -71,15 +71,13 @@ let changeCollection tab collectionState =
     if collection = collectionState.ActiveCollection then
         collectionState
     else
-        let page = 1
-        let searchString = None
-        let tones = getTones collection searchString page
+        let queryOptions = { Search = None; PageNumber = 1 }
+        let tones = getTones collection queryOptions
 
         { collectionState with
             ActiveCollection = collection
             Tones = tones
-            SearchString = searchString
-            CurrentPage = page
+            QueryOptions = queryOptions
             SelectedTone = None
             TotalPages = getTotalPages tones }
 
@@ -87,7 +85,7 @@ let deleteUserTone id collectionState =
     match collectionState.ActiveCollection with
     | ActiveCollection.User api ->
         api.DeleteToneById id
-        let tones = getTones collectionState.ActiveCollection collectionState.SearchString collectionState.CurrentPage
+        let tones = getTones collectionState.ActiveCollection collectionState.QueryOptions
 
         { collectionState with
             Tones = tones

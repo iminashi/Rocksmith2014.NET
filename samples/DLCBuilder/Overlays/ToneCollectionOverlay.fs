@@ -125,6 +125,8 @@ let tonesList dispatch collectionState isOfficial =
     ]
 
 let private paginationControls dispatch (collectionState: ToneCollectionState) =
+    let currentPage = collectionState.QueryOptions.PageNumber
+
     Grid.create [
         DockPanel.dock Dock.Bottom
         Grid.horizontalAlignment HorizontalAlignment.Center
@@ -132,7 +134,7 @@ let private paginationControls dispatch (collectionState: ToneCollectionState) =
         Grid.columnDefinitions "*,auto,*"
         Grid.children [
             Border.create [
-                let isEnabled = collectionState.CurrentPage > 1
+                let isEnabled = currentPage > 1
                 Border.background Brushes.Transparent
                 Border.isEnabled isEnabled
                 Border.cursor (if isEnabled then Cursors.hand else Cursors.arrow)
@@ -154,10 +156,10 @@ let private paginationControls dispatch (collectionState: ToneCollectionState) =
                     if collectionState.TotalPages = 0 then
                         String.Empty
                         else
-                        $"{collectionState.CurrentPage} / {collectionState.TotalPages}")
+                        $"{currentPage} / {collectionState.TotalPages}")
             ]
             Border.create [
-                let isEnabled = collectionState.CurrentPage < collectionState.TotalPages
+                let isEnabled = currentPage < collectionState.TotalPages
                 Grid.column 2
                 Border.background Brushes.Transparent
                 Border.isEnabled isEnabled

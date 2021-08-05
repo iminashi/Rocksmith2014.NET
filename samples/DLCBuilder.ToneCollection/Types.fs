@@ -9,6 +9,8 @@ type UserDataBasePath = UserDataBasePath of string
 [<Struct>]
 type OfficialDataBasePath = OfficialDataBasePath of string
 
+type QueryOptions = { Search: string option; PageNumber: int }
+
 [<CLIMutable>]
 type DbTone =
     { Id: int64
@@ -34,12 +36,12 @@ type IOfficialTonesApi =
     inherit IDisposable
     abstract member GetToneById : int64 -> Tone option
     abstract member GetToneDataById : int64 -> DbToneData option
-    abstract member GetTones : string option * int -> DbTone array
+    abstract member GetTones : QueryOptions -> DbTone array
 
 type IUserTonesApi =
     inherit IDisposable
     abstract member GetToneById : int64 -> Tone option
-    abstract member GetTones : string option * int -> DbTone array
+    abstract member GetTones : QueryOptions -> DbTone array
     abstract member GetToneDataById : int64 -> DbToneData option
     abstract member DeleteToneById : int64 -> unit
     abstract member AddTone : DbToneData -> unit
@@ -64,9 +66,8 @@ type ToneCollectionState =
       Connector : IDatabaseConnector
       Tones : DbTone array
       SelectedTone : DbTone option
-      SearchString : string option
+      QueryOptions : QueryOptions
       EditingUserTone : DbToneData option
-      CurrentPage : int
       TotalPages : int }
 
 type PageDirection = Left | Right

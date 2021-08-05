@@ -47,7 +47,7 @@ let update (state: ToneCollectionState) msg =
         changeCollection activeTab state, Effect.Nothing
 
     | ChangeToneCollectionPage direction ->
-        let page = state.CurrentPage + match direction with Right -> 1 | Left -> -1
+        let page = state.QueryOptions.PageNumber + match direction with Right -> 1 | Left -> -1
         if page < 1 || page > state.TotalPages then
             state, Effect.Nothing
         else

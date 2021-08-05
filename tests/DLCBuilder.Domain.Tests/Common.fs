@@ -18,7 +18,7 @@ let toneDatabaseStub =
             { new ToneCollection.IUserTonesApi with
                 member _.Dispose() = ()
                 member _.GetToneById _ = None
-                member _.GetTones(_, _) = Array.empty
+                member _.GetTones _ = Array.empty
                 member _.GetToneDataById _ = None
                 member _.DeleteToneById _  = ()
                 member _.AddTone _ = ()
