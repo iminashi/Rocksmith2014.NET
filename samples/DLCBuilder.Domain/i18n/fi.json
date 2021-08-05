@@ -342,6 +342,7 @@
   "VolumeCalculationCustomAudio": "Lasketaan tiedoston äänenvoimakkuutta...",
   "WemConversionComplete": "Wem muunnos valmis.",
   "BuildPackageComplete": "Paketin rakentaminen valmis.",
+  "BuildNewTestVersionComplete": "Paketin rakentaminen valmis.\n\nUusi testiversio \"{0}\" luotiin.",
   "ValidationComplete": "Tarkistus valmis.",
   "PsarcUnpackComplete": "PSARC purettu.",
   "PsarcImportComplete": "PSARC tuotu.",

@@ -43,7 +43,7 @@ let private moveSelected dir selectedIndex (list: List<_>) =
         else
             list, selectedIndex
 
-let private buildPackage buildType build state =
+let private buildPackage build state =
     match BuildValidator.validate state.Project with
     | Error error ->
         let msg =
@@ -57,7 +57,7 @@ let private buildPackage buildType build state =
         let task = build state.Config
 
         addTask BuildPackage state,
-        Cmd.OfAsync.either task state.Project (fun () -> BuildComplete buildType)
+        Cmd.OfAsync.either task state.Project (BuildComplete)
                                               (fun ex -> TaskFailed(ex, BuildPackage))
 
 let update (msg: Msg) (state: State) =
@@ -651,26 +651,33 @@ let update (msg: Msg) (state: State) =
         state, Cmd.none
 
     | Build PitchShifted ->
-        buildPackage Release (ReleasePackageBuilder.buildPitchShifted state.OpenProjectFile) state
+        buildPackage (ReleasePackageBuilder.buildPitchShifted state.OpenProjectFile) state
 
     | Build Test ->
         if String.notEmpty config.TestFolderPath then
-            buildPackage Test (TestPackageBuilder.build state.CurrentPlatform) state
+            buildPackage (TestPackageBuilder.build state.CurrentPlatform) state
         else
             state, Cmd.none
 
     | Build Release ->
-        buildPackage Release (ReleasePackageBuilder.build state.OpenProjectFile) state
+        buildPackage (ReleasePackageBuilder.build state.OpenProjectFile) state
 
-    | BuildComplete buildType ->
+    | BuildComplete completed ->
         let task() = async {
-            if buildType = Release && config.OpenFolderAfterReleaseBuild then
+            if completed = BuildCompleteType.Release && config.OpenFolderAfterReleaseBuild then
                 ReleasePackageBuilder.getTargetDirectory state.OpenProjectFile project
                 |> Utils.openWithShell }
 
+        let message =
+            match completed with
+            | BuildCompleteType.TestNewVersion version ->
+                translatef "BuildNewTestVersionComplete" [| version |]
+            | _ ->
+                translate "BuildPackageComplete"
+
         let cmd = Cmd.batch [
             Cmd.OfAsync.attempt task () ErrorOccurred
-            Cmd.ofMsg (AddStatusMessage (translate "BuildPackageComplete")) ]
+            Cmd.ofMsg (AddStatusMessage message) ]
 
         removeTask BuildPackage state, cmd
 

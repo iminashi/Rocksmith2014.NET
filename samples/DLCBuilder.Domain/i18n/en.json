@@ -342,6 +342,7 @@
   "VolumeCalculationCustomAudio": "Calculating custom audio volume...",
   "WemConversionComplete": "Wem conversion completed.",
   "BuildPackageComplete": "Package building completed.",
+  "BuildNewTestVersionComplete": "Package building completed.\n\nA new test version \"{0}\" was created.",
   "ValidationComplete": "Validation completed.",
   "PsarcUnpackComplete": "PSARC unpacked.",
   "PsarcImportComplete": "PSARC imported.",

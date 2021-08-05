@@ -342,6 +342,7 @@
   "VolumeCalculationCustomAudio": "カスタムオーディオのボリューム計算中...",
   "WemConversionComplete": "WEM変換完了。",
   "BuildPackageComplete": "パッケージ組み立て完了。",
+  "BuildNewTestVersionComplete": "パッケージ組み立て完了。\n\n新しいテストバージョン「{0}」が作られました。",
   "ValidationComplete": "アレンジ検証完了。",
   "PsarcUnpackComplete": "PSARC解凍完了。",
   "PsarcImportComplete": "PSARCインポート完了。",

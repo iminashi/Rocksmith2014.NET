@@ -21,7 +21,10 @@ let build (openProject: string option) config project = async {
 
     let path = Path.Combine(releaseDir, fileName)
     let buildConfig = StateUtils.createBuildConfig Release config project (Set.toList config.ReleasePlatforms)
-    do! PackageBuilder.buildPackages path buildConfig project }
+
+    do! PackageBuilder.buildPackages path buildConfig project
+
+    return BuildCompleteType.Release }
 
 let private addPitchPedal index shift gearList =
     let knobs =
@@ -76,4 +79,6 @@ let buildPitchShifted (openProject: string option) config project = async {
                        Arrangements = arrangements
                        Tones = tones }
 
-    do! build openProject config pitchProject }
+    let! _ = build openProject config pitchProject
+
+    return BuildCompleteType.PitchShifted }

@@ -56,12 +56,19 @@ type LongTask =
     | VolumeCalculation of VolumeTarget
 
 type StatusMessage =
-    | TaskWithoutProgress of task:LongTask
-    | TaskWithProgress of task:LongTask * progress:float
-    | MessageString of id:Guid * message:string
-    | UpdateMessage of updateInfo:UpdateInformation
+    | TaskWithoutProgress of task : LongTask
+    | TaskWithProgress of task : LongTask * progress : float
+    | MessageString of id : Guid * message : string
+    | UpdateMessage of updateInfo : UpdateInformation
 
 type BuildType = Test | Release | PitchShifted
+
+[<RequireQualifiedAccess>]
+type BuildCompleteType =
+    | Test
+    | TestNewVersion of version : string
+    | Release
+    | PitchShifted
 
 type ProjectEdit =
     | SetDLCKey of string
@@ -270,7 +277,7 @@ type Msg =
     | ShowIssueViewer
     | ShowImportToneSelector of tones : Tone array
     | Build of BuildType
-    | BuildComplete of BuildType
+    | BuildComplete of BuildCompleteType
     | WemConversionComplete of unit
     | CheckArrangement of arrangement : Arrangement
     | CheckArrangements

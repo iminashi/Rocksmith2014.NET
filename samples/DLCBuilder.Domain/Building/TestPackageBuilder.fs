@@ -64,13 +64,13 @@ let build platform config project = async {
         | [] -> existingPackages.Length
         | list -> List.max list
 
-    let project, packageFileName =
+    let project, packageFileName, buildType =
         match isRocksmithRunning with
         | false ->
             // Delete any previous versions
             List.iter File.Delete existingPackages
 
-            project, packageFileName
+            project, packageFileName, BuildCompleteType.Test
         | true ->
             let arrangements = generateAllIds project.Arrangements
             let versionString = $"v{maxVersion + 1}"
@@ -82,9 +82,11 @@ let build platform config project = async {
                            Title = title
                            JapaneseTitle = project.JapaneseTitle |> Option.map (fun title -> $"{title} {versionString}")
                            Arrangements = arrangements },
-            $"{packageFileName}_{versionString}"
+            $"{packageFileName}_{versionString}",
+            BuildCompleteType.TestNewVersion versionString
 
     let path = Path.Combine(targetFolder, packageFileName)
     let buildConfig = StateUtils.createBuildConfig Test config project [ platform ]
 
-    do! PackageBuilder.buildPackages path buildConfig project }
+    do! PackageBuilder.buildPackages path buildConfig project
+    return buildType }
