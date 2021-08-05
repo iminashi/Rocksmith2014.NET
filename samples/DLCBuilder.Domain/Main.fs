@@ -57,8 +57,7 @@ let private buildPackage build state =
         let task = build state.Config
 
         addTask BuildPackage state,
-        Cmd.OfAsync.either task state.Project (BuildComplete)
-                                              (fun ex -> TaskFailed(ex, BuildPackage))
+        Cmd.OfAsync.either task state.Project BuildComplete (fun ex -> TaskFailed(ex, BuildPackage))
 
 let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
