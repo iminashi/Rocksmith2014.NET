@@ -86,9 +86,11 @@ let update (msg: Msg) (state: State) =
         | None ->
             state, Cmd.none
 
-    | SetSelectedGearSlot gearSlot -> { state with SelectedGearSlot = gearSlot }, Cmd.none
+    | SetSelectedGearSlot gearSlot ->
+        { state with SelectedGearSlot = gearSlot }, Cmd.none
 
-    | SetManuallyEditingKnobKey key -> { state with ManuallyEditingKnobKey = key}, Cmd.none
+    | SetManuallyEditingKnobKey key ->
+        { state with ManuallyEditingKnobKey = key}, Cmd.none
 
     | ShowToneEditor ->
         match getSelectedTone state with
@@ -104,11 +106,14 @@ let update (msg: Msg) (state: State) =
                      SelectedArrangementIndex = -1
                      SelectedToneIndex = -1 }, Cmd.none
 
-    | SetSelectedImportTones tones -> { state with SelectedImportTones = tones }, Cmd.none
+    | SetSelectedImportTones tones ->
+        { state with SelectedImportTones = tones }, Cmd.none
 
-    | ImportSelectedTones -> state, Cmd.ofMsg (ImportTones state.SelectedImportTones)
+    | ImportSelectedTones ->
+        addTones state state.SelectedImportTones, Cmd.none
 
-    | ImportTones tones -> addTones state tones, Cmd.none
+    | ImportTones tones ->
+        addTones state tones, Cmd.none
 
     | ExportSelectedTone ->
         let cmd =
@@ -220,12 +225,11 @@ let update (msg: Msg) (state: State) =
         | [||] ->
             { state with Overlay = ErrorMessage(translate "CouldNotFindTonesError", None) }, Cmd.none
         | [| one |] ->
-            state, Cmd.ofMsg (ImportTones (List.singleton one))
+            state, Cmd.ofMsg <| ImportTones [ one ]
         | _ ->
             { state with SelectedImportTones = []; Overlay = ImportToneSelector tones }, Cmd.none
 
     | SetAudioFile fileName ->
-        let audioFile = { project.AudioFile with Path = fileName }
         let previewPath =
             let previewPath = Utils.previewPathFromMainAudio fileName
             let wavPreview = Path.ChangeExtension(previewPath, "wav")
@@ -242,8 +246,11 @@ let update (msg: Msg) (state: State) =
             else
                 Cmd.none
 
+        let audioFile = { project.AudioFile with Path = fileName }
         let previewFile = { project.AudioPreviewFile with Path = previewPath }
-        { state with Project = { project with AudioFile = audioFile; AudioPreviewFile = previewFile } }, cmd
+
+        { state with Project = { project with AudioFile = audioFile
+                                              AudioPreviewFile = previewFile } }, cmd
 
     | ConvertToWem ->
         if DLCProject.audioFilesExist project then
@@ -265,21 +272,26 @@ let update (msg: Msg) (state: State) =
             state, Cmd.none
 
     | CalculateVolumes ->
-        let previewPath = project.AudioPreviewFile.Path
-        let doPreview = File.Exists previewPath && not <| String.endsWith "wem" previewPath
+        let doPreview =
+            let previewPath = project.AudioPreviewFile.Path
+            File.Exists previewPath && not <| String.endsWith "wem" previewPath
+
         let cmds =
             Cmd.batch [
                 Cmd.ofMsg (CalculateVolume MainAudio)
                 if doPreview then Cmd.ofMsg (CalculateVolume PreviewAudio) ]
+
         state, cmds
 
     | CalculateVolume target ->
-        let path =
-            match target with
-            | MainAudio -> project.AudioFile.Path
-            | PreviewAudio -> project.AudioPreviewFile.Path
-            | CustomAudio (path, _) -> path
-        let task () = async { return Volume.calculate path }
+        let task () = async {
+            let path =
+                match target with
+                | MainAudio -> project.AudioFile.Path
+                | PreviewAudio -> project.AudioPreviewFile.Path
+                | CustomAudio (path, _) -> path
+            return Volume.calculate path }
+
         addTask (VolumeCalculation target) state,
         Cmd.OfAsync.either task () (fun v -> VolumeCalculated(v, target))
                                    (fun ex -> TaskFailed(ex, (VolumeCalculation target)))
@@ -366,6 +378,7 @@ let update (msg: Msg) (state: State) =
             |> Option.map (fun tone ->
                 { tone with Name = tone.Name + "2"; Key = String.Empty })
             |> Option.toList
+
         { state with Project = { project with Tones = duplicate @ project.Tones } }, Cmd.none
 
     | MoveTone dir ->
@@ -423,11 +436,14 @@ let update (msg: Msg) (state: State) =
         { state with Project = { project with AudioPreviewFile = previewFile }
                      Overlay = overlay }, cmd
 
-    | ShowSortFields shown -> { state with ShowSortFields = shown }, Cmd.none
+    | ShowSortFields shown ->
+        { state with ShowSortFields = shown }, Cmd.none
 
-    | ShowJapaneseFields shown -> { state with ShowJapaneseFields = shown }, Cmd.none
+    | ShowJapaneseFields shown ->
+        { state with ShowJapaneseFields = shown }, Cmd.none
 
-    | ShowOverlay overlay -> { state with Overlay = overlay }, Cmd.none
+    | ShowOverlay overlay ->
+        { state with Overlay = overlay }, Cmd.none
 
     | SetConfiguration (newConfig, enableLoad, wasAbnormalExit) ->
         if config.Locale <> newConfig.Locale then
@@ -445,7 +461,8 @@ let update (msg: Msg) (state: State) =
 
         { state with Config = newConfig }, cmd
 
-    | SetRecentFiles recent -> { state with RecentFiles = recent }, Cmd.none
+    | SetRecentFiles recent ->
+        { state with RecentFiles = recent }, Cmd.none
 
     | SetAvailableUpdate (Error _) ->
         // Don't show an error message if the update check fails when starting the program
@@ -488,7 +505,8 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfAsync.either OnlineUpdate.checkForUpdates () UpdateCheckCompleted ErrorOccurred
 
     | UpdateCheckCompleted (Error msg) ->
-        { state with AvailableUpdate = None; Overlay = ErrorMessage(msg, None) }, Cmd.none
+        { state with AvailableUpdate = None
+                     Overlay = ErrorMessage(msg, None) }, Cmd.none
 
     | UpdateCheckCompleted (Ok update) ->
         let msg =
@@ -519,6 +537,7 @@ let update (msg: Msg) (state: State) =
         let task() = async {
             do! DLCProject.save targetPath project
             return targetPath }
+
         state, Cmd.OfAsync.either task () ProjectSaved ErrorOccurred
 
     | ProjectSaved target ->
@@ -596,7 +615,8 @@ let update (msg: Msg) (state: State) =
 
         { newState with Project = editProject edit project }, Cmd.none
 
-    | EditConfig edit -> { state with Config = editConfig edit config }, Cmd.none
+    | EditConfig edit ->
+        { state with Config = editConfig edit config }, Cmd.none
 
     | DeleteTestBuilds ->
         match TestPackageBuilder.getTestBuildFiles config project with
