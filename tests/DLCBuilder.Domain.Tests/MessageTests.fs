@@ -40,7 +40,7 @@ let messageTests =
             Expect.isTrue cmd.IsEmpty "No command was returned"
 
         testCase "BuildComplete removes build task" <| fun _ ->
-            let newState, _ = Main.update (BuildComplete Test) { initialState with RunningTasks = Set([ BuildPackage ]) }
+            let newState, _ = Main.update (BuildComplete BuildCompleteType.Test) { initialState with RunningTasks = Set([ BuildPackage ]) }
 
             Expect.isFalse (newState.RunningTasks.Contains BuildPackage) "Build task was removed"
 
