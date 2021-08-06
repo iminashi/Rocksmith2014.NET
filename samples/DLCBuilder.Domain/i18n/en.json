@@ -196,6 +196,7 @@
   "ConflictingVocals": "There are two conflicting vocals arrangements.\nOne needs to be set as Japanese.",
   "PreviewNotFound": "Preview audio file not found.",
   "MissingBaseToneKey": "An arrangement in the project has an empty base tone key.",
+  "SamePersistentID": "Multiple arrangements in the project have the same persistent ID.",
   "NoAudioFile": "None",
   "cents": "cents",
   "ReloadToneKeysMenuItem": "_Reload Tone Keys",

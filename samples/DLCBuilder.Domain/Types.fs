@@ -212,6 +212,7 @@ type BuildValidationError =
     | MultipleTonesSameKey
     | ConflictingVocals
     | MissingBaseToneKey
+    | SamePersistentID
 
 type Msg =
     | ConfirmIdRegeneration of arrIds : Guid list * reply : AsyncReplyChannel<bool>

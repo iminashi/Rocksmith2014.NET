@@ -196,6 +196,7 @@
   "ConflictingVocals": "Projektissa on kaksi päällekkäistä sanoitus-sovitusta.\nJompikumpi niistä pitää asettaa japaninkieliseksi.",
   "PreviewNotFound": "Esikatseluäänitiedostoa ei löydy.",
   "MissingBaseToneKey": "Yhdellä projektin sovituksista on tyhjä perus-soundiavain.",
+  "SamePersistentID": "Usealla projektin sovituksella on sama pysyvä ID.",
   "NoAudioFile": "Ei olemassa",
   "cents": "senttiä",
   "ReloadToneKeysMenuItem": "_Lue uudelleen soundiavaimet",

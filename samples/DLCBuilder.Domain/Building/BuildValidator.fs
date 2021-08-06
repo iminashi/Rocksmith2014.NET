@@ -16,11 +16,24 @@ let private validators = [
         project.Arrangements
         |> List.choose Arrangement.pickInstrumental
         |> List.exists (fun inst -> String.IsNullOrWhiteSpace inst.BaseTone)
+
+    SamePersistentID,
+    fun project ->
+        let allIds =
+            project.Arrangements
+            |> List.choose (function
+                | Instrumental i -> Some i.PersistentID
+                | Vocals v -> Some v.PersistentID
+                | _ -> None)
+        let distinctIds = List.distinct allIds
+        distinctIds.Length <> allIds.Length
+
     MultipleTonesSameKey,
     fun project ->
         project.Tones
         |> List.groupBy (fun x -> x.Key)
         |> List.exists (fun (_, list) -> list.Length > 1)
+
     ConflictingVocals,
     fun project ->
         project.Arrangements

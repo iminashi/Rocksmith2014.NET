@@ -196,6 +196,7 @@
   "ConflictingVocals": "重複しているボーカルアレンジがあります。\nどちらか一つを日本語ボーカルにする必要があります。",
   "PreviewNotFound": "プレビューオーディオファイルが存在しません。",
   "MissingBaseToneKey": "プロジェクトのアレンジの一つにベーストーンキーがない。",
+  "SamePersistentID": "複数のアレンジには同じ持続的IDがある。",
   "NoAudioFile": "不在",
   "cents": "セント",
   "ReloadToneKeysMenuItem": "トーンキーをリロード",
