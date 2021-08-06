@@ -20,7 +20,11 @@ let build (openProject: string option) config project = async {
         |> StringValidator.fileName
 
     let path = Path.Combine(releaseDir, fileName)
-    let buildConfig = StateUtils.createBuildConfig Release config project (Set.toList config.ReleasePlatforms)
+    let buildConfig =
+        let baseConfig = BuildConfig.create Release config project (Set.toList config.ReleasePlatforms)
+        { baseConfig with IdResetConfig = Some { ProjectDirectory = releaseDir
+                                                 ConfirmIdRegeneration = IdRegenerationHelper.getConfirmation
+                                                 PostNewIds = IdRegenerationHelper.postNewIds } }
 
     do! PackageBuilder.buildPackages path buildConfig project
 

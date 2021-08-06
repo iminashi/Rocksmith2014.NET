@@ -76,7 +76,7 @@ let private arrangementDetails state dispatch =
                                         // Arrangement name
                                         TextBlock.create [
                                             TextBlock.fontSize 17.
-                                            TextBlock.text (Templates.translateArrangementName arr state.Project Templates.NameOnly)
+                                            TextBlock.text (ArrangementNameUtils.translateName state.Project ArrangementNameUtils.NameOnly arr)
                                             TextBlock.verticalAlignment VerticalAlignment.Bottom
                                         ]
 
@@ -291,6 +291,8 @@ let private overlay state dispatch =
     match state.Overlay with
     | NoOverlay ->
         failwith "This can not happen."
+    | IdRegenerationConfirmation (arrangements, reply) ->
+        IdRegenerationConfirmation.view state dispatch reply.Reply arrangements
     | ErrorMessage (msg, info) ->
         ErrorMessage.view dispatch msg info
     | SelectPreviewStart audioLength ->

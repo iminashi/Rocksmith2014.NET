@@ -3,16 +3,10 @@ module DLCBuilder.StateUtils
 open Rocksmith2014.Audio
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
-open Rocksmith2014.DD
 open Rocksmith2014.DLCProject
-open Rocksmith2014.DLCProject.PackageBuilder
 open System
 open System.IO
 open Elmish
-
-let [<Literal>] private CherubRock = "248750"
-
-let packageBuildProgress = Progress<float>()
 
 let getSelectedArrangement state =
     List.tryItem state.SelectedArrangementIndex state.Project.Arrangements
@@ -25,35 +19,6 @@ let addTones (state: State) (tones: Tone list) =
     let tones = List.map Utils.addDescriptors tones
     { state with Project = { state.Project with Tones = tones @ state.Project.Tones }
                  Overlay = NoOverlay }
-
-/// Creates a build configuration data structure.
-let createBuildConfig buildType config project platforms =
-    let convTask =
-        DLCProject.getFilesThatNeedConverting project
-        |> Seq.map (Wwise.convertToWem config.WwiseConsolePath)
-        |> Async.Parallel
-        |> Async.Ignore
-
-    let phraseSearch =
-        match config.DDPhraseSearchEnabled with
-        | true -> WithThreshold config.DDPhraseSearchThreshold
-        | false -> SearchDisabled
-
-    let appId =
-        match buildType, config.CustomAppId with
-        | Test, Some customId -> customId
-        | _ -> CherubRock
-
-    { Platforms = platforms
-      BuilderVersion = $"DLC Builder {AppVersion.versionString}"
-      Author = config.CharterName
-      AppId = appId
-      GenerateDD = config.GenerateDD || buildType = Release
-      DDConfig = { PhraseSearch = phraseSearch; LevelCountGeneration = config.DDLevelCountGeneration }
-      ApplyImprovements = config.ApplyImprovements
-      SaveDebugFiles = config.SaveDebugFiles && buildType <> Release
-      AudioConversionTask = convTask
-      ProgressReporter = Some (packageBuildProgress :> IProgress<float>) }
 
 /// Returns true if a build or a wem conversion is not in progress.
 let notBuilding state =

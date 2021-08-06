@@ -392,5 +392,8 @@
   "MinorIssues": "Minor Issues",
   "ValidateAgain": "Validate Arrangement Again",
   "NoIssuesFound": "No issues found!",
-  "LoadingCoverArtFailed": "Loading cover art file \"{0}\" failed!"
+  "LoadingCoverArtFailed": "Loading cover art file \"{0}\" failed!",
+  "RegenerateArrangementIds": "Generate new arrangement IDs?",
+  "FollowingIDsShouldBeRegenerated": "The IDs of the following arrangements should be regenerated:",
+  "ArrangementIDRegenerationExplanation": "If the DD level count of a phrase has changed and the maximum difficulty is lower than the value saved in the user's profile, the game may crash when the difficulty of the phrase is altered."
 }

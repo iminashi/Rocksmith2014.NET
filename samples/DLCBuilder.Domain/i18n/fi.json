@@ -392,5 +392,8 @@
   "MinorIssues": "Vähäpätöiset ongelmat",
   "ValidateAgain": "Tarkista sovitus uudelleen",
   "NoIssuesFound": "Yhtään ongelmaa ei löytynyt!",
-  "LoadingCoverArtFailed": "Kansikuvatiedoston \"{0}\" lataaminen epäonnistui!"
+  "LoadingCoverArtFailed": "Kansikuvatiedoston \"{0}\" lataaminen epäonnistui!",
+  "RegenerateArrangementIds": "Uudelleengeneroidaanko tunnistetiedot?",
+  "FollowingIDsShouldBeRegenerated": "Seuraavien sovitusten tunnistetiedot kannattaa generoida uudelleen:",
+  "ArrangementIDRegenerationExplanation": "Jos fraasin DD tasojen määrä on muuttunut, ja sen maksimivaikeus on pienempi kuin käyttäjän profiiliin tallennetusta arvo, peli saattaa kaatua, kun fraasin vaikeutta muutetaan."
 }

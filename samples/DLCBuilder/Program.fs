@@ -63,7 +63,13 @@ type MainWindow(commandLineArgs: string array) as this =
                 Main.arrangementCheckProgress.ProgressChanged.Add(dispatchProgress ArrangementCheckAll)
                 Main.psarcImportProgress.ProgressChanged.Add(dispatchProgress PsarcImport)
                 Tools.psarcUnpackProgress.ProgressChanged.Add(dispatchProgress PsarcUnpack)
-                StateUtils.packageBuildProgress.ProgressChanged.Add(dispatchProgress BuildPackage)
+                BuildConfig.packageBuildProgress.ProgressChanged.Add(dispatchProgress BuildPackage)
+            Cmd.ofSub sub
+
+        let idRegenerationConfirmationSub _ =
+            let sub dispatch =
+                IdRegenerationHelper.RequestConfirmation.Add(ConfirmIdRegeneration >> dispatch)
+                IdRegenerationHelper.NewIdsGenerated.Add(SetNewArrangementIds >> dispatch)
             Cmd.ofSub sub
 
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
@@ -121,6 +127,7 @@ type MainWindow(commandLineArgs: string array) as this =
         |> Program.withSubscription hotKeysSub
         |> Program.withSubscription progressReportingSub
         |> Program.withSubscription autoSaveSub
+        |> Program.withSubscription idRegenerationConfirmationSub
         #if DEBUG
         |> Program.withTrace (fun msg _state -> Diagnostics.Debug.WriteLine msg)
         #endif

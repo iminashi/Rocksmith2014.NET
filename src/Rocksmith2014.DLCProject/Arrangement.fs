@@ -103,7 +103,7 @@ module Arrangement =
                 "Japanese Vocals"
             | Vocals _ ->
                 "Vocals"
-            | Showlights _ -> 
+            | Showlights _ ->
                 "Showlights"
 
         name, prefix
@@ -229,3 +229,16 @@ module Arrangement =
             { inst with Tones = tones; BaseTone = toneInfo.BaseToneName }
         else
             { inst with Tones = tones }
+
+    /// Generates new IDs for the given arrangement.
+    let generateIds = function
+        | Instrumental inst ->
+            { inst with MasterID = RandomGenerator.next()
+                        PersistentID = Guid.NewGuid() }
+            |> Instrumental
+        | Vocals vocals ->
+            { vocals with MasterID = RandomGenerator.next()
+                          PersistentID = Guid.NewGuid() }
+            |> Vocals
+        | other ->
+            other

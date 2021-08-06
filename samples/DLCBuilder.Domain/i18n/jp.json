@@ -392,5 +392,8 @@
   "MinorIssues": "重要でない問題点",
   "ValidateAgain": "このアレンジを再検証する",
   "NoIssuesFound": "アレンジに問題点がありません。",
-  "LoadingCoverArtFailed": "カバーアートファイル「{0}」のロードに失敗しました!"
+  "LoadingCoverArtFailed": "カバーアートファイル「{0}」のロードに失敗しました!",
+  "RegenerateArrangementIds": "アレンジに新しいIDをジェネレートしますか?",
+  "FollowingIDsShouldBeRegenerated": "次のアレンジのIDのリジェネレートを勧めます:",
+  "ArrangementIDRegenerationExplanation": "フレーズの最大レベル値が変わると、そしてそれがユーザーのプロフィールに保存された数値より低い場合、フレーズの難易度を変えられた時にゲームがクラッシュすることがあります。"
 }

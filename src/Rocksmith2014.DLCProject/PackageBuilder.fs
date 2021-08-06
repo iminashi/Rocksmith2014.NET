@@ -22,8 +22,12 @@ type private BuildData =
       BuilderVersion: string
       Author: string
       AppId: string
-      Partition: Arrangement -> int * string
       AudioConversionTask: Async<unit> }
+
+type IdResetConfig =
+    { ProjectDirectory: string
+      ConfirmIdRegeneration: Guid list -> Async<bool>
+      PostNewIds: Map<Guid, Arrangement> -> unit }
 
 type BuildConfig =
     { Platforms: Platform list
@@ -35,18 +39,19 @@ type BuildConfig =
       ApplyImprovements: bool
       SaveDebugFiles: bool
       AudioConversionTask: Async<unit>
+      IdResetConfig : IdResetConfig option
       ProgressReporter : IProgress<float> option }
 
 let private toDisposableList items = new DisposableList<_>(items)
 
 let private build (buildData: BuildData) progress targetFile project platform = async {
     let readFile = Utils.getFileStreamForRead
-    let partition = buildData.Partition
+    let partition = Partitioner.create project
     let entry name data = { Name = name; Data = data }
     let key = project.DLCKey.ToLowerInvariant()
     let getManifestName arr =
         let name = partition arr |> snd
-        $"manifests/songs_dlc_{key}/{key}_{name}.json" 
+        $"manifests/songs_dlc_{key}/{key}_{name}.json"
     let sngMap = buildData.SNGs |> readOnlyDict
 
     use! manifestEntries =
@@ -143,7 +148,7 @@ let private build (buildData: BuildData) progress targetFile project platform = 
             | Instrumental { CustomAudio = Some audioFile } as i ->
                 Some (partition i |> snd, audioFile)
             | _ ->
-                None) 
+                None)
 
     use audioEntries =
         let createEntries (audioFile: AudioFile) bankName =
@@ -185,7 +190,7 @@ let private setupInstrumental part (inst: Instrumental) config =
 
     // Set up correct tone IDs
     xml.Tones.Changes.ForEach(fun tone -> tone.Id <- byte <| Array.IndexOf(xml.Tones.Names, tone.Name))
-    
+
     // Copy the tuning in case it was edited
     Array.Copy(inst.Tuning, xml.MetaData.Tuning.Strings, 6)
 
@@ -209,7 +214,7 @@ let private setupInstrumental part (inst: Instrumental) config =
 
 let private getFontOption (dlcKey: string) =
     Option.map (fun fontFile ->
-        let glyphs = 
+        let glyphs =
             Path.ChangeExtension(fontFile, ".glyphs.xml")
             |> GlyphDefinitions.Load
         FontOption.CustomFont (glyphs, $"assets/ui/lyrics/{dlcKey}/lyrics_{dlcKey}.dds"))
@@ -222,6 +227,48 @@ let private addShowLights sngs project =
     if not <| File.Exists xmlFile then ShowLightGenerator.generateFile xmlFile sngs
 
     { project with Arrangements = (Showlights { XML = xmlFile })::project.Arrangements }
+
+let private checkArrangementIdRegeneration sngs project config = async {
+    match config.IdResetConfig with
+    | None ->
+        return Map.empty
+    | Some resetConfig ->
+        let idsToReplace = PhraseLevelComparer.compareToExistingAndSave resetConfig.ProjectDirectory sngs
+        if idsToReplace.IsEmpty then
+            return Map.empty
+        else
+            match! resetConfig.ConfirmIdRegeneration idsToReplace with
+            | false ->
+                return Map.empty
+            | true ->
+                let replacements =
+                    project.Arrangements
+                    |> List.choose (function
+                        | Instrumental inst as arr when idsToReplace |> List.contains inst.PersistentID ->
+                            Some (inst.PersistentID, Arrangement.generateIds arr)
+                        | _ ->
+                            None)
+                    |> Map.ofList
+                resetConfig.PostNewIds(replacements)
+                return replacements }
+
+let private applyReplacements replacements project sngs =
+    let update = function
+        | Instrumental inst as arr ->
+            replacements
+            |> Map.tryFind inst.PersistentID
+            |> Option.defaultValue arr
+        | other ->
+            other
+
+    let updatedArrangements = List.map update project.Arrangements
+    let updatedProject = { project with Arrangements = updatedArrangements }
+
+    let updatedSngs =
+        sngs
+        |> List.map (fun (arr, sng) -> update arr, sng)
+
+    updatedProject, updatedSngs
 
 let private createProgressReporter maximum =
     let mutable current = 0
@@ -269,9 +316,17 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
                 let failedFile = Arrangement.getFile arr |> Path.GetFileName
                 raise <| Exception($"Converting file {failedFile} failed.\n\n{e.Message}", e))
 
+    // Check if the arrangement IDs should be regenerated
+    let! replacements = checkArrangementIdRegeneration sngs project config
+    let project, sngs =
+        if replacements.IsEmpty then
+            project, sngs
+        else
+            applyReplacements replacements project sngs
+
     progress()
 
-    // Check if a show lights arrangement is included
+    // Check if a showlights arrangement is included
     let project =
         if project.Arrangements |> List.exists (Arrangement.pickShowlights >> Option.isSome) then
             project
@@ -284,7 +339,6 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
           BuilderVersion = config.BuilderVersion
           Author = config.Author
           AppId = config.AppId
-          Partition = partition
           AudioConversionTask = audioConversionTask }
 
     do! config.Platforms

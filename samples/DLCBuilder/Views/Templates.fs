@@ -12,6 +12,7 @@ open Rocksmith2014.DLCProject
 open System
 open DLCBuilder
 open DLCBuilder.Media
+open DLCBuilder.ArrangementNameUtils
 
 /// Returns a template for a tone.
 let tone state dispatch index (t: Tone) =
@@ -62,60 +63,6 @@ let toneDescriptor =
 let arrangementName =
     DataTemplateView<ArrangementName>.create (fun name -> locText $"{name}Arr" [])
 
-let private getArrangementNumber arr project =
-    match arr with
-    | Instrumental inst ->
-        let groups =
-            project.Arrangements
-            |> List.choose Arrangement.pickInstrumental
-            |> List.groupBy (fun a -> a.Priority, a.Name)
-            |> Map.ofList
-
-        let group = groups.[inst.Priority, inst.Name]
-        if group.Length > 1 then
-            let index =
-                group
-                |> List.findIndex (fun x -> x.PersistentID = inst.PersistentID)
-            sprintf " %i" (1 + index)
-        else
-            String.Empty
-    | _ ->
-        String.Empty
-
-type ArrangementNameExtraInfo =
-    | NameOnly
-    | WithExtra
-
-/// Returns the translated name for the arrangement.
-let translateArrangementName arr project info =
-    match arr with
-    | Instrumental inst ->
-        let baseName =
-            let n, p = Arrangement.getNameAndPrefix arr
-            if p.Length > 0 then
-                $"{translate p} {translate n}"
-            else
-                translate n
-
-        let arrNumber = getArrangementNumber arr project
-        let baseName = $"{baseName}{arrNumber}"
-
-        match info with
-        | NameOnly ->
-            baseName
-        | WithExtra ->
-            let extra =
-                if inst.Name = ArrangementName.Combo then
-                    let c = translate "ComboArr" in $" ({c})"
-                elif inst.RouteMask = RouteMask.Bass && inst.BassPicked then
-                    let p = translate "Picked" in $" ({p})"
-                else
-                    String.Empty
-
-            $"{baseName}{extra}"
-    | _ ->
-        Arrangement.getNameAndPrefix arr |> fst |> translate
-
 let private getExtraText = function
     | Instrumental inst ->
         let tuning =
@@ -139,7 +86,7 @@ let private getExtraText = function
 
 /// Returns a template for an arrangement.
 let arrangement state dispatch index arr =
-    let name = translateArrangementName arr state.Project WithExtra
+    let name = translateName state.Project WithExtra arr
     let icon, color =
         match arr with
         | Instrumental inst ->

@@ -20,6 +20,7 @@ let buildConfig =
       ApplyImprovements = true
       SaveDebugFiles = false
       AudioConversionTask = async { return () }
+      IdResetConfig = None
       ProgressReporter = None }
 
 let [<Literal>] BuildDir = "./project/build"
@@ -52,7 +53,7 @@ let tests =
             Directory.CreateDirectory(BuildDir) |> ignore
 
             let! project = DLCProject.load "./project/Integration_test.rs2dlc"
-            do! PackageBuilder.buildPackages $"{BuildDir}/test_v1" buildConfig project
+            do! buildPackages $"{BuildDir}/test_v1" buildConfig project
 
             Expect.isTrue (File.Exists psarcPathWin) "PC package was built"
             Expect.isTrue (File.Exists psarcPathMac) "Mac package was built" }

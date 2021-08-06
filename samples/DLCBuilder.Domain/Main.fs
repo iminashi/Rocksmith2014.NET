@@ -63,6 +63,40 @@ let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
 
     match msg with
+    | ConfirmIdRegeneration (ids, reply) ->
+        let arrangements =
+            project.Arrangements
+            |> List.filter (function
+                | Instrumental inst when ids |> List.contains inst.PersistentID ->
+                    true
+                | _ ->
+                    false)
+
+        { state with Overlay = IdRegenerationConfirmation(arrangements, reply) }, Cmd.none
+
+    | SetNewArrangementIds replacementMap ->
+        let arrangements =
+            project.Arrangements
+            |> List.map (function
+                | Instrumental inst as arr ->
+                    replacementMap
+                    |> Map.tryFind inst.PersistentID
+                    |> Option.map (fun replacement ->
+                        // Only get the IDs in case the user has edited the arrangement in the project
+                        { inst with MasterID = Arrangement.getMasterId replacement
+                                    PersistentID = Arrangement.getPersistentId replacement }
+                        |> Instrumental)
+                    |> Option.defaultValue arr
+                | other ->
+                    other)
+
+        let updatedProject = { project with Arrangements = arrangements }
+
+        { state with Project = updatedProject }, Cmd.none
+
+    | IdRegenerationAnswered ->
+        { state with Overlay = NoOverlay }, Cmd.none
+
     | SetSelectedGear gear ->
         match state.ToneGearRepository with
         | Some repo ->
@@ -140,7 +174,12 @@ let update (msg: Msg) (state: State) =
             | _ ->
                 Cmd.none
 
-        { state with Overlay = NoOverlay }, cmd
+        match state.Overlay with
+        | IdRegenerationConfirmation _ ->
+            // The confirmation needs to be answered with the buttons in the overlay
+            state, cmd
+        | _ ->
+            { state with Overlay = NoOverlay }, cmd
 
     | ImportPsarc (psarcFile, targetFolder) ->
         let task() = async {
@@ -643,9 +682,10 @@ let update (msg: Msg) (state: State) =
             project.Arrangements
             |> List.mapi (fun i arr ->
                 if i = state.SelectedArrangementIndex then
-                    TestPackageBuilder.generateIds arr
+                    Arrangement.generateIds arr
                 else
                     arr)
+
         { state with Project = { project with Arrangements = arrangements } }, Cmd.none
 
     | GenerateAllIds ->

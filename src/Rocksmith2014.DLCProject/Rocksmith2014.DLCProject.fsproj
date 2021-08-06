@@ -42,6 +42,7 @@
     <Compile Include="ToolkitImporter.fs" />
     <Compile Include="ShowLightGenerator.fs" />
     <Compile Include="PlatformConverter.fs" />
+    <Compile Include="PhraseLevelComparer.fs" />
     <Compile Include="PackageBuilder.fs" />
   </ItemGroup>
 

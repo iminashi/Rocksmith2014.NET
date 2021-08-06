@@ -23,6 +23,7 @@ type OverlayContents =
     | ToneEditor
     | ToneCollection of state : ToneCollection.ToneCollectionState
     | DeleteConfirmation of files : string list
+    | IdRegenerationConfirmation of arrangements : Arrangement list * reply : AsyncReplyChannel<bool>
     | AbnormalExitMessage
     | PitchShifter
     | AboutMessage
@@ -213,6 +214,9 @@ type BuildValidationError =
     | MissingBaseToneKey
 
 type Msg =
+    | ConfirmIdRegeneration of arrIds : Guid list * reply : AsyncReplyChannel<bool>
+    | IdRegenerationAnswered
+    | SetNewArrangementIds of Map<Guid, Arrangement>
     | ImportPsarc of psarcFile : string * targetFolder : string
     | PsarcImported of project : DLCProject * projectFile : string
     | ImportToolkitTemplate of fileName : string
