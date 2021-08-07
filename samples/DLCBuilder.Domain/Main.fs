@@ -16,6 +16,16 @@ open StateUtils
 let arrangementCheckProgress = Progress<float>()
 let psarcImportProgress = Progress<float>()
 
+let private showOverlay state overlay =
+    match state.Overlay with
+    | IdRegenerationConfirmation (_, reply) ->
+        // Might end up here in rare cases
+        reply.Reply false
+    | _ ->
+        ()
+
+    { state with Overlay = overlay }, Cmd.none
+
 let private exceptionToErrorMessage (ex: exn) =
     let exnInfo (e: exn) =
         $"{e.GetType().Name}: {e.Message}\n{e.StackTrace}"
@@ -128,7 +138,7 @@ let update (msg: Msg) (state: State) =
 
     | ShowToneEditor ->
         match getSelectedTone state with
-        | Some _ -> { state with Overlay = ToneEditor }, Cmd.none
+        | Some _ -> showOverlay state ToneEditor
         | None -> state, Cmd.none
 
     | NewProject ->
@@ -425,11 +435,9 @@ let update (msg: Msg) (state: State) =
         { state with Project = { project with Tones = tones }; SelectedToneIndex = index }, Cmd.none
 
     | ShowToneCollection ->
-        let overlay =
-            ToneCollection.CollectionState.init state.DatabaseConnector ToneCollection.ActiveTab.Official
-            |> ToneCollection
-
-        { state with Overlay = overlay }, Cmd.none
+        ToneCollection.CollectionState.init state.DatabaseConnector ToneCollection.ActiveTab.Official
+        |> ToneCollection
+        |> showOverlay state
 
     | MoveArrangement dir ->
         let arrangements, index = moveSelected dir state.SelectedArrangementIndex project.Arrangements
@@ -440,7 +448,8 @@ let update (msg: Msg) (state: State) =
         let totalLength = Utils.getLength project.AudioFile.Path
         // Remove the length of the preview from the total length
         let length = totalLength - TimeSpan.FromSeconds 28.
-        { state with Overlay = SelectPreviewStart length }, Cmd.none
+
+        showOverlay state (SelectPreviewStart length)
 
     | CreatePreviewAudio CreateFile ->
         match project.AudioPreviewStartTime with
@@ -482,7 +491,7 @@ let update (msg: Msg) (state: State) =
         { state with ShowJapaneseFields = shown }, Cmd.none
 
     | ShowOverlay overlay ->
-        { state with Overlay = overlay }, Cmd.none
+        showOverlay state overlay
 
     | SetConfiguration (newConfig, enableLoad, wasAbnormalExit) ->
         if config.Locale <> newConfig.Locale then
@@ -544,8 +553,8 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfAsync.either OnlineUpdate.checkForUpdates () UpdateCheckCompleted ErrorOccurred
 
     | UpdateCheckCompleted (Error msg) ->
-        { state with AvailableUpdate = None
-                     Overlay = ErrorMessage(msg, None) }, Cmd.none
+        let cmd = Cmd.ofMsg (ShowOverlay (ErrorMessage(msg, None)))
+        { state with AvailableUpdate = None }, cmd
 
     | UpdateCheckCompleted (Ok update) ->
         let msg =
@@ -814,7 +823,7 @@ let update (msg: Msg) (state: State) =
         state, Cmd.none
 
     | ErrorOccurred e ->
-        { state with Overlay = exceptionToErrorMessage e }, Cmd.none
+        showOverlay state (exceptionToErrorMessage e)
 
     | TaskFailed (e, failedTask) ->
         { removeTask failedTask state with Overlay = exceptionToErrorMessage e }, Cmd.none

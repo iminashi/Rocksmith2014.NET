@@ -4,6 +4,7 @@ open Expecto
 open DLCBuilder
 open System
 open Rocksmith2014.DLCProject
+open Elmish
 
 [<Tests>]
 let messageTests =
@@ -14,6 +15,15 @@ let messageTests =
             let newState, _ = Main.update CloseOverlay state
 
             Expect.equal newState.Overlay NoOverlay "Overlay was closed"
+
+        testCase "CloseOverlay does not close IdRegenerationConfirmation" <| fun _ ->
+            // Does not work:
+            //let reply = AsyncReplyChannel<bool>(ignore)
+            let state = { initialState with Overlay = IdRegenerationConfirmation(List.empty, Unchecked.defaultof<AsyncReplyChannel<bool>>)}
+
+            let newState, _ = Main.update CloseOverlay state
+
+            Expect.notEqual newState.Overlay NoOverlay "Overlay was not closed"
 
         testCase "ChangeLocale changes locale" <| fun _ ->
             let newState, _ = Main.update (ChangeLocale(Locales.All.[1])) initialState
@@ -98,4 +108,16 @@ let messageTests =
 
             Expect.isTrue wasCalled "TryLoad was called"
             Expect.isSome newState.AlbumArtLoadTime "Load time has a value"
+
+        testCase "SetSelectedImportTones, ImportSelectedTones" <| fun _ ->
+            let selectedTones = [ testTone; testTone ]
+            let messages = [ SetSelectedImportTones selectedTones
+                             ImportSelectedTones ]
+
+            let newState, _ =
+                messages
+                |> List.fold (fun (state, _) message -> Main.update message state) (initialState, Cmd.none)
+
+            Expect.equal newState.SelectedImportTones selectedTones "Selected tones are correct"
+            Expect.hasLength newState.Project.Tones 2 "Two tones were added to the project"
     ]
