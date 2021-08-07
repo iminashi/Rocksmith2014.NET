@@ -47,6 +47,7 @@ let previewPathFromMainAudio (audioPath: string) =
     let ext = Path.GetExtension audioPath
     Path.Combine(dir, $"{fn}_preview{ext}")
 
+/// Checks an arrangement for issues.
 let checkArrangement arrangement =
     match arrangement with
     | Instrumental inst ->

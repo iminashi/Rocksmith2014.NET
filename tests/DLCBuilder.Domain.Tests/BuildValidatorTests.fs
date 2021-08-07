@@ -3,34 +3,8 @@ module BuildValidatorTests
 open DLCBuilder
 open Expecto
 open Rocksmith2014.Common
-open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open System
-
-let tone =
-    let gear =
-        let pedal =
-            { Type = ""
-              KnobValues = Map.empty
-              Key = ""
-              Category = None
-              Skin = None
-              SkinIndex = None }
-
-        { Amp = pedal
-          Cabinet = pedal
-          Racks =  [||]
-          PrePedals =  [||]
-          PostPedals =  [||] }
-
-    { GearList = gear
-      ToneDescriptors = [||]
-      NameSeparator = " - "
-      Volume = 17.
-      MacVolume = None
-      Key = "tone_key"
-      Name = "tone_name"
-      SortOrder = None }
 
 let vocals =
     { XML = ""
@@ -130,7 +104,7 @@ let tests =
             |> expectError SamePersistentID
 
         testCase "Detects same key on multiple tones" <| fun _ ->
-            let project = { validProject with Tones = [ tone; tone ] }
+            let project = { validProject with Tones = [ testTone; testTone ] }
 
             BuildValidator.validate project
             |> expectError MultipleTonesSameKey

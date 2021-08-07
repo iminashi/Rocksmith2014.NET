@@ -3,6 +3,7 @@ module Common
 
 open DLCBuilder
 open Rocksmith2014.Common
+open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open System
 
@@ -48,3 +49,28 @@ let initialState =
       AlbumArtLoadTime = None
       AlbumArtLoader = albumArtLoaderStub
       DatabaseConnector = toneDatabaseStub }
+
+let testTone =
+    let gear =
+        let pedal =
+            { Type = ""
+              KnobValues = Map.empty
+              Key = ""
+              Category = None
+              Skin = None
+              SkinIndex = None }
+
+        { Amp = pedal
+          Cabinet = pedal
+          Racks =  [||]
+          PrePedals =  [||]
+          PostPedals =  [||] }
+
+    { GearList = gear
+      ToneDescriptors = [||]
+      NameSeparator = " - "
+      Volume = 17.
+      MacVolume = None
+      Key = "tone_key"
+      Name = "tone_name"
+      SortOrder = None }

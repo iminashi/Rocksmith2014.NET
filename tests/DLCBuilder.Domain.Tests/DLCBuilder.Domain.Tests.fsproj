@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Compile Include="Common.fs" />
+    <Compile Include="UtilsTests.fs" />
     <Compile Include="EditInstrumentalTests.fs" />
     <Compile Include="EditProjectMessageTests.fs" />
     <Compile Include="EditVocalsMessageTests.fs" />
