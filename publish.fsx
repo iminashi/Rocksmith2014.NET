@@ -70,10 +70,6 @@ let zip workingDir targetFile dirToZip =
     |> Proc.run
     |> ignore
 
-let publishUpdater platform =
-    samplesDir </> "Updater" </> "Updater.fsproj"
-    |> DotNet.publish (createConfig "updater" platform (platform = MacOS))
-
 let publishBuilder platform =
     dlcBuilderDir </> "DLCBuilder.fsproj"
     |> DotNet.publish (createConfig "dlcbuilder" platform false)
