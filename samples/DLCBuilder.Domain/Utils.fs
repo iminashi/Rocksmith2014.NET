@@ -52,7 +52,7 @@ let checkArrangement arrangement =
     match arrangement with
     | Instrumental inst ->
         InstrumentalArrangement.Load inst.XML
-        |> ArrangementChecker.runAllChecks
+        |> ArrangementChecker.checkInstrumental
     | Vocals { CustomFont = font; XML = xml } ->
         Vocals.Load xml
         |> ArrangementChecker.checkVocals font.IsSome

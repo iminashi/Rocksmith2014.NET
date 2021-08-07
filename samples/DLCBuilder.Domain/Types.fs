@@ -162,7 +162,7 @@ type State =
       CurrentPlatform : Platform
       StatusMessages : StatusMessage list
       RunningTasks : LongTask Set
-      ArrangementIssues : Map<string, ArrangementChecker.Issue list>
+      ArrangementIssues : Map<string, Issue list>
       AvailableUpdate : UpdateInformation option
       ToneGearRepository: ToneGear.Repository option
       /// For forcing a view update if the user loads the same album art file, but the file has been modified.
@@ -289,8 +289,8 @@ type Msg =
     | TaskProgressChanged of task : LongTask * progress : float
     | AddStatusMessage of message : string
     | RemoveStatusMessage of id : Guid
-    | CheckOneCompleted of string * ArrangementChecker.Issue list
-    | CheckAllCompleted of Map<string, ArrangementChecker.Issue list>
+    | CheckOneCompleted of string * Issue list
+    | CheckAllCompleted of Map<string, Issue list>
     | PsarcUnpacked
     | WemToOggConversionCompleted
     | ConvertToWem

@@ -1,8 +1,9 @@
-﻿module Rocksmith2014.XML.Processing.Tests.ArrangementCheckerTests
+module InstrumentalCheckerTests
 
 open Expecto
 open Rocksmith2014.XML
-open Rocksmith2014.XML.Processing.ArrangementChecker
+open Rocksmith2014.XML.Processing.Types
+open Rocksmith2014.XML.Processing.InstrumentalChecker
 
 let toneChanges = ResizeArray(seq { ToneChange("test", 5555, 1uy) })
 let sections = ResizeArray(seq { Section("noguitar", 6000, 1s); Section("riff", 6500, 1s); Section("noguitar", 8000, 2s) })
@@ -491,66 +492,6 @@ let anchorTests =
             let results = checkAnchors testArr level
 
             Expect.isEmpty results "No issues created"
-    ]
-
-[<Tests>]
-let vocalsTests =
-    testList "Arrangement Checker (Vocals)" [
-        testCase "Detects character not in default font" <| fun _ ->
-            let vocals = ResizeArray(seq { Vocal(0, 50, "Test"); Vocal(100, 50, "Nope:あ") })
-
-            let result = checkVocals false vocals
-
-            Expect.equal result.Head.Type (LyricWithInvalidChar 'あ') "Issue type is correct"
-
-        testCase "Accepts characters in default font" <| fun _ ->
-            let vocals = ResizeArray(seq { Vocal(0, 50, "Test"); Vocal(100, 50, "ÄöÖÅå"); Vocal(200, 50, "àè- +?&#\"") })
-
-            let result = checkVocals false vocals
-
-            Expect.isEmpty result "Checker returned an empty list"
-
-        testCase "Detects lyric that is too long (ASCII)" <| fun _ ->
-            let lyric = String.replicate 48 "A"
-            let vocals = ResizeArray(seq { Vocal(0, 50, lyric) })
-
-            let result = checkVocals false vocals
-
-            Expect.equal result.Head.Type (LyricTooLong lyric) "Issue type is correct"
-
-        testCase "Detects lyric that is too long (non-ASCII)" <| fun _ ->
-            let lyric = String.replicate 16 "あ" // 48 bytes in UTF8
-            let vocals = ResizeArray(seq { Vocal(0, 50, lyric) })
-
-            let result = checkVocals true vocals
-
-            Expect.hasLength result 1 "One issue created"
-            Expect.equal result.Head.Type (LyricTooLong lyric) "Issue type is correct"
-    ]
-
-[<Tests>]
-let showLightsTests =
-    testList "Arrangement Checker (Show Lights)" [
-        testCase "Detects missing fog note" <| fun _ ->
-            let sl = ResizeArray(seq { ShowLight(100, ShowLight.BeamMin) })
-
-            let result = checkShowlights sl
-
-            Expect.isSome result "Checker returned an issue"
-
-        testCase "Detects missing beam note" <| fun _ ->
-            let sl = ResizeArray(seq { ShowLight(100, ShowLight.FogMin) })
-
-            let result = checkShowlights sl
-
-            Expect.isSome result "Checker returned an issue"
-
-        testCase "Returns None for valid show lights" <| fun _ ->
-            let sl = ResizeArray(seq { ShowLight(100, ShowLight.FogMin); ShowLight(100, ShowLight.BeamOff) })
-
-            let result = checkShowlights sl
-
-            Expect.isNone result "Checker returned None"
     ]
 
 [<Tests>]

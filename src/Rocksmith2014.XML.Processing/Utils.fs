@@ -1,6 +1,8 @@
-﻿module Rocksmith2014.XML.Processing.Utils
+module Rocksmith2014.XML.Processing.Utils
 
 open Rocksmith2014.XML
+
+let internal issue type' time = { Type = type'; TimeCode = time }
 
 /// Converts a time in milliseconds into a string.
 let timeToString time =

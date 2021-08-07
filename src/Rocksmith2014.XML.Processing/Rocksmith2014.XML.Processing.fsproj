@@ -18,6 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Types.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="Improvers\BasicFixes.fs" />
     <Compile Include="Improvers\CrowdEventAdder.fs" />
@@ -27,6 +28,9 @@
     <Compile Include="Improvers\PhraseMover.fs" />
     <Compile Include="Improvers\CustomEvents.fs" />
     <Compile Include="Improvers\HandShapeAdjuster.fs" />
+    <Compile Include="Checkers\InstrumentalChecker.fs" />
+    <Compile Include="Checkers\VocalsChecker.fs" />
+    <Compile Include="Checkers\ShowLightsChecker.fs" />
     <Compile Include="ArrangementImprover.fs" />
     <Compile Include="ArrangementChecker.fs" />
   </ItemGroup>

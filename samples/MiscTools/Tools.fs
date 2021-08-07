@@ -339,7 +339,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
         | CheckXml file ->
             let status = 
                 InstrumentalArrangement.Load file
-                |> ArrangementChecker.runAllChecks
+                |> ArrangementChecker.checkInstrumental
                 |> List.map (fun issue -> $"[{Utils.timeToString issue.TimeCode}] {issue.Type}")
                 |> function
                 | [] -> "No issues found."

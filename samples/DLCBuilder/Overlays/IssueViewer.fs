@@ -7,8 +7,8 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Media
 open Rocksmith2014.DLCProject
+open Rocksmith2014.XML.Processing
 open Rocksmith2014.XML.Processing.Utils
-open Rocksmith2014.XML.Processing.ArrangementChecker
 open DLCBuilder
 
 let private getIssueHeaderAndHelp issueType =
