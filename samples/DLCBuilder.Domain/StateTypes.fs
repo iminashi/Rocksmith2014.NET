@@ -189,7 +189,7 @@ type Msg =
     | SetAudioFile of fileName : string
     | SetConfiguration of config : Configuration * enableLoad : bool * wasAbnormalExit : bool
     | SetRecentFiles of files : string list
-    | ProgramExiting
+    | ProgramClosing
     | SetAvailableUpdate of update : Result<UpdateInformation option, string>
     | SetToneRepository of repository : ToneGear.Repository
     | SetSelectedArrangementIndex of index : int
@@ -205,8 +205,8 @@ type Msg =
     | UpdateFailed of messageId : Guid * error : exn
     | DeleteTestBuilds
     | DeleteConfirmed of files : string list
-    | DeleteArrangement
-    | DeleteTone
+    | DeleteSelectedArrangement
+    | DeleteSelectedTone
     | AddNewTone
     | DuplicateTone
     | AddToneToCollection

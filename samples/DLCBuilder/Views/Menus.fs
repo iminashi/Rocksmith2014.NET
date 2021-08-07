@@ -310,7 +310,7 @@ module Context =
                 MenuItem.create [
                     MenuItem.header (translate "RemoveMenuItem")
                     MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))
-                    MenuItem.onClick (fun _ -> dispatch DeleteTone)
+                    MenuItem.onClick (fun _ -> dispatch DeleteSelectedTone)
                 ]
             ]
         ]
@@ -381,7 +381,7 @@ module Context =
                 MenuItem.create [
                     MenuItem.header (translate "RemoveMenuItem")
                     MenuItem.inputGesture (KeyGesture(Key.Delete, KeyModifiers.None))
-                    MenuItem.onClick (fun _ -> dispatch DeleteArrangement)
+                    MenuItem.onClick (fun _ -> dispatch DeleteSelectedArrangement)
                 ]
             ]
         ]

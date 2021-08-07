@@ -5,6 +5,11 @@ open DLCBuilder
 open System
 open Rocksmith2014.DLCProject
 open Elmish
+open ToneCollection
+
+let foldMessages state messages =
+    messages
+    |> List.fold (fun (state, _) message -> Main.update message state) (state, Cmd.none)
 
 [<Tests>]
 let messageTests =
@@ -121,12 +126,11 @@ let messageTests =
 
         testCase "SetSelectedImportTones, ImportSelectedTones" <| fun _ ->
             let selectedTones = [ testTone; testTone ]
-            let messages = [ SetSelectedImportTones selectedTones
-                             ImportSelectedTones ]
 
             let newState, _ =
-                messages
-                |> List.fold (fun (state, _) message -> Main.update message state) (initialState, Cmd.none)
+                [ SetSelectedImportTones selectedTones
+                  ImportSelectedTones ]
+                |> foldMessages initialState
 
             Expect.equal newState.SelectedImportTones selectedTones "Selected tones are correct"
             Expect.hasLength newState.Project.Tones 2 "Two tones were added to the project"
@@ -183,4 +187,65 @@ let messageTests =
             let newState, _ = Main.update DuplicateTone initialState
 
             Expect.equal newState initialState "State was not changed"
+
+        testCase "CloseOverlay disposes tone collection" <| fun _ ->
+            let mutable disposed = false
+            let dataBase =
+                { new ToneCollection.IDatabaseConnector with
+                    member _.TryCreateOfficialTonesApi() = None
+                    member _.CreateUserTonesApi() =
+                        { new ToneCollection.IUserTonesApi with
+                            member _.Dispose() = disposed <- true
+                            member _.GetToneById _ = None
+                            member _.GetTones _ = Array.empty
+                            member _.GetToneDataById _ = None
+                            member _.DeleteToneById _  = ()
+                            member _.AddTone _ = ()
+                            member _.UpdateData _ = () } }
+            let collection = CollectionState.init dataBase ActiveTab.User
+            let state = { initialState with Overlay = ToneCollection collection }
+
+            ignore <| Main.update CloseOverlay state
+
+            Expect.isTrue disposed "Collection was disposed"
+
+        testCase "SetAudioFile sets audio file" <| fun _ ->
+            let newState, cmd = Main.update (SetAudioFile "groovy.wav") initialState
+
+            Expect.equal newState.Project.AudioFile.Path "groovy.wav" "Audio path was changed"
+            Expect.isNonEmpty cmd "Auto volume command was returned"
+
+        testCase "CalculateVolume adds long running task" <| fun _ ->
+            let guid = Guid.NewGuid()
+
+            let newState, cmd =
+                [ CalculateVolume MainAudio
+                  CalculateVolume PreviewAudio
+                  CalculateVolume (CustomAudio("custom.ogg", guid)) ]
+                |> foldMessages initialState
+
+            Expect.contains newState.RunningTasks (VolumeCalculation MainAudio) "Correct task was added"
+            Expect.contains newState.RunningTasks (VolumeCalculation PreviewAudio) "Correct task was added"
+            Expect.contains newState.RunningTasks (VolumeCalculation (CustomAudio("custom.ogg", guid))) "Correct task was added"
+            Expect.isNonEmpty cmd "Async command was returned"
+
+        testCase "VolumeCalculated sets volume" <| fun _ ->
+            let newState, _ =
+                [ VolumeCalculated(99., MainAudio)
+                  VolumeCalculated(-99., PreviewAudio) ]
+                |> foldMessages initialState
+
+            Expect.equal newState.Project.AudioFile.Volume 99. "Main audio volume was set"
+            Expect.equal newState.Project.AudioPreviewFile.Volume -99. "Preview audio volume was set"
+
+        testCase "SetSelectedArrangementIndex sets selected arrangement" <| fun _ ->
+            let state = { initialState with Project = { initialState.Project with Arrangements = [ Instrumental testLead ] } }
+
+            let newState, _ = Main.update (SetSelectedArrangementIndex 4) state
+
+            Expect.equal newState.SelectedArrangementIndex -1 "Index was not changed when it is larger than the arrangement list's length"
+
+            let newState, _ = Main.update (SetSelectedArrangementIndex 0) state
+
+            Expect.equal newState.SelectedArrangementIndex 0 "Selected arrangement index was changed"
     ]

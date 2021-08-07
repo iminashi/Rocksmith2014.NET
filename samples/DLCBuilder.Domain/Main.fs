@@ -396,13 +396,13 @@ let update (msg: Msg) (state: State) =
         else
             state, Cmd.none
 
-    | DeleteArrangement ->
+    | DeleteSelectedArrangement ->
         let arrangements, index = Utils.removeSelected project.Arrangements state.SelectedArrangementIndex
 
         { state with Project = { project with Arrangements = arrangements }
                      SelectedArrangementIndex = index }, Cmd.none
 
-    | DeleteTone ->
+    | DeleteSelectedTone ->
         let tones, index = Utils.removeSelected project.Tones state.SelectedToneIndex
 
         { state with Project = { project with Tones = tones }
@@ -514,7 +514,7 @@ let update (msg: Msg) (state: State) =
     | SetRecentFiles recent ->
         { state with RecentFiles = recent }, Cmd.none
 
-    | ProgramExiting ->
+    | ProgramClosing ->
         RecentFilesList.save state.RecentFiles |> Async.RunSynchronously
         state, Cmd.none
 

@@ -30,7 +30,7 @@ let private arrangementList state dispatch =
                         let arrIndex = state.SelectedArrangementIndex
                         match e.KeyModifiers, e.Key with
                         | KeyModifiers.None, Key.Delete ->
-                            dispatch DeleteArrangement
+                            dispatch DeleteSelectedArrangement
                         | KeyModifiers.Alt, Key.Up ->
                             dispatch (MoveArrangement Up)
                         | KeyModifiers.Alt, Key.Down ->
@@ -217,7 +217,7 @@ let private tonesList state dispatch =
                         let toneIndex = state.SelectedToneIndex
                         match e.KeyModifiers, e.Key with
                         | KeyModifiers.None, Key.Delete ->
-                            dispatch DeleteTone
+                            dispatch DeleteSelectedTone
                         | KeyModifiers.Alt, Key.Up ->
                             dispatch (MoveTone Up)
                         | KeyModifiers.Alt, Key.Down ->

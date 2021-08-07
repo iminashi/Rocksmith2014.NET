@@ -50,8 +50,8 @@ type MainWindow(commandLineArgs: string array) as this =
 
         let hotKeysSub _initialModel = Cmd.ofSub (HotKeys.handleEvent >> this.KeyDown.Add)
 
-        let programExitingSub _ =
-            Cmd.ofSub <| fun dispatch -> this.Closing.Add(fun _ -> dispatch ProgramExiting)
+        let programClosingSub _ =
+            Cmd.ofSub <| fun dispatch -> this.Closing.Add(fun _ -> dispatch ProgramClosing)
 
         let autoSaveSub _ =
             let sub dispatch =
@@ -131,7 +131,7 @@ type MainWindow(commandLineArgs: string array) as this =
         |> Program.withSubscription progressReportingSub
         |> Program.withSubscription autoSaveSub
         |> Program.withSubscription idRegenerationConfirmationSub
-        |> Program.withSubscription programExitingSub
+        |> Program.withSubscription programClosingSub
         #if DEBUG
         |> Program.withTrace (fun msg _state -> Diagnostics.Debug.WriteLine msg)
         #endif
