@@ -38,7 +38,11 @@
     </None>
     <AvaloniaResource Include="Assets\coverart_placeholder.png" />
     <EmbeddedResource Include="Assets\icon.ico" />
+    <EmbeddedResource Include="i18n\en.json" />
+    <EmbeddedResource Include="i18n\fi.json" />
+    <EmbeddedResource Include="i18n\jp.json" />
     <AvaloniaResource Include="Styles.xaml" />
+    <Compile Include="Localization.fs" />
     <Compile Include="ElmishExtensions.fs" />
     <Compile Include="FocusHelper.fs" />
     <Compile Include="Media.fs" />

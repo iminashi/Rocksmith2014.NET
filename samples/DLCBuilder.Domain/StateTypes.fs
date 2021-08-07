@@ -9,13 +9,6 @@ open Rocksmith2014.XML.Processing
 open System
 open OnlineUpdate
 
-type AsyncReply(f: bool -> unit) =
-    member _.Reply(answer) = f answer
-
-type IBitmapLoader =
-    abstract member InvalidateCache : unit -> unit
-    abstract member TryLoad : string -> bool
-
 type OverlayContents =
     | NoOverlay
     | ErrorMessage of message : string * moreInfo : string option
@@ -37,13 +30,6 @@ type PreviewAudioCreation =
     | CreateFile
     | FileCreated of path : string
 
-type ArrangementAddingError =
-    | MaxInstrumentals
-    | MaxShowlights
-    | MaxVocals
-
-type MoveDirection = Up | Down
-
 type VolumeTarget =
     | MainAudio
     | PreviewAudio
@@ -64,8 +50,6 @@ type StatusMessage =
     | TaskWithProgress of task : LongTask * progress : float
     | MessageString of id : Guid * message : string
     | UpdateMessage of updateInfo : UpdateInformation
-
-type BuildType = Test | Release | PitchShifted
 
 [<RequireQualifiedAccess>]
 type BuildCompleteType =
@@ -147,32 +131,6 @@ type InstrumentalEdit =
     | SetCustomAudioVolume of float
     | UpdateToneInfo
 
-type State =
-    { Project : DLCProject
-      SavedProject : DLCProject
-      RecentFiles : string list
-      Config : Configuration
-      SelectedArrangementIndex : int
-      SelectedToneIndex : int
-      SelectedGear : ToneGear.GearData option
-      SelectedImportTones : Tone list
-      ManuallyEditingKnobKey : string option
-      SelectedGearSlot : ToneGear.GearSlot
-      ShowSortFields : bool
-      ShowJapaneseFields : bool
-      Overlay : OverlayContents
-      OpenProjectFile : string option
-      CurrentPlatform : Platform
-      StatusMessages : StatusMessage list
-      RunningTasks : LongTask Set
-      ArrangementIssues : Map<string, Issue list>
-      AvailableUpdate : UpdateInformation option
-      ToneGearRepository: ToneGear.Repository option
-      /// For forcing a view update if the user loads the same album art file, but the file has been modified.
-      AlbumArtLoadTime : DateTime option
-      AlbumArtLoader : IBitmapLoader
-      DatabaseConnector : ToneCollection.IDatabaseConnector }
-
 type ToolsMsg =
     | ConvertWemToOgg of files : string array
     | ConvertAudioToWem of files : string array
@@ -205,17 +163,6 @@ type Dialog =
     | AudioFile of isCustom : bool
     | CustomFont
     | ExportTone of tone : Tone
-
-type BuildValidationError =
-    | InvalidDLCKey
-    | TitleEmpty
-    | ArtistNameEmpty
-    | AlbumArtNotFound
-    | PreviewNotFound
-    | MultipleTonesSameKey
-    | ConflictingVocals
-    | MissingBaseToneKey
-    | SamePersistentID
 
 type Msg =
     | ConfirmIdRegeneration of arrIds : Guid list * reply : AsyncReply
@@ -308,3 +255,30 @@ type Msg =
     | ToneCollectionMsg of ToneCollection.Msg
     | ShowDialog of Dialog
     | HotKeyMsg of Msg
+
+type State =
+    { Project : DLCProject
+      SavedProject : DLCProject
+      RecentFiles : string list
+      Config : Configuration
+      SelectedArrangementIndex : int
+      SelectedToneIndex : int
+      SelectedGear : ToneGear.GearData option
+      SelectedImportTones : Tone list
+      ManuallyEditingKnobKey : string option
+      SelectedGearSlot : ToneGear.GearSlot
+      ShowSortFields : bool
+      ShowJapaneseFields : bool
+      Overlay : OverlayContents
+      OpenProjectFile : string option
+      CurrentPlatform : Platform
+      StatusMessages : StatusMessage list
+      RunningTasks : LongTask Set
+      ArrangementIssues : Map<string, Issue list>
+      AvailableUpdate : UpdateInformation option
+      ToneGearRepository: ToneGear.Repository option
+      /// For forcing a view update if the user loads the same album art file, but the file has been modified.
+      AlbumArtLoadTime : DateTime option
+      Localizer : IStringLocalizer
+      AlbumArtLoader : IBitmapLoader
+      DatabaseConnector : ToneCollection.IDatabaseConnector }

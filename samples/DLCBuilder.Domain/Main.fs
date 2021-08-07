@@ -59,9 +59,9 @@ let private buildPackage build state =
         let msg =
             match error with
             | InvalidDLCKey ->
-                translatef (string error) [| DLCKey.MinimumLength |]
+                state.Localizer.TranslateFormat (string error) [| DLCKey.MinimumLength |]
             | other ->
-                other |> string |> translate
+                other |> string |> state.Localizer.Translate
         { state with Overlay = ErrorMessage(msg, None) }, Cmd.none
     | Ok () ->
         let task = build state.Config
@@ -71,6 +71,8 @@ let private buildPackage build state =
 
 let update (msg: Msg) (state: State) =
     let { Project=project; Config=config } = state
+    let translate = state.Localizer.Translate
+    let translatef = state.Localizer.TranslateFormat
 
     match msg with
     | ConfirmIdRegeneration (ids, reply) ->
@@ -495,7 +497,7 @@ let update (msg: Msg) (state: State) =
 
     | SetConfiguration (newConfig, enableLoad, wasAbnormalExit) ->
         if config.Locale <> newConfig.Locale then
-            changeLocale newConfig.Locale
+            state.Localizer.ChangeLocale newConfig.Locale
         let cmd =
             if enableLoad && File.Exists newConfig.PreviousOpenedProject then
                 if newConfig.LoadPreviousOpenedProject then
@@ -829,7 +831,9 @@ let update (msg: Msg) (state: State) =
         { removeTask failedTask state with Overlay = exceptionToErrorMessage e }, Cmd.none
 
     | ChangeLocale newLocale ->
-        if config.Locale <> newLocale then changeLocale newLocale
+        if config.Locale <> newLocale then
+            state.Localizer.ChangeLocale newLocale
+
         { state with Config = { config with Locale = newLocale } }, Cmd.none
 
     | ToolsMsg msg ->

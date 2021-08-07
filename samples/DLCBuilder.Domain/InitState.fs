@@ -9,7 +9,7 @@ open System.IO
 let private createExitCheckFile () =
     using (File.Create Configuration.exitCheckFilePath) ignore
 
-let init albumArtLoader databaseConnector args =
+let init localizer albumArtLoader databaseConnector args =
     let commands =
         let wasAbnormalExit = File.Exists Configuration.exitCheckFilePath
         createExitCheckFile()
@@ -22,7 +22,7 @@ let init albumArtLoader databaseConnector args =
             |> Option.toList
 
         Cmd.batch [
-            Cmd.OfAsyncImmediate.perform Configuration.load () (fun config -> SetConfiguration(config, loadProject.IsEmpty, wasAbnormalExit))
+            Cmd.OfAsyncImmediate.perform Configuration.load localizer (fun config -> SetConfiguration(config, loadProject.IsEmpty, wasAbnormalExit))
             Cmd.OfAsyncImmediate.perform RecentFilesList.load () SetRecentFiles
             Cmd.OfAsyncImmediate.perform OnlineUpdate.checkForUpdates () SetAvailableUpdate
             Cmd.OfAsyncImmediate.perform ToneGear.loadRepository () SetToneRepository
@@ -49,5 +49,6 @@ let init albumArtLoader databaseConnector args =
       AvailableUpdate = None
       ToneGearRepository = None
       AlbumArtLoadTime = None
+      Localizer = localizer
       AlbumArtLoader = albumArtLoader
       DatabaseConnector = databaseConnector }, commands

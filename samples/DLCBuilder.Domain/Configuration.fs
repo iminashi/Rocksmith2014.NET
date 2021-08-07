@@ -1,12 +1,10 @@
-﻿namespace DLCBuilder
+namespace DLCBuilder
 
 open Rocksmith2014.Common
 open Rocksmith2014.DD
 open System
 open System.IO
 open System.Text.Json
-
-type AudioConversionType = NoConversion | ToWav | ToOgg
 
 type Configuration =
     { ReleasePlatforms : Platform Set
@@ -52,7 +50,7 @@ type Configuration =
           OpenFolderAfterReleaseBuild = true
           LoadPreviousOpenedProject = false
           PreviousOpenedProject = String.Empty
-          Locale = Locales.Default
+          Locale = Locale.Default
           WwiseConsolePath = None
           CustomAppId = None }
 
@@ -78,7 +76,7 @@ module Configuration =
         member val OpenFolderAfterReleaseBuild : bool = true with get, set
         member val LoadPreviousOpenedProject : bool = false with get, set
         member val PreviousOpenedProject : string = String.Empty with get, set
-        member val Locale : string = "en" with get, set
+        member val Locale : string = Locale.Default.ShortName with get, set
         member val WwiseConsolePath : string = String.Empty with get, set
         member val CustomAppId : string = String.Empty with get, set
 
@@ -93,7 +91,7 @@ module Configuration =
         Path.Combine(appDataFolder, "exit.check")
 
     /// Converts a configuration DTO into a configuration record.
-    let private fromDto (dto: Dto) =
+    let private fromDto (t: IStringLocalizer) (dto: Dto) =
         let platforms =
             if not (dto.ReleasePC || dto.ReleaseMac) then
                 Set([ PC; Mac ])
@@ -133,7 +131,7 @@ module Configuration =
           OpenFolderAfterReleaseBuild = dto.OpenFolderAfterReleaseBuild
           LoadPreviousOpenedProject = dto.LoadPreviousOpenedProject
           PreviousOpenedProject = dto.PreviousOpenedProject
-          Locale = Locales.fromShortName dto.Locale
+          Locale = t.LocaleFromShortName dto.Locale
           WwiseConsolePath = Option.ofString dto.WwiseConsolePath
           CustomAppId = Option.ofString dto.CustomAppId }
 
@@ -175,7 +173,7 @@ module Configuration =
             CustomAppId = Option.toObj config.CustomAppId)
 
     /// Loads a configuration from the file defined in configFilePath.
-    let load () = async {
+    let load (t: IStringLocalizer) = async {
         if not <| File.Exists configFilePath then
             return Configuration.Default
         else
@@ -183,7 +181,7 @@ module Configuration =
                 use file = File.OpenRead configFilePath
                 let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
                 let! dto = JsonSerializer.DeserializeAsync<Dto>(file, options)
-                return fromDto dto
+                return fromDto t dto
             with _ ->
                 return Configuration.Default }
 

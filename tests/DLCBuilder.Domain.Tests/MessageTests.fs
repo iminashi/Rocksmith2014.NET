@@ -25,9 +25,20 @@ let messageTests =
             Expect.notEqual newState.Overlay NoOverlay "Overlay was not closed"
 
         testCase "ChangeLocale changes locale" <| fun _ ->
-            let newState, _ = Main.update (ChangeLocale(Locales.All.[1])) initialState
+            let locale = { Name = "Foo"; ShortName = "f" }
+            let mutable current = locale
+            let stringLocalizer =
+                { new IStringLocalizer with
+                    member _.Translate _ = String.Empty
+                    member _.TranslateFormat _ _ = String.Empty
+                    member _.ChangeLocale x = current <- x
+                    member _.LocaleFromShortName _ = Locale.Default }
+            let state = { initialState with Localizer = stringLocalizer }
 
-            Expect.equal newState.Config.Locale Locales.All.[1] "Locale was changed"
+            let newState, _ = Main.update (ChangeLocale locale) state
+
+            Expect.equal newState.Config.Locale locale "Locale was changed"
+            Expect.equal current locale "IStringLocalizer.ChangeLocale was called"
 
         testCase "ErrorOccurred opens error message" <| fun _ ->
             let ex = exn("TEST")

@@ -25,9 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="i18n\en.json" />
-    <EmbeddedResource Include="i18n\fi.json" />
-    <EmbeddedResource Include="i18n\jp.json" />
     <EmbeddedResource Include="Tones\tone_gear_data.json" />
     <EmbeddedResource Include="Tones\default_bass.json" />
     <EmbeddedResource Include="Tones\default_lead.json" />
@@ -35,13 +32,13 @@
     <Compile Include="Tones\ToneGear.fs" />
     <Compile Include="Tones\DefaultTones.fs" />
     <Compile Include="AppVersion.fs" />
+    <Compile Include="GeneralTypes.fs" />
     <Compile Include="Utils.fs" />
-    <Compile Include="Localization.fs" />
+    <Compile Include="IdRegenerationHelper.fs" />
     <Compile Include="Configuration.fs" />
     <Compile Include="RecentFilesList.fs" />
     <Compile Include="OnlineUpdate.fs" />
-    <Compile Include="Types.fs" />
-    <Compile Include="IdRegenerationHelper.fs" />
+    <Compile Include="StateTypes.fs" />
     <Compile Include="StateUtils.fs" />
     <Compile Include="EditFunctions.fs" />
     <Compile Include="Building\BuildValidator.fs" />

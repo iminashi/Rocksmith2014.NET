@@ -25,6 +25,13 @@ let toneDatabaseStub =
                 member _.AddTone _ = ()
                 member _.UpdateData _ = () } }
 
+let stringLocalizerStub =
+    { new IStringLocalizer with
+        member _.Translate _ = String.Empty
+        member _.TranslateFormat _ _ = String.Empty
+        member _.ChangeLocale _ = ()
+        member _.LocaleFromShortName _ = Locale.Default }
+
 let initialState =
     { Project = DLCProject.Empty
       SavedProject = DLCProject.Empty
@@ -47,6 +54,7 @@ let initialState =
       ArrangementIssues = Map.empty
       ToneGearRepository = None
       AlbumArtLoadTime = None
+      Localizer = stringLocalizerStub
       AlbumArtLoader = albumArtLoaderStub
       DatabaseConnector = toneDatabaseStub }
 

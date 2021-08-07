@@ -89,6 +89,7 @@ let removeStatusMessage (id: Guid) = async {
 /// Adds the arrangements from the given filenames into the project in the state.
 let addArrangements fileNames state =
     let results = Array.map Arrangement.fromFile fileNames
+    let t = state.Localizer
 
     let shouldInclude arrangements arr =
         let count f = List.choose f arrangements |> List.length
@@ -124,10 +125,10 @@ let addArrangements fileNames state =
                 | Ok arr ->
                     arr::arrs, errors
                 | Error error ->
-                    let errorMsg = createErrorMsg (Arrangement.getFile arr) (translate <| string error)
+                    let errorMsg = createErrorMsg (Arrangement.getFile arr) (t.Translate <| string error)
                     arrs, errorMsg::errors
             | Error (UnknownArrangement path) ->
-                let message = translate "UnknownArrangementError"
+                let message = t.Translate "UnknownArrangementError"
                 let error = createErrorMsg path message
                 arrs, error::errors
             | Error (FailedWithException (path, ex)) ->
