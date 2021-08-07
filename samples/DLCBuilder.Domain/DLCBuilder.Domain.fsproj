@@ -35,13 +35,13 @@
     <Compile Include="Tones\ToneGear.fs" />
     <Compile Include="Tones\DefaultTones.fs" />
     <Compile Include="AppVersion.fs" />
-    <Compile Include="IdRegenerationHelper.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="Localization.fs" />
     <Compile Include="Configuration.fs" />
     <Compile Include="RecentFilesList.fs" />
     <Compile Include="OnlineUpdate.fs" />
     <Compile Include="Types.fs" />
+    <Compile Include="IdRegenerationHelper.fs" />
     <Compile Include="StateUtils.fs" />
     <Compile Include="EditFunctions.fs" />
     <Compile Include="Building\BuildValidator.fs" />

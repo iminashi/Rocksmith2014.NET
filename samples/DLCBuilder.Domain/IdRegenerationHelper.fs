@@ -1,31 +1,22 @@
-﻿module DLCBuilder.IdRegenerationHelper
+module DLCBuilder.IdRegenerationHelper
 
 open System
 open Rocksmith2014.DLCProject
+open System.Threading.Tasks
 
-let private requestConfirmationEvent = Event<Guid list * AsyncReplyChannel<bool>>()
+let private requestConfirmationEvent = Event<Guid list * AsyncReply>()
 let private idsGeneratedEvent = Event<Map<Guid, Arrangement>>()
 
 let RequestConfirmation = requestConfirmationEvent.Publish
 let NewIdsGenerated = idsGeneratedEvent.Publish
 
-type private MailBoxMessage =
-    | RequestConfirmation of Guid list * AsyncReplyChannel<bool>
-    | NewIdsGenerated of Map<Guid, Arrangement>
+let getConfirmation ids = async {
+    let answer = TaskCompletionSource<bool>()
+    let reply = AsyncReply(answer.SetResult)
 
-let private mb = MailboxProcessor.Start(fun mbox ->
-    let rec loop () = async {
-        match! mbox.Receive() with
-        | RequestConfirmation (arrangementPaths, replyChannel) ->
-            requestConfirmationEvent.Trigger(arrangementPaths, replyChannel)
-        | NewIdsGenerated idMap ->
-            idsGeneratedEvent.Trigger(idMap)
+    requestConfirmationEvent.Trigger(ids, reply)
 
-        return! loop () }
-    loop ())
-
-let getConfirmation ids =
-    mb.PostAndAsyncReply(fun reply -> RequestConfirmation(ids, reply))
+    return! answer.Task |> Async.AwaitTask }
 
 let postNewIds newIdMap =
-    mb.Post(NewIdsGenerated newIdMap)
+    idsGeneratedEvent.Trigger(newIdMap)

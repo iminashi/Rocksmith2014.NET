@@ -17,9 +17,8 @@ let messageTests =
             Expect.equal newState.Overlay NoOverlay "Overlay was closed"
 
         testCase "CloseOverlay does not close IdRegenerationConfirmation" <| fun _ ->
-            // Does not work:
-            //let reply = AsyncReplyChannel<bool>(ignore)
-            let state = { initialState with Overlay = IdRegenerationConfirmation(List.empty, Unchecked.defaultof<AsyncReplyChannel<bool>>)}
+            let reply = AsyncReply(ignore)
+            let state = { initialState with Overlay = IdRegenerationConfirmation(List.empty, reply) }
 
             let newState, _ = Main.update CloseOverlay state
 

@@ -9,6 +9,9 @@ open Rocksmith2014.XML.Processing
 open System
 open OnlineUpdate
 
+type AsyncReply(f: bool -> unit) =
+    member _.Reply(answer) = f answer
+
 type IBitmapLoader =
     abstract member InvalidateCache : unit -> unit
     abstract member TryLoad : string -> bool
@@ -23,7 +26,7 @@ type OverlayContents =
     | ToneEditor
     | ToneCollection of state : ToneCollection.ToneCollectionState
     | DeleteConfirmation of files : string list
-    | IdRegenerationConfirmation of arrangements : Arrangement list * reply : AsyncReplyChannel<bool>
+    | IdRegenerationConfirmation of arrangements : Arrangement list * reply : AsyncReply
     | AbnormalExitMessage
     | PitchShifter
     | AboutMessage
@@ -215,7 +218,7 @@ type BuildValidationError =
     | SamePersistentID
 
 type Msg =
-    | ConfirmIdRegeneration of arrIds : Guid list * reply : AsyncReplyChannel<bool>
+    | ConfirmIdRegeneration of arrIds : Guid list * reply : AsyncReply
     | IdRegenerationAnswered
     | SetNewArrangementIds of Map<Guid, Arrangement>
     | ImportPsarc of psarcFile : string * targetFolder : string
