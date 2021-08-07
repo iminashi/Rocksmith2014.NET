@@ -1,4 +1,4 @@
-﻿module BuildValidatorTests
+module BuildValidatorTests
 
 open DLCBuilder
 open Expecto
@@ -61,7 +61,7 @@ let validProject =
       JapaneseArtistName = None
       JapaneseTitle = None
       Title = SortableString.Create "Title"
-      AlbumName = SortableString.Create "Title"
+      AlbumName = SortableString.Create "Album"
       Year = DateTime.Now.Year
       AlbumArtFile = "DLCBuilder.Tests.exe"
       AudioFile = { AudioFile.Empty with Path = "DLCBuilder.Tests.exe" }

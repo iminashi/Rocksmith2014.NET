@@ -19,6 +19,7 @@
     <Compile Include="EditConfigMessageTests.fs" />
     <Compile Include="ToneImportTests.fs" />
     <Compile Include="MessageTests.fs" />
+    <Compile Include="BuildConfigTests.fs" />
     <Compile Include="BuildValidatorTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

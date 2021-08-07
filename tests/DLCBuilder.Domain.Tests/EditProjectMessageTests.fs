@@ -1,4 +1,4 @@
-﻿module EditProjectMessageTests
+module EditProjectMessageTests
 
 open Expecto
 open DLCBuilder
@@ -76,4 +76,14 @@ let editProjectTests =
             Expect.equal project.AudioFile.Volume 9. "Volume is correct"
             Expect.equal project.AudioPreviewFile.Volume -9. "Preview volume is correct"
             Expect.equal project.AudioPreviewStartTime (Some 50.) "Preview start time is correct"
+
+        testCase "SetPitchShift" <| fun _ ->
+            let messages = [ SetPitchShift 1s ] |> List.map EditProject
+
+            let newState, _ =
+                messages
+                |> List.fold (fun (state, _) message -> Main.update message state) (initialState, Cmd.none)
+            let project = newState.Project
+
+            Expect.equal project.PitchShift (Some 1s) "Pitch shift is correct"
     ]

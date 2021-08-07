@@ -1,9 +1,10 @@
-﻿module EditMessageTests
+module EditMessageTests
 
 open Expecto
 open DLCBuilder
 open Rocksmith2014.Common
 open Elmish
+open Rocksmith2014.DD.Types
 
 [<Tests>]
 let editConfigTests =
@@ -108,4 +109,16 @@ let editConfigTests =
                 
             Expect.equal newState.Config.OpenFolderAfterReleaseBuild openFolder "Open folder after release is correct"
             Expect.equal newState.Config.LoadPreviousOpenedProject loadProject "Load previous opened project is correct"
+
+        testCase "SetDDLevelCountGeneration, SetAutoSave" <| fun _ ->
+            let autoSave = not initialState.Config.AutoSave
+            let messages = [ SetDDLevelCountGeneration LevelCountGeneration.MLModel
+                             SetAutoSave autoSave ] |> List.map EditConfig
+
+            let newState, _ =
+                messages
+                |> List.fold (fun (state, _) message -> Main.update message state) (initialState, Cmd.none)
+                
+            Expect.equal newState.Config.DDLevelCountGeneration LevelCountGeneration.MLModel "DD level count generation is correct"
+            Expect.equal newState.Config.AutoSave autoSave "Auto-save is correct"
     ]

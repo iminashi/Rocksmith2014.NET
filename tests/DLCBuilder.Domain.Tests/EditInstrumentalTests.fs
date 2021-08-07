@@ -1,4 +1,4 @@
-﻿module EditInstrumentalTests
+module EditInstrumentalTests
 
 open Expecto
 open DLCBuilder
@@ -87,6 +87,55 @@ let tests =
                 Expect.equal inst.PersistentID id "Persistent ID is correct"
                 Expect.equal inst.CustomAudio.Value.Path "custom/audio" "Custom audio path is correct"
                 Expect.equal inst.CustomAudio.Value.Volume -10. "Custom audio volume is correct"
+            | _ ->
+                failwith "fail"
+
+        testCase "SetCustomAudioPath" <| fun _ ->
+            let messages = [ SetCustomAudioPath (Some "custom_audio") ] |> List.map EditInstrumental
+
+            let newState, _ =
+                messages
+                |> List.fold (fun (state, _) message -> Main.update message state) (state, Cmd.none)
+            let newArr = newState.Project.Arrangements |> List.head
+            
+            match newArr with
+            | Instrumental { CustomAudio = Some customAudio } ->
+                Expect.equal customAudio.Path "custom_audio" "Custom audio path is correct"
+            | _ ->
+                failwith "fail"
+
+        testCase "ChangeTuning" <| fun _ ->
+            let messages = [ ChangeTuning(0, Up); ChangeTuning(4, Down) ] |> List.map EditInstrumental
+
+            let newState, _ =
+                messages
+                |> List.fold (fun (state, _) message -> Main.update message state) (state, Cmd.none)
+            let newArr = newState.Project.Arrangements |> List.head
+            
+            match newArr with
+            | Instrumental inst ->
+                Expect.equal inst.Tuning.[0] 1s "Tuning of first string was changed"
+                Expect.equal inst.Tuning.[4] -1s "Tuning of fourth string was changed"
+            | _ ->
+                failwith "fail"
+
+        testCase "ChangeTuningAll Down" <| fun _ ->
+            let newState, _ = Main.update (ChangeTuningAll Down |> EditInstrumental) state
+            let newArr = newState.Project.Arrangements |> List.head
+            
+            match newArr with
+            | Instrumental inst ->
+                Expect.all inst.Tuning (fun x -> x = -1s) "Tuning of all strings was lowered"
+            | _ ->
+                failwith "fail"
+
+        testCase "ChangeTuningAll Up" <| fun _ ->
+            let newState, _ = Main.update (ChangeTuningAll Up |> EditInstrumental) state
+            let newArr = newState.Project.Arrangements |> List.head
+            
+            match newArr with
+            | Instrumental inst ->
+                Expect.all inst.Tuning (fun x -> x = 1s) "Tuning of all strings was raised"
             | _ ->
                 failwith "fail"
     ]
