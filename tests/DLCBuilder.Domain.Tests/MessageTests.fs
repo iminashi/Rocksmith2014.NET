@@ -130,4 +130,57 @@ let messageTests =
 
             Expect.equal newState.SelectedImportTones selectedTones "Selected tones are correct"
             Expect.hasLength newState.Project.Tones 2 "Two tones were added to the project"
+
+        testCase "ConfirmIdRegeneration shows overlay" <| fun _ ->
+            let lead2 = { testLead with PersistentID = Guid.NewGuid() }
+            let project = { initialState.Project with Arrangements = [ Instrumental testLead; Instrumental lead2 ] }
+            let state = { initialState with Project = project }
+            let ids = [ testLead.PersistentID ]
+            let reply = AsyncReply(ignore)
+
+            let newState, _ = Main.update (ConfirmIdRegeneration(ids, reply)) state
+
+            match newState.Overlay with
+            | IdRegenerationConfirmation(arrangements, overlayReply) ->
+                Expect.hasLength arrangements 1 "Overlay has one arrangement"
+                Expect.equal arrangements.[0] (Instrumental testLead) "Correct arrangement was selected"
+                Expect.equal overlayReply reply "Reply is correct"
+            | _ ->
+                failwith "Wrong overlay type"
+
+        testCase "SetNewArrangementIds updates arrangement IDs" <| fun _ ->
+            let replacement = { testLead with PersistentID = Guid.NewGuid(); ScrollSpeed = 1.8 }
+            let project = { initialState.Project with Arrangements = [ Instrumental testLead; Vocals testVocals ] }
+            let state = { initialState with Project = project }
+            let idMap = Map.ofList [ testLead.PersistentID, Instrumental replacement ]
+
+            let newState, _ = Main.update (SetNewArrangementIds(idMap)) state
+
+            match newState.Project.Arrangements.[0] with
+            | Instrumental inst ->
+                Expect.equal inst.PersistentID replacement.PersistentID "ID was updated"
+                Expect.notEqual inst.ScrollSpeed replacement.ScrollSpeed "Scroll speed was not changed"
+            | _ ->
+                failwith "Wrong arrangement type"
+
+        testCase "IdRegenerationAnswered closes overlay" <| fun _ ->
+            let state = { initialState with Overlay = OverlayContents.AboutMessage }
+
+            let newState, _ = Main.update IdRegenerationAnswered state
+
+            Expect.equal newState.Overlay NoOverlay "Overlay was closed"
+
+        testCase "DuplicateTone duplicates selected tone" <| fun _ ->
+            let project = { initialState.Project with Tones = [ testTone ] }
+            let state = { initialState with Project = project; SelectedToneIndex = 0 }
+
+            let newState, _ = Main.update DuplicateTone state
+
+            Expect.hasLength newState.Project.Tones 2 "Project has two tones"
+            Expect.equal newState.Project.Tones.[0].Name (testTone.Name + "2") "2 was added to the name"
+
+        testCase "DuplicateTone does nothing when no tone is selected" <| fun _ ->
+            let newState, _ = Main.update DuplicateTone initialState
+
+            Expect.equal newState initialState "State was not changed"
     ]
