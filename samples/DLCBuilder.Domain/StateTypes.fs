@@ -189,6 +189,7 @@ type Msg =
     | SetAudioFile of fileName : string
     | SetConfiguration of config : Configuration * enableLoad : bool * wasAbnormalExit : bool
     | SetRecentFiles of files : string list
+    | ProgramExiting
     | SetAvailableUpdate of update : Result<UpdateInformation option, string>
     | SetToneRepository of repository : ToneGear.Repository
     | SetSelectedArrangementIndex of index : int

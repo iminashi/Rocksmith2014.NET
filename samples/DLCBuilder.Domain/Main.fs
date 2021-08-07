@@ -514,6 +514,10 @@ let update (msg: Msg) (state: State) =
     | SetRecentFiles recent ->
         { state with RecentFiles = recent }, Cmd.none
 
+    | ProgramExiting ->
+        RecentFilesList.save state.RecentFiles |> Async.RunSynchronously
+        state, Cmd.none
+
     | SetAvailableUpdate (Error _) ->
         // Don't show an error message if the update check fails when starting the program
         state, Cmd.none
@@ -633,8 +637,7 @@ let update (msg: Msg) (state: State) =
                      ArrangementIssues = Map.empty
                      AlbumArtLoadTime = albumArtLoadTime
                      SelectedArrangementIndex = -1
-                     SelectedToneIndex = -1 },
-        cmd
+                     SelectedToneIndex = -1 }, cmd
 
     | EditInstrumental edit ->
         match getSelectedArrangement state with

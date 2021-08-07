@@ -1,4 +1,4 @@
-﻿module DLCBuilder.RecentFilesList
+module DLCBuilder.RecentFilesList
 
 open Rocksmith2014.Common
 open System
@@ -29,10 +29,6 @@ let update newFile oldList =
         let list = List.remove newFile oldList
         newFile::list
         |> List.truncate MaxFiles
-
-    // Save the list if it changed
-    if updatedList <> oldList then
-        save updatedList |> Async.Start
 
     updatedList
 
