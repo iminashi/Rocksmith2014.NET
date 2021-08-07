@@ -11,18 +11,18 @@ open OnlineUpdate
 
 type OverlayContents =
     | NoOverlay
-    | ErrorMessage of message : string * moreInfo : string option
-    | ImportToneSelector of tones : Tone array
-    | SelectPreviewStart of audioLength : TimeSpan
-    | ConfigEditor
-    | IssueViewer of arrangement : Arrangement
-    | ToneEditor
-    | ToneCollection of state : ToneCollection.ToneCollectionState
-    | DeleteConfirmation of files : string list
-    | IdRegenerationConfirmation of arrangements : Arrangement list * reply : AsyncReply
     | AbnormalExitMessage
-    | PitchShifter
     | AboutMessage
+    | ConfigEditor
+    | DeleteConfirmation of files : string list
+    | ErrorMessage of message : string * moreInfo : string option
+    | IdRegenerationConfirmation of arrangements : Arrangement list * reply : AsyncReply
+    | ImportToneSelector of tones : Tone array
+    | IssueViewer of arrangement : Arrangement
+    | PitchShifter
+    | SelectPreviewStart of audioLength : TimeSpan
+    | ToneCollection of state : ToneCollection.ToneCollectionState
+    | ToneEditor
     | UpdateInformationDialog of update : UpdateInformation
 
 type PreviewAudioCreation =
