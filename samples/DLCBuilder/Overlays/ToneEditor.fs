@@ -140,7 +140,9 @@ let private getFormatString knob =
 let private formatValue knob value =
     match knob.EnumValues with
     | Some enums ->
-        enums.[int value]
+        // Some old CDLC may have out-of-bounds values
+        let index = Math.Clamp(int value, 0, enums.Length - 1)
+        enums.[index]
     | None ->
         let unit = if knob.UnitType = "number" then String.Empty else $" {knob.UnitType}"
         let format = sprintf "{0:%s}%s" (getFormatString knob) unit

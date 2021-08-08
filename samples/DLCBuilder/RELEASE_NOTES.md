@@ -6,6 +6,7 @@
 - Added "Open Project Folder" to the project menu.
 - Added "Validate Arrangement Again" button to the issue viewer.
 - Various UI and usability improvements.
+- Fixed an exception when editing a tone that contains out-of-bounds values.
 - Added logging for program crashes.
 
 ## 0.4.1 (Released 2021-07-27)
