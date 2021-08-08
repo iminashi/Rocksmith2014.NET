@@ -2,6 +2,7 @@
 
 - The metadata for the tones in the user collection can now be edited (via context menu or E key).
 - The tone collection now shows what gear the selected tone uses.
+- Added a feature that compares the DD levels of a release build to the previous one and asks if the arrangement IDs should be regenerated when necessary.
 - Added "Open Project Folder" to the project menu.
 - Added "Validate Arrangement Again" button to the issue viewer.
 - Various UI and usability improvements.
