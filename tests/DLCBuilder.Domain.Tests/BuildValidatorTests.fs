@@ -5,6 +5,7 @@ open Expecto
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open System
+open System.IO
 
 let vocals =
     { XML = ""
@@ -28,6 +29,8 @@ let instrumental =
       PersistentID = Guid.NewGuid()
       CustomAudio = None }
 
+let existingFile = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.*") |> Seq.head
+
 let validProject =
     { Version = "1"
       DLCKey = "Abcdefghijklmn"
@@ -37,9 +40,9 @@ let validProject =
       Title = SortableString.Create "Title"
       AlbumName = SortableString.Create "Album"
       Year = DateTime.Now.Year
-      AlbumArtFile = "DLCBuilder.Tests.exe"
-      AudioFile = { AudioFile.Empty with Path = "DLCBuilder.Tests.exe" }
-      AudioPreviewFile = { AudioFile.Empty with Path = "DLCBuilder.Tests.exe" }
+      AlbumArtFile = existingFile
+      AudioFile = { AudioFile.Empty with Path = existingFile }
+      AudioPreviewFile = { AudioFile.Empty with Path = existingFile }
       AudioPreviewStartTime = None
       PitchShift = None
       Arrangements = List.empty
