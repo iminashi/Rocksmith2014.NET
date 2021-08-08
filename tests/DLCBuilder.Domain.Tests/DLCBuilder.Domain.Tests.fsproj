@@ -11,6 +11,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="instrumental.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Compile Include="Common.fs" />
     <Compile Include="UtilsTests.fs" />
     <Compile Include="EditInstrumentalTests.fs" />
@@ -24,6 +27,8 @@
     <Compile Include="BuildValidatorTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
+
+  <ItemGroup />
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="3.1.0">

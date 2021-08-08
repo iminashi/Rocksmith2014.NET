@@ -6,6 +6,14 @@ open System
 open Rocksmith2014.DLCProject
 open Elmish
 open ToneCollection
+open DLCBuilder.OnlineUpdate
+
+let testUpdate =
+    { AvailableUpdate = AvailableUpdate.Major
+      UpdateVersion = Version(1, 0)
+      ReleaseDate = DateTimeOffset.Now
+      Changes = ""
+      AssetUrl = "" }
 
 let foldMessages state messages =
     messages
@@ -248,4 +256,97 @@ let messageTests =
             let newState, _ = Main.update (SetSelectedArrangementIndex 0) state
 
             Expect.equal newState.SelectedArrangementIndex 0 "Selected arrangement index was changed"
+
+        testCase "SetAvailableUpdate sets update and adds status message" <| fun _ ->
+            let newState, _ = Main.update (SetAvailableUpdate (Ok(Some testUpdate))) initialState
+
+            Expect.equal newState.AvailableUpdate (Some testUpdate) "Update was set"
+            Expect.hasLength newState.StatusMessages 1 "A status message was added"
+
+        testCase "ShowUpdateInformation opens overlay" <| fun _ ->
+            let state = { initialState with AvailableUpdate = Some testUpdate }
+
+            let newState, _ = Main.update ShowUpdateInformation state
+
+            Expect.equal newState.Overlay (UpdateInformationDialog testUpdate) "Overlay was opened"
+
+        testCase "ProjectSaved updates recent files and configuration" <| fun _ ->
+            let newState, _ = Main.update (ProjectSaved "target.file") initialState
+
+            Expect.equal newState.RecentFiles.Head "target.file" "Recent files list was updated"
+            Expect.equal newState.Config.PreviousOpenedProject "target.file" "Previously opened project was updated"
+
+        testCase "GenerateNewIds changes IDs of selected arrangement" <| fun _ ->
+            let project = { initialState.Project with Arrangements = [ Instrumental testLead; Vocals testVocals ] }
+            let state = { initialState with Project = project; SelectedArrangementIndex = 0 }
+            let oldPersistentId = testLead.PersistentID
+            let oldMasterId = testLead.MasterID
+
+            let newState, _ = Main.update GenerateNewIds state
+
+            Expect.notEqual (Arrangement.getPersistentId newState.Project.Arrangements.[0]) oldPersistentId "Persistent ID was changed"
+            Expect.notEqual (Arrangement.getMasterId newState.Project.Arrangements.[0]) oldMasterId "Master ID was changed"
+
+        testCase "GenerateAllIds changes all arrangement IDs" <| fun _ ->
+            let testLead2 = { testLead with PersistentID = Guid.NewGuid() }
+            let project = { initialState.Project with Arrangements = [ Instrumental testLead; Instrumental testLead2; Vocals testVocals ] }
+            let oldPersistentIds = project.Arrangements |> List.map Arrangement.getPersistentId |> Set.ofList
+            let oldMasterIds = project.Arrangements |> List.map Arrangement.getMasterId |> Set.ofList
+            let state = { initialState with Project = project }
+
+            let newState, _ = Main.update GenerateAllIds state
+
+            let newPersistentIds = newState.Project.Arrangements |> List.map Arrangement.getPersistentId |> Set.ofList
+            let newMasterIds = newState.Project.Arrangements |> List.map Arrangement.getMasterId |> Set.ofList
+            let intersect1 = Set.intersect oldPersistentIds newPersistentIds
+            let intersect2 = Set.intersect oldMasterIds newMasterIds
+
+            Expect.isEmpty intersect1 "All persistent IDs were changed"
+            // Could fail due to the master IDs being generated randomly
+            Expect.isEmpty intersect2 "All master IDs were changed"
+
+        testCase "ApplyLowTuningFix applies fix to selected arrangement" <| fun _ ->
+            let project = { initialState.Project with Arrangements = [ Instrumental testLead; Vocals testVocals ] }
+            let state = { initialState with Project = project; SelectedArrangementIndex = 0 }
+
+            let newState, _ = Main.update ApplyLowTuningFix state
+
+            match newState.Project.Arrangements.[0] with
+            | Instrumental inst ->
+                Expect.equal inst.Tuning [| 12s; 12s; 12s; 12s; 12s; 12s |] "An octave was added to the tuning"
+                Expect.equal inst.TuningPitch 220. "Tuning pitch was halved"
+            | _ ->
+                failwith "Wrong arrangement type"
+
+        testCase "ShowIssueViewer opens overlay" <| fun _ ->
+            let project = { initialState.Project with Arrangements = [ Instrumental testLead; Vocals testVocals ] }
+            let state = { initialState with Project = project; SelectedArrangementIndex = 0 }
+
+            let newState, _ = Main.update ShowIssueViewer state
+
+            Expect.equal newState.Overlay (IssueViewer state.Project.Arrangements.[0]) "Issue viewer overlay was opened"
+
+        testCase "RemoveStatusMessage removes correct status message" <| fun _ ->
+            let id = Guid.NewGuid()
+            let expectedMessage = "test message 2"
+            let messages = [ MessageString(id, "test message")
+                             MessageString(Guid.NewGuid(), expectedMessage) ]
+            let state = { initialState with StatusMessages = messages }
+
+            let newState, _ = Main.update (RemoveStatusMessage id) state
+
+            Expect.hasLength newState.StatusMessages 1 "A message was removed"
+            Expect.exists newState.StatusMessages (function MessageString(_, message) -> message = expectedMessage | _ -> false) "Correct message was removed"
+
+        testCase "AddArrangements adds a new arrangement to the project" <| fun _ ->
+            let newState, _ = Main.update (AddArrangements [| "instrumental.xml" |]) initialState
+
+            Expect.hasLength newState.Project.Arrangements 1 "One arrangement was added"
+            match newState.Project.Arrangements.[0] with
+            | Instrumental inst ->
+                Expect.equal inst.Priority ArrangementPriority.Main "Arrangement has correct priority"
+                Expect.equal inst.Name ArrangementName.Lead "Arrangement has correct name"
+                Expect.equal inst.RouteMask RouteMask.Lead "Arrangement has correct route mask"
+            | _ ->
+                failwith "Wrong arrangement type"
     ]

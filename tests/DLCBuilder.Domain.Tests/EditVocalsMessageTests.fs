@@ -1,4 +1,4 @@
-﻿module EditVocalsMessageTests
+module EditVocalsMessageTests
 
 open Expecto
 open DLCBuilder
@@ -21,6 +21,11 @@ let state = { initialState with Project = project; SelectedArrangementIndex = 0 
 [<Tests>]
 let editVocalsTests =
     testList "EditVocals Message Tests" [
+        testCase "EditVocals does nothing when no arrangement selected" <| fun _ ->
+            let newState, _ = Main.update (EditVocals (SetIsJapanese true)) initialState
+
+            Expect.equal newState initialState "State was not changed"
+
         testCase "SetIsJapanese, SetCustomFont" <| fun _ ->
             let messages = [ SetIsJapanese true
                              SetCustomFont (Some "font") ] |> List.map EditVocals

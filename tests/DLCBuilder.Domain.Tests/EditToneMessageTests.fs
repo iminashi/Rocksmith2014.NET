@@ -38,6 +38,11 @@ let repository = ToneGear.loadRepository() |> Async.RunSynchronously
 [<Tests>]
 let editToneTests =
     testList "EditTone Message Tests" [
+        testCase "EditTone does nothing when no tone selected" <| fun _ ->
+            let newState, _ = Main.update (EditTone (SetKey "ABCDEFG")) initialState
+
+            Expect.equal newState initialState "State was not changed"
+
         testCase "SetName, SetKey, SetVolume" <| fun _ ->
             let messages = [ SetName "Test Tone"
                              SetKey "Test_key"

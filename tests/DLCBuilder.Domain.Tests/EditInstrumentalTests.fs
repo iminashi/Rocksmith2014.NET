@@ -29,6 +29,11 @@ let state = { initialState with Project = project; SelectedArrangementIndex = 0 
 [<Tests>]
 let tests =
     testList "EditInstrumental Message Tests" [
+        testCase "EditInstrumental does nothing when no arrangement selected" <| fun _ ->
+            let newState, _ = Main.update (EditInstrumental (SetRouteMask RouteMask.Rhythm)) initialState
+
+            Expect.equal newState initialState "State was not changed"            
+
         testCase "SetRouteMask, SetPriority, SetBassPicked, SetScrollSpeed" <| fun _ ->
             let messages = [ SetRouteMask RouteMask.Bass
                              SetPriority ArrangementPriority.Bonus
