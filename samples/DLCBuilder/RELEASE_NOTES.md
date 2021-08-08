@@ -1,4 +1,4 @@
-## 0.5.0 (Released 2021-08-xx)
+## 0.5.0 (Released 2021-08-08)
 
 - The metadata for the tones in the user collection can now be edited (via context menu or E key).
 - The tone collection now shows what gear the selected tone uses.
