@@ -63,10 +63,10 @@ type MainWindow(commandLineArgs: string array) as this =
         let progressReportingSub _ =
             let sub dispatch =
                 let dispatchProgress task progress = TaskProgressChanged(task, progress) |> dispatch
-                Main.arrangementCheckProgress.ProgressChanged.Add(dispatchProgress ArrangementCheckAll)
-                Main.psarcImportProgress.ProgressChanged.Add(dispatchProgress PsarcImport)
-                Tools.psarcUnpackProgress.ProgressChanged.Add(dispatchProgress PsarcUnpack)
-                BuildConfig.packageBuildProgress.ProgressChanged.Add(dispatchProgress BuildPackage)
+                ProgressReporters.ArrangementCheck.ProgressChanged.Add(dispatchProgress ArrangementCheckAll)
+                ProgressReporters.PsarcImport.ProgressChanged.Add(dispatchProgress PsarcImport)
+                ProgressReporters.PsarcUnpack.ProgressChanged.Add(dispatchProgress PsarcUnpack)
+                ProgressReporters.PackageBuild.ProgressChanged.Add(dispatchProgress BuildPackage)
             Cmd.ofSub sub
 
         let idRegenerationConfirmationSub _ =

@@ -1,12 +1,10 @@
-﻿module DLCBuilder.BuildConfig
+module DLCBuilder.BuildConfig
 
 open System
 open Rocksmith2014.Audio
 open Rocksmith2014.DD
 open Rocksmith2014.DLCProject
 open Rocksmith2014.DLCProject.PackageBuilder
-
-let packageBuildProgress = Progress<float>()
 
 let [<Literal>] private CherubRock = "248750"
 
@@ -38,4 +36,4 @@ let create buildType config project platforms =
       SaveDebugFiles = config.SaveDebugFiles && buildType <> Release
       AudioConversionTask = convTask
       IdResetConfig = None
-      ProgressReporter = Some (packageBuildProgress :> IProgress<float>) }
+      ProgressReporter = Some (ProgressReporters.PackageBuild :> IProgress<float>) }

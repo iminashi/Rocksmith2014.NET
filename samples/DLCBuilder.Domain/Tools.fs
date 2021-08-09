@@ -8,8 +8,6 @@ open Rocksmith2014.XML
 open System
 open System.IO
 
-let psarcUnpackProgress = Progress<float>()
-
 module ToneInjector =
     open Newtonsoft.Json
     open Newtonsoft.Json.Linq
@@ -83,7 +81,7 @@ let update msg state =
 
         let task () = async {
             use psarc = PSARC.ReadFile file
-            do! psarc.ExtractFiles(targetDirectory, psarcUnpackProgress) }
+            do! psarc.ExtractFiles(targetDirectory, ProgressReporters.PsarcUnpack) }
 
         StateUtils.addTask PsarcUnpack state,
         Cmd.OfAsync.either task () (fun () -> PsarcUnpacked) (fun ex -> TaskFailed(ex, PsarcUnpack))

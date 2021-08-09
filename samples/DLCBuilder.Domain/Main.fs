@@ -13,9 +13,6 @@ open System.IO
 open EditFunctions
 open StateUtils
 
-let arrangementCheckProgress = Progress<float>()
-let psarcImportProgress = Progress<float>()
-
 let private showOverlay state overlay =
     match state.Overlay with
     | IdRegenerationConfirmation (_, reply) ->
@@ -205,7 +202,7 @@ let update (msg: Msg) (state: State) =
                 fun () ->
                     currentProgress <- currentProgress + 1.
                     currentProgress / maxProgress * 100.
-                >> (psarcImportProgress :> IProgress<float>).Report
+                >> (ProgressReporters.PsarcImport :> IProgress<float>).Report
 
             let! project, fileName = PsarcImporter.import progress psarcFile targetFolder
 
@@ -776,7 +773,7 @@ let update (msg: Msg) (state: State) =
 
     | CheckArrangements ->
         if canRunValidation state then
-            let task() = async { return Utils.checkArrangements project arrangementCheckProgress }
+            let task() = async { return Utils.checkArrangements project ProgressReporters.ArrangementCheck }
 
             addTask ArrangementCheckAll state,
             Cmd.OfAsync.either task () CheckAllCompleted (fun ex -> TaskFailed(ex, ArrangementCheckAll))
