@@ -155,7 +155,6 @@ let private arrangementPanel state dispatch =
                             Button.create [
                                 Grid.column 1
                                 Button.classes [ "icon-btn" ]
-                                Button.padding (4., 4., 10., 6.)
                                 Button.content (
                                     Path.create [
                                         Path.data Icons.plus
@@ -171,7 +170,6 @@ let private arrangementPanel state dispatch =
                             Button.create [
                                 Grid.column 2
                                 Button.classes [ "icon-btn" ]
-                                Button.padding (6., 4., 10., 6.)
                                 Button.content (
                                     Path.create [
                                         Path.data Icons.checkList
@@ -389,19 +387,25 @@ let private statusMessageContents dispatch = function
             ]
         ] |> generalize
 
+let private maximizeOrRestore (window: Window) =
+    if window.WindowState = WindowState.Maximized then
+        window.WindowState <- WindowState.Normal
+    else
+        window.WindowState <- WindowState.Maximized
+
 let view (window: Window) (state: State) dispatch =
     if state.RunningTasks.IsEmpty then
         window.Cursor <- Cursors.arrow
     else
         window.Cursor <- Cursors.wait
 
-    window.Title <-
+    let title, titleTooltip =
         match state.OpenProjectFile with
         | Some project ->
             let dot = if state.SavedProject <> state.Project then "*" else String.Empty
-            $"{dot}Rocksmith 2014 DLC Builder - {project}"
+            $"{dot}{state.Project.ArtistName.Value} - {state.Project.Title.Value}", project
         | None ->
-            "Rocksmith 2014 DLC Builder"
+            "Rocksmith 2014 DLC Builder", String.Empty
 
     Panel.create [
         Panel.background "#040404"
@@ -411,19 +415,99 @@ let view (window: Window) (state: State) dispatch =
                 DockPanel.isEnabled (state.Overlay = NoOverlay)
                 DockPanel.children [
                     // Main menu
-                    Menu.create [
+                    Panel.create [
                         DockPanel.dock Dock.Top
-                        Menu.background "#181818"
-                        Menu.viewItems [
-                            Menus.file state dispatch
+                        Panel.children [
+                            Rectangle.create [
+                                Rectangle.fill "#181818"
+                                Rectangle.horizontalAlignment HorizontalAlignment.Stretch
+                                Rectangle.verticalAlignment VerticalAlignment.Stretch
+                                Rectangle.onPointerPressed window.PlatformImpl.BeginMoveDrag
+                                Rectangle.onDoubleTapped (fun _ -> maximizeOrRestore window)
+                            ]
 
-                            Menus.project state dispatch
+                            DockPanel.create [
+                                DockPanel.children [
+                                    Menu.create [
+                                        DockPanel.dock Dock.Left
+                                        Menu.horizontalAlignment HorizontalAlignment.Left
+                                        Menu.background Brushes.Transparent
+                                        Menu.viewItems [
+                                            Menus.file state dispatch
 
-                            Menus.build state dispatch
+                                            Menus.project state dispatch
 
-                            Menus.tools state dispatch
+                                            Menus.build state dispatch
 
-                            Menus.help dispatch
+                                            Menus.tools state dispatch
+
+                                            Menus.help dispatch
+                                        ]
+                                    ]
+
+                                    // Close Window
+                                    Button.create [
+                                        Button.classes [ "icon-btn"; "exit-btn" ]
+                                        DockPanel.dock Dock.Right
+                                        KeyboardNavigation.isTabStop false
+                                        Button.onClick (fun _ -> window.Close())
+                                        Button.content (
+                                            Path.create [
+                                                Path.data Icons.xThin
+                                                Path.fill Brushes.GhostWhite
+                                            ])
+                                    ]
+
+                                    // Maximize / Restore
+                                    Button.create [
+                                        Button.classes [ "icon-btn" ]
+                                        DockPanel.dock Dock.Right
+                                        KeyboardNavigation.isTabStop false
+                                        Button.onClick (fun _ -> maximizeOrRestore window)
+                                        Button.content (
+                                            Path.create [
+                                                Path.data (if state.WindowMaximized then Icons.restore else Icons.maximize)
+                                                Path.fill Brushes.GhostWhite
+                                            ])
+                                    ]
+
+                                    // Minimize
+                                    Button.create [
+                                        Button.classes [ "icon-btn" ]
+                                        DockPanel.dock Dock.Right
+                                        KeyboardNavigation.isTabStop false
+                                        Button.onClick (fun _ -> window.WindowState <- WindowState.Minimized)
+                                        Button.content (
+                                            Path.create [
+                                                Path.data Icons.minimize
+                                                Path.fill Brushes.GhostWhite
+                                            ])
+                                    ]
+
+                                    // Configuration
+                                    Button.create [
+                                        Button.classes [ "icon-btn" ]
+                                        DockPanel.dock Dock.Right
+                                        KeyboardNavigation.isTabStop false
+                                        Button.onClick (fun _ -> ConfigEditor |> ShowOverlay |> dispatch)
+                                        Button.content (
+                                            Path.create [
+                                                Path.data Icons.cog
+                                                Path.fill Brushes.GhostWhite
+                                            ])
+                                    ]
+
+                                    // Title Text
+                                    TextBlock.create [
+                                        TextBlock.verticalAlignment VerticalAlignment.Center
+                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
+                                        TextBlock.text title
+                                        ToolTip.tip titleTooltip
+                                        TextBlock.onPointerPressed window.BeginMoveDrag
+                                        TextBlock.onDoubleTapped (fun _ -> maximizeOrRestore window)
+                                    ]
+                                ]
+                            ]
                         ]
                     ]
 

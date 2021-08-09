@@ -56,7 +56,8 @@ let initialState =
       AlbumArtLoadTime = None
       Localizer = stringLocalizerStub
       AlbumArtLoader = albumArtLoaderStub
-      DatabaseConnector = toneDatabaseStub }
+      DatabaseConnector = toneDatabaseStub
+      WindowMaximized = false }
 
 let testTone =
     let gear =

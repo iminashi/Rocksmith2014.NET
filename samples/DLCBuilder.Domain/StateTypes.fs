@@ -252,6 +252,7 @@ type Msg =
     | ChangeLocale of locale : Locale
     | ErrorOccurred of e : exn
     | TaskFailed of e : exn * failedTask : LongTask
+    | SetWindowMaximized of bool
     | ToolsMsg of ToolsMsg
     | ToneCollectionMsg of ToneCollection.Msg
     | ShowDialog of Dialog
@@ -282,4 +283,5 @@ type State =
       AlbumArtLoadTime : DateTime option
       Localizer : IStringLocalizer
       AlbumArtLoader : IBitmapLoader
-      DatabaseConnector : ToneCollection.IDatabaseConnector }
+      DatabaseConnector : ToneCollection.IDatabaseConnector
+      WindowMaximized : bool }

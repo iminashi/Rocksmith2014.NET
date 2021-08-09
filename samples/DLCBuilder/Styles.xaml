@@ -46,9 +46,10 @@
   </Style>
   <Style Selector="Button.icon-btn">
     <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Padding" Value="6, 3, 10, 6"/>
   </Style>
-  <Style Selector="Button.icon-btn:pointerover">
-    <Setter Property="Background" Value="#383838"/>
+  <Style Selector="Button.exit-btn:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="DarkRed"/>
   </Style>
   <Style Selector="Button.icon-btn:disabled">
     <Setter Property="Opacity" Value="0.5"/>

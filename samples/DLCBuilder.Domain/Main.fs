@@ -72,6 +72,9 @@ let update (msg: Msg) (state: State) =
     let translatef = state.Localizer.TranslateFormat
 
     match msg with
+    | SetWindowMaximized isMax ->
+        { state with WindowMaximized = isMax }, Cmd.none
+
     | ConfirmIdRegeneration (ids, reply) ->
         let arrangements =
             project.Arrangements

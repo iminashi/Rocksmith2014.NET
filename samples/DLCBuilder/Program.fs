@@ -40,13 +40,23 @@ type MainWindow(commandLineArgs: string array) as this =
         base.Title <- "Rocksmith 2014 DLC Builder"
         //base.TransparencyLevelHint <- WindowTransparencyLevel.AcrylicBlur
         //base.Background <- Brushes.Transparent
-        //base.ExtendClientAreaToDecorationsHint <- true
-        //base.ExtendClientAreaChromeHints <- ExtendClientAreaChromeHints.PreferSystemChrome
-        //base.ExtendClientAreaTitleBarHeightHint <- -1.0
+        base.ExtendClientAreaToDecorationsHint <- true
+        //base.ExtendClientAreaChromeHints <- ExtendClientAreaChromeHints.NoChrome
+        base.ExtendClientAreaTitleBarHeightHint <- 0.0
         base.Width <- 1150.0
         //base.Height <- 850.0
         base.MinWidth <- 970.0
-        base.MinHeight <- 700.0
+        base.MinHeight <- 670.0
+
+        let windowStateSub _ =
+            let sub dispatch = this.GetObservable(Window.WindowStateProperty).Add(fun state ->
+                if state = WindowState.Maximized then
+                    this.Padding <- Thickness(8.)
+                    SetWindowMaximized true |> dispatch
+                else
+                    this.Padding <- Thickness(0.)
+                    SetWindowMaximized false |> dispatch)
+            Cmd.ofSub sub
 
         let hotKeysSub _initialModel = Cmd.ofSub (HotKeys.handleEvent >> this.KeyDown.Add)
 
@@ -132,6 +142,7 @@ type MainWindow(commandLineArgs: string array) as this =
         |> Program.withSubscription autoSaveSub
         |> Program.withSubscription idRegenerationConfirmationSub
         |> Program.withSubscription programClosingSub
+        |> Program.withSubscription windowStateSub
         #if DEBUG
         |> Program.withTrace (fun msg _state -> Diagnostics.Debug.WriteLine msg)
         #endif
