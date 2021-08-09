@@ -28,3 +28,7 @@ module ExperimentalAcrylicBorder =
 type ExperimentalAcrylicBorder with
     static member material<'t when 't :> ExperimentalAcrylicBorder>(value: ExperimentalAcrylicMaterial) : IAttr<'t> =
         AttrBuilder<'t>.CreateProperty<ExperimentalAcrylicMaterial>(ExperimentalAcrylicBorder.MaterialProperty, value, ValueNone)
+
+type KeyboardNavigation with
+    static member isTabStop<'t>(value: bool) : IAttr<'t> =
+        AttrBuilder<'t>.CreateProperty<bool>(KeyboardNavigation.IsTabStopProperty, value, ValueNone)
