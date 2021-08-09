@@ -67,7 +67,7 @@ let private arrangementDetails state dispatch =
                         let xmlFile = Arrangement.getFile arr
 
                         Panel.create [
-                            Panel.margin (0., 2., 0., 0.)
+                            Panel.margin (0., 4., 0., 0.)
                             Panel.children [
                                 StackPanel.create [
                                     StackPanel.orientation Orientation.Horizontal
@@ -407,12 +407,30 @@ let view (window: Window) (state: State) dispatch =
         | None ->
             "Rocksmith 2014 DLC Builder", String.Empty
 
+    let noOverlayIsOpen = (state.Overlay = NoOverlay)
+
     Panel.create [
         Panel.background "#040404"
+        DragDrop.allowDrop noOverlayIsOpen
+        DragDrop.onDragEnter (fun e ->
+            e.DragEffects <-
+                if e.Data.Contains(DataFormats.FileNames) then
+                    DragDropEffects.Copy
+                else
+                    DragDropEffects.None)
+
+        DragDrop.onDrop (fun e ->
+            e.Data.GetFileNames()
+            |> Seq.tryHead
+            |> Option.filter (String.endsWith ".rs2dlc")
+            |> Option.iter (fun path ->
+                e.Handled <- true
+                path |> OpenProject |> dispatch))
+
         Panel.children [
             DockPanel.create [
                 // Prevent tab navigation when an overlay is open
-                DockPanel.isEnabled (state.Overlay = NoOverlay)
+                DockPanel.isEnabled noOverlayIsOpen
                 DockPanel.children [
                     // Main menu
                     Panel.create [

@@ -172,7 +172,7 @@ type App() =
             ()
 
 module Program =
-    [<EntryPoint>]
+    [<EntryPoint; STAThread>]
     let main(args: string[]) =
         // Set up logging for unhandled exceptions
         AppDomain.CurrentDomain.UnhandledException.Add <| fun args ->
