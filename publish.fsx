@@ -88,6 +88,7 @@ let createZipArchive platform =
             publishDir, "DLC Builder.app"
 
     if RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then
+        let dirToZip = publishDir </> dirToZip
         !! $"{dirToZip}/**" |> Zip.zip workingDir targetFile
     else
         // Using FAKE's zip loses the executable permissions
