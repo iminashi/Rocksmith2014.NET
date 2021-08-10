@@ -47,6 +47,35 @@ let private arrangementList state dispatch =
         )
     ]
 
+let private validationIcon dispatch noIssues =
+    StackPanel.create [
+        StackPanel.margin (12., 0.)
+        StackPanel.horizontalAlignment HorizontalAlignment.Left
+        StackPanel.orientation Orientation.Horizontal
+        StackPanel.background Brushes.Transparent
+        if not noIssues then
+            StackPanel.onTapped (fun _ -> dispatch ShowIssueViewer)
+            StackPanel.onKeyDown (fun args ->
+                if args.Key = Key.Space then
+                    args.Handled <- true
+                    dispatch ShowIssueViewer)
+            StackPanel.cursor Cursors.hand
+            StackPanel.focusable true
+        StackPanel.children [
+            Path.create [
+                Path.fill (if noIssues then Brushes.Green else Brushes.Red)
+                Path.data (if noIssues then Icons.check else Icons.x)
+                Path.verticalAlignment VerticalAlignment.Center
+                Path.margin (0., 0., 6., 0.)
+            ]
+
+            TextBlock.create[
+                TextBlock.text <| translate (if noIssues then "OK" else "Issues")
+                TextBlock.verticalAlignment VerticalAlignment.Center
+            ]
+        ]
+    ]
+
 let private arrangementDetails state dispatch =
     ScrollViewer.create [
         Grid.column 1
@@ -94,33 +123,7 @@ let private arrangementDetails state dispatch =
                                 // Validation Icon
                                 if state.ArrangementIssues.ContainsKey xmlFile then
                                     let noIssues = state.ArrangementIssues.[xmlFile].IsEmpty
-                                    StackPanel.create [
-                                        StackPanel.margin (12., 0.)
-                                        StackPanel.horizontalAlignment HorizontalAlignment.Left
-                                        StackPanel.orientation Orientation.Horizontal
-                                        StackPanel.background Brushes.Transparent
-                                        if not noIssues then
-                                            StackPanel.onTapped (fun _ -> dispatch ShowIssueViewer)
-                                            StackPanel.onKeyDown (fun args ->
-                                                if args.Key = Key.Space then
-                                                    args.Handled <- true
-                                                    dispatch ShowIssueViewer)
-                                            StackPanel.cursor Cursors.hand
-                                            StackPanel.focusable true
-                                        StackPanel.children [
-                                            Path.create [
-                                                Path.fill (if noIssues then Brushes.Green else Brushes.Red)
-                                                Path.data (if noIssues then Icons.check else Icons.x)
-                                                Path.verticalAlignment VerticalAlignment.Center
-                                                Path.margin (0., 0., 6., 0.)
-                                            ]
-
-                                            TextBlock.create[
-                                                TextBlock.text <| translate (if noIssues then "OK" else "Issues")
-                                                TextBlock.verticalAlignment VerticalAlignment.Center
-                                            ]
-                                        ]
-                                    ]
+                                    validationIcon dispatch noIssues
                             ]
                         ]
 
@@ -458,6 +461,7 @@ let view (btns: TitleBarButtons) (window: Window) (state: State) dispatch =
                                         ]
                                     ]
 
+                                    // Custom minimize, maximize & close buttons
                                     Border.create [
                                         DockPanel.dock Dock.Right
                                         Border.child btns
