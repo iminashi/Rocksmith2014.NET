@@ -1,10 +1,11 @@
-﻿namespace DLCBuilder
+namespace DLCBuilder
 
 open Avalonia.Controls
 open Avalonia.Styling
 open Avalonia.FuncUI.Types
 open Avalonia.FuncUI.Builder
 
+[<Sealed>]
 type AutoFocusTextBox() =
     inherit TextBox()
     interface IStyleable with member _.StyleKey = typeof<TextBox>

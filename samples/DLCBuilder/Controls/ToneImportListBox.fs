@@ -8,6 +8,7 @@ open Avalonia.FuncUI.Types
 open Avalonia.Styling
 open Rocksmith2014.Common.Manifest
 
+[<Sealed>]
 type ToneImportListBox() as this =
     inherit ListBox()
 
@@ -25,13 +26,13 @@ type ToneImportListBox() as this =
             selectedTones.SelectionChanged
                 .Add (fun _ -> selectedTones.SelectedItems |> Seq.toList |> selectionChangedCallback)
 
-    static member onSelectedTonesChanged<'t when 't :> ToneImportListBox> fn =
-        let getter : 't -> (Tone list -> unit) = fun c -> c.OnSelectedItemsChangedCallback
-        let setter : ('t * (Tone list -> unit)) -> unit = fun (c, f) -> c.OnSelectedItemsChangedCallback <- f
+    static member onSelectedTonesChanged fn =
+        let getter (c: ToneImportListBox) = c.OnSelectedItemsChangedCallback
+        let setter : (ToneImportListBox * (Tone list -> unit)) -> unit = fun (c, f) -> c.OnSelectedItemsChangedCallback <- f
         // Keep the same callback once set
         let comparer _ = true
 
-        AttrBuilder<'t>.CreateProperty<Tone list -> unit>("OnSelectedTonesChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
+        AttrBuilder<ToneImportListBox>.CreateProperty<Tone list -> unit>("OnSelectedTonesChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
 
 [<AutoOpen>]
 module ToneImportListBox =

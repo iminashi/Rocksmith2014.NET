@@ -10,6 +10,7 @@ open Avalonia.Layout
 open Avalonia.Media
 open System
 
+[<Sealed>]
 type AutoFocusSearchBox() =
     inherit UserControl()
 
@@ -53,14 +54,14 @@ module AutoFocusSearchBox =
         ViewBuilder.Create<AutoFocusSearchBox>(attrs)
 
 type AutoFocusSearchBox with
-    static member text<'t when 't :> AutoFocusSearchBox>(text: string) =
-        let getter : 't -> string = (fun c -> c.TextBox.Text)
-        let setter : 't * string -> unit = (fun (c, v) -> c.TextBox.Text <- v)
+    static member text(text: string) =
+        let getter (c: AutoFocusSearchBox) = c.TextBox.Text
+        let setter : AutoFocusSearchBox * string -> unit = (fun (c, v) -> c.TextBox.Text <- v)
 
-        AttrBuilder<'t>.CreateProperty<string>("Text", text, ValueSome getter, ValueSome setter, ValueNone)
+        AttrBuilder<AutoFocusSearchBox>.CreateProperty<string>("Text", text, ValueSome getter, ValueSome setter, ValueNone)
 
-    static member onTextChanged<'t when 't :> AutoFocusSearchBox>(func: string -> unit) =
-        let getter : 't -> (string -> unit) = (fun c -> c.TextChanged)
-        let setter : 't * (string -> unit) -> unit = (fun (c, v) -> c.TextChanged <- v)
+    static member onTextChanged(func: string -> unit) =
+        let getter (c: AutoFocusSearchBox) = c.TextChanged
+        let setter : AutoFocusSearchBox * (string -> unit) -> unit = (fun (c, v) -> c.TextChanged <- v)
 
-        AttrBuilder<'t>.CreateProperty<string -> unit>("TextChanged", func, ValueSome getter, ValueSome setter, ValueNone)
+        AttrBuilder<AutoFocusSearchBox>.CreateProperty<string -> unit>("TextChanged", func, ValueSome getter, ValueSome setter, ValueNone)

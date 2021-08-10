@@ -22,6 +22,7 @@ module private Default =
           DefaultValue = 50f
           EnumValues = None }
 
+[<Sealed>]
 type ToneKnobSlider() as this =
     inherit Slider()
     let mutable gearKnob = Default.Knob
@@ -60,32 +61,32 @@ type ToneKnobSlider() as this =
         if notNull sub then sub.Dispose()
         base.OnDetachedFromLogicalTree(e)
 
-    static member onKnobValueChanged<'t when 't :> ToneKnobSlider> fn =
-        let getter : 't -> (string * float32 -> unit) = fun c -> c.OnValueChangedCallback
-        let setter : ('t * (string * float32 -> unit)) -> unit = fun (c, f) -> c.OnValueChangedCallback <- f
+    static member onKnobValueChanged fn =
+        let getter (c: ToneKnobSlider) = c.OnValueChangedCallback
+        let setter : (ToneKnobSlider * (string * float32 -> unit)) -> unit = fun (c, f) -> c.OnValueChangedCallback <- f
         // Keep the same callback once set
         let comparer _ = true
 
-        AttrBuilder<'t>.CreateProperty<string * float32 -> unit>("OnKnobValueChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
+        AttrBuilder<ToneKnobSlider>.CreateProperty<string * float32 -> unit>("OnKnobValueChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
 
-    static member knob<'t when 't :> ToneKnobSlider>(knob: GearKnob) =
-        let getter : 't -> GearKnob = (fun c -> c.Knob)
-        let setter : 't * GearKnob -> unit = (fun (c, v) ->
+    static member knob(knob: GearKnob) =
+        let getter (c: ToneKnobSlider) = c.Knob
+        let setter : ToneKnobSlider * GearKnob -> unit = fun (c, v) ->
             c.NoNotify <- true
             c.Knob <- v
-            c.NoNotify <- false)
+            c.NoNotify <- false
 
-        AttrBuilder<'t>.CreateProperty<GearKnob>("Knob", knob, ValueSome getter, ValueSome setter, ValueNone)
+        AttrBuilder<ToneKnobSlider>.CreateProperty<GearKnob>("Knob", knob, ValueSome getter, ValueSome setter, ValueNone)
 
-    static member value<'t when 't :> ToneKnobSlider>(value: double) =
-        let getter : 't -> double = fun c -> c.Value
-        let setter : 't * double -> unit = fun (c, v) ->
+    static member value(value: double) =
+        let getter (c: ToneKnobSlider) = c.Value
+        let setter : ToneKnobSlider * double -> unit = fun (c, v) ->
             // Ignore notifications originating from code
             c.NoNotify <- true
             c.Value <- v
             c.NoNotify <- false
 
-        AttrBuilder<'t>.CreateProperty<double>("Value", value, ValueSome getter, ValueSome setter, ValueNone)
+        AttrBuilder<ToneKnobSlider>.CreateProperty<double>("Value", value, ValueSome getter, ValueSome setter, ValueNone)
 
 [<AutoOpen>]
 module ToneKnobSlider =
