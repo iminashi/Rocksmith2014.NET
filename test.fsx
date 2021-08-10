@@ -6,5 +6,7 @@
 open Fake.IO.Globbing.Operators
 open Fake.DotNet
 
+DotNet.build id "samples/DLCBuilder/DLCBuilder.fsproj"
+
 !! "tests/**/*.fsproj"
-|> Seq.iter (DotNet.test id)
+|> Seq.iter (DotNet.test (fun o -> { o with NoBuild = true }))
