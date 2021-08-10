@@ -10,8 +10,7 @@ open Avalonia.Media
 open Rocksmith2014.Common
 open Media
 
-let private createIcon data =
-    Path(Data = data, Fill = Brushes.GhostWhite)
+let private createIcon data = Path(Data = data, Fill = Brushes.GhostWhite)
 
 let private baseButton onClick =
     Button()
@@ -49,4 +48,4 @@ type TitleBarButtons(window: Window) =
             path.Bind(Path.DataProperty, icon) |> ignore
             button.Content <- path)
 
-    do base.Content <- stack [ minimize; maximize; close]
+    do base.Content <- stack [ minimize; maximize; close ]

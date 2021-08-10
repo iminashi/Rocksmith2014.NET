@@ -393,7 +393,7 @@ let view (btns: TitleBarButtons) (window: Window) (state: State) dispatch =
     else
         window.Cursor <- Cursors.wait
 
-    let title, titleTooltip =
+    let title, titleToolTip =
         match state.OpenProjectFile with
         | Some project ->
             let dot = if state.SavedProject <> state.Project then "*" else String.Empty
@@ -481,9 +481,10 @@ let view (btns: TitleBarButtons) (window: Window) (state: State) dispatch =
                                         TextBlock.verticalAlignment VerticalAlignment.Center
                                         TextBlock.horizontalAlignment HorizontalAlignment.Center
                                         TextBlock.text title
-                                        ToolTip.tip titleTooltip
                                         TextBlock.onPointerPressed window.BeginMoveDrag
                                         TextBlock.onDoubleTapped (fun _ -> maximizeOrRestore window)
+                                        if String.notEmpty titleToolTip then
+                                            ToolTip.tip titleToolTip
                                     ]
                                 ]
                             ]
