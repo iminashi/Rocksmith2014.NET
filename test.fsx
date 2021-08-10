@@ -14,3 +14,6 @@ let setOptions (o: DotNet.TestOptions) =
 
 !! "tests/**/*.fsproj"
 |> Seq.iter (DotNet.test setOptions)
+
+!! "tests/**/*.csproj"
+|> Seq.iter (DotNet.test setOptions)
