@@ -51,5 +51,4 @@ let init localizer albumArtLoader databaseConnector args =
       AlbumArtLoadTime = None
       Localizer = localizer
       AlbumArtLoader = albumArtLoader
-      DatabaseConnector = databaseConnector
-      WindowMaximized = false }, commands
+      DatabaseConnector = databaseConnector }, commands

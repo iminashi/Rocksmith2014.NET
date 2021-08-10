@@ -48,15 +48,12 @@ type MainWindow(commandLineArgs: string array) as this =
         base.MinWidth <- 970.0
         base.MinHeight <- 670.0
 
-        let windowStateSub _ =
-            let sub dispatch = this.GetObservable(Window.WindowStateProperty).Add(fun state ->
+        this.GetObservable(Window.WindowStateProperty)
+            .Add(fun state ->
                 if state = WindowState.Maximized then
                     this.Padding <- Thickness(8.)
-                    SetWindowMaximized true |> dispatch
                 else
-                    this.Padding <- Thickness(0.)
-                    SetWindowMaximized false |> dispatch)
-            Cmd.ofSub sub
+                    this.Padding <- Thickness(0.))
 
         let hotKeysSub _initialModel = Cmd.ofSub (HotKeys.handleEvent >> this.KeyDown.Add)
 
@@ -88,7 +85,7 @@ type MainWindow(commandLineArgs: string array) as this =
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
         //this.VisualRoot.VisualRoot.Renderer.DrawDirtyRects <- true
 
-        let view' = Views.Main.view this
+        let view' = Views.Main.view (TitleBarButtons(this)) this
 
         // Add an exception handler to the update function
         let update' msg state =
@@ -142,7 +139,6 @@ type MainWindow(commandLineArgs: string array) as this =
         |> Program.withSubscription autoSaveSub
         |> Program.withSubscription idRegenerationConfirmationSub
         |> Program.withSubscription programClosingSub
-        |> Program.withSubscription windowStateSub
         #if DEBUG
         |> Program.withTrace (fun msg _state -> Diagnostics.Debug.WriteLine msg)
         #endif

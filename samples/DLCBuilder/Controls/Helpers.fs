@@ -1,4 +1,4 @@
-﻿[<AutoOpen>]
+[<AutoOpen>]
 module Helpers
 
 open Avalonia.FuncUI.DSL
@@ -23,3 +23,9 @@ let locText key attr =
         yield! attr
         TextBlock.text (translate key)
     ]
+
+let maximizeOrRestore (window: Window) =
+    if window.WindowState = WindowState.Maximized then
+        window.WindowState <- WindowState.Normal
+    else
+        window.WindowState <- WindowState.Maximized

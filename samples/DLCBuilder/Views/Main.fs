@@ -387,13 +387,7 @@ let private statusMessageContents dispatch = function
             ]
         ] |> generalize
 
-let private maximizeOrRestore (window: Window) =
-    if window.WindowState = WindowState.Maximized then
-        window.WindowState <- WindowState.Normal
-    else
-        window.WindowState <- WindowState.Maximized
-
-let view (window: Window) (state: State) dispatch =
+let view (btns: TitleBarButtons) (window: Window) (state: State) dispatch =
     if state.RunningTasks.IsEmpty then
         window.Cursor <- Cursors.arrow
     else
@@ -432,7 +426,7 @@ let view (window: Window) (state: State) dispatch =
                 // Prevent tab navigation when an overlay is open
                 DockPanel.isEnabled noOverlayIsOpen
                 DockPanel.children [
-                    // Main menu
+                    // Custom title bar
                     Panel.create [
                         DockPanel.dock Dock.Top
                         Panel.children [
@@ -446,6 +440,7 @@ let view (window: Window) (state: State) dispatch =
 
                             DockPanel.create [
                                 DockPanel.children [
+                                    // Main menu
                                     Menu.create [
                                         DockPanel.dock Dock.Left
                                         Menu.horizontalAlignment HorizontalAlignment.Left
@@ -463,46 +458,12 @@ let view (window: Window) (state: State) dispatch =
                                         ]
                                     ]
 
-                                    // Close Window
-                                    Button.create [
-                                        Button.classes [ "icon-btn"; "exit-btn" ]
+                                    Border.create [
                                         DockPanel.dock Dock.Right
-                                        KeyboardNavigation.isTabStop false
-                                        Button.onClick (fun _ -> window.Close())
-                                        Button.content (
-                                            Path.create [
-                                                Path.data Icons.xThin
-                                                Path.fill Brushes.GhostWhite
-                                            ])
+                                        Border.child btns
                                     ]
 
-                                    // Maximize / Restore
-                                    Button.create [
-                                        Button.classes [ "icon-btn" ]
-                                        DockPanel.dock Dock.Right
-                                        KeyboardNavigation.isTabStop false
-                                        Button.onClick (fun _ -> maximizeOrRestore window)
-                                        Button.content (
-                                            Path.create [
-                                                Path.data (if state.WindowMaximized then Icons.restore else Icons.maximize)
-                                                Path.fill Brushes.GhostWhite
-                                            ])
-                                    ]
-
-                                    // Minimize
-                                    Button.create [
-                                        Button.classes [ "icon-btn" ]
-                                        DockPanel.dock Dock.Right
-                                        KeyboardNavigation.isTabStop false
-                                        Button.onClick (fun _ -> window.WindowState <- WindowState.Minimized)
-                                        Button.content (
-                                            Path.create [
-                                                Path.data Icons.minimize
-                                                Path.fill Brushes.GhostWhite
-                                            ])
-                                    ]
-
-                                    // Configuration
+                                    // Configuration shortcut button
                                     Button.create [
                                         Button.classes [ "icon-btn" ]
                                         DockPanel.dock Dock.Right
