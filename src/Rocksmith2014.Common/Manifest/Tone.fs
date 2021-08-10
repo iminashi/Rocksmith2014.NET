@@ -154,8 +154,7 @@ module Tone =
            -Valleri: "-19 .250"
            Some CDLC use ',' as decimal separator *)
         let volFiltered = Regex.Replace(vol.Replace(',', '.'), "[^0-9.-]", "")
-        let volume = Double.Parse(volFiltered, NumberStyles.Float, NumberFormatInfo.InvariantInfo)
-        Math.Round(volume, 1, MidpointRounding.AwayFromZero)
+        Math.Round(float volFiltered, 1, MidpointRounding.AwayFromZero)
 
     let private volumeToString (vol: float) = vol.ToString("0.000", NumberFormatInfo.InvariantInfo)
 
@@ -299,6 +298,8 @@ module Tone =
         let! text = File.ReadAllTextAsync path
         let sb = StringBuilder(text)
 
+        let nl = Environment.NewLine
+
         // The class name is Tone2014
         sb.Replace("ToneDto", "Tone2014")
           // F# incompatibility stuff
@@ -306,9 +307,9 @@ module Tone =
           // Sort order is not nullable
           .Replace("""<SortOrder i:nil="true" />""", "<SortOrder>0.0</SortOrder>")
           // Toolkit does not have MacVolume
-          .Replace("  <MacVolume i:nil=\"true\" />\r\n", "")
+          .Replace($"  <MacVolume i:nil=\"true\" />{nl}", "")
           // Tone key/name import does not seem to work otherwise
-          .Replace($"<NameSeparator>{tone.NameSeparator}</NameSeparator>\r\n  <Name>{tone.Name}</Name>", $"<Name>{tone.Name}</Name>\r\n  <NameSeparator>{tone.NameSeparator}</NameSeparator>")
+          .Replace($"<NameSeparator>{tone.NameSeparator}</NameSeparator>{nl}  <Name>{tone.Name}</Name>", $"<Name>{tone.Name}</Name>{nl}  <NameSeparator>{tone.NameSeparator}</NameSeparator>")
           // Change the namespace
           .Replace("http://schemas.datacontract.org/2004/07/Rocksmith2014.Common.Manifest", "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.Manifest.Tone")
           |> ignore
