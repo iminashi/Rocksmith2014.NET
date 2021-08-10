@@ -1,6 +1,7 @@
-﻿module PackageBuildingTests
+module PackageBuildingTests
 
 open Expecto
+open System
 open System.IO
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
@@ -23,9 +24,20 @@ let buildConfig =
       IdResetConfig = None
       ProgressReporter = None }
 
-let [<Literal>] BuildDir = "./project/build"
-let psarcPathWin = $"{BuildDir}/test_v1_p.psarc"
-let psarcPathMac = $"{BuildDir}/test_v1_m.psarc"
+let projectPath =
+    Path.Combine(AppContext.BaseDirectory, "project", "Integration_Test.rs2dlc")
+
+let buildDir =
+    Path.Combine(AppContext.BaseDirectory, "build")
+
+let psarcPath =
+    Path.Combine(buildDir, "test_v1")
+
+let psarcPathWin =
+    Path.Combine(buildDir, "test_v1_p.psarc")
+
+let psarcPathMac =
+    Path.Combine(buildDir, "test_v1_m.psarc")
 
 let fileSelector pathPart extension filename =
     String.contains pathPart filename && String.endsWith extension filename
@@ -49,11 +61,11 @@ let testCommonContents contents =
 let tests =
     testSequenced <| testList "Package Building Tests" [
         testAsync "Packages can be built for PC and Mac platforms" {
-            if Directory.Exists BuildDir then Directory.Delete(BuildDir, true)
-            Directory.CreateDirectory(BuildDir) |> ignore
+            if Directory.Exists buildDir then Directory.Delete(buildDir, true)
+            Directory.CreateDirectory(buildDir) |> ignore
 
-            let! project = DLCProject.load "./project/Integration_test.rs2dlc"
-            do! buildPackages $"{BuildDir}/test_v1" buildConfig project
+            let! project = DLCProject.load projectPath
+            do! buildPackages psarcPath buildConfig project
 
             Expect.isTrue (File.Exists psarcPathWin) "PC package was built"
             Expect.isTrue (File.Exists psarcPathMac) "Mac package was built" }
