@@ -3,10 +3,14 @@
 // Fix: Unsupported log file format. Latest supported version is 9, the log file has version 13.
 #r "nuget: MSBuild.StructuredLogger"
 
-open Fake.IO.Globbing.Operators
 open Fake.DotNet
+open Fake.IO.Globbing.Operators
 
-DotNet.build id "samples/DLCBuilder/DLCBuilder.fsproj"
+DotNet.restore id "Rocksmith2014.sln"
+
+let setOptions (o: DotNet.TestOptions) =
+    { o with NoRestore = true
+             Configuration = DotNet.BuildConfiguration.Release }
 
 !! "tests/**/*.fsproj"
-|> Seq.iter (DotNet.test (fun o -> { o with NoBuild = true }))
+|> Seq.iter (DotNet.test setOptions)
