@@ -1,8 +1,9 @@
-﻿module WwiseTests
+module WwiseTests
 
 open Expecto
 open Rocksmith2014.Audio
 open System.IO
+open System
 
 let testConversion testFile = async {
     let wemPath = Path.ChangeExtension(testFile, "wem")
@@ -17,6 +18,8 @@ let testConversion testFile = async {
 [<Tests>]
 let wwiseTests =
     testList "Wwise Conversion Tests" [
-        testAsync "Wave file can be converted" { do! testConversion TestFiles.WaveFile }
-        testAsync "Vorbis file can be converted" { do! testConversion TestFiles.VorbisFile }
+        // Skip these tests if running in CI
+        if Environment.GetEnvironmentVariable("CI") <> "true" && not (OperatingSystem.IsLinux()) then
+            testAsync "Wave file can be converted" { do! testConversion TestFiles.WaveFile }
+            testAsync "Vorbis file can be converted" { do! testConversion TestFiles.VorbisFile }
     ]

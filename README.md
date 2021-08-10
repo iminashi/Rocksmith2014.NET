@@ -1,5 +1,7 @@
 # Libraries for Rocksmith 2014 CDLC
 
+![Tests (Linux)](https://github.com/iminashi/Rocksmith2014.NET/actions/workflows/test.yml/badge.svg)
+
 .NET libraries for Rocksmith 2014 custom DLC creation. Based largely on the [Song Creator Toolkit for Rocksmith](https://github.com/rscustom/rocksmith-custom-song-toolkit).
 
 ## Samples
