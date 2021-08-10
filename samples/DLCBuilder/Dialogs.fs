@@ -1,14 +1,13 @@
 module DLCBuilder.Dialogs
 
-open System
-open System.Collections.Generic
-open System.IO
-open Avalonia
 open Avalonia.Controls
 open Avalonia.Threading
 open Elmish
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
+open System
+open System.Collections.Generic
+open System.IO
 
 [<RequireQualifiedAccess>]
 type FileFilter =
@@ -25,9 +24,6 @@ type FileFilter =
     | ToneImport
     | ToneExport
     | WwiseConsoleApplication
-
-let private window =
-    lazy (Application.Current.ApplicationLifetime :?> ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime).MainWindow
 
 let private createFilters name (extensions: string seq) =
     let filter = FileDialogFilter(Extensions = List(extensions), Name = name)
@@ -75,24 +71,24 @@ let private createFileFilters filter =
     createFilters name extensions
 
 /// Shows an open folder dialog.
-let private openFolderDialog title directory msg = async {
+let private openFolderDialog window title directory msg = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string>(fun () ->
             OpenFolderDialog(Title = title, Directory = Option.toObj directory)
-                .ShowAsync window.Value)
+                .ShowAsync window)
 
     return Option.ofString result
            |> Option.map msg }
 
 /// Shows a save file dialog.
-let private saveFileDialog title filter initialFileName directory msg = async {
+let private saveFileDialog window title filter initialFileName directory msg = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string>(fun () ->
             SaveFileDialog(Title = title,
                            Filters = createFileFilters filter,
                            InitialFileName = Option.toObj initialFileName,
                            Directory = Option.toObj directory)
-                .ShowAsync window.Value)
+                .ShowAsync window)
 
     return Option.ofString result
            |> Option.map msg }
@@ -101,20 +97,20 @@ let private createOpenFileDialog t f d m =
     OpenFileDialog(Title = t, Filters = createFileFilters f, Directory = Option.toObj d, AllowMultiple = m)
 
 /// Shows an open file dialog for selecting a single file.
-let private openFileDialog title filter directory msg = async {
+let private openFileDialog window title filter directory msg = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string[]>(fun () ->
-            (createOpenFileDialog title filter directory false).ShowAsync window.Value)
+            (createOpenFileDialog title filter directory false).ShowAsync window)
 
     return Option.ofObj result
            |> Option.bind Array.tryExactlyOne
            |> Option.map msg }
 
 /// Shows an open file dialog that allows selecting multiple files.
-let private openMultiFileDialog title filters directory msg = async {
+let private openMultiFileDialog window title filters directory msg = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string[]>(fun () ->
-            (createOpenFileDialog title filters directory true).ShowAsync window.Value)
+            (createOpenFileDialog title filters directory true).ShowAsync window)
 
     return
         Option.ofArray result
@@ -135,8 +131,13 @@ let private getProjectDirectory state =
     state.OpenProjectFile |> Option.map Path.GetDirectoryName
 
 /// Shows the given dialog type.
-let showDialog dialogType state =
+let showDialog window dialogType state =
     let title = translateTitle dialogType
+
+    let openMultiFileDialog = openMultiFileDialog window
+    let openFileDialog = openFileDialog window
+    let openFolderDialog = openFolderDialog window
+    let saveFileDialog = saveFileDialog window
 
     // No initial directory
     let ofd filter msg = openFileDialog title filter None msg

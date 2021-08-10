@@ -93,7 +93,7 @@ type MainWindow(commandLineArgs: string array) as this =
                 let newState, cmd =
                     match msg with
                     | ShowDialog dialog ->
-                        state, Dialogs.showDialog dialog state
+                        state, Dialogs.showDialog this dialog state
                     | _ ->
                         Main.update msg state
                 if shouldAutoSave newState state msg then autoSaveSubject.OnNext()
