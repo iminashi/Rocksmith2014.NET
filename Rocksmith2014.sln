@@ -49,7 +49,7 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.DD", "src\Roc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rocksmith2014.DD.Model", "src\Rocksmith2014.DD.Model\Rocksmith2014.DD.Model.csproj", "{04FC5303-3656-4D46-880C-715AA3E93497}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.DD.Tests", "Tests\Rocksmith2014.DD.Tests\Rocksmith2014.DD.Tests.fsproj", "{E594F38F-9FBD-4613-B16C-8877642DA7DF}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.DD.Tests", "tests\Rocksmith2014.DD.Tests\Rocksmith2014.DD.Tests.fsproj", "{E594F38F-9FBD-4613-B16C-8877642DA7DF}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.Audio", "src\Rocksmith2014.Audio\Rocksmith2014.Audio.fsproj", "{984B869F-DCCD-4224-8882-3CF90FA3470D}"
 EndProject
