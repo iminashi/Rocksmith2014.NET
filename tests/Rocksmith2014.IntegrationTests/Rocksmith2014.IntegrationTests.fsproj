@@ -61,7 +61,7 @@
     <PackageReference Include="Expecto.FsCheck" Version="9.0.2" />
     <PackageReference Include="Expecto.VisualStudio.TestAdapter" Version="10.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
-    <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.12.4" />
+    <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.12.5" />
   </ItemGroup>
 
   <ItemGroup>
