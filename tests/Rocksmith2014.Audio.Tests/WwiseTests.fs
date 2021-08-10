@@ -19,7 +19,7 @@ let testConversion testFile = async {
 let wwiseTests =
     testList "Wwise Conversion Tests" [
         // Skip these tests if running in CI
-        if Environment.GetEnvironmentVariable("CI") <> "true" then
+        if Environment.GetEnvironmentVariable("CI") <> "true" && not (OperatingSystem.IsLinux()) then
             testAsync "Wave file can be converted" { do! testConversion TestFiles.WaveFile }
             testAsync "Vorbis file can be converted" { do! testConversion TestFiles.VorbisFile }
     ]
