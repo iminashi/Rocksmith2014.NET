@@ -153,10 +153,11 @@ module Tone =
            -Love in an Elevator: "-26.250S"
            -Valleri: "-19 .250"
            Some CDLC use ',' as decimal separator *)
-        let vol = Regex.Replace(vol.Replace(',', '.'), "[^0-9.-]", "")
-        Math.Round(float vol, 1, MidpointRounding.AwayFromZero)
+        let volFiltered = Regex.Replace(vol.Replace(',', '.'), "[^0-9.-]", "")
+        let volume = Double.Parse(volFiltered, NumberStyles.Float, NumberFormatInfo.InvariantInfo)
+        Math.Round(volume, 1, MidpointRounding.AwayFromZero)
 
-    let private volumeToString (vol: float) = vol.ToString("0.000", CultureInfo.InvariantCulture)
+    let private volumeToString (vol: float) = vol.ToString("0.000", NumberFormatInfo.InvariantInfo)
 
     /// Imports a tone from a Tone2014 XML structure using the optional XML namespace.
     let importXml (ns: string option) (xmlNode: XmlNode) =
