@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <Platforms>x64</Platforms>
-    <RuntimeIdentifiers>win-x64;osx-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
     <WarnOn>1182;3390;$(WarnOn)</WarnOn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
