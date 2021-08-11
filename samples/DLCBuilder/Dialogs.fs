@@ -57,12 +57,12 @@ let private createFileFilters filter =
         | FileFilter.ToneExport ->
             [ "tone2014.xml"; "tone2014.json" ]
         | FileFilter.WwiseConsoleApplication ->
-            [ if OperatingSystem.IsWindows() then "exe" else "sh" ]
+            [ if OperatingSystem.IsMacOS() then "sh" else "exe" ]
 
     let name =
         match filter with
         | FileFilter.WwiseConsoleApplication ->
-            let ext = if OperatingSystem.IsWindows() then "exe" else "sh"
+            let ext = if OperatingSystem.IsMacOS() then "sh" else "exe"
             $"WwiseConsole.{ext}"
         | other ->
             sprintf "%AFiles" other

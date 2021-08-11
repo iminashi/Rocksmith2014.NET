@@ -18,8 +18,10 @@ let private getCLIPath () =
             WwiseFinder.findWindows()
         elif OperatingSystem.IsMacOS() then
             WwiseFinder.findMac()
+        elif OperatingSystem.IsLinux() then
+            WwiseFinder.findLinux()
         else
-            raise <| NotSupportedException "Only Windows and macOS are supported for Wwise conversion."
+            raise <| NotSupportedException "Wwise conversion is not supported on this OS."
 
     if not <| File.Exists cliPath then
         failwith "Could not find Wwise Console executable."
@@ -71,17 +73,17 @@ let private copyWemFile (destPath: string) (templateDir: string) =
     fixHeader destPath
 
 let private getWwiseVersion executablePath =
-    if OperatingSystem.IsMacOS() then
-        match executablePath with
-        | Contains "2019" -> Wwise2019
-        | Contains "2021" -> Wwise2021
-        | _ -> Wwise2021
-    else
+    if OperatingSystem.IsWindows() then
         let version = FileVersionInfo.GetVersionInfo executablePath
         match version.ProductMajorPart with
         | 2019 -> Wwise2019
         | 2021 -> Wwise2021
         | _ -> failwith $"Unsupported Wwise version ({version.FileVersion}).\nMust be major version 2019 or 2021."
+    else
+        match executablePath with
+        | Contains "2019" -> Wwise2019
+        | Contains "2021" -> Wwise2021
+        | _ -> Wwise2021
 
 /// Converts the source audio file into a wem file.
 let convertToWem (cliPath: string option) (sourcePath: string) = async {
@@ -99,7 +101,12 @@ let convertToWem (cliPath: string option) (sourcePath: string) = async {
             Path.Combine(templateDir, "Template.wproj")
             |> sprintf """generate-soundbank "%s" --platform "Windows" --language "English(US)" --no-decode --quiet"""
     
-        let startInfo = ProcessStartInfo(FileName = cliPath, Arguments = args, CreateNoWindow = true, RedirectStandardOutput = true)
+        let startInfo =
+            if OperatingSystem.IsLinux() then
+                let args = $"\"{cliPath}\" {args}"
+                ProcessStartInfo(FileName = "wine", Arguments = args, CreateNoWindow = true, RedirectStandardOutput = true)
+            else
+                ProcessStartInfo(FileName = cliPath, Arguments = args, CreateNoWindow = true, RedirectStandardOutput = true)
         use wwiseCli = new Process(StartInfo = startInfo)
         wwiseCli.Start() |> ignore
         do! wwiseCli.WaitForExitAsync()
