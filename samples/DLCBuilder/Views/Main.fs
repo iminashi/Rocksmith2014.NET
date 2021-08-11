@@ -329,6 +329,7 @@ let private statusMessageContents dispatch = function
             StackPanel.horizontalAlignment HorizontalAlignment.Center
             StackPanel.children [
                 TextBlock.create [
+                    TextBlock.fontSize 15.
                     TextBlock.text (task |> string |> translate)
                 ]
                 ProgressBar.create [
@@ -353,6 +354,7 @@ let private statusMessageContents dispatch = function
     | MessageString (_, message) ->
         TextBlock.create [
             TextBlock.horizontalAlignment HorizontalAlignment.Center
+            TextBlock.fontSize 15.
             TextBlock.text message
         ] |> generalize
 
