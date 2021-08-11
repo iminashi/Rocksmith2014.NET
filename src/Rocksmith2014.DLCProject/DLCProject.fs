@@ -1,11 +1,10 @@
-﻿namespace Rocksmith2014.DLCProject
+namespace Rocksmith2014.DLCProject
 
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open System
 open System.IO
 open System.Text.Json
-open System.Text.Json.Serialization
 
 type DLCProject =
     { Version : string
@@ -157,8 +156,7 @@ module DLCProject =
     /// Saves a project with the given filename.
     let save (fileName: string) (project: DLCProject) = async {
         use file = File.Create fileName
-        let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
-        options.Converters.Add(JsonFSharpConverter())
+        let options = FSharpJsonOptions.Create(indent=true, ignoreNull=true)
         let p =
             toRelativePaths (Path.GetDirectoryName fileName) project
             |> toDto
@@ -166,8 +164,7 @@ module DLCProject =
 
     /// Loads a project from a file with the given filename.
     let load (fileName: string) = async {
-        let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
-        options.Converters.Add(JsonFSharpConverter())
+        let options = FSharpJsonOptions.Create(indent=true, ignoreNull=true)
         use file = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan ||| FileOptions.Asynchronous)
         let! project = JsonSerializer.DeserializeAsync<Dto>(file, options)
         return toAbsolutePaths (Path.GetDirectoryName fileName) (fromDto project) }

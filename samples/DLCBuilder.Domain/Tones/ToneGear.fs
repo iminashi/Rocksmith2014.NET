@@ -1,11 +1,11 @@
 module DLCBuilder.ToneGear
 
+open Microsoft.Extensions.FileProviders
+open Rocksmith2014.Common
+open Rocksmith2014.Common.Manifest
 open System.Collections.Generic
 open System.Reflection
 open System.Text.Json
-open System.Text.Json.Serialization
-open Rocksmith2014.Common.Manifest
-open Microsoft.Extensions.FileProviders
 
 type GearSlot =
     | Amp
@@ -77,8 +77,7 @@ let createPedalForGear (gear: GearData) =
 
 let private loadGearData () = async {
     let provider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
-    let options = JsonSerializerOptions(IgnoreNullValues = true)
-    options.Converters.Add(JsonFSharpConverter())
+    let options = FSharpJsonOptions.Create(ignoreNull=true)
     use gearDataFile = provider.GetFileInfo("Tones/tone_gear_data.json").CreateReadStream()
     return! JsonSerializer.DeserializeAsync<GearData[]>(gearDataFile, options) }
 

@@ -5,7 +5,6 @@ open System
 open System.Data.SQLite
 open System.IO
 open System.Text.Json
-open System.Text.Json.Serialization
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
@@ -14,17 +13,13 @@ let private createConnection (connectionString: string) =
     new SQLiteConnection(connectionString)
     |> apply (fun c -> c.Open())
 
-let private serializerOptions () =
-    JsonSerializerOptions(WriteIndented = false, IgnoreNullValues = true)
-    |> apply (fun options -> options.Converters.Add(JsonFSharpConverter()))
-
 let private deserialize (definition: string) =
-    JsonSerializer.Deserialize<ToneDto>(definition, serializerOptions())
+    JsonSerializer.Deserialize<ToneDto>(definition, FSharpJsonOptions.Create(ignoreNull=true))
     |> Tone.fromDto
 
 let private serialize (tone: Tone) =
     let dto = Tone.toDto { tone with SortOrder = None; MacVolume = None }
-    JsonSerializer.Serialize(dto, serializerOptions())
+    JsonSerializer.Serialize(dto, FSharpJsonOptions.Create(ignoreNull=true))
 
 let private executeQuery (connection: SQLiteConnection) (searchString: string option) pageNumber =
     let limit = 5

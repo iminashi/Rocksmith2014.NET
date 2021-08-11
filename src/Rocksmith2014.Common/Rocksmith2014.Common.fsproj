@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Compile Include="Extensions.fs" />
+    <Compile Include="FSharpJsonOptions.fs" />
     <Compile Include="ActivePatterns.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="Platform.fs" />

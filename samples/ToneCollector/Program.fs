@@ -2,7 +2,6 @@ open System
 open System.Data.SQLite
 open System.IO
 open System.Text.Json
-open System.Text.Json.Serialization
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.PSARC
@@ -26,9 +25,6 @@ let execute (connection: SQLiteConnection) sql =
 let databaseFilename = "official.db"
 
 let createDataBase () = SQLiteConnection.CreateFile databaseFilename
-
-let options = JsonSerializerOptions(WriteIndented = false, IgnoreNullValues = true)
-options.Converters.Add(JsonFSharpConverter())
 
 let getUniqueTones (psarc: PSARC) = async {
     let! jsons =
@@ -80,7 +76,7 @@ let getUniqueTones (psarc: PSARC) = async {
 
                     let definition =
                         JsonSerializer.Serialize({ dto with SortOrder = Nullable()
-                                                            MacVolume = null }, options)
+                                                            MacVolume = null }, FSharpJsonOptions.Create(ignoreNull=true))
 
                     { Name = dto.Name |> String.truncate 100
                       Key = dto.Key

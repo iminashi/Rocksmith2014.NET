@@ -1,10 +1,10 @@
-﻿namespace Rocksmith2014.Common.Manifest
+namespace Rocksmith2014.Common.Manifest
 
 open System
 open System.IO
 open System.Text.Json
-open System.Text.Json.Serialization
 open System.Text.Encodings.Web
+open Rocksmith2014.Common
 
 type Manifest =
     { Entries : Map<string, AttributesContainer>
@@ -38,28 +38,25 @@ module Manifest =
         |> Array.head
         |> fun (_, container) -> container.Attributes
 
-    let private options =
-        let o = JsonSerializerOptions(WriteIndented = true,
-                                      IgnoreNullValues = true,
-                                      Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping)
-        o.Converters.Add(JsonFSharpConverter())
-        o
+    let private options () =
+        FSharpJsonOptions.Create(indent=true, ignoreNull=true)
+        |> apply (fun o -> o.Encoder <- JavaScriptEncoder.UnsafeRelaxedJsonEscaping)
 
     /// Serializes the manifest into a JSON string.
     let toJsonString (manifest: Manifest) =
-        JsonSerializer.Serialize(manifest, options)
+        JsonSerializer.Serialize(manifest, options())
 
     /// Serializes the manifest as JSON into the output stream.
     let toJsonStream (output: Stream) (manifest: Manifest) =
-        JsonSerializer.SerializeAsync(output, manifest, options)
+        JsonSerializer.SerializeAsync(output, manifest, options())
 
     /// Deserializes a manifest from a JSON string.
     let fromJsonString (str: string) =
-        JsonSerializer.Deserialize<Manifest>(str, options)
+        JsonSerializer.Deserialize<Manifest>(str, options())
 
     /// Deserializes a manifest from a JSON stream.
     let fromJsonStream (input: Stream) =
-        JsonSerializer.DeserializeAsync<Manifest>(input, options)
+        JsonSerializer.DeserializeAsync<Manifest>(input, options())
 
     /// Deserializes a manifest from a file.
     let fromJsonFile (path: string) = async {
