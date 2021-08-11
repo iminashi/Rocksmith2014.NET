@@ -5,11 +5,9 @@
     <WarnOn>1182;3390;$(WarnOn)</WarnOn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Platforms>x64</Platforms>
-    <RuntimeIdentifiers>win-x64;osx-x64</RuntimeIdentifiers>
-    <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))'">true</IsWindows>
-    <IsMacOS Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))'">true</IsMacOS>
+    <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
   </PropertyGroup>
-
+  
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
@@ -18,25 +16,22 @@
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
-
-  <ItemGroup Condition="'$(RuntimeIdentifier)'=='win-x64' Or ('$(IsWindows)'=='true' And '$(RuntimeIdentifier)'!='osx-x64')">
-    <Content Include="Tools\revorb.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Tools\ww2ogg.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+  
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='win-x64'">
+    <Content Include="Tools\win\ww2ogg.exe" Link="Tools\ww2ogg.exe" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Tools\win\revorb.exe" Link="Tools\revorb.exe" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='osx-x64'">
+    <Content Include="Tools\mac\ww2ogg" Link="Tools\ww2ogg" CopyToOutputDirectory="PreserveNewest "/>
+    <Content Include="Tools\mac\revorb" Link="Tools\revorb" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(RuntimeIdentifier)'=='osx-x64' Or ('$(IsMacOS)'=='true' And '$(RuntimeIdentifier)'!='win-x64')">
-    <Content Include="Tools\revorb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Tools\ww2ogg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='linux-x64'">
+    <Content Include="Tools\linux\ww2ogg" Link="Tools\ww2ogg" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Tools\linux\revorb" Link="Tools\revorb" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <Content Include="Tools\packed_codebooks.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
