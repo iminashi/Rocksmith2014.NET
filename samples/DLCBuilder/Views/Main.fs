@@ -392,7 +392,7 @@ let private statusMessageContents dispatch = function
             ]
         ] |> generalize
 
-let view (btns: TitleBarButtons) (window: Window) (state: State) dispatch =
+let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State) dispatch =
     if state.RunningTasks.IsEmpty then
         window.Cursor <- Cursors.arrow
     else
@@ -405,6 +405,9 @@ let view (btns: TitleBarButtons) (window: Window) (state: State) dispatch =
             $"{dot}{state.Project.ArtistName.Value} - {state.Project.Title.Value}", project
         | None ->
             "Rocksmith 2014 DLC Builder", String.Empty
+
+    if customTitleBar.IsNone then
+        window.Title <- title
 
     let noOverlayIsOpen = (state.Overlay = NoOverlay)
 
@@ -439,8 +442,9 @@ let view (btns: TitleBarButtons) (window: Window) (state: State) dispatch =
                                 Rectangle.fill "#181818"
                                 Rectangle.horizontalAlignment HorizontalAlignment.Stretch
                                 Rectangle.verticalAlignment VerticalAlignment.Stretch
-                                Rectangle.onPointerPressed window.PlatformImpl.BeginMoveDrag
-                                Rectangle.onDoubleTapped (fun _ -> maximizeOrRestore window)
+                                if customTitleBar.IsSome then
+                                    Rectangle.onPointerPressed window.PlatformImpl.BeginMoveDrag
+                                    Rectangle.onDoubleTapped (fun _ -> maximizeOrRestore window)
                             ]
 
                             DockPanel.create [
@@ -464,10 +468,14 @@ let view (btns: TitleBarButtons) (window: Window) (state: State) dispatch =
                                     ]
 
                                     // Custom minimize, maximize & close buttons
-                                    Border.create [
-                                        DockPanel.dock Dock.Right
-                                        Border.child btns
-                                    ]
+                                    match customTitleBar with
+                                    | Some buttons ->
+                                        Border.create [
+                                            DockPanel.dock Dock.Right
+                                            Border.child buttons
+                                        ]
+                                    | None ->
+                                        ()
 
                                     // Configuration shortcut button
                                     Button.create [
@@ -486,11 +494,12 @@ let view (btns: TitleBarButtons) (window: Window) (state: State) dispatch =
                                     TextBlock.create [
                                         TextBlock.verticalAlignment VerticalAlignment.Center
                                         TextBlock.horizontalAlignment HorizontalAlignment.Center
-                                        TextBlock.text title
-                                        TextBlock.onPointerPressed window.BeginMoveDrag
-                                        TextBlock.onDoubleTapped (fun _ -> maximizeOrRestore window)
-                                        if String.notEmpty titleToolTip then
-                                            ToolTip.tip titleToolTip
+                                        if customTitleBar.IsSome then
+                                            TextBlock.text title
+                                            TextBlock.onPointerPressed window.BeginMoveDrag
+                                            TextBlock.onDoubleTapped (fun _ -> maximizeOrRestore window)
+                                            if String.notEmpty titleToolTip then
+                                                ToolTip.tip titleToolTip
                                     ]
                                 ]
                             ]

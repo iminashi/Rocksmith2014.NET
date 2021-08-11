@@ -39,21 +39,27 @@ type MainWindow(commandLineArgs: string array) as this =
         base.Icon <- WindowIcon(iconData)
         base.Title <- "Rocksmith 2014 DLC Builder"
         //base.TransparencyLevelHint <- WindowTransparencyLevel.AcrylicBlur
-        //base.Background <- Brushes.Transparent
-        base.ExtendClientAreaToDecorationsHint <- true
+        //base.Background <- Brushes.Transparent       
         //base.ExtendClientAreaChromeHints <- ExtendClientAreaChromeHints.NoChrome
-        base.ExtendClientAreaTitleBarHeightHint <- 0.0
         base.Width <- 1150.0
-        //base.Height <- 850.0
         base.MinWidth <- 970.0
         base.MinHeight <- 670.0
 
-        this.GetObservable(Window.WindowStateProperty)
-            .Add(fun state ->
-                if state = WindowState.Maximized then
-                    this.Padding <- Thickness(8.)
-                else
-                    this.Padding <- Thickness(0.))
+        let customTitleBar =
+            if OperatingSystem.IsWindows() then
+                base.ExtendClientAreaToDecorationsHint <- true
+                base.ExtendClientAreaTitleBarHeightHint <- 0.0
+
+                this.GetObservable(Window.WindowStateProperty)
+                    .Add(fun state ->
+                        if state = WindowState.Maximized then
+                            this.Padding <- Thickness(8.)
+                        else
+                            this.Padding <- Thickness(0.))
+
+                Some (TitleBarButtons(this))
+            else
+                None
 
         let hotKeysSub _initialModel = Cmd.ofSub (HotKeys.handleEvent >> this.KeyDown.Add)
 
@@ -85,7 +91,7 @@ type MainWindow(commandLineArgs: string array) as this =
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
         //this.VisualRoot.VisualRoot.Renderer.DrawDirtyRects <- true
 
-        let view' = Views.Main.view (TitleBarButtons(this)) this
+        let view' = Views.Main.view customTitleBar this
 
         // Add an exception handler to the update function
         let update' msg state =
