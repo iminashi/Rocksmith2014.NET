@@ -1,3 +1,9 @@
+## 0.6.0 (Released 2021-08-xx)
+
+- Added drag & drop support for project files.
+- Added a customized window title bar.
+- Fixed tone XML export not working properly on macOS.
+
 ## 0.5.0 (Released 2021-08-08)
 
 - The metadata for the tones in the user collection can now be edited (via context menu or E key).
