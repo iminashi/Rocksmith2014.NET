@@ -221,12 +221,13 @@ let private knobSliders state dispatch repository (gearList: Gear) gear =
                             match state.ManuallyEditingKnobKey with
                             | Some key when knob.Key = key ->
                                 // Editable text box
-                                AutoFocusTextBox.create [
+                                FixedTextBox.create [
                                     DockPanel.dock Dock.Right
                                     TextBox.minWidth 45.
                                     TextBox.maxWidth 100.
                                     TextBox.horizontalAlignment HorizontalAlignment.Right
-                                    TextBox.text <| currentValue.ToString(getFormatString knob)
+                                    FixedTextBox.text <| currentValue.ToString(getFormatString knob)
+                                    FixedTextBox.autoFocus true
                                     TextBox.onLostFocus (fun _ -> None |> SetManuallyEditingKnobKey |> dispatch)
                                     TextBox.onKeyDown ((fun e ->
                                         if e.Key = Key.Enter then

@@ -75,7 +75,13 @@ type FixedTextBox() =
         base.OnDetachedFromLogicalTree(e)
 
     override this.OnAttachedToVisualTree(e) =
-        if this.AutoFocus then this.Focus()
+        if this.AutoFocus then
+            this.Focus()
+            match this.Text with
+            | null ->
+                ()
+            | text ->
+                this.CaretIndex <- text.Length
         base.OnAttachedToVisualTree(e)
 
     static member onTextChanged<'t when 't :> FixedTextBox> fn =

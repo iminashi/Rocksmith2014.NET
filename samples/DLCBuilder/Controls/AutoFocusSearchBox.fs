@@ -4,8 +4,9 @@ namespace DLCBuilder
 open Avalonia
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
-open Avalonia.FuncUI.Types
 open Avalonia.FuncUI.Builder
+open Avalonia.FuncUI.DSL
+open Avalonia.FuncUI.Types
 open Avalonia.Layout
 open Avalonia.Media
 open System
@@ -15,7 +16,7 @@ type AutoFocusSearchBox() =
     inherit UserControl()
 
     let textBox =
-        AutoFocusTextBox(Watermark = translate "Search")
+        FixedTextBox(Watermark = translate "Search", AutoFocus = true)
 
     let deleteButton =
         Border(Background = Brushes.Transparent,
