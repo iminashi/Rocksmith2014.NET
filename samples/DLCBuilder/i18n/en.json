@@ -272,7 +272,7 @@
   "ImportHeader": "Import",
   "GenerateDDLevels": "Generate DD Levels",
   "FindSimilarPhrases": "Find Similar Phrases",
-  "SimilarityThreshold": "Similarity Threshold",
+  "SimilarityThreshold": "Similarity Threshold:",
   "PhraseLevelCountGeneration": "Phrase Level Count Generation",
   "Simple": "Simple",
   "SimpleHelp": "The level count depends on the number of notes in the phrase and their time values.",

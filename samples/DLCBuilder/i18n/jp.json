@@ -272,7 +272,7 @@
   "ImportHeader": "インポート",
   "GenerateDDLevels": "DDレベルをジェネレート",
   "FindSimilarPhrases": "同じようなフレーズを見出す",
-  "SimilarityThreshold": "類似度しきい値",
+  "SimilarityThreshold": "同一しきい値:",
   "PhraseLevelCountGeneration": "フレーズのレベル数の計算",
   "Simple": "簡単",
   "SimpleHelp": "レベル数がフレーズのノートの数とその音価によって決まります。",

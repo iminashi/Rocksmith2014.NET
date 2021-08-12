@@ -272,7 +272,7 @@
   "ImportHeader": "Tuonti",
   "GenerateDDLevels": "Generoi DD tasot",
   "FindSimilarPhrases": "Etsi samanlaiset fraasit",
-  "SimilarityThreshold": "Samuuskynnys",
+  "SimilarityThreshold": "Samuuskynnys:",
   "PhraseLevelCountGeneration": "Fraasin tasojen määrän määrittely",
   "Simple": "Yksinkertainen",
   "SimpleHelp": "Tasojen määrä riippuu fraasin nuottien määrästä ja niiden aika-arvoista.",

@@ -239,46 +239,72 @@ let private importConfig state dispatch =
 let private ddConfig state dispatch =
     vStack [
         // Find Similar Phrases
-        CheckBox.create [
-            CheckBox.margin (0., 2.)
-            CheckBox.fontSize 16.
-            CheckBox.verticalAlignment VerticalAlignment.Center
-            CheckBox.content (translate "FindSimilarPhrases")
-            CheckBox.isChecked state.Config.DDPhraseSearchEnabled
-            CheckBox.onChecked (fun _ -> true |> SetDDPhraseSearchEnabled |> EditConfig |> dispatch)
-            CheckBox.onUnchecked (fun _ -> false |> SetDDPhraseSearchEnabled |> EditConfig |> dispatch)
+        DockPanel.create [
+            DockPanel.margin (0., 2.)
+            DockPanel.children [
+                CheckBox.create [
+                    DockPanel.dock Dock.Left
+                    CheckBox.fontSize 16.
+                    CheckBox.verticalAlignment VerticalAlignment.Center
+                    CheckBox.content (translate "FindSimilarPhrases")
+                    CheckBox.isChecked state.Config.DDPhraseSearchEnabled
+                    CheckBox.onChecked (fun _ -> true |> SetDDPhraseSearchEnabled |> EditConfig |> dispatch)
+                    CheckBox.onUnchecked (fun _ -> false |> SetDDPhraseSearchEnabled |> EditConfig |> dispatch)
+                ]
+
+                Rectangle.create [
+                    Rectangle.height 1.
+                    Rectangle.fill Brushes.Gray
+                    Rectangle.margin (8., 0.)
+                ]
+            ]
         ]
 
         // Similarity Threshold
-        locText "SimilarityThreshold" [
-            TextBlock.verticalAlignment VerticalAlignment.Center
-            TextBlock.isEnabled state.Config.DDPhraseSearchEnabled
-            TextBlock.fontSize 16.
-        ]
-        hStack [
-            FixedNumericUpDown.create [
-                NumericUpDown.margin (0., 2., 2., 2.)
-                NumericUpDown.width 140.
-                NumericUpDown.isEnabled state.Config.DDPhraseSearchEnabled
-                NumericUpDown.minimum 0.
-                NumericUpDown.maximum 100.
-                NumericUpDown.formatString "F0"
-                FixedNumericUpDown.value (float state.Config.DDPhraseSearchThreshold)
-                FixedNumericUpDown.onValueChanged (int >> SetDDPhraseSearchThreshold >> EditConfig >> dispatch)
-            ]
-
-            TextBlock.create [
-                TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.fontSize 16.
-                TextBlock.text "%"
+        StackPanel.create [
+            StackPanel.orientation Orientation.Horizontal
+            StackPanel.margin (8., 4.)
+            StackPanel.isEnabled state.Config.DDPhraseSearchEnabled
+            StackPanel.children [
+                locText "SimilarityThreshold" [
+                    TextBlock.verticalAlignment VerticalAlignment.Center
+                    TextBlock.isEnabled state.Config.DDPhraseSearchEnabled
+                    TextBlock.fontSize 16.
+                ]
+                FixedNumericUpDown.create [
+                    NumericUpDown.margin (6., 2.)
+                    NumericUpDown.width 140.
+                    NumericUpDown.minimum 0.
+                    NumericUpDown.maximum 100.
+                    NumericUpDown.formatString "F0"
+                    FixedNumericUpDown.value (float state.Config.DDPhraseSearchThreshold)
+                    FixedNumericUpDown.onValueChanged (int >> SetDDPhraseSearchThreshold >> EditConfig >> dispatch)
+                ]
+                TextBlock.create [
+                    TextBlock.verticalAlignment VerticalAlignment.Center
+                    TextBlock.fontSize 16.
+                    TextBlock.text "%"
+                ]
             ]
         ]
 
         // Level Count Generation
-        locText "PhraseLevelCountGeneration" [
-            TextBlock.fontSize 16.
-            TextBlock.margin (0., 20., 0., 4.)
+        DockPanel.create [
+            DockPanel.margin (0., 8., 0., 4.)
+            DockPanel.children [
+                locText "PhraseLevelCountGeneration" [
+                    DockPanel.dock Dock.Left
+                    TextBlock.fontSize 16.
+                ]
+
+                Rectangle.create [
+                    Rectangle.height 1.
+                    Rectangle.fill Brushes.Gray
+                    Rectangle.margin (8., 0.)
+                ]
+            ]
         ]
+        
         vStack (
             [ LevelCountGeneration.Simple; LevelCountGeneration.MLModel ]
             |> List.map (fun option ->
