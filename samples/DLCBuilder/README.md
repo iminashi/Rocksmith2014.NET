@@ -2,8 +2,11 @@
 
 ## System Requirements
 
-- Windows 8.1 (x64) or greater with [.NET 5 runtime](https://dotnet.microsoft.com/download) installed
-- macOS 10.13 (x64) or greater
+A 64-bit OS:
+
+- Windows 8.1 or greater with [.NET 5 runtime](https://dotnet.microsoft.com/download) installed
+- macOS 10.13 or greater
+- Linux: a distro that can run GUI applications created with [Avalonia](https://github.com/AvaloniaUI/Avalonia)
 
 ## Wwise 2019/2021
 
@@ -14,6 +17,8 @@ During the installation, check only "Authoring" in Packages and leave all Deploy
 **After the installation, you may need to run Wwise once, otherwise the automatic conversion may not work.**
 
 On Windows the program will try to find the Wwise installation automatically using the WWISEROOT environment variable, which can be set from the Wwise Launcher, or from the default installation path in Program Files. You can also manually set the Wwise console executable path in the configuration.
+
+On Linux, Wine is used to run the Wwise console executable.
 
 ## Test Build vs Release Build
 
