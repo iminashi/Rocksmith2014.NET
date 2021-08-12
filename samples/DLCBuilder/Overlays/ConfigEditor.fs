@@ -17,7 +17,7 @@ let private tryFindWwiseExecutable basePath =
     Directory.EnumerateFiles(basePath, $"WwiseConsole.{ext}", SearchOption.AllDirectories)
     |> Seq.tryHead
 
-let private generalConfig state dispatch =
+let private generalConfig state dispatch focusedSetting =
     vStack [
         Grid.create [
             Grid.columnDefinitions "auto,5,*"
@@ -71,6 +71,9 @@ let private generalConfig state dispatch =
                             TextBox.margin (0., 4.)
                             FixedTextBox.text state.Config.ProfilePath
                             FixedTextBox.onTextChanged (SetProfilePath >> EditConfig >> dispatch)
+                            TextBox.watermark (translate "ProfilePathPlaceholder")
+                            if focusedSetting = FocusedSetting.ProfilePath then
+                                FixedTextBox.autoFocus true
                         ]
                     ]
                 ]
@@ -426,7 +429,7 @@ let private tabHeader (icon: Geometry) locKey =
         ]
     ]
 
-let view state dispatch =
+let view state dispatch focusedSetting =
     DockPanel.create [
         DockPanel.width 600.
         DockPanel.height 460.
@@ -446,7 +449,7 @@ let view state dispatch =
                     TabItem.create [
                         TabItem.horizontalAlignment HorizontalAlignment.Center
                         TabItem.header (tabHeader Media.Icons.cog "General")
-                        TabItem.content (generalConfig state dispatch)
+                        TabItem.content (generalConfig state dispatch focusedSetting)
                     ]
                     TabItem.create [
                         TabItem.horizontalAlignment HorizontalAlignment.Center

@@ -1,4 +1,4 @@
-﻿module DLCBuilder.HotKeys
+module DLCBuilder.HotKeys
 
 open Avalonia.Input
 open System
@@ -36,7 +36,7 @@ let handleEvent dispatch (event: KeyEventArgs) =
         dispatch NewProject
 
     | Ctrl, Key.G ->
-        dispatch (ShowOverlay ConfigEditor)
+        dispatch (ShowOverlay (ConfigEditor FocusedSetting.None))
 
     | Ctrl, Key.T ->
         dispatch ShowToneCollection

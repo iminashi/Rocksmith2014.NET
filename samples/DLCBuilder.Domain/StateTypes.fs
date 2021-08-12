@@ -9,11 +9,16 @@ open Rocksmith2014.XML.Processing
 open System
 open OnlineUpdate
 
+[<RequireQualifiedAccess>]
+type FocusedSetting =
+    | None
+    | ProfilePath
+
 type OverlayContents =
     | NoOverlay
     | AbnormalExitMessage
     | AboutMessage
-    | ConfigEditor
+    | ConfigEditor of focus : FocusedSetting
     | DeleteConfirmation of files : string list
     | ErrorMessage of message : string * moreInfo : string option
     | IdRegenerationConfirmation of arrangements : Arrangement list * reply : AsyncReply

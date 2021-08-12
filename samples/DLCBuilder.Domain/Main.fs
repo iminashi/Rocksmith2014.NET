@@ -175,7 +175,7 @@ let update (msg: Msg) (state: State) =
     | CloseOverlay ->
         let cmd =
             match state.Overlay with
-            | ConfigEditor ->
+            | ConfigEditor _ ->
                 Cmd.OfAsync.attempt Configuration.save config ErrorOccurred
             | ToneCollection c ->
                 ToneCollection.CollectionState.disposeCollection c.ActiveCollection
@@ -258,7 +258,7 @@ let update (msg: Msg) (state: State) =
 
     | ImportProfileTones ->
         if String.IsNullOrWhiteSpace config.ProfilePath then
-            state, Cmd.none
+            showOverlay state (ConfigEditor FocusedSetting.ProfilePath)
         else
             match Profile.importTones config.ProfilePath with
             | Ok toneArray ->

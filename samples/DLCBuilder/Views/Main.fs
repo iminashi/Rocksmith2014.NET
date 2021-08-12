@@ -253,7 +253,7 @@ let private tonesPanel state dispatch =
                                 TextBlock.verticalAlignment VerticalAlignment.Center
                             ]
 
-                            Menus.addTone state dispatch
+                            Menus.addTone dispatch
 
                             Rectangle.create [
                                 Grid.row 1
@@ -300,8 +300,8 @@ let private overlay state dispatch =
         PreviewStartSelector.view state dispatch audioLength
     | ImportToneSelector tones ->
         ImportTonesSelector.view state dispatch tones
-    | ConfigEditor ->
-        ConfigEditor.view state dispatch
+    | ConfigEditor focusedSetting ->
+        ConfigEditor.view state dispatch focusedSetting
     | IssueViewer arrangement ->
         IssueViewer.view state dispatch arrangement
     | ToneEditor ->
@@ -482,7 +482,7 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                                         Button.classes [ "icon-btn" ]
                                         DockPanel.dock Dock.Right
                                         KeyboardNavigation.isTabStop false
-                                        Button.onClick (fun _ -> ConfigEditor |> ShowOverlay |> dispatch)
+                                        Button.onClick (fun _ -> FocusedSetting.None |> ConfigEditor |> ShowOverlay |> dispatch)
                                         Button.content (
                                             Path.create [
                                                 Path.data Icons.cog

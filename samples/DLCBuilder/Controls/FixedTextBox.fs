@@ -25,6 +25,8 @@ type FixedTextBox() =
 
     member val ValidationErrorMessage = "" with get, set
 
+    member val AutoFocus = false with get, set
+
     member this.ValidationCallback
         with get() : string -> bool = validationCallback
         and set(v) =
@@ -72,6 +74,10 @@ type FixedTextBox() =
         if notNull validationSub then validationSub.Dispose()
         base.OnDetachedFromLogicalTree(e)
 
+    override this.OnAttachedToVisualTree(e) =
+        if this.AutoFocus then this.Focus()
+        base.OnAttachedToVisualTree(e)
+
     static member onTextChanged<'t when 't :> FixedTextBox> fn =
         let getter : 't -> (string -> unit) = fun c -> c.OnTextChangedCallback
         let setter : ('t * (string -> unit)) -> unit = fun (c, f) -> c.OnTextChangedCallback <- f
@@ -101,6 +107,12 @@ type FixedTextBox() =
             c.NoNotify <- false
 
         AttrBuilder<'t>.CreateProperty<string>("Text", text, ValueSome getter, ValueSome setter, ValueNone)
+
+    static member autoFocus<'t when 't :> FixedTextBox>(value: bool) =
+        let getter : 't -> bool = fun c -> c.AutoFocus
+        let setter : 't * bool -> unit = fun (c, v) -> c.AutoFocus <- v
+
+        AttrBuilder<'t>.CreateProperty<bool>("AutoFocus", value, ValueSome getter, ValueSome setter, ValueNone)
 
 [<AutoOpen>]
 module FixedTextBox =

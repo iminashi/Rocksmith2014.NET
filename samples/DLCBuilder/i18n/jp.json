@@ -131,6 +131,7 @@
   "Platforms": "プラットフォーム",
   "CharterName": "クリエイター名",
   "ProfilePath": "プロフィールファイル",
+  "ProfilePathPlaceholder": "トーンをインポートするには、ロックスミス2014のプロフィールを設定してください",
   "TestFolder": "テストフォルダ",
   "TestFolderPlaceholder": "テストビルドが作成されるフォルダ",
   "ProjectsFolder": "プロジェクトフォルダ",

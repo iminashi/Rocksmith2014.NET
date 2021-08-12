@@ -96,7 +96,7 @@ let file state dispatch =
             MenuItem.create [
                 MenuItem.header (translate "ConfigurationMenuItem")
                 MenuItem.inputGesture (KeyGesture(Key.G, keyModifierCtrl))
-                MenuItem.onClick (fun _ -> ShowOverlay ConfigEditor |> dispatch)
+                MenuItem.onClick (fun _ -> ShowOverlay (ConfigEditor FocusedSetting.None) |> dispatch)
             ]
 
             separator
@@ -386,7 +386,7 @@ module Context =
             ]
         ]
 
-let private addToneItems state dispatch : IView list =
+let private addToneItems dispatch : IView list =
     [
         // Add a new "empty" tone
         MenuItem.create [
@@ -400,7 +400,6 @@ let private addToneItems state dispatch : IView list =
         MenuItem.create [
             MenuItem.header (translate "FromProfileMenuItem")
             MenuItem.onClick (fun _ -> dispatch ImportProfileTones)
-            MenuItem.isEnabled (IO.File.Exists state.Config.ProfilePath)
             MenuItem.inputGesture (KeyGesture(Key.P, keyModifierCtrl))
             ToolTip.tip (translate "ProfileImportToolTip")
         ]
@@ -421,7 +420,7 @@ let private addToneItems state dispatch : IView list =
         ]
     ]
 
-let addTone state dispatch =
+let addTone dispatch =
     Menu.create [
         Grid.column 1
         Menu.viewItems [
@@ -433,7 +432,7 @@ let addTone state dispatch =
                         Path.fill Media.Brushes.White
                     ])
 
-                MenuItem.viewItems (addToneItems state dispatch)
+                MenuItem.viewItems (addToneItems dispatch)
             ]
         ]
     ]
@@ -470,7 +469,7 @@ let project state dispatch =
             // Add Tone Menu
             MenuItem.create [
                 MenuItem.header (translate "AddToneMenuItem")
-                MenuItem.viewItems (addToneItems state dispatch)
+                MenuItem.viewItems (addToneItems dispatch)
             ]
 
             separator
