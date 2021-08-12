@@ -3,7 +3,7 @@
 #r "nuget: Fake.DotNet.Cli"
 #r "nuget: Fake.IO.FileSystem"
 #r "nuget: Fake.IO.Zip"
-//Required for FAKE to work on Linux
+// Fix: Unsupported log file format. Latest supported version is 9, the log file has version 13.
 #r "nuget: MSBuild.StructuredLogger"
 
 open Fake.Api
@@ -19,10 +19,12 @@ open System.Runtime.InteropServices
 type TargetPlatForm =
     | Windows
     | MacOS
+    | Linux
     override this.ToString() =
         match this with
         | Windows -> "win"
         | MacOS -> "mac"
+        | Linux -> "linux"
 
 let gitOwner = "iminashi"
 let gitName = "Rocksmith2014.NET"
@@ -48,15 +50,16 @@ let cleanPublishDirectory () =
 
 let createConfig appName platform trim (arg: DotNet.PublishOptions) =
     let targetDir = publishDir </> $"{appName}-{platform}"
-    let runTime, isMac =
+    let runtime =
         match platform with
-        | Windows -> "win-x64", false
-        | MacOS -> "osx-x64", true
+        | Windows -> "win-x64"
+        | MacOS -> "osx-x64"
+        | Linux -> "linux-x64"
 
     { arg with OutputPath = Some targetDir
                Configuration = DotNet.BuildConfiguration.Release
-               Runtime = Some runTime
-               SelfContained = Some isMac
+               Runtime = Some runtime
+               SelfContained = Some (runtime <> "win-x64")
                MSBuildParams = msBuildParams trim }
 
 let chmod arg file =
@@ -86,6 +89,9 @@ let createZipArchive platform =
             dir, dir
         | MacOS ->
             publishDir, "DLC Builder.app"
+        | Linux ->
+            let dir = publishDir </> "dlcbuilder-linux"
+            dir, dir
 
     if RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then
         let dirToZip = publishDir </> dirToZip
