@@ -97,9 +97,11 @@
   "Priority": "Prioriteetti",
   "Path": "Polku",
   "Picked": "Plektra",
+  "Fingered": "Sorminäppäily",
   "Tuning": "Viritys",
   "TuningPitch": "Sävelkorkeus",
   "BaseToneKey": "Perus-soundi",
+  "BaseToneKeyToolTip": "Soundiavain, jolla kappale alkaa. Voi olla eri kuin neljä muuta soundia.",
   "Tones": "Soundit",
   "ToneKeys": "Soundiavaimet",
   "ScrollSpeed": "Vieritysnopeus",
@@ -111,6 +113,7 @@
   "GenerateNewArrIDsToolTip": "Luo uudet identifikaatiotiedot tälle sovitukselle.\n\nSovituksen tilastot pelissä resetoituvat.",
   "ApplyLowTuningFixMenuItem": "Käytä _matalan virityksen korjausta",
   "Japanese": "Japaninkielinen",
+  "JapaneseLyricsToolTip": "Nämä lyriikat näytetään, kun pelin kieleksi on asetettu japani.",
   "CustomFont": "Mukautettu fontti",
   "RemoveCustomFontToolTip": "Poista mukautettu fontti sovituksesta.",
   "SelectCustomFontToolTip": "Valitse mukautettu fontti.",
@@ -397,5 +400,8 @@
   "LoadingCoverArtFailed": "Kansikuvatiedoston \"{0}\" lataaminen epäonnistui!",
   "RegenerateArrangementIds": "Uudelleengeneroidaanko tunnistetiedot?",
   "FollowingIDsShouldBeRegenerated": "Seuraavien sovitusten tunnistetiedot kannattaa generoida uudelleen:",
-  "ArrangementIDRegenerationExplanation": "Jos fraasin DD tasojen määrä on muuttunut, ja sen maksimivaikeus on pienempi kuin käyttäjän profiiliin tallennetusta arvo, peli saattaa kaatua, kun fraasin vaikeutta muutetaan."
+  "ArrangementIDRegenerationExplanation": "Jos fraasin DD tasojen määrä on muuttunut, ja sen maksimivaikeus on pienempi kuin käyttäjän profiiliin tallennetusta arvo, peli saattaa kaatua, kun fraasin vaikeutta muutetaan.",
+  "Browse...": "Selaa...",
+  "GlyphsFileNotFound": "Symbolitiedostoa (.glyphs.xml) ei löydy.",
+  "CustomFontPath": "Mukautetun fonttitekstuurin tiedostonimi"
 }

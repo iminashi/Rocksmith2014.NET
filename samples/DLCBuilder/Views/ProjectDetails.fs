@@ -80,10 +80,10 @@ let private audioControls state dispatch =
 
                             // Select audio file
                             Button.create [
-                                Button.minWidth 75.
+                                Button.minWidth 80.
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
                                 Button.padding (10.0, 0.0)
-                                Button.content (translate "Select")
+                                Button.content (translate "Browse...")
                                 Button.isEnabled notCalculatingVolume
                                 Button.onClick (fun _ -> Dialog.AudioFile false |> ShowDialog |> dispatch)
                                 ToolTip.tip (translate "SelectAudioFile")
@@ -131,7 +131,7 @@ let private audioControls state dispatch =
 
                             // Create preview audio
                             Button.create [
-                                Button.minWidth 75.
+                                Button.minWidth 80.
                                 Button.margin (0.0, 4.0, 4.0, 4.0)
                                 Button.padding (10.0, 0.0)
                                 Button.content (translate "Create")

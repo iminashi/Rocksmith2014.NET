@@ -1,68 +1,78 @@
 module DLCBuilder.Views.VocalsDetails
 
 open Avalonia.Controls
+open Avalonia.Controls.Shapes
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
+open Avalonia.Media
 open Rocksmith2014.DLCProject
 open System.IO
 open DLCBuilder
+open Rocksmith2014.Common
 
-let view dispatch (v: Vocals) =
-    Grid.create [
-        Grid.columnDefinitions "auto,*"
-        Grid.rowDefinitions "*,*,*,*"
-        Grid.margin 6.
-        Grid.children [
-            // Japanese lyrics
-            locText "Japanese" [
-                TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.horizontalAlignment HorizontalAlignment.Center
-            ]
+let view dispatch (vocals: Vocals) =
+    StackPanel.create [
+        StackPanel.margin 6.
+        StackPanel.children [
+            // Japanese Lyrics
             CheckBox.create [
-                Grid.column 1
-                CheckBox.margin 4.0
-                CheckBox.isChecked v.Japanese
+                CheckBox.margin 8.
+                CheckBox.content (translate "Japanese")
+                CheckBox.isChecked vocals.Japanese
                 CheckBox.onChecked (fun _ -> true |> SetIsJapanese |> EditVocals |> dispatch)
                 CheckBox.onUnchecked (fun _ -> false |> SetIsJapanese |> EditVocals |> dispatch)
+                ToolTip.tip (translate "JapaneseLyricsToolTip")
             ]
 
-            // Custom font
-            locText "CustomFont" [
-                Grid.row 1
-                TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.horizontalAlignment HorizontalAlignment.Center
-            ]
+            // Custom Font
             DockPanel.create [
-                Grid.column 1
-                Grid.row 1
                 DockPanel.children [
-                    // Remove font
-                    Button.create [
-                        DockPanel.dock Dock.Right
-                        Button.margin (0.0, 4.0, 4.0, 4.0)
-                        Button.content "X"
-                        Button.isVisible (Option.isSome v.CustomFont)
-                        Button.onClick (fun _ -> None |> SetCustomFont |> EditVocals |> dispatch)
-                        ToolTip.tip (translate "RemoveCustomFontToolTip")
-                    ]
+                    locText "CustomFont" [ DockPanel.dock Dock.Left ]
 
-                    // Select font
+                    Rectangle.create [
+                        Rectangle.height 1.
+                        Rectangle.fill Brushes.Gray
+                        Rectangle.margin (8., 0.)
+                    ]
+                ]
+            ]
+            // Custom Font Filename
+            FixedTextBox.create [
+                TextBox.margin 8.
+                TextBox.watermark (translate "CustomFontPath")
+                FixedTextBox.text (vocals.CustomFont |> Option.toObj)
+                FixedTextBox.validation (fun text ->
+                    match text with
+                    | null | "" ->
+                        true
+                    | path ->
+                        File.Exists(Path.ChangeExtension(path, "glyphs.xml")))
+                FixedTextBox.validationErrorMessage (translate "GlyphsFileNotFound")
+                TextBox.onLostFocus (fun e ->
+                    let txtBox = e.Source :?> TextBox
+                    txtBox.Text |> Option.ofString |> SetCustomFont |> EditVocals |> dispatch)
+            ]
+            StackPanel.create [
+                StackPanel.orientation Orientation.Horizontal
+                StackPanel.horizontalAlignment HorizontalAlignment.Center
+                StackPanel.children [
+                    // Select Button
                     Button.create [
-                        DockPanel.dock Dock.Right
                         Button.margin (0.0, 4.0, 4.0, 4.0)
-                        Button.content "..."
+                        Button.padding (15., 5.)
+                        Button.content (translate "Browse...")
                         Button.onClick (fun _ -> Dialog.CustomFont |> ShowDialog |> dispatch)
                         ToolTip.tip (translate "SelectCustomFontToolTip")
                     ]
 
-                    // Custom font filename
-                    TextBlock.create [
-                        TextBlock.verticalAlignment VerticalAlignment.Center
-                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                        TextBlock.text (
-                            v.CustomFont
-                            |> Option.map Path.GetFileName
-                            |> Option.defaultValue (translate "None"))
+                    // Remove Button
+                    Button.create [
+                        Button.margin (0.0, 4.0, 4.0, 4.0)
+                        Button.padding (15., 5.)
+                        Button.content (translate "Remove")
+                        Button.isEnabled vocals.CustomFont.IsSome
+                        Button.onClick (fun _ -> None |> SetCustomFont |> EditVocals |> dispatch)
+                        ToolTip.tip (translate "RemoveCustomFontToolTip")
                     ]
                 ]
             ]

@@ -252,6 +252,7 @@ let view state dispatch (inst: Instrumental) =
                 FixedAutoCompleteBox.validation String.notEmpty
                 FixedAutoCompleteBox.text inst.BaseTone
                 FixedAutoCompleteBox.onTextChanged (StringValidator.toneName >> SetBaseTone >> EditInstrumental >> dispatch)
+                ToolTip.tip (translate "BaseToneKeyToolTip")
             ]
 
             // Tone key list
