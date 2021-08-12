@@ -59,7 +59,7 @@ type MainWindow(commandLineArgs: string array) as this =
 
                 Some (TitleBarButtons(this))
             else
-                base.MinHeight <- 690.0
+                base.MinHeight <- 700.0
                 None
 
         let hotKeysSub _initialModel = Cmd.ofSub (HotKeys.handleEvent >> this.KeyDown.Add)
