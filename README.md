@@ -10,7 +10,10 @@
 
 ![DLC Builder screenshot](./.github/images/screenshot.png)
 
-Cross-platform desktop app for creating CDLC. [More information](https://github.com/iminashi/Rocksmith2014.NET/blob/main/samples/DLCBuilder/README.md)
+Cross-platform desktop app for creating CDLC.
+
+- [More information](https://github.com/iminashi/Rocksmith2014.NET/blob/main/samples/DLCBuilder/README.md)
+- [Release Notes](https://github.com/iminashi/Rocksmith2014.NET/blob/main/samples/DLCBuilder/RELEASE_NOTES.md)
 
 ### Misc Tools
 
@@ -18,11 +21,15 @@ Cross-platform desktop app mainly for testing the functionality of the libraries
 
 ### Profile Debloater
 
-Console app for removing obsolete IDs from profile files. [More information](https://github.com/iminashi/Rocksmith2014.NET/blob/main/samples/ProfileDebloater/README.md)
+Console app for removing obsolete IDs from profile files.
+
+- [More information](https://github.com/iminashi/Rocksmith2014.NET/blob/main/samples/ProfileDebloater/README.md)
 
 ### Empty Title Fix
 
-Console app for fixing empty Japanese titles in PSARCs created with a buggy version of the Toolkit. [More information](https://github.com/iminashi/Rocksmith2014.NET/blob/main/samples/EmptyTitleFix/README.md)
+Console app for fixing empty Japanese titles in PSARCs created with a buggy version of the Toolkit.
+
+- [More information](https://github.com/iminashi/Rocksmith2014.NET/blob/main/samples/EmptyTitleFix/README.md)
 
 ## Libraries
 
