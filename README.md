@@ -60,6 +60,8 @@ For reading and writing SNG files.
 
 ### XML
 
+[![Nuget](https://img.shields.io/nuget/v/Rocksmith2014.XML?style=plastic)](https://www.nuget.org/packages/Rocksmith2014.XML)
+
 For reading, editing and writing XML files. Originally created for [DDC Improver](https://github.com/iminashi/DDCImprover).
 
 ### XML.Processing
