@@ -18,20 +18,18 @@ let conversionTests =
 
             Expect.equal wavLength oggLength "Converted file is same length as the original file"
 
-        // Linux versions of the conversion tools are not included currently
-        if not <| OperatingSystem.IsLinux() then
-            testCase "Wem file can be converted to vorbis file" <| fun _ ->
-                let targetFile = Path.ChangeExtension(TestFiles.WemFile, "ogg")
-                if File.Exists targetFile then File.Delete targetFile
+        testCase "Wem file can be converted to vorbis file" <| fun _ ->
+            let targetFile = Path.ChangeExtension(TestFiles.WemFile, "ogg")
+            if File.Exists targetFile then File.Delete targetFile
 
-                Conversion.wemToOgg <| Path.GetFullPath(TestFiles.WemFile)
-                let oggLength = Utils.getLength targetFile
+            Conversion.wemToOgg <| Path.GetFullPath(TestFiles.WemFile)
+            let oggLength = Utils.getLength targetFile
 
-                Expect.equal 42 oggLength.Seconds "Converted file is same length as the original file"
+            Expect.equal 42 oggLength.Seconds "Converted file is same length as the original file"
 
-            testCase "Conversion throws exception on error" <| fun _ ->
-                let wemFile = "nosuchfile.wem"
+        testCase "Conversion throws exception on error" <| fun _ ->
+            let wemFile = "nosuchfile.wem"
 
-                Expect.throwsC (fun () -> Conversion.wemToOgg wemFile)
-                               (fun ex -> Expect.stringContains ex.Message "Process failed with output" "Exception contains correct message")
+            Expect.throwsC (fun () -> Conversion.wemToOgg wemFile)
+                            (fun ex -> Expect.stringContains ex.Message "Process failed with output" "Exception contains correct message")
     ]

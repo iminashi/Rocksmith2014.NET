@@ -35,7 +35,7 @@ let private getTempDirectory () =
     (Directory.CreateDirectory dir).FullName
 
 /// Extracts the Wwise template into the target directory.
-let private extractTemplate targetDir version =
+let private extractTemplate targetDir (version: WwiseVersion) =
     let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
     let templateFile = version.ToString().ToLowerInvariant()
     use templateZip = embeddedProvider.GetFileInfo($"Wwise/{templateFile}.zip").CreateReadStream()
@@ -85,6 +85,10 @@ let private getWwiseVersion executablePath =
         | Contains "2021" -> Wwise2021
         | _ -> Wwise2021
 
+let private createArgs templateDir =
+    Path.Combine(templateDir, "Template.wproj")
+    |> sprintf """generate-soundbank "%s" --platform "Windows" --language "English(US)" --no-decode --quiet"""
+
 /// Converts the source audio file into a wem file.
 let convertToWem (cliPath: string option) (sourcePath: string) = async {
     let destPath = Path.ChangeExtension(sourcePath, "wem")
@@ -97,16 +101,15 @@ let convertToWem (cliPath: string option) (sourcePath: string) = async {
     let templateDir = loadTemplate sourcePath version
 
     try
-        let args =
-            Path.Combine(templateDir, "Template.wproj")
-            |> sprintf """generate-soundbank "%s" --platform "Windows" --language "English(US)" --no-decode --quiet"""
-    
+        let args = createArgs templateDir
+
         let startInfo =
             if OperatingSystem.IsLinux() then
                 let args = $"\"{cliPath}\" {args}"
                 ProcessStartInfo(FileName = "wine", Arguments = args, CreateNoWindow = true, RedirectStandardOutput = true)
             else
                 ProcessStartInfo(FileName = cliPath, Arguments = args, CreateNoWindow = true, RedirectStandardOutput = true)
+
         use wwiseCli = new Process(StartInfo = startInfo)
         wwiseCli.Start() |> ignore
         do! wwiseCli.WaitForExitAsync()
