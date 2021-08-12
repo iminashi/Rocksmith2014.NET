@@ -10,7 +10,7 @@ let testConversion testFile = async {
     if File.Exists wemPath then File.Delete wemPath
 
     do! Wwise.convertToWem None testFile
-    let info = FileInfo(wemPath)          
+    let info = FileInfo(wemPath)
 
     Expect.isTrue info.Exists "Wem file was created"
     Expect.isGreaterThan info.Length 100_000L "File is larger than 100KB" }
