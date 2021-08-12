@@ -98,6 +98,8 @@ let private generalConfig state dispatch focusedSetting =
                             FixedTextBox.text state.Config.TestFolderPath
                             TextBox.watermark (translate "TestFolderPlaceholder")
                             FixedTextBox.onTextChanged (SetTestFolderPath >> EditConfig >> dispatch)
+                            if focusedSetting = FocusedSetting.TestFolder then
+                                FixedTextBox.autoFocus true
                         ]
                     ]
                 ]

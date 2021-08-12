@@ -165,7 +165,7 @@ let private buildControls state dispatch =
                 Button.margin 4.
                 Button.fontSize 16.
                 Button.content (translate "BuildTest")
-                Button.isEnabled (canBuild && String.notEmpty state.Config.TestFolderPath)
+                Button.isEnabled canBuild
                 Button.onClick (fun _ -> dispatch <| Build Test)
             ]
 

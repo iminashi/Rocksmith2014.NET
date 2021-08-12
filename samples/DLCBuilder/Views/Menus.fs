@@ -162,7 +162,7 @@ let build state dispatch =
             // Build Test
             MenuItem.create [
                 MenuItem.header (translate "TestMenuItem")
-                MenuItem.isEnabled (canBuild  && String.notEmpty state.Config.TestFolderPath)
+                MenuItem.isEnabled canBuild
                 MenuItem.onClick (fun _ -> Build Test |> dispatch)
                 MenuItem.inputGesture (KeyGesture(Key.B, keyModifierCtrl))
             ]

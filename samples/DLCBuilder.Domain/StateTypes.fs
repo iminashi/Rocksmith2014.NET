@@ -13,6 +13,7 @@ open OnlineUpdate
 type FocusedSetting =
     | None
     | ProfilePath
+    | TestFolder
 
 type OverlayContents =
     | NoOverlay

@@ -727,7 +727,7 @@ let update (msg: Msg) (state: State) =
         if String.notEmpty config.TestFolderPath then
             buildPackage (TestPackageBuilder.build state.CurrentPlatform) state
         else
-            state, Cmd.none
+            showOverlay state (ConfigEditor FocusedSetting.TestFolder)
 
     | Build Release ->
         buildPackage (ReleasePackageBuilder.build state.OpenProjectFile) state
