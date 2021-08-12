@@ -8,6 +8,7 @@
     <Platforms>x64</Platforms>
     <WarnOn>1182;3390;$(WarnOn)</WarnOn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
