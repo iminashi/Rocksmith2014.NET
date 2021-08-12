@@ -3,6 +3,7 @@
 - A Linux version is now available.
 - Added drag & drop support for project files.
 - Added a customized window title bar (Windows only).
+- UX improvements for first-time users.
 - Fixed tone XML export not working properly on Unix platforms.
 
 ## 0.5.0 (Released 2021-08-08)

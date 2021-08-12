@@ -243,6 +243,7 @@ let private ddConfig state dispatch =
         // Find Similar Phrases
         CheckBox.create [
             CheckBox.margin (0., 2.)
+            CheckBox.fontSize 16.
             CheckBox.verticalAlignment VerticalAlignment.Center
             CheckBox.content (translate "FindSimilarPhrases")
             CheckBox.isChecked state.Config.DDPhraseSearchEnabled
@@ -254,6 +255,7 @@ let private ddConfig state dispatch =
         locText "SimilarityThreshold" [
             TextBlock.verticalAlignment VerticalAlignment.Center
             TextBlock.isEnabled state.Config.DDPhraseSearchEnabled
+            TextBlock.fontSize 16.
         ]
         hStack [
             FixedNumericUpDown.create [
@@ -276,17 +278,32 @@ let private ddConfig state dispatch =
 
         // Level Count Generation
         locText "PhraseLevelCountGeneration" [
-            TextBlock.margin (0., 20., 0., 0.)
+            TextBlock.fontSize 16.
+            TextBlock.margin (0., 20., 0., 4.)
         ]
         vStack (
             [ LevelCountGeneration.Simple; LevelCountGeneration.MLModel ]
             |> List.map (fun option ->
                 RadioButton.create [
-                    RadioButton.content (translate (string option))
+                    RadioButton.verticalAlignment VerticalAlignment.Center
+                    RadioButton.margin (0., 2.)
+                    RadioButton.content (
+                        StackPanel.create [
+                            StackPanel.children [
+                                locText (string option) [
+                                    TextBlock.fontSize 16.
+                                    TextBlock.padding (0., 4., 0., 0.)
+                                    TextBlock.margin 0.
+                                ]
+                                locText $"{option}Help" [
+                                    TextBlock.padding (5., 5.)
+                                    TextBlock.textWrapping TextWrapping.Wrap
+                                ]
+                            ]
+                        ])
                     RadioButton.isChecked (state.Config.DDLevelCountGeneration = option)
                     RadioButton.onClick (fun _ ->
                         option |> SetDDLevelCountGeneration |> EditConfig |> dispatch)
-                    ToolTip.tip (translate ($"{option}ToolTip"))
                 ] |> generalize)
         )
     ]
