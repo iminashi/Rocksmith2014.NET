@@ -74,16 +74,16 @@ let view (update: UpdateInformation) dispatch =
                         Button.fontSize 18.
                         Button.padding (40., 10.)
                         Button.content (
-                            if OperatingSystem.IsMacOS() then
-                                translate "GoToDownloadPage"
+                            if OperatingSystem.IsWindows() then
+                                translate "UpdateAndRestart"
                             else
-                                translate "UpdateAndRestart")
+                                translate "GoToDownloadPage")
                         Button.onClick (fun _ ->
-                            if OperatingSystem.IsMacOS() then
-                                Utils.openWithShell "https://github.com/iminashi/Rocksmith2014.NET/releases"
-                                dispatch CloseOverlay
+                            if OperatingSystem.IsWindows() then
+                                dispatch UpdateAndRestart
                             else
-                                dispatch UpdateAndRestart)
+                                Utils.openWithShell "https://github.com/iminashi/Rocksmith2014.NET/releases"
+                                dispatch CloseOverlay)
                     ]
 
                     // Close button

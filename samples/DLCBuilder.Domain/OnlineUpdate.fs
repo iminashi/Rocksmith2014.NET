@@ -1,4 +1,4 @@
-﻿module DLCBuilder.OnlineUpdate
+module DLCBuilder.OnlineUpdate
 
 open Octokit
 open System
@@ -18,8 +18,6 @@ type UpdateInformation =
       ReleaseDate : DateTimeOffset
       Changes : string
       AssetUrl : string }
-
-let private isMac = OperatingSystem.IsMacOS()
 
 /// Attempts to get the latest release from GitHub.
 let private tryGetLatestRelease () = async {
@@ -48,7 +46,14 @@ let private getAvailableUpdate (latestVersion: Version) =
         None
 
 let private tryGetReleaseAsset (release: Release) =
-    let platform = if isMac then "mac" else "win"
+    let platform =
+        if OperatingSystem.IsMacOS() then
+            "mac"
+        elif OperatingSystem.IsLinux() then
+            "linux"
+        else
+            "win"
+
     release.Assets
     |> Seq.tryFind (fun ass ->
         ass.Name.Contains(platform, StringComparison.OrdinalIgnoreCase))
