@@ -39,7 +39,7 @@ let handleEvent dispatch (event: KeyEventArgs) =
         dispatch (ShowOverlay (ConfigEditor FocusedSetting.None))
 
     | Ctrl, Key.L ->
-        dispatch ShowLyricsEditor
+        dispatch ShowJapaneseLyricsCreator
 
     | Ctrl, Key.T ->
         dispatch ShowToneCollection
