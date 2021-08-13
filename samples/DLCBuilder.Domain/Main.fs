@@ -236,8 +236,17 @@ let update (msg: Msg) (state: State) =
         try
             let project = ToolkitImporter.import fileName
 
-            { state with Project = project; OpenProjectFile = None
-                         SelectedArrangementIndex = -1; SelectedToneIndex = -1 }, Cmd.none
+            let albumArtLoadTime =
+                if state.AlbumArtLoader.TryLoad project.AlbumArtFile then
+                    Some DateTime.Now
+                else
+                    None
+
+            { state with Project = project
+                         OpenProjectFile = None
+                         AlbumArtLoadTime = albumArtLoadTime
+                         SelectedArrangementIndex = -1
+                         SelectedToneIndex = -1 }, Cmd.none
         with e ->
             state, Cmd.ofMsg (ErrorOccurred e)
 

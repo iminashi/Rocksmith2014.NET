@@ -4,6 +4,7 @@
 - Added drag & drop support for project files.
 - Added a customized window title bar (Windows only).
 - UX improvements for first-time users.
+- Fixed cover art not being displayed in the UI when importing a Toolkit template.
 - Fixed tone XML export not working properly on Unix platforms.
 
 ## 0.5.0 (Released 2021-08-08)
