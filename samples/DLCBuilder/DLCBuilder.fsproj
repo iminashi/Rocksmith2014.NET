@@ -41,6 +41,7 @@
     <EmbeddedResource Include="i18n\fi.json" />
     <EmbeddedResource Include="i18n\jp.json" />
     <AvaloniaResource Include="Styles.xaml" />
+    <None Include="Script1.fsx" />
     <Compile Include="Localization.fs" />
     <Compile Include="ElmishExtensions.fs" />
     <Compile Include="FocusHelper.fs" />
@@ -60,6 +61,7 @@
     <Compile Include="Controls\TitleBarButtons.fs" />
     <Compile Include="Controls\TitledTextBox.fs" />
     <Compile Include="Controls\FuncUIExtensions.fs" />
+    <Compile Include="Overlays\LyricsEditor.fs" />
     <Compile Include="Overlays\AbnormalExitMessage.fs" />
     <Compile Include="Overlays\IdRegenerationConfirmation.fs" />
     <Compile Include="Overlays\AboutMessage.fs" />

@@ -35,6 +35,7 @@
     <Compile Include="PlatformSpecific.fs" />
     <Compile Include="GeneralTypes.fs" />
     <Compile Include="Utils.fs" />
+    <Compile Include="LyricsTools.fs" />
     <Compile Include="ProgressReporters.fs" />
     <Compile Include="IdRegenerationHelper.fs" />
     <Compile Include="Configuration.fs" />

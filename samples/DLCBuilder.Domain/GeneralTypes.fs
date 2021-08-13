@@ -1,6 +1,10 @@
 [<AutoOpen>]
 module DLCBuilder.GeneralTypes
 
+open Rocksmith2014.XML
+
+type MatchedSyllable = { Id: int; Vocal: Vocal; Japanese: string option }
+
 type Locale =
     { Name : string; ShortName : string }
 

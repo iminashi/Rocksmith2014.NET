@@ -343,7 +343,7 @@ let editTone state edit index =
     else
         updateTone index updatedTone state, Cmd.none
 
-let editVocals state edit index vocals =
+let editVocals state edit index (vocals: Vocals) =
     let updated =
         match edit with
         | SetIsJapanese japanese ->

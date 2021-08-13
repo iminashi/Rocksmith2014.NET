@@ -64,4 +64,10 @@
     <Setter Property="Padding" Value="14,4" />
     <Setter Property="FontSize" Value="18" />
   </Style>
+  <Style Selector="TextBlock.hover-highlight">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="TextBlock.hover-highlight:pointerover">
+    <Setter Property="Background" Value="DarkBlue"/>
+  </Style>
 </Styles>

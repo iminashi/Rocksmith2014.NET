@@ -15,8 +15,14 @@ type FocusedSetting =
     | ProfilePath
     | TestFolder
 
+type LyricsEditorState =
+    { MatchedLines : MatchedSyllable array array
+      CombinedJapanese : (int * int) list
+      JapaneseLyrics : string array array }
+
 type OverlayContents =
     | NoOverlay
+    | LyricsEditor of LyricsEditorState
     | AbnormalExitMessage
     | AboutMessage
     | ConfigEditor of focus : FocusedSetting
@@ -262,6 +268,10 @@ type Msg =
     | ToneCollectionMsg of ToneCollection.Msg
     | ShowDialog of Dialog
     | HotKeyMsg of Msg
+    | SetJapaneseLyrics of lyrics : string
+    | ShowLyricsEditor
+    | CombineSyllableWithNext of lineNumber : int * id : int
+    | CombineJapaneseWithNext of lineNumber : int * wordNumber : int
 
 type State =
     { Project : DLCProject
