@@ -77,13 +77,19 @@ let update (msg: Msg) (state: State) =
         | LyricsEditor lyricsEditorState ->
             let combinedJp = (lineNumber, wordNumber)::lyricsEditorState.CombinedJapanese
 
+            let japaneseLines =
+                lyricsEditorState.JapaneseLyrics
+                |> LyricsTools.hyphenateToSyllableLines 
+                |> LyricsTools.matchNonJapaneseHyphenation lyricsEditorState.MatchedLines
+                |> LyricsTools.applyCombinations combinedJp
+
             let matchedLines =
                 lyricsEditorState.MatchedLines
                 |> Array.mapi (fun lineNumber line ->
                     line
                     |> Array.mapi (fun i syllable ->
                         let jp =
-                            lyricsEditorState.JapaneseLyrics
+                            japaneseLines
                             |> LyricsTools.applyCombinations combinedJp
                             |> Array.tryItem lineNumber
                             |> Option.bind (Array.tryItem i)
@@ -91,6 +97,7 @@ let update (msg: Msg) (state: State) =
                         { syllable with Japanese = jp }))
 
             let newState = { lyricsEditorState with CombinedJapanese = combinedJp
+                                                    JapaneseLines = japaneseLines
                                                     MatchedLines = matchedLines }
 
             { state with Overlay = LyricsEditor newState }, Cmd.none
@@ -135,8 +142,7 @@ let update (msg: Msg) (state: State) =
                     line
                     |> Array.mapi (fun i syllable ->
                         let jp =
-                            lyricsEditorState.JapaneseLyrics
-                            |> LyricsTools.applyCombinations lyricsEditorState.CombinedJapanese
+                            lyricsEditorState.JapaneseLines
                             |> Array.tryItem lineNumber
                             |> Option.bind (Array.tryItem i)
 
@@ -163,7 +169,10 @@ let update (msg: Msg) (state: State) =
                   Japanese = None })
             |> LyricsTools.toLines
 
-        let lState = { MatchedLines = matchedLines; JapaneseLyrics = Array.empty; CombinedJapanese = List.empty }
+        let lState = { MatchedLines = matchedLines
+                       JapaneseLines = Array.empty
+                       JapaneseLyrics = String.Empty
+                       CombinedJapanese = List.empty }
 
         { state with Overlay = LyricsEditor lState }, Cmd.none
 
@@ -174,6 +183,7 @@ let update (msg: Msg) (state: State) =
                 jLyrics
                 |> LyricsTools.hyphenateToSyllableLines 
                 |> LyricsTools.matchNonJapaneseHyphenation lyricsEditorState.MatchedLines
+                |> LyricsTools.applyCombinations lyricsEditorState.CombinedJapanese
 
             let matchedSyllables =
                 lyricsEditorState.MatchedLines
@@ -182,13 +192,14 @@ let update (msg: Msg) (state: State) =
                     |> Array.mapi (fun i syllable ->
                         let jp =
                             japaneseLines
-                            |> LyricsTools.applyCombinations lyricsEditorState.CombinedJapanese
                             |> Array.tryItem lineNumber
                             |> Option.bind (Array.tryItem i)
 
                         { syllable with Japanese = jp }))
 
-            let newState = { lyricsEditorState with MatchedLines = matchedSyllables; JapaneseLyrics = japaneseLines }
+            let newState = { lyricsEditorState with MatchedLines = matchedSyllables
+                                                    JapaneseLyrics = jLyrics
+                                                    JapaneseLines = japaneseLines }
 
             { state with Overlay = LyricsEditor newState }, Cmd.none
         | _ ->

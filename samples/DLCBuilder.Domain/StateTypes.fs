@@ -18,7 +18,8 @@ type FocusedSetting =
 type LyricsEditorState =
     { MatchedLines : MatchedSyllable array array
       CombinedJapanese : (int * int) list
-      JapaneseLyrics : string array array }
+      JapaneseLyrics : string
+      JapaneseLines : string array array }
 
 type OverlayContents =
     | NoOverlay

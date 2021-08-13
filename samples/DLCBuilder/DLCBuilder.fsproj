@@ -41,7 +41,6 @@
     <EmbeddedResource Include="i18n\fi.json" />
     <EmbeddedResource Include="i18n\jp.json" />
     <AvaloniaResource Include="Styles.xaml" />
-    <None Include="Script1.fsx" />
     <Compile Include="Localization.fs" />
     <Compile Include="ElmishExtensions.fs" />
     <Compile Include="FocusHelper.fs" />

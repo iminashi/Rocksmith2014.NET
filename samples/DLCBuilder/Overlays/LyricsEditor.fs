@@ -75,7 +75,7 @@ let view _state dispatch (editorState: LyricsEditorState) =
                     TextBox.acceptsReturn true
                     TextBox.verticalContentAlignment VerticalAlignment.Top
                     TextBox.fontFamily Media.Fonts.japanese
-                    //FixedTextBox.text japaneseLyrics
+                    FixedTextBox.text editorState.JapaneseLyrics
                     FixedTextBox.onTextChanged (SetJapaneseLyrics >> dispatch)
                 ]
             ]
