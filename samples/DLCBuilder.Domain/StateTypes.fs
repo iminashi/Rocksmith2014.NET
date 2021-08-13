@@ -7,7 +7,6 @@ open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DD
 open Rocksmith2014.XML.Processing
 open System
-open System.Collections.Generic
 open OnlineUpdate
 
 [<RequireQualifiedAccess>]
@@ -16,22 +15,9 @@ type FocusedSetting =
     | ProfilePath
     | TestFolder
 
-type LyricsEditorState =
-    { MatchedLines : MatchedSyllable array array
-      CombinedJapanese : (int * int) list
-      JapaneseLyrics : string
-      JapaneseLines : string array array }
-
-module LyricsEditorState =
-    let private undoStates = Stack<LyricsEditorState>()
-
-    let canUndo() = undoStates.Count > 0
-    let pushState = undoStates.Push
-    let popState = undoStates.Pop
-
 type OverlayContents =
     | NoOverlay
-    | LyricsEditor of LyricsEditorState
+    | LyricsEditor of JapaneseLyricsCreator.LyricsCreatorState
     | AbnormalExitMessage
     | AboutMessage
     | ConfigEditor of focus : FocusedSetting
@@ -277,11 +263,8 @@ type Msg =
     | ToneCollectionMsg of ToneCollection.Msg
     | ShowDialog of Dialog
     | HotKeyMsg of Msg
-    | SetJapaneseLyrics of lyrics : string
-    | ShowLyricsEditor
-    | CombineSyllableWithNext of lineNumber : int * id : int
-    | CombineJapaneseWithNext of lineNumber : int * wordNumber : int
-    | UndoLyricsChange
+    | ShowJapaneseLyricsCreator
+    | LyricsCreatorMsg of JapaneseLyricsCreator.Msg
 
 type State =
     { Project : DLCProject

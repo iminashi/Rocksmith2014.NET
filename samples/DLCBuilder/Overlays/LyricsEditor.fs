@@ -7,13 +7,16 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Media
 open Avalonia.Layout
 open System
+open JapaneseLyricsCreator
 
 let wrap ch =
     WrapPanel.create [
         WrapPanel.children ch
     ]
 
-let view _state dispatch (editorState: LyricsEditorState) = 
+let view _state dispatch (editorState: LyricsCreatorState) =
+    let dispatch = LyricsCreatorMsg >> dispatch
+
     StackPanel.create [
         StackPanel.orientation Orientation.Horizontal
         StackPanel.children [
@@ -69,7 +72,7 @@ let view _state dispatch (editorState: LyricsEditorState) =
                 Button.create [
                     Button.content "Undo"
                     Button.onClick (fun _ -> UndoLyricsChange |> dispatch)
-                    Button.isEnabled (LyricsEditorState.canUndo())
+                    Button.isEnabled (LyricsCreatorState.canUndo())
                 ]
                 FixedTextBox.create [
                     TextBox.width 350.

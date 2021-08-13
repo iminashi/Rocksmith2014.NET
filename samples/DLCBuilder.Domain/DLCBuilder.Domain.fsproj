@@ -35,7 +35,6 @@
     <Compile Include="PlatformSpecific.fs" />
     <Compile Include="GeneralTypes.fs" />
     <Compile Include="Utils.fs" />
-    <Compile Include="LyricsTools.fs" />
     <Compile Include="ProgressReporters.fs" />
     <Compile Include="IdRegenerationHelper.fs" />
     <Compile Include="Configuration.fs" />
@@ -56,6 +55,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Rocksmith2014.Audio\Rocksmith2014.Audio.fsproj" />
     <ProjectReference Include="..\..\src\Rocksmith2014.DLCProject\Rocksmith2014.DLCProject.fsproj" />
+    <ProjectReference Include="..\DLCBuilder.JapaneseLyricsCreator\DLCBuilder.JapaneseLyricsCreator.fsproj" />
     <ProjectReference Include="..\DLCBuilder.ToneCollection\DLCBuilder.ToneCollection.fsproj" />
   </ItemGroup>
 

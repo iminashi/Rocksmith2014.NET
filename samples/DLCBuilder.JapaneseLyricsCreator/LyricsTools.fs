@@ -1,4 +1,4 @@
-module DLCBuilder.LyricsTools
+module JapaneseLyricsCreator.LyricsTools
 
 open Rocksmith2014.Common
 open Rocksmith2014.XML
@@ -70,7 +70,7 @@ let hyphenateToSyllableLines (str: string) =
 let loadVocals path =
     Vocals.Load path
     |> List.ofSeq
-    
+
 let toLines (vocals: MatchedSyllable seq) =
     vocals
     |> Seq.fold (fun (lines, currentLine) elem ->
@@ -111,7 +111,7 @@ let matchHyp (oneWord: string) (manyWords: string array) =
         if completeWord.Equals(oneWord, StringComparison.OrdinalIgnoreCase) then
             hyphenated
         else
-            Array.singleton oneWord 
+            Array.singleton oneWord
     | None ->
         Array.singleton oneWord
 
@@ -159,4 +159,4 @@ let applyCombinations (replacements: (int * int) list) (japaneseLines: string ar
                     else
                         Some word)
                 |> Array.indexed)
-            |> Array.map snd) 
+            |> Array.map snd)
