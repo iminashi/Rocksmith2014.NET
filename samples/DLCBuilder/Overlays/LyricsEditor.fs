@@ -52,7 +52,7 @@ let view _state dispatch (editorState: LyricsEditorState) =
                                             TextBlock.text syllable.Vocal.Lyric
                                             TextBlock.cursor Media.Cursors.hand
                                             TextBlock.onTapped ((fun _ ->
-                                                dispatch (CombineSyllableWithNext(lineNumber, syllable.Id))),
+                                                dispatch (CombineSyllableWithNext(lineNumber, wordNumber))),
                                                 SubPatchOptions.Always)
                                         ]
                                     ])
@@ -67,7 +67,9 @@ let view _state dispatch (editorState: LyricsEditorState) =
 
             vStack [
                 Button.create [
-                    Button.content "Reset"
+                    Button.content "Undo"
+                    Button.onClick (fun _ -> UndoLyricsChange |> dispatch)
+                    Button.isEnabled (LyricsEditorState.canUndo())
                 ]
                 FixedTextBox.create [
                     TextBox.width 350.

@@ -72,85 +72,105 @@ let update (msg: Msg) (state: State) =
     let translatef = state.Localizer.TranslateFormat
 
     match msg with
-    | CombineJapaneseWithNext (lineNumber, wordNumber) ->
+    | UndoLyricsChange ->
         match state.Overlay with
-        | LyricsEditor lyricsEditorState ->
-            let combinedJp = (lineNumber, wordNumber)::lyricsEditorState.CombinedJapanese
-
-            let japaneseLines =
-                lyricsEditorState.JapaneseLyrics
-                |> LyricsTools.hyphenateToSyllableLines 
-                |> LyricsTools.matchNonJapaneseHyphenation lyricsEditorState.MatchedLines
-                |> LyricsTools.applyCombinations combinedJp
-
-            let matchedLines =
-                lyricsEditorState.MatchedLines
-                |> Array.mapi (fun lineNumber line ->
-                    line
-                    |> Array.mapi (fun i syllable ->
-                        let jp =
-                            japaneseLines
-                            |> LyricsTools.applyCombinations combinedJp
-                            |> Array.tryItem lineNumber
-                            |> Option.bind (Array.tryItem i)
-
-                        { syllable with Japanese = jp }))
-
-            let newState = { lyricsEditorState with CombinedJapanese = combinedJp
-                                                    JapaneseLines = japaneseLines
-                                                    MatchedLines = matchedLines }
-
-            { state with Overlay = LyricsEditor newState }, Cmd.none
+        | LyricsEditor _ ->
+            match LyricsEditorState.canUndo() with
+            | true ->
+                { state with Overlay = LyricsEditor (LyricsEditorState.popState()) }, Cmd.none
+            | false ->
+                state, Cmd.none
         | _ ->
             state, Cmd.none
 
-    | CombineSyllableWithNext (lineNumber, id) ->
+    | CombineJapaneseWithNext (lineNumber, wordNumber) ->
         match state.Overlay with
         | LyricsEditor lyricsEditorState ->
-            let line = lyricsEditorState.MatchedLines.[lineNumber]
-            let index = line |> Array.findIndex (fun x -> x.Id = id)
+            if wordNumber >= lyricsEditorState.JapaneseLines.[lineNumber].Length - 1 then
+                state, Cmd.none
+            else
+                let combinedJp = (lineNumber, wordNumber)::lyricsEditorState.CombinedJapanese
 
-            let v = line.[index].Vocal
-            let vNext = line.[index + 1].Vocal
+                let japaneseLines =
+                    lyricsEditorState.JapaneseLyrics
+                    |> LyricsTools.hyphenateToSyllableLines 
+                    |> LyricsTools.matchNonJapaneseHyphenation lyricsEditorState.MatchedLines
+                    |> LyricsTools.applyCombinations combinedJp
 
-            let combinedVocal =
-                let lyric =
-                    let first = if v.Lyric.EndsWith "-" then v.Lyric.Substring(0, v.Lyric.Length - 1) else v.Lyric
-                    first + vNext.Lyric
-                XML.Vocal(v.Time, (vNext.Time + vNext.Length) - v.Time, lyric)
-
-            let combined = { line.[index] with Vocal = combinedVocal }
-
-            let newSyllables =
-                lyricsEditorState.MatchedLines
-                |> Array.mapi (fun i line ->
-                    if i = lineNumber then
+                let matchedLines =
+                    lyricsEditorState.MatchedLines
+                    |> Array.mapi (fun lineNumber line ->
                         line
-                        |> Array.choose (fun x ->
-                            if x.Id = line.[index + 1].Id then
-                                None
-                            elif x.Id = line.[index].Id then
-                                Some combined
-                            else
-                                Some x)
-                    else
-                        line)
+                        |> Array.mapi (fun i syllable ->
+                            let jp =
+                                japaneseLines
+                                |> Array.tryItem lineNumber
+                                |> Option.bind (Array.tryItem i)
 
-            let matchedSyllables =
-                newSyllables
-                |> Array.mapi (fun lineNumber line ->
-                    line
-                    |> Array.mapi (fun i syllable ->
-                        let jp =
-                            lyricsEditorState.JapaneseLines
-                            |> Array.tryItem lineNumber
-                            |> Option.bind (Array.tryItem i)
+                            { syllable with Japanese = jp }))
 
-                        { syllable with Japanese = jp }))
+                let newState =
+                    { lyricsEditorState with CombinedJapanese = combinedJp
+                                             JapaneseLines = japaneseLines
+                                             MatchedLines = matchedLines }
 
-            let newState = { lyricsEditorState with MatchedLines = matchedSyllables }
+                LyricsEditorState.pushState lyricsEditorState
+                { state with Overlay = LyricsEditor newState }, Cmd.none
+        | _ ->
+            state, Cmd.none
 
-            { state with Overlay = LyricsEditor newState }, Cmd.none
+    | CombineSyllableWithNext (lineNumber, index) ->
+        match state.Overlay with
+        | LyricsEditor lyricsEditorState ->
+            if index >= lyricsEditorState.MatchedLines.[lineNumber].Length - 1 then
+                state, Cmd.none
+            else
+                let line = lyricsEditorState.MatchedLines.[lineNumber]
+
+                let v = line.[index].Vocal
+                let vNext = line.[index + 1].Vocal
+
+                let combinedVocal =
+                    let lyric =
+                        let first = if v.Lyric.EndsWith "-" then v.Lyric.Substring(0, v.Lyric.Length - 1) else v.Lyric
+                        first + vNext.Lyric
+                    XML.Vocal(v.Time, (vNext.Time + vNext.Length) - v.Time, lyric)
+
+                let combined = { line.[index] with Vocal = combinedVocal }
+
+                let newSyllables =
+                    lyricsEditorState.MatchedLines
+                    |> Array.mapi (fun linei line ->
+                        if linei = lineNumber then
+                            line
+                            |> Array.mapi (fun i x ->
+                                if i = index + 1 then
+                                    None
+                                elif i = index then
+                                    Some combined
+                                else
+                                    Some x)
+                            |> Array.choose id
+                        else
+                            line)
+
+                let matchedSyllables =
+                    newSyllables
+                    |> Array.mapi (fun lineNumber line ->
+                        line
+                        |> Array.mapi (fun i syllable ->
+                            let jp =
+                                lyricsEditorState.JapaneseLines
+                                |> Array.tryItem lineNumber
+                                |> Option.bind (Array.tryItem i)
+
+                            { syllable with Japanese = jp }))
+
+                let newState =
+                    { lyricsEditorState with MatchedLines = matchedSyllables }
+
+                LyricsEditorState.pushState lyricsEditorState
+                { state with Overlay = LyricsEditor newState }, Cmd.none
         | _ ->
             state, Cmd.none
 
@@ -163,9 +183,8 @@ let update (msg: Msg) (state: State) =
             let vocals = XML.Vocals.Load v.XML
 
             vocals
-            |> Seq.mapi (fun i vocal ->
-                { Id = i
-                  Vocal = vocal
+            |> Seq.map (fun vocal ->
+                { Vocal = vocal
                   Japanese = None })
             |> LyricsTools.toLines
 
@@ -201,6 +220,7 @@ let update (msg: Msg) (state: State) =
                                                     JapaneseLyrics = jLyrics
                                                     JapaneseLines = japaneseLines }
 
+            LyricsEditorState.pushState lyricsEditorState
             { state with Overlay = LyricsEditor newState }, Cmd.none
         | _ ->
             state, Cmd.none

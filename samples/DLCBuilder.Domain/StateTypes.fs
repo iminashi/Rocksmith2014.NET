@@ -7,6 +7,7 @@ open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DD
 open Rocksmith2014.XML.Processing
 open System
+open System.Collections.Generic
 open OnlineUpdate
 
 [<RequireQualifiedAccess>]
@@ -20,6 +21,13 @@ type LyricsEditorState =
       CombinedJapanese : (int * int) list
       JapaneseLyrics : string
       JapaneseLines : string array array }
+
+module LyricsEditorState =
+    let private undoStates = Stack<LyricsEditorState>()
+
+    let canUndo() = undoStates.Count > 0
+    let pushState = undoStates.Push
+    let popState = undoStates.Pop
 
 type OverlayContents =
     | NoOverlay
@@ -273,6 +281,7 @@ type Msg =
     | ShowLyricsEditor
     | CombineSyllableWithNext of lineNumber : int * id : int
     | CombineJapaneseWithNext of lineNumber : int * wordNumber : int
+    | UndoLyricsChange
 
 type State =
     { Project : DLCProject
