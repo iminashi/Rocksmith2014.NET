@@ -53,7 +53,14 @@ module Cursors =
 [<RequireQualifiedAccess>]
 module Fonts =
     let japanese =
-        FontFamily(if OperatingSystem.IsMacOS() then "Hiragino Sans" else "MS UI Gothic")
+        let name =
+            if OperatingSystem.IsMacOS() then
+                "Hiragino Sans"
+            elif OperatingSystem.IsLinux() then
+                "Noto Sans CJK JP"
+            else
+                "MS UI Gothic"
+        FontFamily(name)
 
     let monospace =
         FontFamily("Courier New")
