@@ -15,7 +15,7 @@ open Rocksmith2014.DLCProject
 open DLCBuilder
 
 let private keyModifierCtrl =
-    if OperatingSystem.IsMacOS() then KeyModifiers.Meta else KeyModifiers.Control
+    PlatformSpecific.Value(mac=KeyModifiers.Meta, windows=KeyModifiers.Control, linux=KeyModifiers.Control)
 
 let private separator = MenuItem.create [ MenuItem.header "-" ]
 

@@ -29,6 +29,9 @@ let private createFilters name (extensions: string seq) =
     let filter = FileDialogFilter(Extensions = List(extensions), Name = name)
     List(seq { filter })
 
+let private wwiseConsoleExtension =
+    PlatformSpecific.Value(mac="sh", windows="exe", linux="exe")
+
 let private createFileFilters filter =
     let extensions =
         match filter with
@@ -57,13 +60,12 @@ let private createFileFilters filter =
         | FileFilter.ToneExport ->
             [ "tone2014.xml"; "tone2014.json" ]
         | FileFilter.WwiseConsoleApplication ->
-            [ if OperatingSystem.IsMacOS() then "sh" else "exe" ]
+            [ wwiseConsoleExtension ]
 
     let name =
         match filter with
         | FileFilter.WwiseConsoleApplication ->
-            let ext = if OperatingSystem.IsMacOS() then "sh" else "exe"
-            $"WwiseConsole.{ext}"
+            $"WwiseConsole.{wwiseConsoleExtension}"
         | other ->
             sprintf "%AFiles" other
             |> translate

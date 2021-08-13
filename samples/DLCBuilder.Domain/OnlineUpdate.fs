@@ -47,12 +47,7 @@ let private getAvailableUpdate (latestVersion: Version) =
 
 let private tryGetReleaseAsset (release: Release) =
     let platform =
-        if OperatingSystem.IsMacOS() then
-            "mac"
-        elif OperatingSystem.IsLinux() then
-            "linux"
-        else
-            "win"
+        PlatformSpecific.Value(mac="mac", windows="win", linux="linux")
 
     release.Assets
     |> Seq.tryFind (fun ass ->

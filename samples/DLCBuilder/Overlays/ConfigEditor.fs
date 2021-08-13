@@ -13,7 +13,7 @@ open System.IO
 open DLCBuilder
 
 let private tryFindWwiseExecutable basePath =
-    let ext = if OperatingSystem.IsMacOS() then "sh" else "exe"
+    let ext = PlatformSpecific.Value(mac="sh", windows="exe", linux="exe")
     Directory.EnumerateFiles(basePath, $"WwiseConsole.{ext}", SearchOption.AllDirectories)
     |> Seq.tryHead
 
