@@ -55,7 +55,7 @@ let view dispatch (files: string list) =
                         Button.fontSize 18.
                         Button.padding (80., 10.)
                         Button.content (translate "No")
-                        Button.onClick (fun _ -> dispatch CloseOverlay)
+                        Button.onClick (fun _ -> dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
                     ]
                 ]
             ]

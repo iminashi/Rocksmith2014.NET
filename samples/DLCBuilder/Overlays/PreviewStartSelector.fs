@@ -75,7 +75,7 @@ let view state dispatch (audioLength: TimeSpan) =
                         Button.fontSize 16.
                         Button.padding (50., 10.)
                         Button.content (translate "Cancel")
-                        Button.onClick (fun _ -> dispatch CloseOverlay)
+                        Button.onClick (fun _ -> dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
                     ]
                 ]
             ]

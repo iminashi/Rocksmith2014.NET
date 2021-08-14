@@ -25,11 +25,18 @@ type OverlayContents =
     | IdRegenerationConfirmation of arrangements : Arrangement list * reply : AsyncReply
     | ImportToneSelector of tones : Tone array
     | IssueViewer of arrangement : Arrangement
+    | JapaneseLyricsCreator of JapaneseLyricsCreator.LyricsCreatorState
     | PitchShifter
     | SelectPreviewStart of audioLength : TimeSpan
     | ToneCollection of state : ToneCollection.ToneCollectionState
     | ToneEditor
     | UpdateInformationDialog of update : UpdateInformation
+
+[<RequireQualifiedAccess>]
+type OverlayCloseMethod =
+    | OverlayButton
+    | EscapeKey
+    | ClickedOutside
 
 type PreviewAudioCreation =
     | SetupStartTime
@@ -169,10 +176,10 @@ type Dialog =
     | AudioFile of isCustom : bool
     | CustomFont
     | ExportTone of tone : Tone
+    | SaveJapaneseLyrics
 
 type Msg =
     | ConfirmIdRegeneration of arrIds : Guid list * reply : AsyncReply
-    | IdRegenerationAnswered
     | SetNewArrangementIds of Map<Guid, Arrangement>
     | ImportPsarc of psarcFile : string * targetFolder : string
     | PsarcImported of project : DLCProject * projectFile : string
@@ -230,7 +237,7 @@ type Msg =
     | EditTone of ToneEdit
     | EditProject of ProjectEdit
     | EditConfig of ConfigEdit
-    | CloseOverlay
+    | CloseOverlay of closeMethod : OverlayCloseMethod
     | ExportSelectedTone
     | ExportTone of tone : Tone * targetPath : string
     | OpenPreviousProjectConfirmed
@@ -262,6 +269,8 @@ type Msg =
     | ToneCollectionMsg of ToneCollection.Msg
     | ShowDialog of Dialog
     | HotKeyMsg of Msg
+    | ShowJapaneseLyricsCreator
+    | LyricsCreatorMsg of JapaneseLyricsCreator.Msg
 
 type State =
     { Project : DLCProject

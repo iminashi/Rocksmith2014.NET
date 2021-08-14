@@ -197,7 +197,7 @@ let view state dispatch (arrangement: Arrangement) =
                 Button.padding (80., 10.)
                 Button.horizontalAlignment HorizontalAlignment.Center
                 Button.content (translate "OK")
-                Button.onClick (fun _ -> dispatch CloseOverlay)
+                Button.onClick (fun _ -> dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
                 Button.isDefault true
             ]
         ]

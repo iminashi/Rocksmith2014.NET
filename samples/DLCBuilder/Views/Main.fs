@@ -290,6 +290,8 @@ let private tonesPanel state dispatch =
 
 let private overlay state dispatch =
     match state.Overlay with
+    | JapaneseLyricsCreator editorState ->
+        JapaneseLyricsCreatorOverlay.view state dispatch editorState
     | NoOverlay ->
         failwith "This can not happen."
     | IdRegenerationConfirmation (arrangements, reply) ->
@@ -544,7 +546,7 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                     Panel.children [
                         Rectangle.create [
                             Rectangle.fill "#99000000"
-                            Rectangle.onTapped (fun _ -> CloseOverlay |> dispatch)
+                            Rectangle.onTapped (fun _ -> (CloseOverlay OverlayCloseMethod.ClickedOutside) |> dispatch)
                         ]
                         Border.create [
                             Border.padding (20., 10.)

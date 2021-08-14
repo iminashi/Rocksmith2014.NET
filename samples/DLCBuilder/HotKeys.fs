@@ -38,6 +38,9 @@ let handleEvent dispatch (event: KeyEventArgs) =
     | Ctrl, Key.G ->
         dispatch (ShowOverlay (ConfigEditor FocusedSetting.None))
 
+    | Ctrl, Key.J ->
+        dispatch ShowJapaneseLyricsCreator
+
     | Ctrl, Key.T ->
         dispatch ShowToneCollection
 
@@ -61,7 +64,7 @@ let handleEvent dispatch (event: KeyEventArgs) =
         dispatch (ShowDialog Dialog.AddArrangements)
 
     | None, Key.Escape ->
-        dispatch CloseOverlay
+        dispatch (CloseOverlay OverlayCloseMethod.EscapeKey)
 
     | _ ->
         ()

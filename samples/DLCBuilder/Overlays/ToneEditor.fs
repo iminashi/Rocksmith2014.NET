@@ -95,7 +95,7 @@ let private gearSlotSelector repository state dispatch (gearList: Gear) =
             Button.horizontalAlignment HorizontalAlignment.Center
             Button.margin (0., 8.)
             Button.padding (20., 8.)
-            Button.onClick (fun _ -> dispatch CloseOverlay)
+            Button.onClick (fun _ -> dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
         ]
     ]
 

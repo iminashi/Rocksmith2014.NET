@@ -72,6 +72,19 @@ let update (msg: Msg) (state: State) =
     let translatef = state.Localizer.TranslateFormat
 
     match msg with
+    | ShowJapaneseLyricsCreator ->
+        project.Arrangements
+        |> List.choose Arrangement.pickVocals
+        |> List.tryFind (fun x -> not x.Japanese)
+        |> Option.map (fun x -> XML.Vocals.Load x.XML)
+        |> function
+        | Some vocals ->
+            let initialState = JapaneseLyricsCreator.LyricsCreatorState.init vocals
+
+            { state with Overlay = JapaneseLyricsCreator initialState }, Cmd.none
+        | None ->
+            state, Cmd.none
+
     | ConfirmIdRegeneration (ids, reply) ->
         let arrangements =
             project.Arrangements
@@ -102,9 +115,6 @@ let update (msg: Msg) (state: State) =
         let updatedProject = { project with Arrangements = arrangements }
 
         { state with Project = updatedProject }, Cmd.none
-
-    | IdRegenerationAnswered ->
-        { state with Overlay = NoOverlay }, Cmd.none
 
     | SetSelectedGear gear ->
         match state.ToneGearRepository with
@@ -172,7 +182,7 @@ let update (msg: Msg) (state: State) =
             | _ -> Tone.exportJson path
         state, Cmd.OfAsync.attempt task tone ErrorOccurred
 
-    | CloseOverlay ->
+    | CloseOverlay method ->
         let cmd =
             match state.Overlay with
             | ConfigEditor _ ->
@@ -184,8 +194,11 @@ let update (msg: Msg) (state: State) =
                 Cmd.none
 
         match state.Overlay with
-        | IdRegenerationConfirmation _ ->
+        | IdRegenerationConfirmation _ when method <> OverlayCloseMethod.OverlayButton ->
             // The confirmation needs to be answered with the buttons in the overlay
+            state, cmd
+        | JapaneseLyricsCreator _ when method = OverlayCloseMethod.ClickedOutside ->
+            // Disabled to prevent accidentally closing the overlay with a click
             state, cmd
         | _ ->
             { state with Overlay = NoOverlay }, cmd
@@ -869,9 +882,19 @@ let update (msg: Msg) (state: State) =
         | _ ->
             state, Cmd.none
 
+    | LyricsCreatorMsg msg ->
+        match state.Overlay with
+        | JapaneseLyricsCreator lyricsState ->
+            let overlay =
+                JapaneseLyricsCreator.MessageHandler.update lyricsState msg
+                |> JapaneseLyricsCreator
+            { state with Overlay = overlay }, Cmd.none
+        | _ ->
+            state, Cmd.none
+
     | HotKeyMsg msg ->
         match state.Overlay, msg with
-        | NoOverlay, _ | _, CloseOverlay ->
+        | NoOverlay, _ | _, CloseOverlay _ ->
             state, Cmd.ofMsg msg
         | _ ->
             // Ignore the message when an overlay is open
