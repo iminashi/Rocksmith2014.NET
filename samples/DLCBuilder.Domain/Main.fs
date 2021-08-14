@@ -81,7 +81,7 @@ let update (msg: Msg) (state: State) =
 
         let initialState = JapaneseLyricsCreator.LyricsCreatorState.init vocals
 
-        { state with Overlay = LyricsEditor initialState }, Cmd.none
+        { state with Overlay = JapaneseLyricsCreator initialState }, Cmd.none
 
     | ConfirmIdRegeneration (ids, reply) ->
         let arrangements =
@@ -873,10 +873,10 @@ let update (msg: Msg) (state: State) =
 
     | LyricsCreatorMsg msg ->
         match state.Overlay with
-        | LyricsEditor lyricsState ->
+        | JapaneseLyricsCreator lyricsState ->
             let overlay =
                 JapaneseLyricsCreator.MessageHandler.update lyricsState msg
-                |> LyricsEditor
+                |> JapaneseLyricsCreator
             { state with Overlay = overlay }, Cmd.none
         | _ ->
             state, Cmd.none

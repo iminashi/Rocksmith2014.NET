@@ -290,8 +290,8 @@ let private tonesPanel state dispatch =
 
 let private overlay state dispatch =
     match state.Overlay with
-    | LyricsEditor editorState ->
-        LyricsEditor.view state dispatch editorState
+    | JapaneseLyricsCreator editorState ->
+        JapaneseLyricsCreatorOverlay.view state dispatch editorState
     | NoOverlay ->
         failwith "This can not happen."
     | IdRegenerationConfirmation (arrangements, reply) ->

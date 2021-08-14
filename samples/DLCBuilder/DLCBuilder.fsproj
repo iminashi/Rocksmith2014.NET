@@ -60,7 +60,6 @@
     <Compile Include="Controls\TitleBarButtons.fs" />
     <Compile Include="Controls\TitledTextBox.fs" />
     <Compile Include="Controls\FuncUIExtensions.fs" />
-    <Compile Include="Overlays\LyricsEditor.fs" />
     <Compile Include="Overlays\AbnormalExitMessage.fs" />
     <Compile Include="Overlays\IdRegenerationConfirmation.fs" />
     <Compile Include="Overlays\AboutMessage.fs" />
@@ -69,6 +68,7 @@
     <Compile Include="Overlays\ErrorMessage.fs" />
     <Compile Include="Overlays\ImportTonesSelector.fs" />
     <Compile Include="Overlays\IssueViewer.fs" />
+    <Compile Include="Overlays\JapaneseLyricsCreatorOverlay.fs" />
     <Compile Include="Overlays\PitchShifter.fs" />
     <Compile Include="Overlays\PreviewStartSelector.fs" />
     <Compile Include="Overlays\ToneCollectionOverlay.fs" />

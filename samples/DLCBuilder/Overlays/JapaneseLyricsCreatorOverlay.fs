@@ -1,4 +1,4 @@
-module DLCBuilder.LyricsEditor
+module DLCBuilder.JapaneseLyricsCreatorOverlay
 
 open Avalonia.Controls
 open Avalonia.Controls.Shapes

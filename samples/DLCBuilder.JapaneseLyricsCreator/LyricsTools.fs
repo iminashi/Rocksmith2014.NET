@@ -112,7 +112,7 @@ let matchHyp (oneWord: string) (manyWords: string array) =
             Array.singleton oneWord
     | None ->
         Array.singleton oneWord
-   
+
 let matchNonJapaneseHyphenation (matchedLines: MatchedSyllable array array) (japaneseLines: String array array) =
     japaneseLines
     |> Array.mapi (fun lineNumber line ->

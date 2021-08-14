@@ -17,7 +17,6 @@ type FocusedSetting =
 
 type OverlayContents =
     | NoOverlay
-    | LyricsEditor of JapaneseLyricsCreator.LyricsCreatorState
     | AbnormalExitMessage
     | AboutMessage
     | ConfigEditor of focus : FocusedSetting
@@ -26,6 +25,7 @@ type OverlayContents =
     | IdRegenerationConfirmation of arrangements : Arrangement list * reply : AsyncReply
     | ImportToneSelector of tones : Tone array
     | IssueViewer of arrangement : Arrangement
+    | JapaneseLyricsCreator of JapaneseLyricsCreator.LyricsCreatorState
     | PitchShifter
     | SelectPreviewStart of audioLength : TimeSpan
     | ToneCollection of state : ToneCollection.ToneCollectionState
