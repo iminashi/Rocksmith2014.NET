@@ -2,7 +2,7 @@ namespace JapaneseLyricsCreator
 
 type LimitedStack<'a>(size: int) =
     let mutable start = 0
-    let items : 'a voption array = Array.replicate size ValueNone
+    let items: 'a voption array = Array.replicate size ValueNone
 
     let wrap i =
         if i < 0 then

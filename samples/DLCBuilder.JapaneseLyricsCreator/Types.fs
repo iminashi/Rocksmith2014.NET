@@ -6,9 +6,13 @@ type MatchedSyllable =
     { Vocal: Vocal
       Japanese: string option }
 
+type CombinationLocation =
+    { LineNumber: int
+      Index: int }
+
 type Msg =
     | SetJapaneseLyrics of lyrics : string
-    | CombineSyllableWithNext of lineNumber : int * index : int
-    | CombineJapaneseWithNext of lineNumber : int * index : int
+    | CombineSyllableWithNext of CombinationLocation
+    | CombineJapaneseWithNext of CombinationLocation
     | UndoLyricsChange
     | SaveLyricsToFile of targetPath : string

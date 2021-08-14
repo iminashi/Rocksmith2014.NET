@@ -2,6 +2,11 @@ module JapaneseLyricsCreator.MessageHandler
 
 open Rocksmith2014.XML
 
+let private isWithinBounds array index1 index2 =
+    array
+    |> Array.tryItem index1
+    |> Option.exists (fun subArray -> index2 < Array.length subArray - 1)
+
 let update lyricsEditorState msg =
     match msg with
     | SaveLyricsToFile targetPath ->
@@ -48,11 +53,11 @@ let update lyricsEditorState msg =
                                  JapaneseLyrics = jLyrics
                                  JapaneseLines = japaneseLines }
 
-    | CombineJapaneseWithNext (lineNumber, index) ->
-        if index >= lyricsEditorState.JapaneseLines.[lineNumber].Length - 1 then
+    | CombineJapaneseWithNext location ->
+        if not <| isWithinBounds lyricsEditorState.JapaneseLines location.LineNumber location.Index then
             lyricsEditorState
         else
-            let combinedJp = (lineNumber, index)::lyricsEditorState.CombinedJapanese
+            let combinedJp = location::lyricsEditorState.CombinedJapanese
 
             let japaneseLines =
                 lyricsEditorState.JapaneseLyrics
@@ -77,8 +82,8 @@ let update lyricsEditorState msg =
                                      JapaneseLines = japaneseLines
                                      MatchedLines = matchedLines }
 
-    | CombineSyllableWithNext (lineNumber, index) ->
-        if index >= lyricsEditorState.MatchedLines.[lineNumber].Length - 1 then
+    | CombineSyllableWithNext { Index = index; LineNumber = lineNumber } ->
+        if not <| isWithinBounds lyricsEditorState.MatchedLines lineNumber index then
             lyricsEditorState
         else
             let line = lyricsEditorState.MatchedLines.[lineNumber]

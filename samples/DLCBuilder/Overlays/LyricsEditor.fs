@@ -58,7 +58,7 @@ let view _state dispatch (creatorState: LyricsCreatorState) =
                                                     TextBlock.cursor Media.Cursors.hand
                                                     TextBlock.classes [ "hover-highlight-jp" ]
                                                 TextBlock.onTapped ((fun _ ->
-                                                    dispatch' (CombineJapaneseWithNext(lineNumber, wordNumber))),
+                                                    dispatch' (CombineJapaneseWithNext { LineNumber = lineNumber; Index = wordNumber })),
                                                     SubPatchOptions.OnChangeOf(lineNumber, wordNumber))
                                             ]
 
@@ -73,7 +73,7 @@ let view _state dispatch (creatorState: LyricsCreatorState) =
                                                 TextBlock.text syllable.Vocal.Lyric
                                                 TextBlock.cursor Media.Cursors.hand
                                                 TextBlock.onTapped ((fun _ ->
-                                                    dispatch' (CombineSyllableWithNext(lineNumber, wordNumber))),
+                                                    dispatch' (CombineSyllableWithNext { LineNumber = lineNumber; Index = wordNumber })),
                                                     SubPatchOptions.OnChangeOf(lineNumber, wordNumber))
                                             ]
                                         ])

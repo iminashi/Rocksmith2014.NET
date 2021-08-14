@@ -50,6 +50,7 @@ let hyphenate (str: string) =
                     result::results, [ a ]
 
             getSyllables results current rest
+
         | [] ->
             let result = current |> revCharListToString
             result::results
@@ -129,28 +130,31 @@ let matchNonJapaneseHyphenation (matchedLines: MatchedSyllable array array) (jap
                Array.singleton word)
         |> Array.collect id)
 
-let applyCombinations (replacements: (int * int) list) (japaneseLines: string array array) =
+let applyCombinations (replacements: CombinationLocation list) (japaneseLines: string array array) =
     japaneseLines
     |> Array.mapi (fun lineNumber line ->
         let rep =
             replacements
-            |> List.filter (fun x -> fst x = lineNumber)
+            |> List.filter (fun x -> x.LineNumber = lineNumber)
 
         if rep.IsEmpty then
             line
         else
-            let repIndexes = rep |> List.map snd |> List.rev
+            let repIndexes =
+                rep
+                |> List.map (fun x -> x.Index)
+                // Apply the replacements in reverse order (i.e. oldest to newest)
+                |> List.rev
 
-            ((Array.indexed line), repIndexes)
+            (line, repIndexes)
             ||> List.fold (fun acc replacementIndex ->
                 acc
-                |> Array.choose (fun (i, word) ->
+                |> Array.mapi (fun i word ->
                     if i = replacementIndex && i + 1 < acc.Length then
                         let w = if word.EndsWith "-" then word.Substring(0, word.Length - 1) else word
-                        Some (w + snd acc.[i + 1])
+                        Some (w + acc.[i + 1])
                     elif replacementIndex = i - 1 then
                         None
                     else
                         Some word)
-                |> Array.indexed)
-            |> Array.map snd)
+                |> Array.choose id))

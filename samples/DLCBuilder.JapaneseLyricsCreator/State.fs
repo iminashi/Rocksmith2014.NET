@@ -4,7 +4,7 @@ open System
 
 type LyricsCreatorState =
     { MatchedLines : MatchedSyllable array array
-      CombinedJapanese : (int * int) list
+      CombinedJapanese : CombinationLocation list
       JapaneseLyrics : string
       JapaneseLines : string array array
       UndoStates : LimitedStack<LyricsCreatorState> }
