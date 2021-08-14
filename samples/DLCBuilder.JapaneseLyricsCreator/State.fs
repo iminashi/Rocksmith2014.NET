@@ -1,26 +1,23 @@
-﻿namespace JapaneseLyricsCreator
+namespace JapaneseLyricsCreator
 
 open System
-open System.Collections.Generic
 
 type LyricsCreatorState =
     { MatchedLines : MatchedSyllable array array
       CombinedJapanese : (int * int) list
       JapaneseLyrics : string
-      JapaneseLines : string array array }
+      JapaneseLines : string array array
+      UndoStates : LimitedStack<LyricsCreatorState> }
 
 module LyricsCreatorState =
-    let private undoStates = Stack<LyricsCreatorState>()
+    let canUndo state = state.UndoStates.HasItems
+    let addUndo state = state.UndoStates.Push state
 
-    let canUndo() = undoStates.Count > 0
-    let pushState = undoStates.Push
-    let popState = undoStates.Pop
-
-    let tryUndo currentState =
-        if canUndo() then
-            popState()
+    let tryUndo state =
+        if canUndo state then
+            state.UndoStates.Pop()
         else
-            currentState
+            state
 
     let init vocals =
         let matchedLines =
@@ -33,4 +30,5 @@ module LyricsCreatorState =
         { MatchedLines = matchedLines
           JapaneseLines = Array.empty
           JapaneseLyrics = String.Empty
-          CombinedJapanese = List.empty }
+          CombinedJapanese = List.empty
+          UndoStates = LimitedStack(10) }

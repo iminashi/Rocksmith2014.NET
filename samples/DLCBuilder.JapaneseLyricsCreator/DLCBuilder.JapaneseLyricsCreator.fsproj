@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <Compile Include="Types.fs" />
+    <Compile Include="LimitedStack.fs" />
     <Compile Include="LyricsTools.fs" />
     <Compile Include="State.fs" />
     <Compile Include="MessageHandler.fs" />

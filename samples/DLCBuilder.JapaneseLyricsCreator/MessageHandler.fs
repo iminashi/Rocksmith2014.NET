@@ -1,4 +1,4 @@
-﻿module JapaneseLyricsCreator.MessageHandler
+module JapaneseLyricsCreator.MessageHandler
 
 open Rocksmith2014.XML
 
@@ -23,7 +23,7 @@ let update lyricsEditorState msg =
 
                     { syllable with Japanese = jp }))
 
-        LyricsCreatorState.pushState lyricsEditorState
+        LyricsCreatorState.addUndo lyricsEditorState
         { lyricsEditorState with MatchedLines = matchedSyllables
                                  JapaneseLyrics = jLyrics
                                  JapaneseLines = japaneseLines }
@@ -52,7 +52,7 @@ let update lyricsEditorState msg =
 
                         { syllable with Japanese = jp }))
 
-            LyricsCreatorState.pushState lyricsEditorState
+            LyricsCreatorState.addUndo lyricsEditorState
             { lyricsEditorState with CombinedJapanese = combinedJp
                                      JapaneseLines = japaneseLines
                                      MatchedLines = matchedLines }
@@ -102,7 +102,7 @@ let update lyricsEditorState msg =
 
                         { syllable with Japanese = jp }))
 
-            LyricsCreatorState.pushState lyricsEditorState
+            LyricsCreatorState.addUndo lyricsEditorState
             { lyricsEditorState with MatchedLines = matchedSyllables }
 
     | UndoLyricsChange ->

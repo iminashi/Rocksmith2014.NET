@@ -41,7 +41,7 @@ let view _state dispatch (editorState: LyricsCreatorState) =
                                                 TextBlock.classes [ "hover-highlight" ]
                                             TextBlock.onTapped ((fun _ ->
                                                 dispatch (CombineJapaneseWithNext(lineNumber, wordNumber))),
-                                                SubPatchOptions.Always)
+                                                SubPatchOptions.OnChangeOf(lineNumber, wordNumber))
                                         ]
 
                                         Rectangle.create [
@@ -56,7 +56,7 @@ let view _state dispatch (editorState: LyricsCreatorState) =
                                             TextBlock.cursor Media.Cursors.hand
                                             TextBlock.onTapped ((fun _ ->
                                                 dispatch (CombineSyllableWithNext(lineNumber, wordNumber))),
-                                                SubPatchOptions.Always)
+                                                SubPatchOptions.OnChangeOf(lineNumber, wordNumber))
                                         ]
                                     ])
                             ] |> generalize)
@@ -72,7 +72,7 @@ let view _state dispatch (editorState: LyricsCreatorState) =
                 Button.create [
                     Button.content "Undo"
                     Button.onClick (fun _ -> UndoLyricsChange |> dispatch)
-                    Button.isEnabled (LyricsCreatorState.canUndo())
+                    Button.isEnabled (LyricsCreatorState.canUndo editorState)
                 ]
                 FixedTextBox.create [
                     TextBox.width 350.
