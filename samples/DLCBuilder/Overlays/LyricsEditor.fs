@@ -56,7 +56,7 @@ let view _state dispatch (creatorState: LyricsCreatorState) =
                                                 TextBlock.text (syllable.Japanese |> Option.toObj)
                                                 if syllable.Japanese.IsSome then
                                                     TextBlock.cursor Media.Cursors.hand
-                                                    TextBlock.classes [ "hover-highlight" ]
+                                                    TextBlock.classes [ "hover-highlight-jp" ]
                                                 TextBlock.onTapped ((fun _ ->
                                                     dispatch' (CombineJapaneseWithNext(lineNumber, wordNumber))),
                                                     SubPatchOptions.OnChangeOf(lineNumber, wordNumber))

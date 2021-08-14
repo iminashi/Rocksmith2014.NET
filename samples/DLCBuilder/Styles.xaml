@@ -25,6 +25,7 @@
   <Style Selector="ComboBox">
     <Setter Property="HorizontalAlignment" Value="Stretch"/>
   </Style>
+  
   <Style Selector=":is(Panel).list-item">
     <Setter Property="Background" Value="Transparent"/>
   </Style>
@@ -37,6 +38,7 @@
   <Style Selector=":is(Panel).selected:pointerover">
     <Setter Property="Background" Value="#185f99"/>
   </Style>
+  
   <Style Selector="TextBlock.link">
     <Setter Property="Foreground" Value="LightSkyBlue"/>
     <Setter Property="Cursor" Value="Hand"/>
@@ -44,6 +46,7 @@
   <Style Selector="TextBlock.link:pointerover">
     <Setter Property="TextDecorations" Value="Underline"/>
   </Style>
+  
   <Style Selector="Button.icon-btn">
     <Setter Property="Background" Value="Transparent"/>
     <Setter Property="Padding" Value="6, 3, 10, 6"/>
@@ -60,14 +63,23 @@
   <Style Selector="Button.icon-btn /template/ ContentPresenter">
     <Setter Property="CornerRadius" Value="0" />
   </Style>
+  
   <Style Selector="TextBlock.issue-header">
     <Setter Property="Padding" Value="14,4" />
     <Setter Property="FontSize" Value="18" />
   </Style>
+  
   <Style Selector="TextBlock.hover-highlight">
     <Setter Property="Background" Value="Transparent"/>
   </Style>
   <Style Selector="TextBlock.hover-highlight:pointerover">
+    <Setter Property="Background" Value="DarkBlue"/>
+  </Style>
+
+  <Style Selector="TextBlock.hover-highlight-jp">
+    <Setter Property="Background" Value="#222"/>
+  </Style>
+  <Style Selector="TextBlock.hover-highlight-jp:pointerover">
     <Setter Property="Background" Value="DarkBlue"/>
   </Style>
 </Styles>
