@@ -170,6 +170,7 @@ type Dialog =
     | AudioFile of isCustom : bool
     | CustomFont
     | ExportTone of tone : Tone
+    | SaveJapaneseLyrics
 
 type Msg =
     | ConfirmIdRegeneration of arrIds : Guid list * reply : AsyncReply

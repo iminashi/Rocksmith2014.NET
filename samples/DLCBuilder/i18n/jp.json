@@ -24,6 +24,7 @@
   "WwiseConsoleDialogTitle": "Wwise 2019/2021コンソールアプリケーションを開く",
   "ExportToneDialogTitle": "トーンをエクスポート",
   "SaveProjectAsDialogTitle": "名前を付けてプロジェクトを保存",
+  "SaveJapaneseLyricsDialogTitle": "名前を付けて歌詞を保存",
   "ToneInjectDialogTitle": "プロフィールに読み込むトーンを選択してください",
   "CouldNotFindTonesError": "トーンを見つかる事ができませんでした",
   "Arrangements": "アレンジ",

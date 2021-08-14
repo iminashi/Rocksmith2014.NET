@@ -11,3 +11,4 @@ type Msg =
     | CombineSyllableWithNext of lineNumber : int * index : int
     | CombineJapaneseWithNext of lineNumber : int * index : int
     | UndoLyricsChange
+    | SaveLyricsToFile of targetPath : string

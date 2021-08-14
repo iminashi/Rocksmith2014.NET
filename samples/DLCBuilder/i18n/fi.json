@@ -24,6 +24,7 @@
   "WwiseConsoleDialogTitle": "Valitse Wwise 2019/2021 konsolisovellus",
   "ExportToneDialogTitle": "Vie soundi nimellä",
   "SaveProjectAsDialogTitle": "Tallenna projekti nimellä",
+  "SaveJapaneseLyricsDialogTitle": "Tallenna lyriikat nimellä",
   "ToneInjectDialogTitle": "Valitse profiiliin ladattavat soundit",
   "CouldNotFindTonesError": "Ei löytynyt yhtään soundia.",
   "Arrangements": "Sovitukset",

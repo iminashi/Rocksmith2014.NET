@@ -4,6 +4,26 @@ open Rocksmith2014.XML
 
 let update lyricsEditorState msg =
     match msg with
+    | SaveLyricsToFile targetPath ->
+        let vocals =
+            lyricsEditorState.MatchedLines
+            |> Array.collect (fun line ->
+                line
+                |> Array.map (fun matched ->
+                    let vocal = Vocal(matched.Vocal)
+                    matched.Japanese
+                    |> Option.iter (fun jp ->
+                        vocal.Lyric <-
+                            if matched.Vocal.Lyric.EndsWith "+" && not <| jp.EndsWith "+" then
+                                jp + "+"
+                            else
+                                jp)
+                    vocal))
+            |> ResizeArray
+
+        Vocals.Save(targetPath, vocals)
+        lyricsEditorState
+
     | SetJapaneseLyrics jLyrics ->
         let japaneseLines =
             jLyrics
@@ -70,7 +90,7 @@ let update lyricsEditorState msg =
                 let lyric =
                     let first = if v.Lyric.EndsWith "-" then v.Lyric.Substring(0, v.Lyric.Length - 1) else v.Lyric
                     first + vNext.Lyric
-                Vocal(v.Time, (vNext.Time + vNext.Length) - v.Time, lyric)
+                Vocal(v.Time, (vNext.Time + vNext.Length) - v.Time, lyric, v.Note)
 
             let combined = { line.[index] with Vocal = combinedVocal }
 

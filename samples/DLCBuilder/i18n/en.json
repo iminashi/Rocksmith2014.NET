@@ -24,6 +24,7 @@
   "WwiseConsoleDialogTitle": "Select the Wwise 2019/2021 console application",
   "ExportToneDialogTitle": "Export Tone As",
   "SaveProjectAsDialogTitle": "Save Project As",
+  "SaveJapaneseLyricsDialogTitle": "Save Lyrics As",
   "ToneInjectDialogTitle": "Select Tones to Inject into Profile",
   "CouldNotFindTonesError": "Could not find any tones.",
   "Arrangements": "Arrangements",

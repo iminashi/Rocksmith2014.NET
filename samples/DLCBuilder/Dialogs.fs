@@ -146,6 +146,10 @@ let showDialog window dialogType state =
 
     let dialog =
         match dialogType with
+        | Dialog.SaveJapaneseLyrics ->
+            let initialDir = getProjectDirectory state
+            saveFileDialog title FileFilter.XML (Some "PART JVOCALS_RS2.xml") initialDir (JapaneseLyricsCreator.SaveLyricsToFile >> LyricsCreatorMsg)
+
         | Dialog.OpenProject ->
             ofd FileFilter.Project OpenProject
 
