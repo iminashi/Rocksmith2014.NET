@@ -71,6 +71,7 @@
   "RecentProjectsMenuItem": "_Recent Projects",
   "DeleteTestBuildsMenuItem": "_Delete Test Builds",
   "DeleteTestBuildsToolTip": "Deletes any test builds that exist for this project.",
+  "CreateJapaneseLyricsMenuItem": "Create _Japanese Lyrics from Romaji",
   "OpenProjectFolderMenuItem": "Open Project _Folder",
   "ToolsMenuItem": "_Tools",
   "BuildMenuItem": "_Build",
@@ -384,6 +385,7 @@
   "LoadingToneGearData": "Loading tone gear data...",
   "OfficialTonesDbNotFound": "An official tone database has not been installed.",
   "Save": "Save",
+  "Save...": "Save...",
   "RemoveArtistInfo": "Remove Artist and Title",
   "BassTone": "Bass Tone",
   "EnterAValidGUID": "Enter a valid GUID.",
@@ -404,5 +406,7 @@
   "ArrangementIDRegenerationExplanation": "If the DD level count of a phrase has changed and the maximum difficulty is lower than the value saved in the user's profile, the game may crash when the difficulty of the phrase is altered.",
   "Browse...": "Browse...",
   "GlyphsFileNotFound": "Glyphs file (.glyphs.xml) not found.",
-  "CustomFontPath": "Custom font texture filename"
+  "CustomFontPath": "Custom font texture filename",
+  "Undo": "Undo",
+  "PasteJapaneseLyricsHere": "Paste Japanese lyrics here."
 }

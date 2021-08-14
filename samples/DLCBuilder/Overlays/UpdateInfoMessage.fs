@@ -83,7 +83,7 @@ let view (update: UpdateInformation) dispatch =
                                 dispatch UpdateAndRestart
                             else
                                 Utils.openWithShell "https://github.com/iminashi/Rocksmith2014.NET/releases"
-                                dispatch CloseOverlay)
+                                dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
                     ]
 
                     // Close button
@@ -91,7 +91,7 @@ let view (update: UpdateInformation) dispatch =
                         Button.fontSize 18.
                         Button.padding (80., 10.)
                         Button.content (translate "Close")
-                        Button.onClick (fun _ -> dispatch CloseOverlay)
+                        Button.onClick (fun _ -> dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
                     ]
                 ]
             ]

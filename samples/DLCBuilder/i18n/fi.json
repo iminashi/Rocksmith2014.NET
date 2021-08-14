@@ -71,6 +71,7 @@
   "RecentProjectsMenuItem": "_Viimeksi avatut projektit",
   "DeleteTestBuildsMenuItem": "_Poista testibuildit",
   "DeleteTestBuildsToolTip": "Poistaa kaikki tämän projektin mahdolliset testibuildit.",
+  "CreateJapaneseLyricsMenuItem": "Luo _japaninkieliset lyriikat romajista",
   "OpenProjectFolderMenuItem": "Avaa projektin _kansio",
   "ToolsMenuItem": "T_yökalut",
   "BuildMenuItem": "_Rakenna",
@@ -384,6 +385,7 @@
   "LoadingToneGearData": "Ladataan soundieditorin dataa...",
   "OfficialTonesDbNotFound": "Virallisten soundien tietokantaa ei ole asennettu.",
   "Save": "Tallenna",
+  "Save...": "Tallenna...",
   "RemoveArtistInfo": "Poista artisti- ja kappalenimi",
   "BassTone": "Bassosoundi",
   "EnterAValidGUID": "Anna kelvollinen GUID.",
@@ -404,5 +406,7 @@
   "ArrangementIDRegenerationExplanation": "Jos fraasin DD tasojen määrä on muuttunut, ja sen maksimivaikeus on pienempi kuin käyttäjän profiiliin tallennetusta arvo, peli saattaa kaatua, kun fraasin vaikeutta muutetaan.",
   "Browse...": "Selaa...",
   "GlyphsFileNotFound": "Symbolitiedostoa (.glyphs.xml) ei löydy.",
-  "CustomFontPath": "Mukautetun fonttitekstuurin tiedostonimi"
+  "CustomFontPath": "Mukautetun fonttitekstuurin tiedostonimi",
+  "Undo": "Kumoa",
+  "PasteJapaneseLyricsHere": "Kopioi japaninkieliset lyriikat tähän."
 }

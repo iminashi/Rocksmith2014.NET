@@ -18,23 +18,35 @@ let view _state dispatch (creatorState: LyricsCreatorState) =
     let dispatch' = LyricsCreatorMsg >> dispatch
 
     vStack [
-        hStack [
-            Button.create [
-                Button.content "Save..."
-                Button.padding (15., 5.)
-                Button.margin 4.
-                Button.onClick (fun _ -> Dialog.SaveJapaneseLyrics |> ShowDialog |> dispatch)
-            ]
+        Panel.create [
+            Panel.children [
+                hStack [
+                    Button.create [
+                        Button.content (translate "Save...")
+                        Button.padding (15., 5.)
+                        Button.margin 4.
+                        Button.onClick (fun _ -> Dialog.SaveJapaneseLyrics |> ShowDialog |> dispatch)
+                    ]
 
-            Button.create [
-                Button.content "Undo"
-                Button.padding (15., 5.)
-                Button.margin 4.
-                Button.onClick (fun _ -> UndoLyricsChange |> dispatch')
-                Button.isEnabled (LyricsCreatorState.canUndo creatorState)
+                    Button.create [
+                        Button.content (translate "Undo")
+                        Button.padding (15., 5.)
+                        Button.margin 4.
+                        Button.onClick (fun _ -> UndoLyricsChange |> dispatch')
+                        Button.isEnabled (LyricsCreatorState.canUndo creatorState)
+                    ]
+                ]
+
+                Button.create [
+                    Button.content (translate "Close")
+                    Button.horizontalAlignment HorizontalAlignment.Right
+                    Button.verticalAlignment VerticalAlignment.Top
+                    Button.padding (15., 5.)
+                    Button.onClick (fun _ -> dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
+                ]
             ]
         ]
-
+        
         StackPanel.create [
             StackPanel.orientation Orientation.Horizontal
             StackPanel.children [
@@ -89,7 +101,7 @@ let view _state dispatch (creatorState: LyricsCreatorState) =
                 FixedTextBox.create [
                     TextBox.width 350.
                     TextBox.height 600.
-                    TextBox.watermark "Paste Japanese lyrics here."
+                    TextBox.watermark (translate "PasteJapaneseLyricsHere")
                     TextBox.acceptsReturn true
                     TextBox.verticalContentAlignment VerticalAlignment.Top
                     TextBox.fontFamily Media.Fonts.japanese

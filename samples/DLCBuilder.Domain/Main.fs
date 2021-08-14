@@ -73,15 +73,17 @@ let update (msg: Msg) (state: State) =
 
     match msg with
     | ShowJapaneseLyricsCreator ->
-        let vocals =
-            project.Arrangements
-            |> List.choose Arrangement.pickVocals
-            |> List.find (fun x -> not x.Japanese)
-            |> fun x -> XML.Vocals.Load x.XML
+        project.Arrangements
+        |> List.choose Arrangement.pickVocals
+        |> List.tryFind (fun x -> not x.Japanese)
+        |> Option.map (fun x -> XML.Vocals.Load x.XML)
+        |> function
+        | Some vocals ->
+            let initialState = JapaneseLyricsCreator.LyricsCreatorState.init vocals
 
-        let initialState = JapaneseLyricsCreator.LyricsCreatorState.init vocals
-
-        { state with Overlay = JapaneseLyricsCreator initialState }, Cmd.none
+            { state with Overlay = JapaneseLyricsCreator initialState }, Cmd.none
+        | None ->
+            state, Cmd.none
 
     | ConfirmIdRegeneration (ids, reply) ->
         let arrangements =
@@ -113,9 +115,6 @@ let update (msg: Msg) (state: State) =
         let updatedProject = { project with Arrangements = arrangements }
 
         { state with Project = updatedProject }, Cmd.none
-
-    | IdRegenerationAnswered ->
-        { state with Overlay = NoOverlay }, Cmd.none
 
     | SetSelectedGear gear ->
         match state.ToneGearRepository with
@@ -183,7 +182,7 @@ let update (msg: Msg) (state: State) =
             | _ -> Tone.exportJson path
         state, Cmd.OfAsync.attempt task tone ErrorOccurred
 
-    | CloseOverlay ->
+    | CloseOverlay method ->
         let cmd =
             match state.Overlay with
             | ConfigEditor _ ->
@@ -195,8 +194,11 @@ let update (msg: Msg) (state: State) =
                 Cmd.none
 
         match state.Overlay with
-        | IdRegenerationConfirmation _ ->
+        | IdRegenerationConfirmation _ when method <> OverlayCloseMethod.OverlayButton ->
             // The confirmation needs to be answered with the buttons in the overlay
+            state, cmd
+        | JapaneseLyricsCreator _ when method = OverlayCloseMethod.ClickedOutside ->
+            // Disabled to prevent accidentally closing the overlay with a click
             state, cmd
         | _ ->
             { state with Overlay = NoOverlay }, cmd
@@ -883,7 +885,7 @@ let update (msg: Msg) (state: State) =
 
     | HotKeyMsg msg ->
         match state.Overlay, msg with
-        | NoOverlay, _ | _, CloseOverlay ->
+        | NoOverlay, _ | _, CloseOverlay _ ->
             state, Cmd.ofMsg msg
         | _ ->
             // Ignore the message when an overlay is open

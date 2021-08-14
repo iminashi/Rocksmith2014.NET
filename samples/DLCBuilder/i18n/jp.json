@@ -71,6 +71,7 @@
   "RecentProjectsMenuItem": "最近のプロジェクト",
   "DeleteTestBuildsMenuItem": "テストビルドを削除する",
   "DeleteTestBuildsToolTip": "このプロジェクトのテストビルドを削除します。",
+  "CreateJapaneseLyricsMenuItem": "日本語の歌詞をローマ字を元に作る",
   "OpenProjectFolderMenuItem": "プロジェクトフォルダーを開く",
   "ToolsMenuItem": "ツール",
   "BuildMenuItem": "ビルド",
@@ -384,6 +385,7 @@
   "LoadingToneGearData": "トーンギアデータロード中...",
   "OfficialTonesDbNotFound": "公式トーンデータベースがインストールされていない。",
   "Save": "保存",
+  "Save...": "保存...",
   "RemoveArtistInfo": "アーティスト名と曲名を削除",
   "BassTone": "ベーストーン",
   "EnterAValidGUID": "正当なGUIDを入力してください。",
@@ -404,5 +406,7 @@
   "ArrangementIDRegenerationExplanation": "フレーズの最大レベル値が変わると、そしてそれがユーザーのプロフィールに保存された数値より低い場合、フレーズの難易度を変えられた時にゲームがクラッシュすることがあります。",
   "Browse...": "参照...",
   "GlyphsFileNotFound": "グリフファイル(.glyphs.xml)が存在しません。",
-  "CustomFontPath": "カスタムフォントのファイル名"
+  "CustomFontPath": "カスタムフォントのファイル名",
+  "Undo": "取り消す",
+  "PasteJapaneseLyricsHere": "日本語の歌詞をここにコピペしてください。"
 }

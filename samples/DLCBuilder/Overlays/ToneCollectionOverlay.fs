@@ -465,11 +465,11 @@ let view state dispatch collectionState =
                 Border.horizontalAlignment HorizontalAlignment.Right
                 Border.verticalAlignment VerticalAlignment.Top
                 Border.focusable true
-                Border.onTapped (fun _ -> dispatch CloseOverlay)
+                Border.onTapped (fun _ -> dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
                 Border.onKeyUp (fun args ->
                     if args.Key = Key.Space then
                         args.Handled <- true
-                        dispatch CloseOverlay)
+                        dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
                 Border.child (
                     Path.create [
                         Path.data Icons.x

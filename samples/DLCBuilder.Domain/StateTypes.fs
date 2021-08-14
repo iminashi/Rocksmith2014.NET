@@ -32,6 +32,12 @@ type OverlayContents =
     | ToneEditor
     | UpdateInformationDialog of update : UpdateInformation
 
+[<RequireQualifiedAccess>]
+type OverlayCloseMethod =
+    | OverlayButton
+    | EscapeKey
+    | ClickedOutside
+
 type PreviewAudioCreation =
     | SetupStartTime
     | CreateFile
@@ -174,7 +180,6 @@ type Dialog =
 
 type Msg =
     | ConfirmIdRegeneration of arrIds : Guid list * reply : AsyncReply
-    | IdRegenerationAnswered
     | SetNewArrangementIds of Map<Guid, Arrangement>
     | ImportPsarc of psarcFile : string * targetFolder : string
     | PsarcImported of project : DLCProject * projectFile : string
@@ -232,7 +237,7 @@ type Msg =
     | EditTone of ToneEdit
     | EditProject of ProjectEdit
     | EditConfig of ConfigEdit
-    | CloseOverlay
+    | CloseOverlay of closeMethod : OverlayCloseMethod
     | ExportSelectedTone
     | ExportTone of tone : Tone * targetPath : string
     | OpenPreviousProjectConfirmed

@@ -1,4 +1,4 @@
-﻿module DLCBuilder.Views.IdRegenerationConfirmation
+module DLCBuilder.Views.IdRegenerationConfirmation
 
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
@@ -78,7 +78,7 @@ let view state dispatch reply (arrangements: Arrangement list) =
                         Button.content (translate "Yes")
                         Button.onClick (fun _ ->
                             reply true
-                            dispatch IdRegenerationAnswered)
+                            dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
                     ]
 
                     // No button
@@ -88,7 +88,7 @@ let view state dispatch reply (arrangements: Arrangement list) =
                         Button.content (translate "No")
                         Button.onClick (fun _ ->
                             reply false
-                            dispatch IdRegenerationAnswered)
+                            dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
                     ]
                 ]
             ]

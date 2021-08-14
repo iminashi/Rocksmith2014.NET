@@ -475,6 +475,13 @@ let project state dispatch =
             separator
 
             MenuItem.create [
+                MenuItem.header (translate "CreateJapaneseLyricsMenuItem")
+                MenuItem.onClick (fun _ -> ShowJapaneseLyricsCreator |> dispatch)
+                MenuItem.inputGesture (KeyGesture(Key.J, keyModifierCtrl))
+                MenuItem.isEnabled (state.Project.Arrangements |> List.exists (function Vocals v -> not v.Japanese | _ -> false))
+            ]
+
+            MenuItem.create [
                 MenuItem.header (translate "OpenProjectFolderMenuItem")
                 MenuItem.onClick (fun _ -> OpenProjectFolder |> dispatch)
                 MenuItem.isEnabled state.OpenProjectFile.IsSome
