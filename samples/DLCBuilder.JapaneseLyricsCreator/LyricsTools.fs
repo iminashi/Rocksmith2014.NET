@@ -1,6 +1,7 @@
 module JapaneseLyricsCreator.LyricsTools
 
 open Rocksmith2014.Common
+open Rocksmith2014.XML
 open System
 open System.Text.RegularExpressions
 
@@ -18,6 +19,9 @@ let isSpace (c: char) = Char.IsWhiteSpace(c)
 let isBackwardsCombining (c: char) = combiningRegex.IsMatch(string c)
 let isCombining (c: char) = isPunctuation c
 let isCommonLatin (c: char) = c < char 0x0100
+
+let withoutTrailingDash (str: String) =
+    if str.EndsWith "-" then str.Substring(0, str.Length - 1) else str
 
 let private revCharListToString = List.rev >> Array.ofList >> String
 
@@ -151,10 +155,19 @@ let applyCombinations (replacements: CombinationLocation list) (japaneseLines: s
                 acc
                 |> Array.mapi (fun i word ->
                     if i = replacementIndex && i + 1 < acc.Length then
-                        let w = if word.EndsWith "-" then word.Substring(0, word.Length - 1) else word
-                        Some (w + acc.[i + 1])
+                        Some $"{withoutTrailingDash word}{acc.[i + 1]}"
                     elif replacementIndex = i - 1 then
                         None
                     else
                         Some word)
                 |> Array.choose id))
+
+let createJapaneseLines matchedLines combinedJapanese japaneseText =
+    japaneseText
+    |> hyphenateToSyllableLines
+    |> matchNonJapaneseHyphenation matchedLines
+    |> applyCombinations combinedJapanese
+
+let combineVocals (v1: Vocal) (v2: Vocal) =
+    let lyric = $"{withoutTrailingDash v1.Lyric}{v2.Lyric}"
+    Vocal(v1.Time, (v2.Time + v2.Length) - v1.Time, lyric, v1.Note)
