@@ -25,15 +25,16 @@ let messageTests =
         testCase "CloseOverlay closes overlay" <| fun _ ->
             let state = { initialState with Overlay = SelectPreviewStart(TimeSpan.MinValue)}
 
-            let newState, _ = Main.update CloseOverlay state
+            let newState, _ = Main.update (CloseOverlay OverlayCloseMethod.EscapeKey) state
 
             Expect.equal newState.Overlay NoOverlay "Overlay was closed"
 
-        testCase "CloseOverlay does not close IdRegenerationConfirmation" <| fun _ ->
+        testCase "IdRegenerationConfirmation overlay can only be closed with the buttons in it" <| fun _ ->
             let reply = AsyncReply(ignore)
             let state = { initialState with Overlay = IdRegenerationConfirmation(List.empty, reply) }
 
-            let newState, _ = Main.update CloseOverlay state
+            let newState, _ = Main.update (CloseOverlay OverlayCloseMethod.EscapeKey) state
+            let newState, _ = Main.update (CloseOverlay OverlayCloseMethod.ClickedOutside) newState
 
             Expect.notEqual newState.Overlay NoOverlay "Overlay was not closed"
 
@@ -175,13 +176,6 @@ let messageTests =
             | _ ->
                 failwith "Wrong arrangement type"
 
-        testCase "IdRegenerationAnswered closes overlay" <| fun _ ->
-            let state = { initialState with Overlay = OverlayContents.AboutMessage }
-
-            let newState, _ = Main.update IdRegenerationAnswered state
-
-            Expect.equal newState.Overlay NoOverlay "Overlay was closed"
-
         testCase "DuplicateTone duplicates selected tone" <| fun _ ->
             let project = { initialState.Project with Tones = [ testTone ] }
             let state = { initialState with Project = project; SelectedToneIndex = 0 }
@@ -213,7 +207,7 @@ let messageTests =
             let collection = CollectionState.init dataBase ActiveTab.User
             let state = { initialState with Overlay = ToneCollection collection }
 
-            ignore <| Main.update CloseOverlay state
+            ignore <| Main.update (CloseOverlay OverlayCloseMethod.OverlayButton) state
 
             Expect.isTrue disposed "Collection was disposed"
 
