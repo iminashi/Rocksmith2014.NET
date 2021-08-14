@@ -1,11 +1,17 @@
 module JapaneseLyricsCreator.LyricsTools
 
 open Rocksmith2014.Common
-open Rocksmith2014.XML
 open System
 open System.Text.RegularExpressions
 
-let combiningRegex = Regex("[ゃゅょャュョァィゥェォぁぃぅぇぉっー]", RegexOptions.Compiled)
+type String with
+    member this.TryFirstChar() =
+        if this.Length = 0 then
+            ValueNone
+        else
+            ValueSome this.[0]
+
+let private combiningRegex = Regex("[ゃゅょャュョァィゥェォぁぃぅぇぉっー]", RegexOptions.Compiled)
 
 let isPunctuation (c: char) = Char.IsPunctuation(c)
 let isSpace (c: char) = Char.IsWhiteSpace(c)
@@ -13,13 +19,15 @@ let isBackwardsCombining (c: char) = combiningRegex.IsMatch(string c)
 let isCombining (c: char) = isPunctuation c
 let isCommonLatin (c: char) = c < char 0x0100
 
+let private revCharListToString = List.rev >> Array.ofList >> String
+
 let hyphenate (str: string) =
-    let rec getSyllables results current list =
+    let rec getSyllables (results: string list) current list =
         match list with
         | a::rest when isSpace a ->
             let results =
-                let res = current |> List.rev
-                [ a ]::res::results
+                let res = current |> revCharListToString
+                (string a)::res::results
 
             getSyllables results [] rest
 
@@ -38,12 +46,12 @@ let hyphenate (str: string) =
                 | [ x ] when isCombining x ->
                     results, [ a; x ]
                 | current ->
-                    let result = '-'::current |> List.rev
+                    let result = '-'::current |> revCharListToString
                     result::results, [ a ]
 
             getSyllables results current rest
         | [] ->
-            let result = current |> List.rev
+            let result = current |> revCharListToString
             result::results
 
     str
@@ -51,25 +59,10 @@ let hyphenate (str: string) =
     |> getSyllables [] []
     |> List.rev
 
-let hyphenateToString (str: string) =
-    hyphenate str
-    |> List.map (Array.ofList >> String)
-    |> String.concat ""
-
-let hyphenateToSyllables (str: string) =
-    hyphenate str
-    |> List.map (Array.ofList >> String)
-    |> List.filter String.notEmpty
-    |> Array.ofList
-
 let hyphenateToSyllableLines (str: string) =
     str.Split('\n')
-    |> Array.map (hyphenate >> List.map (Array.ofList >> String) >> List.filter String.notEmpty >> List.toArray)
+    |> Array.map (hyphenate >> List.filter String.notEmpty >> List.toArray)
     |> Array.filter (Array.isEmpty >> not)
-
-let loadVocals path =
-    Vocals.Load path
-    |> List.ofSeq
 
 let toLines (vocals: MatchedSyllable seq) =
     vocals
@@ -114,13 +107,14 @@ let matchHyp (oneWord: string) (manyWords: string array) =
             Array.singleton oneWord
     | None ->
         Array.singleton oneWord
-
+   
 let matchNonJapaneseHyphenation (matchedLines: MatchedSyllable array array) (japaneseLines: String array array) =
     japaneseLines
     |> Array.mapi (fun lineNumber line ->
         line
         |> Array.map (fun word ->
-            if isCommonLatin word.[0] then
+            match word.TryFirstChar() with
+            | ValueSome firstChar when isCommonLatin firstChar ->
                 let words =
                     matchedLines
                     |> Array.tryItem lineNumber
@@ -131,7 +125,7 @@ let matchNonJapaneseHyphenation (matchedLines: MatchedSyllable array array) (jap
                     matchHyp word words
                 | None ->
                     Array.singleton word
-            else
+            | _ ->
                Array.singleton word)
         |> Array.collect id)
 
