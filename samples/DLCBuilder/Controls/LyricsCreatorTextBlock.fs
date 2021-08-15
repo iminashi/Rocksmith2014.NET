@@ -38,7 +38,7 @@ type LyricsCreatorTextBlock() =
 
     interface IStyleable with member _.StyleKey = typeof<TextBlock>
 
-    static member onClick (fn: CombinationLocation -> unit) =
+    static member onClick(fn: CombinationLocation -> unit) =
         let getter (c: LyricsCreatorTextBlock) = c.Dispatch
         let setter : (LyricsCreatorTextBlock * (CombinationLocation -> unit)) -> unit = fun (c, f) -> c.Dispatch <- f
         // Keep the same callback once set
@@ -54,6 +54,7 @@ type LyricsCreatorTextBlock() =
         AttrBuilder<LyricsCreatorTextBlock>.CreateProperty<int * int>
             ("Location", loc, ValueSome getter, ValueSome setter, ValueNone)
 
+[<RequireQualifiedAccess>]
 module LyricsCreatorTextBlock =
     let create (attrs: IAttr<LyricsCreatorTextBlock> list): IView<LyricsCreatorTextBlock> =
         ViewBuilder.Create<LyricsCreatorTextBlock>(attrs)

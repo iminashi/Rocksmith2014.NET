@@ -10,6 +10,7 @@ open System
 open System.Reactive.Linq
 open Rocksmith2014.Common
 
+[<Sealed>]
 type FixedAutoCompleteBox() =
     inherit AutoCompleteBox()
     let mutable textChangedSub : IDisposable = null
@@ -53,37 +54,41 @@ type FixedAutoCompleteBox() =
         if notNull validationSub then validationSub.Dispose()
         base.OnDetachedFromLogicalTree(e)
 
-    static member onTextChanged<'t when 't :> FixedAutoCompleteBox> fn =
-        let getter : 't -> (string -> unit) = fun c -> c.OnTextChangedCallback
-        let setter : ('t * (string -> unit)) -> unit = fun (c, f) -> c.OnTextChangedCallback <- f
+    static member onTextChanged fn =
+        let getter : FixedAutoCompleteBox -> (string -> unit) = fun c -> c.OnTextChangedCallback
+        let setter : (FixedAutoCompleteBox * (string -> unit)) -> unit = fun (c, f) -> c.OnTextChangedCallback <- f
         // Keep the same callback once set
         let comparer _ = true
 
-        AttrBuilder<'t>.CreateProperty<string -> unit>("OnTextChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
+        AttrBuilder<FixedAutoCompleteBox>.CreateProperty<string -> unit>
+            ("OnTextChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
 
-    static member validation<'t when 't :> FixedAutoCompleteBox> fn =
-        let getter : 't -> (string -> bool) = fun c -> c.ValidationCallback
-        let setter : ('t * (string -> bool)) -> unit = fun (c, f) -> c.ValidationCallback <- f
+    static member validation fn =
+        let getter : FixedAutoCompleteBox -> (string -> bool) = fun c -> c.ValidationCallback
+        let setter : (FixedAutoCompleteBox * (string -> bool)) -> unit = fun (c, f) -> c.ValidationCallback <- f
 
-        AttrBuilder<'t>.CreateProperty<string -> bool>("Validation", fn, ValueSome getter, ValueSome setter, ValueNone)
+        AttrBuilder<FixedAutoCompleteBox>.CreateProperty<string -> bool>
+            ("Validation", fn, ValueSome getter, ValueSome setter, ValueNone)
 
-    static member validationErrorMessage<'t when 't :> FixedAutoCompleteBox> message =
-        let getter : 't -> string = fun c -> c.ValidationErrorMessage
-        let setter : ('t * string) -> unit = fun (c, v) -> c.ValidationErrorMessage <- v
+    static member validationErrorMessage message =
+        let getter : FixedAutoCompleteBox -> string = fun c -> c.ValidationErrorMessage
+        let setter : (FixedAutoCompleteBox * string) -> unit = fun (c, v) -> c.ValidationErrorMessage <- v
 
-        AttrBuilder<'t>.CreateProperty<string>("ValidationErrorMessage", message, ValueSome getter, ValueSome setter, ValueNone)
+        AttrBuilder<FixedAutoCompleteBox>.CreateProperty<string>
+            ("ValidationErrorMessage", message, ValueSome getter, ValueSome setter, ValueNone)
 
-    static member text<'t when 't :> FixedAutoCompleteBox>(text: string) =
-        let getter : 't -> string = fun c -> c.Text
-        let setter : 't * string -> unit = fun (c, v) ->
+    static member text(text: string) =
+        let getter : FixedAutoCompleteBox -> string = fun c -> c.Text
+        let setter : FixedAutoCompleteBox * string -> unit = fun (c, v) ->
             // Ignore notifications originating from code
             c.NoNotify <- true
             c.Text <- v
             c.NoNotify <- false
 
-        AttrBuilder<'t>.CreateProperty<string>("Text", text, ValueSome getter, ValueSome setter, ValueNone)
+        AttrBuilder<FixedAutoCompleteBox>.CreateProperty<string>
+            ("Text", text, ValueSome getter, ValueSome setter, ValueNone)
 
-[<AutoOpen>]
+[<RequireQualifiedAccess>]
 module FixedAutoCompleteBox =
     let create (attrs: IAttr<FixedAutoCompleteBox> list): IView<FixedAutoCompleteBox> =
         ViewBuilder.Create<FixedAutoCompleteBox>(attrs)

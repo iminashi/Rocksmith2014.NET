@@ -23,13 +23,13 @@ module private Default =
           EnumValues = None }
 
 [<Sealed>]
-type ToneKnobSlider() as this =
+type ToneKnobSlider() =
     inherit Slider()
     let mutable gearKnob = Default.Knob
     let mutable sub : IDisposable = null
     let mutable changeCallback : string * float32 -> unit = ignore
 
-    do this.IsSnapToTickEnabled <- true
+    do base.IsSnapToTickEnabled <- true
 
     interface IStyleable with member _.StyleKey = typeof<Slider>
 
@@ -88,7 +88,7 @@ type ToneKnobSlider() as this =
 
         AttrBuilder<ToneKnobSlider>.CreateProperty<double>("Value", value, ValueSome getter, ValueSome setter, ValueNone)
 
-[<AutoOpen>]
+[<RequireQualifiedAccess>]
 module ToneKnobSlider =
     let create (attrs: IAttr<ToneKnobSlider> list): IView<ToneKnobSlider> =
         ViewBuilder.Create<ToneKnobSlider>(attrs)

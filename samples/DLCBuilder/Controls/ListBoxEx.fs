@@ -108,6 +108,7 @@ type ListBoxEx() =
         AttrBuilder<ListBoxEx>.CreateProperty<unit -> unit>
             ("ItemDeleted", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
 
+[<RequireQualifiedAccess>]
 module ListBoxEx =
     let create (attrs: IAttr<ListBoxEx> list): IView<ListBoxEx> =
         ViewBuilder.Create<ListBoxEx>(attrs)

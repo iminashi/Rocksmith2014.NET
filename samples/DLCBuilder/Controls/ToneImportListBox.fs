@@ -9,13 +9,13 @@ open Avalonia.Styling
 open Rocksmith2014.Common.Manifest
 
 [<Sealed>]
-type ToneImportListBox() as this =
+type ToneImportListBox() =
     inherit ListBox()
 
     let selectedTones = SelectionModel<Tone>(SingleSelect = false)
     let mutable selectionChangedCallback : Tone list -> unit = ignore
 
-    do this.Selection <- selectedTones
+    do base.Selection <- selectedTones
 
     interface IStyleable with member _.StyleKey = typeof<ListBox>
 
@@ -34,7 +34,7 @@ type ToneImportListBox() as this =
 
         AttrBuilder<ToneImportListBox>.CreateProperty<Tone list -> unit>("OnSelectedTonesChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
 
-[<AutoOpen>]
+[<RequireQualifiedAccess>]
 module ToneImportListBox =
     let create (attrs: IAttr<ToneImportListBox> list): IView<ToneImportListBox> =
         ViewBuilder.Create<ToneImportListBox>(attrs)

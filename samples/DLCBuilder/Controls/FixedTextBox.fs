@@ -120,7 +120,7 @@ type FixedTextBox() =
 
         AttrBuilder<'t>.CreateProperty<bool>("AutoFocus", value, ValueSome getter, ValueSome setter, ValueNone)
 
-[<AutoOpen>]
+[<RequireQualifiedAccess>]
 module FixedTextBox =
     let create (attrs: IAttr<FixedTextBox> list): IView<FixedTextBox> =
         ViewBuilder.Create<FixedTextBox>(attrs)

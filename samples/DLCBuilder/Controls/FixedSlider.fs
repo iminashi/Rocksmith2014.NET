@@ -53,7 +53,7 @@ type FixedSlider() =
 
         AttrBuilder<'t>.CreateProperty<double>("Value", value, ValueSome getter, ValueSome setter, ValueNone)
 
-[<AutoOpen>]
+[<RequireQualifiedAccess>]
 module FixedSlider =
     let create (attrs: IAttr<FixedSlider> list): IView<FixedSlider> =
         ViewBuilder.Create<FixedSlider>(attrs)

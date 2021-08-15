@@ -67,7 +67,7 @@ type FixedComboBox() =
 
         AttrBuilder<'t>.CreateProperty<IEnumerable>("DataItems", items, ValueSome getter, ValueSome setter, ValueNone)
 
-[<AutoOpen>]
+[<RequireQualifiedAccess>]
 module FixedComboBox =
     let create (attrs: IAttr<FixedComboBox> list): IView<FixedComboBox> =
         ViewBuilder.Create<FixedComboBox>(attrs)
