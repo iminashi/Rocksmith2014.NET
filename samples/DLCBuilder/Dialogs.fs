@@ -166,7 +166,8 @@ let showDialog window dialogType state =
                 ofd FileFilter.PSARC (Dialog.PsarcImportTargetFolder >> ShowDialog)
 
         | Dialog.PsarcImportTargetFolder psarcPath ->
-            openFolderDialog title None (fun folder -> ImportPsarc(psarcPath, folder))
+            let initialDir = Path.GetDirectoryName psarcPath |> Some
+            openFolderDialog title initialDir (fun folder -> ImportPsarc(psarcPath, folder))
 
         | Dialog.PsarcUnpack ->
             ofd FileFilter.PSARC (UnpackPSARC >> ToolsMsg)

@@ -382,10 +382,22 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
         DragDrop.onDrop (fun e ->
             e.Data.GetFileNames()
             |> Seq.tryHead
-            |> Option.filter (String.endsWith ".rs2dlc")
             |> Option.iter (fun path ->
                 e.Handled <- true
-                path |> OpenProject |> dispatch))
+                match path with
+                | EndsWith ".rs2dlc" ->
+                    path |> OpenProject |> dispatch
+                | EndsWith ".dlc.xml" ->
+                    path |> ImportToolkitTemplate |> dispatch
+                | EndsWith ".tone2014.xml"
+                | EndsWith ".tone2014.json" ->
+                    path |> ImportTonesFromFile |> dispatch
+                | EndsWith ".xml" ->
+                    path |> Array.singleton |> AddArrangements |> dispatch
+                | EndsWith ".psarc" ->
+                    path |> Dialog.PsarcImportTargetFolder |> ShowDialog |> dispatch
+                | _ ->
+                    e.Handled <- false))
 
         Panel.children [
             DockPanel.create [
