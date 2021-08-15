@@ -1,18 +1,28 @@
 module DLCBuilder.JapaneseLyricsCreatorOverlay
 
+open Avalonia
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
 open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
 open Avalonia.Media
+open Avalonia.Input
 open Avalonia.Layout
 open System
 open JapaneseLyricsCreator
 
-let wrap ch =
+let private wrap ch =
     WrapPanel.create [
         WrapPanel.children ch
     ]
+
+let rec private findParent<'a when 'a :> IControl and 'a : null> (control: IControl) =
+    if isNull control.Parent then
+        null
+    elif control.Parent :? 'a then
+        control.Parent :?> 'a
+    else
+        findParent control.Parent
 
 let view _state dispatch (creatorState: LyricsCreatorState) =
     let dispatch' = LyricsCreatorMsg >> dispatch
@@ -49,10 +59,28 @@ let view _state dispatch (creatorState: LyricsCreatorState) =
         
         StackPanel.create [
             StackPanel.orientation Orientation.Horizontal
+            StackPanel.onKeyDown (fun e ->
+                if e.Key = Key.Z && e.KeyModifiers = KeyModifiers.Control then
+                    e.Handled <- true
+                    UndoLyricsChange |> dispatch')
             StackPanel.children [
                 ScrollViewer.create [
                     ScrollViewer.width 480.
                     ScrollViewer.height 600.
+                    ScrollViewer.onKeyDown (fun e ->
+                        let scrollViewer = findParent<ScrollViewer>(e.Source :?> IControl)
+                        e.Handled <- true
+                        match e.Key with
+                        | Key.Down ->
+                            scrollViewer.LineDown()
+                        | Key.Up ->
+                            scrollViewer.LineUp()
+                        | Key.PageDown ->
+                            scrollViewer.PageDown()
+                        | Key.PageUp ->
+                            scrollViewer.PageUp()
+                        | _ ->
+                            e.Handled <- false)
                     ScrollViewer.content (
                         creatorState.MatchedLines
                         |> Array.mapi (fun lineNumber line ->
@@ -63,15 +91,14 @@ let view _state dispatch (creatorState: LyricsCreatorState) =
                                     Border.background Brushes.Black
                                     Border.child (
                                         vStack [
-                                            TextBlock.create [
+                                            LyricsCreatorTextBlock.create [
+                                                TextBlock.classes [ "hover-highlight-jp" ]
                                                 TextBlock.padding (12., 12.)
-                                                TextBlock.text (syllable.Japanese |> Option.toObj)
-                                                if syllable.Japanese.IsSome then
-                                                    TextBlock.cursor Media.Cursors.hand
-                                                    TextBlock.classes [ "hover-highlight-jp" ]
-                                                TextBlock.onTapped ((fun _ ->
-                                                    dispatch' (CombineJapaneseWithNext { LineNumber = lineNumber; Index = wordNumber })),
-                                                    SubPatchOptions.OnChangeOf(lineNumber, wordNumber))
+                                                TextBlock.focusable syllable.Japanese.IsSome
+                                                TextBlock.text (Option.toObj syllable.Japanese)
+                                                TextBlock.cursor Media.Cursors.hand
+                                                LyricsCreatorTextBlock.location (lineNumber, wordNumber)
+                                                LyricsCreatorTextBlock.onClick (CombineJapaneseWithNext >> dispatch')
                                             ]
 
                                             Rectangle.create [
@@ -79,14 +106,14 @@ let view _state dispatch (creatorState: LyricsCreatorState) =
                                                 Rectangle.fill Brushes.Gray
                                             ]
 
-                                            TextBlock.create [
+                                            LyricsCreatorTextBlock.create [
                                                 TextBlock.classes [ "hover-highlight" ]
                                                 TextBlock.padding (12., 12.)
+                                                TextBlock.focusable true
                                                 TextBlock.text syllable.Vocal.Lyric
                                                 TextBlock.cursor Media.Cursors.hand
-                                                TextBlock.onTapped ((fun _ ->
-                                                    dispatch' (CombineSyllableWithNext { LineNumber = lineNumber; Index = wordNumber })),
-                                                    SubPatchOptions.OnChangeOf(lineNumber, wordNumber))
+                                                LyricsCreatorTextBlock.location (lineNumber, wordNumber)
+                                                LyricsCreatorTextBlock.onClick (CombineSyllableWithNext >> dispatch')
                                             ]
                                         ])
                                 ] |> generalize)
