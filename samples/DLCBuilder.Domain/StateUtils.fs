@@ -153,3 +153,54 @@ let addArrangements fileNames state =
         let errorMessage = errors |> String.concat "\n\n"
 
         { newState with Overlay = ErrorMessage(errorMessage, None) }
+
+/// Adds the Japanese vocals to the project if it does not have them already.
+let addJapaneseVocals (xmlPath: string) state =
+    // Only add the Japanese vocals if they were saved to the project directory
+    // And the project does not already include Japanese vocals
+    let shouldInclude =
+        let currentVocals =
+            state.Project.Arrangements
+            |> List.choose Arrangement.pickVocals
+
+        state.OpenProjectFile
+        |> Option.exists (fun x -> Path.GetDirectoryName x = Path.GetDirectoryName xmlPath)
+        && currentVocals.Length < 2
+        && not <| List.exists (fun x -> x.Japanese) currentVocals
+
+    if not shouldInclude then
+        state, Cmd.none
+    else
+        let japaneseVocals =
+            Vocals { XML = xmlPath
+                     Japanese = true
+                     CustomFont = None
+                     PersistentID = Guid.NewGuid()
+                     MasterID = RandomGenerator.next() }
+
+        let updatedProject =
+            let arrangements =
+                japaneseVocals::state.Project.Arrangements
+                |> List.sortBy Arrangement.sorter
+            { state.Project with Arrangements = arrangements }
+
+        { state with Project = updatedProject },
+        Cmd.ofMsg (AddStatusMessage (state.Localizer.Translate "ArrangementWasAddedToProject"))        
+
+/// Applies the low tuning fix to the selected arrangement.
+let applyLowTuningFix state =
+    let arrangements =
+        match getSelectedArrangement state with
+        | Some (Instrumental inst) ->
+            let updated =
+                { inst with TuningPitch = inst.TuningPitch / 2.
+                            Tuning = Array.map ((+) 12s) inst.Tuning }
+                |> Instrumental
+
+            state.Project.Arrangements
+            |> List.updateAt state.SelectedArrangementIndex updated
+        | _ ->
+            state.Project.Arrangements
+    
+    { state with Project = { state.Project with Arrangements = arrangements } }
+    

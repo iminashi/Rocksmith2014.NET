@@ -726,18 +726,7 @@ let update (msg: Msg) (state: State) =
         { state with Project = { project with Arrangements = arrangements } }, Cmd.none
 
     | ApplyLowTuningFix ->
-        let arrangements =
-            match getSelectedArrangement state with
-            | Some (Instrumental inst) ->
-                let updated =
-                    { inst with TuningPitch = inst.TuningPitch / 2.
-                                Tuning = Array.map ((+) 12s) inst.Tuning }
-                    |> Instrumental
-                project.Arrangements |> List.updateAt state.SelectedArrangementIndex updated
-            | _ ->
-                project.Arrangements
-
-        { state with Project = { project with Arrangements = arrangements } }, Cmd.none
+        applyLowTuningFix state, Cmd.none
 
     | Build _ when not <| canBuild state ->
         state, Cmd.none
@@ -894,36 +883,7 @@ let update (msg: Msg) (state: State) =
             | JapaneseLyricsCreator.Nothing ->
                 newState, Cmd.none
             | JapaneseLyricsCreator.AddVocalsToProject xmlPath ->
-                // Only add the Japanese vocals if they were saved to the project directory
-                // And the project does not already include Japanese vocals
-                let shouldInclude =
-                    let currentVocals =
-                        project.Arrangements
-                        |> List.choose Arrangement.pickVocals
-
-                    state.OpenProjectFile
-                    |> Option.exists (fun x -> Path.GetDirectoryName x = Path.GetDirectoryName xmlPath)
-                    && currentVocals.Length < 2
-                    && not <| List.exists (fun x -> x.Japanese) currentVocals
-
-                if shouldInclude then
-                    let japaneseVocals =
-                        Vocals { XML = xmlPath
-                                 Japanese = true
-                                 CustomFont = None
-                                 PersistentID = Guid.NewGuid()
-                                 MasterID = RandomGenerator.next() }
-
-                    let updatedProject =
-                        let arrangements =
-                            japaneseVocals::project.Arrangements
-                            |> List.sortBy Arrangement.sorter
-                        { project with Arrangements = arrangements }
-
-                    { newState with Project = updatedProject },
-                    Cmd.ofMsg (AddStatusMessage (translate "ArrangementWasAddedToProject"))
-                else
-                    newState, Cmd.none
+                addJapaneseVocals xmlPath newState
         | _ ->
             state, Cmd.none
 
