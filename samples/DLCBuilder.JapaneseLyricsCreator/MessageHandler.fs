@@ -39,7 +39,7 @@ let update state msg =
             |> ResizeArray
 
         Vocals.Save(targetPath, vocals)
-        state
+        state, Effect.AddVocalsToProject targetPath
 
     | SetJapaneseLyrics jLyrics ->
         let japaneseLines =
@@ -50,11 +50,11 @@ let update state msg =
         LyricsCreatorState.addUndo state
         { state with MatchedLines = matchedLines
                      JapaneseLyrics = jLyrics
-                     JapaneseLines = japaneseLines }
+                     JapaneseLines = japaneseLines }, Effect.Nothing
 
     | CombineJapaneseWithNext location ->
         if not <| isWithinBounds state.JapaneseLines location.LineNumber location.Index then
-            state
+            state, Effect.Nothing
         else
             let combinedJp = location::state.CombinedJapanese
 
@@ -67,11 +67,11 @@ let update state msg =
             LyricsCreatorState.addUndo state
             { state with CombinedJapanese = combinedJp
                          JapaneseLines = japaneseLines
-                         MatchedLines = matchedLines }
+                         MatchedLines = matchedLines }, Effect.Nothing
 
     | CombineSyllableWithNext { Index = index; LineNumber = lineNumber } ->
         if not <| isWithinBounds state.MatchedLines lineNumber index then
-            state
+            state, Effect.Nothing
         else
             let newLines =
                 state.MatchedLines
@@ -96,7 +96,7 @@ let update state msg =
                 updateMatchedLines newLines state.JapaneseLines
 
             LyricsCreatorState.addUndo state
-            { state with MatchedLines = matchedLines }
+            { state with MatchedLines = matchedLines }, Effect.Nothing
 
     | UndoLyricsChange ->
-        LyricsCreatorState.tryUndo state
+        LyricsCreatorState.tryUndo state, Effect.Nothing

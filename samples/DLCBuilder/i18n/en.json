@@ -408,5 +408,6 @@
   "GlyphsFileNotFound": "Glyphs file (.glyphs.xml) not found.",
   "CustomFontPath": "Custom font texture filename",
   "Undo": "Undo",
-  "PasteJapaneseLyricsHere": "Paste Japanese lyrics here."
+  "PasteJapaneseLyricsHere": "Paste Japanese lyrics here.",
+  "ArrangementWasAddedToProject": "The arrangement was added to the project."
 }

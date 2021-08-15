@@ -885,10 +885,45 @@ let update (msg: Msg) (state: State) =
     | LyricsCreatorMsg msg ->
         match state.Overlay with
         | JapaneseLyricsCreator lyricsState ->
-            let overlay =
+            let newEditorState, effect =
                 JapaneseLyricsCreator.MessageHandler.update lyricsState msg
-                |> JapaneseLyricsCreator
-            { state with Overlay = overlay }, Cmd.none
+
+            let newState = { state with Overlay = JapaneseLyricsCreator newEditorState }
+
+            match effect with
+            | JapaneseLyricsCreator.Nothing ->
+                newState, Cmd.none
+            | JapaneseLyricsCreator.AddVocalsToProject xmlPath ->
+                // Only add the Japanese vocals if they were saved to the project directory
+                // And the project does not already include Japanese vocals
+                let shouldInclude =
+                    let currentVocals =
+                        project.Arrangements
+                        |> List.choose Arrangement.pickVocals
+
+                    state.OpenProjectFile
+                    |> Option.exists (fun x -> Path.GetDirectoryName x = Path.GetDirectoryName xmlPath)
+                    && currentVocals.Length < 2
+                    && not <| List.exists (fun x -> x.Japanese) currentVocals
+
+                if shouldInclude then
+                    let japaneseVocals =
+                        Vocals { XML = xmlPath
+                                 Japanese = true
+                                 CustomFont = None
+                                 PersistentID = Guid.NewGuid()
+                                 MasterID = RandomGenerator.next() }
+
+                    let updatedProject =
+                        let arrangements =
+                            japaneseVocals::project.Arrangements
+                            |> List.sortBy Arrangement.sorter
+                        { project with Arrangements = arrangements }
+
+                    { newState with Project = updatedProject },
+                    Cmd.ofMsg (AddStatusMessage (translate "ArrangementWasAddedToProject"))
+                else
+                    newState, Cmd.none
         | _ ->
             state, Cmd.none
 

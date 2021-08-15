@@ -16,3 +16,7 @@ type Msg =
     | CombineJapaneseWithNext of CombinationLocation
     | UndoLyricsChange
     | SaveLyricsToFile of targetPath : string
+
+type Effect =
+    | Nothing
+    | AddVocalsToProject of xmlPath : string

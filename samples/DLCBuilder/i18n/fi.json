@@ -408,5 +408,6 @@
   "GlyphsFileNotFound": "Symbolitiedostoa (.glyphs.xml) ei löydy.",
   "CustomFontPath": "Mukautetun fonttitekstuurin tiedostonimi",
   "Undo": "Kumoa",
-  "PasteJapaneseLyricsHere": "Kopioi japaninkieliset lyriikat tähän."
+  "PasteJapaneseLyricsHere": "Kopioi japaninkieliset lyriikat tähän.",
+  "ArrangementWasAddedToProject": "Sovitus lisättiin projektiin."
 }

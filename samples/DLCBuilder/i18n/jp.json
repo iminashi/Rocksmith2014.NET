@@ -408,5 +408,6 @@
   "GlyphsFileNotFound": "グリフファイル(.glyphs.xml)が存在しません。",
   "CustomFontPath": "カスタムフォントのファイル名",
   "Undo": "取り消す",
-  "PasteJapaneseLyricsHere": "日本語の歌詞をここにコピペしてください。"
+  "PasteJapaneseLyricsHere": "日本語の歌詞をここにコピペしてください。",
+  "ArrangementWasAddedToProject": "アレンジがプロジェクトに追加されました。"
 }
