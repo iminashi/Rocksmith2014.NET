@@ -5,6 +5,7 @@ open Avalonia.Controls.Shapes
 open Avalonia.FuncUI
 open Avalonia.FuncUI.Components
 open Avalonia.FuncUI.DSL
+open Avalonia.Interactivity
 open Avalonia.Layout
 open Avalonia.Media
 open Rocksmith2014.Common.Manifest
@@ -27,9 +28,9 @@ let tone state dispatch index (t: Tone) =
 
     StackPanel.create [
         StackPanel.classes [ "list-item"; if state.SelectedToneIndex = index then "selected" ]
-        StackPanel.onPointerReleased ((fun e ->
-            e.Handled <- true
-            index |> SetSelectedToneIndex |> dispatch),
+        StackPanel.onPointerPressed ((fun e ->
+            if e.Route = RoutingStrategies.Bubble then
+                index |> SetSelectedToneIndex |> dispatch),
             SubPatchOptions.OnChangeOf index)
         StackPanel.onDoubleTapped (fun _ -> ShowToneEditor |> dispatch)
         StackPanel.contextMenu (Menus.Context.tone state dispatch)
@@ -131,9 +132,9 @@ let arrangement state dispatch index arr =
 
     DockPanel.create [
         DockPanel.classes [ "list-item"; if state.SelectedArrangementIndex = index then "selected" ]
-        DockPanel.onPointerReleased ((fun e ->
-            e.Handled <- true
-            index |> SetSelectedArrangementIndex |> dispatch),
+        DockPanel.onPointerPressed ((fun e ->
+            if e.Route = RoutingStrategies.Bubble then
+                index |> SetSelectedArrangementIndex |> dispatch),
             SubPatchOptions.OnChangeOf index)
         DockPanel.contextMenu (Menus.Context.arrangement state dispatch)
         if isEmptyBaseToneKey then
