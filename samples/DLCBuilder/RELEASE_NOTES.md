@@ -1,9 +1,11 @@
 ## 0.6.0 (Released 2021-08-xx)
 
 - A Linux version is now available.
+- Added a tool for creating a Japanese vocals arrangement from a romaji arrangement.
 - Added drag & drop support for project files.
 - Added a customized window title bar (Windows only).
 - UX improvements for first-time users.
+- Minor UI fixes.
 - Fixed cover art not being displayed in the UI when importing a Toolkit template.
 - Fixed tone XML export not working properly on Unix platforms.
 
