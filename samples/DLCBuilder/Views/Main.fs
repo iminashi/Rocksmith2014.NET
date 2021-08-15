@@ -15,36 +15,14 @@ open DLCBuilder
 open Media
 
 let private arrangementList state dispatch =
-    ScrollViewer.create [
-        ScrollViewer.horizontalScrollBarVisibility ScrollBarVisibility.Auto
-        ScrollViewer.content (
-            StackPanel.create [
-                StackPanel.focusable true
-                StackPanel.children (
-                    state.Project.Arrangements
-                    |> List.mapi (Templates.arrangement state dispatch)
-                )
-                if state.Overlay = NoOverlay then
-                    StackPanel.onKeyDown ((fun e ->
-                        e.Handled <- true
-                        let arrIndex = state.SelectedArrangementIndex
-                        match e.KeyModifiers, e.Key with
-                        | KeyModifiers.None, Key.Delete ->
-                            dispatch DeleteSelectedArrangement
-                        | KeyModifiers.Alt, Key.Up ->
-                            dispatch (MoveArrangement Up)
-                        | KeyModifiers.Alt, Key.Down ->
-                            dispatch (MoveArrangement Down)
-                        | KeyModifiers.None, (Key.Up | Key.Down) when arrIndex = -1 ->
-                            dispatch (SetSelectedArrangementIndex 0)
-                        | KeyModifiers.None, Key.Up when arrIndex > 0 ->
-                            dispatch (SetSelectedArrangementIndex (arrIndex - 1))
-                        | KeyModifiers.None, Key.Down when arrIndex <> state.Project.Arrangements.Length - 1 ->
-                            dispatch (SetSelectedArrangementIndex (arrIndex + 1))
-                        | _ ->
-                            e.Handled <- false), SubPatchOptions.OnChangeOf state.SelectedArrangementIndex)
-            ]
-        )
+    ListBoxEx.create [
+        ListBoxEx.selectedIndex state.SelectedArrangementIndex
+        ListBoxEx.onSelectedIndexChanged (SetSelectedArrangementIndex >> dispatch)
+        ListBoxEx.onItemMoved (MoveArrangement >> dispatch)
+        ListBoxEx.onItemDeleted (fun () -> DeleteSelectedArrangement |> dispatch)
+        ListBoxEx.children (
+            state.Project.Arrangements
+            |> List.mapi (Templates.arrangement state dispatch))
     ]
 
 let private validationIcon dispatch noIssues =
@@ -203,36 +181,14 @@ let private arrangementPanel state dispatch =
     ]
 
 let private tonesList state dispatch =
-    ScrollViewer.create [
-        ScrollViewer.horizontalScrollBarVisibility ScrollBarVisibility.Auto
-        ScrollViewer.content (
-            StackPanel.create [
-                StackPanel.focusable true
-                StackPanel.children (
-                    state.Project.Tones
-                    |> List.mapi (Templates.tone state dispatch)
-                )
-                if state.Overlay = NoOverlay then
-                    StackPanel.onKeyDown ((fun e ->
-                        e.Handled <- true
-                        let toneIndex = state.SelectedToneIndex
-                        match e.KeyModifiers, e.Key with
-                        | KeyModifiers.None, Key.Delete ->
-                            dispatch DeleteSelectedTone
-                        | KeyModifiers.Alt, Key.Up ->
-                            dispatch (MoveTone Up)
-                        | KeyModifiers.Alt, Key.Down ->
-                            dispatch (MoveTone Down)
-                        | KeyModifiers.None, (Key.Up | Key.Down) when toneIndex = -1 ->
-                            dispatch (SetSelectedToneIndex 0)
-                        | KeyModifiers.None, Key.Up when toneIndex > 0 ->
-                            dispatch (SetSelectedToneIndex (toneIndex - 1))
-                        | KeyModifiers.None, Key.Down when toneIndex <> state.Project.Tones.Length - 1 ->
-                            dispatch (SetSelectedToneIndex (toneIndex + 1))
-                        | _ ->
-                            e.Handled <- false), SubPatchOptions.OnChangeOf state.SelectedToneIndex)
-            ]
-        )
+    ListBoxEx.create [
+        ListBoxEx.selectedIndex state.SelectedToneIndex
+        ListBoxEx.onSelectedIndexChanged (SetSelectedToneIndex >> dispatch)
+        ListBoxEx.onItemMoved (MoveTone >> dispatch)
+        ListBoxEx.onItemDeleted (fun () -> DeleteSelectedTone |> dispatch)
+        ListBoxEx.children (
+            state.Project.Tones
+            |> List.mapi (Templates.tone state dispatch))
     ]
 
 let private tonesPanel state dispatch =
@@ -290,8 +246,6 @@ let private tonesPanel state dispatch =
 
 let private overlay state dispatch =
     match state.Overlay with
-    | JapaneseLyricsCreator editorState ->
-        JapaneseLyricsCreatorOverlay.view state dispatch editorState
     | NoOverlay ->
         failwith "This can not happen."
     | IdRegenerationConfirmation (arrangements, reply) ->
@@ -306,6 +260,8 @@ let private overlay state dispatch =
         ConfigEditor.view state dispatch focusedSetting
     | IssueViewer arrangement ->
         IssueViewer.view state dispatch arrangement
+    | JapaneseLyricsCreator editorState ->
+        JapaneseLyricsCreatorOverlay.view state dispatch editorState
     | ToneEditor ->
         match state.SelectedToneIndex with
         | -1 ->

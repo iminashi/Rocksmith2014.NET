@@ -27,8 +27,8 @@ let tone state dispatch index (t: Tone) =
 
     StackPanel.create [
         StackPanel.classes [ "list-item"; if state.SelectedToneIndex = index then "selected" ]
-        StackPanel.onPointerPressed ((fun ev ->
-            ev.Handled <- true
+        StackPanel.onPointerReleased ((fun e ->
+            e.Handled <- true
             index |> SetSelectedToneIndex |> dispatch),
             SubPatchOptions.OnChangeOf index)
         StackPanel.onDoubleTapped (fun _ -> ShowToneEditor |> dispatch)
@@ -131,8 +131,8 @@ let arrangement state dispatch index arr =
 
     DockPanel.create [
         DockPanel.classes [ "list-item"; if state.SelectedArrangementIndex = index then "selected" ]
-        DockPanel.onPointerPressed ((fun ev ->
-            ev.Handled <- true
+        DockPanel.onPointerReleased ((fun e ->
+            e.Handled <- true
             index |> SetSelectedArrangementIndex |> dispatch),
             SubPatchOptions.OnChangeOf index)
         DockPanel.contextMenu (Menus.Context.arrangement state dispatch)

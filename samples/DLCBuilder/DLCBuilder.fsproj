@@ -58,6 +58,7 @@
     <Compile Include="Controls\LyricsCreatorTextBlock.fs" />
     <Compile Include="Controls\ToneImportListBox.fs" />
     <Compile Include="Controls\AutoFocusSearchBox.fs" />
+    <Compile Include="Controls\ListBoxEx.fs" />
     <Compile Include="Controls\TitleBarButtons.fs" />
     <Compile Include="Controls\TitledTextBox.fs" />
     <Compile Include="Controls\FuncUIExtensions.fs" />

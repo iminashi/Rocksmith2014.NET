@@ -1,5 +1,6 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:DLCBuilder">
 
   <Style Selector="TextBox">
     <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -30,12 +31,18 @@
     <Setter Property="Background" Value="Transparent"/>
   </Style>
   <Style Selector=":is(Panel).list-item:pointerover">
+    <Setter Property="Background" Value="#282828"/>
+  </Style>
+  <Style Selector="local|ListBoxEx :is(Panel).selected">
     <Setter Property="Background" Value="#383838"/>
   </Style>
-  <Style Selector=":is(Panel).selected">
+  <Style Selector="local|ListBoxEx :is(Panel).selected:pointerover">
+    <Setter Property="Background" Value="#484848"/>
+  </Style>
+  <Style Selector="local|ListBoxEx:focus :is(Panel).selected">
     <Setter Property="Background" Value="#0a528b"/>
   </Style>
-  <Style Selector=":is(Panel).selected:pointerover">
+  <Style Selector="local|ListBoxEx:focus :is(Panel).selected:pointerover">
     <Setter Property="Background" Value="#185f99"/>
   </Style>
   
