@@ -48,7 +48,7 @@ let private getEndPharseTime (arr: Inst) =
         |> Seq.tryFindIndex (fun x -> x.Name.Equals("END", StringComparison.OrdinalIgnoreCase))
         |> Option.bind (fun index ->        
             arr.PhraseIterations
-            |> Seq.tryFind (fun x -> x.PhraseId = index))
+            |> ResizeArray.tryFind (fun x -> x.PhraseId = index))
 
     match oldEndPhrase with
     | Some oldEnd ->
@@ -64,17 +64,17 @@ let private getEndPharseTime (arr: Inst) =
 let private findNextContent (level: Level) time =
     let note =
         level.Notes
-        |> Seq.tryFind (fun x -> x.Time >= time)
+        |> ResizeArray.tryFind (fun x -> x.Time >= time)
         |> Option.map (fun x -> x.Time)
 
     let chord =
         level.Chords
-        |> Seq.tryFind (fun x -> x.Time >= time)
+        |> ResizeArray.tryFind (fun x -> x.Time >= time)
         |> Option.map (fun x -> x.Time)
 
     let handShape =
         level.HandShapes
-        |> Seq.tryFind (fun x -> x.StartTime >= time)
+        |> ResizeArray.tryFind (fun x -> x.StartTime >= time)
         |> Option.map (fun x -> x.StartTime)
 
     minOfThree note chord handShape
@@ -121,7 +121,7 @@ let private addFirstPhrase firstPhraseTime (arr: Inst) =
 let private findGoodPhraseTime (level: Level) initialTime =
     let outsideNoteSustainTime =
         level.Notes
-        |> Seq.tryFind (fun x -> x.Time < initialTime && x.Time + x.Sustain > initialTime)
+        |> ResizeArray.tryFind (fun x -> x.Time < initialTime && x.Time + x.Sustain > initialTime)
         |> Option.map (fun x ->
             if initialTime - x.Time < x.Time + x.Sustain - initialTime then
                 x.Time
@@ -130,7 +130,7 @@ let private findGoodPhraseTime (level: Level) initialTime =
 
     let outsideHandShapeTime =
         level.HandShapes
-        |> Seq.tryFind (fun x -> x.StartTime < initialTime && x.EndTime > initialTime)
+        |> ResizeArray.tryFind (fun x -> x.StartTime < initialTime && x.EndTime > initialTime)
         |> Option.map (fun x -> x.StartTime)
 
     outsideNoteSustainTime

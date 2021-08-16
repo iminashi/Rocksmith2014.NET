@@ -47,7 +47,7 @@ let findFirstLevelWithContent (arrangement: InstrumentalArrangement) =
         // Find the first phrase that has difficulty levels
         let firstPhraseIteration =
             arrangement.PhraseIterations
-            |> Seq.tryFind (fun pi ->
+            |> ResizeArray.tryFind (fun pi ->
                 arrangement.Phrases.[pi.PhraseId].MaxDifficulty > 0uy)
 
         match firstPhraseIteration with

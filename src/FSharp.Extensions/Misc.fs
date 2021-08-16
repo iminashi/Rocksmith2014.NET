@@ -39,6 +39,17 @@ module ResizeArray =
         else
             Some a.[0]
 
+    let tryFind (predicate: 'a -> bool) (a: ResizeArray<'a>) =
+        let rec seek index =
+            if index = a.Count then
+                None
+            else
+                if predicate a.[index] then
+                    Some a.[index]
+                else
+                    seek (index + 1)
+        seek 0
+
 [<RequireQualifiedAccess>]
 module Dictionary =
     /// Maps the result of IReadOnlyDictionary.TryGetValue into an option.
