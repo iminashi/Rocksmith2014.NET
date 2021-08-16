@@ -156,7 +156,7 @@ let private createPhrasesAndSections contentStartTime endPharseTime (arr: Inst) 
     arr.Sections.Add(Section("riff", contentStartTime, riffNumber))
 
     arr.Ebeats
-    |> Seq.skipWhile (fun x -> x.Time <= contentStartTime)
+    |> Seq.skipWhile (fun x -> x.Time < contentStartTime)
     |> Seq.takeWhile (fun x -> x.Time < endPharseTime)
     |> Seq.iter (fun beat ->
         if beat.Measure <> -1s && nextPhraseTime.IsNone then
