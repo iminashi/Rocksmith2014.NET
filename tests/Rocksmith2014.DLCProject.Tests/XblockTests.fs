@@ -19,14 +19,14 @@ let private hasProperty name value (entity: Entity) =
 let xblockTests =
     testList "XBlock Tests" [
         test "Can be created" {
-            let x = XBlock.create PC project
-        
+            let x = create PC project
+
             Expect.isNonEmpty x.EntitySet "Entity set has been populated" }
-        
+
         test "Entity set contents is correct" {
-            let x = XBlock.create PC project
+            let x = create PC project
             let entitySet = x.EntitySet
-        
+
             Expect.all entitySet (fun x -> x.ModelName = "RSEnumerable_Song") "Model name is correct"
             Expect.all entitySet (hasProperty "SoundBank" "urn:audio:wwise-sound-bank:song_sometest") "Contains sound bank property with correct URN"
             Expect.all entitySet (hasProperty "PreviewSoundBank" "urn:audio:wwise-sound-bank:song_sometest_preview") "Contains preview sound bank property with correct URN"
@@ -51,11 +51,11 @@ let xblockTests =
         test "Custom audio entity is correct" {
             let testArr = { testLead with CustomAudio = Some { Path = "Test.wem"; Volume = 0. } }
             let project = { project with Arrangements = [ Instrumental testArr ] }
-            let x = XBlock.create PC project
+            let x = create PC project
             let entitySet = x.EntitySet
-        
+
             Expect.all entitySet (hasProperty "SoundBank" "urn:audio:wwise-sound-bank:song_sometest_lead") "Contains sound bank property with correct URN" }
-        
+
         test "Can be serialized" {
             let set = { Value = "urn:database:hsan-db:songs_dlc_test" }
             let property =
@@ -68,18 +68,18 @@ let xblockTests =
                   Iterations = 0
                   Properties = [| property |] }
             let game = { EntitySet = [| entity |] }
-        
+
             use stream = new MemoryStream()
-            XBlock.serialize stream game
+            serialize stream game
             stream.Position <- 0L
             let xml = using (new StreamReader(stream)) (fun reader -> reader.ReadToEnd())
-        
+
             Expect.isNotEmpty xml "XML string is not empty" }
-        
+
         test "Can be deserialized" {
             use file = File.OpenRead "test.xblock"
-        
-            let xblock = XBlock.deserialize file
-        
+
+            let xblock = deserialize file
+
             Expect.equal xblock.EntitySet.[0].ModelName "RSEnumerable_Song" "Model name is correct" }
     ]

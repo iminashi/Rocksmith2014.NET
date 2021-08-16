@@ -9,7 +9,6 @@ open Avalonia.Styling
 open System
 open System.Reactive.Linq
 open System.Collections
-open Rocksmith2014.Common
 
 type FixedComboBox() =
     inherit ComboBox()
@@ -38,7 +37,7 @@ type FixedComboBox() =
 
     static member onSelectedItemChanged<'t when 't :> FixedComboBox> fn =
         let getter : 't -> (obj -> unit) = fun c -> c.OnValueChangedCallback
-        let setter : ('t * (obj -> unit)) -> unit = fun (c, f) -> c.OnValueChangedCallback <- f
+        let setter : 't * (obj -> unit) -> unit = fun (c, f) -> c.OnValueChangedCallback <- f
         // Keep the same callback once set
         let comparer _ = true
 

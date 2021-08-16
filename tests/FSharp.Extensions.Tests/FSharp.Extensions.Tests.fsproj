@@ -11,11 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="UtilsTests.fs" />
-    <Compile Include="InstrumentalCheckerTests.fs" />
-    <Compile Include="VocalsCheckerTests.fs" />
-    <Compile Include="ShowLightsCheckerTests.fs" />
-    <Compile Include="ArrangementImproverTests.fs" />
+    <Compile Include="ActivePatternTests.fs" />
+    <Compile Include="ExtensionTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
@@ -29,7 +26,7 @@
     <PackageReference Include="Expecto.VisualStudio.TestAdapter" Version="10.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
     <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.12.5" />
-    <ProjectReference Include="..\..\src\Rocksmith2014.XML.Processing\Rocksmith2014.XML.Processing.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Extensions\FSharp.Extensions.fsproj" />
     <PackageReference Update="FSharp.Core" Version="5.0.2" />
   </ItemGroup>
 

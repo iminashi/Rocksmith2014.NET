@@ -193,10 +193,10 @@ let messageTests =
         testCase "CloseOverlay disposes tone collection" <| fun _ ->
             let mutable disposed = false
             let dataBase =
-                { new ToneCollection.IDatabaseConnector with
+                { new IDatabaseConnector with
                     member _.TryCreateOfficialTonesApi() = None
                     member _.CreateUserTonesApi() =
-                        { new ToneCollection.IUserTonesApi with
+                        { new IUserTonesApi with
                             member _.Dispose() = disposed <- true
                             member _.GetToneById _ = None
                             member _.GetTones _ = Array.empty

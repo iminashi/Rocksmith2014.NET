@@ -2,19 +2,6 @@ module Rocksmith2014.XML.Processing.Utils
 
 open Rocksmith2014.XML
 
-module ResizeArray =
-    let inline tryLast (a: ResizeArray<_>) =
-        if a.Count = 0 then
-            None
-        else
-            Some a.[a.Count - 1]
-
-    let inline tryHead (a: ResizeArray<_>) =
-        if a.Count = 0 then
-            None
-        else
-            Some a.[0]
-
 let internal issue type' time = { Type = type'; TimeCode = time }
 
 /// Converts a time in milliseconds into a string.

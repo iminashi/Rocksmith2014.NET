@@ -8,7 +8,6 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Media
 open Avalonia.Input
 open Avalonia.Layout
-open System
 open JapaneseLyricsCreator
 
 let private wrap ch =
@@ -56,7 +55,7 @@ let view _state dispatch (creatorState: LyricsCreatorState) =
                 ]
             ]
         ]
-        
+
         StackPanel.create [
             StackPanel.orientation Orientation.Horizontal
             StackPanel.onKeyDown (fun e ->

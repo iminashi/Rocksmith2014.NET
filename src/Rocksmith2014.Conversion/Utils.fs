@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Conversion.Utils
+module Rocksmith2014.Conversion.Utils
 
 open System
 open Rocksmith2014.SNG
@@ -43,11 +43,6 @@ let mapToArrayMaxSize maxSize map (resizeArray: ResizeArray<_>) =
 /// Maps a ResizeArray into an array using the given map function, with index.
 let mapiToArray map (resizeArray: ResizeArray<_>) =
     Array.init resizeArray.Count (fun i -> map i resizeArray.[i])
-
-/// Returns the average of the given array, zero for an empty array.
-let tryAverage = function
-    | [||] -> 0.f
-    | arr -> arr |> Array.average
 
 /// Finds the index of the phrase iteration that contains the given time code.
 let findPiId inclusive (time: int) (iterations: ResizeArray<XML.PhraseIteration>) =

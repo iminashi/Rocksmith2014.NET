@@ -28,11 +28,12 @@ type ToneImportListBox() =
 
     static member onSelectedTonesChanged fn =
         let getter (c: ToneImportListBox) = c.OnSelectedItemsChangedCallback
-        let setter : (ToneImportListBox * (Tone list -> unit)) -> unit = fun (c, f) -> c.OnSelectedItemsChangedCallback <- f
+        let setter : ToneImportListBox * (Tone list -> unit) -> unit = fun (c, f) -> c.OnSelectedItemsChangedCallback <- f
         // Keep the same callback once set
         let comparer _ = true
 
-        AttrBuilder<ToneImportListBox>.CreateProperty<Tone list -> unit>("OnSelectedTonesChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
+        AttrBuilder<ToneImportListBox>.CreateProperty<Tone list -> unit>
+            ("OnSelectedTonesChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
 
 [<RequireQualifiedAccess>]
 module ToneImportListBox =

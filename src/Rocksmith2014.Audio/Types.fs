@@ -3,7 +3,6 @@ module Rocksmith2014.Audio.Types
 
 open NAudio.Wave
 open NAudio.Vorbis
-open Rocksmith2014.Common
 open System
 
 [<Measure>] type ms

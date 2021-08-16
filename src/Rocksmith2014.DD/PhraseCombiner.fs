@@ -1,4 +1,4 @@
-﻿module internal Rocksmith2014.DD.PhraseCombiner
+module internal Rocksmith2014.DD.PhraseCombiner
 
 open System
 open System.Collections.Generic
@@ -66,7 +66,7 @@ let private findSamePhrases threshold (levelCounts: int array) (iterationData: P
                     ids
                     |> Array.append [| mainId |]
                     |> Array.map (fun id -> levelCounts.[id])
-                    |> Utils.allSame
+                    |> Array.allSame
 
                 Some { MainId = mainId; Ids = ids; IsSameDifficulty = isSameDifficulty })
     |> Array.choose id

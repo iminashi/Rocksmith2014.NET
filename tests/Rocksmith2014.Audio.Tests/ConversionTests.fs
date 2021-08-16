@@ -2,7 +2,6 @@ module ConversionTests
 
 open Expecto
 open Rocksmith2014.Audio
-open System
 open System.IO
 
 [<Tests>]

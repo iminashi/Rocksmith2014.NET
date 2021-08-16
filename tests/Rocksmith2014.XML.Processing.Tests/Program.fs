@@ -1,6 +1,4 @@
-﻿module Rocksmith2014.XML.Processing.Tests.Main
-
-open Expecto
+﻿open Expecto
 
 [<EntryPoint>]
 let main argv =

@@ -2,7 +2,6 @@ module Rocksmith2014.Audio.WwiseFinder
 
 open System
 open System.IO
-open Rocksmith2014.Common
 open System.Text.RegularExpressions
 
 let private tryFindWwiseInstallation rootDir =

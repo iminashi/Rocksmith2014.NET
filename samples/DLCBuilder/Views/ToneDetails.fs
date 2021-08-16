@@ -7,7 +7,6 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Media
 open System
-open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open DLCBuilder
@@ -25,7 +24,7 @@ let private createDescriptors dispatch (tone: Tone) =
                     ComboBox.itemTemplate Templates.toneDescriptor
                     FixedComboBox.selectedItem (ToneDescriptor.uiNameToDesc.[tone.ToneDescriptors.[i]])
                     FixedComboBox.onSelectedItemChanged (function
-                        | :? ToneDescriptor as td -> 
+                        | :? ToneDescriptor as td ->
                             ChangeDescriptor(i, td)
                             |> EditTone
                             |> dispatch

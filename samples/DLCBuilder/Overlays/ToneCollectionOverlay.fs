@@ -11,7 +11,6 @@ open Avalonia.Media
 open DLCBuilder
 open DLCBuilder.Media
 open DLCBuilder.ToneGear
-open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open System
 open System.Text.RegularExpressions

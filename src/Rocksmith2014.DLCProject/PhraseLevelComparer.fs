@@ -1,11 +1,10 @@
 ﻿module Rocksmith2014.DLCProject.PhraseLevelComparer
 
+open Rocksmith2014.SNG
 open System
 open System.Collections.Generic
 open System.IO
 open System.Text.Json
-open Rocksmith2014.Common
-open Rocksmith2014.SNG
 
 type PhraseName = string
 

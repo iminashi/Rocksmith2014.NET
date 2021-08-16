@@ -8,7 +8,6 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Input
 open Avalonia.Layout
 open Avalonia.Media
-open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open System
 open DLCBuilder

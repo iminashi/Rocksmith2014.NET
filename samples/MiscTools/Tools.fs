@@ -40,7 +40,7 @@ let project =
       Tones = [] }
 
 let private window =
-    lazy ((Application.Current.ApplicationLifetime :?> ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime).MainWindow)
+    lazy (Application.Current.ApplicationLifetime :?> ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime).MainWindow
 
 let createFilters (extensions: string seq) name =
     let filter = FileDialogFilter(Extensions = ResizeArray(extensions), Name = name)
@@ -163,7 +163,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             state, Cmd.OfAsync.attempt t () Error
 
         | BatchConvertToSng files ->
-            let t () = 
+            let t () =
                 files
                 |> Array.map (convertFileToSng state.Platform)
                 |> Async.Parallel
@@ -179,16 +179,16 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                 do! psarc.ExtractFiles targetDirectory
 
                 if state.ConvertAudio then
-                    Directory.EnumerateFiles(targetDirectory, "*.wem", SearchOption.AllDirectories) 
+                    Directory.EnumerateFiles(targetDirectory, "*.wem", SearchOption.AllDirectories)
                     |> Seq.iter Conversion.wemToOgg
 
                 if state.ConvertSNG then
                     let sngPaths =
-                        Directory.EnumerateFiles(targetDirectory, "*.sng", SearchOption.AllDirectories) 
+                        Directory.EnumerateFiles(targetDirectory, "*.sng", SearchOption.AllDirectories)
                         |> List.ofSeq
 
                     let manifestPaths =
-                        Directory.EnumerateFiles(targetDirectory, "*.json", SearchOption.AllDirectories) 
+                        Directory.EnumerateFiles(targetDirectory, "*.json", SearchOption.AllDirectories)
                         |> List.ofSeq
 
                     do! sngPaths
@@ -260,7 +260,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
 
             state, Cmd.OfAsync.attempt t () Error
 
-        | ExtractSNGtoXML files -> 
+        | ExtractSNGtoXML files ->
             let t () = async {
                 for file in files do
                     let targetDirectory = Path.Combine(Path.GetDirectoryName(file), "xml")
@@ -337,7 +337,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             { state with Platform = platform }, Cmd.none
 
         | CheckXml file ->
-            let status = 
+            let status =
                 InstrumentalArrangement.Load file
                 |> ArrangementChecker.checkInstrumental
                 |> List.map (fun issue -> $"[{Utils.timeToString issue.TimeCode}] {issue.Type}")
@@ -413,7 +413,7 @@ let view (state: State) dispatch =
                         Button.onClick (fun _ -> ofdXml (ConvertVocalsXMLtoSNG >> dispatch))
                         Button.content "Convert Vocals XML to SNG..."
                     ]
-            
+
                     Button.create [
                         Button.onClick (fun _ -> ofdSng (ConvertInstrumentalSNGtoXML >> dispatch))
                         Button.content "Convert Instrumental SNG to XML..."

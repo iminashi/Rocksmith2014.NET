@@ -1,12 +1,12 @@
 ﻿namespace Rocksmith2014.Conversion
 
+open Microsoft.Extensions.FileProviders
+open Rocksmith2014.Common.BinaryReaders
+open Rocksmith2014.Conversion
 open Rocksmith2014.SNG
 open Rocksmith2014.XML
-open Rocksmith2014.Conversion
-open Rocksmith2014.Common.BinaryReaders
 open System.Reflection
 open System.Text
-open Microsoft.Extensions.FileProviders
 
 type FontOption =
     | DefaultFont

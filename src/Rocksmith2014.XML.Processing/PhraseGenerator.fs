@@ -6,15 +6,7 @@ open System
 open Utils
 
 type Inst = InstrumentalArrangement
-
-module List =
-    let tryMin l =
-        match l with
-        | [] ->
-            None
-        | _ ->
-            Some (List.min l)
-            
+          
 let private maxOfThree defaultValue o1 o2 o3 =
     let v1 = o1 |> Option.defaultValue defaultValue
     let v2 = o2 |> Option.defaultValue defaultValue

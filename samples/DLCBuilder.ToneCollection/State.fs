@@ -1,6 +1,5 @@
 module ToneCollection.CollectionState
 
-open Rocksmith2014.Common
 open Database
 
 let private getTotalPages tones =

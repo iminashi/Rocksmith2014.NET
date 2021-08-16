@@ -1,13 +1,7 @@
 module Rocksmith2014.DLCProject.Utils
 
 open System
-open System.Runtime.CompilerServices
-
-[<Extension>]
-type SpanExtensions =
-    [<Extension>]
-    static member inline AllSame(this: Span<'T>, value: 'T) =
-        this.Trim(value).IsEmpty
+open FSharp.Extensions
 
 /// Converts a tuning pitch into cents.
 let tuningPitchToCents (pitch: float) =

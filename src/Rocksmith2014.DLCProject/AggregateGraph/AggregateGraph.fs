@@ -1,11 +1,11 @@
 ﻿module Rocksmith2014.DLCProject.AggregateGraph
 
-open Rocksmith2014.DLCProject
 open Rocksmith2014.Common
+open Rocksmith2014.DLCProject
+open System
 open System.IO
 open System.Text
 open System.Text.RegularExpressions
-open System
 
 type Graph = { Items: GraphItem list }
 
@@ -24,7 +24,7 @@ let create (platform: Platform) (project: DLCProject) =
         for arrangement in project.Arrangements do
             let name = $"{dlcName}_{partition arrangement |> snd}"
 
-            match arrangement with 
+            match arrangement with
             | Showlights _ ->
                 yield GraphItem.llid name CanonicalXmlSong "xml" [ Tag.Application; Tag.XML ]
 

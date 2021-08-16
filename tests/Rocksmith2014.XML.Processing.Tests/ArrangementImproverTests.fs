@@ -442,5 +442,5 @@ let integrationTests =
             ArrangementImprover.applyAll arr
 
             Expect.hasLength anchors 1 "No new anchors were created"
-            Expect.equal (anchors.[0].Time) 1200 "Anchor is at correct position"
+            Expect.equal anchors.[0].Time 1200 "Anchor is at correct position"
     ]

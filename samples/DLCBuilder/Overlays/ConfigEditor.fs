@@ -8,7 +8,6 @@ open Avalonia.Layout
 open Avalonia.Media
 open Rocksmith2014.Common
 open Rocksmith2014.DD
-open System
 open System.IO
 open DLCBuilder
 
@@ -304,7 +303,7 @@ let private ddConfig state dispatch =
                 ]
             ]
         ]
-        
+
         vStack (
             [ LevelCountGeneration.Simple; LevelCountGeneration.MLModel ]
             |> List.map (fun option ->

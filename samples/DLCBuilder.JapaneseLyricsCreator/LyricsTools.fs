@@ -1,6 +1,5 @@
 module JapaneseLyricsCreator.LyricsTools
 
-open Rocksmith2014.Common
 open Rocksmith2014.XML
 open System
 open System.Text.RegularExpressions

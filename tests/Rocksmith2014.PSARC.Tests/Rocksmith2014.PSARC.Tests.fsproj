@@ -19,7 +19,7 @@
     </None>
     <Compile Include="ReadTests.fs" />
     <Compile Include="EditTests.fs" />
-    <Compile Include="Main.fs" />
+    <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>

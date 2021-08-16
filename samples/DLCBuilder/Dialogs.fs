@@ -3,7 +3,6 @@ module DLCBuilder.Dialogs
 open Avalonia.Controls
 open Avalonia.Threading
 open Elmish
-open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open System
 open System.Collections.Generic

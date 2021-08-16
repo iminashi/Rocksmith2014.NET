@@ -9,7 +9,6 @@ open Avalonia.Styling
 open System
 open System.Reactive.Linq
 open DLCBuilder.ToneGear
-open Rocksmith2014.Common
 
 module private Default =
     let Knob =
@@ -63,7 +62,7 @@ type ToneKnobSlider() =
 
     static member onKnobValueChanged fn =
         let getter (c: ToneKnobSlider) = c.OnValueChangedCallback
-        let setter : (ToneKnobSlider * (string * float32 -> unit)) -> unit = fun (c, f) -> c.OnValueChangedCallback <- f
+        let setter : ToneKnobSlider * (string * float32 -> unit) -> unit = fun (c, f) -> c.OnValueChangedCallback <- f
         // Keep the same callback once set
         let comparer _ = true
 

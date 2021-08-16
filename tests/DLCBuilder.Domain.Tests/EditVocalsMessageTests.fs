@@ -2,7 +2,6 @@ module EditVocalsMessageTests
 
 open Expecto
 open DLCBuilder
-open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open System
 open Elmish

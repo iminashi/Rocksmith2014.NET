@@ -10,7 +10,6 @@ open Avalonia.Input.Platform
 open Avalonia.Styling
 open System
 open System.Reactive.Linq
-open Rocksmith2014.Common
 
 type FixedTextBox() =
     inherit TextBox()
@@ -86,7 +85,7 @@ type FixedTextBox() =
 
     static member onTextChanged<'t when 't :> FixedTextBox> fn =
         let getter : 't -> (string -> unit) = fun c -> c.OnTextChangedCallback
-        let setter : ('t * (string -> unit)) -> unit = fun (c, f) -> c.OnTextChangedCallback <- f
+        let setter : 't * (string -> unit) -> unit = fun (c, f) -> c.OnTextChangedCallback <- f
         // Keep the same callback once set
         let comparer _ = true
 
@@ -94,13 +93,13 @@ type FixedTextBox() =
 
     static member validation<'t when 't :> FixedTextBox> fn =
         let getter : 't -> (string -> bool) = fun c -> c.ValidationCallback
-        let setter : ('t * (string -> bool)) -> unit = fun (c, f) -> c.ValidationCallback <- f
+        let setter : 't * (string -> bool) -> unit = fun (c, f) -> c.ValidationCallback <- f
 
         AttrBuilder<'t>.CreateProperty<string -> bool>("Validation", fn, ValueSome getter, ValueSome setter, ValueNone)
 
     static member validationErrorMessage<'t when 't :> FixedTextBox> message =
         let getter : 't -> string = fun c -> c.ValidationErrorMessage
-        let setter : ('t * string) -> unit = fun (c, v) -> c.ValidationErrorMessage <- v
+        let setter : 't * string -> unit = fun (c, v) -> c.ValidationErrorMessage <- v
 
         AttrBuilder<'t>.CreateProperty<string>("ValidationErrorMessage", message, ValueSome getter, ValueSome setter, ValueNone)
 

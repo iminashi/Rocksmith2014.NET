@@ -118,7 +118,7 @@ let convertBendValue (xmlBv: XML.BendValue) =
 let convertPhraseIteration (piTimes: int[]) index (xmlPi: XML.PhraseIteration) =
     { PhraseId = xmlPi.PhraseId
       StartTime = msToSec xmlPi.Time
-      EndTime = msToSec (piTimes.[index + 1])
+      EndTime = msToSec piTimes.[index + 1]
       Difficulty = [| int xmlPi.HeroLevels.Easy; int xmlPi.HeroLevels.Medium; int xmlPi.HeroLevels.Hard |] }
 
 /// Converts an XML NewLinkedDifficulty into an SNG NewLinkedDifficulty.
@@ -182,7 +182,7 @@ let convertAnchor (notes: Note array)
 
     (* It is likely impossible to get identical values when testing an official file SNG -> XML -> SNG
        Cases like these can be found:
-    
+
        Note without any sustain: lastNoteTime = note.Time + 9ms
        Note with unpitched slide: lastNoteTime = note.Time + note.Sustain + 100ms *)
 
@@ -231,7 +231,7 @@ let convertHandshape (noteTimes: int array) (entities: XmlEntity array) (xmlHs: 
             let endTime =
                 let t = noteTimes.[last] + getSustain entities.[last]
                 if t >= xmlHs.EndTime then -1.f else msToSec t
-            msToSec noteTimes.[first], endTime     
+            msToSec noteTimes.[first], endTime
 
     { ChordId = int xmlHs.ChordId
       StartTime = msToSec xmlHs.StartTime

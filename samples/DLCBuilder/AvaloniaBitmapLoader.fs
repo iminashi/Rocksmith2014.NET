@@ -4,7 +4,6 @@ open Avalonia
 open Avalonia.Media.Imaging
 open Avalonia.Platform
 open Pfim
-open Rocksmith2014.Common
 open System
 open System.Runtime.InteropServices
 

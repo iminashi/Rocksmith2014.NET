@@ -1,10 +1,10 @@
 ﻿module Rocksmith2014.Conversion.ConvertInstrumental
 
-open Rocksmith2014.XML
-open Rocksmith2014.SNG
 open Rocksmith2014.Common
 open Rocksmith2014.Conversion
 open Rocksmith2014.Conversion.Utils
+open Rocksmith2014.SNG
+open Rocksmith2014.XML
 open System
 
 let private convertArrProps (arrProps: Manifest.ArrangementProperties) =
@@ -91,7 +91,7 @@ let sngToXml (attr: Manifest.Attributes option) (sng: SNG) =
     metaData.Part <- sng.MetaData.Part
     metaData.Capo <- max sng.MetaData.CapoFretId 0y
     metaData.LastConversionDateTime <- sng.MetaData.LastConversionDateTime
-    metaData.SongLength <- Utils.secToMs sng.MetaData.SongLength
+    metaData.SongLength <- secToMs sng.MetaData.SongLength
 
     let arr = InstrumentalArrangement(
                 MetaData = metaData,

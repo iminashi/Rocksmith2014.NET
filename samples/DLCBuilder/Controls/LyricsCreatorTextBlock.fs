@@ -40,7 +40,7 @@ type LyricsCreatorTextBlock() =
 
     static member onClick(fn: CombinationLocation -> unit) =
         let getter (c: LyricsCreatorTextBlock) = c.Dispatch
-        let setter : (LyricsCreatorTextBlock * (CombinationLocation -> unit)) -> unit = fun (c, f) -> c.Dispatch <- f
+        let setter : LyricsCreatorTextBlock * (CombinationLocation -> unit) -> unit = fun (c, f) -> c.Dispatch <- f
         // Keep the same callback once set
         let comparer _ = true
 

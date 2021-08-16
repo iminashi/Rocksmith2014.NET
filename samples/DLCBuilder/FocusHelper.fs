@@ -4,7 +4,6 @@ open System.Collections.Generic
 open Avalonia
 open Avalonia.Input
 open Avalonia.Controls.ApplicationLifetimes
-open Rocksmith2014.Common
 
 let private window =
     lazy (Application.Current.ApplicationLifetime :?> ClassicDesktopStyleApplicationLifetime).MainWindow

@@ -1,7 +1,6 @@
-﻿module ExtensionTests
+module ExtensionTests
 
 open Expecto
-open Rocksmith2014.Common
 open System
 
 [<Tests>]
@@ -15,7 +14,7 @@ let extensionTests =
             Expect.isFalse (notNull b) "Null object is null" }
 
         test "File.tryMap" {
-            let fileName = "Rocksmith2014.Common.Tests.dll"
+            let fileName = "FSharp.Extensions.Tests.dll"
 
             let result = File.tryMap (fun _ -> "success") fileName
         
@@ -73,6 +72,20 @@ let extensionTests =
             Expect.isFalse (Object.ReferenceEquals(arr, result)) "Result is a new array"
             Expect.hasLength result 4 "Result has correct length"
             Expect.equal result.[2] 50 "Correct value was changed" }
+
+        test "Array.allSame (different values)" {
+            let arr = [| 6; 5; 5; 5 |]
+
+            let result = Array.allSame arr
+        
+            Expect.isFalse result "All elements are not the same value" }
+
+        test "Array.allSame (same values)" {
+            let arr = [| 5; 5; 5; 5 |]
+
+            let result = Array.allSame arr
+        
+            Expect.isTrue result "All elements are the same value" }
 
         test "Option.ofString" {
             let a = Option.ofString null

@@ -1,8 +1,8 @@
 ﻿module internal Rocksmith2014.DD.EntityChooser
 
 open Rocksmith2014.XML
-open System.Collections.Generic
 open System
+open System.Collections.Generic
 
 let [<Literal>] private AlwaysEnabledTechs = NoteMask.Ignore ||| NoteMask.FretHandMute ||| NoteMask.PalmMute ||| NoteMask.Harmonic
 
@@ -171,7 +171,7 @@ let choose (diffPercent: float)
            (maxChordNotes: int)
            (entities: XmlEntity array) =
     let removedLinkNexts = HashSet<sbyte>()
-    let pendingLinkNexts = Dictionary<sbyte, Note>() 
+    let pendingLinkNexts = Dictionary<sbyte, Note>()
     let currentNotesInDivision = Dictionary<BeatDivision, int>()
 
     let incrementCount division =
@@ -181,7 +181,7 @@ let choose (diffPercent: float)
         | false, _ ->
             currentNotesInDivision.[division] <- 1
 
-    let allowedChordNotes = Utils.getAllowedChordNotes diffPercent maxChordNotes
+    let allowedChordNotes = getAllowedChordNotes diffPercent maxChordNotes
 
     ([], entities)
     ||> Array.fold (fun acc e ->

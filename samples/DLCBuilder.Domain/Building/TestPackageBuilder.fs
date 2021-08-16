@@ -1,7 +1,6 @@
 module DLCBuilder.TestPackageBuilder
 
 open Rocksmith2014.DLCProject
-open Rocksmith2014.Common
 open System.Diagnostics
 open System.IO
 open System.Text.RegularExpressions
