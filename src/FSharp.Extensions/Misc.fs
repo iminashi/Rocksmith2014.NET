@@ -40,25 +40,6 @@ module ResizeArray =
             Some a.[0]
 
 [<RequireQualifiedAccess>]
-module Array =
-    /// Returns a new array with the item at the given index replaced with the new one.
-    let updateAt (index: int) newItem array =
-        let arr = Array.copy array
-        arr.[index] <- newItem
-        arr
-
-    /// Returns the average of the given array, zero for an empty array.
-    let tryAverage = function
-        | [||] -> 0.f
-        | arr -> Array.average arr
-
-    /// Returns true if all the elements in the array are the same or the array is empty.
-    let allSame (array: 'a array) =
-        array.Length <= 1
-        ||
-        array.AsSpan(1).TrimStart(array.[0]).IsEmpty
-
-[<RequireQualifiedAccess>]
 module Dictionary =
     /// Maps the result of IReadOnlyDictionary.TryGetValue into an option.
     let tryGetValue key (dict: IReadOnlyDictionary<_,_>) =
@@ -69,10 +50,14 @@ module Dictionary =
 [<RequireQualifiedAccess>]
 module Option =
     /// Creates an option from a string, where a null or whitespace string equals None.
-    let ofString s = if String.IsNullOrWhiteSpace s then None else Some s
+    let ofString s =
+        if String.IsNullOrWhiteSpace s then
+            None
+        else
+            Some s
 
     /// Creates an option from an array, where null or an empty array equals None.
-    let ofArray a =
-        match a with
+    let ofArray array =
+        match array with
         | null | [||] -> None
         | array -> Some array
