@@ -10,7 +10,7 @@ open Avalonia.Input
 open System
 
 (* Created as a workaround to the issues with using the ListBox with FuncUI:
-    - Having identical items causes infinite update loop.
+    - Having identical items causes an infinite update loop.
     - Cannot change the item template after it is set.
 
    Also adds functionality to move or delete the selected item. *)

@@ -204,3 +204,12 @@ let applyLowTuningFix state =
     
     { state with Project = { state.Project with Arrangements = arrangements } }
     
+let showOverlay state overlay =
+    match state.Overlay with
+    | IdRegenerationConfirmation (_, reply) ->
+        // Might end up here in rare cases
+        reply.Reply false
+    | _ ->
+        ()
+
+    { state with Overlay = overlay }, Cmd.none

@@ -154,3 +154,18 @@ let removeDD project =
         arr.Save inst.XML })
     |> Async.Sequential
     |> Async.Ignore
+
+/// Moves the item in the list with the given index up or down.
+let moveSelected dir selectedIndex (list: List<_>) =
+    match selectedIndex with
+    | -1 ->
+        list, selectedIndex
+    | index ->
+        let selected = list.[index]
+        let change = match dir with Up -> -1 | Down -> 1
+        let insertPos = index + change
+        if insertPos >= 0 && insertPos < list.Length then
+            List.removeAt index list
+            |> List.insertAt insertPos selected, insertPos
+        else
+            list, selectedIndex

@@ -13,16 +13,6 @@ open System.IO
 open EditFunctions
 open StateUtils
 
-let private showOverlay state overlay =
-    match state.Overlay with
-    | IdRegenerationConfirmation (_, reply) ->
-        // Might end up here in rare cases
-        reply.Reply false
-    | _ ->
-        ()
-
-    { state with Overlay = overlay }, Cmd.none
-
 let private exceptionToErrorMessage (ex: exn) =
     let exnInfo (e: exn) =
         $"{e.GetType().Name}: {e.Message}\n{e.StackTrace}"
@@ -35,20 +25,6 @@ let private exceptionToErrorMessage (ex: exn) =
             $"{exnInfo ex}\n\nInner exception:\n{exnInfo innerEx}"
 
     ErrorMessage (ex.Message, Some moreInfo)
-
-let private moveSelected dir selectedIndex (list: List<_>) =
-    match selectedIndex with
-    | -1 ->
-        list, selectedIndex
-    | index ->
-        let selected = list.[index]
-        let change = match dir with Up -> -1 | Down -> 1
-        let insertPos = index + change
-        if insertPos >= 0 && insertPos < list.Length then
-            List.removeAt index list
-            |> List.insertAt insertPos selected, insertPos
-        else
-            list, selectedIndex
 
 let private buildPackage build state =
     match BuildValidator.validate state.Project with
@@ -452,7 +428,7 @@ let update (msg: Msg) (state: State) =
         { state with Project = { project with Tones = duplicate @ project.Tones } }, Cmd.none
 
     | MoveTone dir ->
-        let tones, index = moveSelected dir state.SelectedToneIndex project.Tones
+        let tones, index = Utils.moveSelected dir state.SelectedToneIndex project.Tones
         { state with Project = { project with Tones = tones }; SelectedToneIndex = index }, Cmd.none
 
     | ShowToneCollection ->
@@ -461,7 +437,7 @@ let update (msg: Msg) (state: State) =
         |> showOverlay state
 
     | MoveArrangement dir ->
-        let arrangements, index = moveSelected dir state.SelectedArrangementIndex project.Arrangements
+        let arrangements, index = Utils.moveSelected dir state.SelectedArrangementIndex project.Arrangements
         { state with Project = { project with Arrangements = arrangements }
                      SelectedArrangementIndex = index }, Cmd.none
 
