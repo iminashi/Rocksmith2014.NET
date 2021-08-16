@@ -1,0 +1,21 @@
+name: Publish DLC Builder Linux
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Run publish script
+      env:
+        github_token: ${{ secrets.CI_GITHUB_TOKEN }}
+      run: dotnet fsi publish_linux.fsx
