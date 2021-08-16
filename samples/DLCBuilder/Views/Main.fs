@@ -368,8 +368,8 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
 
     let noOverlayIsOpen = (state.Overlay = NoOverlay)
 
-    Panel.create [
-        Panel.background "#040404"
+    DockPanel.create [
+        DockPanel.background "#040404"
         DragDrop.allowDrop noOverlayIsOpen
         DragDrop.onDragEnter (fun e ->
             e.DragEffects <-
@@ -398,86 +398,88 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                 | _ ->
                     e.Handled <- false))
 
-        Panel.children [
-            DockPanel.create [
-                // Prevent tab navigation when an overlay is open
-                DockPanel.isEnabled noOverlayIsOpen
-                DockPanel.children [
-                    // Custom title bar
-                    Panel.create [
-                        DockPanel.dock Dock.Top
-                        Panel.children [
-                            Rectangle.create [
-                                Rectangle.fill "#181818"
-                                Rectangle.horizontalAlignment HorizontalAlignment.Stretch
-                                Rectangle.verticalAlignment VerticalAlignment.Stretch
-                                if customTitleBar.IsSome then
-                                    Rectangle.onPointerPressed window.PlatformImpl.BeginMoveDrag
-                                    Rectangle.onDoubleTapped (fun _ -> maximizeOrRestore window)
+        DockPanel.children [
+            // Custom title bar
+            Panel.create [
+                DockPanel.dock Dock.Top
+                Panel.children [
+                    Rectangle.create [
+                        Rectangle.fill "#181818"
+                        Rectangle.horizontalAlignment HorizontalAlignment.Stretch
+                        Rectangle.verticalAlignment VerticalAlignment.Stretch
+                        if customTitleBar.IsSome then
+                            Rectangle.onPointerPressed window.PlatformImpl.BeginMoveDrag
+                            Rectangle.onDoubleTapped (fun _ -> maximizeOrRestore window)
+                    ]
+
+                    DockPanel.create [
+                        DockPanel.children [
+                            // Main menu
+                            Menu.create [
+                                DockPanel.dock Dock.Left
+                                Menu.isEnabled noOverlayIsOpen
+                                Menu.horizontalAlignment HorizontalAlignment.Left
+                                Menu.background Brushes.Transparent
+                                Menu.viewItems [
+                                    Menus.file state dispatch
+
+                                    Menus.project state dispatch
+
+                                    Menus.build state dispatch
+
+                                    Menus.tools state dispatch
+
+                                    Menus.help dispatch
+                                ]
                             ]
 
-                            DockPanel.create [
-                                DockPanel.children [
-                                    // Main menu
-                                    Menu.create [
-                                        DockPanel.dock Dock.Left
-                                        Menu.horizontalAlignment HorizontalAlignment.Left
-                                        Menu.background Brushes.Transparent
-                                        Menu.viewItems [
-                                            Menus.file state dispatch
-
-                                            Menus.project state dispatch
-
-                                            Menus.build state dispatch
-
-                                            Menus.tools state dispatch
-
-                                            Menus.help dispatch
-                                        ]
-                                    ]
-
-                                    // Custom minimize, maximize & close buttons
-                                    match customTitleBar with
-                                    | Some buttons ->
-                                        Border.create [
-                                            DockPanel.dock Dock.Right
-                                            Border.child buttons
-                                        ]
-                                    | None ->
-                                        ()
-
-                                    // Configuration shortcut button
-                                    Button.create [
-                                        Button.classes [ "icon-btn" ]
-                                        DockPanel.dock Dock.Right
-                                        KeyboardNavigation.isTabStop false
-                                        Button.onClick (fun _ -> FocusedSetting.None |> ConfigEditor |> ShowOverlay |> dispatch)
-                                        Button.content (
-                                            Path.create [
-                                                Path.data Icons.cog
-                                                Path.fill Brushes.GhostWhite
-                                            ])
-                                    ]
-
-                                    // Title Text
-                                    TextBlock.create [
-                                        TextBlock.verticalAlignment VerticalAlignment.Center
-                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
-                                        if customTitleBar.IsSome then
-                                            TextBlock.text title
-                                            TextBlock.onPointerPressed window.BeginMoveDrag
-                                            TextBlock.onDoubleTapped (fun _ -> maximizeOrRestore window)
-                                            if String.notEmpty titleToolTip then
-                                                ToolTip.tip titleToolTip
-                                    ]
+                            // Custom minimize, maximize & close buttons
+                            match customTitleBar with
+                            | Some buttons ->
+                                Border.create [
+                                    DockPanel.dock Dock.Right
+                                    Border.child buttons
                                 ]
+                            | None ->
+                                ()
+
+                            // Configuration shortcut button
+                            Button.create [
+                                Button.classes [ "icon-btn" ]
+                                Button.isEnabled noOverlayIsOpen
+                                DockPanel.dock Dock.Right
+                                KeyboardNavigation.isTabStop false
+                                Button.onClick (fun _ -> FocusedSetting.None |> ConfigEditor |> ShowOverlay |> dispatch)
+                                Button.content (
+                                    Path.create [
+                                        Path.data Icons.cog
+                                        Path.fill Brushes.GhostWhite
+                                    ])
+                            ]
+
+                            // Title Text
+                            TextBlock.create [
+                                TextBlock.verticalAlignment VerticalAlignment.Center
+                                TextBlock.horizontalAlignment HorizontalAlignment.Center
+                                if customTitleBar.IsSome then
+                                    TextBlock.text title
+                                    TextBlock.onPointerPressed window.BeginMoveDrag
+                                    TextBlock.onDoubleTapped (fun _ -> maximizeOrRestore window)
+                                    if String.notEmpty titleToolTip then
+                                        ToolTip.tip titleToolTip
                             ]
                         ]
                     ]
+                ]
+            ]
 
+            Panel.create [
+                Panel.children [
                     Grid.create [
                         Grid.columnDefinitions "*,1.8*"
                         Grid.rowDefinitions "3.4*,2.6*"
+                        // Prevent tab navigation when an overlay is open
+                        Grid.isEnabled noOverlayIsOpen
                         Grid.children [
                             // Project details
                             ProjectDetails.view state dispatch
@@ -502,47 +504,47 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                             ]
                         ]
                     ]
+
+                    match state.Overlay with
+                    | NoOverlay ->
+                        ()
+                    | _ ->
+                        Panel.create [
+                            Panel.children [
+                                Rectangle.create [
+                                    Rectangle.fill "#99000000"
+                                    Rectangle.onTapped (fun _ -> (CloseOverlay OverlayCloseMethod.ClickedOutside) |> dispatch)
+                                ]
+                                Border.create [
+                                    Border.padding (20., 10.)
+                                    Border.cornerRadius 6.0
+                                    Border.horizontalAlignment HorizontalAlignment.Center
+                                    Border.verticalAlignment VerticalAlignment.Center
+                                    Border.background "#343434"
+                                    Border.child (overlay state dispatch)
+                                ]
+                            ]
+                        ]
+
+                    if not state.StatusMessages.IsEmpty then
+                        StackPanel.create [
+                            StackPanel.horizontalAlignment HorizontalAlignment.Right
+                            StackPanel.verticalAlignment VerticalAlignment.Bottom
+                            StackPanel.margin 8.
+                            StackPanel.children (
+                                state.StatusMessages
+                                |> List.map (fun message ->
+                                    Border.create [
+                                        Border.margin (0., 1.)
+                                        Border.padding (20., 10.)
+                                        Border.cornerRadius 6.0
+                                        Border.minWidth 250.
+                                        Border.background Brushes.Black
+                                        Border.child (statusMessageContents dispatch message)
+                                    ] |> generalize)
+                            )
+                        ]
                 ]
             ]
-
-            match state.Overlay with
-            | NoOverlay ->
-                ()
-            | _ ->
-                Panel.create [
-                    Panel.children [
-                        Rectangle.create [
-                            Rectangle.fill "#99000000"
-                            Rectangle.onTapped (fun _ -> (CloseOverlay OverlayCloseMethod.ClickedOutside) |> dispatch)
-                        ]
-                        Border.create [
-                            Border.padding (20., 10.)
-                            Border.cornerRadius 6.0
-                            Border.horizontalAlignment HorizontalAlignment.Center
-                            Border.verticalAlignment VerticalAlignment.Center
-                            Border.background "#343434"
-                            Border.child (overlay state dispatch)
-                        ]
-                    ]
-                ]
-
-            if not state.StatusMessages.IsEmpty then
-                StackPanel.create [
-                    StackPanel.horizontalAlignment HorizontalAlignment.Right
-                    StackPanel.verticalAlignment VerticalAlignment.Bottom
-                    StackPanel.margin 8.
-                    StackPanel.children (
-                        state.StatusMessages
-                        |> List.map (fun message ->
-                            Border.create [
-                                Border.margin (0., 1.)
-                                Border.padding (20., 10.)
-                                Border.cornerRadius 6.0
-                                Border.minWidth 250.
-                                Border.background Brushes.Black
-                                Border.child (statusMessageContents dispatch message)
-                            ] |> generalize)
-                    )
-                ]
         ]
     ]
