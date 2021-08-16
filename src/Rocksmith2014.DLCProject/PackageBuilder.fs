@@ -196,6 +196,9 @@ let private setupInstrumental part (inst: Instrumental) config =
 
     if xml.Version < 8uy then xml.FixHighDensity()
 
+    if xml.Phrases.Count <= 3 then
+        PhraseGenerator.generate xml
+
     if config.ApplyImprovements then
         ArrangementImprover.applyAll xml
     else

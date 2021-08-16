@@ -30,6 +30,7 @@
     <Compile Include="Checkers\InstrumentalChecker.fs" />
     <Compile Include="Checkers\VocalsChecker.fs" />
     <Compile Include="Checkers\ShowLightsChecker.fs" />
+    <Compile Include="PhraseGenerator.fs" />
     <Compile Include="ArrangementImprover.fs" />
     <Compile Include="ArrangementChecker.fs" />
   </ItemGroup>
