@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.XML.Processing.PhraseMover
+module Rocksmith2014.XML.Processing.PhraseMover
 
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Extensions
@@ -47,7 +47,7 @@ let improve (arrangement: InstrumentalArrangement) =
 
             // Move section (if present)
             let sectionToMove = arrangement.Sections.FindByTime phraseTime
-            if not <| isNull sectionToMove then
+            if notNull sectionToMove then
                 sectionToMove.Time <- movetoTime
         )
     )

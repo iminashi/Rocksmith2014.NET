@@ -1,4 +1,4 @@
-﻿module internal Rocksmith2014.DD.EntityChooser
+module internal Rocksmith2014.DD.EntityChooser
 
 open Rocksmith2014.XML
 open System
@@ -207,7 +207,7 @@ let choose (diffPercent: float)
                 removedLinkNexts.Add xn.String |> ignore
             | XmlNote xn ->
                 removedLinkNexts.Remove xn.String |> ignore
-            | XmlChord xc when xc.IsLinkNext && not <| isNull xc.ChordNotes ->
+            | XmlChord xc when xc.IsLinkNext && notNull xc.ChordNotes ->
                 for cn in xc.ChordNotes do
                     if cn.IsLinkNext && not cn.IsSlide then
                         removedLinkNexts.Add cn.String |> ignore

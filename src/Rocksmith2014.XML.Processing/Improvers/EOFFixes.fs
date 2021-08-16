@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.XML.Processing.EOFFixes
+module Rocksmith2014.XML.Processing.EOFFixes
 
 open Rocksmith2014.XML
 open System.Text.RegularExpressions
@@ -50,7 +50,7 @@ let fixChordSlideHandshapes (arrangement: InstrumentalArrangement) =
             && chord.ChordNotes.Exists(fun cn -> cn.IsSlide))
         |> Seq.iter (fun chord ->
             let handshape = level.HandShapes.Find(fun hs -> hs.StartTime = chord.Time)
-            if not <| isNull handshape && handshape.EndTime > handshape.StartTime + chord.ChordNotes.[0].Sustain then
+            if notNull handshape && handshape.EndTime > handshape.StartTime + chord.ChordNotes.[0].Sustain then
                 handshape.EndTime <- handshape.StartTime + chord.ChordNotes.[0].Sustain)
 
 /// Moves the first anchor of a phrase to the start time of the phrase if needed.
@@ -62,7 +62,7 @@ let fixPhraseStartAnchors (arrangement: InstrumentalArrangement) =
         |> Seq.iter (fun (first, second) ->
             let firstAnchor =
                 arrangement.Levels.[0].Anchors.Find(fun a -> a.Time >= first.Time && a.Time < second.Time)
-            if not <| isNull firstAnchor && firstAnchor.Time <> first.Time then
+            if notNull firstAnchor && firstAnchor.Time <> first.Time then
                 firstAnchor.Time <- first.Time)
 
 /// Applies all the fixes.

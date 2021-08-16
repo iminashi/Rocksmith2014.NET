@@ -105,7 +105,7 @@ let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
             None
 
 let private isOnToneChange (arr: InstrumentalArrangement) time =
-    not <| isNull arr.Tones.Changes
+    notNull arr.Tones.Changes
     && arr.Tones.Changes.Exists(fun t -> t.Time = time)
 
 /// Checks the notes in the level for issues.
@@ -199,7 +199,7 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
 
         // Check chords at the end of handshape (no "handshape sustain")
         let handShape = level.HandShapes.Find(fun hs -> hs.ChordId = chord.ChordId && time >= hs.StartTime && time <= hs.EndTime)
-        if not <| isNull handShape && handShape.EndTime - time <= 5 then
+        if notNull handShape && handShape.EndTime - time <= 5 then
             issue ChordAtEndOfHandShape time
 
         // Check for chords inside noguitar sections
@@ -232,7 +232,7 @@ let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
         let chordTemplate = chordTemplates.[int handShape.ChordId]
 
         // Check only handshapes that do not use the 1st finger
-        if not (chordTemplate.Fingers |> Array.contains 1y) && not <| isNull activeAnchor then
+        if not (chordTemplate.Fingers |> Array.contains 1y) && notNull activeAnchor then
             let chordNotOk =
                 (chordTemplate.Frets, chordTemplate.Fingers)
                 ||> Array.exists2 (fun fret finger -> fret = activeAnchor.Fret && finger <> -1y)
