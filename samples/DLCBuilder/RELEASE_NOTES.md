@@ -1,4 +1,4 @@
-## 0.6.0 (Released 2021-08-xx)
+## 0.6.0 (Released 2021-08-17)
 
 - A Linux version is now available.
 - Added a tool for creating a Japanese vocals arrangement from a romaji arrangement.
