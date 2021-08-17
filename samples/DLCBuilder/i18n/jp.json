@@ -287,6 +287,8 @@
   "CalculateVolumesAutomatically": "自動的にボリューム値を計算",
   "CalculateVolumes": "ボリューム値を計算する",
   "AdditionalInformation": "追加情報",
+  "CopyInformation": "情報をコピー",
+  "Show": "表示",
   "PSARCImportHeader": "PSARCインポート",
   "ConvertWemOnImport": "オーディオ変換",
   "NoConversion": "しない",

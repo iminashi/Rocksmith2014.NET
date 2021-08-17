@@ -1,5 +1,6 @@
 module DLCBuilder.Views.ErrorMessage
 
+open Avalonia
 open Avalonia.Controls
 open Avalonia.Controls.Primitives
 open Avalonia.Controls.Shapes
@@ -13,6 +14,7 @@ let view dispatch msg info =
     StackPanel.create [
         StackPanel.spacing 8.
         StackPanel.maxWidth 750.
+        StackPanel.minWidth 500.
         StackPanel.children [
             StackPanel.create [
                 StackPanel.orientation Orientation.Horizontal
@@ -42,17 +44,38 @@ let view dispatch msg info =
             | None ->
                 ()
             | Some moreInfo ->
-                Expander.create [
-                    Expander.header (translate "AdditionalInformation")
-                    Expander.content (
-                        TextBox.create [
-                            TextBox.maxWidth 650.
-                            TextBox.maxHeight 450.
-                            TextBox.horizontalScrollBarVisibility ScrollBarVisibility.Auto
-                            TextBox.verticalScrollBarVisibility ScrollBarVisibility.Auto
-                            TextBox.text moreInfo
+                vStack [
+                    Panel.create [
+                        Panel.children [
+                            locText "AdditionalInformation" [
+                                TextBlock.verticalAlignment VerticalAlignment.Center
+                            ]
+
+                            Button.create [
+                                Button.horizontalAlignment HorizontalAlignment.Right
+                                Button.content (translate "CopyInformation")
+                                Button.padding (15., 5.)
+                                Button.onClick (fun _ ->
+                                    Application.Current.Clipboard.SetTextAsync(moreInfo)
+                                    |> ignore
+                                )
+                            ]
                         ]
-                    )
+                    ]
+                    Expander.create [
+                        Expander.header (translate "Show")
+                        Expander.horizontalAlignment HorizontalAlignment.Stretch
+                        Expander.maxHeight 400.
+                        Expander.maxWidth 600.
+                        Expander.content (
+                            TextBox.create [
+                                TextBox.horizontalScrollBarVisibility ScrollBarVisibility.Auto
+                                TextBox.verticalScrollBarVisibility ScrollBarVisibility.Auto
+                                TextBox.text moreInfo
+                                TextBox.isReadOnly true
+                            ]
+                        )
+                    ]
                 ]
 
             // OK button
