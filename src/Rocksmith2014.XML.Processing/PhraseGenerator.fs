@@ -90,7 +90,7 @@ let private getFirstPhraseTime contentStartTime (arr: Inst) =
             failwith "There is no room for an empty phrase before the arrangement content starts."
         else
             let newBeatTime =
-                max 0 (firstBeatTime - 1000)
+                max 0 (firstBeatTime - 500)
             let newBeat = Ebeat(newBeatTime, 0s)
             Error (newBeat)
     else
