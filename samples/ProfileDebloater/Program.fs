@@ -1,4 +1,4 @@
-﻿open System
+open System
 open System.IO
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
@@ -44,13 +44,13 @@ let gatherDLCData verbose (directory: string) = async {
             |> Seq.filter (fun x -> not <| (x.Contains "inlay" || x.Contains "rs1compatibility"))
             |> Seq.toArray
         files
-        |> Array.mapi (fun i path->
+        |> Array.mapi (fun i path-> async {
             if verbose then
                 printfn "Reading IDs from %s" (Path.GetRelativePath(directory, path))
             else
                 printProgress (i + 1) files.Length
 
-            readIDs path)
+            return! readIDs path })
         |> Async.Sequential
 
     let ids, keys =
