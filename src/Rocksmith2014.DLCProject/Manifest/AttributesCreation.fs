@@ -1,9 +1,8 @@
 ﻿module Rocksmith2014.DLCProject.Manifest.AttributesCreation
 
 open Rocksmith2014
-open Rocksmith2014.DLCProject
-open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
+open Rocksmith2014.DLCProject
 open Rocksmith2014.SNG
 open System
 open System.Collections.Generic
@@ -34,7 +33,7 @@ let private getDNATime (sng: SNG) dnaId =
             time
         | next ->
             // Find the index of the next DNA None
-            match Array.FindIndex(sng.DNAs, next, (fun x -> x.DnaId = DNA.None)) with 
+            match Array.FindIndex(sng.DNAs, next, (fun x -> x.DnaId = DNA.None)) with
             | -1 ->
                 time + (sng.MetaData.SongLength - sng.DNAs.[next].Time)
             | none ->
@@ -247,7 +246,7 @@ let private createChordMap (sng: SNG) =
             let pi = sng.PhraseIterations.[i]
             let chordIds =
                 sng.Levels.[lvl].HandShapes
-                |> Seq.filter (fun x -> 
+                |> Seq.filter (fun x ->
                     (String.notEmpty sng.Chords.[x.ChordId].Name) && (x.StartTime >= pi.StartTime && x.StartTime < pi.EndTime))
                 |> Seq.map (fun x -> x.ChordId)
                 |> Set.ofSeq
@@ -256,7 +255,7 @@ let private createChordMap (sng: SNG) =
 
         if diffIds.Count > 0 then
             chords.Add(string lvl, diffIds)
-            
+
     chords
 
 /// Creates a technique ID map.

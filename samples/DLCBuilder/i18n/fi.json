@@ -287,6 +287,8 @@
   "CalculateVolumesAutomatically": "Laske äänenvoimakkuudet automaattisesti",
   "CalculateVolumes": "Laske äänenvoimakkuudet",
   "AdditionalInformation": "Lisätietoja",
+  "CopyInformation": "Kopioi tiedot",
+  "Show": "Näytä",
   "PSARCImportHeader": "PSARC tuonti",
   "ConvertWemOnImport": "Muunna wem tiedostot",
   "NoConversion": "Pois päältä",

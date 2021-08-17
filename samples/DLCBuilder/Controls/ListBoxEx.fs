@@ -1,7 +1,6 @@
 // fsharplint:disable MemberNames
 namespace DLCBuilder
 
-open Avalonia
 open Avalonia.Controls
 open Avalonia.Controls.Primitives
 open Avalonia.FuncUI.Builder
@@ -70,8 +69,8 @@ type ListBoxEx() =
         and set(v) = itemDeletedHandler <- v
 
     static member children(value: IView list) =
-        let getter : (ListBoxEx-> obj) = (fun x -> x.Children :> obj)
-         
+        let getter : ListBoxEx-> obj = (fun x -> x.Children :> obj)
+
         AttrBuilder<ListBoxEx>.CreateContentMultiple("Children", ValueSome getter, ValueNone, value)
 
     static member selectedIndex(index: int) =
@@ -83,7 +82,7 @@ type ListBoxEx() =
 
     static member onSelectedIndexChanged (fn: int -> unit) =
         let getter (c: ListBoxEx) = c.OnSelectedIndexChanged
-        let setter : (ListBoxEx * (int -> unit)) -> unit = fun (c, f) -> c.OnSelectedIndexChanged <- f
+        let setter : ListBoxEx * (int -> unit) -> unit = fun (c, f) -> c.OnSelectedIndexChanged <- f
         // Keep the same callback once set
         let comparer _ = true
 
@@ -92,7 +91,7 @@ type ListBoxEx() =
 
     static member onItemMoved (fn: MoveDirection -> unit) =
         let getter (c: ListBoxEx) = c.OnItemMoved
-        let setter : (ListBoxEx * (MoveDirection -> unit)) -> unit = fun (c, f) -> c.OnItemMoved <- f
+        let setter : ListBoxEx * (MoveDirection -> unit) -> unit = fun (c, f) -> c.OnItemMoved <- f
         // Keep the same callback once set
         let comparer _ = true
 
@@ -101,7 +100,7 @@ type ListBoxEx() =
 
     static member onItemDeleted (fn: unit -> unit) =
         let getter (c: ListBoxEx) = c.OnItemDeleted
-        let setter : (ListBoxEx * (unit -> unit)) -> unit = fun (c, f) -> c.OnItemDeleted <- f
+        let setter : ListBoxEx * (unit -> unit) -> unit = fun (c, f) -> c.OnItemDeleted <- f
         // Keep the same callback once set
         let comparer _ = true
 

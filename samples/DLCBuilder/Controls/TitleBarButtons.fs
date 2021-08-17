@@ -7,7 +7,6 @@ open Avalonia.Controls.Shapes
 open Avalonia.Input
 open Avalonia.Layout
 open Avalonia.Media
-open Rocksmith2014.Common
 open Media
 
 let private createIcon data = Path(Data = data, Fill = Brushes.GhostWhite)
@@ -17,7 +16,7 @@ let private baseButton onClick =
     |> apply (fun b ->
         b.Classes.Add "icon-btn"
         b.SetValue(KeyboardNavigation.IsTabStopProperty, false) |> ignore
-        b.Click.Add (fun _ -> onClick())) 
+        b.Click.Add (fun _ -> onClick()))
 
 let private iconButton icon onClick =
     baseButton onClick

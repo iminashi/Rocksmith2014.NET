@@ -1,8 +1,8 @@
 ﻿module Rocksmith2014.DLCProject.PsarcImporter
 
-open Rocksmith2014.PSARC
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
+open Rocksmith2014.PSARC
 open Rocksmith2014.SNG
 open System
 open System.IO

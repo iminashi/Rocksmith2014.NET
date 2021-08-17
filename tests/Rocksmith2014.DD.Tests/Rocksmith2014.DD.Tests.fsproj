@@ -15,7 +15,7 @@
     <Compile Include="AnchorChooserTests.fs" />
     <Compile Include="HandShapeChooserTests.fs" />
     <Compile Include="GeneratorTests.fs" />
-    <Compile Include="Main.fs" />
+    <Compile Include="Program.fs" />
   </ItemGroup>
   
   <ItemGroup>

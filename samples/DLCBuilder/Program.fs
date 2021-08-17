@@ -16,7 +16,6 @@ open System.Reactive.Linq
 open System.Reactive.Subjects
 open System.Reflection
 open Microsoft.Extensions.FileProviders
-open Rocksmith2014.Common
 open ToneCollection
 
 type MainWindow(commandLineArgs: string array) as this =
@@ -39,7 +38,7 @@ type MainWindow(commandLineArgs: string array) as this =
         base.Icon <- WindowIcon(iconData)
         base.Title <- "Rocksmith 2014 DLC Builder"
         //base.TransparencyLevelHint <- WindowTransparencyLevel.AcrylicBlur
-        //base.Background <- Brushes.Transparent       
+        //base.Background <- Brushes.Transparent
         //base.ExtendClientAreaChromeHints <- ExtendClientAreaChromeHints.NoChrome
         base.Width <- 1150.0
         base.MinWidth <- 970.0

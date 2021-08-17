@@ -1,5 +1,5 @@
-﻿[<AutoOpen>]
-module Rocksmith2014.Common.ActivePatterns
+[<AutoOpen>]
+module ActivePatterns
 
 open System
 

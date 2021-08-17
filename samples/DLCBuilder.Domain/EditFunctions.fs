@@ -1,6 +1,5 @@
 module DLCBuilder.EditFunctions
 
-open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open Elmish

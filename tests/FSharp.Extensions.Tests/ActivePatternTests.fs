@@ -1,7 +1,6 @@
-﻿module ActivePatternTests
+module ActivePatternTests
 
 open Expecto
-open Rocksmith2014.Common
 
 let testString = "Some STRING"
 

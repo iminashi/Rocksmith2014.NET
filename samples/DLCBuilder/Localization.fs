@@ -1,11 +1,10 @@
 namespace DLCBuilder
 
 open Microsoft.Extensions.FileProviders
+open System
 open System.Collections.Generic
 open System.Reflection
 open System.Text.Json
-open System
-open Rocksmith2014.Common
 
 module Locales =
     let All = [

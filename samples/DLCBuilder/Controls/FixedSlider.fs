@@ -8,7 +8,6 @@ open Avalonia.FuncUI.Types
 open Avalonia.Styling
 open System
 open System.Reactive.Linq
-open Rocksmith2014.Common
 
 type FixedSlider() =
     inherit Slider()
@@ -37,7 +36,7 @@ type FixedSlider() =
 
     static member onValueChanged<'t when 't :> FixedSlider> fn =
         let getter : 't -> (double -> unit) = fun c -> c.OnValueChangedCallback
-        let setter : ('t * (double -> unit)) -> unit = fun (c, f) -> c.OnValueChangedCallback <- f
+        let setter : 't * (double -> unit) -> unit = fun (c, f) -> c.OnValueChangedCallback <- f
         // Keep the same callback once set
         let comparer _ = true
 

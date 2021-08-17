@@ -196,6 +196,9 @@ let private setupInstrumental part (inst: Instrumental) config =
 
     if xml.Version < 8uy then xml.FixHighDensity()
 
+    if xml.Phrases.Count <= 3 && xml.Sections.Count <= 3 then
+        PhraseGenerator.generate xml
+
     if config.ApplyImprovements then
         ArrangementImprover.applyAll xml
     else
@@ -205,7 +208,7 @@ let private setupInstrumental part (inst: Instrumental) config =
         try
             Generator.generateForArrangement config.DDConfig xml |> ignore
         with e ->
-            raise <| Exception($"Error generating DD:\n{e.Message}", e)
+            raise <| Exception($"Error generating DD:\n{Utils.distinctExceptionMessages e}", e)
 
     if config.SaveDebugFiles then
         xml.Save(Path.ChangeExtension(inst.XML, "debug.xml"))
@@ -313,8 +316,8 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
                 | Showlights _ ->
                     None
             with e ->
-                let failedFile = Arrangement.getFile arr |> Path.GetFileName
-                raise <| Exception($"Converting file {failedFile} failed.\n\n{e.Message}", e))
+                let failedFile = Arrangement.getFile arr |> Path.GetFileName                   
+                raise <| Exception($"Converting file {failedFile} failed.\n\n{Utils.distinctExceptionMessages e}", e))
 
     // Check if the arrangement IDs should be regenerated
     let! replacements = checkArrangementIdRegeneration sngs project config

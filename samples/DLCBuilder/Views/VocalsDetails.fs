@@ -8,7 +8,6 @@ open Avalonia.Media
 open Rocksmith2014.DLCProject
 open System.IO
 open DLCBuilder
-open Rocksmith2014.Common
 
 let view dispatch (vocals: Vocals) =
     StackPanel.create [

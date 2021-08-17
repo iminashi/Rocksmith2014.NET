@@ -25,7 +25,7 @@
     <Compile Include="ReadWriteUnpacked.fs" />
     <Compile Include="RoundTripTests.fs" />
     <Compile Include="BinaryHelpersTests.fs" />
-    <Compile Include="Main.fs" />
+    <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>

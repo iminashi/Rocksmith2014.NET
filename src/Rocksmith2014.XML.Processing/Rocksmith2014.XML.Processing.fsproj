@@ -30,11 +30,13 @@
     <Compile Include="Checkers\InstrumentalChecker.fs" />
     <Compile Include="Checkers\VocalsChecker.fs" />
     <Compile Include="Checkers\ShowLightsChecker.fs" />
+    <Compile Include="PhraseGenerator.fs" />
     <Compile Include="ArrangementImprover.fs" />
     <Compile Include="ArrangementChecker.fs" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FSharp.Extensions\FSharp.Extensions.fsproj" />
     <ProjectReference Include="..\Rocksmith2014.XML\Rocksmith2014.XML.csproj" />
   </ItemGroup>
 

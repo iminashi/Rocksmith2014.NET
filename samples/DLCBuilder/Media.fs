@@ -2,7 +2,6 @@ module DLCBuilder.Media
 
 open Avalonia.Media
 open Avalonia.Input
-open System
 
 /// Icons from Material Design.
 [<RequireQualifiedAccess>]

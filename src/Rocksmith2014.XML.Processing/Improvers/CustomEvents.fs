@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.XML.Processing.CustomEvents
+module Rocksmith2014.XML.Processing.CustomEvents
 
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Extensions
@@ -64,7 +64,7 @@ let improve (arrangement: InstrumentalArrangement) =
 
                 // Shorten hand shapes that include the slide out notes
                 // If chord notes is null here, there is an error in the XML file
-                if not <| isNull chordHs && chordHs.EndTime > linkNextChord.Time + linkNextChord.ChordNotes.[0].Sustain then
+                if notNull chordHs && chordHs.EndTime > linkNextChord.Time + linkNextChord.ChordNotes.[0].Sustain then
                     chordHs.EndTime <- linkNextChord.Time + linkNextChord.ChordNotes.[0].Sustain
 
                 level.Notes.FindAll(fun n -> n.Time = slideTime && n.IsUnpitchedSlide).ToArray(),
@@ -77,7 +77,7 @@ let improve (arrangement: InstrumentalArrangement) =
 
                 // The length of the handshape likely needs to be shortened
                 let chordHs = level.HandShapes.Find(fun hs -> hs.StartTime = chord.Time)
-                if not <| isNull chordHs then
+                if notNull chordHs then
                     chordHs.EndTime <- chordHs.StartTime + ((chordHs.EndTime - chordHs.StartTime) / 3)
 
                 chord.ChordNotes.FindAll(fun cn -> cn.IsUnpitchedSlide).ToArray(),

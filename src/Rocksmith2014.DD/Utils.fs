@@ -1,4 +1,4 @@
-﻿[<AutoOpen>]
+[<AutoOpen>]
 module internal Rocksmith2014.DD.Utils
 
 open Rocksmith2014.XML
@@ -34,10 +34,3 @@ let getAllowedChordNotes (diffPercent: float) maxChordNotesInPhrase =
         diffPercent * float maxChordNotesInPhrase
         |> (ceil >> int)
 
-let allSame (arr: 'a array) =
-    match arr.Length with
-    | 0 | 1 ->
-        true
-    | _ ->
-        let first = Array.head arr
-        Array.forall ((=) first) arr

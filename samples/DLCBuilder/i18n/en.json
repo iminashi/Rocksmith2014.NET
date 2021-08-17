@@ -287,6 +287,8 @@
   "CalculateVolumesAutomatically": "Calculate Volumes Automatically",
   "CalculateVolumes": "Calculate Volumes",
   "AdditionalInformation": "Additional Information",
+  "CopyInformation": "Copy Information",
+  "Show": "Show",
   "PSARCImportHeader": "PSARC Import",
   "ConvertWemOnImport": "Convert Audio",
   "NoConversion": "Disabled",

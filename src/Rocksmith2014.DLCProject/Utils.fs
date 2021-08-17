@@ -1,13 +1,7 @@
 module Rocksmith2014.DLCProject.Utils
 
 open System
-open System.Runtime.CompilerServices
-
-[<Extension>]
-type SpanExtensions =
-    [<Extension>]
-    static member inline AllSame(this: Span<'T>, value: 'T) =
-        this.Trim(value).IsEmpty
+open FSharp.Extensions
 
 /// Converts a tuning pitch into cents.
 let tuningPitchToCents (pitch: float) =
@@ -43,3 +37,14 @@ let getTuningName (tuning: int16 array) : string * obj array =
         | [|  0s;  2s; 2s;  1s;  0s;  0s |] -> "Open", [| "E" |]
         | [| -2s;  0s; 0s;  0s; -2s; -2s |] -> "DADGAD", Array.empty
         | _ -> "Custom Tuning", Array.empty
+
+/// If the exception is an aggregate exception, returns the distinct inner exception messages concatenated.
+let distinctExceptionMessages (e: exn) =
+    match e with
+    | :? AggregateException as a ->
+        a.InnerExceptions
+        |> Seq.map (fun x -> x.Message)
+        |> Seq.distinct
+        |> String.concat ", "
+    | _ ->
+        e.Message

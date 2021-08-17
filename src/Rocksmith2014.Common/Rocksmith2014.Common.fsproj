@@ -17,9 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Extensions.fs" />
     <Compile Include="FSharpJsonOptions.fs" />
-    <Compile Include="ActivePatterns.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="Platform.fs" />
     <Compile Include="MemoryStreamPool.fs" />
@@ -46,6 +44,10 @@
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.1.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="SharpZipLib" Version="1.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FSharp.Extensions\FSharp.Extensions.fsproj" />
   </ItemGroup>
 
   <ItemGroup>

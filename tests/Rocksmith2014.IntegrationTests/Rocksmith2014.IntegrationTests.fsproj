@@ -49,7 +49,7 @@
     </None>
     <Compile Include="PackageBuildingTests.fs" />
     <Compile Include="PsarcImportTests.fs" />
-    <Compile Include="Main.fs" />
+    <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>

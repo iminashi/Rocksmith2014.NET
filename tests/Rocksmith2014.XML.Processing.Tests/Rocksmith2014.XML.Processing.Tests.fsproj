@@ -16,7 +16,7 @@
     <Compile Include="VocalsCheckerTests.fs" />
     <Compile Include="ShowLightsCheckerTests.fs" />
     <Compile Include="ArrangementImproverTests.fs" />
-    <Compile Include="Main.fs" />
+    <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>

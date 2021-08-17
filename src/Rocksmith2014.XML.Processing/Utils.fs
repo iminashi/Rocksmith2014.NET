@@ -40,35 +40,37 @@ let private getMinTime (first: int option) (second: int option) =
     | Some first, Some second ->
         min first second
 
-let getFirstNoteTime (arrangement: InstrumentalArrangement) =
-    let firstPhraseLevel =
-        if arrangement.Levels.Count = 1 then
-            arrangement.Levels.[0]
-        else
-            // Find the first phrase that has difficulty levels
-            let firstPhraseIteration =
-                arrangement.PhraseIterations
-                |> Seq.tryFind (fun pi ->
-                    arrangement.Phrases.[pi.PhraseId].MaxDifficulty > 0uy)
+let findFirstLevelWithContent (arrangement: InstrumentalArrangement) =
+    if arrangement.Levels.Count = 1 then
+        arrangement.Levels.[0]
+    else
+        // Find the first phrase that has difficulty levels
+        let firstPhraseIteration =
+            arrangement.PhraseIterations
+            |> ResizeArray.tryFind (fun pi ->
+                arrangement.Phrases.[pi.PhraseId].MaxDifficulty > 0uy)
 
-            match firstPhraseIteration with
-            | Some firstPhraseIteration ->
-                let firstPhrase = arrangement.Phrases.[firstPhraseIteration.PhraseId]
-                arrangement.Levels.[int firstPhrase.MaxDifficulty]
-            | None ->
-                // There are DD levels, but no phrases where MaxDifficulty > 0
-                // Find the first level that has notes or chords
-                arrangement.Levels
-                |> Seq.find (fun level -> level.Notes.Count > 0 || level.Chords.Count > 0)
+        match firstPhraseIteration with
+        | Some firstPhraseIteration ->
+            let firstPhrase = arrangement.Phrases.[firstPhraseIteration.PhraseId]
+            arrangement.Levels.[int firstPhrase.MaxDifficulty]
+        | None ->
+            // There are DD levels, but no phrases where MaxDifficulty > 0
+            // Find the first level that has notes or chords
+            arrangement.Levels
+            |> Seq.find (fun level -> level.Notes.Count > 0 || level.Chords.Count > 0)
+
+let getFirstNoteTime (arrangement: InstrumentalArrangement) =
+    let firstPhraseLevel = findFirstLevelWithContent arrangement
 
     let firstNote =
         firstPhraseLevel.Notes
-        |> Seq.tryHead
+        |> ResizeArray.tryHead
         |> Option.map (fun n -> n.Time)
 
     let firstChord =
         firstPhraseLevel.Chords
-        |> Seq.tryHead
+        |> ResizeArray.tryHead
         |> Option.map (fun c -> c.Time)
 
     getMinTime firstNote firstChord

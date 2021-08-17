@@ -21,7 +21,7 @@ let view (update: UpdateInformation) dispatch =
                 StackPanel.children [
                     Path.create [
                         Path.fill Brushes.Gray
-                        Path.data Media.Icons.alertRound
+                        Path.data Icons.alertRound
                         Path.verticalAlignment VerticalAlignment.Center
                         Path.margin (0., 0., 10., 0.)
                     ]

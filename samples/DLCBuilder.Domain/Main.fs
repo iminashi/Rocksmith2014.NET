@@ -17,6 +17,16 @@ let private exceptionToErrorMessage (ex: exn) =
     let exnInfo (e: exn) =
         $"{e.GetType().Name}: {e.Message}\n{e.StackTrace}"
 
+    let message =
+        match ex with
+        | :? AggregateException as a ->
+            a.InnerExceptions
+            |> Seq.map (fun x -> x.Message)
+            |> Seq.distinct
+            |> String.concat ", "
+        | _ ->
+            ex.Message
+
     let moreInfo =
         match ex.InnerException with
         | null ->
@@ -24,7 +34,7 @@ let private exceptionToErrorMessage (ex: exn) =
         | innerEx ->
             $"{exnInfo ex}\n\nInner exception:\n{exnInfo innerEx}"
 
-    ErrorMessage (ex.Message, Some moreInfo)
+    ErrorMessage (message, Some moreInfo)
 
 let private buildPackage build state =
     match BuildValidator.validate state.Project with

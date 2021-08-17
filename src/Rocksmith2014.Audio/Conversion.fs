@@ -1,10 +1,10 @@
 ﻿module Rocksmith2014.Audio.Conversion
 
-open System.IO
-open System.Diagnostics
-open System
-open NAudio.Wave
 open NAudio.Vorbis
+open NAudio.Wave
+open System
+open System.Diagnostics
+open System.IO
 
 let private toolsDir = Path.Combine(AppContext.BaseDirectory, "Tools")
 let private ww2ogg = Path.Combine(toolsDir, "ww2ogg")

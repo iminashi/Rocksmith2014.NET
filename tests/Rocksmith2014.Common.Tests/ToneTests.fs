@@ -3,7 +3,6 @@
 open Expecto
 open Rocksmith2014.Common.Manifest
 open System.IO
-open System
 
 [<Tests>]
 let toneTests =

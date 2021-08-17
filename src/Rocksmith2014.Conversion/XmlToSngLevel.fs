@@ -1,9 +1,9 @@
-﻿module Rocksmith2014.Conversion.XmlToSngLevel
+module Rocksmith2014.Conversion.XmlToSngLevel
 
 open Rocksmith2014
-open Rocksmith2014.SNG
 open Rocksmith2014.Conversion.XmlToSng
 open Rocksmith2014.Conversion.Utils
+open Rocksmith2014.SNG
 open XmlToSngNote
 
 /// Creates an XML entity array from the notes and chords.
@@ -16,9 +16,9 @@ let createXmlEntityArray (xmlNotes: ResizeArray<XML.Note>) (xmlChords: ResizeArr
         let entityArray = Array.zeroCreate<XmlEntity> (xmlNotes.Count + xmlChords.Count)
 
         for i = 0 to xmlNotes.Count - 1 do
-            entityArray.[i] <- XmlNote (xmlNotes.[i])
+            entityArray.[i] <- XmlNote xmlNotes.[i]
         for i = 0 to xmlChords.Count - 1 do
-            entityArray.[xmlNotes.Count + i] <- XmlChord (xmlChords.[i])
+            entityArray.[xmlNotes.Count + i] <- XmlChord xmlChords.[i]
 
         Array.sortInPlaceBy getTimeCode entityArray
         entityArray
@@ -51,7 +51,7 @@ let convertLevel (accuData: AccuData) (piTimes: int[]) (xmlArr: XML.Instrumental
             piNotes
             |> Array.filter (fun v -> xmlArr.PhraseIterations.[fst v].PhraseId = phraseId)
             |> Array.map (snd >> float32)
-            |> tryAverage)
+            |> Array.tryAverage)
 
     { Difficulty = difficulty
       Anchors = anchors

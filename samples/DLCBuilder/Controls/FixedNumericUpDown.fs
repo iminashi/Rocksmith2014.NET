@@ -8,7 +8,6 @@ open Avalonia.FuncUI.Types
 open Avalonia.Styling
 open System
 open System.Reactive.Linq
-open Rocksmith2014.Common
 
 [<Sealed>]
 type FixedNumericUpDown() =
@@ -38,7 +37,7 @@ type FixedNumericUpDown() =
 
     static member onValueChanged(fn) =
         let getter : FixedNumericUpDown -> (float -> unit) = fun c -> c.OnValueChangedCallback
-        let setter : (FixedNumericUpDown * (float -> unit)) -> unit = fun (c, f) -> c.OnValueChangedCallback <- f
+        let setter : FixedNumericUpDown * (float -> unit) -> unit = fun (c, f) -> c.OnValueChangedCallback <- f
         // Keep the same callback once set
         let comparer _ = true
 

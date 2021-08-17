@@ -8,7 +8,6 @@ open Avalonia.FuncUI.Types
 open Avalonia.Styling
 open System
 open System.Reactive.Linq
-open Rocksmith2014.Common
 
 [<Sealed>]
 type FixedAutoCompleteBox() =
@@ -56,7 +55,7 @@ type FixedAutoCompleteBox() =
 
     static member onTextChanged fn =
         let getter : FixedAutoCompleteBox -> (string -> unit) = fun c -> c.OnTextChangedCallback
-        let setter : (FixedAutoCompleteBox * (string -> unit)) -> unit = fun (c, f) -> c.OnTextChangedCallback <- f
+        let setter : FixedAutoCompleteBox * (string -> unit) -> unit = fun (c, f) -> c.OnTextChangedCallback <- f
         // Keep the same callback once set
         let comparer _ = true
 
@@ -65,14 +64,14 @@ type FixedAutoCompleteBox() =
 
     static member validation fn =
         let getter : FixedAutoCompleteBox -> (string -> bool) = fun c -> c.ValidationCallback
-        let setter : (FixedAutoCompleteBox * (string -> bool)) -> unit = fun (c, f) -> c.ValidationCallback <- f
+        let setter : FixedAutoCompleteBox * (string -> bool) -> unit = fun (c, f) -> c.ValidationCallback <- f
 
         AttrBuilder<FixedAutoCompleteBox>.CreateProperty<string -> bool>
             ("Validation", fn, ValueSome getter, ValueSome setter, ValueNone)
 
     static member validationErrorMessage message =
         let getter : FixedAutoCompleteBox -> string = fun c -> c.ValidationErrorMessage
-        let setter : (FixedAutoCompleteBox * string) -> unit = fun (c, v) -> c.ValidationErrorMessage <- v
+        let setter : FixedAutoCompleteBox * string -> unit = fun (c, v) -> c.ValidationErrorMessage <- v
 
         AttrBuilder<FixedAutoCompleteBox>.CreateProperty<string>
             ("ValidationErrorMessage", message, ValueSome getter, ValueSome setter, ValueNone)

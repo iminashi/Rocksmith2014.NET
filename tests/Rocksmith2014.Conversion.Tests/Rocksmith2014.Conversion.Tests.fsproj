@@ -47,7 +47,7 @@
     <Compile Include="XmlFilesToSng.fs" />
     <Compile Include="InstrumentalConversion.fs" />
     <Compile Include="VocalsConversion.fs" />
-    <Compile Include="Main.fs" />
+    <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>
