@@ -21,11 +21,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Expecto" Version="9.0.2" />
-    <PackageReference Include="Expecto.FsCheck" Version="9.0.2" />
+    <PackageReference Include="Expecto" Version="9.0.4" />
+    <PackageReference Include="Expecto.FsCheck" Version="9.0.4" />
     <PackageReference Include="Expecto.VisualStudio.TestAdapter" Version="10.0.2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
-    <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.12.5" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+    <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.12.8" />
     <ProjectReference Include="..\..\src\FSharp.Extensions\FSharp.Extensions.fsproj" />
     <PackageReference Update="FSharp.Core" Version="5.0.2" />
   </ItemGroup>
