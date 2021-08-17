@@ -9,6 +9,7 @@ open Avalonia.Media
 open Rocksmith2014.Common
 open Rocksmith2014.DD
 open System.IO
+open System.Text.RegularExpressions
 open DLCBuilder
 
 let private tryFindWwiseExecutable basePath =
@@ -199,39 +200,52 @@ let private importConfig state dispatch =
 
     vStack [
         // Header
-        locText "PSARCImportHeader" [
-            TextBlock.fontSize 16.
-            TextBlock.margin (4., 4., 0., 0.)
+        DockPanel.create [
+            DockPanel.margin (0., 8., 0., 2.)
+            DockPanel.children [
+                TextBlock.create [
+                    DockPanel.dock Dock.Left
+                    TextBlock.fontSize 16.
+                    TextBlock.verticalAlignment VerticalAlignment.Center
+                    TextBlock.text (translate "PSARCImportHeader")
+                ]
+
+                Rectangle.create [
+                    Rectangle.height 1.
+                    Rectangle.fill Brushes.Gray
+                    Rectangle.margin (8., 0.)
+                ]
+            ]
         ]
-        Border.create [
-            Border.borderThickness 1.
-            Border.borderBrush Brushes.Gray
-            Border.cornerRadius 4.
-            Border.padding 6.
-            Border.child (
-                vStack [
+
+        StackPanel.create [
+            StackPanel.margin (8., 4.)
+            StackPanel.children [
+                hStack [
                     // Convert Audio Options
                     locText "ConvertWemOnImport" [
-                        TextBlock.margin (0., 0., 0., 4.)
+                        TextBlock.margin (0., 0., 8., 0.)
+                        TextBlock.verticalAlignment VerticalAlignment.Center
                     ]
-                    yield! [ NoConversion; ToOgg; ToWav ]
-                    |> List.map(fun conv ->
-                        RadioButton.create [
-                            RadioButton.margin (0., 2.)
-                            RadioButton.isChecked (state.Config.ConvertAudio = conv)
-                            RadioButton.content (localize conv)
-                            RadioButton.onChecked (fun _ -> conv |> SetConvertAudio |> EditConfig |> dispatch)
-                        ] |> generalize)
-
-                    // Remove DD Levels
-                    CheckBox.create [
-                        CheckBox.content (translate "RemoveDDLevels")
-                        CheckBox.isChecked state.Config.RemoveDDOnImport
-                        CheckBox.onChecked (fun _ -> true |> SetRemoveDDOnImport |> EditConfig |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> false |> SetRemoveDDOnImport |> EditConfig |> dispatch)
+                    vStack [
+                        yield! [ NoConversion; ToOgg; ToWav ]
+                        |> List.map(fun conv ->
+                            RadioButton.create [
+                                RadioButton.isChecked (state.Config.ConvertAudio = conv)
+                                RadioButton.content (localize conv)
+                                RadioButton.onChecked (fun _ -> conv |> SetConvertAudio |> EditConfig |> dispatch)
+                            ] |> generalize)
                     ]
                 ]
-            )
+
+                // Remove DD Levels
+                CheckBox.create [
+                    CheckBox.content (translate "RemoveDDLevels")
+                    CheckBox.isChecked state.Config.RemoveDDOnImport
+                    CheckBox.onChecked (fun _ -> true |> SetRemoveDDOnImport |> EditConfig |> dispatch)
+                    CheckBox.onUnchecked (fun _ -> false |> SetRemoveDDOnImport |> EditConfig |> dispatch)
+                ]
+            ]
         ]
     ]
 
@@ -309,7 +323,7 @@ let private ddConfig state dispatch =
             |> List.map (fun option ->
                 RadioButton.create [
                     RadioButton.verticalAlignment VerticalAlignment.Center
-                    RadioButton.margin (0., 2.)
+                    RadioButton.margin (8., 2.)
                     RadioButton.content (
                         StackPanel.create [
                             StackPanel.children [
@@ -333,9 +347,28 @@ let private ddConfig state dispatch =
 
 let private buildConfig state dispatch =
     vStack [
+        // Common Options
+        DockPanel.create [
+            DockPanel.margin (0., 8., 0., 2.)
+            DockPanel.children [
+                TextBlock.create [
+                    DockPanel.dock Dock.Left
+                    TextBlock.fontSize 16.
+                    TextBlock.verticalAlignment VerticalAlignment.Center
+                    TextBlock.text (translate "Common")
+                ]
+
+                Rectangle.create [
+                    Rectangle.height 1.
+                    Rectangle.fill Brushes.Gray
+                    Rectangle.margin (8., 0.)
+                ]
+            ]
+        ]
         // Apply Improvements
         CheckBox.create [
             CheckBox.verticalAlignment VerticalAlignment.Center
+            CheckBox.margin (8., 2.)
             CheckBox.content (translate "ApplyImprovements")
             CheckBox.isChecked state.Config.ApplyImprovements
             CheckBox.onChecked (fun _ -> true |> SetApplyImprovements |> EditConfig |> dispatch)
@@ -343,117 +376,134 @@ let private buildConfig state dispatch =
         ]
 
         // Release Build Options
-        locText "Release" [
-            TextBlock.fontSize 16.
-            TextBlock.margin (4., 4., 0., 0.)
-        ]
-        Border.create [
-            Border.borderThickness 1.
-            Border.borderBrush Brushes.Gray
-            Border.cornerRadius 4.
-            Border.padding 6.
-            Border.child (
-                vStack [
-                    hStack [
-                        // Release Platforms
-                        locText "Platforms" [
-                            TextBlock.margin (0., 0., 10., 0.)
-                            TextBlock.verticalAlignment VerticalAlignment.Center
-                        ]
-                        CheckBox.create [
-                            CheckBox.margin 2.
-                            CheckBox.minWidth 0.
-                            CheckBox.content "PC"
-                            CheckBox.isEnabled (state.Config.ReleasePlatforms |> Set.contains Mac)
-                            CheckBox.isChecked (state.Config.ReleasePlatforms |> Set.contains PC)
-                            CheckBox.onChecked (fun _ -> PC |> AddReleasePlatform |> EditConfig |> dispatch)
-                            CheckBox.onUnchecked (fun _ -> PC |> RemoveReleasePlatform |> EditConfig |> dispatch)
-                        ]
-                        CheckBox.create [
-                            CheckBox.margin 2.
-                            CheckBox.minWidth 0.
-                            CheckBox.content "Mac"
-                            CheckBox.isEnabled (state.Config.ReleasePlatforms |> Set.contains PC)
-                            CheckBox.isChecked (state.Config.ReleasePlatforms |> Set.contains Mac)
-                            CheckBox.onChecked (fun _ -> Mac |> AddReleasePlatform |> EditConfig |> dispatch)
-                            CheckBox.onUnchecked (fun _ -> Mac |> RemoveReleasePlatform |> EditConfig |> dispatch)
-                        ]
-                    ]
+        DockPanel.create [
+            DockPanel.margin (0., 8., 0., 2.)
+            DockPanel.children [
+                TextBlock.create [
+                    DockPanel.dock Dock.Left
+                    TextBlock.fontSize 16.
+                    TextBlock.verticalAlignment VerticalAlignment.Center
+                    TextBlock.text (translate "Release")
+                ]
 
-                    // Open Containing Folder
+                Rectangle.create [
+                    Rectangle.height 1.
+                    Rectangle.fill Brushes.Gray
+                    Rectangle.margin (8., 0.)
+                ]
+            ]
+        ]
+        StackPanel.create [
+            StackPanel.margin (8., 2.)
+            StackPanel.children [
+                hStack [
+                    // Release Platforms
+                    locText "Platforms" [
+                        TextBlock.margin (0., 0., 10., 0.)
+                        TextBlock.verticalAlignment VerticalAlignment.Center
+                    ]
                     CheckBox.create [
-                        CheckBox.verticalAlignment VerticalAlignment.Center
-                        CheckBox.content (translate "OpenContainingFolderAfterBuild")
-                        CheckBox.isChecked state.Config.OpenFolderAfterReleaseBuild
-                        CheckBox.onChecked (fun _ -> true |> SetOpenFolderAfterReleaseBuild |> EditConfig |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> false |> SetOpenFolderAfterReleaseBuild |> EditConfig |> dispatch)
+                        CheckBox.margin 2.
+                        CheckBox.minWidth 0.
+                        CheckBox.content "PC"
+                        CheckBox.isEnabled (state.Config.ReleasePlatforms |> Set.contains Mac)
+                        CheckBox.isChecked (state.Config.ReleasePlatforms |> Set.contains PC)
+                        CheckBox.onChecked (fun _ -> PC |> AddReleasePlatform |> EditConfig |> dispatch)
+                        CheckBox.onUnchecked (fun _ -> PC |> RemoveReleasePlatform |> EditConfig |> dispatch)
+                    ]
+                    CheckBox.create [
+                        CheckBox.margin 2.
+                        CheckBox.minWidth 0.
+                        CheckBox.content "Mac"
+                        CheckBox.isEnabled (state.Config.ReleasePlatforms |> Set.contains PC)
+                        CheckBox.isChecked (state.Config.ReleasePlatforms |> Set.contains Mac)
+                        CheckBox.onChecked (fun _ -> Mac |> AddReleasePlatform |> EditConfig |> dispatch)
+                        CheckBox.onUnchecked (fun _ -> Mac |> RemoveReleasePlatform |> EditConfig |> dispatch)
                     ]
                 ]
-            )
+
+                // Open Containing Folder
+                CheckBox.create [
+                    CheckBox.verticalAlignment VerticalAlignment.Center
+                    CheckBox.content (translate "OpenContainingFolderAfterBuild")
+                    CheckBox.isChecked state.Config.OpenFolderAfterReleaseBuild
+                    CheckBox.onChecked (fun _ -> true |> SetOpenFolderAfterReleaseBuild |> EditConfig |> dispatch)
+                    CheckBox.onUnchecked (fun _ -> false |> SetOpenFolderAfterReleaseBuild |> EditConfig |> dispatch)
+                ]
+            ]
         ]
 
         // Test Build Options
-        locText "Test" [
-            TextBlock.fontSize 16.
-            TextBlock.margin (4., 4., 0., 0.)
+        DockPanel.create [
+            DockPanel.margin (0., 8., 0., 2.)
+            DockPanel.children [
+                TextBlock.create [
+                    DockPanel.dock Dock.Left
+                    TextBlock.fontSize 16.
+                    TextBlock.verticalAlignment VerticalAlignment.Center
+                    TextBlock.text (translate "Test")
+                ]
+
+                Rectangle.create [
+                    Rectangle.height 1.
+                    Rectangle.fill Brushes.Gray
+                    Rectangle.margin (8., 0.)
+                ]
+            ]
         ]
-        Border.create [
-            Border.borderThickness 1.
-            Border.borderBrush Brushes.Gray
-            Border.cornerRadius 4.
-            Border.padding 6.
-            Border.child (
-                vStack [
-                    hStack [
-                        // App ID
-                        locText "AppID" [
-                            TextBlock.verticalAlignment VerticalAlignment.Center
-                            TextBlock.margin (0., 0., 10., 0.)
+        StackPanel.create [
+            StackPanel.margin (8., 2.)
+            StackPanel.children [
+                hStack [
+                    // App ID
+                    locText "AppID" [
+                        TextBlock.verticalAlignment VerticalAlignment.Center
+                        TextBlock.margin (0., 0., 10., 0.)
+                    ]
+                    vStack [
+                        RadioButton.create [
+                            RadioButton.content "Cherub Rock (248750)"
+                            RadioButton.isChecked state.Config.CustomAppId.IsNone
+                            RadioButton.onChecked (fun _ -> None |> SetCustomAppId |> EditConfig |> dispatch)
                         ]
-                        vStack [
-                            RadioButton.create [
-                                RadioButton.content "Cherub Rock (248750)"
-                                RadioButton.isChecked state.Config.CustomAppId.IsNone
-                                RadioButton.onChecked (fun _ -> None |> SetCustomAppId |> EditConfig |> dispatch)
-                            ]
-                            RadioButton.create [
-                                RadioButton.isChecked state.Config.CustomAppId.IsSome
-                                RadioButton.content (
-                                    hStack [
-                                        locText "Custom" [
-                                            TextBlock.verticalAlignment VerticalAlignment.Center
-                                        ]
-                                        FixedTextBox.create [
-                                            TextBox.verticalAlignment VerticalAlignment.Center
-                                            TextBox.width 120.
-                                            FixedTextBox.text (Option.toObj state.Config.CustomAppId)
-                                            FixedTextBox.onTextChanged (Option.ofString >> SetCustomAppId >> EditConfig >> dispatch)
-                                        ]
+                        RadioButton.create [
+                            RadioButton.isChecked state.Config.CustomAppId.IsSome
+                            RadioButton.content (
+                                hStack [
+                                    locText "Custom" [
+                                        TextBlock.verticalAlignment VerticalAlignment.Center
                                     ]
-                                )
-                            ]
+                                    FixedTextBox.create [
+                                        TextBox.verticalAlignment VerticalAlignment.Center
+                                        TextBox.width 120.
+                                        TextBox.onTextInput (fun e -> e.Text <- Regex.Replace(e.Text, "[^0-9]", ""))
+                                        FixedTextBox.text (Option.toObj state.Config.CustomAppId)
+                                        FixedTextBox.onTextChanged (Option.ofString >> SetCustomAppId >> EditConfig >> dispatch)
+                                    ]
+                                ]
+                            )
                         ]
-                    ]
-
-                    // Generate DD
-                    CheckBox.create [
-                        CheckBox.verticalAlignment VerticalAlignment.Center
-                        CheckBox.content (translate "GenerateDDLevels")
-                        CheckBox.isChecked state.Config.GenerateDD
-                        CheckBox.onChecked (fun _ -> true |> SetGenerateDD |> EditConfig |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> false |> SetGenerateDD |> EditConfig |> dispatch)
-                    ]
-
-                    // Save Debug Files
-                    CheckBox.create [
-                        CheckBox.verticalAlignment VerticalAlignment.Center
-                        CheckBox.content (translate "SaveDebugFiles")
-                        CheckBox.isChecked state.Config.SaveDebugFiles
-                        CheckBox.onChecked (fun _ -> true |> SetSaveDebugFiles |> EditConfig |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> false |> SetSaveDebugFiles |> EditConfig |> dispatch)
                     ]
                 ]
-            )
+
+                // Generate DD
+                CheckBox.create [
+                    CheckBox.verticalAlignment VerticalAlignment.Center
+                    CheckBox.content (translate "GenerateDDLevels")
+                    CheckBox.isChecked state.Config.GenerateDD
+                    CheckBox.onChecked (fun _ -> true |> SetGenerateDD |> EditConfig |> dispatch)
+                    CheckBox.onUnchecked (fun _ -> false |> SetGenerateDD |> EditConfig |> dispatch)
+                ]
+
+                // Save Debug Files
+                CheckBox.create [
+                    CheckBox.verticalAlignment VerticalAlignment.Center
+                    CheckBox.content (translate "SaveDebugFiles")
+                    CheckBox.isChecked state.Config.SaveDebugFiles
+                    CheckBox.onChecked (fun _ -> true |> SetSaveDebugFiles |> EditConfig |> dispatch)
+                    CheckBox.onUnchecked (fun _ -> false |> SetSaveDebugFiles |> EditConfig |> dispatch)
+                ]
+            ]
         ]
     ]
 

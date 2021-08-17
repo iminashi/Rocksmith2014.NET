@@ -133,7 +133,7 @@
   "Yes": "Yes",
   "No": "No",
   "SelectTonesToImport": "Select Tones to Import",
-  "Platforms": "Platforms",
+  "Platforms": "Platforms:",
   "CharterName": "Charter Name",
   "ProfilePath": "Profile Path",
   "ProfilePathPlaceholder": "Set a Rocksmith 2014 profile path to import tones from it.",
@@ -411,5 +411,6 @@
   "CustomFontPath": "Custom font texture filename",
   "Undo": "Undo",
   "PasteJapaneseLyricsHere": "Paste Japanese lyrics here.",
-  "ArrangementWasAddedToProject": "The arrangement was added to the project."
+  "ArrangementWasAddedToProject": "The arrangement was added to the project.",
+  "Common": "Common"
 }

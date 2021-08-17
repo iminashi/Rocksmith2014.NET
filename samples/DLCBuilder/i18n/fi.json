@@ -133,7 +133,7 @@
   "Yes": "Kyllä",
   "No": "Ei",
   "SelectTonesToImport": "Valitse tuotavat soundit",
-  "Platforms": "Alustat",
+  "Platforms": "Alustat:",
   "CharterName": "Tekijänimi",
   "ProfilePath": "Profiilin polku",
   "ProfilePathPlaceholder": "Määritä Rocksmith 2014 profiilin sijainti tuodaksesi soundeja.",
@@ -411,5 +411,6 @@
   "CustomFontPath": "Mukautetun fonttitekstuurin tiedostonimi",
   "Undo": "Kumoa",
   "PasteJapaneseLyricsHere": "Kopioi japaninkieliset lyriikat tähän.",
-  "ArrangementWasAddedToProject": "Sovitus lisättiin projektiin."
+  "ArrangementWasAddedToProject": "Sovitus lisättiin projektiin.",
+  "Common": "Yhteinen"
 }

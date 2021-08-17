@@ -133,7 +133,7 @@
   "Yes": "はい",
   "No": "いいえ",
   "SelectTonesToImport": "インポートするトーンを選択してください",
-  "Platforms": "プラットフォーム",
+  "Platforms": "プラットフォーム:",
   "CharterName": "クリエイター名",
   "ProfilePath": "プロフィールファイル",
   "ProfilePathPlaceholder": "トーンをインポートするには、ロックスミス2014のプロフィールを設定してください",
@@ -411,5 +411,6 @@
   "CustomFontPath": "カスタムフォントのファイル名",
   "Undo": "取り消す",
   "PasteJapaneseLyricsHere": "日本語の歌詞をここにコピペしてください。",
-  "ArrangementWasAddedToProject": "アレンジがプロジェクトに追加されました。"
+  "ArrangementWasAddedToProject": "アレンジがプロジェクトに追加されました。",
+  "Common": "共通"
 }
