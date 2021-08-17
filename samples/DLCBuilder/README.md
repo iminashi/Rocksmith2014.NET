@@ -87,6 +87,7 @@ Reading the available tones from a profile file, opening the tone editor and rem
 - Multi-part tone descriptions with some extra options to select from
 - Possibility to easily build a version of the project where the tuning is changed using a pitch shift pedal
 - Tone collection for storing tones or adding an official tone into a project
+- Tool for creating a Japanese vocals arrangement by matching the lyrics to a romaji arrangement
 - Inject tones into a profile file
 
 ### Features of the Toolkit Not Available in DLC Builder
@@ -99,6 +100,7 @@ Reading the available tones from a profile file, opening the tone editor and rem
 - Album art image is displayed in the UI
 - Importing tones from the profile is more convenient
 - Common hotkeys: Ctrl+N, Ctrl+O, Ctrl+S, ...
+- Drag & drop files into the program window
 - Remembers the five recently opened projects
 - Better at opening templates created with old versions of the Toolkit than the Toolkit itself
 - The UI prevents you from creating two main arrangements (represent = 1) for the same path
@@ -116,7 +118,7 @@ Since the Toolkit generates packages that work just fine, most of it probably do
 
 ## Differences in the DD Generator Compared to DDC
 
-- Will not create or move phrases
+- Will not create or move phrases (there is a separate feature that creates phrases and sections for arrangements that do not have them)
 - Will always generate at least two difficulty levels for any kind of phrase that has notes/chords
 - Preserves anchors in noguitar sections
 - Should not create cases where a note is followed by a pull-off note on the same fret/string
