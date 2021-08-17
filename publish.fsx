@@ -82,23 +82,22 @@ let publishBuilder platform =
 
 let createZipArchive platform =
     let targetFile = publishDir </> $"DLCBuilder-{platform}-{release.NugetVersion}.zip"
-    let workingDir, dirToZip =
+    let dirToZip =
         match platform with
         | Windows ->
-            let dir = publishDir </> "dlcbuilder-win"
-            dir, dir
+            "dlcbuilder-win"
         | MacOS ->
-            publishDir, "DLC Builder.app"
+            "DLC Builder.app"
         | Linux ->
-            let dir = publishDir </> "dlcbuilder-linux"
-            dir, dir
+            "dlcbuilder-linux"
 
     if RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then
         let dirToZip = publishDir </> dirToZip
+        let workingDir = dirToZip
         !! $"{dirToZip}/**" |> Zip.zip workingDir targetFile
     else
         // Using FAKE's zip loses the executable permissions
-        zip workingDir targetFile dirToZip
+        zip publishDir targetFile dirToZip
 
     targetFile
 
