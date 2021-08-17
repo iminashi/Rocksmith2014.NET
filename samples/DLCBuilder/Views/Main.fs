@@ -395,6 +395,14 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                     path |> Array.singleton |> AddArrangements |> dispatch
                 | EndsWith ".psarc" ->
                     path |> Dialog.PsarcImportTargetFolder |> ShowDialog |> dispatch
+                | EndsWith ".png"
+                | EndsWith ".jpg"
+                | EndsWith ".dds" ->
+                    path |> SetAlbumArt |> EditProject |> dispatch
+                | EndsWith ".wav"
+                | EndsWith ".ogg"
+                | EndsWith ".wem" ->
+                    path |> SetAudioFile |> dispatch
                 | _ ->
                     e.Handled <- false))
 

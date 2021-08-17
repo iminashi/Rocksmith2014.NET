@@ -3,7 +3,7 @@
 - A Linux version is now available.
 - Added a tool for creating a Japanese vocals arrangement from a romaji arrangement.
 - Added phrase/section generation for arrangements that do not have them.
-- Added drag & drop support for project files, Toolkit templates, PSARC files, tone files and arrangement files.
+- Added drag & drop support for project, PSARC, tone, cover art, audio, arrangement and Toolkit template files.
 - Added a customized window title bar (Windows only).
 - User experience improvements for first-time users.
 - Minor UI fixes.
