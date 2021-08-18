@@ -55,6 +55,7 @@ let private viewForIssue issueType times =
         StackPanel.children [
             // Issue Type & Explanation
             Expander.create [
+                Expander.background "#181818"
                 Expander.header (
                     TextBlock.create [
                         TextBlock.text header
@@ -138,6 +139,7 @@ let view state dispatch (arrangement: Arrangement) =
             ScrollViewer.create [
                 ScrollViewer.maxHeight 500.
                 ScrollViewer.maxWidth 650.
+                ScrollViewer.padding 8.
                 ScrollViewer.content (
                     vStack [
                         match issues with
