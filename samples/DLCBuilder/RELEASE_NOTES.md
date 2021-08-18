@@ -1,3 +1,10 @@
+## 0.6.1 (Released 2021-08-xx)
+
+- A warning is now displayed when a tone has more than four effects.
+- Tone effects can be moved up or down in the editor.
+- Minor UI improvements.
+- Fixed a minor bug in the phrase generation.
+
 ## 0.6.0 (Released 2021-08-17)
 
 - A Linux version is now available.
