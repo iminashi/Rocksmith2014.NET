@@ -34,6 +34,9 @@ type KeyboardNavigation with
     static member isTabStop<'t>(value: bool) : IAttr<'t> =
         AttrBuilder<'t>.CreateProperty<bool>(KeyboardNavigation.IsTabStopProperty, value, ValueNone)
 
+    static member tabNavigation<'t>(value: KeyboardNavigationMode) : IAttr<'t> =
+        AttrBuilder<'t>.CreateProperty<KeyboardNavigationMode>(KeyboardNavigation.TabNavigationProperty, value, ValueNone)
+
 type DragDrop with
     static member onDragEnter<'t when 't :> Control> (func: DragEventArgs -> unit, ?subPatchOptions) =
         AttrBuilder<'t>.CreateSubscription<DragEventArgs>
