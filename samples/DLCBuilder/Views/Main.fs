@@ -426,10 +426,10 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                             Menu.create [
                                 DockPanel.dock Dock.Left
                                 KeyboardNavigation.tabNavigation (
-                                    if not noOverlayIsOpen then
-                                        KeyboardNavigationMode.None
+                                    if noOverlayIsOpen then
+                                        KeyboardNavigationMode.Continue
                                     else
-                                        KeyboardNavigationMode.Continue)
+                                        KeyboardNavigationMode.None)
                                 Menu.isEnabled noOverlayIsOpen
                                 Menu.horizontalAlignment HorizontalAlignment.Left
                                 Menu.background Brushes.Transparent
@@ -493,10 +493,10 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                         Grid.rowDefinitions "3.4*,2.6*"
                         // Prevent tab navigation when an overlay is open
                         KeyboardNavigation.tabNavigation (
-                            if not noOverlayIsOpen then
-                                KeyboardNavigationMode.None
+                            if noOverlayIsOpen then
+                                KeyboardNavigationMode.Continue
                             else
-                                KeyboardNavigationMode.Continue)
+                                KeyboardNavigationMode.None)
                         Grid.children [
                             // Project details
                             ProjectDetails.view state dispatch
