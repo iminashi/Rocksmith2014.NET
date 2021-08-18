@@ -412,5 +412,6 @@
   "Undo": "取り消す",
   "PasteJapaneseLyricsHere": "日本語の歌詞をここにコピペしてください。",
   "ArrangementWasAddedToProject": "アレンジがプロジェクトに追加されました。",
-  "Common": "共通"
+  "Common": "共通",
+  "WarningMoreThanFourEffects": "注意: 4つ以上のエフェクトが使用されている。"
 }

@@ -412,5 +412,6 @@
   "Undo": "Kumoa",
   "PasteJapaneseLyricsHere": "Kopioi japaninkieliset lyriikat tähän.",
   "ArrangementWasAddedToProject": "Sovitus lisättiin projektiin.",
-  "Common": "Yhteinen"
+  "Common": "Yhteinen",
+  "WarningMoreThanFourEffects": "VAROITUS: Yli 4 efektiä käytössä."
 }

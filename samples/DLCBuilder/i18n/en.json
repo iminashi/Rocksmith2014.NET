@@ -412,5 +412,6 @@
   "Undo": "Undo",
   "PasteJapaneseLyricsHere": "Paste Japanese lyrics here.",
   "ArrangementWasAddedToProject": "The arrangement was added to the project.",
-  "Common": "Common"
+  "Common": "Common",
+  "WarningMoreThanFourEffects": "WARNING: More than 4 effects used."
 }

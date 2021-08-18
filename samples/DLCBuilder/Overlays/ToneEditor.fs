@@ -74,6 +74,14 @@ let private pedalSelectors dispatch repository selectedGearSlot gearList (locNam
         toggleButton dispatch gearList selectedGearSlot content gearSlot
         |> generalize ]
 
+let private effectCount (gearList: Gear) =
+    seq {
+        yield! gearList.PrePedals
+        yield! gearList.PostPedals
+        yield! gearList.Racks }
+    |> Seq.choose id
+    |> Seq.length
+
 let private gearSlotSelector repository state dispatch (gearList: Gear) =
     let ampName = repository.AmpDict.[gearList.Amp.Key].Name
     let cabinetName =
@@ -88,6 +96,14 @@ let private gearSlotSelector repository state dispatch (gearList: Gear) =
 
         yield! [ ("PrePedals", PrePedal); ("LoopPedals", PostPedal); ("Rack", Rack) ]
                 |> List.collect (pedalSelectors dispatch repository state.SelectedGearSlot gearList)
+
+        if effectCount gearList > 4 then
+            TextBlock.create [
+                TextBlock.foreground Brushes.OrangeRed
+                TextBlock.horizontalAlignment HorizontalAlignment.Center
+                TextBlock.fontSize 16.
+                TextBlock.text (translate "WarningMoreThanFourEffects")
+            ]
 
         Button.create [
             Button.content (translate "Close")
