@@ -32,6 +32,11 @@ type ListBoxEx() =
         e.Handled <- true
 
         match e.KeyModifiers, e.Key with
+        // Select the first item with the space key when nothing is selected.
+        | KeyModifiers.None, Key.Space when selected = -1 && st.Children.Count > 0 ->
+            selected <- 0
+            selectionChangedHandler selected
+
         | KeyModifiers.None, Key.Delete when selected <> -1 ->
             itemDeletedHandler()
 
