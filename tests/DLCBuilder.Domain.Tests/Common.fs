@@ -39,7 +39,6 @@ let initialState =
       Config = { Configuration.Default with ShowAdvanced = true }
       SelectedArrangementIndex = -1
       SelectedToneIndex = -1
-      SelectedGear = None
       SelectedGearSlot = ToneGear.Amp
       SelectedImportTones = List.empty
       ManuallyEditingKnobKey = None

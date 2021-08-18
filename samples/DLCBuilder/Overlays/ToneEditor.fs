@@ -1,7 +1,6 @@
 module DLCBuilder.Views.ToneEditor
 
 open Avalonia.Controls
-open Avalonia.Controls.Primitives
 open Avalonia.FuncUI
 open Avalonia.FuncUI.Components
 open Avalonia.FuncUI.DSL
@@ -26,23 +25,60 @@ let private enablePedalSelector gearList = function
     | Rack index ->
         gearList.Racks.[index - 1] |> Option.isSome
 
-let private toggleButton dispatch gearList selectedGearSlot (content: string) gearSlot =
-    let isEnabled = enablePedalSelector gearList gearSlot
-    let isChecked = gearSlot = selectedGearSlot
+let private getValidMoves (array: 'a option array) index =
+    let exists = array.[index].IsSome
+    let up = exists && index > 0 
+    let down = exists && index < 3 && array.[index + 1].IsSome
+    up, down
 
-    ToggleButton.create [
-        ToggleButton.margin (0., 2.)
-        ToggleButton.minHeight 30.
-        ToggleButton.fontSize 14.
-        ToggleButton.content content
-        ToggleButton.isChecked isChecked
-        ToggleButton.isEnabled isEnabled
-        if isEnabled then ToggleButton.cursor Cursors.hand
-        ToggleButton.onChecked (fun _ -> gearSlot |> SetSelectedGearSlot |> dispatch)
-        ToggleButton.onClick (fun e ->
-            let b = e.Source :?> ToggleButton
-            b.IsChecked <- true
+let private gearSlotSelector dispatch gearList selectedGearSlot (content: string) gearSlot =
+    let isEnabled = enablePedalSelector gearList gearSlot
+    let isSelected = gearSlot = selectedGearSlot
+    let canUp, canDown =
+        match gearSlot with
+        | Amp | Cabinet ->
+            false, false
+        | PrePedal index ->
+            getValidMoves gearList.PrePedals index
+        | PostPedal index ->
+            getValidMoves gearList.PostPedals index
+        | Rack index ->
+            getValidMoves gearList.Racks index
+
+    let validDirections =
+        if canUp then ValidSpinDirections.Increase else ValidSpinDirections.None
+        ||| if canDown then ValidSpinDirections.Decrease else ValidSpinDirections.None
+
+    Border.create [
+        if isEnabled then Border.cursor Cursors.hand
+        Border.focusable true
+        Border.margin (0., 2.)
+        Border.isEnabled isEnabled
+        Border.onTapped (fun e ->
             e.Handled <- true
+            gearSlot |> SetSelectedGearSlot |> dispatch)
+        Border.onKeyDown (fun e ->
+            if e.Key = Key.Space then
+                e.Handled <- true
+                gearSlot |> SetSelectedGearSlot |> dispatch)
+        Border.child (
+            ButtonSpinner.create [
+                ButtonSpinner.background (
+                    if isSelected then
+                        "#185f99"
+                    elif isEnabled then
+                        "#181818"
+                    else
+                        "#484848")
+                ButtonSpinner.content content
+                ButtonSpinner.validSpinDirection validDirections
+                ButtonSpinner.fontSize 14.
+                ButtonSpinner.showButtonSpinner (isSelected && (canUp || canDown))
+                ButtonSpinner.onSpin (fun e ->
+                    let dir = if e.Direction = SpinDirection.Decrease then Down else Up
+                    MovePedal(gearSlot, dir) |> EditTone |> dispatch
+                )
+            ]
         )
     ]
 
@@ -71,7 +107,7 @@ let private pedalSelectors dispatch repository selectedGearSlot gearList (locNam
             match getGearDataForCurrentPedal repository gearList gearSlot with
             | Some data -> data.Name
             | None -> String.Empty
-        toggleButton dispatch gearList selectedGearSlot content gearSlot
+        gearSlotSelector dispatch gearList selectedGearSlot content gearSlot
         |> generalize ]
 
 let private effectCount (gearList: Gear) =
@@ -82,17 +118,17 @@ let private effectCount (gearList: Gear) =
     |> Seq.choose id
     |> Seq.length
 
-let private gearSlotSelector repository state dispatch (gearList: Gear) =
+let private gearSlots repository state dispatch (gearList: Gear) =
     let ampName = repository.AmpDict.[gearList.Amp.Key].Name
     let cabinetName =
         let c = repository.CabinetDict.[gearList.Cabinet.Key] in $"{c.Name} - {c.Category}"
 
     vStack [
         gearSlotHeader "Amp"
-        toggleButton dispatch gearList state.SelectedGearSlot ampName Amp
+        gearSlotSelector dispatch gearList state.SelectedGearSlot ampName Amp
 
         gearSlotHeader "Cabinet"
-        toggleButton dispatch gearList state.SelectedGearSlot cabinetName Cabinet
+        gearSlotSelector dispatch gearList state.SelectedGearSlot cabinetName Cabinet
 
         yield! [ ("PrePedals", PrePedal); ("LoopPedals", PostPedal); ("Rack", Rack) ]
                 |> List.collect (pedalSelectors dispatch repository state.SelectedGearSlot gearList)
@@ -114,19 +150,17 @@ let private gearSlotSelector repository state dispatch (gearList: Gear) =
         ]
     ]
 
-let private gearSelector dispatch repository (gearList: Gear) gearSlot =
-    let gearData = getGearDataForCurrentPedal repository gearList gearSlot
-
-    ComboBox.create [
+let private gearSelector dispatch repository gearData gearSlot =
+    FixedComboBox.create [
         ComboBox.virtualizationMode ItemVirtualizationMode.Simple
-        ComboBox.dataItems (
+        ComboBox.itemTemplate gearTemplate
+        FixedComboBox.dataItems (
             match gearSlot with
             | Amp -> repository.Amps
             | Cabinet -> repository.CabinetChoices
             | PrePedal _ | PostPedal _ -> repository.Pedals
             | Rack _ -> repository.Racks)
-        ComboBox.itemTemplate gearTemplate
-        ComboBox.selectedItem (
+        FixedComboBox.selectedItem (
             match gearData with
             | Some data when data.Type = "Cabinets" ->
                 repository.CabinetChoices
@@ -135,11 +169,12 @@ let private gearSelector dispatch repository (gearList: Gear) gearSlot =
                 data
             | None ->
                 Unchecked.defaultof<GearData>)
-        ComboBox.onSelectedItemChanged (fun item ->
+        FixedComboBox.onSelectedItemChanged (fun item ->
             match item with
-            | :? GearData as gear -> Some gear
-            | _ -> None
-            |> SetSelectedGear |> dispatch)
+            | :? GearData as gear ->
+                gear |> SetPedal |> EditTone |> dispatch
+            | _ ->
+                ())
     ]
 
 let private getFormatString knob =
@@ -300,20 +335,22 @@ let view state dispatch (tone: Tone) =
             TextBox.verticalAlignment VerticalAlignment.Center
         ] |> generalize
     | Some repository ->
+        let gearData = getGearDataForCurrentPedal repository tone.GearList state.SelectedGearSlot
+
         Grid.create [
             Grid.width 620.
             Grid.minHeight 635.
             Grid.columnDefinitions "*,*"
             Grid.children [
-                gearSlotSelector repository state dispatch tone.GearList
+                gearSlots repository state dispatch tone.GearList
 
                 StackPanel.create [
                     Grid.column 1
                     StackPanel.margin (16., 0., 0., 0.)
                     StackPanel.children [
-                        yield gearSelector dispatch repository tone.GearList state.SelectedGearSlot
+                        yield gearSelector dispatch repository gearData state.SelectedGearSlot
 
-                        match state.SelectedGear with
+                        match gearData with
                         | None ->
                             ()
                         | Some gear ->

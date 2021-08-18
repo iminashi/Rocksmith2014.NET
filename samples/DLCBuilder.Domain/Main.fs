@@ -102,29 +102,6 @@ let update (msg: Msg) (state: State) =
 
         { state with Project = updatedProject }, Cmd.none
 
-    | SetSelectedGear gear ->
-        match state.ToneGearRepository with
-        | Some repo ->
-            let cmd =
-                match gear with
-                | Some gear ->
-                    let currentGear =
-                        getSelectedTone state
-                        |> Option.bind (fun tone ->
-                            ToneGear.getGearDataForCurrentPedal repo tone.GearList state.SelectedGearSlot)
-                    match currentGear with
-                    // Don't change the cabinet if its name is the same as the current one
-                    | Some data when gear.Type = "Cabinets" && data.Name = gear.Name ->
-                        Cmd.none
-                    | _ ->
-                        Cmd.ofMsg (gear |> SetPedal |> EditTone)
-                | None ->
-                    Cmd.none
-
-            { state with SelectedGear = gear }, cmd
-        | None ->
-            state, Cmd.none
-
     | SetSelectedGearSlot gearSlot ->
         { state with SelectedGearSlot = gearSlot }, Cmd.none
 

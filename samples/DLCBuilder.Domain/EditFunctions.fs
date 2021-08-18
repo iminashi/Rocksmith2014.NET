@@ -258,6 +258,33 @@ let editTone state edit index =
         | ChangeDescriptor (index, descriptor) ->
            { tone with ToneDescriptors = tone.ToneDescriptors |> Array.updateAt index descriptor.UIName }
 
+        | MovePedal (gearSlot, direction) ->
+            let change = match direction with Up -> -1 | Down -> +1
+            
+            let isValidMove index =
+                let newIndex = index + change
+                newIndex >= 0 && newIndex < 4
+
+            let move array index =
+                let newIndex = index + change
+                let newArray = Array.copy array
+                newArray.[newIndex] <- array.[index]
+                newArray.[index] <- array.[newIndex]
+                newArray
+
+            let gearList =
+                match gearSlot with
+                | PrePedal index when isValidMove index ->
+                    { tone.GearList with PrePedals = move tone.GearList.PrePedals index }
+                | PostPedal index when isValidMove index ->
+                    { tone.GearList with PostPedals = move tone.GearList.PostPedals index }
+                | Rack index when isValidMove index ->
+                    { tone.GearList with Racks = move tone.GearList.Racks index }
+                | _ ->
+                    tone.GearList
+
+            { tone with GearList = gearList }
+            
         | RemovePedal ->
             let remove index = Utils.removeAndShift index
             let gearList =
@@ -304,8 +331,10 @@ let editTone state edit index =
                 { tone with GearList = gearList }
 
         | SetKnobValue (knobKey, value) ->
-            match state.SelectedGear with
-            | Some _ when state.SelectedGearSlot <> Cabinet ->
+            if state.SelectedGearSlot = Cabinet then
+                // Cabinets do not have knobs
+                tone
+            else
                 getKnobValuesForGear tone.GearList state.SelectedGearSlot
                 // Update the value only if the key exists
                 |> Option.map (Map.change knobKey (Option.map (fun _ -> value)))
@@ -334,8 +363,6 @@ let editTone state edit index =
                             { tone.GearList with Racks = tone.GearList.Racks |> updateKnobs index }
 
                     { tone with GearList = gearList }
-            | _ ->
-                tone
 
     if updatedTone = tone then
         state, Cmd.none

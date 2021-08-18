@@ -165,8 +165,7 @@ let editToneTests =
         testCase "SetKnobValue sets a knob value" <| fun _ ->
             let newPedal = repository.Pedals.[5]
             let knobKey = newPedal.Knobs.Value.[0].Key
-            let initialState = { state with SelectedGearSlot = ToneGear.PrePedal 0
-                                            SelectedGear = Some newPedal }
+            let initialState = { state with SelectedGearSlot = ToneGear.PrePedal 0 }
             let messages = [ SetPedal newPedal
                              SetKnobValue(knobKey, 99f) ] |> List.map EditTone
 
@@ -180,8 +179,7 @@ let editToneTests =
         testCase "SetKnobValue does not add a new knob value" <| fun _ ->
             let newPedal = repository.Racks.[2]
             let knobKey = "noSuchKey"
-            let initialState = { state with SelectedGearSlot = ToneGear.Rack 1
-                                            SelectedGear = Some newPedal }
+            let initialState = { state with SelectedGearSlot = ToneGear.Rack 1 }
             let messages = [ SetPedal newPedal
                              SetKnobValue(knobKey, 99f) ] |> List.map EditTone
 

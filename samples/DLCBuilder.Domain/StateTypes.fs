@@ -90,15 +90,16 @@ type ProjectEdit =
     | SetPitchShift of int16
 
 type ToneEdit =
-    | SetName of toneName:string
-    | SetKey of toneKey:string
-    | SetVolume of volume:float
-    | ChangeDescriptor of index:int * descriptor:ToneDescriptor
+    | SetName of toneName : string
+    | SetKey of toneKey : string
+    | SetVolume of volume : float
+    | ChangeDescriptor of index : int * descriptor : ToneDescriptor
     | AddDescriptor
     | RemoveDescriptor
     | SetPedal of ToneGear.GearData
-    | SetKnobValue of knobKey:string * value:float32
+    | SetKnobValue of knobKey : string * value : float32
     | RemovePedal
+    | MovePedal of gearSlot : ToneGear.GearSlot * direction : MoveDirection
 
 type VocalsEdit =
     | SetIsJapanese of bool
@@ -207,7 +208,6 @@ type Msg =
     | SetToneRepository of repository : ToneGear.Repository
     | SetSelectedArrangementIndex of index : int
     | SetSelectedToneIndex of index : int
-    | SetSelectedGear of ToneGear.GearData option
     | SetSelectedGearSlot of ToneGear.GearSlot
     | SetManuallyEditingKnobKey of string option
     | CheckForUpdates
@@ -279,7 +279,6 @@ type State =
       Config : Configuration
       SelectedArrangementIndex : int
       SelectedToneIndex : int
-      SelectedGear : ToneGear.GearData option
       SelectedImportTones : Tone list
       ManuallyEditingKnobKey : string option
       SelectedGearSlot : ToneGear.GearSlot

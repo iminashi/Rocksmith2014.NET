@@ -34,7 +34,6 @@ let init localizer albumArtLoader databaseConnector args =
       Config = Configuration.Default
       SelectedArrangementIndex = -1
       SelectedToneIndex = -1
-      SelectedGear = None
       SelectedGearSlot = ToneGear.Amp
       SelectedImportTones = List.empty
       ManuallyEditingKnobKey = None
