@@ -11,6 +11,16 @@ open Rocksmith2014.PSARC
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Processing
 
+let createExceptionInfoString (ex: exn) =
+    let exnInfo (e: exn) =
+        $"{e.GetType().Name}: {e.Message}\n{e.StackTrace}"
+
+    match ex.InnerException with
+    | null ->
+        exnInfo ex
+    | innerEx ->
+        $"{exnInfo ex}\n\nInner exception:\n{exnInfo innerEx}"
+
 /// Imports tones from a PSARC file.
 let importTonesFromPSARC (psarcPath: string) = async {
     use psarc = PSARC.ReadFile psarcPath

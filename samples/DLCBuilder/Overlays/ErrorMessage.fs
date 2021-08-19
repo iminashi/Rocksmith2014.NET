@@ -47,10 +47,6 @@ let view dispatch msg info =
                 vStack [
                     Panel.create [
                         Panel.children [
-                            locText "AdditionalInformation" [
-                                TextBlock.verticalAlignment VerticalAlignment.Center
-                            ]
-
                             Button.create [
                                 Button.horizontalAlignment HorizontalAlignment.Right
                                 Button.content (translate "CopyInformation")
@@ -63,10 +59,11 @@ let view dispatch msg info =
                         ]
                     ]
                     Expander.create [
-                        Expander.header (translate "Show")
+                        Expander.header (translate "AdditionalInformation")
                         Expander.horizontalAlignment HorizontalAlignment.Stretch
                         Expander.maxHeight 400.
                         Expander.maxWidth 600.
+                        Expander.background "#181818"
                         Expander.content (
                             TextBox.create [
                                 TextBox.horizontalScrollBarVisibility ScrollBarVisibility.Auto

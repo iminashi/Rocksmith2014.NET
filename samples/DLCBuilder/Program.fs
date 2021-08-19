@@ -124,10 +124,12 @@ type MainWindow(commandLineArgs: string array) as this =
 
                 let errorMessage =
                     $"Unhandled exception in the update function.\nMessage: {msg}\nException: {ex.Message}"
+                let exnInfo =
+                    Utils.createExceptionInfoString ex
                 let newState =
                     { state with StatusMessages = List.empty
                                  RunningTasks = Set.empty
-                                 Overlay = ErrorMessage(errorMessage, Option.ofString ex.StackTrace) }
+                                 Overlay = ErrorMessage(errorMessage, Some exnInfo) }
                 newState, Cmd.none
 
         let databaseConnector =

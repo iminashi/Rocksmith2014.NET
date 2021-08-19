@@ -14,9 +14,6 @@ open EditFunctions
 open StateUtils
 
 let private exceptionToErrorMessage (ex: exn) =
-    let exnInfo (e: exn) =
-        $"{e.GetType().Name}: {e.Message}\n{e.StackTrace}"
-
     let message =
         match ex with
         | :? AggregateException as a ->
@@ -27,14 +24,7 @@ let private exceptionToErrorMessage (ex: exn) =
         | _ ->
             ex.Message
 
-    let moreInfo =
-        match ex.InnerException with
-        | null ->
-            exnInfo ex
-        | innerEx ->
-            $"{exnInfo ex}\n\nInner exception:\n{exnInfo innerEx}"
-
-    ErrorMessage (message, Some moreInfo)
+    ErrorMessage (message, Some (Utils.createExceptionInfoString ex))
 
 let private buildPackage build state =
     match BuildValidator.validate state.Project with
