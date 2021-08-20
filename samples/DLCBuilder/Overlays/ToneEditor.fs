@@ -134,11 +134,17 @@ let private gearSlots repository state dispatch (gearList: Gear) =
                 |> List.collect (pedalSelectors dispatch repository state.SelectedGearSlot gearList)
 
         if effectCount gearList > 4 then
-            TextBlock.create [
-                TextBlock.foreground Brushes.OrangeRed
-                TextBlock.horizontalAlignment HorizontalAlignment.Center
-                TextBlock.fontSize 16.
-                TextBlock.text (translate "WarningMoreThanFourEffects")
+            hStack [
+                TextBlock.create [
+                    TextBlock.foreground Brushes.OrangeRed
+                    TextBlock.horizontalAlignment HorizontalAlignment.Center
+                    TextBlock.verticalAlignment VerticalAlignment.Center
+                    TextBlock.fontSize 16.
+                    TextBlock.text (translate "WarningMoreThanFourEffects")
+                ]
+                HelpButton.create [
+                    HelpButton.helpText (translate "WarningMoreThanFourEffectsHelp")
+                ]
             ]
 
         Button.create [
