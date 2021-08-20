@@ -413,5 +413,8 @@
   "PasteJapaneseLyricsHere": "Paste Japanese lyrics here.",
   "ArrangementWasAddedToProject": "The arrangement was added to the project.",
   "Common": "Common",
-  "WarningMoreThanFourEffects": "WARNING: More than 4 effects used."
+  "WarningMoreThanFourEffects": "WARNING: More than 4 effects used.",
+  "DDPhraseSimilarityHelp": "Similar phrases are set up to level up together.\n\nAt 100% the phrases need to have exactly the same number of notes and chords that come in the same order.",
+  "ApplyImprovementsHelp": "Applies various automatic fixes to the arrangements.\n\nSee the readme for details.",
+  "SaveDebugFilesHelp": "Saves .debug.xml files for each guitar or bass arrangement in the project directory.\n\nYou can use them too see what the arrangements look like before they are converted to SNG (the binary format used by the game)."
 }

@@ -298,6 +298,9 @@ let private ddConfig state dispatch =
                     TextBlock.fontSize 16.
                     TextBlock.text "%"
                 ]
+                HelpButton.create [
+                    HelpButton.helpText (translate "DDPhraseSimilarityHelp")
+                ]
             ]
         ]
 
@@ -365,14 +368,19 @@ let private buildConfig state dispatch =
                 ]
             ]
         ]
-        // Apply Improvements
-        CheckBox.create [
-            CheckBox.verticalAlignment VerticalAlignment.Center
-            CheckBox.margin (8., 2.)
-            CheckBox.content (translate "ApplyImprovements")
-            CheckBox.isChecked state.Config.ApplyImprovements
-            CheckBox.onChecked (fun _ -> true |> SetApplyImprovements |> EditConfig |> dispatch)
-            CheckBox.onUnchecked (fun _ -> false |> SetApplyImprovements |> EditConfig |> dispatch)
+        hStack [
+            // Apply Improvements
+            CheckBox.create [
+                CheckBox.verticalAlignment VerticalAlignment.Center
+                CheckBox.margin (8., 2.)
+                CheckBox.content (translate "ApplyImprovements")
+                CheckBox.isChecked state.Config.ApplyImprovements
+                CheckBox.onChecked (fun _ -> true |> SetApplyImprovements |> EditConfig |> dispatch)
+                CheckBox.onUnchecked (fun _ -> false |> SetApplyImprovements |> EditConfig |> dispatch)
+            ]
+            HelpButton.create [
+                HelpButton.helpText (translate "ApplyImprovementsHelp")
+            ]
         ]
 
         // Release Build Options
@@ -496,12 +504,17 @@ let private buildConfig state dispatch =
                 ]
 
                 // Save Debug Files
-                CheckBox.create [
-                    CheckBox.verticalAlignment VerticalAlignment.Center
-                    CheckBox.content (translate "SaveDebugFiles")
-                    CheckBox.isChecked state.Config.SaveDebugFiles
-                    CheckBox.onChecked (fun _ -> true |> SetSaveDebugFiles |> EditConfig |> dispatch)
-                    CheckBox.onUnchecked (fun _ -> false |> SetSaveDebugFiles |> EditConfig |> dispatch)
+                hStack [
+                    CheckBox.create [
+                        CheckBox.verticalAlignment VerticalAlignment.Center
+                        CheckBox.content (translate "SaveDebugFiles")
+                        CheckBox.isChecked state.Config.SaveDebugFiles
+                        CheckBox.onChecked (fun _ -> true |> SetSaveDebugFiles |> EditConfig |> dispatch)
+                        CheckBox.onUnchecked (fun _ -> false |> SetSaveDebugFiles |> EditConfig |> dispatch)
+                    ]
+                    HelpButton.create [
+                        HelpButton.helpText (translate "SaveDebugFilesHelp")
+                    ]
                 ]
             ]
         ]

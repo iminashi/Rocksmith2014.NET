@@ -413,5 +413,8 @@
   "PasteJapaneseLyricsHere": "日本語の歌詞をここにコピペしてください。",
   "ArrangementWasAddedToProject": "アレンジがプロジェクトに追加されました。",
   "Common": "共通",
-  "WarningMoreThanFourEffects": "注意: 4つ以上のエフェクトが使用されている。"
+  "WarningMoreThanFourEffects": "注意: 4つ以上のエフェクトが使用されている。",
+  "DDPhraseSimilarityHelp": "同じようなフレーズは同時にレベルアップします。\n\n100%にすると、同一フレーズの条件は同数のノートとコードが同じ順番になっていること。",
+  "ApplyImprovementsHelp": "アレンジにはいくつかの自動的な改善が施されます。\n\n詳しくはreadmeを見てください。",
+  "SaveDebugFilesHelp": "ギターとベースアレンジには.debug.xmlファイルがプロジェクトフォルダーに作られます。\n\nこのファイルでは、SNG（ロックスミスが使うバイナリファイル）に変換される直前のアレンジの様子が見られます。"
 }
