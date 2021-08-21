@@ -299,7 +299,7 @@ let checkAnchors (arrangement: InstrumentalArrangement) (level: Level) =
     let moverPhraseTimes =
         arrangement.Phrases
         |> Seq.indexed
-        |> Seq.filter (fun (_, phrase) -> phrase.Name.StartsWith("mover", StringComparison.OrdinalIgnoreCase))
+        |> Seq.filter (fun (_, phrase) -> String.startsWith "mover" phrase.Name)
         |> Seq.collect (fun (index, _) ->
             arrangement.PhraseIterations.FindAll(fun pi -> pi.PhraseId = index))
         |> Seq.map (fun x -> x.Time)
@@ -327,11 +327,14 @@ let checkPhrases (arr: InstrumentalArrangement) =
         let firstNoteTime = Utils.getFirstNoteTime arr
 
         [ // Check for notes inside the first phrase
-          if firstNoteTime < arr.PhraseIterations.[1].Time then
-            issue FirstPhraseNotEmpty firstNoteTime
+          match firstNoteTime with
+          | Some firstNoteTime when firstNoteTime < arr.PhraseIterations.[1].Time ->
+                issue FirstPhraseNotEmpty firstNoteTime
+          | _ ->
+                ()
 
           // Check for missing END phrase
-          if not <|arr.Phrases.Exists(fun p -> p.Name.Equals("END", StringComparison.OrdinalIgnoreCase)) then
+          if not <|arr.Phrases.Exists(fun p -> String.equalsIgnoreCase "END" p.Name) then
             issue NoEndPhrase 0 ]
     else
         List.empty

@@ -4,6 +4,7 @@ open Expecto
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Processing.Types
 open Rocksmith2014.XML.Processing.InstrumentalChecker
+open Rocksmith2014.XML.Processing
 
 let toneChanges = ResizeArray(seq { ToneChange("test", 5555, 1uy) })
 let sections = ResizeArray(seq { Section("noguitar", 6000, 1s); Section("riff", 6500, 1s); Section("noguitar", 8000, 2s) })
@@ -521,4 +522,17 @@ let phraseTests =
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type NoEndPhrase "Correct issue type"
+    ]
+
+[<Tests>]
+let generalTests =
+    testList "Arrangement Checker (General)" [
+        testCase "Does not throw exceptions when checking an arrangement without notes" <| fun _ ->
+            let phrases = ResizeArray(seq { Phrase("A", 0uy, PhraseMask.None); Phrase("END", 0uy, PhraseMask.None) })
+            let phraseIterations = ResizeArray(seq { PhraseIteration(500, 0); PhraseIteration(2500, 1) })
+            let arr = InstrumentalArrangement(Phrases = phrases, PhraseIterations = phraseIterations)
+
+            let issues = ArrangementChecker.checkInstrumental arr
+
+            Expect.isEmpty issues "No issues were returned"
     ]

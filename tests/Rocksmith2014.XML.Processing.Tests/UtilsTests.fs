@@ -1,4 +1,4 @@
-﻿module UtilsTests
+module UtilsTests
 
 open Expecto
 open Rocksmith2014.XML.Processing
@@ -14,7 +14,7 @@ let tests =
 
             let time = Utils.getFirstNoteTime arr
 
-            Expect.equal time 4000 "First note time is correct"
+            Expect.equal time (Some 4000) "First note time is correct"
 
         testCase "getFirstNoteTime finds first note when there are DD levels" <| fun _ ->
             let phrases = ResizeArray(seq { Phrase("default", 0uy, PhraseMask.None); Phrase("riff", 1uy, PhraseMask.None) })
@@ -26,5 +26,5 @@ let tests =
 
             let time = Utils.getFirstNoteTime arr
 
-            Expect.equal time 5000 "First note time is correct"
+            Expect.equal time (Some 5000) "First note time is correct"
     ]

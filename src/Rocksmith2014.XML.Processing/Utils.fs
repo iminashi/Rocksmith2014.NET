@@ -4,6 +4,13 @@ open Rocksmith2014.XML
 
 let internal issue type' time = { Type = type'; TimeCode = time }
 
+[<RequireQualifiedAccess>]
+module Option =
+    let minOfMany options =
+        options
+        |> List.collect Option.toList
+        |> List.tryMin
+
 /// Converts a time in milliseconds into a string.
 let timeToString time =
     let minutes = time / 1000 / 60
@@ -30,19 +37,11 @@ let internal findTimeOfNthNoteFrom (level: Level) (startTime: int) (nthNote: int
     |> Seq.head
 
 let private getMinTime (first: int option) (second: int option) =
-    match first, second with
-    | None, None ->
-        failwith "Cannot compare missing values."
-    | Some first, None ->
-        first
-    | None, Some second ->
-        second
-    | Some first, Some second ->
-        min first second
+    Option.minOfMany [ first; second ]
 
 let findFirstLevelWithContent (arrangement: InstrumentalArrangement) =
     if arrangement.Levels.Count = 1 then
-        arrangement.Levels.[0]
+        Some arrangement.Levels.[0]
     else
         // Find the first phrase that has difficulty levels
         let firstPhraseIteration =
@@ -53,24 +52,24 @@ let findFirstLevelWithContent (arrangement: InstrumentalArrangement) =
         match firstPhraseIteration with
         | Some firstPhraseIteration ->
             let firstPhrase = arrangement.Phrases.[firstPhraseIteration.PhraseId]
-            arrangement.Levels.[int firstPhrase.MaxDifficulty]
+            Some arrangement.Levels.[int firstPhrase.MaxDifficulty]
         | None ->
             // There are DD levels, but no phrases where MaxDifficulty > 0
             // Find the first level that has notes or chords
             arrangement.Levels
-            |> Seq.find (fun level -> level.Notes.Count > 0 || level.Chords.Count > 0)
+            |> Seq.tryFind (fun level -> level.Notes.Count > 0 || level.Chords.Count > 0)
 
 let getFirstNoteTime (arrangement: InstrumentalArrangement) =
-    let firstPhraseLevel = findFirstLevelWithContent arrangement
+    findFirstLevelWithContent arrangement
+    |> Option.bind (fun firstPhraseLevel ->
+        let firstNote =
+            firstPhraseLevel.Notes
+            |> ResizeArray.tryHead
+            |> Option.map (fun n -> n.Time)
 
-    let firstNote =
-        firstPhraseLevel.Notes
-        |> ResizeArray.tryHead
-        |> Option.map (fun n -> n.Time)
+        let firstChord =
+            firstPhraseLevel.Chords
+            |> ResizeArray.tryHead
+            |> Option.map (fun c -> c.Time)
 
-    let firstChord =
-        firstPhraseLevel.Chords
-        |> ResizeArray.tryHead
-        |> Option.map (fun c -> c.Time)
-
-    getMinTime firstNote firstChord
+        getMinTime firstNote firstChord)

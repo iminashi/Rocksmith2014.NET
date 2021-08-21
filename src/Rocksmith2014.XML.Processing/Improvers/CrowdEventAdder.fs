@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.XML.Processing.CrowdEventAdder
+module Rocksmith2014.XML.Processing.CrowdEventAdder
 
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Extensions
@@ -18,7 +18,12 @@ module private Events =
     let [<Literal>] CrowdSpeedFast = "e2"
 
 let private addIntroApplauseEvent (arrangement: InstrumentalArrangement) =
-    let startTime = Utils.getFirstNoteTime arrangement + IntroCrowdReactionDelay
+    let startTime =
+        match Utils.getFirstNoteTime arrangement with
+        | Some firstNoteTime ->
+            firstNoteTime + IntroCrowdReactionDelay
+        | None ->
+            arrangement.StartBeat
     let endTime = startTime + IntroApplauseLength
 
     arrangement.Events.InsertByTime(Event(Events.IntroApplauseStart, startTime))

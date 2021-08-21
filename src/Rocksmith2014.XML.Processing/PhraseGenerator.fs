@@ -15,13 +15,6 @@ let private maxOfThree defaultValue o1 o2 o3 =
     max v1 v2
     |> max v3
 
-let private minOfThree o1 o2 o3 =
-    [ Option.toList o1
-      Option.toList o2
-      Option.toList o3 ]
-    |> List.collect id
-    |> List.tryMin
-
 let private findContentEnd (arr: Inst) =
     let note =
         arr.Levels.[0].Notes
@@ -45,7 +38,7 @@ let private findContentEnd (arr: Inst) =
 let private getEndPhraseTime (arr: Inst) =
     let oldEndPhrase =
         arr.Phrases
-        |> Seq.tryFindIndex (fun x -> x.Name.Equals("END", StringComparison.OrdinalIgnoreCase))
+        |> Seq.tryFindIndex (fun x -> String.equalsIgnoreCase "END" x.Name)
         |> Option.bind (fun index ->
             arr.PhraseIterations
             |> ResizeArray.tryFind (fun x -> x.PhraseId = index))
@@ -78,10 +71,11 @@ let private findNextContent (level: Level) time =
         |> ResizeArray.tryFind (fun x -> x.StartTime >= time)
         |> Option.map (fun x -> x.StartTime)
 
-    minOfThree note chord handShape
+    Option.minOfMany [ note; chord; handShape ]
 
 let private getContentStartTime (arr: Inst) =
-    findNextContent (findFirstLevelWithContent arr) 0
+    findFirstLevelWithContent arr
+    |> Option.bind (fun level -> findNextContent level 0)
 
 let private getFirstPhraseTime contentStartTime (arr: Inst) =
     let firstBeatTime = arr.Ebeats.[0].Time
