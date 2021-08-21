@@ -6,7 +6,7 @@ open System
 open Utils
 
 type Inst = InstrumentalArrangement
-          
+
 let private maxOfThree defaultValue o1 o2 o3 =
     let v1 = o1 |> Option.defaultValue defaultValue
     let v2 = o2 |> Option.defaultValue defaultValue
@@ -46,7 +46,7 @@ let private getEndPharseTime (arr: Inst) =
     let oldEndPhrase =
         arr.Phrases
         |> Seq.tryFindIndex (fun x -> x.Name.Equals("END", StringComparison.OrdinalIgnoreCase))
-        |> Option.bind (fun index ->        
+        |> Option.bind (fun index ->
             arr.PhraseIterations
             |> ResizeArray.tryFind (fun x -> x.PhraseId = index))
 
@@ -58,7 +58,8 @@ let private getEndPharseTime (arr: Inst) =
 
         // Use the next beat after the content has ended
         arr.Ebeats
-        |> Seq.tryFindIndexBack (fun x -> x.Time >= noMoreContentTime)
+        |> Seq.tryFind (fun x -> x.Time >= noMoreContentTime)
+        |> Option.map (fun x -> x.Time)
         |> Option.defaultValue noMoreContentTime
 
 let private findNextContent (level: Level) time =
@@ -92,7 +93,7 @@ let private getFirstPhraseTime contentStartTime (arr: Inst) =
             let newBeatTime =
                 max 0 (firstBeatTime - 500)
             let newBeat = Ebeat(newBeatTime, 0s)
-            Error (newBeat)
+            Error newBeat
     else
         Ok firstBeatTime
 
@@ -128,12 +129,30 @@ let private findGoodPhraseTime (level: Level) initialTime =
             else
                 x.Time + x.Sustain)
 
+    let outsideNoteLinkNextTime =
+        let time =
+            outsideNoteSustainTime
+            |> Option.defaultValue initialTime
+        level.Notes
+        |> ResizeArray.tryFind (fun x -> x.IsLinkNext && x.Time + x.Sustain = time)
+        |> Option.map (fun x -> x.Time)
+
     let outsideHandShapeTime =
         level.HandShapes
         |> ResizeArray.tryFind (fun x -> x.StartTime < initialTime && x.EndTime > initialTime)
         |> Option.map (fun x -> x.StartTime)
 
-    outsideNoteSustainTime
+    let outsideChordLinkNextTime =
+        let time =
+            outsideHandShapeTime
+            |> Option.defaultValue initialTime
+        level.Chords
+        |> ResizeArray.tryFind (fun x -> x.IsLinkNext && x.HasChordNotes && x.ChordNotes.Exists(fun n -> n.Time + n.Sustain = time))
+        |> Option.map (fun x -> x.Time)
+
+    outsideNoteLinkNextTime
+    |> Option.orElse outsideNoteSustainTime
+    |> Option.orElse outsideChordLinkNextTime
     |> Option.orElse outsideHandShapeTime
     |> Option.defaultValue initialTime
 
@@ -142,7 +161,7 @@ let private findActiveAnchor (level: Level) time =
     | null -> level.Anchors.[0]
     | anchor -> anchor
 
-let private createPhrasesAndSections contentStartTime endPharseTime (arr: Inst) =
+let private createPhrasesAndSections contentStartTime endPhraseTime (arr: Inst) =
     let mutable riffNumber = 1s
     let mutable ngSectionNumber = 0s
     let mutable phraseNumber = 0s
@@ -157,7 +176,7 @@ let private createPhrasesAndSections contentStartTime endPharseTime (arr: Inst) 
 
     arr.Ebeats
     |> Seq.skipWhile (fun x -> x.Time < contentStartTime)
-    |> Seq.takeWhile (fun x -> x.Time < endPharseTime)
+    |> Seq.takeWhile (fun x -> x.Time < endPhraseTime)
     |> Seq.iter (fun beat ->
         if beat.Measure <> -1s && nextPhraseTime.IsNone then
             measureCounter <- measureCounter + 1
@@ -210,13 +229,13 @@ let private createPhrasesAndSections contentStartTime endPharseTime (arr: Inst) 
 let generate (arr: Inst) =
     match getContentStartTime arr with
     | Some contentStartTime ->
-        let endPharseTime = getEndPharseTime arr
+        let endPhraseTime = getEndPharseTime arr
         let firstPhraseTime = getFirstPhraseTime contentStartTime arr
 
         erasePhrasesAndSections arr
         addFirstPhrase firstPhraseTime arr
-        let ngSections = createPhrasesAndSections contentStartTime endPharseTime arr
-        addEndPhrase endPharseTime ngSections arr
+        let ngSections = createPhrasesAndSections contentStartTime endPhraseTime arr
+        addEndPhrase endPhraseTime ngSections arr
     | None ->
         // Edge case: there are no notes, chords or handshapes in the arrangement
         ()
