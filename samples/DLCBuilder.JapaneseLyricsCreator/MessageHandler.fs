@@ -78,7 +78,7 @@ let update state msg =
                 |> Array.mapi (fun linei line ->
                     if linei = lineNumber then
                         line
-                        |> Array.mapi (fun i x ->
+                        |> Array.choosei (fun i x ->
                             if i = index + 1 then
                                 None
                             elif i = index then
@@ -88,7 +88,6 @@ let update state msg =
                                 Some { first with Vocal = LyricsTools.combineVocals first.Vocal vNext }
                             else
                                 Some x)
-                        |> Array.choose id
                     else
                         line)
 

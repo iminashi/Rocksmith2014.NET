@@ -87,6 +87,17 @@ let extensionTests =
         
             Expect.isTrue result "All elements are the same value" }
 
+        test "Array.choosei" {
+            let arr = [| 0; 1; 2; 3; 4; 5 |]
+
+            let result =
+                arr
+                |> Array.choosei (fun i x ->
+                    Expect.equal i x "Index is correct"
+                    Some x)
+
+            Expect.sequenceContainsOrder result arr "All elements were chosen" }
+
         test "Option.ofString" {
             let a = Option.ofString null
             let b = Option.ofString ""

@@ -135,13 +135,10 @@ let matchNonJapaneseHyphenation (matchedLines: MatchedSyllable array array) (jap
 let applyCombinations (replacements: CombinationLocation list) (japaneseLines: string array array) =
     japaneseLines
     |> Array.mapi (fun lineNumber line ->
-        let rep =
-            replacements
-            |> List.filter (fun x -> x.LineNumber = lineNumber)
-
-        if rep.IsEmpty then
+        match replacements |> List.filter (fun x -> x.LineNumber = lineNumber) with
+        | [] ->
             line
-        else
+        | rep ->
             let repIndexes =
                 rep
                 |> List.map (fun x -> x.Index)
@@ -151,14 +148,15 @@ let applyCombinations (replacements: CombinationLocation list) (japaneseLines: s
             (line, repIndexes)
             ||> List.fold (fun acc replacementIndex ->
                 acc
-                |> Array.mapi (fun i word ->
+                |> Array.choosei (fun i word ->
                     if i = replacementIndex && i + 1 < acc.Length then
                         Some $"{withoutTrailingDash word}{acc.[i + 1]}"
                     elif replacementIndex = i - 1 then
                         None
                     else
                         Some word)
-                |> Array.choose id))
+            )
+    )
 
 let createJapaneseLines matchedLines combinedJapanese japaneseText =
     japaneseText

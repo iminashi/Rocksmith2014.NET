@@ -43,7 +43,7 @@ let private findSamePhrases threshold (levelCounts: int array) (iterationData: P
     let matchedPhrases = HashSet<int>([| 0; lastId |])
 
     iterationData
-    |> Array.mapi (fun mainId iter ->
+    |> Array.choosei (fun mainId iter ->
         if matchedPhrases.Contains mainId then
             None
         else
@@ -69,13 +69,11 @@ let private findSamePhrases threshold (levelCounts: int array) (iterationData: P
                     |> Array.allSame
 
                 Some { MainId = mainId; Ids = ids; IsSameDifficulty = isSameDifficulty })
-    |> Array.choose id
 
 let private findEmptyPhrases (iterationData: PhraseData array) =
     let emptyIds =
         iterationData.[1..(iterationData.Length - 2)]
-        |> Array.mapi (fun i data -> if isEmpty data then Some (i + 1) else None)
-        |> Array.choose id
+        |> Array.choosei (fun i data -> if isEmpty data then Some (i + 1) else None)
 
     if emptyIds.Length > 1 then
         Array.singleton { MainId = emptyIds.[0]; Ids = emptyIds.[1..]; IsSameDifficulty = true }
