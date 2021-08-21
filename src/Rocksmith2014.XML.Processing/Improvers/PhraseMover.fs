@@ -8,7 +8,7 @@ open System.Globalization
 /// Moves phrases that have a special name "mover" (move right).
 let improve (arrangement: InstrumentalArrangement) =
     arrangement.Phrases
-    |> Seq.filter (fun p -> p.Name.StartsWith("mover", StringComparison.OrdinalIgnoreCase))
+    |> Seq.filter (fun p -> String.startsWith "mover" p.Name)
     |> Seq.iter (fun phraseToMove ->
         let phraseId = arrangement.Phrases.IndexOf phraseToMove
 

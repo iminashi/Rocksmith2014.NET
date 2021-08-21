@@ -50,8 +50,7 @@ let private tryGetReleaseAsset (release: Release) =
         PlatformSpecific.Value(mac="mac", windows="win", linux="linux")
 
     release.Assets
-    |> Seq.tryFind (fun ass ->
-        ass.Name.Contains(platform, StringComparison.OrdinalIgnoreCase))
+    |> Seq.tryFind (fun ass -> ass.Name |> String.containsIgnoreCase platform)
 
 /// Returns the update information for the given release if it is newer than the current version.
 let private getAvailableUpdateInformation (release: Release) =

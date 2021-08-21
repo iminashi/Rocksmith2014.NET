@@ -11,7 +11,7 @@ let improve (arrangement: InstrumentalArrangement) =
 
     // Anchor width 3 events
     events
-    |> Seq.filter (fun e -> e.Code.Equals("w3", StringComparison.OrdinalIgnoreCase))
+    |> Seq.filter (fun e -> String.equalsIgnoreCase "w3" e.Code)
     |> Seq.toArray
     |> Array.iter (fun event ->
         arrangement.Levels
@@ -22,7 +22,7 @@ let improve (arrangement: InstrumentalArrangement) =
         events.Remove event |> ignore)
 
     // Remove beats event
-    match events.Find(fun e -> e.Code.Equals("removebeats", StringComparison.OrdinalIgnoreCase)) with
+    match events.Find(fun e -> String.equalsIgnoreCase "removebeats" e.Code) with
     | null -> ()
     | removeBeats ->
         arrangement.Ebeats.RemoveAll(fun b -> b.Time >= removeBeats.Time) |> ignore
@@ -30,7 +30,7 @@ let improve (arrangement: InstrumentalArrangement) =
 
     // Slide-out events
     events
-    |> Seq.filter (fun e -> e.Code.StartsWith("so", StringComparison.OrdinalIgnoreCase))
+    |> Seq.filter (fun e -> String.startsWith "so" e.Code)
     |> Seq.toArray
     |> Array.iter (fun slideEvent ->
         // Find the max level for the phrase the slide is in

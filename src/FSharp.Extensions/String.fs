@@ -19,11 +19,11 @@ let endsWith suffix (str: string) =
     notNull str && str.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)
 
 /// Returns true if the string contains the given value (case sensitive).
-let contains (substr: string) (str: string) =
+let inline contains (substr: string) (str: string) =
     str.Contains(substr, StringComparison.Ordinal)
 
 /// Returns true if the string contains the given value (case insensitive).
-let containsIgnoreCase (substr: string) (str: string) =
+let inline containsIgnoreCase (substr: string) (str: string) =
     str.Contains(substr, StringComparison.OrdinalIgnoreCase)
 
 /// Returns the string if it is shorter than the max length, otherwise a substring of it.

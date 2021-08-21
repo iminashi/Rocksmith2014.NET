@@ -86,7 +86,7 @@ let matchHyp (oneWord: string) (manyWords: string array) =
         manyWords
         |> Array.tryFindIndex (fun x ->
             x.EndsWith "-" &&
-            oneWord.StartsWith(x.Substring(0, x.Length - 1), StringComparison.OrdinalIgnoreCase))
+            oneWord.AsSpan().StartsWith(x.AsSpan(0, x.Length - 1), StringComparison.OrdinalIgnoreCase))
 
     match startIndex with
     | Some startIndex ->
@@ -105,7 +105,7 @@ let matchHyp (oneWord: string) (manyWords: string array) =
             |> Array.map (fun x -> if x.EndsWith "-" || x.EndsWith "+" then x.Substring(0, x.Length - 1) else x)
             |> String.concat ""
 
-        if completeWord.Equals(oneWord, StringComparison.OrdinalIgnoreCase) then
+        if String.equalsIgnoreCase completeWord oneWord then
             hyphenated
         else
             Array.singleton oneWord
@@ -116,7 +116,7 @@ let matchNonJapaneseHyphenation (matchedLines: MatchedSyllable array array) (jap
     japaneseLines
     |> Array.mapi (fun lineNumber line ->
         line
-        |> Array.map (fun word ->
+        |> Array.collect (fun word ->
             match word.TryFirstChar() with
             | ValueSome firstChar when isCommonLatin firstChar ->
                 let words =
@@ -130,8 +130,7 @@ let matchNonJapaneseHyphenation (matchedLines: MatchedSyllable array array) (jap
                 | None ->
                     Array.singleton word
             | _ ->
-               Array.singleton word)
-        |> Array.collect id)
+               Array.singleton word))
 
 let applyCombinations (replacements: CombinationLocation list) (japaneseLines: string array array) =
     japaneseLines

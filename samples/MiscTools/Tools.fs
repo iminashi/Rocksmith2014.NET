@@ -121,8 +121,7 @@ type Msg =
 
 let convertFileToSng platform (fileName: string) =
     let target = Path.ChangeExtension(fileName, "sng")
-    if fileName.Contains("vocal", StringComparison.OrdinalIgnoreCase) ||
-       fileName.Contains("lyric", StringComparison.OrdinalIgnoreCase) then
+    if String.containsIgnoreCase "vocal" fileName || String.containsIgnoreCase "lyric" fileName then
         ConvertVocals.xmlFileToSng fileName target None platform
     else
         ConvertInstrumental.xmlFileToSng fileName target platform

@@ -181,7 +181,7 @@ module ToneDescriptor =
     let tryInfer (name: string) =
         Array.FindAll(all, (fun descriptor ->
             descriptor.Aliases
-            |> List.exists (fun alias -> name.Contains(alias, StringComparison.OrdinalIgnoreCase))))
+            |> List.exists (fun alias -> name |> String.containsIgnoreCase alias)))
 
     /// Returns an array of tone descriptors inferred from the tone name, or the clean tone descriptor as default.
     let getDescriptionsOrDefault (name: string) =

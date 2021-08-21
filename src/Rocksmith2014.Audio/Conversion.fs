@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Audio.Conversion
+module Rocksmith2014.Audio.Conversion
 
 open NAudio.Vorbis
 open NAudio.Wave
@@ -25,7 +25,7 @@ let private processFile cmd args (file: string) =
     proc.Start() |> ignore
     proc.WaitForExit()
     let output = proc.StandardOutput.ReadToEnd()
-    if output.Contains("error", StringComparison.OrdinalIgnoreCase) then
+    if output |> String.containsIgnoreCase "error" then
         failwith $"Process failed with output:\n{output}"
 
 /// Converts a wem file into a vorbis file.
