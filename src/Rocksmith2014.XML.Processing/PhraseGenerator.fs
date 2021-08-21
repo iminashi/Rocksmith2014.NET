@@ -42,7 +42,7 @@ let private findContentEnd (arr: Inst) =
 
     maxOfThree 0 note chord hs
 
-let private getEndPharseTime (arr: Inst) =
+let private getEndPhraseTime (arr: Inst) =
     let oldEndPhrase =
         arr.Phrases
         |> Seq.tryFindIndex (fun x -> x.Name.Equals("END", StringComparison.OrdinalIgnoreCase))
@@ -97,12 +97,12 @@ let private getFirstPhraseTime contentStartTime (arr: Inst) =
     else
         Ok firstBeatTime
 
-let private addEndPhrase endPharseTime ngSections (arr: Inst) =
+let private addEndPhrase endPhraseTime ngSections (arr: Inst) =
     let phraseId = arr.Phrases.Count
 
     arr.Phrases.Add(Phrase("END", 0uy, PhraseMask.None))
-    arr.PhraseIterations.Add(PhraseIteration(endPharseTime, phraseId))
-    arr.Sections.Add(Section("noguitar", endPharseTime, ngSections + 1s))
+    arr.PhraseIterations.Add(PhraseIteration(endPhraseTime, phraseId))
+    arr.Sections.Add(Section("noguitar", endPhraseTime, ngSections + 1s))
 
 let private erasePhrasesAndSections (arr: Inst) =
     arr.Phrases.Clear()
@@ -229,7 +229,7 @@ let private createPhrasesAndSections contentStartTime endPhraseTime (arr: Inst) 
 let generate (arr: Inst) =
     match getContentStartTime arr with
     | Some contentStartTime ->
-        let endPhraseTime = getEndPharseTime arr
+        let endPhraseTime = getEndPhraseTime arr
         let firstPhraseTime = getFirstPhraseTime contentStartTime arr
 
         erasePhrasesAndSections arr
