@@ -263,7 +263,7 @@
   "AnchorInsideHandShapeHelp": "An anchor placed inside a handshape will cut off the handshape at that point.",
   "AnchorInsideHandShapeAtPhraseBoundary": "Phrase boundary breaks handshape",
   "AnchorInsideHandShapeAtPhraseBoundaryHelp": "If repeating chords cross a phrase/section boundary, in EOF, the first chord in the new phrase should be set as \"crazy\".",
-  "AnchorCloseToUnpitchedSlide": "Anchor very close to an unpitched slide's end",
+  "AnchorCloseToUnpitchedSlide": "Anchor very close to the end of an unpitched slide",
   "AnchorCloseToUnpitchedSlideHelp": "An anchor close to the end of the sustain of an unpitched slide might not show up in the game.",
   "FirstPhraseNotEmpty": "The first phrase contains notes",
   "FirstPhraseNotEmptyHelp": "The game requires that the first phrase of an arrangement is an empty one. Usually it is created automatically by EOF and called COUNT.",
