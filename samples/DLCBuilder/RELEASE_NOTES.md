@@ -1,3 +1,9 @@
+## 0.6.2 (Released 2021-08-xx)
+
+- Added some help texts.
+- Minor improvements to the phrase generation.
+- Fixed an edge case where the arrangement validation could fail with an error.
+
 ## 0.6.1 (Released 2021-08-19)
 
 - A warning is now displayed when a tone has more than four effects.
