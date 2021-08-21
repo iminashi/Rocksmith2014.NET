@@ -54,23 +54,15 @@ let private viewForIssue issueType times =
         StackPanel.margin (0., 5.)
         StackPanel.children [
             // Issue Type & Explanation
-            Expander.create [
-                Expander.background "#181818"
-                Expander.header (
-                    TextBlock.create [
-                        TextBlock.text header
-                        TextBlock.fontSize 16.
-                    ]
-                )
-                Expander.content (
-                    TextBlock.create [
-                        TextBlock.padding (8., 0.)
-                        TextBlock.maxWidth 450.
-                        TextBlock.textWrapping TextWrapping.Wrap
-                        TextBlock.fontSize 14.
-                        TextBlock.text help
-                    ]
-                )
+            hStack [
+                TextBlock.create [
+                    TextBlock.text header
+                    TextBlock.fontSize 16.
+                    TextBlock.verticalAlignment VerticalAlignment.Center
+                ]
+                HelpButton.create [
+                    HelpButton.helpText help
+                ]
             ]
 
             // Issue Times
@@ -102,7 +94,7 @@ let view state dispatch (arrangement: Arrangement) =
         state.ArrangementIssues
         |> Map.tryFind (Arrangement.getFile arrangement)
         |> Option.map (fun issues ->
-            issues    
+            issues
             |> List.partition (fun x -> isImportant x.Type)
             |> fun (i, u) -> toIssueView i, toIssueView u)
 
