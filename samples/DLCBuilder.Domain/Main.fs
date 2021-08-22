@@ -419,11 +419,11 @@ let update (msg: Msg) (state: State) =
                      SelectedArrangementIndex = index }, Cmd.none
 
     | CreatePreviewAudio SetupStartTime ->
-        let totalLength = Utils.getLength project.AudioFile.Path
-        // Remove the length of the preview from the total length
-        let length = totalLength - TimeSpan.FromSeconds 28.
+        let audioLength = Utils.getLength project.AudioFile.Path
+        let initialPreviewStart = project.AudioPreviewStartTime |> Option.orElse (Some 0.)
+        let newState = { state with Project = { project with AudioPreviewStartTime = initialPreviewStart } }
 
-        showOverlay state (SelectPreviewStart length)
+        showOverlay newState (SelectPreviewStart audioLength)
 
     | CreatePreviewAudio CreateFile ->
         match project.AudioPreviewStartTime with

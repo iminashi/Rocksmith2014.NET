@@ -312,6 +312,7 @@
   "NothingToConfigure": "Nothing to configure",
   "DuplicateMenuItem": "_Duplicate",
   "PreviewCreationExplanation": "Creates a 28 second long audio file that has a fade-in and a fade-out.",
+  "PreviewAudioLengthNotification": "The length of the audio is shorter than the default preview length.\nThe full audio file will be used.",
   "MoveUpMenuItem": "Move _Up",
   "MoveDownMenuItem": "Move _Down",
   "DD": "DD",

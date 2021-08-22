@@ -2,6 +2,7 @@
 
 - Added some help texts.
 - Minor improvements to the phrase generation.
+- Fixed creation of preview audio from files that are shorter than 28 seconds.
 - Fixed an edge case where the arrangement validation could fail with an error.
 
 ## 0.6.1 (Released 2021-08-19)

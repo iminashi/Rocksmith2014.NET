@@ -312,6 +312,7 @@
   "NothingToConfigure": "Ei asetuksia",
   "DuplicateMenuItem": "M_onista",
   "PreviewCreationExplanation": "Luo 28 sekuntia pitkän äänitiedoston, jossa on häivytys sisään ja ulos.",
+  "PreviewAudioLengthNotification": "Äänitiedosto on lyhyempi kuin esikatseluäänitiedoston oletuspituus.\nKoko äänitiedosto käytetään.",
   "MoveUpMenuItem": "Siirrä _ylös",
   "MoveDownMenuItem": "Siirrä _alas",
   "DD": "DD",

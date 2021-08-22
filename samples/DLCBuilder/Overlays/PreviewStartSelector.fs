@@ -8,6 +8,9 @@ open System
 open DLCBuilder
 
 let view state dispatch (audioLength: TimeSpan) =
+    // Remove the length of the preview from the total length
+    let length = audioLength - TimeSpan.FromSeconds 28.
+
     let previewStart =
         state.Project.AudioPreviewStartTime
         |> Option.defaultValue 0.
@@ -33,6 +36,7 @@ let view state dispatch (audioLength: TimeSpan) =
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.horizontalAlignment HorizontalAlignment.Center
                 StackPanel.spacing 8.
+                StackPanel.isVisible (length.TotalSeconds > 0.)
                 StackPanel.children [
                     // Start time
                     locText "StartTime" [
@@ -41,7 +45,7 @@ let view state dispatch (audioLength: TimeSpan) =
                     FixedNumericUpDown.create [
                         NumericUpDown.width 180.
                         NumericUpDown.minimum 0.
-                        NumericUpDown.maximum audioLength.TotalSeconds
+                        NumericUpDown.maximum (max 0. length.TotalSeconds)
                         NumericUpDown.formatString "F3"
                         FixedNumericUpDown.value previewStart
                         FixedNumericUpDown.onValueChanged (SetPreviewStartTime >> EditProject >> dispatch)
@@ -55,6 +59,9 @@ let view state dispatch (audioLength: TimeSpan) =
                     ]
                 ]
             ]
+
+            if length.TotalSeconds <= 0. then
+                locText "PreviewAudioLengthNotification" []
 
             // Buttons
             StackPanel.create [

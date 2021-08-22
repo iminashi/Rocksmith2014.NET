@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Audio.Preview
+module Rocksmith2014.Audio.Preview
 
 open NAudio.Wave
 open System
@@ -18,7 +18,17 @@ let private getPreviewSection (offset: TimeSpan) (file: ISampleProvider) =
 /// Creates a preview audio file.
 let create (sourcePath: string) (targetPath: string) (startOffset: TimeSpan) =
     use audio = AudioReader.Create sourcePath
+    let audioLength = audio.Stream.TotalTime.TotalMilliseconds
+    let fadeIn, fadeOut =
+        // Edge case: the audio length is shorter than the total fade time
+        if audioLength < float (FadeIn + FadeOut) then
+            let l = int (audioLength / 2.) * 1<ms>
+            l, l
+        else
+            FadeIn, FadeOut
+
+    let previewLength = min (int64 audioLength * 1L<ms>) PreviewLength
 
     let previewSection = getPreviewSection startOffset audio.SampleProvider
-    let preview = fade FadeIn FadeOut PreviewLength previewSection
+    let preview = fade fadeIn fadeOut previewLength previewSection
     WaveFileWriter.CreateWaveFile16(targetPath, preview)
