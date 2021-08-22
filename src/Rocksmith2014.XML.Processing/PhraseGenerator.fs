@@ -56,22 +56,16 @@ let private getEndPhraseTime (arr: Inst) =
         |> Option.defaultValue noMoreContentTime
 
 let private findNextContent (level: Level) time =
-    let note =
-        level.Notes
+    let tryFindNext (ra: ResizeArray<#IHasTimeCode>) =
+        ra
         |> ResizeArray.tryFind (fun x -> x.Time >= time)
         |> Option.map (fun x -> x.Time)
 
-    let chord =
-        level.Chords
-        |> ResizeArray.tryFind (fun x -> x.Time >= time)
-        |> Option.map (fun x -> x.Time)
+    let noteTime = tryFindNext level.Notes
+    let chordTime = tryFindNext level.Chords
+    let handShapeTime = tryFindNext level.HandShapes
 
-    let handShape =
-        level.HandShapes
-        |> ResizeArray.tryFind (fun x -> x.StartTime >= time)
-        |> Option.map (fun x -> x.StartTime)
-
-    Option.minOfMany [ note; chord; handShape ]
+    Option.minOfMany [ noteTime; chordTime; handShapeTime ]
 
 let private getContentStartTime (arr: Inst) =
     findFirstLevelWithContent arr
