@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Common.Profile
+module Rocksmith2014.Common.Profile
 
 open System.IO
 open System.Security.Cryptography
@@ -35,13 +35,11 @@ let private readHeader (stream: Stream) =
 let decrypt (input: Stream) (output: Stream) = async {
     let header = readHeader input
 
-    use decrypted = MemoryStreamPool.Default.GetStream()
-    use dStream = getDecryptStream input
+    use decrypted = getDecryptStream input
+    use unzipped = Compression.getInflateStream decrypted
 
-    do! dStream.CopyToAsync decrypted
+    do! unzipped.CopyToAsync output
 
-    decrypted.Position <- 0L
-    do! Compression.asyncUnzip decrypted output
     return header }
 
 /// Encrypts profile data from the input stream into the output stream.
