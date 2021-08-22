@@ -69,13 +69,13 @@ let hyphenateToSyllableLines (str: string) =
     |> Array.filter (Array.isEmpty >> not)
 
 let toLines (vocals: MatchedSyllable seq) =
-    vocals
-    |> Seq.fold (fun (lines, currentLine) elem ->
+    (([], []), vocals)
+    ||> Seq.fold (fun (lines, currentLine) elem ->
         if elem.Vocal.Lyric.EndsWith "+" then
             let result = (elem::currentLine) |> List.rev
             result::lines, []
         else
-            lines, elem::currentLine) ([], [])
+            lines, elem::currentLine)
     |> fst
     |> List.rev
     |> List.map List.toArray

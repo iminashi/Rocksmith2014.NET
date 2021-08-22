@@ -23,6 +23,7 @@
     <Compile Include="ActivePatterns.fs" />
     <Compile Include="List.fs" />
     <Compile Include="Array.fs" />
+    <Compile Include="ResizeArray.fs" />
     <Compile Include="Misc.fs" />
   </ItemGroup>
 

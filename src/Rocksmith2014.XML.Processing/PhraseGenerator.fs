@@ -2,10 +2,9 @@ module Rocksmith2014.XML.Processing.PhraseGenerator
 
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Extensions
-open System
 open Utils
 
-type Inst = InstrumentalArrangement
+type private Inst = InstrumentalArrangement
 
 let private maxOfThree defaultValue o1 o2 o3 =
     let v1 = o1 |> Option.defaultValue defaultValue
