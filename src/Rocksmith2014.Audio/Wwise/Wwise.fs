@@ -101,14 +101,14 @@ let convertToWem (cliPath: string option) (sourcePath: string) = async {
     let templateDir = loadTemplate sourcePath version
 
     try
-        let args = createArgs templateDir
-
         let startInfo =
-            if OperatingSystem.IsLinux() then
-                let args = $"\"{cliPath}\" {args}"
-                ProcessStartInfo(FileName = "wine", Arguments = args, CreateNoWindow = true, RedirectStandardOutput = true)
-            else
-                ProcessStartInfo(FileName = cliPath, Arguments = args, CreateNoWindow = true, RedirectStandardOutput = true)
+            let args = createArgs templateDir
+            let fileName, arguments =
+                if OperatingSystem.IsLinux() then
+                    "wine", $"\"{cliPath}\" {args}"
+                else
+                    cliPath, args
+            ProcessStartInfo(FileName = fileName, Arguments = arguments, CreateNoWindow = true, RedirectStandardOutput = true)
 
         use wwiseCli = new Process(StartInfo = startInfo)
         wwiseCli.Start() |> ignore
