@@ -1,4 +1,4 @@
-## 0.6.2 (Released 2021-08-xx)
+## 0.6.2 (Released 2021-08-22)
 
 - Added some help texts.
 - Minor improvements to the phrase generation.
