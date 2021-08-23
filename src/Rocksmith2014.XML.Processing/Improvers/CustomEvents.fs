@@ -11,13 +11,24 @@ let improve (arrangement: InstrumentalArrangement) =
 
     // Anchor width 3 events
     events
-    |> Seq.filter (fun e -> String.equalsIgnoreCase "w3" e.Code)
+    |> Seq.filter (fun e -> String.startsWith "w3" e.Code)
     |> Seq.toArray
     |> Array.iter (fun event ->
-        arrangement.Levels
-        |> Seq.collect (fun l -> l.Anchors)
-        |> Seq.filter (fun a -> a.Time = event.Time)
-        |> Seq.iter (fun a -> a.Width <- 3y)
+        let fret =
+            event.Code.Split("-")
+            |> Array.tryItem 1
+            |> Option.map int
+
+        // Supports only arrangements with no DD levels
+        arrangement.Levels.[0].Anchors
+        |> Seq.tryFind (fun a -> a.Time >= event.Time)
+        |> Option.iter (fun anchor ->
+            anchor.Width <- 3y
+            match fret with
+            | Some fret when fret >= 1 && fret <= 22 ->
+                anchor.Fret <- sbyte fret
+            | _ ->
+                ())
 
         events.Remove event |> ignore)
 
