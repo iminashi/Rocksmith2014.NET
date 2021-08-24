@@ -1,3 +1,9 @@
+## 0.6.3 (Released 2021-08-xx)
+
+- Disabled the custom title bar on Windows 7.
+- Minor adjustments to the UI.
+- Improved the drag & drop to allow multiple files to be dropped at once.
+
 ## 0.6.2 (Released 2021-08-22)
 
 - Added some help texts.
