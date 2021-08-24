@@ -143,12 +143,12 @@ let view state dispatch (tone: Tone) =
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
-            StackPanel.create [
+            DockPanel.create [
                 Grid.column 1
                 Grid.row 3
-                StackPanel.orientation Orientation.Horizontal
-                StackPanel.children [
+                DockPanel.children [
                     FixedNumericUpDown.create [
+                        DockPanel.dock Dock.Left
                         NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                         NumericUpDown.verticalAlignment VerticalAlignment.Center
                         NumericUpDown.width 140.
@@ -160,26 +160,33 @@ let view state dispatch (tone: Tone) =
                         FixedNumericUpDown.onValueChanged (SetVolume >> EditTone >> dispatch)
                     ]
 
-                    Path.create [
-                        Path.data Media.Icons.volumeLow
-                        Path.fill Brushes.Gray
-                        Path.verticalAlignment VerticalAlignment.Center
-                        Path.margin (4., 0.)
-                    ]
+                    Grid.create [
+                        Grid.columnDefinitions "auto,*,auto"
+                        Grid.children [
+                            Path.create [
+                                Grid.column 0
+                                Path.data Media.Icons.volumeLow
+                                Path.fill Brushes.Gray
+                                Path.verticalAlignment VerticalAlignment.Center
+                                Path.margin (4., 0.)
+                            ]
 
-                    FixedSlider.create [
-                        Slider.width 190.
-                        Slider.minimum 0.1
-                        Slider.maximum 36.
-                        FixedSlider.value (-tone.Volume)
-                        FixedSlider.onValueChanged (SetVolume >> EditTone >> dispatch)
-                    ]
+                            FixedSlider.create [
+                                Grid.column 1
+                                Slider.minimum 0.1
+                                Slider.maximum 36.
+                                FixedSlider.value (-tone.Volume)
+                                FixedSlider.onValueChanged (SetVolume >> EditTone >> dispatch)
+                            ]
 
-                    Path.create [
-                        Path.data Media.Icons.volumeHigh
-                        Path.fill Brushes.Gray
-                        Path.verticalAlignment VerticalAlignment.Center
-                        Path.margin (4., 0.)
+                            Path.create [
+                                Grid.column 2
+                                Path.data Media.Icons.volumeHigh
+                                Path.fill Brushes.Gray
+                                Path.verticalAlignment VerticalAlignment.Center
+                                Path.margin (4., 0.)
+                            ]
+                        ]
                     ]
                 ]
             ]
