@@ -611,6 +611,11 @@ let update (msg: Msg) (state: State) =
                      SelectedArrangementIndex = -1
                      SelectedToneIndex = -1 }, cmd
 
+    | LoadMultipleFiles paths ->
+        let commands = handleFilesDrop paths
+
+        state, Cmd.batch commands
+
     | EditInstrumental edit ->
         match getSelectedArrangement state with
         | Some (Instrumental inst) ->

@@ -213,3 +213,39 @@ let showOverlay state overlay =
         ()
 
     { state with Overlay = overlay }, Cmd.none
+
+let handleFilesDrop paths =
+    let arrangements, other =
+        paths
+        |> Seq.toArray
+        |> Array.partition (fun x -> String.endsWith "xml" x && not (String.endsWith "tone2014.xml" x || String.endsWith "dlc.xml" x))
+
+    let otherCommands =
+        other
+        |> Array.choose (fun path ->
+            match path with
+            | EndsWith ".rs2dlc" ->
+                Some (OpenProject path)
+            | EndsWith ".dlc.xml" ->
+                Some (ImportToolkitTemplate path)
+            | EndsWith ".tone2014.xml"
+            | EndsWith ".tone2014.json" ->
+                Some (ImportTonesFromFile path)
+            | EndsWith ".psarc" ->
+                Some (path |> Dialog.PsarcImportTargetFolder |> ShowDialog)
+            | EndsWith ".png"
+            | EndsWith ".jpg"
+            | EndsWith ".dds" ->
+                Some (path |> SetAlbumArt |> EditProject)
+            | EndsWith ".wav"
+            | EndsWith ".ogg"
+            | EndsWith ".wem" ->
+                Some (SetAudioFile path)
+            | _ ->
+                None)
+        |> Array.map Cmd.ofMsg
+
+    seq {
+        if arrangements.Length > 0 then
+            AddArrangements arrangements |> Cmd.ofMsg
+        yield! otherCommands }

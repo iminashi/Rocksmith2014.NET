@@ -379,32 +379,11 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                     DragDropEffects.None)
 
         DragDrop.onDrop (fun e ->
+            e.Handled <- true
+
             e.Data.GetFileNames()
-            |> Seq.tryHead
-            |> Option.iter (fun path ->
-                e.Handled <- true
-                match path with
-                | EndsWith ".rs2dlc" ->
-                    path |> OpenProject |> dispatch
-                | EndsWith ".dlc.xml" ->
-                    path |> ImportToolkitTemplate |> dispatch
-                | EndsWith ".tone2014.xml"
-                | EndsWith ".tone2014.json" ->
-                    path |> ImportTonesFromFile |> dispatch
-                | EndsWith ".xml" ->
-                    path |> Array.singleton |> AddArrangements |> dispatch
-                | EndsWith ".psarc" ->
-                    path |> Dialog.PsarcImportTargetFolder |> ShowDialog |> dispatch
-                | EndsWith ".png"
-                | EndsWith ".jpg"
-                | EndsWith ".dds" ->
-                    path |> SetAlbumArt |> EditProject |> dispatch
-                | EndsWith ".wav"
-                | EndsWith ".ogg"
-                | EndsWith ".wem" ->
-                    path |> SetAudioFile |> dispatch
-                | _ ->
-                    e.Handled <- false))
+            |> LoadMultipleFiles
+            |> dispatch)
 
         DockPanel.children [
             // Custom title bar

@@ -271,6 +271,7 @@ type Msg =
     | HotKeyMsg of Msg
     | ShowJapaneseLyricsCreator
     | LyricsCreatorMsg of JapaneseLyricsCreator.Msg
+    | LoadMultipleFiles of paths : string seq
 
 type State =
     { Project : DLCProject
