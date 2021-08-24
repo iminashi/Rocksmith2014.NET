@@ -44,10 +44,10 @@ type MainWindow(commandLineArgs: string array) as this =
         base.MinWidth <- 970.0
 
         let customTitleBar =
-            if OperatingSystem.IsWindows() then
+            if OperatingSystem.IsWindowsVersionAtLeast(8) then
                 base.ExtendClientAreaToDecorationsHint <- true
                 base.ExtendClientAreaTitleBarHeightHint <- 0.0
-                base.MinHeight <- 670.0
+                base.MinHeight <- 640.0
 
                 this.GetObservable(Window.WindowStateProperty)
                     .Add(fun state ->
@@ -58,7 +58,7 @@ type MainWindow(commandLineArgs: string array) as this =
 
                 Some (TitleBarButtons(this))
             else
-                base.MinHeight <- 700.0
+                base.MinHeight <- 670.0
                 None
 
         let hotKeysSub _initialModel = Cmd.ofSub (HotKeys.handleEvent >> this.KeyDown.Add)

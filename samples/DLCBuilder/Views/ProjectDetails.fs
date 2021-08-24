@@ -2,6 +2,7 @@ module DLCBuilder.Views.ProjectDetails
 
 open Avalonia
 open Avalonia.Controls
+open Avalonia.Controls.Shapes
 open Avalonia.FuncUI.DSL
 open Avalonia.Input
 open Avalonia.Layout
@@ -32,117 +33,128 @@ let private audioControls state dispatch =
         Border.cornerRadius 6.
         Border.margin 2.
         Border.child (
-            StackPanel.create [
-                StackPanel.margin 4.
-                StackPanel.children [
-                    // Header
-                    locText "Audio" [
-                        TextBlock.margin (0., 4.)
-                        TextBlock.horizontalAlignment HorizontalAlignment.Center
+            Panel.create [
+                Panel.children [
+                    ViewBox.create [
+                        Viewbox.width 80.
+                        Viewbox.height 80.
+                        Viewbox.margin 12.
+                        Viewbox.verticalAlignment VerticalAlignment.Center
+                        Viewbox.horizontalAlignment HorizontalAlignment.Right
+                        Viewbox.child (
+                            Path.create [
+                                Path.data Icons.volumeHigh
+                                Path.fill "#44444444"
+                            ]
+                        )
                     ]
-
                     StackPanel.create [
-                        StackPanel.orientation Orientation.Horizontal
+                        StackPanel.margin 4.
                         StackPanel.children [
-                            // Main audio filename
-                            locText "MainAudioFile" [
-                                TextBlock.margin (4.0, 4.0, 0.0, 4.0)
-                                TextBlock.verticalAlignment VerticalAlignment.Center
-                            ]
-                            TextBlock.create [
-                                TextBlock.margin (4.0, 4.0, 0.0, 4.0)
-                                TextBlock.verticalAlignment VerticalAlignment.Center
-                                TextBlock.text (
-                                    if String.notEmpty audioPath then
-                                        IO.Path.GetFileName audioPath
-                                    else
-                                        translate "NoAudioFile"
-                                )
-                            ]
-                        ]
-                    ]
-
-                    StackPanel.create [
-                        StackPanel.orientation Orientation.Horizontal
-                        StackPanel.children [
-                            // Main volume
-                            FixedNumericUpDown.create [
-                                NumericUpDown.margin (2.0, 2.0, 2.0, 2.0)
-                                NumericUpDown.minimum -45.
-                                NumericUpDown.maximum 45.
-                                NumericUpDown.increment 0.5
-                                NumericUpDown.formatString "+0.0;-0.0;0.0"
-                                NumericUpDown.isEnabled (not <| state.RunningTasks.Contains (VolumeCalculation MainAudio))
-                                FixedNumericUpDown.value state.Project.AudioFile.Volume
-                                FixedNumericUpDown.onValueChanged (SetAudioVolume >> EditProject >> dispatch)
-                                ToolTip.tip (translate "AudioVolumeToolTip")
+                            StackPanel.create [
+                                StackPanel.orientation Orientation.Horizontal
+                                StackPanel.children [
+                                    // Main audio filename
+                                    locText "MainAudioFile" [
+                                        TextBlock.margin (4.0, 4.0, 0.0, 4.0)
+                                        TextBlock.verticalAlignment VerticalAlignment.Center
+                                    ]
+                                    TextBlock.create [
+                                        TextBlock.margin (4.0, 4.0, 0.0, 4.0)
+                                        TextBlock.verticalAlignment VerticalAlignment.Center
+                                        TextBlock.text (
+                                            if String.notEmpty audioPath then
+                                                IO.Path.GetFileName audioPath
+                                            else
+                                                translate "NoAudioFile"
+                                        )
+                                    ]
+                                ]
                             ]
 
-                            // Select audio file
-                            Button.create [
-                                Button.minWidth 80.
-                                Button.margin (0.0, 4.0, 4.0, 4.0)
-                                Button.padding (10.0, 0.0)
-                                Button.content (translate "Browse...")
-                                Button.isEnabled notCalculatingVolume
-                                Button.onClick (fun _ -> Dialog.AudioFile false |> ShowDialog |> dispatch)
-                                ToolTip.tip (translate "SelectAudioFile")
+                            StackPanel.create [
+                                StackPanel.orientation Orientation.Horizontal
+                                StackPanel.children [
+                                    // Main volume
+                                    FixedNumericUpDown.create [
+                                        NumericUpDown.margin (2.0, 2.0, 2.0, 2.0)
+                                        NumericUpDown.minimum -45.
+                                        NumericUpDown.maximum 45.
+                                        NumericUpDown.increment 0.5
+                                        NumericUpDown.formatString "+0.0;-0.0;0.0"
+                                        NumericUpDown.isEnabled (not <| state.RunningTasks.Contains (VolumeCalculation MainAudio))
+                                        FixedNumericUpDown.value state.Project.AudioFile.Volume
+                                        FixedNumericUpDown.onValueChanged (SetAudioVolume >> EditProject >> dispatch)
+                                        ToolTip.tip (translate "AudioVolumeToolTip")
+                                    ]
+
+                                    // Select audio file
+                                    Button.create [
+                                        Button.minWidth 80.
+                                        Button.margin (0.0, 4.0, 4.0, 4.0)
+                                        Button.padding (10.0, 0.0)
+                                        Button.content (translate "Browse...")
+                                        Button.isEnabled notCalculatingVolume
+                                        Button.onClick (fun _ -> Dialog.AudioFile false |> ShowDialog |> dispatch)
+                                        ToolTip.tip (translate "SelectAudioFile")
+                                    ]
+
+                                    Menus.audio notCalculatingVolume state dispatch
+                                ]
                             ]
 
-                            Menus.audio notCalculatingVolume state dispatch
-                        ]
-                    ]
-
-                    StackPanel.create [
-                        StackPanel.orientation Orientation.Horizontal
-                        StackPanel.children [
-                            // Preview audio filename
-                            locText "Preview" [
-                                TextBlock.margin (4.0, 4.0, 0.0, 4.0)
-                            ]
-                            TextBlock.create [
-                                TextBlock.margin (4.0, 4.0, 0.0, 4.0)
-                                TextBlock.text (
-                                    if String.notEmpty previewPath then
-                                        IO.Path.GetFileName previewPath
-                                    else
-                                        translate "NoAudioFile"
-                                )
-                            ]
-                        ]
-                    ]
-
-                    StackPanel.create [
-                        StackPanel.orientation Orientation.Horizontal
-                        StackPanel.children [
-                            // Preview audio volume
-                            FixedNumericUpDown.create [
-                                NumericUpDown.margin (2.0, 2.0, 2.0, 2.0)
-                                NumericUpDown.horizontalAlignment HorizontalAlignment.Left
-                                NumericUpDown.minimum -45.
-                                NumericUpDown.maximum 45.
-                                NumericUpDown.increment 0.5
-                                NumericUpDown.formatString "+0.0;-0.0;0.0"
-                                NumericUpDown.isEnabled (not <| state.RunningTasks.Contains (VolumeCalculation PreviewAudio))
-                                FixedNumericUpDown.value state.Project.AudioPreviewFile.Volume
-                                FixedNumericUpDown.onValueChanged (SetPreviewVolume >> EditProject >> dispatch)
-                                ToolTip.tip (translate "PreviewAudioVolumeToolTip")
+                            StackPanel.create [
+                                StackPanel.orientation Orientation.Horizontal
+                                StackPanel.children [
+                                    // Preview audio filename
+                                    locText "Preview" [
+                                        TextBlock.margin (4.0, 4.0, 0.0, 4.0)
+                                    ]
+                                    TextBlock.create [
+                                        TextBlock.margin (4.0, 4.0, 0.0, 4.0)
+                                        TextBlock.text (
+                                            if String.notEmpty previewPath then
+                                                IO.Path.GetFileName previewPath
+                                            else
+                                                translate "NoAudioFile"
+                                        )
+                                    ]
+                                ]
                             ]
 
-                            // Create preview audio
-                            Button.create [
-                                Button.minWidth 80.
-                                Button.margin (0.0, 4.0, 4.0, 4.0)
-                                Button.padding (10.0, 0.0)
-                                Button.content (translate "Create")
-                                Button.isEnabled (not <| String.endsWith ".wem" audioPath && IO.File.Exists audioPath)
-                                Button.onClick (fun _ -> dispatch (CreatePreviewAudio SetupStartTime))
-                                ToolTip.tip (
-                                    if previewExists then
-                                        translate "PreviewAudioExistsToolTip"
-                                    else
-                                        translate "PreviewAudioDoesNotExistToolTip"
-                                )
+                            StackPanel.create [
+                                StackPanel.orientation Orientation.Horizontal
+                                StackPanel.children [
+                                    // Preview audio volume
+                                    FixedNumericUpDown.create [
+                                        NumericUpDown.margin (2.0, 2.0, 2.0, 2.0)
+                                        NumericUpDown.horizontalAlignment HorizontalAlignment.Left
+                                        NumericUpDown.minimum -45.
+                                        NumericUpDown.maximum 45.
+                                        NumericUpDown.increment 0.5
+                                        NumericUpDown.formatString "+0.0;-0.0;0.0"
+                                        NumericUpDown.isEnabled (not <| state.RunningTasks.Contains (VolumeCalculation PreviewAudio))
+                                        FixedNumericUpDown.value state.Project.AudioPreviewFile.Volume
+                                        FixedNumericUpDown.onValueChanged (SetPreviewVolume >> EditProject >> dispatch)
+                                        ToolTip.tip (translate "PreviewAudioVolumeToolTip")
+                                    ]
+
+                                    // Create preview audio
+                                    Button.create [
+                                        Button.minWidth 80.
+                                        Button.margin (0.0, 4.0, 4.0, 4.0)
+                                        Button.padding (10.0, 0.0)
+                                        Button.content (translate "Create")
+                                        Button.isEnabled (not <| String.endsWith ".wem" audioPath && IO.File.Exists audioPath)
+                                        Button.onClick (fun _ -> dispatch (CreatePreviewAudio SetupStartTime))
+                                        ToolTip.tip (
+                                            if previewExists then
+                                                translate "PreviewAudioExistsToolTip"
+                                            else
+                                                translate "PreviewAudioDoesNotExistToolTip"
+                                        )
+                                    ]
+                                ]
                             ]
                         ]
                     ]
