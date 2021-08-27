@@ -14,6 +14,7 @@ Cross-platform desktop app for creating CDLC.
 
 - [More information](https://github.com/iminashi/Rocksmith2014.NET/blob/main/samples/DLCBuilder/README.md)
 - [Release Notes](https://github.com/iminashi/Rocksmith2014.NET/blob/main/samples/DLCBuilder/RELEASE_NOTES.md)
+- [Downloads](https://github.com/iminashi/Rocksmith2014.NET/releases)
 
 ### Misc Tools
 
