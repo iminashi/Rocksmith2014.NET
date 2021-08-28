@@ -1,11 +1,11 @@
-﻿module Rocksmith2014.DLCProject.SoundBankUtils
+module Rocksmith2014.DLCProject.SoundBankUtils
 
 open Rocksmith2014.Common
 open System.IO
 
 /// Calculates a Fowler–Noll–Vo hash for a string.
 let fnvHash (str: string) =
-    (2166136261u, str.ToLower().ToCharArray())
+    (2166136261u, str.ToLowerInvariant().ToCharArray())
     ||> Array.fold (fun hash ch -> (hash * 16777619u) ^^^ (uint32 ch))
 
 /// Seeks to the beginning of the stream and returns a binary reader for the platform.
