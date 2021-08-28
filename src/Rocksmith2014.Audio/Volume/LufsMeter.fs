@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.Audio
+namespace Rocksmith2014.Audio
 
 open System
 open System.Numerics
@@ -22,7 +22,7 @@ type internal Square = interface IFunc<float, float> with member _.Invoke(param)
 module internal Helpers =
     let getChannelWeight = function 3 | 4 -> 1.41 | _ -> 1.
 
-    let inline loudness mean = -0.691 + 10. * Math.Log10 mean
+    let inline loudness mean = -0.691 + 10. * log10 mean
 
     let meanSquareAverage = function
         | [||] -> 0.

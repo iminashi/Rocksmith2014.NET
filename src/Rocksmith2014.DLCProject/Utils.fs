@@ -5,7 +5,7 @@ open FSharp.Extensions
 
 /// Converts a tuning pitch into cents.
 let tuningPitchToCents (pitch: float) =
-    Math.Round(1200. * Math.Log(pitch / 440.) / Math.Log(2.))
+    Math.Round(1200. * log (pitch / 440.) / log 2.)
 
 /// Converts a cent value into a tuning pitch value in hertz.
 let centsToTuningPitch (cents: float) =
