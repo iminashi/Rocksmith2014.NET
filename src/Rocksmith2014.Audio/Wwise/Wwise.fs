@@ -94,9 +94,14 @@ let convertToWem (cliPath: string option) (sourcePath: string) = async {
     let destPath = Path.ChangeExtension(sourcePath, "wem")
     let cliPath =
         match cliPath with
-        | Some (Contains "WwiseConsole" as path) -> path
-        | None -> getCLIPath()
-        | _ -> failwith "Path to Wwise console executable appears to be wrong.\nIt should be to WwiseConsole.exe on Windows or WwiseConsole.sh on macOS."
+        | Some (Contains "WwiseConsole" as path) ->
+            if not <| File.Exists path then
+                failwith $"The file: \"{path}\" does not exist."
+            path
+        | None ->
+            getCLIPath()
+        | _ ->
+            failwith "Path to Wwise console executable appears to be wrong.\nIt should be to WwiseConsole.exe on Windows or WwiseConsole.sh on macOS."
     let version = getWwiseVersion cliPath
     let templateDir = loadTemplate sourcePath version
 

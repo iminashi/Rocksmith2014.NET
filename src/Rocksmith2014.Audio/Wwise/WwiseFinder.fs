@@ -16,7 +16,7 @@ let private tryFindWwiseInstallation rootDir =
 let findWindows () =
     let wwiseRoot =
         match Environment.GetEnvironmentVariable "WWISEROOT" |> Option.ofString with
-        | Some (Contains "2019" | Contains "2021" as path) ->
+        | Some (Contains "2019" | Contains "2021" as path) when File.Exists path ->
             path
         | _ ->
             // Try the default installation directory in program files
