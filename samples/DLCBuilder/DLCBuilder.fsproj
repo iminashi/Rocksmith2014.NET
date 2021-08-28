@@ -85,6 +85,8 @@
     <Compile Include="Views\ToneDetails.fs" />
     <Compile Include="Views\Main.fs" />
     <Compile Include="HotKeys.fs" />
+    <Compile Include="MainWindow.fs" />
+    <Compile Include="App.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
