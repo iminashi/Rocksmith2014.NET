@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Conversion.XmlToSng
+module Rocksmith2014.Conversion.XmlToSng
 
 open System
 open System.Globalization
@@ -24,10 +24,10 @@ let getSustain = function
     | XmlNote xn ->
         xn.Sustain
     | XmlChord xc ->
-        if isNull xc.ChordNotes then
-            0
-        else
+        if xc.HasChordNotes then
             xc.ChordNotes.[0].Sustain
+        else
+            0
 
 /// Returns a function that keeps a track of the current measure and the current beat.
 let convertBeat () =
@@ -188,9 +188,9 @@ let convertAnchor (notes: Note array)
 
     let firstNoteTime, lastNoteTime =
         match findFirstAndLastTime noteTimes xmlAnchor.Time endTime with
-        | None ->
+        | ValueNone ->
             UninitFirstNote, UninitLastNote
-        | Some (firstIndex, lastIndex) ->
+        | ValueSome (firstIndex, lastIndex) ->
             let firstNote = notes.[firstIndex]
             let lastNote = notes.[lastIndex]
             let firstNoteTime =
@@ -225,9 +225,9 @@ let convertAnchor (notes: Note array)
 let convertHandshape (noteTimes: int array) (entities: XmlEntity array) (xmlHs: XML.HandShape) =
     let firstNoteTime, lastNoteTime =
         match findFirstAndLastTime noteTimes xmlHs.StartTime xmlHs.EndTime with
-        | None ->
+        | ValueNone ->
             -1.f, -1.f
-        | Some (first, last) ->
+        | ValueSome (first, last) ->
             let endTime =
                 let t = noteTimes.[last] + getSustain entities.[last]
                 if t >= xmlHs.EndTime then -1.f else msToSec t
