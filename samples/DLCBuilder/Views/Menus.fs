@@ -237,6 +237,8 @@ let tools state dispatch =
     ]
 
 let help dispatch =
+    let crashLogExists = IO.File.Exists Configuration.crashLogPath
+
     // Help
     MenuItem.create [
         MenuItem.header (translate "HelpMenuItem")
@@ -245,6 +247,18 @@ let help dispatch =
             MenuItem.create [
                 MenuItem.header (translate "CheckForUpdatesMenuItem")
                 MenuItem.onClick (fun _ -> CheckForUpdates |> dispatch)
+            ]
+
+            MenuItem.create [
+                MenuItem.header "-"
+                MenuItem.isVisible crashLogExists
+            ]
+
+            // View Crash Log
+            MenuItem.create [
+                MenuItem.header (translate "ViewCrashLogMenuItem")
+                MenuItem.isVisible crashLogExists
+                MenuItem.onClick (fun _ -> Configuration.crashLogPath |> Utils.openWithShell)
             ]
 
             separator

@@ -360,6 +360,7 @@
   "LoadPreviouslyOpenedProject": "Ladataanko viimeksi auki ollut projekti?",
   "HelpMenuItem": "_Apua",
   "CheckForUpdatesMenuItem": "Tarkista _päivitykset",
+  "ViewCrashLogMenuItem": "_Näytä kaatumislogi",
   "AboutMenuItem": "_Tietoja sovelluksesta",
   "ProgramVersion": "Versio: {0}",
   "GitHubPage": "GitHub sivu",

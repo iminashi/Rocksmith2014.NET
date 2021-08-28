@@ -191,8 +191,7 @@ module Program =
                         baseInfo
                 | unknown ->
                     $"Unknown exception object: {unknown}"
-            let path = Path.Combine(Configuration.appDataFolder, "crash_log.txt")
-            File.WriteAllText(path, logMessage)
+            File.WriteAllText(Configuration.crashLogPath, logMessage)
 
         AppBuilder
             .Configure<App>()

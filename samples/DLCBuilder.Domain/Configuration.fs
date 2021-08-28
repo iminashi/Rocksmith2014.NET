@@ -90,6 +90,9 @@ module Configuration =
     let exitCheckFilePath =
         Path.Combine(appDataFolder, "exit.check")
 
+    let crashLogPath =
+        Path.Combine(appDataFolder, "crash_log.txt")
+
     /// Converts a configuration DTO into a configuration record.
     let private fromDto (t: IStringLocalizer) (dto: Dto) =
         let platforms =

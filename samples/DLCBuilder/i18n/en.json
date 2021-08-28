@@ -360,6 +360,7 @@
   "LoadPreviouslyOpenedProject": "Load previously opened project?",
   "HelpMenuItem": "_Help",
   "CheckForUpdatesMenuItem": "_Check for Updates",
+  "ViewCrashLogMenuItem": "_View Crash Log",
   "AboutMenuItem": "_About DLC Builder",
   "ProgramVersion": "Version: {0}",
   "GitHubPage": "GitHub page",

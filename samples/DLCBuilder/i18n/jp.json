@@ -360,6 +360,7 @@
   "LoadPreviouslyOpenedProject": "以前開いていたプロジェクトを再び開きますか?",
   "HelpMenuItem": "ヘルプ",
   "CheckForUpdatesMenuItem": "アップデートのチェック",
+  "ViewCrashLogMenuItem": "クラッシュログを表示",
   "AboutMenuItem": "DLC Builderについて",
   "ProgramVersion": "バージョン: {0}",
   "GitHubPage": "GitHubページ",

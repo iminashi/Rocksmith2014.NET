@@ -3,6 +3,7 @@
 - Disabled the custom title bar on Windows 7.
 - Minor adjustments to the UI.
 - Improved the drag & drop to allow multiple files to be dropped at once.
+- The crash log can be opened from the Help menu if the file exists.
 
 ## 0.6.2 (Released 2021-08-22)
 
