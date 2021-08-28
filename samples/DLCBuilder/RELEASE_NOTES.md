@@ -1,4 +1,4 @@
-## 0.6.3 (Released 2021-08-xx)
+## 0.6.3 (Released 2021-08-28)
 
 - Disabled the custom title bar on Windows 7.
 - Minor adjustments to the UI.
