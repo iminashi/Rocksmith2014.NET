@@ -48,9 +48,12 @@ let private loadTemplate sourcePath version =
     extractTemplate templateDir version
 
     match sourcePath with
-    | EndsWith ".wav" -> File.Copy(sourcePath, targetPath, overwrite=true)
-    | EndsWith ".ogg" -> Conversion.oggToWav sourcePath targetPath
-    | _ -> failwith "Could not detect audio file type from extension."
+    | EndsWith ".wav" ->
+        File.Copy(sourcePath, targetPath, overwrite=true)
+    | EndsWith ".ogg" ->
+        Conversion.oggToWav sourcePath targetPath
+    | _ ->
+        failwith "Could not detect audio file type from extension."
 
     templateDir
 
@@ -76,14 +79,20 @@ let private getWwiseVersion executablePath =
     if OperatingSystem.IsWindows() then
         let version = FileVersionInfo.GetVersionInfo executablePath
         match version.ProductMajorPart with
-        | 2019 -> Wwise2019
-        | 2021 -> Wwise2021
-        | _ -> failwith $"Unsupported Wwise version ({version.FileVersion}).\nMust be major version 2019 or 2021."
+        | 2019 ->
+            Wwise2019
+        | 2021 ->
+            Wwise2021
+        | _ ->
+            failwith $"Unsupported Wwise version ({version.FileVersion}).\nMust be major version 2019 or 2021."
     else
         match executablePath with
-        | Contains "2019" -> Wwise2019
-        | Contains "2021" -> Wwise2021
-        | _ -> Wwise2021
+        | Contains "2019" ->
+            Wwise2019
+        | Contains "2021" ->
+            Wwise2021
+        | _ ->
+            Wwise2021
 
 let private createArgs templateDir =
     Path.Combine(templateDir, "Template.wproj")
