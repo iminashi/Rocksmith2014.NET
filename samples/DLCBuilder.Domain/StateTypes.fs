@@ -133,9 +133,9 @@ type InstrumentalEdit =
     | SetPriority of ArrangementPriority
     | SetRouteMask of RouteMask
     | SetBassPicked of bool
-    | SetTuning of stringIndex:int * tuningValue:int16
-    | ChangeTuning of stringIndex:int * direction:MoveDirection
-    | ChangeTuningAll of direction:MoveDirection
+    | SetTuning of stringIndex : int * tuningValue : int16
+    | ChangeTuning of stringIndex : int * direction : MoveDirection
+    | ChangeTuningAll of direction : MoveDirection
     | SetTuningPitch of float
     | SetBaseTone of string
     | SetScrollSpeed of float
