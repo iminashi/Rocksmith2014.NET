@@ -12,7 +12,7 @@ open Rocksmith2014.Common.BinaryWriters
 type private WwiseVersion = Wwise2019 | Wwise2021
 
 /// Returns the path to the Wwise console executable.
-let private getCLIPath () =
+let getCLIPath () =
     let cliPath =
         if OperatingSystem.IsWindows() then
             WwiseFinder.findWindows()
