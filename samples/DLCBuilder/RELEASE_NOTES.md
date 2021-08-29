@@ -1,3 +1,7 @@
+## 0.6.4 (Released 2021-08-29)
+
+- Fixed bug in detecting Wwise from WWISEROOT environment variable. 
+
 ## 0.6.3 (Released 2021-08-28)
 
 - Disabled the custom title bar on Windows 7.
