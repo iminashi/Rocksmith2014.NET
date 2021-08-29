@@ -5,12 +5,13 @@ open System.IO
 open System.Text.RegularExpressions
 
 let private tryFindWwiseInstallation rootDir =
-    match Path.Combine(rootDir, "Audiokinetic") with
-    | dir when Directory.Exists dir ->
-        dir
+    let audiokineticDirectory = Path.Combine(rootDir, "Audiokinetic")
+
+    if Directory.Exists audiokineticDirectory then
+        audiokineticDirectory
         |> Directory.EnumerateDirectories
         |> Seq.tryFind (fun fn -> Regex.IsMatch(fn, "20(19|21)"))
-    | _ ->
+    else
         None
 
 let findWindows () =
