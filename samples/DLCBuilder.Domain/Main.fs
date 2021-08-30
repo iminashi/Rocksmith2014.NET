@@ -52,14 +52,11 @@ let update (msg: Msg) (state: State) =
         project.Arrangements
         |> List.choose Arrangement.pickVocals
         |> List.tryFind (fun x -> not x.Japanese)
-        |> Option.map (fun x -> XML.Vocals.Load x.XML)
-        |> function
-        | Some vocals ->
-            let initialState = JapaneseLyricsCreator.LyricsCreatorState.init vocals
+        |> Option.map (fun vocals ->
+            let initialState = JapaneseLyricsCreator.LyricsCreatorState.init (XML.Vocals.Load vocals.XML)
 
-            { state with Overlay = JapaneseLyricsCreator initialState }, Cmd.none
-        | None ->
-            state, Cmd.none
+            { state with Overlay = JapaneseLyricsCreator initialState }, Cmd.none)
+        |> Option.defaultValue (state, Cmd.none)
 
     | ConfirmIdRegeneration (ids, reply) ->
         let arrangements =
@@ -248,7 +245,7 @@ let update (msg: Msg) (state: State) =
         | [||] ->
             { state with Overlay = ErrorMessage(translate "CouldNotFindTonesError", None) }, Cmd.none
         | [| one |] ->
-            state, Cmd.ofMsg <| ImportTones [ one ]
+            state, Cmd.ofMsg (ImportTones [ one ])
         | _ ->
             { state with SelectedImportTones = []; Overlay = ImportToneSelector tones }, Cmd.none
 
