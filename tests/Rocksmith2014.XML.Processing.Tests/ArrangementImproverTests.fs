@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.XML.Processing.Tests.ArrangementImproverTests
+module Rocksmith2014.XML.Processing.Tests.ArrangementImproverTests
 
 open Expecto
 open Rocksmith2014.XML
@@ -307,6 +307,18 @@ let customEventTests =
             CustomEvents.improve arr
 
             Expect.equal anchor.Width 3y "Anchor has correct width"
+
+        testCase "Anchor width 3 event can change fret" <| fun _ ->
+            let anchor = Anchor(21y, 180)
+            let anchors = ResizeArray(seq { anchor })
+            let levels = ResizeArray(seq { Level(Anchors = anchors) })
+            let events = ResizeArray(seq { Event("w3-22", 100) })
+            let arr = InstrumentalArrangement(Events = events, Levels = levels)
+
+            CustomEvents.improve arr
+
+            Expect.equal anchor.Width 3y "Anchor has correct width"
+            Expect.equal anchor.Fret 22y "Anchor has correct fret"
 
         testCase "Remove beats event" <| fun _ ->
             let beats = ResizeArray(seq { Ebeat(100, -1s); Ebeat(200, -1s); Ebeat(300, -1s); Ebeat(400, -1s); Ebeat(500, -1s); })
