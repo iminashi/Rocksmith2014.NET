@@ -16,12 +16,12 @@ let addMissingChordLinkNext (arrangement: InstrumentalArrangement) =
 /// Removes linknext from chord notes that are not immediately followed by a note on the same string.
 let removeInvalidChordNoteLinkNexts (arrangement: InstrumentalArrangement) =
     arrangement.Levels
-    |> Seq.iter (fun level ->
+    |> ResizeArray.iter (fun level ->
         level.Chords
         |> Seq.filter (fun x -> x.IsLinkNext && x.HasChordNotes)
         |> Seq.iter (fun chord ->
             chord.ChordNotes
-            |> Seq.iter (fun cn ->
+            |> ResizeArray.iter (fun cn ->
                 if cn.IsLinkNext then
                     match level.Notes.Find(fun n -> n.Time > cn.Time && n.String = cn.String) with
                     | null ->

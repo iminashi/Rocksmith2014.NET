@@ -50,7 +50,7 @@ let private getEndPhraseTime (arr: Inst) =
 
         // Use the next beat after the content has ended
         arr.Ebeats
-        |> Seq.tryFind (fun x -> x.Time >= noMoreContentTime)
+        |> ResizeArray.tryFind (fun x -> x.Time >= noMoreContentTime)
         |> Option.map (fun x -> x.Time)
         |> Option.defaultValue noMoreContentTime
 

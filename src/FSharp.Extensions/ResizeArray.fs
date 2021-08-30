@@ -1,6 +1,8 @@
 [<RequireQualifiedAccess>]
 module ResizeArray
 
+open System
+
 /// Initializes a new ResizeArray with the given initial capacity.
 let init (size: int) f =
     let a = ResizeArray(size)
@@ -32,3 +34,12 @@ let tryFind (predicate: 'a -> bool) (a: ResizeArray<'a>) =
             else
                 seek (index + 1)
     seek 0
+
+/// Returns a new ResizeArray containing only the elements for which the predicate returns true.
+let inline filter (predicate: 'a -> bool) (a: ResizeArray<'a>) : ResizeArray<'a> =
+    a.FindAll(Predicate<_>(predicate))
+
+/// Executes the action for each of the elements in the ResizeArray.
+let iter action (a: ResizeArray<_>) =
+    for i = 0 to a.Count - 1 do
+        action a.[i]

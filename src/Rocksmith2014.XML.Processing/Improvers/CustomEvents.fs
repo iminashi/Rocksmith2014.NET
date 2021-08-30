@@ -11,9 +11,8 @@ let improve (arrangement: InstrumentalArrangement) =
 
     // Anchor width 3 events
     events
-    |> Seq.filter (fun e -> String.startsWith "w3" e.Code)
-    |> Seq.toArray
-    |> Array.iter (fun event ->
+    |> ResizeArray.filter (fun e -> String.startsWith "w3" e.Code)
+    |> ResizeArray.iter (fun event ->
         let fret =
             event.Code.Split("-")
             |> Array.tryItem 1
@@ -41,9 +40,8 @@ let improve (arrangement: InstrumentalArrangement) =
 
     // Slide-out events
     events
-    |> Seq.filter (fun e -> String.startsWith "so" e.Code)
-    |> Seq.toArray
-    |> Array.iter (fun slideEvent ->
+    |> ResizeArray.filter (fun e -> String.startsWith "so" e.Code)
+    |> ResizeArray.iter (fun slideEvent ->
         // Find the max level for the phrase the slide is in
         let phraseIter =
             arrangement.PhraseIterations.FindLast(fun pi -> pi.Time <= slideEvent.Time)
