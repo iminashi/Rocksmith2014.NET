@@ -68,12 +68,14 @@ let private fixHeader (path: string) =
 let private copyWemFile (destPath: string) (templateDir: string) =
     let cachePath = Path.Combine(templateDir, ".cache", "Windows", "SFX")
 
-    let wemFiles = Seq.toArray <| Directory.EnumerateFiles(cachePath, "*.wem")
-    if wemFiles.Length = 0 then
+    Directory.EnumerateFiles(cachePath, "*.wem")
+    |> Seq.tryHead
+    |> function
+    | Some convertedFile ->
+        File.Copy(convertedFile, destPath, overwrite=true)
+        fixHeader destPath
+    | None ->
         failwith "Could not find converted Wwise audio file."
-
-    File.Copy(wemFiles.[0], destPath, overwrite=true)
-    fixHeader destPath
 
 let private getWwiseVersion executablePath =
     if OperatingSystem.IsWindows() then
