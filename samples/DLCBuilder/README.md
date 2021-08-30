@@ -68,6 +68,31 @@ In the above case, the phrase and section will be moved to start at the G power 
 
 If an anchor (FHP) is set at the start of the phrase, it will be moved to the new position. The anchor at the old position is deleted if there is no note at that position.
 
+## Custom Events
+
+You can place events in EOF by selecting a beat and pressing Shift+P. Enter the event text and check "Rocksmith event marker".
+
+### so (Slide-out Handshape)
+
+![Screenshot of custom event](https://i.imgur.com/IPhlU42.png)
+
+When placed on a chord that has an unpitched slide out, an empty handshape near the end of the slide will be generated.
+This will cause the fingers in the handshape to slide down or up with the slide. It is a minor effect that is sometimes used in oDLC.
+
+If the chord is on a beat you can simply use the event "so" on that beat.
+If the chord is not on a beat, you must place the event on a beat left of the target chord/notes and add a number to the event name (for example "so1").
+This number specifies how many notes right of the target is from the event. It works the same as the number in "moveR" phrases.
+
+### w3 (Anchor Zone Width 3)
+
+This event will cause the anchor (FHP) that it is placed on, or the next anchor if there is no anchor at the event time, to have a width of three.
+
+You can also specify a fret number in this format: "w3-22". This allows you to create an anchor at the fret 22.
+
+### removebeats
+
+Removes the beats starting from the beat that is placed on until the end.
+
 ## Differences to the [Toolkit](https://www.rscustom.net/)
 
 ### Performance
