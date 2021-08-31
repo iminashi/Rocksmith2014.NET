@@ -84,7 +84,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             // Calculate the number of blocks needed
             let blockCount = int (data.Length / int64 blockSize)
             let lastBlockSize = data.Length - int64 (blockCount * blockSize)
-            for _ = 1 to blockCount do zLengths.Add(uint32 blockSize)
+            zLengths.AddRange(Seq.replicate blockCount (uint32 blockSize))
             if lastBlockSize <> 0L then zLengths.Add(uint32 lastBlockSize)
         data.Length
 
