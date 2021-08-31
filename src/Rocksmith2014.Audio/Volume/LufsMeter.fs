@@ -95,8 +95,7 @@ type LufsMeter(blockDuration, overlap, sampleRate, numChannels) =
                 let channelSquaredSum =
                     blockBuffer
                     |> Array.sumBy (fun stepBuffer ->
-                        let a = ReadOnlySpan(stepBuffer.[channel])
-                        SimdOps.Sum(&a, VectorSquare(), Square()))
+                        SimdOps.Sum(ReadOnlySpan(stepBuffer.[channel]), VectorSquare(), Square()))
                 let channelMeanSquare = channelSquaredSum / float (blockStepCount * stepSampleCount)
                 let channelWeight = getChannelWeight channel
                 momentaryMeanSquare <- momentaryMeanSquare + channelWeight * channelMeanSquare
