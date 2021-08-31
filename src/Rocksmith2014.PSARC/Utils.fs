@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.PSARC.Utils
+module Rocksmith2014.PSARC.Utils
 
 open System.IO
 open System
@@ -27,10 +27,10 @@ let internal readToC (header: Header) (reader: IBinaryReader) =
 
 /// Returns true if the given named entry should not be zipped.
 let internal usePlain (entry: NamedEntry) =
-    // WEM -> Packed vorbis data, zipping usually pointless
-    // SNG -> Already zlib packed
-    // AppId -> Very small file (6-7 bytes), unpacked in official files
-    // 7z -> Already compressed (found in cache.psarc)
+    (* WEM -> Packed vorbis data, zipping usually pointless
+       SNG -> Already zlib packed
+       AppId -> Very small file (6-7 bytes), unpacked in official files
+       7z -> Already compressed (found in cache.psarc) *)
     List.exists (fun x -> String.endsWith x entry.Name) [ ".wem"; ".sng"; "appid"; "7z" ]
 
 /// Returns a file stream for a temporary file that will be deleted when the stream is closed.
@@ -79,3 +79,7 @@ let fixDirSeparator (path: string) =
 
 /// Finds all files in the given path and its subdirectories.
 let getAllFiles path = Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories)
+
+/// Returns true if the array starts with the zlib header (best compression).
+let inline hasZlibHeader (b: byte array) =
+    b.[0] = 0x78uy && b.[1] = 0xDAuy

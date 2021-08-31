@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.PSARC
+namespace Rocksmith2014.PSARC
 
 open System
 open System.IO
@@ -25,6 +25,12 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         let mutable zIndex = int entry.ZIndexBegin
         source.Position <- int64 entry.Offset
 
+        // Determine if the file is compressed from the first block
+        let isCompressed =
+            source.Read(buffer, 0, 2) |> ignore
+            source.Seek(-2L, SeekOrigin.Current) |> ignore
+            Utils.hasZlibHeader buffer
+
         while output.Length < int64 entry.Length do
             match int blockSizeTable.[zIndex] with
             | 0 ->
@@ -34,17 +40,12 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             | size ->
                 let! _bytesRead = source.AsyncRead(buffer, 0, size)
 
-                // Check for zlib header
-                if buffer.[0] = 0x78uy && buffer.[1] = 0xDAuy then
-                    try
-                        use memory = new MemoryStream(buffer, 0, size)
-                        Compression.unzip memory output
-                    with :? AggregateException as ex when ex.InnerException.Message.StartsWith("Unknown block") ->
-                        // Assume it is uncompressed data
-                        // Needed for unpacking audio.psarc
-                        do! output.AsyncWrite(buffer, 0, size)
+                // Confirm that the zlib header is present
+                // The Toolkit creates archives where the wem files are compressed, but may contain uncompressed blocks
+                if isCompressed && Utils.hasZlibHeader buffer then
+                    use memory = new MemoryStream(buffer, 0, size)
+                    Compression.unzip memory output
                 else
-                    // Uncompressed
                     do! output.AsyncWrite(buffer, 0, size)
 
             zIndex <- zIndex + 1
@@ -58,8 +59,8 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             use data = MemoryStreamPool.Default.GetStream()
             inflateEntry toc.[0] data |> Async.RunSynchronously
             toc.RemoveAt 0
-            use mReader = new StreamReader(data, true)
-            [ while mReader.Peek() >= 0 do mReader.ReadLine() ]
+            use reader = new StreamReader(data, true)
+            [ while reader.Peek() >= 0 do reader.ReadLine() ]
         else
             []
 
