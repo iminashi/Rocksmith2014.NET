@@ -148,6 +148,22 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         else
             tocData.CopyTo source
 
+    let createNamedEntries mode = async {
+        let getTargetStream =
+            match mode with
+            | InMemory  -> fun () -> MemoryStreamPool.Default.GetStream() :> Stream
+            | TempFiles -> Utils.getTempFileStream
+
+        let! entries =
+            toc
+            |> Seq.map (fun entry -> async {
+                let data = getTargetStream ()
+                do! inflateEntry entry data
+                return { Name = getName entry; Data = data } })
+            |> Async.Sequential
+
+        return new DisposableList<_>(List.ofArray entries) }
+
     let tryFindEntry name =
         match List.tryFindIndex ((=) name) manifest with
         | None -> raise <| FileNotFoundException($"PSARC did not contain file '{name}'", name)
@@ -197,19 +213,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     /// Edits the contents of the PSARC with the given edit function.
     member _.Edit (options: EditOptions, editFunc: NamedEntry list -> NamedEntry list) = async {
         // Map the table of contents to entry names and data
-        use! namedEntries = async {
-            let! entries =
-                let getTargetStream =
-                    match options.Mode with
-                    | InMemory -> fun () -> MemoryStreamPool.Default.GetStream() :> Stream
-                    | TempFiles -> Utils.getTempFileStream
-                toc
-                |> Seq.map (fun entry -> async {
-                    let data = getTargetStream ()
-                    do! inflateEntry entry data
-                    return { Name = getName entry; Data = data } })
-                |> Async.Sequential
-            return new DisposableList<NamedEntry>(List.ofArray entries) }
+        use! namedEntries = createNamedEntries options.Mode
 
         // Call the edit function that returns a new list
         let editList = editFunc namedEntries.Items
