@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DLCProject.PsarcImporter
+module Rocksmith2014.DLCProject.PsarcImporter
 
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
@@ -19,9 +19,12 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
 
     let dlcKey =
         match psarcContents |> filterFilesWithExtension "xblock" with
-        | [ xblock ] -> Path.GetFileNameWithoutExtension xblock
-        | [] -> failwith "The package does not contain an xblock file."
-        | _ -> failwith "The package contains more than one xblock file.\nSong packs cannot be imported."
+        | [ xblock ] ->
+            Path.GetFileNameWithoutExtension xblock
+        | [] ->
+            failwith "The package does not contain an xblock file."
+        | _ ->
+            failwith "The package contains more than one xblock file.\nSong packs cannot be imported."
 
     let artFile = List.find (String.endsWith "256.dds") psarcContents
     do! psarc.InflateFile(artFile, toTargetPath "cover.dds")
@@ -53,7 +56,8 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
             let targetPath = toTargetPath "lyrics.dds"
             do! psarc.InflateFile(font, targetPath)
             return Some targetPath
-        | None -> return None }
+        | None ->
+            return None }
 
     progress()
 
