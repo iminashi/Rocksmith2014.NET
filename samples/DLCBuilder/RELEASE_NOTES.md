@@ -1,3 +1,8 @@
+## 0.6.5 (Released 2021-09-xx)
+
+- Added explanation of custom events to the ReadMe.
+- Fixed unpacking of audio.psarc.
+
 ## 0.6.4 (Released 2021-08-29)
 
 - Fixed bug in detecting Wwise from WWISEROOT environment variable. 
