@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
 open System
@@ -27,8 +27,10 @@ type BendData32 =
 
     override this.Equals other =
         match other with
-        | :? BendData32 as bd -> (this :> IEquatable<_>).Equals bd
-        | _ -> false
+        | :? BendData32 as bd ->
+            (this :> IEquatable<_>).Equals bd
+        | _ ->
+            false
 
     override this.GetHashCode () =
         if this.UsedCount = 0

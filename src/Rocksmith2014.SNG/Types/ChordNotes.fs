@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
 open System
@@ -29,20 +29,28 @@ type ChordNotes =
     interface IEquatable<ChordNotes> with
         member this.Equals other =
             let rec test index =
-                index = 6
-                ||
-                (this.Mask.[index] = other.Mask.[index] &&
-                 this.SlideTo.[index] = other.SlideTo.[index] &&
-                 this.SlideUnpitchTo.[index] = other.SlideUnpitchTo.[index] &&
-                 this.Vibrato.[index] = other.Vibrato.[index] &&
-                 this.BendData.[index] = other.BendData.[index] &&
-                 test (index + 1))
+                if index = 6 then
+                    true
+                else
+                    let isEqual =
+                        this.Mask.[index] = other.Mask.[index] &&
+                        this.SlideTo.[index] = other.SlideTo.[index] &&
+                        this.SlideUnpitchTo.[index] = other.SlideUnpitchTo.[index] &&
+                        this.Vibrato.[index] = other.Vibrato.[index] &&
+                        this.BendData.[index] = other.BendData.[index]
+
+                    if isEqual then
+                        test (index + 1)
+                    else
+                        false
             test 0
 
     override this.Equals other =
         match other with
-        | :? ChordNotes as cn -> (this :> IEquatable<_>).Equals cn
-        | _ -> false
+        | :? ChordNotes as cn ->
+            (this :> IEquatable<_>).Equals cn
+        | _ ->
+            false
 
     override this.GetHashCode () =
         int this.Mask.[0]
