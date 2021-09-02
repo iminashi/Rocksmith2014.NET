@@ -165,6 +165,11 @@ let private createChordNotes (pendingLinkNexts: Dictionary<int8, int16>) thisId 
                 accuData.ChordNotesMap.Add(chordNotes, id)
                 id)
 
+/// Updates the string mask for the given section/difficulty.
+let inline private updateStringMask accuData sectionId difficulty noteString =
+    let sMask = accuData.StringMasks.[sectionId].[difficulty]
+    accuData.StringMasks.[sectionId].[difficulty] <- sMask ||| (1y <<< noteString)
+
 /// Returns a function that is valid for converting notes in a single difficulty level.
 let convertNote (noteTimes: int[])
                 (piTimes: int[])
@@ -241,9 +246,7 @@ let convertNote (noteTimes: int[])
                           FretId = note.SlideTo }
                     accuData.AnchorExtensions.[difficulty].Add(ax)
 
-                // Update the string mask for this note's section/difficulty
-                let sMask = accuData.StringMasks.[sectionId].[difficulty]
-                accuData.StringMasks.[sectionId].[difficulty] <- sMask ||| (1y <<< int note.String)
+                updateStringMask accuData sectionId difficulty (int note.String)
 
                 {| String = note.String; Fret = note.Fret; Mask = mask; Parent = parentNote;
                    BendValues = bendValues; SlideTo = note.SlideTo; UnpSlide = note.SlideUnpitchTo; LeftHand = note.LeftHand
@@ -260,10 +263,8 @@ let convertNote (noteTimes: int[])
                 let template = xml.ChordTemplates.[int chord.ChordId]
                 let sustain, chordNoteId =
                     if chord.HasChordNotes then
-                        for cn in chord.ChordNotes do
-                            // Update the string mask for this chord's section/difficulty
-                            let sMask = accuData.StringMasks.[sectionId].[difficulty]
-                            accuData.StringMasks.[sectionId].[difficulty] <- sMask ||| (1y <<< int cn.String)
+                        for i = 0 to chord.ChordNotes.Count - 1 do
+                            updateStringMask accuData sectionId difficulty (int chord.ChordNotes.[i].String)
 
                         msToSec chord.ChordNotes.[0].Sustain, 
                         createChordNotes pendingLinkNexts this accuData chord
