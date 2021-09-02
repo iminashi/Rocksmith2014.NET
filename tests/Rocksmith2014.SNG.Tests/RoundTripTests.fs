@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.SNG.Tests.RoundTripTests
+module Rocksmith2014.SNG.Tests.RoundTripTests
 
 open Expecto
 open Rocksmith2014.SNG
@@ -127,8 +127,8 @@ let roundTripTests =
                 Hash = 45684265u
                 Time = 7.8f
                 StringIndex = 1y
-                FretId = 7y
-                AnchorFretId = 7y
+                Fret = 7y
+                AnchorFret = 7y
                 AnchorWidth = 5y
                 ChordId = -1
                 ChordNotesId = -1
