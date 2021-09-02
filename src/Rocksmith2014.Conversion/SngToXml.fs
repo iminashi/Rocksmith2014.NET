@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Conversion.SngToXml
+module Rocksmith2014.Conversion.SngToXml
 
 open Rocksmith2014
 open Rocksmith2014.SNG
@@ -139,7 +139,7 @@ let convertNote (sngNote: Note) =
     XML.Note(Mask = mask,
              Time = secToMs sngNote.Time,
              String = sngNote.StringIndex,
-             Fret = sngNote.FretId,
+             Fret = sngNote.Fret,
              Sustain = secToMs sngNote.Sustain,
              Vibrato = byte sngNote.Vibrato,
              SlideTo = sngNote.SlideTo,

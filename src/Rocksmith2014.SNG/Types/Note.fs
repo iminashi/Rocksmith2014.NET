@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
 open BinaryHelpers
@@ -9,8 +9,8 @@ type Note =
       Hash : uint32
       Time : float32
       StringIndex : int8
-      FretId : int8
-      AnchorFretId : int8
+      Fret : int8
+      AnchorFret : int8
       AnchorWidth : int8
       ChordId : int32
       ChordNotesId : int32
@@ -39,8 +39,8 @@ type Note =
             writer.WriteUInt32 this.Hash
             writer.WriteSingle this.Time
             writer.WriteInt8 this.StringIndex
-            writer.WriteInt8 this.FretId
-            writer.WriteInt8 this.AnchorFretId
+            writer.WriteInt8 this.Fret
+            writer.WriteInt8 this.AnchorFret
             writer.WriteInt8 this.AnchorWidth
             writer.WriteInt32 this.ChordId
             writer.WriteInt32 this.ChordNotesId
@@ -68,8 +68,8 @@ type Note =
           Hash = reader.ReadUInt32()
           Time = reader.ReadSingle()
           StringIndex = reader.ReadInt8()
-          FretId = reader.ReadInt8()
-          AnchorFretId = reader.ReadInt8()
+          Fret = reader.ReadInt8()
+          AnchorFret = reader.ReadInt8()
           AnchorWidth = reader.ReadInt8()
           ChordId = reader.ReadInt32()
           ChordNotesId = reader.ReadInt32()

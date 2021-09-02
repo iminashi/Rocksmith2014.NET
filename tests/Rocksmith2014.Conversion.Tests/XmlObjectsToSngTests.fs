@@ -346,7 +346,7 @@ let xmlToSngConversionTests =
         
             Expect.equal sng.ChordId -1 "Chord ID is -1"
             Expect.equal sng.ChordNotesId -1 "Chord notes ID is -1"
-            Expect.equal sng.FretId note.Fret "Fret is same"
+            Expect.equal sng.Fret note.Fret "Fret is same"
             Expect.equal sng.StringIndex note.String "String is same"
             Expect.equal sng.Time (convertTime note.Time) "Time is same"
             Expect.equal sng.Sustain (convertTime note.Sustain) "Sustain is same"
@@ -358,7 +358,7 @@ let xmlToSngConversionTests =
             Expect.equal sng.Vibrato (int16 note.Vibrato) "Vibrato is same"
             Expect.equal sng.PickDirection 0y "Pick direction is correct"
             Expect.equal sng.LeftHand note.LeftHand "Left hand is same"
-            Expect.equal sng.AnchorFretId 7y "Anchor fret is correct"
+            Expect.equal sng.AnchorFret 7y "Anchor fret is correct"
             Expect.equal sng.AnchorWidth 5y "Anchor width is correct"
             Expect.equal sng.BendData.Length note.BendValues.Count "Bend value count is correct"
             Expect.equal sng.MaxBend note.MaxBend "Max bend is same"

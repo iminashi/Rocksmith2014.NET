@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Conversion.NoteFlagFunctions
+module Rocksmith2014.Conversion.NoteFlagFunctions
 
 open Rocksmith2014.SNG
 
@@ -6,7 +6,7 @@ open Rocksmith2014.SNG
 
 /// Numbers all notes.
 let always (_: Note option) (currentNote: Note) =
-    if currentNote.FretId <> 0y then 1u else 0u
+    if currentNote.Fret <> 0y then 1u else 0u
 
 /// Never numbers notes.
 let never (_: Note option) (_: Note) = 0u
@@ -15,7 +15,11 @@ let never (_: Note option) (_: Note) = 0u
 let onAnchorChange (previousNote: Note option) (currentNote: Note) =
     match previousNote with
     // Never number open notes
-    | _ when currentNote.FretId = 0y -> 0u
-    | Some previous when previous.AnchorFretId <> currentNote.AnchorFretId -> 1u
-    | Some _ -> 0u
-    | None -> 1u
+    | _ when currentNote.Fret = 0y ->
+        0u
+    | Some previous when previous.AnchorFret <> currentNote.AnchorFret ->
+        1u
+    | Some _ ->
+        0u
+    | None ->
+        1u

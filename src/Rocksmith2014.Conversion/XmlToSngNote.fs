@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Conversion.XmlToSngNote
+module Rocksmith2014.Conversion.XmlToSngNote
 
 open Rocksmith2014
 open Rocksmith2014.SNG
@@ -285,8 +285,8 @@ let convertNote (noteTimes: int[])
               Hash = 0u
               Time = timeSeconds
               StringIndex = data.String
-              FretId = data.Fret
-              AnchorFretId = anchor.Fret
+              Fret = data.Fret
+              AnchorFret = anchor.Fret
               AnchorWidth = anchor.Width
               ChordId = data.ChordId
               ChordNotesId = data.ChordNoteId

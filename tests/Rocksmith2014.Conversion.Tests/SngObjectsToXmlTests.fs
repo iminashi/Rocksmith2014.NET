@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Conversion.Tests.SngObjectsToXmlTests
+module Rocksmith2014.Conversion.Tests.SngObjectsToXmlTests
 
 open Expecto
 open Rocksmith2014.SNG
@@ -304,8 +304,8 @@ let sngToXmlConversionTests =
                   Hash = 1234u
                   Time = 55.55f
                   StringIndex = 4y
-                  FretId = 8y
-                  AnchorFretId = 8y
+                  Fret = 8y
+                  AnchorFret = 8y
                   AnchorWidth = 4y
                   ChordId = -1
                   ChordNotesId = -1
@@ -331,7 +331,7 @@ let sngToXmlConversionTests =
             
             Expect.equal xml.Time 55_550 "Time code is same"
             Expect.equal xml.String n.StringIndex "String is same"
-            Expect.equal xml.Fret n.FretId "Fret is same"
+            Expect.equal xml.Fret n.Fret "Fret is same"
             Expect.equal xml.Sustain 15_000 "Sustain is same"
             Expect.equal xml.Vibrato (byte n.Vibrato) "Vibrato is same"
             Expect.equal xml.SlideTo n.SlideTo "Slide is same"
@@ -362,8 +362,8 @@ let sngToXmlConversionTests =
                   Hash = 1234u
                   Time = 66.66f
                   StringIndex = -1y
-                  FretId = -1y
-                  AnchorFretId = 8y
+                  Fret = -1y
+                  AnchorFret = 8y
                   AnchorWidth = 4y
                   ChordId = 0
                   ChordNotesId = 0
@@ -404,8 +404,8 @@ let sngToXmlConversionTests =
                   Hash = 1234u
                   Time = 66.66f
                   StringIndex = -1y
-                  FretId = -1y
-                  AnchorFretId = 8y
+                  Fret = -1y
+                  AnchorFret = 8y
                   AnchorWidth = 4y
                   ChordId = 0
                   ChordNotesId = -1
@@ -461,8 +461,8 @@ let sngToXmlConversionTests =
                   Hash = 1234u
                   Time = 55.55f
                   StringIndex = 4y
-                  FretId = 8y
-                  AnchorFretId = 8y
+                  Fret = 8y
+                  AnchorFret = 8y
                   AnchorWidth = 4y
                   ChordId = -1
                   ChordNotesId = -1
@@ -490,8 +490,8 @@ let sngToXmlConversionTests =
                   Hash = 1234u
                   Time = 66.66f
                   StringIndex = -1y
-                  FretId = -1y
-                  AnchorFretId = 8y
+                  Fret = -1y
+                  AnchorFret = 8y
                   AnchorWidth = 4y
                   ChordId = 0
                   ChordNotesId = 0

@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DLCProject.ShowLightGenerator
+module Rocksmith2014.DLCProject.ShowLightGenerator
 
 open Rocksmith2014.XML
 open Rocksmith2014.SNG
@@ -27,7 +27,7 @@ let private toMidiNote (sng: SNG) (note: Note) =
     let midiValue =
         match note.ChordId with
         | -1 ->
-            Midi.toMidiNote (int note.StringIndex) note.FretId sng.MetaData.Tuning sng.MetaData.CapoFretId false
+            Midi.toMidiNote (int note.StringIndex) note.Fret sng.MetaData.Tuning sng.MetaData.CapoFretId false
         | chordId ->
             sng.Chords.[chordId].Notes
             |> Array.tryFind (fun x -> x > 0)

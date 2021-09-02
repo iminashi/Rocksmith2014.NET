@@ -29,7 +29,7 @@ let instrumentalConversionTests =
             Expect.equal sng.Beats.[13].PhraseIteration 2 "Beat #13 for is in phrase iteration 2"
         
             // Test various properties of the notes
-            Expect.equal level.Notes.[0].AnchorFretId 2y "Note #0 is anchored on fret 2"
+            Expect.equal level.Notes.[0].AnchorFret 2y "Note #0 is anchored on fret 2"
             Expect.isTrue (level.Notes.[2].Mask ?= SNG.NoteMask.Open) "Note #2 has open bit set"
             Expect.equal level.Notes.[6].FingerPrintId.[1] 0s "Note #6 is inside arpeggio (Chord ID 0)"
             Expect.equal level.Notes.[9].Sustain 0.750f "Note #9 has 0.750s sustain"
