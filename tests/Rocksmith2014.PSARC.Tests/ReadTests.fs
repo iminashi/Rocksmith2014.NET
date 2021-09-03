@@ -1,4 +1,4 @@
-﻿module ReadTests
+module ReadTests
 
 open Expecto
 open System.IO
@@ -22,5 +22,17 @@ let readTests =
         
             let fileCount = Directory.EnumerateFiles(tempPath, "*.*", SearchOption.AllDirectories) |> Seq.length
             Expect.equal fileCount psarc.TOC.Count "All files were extracted"
+            Directory.Delete(tempPath, true) }
+
+        testAsync "Can extract partially compressed file" {
+            // The test archive contains a single file where only the first block is zlib compressed
+            use psarc = PSARC.ReadFile "partially_compressed_test_p.psarc"
+            let tempPath = Path.Combine(Path.GetTempPath(), "partiallyCompressedTest")
+            Directory.CreateDirectory tempPath |> ignore
+
+            do! psarc.ExtractFiles tempPath
+
+            let fileCount = Directory.EnumerateFiles(tempPath, "*.*", SearchOption.AllDirectories) |> Seq.length
+            Expect.equal fileCount psarc.TOC.Count "One file was extracted"
             Directory.Delete(tempPath, true) }
     ]

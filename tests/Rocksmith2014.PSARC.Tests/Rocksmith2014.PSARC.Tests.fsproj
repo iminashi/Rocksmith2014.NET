@@ -17,6 +17,9 @@
     <None Include="test_p.psarc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="partially_compressed_test_p.psarc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Compile Include="ReadTests.fs" />
     <Compile Include="EditTests.fs" />
     <Compile Include="Program.fs" />
