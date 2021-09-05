@@ -15,8 +15,11 @@ let [<Literal>] private PhraseLevelFile = ".phrase-levels"
 let private tryGetStoredLevels directory =
     let levelsFile = Path.Combine(directory, PhraseLevelFile)
     if File.Exists levelsFile then
-        let text = File.ReadAllText levelsFile
-        Some <| JsonSerializer.Deserialize<ProjectLevels> text
+        try
+            let text = File.ReadAllText levelsFile
+            Some <| JsonSerializer.Deserialize<ProjectLevels> text
+        with _ ->
+            None
     else
         None
 
