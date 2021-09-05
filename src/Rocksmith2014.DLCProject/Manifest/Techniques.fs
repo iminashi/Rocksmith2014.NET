@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DLCProject.Manifest.Techniques
+module Rocksmith2014.DLCProject.Manifest.Techniques
 
 open Rocksmith2014.SNG
 
@@ -108,135 +108,136 @@ let getTechniques (sng: SNG) (note: Note) =
         (* Some technique numbers don't seem to match the description in the lesson technique database.
            The technique database has 45 as chord + fret hand mute, but that is already tech #2.
 
-           This method will miss some techniques when they are on chord notes, otherwise it should be pretty complete. *)
+           This method will miss some techniques when they are on chord notes, otherwise it should be pretty complete.
 
-        seq { // 0: Accent
-              if hasFlag note NoteMask.Accent then 0
+           Not used:
+           22: Fret hand mute + pop
+           23: Fret hand mute + slap (found in "Living in America", but not included in the tech map)
+           24: Harmonic + pop
+           25: Harmonic + slap
+           32: Arpeggio
+           39: Unknown (not included in technique database, but could be "chord zone" or "non-standard chord") *)
 
-              // 1: Bend
-              if hasFlag note NoteMask.Bend then 1
+        seq {
+            // 0: Accent
+            if hasFlag note NoteMask.Accent then 0
 
-              // 2: Fret-hand mute (chords only)
-              if hasFlag note NoteMask.FretHandMute then 2
+            // 1: Bend
+            if hasFlag note NoteMask.Bend then 1
 
-              // 3: Hammer-on
-              if hasFlag note NoteMask.HammerOn then 3
+            // 2: Fret-hand mute (chords only)
+            if hasFlag note NoteMask.FretHandMute then 2
 
-              // 4: Harmonic
-              if hasFlag note NoteMask.Harmonic then 4
+            // 3: Hammer-on
+            if hasFlag note NoteMask.HammerOn then 3
 
-              // 5: Pinch harmonic
-              if hasFlag note NoteMask.PinchHarmonic then 5
+            // 4: Harmonic
+            if hasFlag note NoteMask.Harmonic then 4
 
-              // 6: HOPO (not in technique database)
-              if isHopo then 6
+            // 5: Pinch harmonic
+            if hasFlag note NoteMask.PinchHarmonic then 5
 
-              // 7: Palm mute
-              if hasFlag note NoteMask.PalmMute then 7
+            // 6: HOPO (not in technique database)
+            if isHopo then 6
 
-              // 8: Pluck aka Pop
-              if hasFlag note NoteMask.Pluck then 8
+            // 7: Palm mute
+            if hasFlag note NoteMask.PalmMute then 7
 
-              // 9: Pull-off
-              if hasFlag note NoteMask.PullOff then 9
+            // 8: Pluck aka Pop
+            if hasFlag note NoteMask.Pluck then 8
 
-              // 10: Slap
-              if hasFlag note NoteMask.Slap then 10
+            // 9: Pull-off
+            if hasFlag note NoteMask.PullOff then 9
 
-              // 11: Slide
-              if hasFlag note NoteMask.Slide then 11
+            // 10: Slap
+            if hasFlag note NoteMask.Slap then 10
 
-              // 12: Unpitched slide
-              if hasFlag note NoteMask.UnpitchedSlide then 12
+            // 11: Slide
+            if hasFlag note NoteMask.Slide then 11
 
-              // 13: Sustain (single notes)
-              if hasFlag note NoteMask.Single && hasFlag note NoteMask.Sustain then 13
+            // 12: Unpitched slide
+            if hasFlag note NoteMask.UnpitchedSlide then 12
 
-              // 14: Tap
-              if hasFlag note NoteMask.Tap then 14
+            // 13: Sustain (single notes)
+            if hasFlag note NoteMask.Single && hasFlag note NoteMask.Sustain then 13
 
-              // 15: Tremolo
-              if hasFlag note NoteMask.Tremolo then 15
+            // 14: Tap
+            if hasFlag note NoteMask.Tap then 14
 
-              // 16: Vibrato
-              if hasFlag note NoteMask.Vibrato then 16
+            // 15: Tremolo
+            if hasFlag note NoteMask.Tremolo then 15
 
-              // 17: Palm mute + accent
-              if hasFlag note (NoteMask.PalmMute ||| NoteMask.Accent) then 17
+            // 16: Vibrato
+            if hasFlag note NoteMask.Vibrato then 16
 
-              // 18: Palm mute + harmonic
-              if hasFlag note (NoteMask.PalmMute ||| NoteMask.Harmonic) then 18
+            // 17: Palm mute + accent
+            if hasFlag note (NoteMask.PalmMute ||| NoteMask.Accent) then 17
 
-              // 19: Palm mute + hammer-on
-              if hasFlag note (NoteMask.PalmMute ||| NoteMask.HammerOn) then 19
+            // 18: Palm mute + harmonic
+            if hasFlag note (NoteMask.PalmMute ||| NoteMask.Harmonic) then 18
 
-              // 20: Palm mute + pull off
-              if hasFlag note (NoteMask.PalmMute ||| NoteMask.PullOff) then 20
+            // 19: Palm mute + hammer-on
+            if hasFlag note (NoteMask.PalmMute ||| NoteMask.HammerOn) then 19
 
-              // 21: Fret hand mute + accent
-              if hasFlag note (NoteMask.FretHandMute ||| NoteMask.Accent) then 21
+            // 20: Palm mute + pull off
+            if hasFlag note (NoteMask.PalmMute ||| NoteMask.PullOff) then 20
 
-              // 26: Tremolo + bend
-              if hasFlag note (NoteMask.Bend ||| NoteMask.Tremolo) then 26
+            // 21: Fret hand mute + accent
+            if hasFlag note (NoteMask.FretHandMute ||| NoteMask.Accent) then 21
 
-              // 27: Tremolo + slide
-              if hasFlag note (NoteMask.Tremolo ||| NoteMask.Slide) then 27
+            // 26: Tremolo + bend
+            if hasFlag note (NoteMask.Bend ||| NoteMask.Tremolo) then 26
 
-              // 28: Tremolo + vibrato (used on pick scratches)
-              if hasFlag note (NoteMask.Tremolo ||| NoteMask.Vibrato) then 28
+            // 27: Tremolo + slide
+            if hasFlag note (NoteMask.Tremolo ||| NoteMask.Slide) then 27
 
-              // 29: Pre-bend
-              if isPreBend note then 29
+            // 28: Tremolo + vibrato (used on pick scratches)
+            if hasFlag note (NoteMask.Tremolo ||| NoteMask.Vibrato) then 28
 
-              // 30: Oblique bend (compound bend in technique database)
-              if isObliqueBend sng note then 30
+            // 29: Pre-bend
+            if isPreBend note then 29
 
-              // 31: Compound bend (oblique bend in technique database)
-              if isCompoundBend note then 31
+            // 30: Oblique bend (compound bend in technique database)
+            if isObliqueBend sng note then 30
 
-              // 33: Double stop with adjacent strings
-              if not isPower && isDoubleStopAdjacentStrings sng note then 33
+            // 31: Compound bend (oblique bend in technique database)
+            if isCompoundBend note then 31
 
-              // 34: Double stop with nonadjacent strings
-              if not isPower && isDoubleStopNonAdjacentStrings sng note then 34
+            // 33: Double stop with adjacent strings
+            if not isPower && isDoubleStopAdjacentStrings sng note then 33
 
-              // 35: Two string power chord
-              if isPower then 35
+            // 34: Double stop with nonadjacent strings
+            if not isPower && isDoubleStopNonAdjacentStrings sng note then 34
 
-              // 36: Drop-D power chord (not in technique database)
-              if isDropDPower sng note then 36
+            // 35: Two string power chord
+            if isPower then 35
 
-              // 37: Barre chord
-              if isBarre sng note then 37
+            // 36: Drop-D power chord (not in technique database)
+            if isDropDPower sng note then 36
 
-              // 38: Chord (with three or more strings, no sustain)
-              if isChord note then 38
+            // 37: Barre chord
+            if isBarre sng note then 37
 
-              // 40: Double stop HOPO (actually HOPO inside hand shape)
-              if isHopo && note.FingerPrintId.[0] <> -1s then 40
+            // 38: Chord (with three or more strings, no sustain)
+            if isChord note then 38
 
-              // 41: Chord slide (chord HOPO in technique database)
-              if isChordSlide sng note then 41
+            // 40: Double stop HOPO (actually HOPO inside hand shape)
+            if isHopo && note.FingerPrintId.[0] <> -1s then 40
 
-              // 42: Chord tremolo (double stop slide in technique database)
-              if isChordTremolo sng note then 42
+            // 41: Chord slide (chord HOPO in technique database)
+            if isChordSlide sng note then 41
 
-              // 43: Chord HOPO (chord slide in technique database) 
-              if isChordHammerOn sng note then 43
+            // 42: Chord tremolo (double stop slide in technique database)
+            if isChordTremolo sng note then 42
 
-              // 44: Double stop slide (chord tremolo in technique database)
-              if isDoubleStopSlide sng note then 44
+            // 43: Chord HOPO (chord slide in technique database) 
+            if isChordHammerOn sng note then 43
 
-              // 45: Double stop tremolo (double stop bend in technique database)
-              if isDoubleStopTremolo sng note then 45
+            // 44: Double stop slide (chord tremolo in technique database)
+            if isDoubleStopSlide sng note then 44
 
-              // 46: Double stop bend (double stop tremolo in technique database)
-              if isDoubleStopBend sng note then 46 }
+            // 45: Double stop tremolo (double stop bend in technique database)
+            if isDoubleStopTremolo sng note then 45
 
-              (* Not used:
-                 22: Fret hand mute + pop
-                 23: Fret hand mute + slap (found in "Living in America", but not included in the tech map)
-                 24: Harmonic + pop
-                 25: Harmonic + slap
-                 32: Arpeggio
-                 39: Unknown (not included in technique database, but could be "chord zone" or "non-standard chord") *)
+            // 46: Double stop bend (double stop tremolo in technique database)
+            if isDoubleStopBend sng note then 46 }

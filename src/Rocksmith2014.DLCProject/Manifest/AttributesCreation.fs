@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DLCProject.Manifest.AttributesCreation
+module Rocksmith2014.DLCProject.Manifest.AttributesCreation
 
 open Rocksmith2014
 open Rocksmith2014.Common.Manifest
@@ -51,28 +51,29 @@ let private calculateDNAs (sng: SNG) =
 /// Calculates difficulty values for hard, medium and easy.
 let private calculateDifficulties (metaData: XML.MetaData) (sng: SNG) =
     let arrProp = metaData.ArrangementProperties
-    let techCoeff = bti arrProp.NonStandardChords +
-                    3 * bti arrProp.BarreChords +
-                    (bti arrProp.PowerChords ||| bti arrProp.DoubleStops) +
-                    bti arrProp.DropDPower +
-                    2 * bti arrProp.OpenChords +
-                    bti arrProp.FingerPicking +
-                    bti arrProp.TwoFingerPicking +
-                    bti arrProp.PalmMutes +
-                    2 * bti arrProp.Harmonics +
-                    3 * bti arrProp.PinchHarmonics +
-                    bti arrProp.Hopo +
-                    bti arrProp.Tremolo +
-                    (if arrProp.PathBass then 4 else 1) * bti arrProp.Slides +
-                    bti arrProp.UnpitchedSlides +
-                    3 * bti arrProp.Bends +
-                    4 * bti arrProp.Tapping +
-                    2 * bti arrProp.Vibrato +
-                    bti arrProp.FretHandMutes +
-                    bti arrProp.SlapPop +
-                    bti arrProp.Sustain +
-                    bti arrProp.FifthsAndOctaves +
-                    bti arrProp.Syncopation
+    let techCoeff =
+        bti arrProp.NonStandardChords +
+        3 * bti arrProp.BarreChords +
+        (bti arrProp.PowerChords ||| bti arrProp.DoubleStops) +
+        bti arrProp.DropDPower +
+        2 * bti arrProp.OpenChords +
+        bti arrProp.FingerPicking +
+        bti arrProp.TwoFingerPicking +
+        bti arrProp.PalmMutes +
+        2 * bti arrProp.Harmonics +
+        3 * bti arrProp.PinchHarmonics +
+        bti arrProp.Hopo +
+        bti arrProp.Tremolo +
+        (if arrProp.PathBass then 4 else 1) * bti arrProp.Slides +
+        bti arrProp.UnpitchedSlides +
+        3 * bti arrProp.Bends +
+        4 * bti arrProp.Tapping +
+        2 * bti arrProp.Vibrato +
+        bti arrProp.FretHandMutes +
+        bti arrProp.SlapPop +
+        bti arrProp.Sustain +
+        bti arrProp.FifthsAndOctaves +
+        bti arrProp.Syncopation
 
     // Arrangements with few/no techniques get very low values otherwise
     let techCoeff =
