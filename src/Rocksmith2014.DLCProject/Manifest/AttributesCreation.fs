@@ -82,7 +82,7 @@ let private calculateDifficulties (metaData: XML.MetaData) (sng: SNG) =
         else
             techCoeff
 
-    // In official content maximum value for SongDiffHard is 1.0
+    // In official content, the maximum value for SongDiffHard is 1.0
     Math.Round(float (techCoeff * sng.NoteCounts.Hard) / float sng.MetaData.SongLength / 100.0, 9),
     Math.Round(float (techCoeff * sng.NoteCounts.Medium) / float sng.MetaData.SongLength / 50.0, 9),
     Math.Round(float (techCoeff * sng.NoteCounts.Easy) / float sng.MetaData.SongLength / 25.0, 9)
