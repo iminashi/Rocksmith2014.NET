@@ -60,10 +60,9 @@
     <Compile Include="DLCKeyTests.fs" />
     <Compile Include="DLCProjectTests.fs" />
     <Compile Include="ToolkitImportTests.fs" />
+    <Compile Include="PhraseLevelComparerTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
-
-  <ItemGroup />
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="3.1.0">

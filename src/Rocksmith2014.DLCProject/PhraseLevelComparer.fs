@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DLCProject.PhraseLevelComparer
+module Rocksmith2014.DLCProject.PhraseLevelComparer
 
 open Rocksmith2014.SNG
 open System
@@ -39,7 +39,7 @@ let private createLevelDictionary (arrangements: (Arrangement * SNG) list) : Pro
     |> readOnlyDict
 
 /// Compares the level counts of the arrangements to the stored level counts.
-let private compareLevels (stored: ProjectLevels) (arrangements: (Arrangement * SNG) list) =
+let compareLevels (stored: ProjectLevels) (arrangements: (Arrangement * SNG) list) =
     arrangements
     |> List.choose (function
         | Instrumental inst, sng ->
@@ -56,13 +56,12 @@ let private compareLevels (stored: ProjectLevels) (arrangements: (Arrangement * 
             None)
 
 /// Returns a list of persistent IDs of the arrangements whose IDs should be regenerated.
-let compareToExistingAndSave directory (arrangements: (Arrangement * SNG) list) =
-    let needingIdRegeneration =
-        tryGetStoredLevels directory
-        |> Option.map (fun stored -> compareLevels stored arrangements)
-        |> Option.defaultValue List.empty
+let compareToExisting directory (arrangements: (Arrangement * SNG) list) =
+    tryGetStoredLevels directory
+    |> Option.map (fun stored -> compareLevels stored arrangements)
+    |> Option.defaultValue List.empty
 
+/// Saves the arrangement levels to a file in the given directory.
+let saveLevels directory (arrangements: (Arrangement * SNG) list) =
     createLevelDictionary arrangements
     |> savePhraseLevels directory
-
-    needingIdRegeneration

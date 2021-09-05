@@ -236,7 +236,9 @@ let private checkArrangementIdRegeneration sngs project config = async {
     | None ->
         return Map.empty
     | Some resetConfig ->
-        let idsToReplace = PhraseLevelComparer.compareToExistingAndSave resetConfig.ProjectDirectory sngs
+        let idsToReplace = PhraseLevelComparer.compareToExisting resetConfig.ProjectDirectory sngs
+        PhraseLevelComparer.saveLevels resetConfig.ProjectDirectory sngs
+
         if idsToReplace.IsEmpty then
             return Map.empty
         else
