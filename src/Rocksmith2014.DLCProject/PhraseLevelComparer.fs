@@ -46,15 +46,14 @@ let compareLevels (stored: ProjectLevels) (arrangements: (Arrangement * SNG) lis
     arrangements
     |> List.choose (function
         | Instrumental inst, sng ->
-            stored
-            |> Dictionary.tryGetValue inst.PersistentID
-            |> Option.bind (fun storedLevels ->
-                sng.Phrases
-                |> Array.tryFind (fun phrase ->
+            option {
+                let! storedLevels = Dictionary.tryGetValue inst.PersistentID stored
+                if sng.Phrases |> Array.exists (fun phrase ->
                     storedLevels
                     |> Dictionary.tryGetValue phrase.Name
                     |> Option.exists (fun storedMaxDiff -> storedMaxDiff > phrase.MaxDifficulty))
-                |> Option.map (fun _ -> inst.PersistentID))
+                then
+                    return inst.PersistentID }
         | _ ->
             None)
 

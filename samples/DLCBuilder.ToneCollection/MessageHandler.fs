@@ -4,12 +4,6 @@ open Rocksmith2014.Common.Manifest
 open System
 open CollectionState
 
-type OptionBuilder() =
-    member _.Bind(x, f) = Option.bind f x
-    member _.Return(x) = Some x
-
-let option = OptionBuilder()
-
 let editUserTone edit (userTone: DbToneData) =
     match edit with
     | UserToneEdit.SetArtist artist ->
