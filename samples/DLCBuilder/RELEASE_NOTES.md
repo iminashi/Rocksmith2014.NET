@@ -1,7 +1,7 @@
 ## 0.6.5 (Released 2021-09-xx)
 
 - Added explanation of custom events to the ReadMe.
-- Fixed unpacking of audio.psarc.
+- Unpacking audio.psarc works again.
 
 ## 0.6.4 (Released 2021-08-29)
 
