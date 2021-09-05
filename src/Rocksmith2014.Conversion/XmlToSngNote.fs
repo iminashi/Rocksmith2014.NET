@@ -19,7 +19,6 @@ let [<Literal>] private XmlChordNoteMask =
 /// Creates an SNG note mask for a chord note.
 let private createMaskForChordNote (note: XML.Note) =
     // Not used for chord notes: Single, Ignore, Child, Right Hand, Left Hand, Arpeggio
-    // Supported by the game, although not possible in official files: Tap, Pluck, Slap
 
     // Apply flags from properties not in the XML note mask
     let baseMask =
