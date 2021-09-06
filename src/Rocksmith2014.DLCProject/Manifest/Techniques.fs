@@ -2,6 +2,8 @@ module Rocksmith2014.DLCProject.Manifest.Techniques
 
 open Rocksmith2014.SNG
 
+let [<Literal>] private ChordNotesDoubleStop = NoteMask.DoubleStop ||| NoteMask.ChordNotes
+
 let inline hasFlag (n: Note) flag = (n.Mask &&& flag) = flag
 
 let isPowerChord sng note =
@@ -69,31 +71,31 @@ let isDoubleStopNonAdjacentStrings sng note =
     hasFlag note NoteMask.DoubleStop && not <| isDoubleStopAdjacentStrings sng note
 
 let isChordSlide sng (note: Note) =
-    note.Mask &&& (NoteMask.ChordNotes ||| NoteMask.DoubleStop) = NoteMask.ChordNotes
+    note.Mask &&& ChordNotesDoubleStop = NoteMask.ChordNotes
     &&
     sng.ChordNotes.[note.ChordNotesId].SlideTo
     |> Array.exists (fun x -> x <> -1y)
 
 let isChordTremolo sng (note: Note) =
-    note.Mask &&& (NoteMask.ChordNotes ||| NoteMask.DoubleStop) = NoteMask.ChordNotes
+    note.Mask &&& ChordNotesDoubleStop = NoteMask.ChordNotes
     &&
     sng.ChordNotes.[note.ChordNotesId].Mask
     |> Array.exists (fun x -> (x &&& NoteMask.Tremolo) <> NoteMask.None)
 
 let isDoubleStopSlide sng note =
-    hasFlag note (NoteMask.DoubleStop ||| NoteMask.ChordNotes)
+    hasFlag note ChordNotesDoubleStop
     &&
     sng.ChordNotes.[note.ChordNotesId].SlideTo
     |> Array.exists (fun x -> x <> -1y)
 
 let isDoubleStopTremolo sng note =
-    hasFlag note (NoteMask.DoubleStop ||| NoteMask.ChordNotes)
+    hasFlag note ChordNotesDoubleStop
     &&
     sng.ChordNotes.[note.ChordNotesId].Mask
     |> Array.exists (fun x -> (x &&& NoteMask.Tremolo) <> NoteMask.None)
 
 let isDoubleStopBend sng note =
-    hasFlag note (NoteMask.DoubleStop ||| NoteMask.ChordNotes)
+    hasFlag note ChordNotesDoubleStop
     &&
     sng.ChordNotes.[note.ChordNotesId].BendData
     |> Array.exists (fun x -> x.UsedCount > 0)
