@@ -2,6 +2,7 @@
 
 - Added explanation of custom events to the ReadMe.
 - Unpacking audio.psarc works again.
+- Fixed wem to ogg conversion of files that contain the word "error".
 
 ## 0.6.4 (Released 2021-08-29)
 
