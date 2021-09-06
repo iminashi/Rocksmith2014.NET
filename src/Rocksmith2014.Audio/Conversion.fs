@@ -24,16 +24,31 @@ let private processFile cmd args (file: string) =
     use proc = new Process(StartInfo = startInfo)
     proc.Start() |> ignore
     proc.WaitForExit()
-    let output = proc.StandardOutput.ReadToEnd()
-    if output |> String.containsIgnoreCase "error" then
-        failwith $"Process failed with output:\n{output}"
+    proc.ExitCode, proc.StandardOutput.ReadToEnd()
+
+let private validateWw2oggOutput (exitCode, output) =
+    if exitCode <> 0 then
+        failwith $"ww2ogg process failed with output:\n%s{output}"
+
+let private validateRevorbOutput (exitCode, output) =
+    if exitCode <> 0 then
+        let message =
+            if String.notEmpty output then
+                $"output:\n{output}"
+            else
+                $"exit code:\n{exitCode}"
+
+        failwith $"revorb process failed with {message}"
 
 /// Converts a wem file into a vorbis file.
 let wemToOgg wemfile =
     let oggFile = Path.ChangeExtension(wemfile, "ogg")
 
     processFile ww2ogg "\"{0}\" --pcb packed_codebooks_aoTuV_603.bin" wemfile
+    |> validateWw2oggOutput
+
     processFile revorb "\"{0}\"" oggFile
+    |> validateRevorbOutput
 
 /// Converts a wem file into a wave file.
 let wemToWav wemFile =

@@ -30,5 +30,5 @@ let conversionTests =
             let wemFile = "nosuchfile.wem"
 
             Expect.throwsC (fun () -> Conversion.wemToOgg wemFile)
-                            (fun ex -> Expect.stringContains ex.Message "Process failed with output" "Exception contains correct message")
+                           (fun ex -> Expect.stringContains ex.Message "ww2ogg process failed with output" "Exception contains correct message")
     ]
