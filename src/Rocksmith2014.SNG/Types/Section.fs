@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
 open BinaryHelpers
@@ -10,7 +10,7 @@ type Section =
       EndTime : float32
       StartPhraseIterationId : int32
       EndPhraseIterationId : int32
-      StringMask : int8[] }
+      StringMask : int8 array }
 
     interface IBinaryWritable with
         member this.Write(writer) =

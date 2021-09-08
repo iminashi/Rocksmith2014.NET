@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
 open BinaryHelpers
@@ -15,7 +15,7 @@ type MetaData =
       LastConversionDateTime : string
       Part : int16
       SongLength : float32
-      Tuning : int16[]
+      Tuning : int16 array
       // First note time appears twice, always the same value
       FirstNoteTime : float32
       MaxDifficulty : int32 }

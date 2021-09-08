@@ -170,8 +170,8 @@ let inline private updateStringMask accuData sectionId difficulty noteString =
     accuData.StringMasks.[sectionId].[difficulty] <- sMask ||| (1y <<< noteString)
 
 /// Returns a function that is valid for converting notes in a single difficulty level.
-let convertNote (noteTimes: int[])
-                (piTimes: int[])
+let convertNote (noteTimes: int array)
+                (piTimes: int array)
                 (fingerPrints: FingerPrint[][])
                 (accuData: AccuData)
                 (flag: NoteFlagger)

@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common.BinaryReaders
 open Rocksmith2014.Common.BinaryWriters
@@ -12,23 +12,23 @@ type NoteCounts =
     static member Empty = { Easy = 0; Medium = 0; Hard = 0; Ignored = 0 }
 
 type SNG =
-    { Beats : Beat[]
-      Phrases : Phrase[]
-      Chords : Chord[]
-      ChordNotes : ChordNotes[]
-      Vocals : Vocal[]
-      SymbolsHeaders : SymbolsHeader[]
-      SymbolsTextures : SymbolsTexture[]
-      SymbolDefinitions : SymbolDefinition[]
-      PhraseIterations : PhraseIteration[]
-      PhraseExtraInfo : PhraseExtraInfo[]
-      NewLinkedDifficulties : NewLinkedDifficulty[]
-      Actions : Action[]
-      Events : Event[]
-      Tones : Tone[]
-      DNAs : DNA[]
-      Sections : Section[]
-      Levels : Level[]
+    { Beats : Beat array
+      Phrases : Phrase array
+      Chords : Chord array
+      ChordNotes : ChordNotes array
+      Vocals : Vocal array
+      SymbolsHeaders : SymbolsHeader array
+      SymbolsTextures : SymbolsTexture array
+      SymbolDefinitions : SymbolDefinition array
+      PhraseIterations : PhraseIteration array
+      PhraseExtraInfo : PhraseExtraInfo array
+      NewLinkedDifficulties : NewLinkedDifficulty array
+      Actions : Action array
+      Events : Event array
+      Tones : Tone array
+      DNAs : DNA array
+      Sections : Section array
+      Levels : Level array
       MetaData : MetaData
       NoteCounts : NoteCounts }
 

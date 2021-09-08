@@ -5,7 +5,7 @@ open System
 
 [<CustomEquality; NoComparison>]
 type BendData32 =
-    { BendValues : BendValue[]
+    { BendValues : BendValue array
       UsedCount : int32 }
 
     interface IBinaryWritable with

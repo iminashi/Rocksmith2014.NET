@@ -1,13 +1,13 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
 open BinaryHelpers
 
 type Chord =
     { Mask : ChordMask
-      Frets : int8[]
-      Fingers : int8[]
-      Notes : int32[]
+      Frets : int8 array
+      Fingers : int8 array
+      Notes : int32 array
       Name : string }
 
     interface IBinaryWritable with

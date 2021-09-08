@@ -16,7 +16,7 @@ type Note =
       ChordNotesId : int32
       PhraseId : int32
       PhraseIterationId : int32
-      FingerPrintId : int16[]
+      FingerPrintId : int16 array
       NextIterNote : int16
       PrevIterNote : int16
       ParentPrevNote : int16
@@ -30,7 +30,7 @@ type Note =
       Vibrato : int16
       Sustain : float32
       MaxBend : float32
-      BendData : BendValue[] }
+      BendData : BendValue array }
 
     interface IBinaryWritable with
         member this.Write(writer) =

@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
 
@@ -6,7 +6,7 @@ type PhraseIteration =
     { PhraseId : int32
       StartTime : float32
       EndTime : float32
-      Difficulty : int32[] }
+      Difficulty : int32 array }
 
     interface IBinaryWritable with
         member this.Write(writer) =

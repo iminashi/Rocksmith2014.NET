@@ -115,7 +115,7 @@ let convertBendValue (xmlBv: XML.BendValue) =
       Step = xmlBv.Step }
 
 /// Converts an XML PhraseIteration into an SNG PhraseIteration.
-let convertPhraseIteration (piTimes: int[]) index (xmlPi: XML.PhraseIteration) =
+let convertPhraseIteration (piTimes: int array) index (xmlPi: XML.PhraseIteration) =
     { PhraseId = xmlPi.PhraseId
       StartTime = msToSec xmlPi.Time
       EndTime = msToSec piTimes.[index + 1]

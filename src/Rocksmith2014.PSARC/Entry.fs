@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.PSARC
+namespace Rocksmith2014.PSARC
 
 open System
 open System.IO
@@ -12,7 +12,7 @@ type NamedEntry =
 
 type Entry =
     { /// MD5 hash of the name of the entry in the manifest.
-      NameDigest : byte[]
+      NameDigest : byte array
       /// The starting z-block index for the entry.
       ZIndexBegin : uint32
       /// The length of the plain data for the entry in bytes.
