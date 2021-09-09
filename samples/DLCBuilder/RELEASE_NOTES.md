@@ -1,3 +1,7 @@
+## 0.6.6 (Released 2021-09-09)
+
+- Fixed import/unpack of some PSARCs created with the Toolkit failing.
+
 ## 0.6.5 (Released 2021-09-07)
 
 - Added explanations of the custom events to the ReadMe.
