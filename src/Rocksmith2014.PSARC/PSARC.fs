@@ -25,12 +25,6 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         let mutable zIndex = int entry.ZIndexBegin
         source.Position <- int64 entry.Offset
 
-        // Determine if the file is compressed from the first block
-        let isCompressed =
-            source.Read(buffer, 0, 2) |> ignore
-            source.Seek(-2L, SeekOrigin.Current) |> ignore
-            Utils.hasZlibHeader buffer
-
         while output.Length < int64 entry.Length do
             match int blockSizeTable.[zIndex] with
             | 0 ->
@@ -40,11 +34,17 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             | size ->
                 let! _bytesRead = source.AsyncRead(buffer, 0, size)
 
-                // Confirm that the zlib header is present
-                // The Toolkit creates archives where the wem files are compressed, but may contain uncompressed blocks
-                if isCompressed && Utils.hasZlibHeader buffer then
-                    use memory = new MemoryStream(buffer, 0, size)
-                    Compression.unzip memory output
+                if Utils.hasZlibHeader buffer then
+                    try
+                        use memory = new MemoryStream(buffer, 0, size)
+                        Compression.unzip memory output
+                    with _ ->
+                        (* audio.psarc contains a block for a wem file that starts with the same bytes as a zlib header.
+                           Wem files are not compressed in official PSARC files.
+
+                           Whether a file is compressed cannot be determined from the first block.
+                           The Toolkit can create archives that contain SNG files that are partially compressed. *)
+                        do! output.AsyncWrite(buffer, 0, size)
                 else
                     do! output.AsyncWrite(buffer, 0, size)
 
