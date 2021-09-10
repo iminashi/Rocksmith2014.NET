@@ -28,11 +28,9 @@ let hyphenate (str: string) =
     let rec getSyllables (results: string list) current list =
         match list with
         | a::rest when isSpace a ->
-            let results =
-                let res = current |> revCharListToString
-                (string a)::res::results
+            let res = current |> revCharListToString
 
-            getSyllables results [] rest
+            getSyllables (res::results) [] rest
 
         | a::rest when not <| isForwardsCombining a && (isPunctuation a || isBackwardsCombining a || isCommonLatin a) ->
             let current = a::current
@@ -44,10 +42,8 @@ let hyphenate (str: string) =
                 match current with
                 | [] ->
                     results, [ a ]
-                | [ x ] when isSpace x ->
-                    results, [ a ]
-                | [ x ] when isPunctuation x ->
-                    results, [ a; x ]
+                | current when List.forall isPunctuation current ->
+                    results, a::current
                 | current ->
                     let result = '-'::current |> revCharListToString
                     result::results, [ a ]
