@@ -17,7 +17,6 @@ let isPunctuation (c: char) = Char.IsPunctuation(c)
 let isSpace (c: char) = Char.IsWhiteSpace(c)
 let isBackwardsCombining (c: char) = backCombiningChars.Contains c
 let isForwardsCombining (c: char) = forwardCombiningChars.Contains c
-let isCombining (c: char) = isPunctuation c
 let isCommonLatin (c: char) = c < char 0x0100
 
 let withoutTrailingDash (str: String) =
@@ -35,7 +34,7 @@ let hyphenate (str: string) =
 
             getSyllables results [] rest
 
-        | a::rest when not <| isForwardsCombining a && (isCombining a || isBackwardsCombining a || isCommonLatin a) ->
+        | a::rest when not <| isForwardsCombining a && (isPunctuation a || isBackwardsCombining a || isCommonLatin a) ->
             let current = a::current
 
             getSyllables results current rest
@@ -47,7 +46,7 @@ let hyphenate (str: string) =
                     results, [ a ]
                 | [ x ] when isSpace x ->
                     results, [ a ]
-                | [ x ] when isCombining x ->
+                | [ x ] when isPunctuation x ->
                     results, [ a; x ]
                 | current ->
                     let result = '-'::current |> revCharListToString
