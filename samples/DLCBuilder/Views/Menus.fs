@@ -243,6 +243,15 @@ let help dispatch =
     MenuItem.create [
         MenuItem.header (translate "HelpMenuItem")
         MenuItem.viewItems [
+            // View ReadMe
+            MenuItem.create [
+                MenuItem.header (translate "ViewReadMeMenuItem")
+                MenuItem.onClick (fun _ ->
+                    IO.Path.Combine(AppContext.BaseDirectory, "ReadMe.html")
+                    |> Utils.openWithShell
+                )
+            ]
+
             // Check for Updates
             MenuItem.create [
                 MenuItem.header (translate "CheckForUpdatesMenuItem")
