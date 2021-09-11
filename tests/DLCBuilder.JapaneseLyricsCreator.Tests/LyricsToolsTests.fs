@@ -2,6 +2,7 @@ module LyricsToolsTests
 
 open Expecto
 open JapaneseLyricsCreator
+open Rocksmith2014.XML
 
 [<Tests>]
 let tests =
@@ -49,4 +50,22 @@ let tests =
             let result = LyricsTools.applyCombinations replacements lines
 
             Expect.equal result [| [| "test"; "of"; "combination" |] |] "Correct syllables were combined"
+
+        testCase "Vocals are combined correctly"  <| fun _ ->
+            let v1 = Vocal(1234, 500, "some-")
+            let v2 = Vocal(1800, 200, "thing+")
+
+            let combined = LyricsTools.combineVocals v1 v2
+
+            Expect.equal combined.Time 1234 "Time is correct"
+            Expect.equal combined.Length 766 "Length is correct"
+            Expect.equal combined.Lyric "something+" "Vocal is correct"
+
+        testCase "Hyphenation can be matched correctly"  <| fun _ ->
+            let line = [| "test"; "of"; "com-"; "bi-"; "na-"; "tion" |]
+            let word = "combination"
+
+            let result = LyricsTools.matchHyphenation word line
+
+            Expect.equal result [| "com-"; "bi-"; "na-"; "tion" |] "Correct array was returned"
     ]

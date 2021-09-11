@@ -77,7 +77,7 @@ let toLines (vocals: MatchedSyllable seq) =
     |> List.map List.toArray
     |> List.toArray
 
-let matchHyp (oneWord: string) (manyWords: string array) =
+let matchHyphenation (oneWord: string) (manyWords: string array) =
     let startIndex =
         manyWords
         |> Array.tryFindIndex (fun x ->
@@ -122,7 +122,7 @@ let matchNonJapaneseHyphenation (matchedLines: MatchedSyllable array array) (jap
 
                 match words with
                 | Some words ->
-                    matchHyp word words
+                    matchHyphenation word words
                 | None ->
                     Array.singleton word
             | _ ->
