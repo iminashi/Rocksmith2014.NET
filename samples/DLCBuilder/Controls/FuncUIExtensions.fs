@@ -10,6 +10,14 @@ open Avalonia.Input
 open Avalonia.Interactivity
 open Avalonia.Media
 
+type PathIcon with
+    static member data<'t>(value: Geometry) : IAttr<'t> =
+        AttrBuilder<'t>.CreateProperty<Geometry>(PathIcon.DataProperty, value, ValueNone)
+        
+module PathIcon =
+    let create (attrs: IAttr<PathIcon> list): IView<PathIcon> =
+        ViewBuilder.Create<PathIcon>(attrs)
+
 type MenuItem with
     static member inputGesture<'t when 't :> MenuItem>(value: KeyGesture) : IAttr<'t> =
         AttrBuilder<'t>.CreateProperty<KeyGesture>(MenuItem.InputGestureProperty, value, ValueNone)
