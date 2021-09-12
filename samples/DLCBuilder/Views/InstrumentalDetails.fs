@@ -50,16 +50,10 @@ let private tuningChangeRepeatButton dispatch direction =
         if direction = Down then Grid.row 1
         RepeatButton.verticalAlignment VerticalAlignment.Stretch
         RepeatButton.content (
-            ViewBox.create [
-                Viewbox.verticalAlignment VerticalAlignment.Center
-                Viewbox.horizontalAlignment HorizontalAlignment.Center
-                Viewbox.width 12.
-                Viewbox.height 12.
-                Viewbox.child (
-                    PathIcon.create [
-                        PathIcon.data (if direction = Up then Media.Icons.chevronUp else Media.Icons.chevronDown)
-                    ] 
-                )
+            PathIcon.create [
+                PathIcon.width 12.
+                PathIcon.height 12.
+                PathIcon.data (if direction = Up then Media.Icons.chevronUp else Media.Icons.chevronDown)
             ])
         RepeatButton.onClick (fun _ ->
             ChangeTuningAll direction
