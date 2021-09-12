@@ -53,22 +53,25 @@
   <Style Selector="TextBlock.link:pointerover">
     <Setter Property="TextDecorations" Value="Underline"/>
   </Style>
+
+  <Style Selector="Button.borderless-btn">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="Button.borderless-btn:disabled">
+    <Setter Property="Opacity" Value="0.5"/>
+  </Style>
+  <Style Selector="Button.borderless-btn:disabled /template/ ContentPresenter">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="Button.borderless-btn /template/ ContentPresenter">
+    <Setter Property="CornerRadius" Value="0" />
+  </Style>
   
   <Style Selector="Button.icon-btn">
-    <Setter Property="Background" Value="Transparent"/>
     <Setter Property="Padding" Value="6, 3, 10, 6"/>
   </Style>
   <Style Selector="Button.exit-btn:pointerover /template/ ContentPresenter">
     <Setter Property="Background" Value="DarkRed"/>
-  </Style>
-  <Style Selector="Button.icon-btn:disabled">
-    <Setter Property="Opacity" Value="0.5"/>
-  </Style>
-  <Style Selector="Button.icon-btn:disabled /template/ ContentPresenter">
-    <Setter Property="Background" Value="Transparent"/>
-  </Style>
-  <Style Selector="Button.icon-btn /template/ ContentPresenter">
-    <Setter Property="CornerRadius" Value="0" />
   </Style>
   
   <Style Selector="TextBlock.issue-header">

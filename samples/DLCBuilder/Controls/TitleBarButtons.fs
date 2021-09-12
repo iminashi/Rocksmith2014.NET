@@ -14,7 +14,7 @@ let private createIcon data = Path(Data = data, Fill = Brushes.GhostWhite)
 let private baseButton onClick =
     Button()
     |> apply (fun b ->
-        b.Classes.Add "icon-btn"
+        b.Classes.AddRange [ "borderless-btn"; "icon-btn" ]
         b.SetValue(KeyboardNavigation.IsTabStopProperty, false) |> ignore
         b.Click.Add (fun _ -> onClick()))
 

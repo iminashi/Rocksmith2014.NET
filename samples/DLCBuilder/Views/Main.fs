@@ -134,7 +134,7 @@ let private arrangementPanel state dispatch =
                             // Add arrangement
                             Button.create [
                                 Grid.column 1
-                                Button.classes [ "icon-btn" ]
+                                Button.classes [ "icon-btn"; "borderless-btn" ]
                                 Button.content (
                                     Path.create [
                                         Path.data Icons.plus
@@ -149,7 +149,7 @@ let private arrangementPanel state dispatch =
                             // Validate arrangements
                             Button.create [
                                 Grid.column 2
-                                Button.classes [ "icon-btn" ]
+                                Button.classes [ "icon-btn"; "borderless-btn" ]
                                 Button.content (
                                     Path.create [
                                         Path.data Icons.checkList
@@ -437,7 +437,7 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
 
                             // Configuration shortcut button
                             Button.create [
-                                Button.classes [ "icon-btn" ]
+                                Button.classes [ "icon-btn"; "borderless-btn" ]
                                 Button.isEnabled noOverlayIsOpen
                                 DockPanel.dock Dock.Right
                                 KeyboardNavigation.isTabStop false

@@ -2,7 +2,6 @@
 namespace DLCBuilder
 
 open Avalonia.Controls
-open Avalonia.Controls.Shapes
 open Avalonia.FuncUI.Builder
 open Avalonia.FuncUI.Types
 open Avalonia.Media
@@ -12,11 +11,11 @@ type HelpButton() =
 
     let text = TextBlock(TextWrapping = TextWrapping.Wrap, MaxWidth = 400., FontSize = 16.)
     let flyOut = Flyout(ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway, Content = text)
-    let icon = Path(Data = Media.Icons.helpOutline, Fill = Brushes.Gray)
+    let icon = PathIcon(Data = Media.Icons.helpOutline, Foreground = Brushes.Gray)
     let button = Button(Content = icon, Flyout = flyOut)
 
     do
-        button.Classes.Add("icon-btn")
+        button.Classes.Add("borderless-btn")
         base.Content <- button
 
     member _.HelpText
