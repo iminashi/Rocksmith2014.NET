@@ -448,13 +448,12 @@ let addTone dispatch =
         Grid.column 1
         Menu.viewItems [
             MenuItem.create [
-                MenuItem.padding (6., 0., 10., 4.)
                 MenuItem.header (
-                    Path.create [
-                        Path.data Media.Icons.plus
-                        Path.fill Media.Brushes.White
+                    PathIcon.create [
+                        PathIcon.data Media.Icons.plus
+                        PathIcon.width 16.
+                        PathIcon.height 16.
                     ])
-
                 MenuItem.viewItems (addToneItems dispatch)
             ]
         ]

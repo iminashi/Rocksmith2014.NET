@@ -134,11 +134,13 @@ let private arrangementPanel state dispatch =
                             // Add arrangement
                             Button.create [
                                 Grid.column 1
-                                Button.classes [ "icon-btn"; "borderless-btn" ]
+                                Button.classes [ "borderless-btn" ]
+                                Button.padding (10., 8.)
                                 Button.content (
-                                    Path.create [
-                                        Path.data Icons.plus
-                                        Path.fill Brushes.White
+                                    PathIcon.create [
+                                        PathIcon.data Icons.plus
+                                        PathIcon.width 16.
+                                        PathIcon.height 16.
                                     ])
                                 Button.onClick (fun _ -> Dialog.AddArrangements |> ShowDialog |> dispatch)
                                 // 5 instrumentals, 2 vocals, 1 showlights
@@ -149,11 +151,11 @@ let private arrangementPanel state dispatch =
                             // Validate arrangements
                             Button.create [
                                 Grid.column 2
-                                Button.classes [ "icon-btn"; "borderless-btn" ]
+                                Button.classes [ "borderless-btn" ]
+                                Button.padding (10., 8.)
                                 Button.content (
-                                    Path.create [
-                                        Path.data Icons.checkList
-                                        Path.fill Brushes.White
+                                    PathIcon.create [
+                                        PathIcon.data Icons.checkList
                                     ])
                                 Button.onClick (fun _ -> dispatch CheckArrangements)
                                 Button.isEnabled (StateUtils.canRunValidation state)
