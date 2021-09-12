@@ -66,6 +66,14 @@
   <Style Selector="Button.borderless-btn /template/ ContentPresenter">
     <Setter Property="CornerRadius" Value="0" />
   </Style>
+
+  <Style Selector="RepeatButton.updown-btn">
+    <Setter Property="Background" Value="Black"/>
+  </Style>
+  <Style Selector="RepeatButton.updown-btn /template/ ContentPresenter">
+    <Setter Property="BorderBrush" Value="DarkGray" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
   
   <Style Selector="Button.icon-btn">
     <Setter Property="Padding" Value="6, 3, 10, 6"/>

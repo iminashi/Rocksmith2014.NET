@@ -48,6 +48,7 @@ let private tuningTextBox dispatch (tuning: int16 array) stringIndex =
 let private tuningChangeRepeatButton dispatch direction =
     RepeatButton.create [
         if direction = Down then Grid.row 1
+        RepeatButton.classes [ "updown-btn" ]
         RepeatButton.verticalAlignment VerticalAlignment.Stretch
         RepeatButton.content (
             PathIcon.create [
