@@ -65,7 +65,13 @@ let private toneTemplate dispatch isOfficial =
             StackPanel.onDoubleTapped (fun _ -> AddSelectedToneFromCollection |> dispatch)
             StackPanel.children [
                 Button.create [
-                    Button.content "+"
+                    Button.content (
+                        PathIcon.create [
+                            PathIcon.data Icons.plus
+                            PathIcon.width 14.
+                            PathIcon.height 14.
+                        ]
+                    )
                     Button.padding (10., 5.)
                     Button.verticalAlignment VerticalAlignment.Stretch
                     Button.onClick (fun _ -> AddSelectedToneFromCollection |> dispatch)
