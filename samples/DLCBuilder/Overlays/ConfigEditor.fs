@@ -372,7 +372,7 @@ let private buildConfig state dispatch =
             // Apply Improvements
             CheckBox.create [
                 CheckBox.verticalAlignment VerticalAlignment.Center
-                CheckBox.margin (8., 2.)
+                CheckBox.margin (8., 2., 4., 2.)
                 CheckBox.content (translate "ApplyImprovements")
                 CheckBox.isChecked state.Config.ApplyImprovements
                 CheckBox.onChecked (fun _ -> true |> SetApplyImprovements |> EditConfig |> dispatch)

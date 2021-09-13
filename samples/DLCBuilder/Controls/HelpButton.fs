@@ -1,6 +1,7 @@
 // fsharplint:disable MemberNames
 namespace DLCBuilder
 
+open Avalonia
 open Avalonia.Controls
 open Avalonia.FuncUI.Builder
 open Avalonia.FuncUI.Types
@@ -12,7 +13,7 @@ type HelpButton() =
     let text = TextBlock(TextWrapping = TextWrapping.Wrap, MaxWidth = 400., FontSize = 16.)
     let flyOut = Flyout(ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway, Content = text)
     let icon = PathIcon(Data = Media.Icons.helpOutline, Foreground = Brushes.Gray)
-    let button = Button(Content = icon, Flyout = flyOut)
+    let button = Button(Content = icon, Flyout = flyOut, Padding = Thickness(8., 4.))
 
     do
         button.Classes.Add("borderless-btn")
