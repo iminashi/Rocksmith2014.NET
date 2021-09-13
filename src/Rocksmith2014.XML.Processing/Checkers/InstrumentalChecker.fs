@@ -35,7 +35,7 @@ let private getNoguitarSections (arrangement: InstrumentalArrangement) = [|
                 arrangement.MetaData.SongLength
             else
                 sections.[i].Time
-        if sect.Name ="noguitar" then
+        if String.startsWith "noguitar" sect.Name then
             { StartTime = sect.Time; EndTime = endTime } |]
 
 let private isInsideNoguitarSection noGuitarSections (time: int) =
