@@ -20,7 +20,7 @@
   "PsarcPackTargetFileDialogTitle": "Valitse luotava PSARC tiedosto",
   "AudioFileConversionDialogTitle": "Valitse muunnettava äänitiedostot",
   "WemFilesDialogTitle": "Valitse Wwise äänitiedostot",
-  "PsarcImportTargetFolderDialogTitle": "Valitse kansio, jonne projekti luodaan",
+  "PsarcImportTargetFolderDialogTitle": "Valitse juurikansio, jonne projektin kansio luodaan",
   "WwiseConsoleDialogTitle": "Valitse Wwise 2019/2021 konsolisovellus",
   "ExportToneDialogTitle": "Vie soundi nimellä",
   "SaveProjectAsDialogTitle": "Tallenna projekti nimellä",

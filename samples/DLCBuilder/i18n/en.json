@@ -20,7 +20,7 @@
   "PsarcPackTargetFileDialogTitle": "Select the Target PSARC File",
   "AudioFileConversionDialogTitle": "Select Audio File(s) to Convert",
   "WemFilesDialogTitle": "Select Wwise Audio Files",
-  "PsarcImportTargetFolderDialogTitle": "Select a Folder where the Project will be Created",
+  "PsarcImportTargetFolderDialogTitle": "Select the Directory where the Project Folder will be Created",
   "WwiseConsoleDialogTitle": "Select the Wwise 2019/2021 console application",
   "ExportToneDialogTitle": "Export Tone As",
   "SaveProjectAsDialogTitle": "Save Project As",

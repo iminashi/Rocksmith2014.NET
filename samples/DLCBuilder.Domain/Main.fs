@@ -167,6 +167,8 @@ let update (msg: Msg) (state: State) =
                     currentProgress / maxProgress * 100.
                 >> (ProgressReporters.PsarcImport :> IProgress<float>).Report
 
+            let targetFolder = Path.Combine(targetFolder, Path.GetFileNameWithoutExtension(psarcFile))
+            Directory.CreateDirectory targetFolder |> ignore
             let! project, fileName = PsarcImporter.import progress psarcFile targetFolder
 
             match config.ConvertAudio with
