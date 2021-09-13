@@ -31,5 +31,5 @@ let check hasCustomFont (vocals: ResizeArray<Vocal>) =
       yield! findLongLyrics vocals
 
       // Check for characters not included in the default font
-      if not <| hasCustomFont then
+      if not hasCustomFont then
          yield! findInvalidCharLyric vocals |> Option.toList ]
