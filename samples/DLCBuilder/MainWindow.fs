@@ -4,6 +4,7 @@ open Avalonia
 open Avalonia.Controls
 open Avalonia.FuncUI.Components.Hosts
 open Avalonia.FuncUI.Elmish
+open Avalonia.Platform
 open Elmish
 open Microsoft.Extensions.FileProviders
 open System
@@ -11,7 +12,36 @@ open System.IO
 open System.Reactive.Linq
 open System.Reactive.Subjects
 open System.Reflection
+open System.Text.Json
 open ToneCollection
+
+[<CLIMutable>]
+type WindowStatus =
+    { X: int
+      Y: int
+      Width: float
+      Height: float
+      State: WindowState }
+
+    static member SavePath = Path.Combine(Configuration.appDataFolder, "window_state.json")
+
+    static member TryLoad() =
+        try
+            if File.Exists WindowStatus.SavePath then
+                File.ReadAllText WindowStatus.SavePath
+                |> JsonSerializer.Deserialize<WindowStatus>
+                |> Some
+            else
+                None
+        with _ ->
+            None
+
+    static member Save(state: WindowStatus) =
+        try
+            let json = JsonSerializer.Serialize(state)
+            File.WriteAllText(WindowStatus.SavePath, json)
+        with _ ->
+            ()
 
 type MainWindow(commandLineArgs: string array) as this =
     inherit HostWindow()
@@ -27,19 +57,31 @@ type MainWindow(commandLineArgs: string array) as this =
             newState.OpenProjectFile.IsSome &&
             newState.Project <> oldState.Project
 
+    let mutable nonMaximizedPosition = this.Position
+    let mutable nonMaximizedSize = Size(this.Width, this.Height)
+
     do
+        this.GetObservable(Window.WidthProperty).Add(fun w ->
+            if this.WindowState <> WindowState.Maximized then
+                nonMaximizedSize <- nonMaximizedSize.WithWidth w)
+        this.GetObservable(Window.HeightProperty).Add(fun h ->
+            if this.WindowState <> WindowState.Maximized then
+                nonMaximizedSize <- nonMaximizedSize.WithHeight h)
+        this.PositionChanged.Add(fun args ->
+            if this.WindowState <> WindowState.Maximized then
+                nonMaximizedPosition <- args.Point)
+
         let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
         use iconData = embeddedProvider.GetFileInfo("Assets/icon.ico").CreateReadStream()
+
         base.Icon <- WindowIcon(iconData)
         base.Title <- "Rocksmith 2014 DLC Builder"
-        //base.TransparencyLevelHint <- WindowTransparencyLevel.AcrylicBlur
-        //base.Background <- Brushes.Transparent
-        //base.ExtendClientAreaChromeHints <- ExtendClientAreaChromeHints.NoChrome
 
         let customTitleBar, minHeight =
-            if OperatingSystem.IsWindowsVersionAtLeast(8) then
+            if OperatingSystem.IsWindowsVersionAtLeast(10) then
                 base.ExtendClientAreaToDecorationsHint <- true
-                base.ExtendClientAreaTitleBarHeightHint <- 0.0
+                base.ExtendClientAreaChromeHints <- ExtendClientAreaChromeHints.NoChrome
+                base.ExtendClientAreaTitleBarHeightHint <- -1.
 
                 this.GetObservable(Window.WindowStateProperty)
                     .Add(fun state ->
@@ -52,14 +94,31 @@ type MainWindow(commandLineArgs: string array) as this =
             else
                 None, 670.0
 
-        base.Width <- 1150.0
         base.MinWidth <- 970.0
         base.MinHeight <- minHeight
+
+        match WindowStatus.TryLoad() with
+        | None ->
+            base.WindowStartupLocation <- WindowStartupLocation.CenterScreen
+            base.Width <- 1150.0
+        | Some status ->
+            base.Width <- status.Width
+            base.Height <- status.Height
+            base.Position <- PixelPoint(status.X, status.Y)
+            base.WindowState <- status.State
 
         let hotKeysSub _initialModel = Cmd.ofSub (HotKeys.handleEvent >> this.KeyDown.Add)
 
         let programClosingSub _ =
-            Cmd.ofSub <| fun dispatch -> this.Closing.Add(fun _ -> dispatch ProgramClosing)
+            Cmd.ofSub <| fun dispatch -> this.Closing.Add(fun _ ->
+                { X = nonMaximizedPosition.X
+                  Y = nonMaximizedPosition.Y
+                  Width = nonMaximizedSize.Width
+                  Height = nonMaximizedSize.Height
+                  State = if this.WindowState = WindowState.Maximized then WindowState.Maximized else WindowState.Normal }
+                |> WindowStatus.Save
+
+                dispatch ProgramClosing)
 
         let autoSaveSub _ =
             let sub dispatch =
