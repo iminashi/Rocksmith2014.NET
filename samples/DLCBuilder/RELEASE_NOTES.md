@@ -1,3 +1,11 @@
+## 0.7.0 (Released 2021-09-xx)
+
+- The window position, size and maximized state is now preserved when closing the program.
+- A folder is now created when a PSARC is imported.
+- Minor improvements to the Japanese lyrics tool.
+- Added some instructions on how to use the Japanese lyrics tool to the ReadMe.
+- Minor UI improvements.
+
 ## 0.6.6 (Released 2021-09-09)
 
 - Fixed import/unpack of some PSARCs created with the Toolkit failing.
