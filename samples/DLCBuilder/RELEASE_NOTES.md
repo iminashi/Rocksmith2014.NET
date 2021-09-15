@@ -1,7 +1,7 @@
 ## 0.7.0 (Released 2021-09-xx)
 
 - The window position, size and maximized state is now preserved when closing the program.
-- A folder is now created when a PSARC is imported.
+- A folder with the package name is now created when a PSARC is imported.
 - Improved validation for package filenames.
 - Minor improvements to the Japanese lyrics tool.
 - Added some instructions on how to use the Japanese lyrics tool to the ReadMe.

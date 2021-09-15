@@ -3,7 +3,6 @@ module DLCBuilder.Views.InstrumentalDetails
 open Avalonia
 open Avalonia.Controls
 open Avalonia.Controls.Primitives
-open Avalonia.Controls.Shapes
 open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
 open Avalonia.Input
