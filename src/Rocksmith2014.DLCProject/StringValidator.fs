@@ -1,8 +1,6 @@
 module Rocksmith2014.DLCProject.StringValidator
 
-open System
 open System.Globalization
-open System.IO
 open System.Text
 open System.Text.RegularExpressions
 
