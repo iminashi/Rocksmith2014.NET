@@ -11,16 +11,16 @@ type private NgSection = { StartTime: int; EndTime: int }
 
 /// Checks for unexpected crowd events between the intro applause start and end events.
 let checkCrowdEventPlacement (arrangement: InstrumentalArrangement) =
-    let introApplauseStart = arrangement.Events.Find(fun e -> e.Code = "E3")
-    let applauseEnd = arrangement.Events.Find(fun e -> e.Code = "E13")
+    let introApplauseStart = arrangement.Events |> ResizeArray.tryFind (fun e -> e.Code = "E3")
+    let applauseEnd = arrangement.Events |> ResizeArray.tryFind (fun e -> e.Code = "E13")
     let crowdEventRegex = Regex("e[0-2]|E3|D3$")
 
     match introApplauseStart, applauseEnd with
-    | null, _ ->
+    | None, _ ->
         List.empty
-    | start, null ->
+    | Some start, None ->
         [ issue ApplauseEventWithoutEnd start.Time ]
-    | start, end' ->
+    | Some start, Some end' ->
         arrangement.Events
         |> Seq.filter (fun ev -> ev.Time > start.Time && ev.Time < end'.Time && crowdEventRegex.IsMatch ev.Code)
         |> Seq.map (fun ev -> issue (EventBetweenIntroApplause ev.Code) ev.Time)
