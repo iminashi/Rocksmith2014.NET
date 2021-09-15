@@ -41,9 +41,9 @@ let toneName (input: string) =
 
 /// Validates a filename without the extension.
 let fileName (input: string) =
-    // Filter out invalid characters
-    let filtered = Regex.Replace(input, $"[,.&'\"<>|:*?\\\\/]", "")
+    // Filter out most non-alphanumeric characters
+    let noDiacritics = removeDiacritics input
+    let filtered = Regex.Replace(noDiacritics, $"[^ 0-9a-zA-Z_-]", "")
 
     // Replace whitespace with one dash
     Regex.Replace(filtered, "\s+", "-")
-    |> removeDiacritics
