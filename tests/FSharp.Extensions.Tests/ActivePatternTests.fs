@@ -38,4 +38,20 @@ let tests =
                 | _ -> false
 
             Expect.isFalse result "EndsWith matched to false" }
+
+        test "StartsWith ignores case" {
+            let result =
+                match testString with
+                | StartsWith "some" -> true
+                | _ -> false
+
+            Expect.isTrue result "StartsWith matched to true" }
+
+        test "StartsWith can fail to match" {
+            let result =
+                match testString with
+                | StartsWith "xyz" -> true
+                | _ -> false
+
+            Expect.isFalse result "StartsWith matched to false" }
     ]
