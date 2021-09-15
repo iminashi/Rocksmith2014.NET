@@ -1,7 +1,9 @@
-﻿module Rocksmith2014.DLCProject.StringValidator
+module Rocksmith2014.DLCProject.StringValidator
 
 open System
+open System.Globalization
 open System.IO
+open System.Text
 open System.Text.RegularExpressions
 
 /// All of the characters included in the fonts used in learn-a-song and guitarcade.
@@ -28,11 +30,20 @@ let removeArticles (input: string) =
     else
         input
 
+/// Removes diacritics from the string.
+let removeDiacritics (input: string) =
+    input.Normalize(NormalizationForm.FormD)
+    |> String.filter (fun c -> CharUnicodeInfo.GetUnicodeCategory(c) <> UnicodeCategory.NonSpacingMark)
+    |> fun x -> x.Normalize(NormalizationForm.FormC)
+
 /// Validates a tone name.
 let toneName (input: string) =
     input.Replace("\"", "")
 
-/// Validates a filename.
+/// Validates a filename without the extension.
 let fileName (input: string) =
-    let i = input.Replace(' ', '-')
-    Regex.Replace(i, "[,." + String.Concat(Path.GetInvalidFileNameChars()) + "]", "")
+    // Escape the backslash for the regular expression
+    let invalidChars = String(Path.GetInvalidFileNameChars()).Replace(@"\", @"\\")
+
+    Regex.Replace(input.Replace(' ', '-'), $"[,.{invalidChars}]", "")
+    |> removeDiacritics
