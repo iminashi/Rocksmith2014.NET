@@ -21,14 +21,13 @@ let field (input: string) =
 let sortField (input: string) =
     Regex.Replace(input, "^[^0-9a-zA-Z]*", "")
 
-/// Removes English articles (a, the) from the beginning of the input string.
+/// Removes English articles (a, an, the) from the beginning of the input string.
 let removeArticles (input: string) =
-    if String.startsWith "the " input then
-        input.Substring("the ".Length)
-    elif String.startsWith "a " input then
-        input.Substring("a ".Length)
-    else
-        input
+    match input with
+    | StartsWith "the " -> input.Substring("the ".Length)
+    | StartsWith "a "   -> input.Substring("a ".Length)
+    | StartsWith "an "  -> input.Substring("an ".Length)
+    | _ -> input
 
 /// Removes diacritics from the string.
 let removeDiacritics (input: string) =
@@ -45,5 +44,9 @@ let fileName (input: string) =
     // Escape the backslash for the regular expression
     let invalidChars = String(Path.GetInvalidFileNameChars()).Replace(@"\", @"\\")
 
-    Regex.Replace(input.Replace(' ', '-'), $"[,.{invalidChars}]", "")
+    // Filter out invalid characters
+    let filtered = Regex.Replace(input, $"[,.&'{invalidChars}]", "")
+
+    // Replace whitespace with one dash
+    Regex.Replace(filtered, "\s+", "-")
     |> removeDiacritics

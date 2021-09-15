@@ -27,7 +27,21 @@ let stringValidator =
             Expect.equal str "Motorhead-feat-Motley-Crue" "Diacritics were removed" }
 
         test "Invalid characters are removed from filenames" {
-            let str = StringValidator.fileName @"A/B*C\D:E"
+            let str = StringValidator.fileName """A/"B"*C\D:E"""
 
             Expect.equal str "ABCDE" "Invalid characters were removed" }
+
+        test "Ampersand and single quotes are removed from filenames" {
+            let str = StringValidator.fileName "'A' & B"
+
+            Expect.equal str "A-B" "Ampersand and single quotes were removed" }
+
+        test "English articles are removed correctly" {
+            let the = StringValidator.removeArticles "The The"
+            let a = StringValidator.removeArticles "A Name"
+            let an = StringValidator.removeArticles "An Artist"
+
+            Expect.equal the "The" "'The' was removed"
+            Expect.equal a "Name" "'A' was removed"
+            Expect.equal an "Artist" "'An' was removed" }
     ]
