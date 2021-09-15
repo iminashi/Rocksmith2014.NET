@@ -41,11 +41,8 @@ let toneName (input: string) =
 
 /// Validates a filename without the extension.
 let fileName (input: string) =
-    // Escape the backslash for the regular expression
-    let invalidChars = String(Path.GetInvalidFileNameChars()).Replace(@"\", @"\\")
-
     // Filter out invalid characters
-    let filtered = Regex.Replace(input, $"[,.&'{invalidChars}]", "")
+    let filtered = Regex.Replace(input, $"[,.&'\"<>|:*?\\\\/]", "")
 
     // Replace whitespace with one dash
     Regex.Replace(filtered, "\s+", "-")
