@@ -114,7 +114,9 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         |> Array.choose (fun (_, attr) -> Option.ofObj attr.Tones)
         |> Array.collect id
         |> Array.distinctBy (fun x -> x.Key)
+        |> Array.filter (fun x -> notNull x.GearList.Amp)
         |> Array.toList
+        |> List.map Tone.fromDto
 
     let metaData =
         fileAttributes
@@ -149,7 +151,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
           AudioPreviewStartTime = None
           PitchShift = None
           Arrangements = arrangements
-          Tones = tones |> List.map Tone.fromDto }
+          Tones = tones }
 
     let projectFile =
         sprintf "%s_%s" project.ArtistName.SortValue project.Title.SortValue

@@ -48,6 +48,7 @@ let importTonesFromPSARC (psarcPath: string) = async {
         |> Array.choose (Option.bind (fun a -> Option.ofObj a.Tones))
         |> Array.concat
         |> Array.distinctBy (fun x -> x.Key)
+        |> Array.filter (fun x -> notNull x.GearList.Amp)
         |> Array.map Tone.fromDto }
 
 /// Creates the path for the preview audio from the main audio path.

@@ -1,8 +1,6 @@
 [<AutoOpen>]
 module ActivePatterns
 
-open System
-
 let (|Contains|_|) (substr: string) (str: string) =
     if String.containsIgnoreCase substr str then
         Some ()
