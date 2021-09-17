@@ -5,11 +5,11 @@ open System
 
 [<CustomEquality; NoComparison>]
 type ChordNotes =
-    { Mask : NoteMask array
-      BendData : BendData32 array
-      SlideTo : int8 array
-      SlideUnpitchTo : int8 array
-      Vibrato : int16 array }
+    { Mask: NoteMask array
+      BendData: BendData32 array
+      SlideTo: int8 array
+      SlideUnpitchTo: int8 array
+      Vibrato: int16 array }
 
     interface IBinaryWritable with
         member this.Write(writer) =

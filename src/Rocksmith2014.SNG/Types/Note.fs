@@ -4,37 +4,37 @@ open Rocksmith2014.Common
 open BinaryHelpers
 
 type Note =
-    { Mask : NoteMask
-      Flags : uint32
-      Hash : uint32
-      Time : float32
-      StringIndex : int8
-      Fret : int8
-      AnchorFret : int8
-      AnchorWidth : int8
-      ChordId : int32
-      ChordNotesId : int32
-      PhraseId : int32
-      PhraseIterationId : int32
-      FingerPrintId : int16 array
-      NextIterNote : int16
-      PrevIterNote : int16
-      ParentPrevNote : int16
-      SlideTo : int8
-      SlideUnpitchTo : int8
-      LeftHand : int8
-      Tap : int8
-      PickDirection : int8
-      Slap : int8
-      Pluck : int8
-      Vibrato : int16
-      Sustain : float32
-      MaxBend : float32
-      BendData : BendValue array }
+    { Mask: NoteMask
+      Flags: uint32
+      Hash: uint32
+      Time: float32
+      StringIndex: int8
+      Fret: int8
+      AnchorFret: int8
+      AnchorWidth: int8
+      ChordId: int32
+      ChordNotesId: int32
+      PhraseId: int32
+      PhraseIterationId: int32
+      FingerPrintId: int16 array
+      NextIterNote: int16
+      PrevIterNote: int16
+      ParentPrevNote: int16
+      SlideTo: int8
+      SlideUnpitchTo: int8
+      LeftHand: int8
+      Tap: int8
+      PickDirection: int8
+      Slap: int8
+      Pluck: int8
+      Vibrato: int16
+      Sustain: float32
+      MaxBend: float32
+      BendData: BendValue array }
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.WriteUInt32 (LanguagePrimitives.EnumToValue(this.Mask))
+            writer.WriteUInt32(LanguagePrimitives.EnumToValue(this.Mask))
             writer.WriteUInt32 this.Flags
             writer.WriteUInt32 this.Hash
             writer.WriteSingle this.Time

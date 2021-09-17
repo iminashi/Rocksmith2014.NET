@@ -1,12 +1,12 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
 open System.Runtime.CompilerServices
 
 [<IsReadOnly; Struct>]
 type AnchorExtension =
-    { BeatTime : float32
-      FretId : int8 }
+    { BeatTime: float32
+      FretId: int8 }
       // Unknown values:
       // (int32), always zero
       // (int16), always zero
@@ -26,7 +26,8 @@ type AnchorExtension =
         let fret = reader.ReadInt8()
 
         // Read unknown values
-        reader.ReadInt32() |> ignore; reader.ReadInt16() |> ignore; reader.ReadInt8() |> ignore
+        reader.ReadInt32() |> ignore
+        reader.ReadInt16() |> ignore
+        reader.ReadInt8() |> ignore
 
-        { BeatTime = time
-          FretId = fret }
+        { BeatTime = time; FretId = fret }

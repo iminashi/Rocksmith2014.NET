@@ -5,8 +5,8 @@ open System
 
 [<CustomEquality; NoComparison>]
 type BendData32 =
-    { BendValues : BendValue array
-      UsedCount : int32 }
+    { BendValues: BendValue array
+      UsedCount: int32 }
 
     interface IBinaryWritable with
         member this.Write(writer) =
@@ -33,8 +33,11 @@ type BendData32 =
             false
 
     override this.GetHashCode () =
-        if this.UsedCount = 0
-        then 0
-        else this.BendValues.GetHashCode()
+        if this.UsedCount = 0 then
+            0
+        else
+            this.BendValues.GetHashCode()
 
-    static member Empty = { BendValues = Array.replicate 32 BendValue.Empty; UsedCount = 0 }
+    static member Empty =
+        { BendValues = Array.replicate 32 BendValue.Empty
+          UsedCount = 0 }

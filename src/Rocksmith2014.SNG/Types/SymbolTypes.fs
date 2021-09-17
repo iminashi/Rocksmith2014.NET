@@ -1,17 +1,17 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
 open BinaryHelpers
 
-type SymbolsHeader = 
-    { ID : int32
-      Unk2 : int32 // Always zero
-      Unk3 : int32 // Always zero
-      Unk4 : int32 // Always zero
-      Unk5 : int32 // Always zero
-      Unk6 : int32 // Always zero
-      Unk7 : int32 // Always zero
-      Unk8 : int32 } // Always 2
+type SymbolsHeader =
+    { ID: int32
+      Unk2: int32 // Always zero
+      Unk3: int32 // Always zero
+      Unk4: int32 // Always zero
+      Unk5: int32 // Always zero
+      Unk6: int32 // Always zero
+      Unk7: int32 // Always zero
+      Unk8: int32 } // Always 2
 
     interface IBinaryWritable with
         member this.Write(writer) =
@@ -37,11 +37,11 @@ type SymbolsHeader =
     static member Default = { ID = 0; Unk2 = 0; Unk3 = 0; Unk4 = 0; Unk5 = 0; Unk6 = 0; Unk7 = 0; Unk8 = 2 }
 
 type SymbolsTexture =
-    { Font : string
-      FontPathLength : int32
+    { Font: string
+      FontPathLength: int32
       // Unknown value (int32): always zero
-      Width : int32
-      Height : int32 }
+      Width: int32
+      Height: int32 }
 
     interface IBinaryWritable with
         member this.Write(writer) =
@@ -61,28 +61,28 @@ type SymbolsTexture =
 
 [<Struct>]
 type Rect =
-    { yMin : float32
-      xMin : float32
-      yMax : float32
-      xMax : float32 }
+    { YMin: float32
+      XMin: float32
+      YMax: float32
+      XMax: float32 }
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.WriteSingle this.yMin
-            writer.WriteSingle this.xMin
-            writer.WriteSingle this.yMax
-            writer.WriteSingle this.xMax
+            writer.WriteSingle this.YMin
+            writer.WriteSingle this.XMin
+            writer.WriteSingle this.YMax
+            writer.WriteSingle this.XMax
 
     static member Read(reader: IBinaryReader) =
-        { yMin = reader.ReadSingle()
-          xMin = reader.ReadSingle()
-          yMax = reader.ReadSingle()
-          xMax = reader.ReadSingle() }
+        { YMin = reader.ReadSingle()
+          XMin = reader.ReadSingle()
+          YMax = reader.ReadSingle()
+          XMax = reader.ReadSingle() }
 
 type SymbolDefinition =
-    { Symbol : string
-      Outer : Rect
-      Inner : Rect }
+    { Symbol: string
+      Outer: Rect
+      Inner: Rect }
 
     interface IBinaryWritable with
         member this.Write(writer) =

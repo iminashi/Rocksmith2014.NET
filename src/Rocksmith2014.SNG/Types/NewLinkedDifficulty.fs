@@ -1,13 +1,13 @@
 namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
-open BinaryHelpers
 open System.Runtime.CompilerServices
+open BinaryHelpers
 
 [<IsReadOnly; Struct>]
 type NewLinkedDifficulty =
-    { LevelBreak : int32
-      NLDPhrases : int32 array }
+    { LevelBreak: int32
+      NLDPhrases: int32 array }
 
     interface IBinaryWritable with
         member this.Write(writer) =

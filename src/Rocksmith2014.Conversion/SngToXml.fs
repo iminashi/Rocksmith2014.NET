@@ -64,14 +64,14 @@ let convertVocal (sngVocal: Vocal) =
 let convertSymbolDefinition (sngSymbol: SymbolDefinition) =
     XML.GlyphDefinition(
         Symbol = sngSymbol.Symbol,
-        OuterYMin = sngSymbol.Outer.yMin,
-        OuterYMax = sngSymbol.Outer.yMax,
-        OuterXMin = sngSymbol.Outer.xMin,
-        OuterXMax = sngSymbol.Outer.xMax,
-        InnerYMin = sngSymbol.Inner.yMin,
-        InnerYMax = sngSymbol.Inner.yMax,
-        InnerXMin = sngSymbol.Inner.xMin,
-        InnerXMax = sngSymbol.Inner.xMax)
+        OuterYMin = sngSymbol.Outer.YMin,
+        OuterYMax = sngSymbol.Outer.YMax,
+        OuterXMin = sngSymbol.Outer.XMin,
+        OuterXMax = sngSymbol.Outer.XMax,
+        InnerYMin = sngSymbol.Inner.YMin,
+        InnerYMax = sngSymbol.Inner.YMax,
+        InnerXMin = sngSymbol.Inner.XMin,
+        InnerXMax = sngSymbol.Inner.XMax)
 
 /// Converts an SNG NewLinkedDifficulty into an XML NewLinkedDifficulty.
 let convertNLD (sngNld: NewLinkedDifficulty) =

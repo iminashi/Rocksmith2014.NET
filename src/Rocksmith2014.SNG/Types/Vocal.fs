@@ -1,13 +1,13 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
 open BinaryHelpers
 
 type Vocal =
-    { Time : float32
-      Note : int32
-      Length : float32
-      Lyric : string }
+    { Time: float32
+      Note: int32
+      Length: float32
+      Lyric: string }
 
     interface IBinaryWritable with
         member this.Write(writer) =

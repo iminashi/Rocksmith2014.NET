@@ -1,12 +1,12 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
 open BinaryHelpers
 
 /// Leftover from RS1, no equivalent in RS2014 XML.
-type Action = 
-    { Time : float32
-      ActionName : string }
+type Action =
+    { Time: float32
+      ActionName: string }
 
     interface IBinaryWritable with
         member this.Write(writer) =

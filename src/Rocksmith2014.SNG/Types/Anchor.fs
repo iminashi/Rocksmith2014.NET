@@ -1,16 +1,16 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
 
 type Anchor =
-    { StartTime : float32
-      EndTime : float32
-      FirstNoteTime : float32
-      LastNoteTime : float32
-      FretId : int8
+    { StartTime: float32
+      EndTime: float32
+      FirstNoteTime: float32
+      LastNoteTime: float32
+      FretId: int8
       // 3 bytes padding
-      Width : int32
-      PhraseIterationId : int32 }
+      Width: int32
+      PhraseIterationId: int32 }
 
     interface IBinaryWritable with
         member this.Write(writer) =
@@ -33,5 +33,5 @@ type Anchor =
           FirstNoteTime = reader.ReadSingle()
           LastNoteTime = reader.ReadSingle()
           FretId = reader.ReadInt8()
-          Width = (readPadding(); reader.ReadInt32())
+          Width = (readPadding (); reader.ReadInt32())
           PhraseIterationId = reader.ReadInt32() }

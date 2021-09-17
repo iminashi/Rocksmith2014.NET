@@ -59,8 +59,8 @@ let roundTripTests =
         testCase "Symbol Definition" <| fun _ ->
             let def =
               { Symbol = "金"
-                Outer = { yMin = 1.888f; xMin = 1.015f; yMax = 1.99f; xMax = 1.1f }
-                Inner = { yMin = 0.888f; xMin = 0.015f; yMax = 0.99f; xMax = 0.1f } }
+                Outer = { YMin = 1.888f; XMin = 1.015f; YMax = 1.99f; XMax = 1.1f }
+                Inner = { YMin = 0.888f; XMin = 0.015f; YMax = 0.99f; XMax = 0.1f } }
             
             testEqual SymbolDefinition.Read def
         

@@ -4,15 +4,15 @@ open Rocksmith2014.Common
 open BinaryHelpers
 
 type Level =
-    { Difficulty : int32
-      Anchors : Anchor array
-      AnchorExtensions : AnchorExtension array
-      HandShapes : FingerPrint array
-      Arpeggios : FingerPrint array
-      Notes : Note array
-      AverageNotesPerIteration : float32 array
-      NotesInPhraseIterationsExclIgnored : int32 array
-      NotesInPhraseIterationsAll : int32 array }
+    { Difficulty: int32
+      Anchors: Anchor array
+      AnchorExtensions: AnchorExtension array
+      HandShapes: FingerPrint array
+      Arpeggios: FingerPrint array
+      Notes: Note array
+      AverageNotesPerIteration: float32 array
+      NotesInPhraseIterationsExclIgnored: int32 array
+      NotesInPhraseIterationsAll: int32 array }
 
     interface IBinaryWritable with
         member this.Write(writer) =

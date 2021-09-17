@@ -174,20 +174,20 @@ let sngToXmlConversionTests =
         testCase "Symbol Definition" <| fun _ ->
             let sd =
                 { Symbol = "轟"
-                  Outer = { yMin = 0.12f; yMax = 0.77f; xMin = 0.05f; xMax = 1.7f }
-                  Inner = { yMin = 4.7f; yMax = 1.11f; xMin = 55.5f; xMax = 2.8f } }
+                  Outer = { YMin = 0.12f; YMax = 0.77f; XMin = 0.05f; XMax = 1.7f }
+                  Inner = { YMin = 4.7f; YMax = 1.11f; XMin = 55.5f; XMax = 2.8f } }
             
             let xml = SngToXml.convertSymbolDefinition sd
             
             Expect.equal xml.Symbol sd.Symbol "Symbol is same"
-            Expect.equal xml.OuterYMin sd.Outer.yMin "Outer Y Min is same"
-            Expect.equal xml.OuterYMax sd.Outer.yMax "Outer Y Max is same"
-            Expect.equal xml.OuterXMin sd.Outer.xMin "Outer X Min is same"
-            Expect.equal xml.OuterXMax sd.Outer.xMax "Outer X Max is same"
-            Expect.equal xml.InnerYMin sd.Inner.yMin "Inner Y Min is same"
-            Expect.equal xml.InnerYMax sd.Inner.yMax "Inner Y Max is same"
-            Expect.equal xml.InnerXMin sd.Inner.xMin "Inner X Min is same"
-            Expect.equal xml.InnerXMax sd.Inner.xMax "Inner X Max is same"
+            Expect.equal xml.OuterYMin sd.Outer.YMin "Outer Y Min is same"
+            Expect.equal xml.OuterYMax sd.Outer.YMax "Outer Y Max is same"
+            Expect.equal xml.OuterXMin sd.Outer.XMin "Outer X Min is same"
+            Expect.equal xml.OuterXMax sd.Outer.XMax "Outer X Max is same"
+            Expect.equal xml.InnerYMin sd.Inner.YMin "Inner Y Min is same"
+            Expect.equal xml.InnerYMax sd.Inner.YMax "Inner Y Max is same"
+            Expect.equal xml.InnerXMin sd.Inner.XMin "Inner X Min is same"
+            Expect.equal xml.InnerXMax sd.Inner.XMax "Inner X Max is same"
           
         testCase "Phrase Iteration" <| fun _ ->
             let pi =

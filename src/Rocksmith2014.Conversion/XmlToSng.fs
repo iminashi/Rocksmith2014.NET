@@ -66,10 +66,10 @@ let convertVocal (xmlVocal: XML.Vocal) =
 /// Converts an XML GlyphDefinition into an SNG SymbolDefinition.
 let convertSymbolDefinition (xmlGlyphDef: XML.GlyphDefinition) =
     { Symbol = xmlGlyphDef.Symbol
-      Outer = { xMin = xmlGlyphDef.OuterXMin; xMax = xmlGlyphDef.OuterXMax
-                yMin = xmlGlyphDef.OuterYMin; yMax = xmlGlyphDef.OuterYMax }
-      Inner = { xMin = xmlGlyphDef.InnerXMin; xMax = xmlGlyphDef.InnerXMax
-                yMin = xmlGlyphDef.InnerYMin; yMax = xmlGlyphDef.InnerYMax } }
+      Outer = { XMin = xmlGlyphDef.OuterXMin; XMax = xmlGlyphDef.OuterXMax
+                YMin = xmlGlyphDef.OuterYMin; YMax = xmlGlyphDef.OuterYMax }
+      Inner = { XMin = xmlGlyphDef.InnerXMin; XMax = xmlGlyphDef.InnerXMax
+                YMin = xmlGlyphDef.InnerYMin; YMax = xmlGlyphDef.InnerYMax } }
 
 /// Converts an XML Phrase into an SNG Phrase.
 let convertPhrase (xml: XML.InstrumentalArrangement) phraseId (xmlPhrase: XML.Phrase) =

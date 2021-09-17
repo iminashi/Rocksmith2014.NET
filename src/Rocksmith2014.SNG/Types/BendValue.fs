@@ -1,12 +1,12 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
 open System.Runtime.CompilerServices
 
 [<IsReadOnly; Struct>]
 type BendValue =
-    { Time : float32
-      Step : float32 }
+    { Time: float32
+      Step: float32 }
       // Unknown values:
       // (int16), always zero
       // (int8), always zero

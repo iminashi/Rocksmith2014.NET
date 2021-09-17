@@ -4,13 +4,13 @@ open Rocksmith2014.Common
 open BinaryHelpers
 
 type Section =
-    { Name : string
-      Number : int32
-      StartTime : float32
-      EndTime : float32
-      StartPhraseIterationId : int32
-      EndPhraseIterationId : int32
-      StringMask : int8 array }
+    { Name: string
+      Number: int32
+      StartTime: float32
+      EndTime: float32
+      StartPhraseIterationId: int32
+      EndPhraseIterationId: int32
+      StringMask: int8 array }
 
     interface IBinaryWritable with
         member this.Write(writer) =

@@ -1,15 +1,15 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
 
 /// Leftover from RS1, not used in RS2014.
 type PhraseExtraInfo =
-    { PhraseId : int32
-      Difficulty : int32
-      Empty : int32
-      LevelJump : int8
-      Redundant : int16 }
-      // 1 byte padding
+    { PhraseId: int32
+      Difficulty: int32
+      Empty: int32
+      LevelJump: int8
+      Redundant: int16 }
+    // 1 byte padding
 
     interface IBinaryWritable with
         member this.Write(writer) =

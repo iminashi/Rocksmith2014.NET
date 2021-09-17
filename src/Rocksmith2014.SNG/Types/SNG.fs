@@ -1,36 +1,43 @@
 namespace Rocksmith2014.SNG
 
+open Rocksmith2014.Common
 open Rocksmith2014.Common.BinaryReaders
 open Rocksmith2014.Common.BinaryWriters
-open Rocksmith2014.Common
-open BinaryHelpers
 open System.IO
+open BinaryHelpers
 
 type NoteCounts =
-    { Easy : int; Medium : int; Hard : int; Ignored : int }
+    { Easy: int
+      Medium: int
+      Hard: int
+      Ignored: int }
 
-    static member Empty = { Easy = 0; Medium = 0; Hard = 0; Ignored = 0 }
+    static member Empty =
+        { Easy = 0
+          Medium = 0
+          Hard = 0
+          Ignored = 0 }
 
 type SNG =
-    { Beats : Beat array
-      Phrases : Phrase array
-      Chords : Chord array
-      ChordNotes : ChordNotes array
-      Vocals : Vocal array
-      SymbolsHeaders : SymbolsHeader array
-      SymbolsTextures : SymbolsTexture array
-      SymbolDefinitions : SymbolDefinition array
-      PhraseIterations : PhraseIteration array
-      PhraseExtraInfo : PhraseExtraInfo array
-      NewLinkedDifficulties : NewLinkedDifficulty array
-      Actions : Action array
-      Events : Event array
-      Tones : Tone array
-      DNAs : DNA array
-      Sections : Section array
-      Levels : Level array
-      MetaData : MetaData
-      NoteCounts : NoteCounts }
+    { Beats: Beat array
+      Phrases: Phrase array
+      Chords: Chord array
+      ChordNotes: ChordNotes array
+      Vocals: Vocal array
+      SymbolsHeaders: SymbolsHeader array
+      SymbolsTextures: SymbolsTexture array
+      SymbolDefinitions: SymbolDefinition array
+      PhraseIterations: PhraseIteration array
+      PhraseExtraInfo: PhraseExtraInfo array
+      NewLinkedDifficulties: NewLinkedDifficulty array
+      Actions: Action array
+      Events: Event array
+      Tones: Tone array
+      DNAs: DNA array
+      Sections: Section array
+      Levels: Level array
+      MetaData: MetaData
+      NoteCounts: NoteCounts }
 
     interface IBinaryWritable with
         member this.Write(writer) =
@@ -166,8 +173,8 @@ module SNG =
 
     /// Saves an SNG (packed/encrypted) with the given filename.
     let savePackedFile fileName platform (sng: SNG) = async {
-        use out = File.Open(fileName, FileMode.Create, FileAccess.Write)
-        do! savePacked out platform sng }
+        use file = File.Open(fileName, FileMode.Create, FileAccess.Write)
+        do! savePacked file platform sng }
 
     /// Saves an SNG (plain) with the given filename.
     let saveUnpackedFile fileName (sng: SNG) =

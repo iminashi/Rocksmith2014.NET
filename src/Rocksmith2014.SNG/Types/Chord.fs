@@ -4,15 +4,15 @@ open Rocksmith2014.Common
 open BinaryHelpers
 
 type Chord =
-    { Mask : ChordMask
-      Frets : int8 array
-      Fingers : int8 array
-      Notes : int32 array
-      Name : string }
+    { Mask: ChordMask
+      Frets: int8 array
+      Fingers: int8 array
+      Notes: int32 array
+      Name: string }
 
     interface IBinaryWritable with
         member this.Write(writer) =
-            writer.WriteUInt32 (LanguagePrimitives.EnumToValue(this.Mask))
+            writer.WriteUInt32(LanguagePrimitives.EnumToValue(this.Mask))
             this.Frets |> Array.iter writer.WriteInt8
             this.Fingers |> Array.iter writer.WriteInt8
             this.Notes |> Array.iter writer.WriteInt32

@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.SNG.BinaryHelpers
+module Rocksmith2014.SNG.BinaryHelpers
 
 open System
 open System.Text
@@ -26,6 +26,6 @@ let readArray (reader: IBinaryReader) read =
     Array.init length (fun _ -> read reader)
 
 /// Writes an array of elements into the IBinaryWriter preceded by its length.
-let writeArray<'a when 'a :> IBinaryWritable> (writer: IBinaryWriter) (arr: 'a[]) =
+let writeArray<'a when 'a :> IBinaryWritable> (writer: IBinaryWriter) (arr: 'a array) =
     writer.WriteInt32 arr.Length
     arr |> Array.iter (fun e -> e.Write writer)

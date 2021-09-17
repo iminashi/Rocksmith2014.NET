@@ -1,14 +1,14 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
 
 type FingerPrint =
-    { ChordId : int32
-      StartTime : float32
-      EndTime : float32
-      FirstNoteTime : float32
+    { ChordId: int32
+      StartTime: float32
+      EndTime: float32
+      FirstNoteTime: float32
       /// Defines the time after which the handshape fingering can start moving to the next fingering (-1 = handshape end time).
-      LastNoteTime : float32 }
+      LastNoteTime: float32 }
 
     interface IBinaryWritable with
         member this.Write(writer) =

@@ -1,12 +1,12 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
 open System.Runtime.CompilerServices
 
 [<IsReadOnly; Struct>]
 type DNA =
-    { Time : float32
-      DnaId : int32 }
+    { Time: float32
+      DnaId: int32 }
 
     interface IBinaryWritable with
         member this.Write(writer) =

@@ -1,24 +1,24 @@
 namespace Rocksmith2014.SNG
 
 open Rocksmith2014.Common
-open BinaryHelpers
 open System
+open BinaryHelpers
 
 type MetaData =
-    { MaxScore : float
-      MaxNotesAndChords : float
-      MaxNotesAndChordsReal : float
-      PointsPerNote : float
-      FirstBeatLength : float32
-      StartTime : float32
-      CapoFretId : int8
-      LastConversionDateTime : string
-      Part : int16
-      SongLength : float32
-      Tuning : int16 array
+    { MaxScore: float
+      MaxNotesAndChords: float
+      MaxNotesAndChordsReal: float
+      PointsPerNote: float
+      FirstBeatLength: float32
+      StartTime: float32
+      CapoFretId: int8
+      LastConversionDateTime: string
+      Part: int16
+      SongLength: float32
+      Tuning: int16 array
       // First note time appears twice, always the same value
-      FirstNoteTime : float32
-      MaxDifficulty : int32 }
+      FirstNoteTime: float32
+      MaxDifficulty: int32 }
 
     interface IBinaryWritable with
         member this.Write(writer) =
