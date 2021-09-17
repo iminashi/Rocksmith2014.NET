@@ -5,25 +5,30 @@ open System.IO
 open Rocksmith2014.Common
 
 type NamedEntry =
-    { Name: string; Data: Stream }
+    { Name: string
+      Data: Stream }
 
     interface IDisposable with
         member this.Dispose() = this.Data.Dispose()
 
 type Entry =
     { /// MD5 hash of the name of the entry in the manifest.
-      NameDigest : byte array
+      NameDigest: byte array
+
       /// The starting z-block index for the entry.
-      ZIndexBegin : uint32
+      ZIndexBegin: uint32
+
       /// The length of the plain data for the entry in bytes.
-      Length : uint64
+      Length: uint64
+
       /// The offset in bytes from the start of the PSARC file for the entry.
-      Offset : uint64
+      Offset: uint64
+
       /// The ID number for the entry.
-      ID : int32 }
+      ID: int32 }
 
     /// Writes this entry into the writer.
-    member this.Write (writer: IBinaryWriter) =
+    member this.Write(writer: IBinaryWriter) =
         writer.WriteBytes this.NameDigest
         writer.WriteUInt32 this.ZIndexBegin
         writer.WriteUInt40 this.Length
@@ -43,4 +48,5 @@ type Entry =
           ZIndexBegin = zBegin
           Length = uint64 nEntry.Data.Length
           // Will be set later:
-          Offset = 0UL; ID = 0 }
+          Offset = 0UL
+          ID = 0 }
