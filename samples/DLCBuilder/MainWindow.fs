@@ -194,6 +194,8 @@ type MainWindow(commandLineArgs: string array) as this =
 
         let init' = InitState.init (Localization.toInterface()) (AvaloniaBitmapLoader.createInterface()) databaseConnector
 
+        FocusHelper.init this
+
         Program.mkProgram init' update' view'
         |> Program.withHost this
         |> Program.withSubscription hotKeysSub

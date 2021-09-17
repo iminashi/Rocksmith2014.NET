@@ -4,6 +4,7 @@ open Elmish
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open System
+open System.Diagnostics
 open System.IO
 
 let private createExitCheckFile () =
@@ -11,7 +12,9 @@ let private createExitCheckFile () =
 
 let init localizer albumArtLoader databaseConnector args =
     let commands =
-        let wasAbnormalExit = File.Exists Configuration.exitCheckFilePath
+        let wasAbnormalExit =
+            File.Exists(Configuration.exitCheckFilePath)
+            && Process.GetProcessesByName("DLCBuilder").Length = 1
 
         createExitCheckFile ()
 
@@ -31,7 +34,7 @@ let init localizer albumArtLoader databaseConnector args =
 
     { Project = DLCProject.Empty
       SavedProject = DLCProject.Empty
-      RecentFiles = []
+      RecentFiles = List.empty
       Config = Configuration.Default
       SelectedArrangementIndex = -1
       SelectedToneIndex = -1
@@ -42,7 +45,7 @@ let init localizer albumArtLoader databaseConnector args =
       ShowJapaneseFields = false
       Overlay = NoOverlay
       RunningTasks = Set.empty
-      StatusMessages = []
+      StatusMessages = List.empty
       CurrentPlatform = PlatformSpecific.Value(mac=Mac, windows=PC, linux=PC)
       OpenProjectFile = None
       ArrangementIssues = Map.empty
