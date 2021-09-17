@@ -1,16 +1,17 @@
-﻿module Rocksmith2014.XML.Processing.HandShapeAdjuster
+module Rocksmith2014.XML.Processing.HandShapeAdjuster
 
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Extensions
 
 let private isChordSlideAt (level: Level) time  =
-    match level.Chords.FindByTime time with
-    | null -> false
+    match level.Chords.FindByTime(time) with
+    | null ->
+        false
     | chord when chord.IsLinkNext ->
         chord.HasChordNotes
-        &&
-        chord.ChordNotes.Exists(fun cn -> cn.IsSlide)
-    | _ -> false
+        && chord.ChordNotes.Exists(fun cn -> cn.IsSlide)
+    | _ ->
+        false
 
 /// Shortens the lengths of handshapes that are too close to the next one.
 let improve (arrangement: InstrumentalArrangement) =
@@ -38,15 +39,16 @@ let improve (arrangement: InstrumentalArrangement) =
                 let shortenBy16thNote =
                     // If it is a chord slide and the handshape length is an 8th note or longer
                     isChordSlideAt level precedingStartTime
-                    &&
-                    precedingEndTime - precedingStartTime > note32nd * 4
+                    && precedingEndTime - precedingStartTime > note32nd * 4
 
                 let minDistance =
                     // Shorten the min. distance required for 32nd notes or smaller
                     if precedingEndTime - precedingStartTime <= note32nd then
                         (beat2.Time - beat1.Time) / 12
-                    elif shortenBy16thNote then note32nd * 2
-                    else note32nd
+                    elif shortenBy16thNote then
+                        note32nd * 2
+                    else
+                        note32nd
 
                 let currentDistance = followingStartTime - precedingEndTime
 

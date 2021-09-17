@@ -9,6 +9,13 @@ let init (size: int) f =
     for i = 0 to size - 1 do a.Add(f i)
     a
 
+/// Returns the element if the index is within the ResizeArray.
+let inline tryItem index (a: ResizeArray<_>) =
+    if index >= 0 && index < a.Count then
+        Some a.[index]
+    else
+        None
+
 /// Returns the last element in the ResizeArray or None if it is empty.
 let inline tryLast (a: ResizeArray<_>) =
     if a.Count = 0 then

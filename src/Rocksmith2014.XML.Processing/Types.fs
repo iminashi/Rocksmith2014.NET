@@ -3,7 +3,7 @@ module Rocksmith2014.XML.Processing.Types
 
 type IssueType =
     | ApplauseEventWithoutEnd
-    | EventBetweenIntroApplause of eventCode : string
+    | EventBetweenIntroApplause of eventCode: string
     | NoteLinkedToChord
     | LinkNextMissingTargetNote
     | LinkNextSlideMismatch
@@ -24,11 +24,11 @@ type IssueType =
     | AnchorInsideHandShape
     | AnchorInsideHandShapeAtPhraseBoundary
     | AnchorCloseToUnpitchedSlide
-    | AnchorNotOnNote of distance : int
+    | AnchorNotOnNote of distance: int
     | FirstPhraseNotEmpty
     | NoEndPhrase
-    | LyricWithInvalidChar of invalidChar : char
-    | LyricTooLong of lyric : string
+    | LyricWithInvalidChar of invalidChar: char
+    | LyricTooLong of lyric: string
     | InvalidShowlights
 
 type Issue =

@@ -36,7 +36,7 @@ let improve (arrangement: InstrumentalArrangement) =
     | null -> ()
     | removeBeats ->
         arrangement.Ebeats.RemoveAll(fun b -> b.Time >= removeBeats.Time) |> ignore
-        events.Remove removeBeats |> ignore
+        events.Remove(removeBeats) |> ignore
 
     // Slide-out events
     events
@@ -59,8 +59,8 @@ let improve (arrangement: InstrumentalArrangement) =
             else
                 slideEvent.Time
 
-        let noteIndex = level.Notes.FindIndexByTime slideTime
-        let chordIndex = level.Chords.FindIndexByTime slideTime
+        let noteIndex = level.Notes.FindIndexByTime(slideTime)
+        let chordIndex = level.Chords.FindIndexByTime(slideTime)
 
         if noteIndex = -1 && chordIndex = -1 then
             failwith $"Could not find the notes or chord for slide-out event at {Utils.timeToString slideEvent.Time}"
@@ -108,7 +108,6 @@ let improve (arrangement: InstrumentalArrangement) =
             soChordTemplate.Frets.[s] <- note.SlideUnpitchTo
             soChordTemplate.Fingers.[s] <- originalChordTemplate.Fingers.[s]
 
-        arrangement.ChordTemplates.Add soChordTemplate
+        arrangement.ChordTemplates.Add(soChordTemplate)
 
-        events.Remove slideEvent |> ignore
-    )
+        events.Remove(slideEvent) |> ignore)

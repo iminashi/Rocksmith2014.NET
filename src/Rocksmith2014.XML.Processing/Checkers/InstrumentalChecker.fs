@@ -11,8 +11,14 @@ type private NgSection = { StartTime: int; EndTime: int }
 
 /// Checks for unexpected crowd events between the intro applause start and end events.
 let checkCrowdEventPlacement (arrangement: InstrumentalArrangement) =
-    let introApplauseStart = arrangement.Events |> ResizeArray.tryFind (fun e -> e.Code = "E3")
-    let applauseEnd = arrangement.Events |> ResizeArray.tryFind (fun e -> e.Code = "E13")
+    let introApplauseStart =
+        arrangement.Events
+        |> ResizeArray.tryFind (fun e -> e.Code = "E3")
+
+    let applauseEnd =
+        arrangement.Events
+        |> ResizeArray.tryFind (fun e -> e.Code = "E13")
+
     let crowdEventRegex = Regex("e[0-2]|E3|D3$")
 
     match introApplauseStart, applauseEnd with
@@ -26,17 +32,21 @@ let checkCrowdEventPlacement (arrangement: InstrumentalArrangement) =
         |> Seq.map (fun ev -> issue (EventBetweenIntroApplause ev.Code) ev.Time)
         |> Seq.toList
 
-let private getNoguitarSections (arrangement: InstrumentalArrangement) = [|
-    let sections = arrangement.Sections
-    for i in 1..sections.Count do
-        let sect = sections.[i - 1]
-        let endTime =
-            if i = sections.Count then
-                arrangement.MetaData.SongLength
-            else
-                sections.[i].Time
-        if String.startsWith "noguitar" sect.Name then
-            { StartTime = sect.Time; EndTime = endTime } |]
+let private getNoguitarSections (arrangement: InstrumentalArrangement) =
+    [| let sections = arrangement.Sections
+
+       for i in 1 .. sections.Count do
+           let section = sections.[i - 1]
+
+           let endTime =
+               if i = sections.Count then
+                   arrangement.MetaData.SongLength
+               else
+                   sections.[i].Time
+
+           if String.startsWith "noguitar" section.Name then
+               { StartTime = section.Time
+                 EndTime = endTime } |]
 
 let private isInsideNoguitarSection noGuitarSections (time: int) =
     noGuitarSections
@@ -63,11 +73,11 @@ let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
     else
         match findNextNote level.Notes currentIndex note with
         | None ->
-            Some (issue LinkNextMissingTargetNote note.Time)
+            Some(issue LinkNextMissingTargetNote note.Time)
 
         // Check if the next note is at the end of the sustain for this note
         | Some nextNote when nextNote.Time - (note.Time + note.Sustain) > 1 ->
-            Some (issue IncorrectLinkNext note.Time)
+            Some(issue IncorrectLinkNext note.Time)
             
         // Check if the frets match
         | Some nextNote when note.Fret <> nextNote.Fret ->
@@ -80,9 +90,9 @@ let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
             if slideTo = nextNote.Fret then
                 None
             elif slideTo <> -1y then
-                Some (issue LinkNextSlideMismatch note.Time)
+                Some(issue LinkNextSlideMismatch note.Time)
             else
-                Some (issue LinkNextFretMismatch nextNote.Time)
+                Some(issue LinkNextFretMismatch nextNote.Time)
 
         // Check if the bend values match
         | Some nextNote when note.IsBend ->
@@ -97,7 +107,7 @@ let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
                     0f
 
             if thisNoteLastBendValue <> nextNoteFirstBendValue then
-                Some (issue LinkNextBendMismatch nextNote.Time)
+                Some(issue LinkNextBendMismatch nextNote.Time)
             else
                 None
 
@@ -146,8 +156,7 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
 
         // Check for notes inside noguitar sections
         if isInsideNoguitarSection ngSections time then
-            issue NoteInsideNoguitarSection time
-    ]
+            issue NoteInsideNoguitarSection time ]
 
 /// Checks the chords in the level for issues.
 let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
@@ -198,14 +207,16 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
             issue ToneChangeOnNote time
 
         // Check chords at the end of handshape (no "handshape sustain")
-        let handShape = level.HandShapes.Find(fun hs -> hs.ChordId = chord.ChordId && time >= hs.StartTime && time <= hs.EndTime)
+        let handShape =
+            level.HandShapes.Find(fun hs ->
+                hs.ChordId = chord.ChordId && time >= hs.StartTime && time <= hs.EndTime)
+
         if notNull handShape && handShape.EndTime - time <= 5 then
             issue ChordAtEndOfHandShape time
 
         // Check for chords inside noguitar sections
         if isInsideNoguitarSection ngSections time then
-            issue NoteInsideNoguitarSection time
-    ]
+            issue NoteInsideNoguitarSection time ]
 
 /// Checks the handshapes in the level for issues.
 let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
@@ -216,7 +227,8 @@ let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
     // Logic to weed out some false positives
     let isSameAnchorWith1stFinger (neighbour: HandShape option) (activeAnchor: Anchor) =
         match neighbour with
-        | None -> false
+        | None ->
+            false
         | Some neighbour ->
             let neighbourAnchor = anchors.FindLast(fun a -> a.Time <= neighbour.StartTime)
             let neighbourTemplate = chordTemplates.[int neighbour.ChordId]
@@ -225,8 +237,8 @@ let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
 
     [ for i = 0 to handShapes.Count - 1 do
         let handShape = handShapes.[i]
-        let previous = if i = 0 then None else Some handShapes.[i - 1]
-        let next = if i = handShapes.Count - 1 then None else Some handShapes.[i + 1]
+        let previous = handShapes |> ResizeArray.tryItem (i - 1)
+        let next = handShapes |> ResizeArray.tryItem (i + 1)
 
         let activeAnchor = anchors.FindLast(fun a -> a.Time <= handShape.StartTime)
         let chordTemplate = chordTemplates.[int handShape.ChordId]
@@ -271,8 +283,7 @@ let private findAnchorsInsideHandShapes moverPhraseTimes phraseTimes (level: Lev
     level.Anchors
     |> Seq.filter (fun anchor ->
         level.HandShapes.Exists(fun hs -> anchor.Time > hs.StartTime && anchor.Time < hs.EndTime)
-        &&
-        not (Set.contains anchor.Time moverPhraseTimes))
+        && not (Set.contains anchor.Time moverPhraseTimes))
     |> Seq.map (fun anchor ->
         if phraseTimes |> Set.contains anchor.Time then
             issue AnchorInsideHandShapeAtPhraseBoundary anchor.Time
@@ -290,8 +301,7 @@ let private findUnpitchedSlideAnchors moverPhraseTimes (level: Level) =
     level.Anchors
     |> Seq.filter (fun anchor ->
         Array.exists (fun time -> abs (anchor.Time - time) < 4) slideEnds
-        &&
-        not (Set.contains anchor.Time moverPhraseTimes))
+        && not (Set.contains anchor.Time moverPhraseTimes))
     |> Seq.map (fun anchor -> issue AnchorCloseToUnpitchedSlide anchor.Time)
 
 /// Checks the anchors in the level for issues.
@@ -309,9 +319,11 @@ let checkAnchors (arrangement: InstrumentalArrangement) (level: Level) =
         let phraseTimes =
             arrangement.PhraseIterations
             |> Seq.map (fun pi -> pi.Time)
+
         let sectionTimes =
             arrangement.Sections
             |> Seq.map (fun s -> s.Time)
+
         phraseTimes
         |> Seq.append sectionTimes
         |> Set.ofSeq
@@ -334,7 +346,7 @@ let checkPhrases (arr: InstrumentalArrangement) =
                 ()
 
           // Check for missing END phrase
-          if not <|arr.Phrases.Exists(fun p -> String.equalsIgnoreCase "END" p.Name) then
+          if not <| arr.Phrases.Exists(fun p -> String.equalsIgnoreCase "END" p.Name) then
             issue NoEndPhrase 0 ]
     else
         List.empty
