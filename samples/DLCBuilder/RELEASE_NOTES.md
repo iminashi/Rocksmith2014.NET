@@ -1,3 +1,8 @@
+## 0.7.1 (Released 2021-09-17)
+
+- Fixed incorrect behavior when opening multiple instances of the program.
+- Fixed import of PSARC files that contain invalid tones.
+
 ## 0.7.0 (Released 2021-09-15)
 
 - The window position, size and maximized state is now preserved when closing the program.
