@@ -9,7 +9,9 @@ type UserDataBasePath = UserDataBasePath of string
 [<Struct>]
 type OfficialDataBasePath = OfficialDataBasePath of string
 
-type QueryOptions = { Search: string option; PageNumber: int }
+type QueryOptions =
+    { Search: string option
+      PageNumber: int }
 
 [<CLIMutable>]
 type DbTone =
@@ -62,13 +64,13 @@ type ActiveTab =
     | User
 
 type ToneCollectionState =
-    { ActiveCollection : ActiveCollection
-      Connector : IDatabaseConnector
-      Tones : DbTone array
-      SelectedTone : DbTone option
-      QueryOptions : QueryOptions
-      EditingUserTone : DbToneData option
-      TotalPages : int }
+    { ActiveCollection: ActiveCollection
+      Connector: IDatabaseConnector
+      Tones: DbTone array
+      SelectedTone: DbTone option
+      QueryOptions: QueryOptions
+      EditingUserTone: DbToneData option
+      TotalPages: int }
 
 type PageDirection = Left | Right
 
@@ -83,19 +85,19 @@ type UserToneEdit =
     | RemoveArtistInfo
 
 type Msg =
-    | ChangeCollection of activeTab : ActiveTab
+    | ChangeCollection of activeTab: ActiveTab
     | AddSelectedToneFromCollection
     | DeleteSelectedUserTone
-    | SearchCollection of searchString : string option
-    | ChangePage of direction : PageDirection
-    | SelectedToneChanged of selectedTone : DbTone option
+    | SearchCollection of searchString: string option
+    | ChangePage of direction: PageDirection
+    | SelectedToneChanged of selectedTone: DbTone option
     | AddOfficialToneToUserCollection
     | ShowUserToneEditor
     | HideUserToneEditor
-    | EditUserToneData of edit : UserToneEdit
+    | EditUserToneData of edit: UserToneEdit
     | ApplyUserToneEdit
 
 type Effect =
     | Nothing
     | ShowToneAddedToCollectionMessage
-    | AddToneToProject of tone : Tone
+    | AddToneToProject of tone: Tone

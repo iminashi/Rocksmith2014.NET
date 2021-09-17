@@ -7,15 +7,17 @@ open CollectionState
 let editUserTone edit (userTone: DbToneData) =
     match edit with
     | UserToneEdit.SetArtist artist ->
-        { userTone with Artist = artist
-                        ArtistSort = artist }
+        { userTone with
+            Artist = artist
+            ArtistSort = artist }
 
     | UserToneEdit.SetArtistSort artistSort ->
         { userTone with ArtistSort = artistSort }
 
     | UserToneEdit.SetTitle title ->
-        { userTone with Title = title
-                        TitleSort = title }
+        { userTone with
+            Title = title
+            TitleSort = title }
 
     | UserToneEdit.SetTitleSort titleSort ->
         { userTone with TitleSort = titleSort }
@@ -27,10 +29,11 @@ let editUserTone edit (userTone: DbToneData) =
         { userTone with BassTone = isBass }
 
     | UserToneEdit.RemoveArtistInfo ->
-        { userTone with Artist = String.Empty
-                        ArtistSort = String.Empty
-                        Title = String.Empty
-                        TitleSort = String.Empty }
+        { userTone with
+            Artist = String.Empty
+            ArtistSort = String.Empty
+            Title = String.Empty
+            TitleSort = String.Empty }
 
 let update (state: ToneCollectionState) msg =
     match msg with

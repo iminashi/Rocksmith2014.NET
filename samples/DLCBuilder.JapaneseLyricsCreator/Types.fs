@@ -11,12 +11,12 @@ type CombinationLocation =
       Index: int }
 
 type Msg =
-    | SetJapaneseLyrics of lyrics : string
+    | SetJapaneseLyrics of lyrics: string
     | CombineSyllableWithNext of CombinationLocation
     | CombineJapaneseWithNext of CombinationLocation
     | UndoLyricsChange
-    | SaveLyricsToFile of targetPath : string
+    | SaveLyricsToFile of targetPath: string
 
 type Effect =
     | Nothing
-    | AddVocalsToProject of xmlPath : string
+    | AddVocalsToProject of xmlPath: string

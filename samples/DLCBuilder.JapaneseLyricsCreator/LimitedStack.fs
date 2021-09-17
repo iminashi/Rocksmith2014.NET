@@ -17,6 +17,7 @@ type LimitedStack<'a>(size: int) =
     member _.Push(item) =
         if items.[start].IsSome then
             start <- wrap (start + 1)
+
         items.[start] <- ValueSome item
 
     member _.Pop() =

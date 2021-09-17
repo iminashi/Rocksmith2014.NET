@@ -3,11 +3,11 @@ namespace JapaneseLyricsCreator
 open System
 
 type LyricsCreatorState =
-    { MatchedLines : MatchedSyllable array array
-      CombinedJapanese : CombinationLocation list
-      JapaneseLyrics : string
-      JapaneseLines : string array array
-      UndoStates : LimitedStack<LyricsCreatorState> }
+    { MatchedLines: MatchedSyllable array array
+      CombinedJapanese: CombinationLocation list
+      JapaneseLyrics: string
+      JapaneseLines: string array array
+      UndoStates: LimitedStack<LyricsCreatorState> }
 
 module LyricsCreatorState =
     let canUndo state = state.UndoStates.HasItems
@@ -22,9 +22,7 @@ module LyricsCreatorState =
     let init vocals =
         let matchedLines =
             vocals
-            |> Seq.map (fun vocal ->
-                { Vocal = vocal
-                  Japanese = None })
+            |> Seq.map (fun vocal -> { Vocal = vocal; Japanese = None })
             |> LyricsTools.toLines
 
         { MatchedLines = matchedLines

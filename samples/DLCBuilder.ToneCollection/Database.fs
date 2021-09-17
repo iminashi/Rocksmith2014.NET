@@ -57,9 +57,12 @@ let private executeQuery (connection: SQLiteConnection) (searchString: string op
     match searchString with
     | Some searchString ->
         let like =
-            searchString.ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            searchString
+                .ToLowerInvariant()
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
             |> String.concat "%"
             |> sprintf "%%%s%%"
+
         connection.Query<DbTone>(sql, dict [ "like", box like ])
     | None ->
         connection.Query<DbTone>(sql)
@@ -93,6 +96,7 @@ let private tryCreateOfficialTonesApi (OfficialDataBasePath dbPath) =
 let private ensureUserTonesDbCreated (UserDataBasePath dbPath) connectionString =
     if not <| File.Exists dbPath then
         Directory.CreateDirectory(Path.GetDirectoryName dbPath) |> ignore
+
         SQLiteConnection.CreateFile dbPath
 
         use connection = createConnection connectionString
@@ -109,8 +113,7 @@ let private ensureUserTonesDbCreated (UserDataBasePath dbPath) connectionString 
                Description VARCHAR(100) NOT NULL,
                Definition VARCHAR(8000) NOT NULL)"""
 
-        using (new SQLiteCommand(sql, connection))
-              (fun x -> x.ExecuteNonQuery() |> ignore)
+        using (new SQLiteCommand(sql, connection)) (fun x -> x.ExecuteNonQuery() |> ignore)
 
 let private createUserTonesApi dbPath =
     let connectionString =
@@ -140,18 +143,19 @@ let private createUserTonesApi dbPath =
                         name = @name,
                         basstone = @basstone
                     WHERE id = {data.Id}"""
+
             connection.Execute(sql, data) |> ignore
 
         member _.AddTone(data: DbToneData) =
             let sql =
                 """INSERT INTO tones(artist, artistSort, title, titleSort, name, basstone, description, definition)
                    VALUES (@artist, @artistSort, @title, @titleSort, @name, @basstone, @description, @definition)"""
+
             connection.Execute(sql, data) |> ignore
 
         member _.DeleteToneById(id: int64) =
             let sql = $"DELETE FROM tones WHERE id = {id}"
-            using (new SQLiteCommand(sql, connection))
-                  (fun x -> x.ExecuteNonQuery() |> ignore) }
+            using (new SQLiteCommand(sql, connection)) (fun x -> x.ExecuteNonQuery() |> ignore) }
 
 let createConnector officialTonesDbPath userTonesDbPath =
     { new IDatabaseConnector with
@@ -187,8 +191,7 @@ let internal addToneDataToUserCollection (connector: IDatabaseConnector) (data: 
     use collection = connector.CreateUserTonesApi()
     collection.AddTone data
 
-let private prepareString (str: string) =
-    String.truncate 100 (str.Trim())
+let private prepareString (str: string) = String.truncate 100 (str.Trim())
 
 let addToneToUserCollection (connector: IDatabaseConnector) (project: DLCProject) (tone: Tone) =
     let description =

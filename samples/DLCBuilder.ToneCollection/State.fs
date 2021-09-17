@@ -23,8 +23,7 @@ let init (connector: IDatabaseConnector) (tab: ActiveTab) =
 
 let disposeCollection = function
     | ActiveCollection.Official maybeApi ->
-        maybeApi
-        |> Option.iter (fun x -> x.Dispose())
+        maybeApi |> Option.iter (fun x -> x.Dispose())
     | ActiveCollection.User api ->
         api.Dispose()
 
@@ -33,6 +32,7 @@ let changePage page collectionState =
         collectionState
     else
         let queryOptions = { collectionState.QueryOptions with PageNumber = page }
+
         let tones = getTones collectionState.ActiveCollection queryOptions
 
         { collectionState with
@@ -49,6 +49,7 @@ let changeSearch searchString collectionState =
         collectionState
     else
         let queryOptions = { Search = searchString; PageNumber = 1 }
+
         let tones = getTones collectionState.ActiveCollection queryOptions
 
         { collectionState with
@@ -94,7 +95,8 @@ let deleteUserTone id collectionState =
 
 let addSelectedToneToUserCollection collectionState =
     match collectionState with
-    | { SelectedTone = Some selected; ActiveCollection = ActiveCollection.Official (Some api) } ->
+    | { SelectedTone = Some selected
+        ActiveCollection = ActiveCollection.Official (Some api) } ->
         api.GetToneDataById selected.Id
         |> Option.iter (addToneDataToUserCollection collectionState.Connector)
     | _ ->

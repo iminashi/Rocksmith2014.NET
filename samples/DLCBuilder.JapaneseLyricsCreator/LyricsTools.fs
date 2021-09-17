@@ -20,7 +20,10 @@ let isForwardsCombining (c: char) = forwardCombiningChars.Contains c
 let isCommonLatin (c: char) = c < char 0x0100
 
 let withoutTrailingDash (str: String) =
-    if str.EndsWith "-" then str.AsSpan(0, str.Length - 1) else str.AsSpan()
+    if str.EndsWith "-" then
+        str.AsSpan(0, str.Length - 1)
+    else
+        str.AsSpan()
 
 let private revCharListToString = List.rev >> Array.ofList >> String
 
