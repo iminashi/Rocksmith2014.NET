@@ -23,7 +23,7 @@ let fixManifest entry = async {
 /// Calls fixManifest on the manifest entries.
 let mapEntry (entry: NamedEntry) =
     match entry with
-    | { Name = (EndsWith "hsan" | EndsWith "json") } ->
+    | { Name = HasExtension (".hsan" | ".json") } ->
         fixManifest entry |> Async.RunSynchronously
     | _ ->
         entry

@@ -18,3 +18,6 @@ let (|EndsWith|_|) (suffix: string) (str: string) =
         Some()
     else
         None
+
+let (|HasExtension|) (path: string) =
+    System.IO.Path.GetExtension(path).ToLowerInvariant()
