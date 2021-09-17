@@ -1,6 +1,6 @@
-﻿namespace Rocksmith2014.Common.Manifest
+namespace Rocksmith2014.Common.Manifest
 
 type Phrase =
-    { MaxDifficulty : int8
-      Name : string
-      IterationCount : int32 }
+    { MaxDifficulty: int8
+      Name: string
+      IterationCount: int32 }

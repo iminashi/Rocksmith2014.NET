@@ -16,17 +16,20 @@ module Async =
 module File =
     /// Calls the map function if the file with the given path exists.
     let tryMap f path =
-        if File.Exists path
-        then Some (f path)
-        else None
+        if File.Exists path then
+            Some(f path)
+        else
+            None
 
 [<RequireQualifiedAccess>]
 module Dictionary =
     /// Maps the result of IReadOnlyDictionary.TryGetValue into an option.
-    let tryGetValue key (dict: IReadOnlyDictionary<_,_>) =
+    let tryGetValue key (dict: IReadOnlyDictionary<_, _>) =
         match dict.TryGetValue key with
-        | true, value -> Some value
-        | false, _ -> None
+        | true, value ->
+            Some value
+        | false, _ ->
+            None
 
 [<RequireQualifiedAccess>]
 module Option =
@@ -40,5 +43,7 @@ module Option =
     /// Creates an option from an array, where null or an empty array equals None.
     let ofArray array =
         match array with
-        | null | [||] -> None
-        | array -> Some array
+        | null | [||] ->
+            None
+        | array ->
+            Some array

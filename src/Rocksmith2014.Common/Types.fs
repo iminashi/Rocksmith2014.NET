@@ -1,10 +1,11 @@
-﻿namespace Rocksmith2014.Common
+namespace Rocksmith2014.Common
 
 open System
 
 type AudioFile =
-    { Path : string; Volume : float }
-    with static member Empty = { Path = String.Empty; Volume = -7. }
+    { Path: string
+      Volume: float }
+    static member Empty = { Path = String.Empty; Volume = -7. }
 
 type IBinaryReader =
     abstract member ReadInt8 : unit -> int8
@@ -34,4 +35,4 @@ type IBinaryWriter =
     abstract member WriteBytes : byte array -> unit
 
 type IBinaryWritable =
-    abstract member Write : writer:IBinaryWriter -> unit
+    abstract member Write : writer: IBinaryWriter -> unit

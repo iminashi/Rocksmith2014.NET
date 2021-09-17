@@ -1,18 +1,22 @@
 module Rocksmith2014.Common.Profile
 
-open System.IO
-open System.Security.Cryptography
-open System.Text
+open Newtonsoft.Json
+open Newtonsoft.Json.Linq
 open Rocksmith2014.Common
 open Rocksmith2014.Common.BinaryReaders
 open Rocksmith2014.Common.Manifest
-open Newtonsoft.Json
-open Newtonsoft.Json.Linq
+open System.IO
+open System.Security.Cryptography
+open System.Text
 open BinaryWriters
 
-type ProfileHeader = { Version: uint32; ID: uint64; UncompressedLength: uint32 }
+type ProfileHeader =
+    { Version: uint32
+      ID: uint64
+      UncompressedLength: uint32 }
 
-let private profileKey = "\x72\x8B\x36\x9E\x24\xED\x01\x34\x76\x85\x11\x02\x18\x12\xAF\xC0\xA3\xC2\x5D\x02\x06\x5F\x16\x6B\x4B\xCC\x58\xCD\x26\x44\xF2\x9E"B
+let private profileKey =
+    "\x72\x8B\x36\x9E\x24\xED\x01\x34\x76\x85\x11\x02\x18\x12\xAF\xC0\xA3\xC2\x5D\x02\x06\x5F\x16\x6B\x4B\xCC\x58\xCD\x26\x44\xF2\x9E"B
 
 let private getDecryptStream (input: Stream) =
     use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.None)
@@ -27,9 +31,13 @@ let private getEncryptStream (output: Stream) =
 let private readHeader (stream: Stream) =
     let reader = LittleEndianBinaryReader(stream) :> IBinaryReader
     let magic = reader.ReadBytes 4
+
     if Encoding.ASCII.GetString magic <> "EVAS" then
         failwith "Profile magic check failed."
-    { Version = reader.ReadUInt32(); ID = reader.ReadUInt64(); UncompressedLength = reader.ReadUInt32() }
+
+    { Version = reader.ReadUInt32()
+      ID = reader.ReadUInt64()
+      UncompressedLength = reader.ReadUInt32() }
 
 /// Decrypts the Rocksmith 2014 profile data from the input stream into the output stream.
 let decrypt (input: Stream) (output: Stream) = async {
@@ -84,11 +92,16 @@ let readAsJToken path = async {
 /// Saves the profile data into the target path.
 let saveJToken targetPath id (json: JToken) = async {
     use jsonData = MemoryStreamPool.Default.GetStream()
+
     use streamWriter = new StreamWriter(jsonData, NewLine = "\n")
-    use writer = new JsonTextWriter(streamWriter,
-                                    Formatting = Formatting.Indented,
-                                    Indentation = 0,
-                                    StringEscapeHandling = StringEscapeHandling.EscapeNonAscii)
+
+    use writer =
+        new JsonTextWriter(
+            streamWriter,
+            Formatting = Formatting.Indented,
+            Indentation = 0,
+            StringEscapeHandling = StringEscapeHandling.EscapeNonAscii
+        )
 
     json.WriteTo writer
     writer.Flush()
@@ -102,7 +115,9 @@ type ToneImportError =
 /// Reads an array of tones from the profile with the given path.
 let importTones (path: string) =
     try
-        use profile = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan)
+        use profile =
+            new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan)
+
         readHeader profile |> ignore
 
         use decrypted = getDecryptStream profile

@@ -18,10 +18,7 @@ let inline tryLast (a: ResizeArray<_>) =
 
 /// Returns the first element in the ResizeArray or None if it is empty.
 let inline tryHead (a: ResizeArray<_>) =
-    if a.Count = 0 then
-        None
-    else
-        Some a.[0]
+    if a.Count = 0 then None else Some a.[0]
 
 /// Returns the first element that matches the predicate, or None if no match is found.
 let tryFind (predicate: 'a -> bool) (a: ResizeArray<'a>) =

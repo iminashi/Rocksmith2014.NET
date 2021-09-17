@@ -13,41 +13,43 @@ open System.Xml
 open Newtonsoft.Json
 
 type Pedal =
-    { Type : string 
-      KnobValues : Map<string, float32>
-      Key : string
-      Category : string option
-      Skin : string option
-      SkinIndex : float32 option }
+    { Type: string
+      KnobValues: Map<string, float32>
+      Key: string
+      Category: string option
+      Skin: string option
+      SkinIndex: float32 option }
 
 type Gear =
-    { Amp : Pedal
-      Cabinet : Pedal
-      Racks : Pedal option array
-      PrePedals : Pedal option array
-      PostPedals : Pedal option array }
+    { Amp: Pedal
+      Cabinet: Pedal
+      Racks: Pedal option array
+      PrePedals: Pedal option array
+      PostPedals: Pedal option array }
 
 type Tone =
-    { GearList : Gear
-      ToneDescriptors : string array 
-      NameSeparator : string
-      Volume : float
-      MacVolume : float option
-      Key : string
-      Name : string
-      SortOrder : float32 option }
+    { GearList: Gear
+      ToneDescriptors: string array
+      NameSeparator: string
+      Volume: float
+      MacVolume: float option
+      Key: string
+      Name: string
+      SortOrder: float32 option }
 
     override this.ToString() =
         let description =
             if isNull this.ToneDescriptors || this.ToneDescriptors.Length = 0 then
                 String.Empty
             else
-                " (" + ToneDescriptor.combineUINames this.ToneDescriptors + ")"
+                $" ({ToneDescriptor.combineUINames this.ToneDescriptors})"
+
         let key =
             if String.IsNullOrEmpty this.Key || this.Key = this.Name then
                 String.Empty
             else
-                " [" + this.Key + "]"
+                $" [{this.Key}]"
+
         sprintf "%s%s%s" this.Name key description
 
 [<AllowNullLiteral; Sealed>]
@@ -62,43 +64,48 @@ type PedalDto() =
 
 [<CLIMutable>]
 type GearDto =
-    { Rack1 : PedalDto
-      Rack2 : PedalDto
-      Rack3 : PedalDto
-      Rack4 : PedalDto
-      Amp : PedalDto
-      Cabinet : PedalDto
-      PrePedal1 : PedalDto
-      PrePedal2 : PedalDto
-      PrePedal3 : PedalDto
-      PrePedal4 : PedalDto
-      PostPedal1 : PedalDto
-      PostPedal2 : PedalDto
-      PostPedal3 : PedalDto
-      PostPedal4 : PedalDto }
+    { Rack1: PedalDto
+      Rack2: PedalDto
+      Rack3: PedalDto
+      Rack4: PedalDto
+      Amp: PedalDto
+      Cabinet: PedalDto
+      PrePedal1: PedalDto
+      PrePedal2: PedalDto
+      PrePedal3: PedalDto
+      PrePedal4: PedalDto
+      PostPedal1: PedalDto
+      PostPedal2: PedalDto
+      PostPedal3: PedalDto
+      PostPedal4: PedalDto }
 
 [<CLIMutable>]
 type ToneDto =
-    { GearList : GearDto
-      ToneDescriptors : string array 
-      NameSeparator : string
-      IsCustom : Nullable<bool>
-      Volume : string
-      MacVolume : string
-      Key : string
-      Name : string
-      SortOrder : Nullable<float32> }
+    { GearList: GearDto
+      ToneDescriptors: string array
+      NameSeparator: string
+      IsCustom: Nullable<bool>
+      Volume: string
+      MacVolume: string
+      Key: string
+      Name: string
+      SortOrder: Nullable<float32> }
 
 module Tone =
-    let [<Literal>] private ArrayNs = "http://schemas.microsoft.com/2003/10/Serialization/Arrays"
+    [<Literal>]
+    let private ArrayNs =
+        "http://schemas.microsoft.com/2003/10/Serialization/Arrays"
 
     let private getPedal (ns: string option) (gearList: XmlElement) (name: string) =
         let node =
             match ns with
-            | Some ns -> fun (xel: XmlElement) name -> xel.Item(name, ns)
-            | None -> fun (xel: XmlElement) name -> xel.Item name
+            | Some ns ->
+                fun (xel: XmlElement) name -> xel.Item(name, ns)
+            | None ->
+                fun (xel: XmlElement) name -> xel.Item name
 
         let pedal = node gearList name
+
         if pedal.IsEmpty then
             None
         else
@@ -119,11 +126,11 @@ module Tone =
                         key, float32 value)
                     |> Map.ofSeq
 
-            { Category = (if cat.IsEmpty then None else Some cat.InnerText)
+            { Category = if cat.IsEmpty then None else Some cat.InnerText
               Type = (node pedal "Type").InnerText
               Key = (node pedal "PedalKey").InnerText
               KnobValues = knobValues
-              Skin = (if not (isNull skin || skin.IsEmpty) then Some skin.InnerText else None)
+              Skin = if not (isNull skin || skin.IsEmpty) then Some skin.InnerText else None
               SkinIndex = if not (isNull skinIndex || skinIndex.IsEmpty) then Some (float32 skinIndex.InnerText) else None }
             |> Some
 
@@ -162,9 +169,12 @@ module Tone =
     let importXml (ns: string option) (xmlNode: XmlNode) =
         let node =
             match ns with
-            | Some ns -> fun name -> xmlNode.Item(name, ns)
-            // fsharplint:disable-next-line ReimplementsFunction
-            | None -> fun name -> xmlNode.Item name
+            | Some ns ->
+                fun name -> xmlNode.Item(name, ns)
+            | None ->
+                // fsharplint:disable-next-line ReimplementsFunction
+                fun name -> xmlNode.Item name
+
         let nodeText name = (node name).InnerText
 
         let macVol = node "MacVolume"
@@ -184,7 +194,10 @@ module Tone =
         let doc = XmlDocument()
         doc.Load(fileName)
         let xel = doc.DocumentElement
-        if xel.Name <> "Tone2014" then failwith "Not a valid tone XML file."
+
+        if xel.Name <> "Tone2014" then
+            failwith "Not a valid tone XML file."
+
         importXml None xel
 
     let private pedalFromDto (dto: PedalDto) =
@@ -200,11 +213,17 @@ module Tone =
 
     // Default cabinet used for CDLC tones that are missing a cabinet
     let private defaultCabinet =
-        { Category = None; Type = "Cabinets"; Key = "Cab_Marshall1960TV_Ribbon_Cone"; KnobValues = Map.empty; Skin = None; SkinIndex = None }
+        { Category = None
+          Type = "Cabinets"
+          Key = "Cab_Marshall1960TV_Ribbon_Cone"
+          KnobValues = Map.empty
+          Skin = None
+          SkinIndex = None }
 
     let fromDto dto : Tone =
         let gear =
             let fromDtoArray = Array.map (Option.ofObj >> Option.map pedalFromDto)
+
             let cabinet =
                 dto.GearList.Cabinet
                 |> Option.ofObj
@@ -227,12 +246,14 @@ module Tone =
           SortOrder = Option.ofNullable dto.SortOrder }
 
     let toPedalDto (pedal: Pedal) =
-        PedalDto(PedalKey = pedal.Key,
-                 Type = pedal.Type,
-                 KnobValues = Dictionary(pedal.KnobValues),
-                 Category = Option.toObj pedal.Category,
-                 Skin = Option.toObj pedal.Skin,
-                 SkinIndex = Option.toNullable pedal.SkinIndex)
+        PedalDto(
+            PedalKey = pedal.Key,
+            Type = pedal.Type,
+            KnobValues = Dictionary(pedal.KnobValues),
+            Category = Option.toObj pedal.Category,
+            Skin = Option.toObj pedal.Skin,
+            SkinIndex = Option.toNullable pedal.SkinIndex
+        )
 
     let toDto (tone: Tone) =
         let tryGetPedal index pedalArray =

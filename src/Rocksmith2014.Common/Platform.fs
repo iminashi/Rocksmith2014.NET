@@ -4,7 +4,10 @@ type Platform = PC | Mac
 
 module Platform =
     [<RequireQualifiedAccess>]
-    type Path = Audio | SNG | PackageSuffix
+    type Path =
+        | Audio
+        | SNG
+        | PackageSuffix
 
     /// Returns a platform-specific string for the given path type.
     let getPathPart platform path =

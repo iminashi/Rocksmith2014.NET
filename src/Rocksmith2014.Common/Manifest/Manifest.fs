@@ -7,10 +7,10 @@ open System.Text.Encodings.Web
 open Rocksmith2014.Common
 
 type Manifest =
-    { Entries : Map<string, AttributesContainer>
-      ModelName : string
-      IterationVersion : Nullable<int>
-      InsertRoot : string }
+    { Entries: Map<string, AttributesContainer>
+      ModelName: string
+      IterationVersion: Nullable<int>
+      InsertRoot: string }
 
 module Manifest =
     let private createInternal (attrs: Attributes list) modelName iterationVersion insertRoot =
@@ -18,6 +18,7 @@ module Manifest =
             attrs
             |> List.map (fun a -> a.PersistentID, { Attributes = a })
             |> Map.ofList
+
         { Entries = entries
           ModelName = modelName |> Option.toObj
           IterationVersion = iterationVersion |> Option.toNullable
@@ -44,19 +45,19 @@ module Manifest =
 
     /// Serializes the manifest into a JSON string.
     let toJsonString (manifest: Manifest) =
-        JsonSerializer.Serialize(manifest, options())
+        JsonSerializer.Serialize(manifest, options ())
 
     /// Serializes the manifest as JSON into the output stream.
     let toJsonStream (output: Stream) (manifest: Manifest) =
-        JsonSerializer.SerializeAsync(output, manifest, options())
+        JsonSerializer.SerializeAsync(output, manifest, options ())
 
     /// Deserializes a manifest from a JSON string.
     let fromJsonString (str: string) =
-        JsonSerializer.Deserialize<Manifest>(str, options())
+        JsonSerializer.Deserialize<Manifest>(str, options ())
 
     /// Deserializes a manifest from a JSON stream.
     let fromJsonStream (input: Stream) =
-        JsonSerializer.DeserializeAsync<Manifest>(input, options())
+        JsonSerializer.DeserializeAsync<Manifest>(input, options ())
 
     /// Deserializes a manifest from a file.
     let fromJsonFile (path: string) = async {
