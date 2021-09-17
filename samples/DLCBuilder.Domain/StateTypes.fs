@@ -19,18 +19,18 @@ type OverlayContents =
     | NoOverlay
     | AbnormalExitMessage
     | AboutMessage
-    | ConfigEditor of focus : FocusedSetting
-    | DeleteConfirmation of files : string list
-    | ErrorMessage of message : string * moreInfo : string option
-    | IdRegenerationConfirmation of arrangements : Arrangement list * reply : AsyncReply
-    | ImportToneSelector of tones : Tone array
-    | IssueViewer of arrangement : Arrangement
+    | ConfigEditor of focus: FocusedSetting
+    | DeleteConfirmation of files: string list
+    | ErrorMessage of message: string * moreInfo: string option
+    | IdRegenerationConfirmation of arrangements: Arrangement list * reply: AsyncReply
+    | ImportToneSelector of tones: Tone array
+    | IssueViewer of arrangement: Arrangement
     | JapaneseLyricsCreator of JapaneseLyricsCreator.LyricsCreatorState
     | PitchShifter
-    | SelectPreviewStart of audioLength : TimeSpan
-    | ToneCollection of state : ToneCollection.ToneCollectionState
+    | SelectPreviewStart of audioLength: TimeSpan
+    | ToneCollection of state: ToneCollection.ToneCollectionState
     | ToneEditor
-    | UpdateInformationDialog of update : UpdateInformation
+    | UpdateInformationDialog of update: UpdateInformation
 
 [<RequireQualifiedAccess>]
 type OverlayCloseMethod =
@@ -41,12 +41,12 @@ type OverlayCloseMethod =
 type PreviewAudioCreation =
     | SetupStartTime
     | CreateFile
-    | FileCreated of path : string
+    | FileCreated of path: string
 
 type VolumeTarget =
     | MainAudio
     | PreviewAudio
-    | CustomAudio of audioPath : string * arrId : Guid
+    | CustomAudio of audioPath: string * arrId: Guid
 
 type LongTask =
     | BuildPackage
@@ -59,15 +59,15 @@ type LongTask =
     | VolumeCalculation of VolumeTarget
 
 type StatusMessage =
-    | TaskWithoutProgress of task : LongTask
-    | TaskWithProgress of task : LongTask * progress : float
-    | MessageString of id : Guid * message : string
-    | UpdateMessage of updateInfo : UpdateInformation
+    | TaskWithoutProgress of task: LongTask
+    | TaskWithProgress of task: LongTask * progress: float
+    | MessageString of id: Guid * message: string
+    | UpdateMessage of updateInfo: UpdateInformation
 
 [<RequireQualifiedAccess>]
 type BuildCompleteType =
     | Test
-    | TestNewVersion of version : string
+    | TestNewVersion of version: string
     | Release
     | PitchShifted
 
@@ -90,16 +90,16 @@ type ProjectEdit =
     | SetPitchShift of int16
 
 type ToneEdit =
-    | SetName of toneName : string
-    | SetKey of toneKey : string
-    | SetVolume of volume : float
-    | ChangeDescriptor of index : int * descriptor : ToneDescriptor
+    | SetName of toneName: string
+    | SetKey of toneKey: string
+    | SetVolume of volume: float
+    | ChangeDescriptor of index: int * descriptor: ToneDescriptor
     | AddDescriptor
     | RemoveDescriptor
     | SetPedal of ToneGear.GearData
-    | SetKnobValue of knobKey : string * value : float32
+    | SetKnobValue of knobKey: string * value: float32
     | RemovePedal
-    | MovePedal of gearSlot : ToneGear.GearSlot * direction : MoveDirection
+    | MovePedal of gearSlot: ToneGear.GearSlot * direction: MoveDirection
 
 type VocalsEdit =
     | SetIsJapanese of bool
@@ -133,9 +133,9 @@ type InstrumentalEdit =
     | SetPriority of ArrangementPriority
     | SetRouteMask of RouteMask
     | SetBassPicked of bool
-    | SetTuning of stringIndex : int * tuningValue : int16
-    | ChangeTuning of stringIndex : int * direction : MoveDirection
-    | ChangeTuningAll of direction : MoveDirection
+    | SetTuning of stringIndex: int * tuningValue: int16
+    | ChangeTuning of stringIndex: int * direction: MoveDirection
+    | ChangeTuningAll of direction: MoveDirection
     | SetTuningPitch of float
     | SetBaseTone of string
     | SetScrollSpeed of float
@@ -146,12 +146,12 @@ type InstrumentalEdit =
     | UpdateToneInfo
 
 type ToolsMsg =
-    | ConvertWemToOgg of files : string array
-    | ConvertAudioToWem of files : string array
-    | UnpackPSARC of file : string
-    | PackDirectoryIntoPSARC of directory : string * targetFile : string
-    | RemoveDD of files : string array
-    | InjectTonesIntoProfile of files : string array
+    | ConvertWemToOgg of files: string array
+    | ConvertAudioToWem of files: string array
+    | UnpackPSARC of file: string
+    | PackDirectoryIntoPSARC of directory: string * targetFile: string
+    | RemoveDD of files: string array
+    | InjectTonesIntoProfile of files: string array
 
 [<RequireQualifiedAccess>]
 type Dialog =
@@ -159,10 +159,10 @@ type Dialog =
     | SaveProjectAs
     | ToolkitImport
     | PsarcImport
-    | PsarcImportTargetFolder of psarcPath : string
+    | PsarcImportTargetFolder of psarcPath: string
     | PsarcUnpack
     | PsarcPackDirectory
-    | PsarcPackTargetFile of directory : string
+    | PsarcPackTargetFile of directory: string
     | WemFiles
     | AudioFileConversion
     | RemoveDD
@@ -174,50 +174,50 @@ type Dialog =
     | ToneInject
     | WwiseConsole
     | CoverArt
-    | AudioFile of isCustom : bool
+    | AudioFile of isCustom: bool
     | CustomFont
-    | ExportTone of tone : Tone
+    | ExportTone of tone: Tone
     | SaveJapaneseLyrics
 
 type Msg =
-    | ConfirmIdRegeneration of arrIds : Guid list * reply : AsyncReply
+    | ConfirmIdRegeneration of arrIds: Guid list * reply: AsyncReply
     | SetNewArrangementIds of Map<Guid, Arrangement>
-    | ImportPsarc of psarcFile : string * targetFolder : string
-    | PsarcImported of project : DLCProject * projectFile : string
-    | ImportToolkitTemplate of fileName : string
-    | ImportTonesFromFile of fileName : string
+    | ImportPsarc of psarcFile: string * targetFolder: string
+    | PsarcImported of project: DLCProject * projectFile: string
+    | ImportToolkitTemplate of fileName: string
+    | ImportTonesFromFile of fileName: string
     | ImportProfileTones
-    | ImportTones of tones : Tone list
+    | ImportTones of tones: Tone list
     | ImportSelectedTones
-    | SetSelectedImportTones of selectedTones : Tone list
+    | SetSelectedImportTones of selectedTones: Tone list
     | NewProject
-    | OpenProject of fileName : string
-    | ProjectLoaded of project : DLCProject * projectFile : string
+    | OpenProject of fileName: string
+    | ProjectLoaded of project: DLCProject * projectFile: string
     | ProjectSaveOrSaveAs
     | SaveProjectAs
-    | SaveProject of fileName : string
-    | ProjectSaved of targetFile : string
+    | SaveProject of fileName: string
+    | ProjectSaved of targetFile: string
     | AutoSaveProject
     | OpenProjectFolder
-    | AddArrangements of files : string array
-    | SetAudioFile of fileName : string
-    | SetConfiguration of config : Configuration * enableLoad : bool * wasAbnormalExit : bool
-    | SetRecentFiles of files : string list
+    | AddArrangements of files: string array
+    | SetAudioFile of fileName: string
+    | SetConfiguration of config: Configuration * enableLoad: bool * wasAbnormalExit: bool
+    | SetRecentFiles of files: string list
     | ProgramClosing
-    | SetAvailableUpdate of update : Result<UpdateInformation option, string>
-    | SetToneRepository of repository : ToneGear.Repository
-    | SetSelectedArrangementIndex of index : int
-    | SetSelectedToneIndex of index : int
+    | SetAvailableUpdate of update: Result<UpdateInformation option, string>
+    | SetToneRepository of repository: ToneGear.Repository
+    | SetSelectedArrangementIndex of index: int
+    | SetSelectedToneIndex of index: int
     | SetSelectedGearSlot of ToneGear.GearSlot
     | SetManuallyEditingKnobKey of string option
     | CheckForUpdates
-    | UpdateCheckCompleted of update : Result<UpdateInformation option, string>
+    | UpdateCheckCompleted of update: Result<UpdateInformation option, string>
     | DismissUpdateMessage
     | ShowUpdateInformation
     | UpdateAndRestart
-    | UpdateFailed of messageId : Guid * error : exn
+    | UpdateFailed of messageId: Guid * error: exn
     | DeleteTestBuilds
-    | DeleteConfirmed of files : string list
+    | DeleteConfirmed of files: string list
     | DeleteSelectedArrangement
     | DeleteSelectedTone
     | AddNewTone
@@ -227,8 +227,8 @@ type Msg =
     | ShowToneCollection
     | MoveArrangement of MoveDirection
     | CreatePreviewAudio of PreviewAudioCreation
-    | ShowSortFields of shown : bool
-    | ShowJapaneseFields of shown : bool
+    | ShowSortFields of shown: bool
+    | ShowJapaneseFields of shown: bool
     | GenerateNewIds
     | GenerateAllIds
     | ApplyLowTuningFix
@@ -237,22 +237,22 @@ type Msg =
     | EditTone of ToneEdit
     | EditProject of ProjectEdit
     | EditConfig of ConfigEdit
-    | CloseOverlay of closeMethod : OverlayCloseMethod
+    | CloseOverlay of closeMethod: OverlayCloseMethod
     | ExportSelectedTone
-    | ExportTone of tone : Tone * targetPath : string
+    | ExportTone of tone: Tone * targetPath: string
     | OpenPreviousProjectConfirmed
     | ShowOverlay of OverlayContents
     | ShowToneEditor
     | ShowIssueViewer
-    | ShowImportToneSelector of tones : Tone array
+    | ShowImportToneSelector of tones: Tone array
     | Build of BuildType
     | BuildComplete of BuildCompleteType
     | WemConversionComplete of unit
-    | CheckArrangement of arrangement : Arrangement
+    | CheckArrangement of arrangement: Arrangement
     | CheckArrangements
-    | TaskProgressChanged of task : LongTask * progress : float
-    | AddStatusMessage of message : string
-    | RemoveStatusMessage of id : Guid
+    | TaskProgressChanged of task: LongTask * progress: float
+    | AddStatusMessage of message: string
+    | RemoveStatusMessage of id: Guid
     | CheckOneCompleted of string * Issue list
     | CheckAllCompleted of Map<string, Issue list>
     | PsarcUnpacked
@@ -260,41 +260,41 @@ type Msg =
     | ConvertToWem
     | ConvertToWemCustom
     | CalculateVolumes
-    | CalculateVolume of target : VolumeTarget
-    | VolumeCalculated of volume : float * target : VolumeTarget
-    | ChangeLocale of locale : Locale
-    | ErrorOccurred of e : exn
-    | TaskFailed of e : exn * failedTask : LongTask
+    | CalculateVolume of target: VolumeTarget
+    | VolumeCalculated of volume: float * target: VolumeTarget
+    | ChangeLocale of locale: Locale
+    | ErrorOccurred of e: exn
+    | TaskFailed of e: exn * failedTask: LongTask
     | ToolsMsg of ToolsMsg
     | ToneCollectionMsg of ToneCollection.Msg
     | ShowDialog of Dialog
     | HotKeyMsg of Msg
     | ShowJapaneseLyricsCreator
     | LyricsCreatorMsg of JapaneseLyricsCreator.Msg
-    | LoadMultipleFiles of paths : string seq
+    | LoadMultipleFiles of paths: string seq
 
 type State =
-    { Project : DLCProject
-      SavedProject : DLCProject
-      RecentFiles : string list
-      Config : Configuration
-      SelectedArrangementIndex : int
-      SelectedToneIndex : int
-      SelectedImportTones : Tone list
-      ManuallyEditingKnobKey : string option
-      SelectedGearSlot : ToneGear.GearSlot
-      ShowSortFields : bool
-      ShowJapaneseFields : bool
-      Overlay : OverlayContents
-      OpenProjectFile : string option
-      CurrentPlatform : Platform
-      StatusMessages : StatusMessage list
-      RunningTasks : LongTask Set
-      ArrangementIssues : Map<string, Issue list>
-      AvailableUpdate : UpdateInformation option
+    { Project: DLCProject
+      SavedProject: DLCProject
+      RecentFiles: string list
+      Config: Configuration
+      SelectedArrangementIndex: int
+      SelectedToneIndex: int
+      SelectedImportTones: Tone list
+      ManuallyEditingKnobKey: string option
+      SelectedGearSlot: ToneGear.GearSlot
+      ShowSortFields: bool
+      ShowJapaneseFields: bool
+      Overlay: OverlayContents
+      OpenProjectFile: string option
+      CurrentPlatform: Platform
+      StatusMessages: StatusMessage list
+      RunningTasks: LongTask Set
+      ArrangementIssues: Map<string, Issue list>
+      AvailableUpdate: UpdateInformation option
       ToneGearRepository: ToneGear.Repository option
       /// For forcing a view update if the user loads the same album art file, but the file has been modified.
-      AlbumArtLoadTime : DateTime option
-      Localizer : IStringLocalizer
-      AlbumArtLoader : IBitmapLoader
-      DatabaseConnector : ToneCollection.IDatabaseConnector }
+      AlbumArtLoadTime: DateTime option
+      Localizer: IStringLocalizer
+      AlbumArtLoader: IBitmapLoader
+      DatabaseConnector: ToneCollection.IDatabaseConnector }

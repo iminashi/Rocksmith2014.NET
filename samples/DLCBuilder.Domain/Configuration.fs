@@ -7,28 +7,28 @@ open System.IO
 open System.Text.Json
 
 type Configuration =
-    { ReleasePlatforms : Platform Set
-      ProfilePath : string
-      TestFolderPath : string
-      ProjectsFolderPath : string
-      CharterName : string
-      ShowAdvanced : bool
-      GenerateDD : bool
-      DDPhraseSearchEnabled : bool
-      DDPhraseSearchThreshold : int
-      DDLevelCountGeneration : LevelCountGeneration
-      RemoveDDOnImport : bool
-      ApplyImprovements : bool
-      SaveDebugFiles : bool
-      AutoVolume : bool
-      AutoSave : bool
-      ConvertAudio : AudioConversionType
-      OpenFolderAfterReleaseBuild : bool
-      LoadPreviousOpenedProject : bool
-      PreviousOpenedProject : string
-      Locale : Locale
-      WwiseConsolePath : string option
-      CustomAppId : string option }
+    { ReleasePlatforms: Platform Set
+      ProfilePath: string
+      TestFolderPath: string
+      ProjectsFolderPath: string
+      CharterName: string
+      ShowAdvanced: bool
+      GenerateDD: bool
+      DDPhraseSearchEnabled: bool
+      DDPhraseSearchThreshold: int
+      DDLevelCountGeneration: LevelCountGeneration
+      RemoveDDOnImport: bool
+      ApplyImprovements: bool
+      SaveDebugFiles: bool
+      AutoVolume: bool
+      AutoSave: bool
+      ConvertAudio: AudioConversionType
+      OpenFolderAfterReleaseBuild: bool
+      LoadPreviousOpenedProject: bool
+      PreviousOpenedProject: string
+      Locale: Locale
+      WwiseConsolePath: string option
+      CustomAppId: string option }
 
     static member Default =
         { ReleasePlatforms = Set([ PC; Mac ])
@@ -56,29 +56,29 @@ type Configuration =
 
 module Configuration =
     type Dto() =
-        member val ReleasePC : bool = true with get, set
-        member val ReleaseMac : bool = true with get, set
-        member val ProfilePath : string = String.Empty with get, set
-        member val TestFolderPath : string = String.Empty with get, set
-        member val ProjectsFolderPath : string = String.Empty with get, set
-        member val CharterName : string = String.Empty with get, set
-        member val ShowAdvanced : bool = false with get, set
-        member val GenerateDD : bool = true with get, set
-        member val DDPhraseSearchEnabled : bool = true with get, set
-        member val DDPhraseSearchThreshold : int = 80 with get, set
-        member val DDLevelCountGeneration : int = 0 with get, set
-        member val RemoveDDOnImport : bool = false with get, set
-        member val ApplyImprovements : bool = true with get, set
-        member val SaveDebugFiles : bool = false with get, set
-        member val AutoVolume : bool = true with get, set
-        member val AutoSave : bool = false with get, set
-        member val ConvertAudio : int = 0 with get, set
-        member val OpenFolderAfterReleaseBuild : bool = true with get, set
-        member val LoadPreviousOpenedProject : bool = false with get, set
-        member val PreviousOpenedProject : string = String.Empty with get, set
-        member val Locale : string = Locale.Default.ShortName with get, set
-        member val WwiseConsolePath : string = String.Empty with get, set
-        member val CustomAppId : string = String.Empty with get, set
+        member val ReleasePC: bool = true with get, set
+        member val ReleaseMac: bool = true with get, set
+        member val ProfilePath: string = String.Empty with get, set
+        member val TestFolderPath: string = String.Empty with get, set
+        member val ProjectsFolderPath: string = String.Empty with get, set
+        member val CharterName: string = String.Empty with get, set
+        member val ShowAdvanced: bool = false with get, set
+        member val GenerateDD: bool = true with get, set
+        member val DDPhraseSearchEnabled: bool = true with get, set
+        member val DDPhraseSearchThreshold: int = 80 with get, set
+        member val DDLevelCountGeneration: int = 0 with get, set
+        member val RemoveDDOnImport: bool = false with get, set
+        member val ApplyImprovements: bool = true with get, set
+        member val SaveDebugFiles: bool = false with get, set
+        member val AutoVolume: bool = true with get, set
+        member val AutoSave: bool = false with get, set
+        member val ConvertAudio: int = 0 with get, set
+        member val OpenFolderAfterReleaseBuild: bool = true with get, set
+        member val LoadPreviousOpenedProject: bool = false with get, set
+        member val PreviousOpenedProject: string = String.Empty with get, set
+        member val Locale: string = Locale.Default.ShortName with get, set
+        member val WwiseConsolePath: string = String.Empty with get, set
+        member val CustomAppId: string = String.Empty with get, set
 
     let appDataFolder =
         let dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
@@ -151,7 +151,8 @@ module Configuration =
             | LevelCountGeneration.Simple -> 0
             | LevelCountGeneration.MLModel -> 1
 
-        Dto(ReleasePC = (config.ReleasePlatforms |> Set.contains PC),
+        Dto(
+            ReleasePC = (config.ReleasePlatforms |> Set.contains PC),
             ReleaseMac = (config.ReleasePlatforms |> Set.contains Mac),
             ProfilePath = config.ProfilePath,
             TestFolderPath = config.TestFolderPath,
@@ -173,7 +174,8 @@ module Configuration =
             PreviousOpenedProject = config.PreviousOpenedProject,
             SaveDebugFiles = config.SaveDebugFiles,
             WwiseConsolePath = Option.toObj config.WwiseConsolePath,
-            CustomAppId = Option.toObj config.CustomAppId)
+            CustomAppId = Option.toObj config.CustomAppId
+        )
 
     /// Loads a configuration from the file defined in configFilePath.
     let load (t: IStringLocalizer) = async {

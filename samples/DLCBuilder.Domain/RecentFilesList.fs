@@ -22,8 +22,7 @@ let save (recentList: string list) = async {
 let update newFile oldList =
     let updatedList =
         let list = List.remove newFile oldList
-        newFile::list
-        |> List.truncate MaxFiles
+        newFile :: list |> List.truncate MaxFiles
 
     updatedList
 
@@ -33,5 +32,5 @@ let load () =
     |> File.tryMap (fun path -> async {
         use file = File.OpenRead path
         let! recent = JsonSerializer.DeserializeAsync<string list>(file, FSharpJsonOptions.Create())
-        return List.filter File.Exists recent } )
+        return List.filter File.Exists recent })
     |> Option.defaultValue (async { return List.empty })

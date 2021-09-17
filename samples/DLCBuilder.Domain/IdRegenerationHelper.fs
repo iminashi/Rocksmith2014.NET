@@ -18,5 +18,4 @@ let getConfirmation ids = async {
 
     return! answer.Task |> Async.AwaitTask }
 
-let postNewIds newIdMap =
-    idsGeneratedEvent.Trigger(newIdMap)
+let postNewIds newIdMap = idsGeneratedEvent.Trigger(newIdMap)

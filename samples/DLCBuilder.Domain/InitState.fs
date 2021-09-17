@@ -12,7 +12,8 @@ let private createExitCheckFile () =
 let init localizer albumArtLoader databaseConnector args =
     let commands =
         let wasAbnormalExit = File.Exists Configuration.exitCheckFilePath
-        createExitCheckFile()
+
+        createExitCheckFile ()
 
         let loadProject =
             args

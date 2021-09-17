@@ -10,26 +10,26 @@ open System.Text.Json
 type GearSlot =
     | Amp
     | Cabinet
-    | PrePedal of index : int
-    | PostPedal of index : int
-    | Rack of index : int
+    | PrePedal of index: int
+    | PostPedal of index: int
+    | Rack of index: int
 
 type GearKnob =
-    { Name : string
-      Key : string
-      UnitType : string
-      MinValue : float32
-      MaxValue : float32
-      ValueStep : float32
-      DefaultValue : float32
-      EnumValues : string[] option }
+    { Name: string
+      Key: string
+      UnitType: string
+      MinValue: float32
+      MaxValue: float32
+      ValueStep: float32
+      DefaultValue: float32
+      EnumValues: string array option }
 
 type GearData =
-    { Name : string
-      Type : string
-      Category : string
-      Key : string
-      Knobs : GearKnob array option }
+    { Name: string
+      Type: string
+      Category: string
+      Key: string
+      Knobs: GearKnob array option }
 
 type Repository =
     { Amps: GearData array

@@ -1,4 +1,4 @@
-﻿module DLCBuilder.AppVersion
+module DLCBuilder.AppVersion
 
 open System.Reflection
 
@@ -8,4 +8,4 @@ let current =
     thisAsm.GetName().Version
 
 /// A three part version string prefixed with "v".
-let versionString= $"v{current.ToString(3)}"
+let versionString = $"v{current.ToString(3)}"

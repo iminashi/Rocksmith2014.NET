@@ -51,6 +51,7 @@ let editInstrumental state edit index inst =
                     RouteMask.Bass
                 | _ ->
                     failwith "Impossible failure."
+
             let priority = fixPriority state routeMask inst
             { inst with Name = name; RouteMask = routeMask; Priority = priority }, Cmd.none
 
