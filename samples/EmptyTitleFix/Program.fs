@@ -1,4 +1,4 @@
-﻿open System
+open System
 open System.IO
 open Rocksmith2014.PSARC
 open Rocksmith2014.Common
@@ -22,9 +22,10 @@ let fixManifest entry = async {
 
 /// Calls fixManifest on the manifest entries.
 let mapEntry (entry: NamedEntry) =
-    if entry.Name.EndsWith "hsan" || entry.Name.EndsWith "json" then
+    match entry with
+    | { Name = (EndsWith "hsan" | EndsWith "json") } ->
         fixManifest entry |> Async.RunSynchronously
-    else
+    | _ ->
         entry
 
 /// Fixes empty Japanese song names by setting the attribute to null in the manifests.
@@ -62,15 +63,16 @@ let findFixablePsarcs directory =
 let main argv =
     if argv.Length <> 1 then
         Console.WriteLine "Give as argument a path to a directory that contains PSARC files that need fixing."
-    else async {
-        let! psarcs =
-            findFixablePsarcs argv.[0]
-            |> Async.Sequential
+    else
+        async {
+            let! psarcs =
+                findFixablePsarcs argv.[0]
+                |> Async.Sequential
 
-        do! psarcs
-            |> Array.choose id
-            |> fixManifests
-            |> Async.Sequential
-            |> Async.Ignore }
+            do! psarcs
+                |> Array.choose id
+                |> fixManifests
+                |> Async.Sequential
+                |> Async.Ignore }
         |> Async.RunSynchronously
     0
