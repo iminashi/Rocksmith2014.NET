@@ -16,11 +16,15 @@ let oggToWav sourcePath targetPath =
     WaveFileWriter.CreateWaveFile16(targetPath, ogg)
 
 let private processFile cmd args (file: string) =
-    let startInfo = ProcessStartInfo(FileName = cmd,
-                                     Arguments = String.Format(args, file),
-                                     WorkingDirectory = toolsDir,
-                                     RedirectStandardOutput = true,
-                                     CreateNoWindow = true)
+    let startInfo =
+        ProcessStartInfo(
+            FileName = cmd,
+            Arguments = String.Format(args, file),
+            WorkingDirectory = toolsDir,
+            RedirectStandardOutput = true,
+            CreateNoWindow = true
+        )
+
     use proc = new Process(StartInfo = startInfo)
     proc.Start() |> ignore
     proc.WaitForExit()

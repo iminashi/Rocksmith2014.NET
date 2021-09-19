@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Audio.Utils
+module Rocksmith2014.Audio.Utils
 
 open System.IO
 
@@ -11,6 +11,8 @@ let getLength (fileName: string) =
 /// Example: "some/path/file.ext" -> "some/path/file_preview.wav"
 let createPreviewAudioPath (sourcePath: string) =
     let directory = Path.GetDirectoryName sourcePath
-    let fileName = $"{Path.GetFileNameWithoutExtension(sourcePath)}_preview.wav"
+
+    let fileName =
+        $"{Path.GetFileNameWithoutExtension(sourcePath)}_preview.wav"
 
     Path.Combine(directory, fileName)

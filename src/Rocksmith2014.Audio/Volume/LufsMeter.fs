@@ -10,7 +10,7 @@ open SimpleSimd
 
 [<IsReadOnly; Struct>]
 /// Store mean square infos of previous sample blocks from the time the measurement was started (for integrated loudness)
-type internal MeanSquareLoudness = { MeanSquare : float; Loudness : float }
+type internal MeanSquareLoudness = { MeanSquare: float; Loudness: float }
 
 [<IsReadOnly; Struct>]
 type internal VectorSquare = interface IFunc<Vector<float>, Vector<float>> with member _.Invoke(param) = param * param

@@ -71,30 +71,26 @@ let private copyWemFile (destPath: string) (templateDir: string) =
     Directory.EnumerateFiles(cachePath, "*.wem")
     |> Seq.tryHead
     |> function
-    | Some convertedFile ->
-        File.Copy(convertedFile, destPath, overwrite=true)
-        fixHeader destPath
-    | None ->
-        failwith "Could not find converted Wwise audio file."
+        | Some convertedFile ->
+            File.Copy(convertedFile, destPath, overwrite=true)
+            fixHeader destPath
+        | None ->
+            failwith "Could not find converted Wwise audio file."
 
 let private getWwiseVersion executablePath =
     if OperatingSystem.IsWindows() then
-        let version = FileVersionInfo.GetVersionInfo executablePath
+        let version =
+            FileVersionInfo.GetVersionInfo executablePath
+
         match version.ProductMajorPart with
-        | 2019 ->
-            Wwise2019
-        | 2021 ->
-            Wwise2021
-        | _ ->
-            failwith $"Unsupported Wwise version ({version.FileVersion}).\nMust be major version 2019 or 2021."
+        | 2019 -> Wwise2019
+        | 2021 -> Wwise2021
+        | _ -> failwith $"Unsupported Wwise version ({version.FileVersion}).\nMust be major version 2019 or 2021."
     else
         match executablePath with
-        | Contains "2019" ->
-            Wwise2019
-        | Contains "2021" ->
-            Wwise2021
-        | _ ->
-            Wwise2021
+        | Contains "2019" -> Wwise2019
+        | Contains "2021" -> Wwise2021
+        | _ -> Wwise2021
 
 let private createArgs templateDir =
     Path.Combine(templateDir, "Template.wproj")
@@ -103,6 +99,7 @@ let private createArgs templateDir =
 /// Converts the source audio file into a wem file.
 let convertToWem (cliPath: string option) (sourcePath: string) = async {
     let destPath = Path.ChangeExtension(sourcePath, "wem")
+
     let cliPath =
         match cliPath with
         | Some (Contains "WwiseConsole" as path) ->
@@ -113,6 +110,7 @@ let convertToWem (cliPath: string option) (sourcePath: string) = async {
             getCLIPath()
         | _ ->
             failwith "Path to Wwise console executable appears to be wrong.\nIt should be to WwiseConsole.exe on Windows or WwiseConsole.sh on macOS."
+
     let version = getWwiseVersion cliPath
     let templateDir = loadTemplate sourcePath version
 
@@ -134,4 +132,5 @@ let convertToWem (cliPath: string option) (sourcePath: string) = async {
         if output.Length > 0 then failwith output
 
         copyWemFile destPath templateDir
-    finally Directory.Delete(templateDir, true) }
+    finally
+        Directory.Delete(templateDir, true) }

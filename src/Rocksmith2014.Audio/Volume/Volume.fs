@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Audio.Volume
+module Rocksmith2014.Audio.Volume
 
 open System
 open System.Buffers
@@ -13,19 +13,20 @@ let private calculateLoudness (sampleProvider: ISampleProvider) =
 
     let rec loop () =
         match sampleProvider.Read(buffer, 0, BufferSize) with
-        | 0 -> ()
+        | 0 ->
+            ()
         | samplesRead ->
             let perChannel = samplesRead / channels
             Array.init channels (fun ch ->
-                Array.init perChannel (fun pos -> float buffer.[pos * channels + ch])
-            )
+                Array.init perChannel (fun pos -> float buffer.[pos * channels + ch]))
             |> lufsMeter.ProcessBuffer
             loop ()
 
     try
         loop ()
         lufsMeter.GetIntegratedLoudness()
-    finally ArrayPool.Shared.Return buffer
+    finally
+        ArrayPool.Shared.Return buffer
 
 /// Calculates a volume value using BS.1770 integrated loudness with -16 as reference value.
 let calculate (fileName: string) =

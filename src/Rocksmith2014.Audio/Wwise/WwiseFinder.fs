@@ -4,6 +4,10 @@ open System
 open System.IO
 open System.Text.RegularExpressions
 
+let private tryEnv variable =
+    Environment.GetEnvironmentVariable variable
+    |> Option.ofString
+
 let private tryFindWwiseInstallation rootDir =
     let audiokineticDirectory = Path.Combine(rootDir, "Audiokinetic")
 
@@ -16,7 +20,7 @@ let private tryFindWwiseInstallation rootDir =
 
 let findWindows () =
     let wwiseRoot =
-        match Environment.GetEnvironmentVariable "WWISEROOT" |> Option.ofString with
+        match tryEnv "WWISEROOT" with
         | Some (Contains "2019" | Contains "2021" as path) when Directory.Exists path ->
             path
         | _ ->
@@ -36,7 +40,9 @@ let findMac () =
 
 let findLinux () =
     let defaultWineProgramFiles =
-        let homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
+        let homeDir =
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
+
         Path.Combine(homeDir, ".wine", "drive_c", "Program Files (x86)")
 
     let wwiseRoot =
