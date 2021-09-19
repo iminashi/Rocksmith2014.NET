@@ -1,3 +1,7 @@
+## 0.7.3 (Released 2021-09-19)
+
+- Fixed an issue in the auto update.
+
 ## 0.7.2 (Released 2021-09-19)
 
 - Fixed a bug where the window would be placed off-screen when starting the program.
