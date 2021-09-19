@@ -57,19 +57,27 @@ type MainWindow(commandLineArgs: string array) as this =
             newState.OpenProjectFile.IsSome &&
             newState.Project <> oldState.Project
 
-    let mutable nonMaximizedPosition = this.Position
-    let mutable nonMaximizedSize = Size(this.Width, this.Height)
+    let mutable windowPosition = this.Position
+    let mutable windowSize = Size(this.Width, this.Height)
 
     do
-        this.GetObservable(Window.WidthProperty).Add(fun w ->
-            if this.WindowState <> WindowState.Maximized then
-                nonMaximizedSize <- nonMaximizedSize.WithWidth w)
-        this.GetObservable(Window.HeightProperty).Add(fun h ->
-            if this.WindowState <> WindowState.Maximized then
-                nonMaximizedSize <- nonMaximizedSize.WithHeight h)
-        this.PositionChanged.Add(fun args ->
-            if this.WindowState <> WindowState.Maximized then
-                nonMaximizedPosition <- args.Point)
+        this
+            .GetObservable(Window.WidthProperty)
+            .Add(fun w ->
+                if this.WindowState = WindowState.Normal then
+                    windowSize <- windowSize.WithWidth w)
+
+        this
+            .GetObservable(Window.HeightProperty)
+            .Add(fun h ->
+                if this.WindowState = WindowState.Normal then
+                    windowSize <- windowSize.WithHeight h)
+
+        this
+            .PositionChanged
+            .Add(fun args ->
+                if this.WindowState = WindowState.Normal then
+                    windowPosition <- args.Point)
 
         let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
         use iconData = embeddedProvider.GetFileInfo("Assets/icon.ico").CreateReadStream()
@@ -102,19 +110,19 @@ type MainWindow(commandLineArgs: string array) as this =
             base.WindowStartupLocation <- WindowStartupLocation.CenterScreen
             base.Width <- 1150.0
         | Some status ->
-            base.Width <- status.Width
-            base.Height <- status.Height
-            base.Position <- PixelPoint(status.X, status.Y)
+            base.Width <- max status.Width base.MinWidth
+            base.Height <- max status.Height base.MinHeight
+            base.Position <- PixelPoint(max 0 status.X, max 0 status.Y)
             base.WindowState <- status.State
 
         let hotKeysSub _initialModel = Cmd.ofSub (HotKeys.handleEvent >> this.KeyDown.Add)
 
         let programClosingSub _ =
             Cmd.ofSub <| fun dispatch -> this.Closing.Add(fun _ ->
-                { X = nonMaximizedPosition.X
-                  Y = nonMaximizedPosition.Y
-                  Width = nonMaximizedSize.Width
-                  Height = nonMaximizedSize.Height
+                { X = windowPosition.X
+                  Y = windowPosition.Y
+                  Width = windowSize.Width
+                  Height = windowSize.Height
                   State = if this.WindowState = WindowState.Maximized then WindowState.Maximized else WindowState.Normal }
                 |> WindowStatus.Save
 
