@@ -51,6 +51,7 @@ let private calculateDNAs (sng: SNG) =
 /// Calculates difficulty values for hard, medium and easy.
 let private calculateDifficulties (metaData: XML.MetaData) (sng: SNG) =
     let arrProp = metaData.ArrangementProperties
+
     let techCoeff =
         bti arrProp.NonStandardChords +
         3 * bti arrProp.BarreChords +
@@ -243,6 +244,7 @@ let private createChordMap (sng: SNG) =
 
     for lvl = 0 to sng.Levels.Length - 1 do
         let diffIds = Dictionary<string, int array>()
+
         for i = 0 to sng.PhraseIterations.Length - 1 do
             let pi = sng.PhraseIterations.[i]
             let chordIds =
@@ -270,6 +272,7 @@ let private createTechniqueMap (sng: SNG) =
 
     for lvl = 0 to sng.Levels.Length - 1 do
         let diffIds = Dictionary<string, int array>()
+
         for i = 0 to sng.PhraseIterations.Length - 2 do
             let pi = sng.PhraseIterations.[i]
             let techIds =

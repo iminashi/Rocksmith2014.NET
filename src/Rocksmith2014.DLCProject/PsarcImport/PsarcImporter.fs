@@ -14,13 +14,13 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
     let platform = Platform.fromPackageFileName psarcPath
     let toTargetPath filename = Path.Combine(targetDirectory, filename)
 
-    use psarc = PSARC.ReadFile psarcPath
+    use psarc = PSARC.ReadFile(psarcPath)
     let psarcContents = psarc.Manifest
 
     let dlcKey =
         match psarcContents |> filterFilesWithExtension "xblock" with
         | [ xblock ] ->
-            Path.GetFileNameWithoutExtension xblock
+            Path.GetFileNameWithoutExtension(xblock)
         | [] ->
             failwith "The package does not contain an xblock file."
         | _ ->
@@ -59,7 +59,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         | None ->
             return None }
 
-    progress()
+    progress ()
 
     let! targetAudioFilesById =
         psarcContents
@@ -67,12 +67,23 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         |> List.map (fun bankName -> async {
             let! volume, id = getVolumeAndFileId psarc platform bankName
             let targetFilename = createTargetAudioFilename bankName
-            return string id, { Path = toTargetPath targetFilename; Volume = Math.Round(float volume, 1) } })
+
+            let audio =
+                { Path = toTargetPath targetFilename
+                  Volume = Math.Round(float volume, 1) }
+
+            return string id, audio })
         |> Async.Sequential
 
     let targetAudioFiles = targetAudioFilesById |> Array.map snd
-    let mainAudio = targetAudioFiles |> Array.find (fun audio -> String.endsWith $"{dlcKey}.wem" audio.Path)
-    let previewAudio = targetAudioFiles |> Array.find (fun audio -> String.endsWith $"{dlcKey}_preview.wem" audio.Path)
+
+    let mainAudio =
+        targetAudioFiles
+        |> Array.find (fun audio -> String.endsWith $"{dlcKey}.wem" audio.Path)
+
+    let previewAudio =
+        targetAudioFiles
+        |> Array.find (fun audio -> String.endsWith $"{dlcKey}_preview.wem" audio.Path)
 
     // Extract audio files
     do! targetAudioFilesById
@@ -85,7 +96,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         |> Async.Sequential
         |> Async.Ignore
 
-    progress()
+    progress ()
 
     let arrangements =
         sngs
@@ -94,17 +105,22 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
             let targetFile =
                 let f = Path.GetFileName file
                 toTargetPath <| Path.ChangeExtension("arr" + f.Substring(f.IndexOf '_'), "xml")
+
             let attributes =
                 fileAttributes
-                |> Array.find (fun (mFile, _) -> Path.GetFileNameWithoutExtension mFile = Path.GetFileNameWithoutExtension file)
+                |> Array.find (fun (mFile, _) ->
+                    Path.GetFileNameWithoutExtension(mFile) = Path.GetFileNameWithoutExtension(file))
                 |> snd
 
             let importVocals' = importVocals targetDirectory targetFile customFont attributes sng
 
             match file with
-            | JVocalsFile -> importVocals' true
-            | VocalsFile -> importVocals' false
-            | InstrumentalFile -> importInstrumental targetAudioFiles dlcKey targetFile attributes sng)
+            | JVocalsFile ->
+                importVocals' true
+            | VocalsFile ->
+                importVocals' false
+            | InstrumentalFile ->
+                importInstrumental targetAudioFiles dlcKey targetFile attributes sng)
         |> Array.toList
         |> List.append [ Showlights { XML = toTargetPath "arr_showlights.xml" } ]
         |> List.sortBy Arrangement.sorter
@@ -139,11 +155,17 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
     let project =
         { Version = version
           DLCKey = metaData.DLCKey
-          ArtistName = { Value = metaData.ArtistName; SortValue = metaData.ArtistNameSort }
+          ArtistName =
+            { Value = metaData.ArtistName
+              SortValue = metaData.ArtistNameSort }
           JapaneseArtistName = Option.ofString metaData.JapaneseArtistName
           JapaneseTitle = Option.ofString metaData.JapaneseSongName
-          Title = { Value = metaData.SongName; SortValue = metaData.SongNameSort }
-          AlbumName = { Value = metaData.AlbumName; SortValue = metaData.AlbumNameSort }
+          Title =
+            { Value = metaData.SongName
+              SortValue = metaData.SongNameSort }
+          AlbumName =
+            { Value = metaData.AlbumName
+              SortValue = metaData.AlbumNameSort }
           Year = metaData.SongYear |> Option.ofNullable |> Option.defaultValue 0
           AlbumArtFile = toTargetPath "cover.dds"
           AudioFile = mainAudio
@@ -161,6 +183,6 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
 
     do! DLCProject.save projectFile project
 
-    progress()
+    progress ()
 
     return project, projectFile }

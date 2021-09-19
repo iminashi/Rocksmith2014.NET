@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DLCProject.SoundBank
+module Rocksmith2014.DLCProject.SoundBank
 
 open System
 open System.IO
@@ -35,7 +35,9 @@ let private header soundbankID platform =
     writer.WriteUInt32 soundbankID
     writer.WriteUInt32 0u // Language ID
     writer.WriteUInt32 0u // HasFeedback
-    for _ = 1 to getHeaderPaddingSize platform do writer.WriteInt32 0
+
+    for _ = 1 to getHeaderPaddingSize platform do
+        writer.WriteInt32 0
 
     memory
 
@@ -49,7 +51,7 @@ let private stringID soundbankID name platform =
     writer.WriteUInt32 1u // String Type
     writer.WriteUInt32 1u // NumNames
     writer.WriteUInt32 soundbankID
-    writer.WriteInt8 (int8 soundbankName.Length)
+    writer.WriteInt8(int8 soundbankName.Length)
     writer.WriteBytes soundbankName
 
     memory
@@ -249,7 +251,7 @@ let private hierarchyEvent id name platform =
     memory
 
 let private copyData output (writer: IBinaryWriter) (data: Stream) =
-    writer.WriteInt32 (int32 data.Length)
+    writer.WriteInt32(int32 data.Length)
     data.Position <- 0L
     data.CopyTo output
     data.Dispose()
@@ -261,7 +263,7 @@ let private writeHierarchy output (writer: IBinaryWriter) id (hierarchy: Stream)
 /// Creates the hierarchy chunk.
 let private hierarchy bankId soundId fileId name volume isPreview platform =
     let mixerID = 650605636u
-    let actionID = RandomGenerator.next() |> uint32
+    let actionID = RandomGenerator.next () |> uint32
     let numObjects = 4u
 
     let memory = MemoryStreamPool.Default.GetStream()
@@ -284,9 +286,9 @@ let private writeChunk (output: Stream) (writer: IBinaryWriter) name (data: Stre
 
 /// Generates a sound bank for the audio stream into the output stream.
 let generate name (audioStream: Stream) (output: Stream) volume (platform: Platform) =
-    let soundbankID = RandomGenerator.next() |> uint32
+    let soundbankID = RandomGenerator.next () |> uint32
     let fileID = abs <| hash name
-    let soundID = RandomGenerator.next()
+    let soundID = RandomGenerator.next ()
 
     let writer = BinaryWriters.getWriter output platform
     let write = writeChunk output writer
@@ -307,32 +309,36 @@ let generate name (audioStream: Stream) (output: Stream) volume (platform: Platf
     string fileID
 
 /// Reads the file ID value from the sound bank in the stream.
-let readFileId (stream: Stream) platform = result {
-    let reader = initReader stream platform
+let readFileId (stream: Stream) platform =
+    result {
+        let reader = initReader stream platform
 
-    do! seekToSection stream reader "DIDX"B |> Result.ignore
+        do! seekToSection stream reader "DIDX"B |> Result.ignore
 
-    // Read the file ID
-    return reader.ReadInt32() }
+        // Read the file ID
+        return reader.ReadInt32()
+    }
 
 /// Reads the volume value from the sound bank in the stream.
-let readVolume (stream: Stream) platform = result {
-    let reader = initReader stream platform
+let readVolume (stream: Stream) platform =
+    result {
+        let reader = initReader stream platform
 
-    do! seekToSection stream reader "HIRC"B |> Result.ignore
-    do! seekToObject stream reader HierarchyID.Sound
+        do! seekToSection stream reader "HIRC"B |> Result.ignore
+        do! seekToObject stream reader HierarchyID.Sound
 
-    // Skip 46 bytes to get to the parameter count
-    seek stream 46L
+        // Skip 46 bytes to get to the parameter count
+        seek stream 46L
 
-    let paramCount = reader.ReadInt8()
-    let paramTypes = reader.ReadBytes(int32 paramCount)
+        let paramCount = reader.ReadInt8()
+        let paramTypes = reader.ReadBytes(int32 paramCount)
 
-    match Array.IndexOf(paramTypes, byte SoundParameters.Volume) with
-    | -1 ->
-        // Volume parameter is not present
-        return 0.f
-    | index ->
-        // Seek to the volume parameter (each parameter is 4 bytes long)
-        seek stream (int64 index * 4L)
-        return reader.ReadSingle() }
+        match Array.IndexOf(paramTypes, byte SoundParameters.Volume) with
+        | -1 ->
+            // Volume parameter is not present
+            return 0.f
+        | index ->
+            // Seek to the volume parameter (each parameter is 4 bytes long)
+            seek stream (int64 index * 4L)
+            return reader.ReadSingle()
+    }

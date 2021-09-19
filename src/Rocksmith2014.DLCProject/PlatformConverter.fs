@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DLCProject.PlatformConverter
+module Rocksmith2014.DLCProject.PlatformConverter
 
 open Rocksmith2014.PSARC
 open Rocksmith2014.Common
@@ -8,13 +8,18 @@ open System.Text
 
 /// Replaces PC specific paths and tags with Mac versions.
 let private convertGraph (data: Stream) =
-    let text = using (new StreamReader(data)) (fun reader -> reader.ReadToEnd())
-    let newText = StringBuilder(text)
-                    .Replace("bin/generic", "bin/macos")
-                    .Replace("audio/windows", "audio/mac")
-                    .Replace("dx9", "macos")
+    let text =
+        using (new StreamReader(data)) (fun reader -> reader.ReadToEnd())
+
+    let newText =
+        StringBuilder(text)
+            .Replace("bin/generic", "bin/macos")
+            .Replace("audio/windows", "audio/mac")
+            .Replace("dx9", "macos")
+
     let newData = MemoryStreamPool.Default.GetStream()
     use writer = new StreamWriter(newData, leaveOpen = true)
+
     writer.Write newText
     newData
 

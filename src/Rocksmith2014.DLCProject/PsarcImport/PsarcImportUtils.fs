@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DLCProject.PsarcImportUtils
+module Rocksmith2014.DLCProject.PsarcImportUtils
 
 open Rocksmith2014.PSARC
 open Rocksmith2014.Common
@@ -11,6 +11,7 @@ open System
 /// Reads the volume and file ID from the PSARC for the sound bank with the given name.
 let getVolumeAndFileId (psarc: PSARC) platform bankName = async {
     use! stream = psarc.GetEntryStream bankName
+
     let volume =
         match SoundBank.readVolume stream platform with
         | Ok vol -> vol
@@ -32,7 +33,8 @@ let (|VocalsFile|JVocalsFile|InstrumentalFile|) = function
 /// Creates a target wem filename from a sound bank name.
 /// Example: "song_dlckey_xxx.bnk" -> "dlckey_xxx.wem"
 let createTargetAudioFilename (bankName: string) =
-    Path.GetFileNameWithoutExtension(bankName).Substring("song_".Length)
+    Path.GetFileNameWithoutExtension(bankName)
+        .Substring("song_".Length)
     |> sprintf "%s.wem"
 
 let filterFilesWithExtension extension = List.filter (String.endsWith extension)
@@ -82,15 +84,21 @@ let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile
     { XML = targetFile
       Name = ArrangementName.Parse attributes.ArrangementName
       Priority =
-        if arrProps.represent = 1uy then ArrangementPriority.Main
-        elif arrProps.bonusArr = 1uy then ArrangementPriority.Bonus
-        else ArrangementPriority.Alternative
+        if arrProps.represent = 1uy then
+            ArrangementPriority.Main
+        elif arrProps.bonusArr = 1uy then
+            ArrangementPriority.Bonus
+        else
+            ArrangementPriority.Alternative
       Tuning = (Option.get attributes.Tuning).ToArray()
       TuningPitch = Utils.centsToTuningPitch(attributes.CentOffset.GetValueOrDefault())
       RouteMask =
-        if arrProps.pathBass = 1uy then RouteMask.Bass
-        elif arrProps.pathLead = 1uy then RouteMask.Lead
-        else RouteMask.Rhythm
+        if arrProps.pathBass = 1uy then
+            RouteMask.Bass
+        elif arrProps.pathLead = 1uy then
+            RouteMask.Lead
+        else
+            RouteMask.Rhythm
       ScrollSpeed = scrollSpeed
       BaseTone = attributes.Tone_Base
       Tones = tones

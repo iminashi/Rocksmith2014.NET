@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DLCProject.XBlock
+module Rocksmith2014.DLCProject.XBlock
 
 open System
 open System.IO
@@ -34,7 +34,7 @@ type Entity =
       [<XmlAttribute("iterations")>]
       Iterations: int
 
-      [<XmlArray("properties"); XmlArrayItem(ElementName = "property")>] 
+      [<XmlArray("properties"); XmlArrayItem(ElementName = "property")>]
       Properties: Property array }
 
 [<XmlRoot("game"); CLIMutable>]
@@ -95,7 +95,10 @@ let serialize (output: Stream) (game: Game) =
     let ns = XmlSerializerNamespaces()
     ns.Add("", "")
     let serializer = XmlSerializer(typeof<Game>)
-    let settings = XmlWriterSettings(Indent = true, Encoding = UTF8Encoding(true), CloseOutput = false)
+
+    let settings =
+        XmlWriterSettings(Indent = true, Encoding = UTF8Encoding(true), CloseOutput = false)
+
     use writer = XmlWriter.Create(output, settings)
     serializer.Serialize(writer, game, ns)
 

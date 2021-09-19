@@ -1,14 +1,17 @@
-﻿module Rocksmith2014.DLCProject.ToolkitImporter
+module Rocksmith2014.DLCProject.ToolkitImporter
 
+open Rocksmith2014.Common
+open Rocksmith2014.Common.Manifest
+open Rocksmith2014.DLCProject
 open System
 open System.IO
 open System.Xml
-open Rocksmith2014.Common
-open Rocksmith2014.DLCProject
-open Rocksmith2014.Common.Manifest
 
-let [<Literal>] AggregateGraphNs = "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.AggregateGraph"
-let [<Literal>] ToneNs = "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.Manifest2014.Tone"
+let [<Literal>] AggregateGraphNs =
+    "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.AggregateGraph"
+
+let [<Literal>] ToneNs =
+    "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.Manifest2014.Tone"
 
 let private optionalString (node: XmlNode) name =
     node.Item name
@@ -34,13 +37,17 @@ let private importInstrumental (xmlFile: string) (arr: XmlNode) =
             match arr.Item "ArrangementPropeties" with
             | null ->
                 // Arrangement properties do not exist in old files
-                if isBonusArr then ArrangementPriority.Bonus else ArrangementPriority.Main
+                if isBonusArr then
+                    ArrangementPriority.Bonus
+                else
+                    ArrangementPriority.Main
             | arrProp ->
                 let getPriority ns =
                     let represent =
                         let r = arr.Item "Represent"
                         // The Represent tag is not present in old files
                         notNull r && r.InnerText = "true"
+
                     if represent || arrProp.Item("Represent", ns).InnerText = "1" then
                         ArrangementPriority.Main
                     elif isBonusArr || arrProp.Item("BonusArr", ns).InnerText = "1" then
@@ -49,8 +56,10 @@ let private importInstrumental (xmlFile: string) (arr: XmlNode) =
                         ArrangementPriority.Alternative
 
                 // The XML namespace was renamed at some point.
-                try getPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.XML"
-                with _ -> getPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.Xml"
+                try
+                    getPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.XML"
+                with _ ->
+                    getPriority "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.Xml"
         with _ ->
             ArrangementPriority.Main
 
@@ -101,7 +110,7 @@ let private importVocals (xmlFile: string) (arr: XmlNode) =
                     None
                 else
                     // Converts "path\to\x.glyphs.xml" to "x.dds"
-                    Some (Path.ChangeExtension(Path.GetFileNameWithoutExtension glyphDefs.InnerText, "dds"))))
+                    Some(Path.ChangeExtension(Path.GetFileNameWithoutExtension glyphDefs.InnerText, "dds"))))
 
     { XML = xmlFile
       Japanese = isJapanese 
@@ -133,24 +142,34 @@ let import (templatePath: string) =
     doc.Load(templatePath)
     let docEl = doc.DocumentElement
 
-    if docEl.Name <> "DLCPackageData" then failwith "Not a valid Toolkit template file."
+    if docEl.Name <> "DLCPackageData" then
+        failwith "Not a valid Toolkit template file."
 
     let songInfo = docEl.Item "SongInfo"
+
     let year =
         match Int32.TryParse(itemText songInfo "SongYear") with
         | true, year -> year
         | false, _ -> DateTime.Now.Year
 
     let audioPath = itemText docEl "OggPath"
+
     let previewPath =
-        let audioFileName = Path.GetFileNameWithoutExtension audioPath
-        let previewFileName = $"{audioFileName}_preview{Path.GetExtension audioPath}"
-        let prevFile = Path.Combine(Path.GetDirectoryName audioPath, previewFileName)
+        let audioFileName =
+            Path.GetFileNameWithoutExtension(audioPath)
+
+        let previewFileName =
+            $"{audioFileName}_preview{Path.GetExtension audioPath}"
+
+        let prevFile =
+            Path.Combine(Path.GetDirectoryName(audioPath), previewFileName)
+
         let prevPath =
-            if Path.IsPathFullyQualified prevFile then
+            if Path.IsPathFullyQualified(prevFile) then
                 prevFile
             else
-                Path.Combine(Path.GetDirectoryName templatePath, prevFile)
+                Path.Combine(Path.GetDirectoryName(templatePath), prevFile)
+
         match File.Exists prevPath with
         | true -> prevFile
         | false -> String.Empty
@@ -180,15 +199,25 @@ let import (templatePath: string) =
 
     { Version = version
       DLCKey = itemText docEl "Name"
-      ArtistName = { Value = itemText songInfo "Artist"; SortValue = itemText songInfo "ArtistSort" }
+      ArtistName =
+        { Value = itemText songInfo "Artist"
+          SortValue = itemText songInfo "ArtistSort" }
       JapaneseArtistName = optionalString songInfo "JapaneseArtistName"
       JapaneseTitle = optionalString songInfo "JapaneseSongName"
-      Title = { Value = itemText songInfo "SongDisplayName"; SortValue = itemText songInfo "SongDisplayNameSort" }
-      AlbumName = { Value = itemText songInfo "Album"; SortValue = itemText songInfo "AlbumSort" }
+      Title =
+        { Value = itemText songInfo "SongDisplayName"
+          SortValue = itemText songInfo "SongDisplayNameSort" }
+      AlbumName =
+        { Value = itemText songInfo "Album"
+          SortValue = itemText songInfo "AlbumSort" }
       Year = year
       AlbumArtFile = itemText docEl "AlbumArtPath"
-      AudioFile = { Path = audioPath; Volume = float (itemText docEl "Volume") }
-      AudioPreviewFile = { Path = previewPath; Volume = float (itemText docEl "PreviewVolume") }
+      AudioFile =
+        { Path = audioPath
+          Volume = float (itemText docEl "Volume") }
+      AudioPreviewFile =
+        { Path = previewPath
+          Volume = float (itemText docEl "PreviewVolume") }
       AudioPreviewStartTime = None
       PitchShift = None
       Arrangements = arrangements

@@ -17,7 +17,7 @@ let private tryGetStoredLevels directory =
     if File.Exists levelsFile then
         try
             let text = File.ReadAllText levelsFile
-            Some <| JsonSerializer.Deserialize<ProjectLevels> text
+            Some(JsonSerializer.Deserialize<ProjectLevels> text)
         with _ ->
             None
     else
@@ -38,6 +38,7 @@ let private createLevelDictionary (arrangements: (Arrangement * SNG) list) : Pro
             sng.Phrases
             |> Array.map (fun x -> x.Name, x.MaxDifficulty)
             |> readOnlyDict
+
         inst.PersistentID, phraseLevels)
     |> readOnlyDict
 
@@ -48,6 +49,7 @@ let compareLevels (stored: ProjectLevels) (arrangements: (Arrangement * SNG) lis
         | Instrumental inst, sng ->
             option {
                 let! storedLevels = Dictionary.tryGetValue inst.PersistentID stored
+
                 if sng.Phrases |> Array.exists (fun phrase ->
                     storedLevels
                     |> Dictionary.tryGetValue phrase.Name

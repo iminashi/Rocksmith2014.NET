@@ -7,21 +7,21 @@ open System.IO
 open System.Text.Json
 
 type DLCProject =
-    { Version : string
-      DLCKey : string
-      ArtistName : SortableString
-      JapaneseArtistName : string option
-      JapaneseTitle : string option
-      Title : SortableString
-      AlbumName : SortableString
-      Year : int
-      AlbumArtFile : string
-      AudioFile : AudioFile
-      AudioPreviewFile : AudioFile
-      AudioPreviewStartTime : float option
-      PitchShift : int16 option
-      Arrangements : Arrangement list
-      Tones : Tone list }
+    { Version: string
+      DLCKey: string
+      ArtistName: SortableString
+      JapaneseArtistName: string option
+      JapaneseTitle: string option
+      Title: SortableString
+      AlbumName: SortableString
+      Year: int
+      AlbumArtFile: string
+      AudioFile: AudioFile
+      AudioPreviewFile: AudioFile
+      AudioPreviewStartTime: float option
+      PitchShift: int16 option
+      Arrangements: Arrangement list
+      Tones: Tone list }
 
     static member Empty =
         { Version = "1"
@@ -42,21 +42,21 @@ type DLCProject =
 
 module DLCProject =
     type Dto() =
-        member val Version : string = String.Empty with get, set
-        member val DLCKey : string = String.Empty with get, set
-        member val ArtistName : SortableString = SortableString.Empty with get, set
-        member val JapaneseArtistName : string = null with get, set
-        member val JapaneseTitle : string = null with get, set
-        member val Title : SortableString = SortableString.Empty with get, set
-        member val AlbumName : SortableString = SortableString.Empty with get, set
-        member val Year : int = DateTime.Now.Year with get, set
-        member val AlbumArtFile : string = String.Empty with get, set
-        member val AudioFile : AudioFile = AudioFile.Empty with get, set
+        member val Version: string = String.Empty with get, set
+        member val DLCKey: string = String.Empty with get, set
+        member val ArtistName: SortableString = SortableString.Empty with get, set
+        member val JapaneseArtistName: string = null with get, set
+        member val JapaneseTitle: string = null with get, set
+        member val Title: SortableString = SortableString.Empty with get, set
+        member val AlbumName: SortableString = SortableString.Empty with get, set
+        member val Year: int = DateTime.Now.Year with get, set
+        member val AlbumArtFile: string = String.Empty with get, set
+        member val AudioFile: AudioFile = AudioFile.Empty with get, set
         member val AudioPreviewFile = AudioFile.Empty with get, set
         member val AudioPreviewStartTime = Nullable<float>() with get, set
         member val PitchShift = Nullable<int16>() with get, set
-        member val Arrangements : Arrangement array = Array.empty with get, set
-        member val Tones : ToneDto array = Array.empty with get, set
+        member val Arrangements: Arrangement array = Array.empty with get, set
+        member val Tones: ToneDto array = Array.empty with get, set
 
     let private toDto (project: DLCProject) =
         let tones =
@@ -64,7 +64,8 @@ module DLCProject =
             |> List.map Tone.toDto
             |> Array.ofList
 
-        Dto(Version = project.Version,
+        Dto(
+            Version = project.Version,
             DLCKey = project.DLCKey,
             ArtistName = project.ArtistName,
             JapaneseArtistName = Option.toObj project.JapaneseArtistName,
@@ -78,7 +79,8 @@ module DLCProject =
             AudioPreviewStartTime = Option.toNullable project.AudioPreviewStartTime,
             PitchShift = Option.toNullable project.PitchShift,
             Arrangements = Array.ofList project.Arrangements,
-            Tones = tones)
+            Tones = tones
+        )
 
     let private fromDto (dto: Dto) =
         { Version = dto.Version
@@ -98,7 +100,7 @@ module DLCProject =
           Tones = dto.Tones |> List.ofArray |> List.map Tone.fromDto }
 
     let private toAbsolutePath (baseDir: string) (fileName: string) =
-        if String.IsNullOrWhiteSpace fileName || Path.IsPathFullyQualified fileName then
+        if String.IsNullOrWhiteSpace(fileName) || Path.IsPathFullyQualified(fileName) then
             fileName
         else
             Path.Combine(baseDir, fileName)
@@ -120,13 +122,18 @@ module DLCProject =
                 | Showlights s ->
                     Showlights { s with XML = abs s.XML })
 
-        { project with Arrangements = arrangements
-                       AlbumArtFile = abs project.AlbumArtFile
-                       AudioFile = { project.AudioFile with Path = abs project.AudioFile.Path }
-                       AudioPreviewFile = { project.AudioPreviewFile with Path = abs project.AudioPreviewFile.Path } }
+        { project with
+            Arrangements = arrangements
+            AlbumArtFile = abs project.AlbumArtFile
+            AudioFile =
+                { project.AudioFile with
+                    Path = abs project.AudioFile.Path }
+            AudioPreviewFile =
+                { project.AudioPreviewFile with
+                    Path = abs project.AudioPreviewFile.Path } }
 
     let private toRelativePath (relativeTo: string) (path: string) =
-        if String.IsNullOrWhiteSpace path then
+        if String.IsNullOrWhiteSpace(path) then
             path
         else
             Path.GetRelativePath(relativeTo, path)
@@ -134,6 +141,7 @@ module DLCProject =
     /// Converts the paths in the project relative to the given path.
     let toRelativePaths (path: string) (project: DLCProject) =
         let rel = toRelativePath path
+
         let arrangements =
             project.Arrangements
             |> List.map (function
@@ -148,17 +156,22 @@ module DLCProject =
                 | Showlights s ->
                     Showlights { s with XML = rel s.XML })
 
-        { project with Arrangements = arrangements
-                       AlbumArtFile = rel project.AlbumArtFile
-                       AudioFile = { project.AudioFile with Path = rel project.AudioFile.Path }
-                       AudioPreviewFile = { project.AudioPreviewFile with Path = rel project.AudioPreviewFile.Path } }
+        { project with
+            Arrangements = arrangements
+            AlbumArtFile = rel project.AlbumArtFile
+            AudioFile =
+                { project.AudioFile with
+                    Path = rel project.AudioFile.Path }
+            AudioPreviewFile =
+                { project.AudioPreviewFile with
+                    Path = rel project.AudioPreviewFile.Path } }
 
     /// Saves a project with the given filename.
     let save (fileName: string) (project: DLCProject) = async {
-        use file = File.Create fileName
+        use file = File.Create(fileName)
         let options = FSharpJsonOptions.Create(indent=true, ignoreNull=true)
         let p =
-            toRelativePaths (Path.GetDirectoryName fileName) project
+            toRelativePaths (Path.GetDirectoryName(fileName)) project
             |> toDto
         do! JsonSerializer.SerializeAsync<Dto>(file, p, options) }
 
@@ -167,7 +180,7 @@ module DLCProject =
         let options = FSharpJsonOptions.Create(indent=true, ignoreNull=true)
         use file = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan ||| FileOptions.Asynchronous)
         let! project = JsonSerializer.DeserializeAsync<Dto>(file, options)
-        return toAbsolutePaths (Path.GetDirectoryName fileName) (fromDto project) }
+        return toAbsolutePaths (Path.GetDirectoryName(fileName)) (fromDto project) }
 
     /// Updates the tone names for the instrumental arrangements in the project from the XML files.
     let updateToneInfo (project: DLCProject) =

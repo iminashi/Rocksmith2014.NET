@@ -26,29 +26,28 @@ type ArrangementPriority =
     | Bonus = 2
 
 type Instrumental =
-    { XML : string
-      Name : ArrangementName
-      RouteMask : RouteMask
-      Priority : ArrangementPriority
-      ScrollSpeed : float
-      BassPicked : bool
-      Tuning : int16 array
-      TuningPitch : float
-      BaseTone : string
-      Tones : string list
-      CustomAudio : AudioFile option
-      MasterID : int
-      PersistentID : Guid }
+    { XML: string
+      Name: ArrangementName
+      RouteMask: RouteMask
+      Priority: ArrangementPriority
+      ScrollSpeed: float
+      BassPicked: bool
+      Tuning: int16 array
+      TuningPitch: float
+      BaseTone: string
+      Tones: string list
+      CustomAudio: AudioFile option
+      MasterID: int
+      PersistentID: Guid }
 
 type Vocals =
-    { XML : string
-      Japanese : bool
-      CustomFont : string option
-      MasterID : int
-      PersistentID : Guid }
+    { XML: string
+      Japanese: bool
+      CustomFont: string option
+      MasterID: int
+      PersistentID: Guid }
 
-type Showlights =
-    { XML : string }
+type Showlights = { XML: string }
 
 type Arrangement =
     | Instrumental of Instrumental
@@ -56,8 +55,8 @@ type Arrangement =
     | Showlights of Showlights
 
 type ArrangementLoadError =
-    | UnknownArrangement of failedFile : string
-    | FailedWithException of failedFile : string * exn
+    | UnknownArrangement of failedFile: string
+    | FailedWithException of failedFile: string * exn
 
 module Arrangement =
     /// Returns the master ID of an arrangement.
@@ -121,7 +120,7 @@ module Arrangement =
     /// Returns the comparable values for sorting arrangements.
     let sorter = function
         | Instrumental i ->
-            LanguagePrimitives.EnumToValue i.RouteMask, LanguagePrimitives.EnumToValue i.Priority
+            LanguagePrimitives.EnumToValue(i.RouteMask), LanguagePrimitives.EnumToValue(i.Priority)
         | Vocals v when not v.Japanese ->
             5, 0
         | Vocals _ ->
@@ -140,7 +139,7 @@ module Arrangement =
             | "song" ->
                 let metadata = MetaData.Read fileName
                 let arrProp = metadata.ArrangementProperties
-                let toneInfo = InstrumentalArrangement.ReadToneNames fileName
+                let toneInfo = InstrumentalArrangement.ReadToneNames(fileName)
 
                 let baseTone =
                     match toneInfo.BaseToneName with
@@ -155,12 +154,15 @@ module Arrangement =
                     |> Array.toList
 
                 let routeMask =
-                    if arrProp.PathBass then RouteMask.Bass
-                    elif arrProp.PathRhythm then RouteMask.Rhythm
-                    else RouteMask.Lead
+                    if arrProp.PathBass then
+                        RouteMask.Bass
+                    elif arrProp.PathRhythm then
+                        RouteMask.Rhythm
+                    else
+                        RouteMask.Lead
 
                 let name =
-                    match ArrangementName.TryParse metadata.Arrangement with
+                    match ArrangementName.TryParse(metadata.Arrangement) with
                     | true, name ->
                         name
                     | false, _ ->
@@ -173,9 +175,12 @@ module Arrangement =
                     { XML = fileName
                       Name = name
                       Priority =
-                        if arrProp.Represent then ArrangementPriority.Main
-                        elif arrProp.BonusArrangement then ArrangementPriority.Bonus
-                        else ArrangementPriority.Alternative
+                        if arrProp.Represent then
+                            ArrangementPriority.Main
+                        elif arrProp.BonusArrangement then
+                            ArrangementPriority.Bonus
+                        else
+                            ArrangementPriority.Alternative
                       Tuning = metadata.Tuning.Strings
                       TuningPitch = Utils.centsToTuningPitch(float metadata.CentOffset)
                       RouteMask = routeMask
@@ -183,11 +188,12 @@ module Arrangement =
                       BaseTone = baseTone
                       Tones = tones
                       BassPicked = arrProp.BassPick
-                      MasterID = RandomGenerator.next()
+                      MasterID = RandomGenerator.next ()
                       PersistentID = Guid.NewGuid()
                       CustomAudio = None }
                     |> Arrangement.Instrumental
-                Ok (arr, Some metadata)
+
+                Ok(arr, Some metadata)
 
             | "vocals" ->
                 // Attempt to infer whether the lyrics are Japanese from the filename
@@ -196,49 +202,60 @@ module Arrangement =
 
                 // Try to find custom font for Japanese vocals
                 let customFont =
-                    let fontFile = Path.Combine(Path.GetDirectoryName fileName, "lyrics.dds")
-                    if isJapanese && File.Exists fontFile then Some fontFile else None
+                    let fontFile =
+                        Path.Combine(Path.GetDirectoryName(fileName), "lyrics.dds")
+
+                    if isJapanese && File.Exists(fontFile) then
+                        Some fontFile
+                    else
+                        None
 
                 let arr =
                     { XML = fileName
                       Japanese = isJapanese
                       CustomFont = customFont
-                      MasterID = RandomGenerator.next()
+                      MasterID = RandomGenerator.next ()
                       PersistentID = Guid.NewGuid() }
                     |> Arrangement.Vocals
-                Ok (arr, None)
+
+                Ok(arr, None)
 
             | "showlights" ->
                 let arr = Arrangement.Showlights { XML = fileName }
-                Ok (arr, None)
+                Ok(arr, None)
 
             | _ ->
-                Error (UnknownArrangement fileName)
+                Error(UnknownArrangement fileName)
         with ex ->
-            Error (FailedWithException(fileName, ex))
+            Error(FailedWithException(fileName, ex))
 
     /// Reads the tone info from the arrangement's XML file.
     let updateToneInfo (inst: Instrumental) updateBaseTone =
-        let toneInfo = InstrumentalArrangement.ReadToneNames inst.XML
+        let toneInfo = InstrumentalArrangement.ReadToneNames(inst.XML)
+
         let tones =
             toneInfo.Names
             |> Array.choose Option.ofString
             |> Array.toList
 
         if updateBaseTone && notNull toneInfo.BaseToneName then
-            { inst with Tones = tones; BaseTone = toneInfo.BaseToneName }
+            { inst with
+                Tones = tones
+                BaseTone = toneInfo.BaseToneName }
         else
             { inst with Tones = tones }
 
     /// Generates new IDs for the given arrangement.
     let generateIds = function
         | Instrumental inst ->
-            { inst with MasterID = RandomGenerator.next()
-                        PersistentID = Guid.NewGuid() }
+            { inst with
+                MasterID = RandomGenerator.next ()
+                PersistentID = Guid.NewGuid() }
             |> Instrumental
         | Vocals vocals ->
-            { vocals with MasterID = RandomGenerator.next()
-                          PersistentID = Guid.NewGuid() }
+            { vocals with
+                MasterID = RandomGenerator.next ()
+                PersistentID = Guid.NewGuid() }
             |> Vocals
         | other ->
             other

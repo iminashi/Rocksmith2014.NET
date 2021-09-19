@@ -39,8 +39,11 @@ type BuildConfig =
       ApplyImprovements: bool
       SaveDebugFiles: bool
       AudioConversionTask: Async<unit>
-      IdResetConfig : IdResetConfig option
-      ProgressReporter : IProgress<float> option }
+      IdResetConfig: IdResetConfig option
+      ProgressReporter: IProgress<float> option }
+
+let private getResource (provider: EmbeddedFileProvider) name =
+    provider.GetFileInfo(name).CreateReadStream()
 
 let private toDisposableList items = new DisposableList<_>(items)
 
@@ -49,18 +52,24 @@ let private build (buildData: BuildData) progress targetFile project platform = 
     let partition = Partitioner.create project
     let entry name data = { Name = name; Data = data }
     let key = project.DLCKey.ToLowerInvariant()
+    let sngMap = buildData.SNGs |> readOnlyDict
+
     let getManifestName arr =
         let name = partition arr |> snd
         $"manifests/songs_dlc_{key}/{key}_{name}.json"
-    let sngMap = buildData.SNGs |> readOnlyDict
 
     use! manifestEntries =
-        let attributes arr conv = Some(getManifestName arr, createAttributes project conv)
+        let attributes arr conv =
+            Some(getManifestName arr, createAttributes project conv)
+
         project.Arrangements
         |> List.choose (function
-            | Instrumental i as arr -> FromInstrumental(i, sngMap.[arr]) |> attributes arr
-            | Vocals v as arr -> FromVocals v |> attributes arr
-            | Showlights _ -> None)
+            | Instrumental i as arr ->
+                FromInstrumental(i, sngMap.[arr]) |> attributes arr
+            | Vocals v as arr ->
+                FromVocals v |> attributes arr
+            | Showlights _ ->
+                None)
         |> List.map (fun (name, attr) -> async {
             let data = MemoryStreamPool.Default.GetStream()
             do! Manifest.create attr |> Manifest.toJsonStream data
@@ -71,11 +80,15 @@ let private build (buildData: BuildData) progress targetFile project platform = 
     use! headerEntry = async {
         let header = createAttributesHeader project >> Some
         let data = MemoryStreamPool.Default.GetStream()
+
         do! project.Arrangements
             |> List.choose (function
-                | Instrumental i as arr -> FromInstrumental(i, sngMap.[arr]) |> header
-                | Vocals v -> FromVocals v |> header
-                | Showlights _ -> None)
+                | Instrumental i as arr ->
+                    FromInstrumental(i, sngMap.[arr]) |> header
+                | Vocals v ->
+                    FromVocals v |> header
+                | Showlights _ ->
+                    None)
             |> Manifest.createHeader
             |> Manifest.toJsonStream data
         return entry $"manifests/songs_dlc_{key}/songs_dlc_{key}.hsan" data }
@@ -85,15 +98,17 @@ let private build (buildData: BuildData) progress targetFile project platform = 
         |> List.map (fun (arr, sng) -> async {
             let data = MemoryStreamPool.Default.GetStream()
             do! SNG.savePacked data platform sng
+
             let name =
                 let part = partition arr |> snd
                 let path = getPathPart platform Path.SNG
                 $"songs/bin/{path}/{key}_{part}.sng"
+
             return entry name data })
         |> Async.Parallel
         |> Async.map (List.ofArray >> toDisposableList)
 
-    progress()
+    progress ()
 
     use showlightsEntry =
         let slFile = (List.pick Arrangement.pickShowlights project.Arrangements).XML
@@ -101,30 +116,39 @@ let private build (buildData: BuildData) progress targetFile project platform = 
 
     use fontEntry =
         project.Arrangements
-        |> List.tryPick (function Vocals { CustomFont = Some _ as font } -> font | _ -> None)
-        |> Option.map (fun f -> entry $"assets/ui/lyrics/{key}/lyrics_{key}.dds" (readFile f))
+        |> List.tryPick (function
+            | Vocals { CustomFont = Some _ as font } -> font
+            | _ -> None)
+        |> Option.map (fun f ->
+            entry $"assets/ui/lyrics/{key}/lyrics_{key}.dds" (readFile f))
         |> (Option.toList >> toDisposableList)
 
     use flatModelEntries =
-        let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
-        let songData = embeddedProvider.GetFileInfo("res/rsenumerable_song.flat").CreateReadStream()
-        let rootData = embeddedProvider.GetFileInfo("res/rsenumerable_root.flat").CreateReadStream()
+        let embedded = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
+        let songData = getResource embedded "res/rsenumerable_song.flat"
+        let rootData = getResource embedded "res/rsenumerable_root.flat"
+
         [ entry "flatmodels/rs/rsenumerable_song.flat" songData
           entry "flatmodels/rs/rsenumerable_root.flat" rootData ]
         |> toDisposableList
 
     use xBlockEntry =
         let data = MemoryStreamPool.Default.GetStream()
-        XBlock.create platform project |> XBlock.serialize data
+
+        XBlock.create platform project
+        |> XBlock.serialize data
+
         entry $"gamexblocks/nsongs/{key}.xblock" data
 
     use appIdEntry =
-        entry "appid.appid" (new MemoryStream(Encoding.ASCII.GetBytes buildData.AppId))
+        entry "appid.appid" (new MemoryStream(Encoding.ASCII.GetBytes(buildData.AppId)))
 
     use graphEntry =
         let data = MemoryStreamPool.Default.GetStream()
+
         AggregateGraph.create platform project
         |> AggregateGraph.serialize data
+
         entry $"{key}_aggregategraph.nt" data
 
     use gfxEntries =
@@ -137,7 +161,7 @@ let private build (buildData: BuildData) progress targetFile project platform = 
         new MemoryStream(Encoding.UTF8.GetBytes($"Toolkit version: {buildData.BuilderVersion}\nPackage Author: {buildData.Author}\nPackage Version: {project.Version}\nPackage Comment: Remastered"))
         |> entry "toolkit.version"
 
-    progress()
+    progress ()
 
     // Wait for the wem conversion to complete, if necessary
     do! buildData.AudioConversionTask
@@ -145,8 +169,8 @@ let private build (buildData: BuildData) progress targetFile project platform = 
     let customAudio =
         project.Arrangements
         |> List.choose (function
-            | Instrumental { CustomAudio = Some audioFile } as i ->
-                Some (partition i |> snd, audioFile)
+            | Instrumental { CustomAudio = Some audioFile } as inst ->
+                Some(partition inst |> snd, audioFile)
             | _ ->
                 None)
 
@@ -157,15 +181,20 @@ let private build (buildData: BuildData) progress targetFile project platform = 
             let audioData = readFile filePath
             let audioName = SoundBank.generate bankName audioData bankData (float32 audioFile.Volume) platform
             let path = getPathPart platform Path.Audio
+
             [ entry $"audio/{path}/song_{bankName.ToLowerInvariant()}.bnk" bankData
               entry $"audio/{path}/{audioName}.wem" audioData ]
 
         createEntries project.AudioFile project.DLCKey
         |> List.append (createEntries project.AudioPreviewFile $"{project.DLCKey}_Preview")
-        |> List.append (customAudio |> List.collect (fun (name, audio) -> createEntries audio $"{project.DLCKey}_{name}"))
+        |> List.append (
+            customAudio
+            |> List.collect (fun (name, audio) -> createEntries audio $"{project.DLCKey}_{name}")
+        )
         |> toDisposableList
 
-    let targetPath = sprintf "%s%s.psarc" targetFile (getPathPart platform Path.PackageSuffix)
+    let targetPath =
+        $"{targetFile}{getPathPart platform Path.PackageSuffix}.psarc"
 
     do! PSARC.Create(targetPath, true, [
         yield! sngEntries.Items
@@ -181,7 +210,7 @@ let private build (buildData: BuildData) progress targetFile project platform = 
         yield toolkitEntry
         yield appIdEntry ])
 
-    progress() }
+    progress () }
 
 let private setupInstrumental part (inst: Instrumental) config =
     let xml = InstrumentalArrangement.Load inst.XML
@@ -220,29 +249,39 @@ let private getFontOption (dlcKey: string) =
         let glyphs =
             Path.ChangeExtension(fontFile, ".glyphs.xml")
             |> GlyphDefinitions.Load
+
         FontOption.CustomFont (glyphs, $"assets/ui/lyrics/{dlcKey}/lyrics_{dlcKey}.dds"))
     >> Option.defaultValue FontOption.DefaultFont
 
 /// Inserts an automatically generated show lights arrangement into the project.
 let private addShowLights sngs project =
-    let projectPath = Path.GetDirectoryName (Arrangement.getFile project.Arrangements.Head)
-    let xmlFile = Path.Combine(projectPath, "auto_showlights.xml")
-    if not <| File.Exists xmlFile then ShowLightGenerator.generateFile xmlFile sngs
+    let projectPath =
+        Path.GetDirectoryName(Arrangement.getFile project.Arrangements.Head)
 
-    { project with Arrangements = (Showlights { XML = xmlFile })::project.Arrangements }
+    let xmlFile =
+        Path.Combine(projectPath, "auto_showlights.xml")
+
+    if not <| File.Exists(xmlFile) then
+        ShowLightGenerator.generateFile xmlFile sngs
+
+    let arrangments = (Showlights { XML = xmlFile }) :: project.Arrangements
+
+    { project with Arrangements = arrangments }
 
 let private checkArrangementIdRegeneration sngs project config = async {
     match config.IdResetConfig with
     | None ->
         return Map.empty
     | Some resetConfig ->
-        let idsToReplace = PhraseLevelComparer.compareToExisting resetConfig.ProjectDirectory sngs
+        let idsToReplace =
+            PhraseLevelComparer.compareToExisting resetConfig.ProjectDirectory sngs
+
         PhraseLevelComparer.saveLevels resetConfig.ProjectDirectory sngs
 
         if idsToReplace.IsEmpty then
             return Map.empty
         else
-            match! resetConfig.ConfirmIdRegeneration idsToReplace with
+            match! resetConfig.ConfirmIdRegeneration(idsToReplace) with
             | false ->
                 return Map.empty
             | true ->
@@ -250,11 +289,13 @@ let private checkArrangementIdRegeneration sngs project config = async {
                     project.Arrangements
                     |> List.choose (function
                         | Instrumental inst as arr when idsToReplace |> List.contains inst.PersistentID ->
-                            Some (inst.PersistentID, Arrangement.generateIds arr)
+                            Some(inst.PersistentID, Arrangement.generateIds arr)
                         | _ ->
                             None)
                     |> Map.ofList
+
                 resetConfig.PostNewIds(replacements)
+
                 return replacements }
 
 let private applyReplacements replacements project sngs =
@@ -286,8 +327,14 @@ let private createProgressReporter maximum =
 
 /// Builds packages for the given platforms.
 let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProject) = async {
-    let! audioConversionTask = config.AudioConversionTask |> Async.StartChild
-    use coverArtFiles = DDS.createCoverArtImages project.AlbumArtFile |> toDisposableList
+    let! audioConversionTask =
+        config.AudioConversionTask
+        |> Async.StartChild
+
+    use coverArtFiles =
+        DDS.createCoverArtImages project.AlbumArtFile
+        |> toDisposableList
+
     let partition = Partitioner.create project
 
     let progress =
@@ -305,15 +352,19 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
                 match arr with
                 | Instrumental inst ->
                     let part = partition arr |> fst
+
                     let sng =
                         setupInstrumental part inst config
                         |> ConvertInstrumental.xmlToSng
+
                     Some(arr, sng)
                 | Vocals v ->
                     let dlcKey = project.DLCKey.ToLowerInvariant()
+
                     let sng =
                         Vocals.Load v.XML
                         |> ConvertVocals.xmlToSng (getFontOption dlcKey v.CustomFont)
+
                     Some(arr, sng)
                 | Showlights _ ->
                     None
@@ -329,7 +380,7 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
         else
             applyReplacements replacements project sngs
 
-    progress()
+    progress ()
 
     // Check if a showlights arrangement is included
     let project =
@@ -346,7 +397,8 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
           AppId = config.AppId
           AudioConversionTask = audioConversionTask }
 
-    do! config.Platforms
+    do!
+        config.Platforms
         |> List.map (build data progress targetFile project)
         |> Async.Parallel
         |> Async.Ignore }

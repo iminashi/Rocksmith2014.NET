@@ -28,6 +28,7 @@ let rec seekToSection (stream: Stream) (reader: IBinaryReader) name =
         Error $"Could not find {name} section."
     else
         let magic = reader.ReadBytes 4
+
         if magic <> name then
             skipSection stream reader
             seekToSection stream reader name
@@ -44,11 +45,12 @@ let seekToObject (stream: Stream) (reader: IBinaryReader) typeId =
             Error $"Could not find object with ID {typeId}."
         else
             let currentId = reader.ReadInt8()
+
             if currentId <> typeId then
                 skipSection stream reader
                 doSeek (objIndex + 1u)
             else
-                Ok ()
+                Ok()
 
     doSeek 0u
 

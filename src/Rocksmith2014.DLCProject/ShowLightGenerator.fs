@@ -40,20 +40,25 @@ let private getMidiNotes (sng: SNG) =
     sng.PhraseIterations
     |> Array.collect (fun pi ->
         let maxDifficulty = sng.Phrases.[pi.PhraseId].MaxDifficulty
+
         sng.Levels.[maxDifficulty].Notes
         |> Array.filter (isWithinPhraseIteration pi)
         |> Array.map (toMidiNote sng))
 
 /// Returns a random fog note.
 let rec private getRandomFogNote (excludeNote: byte) =
-    let fog = byte <| RandomGenerator.nextInRange (int ShowLight.FogMin) (int ShowLight.FogMax + 1)
+    let fog =
+        RandomGenerator.nextInRange (int ShowLight.FogMin) (int ShowLight.FogMax + 1)
+        |> byte
+
     if fog = excludeNote then
         getRandomFogNote excludeNote
     else
         fog
 
 /// Returns a beam note matching the MIDI note.
-let private getBeamNote (midiNote: int) = byte <| ShowLight.BeamMin + (byte midiNote % 12uy)
+let private getBeamNote (midiNote: int) =
+    byte <| ShowLight.BeamMin + (byte midiNote % 12uy)
 
 let private getFogNoteForSection () =
     let sectionFogNotes = Dictionary<string, byte>()
@@ -67,9 +72,11 @@ let private getFogNoteForSection () =
                     match List.tryHead current with
                     | Some x -> x.Note
                     | None -> 0uy
+
                 let note = getRandomFogNote prevNote
                 sectionFogNotes.[sectionName] <- note
                 note)
+
         ShowLight(toMs time, note)
 
 /// Generates fog notes from the sections in the SNG.
@@ -82,7 +89,7 @@ let generateFogNotes (sng: SNG) =
         if name = prevName then
             acc
         else
-            (getFog acc startTime name)::acc)
+            (getFog acc startTime name) :: acc)
     |> snd
 
 /// Generates beam notes from the notes in the SNG.
@@ -92,9 +99,10 @@ let generateBeamNotes (sng: SNG) =
     ([], getMidiNotes sng)
     ||> Array.fold (fun acc midi ->
         let beamNote = getBeamNote midi.Note
+
         match acc with
-        | (prevTime, prevNote)::_ when midi.Time - prevTime >= minTime && beamNote <> prevNote ->
-            (midi.Time, beamNote)::acc
+        | (prevTime, prevNote) :: _ when midi.Time - prevTime >= minTime && beamNote <> prevNote ->
+            (midi.Time, beamNote) :: acc
         | [] ->
             [ midi.Time, beamNote ]
         | list ->
@@ -108,8 +116,11 @@ let generateLaserNotes (sng: SNG) =
     let lasersOn =
         let time =
             match tryFindSoloSection sng.Sections with
-            | Some soloSection -> soloSection.StartTime
-            | None -> sng.MetaData.SongLength * 0.6f
+            | Some soloSection ->
+                soloSection.StartTime
+            | None ->
+                sng.MetaData.SongLength * 0.6f
+
         ShowLight(toMs time, ShowLight.LasersOn)
 
     let lasersOff =
@@ -119,9 +130,11 @@ let generateLaserNotes (sng: SNG) =
 
 /// Ensures that the show lights contain at least one beam and one fog note.
 let private validateShowLights songLength (slList: ShowLight list) =
-    slList @ [
-        if not <| List.exists isBeam slList then ShowLight(0, ShowLight.BeamMin)
-        if not <| List.exists isFog slList then ShowLight(0, ShowLight.FogMin)
+    slList
+    @ [ if not <| List.exists isBeam slList then
+            ShowLight(0, ShowLight.BeamMin)
+        if not <| List.exists isFog slList then
+            ShowLight(0, ShowLight.FogMin)
         // Add an extra fog note at the end to prevent a glitch
         ShowLight(toMs songLength, ShowLight.FogMax) ]
 
@@ -131,12 +144,15 @@ let generate (sngs: (Arrangement * SNG) list) =
     let _, sng =
         sngs
         |> List.tryFind (function
-            | Instrumental i, _ -> i.RouteMask = RouteMask.Lead
-            | _ -> false)
+            | Instrumental i, _ ->
+                i.RouteMask = RouteMask.Lead
+            | _ ->
+                false)
         |> Option.defaultWith (fun () ->
             sngs
             |> List.tryFind (function Instrumental _, _ -> true | _ -> false)
-            |> Option.defaultWith (fun () -> failwith "An instrumental arrangement is required for generating showlights."))
+            |> Option.defaultWith (fun () ->
+                failwith "An instrumental arrangement is required for generating showlights."))
 
     [ yield! generateFogNotes sng
       yield! generateBeamNotes sng

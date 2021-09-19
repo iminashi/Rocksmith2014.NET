@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DLCProject.AggregateGraph
+module Rocksmith2014.DLCProject.AggregateGraph
 
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
@@ -59,13 +59,18 @@ let create (platform: Platform) (project: DLCProject) =
 
 /// Serializes the aggregate graph into the output stream.
 let serialize (output: Stream) (graph: Graph) =
-    use writer = new StreamWriter(output, Encoding.UTF8, -1, true, NewLine = "\n")
+    use writer =
+        new StreamWriter(output, Encoding.UTF8, -1, true, NewLine = "\n")
+
     graph.Items
     |> List.iteri (fun i item ->
         if i <> 0 then writer.WriteLine()
         GraphItem.write writer item)
 
-type private ParsedLine = { UUID : string; TagType : string; Value : string }
+type private ParsedLine =
+    { UUID : string
+      TagType : string
+      Value : string }
 
 /// Parses an aggregate graph from a string.
 let parse (text: string) =
