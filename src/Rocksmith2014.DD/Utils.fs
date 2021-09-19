@@ -33,4 +33,3 @@ let getAllowedChordNotes (diffPercent: float) maxChordNotesInPhrase =
     else
         diffPercent * float maxChordNotesInPhrase
         |> (ceil >> int)
-

@@ -4,7 +4,8 @@ open Rocksmith2014.XML
 open System
 open System.Collections.Generic
 
-let [<Literal>] private AlwaysEnabledTechs = NoteMask.Ignore ||| NoteMask.FretHandMute ||| NoteMask.PalmMute ||| NoteMask.Harmonic
+let [<Literal>] private AlwaysEnabledTechs =
+    NoteMask.Ignore ||| NoteMask.FretHandMute ||| NoteMask.PalmMute ||| NoteMask.Harmonic
 
 let private pruneTechniques diffPercent (removedLinkNexts: HashSet<sbyte>) (note: Note) =
     if diffPercent <= 0.2 then
@@ -41,11 +42,14 @@ let private pruneChordNotes diffPercent
     for i = cn.Count - notesToRemove to cn.Count - 1 do
         if cn.[i].IsLinkNext then
             removedLinkNexts.Add cn.[i].String |> ignore
+
     cn.RemoveRange(cn.Count - notesToRemove, notesToRemove)
 
     for n in cn do
         pruneTechniques diffPercent removedLinkNexts n
-        if n.IsLinkNext then pendingLinkNexts.TryAdd(n.String, n) |> ignore
+
+        if n.IsLinkNext then
+            pendingLinkNexts.TryAdd(n.String, n) |> ignore
 
 let private shouldExclude (diffPercent: float)
                           (division: BeatDivision)
@@ -126,15 +130,21 @@ let private isFirstChordInHs (entities: XmlEntity list) (handShapes: HandShape l
 /// Creates a list of chord notes from a chord template.
 let private chordNotesFromTemplate (template: ChordTemplate) (chord: Chord) =
     let cn = ResizeArray<Note>()
+
     for i = 0 to 5 do
         if template.Frets.[i] <> -1y then
-            cn.Add(Note(Time = chord.Time,
-                        String = sbyte i,
-                        Fret = template.Frets.[i],
-                        LeftHand = template.Fingers.[i],
-                        IsFretHandMute = chord.IsFretHandMute,
-                        IsPalmMute = chord.IsPalmMute,
-                        IsAccent = chord.IsAccent))
+            cn.Add(
+                Note(
+                    Time = chord.Time,
+                    String = sbyte i,
+                    Fret = template.Frets.[i],
+                    LeftHand = template.Fingers.[i],
+                    IsFretHandMute = chord.IsFretHandMute,
+                    IsPalmMute = chord.IsPalmMute,
+                    IsAccent = chord.IsAccent
+               )
+           )
+
     cn
 
 /// Creates a note from a chord.
@@ -154,13 +164,16 @@ let private noteFromChord (diffPercent: float)
     else
         // Create the note from the chord template
         let string = template.Frets |> Array.findIndex ((<>) -1y)
-        Note(Time = chord.Time,
-             String = sbyte string,
-             Fret = template.Frets.[string],
-             IsFretHandMute = chord.IsFretHandMute,
-             IsPalmMute = chord.IsPalmMute,
-             IsAccent = chord.IsAccent,
-             IsIgnore = chord.IsIgnore)
+
+        Note(
+            Time = chord.Time,
+            String = sbyte string,
+            Fret = template.Frets.[string],
+            IsFretHandMute = chord.IsFretHandMute,
+            IsPalmMute = chord.IsPalmMute,
+            IsAccent = chord.IsAccent,
+            IsIgnore = chord.IsIgnore
+        )
 
 let choose (diffPercent: float)
            (divisionMap: DivisionMap)
@@ -175,7 +188,7 @@ let choose (diffPercent: float)
     let currentNotesInDivision = Dictionary<BeatDivision, int>()
 
     let incrementCount division =
-        match currentNotesInDivision.TryGetValue division with
+        match currentNotesInDivision.TryGetValue(division) with
         | true, v ->
             currentNotesInDivision.[division] <- v + 1
         | false, _ ->
@@ -211,7 +224,8 @@ let choose (diffPercent: float)
                 for cn in xc.ChordNotes do
                     if cn.IsLinkNext && not cn.IsSlide then
                         removedLinkNexts.Add cn.String |> ignore
-            | _ -> ()
+            | _ ->
+                ()
 
             acc
         // The entity is within the difficulty range
@@ -237,23 +251,29 @@ let choose (diffPercent: float)
                         let prevAllEntity = findPrevEntityAll entities note.String note.Time
 
                         match prevLevelEntity, prevAllEntity with
-                        // Likely a "hammer-on from nowhere"
-                        | _, None -> ()
-                        // Leave the HOPO if this is a tapping phrase
-                        | Some (XmlNote n), _ when n.IsTap -> ()
-                        // Leave the HOPO if the previous note/chord is the actual one before this
-                        | Some (XmlNote n), Some (XmlNote nn) when n.Time = nn.Time -> ()
-                        | Some (XmlChord c), Some (XmlChord cc) when c.Time = cc.Time -> ()
-                        // Leave the HOPO if the previous note on the same string is an appropriate one and comes right before this one
+                        | _, None ->
+                            // Likely a "hammer-on from nowhere"
+                            ()
+                        | Some (XmlNote n), _ when n.IsTap ->
+                            // Leave the HOPO if this is a tapping phrase
+                            ()
+                        | Some (XmlNote n), Some (XmlNote nn) when n.Time = nn.Time ->
+                            // Leave the HOPO if the previous note is the actual one before this
+                            ()
+                        | Some (XmlChord c), Some (XmlChord cc) when c.Time = cc.Time ->
+                            // Leave the HOPO if the previous chord is the actual one before this
+                            ()
                         | Some (XmlNote n as xn), _ when List.head acc |> fst = xn
                                                          && not (n.IsFretHandMute || n.IsHarmonic)
-                                                         && ((note.IsPullOff && n.Fret > note.Fret) || (note.IsHammerOn && n.Fret < note.Fret)) -> ()
-                        // Otherwise remove the HOPO
+                                                         && ((note.IsPullOff && n.Fret > note.Fret) || (note.IsHammerOn && n.Fret < note.Fret)) ->
+                            // Leave the HOPO if the previous note on the same string is an appropriate one and comes right before this one
+                            ()
                         | _ ->
+                            // Otherwise remove the HOPO
                             note.IsHammerOn <- false
                             note.IsPullOff <- false
 
-                    (XmlNote note, None)::acc
+                    (XmlNote note, None) :: acc
 
             | XmlChord chord ->
                 incrementCount division
@@ -266,7 +286,7 @@ let choose (diffPercent: float)
                     let note = noteFromChord diffPercent removedLinkNexts template chord
                     if note.IsLinkNext then pendingLinkNexts.TryAdd(note.String, note) |> ignore
 
-                    (XmlNote note, None)::acc
+                    (XmlNote note, None) :: acc
                 else
                     let copy = Chord(chord)
 
@@ -278,9 +298,11 @@ let choose (diffPercent: float)
                         if copy.HasChordNotes then
                             for cn in copy.ChordNotes do
                                 pruneTechniques diffPercent removedLinkNexts cn
-                                if cn.IsLinkNext then pendingLinkNexts.TryAdd(cn.String, cn) |> ignore
 
-                        (XmlChord copy, None)::acc
+                                if cn.IsLinkNext then
+                                    pendingLinkNexts.TryAdd(cn.String, cn) |> ignore
+
+                        (XmlChord copy, None) :: acc
                     else
                         if copy.HasChordNotes then
                             pruneChordNotes diffPercent allowedChordNotes removedLinkNexts pendingLinkNexts copy
@@ -289,7 +311,7 @@ let choose (diffPercent: float)
                             { OriginalId = chord.ChordId
                               NoteCount = byte allowedChordNotes
                               Target = ChordTarget copy }
-                        (XmlChord copy, Some templateRequest)::acc
-    )
+
+                        (XmlChord copy, Some templateRequest) :: acc)
     |> List.rev
     |> List.toArray

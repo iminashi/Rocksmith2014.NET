@@ -49,7 +49,9 @@ let fixChordSlideHandshapes (arrangement: InstrumentalArrangement) =
             && chord.HasChordNotes
             && chord.ChordNotes.Exists(fun cn -> cn.IsSlide))
         |> Seq.iter (fun chord ->
-            let handshape = level.HandShapes.Find(fun hs -> hs.StartTime = chord.Time)
+            let handshape =
+                level.HandShapes.Find(fun hs -> hs.StartTime = chord.Time)
+
             if notNull handshape && handshape.EndTime > handshape.StartTime + chord.ChordNotes.[0].Sustain then
                 handshape.EndTime <- handshape.StartTime + chord.ChordNotes.[0].Sustain)
 
@@ -62,6 +64,7 @@ let fixPhraseStartAnchors (arrangement: InstrumentalArrangement) =
         |> Seq.iter (fun (first, second) ->
             let firstAnchor =
                 arrangement.Levels.[0].Anchors.Find(fun a -> a.Time >= first.Time && a.Time < second.Time)
+
             if notNull firstAnchor && firstAnchor.Time <> first.Time then
                 firstAnchor.Time <- first.Time)
 

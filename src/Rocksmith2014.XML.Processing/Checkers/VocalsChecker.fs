@@ -4,7 +4,8 @@ open Rocksmith2014.XML
 open System.Text
 open Utils
 
-let [<Literal>] LyricsCharset = """ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_abcdefghijklmnopqrstuvwxyz{|}~¡¢¥¦§¨ª«°²³´•¸¹º»¼½¾¿ÀÁÂÄÅÆÇÈÉÊËÌÎÏÑÒÓÔÖØÙÚÛÜÞßàáâäåæçèéêëìíîïñòóôöøùúûüŒœŠšž„…€™␀★➨"""
+let [<Literal>] LyricsCharset =
+    """ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_abcdefghijklmnopqrstuvwxyz{|}~¡¢¥¦§¨ª«°²³´•¸¹º»¼½¾¿ÀÁÂÄÅÆÇÈÉÊËÌÎÏÑÒÓÔÖØÙÚÛÜÞßàáâäåæçèéêëìíîïñòóôöøùúûüŒœŠšž„…€™␀★➨"""
 
 let [<Literal>] private MaxLengthExcludingNullTerminator = 47
 
@@ -18,7 +19,7 @@ let private findInvalidCharLyric (vocals: ResizeArray<Vocal>) =
         issue (LyricWithInvalidChar invalidChar) invalidVocal.Time)
 
 let private isTooLong (vocal: Vocal) =
-    Encoding.UTF8.GetByteCount vocal.Lyric > MaxLengthExcludingNullTerminator
+    Encoding.UTF8.GetByteCount(vocal.Lyric) > MaxLengthExcludingNullTerminator
 
 let private findLongLyrics (vocals: ResizeArray<Vocal>) =
     vocals

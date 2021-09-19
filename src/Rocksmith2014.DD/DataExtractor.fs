@@ -1,52 +1,61 @@
-﻿module Rocksmith2014.DD.DataExtractor
+module Rocksmith2014.DD.DataExtractor
 
 open Rocksmith2014.XML
 open System
 open System.Text
 open System.IO
 
-type PhraseData = 
-  { Name : string
-    MaxDifficulty : int
-    StartTime : int
-    EndTime : int
-    LengthMs : int
-    LengthBeats : int
-    MeasureCount : int
-    Beats : Ebeat list
-    Notes : Note list
-    Chords : Chord list
-    HandShapes : HandShape list
-    Anchors : Anchor list
-    NoteCount : int
-    RepeatedNotes : int
-    ChordCount : int
-    RepeatedChords : int
-    TechCount : int
-    BendCount : int
-    TapCount : int
-    TremoloCount : int
-    PinchHarmonicCount : int
-    HarmonicCount : int
-    VibratoCount : int
-    PalmMuteCount : int
-    MaxChordStrings : int
-    SlideCount : int
-    UnpitchedSlideCount : int
-    IgnoreCount : int
-    UniqueLevels : int 
-    TempoEstimate : int
-    AnchorCount : int
-    SoloPhrase : bool }
+type PhraseData =
+    { Name: string
+      MaxDifficulty: int
+      StartTime: int
+      EndTime: int
+      LengthMs: int
+      LengthBeats: int
+      MeasureCount: int
+      Beats: Ebeat list
+      Notes: Note list
+      Chords: Chord list
+      HandShapes: HandShape list
+      Anchors: Anchor list
+      NoteCount: int
+      RepeatedNotes: int
+      ChordCount: int
+      RepeatedChords: int
+      TechCount: int
+      BendCount: int
+      TapCount: int
+      TremoloCount: int
+      PinchHarmonicCount: int
+      HarmonicCount: int
+      VibratoCount: int
+      PalmMuteCount: int
+      MaxChordStrings: int
+      SlideCount: int
+      UnpitchedSlideCount: int
+      IgnoreCount: int
+      UniqueLevels: int
+      TempoEstimate: int
+      AnchorCount: int
+      SoloPhrase: bool }
 
 let getPath (arr: InstrumentalArrangement) =
-    if arr.MetaData.ArrangementProperties.PathLead then 0
-    elif arr.MetaData.ArrangementProperties.PathRhythm then 1
-    else 2
+    if arr.MetaData.ArrangementProperties.PathLead then
+        0
+    elif arr.MetaData.ArrangementProperties.PathRhythm then
+        1
+    else
+        2
 
-let private isRepeatedNote (n1: Note, n2: Note) = n1.String = n2.String && n1.Fret = n2.Fret && n1.Mask = n2.Mask
+let private isRepeatedNote (n1: Note, n2: Note) =
+    n1.String = n2.String
+    && n1.Fret = n2.Fret
+    && n1.Mask = n2.Mask
+
 let private isRepeatedChord (c1: Chord, c2: Chord) = c1.ChordId = c2.ChordId
-let private getRepeatCount f = Seq.pairwise >> (Seq.filter f) >> Seq.length
+
+let private getRepeatCount f =
+    Seq.pairwise >> (Seq.filter f) >> Seq.length
 
 let private lengthBy f = Seq.filter f >> Seq.length
 
@@ -61,9 +70,11 @@ let getPhraseIterationData (arr: InstrumentalArrangement) (iteration: PhraseIter
     let maxD = phrase.MaxDifficulty |> int
     let piIndex = arr.PhraseIterations.IndexOf(iteration)
     let startTime = iteration.Time
+
     let endTime =
         if piIndex + 1 = arr.PhraseIterations.Count then arr.MetaData.SongLength
         else arr.PhraseIterations.[piIndex + 1].Time
+
     let lengthMs = endTime - startTime
 
     let isSolo =
@@ -191,8 +202,8 @@ let getPhraseData (arr: InstrumentalArrangement) (phrase: Phrase) =
 
 let toCSVLines (filePath: string) =
     let sb = StringBuilder()
-    let arr = InstrumentalArrangement.Load filePath
-    let fn = Path.GetFileNameWithoutExtension filePath
+    let arr = InstrumentalArrangement.Load(filePath)
+    let fn = Path.GetFileNameWithoutExtension(filePath)
     let key, arrName = let s = fn.Split('_') in s.[0], s.[1]
     let meta = sprintf "%s,%s,%i" key arrName (getPath arr)
 

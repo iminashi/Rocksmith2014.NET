@@ -17,6 +17,14 @@ module private Events =
     let [<Literal>] CrowdSpeedMedium = "e1"
     let [<Literal>] CrowdSpeedFast = "e2"
 
+let private crowdSpeedFromTempo averageTempo =
+    if averageTempo < 90f then
+        Events.CrowdSpeedSlow
+    elif averageTempo < 170f then
+        Events.CrowdSpeedMedium
+    else
+        Events.CrowdSpeedFast
+
 let private addIntroApplauseEvent (arrangement: InstrumentalArrangement) =
     let startTime =
         match Utils.getFirstNoteTime arrangement with
@@ -24,6 +32,7 @@ let private addIntroApplauseEvent (arrangement: InstrumentalArrangement) =
             firstNoteTime + IntroCrowdReactionDelay
         | None ->
             arrangement.StartBeat
+
     let endTime = startTime + IntroApplauseLength
 
     arrangement.Events.InsertByTime(Event(Events.IntroApplauseStart, startTime))
@@ -42,13 +51,8 @@ let improve (arrangement: InstrumentalArrangement) =
 
     // Add initial crowd tempo event only if there are no other tempo events present
     if not <| events.Exists(fun e -> Regex.IsMatch(e.Code, "e[0-2]$")) then
-        let averageTempo = arrangement.MetaData.AverageTempo
         let startBeat = arrangement.StartBeat
-
-        let crowdSpeed =
-            if averageTempo < 90f then Events.CrowdSpeedSlow
-            elif averageTempo < 170f then Events.CrowdSpeedMedium
-            else Events.CrowdSpeedFast
+        let crowdSpeed = crowdSpeedFromTempo arrangement.MetaData.AverageTempo
 
         events.InsertByTime(Event(crowdSpeed, startBeat))
 

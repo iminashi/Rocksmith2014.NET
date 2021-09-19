@@ -33,7 +33,8 @@ let improve (arrangement: InstrumentalArrangement) =
 
     // Remove beats event
     match events.Find(fun e -> String.equalsIgnoreCase "removebeats" e.Code) with
-    | null -> ()
+    | null ->
+        ()
     | removeBeats ->
         arrangement.Ebeats.RemoveAll(fun b -> b.Time >= removeBeats.Time) |> ignore
         events.Remove(removeBeats) |> ignore
@@ -45,7 +46,10 @@ let improve (arrangement: InstrumentalArrangement) =
         // Find the max level for the phrase the slide is in
         let phraseIter =
             arrangement.PhraseIterations.FindLast(fun pi -> pi.Time <= slideEvent.Time)
-        let diff = arrangement.Phrases.[phraseIter.PhraseId].MaxDifficulty
+
+        let diff =
+            arrangement.Phrases.[phraseIter.PhraseId].MaxDifficulty
+
         let level = arrangement.Levels.[int diff]
 
         let slideTime =

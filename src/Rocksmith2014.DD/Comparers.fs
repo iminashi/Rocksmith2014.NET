@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DD.Comparers
+module Rocksmith2014.DD.Comparers
 
 open Rocksmith2014.XML
 
@@ -22,7 +22,6 @@ let sameNote (n1: Note) (n2: Note) =
     && n1.Vibrato = n2.Vibrato
     && n1.Tap = n2.Tap
     && n1.MaxBend = n2.MaxBend
-    //&& sameBendValues n1.BendValues n2.BendValues
 
 let sameNotes (notes1: Note list) (notes2: Note list) =
     if notes1.Length <> notes2.Length then
@@ -62,7 +61,7 @@ let private skipWhileNot eq elem list =
             []
         | _ when depth = MaxSkips ->
             []
-        | head::tail when not <| eq head elem ->
+        | head :: tail when not <| eq head elem ->
             doSkip (depth + 1) tail
         | _ ->
             remaining
@@ -73,11 +72,11 @@ let private skipWhileNot eq elem list =
 let getSameElementCount eq elems1 elems2 =
     let rec getCount count list1 list2 =
         match list1, list2 with
-        | head1::tail1, head2::tail2 when eq head1 head2 ->
+        | head1 :: tail1, head2 :: tail2 when eq head1 head2 ->
             getCount (count + 1) tail1 tail2
-        | _::l::tail1, _::r::tail2 when eq l r ->
+        | _ :: l :: tail1, _ :: r :: tail2 when eq l r ->
             getCount (count + 1) tail1 tail2
-        | head1::tail1, head2::tail2 ->
+        | head1 :: tail1, head2 :: tail2 ->
             let tail1' = skipWhileNot eq head2 tail1
             let count1 = getCount count tail1' list2
 

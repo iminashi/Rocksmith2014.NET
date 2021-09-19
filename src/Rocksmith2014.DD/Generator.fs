@@ -1,9 +1,9 @@
-﻿module Rocksmith2014.DD.Generator
+module Rocksmith2014.DD.Generator
 
 open Rocksmith2014.XML
 open System.Collections.Generic
 
-let private lockObj = obj()
+let private lockObj = obj ()
 
 /// Creates an XML entity array from the notes and chords.
 let private createXmlEntityArray (xmlNotes: Note list) (xmlChords: Chord list) =
@@ -16,11 +16,13 @@ let private createXmlEntityArray (xmlNotes: Note list) (xmlChords: Chord list) =
         Array.map XmlChord xmlChords
     else
         let entityArray =
-            Array.init (xmlNotes.Length + xmlChords.Length) (fun i ->
-                if i < xmlNotes.Length then
-                    XmlNote xmlNotes.[i]
-                else
-                    XmlChord xmlChords.[i - xmlNotes.Length])
+            Array.init
+                (xmlNotes.Length + xmlChords.Length)
+                (fun i ->
+                    if i < xmlNotes.Length then
+                        XmlNote xmlNotes.[i]
+                    else
+                        XmlChord xmlChords.[i - xmlNotes.Length])
 
         Array.sortInPlaceBy getTimeCode entityArray
         entityArray
@@ -38,6 +40,7 @@ let private applyChordId (templates: ResizeArray<ChordTemplate>) =
                 let noteCount = getNoteCount template
 
                 let mutable removeNotes = noteCount - int request.NoteCount
+
                 let newFingers, newFrets =
                     let fingers = Array.copy template.Fingers
                     let frets = Array.copy template.Frets
@@ -59,11 +62,14 @@ let private applyChordId (templates: ResizeArray<ChordTemplate>) =
                         match existing with
                         | -1 ->
                             let id = int16 templates.Count
-                            let newTemplate = ChordTemplate(template.Name, template.DisplayName, newFingers, newFrets)
-                            templates.Add newTemplate
+
+                            ChordTemplate(template.Name, template.DisplayName, newFingers, newFrets)
+                            |> templates.Add
+
                             id
                         | index ->
                             int16 index)
+
                 templateMap.Add((request.OriginalId, request.NoteCount), id)
                 id
 
@@ -79,7 +85,9 @@ let private generateLevels (config: GeneratorConfig) (arr: InstrumentalArrangeme
         level.Anchors.AddRange phraseData.Anchors
         [| level |]
     else
-        let entities = createXmlEntityArray phraseData.Notes phraseData.Chords
+        let entities =
+            createXmlEntityArray phraseData.Notes phraseData.Chords
+
         let divisions =
             entities
             |> Array.map (fun e ->
@@ -108,11 +116,13 @@ let private generateLevels (config: GeneratorConfig) (arr: InstrumentalArrangeme
         Array.init levelCount (fun diff ->
             // Copy everything for the hardest level
             if diff = levelCount - 1 then
-                Level(sbyte diff,
-                      ResizeArray(phraseData.Notes),
-                      ResizeArray(phraseData.Chords),
-                      ResizeArray(phraseData.Anchors),
-                      ResizeArray(phraseData.HandShapes))
+                Level(
+                    sbyte diff,
+                    ResizeArray(phraseData.Notes),
+                    ResizeArray(phraseData.Chords),
+                    ResizeArray(phraseData.Anchors),
+                    ResizeArray(phraseData.HandShapes)
+                )
             else
                 let diffPercent = float (diff + 1) / float levelCount
 
@@ -133,23 +143,26 @@ let private generateLevels (config: GeneratorConfig) (arr: InstrumentalArrangeme
                     HandShapeChooser.choose diffPercent levelEntities entities phraseData.MaxChordStrings arr.ChordTemplates phraseData.HandShapes
                     |> List.unzip
 
-                let anchors = AnchorChooser.choose levelEntities phraseData.Anchors phraseData.StartTime phraseData.EndTime
+                let anchors =
+                    AnchorChooser.choose levelEntities phraseData.Anchors phraseData.StartTime phraseData.EndTime
 
                 templateRequests1
                 |> Seq.append templateRequests2
                 |> Seq.choose id
                 |> Seq.iter applyChordId'
 
-                Level(sbyte diff,
-                      ResizeArray(notes),
-                      ResizeArray(chords),
-                      ResizeArray(anchors),
-                      ResizeArray(handShapes))
-        )
+                Level(
+                    sbyte diff,
+                    ResizeArray(notes),
+                    ResizeArray(chords),
+                    ResizeArray(anchors),
+                    ResizeArray(handShapes)
+                ))
 
 /// Generates DD levels for an arrangement.
 let generateForArrangement (config: GeneratorConfig) (arr: InstrumentalArrangement) =
     let phraseIterations = arr.PhraseIterations.ToArray()
+
     let phraseIterationData =
         phraseIterations
         |> Array.Parallel.map (DataExtractor.getPhraseIterationData arr)
@@ -170,6 +183,7 @@ let generateForArrangement (config: GeneratorConfig) (arr: InstrumentalArrangeme
     let combinedLevels =
         Seq.init maxDiff (fun diff -> 
             let level = Level(sbyte diff)
+
             levels
             |> Array.iter (fun lvl ->
                 if diff < lvl.Length then
@@ -177,8 +191,7 @@ let generateForArrangement (config: GeneratorConfig) (arr: InstrumentalArrangeme
                     level.Notes.AddRange(lvl.[diff].Notes)
                     level.HandShapes.AddRange(lvl.[diff].HandShapes)
                     level.Chords.AddRange(lvl.[diff].Chords))
-            level
-        )
+            level)
 
     let phrases, newPhraseIterations, newLinkedDiffs =
         PhraseCombiner.combineSamePhrases config phraseIterationData phraseIterations generatedLevelCount
@@ -196,4 +209,4 @@ let generateForFile config fileName targetFile =
         InstrumentalArrangement.Load fileName
         |> generateForArrangement config
 
-    arr.Save targetFile
+    arr.Save(targetFile)

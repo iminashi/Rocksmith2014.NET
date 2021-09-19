@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DD.HandShapeChooser
+module Rocksmith2014.DD.HandShapeChooser
 
 open Rocksmith2014.XML
 
@@ -9,8 +9,9 @@ let private noNotesInHandShape (entities: XmlEntity array) (hs: HandShape) =
     entities
     |> Array.exists (fun x ->
         let time = getTimeCode x
-        time |> (isInsideHandShape hs)
-        || time + getSustain x |> (isInsideHandShape hs))
+
+        isInsideHandShape hs time
+        || isInsideHandShape hs (time + getSustain x))
     |> not
 
 let private isArpeggio (entities: XmlEntity array) (hs: HandShape) =
@@ -47,15 +48,17 @@ let choose (diffPercent: float)
             None
         elif isArpeggio allEntities hs then
             // Always use the full handshape for arpeggios
-            Some (hs, None)
+            Some(hs, None)
         elif allowedNotes <= 1 then
             None
         elif allowedNotes >= noteCount then
-            Some (hs, None)
+            Some(hs, None)
         else
             let copy = HandShape(hs)
-            let request = { OriginalId = hs.ChordId
-                            NoteCount = byte allowedNotes
-                            Target = HandShapeTarget copy }
-            Some (copy, Some request)
-    )
+
+            let request =
+                { OriginalId = hs.ChordId
+                  NoteCount = byte allowedNotes
+                  Target = HandShapeTarget copy }
+
+            Some(copy, Some request))

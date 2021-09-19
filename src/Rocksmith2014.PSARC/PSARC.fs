@@ -1,24 +1,27 @@
 namespace Rocksmith2014.PSARC
 
-open System
-open System.IO
-open System.Text
-open System.Buffers
 open Rocksmith2014.Common
 open Rocksmith2014.Common.BinaryReaders
 open Rocksmith2014.Common.BinaryWriters
+open System
+open System.Buffers
+open System.IO
+open System.Text
 
 type EditMode = InMemory | TempFiles
 
 type EditOptions =
-    { Mode: EditMode; EncryptTOC: bool }
+    { Mode: EditMode
+      EncryptTOC: bool }
 
     /// Unpack entries into memory and encrypt the TOC.
     static member Default = { Mode = InMemory; EncryptTOC = true }
 
-type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, blockSizeTable: uint32[]) =
+type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, blockSizeTable: uint32 array) =
     let mutable blockSizeTable = blockSizeTable
-    let buffer = ArrayPool<byte>.Shared.Rent (int header.BlockSizeAlloc)
+
+    let buffer =
+        ArrayPool<byte>.Shared.Rent (int header.BlockSizeAlloc)
 
     let inflateEntry (entry: Entry) (output: Stream) = async {
         let blockSize = int header.BlockSizeAlloc
@@ -68,16 +71,19 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     let createManifestData () =
         let memory = MemoryStreamPool.Default.GetStream()
         use writer = new StreamWriter(memory, Encoding.ASCII, leaveOpen = true, NewLine = "\n")
+
         manifest
         |> List.iteri (fun i name ->
             if i <> 0 then writer.WriteLine()
             writer.Write name)
+
         memory
 
     let getName (entry: Entry) = manifest.[entry.ID - 1]
 
     let addPlainData blockSize (deflatedData: ResizeArray<Stream>) (zLengths: ResizeArray<uint32>) (data: Stream) =
         deflatedData.Add data
+
         if data.Length <= int64 blockSize then
             zLengths.Add(uint32 data.Length)
         else
@@ -91,7 +97,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     /// Deflates the data in the given named entries.
     let deflateEntries (entries: NamedEntry list) = async {
         // Add the manifest as the first entry
-        let entries = { Name = String.Empty; Data = createManifestData() }::entries
+        let entries = { Name = String.Empty; Data = createManifestData() } :: entries
 
         let protoEntries = ResizeArray<Entry * int64>(entries.Length)
         let deflatedData = ResizeArray<Stream>()
@@ -114,13 +120,14 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         return protoEntries.ToArray(), deflatedData, zLengths.ToArray() }
 
     /// Updates the table of contents with the given proto-entries and block size table.
-    let updateToc (protoEntries: (Entry * int64)[]) (blockTable: uint32[]) zType encrypt =
+    let updateToc (protoEntries: (Entry * int64) array) (blockTable: uint32 array) zType encrypt =
         use tocData = MemoryStreamPool.Default.GetStream()
         let tocWriter = BigEndianBinaryWriter(tocData) :> IBinaryWriter
         
         // Update and write the table of contents
         toc.Clear()
         let mutable offset = uint64 header.ToCLength
+
         protoEntries
         |> Array.iteri (fun i (proto, size) ->
             let entry = { proto with Offset = offset; ID = i }
@@ -133,6 +140,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         blockSizeTable <-
             blockTable
             |> Array.map (fun x -> if x = header.BlockSizeAlloc then 0u else x)
+
         let write =
             match zType with
             | 2 -> (uint16 >> tocWriter.WriteUInt16)
@@ -176,34 +184,39 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     member _.TOC = toc.AsReadOnly() 
 
     /// Inflates the given entry into the output stream.
-    member _.InflateEntry (entry: Entry, output: Stream) = inflateEntry entry output
+    member _.InflateEntry(entry: Entry, output: Stream) = inflateEntry entry output
 
     /// Inflates the entry with the given file name into the output stream.
-    member _.InflateFile (name: string, output: Stream) = async {
+    member _.InflateFile(name: string, output: Stream) = async {
         let entry = tryFindEntry name
         do! inflateEntry entry output }
 
     /// Inflates the entry with the given file name into the target file.
-    member this.InflateFile (name: string, targetFile: string) = async {
-        use file = File.Create targetFile
+    member this.InflateFile(name: string, targetFile: string) = async {
+        use file = File.Create(targetFile)
         do! this.InflateFile(name, file) }
 
     /// Returns an in-memory read stream for the entry with the given name.
-    member _.GetEntryStream (name: string) = async {
+    member _.GetEntryStream(name: string) = async {
         let entry = tryFindEntry name
         let memory = MemoryStreamPool.Default.GetStream(name, int entry.Length)
         do! inflateEntry entry memory
         return memory }
 
     /// Extracts all the files from the PSARC into the given directory.
-    member _.ExtractFiles (baseDirectory: string, ?progress: IProgress<float>) = async {
+    member _.ExtractFiles(baseDirectory: string, ?progress: IProgress<float>) = async {
         let reportFrequency = max 4 (toc.Count / 50)
         for i = 0 to toc.Count - 1 do
             let entry = toc.[i]
-            let path = Path.Combine(baseDirectory, Utils.fixDirSeparator (getName entry))
-            Directory.CreateDirectory(Path.GetDirectoryName path) |> ignore
-            use file = File.Create path
+
+            let path =
+                Path.Combine(baseDirectory, Utils.fixDirSeparator (getName entry))
+
+            Directory.CreateDirectory(Path.GetDirectoryName(path)) |> ignore
+
+            use file = File.Create(path)
             do! inflateEntry entry file
+
             match progress with
             | Some progress when i % reportFrequency = 0 ->
                 progress.Report(float (i + 1) / float toc.Count * 100.)
@@ -211,7 +224,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                 () }
 
     /// Edits the contents of the PSARC with the given edit function.
-    member _.Edit (options: EditOptions, editFunc: NamedEntry list -> NamedEntry list) = async {
+    member _.Edit(options: EditOptions, editFunc: NamedEntry list -> NamedEntry list) = async {
         // Map the table of contents to entry names and data
         use! namedEntries = createNamedEntries options.Mode
 
@@ -269,9 +282,9 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         ) }
 
     /// Initializes a PSARC from the input stream.
-    static member Read (input: Stream) = 
+    static member Read(input: Stream) = 
         let reader = BigEndianBinaryReader(input) :> IBinaryReader
-        let header = Header.Read reader
+        let header = Header.Read(reader)
         let tocSize = int header.ToCLength - Header.Length
 
         let toc, zLengths =
@@ -279,7 +292,8 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                 use decStream = MemoryStreamPool.Default.GetStream()
                 Cryptography.decrypt input decStream header.ToCLength
 
-                if decStream.Length <> int64 tocSize then failwith "ToC decryption failed: Incorrect ToC size."
+                if decStream.Length <> int64 tocSize then
+                    failwith "ToC decryption failed: Incorrect ToC size."
 
                 Utils.readToC header (BigEndianBinaryReader(decStream))
             else
@@ -288,7 +302,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         new PSARC(input, header, toc, zLengths)
 
     /// Initializes a PSARC from a file with the given name.
-    static member ReadFile (fileName: string) =
+    static member ReadFile(fileName: string) =
         Utils.openFileStreamForPSARC fileName
         |> PSARC.Read
 
@@ -296,4 +310,4 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     interface IDisposable with
         member _.Dispose() =
             source.Dispose()
-            ArrayPool.Shared.Return buffer
+            ArrayPool.Shared.Return(buffer)

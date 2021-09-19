@@ -1,14 +1,18 @@
 module internal Rocksmith2014.DD.PhraseCombiner
 
+open Rocksmith2014.XML
 open System
 open System.Collections.Generic
-open Rocksmith2014.XML
 open DataExtractor
 open Comparers
 
-type private CombinationData = { MainId: int; Ids: int array; IsSameDifficulty: bool }
+type private CombinationData =
+    { MainId: int
+      Ids: int array
+      IsSameDifficulty: bool }
 
-let private isEmpty (phrase: PhraseData) = phrase.NoteCount = 0 && phrase.ChordCount = 0
+let private isEmpty (phrase: PhraseData) =
+    phrase.NoteCount = 0 && phrase.ChordCount = 0
 
 let private calculateSimilarity fn fc (phrase1: PhraseData) (phrase2: PhraseData) =
     let noteSimilarity = fn phrase1.Notes phrase2.Notes
@@ -24,7 +28,8 @@ let private getSimilarity threshold (phrase1: PhraseData) (phrase2: PhraseData) 
     if isEmpty phrase1 && isEmpty phrase2 then
         100
     else
-        let simFastest = calculateSimilarity getMaxSimilarityFastest getMaxSimilarityFastest phrase1 phrase2
+        let simFastest =
+            calculateSimilarity getMaxSimilarityFastest getMaxSimilarityFastest phrase1 phrase2
 
         let simFast =
             if simFastest < threshold then
@@ -51,32 +56,39 @@ let private findSamePhrases threshold (levelCounts: int array) (iterationData: P
             |> Array.skip (mainId + 1)
             |> Array.Parallel.choose (fun data ->
                 let id = Array.IndexOf(iterationData, data)
+
                 if not <| matchedPhrases.Contains id && getSimilarity threshold iter data >= threshold then
                     Some id
                 else
                     None)
             |> function
-            | [||] ->
-                None
-            | ids ->
-                // Save the IDs that were matched
-                matchedPhrases.UnionWith ids
+                | [||] ->
+                    None
+                | ids ->
+                    // Save the IDs that were matched
+                    matchedPhrases.UnionWith ids
 
-                let isSameDifficulty =
-                    ids
-                    |> Array.append [| mainId |]
-                    |> Array.map (fun id -> levelCounts.[id])
-                    |> Array.allSame
+                    let isSameDifficulty =
+                        ids
+                        |> Array.append [| mainId |]
+                        |> Array.map (fun id -> levelCounts.[id])
+                        |> Array.allSame
 
-                Some { MainId = mainId; Ids = ids; IsSameDifficulty = isSameDifficulty })
+                    Some { MainId = mainId
+                           Ids = ids
+                           IsSameDifficulty = isSameDifficulty })
 
 let private findEmptyPhrases (iterationData: PhraseData array) =
     let emptyIds =
         iterationData.[1..(iterationData.Length - 2)]
-        |> Array.choosei (fun i data -> if isEmpty data then Some (i + 1) else None)
+        |> Array.choosei (fun i data ->
+            if isEmpty data then Some(i + 1) else None)
 
     if emptyIds.Length > 1 then
-        Array.singleton { MainId = emptyIds.[0]; Ids = emptyIds.[1..]; IsSameDifficulty = true }
+        Array.singleton
+            { MainId = emptyIds.[0]
+              Ids = emptyIds.[1..]
+              IsSameDifficulty = true }
     else
         Array.empty
 
@@ -116,22 +128,26 @@ let combineSamePhrases (config: GeneratorConfig)
         (iterations, levelCounts)
         ||> Array.mapi2 (fun i oldPi levelCount ->
             let pi = PhraseIteration(oldPi.Time, newPhraseIds.[i])
-
             let maxDiff = byte (levelCount - 1)
+
             if maxDiff > 0uy then
                 // Create hero levels
                 let easy = byte <| round (float maxDiff / 4.)
                 let medium = byte <| round (float maxDiff / 2.)
                 pi.HeroLevels <- HeroLevels(easy, medium, maxDiff)
+
             pi)
 
     // Create linked difficulties
     let linkedDiffs =
         differentDifficulties
         |> Array.map (fun data ->
-            let ids = seq {
-                yield newPhraseIds.[data.MainId]
-                yield! data.Ids |> Seq.map (fun x -> newPhraseIds.[x]) }
+            let ids =
+                seq {
+                    yield newPhraseIds.[data.MainId]
+                    yield! data.Ids |> Seq.map (fun x -> newPhraseIds.[x])
+                }
+
             NewLinkedDiff(-1y, ids))
 
     // Create phrases
@@ -147,6 +163,7 @@ let combineSamePhrases (config: GeneratorConfig)
                 None
             else
                 let maxDiff = pi.HeroLevels.Hard
+
                 let name =
                     if pi.PhraseId = firstId then
                         "COUNT"
@@ -158,7 +175,8 @@ let combineSamePhrases (config: GeneratorConfig)
                         counter <- counter + 1
                         $"p{counter}"
 
-                createdPhraseIds.Add pi.PhraseId |> ignore
-                Some <| Phrase(name, maxDiff, PhraseMask.None))
+                createdPhraseIds.Add(pi.PhraseId) |> ignore
+
+                Some(Phrase(name, maxDiff, PhraseMask.None)))
 
     phrases, newPhraseIterations, linkedDiffs

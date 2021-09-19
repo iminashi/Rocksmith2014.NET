@@ -1,10 +1,11 @@
-﻿module internal Rocksmith2014.DD.BeatDivider
+module internal Rocksmith2014.DD.BeatDivider
 
 open Rocksmith2014.DD.DataExtractor
 open Rocksmith2014.XML
 open System
 
-let round (value: float) = Math.Round(value, MidpointRounding.AwayFromZero)
+let round (value: float) =
+    Math.Round(value, MidpointRounding.AwayFromZero)
 
 let private getSubdivision startTime endTime time =
     let dist = float <| endTime - startTime
@@ -29,7 +30,7 @@ let private getSubdivisionInsideMeasure phraseEndTime (beats: Ebeat list) (time:
             beats
             |> List.tryFind (fun b -> b.Time > time && b.Measure <> -1s)
 
-        let endTime = 
+        let endTime =
             match followingMeasure with
             | None -> phraseEndTime
             | Some second -> second.Time
@@ -46,6 +47,7 @@ let private getDivisionInPhrase startTime endTime time =
     let rec findDivIndex curr =
         let low = divisionLength * float curr
         let high = divisionLength * float (curr + 1)
+
         if position >= low && position < high then
             curr
         else
@@ -55,7 +57,7 @@ let private getDivisionInPhrase startTime endTime time =
     phraseDivisions.[divsionIndex]
 
 let getDivision (phraseData: PhraseData) (time: int) (entity: XmlEntity) : BeatDivision =
-    let { StartTime=phraseStartTime; EndTime=phraseEndTime; Beats=beats } = phraseData
+    let { StartTime = phraseStartTime; EndTime = phraseEndTime; Beats = beats } = phraseData
 
     let beat1 =
         beats
@@ -66,6 +68,7 @@ let getDivision (phraseData: PhraseData) (time: int) (entity: XmlEntity) : BeatD
         |> List.tryFind (fun b -> b.Time >= time)
 
     let divisionInPhrase = getDivisionInPhrase phraseStartTime phraseEndTime time
+
     let isFretHandMute =
         match entity with
         | XmlNote n -> n.IsFretHandMute
@@ -73,23 +76,23 @@ let getDivision (phraseData: PhraseData) (time: int) (entity: XmlEntity) : BeatD
 
     // De-emphasize fret hand mutes
     if isFretHandMute then 20 else 0
-    + divisionInPhrase +
-    match beat1, beat2 with
-    | None, _ ->
-        // The note comes before any beat
-        20
-    | Some b1, Some b2 ->
-        if time = b1.Time then
-            if b1.Measure >= 0s then
-                // On the first beat of the measure
-                0
-            else
-                getSubdivisionInsideMeasure phraseEndTime beats time
-        else
-            10 * getSubdivision b1.Time b2.Time time
-    | Some b1, None ->
-        // The note comes after the last beat in the phrase
-        10 * getSubdivision b1.Time phraseEndTime time
+    + divisionInPhrase
+    + match beat1, beat2 with
+      | None, _ ->
+          // The note comes before any beat
+          20
+      | Some b1, Some b2 ->
+          if time = b1.Time then
+              if b1.Measure >= 0s then
+                  // On the first beat of the measure
+                  0
+              else
+                  getSubdivisionInsideMeasure phraseEndTime beats time
+          else
+              10 * getSubdivision b1.Time b2.Time time
+      | Some b1, None ->
+          // The note comes after the last beat in the phrase
+          10 * getSubdivision b1.Time phraseEndTime time
 
 let createDivisionMap (divisions: (int * BeatDivision) array) totalNotes =
     divisions
@@ -103,8 +106,9 @@ let createDivisionMap (divisions: (int * BeatDivision) array) totalNotes =
                 0.
             | Some (_, range) ->
                 range.High
+
         let high = low + (float notes / float totalNotes)
 
-        (division, { Low = low; High = high })::acc
+        (division, { Low = low; High = high }) :: acc
     ) []
     |> readOnlyDict

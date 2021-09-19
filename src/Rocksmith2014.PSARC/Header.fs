@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.PSARC
+namespace Rocksmith2014.PSARC
 
 open Rocksmith2014.Common
 open System.Text
@@ -40,7 +40,7 @@ type internal Header() =
     member this.IsEncrypted = this.ArchiveFlags = 4u
 
     /// Writes a PSARC header into the writer.
-    member this.Write (writer: IBinaryWriter) =
+    member this.Write(writer: IBinaryWriter) =
         writer.WriteBytes "PSAR"B
         writer.WriteUInt16 this.VersionMajor
         writer.WriteUInt16 this.VersionMinor
@@ -53,20 +53,22 @@ type internal Header() =
 
     /// Reads a PSARC header from the reader.
     static member Read (reader: IBinaryReader) =
-        let magic = Encoding.ASCII.GetString(reader.ReadBytes 4)
+        let magic = Encoding.ASCII.GetString(reader.ReadBytes(4))
         let versionMaj = reader.ReadUInt16()
         let versionMin = reader.ReadUInt16()
-        let compressionMethod = Encoding.ASCII.GetString(reader.ReadBytes 4)
+        let compressionMethod = Encoding.ASCII.GetString(reader.ReadBytes(4))
 
         if magic <> "PSAR" then
             failwith "PSARC header magic check failed."
         elif compressionMethod <> "zlib" then
             raise <| NotSupportedException($"Unsupported PSARC compression method: {compressionMethod}.")
         else
-            Header(VersionMajor = versionMaj,
-                   VersionMinor = versionMin,
-                   ToCLength = reader.ReadUInt32(),
-                   ToCEntrySize = reader.ReadUInt32(),
-                   ToCEntryCount = reader.ReadUInt32(),
-                   BlockSizeAlloc = reader.ReadUInt32(),
-                   ArchiveFlags = reader.ReadUInt32())
+            Header(
+                VersionMajor = versionMaj,
+                VersionMinor = versionMin,
+                ToCLength = reader.ReadUInt32(),
+                ToCEntrySize = reader.ReadUInt32(),
+                ToCEntryCount = reader.ReadUInt32(),
+                BlockSizeAlloc = reader.ReadUInt32(),
+                ArchiveFlags = reader.ReadUInt32()
+            )

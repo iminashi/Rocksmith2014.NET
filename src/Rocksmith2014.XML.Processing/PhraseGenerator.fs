@@ -11,8 +11,7 @@ let private maxOfThree defaultValue o1 o2 o3 =
     let v2 = o2 |> Option.defaultValue defaultValue
     let v3 = o3 |> Option.defaultValue defaultValue
 
-    max v1 v2
-    |> max v3
+    max v1 v2 |> max v3
 
 let private findContentEnd (arr: Inst) =
     let note =
@@ -77,8 +76,7 @@ let private getFirstPhraseTime contentStartTime (arr: Inst) =
         if contentStartTime = 0 then
             failwith "There is no room for an empty phrase before the arrangement content starts."
         else
-            let newBeatTime =
-                max 0 (firstBeatTime - 500)
+            let newBeatTime = max 0 (firstBeatTime - 500)
             let newBeat = Ebeat(newBeatTime, 0s)
             Error newBeat
     else
@@ -109,7 +107,8 @@ let private addFirstPhrase firstPhraseTime (arr: Inst) =
 let private findGoodPhraseTime (level: Level) initialTime =
     let outsideNoteSustainTime =
         level.Notes
-        |> ResizeArray.tryFind (fun x -> x.Time < initialTime && x.Time + x.Sustain > initialTime)
+        |> ResizeArray.tryFind (fun x ->
+            x.Time < initialTime && x.Time + x.Sustain > initialTime)
         |> Option.map (fun x ->
             if initialTime - x.Time < x.Time + x.Sustain - initialTime then
                 x.Time
@@ -120,21 +119,27 @@ let private findGoodPhraseTime (level: Level) initialTime =
         let time =
             outsideNoteSustainTime
             |> Option.defaultValue initialTime
+
         level.Notes
         |> ResizeArray.tryFind (fun x -> x.IsLinkNext && x.Time + x.Sustain = time)
         |> Option.map (fun x -> x.Time)
 
     let outsideHandShapeTime =
         level.HandShapes
-        |> ResizeArray.tryFind (fun x -> x.StartTime < initialTime && x.EndTime > initialTime)
+        |> ResizeArray.tryFind (fun x ->
+            x.StartTime < initialTime && x.EndTime > initialTime)
         |> Option.map (fun x -> x.StartTime)
 
     let outsideChordLinkNextTime =
         let time =
             outsideHandShapeTime
             |> Option.defaultValue initialTime
+
         level.Chords
-        |> ResizeArray.tryFind (fun x -> x.IsLinkNext && x.HasChordNotes && x.ChordNotes.Exists(fun n -> n.Time + n.Sustain = time))
+        |> ResizeArray.tryFind (fun x ->
+            x.IsLinkNext
+            && x.HasChordNotes
+            && x.ChordNotes.Exists(fun n -> n.Time + n.Sustain = time))
         |> Option.map (fun x -> x.Time)
 
     outsideNoteLinkNextTime
@@ -209,6 +214,7 @@ let private createPhrasesAndSections contentStartTime endPhraseTime (arr: Inst) 
                     else
                         riffNumber <- riffNumber + 1s
                         "riff", riffNumber
+
                 arr.Sections.Add(Section(name, time, number)))
 
     ngSectionNumber

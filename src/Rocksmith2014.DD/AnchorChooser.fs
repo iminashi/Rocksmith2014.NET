@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DD.AnchorChooser
+module Rocksmith2014.DD.AnchorChooser
 
 open Rocksmith2014.XML
 
@@ -20,17 +20,18 @@ let choose (entities: XmlEntity array) (anchors: Anchor list) phraseStartTime ph
         match anchors with
         | [] ->
             result
-        | a::tail ->
+        | a :: tail ->
             let endTime =
                 match tail with
-                | a2::_ -> a2.Time
+                | a2 :: _ -> a2.Time
                 | [] -> phraseEndTime
 
             let result =
                 if a.Time = phraseStartTime || shouldInclude entities a.Time endTime then
-                    a::result
+                    a :: result
                 else
                     result
+
             add result tail
 
     add [] anchors

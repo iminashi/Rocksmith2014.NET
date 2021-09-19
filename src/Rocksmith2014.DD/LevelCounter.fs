@@ -1,9 +1,9 @@
-﻿module internal Rocksmith2014.DD.LevelCounter
+module internal Rocksmith2014.DD.LevelCounter
 
 open Rocksmith2014.DD.Model
 open System
 
-let private lockObj = obj()
+let private lockObj = obj ()
 
 let predictLevelCount (path: int) (p: DataExtractor.PhraseData) =
     // Add input data
@@ -35,9 +35,7 @@ let predictLevelCount (path: int) (p: DataExtractor.PhraseData) =
     let result =
         lock lockObj (fun _ -> ConsumeModel.Predict input)
 
-    let levels =
-        round result.Score
-        |> int
+    let levels = round result.Score |> int
     Math.Clamp(levels, 2, 30)
 
 let private getRepeatedNotePercent (phraseData: DataExtractor.PhraseData) =

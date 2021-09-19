@@ -32,6 +32,7 @@ let improve (arrangement: InstrumentalArrangement) =
                     let i = arrangement.Ebeats.FindIndex(fun b -> b.Time > precedingEndTime)
                     // For handshapes that come after the last beat (bad XML) use the last beat
                     if i = -1 then arrangement.Ebeats.Count - 1 else i
+
                 let beat1 = arrangement.Ebeats.[beat2Index - 1]
                 let beat2 = arrangement.Ebeats.[beat2Index]
 

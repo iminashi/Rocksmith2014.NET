@@ -15,12 +15,14 @@ let internal readToC (header: Header) (reader: IBinaryReader) =
     let tocSize = int (header.ToCEntryCount * header.ToCEntrySize)
     let blockSizeTableLength = int header.ToCLength - Header.Length - tocSize
     let blockSizeCount = blockSizeTableLength / zType
+
     let read = 
         match zType with
         | 2 -> fun _ -> uint32 (reader.ReadUInt16()) // 64KB
         | 3 -> fun _ -> reader.ReadUInt24() // 16MB
         | 4 -> fun _ -> reader.ReadUInt32() // 4GB
         | _ -> failwith "Unexpected zType"
+
     let blockSizes = Array.init blockSizeCount read
 
     toc, blockSizes
@@ -41,7 +43,9 @@ let getTempFileStream () =
         FileAccess.ReadWrite,
         FileShare.None,
         4096,
-        FileOptions.DeleteOnClose ||| FileOptions.Asynchronous) :> Stream
+        FileOptions.DeleteOnClose ||| FileOptions.Asynchronous
+    )
+    :> Stream
 
 /// Returns a file stream for reading a file to be added into a PSARC.
 let getFileStreamForRead (fileName: string) =
@@ -51,7 +55,8 @@ let getFileStreamForRead (fileName: string) =
         FileAccess.Read,
         FileShare.Read,
         4096,
-        FileOptions.SequentialScan ||| FileOptions.Asynchronous)
+        FileOptions.SequentialScan ||| FileOptions.Asynchronous
+    )
 
 /// Returns a file stream for opening an existing PSARC file.
 let openFileStreamForPSARC (fileName: string) =
@@ -61,7 +66,8 @@ let openFileStreamForPSARC (fileName: string) =
         FileAccess.ReadWrite,
         FileShare.None,
         65536,
-        FileOptions.Asynchronous)
+        FileOptions.Asynchronous
+    )
 
 /// Returns a file stream for creating a new PSARC file.
 let createFileStreamForPSARC (fileName: string) =
@@ -71,14 +77,19 @@ let createFileStreamForPSARC (fileName: string) =
         FileAccess.ReadWrite,
         FileShare.None,
         65536,
-        FileOptions.Asynchronous)
+        FileOptions.Asynchronous
+    )
 
 /// Fixes the platform-specific directory separator character when extracting files from a PSARC.
 let fixDirSeparator (path: string) =
-    if Path.DirectorySeparatorChar = '/' then path else path.Replace('/', '\\')
+    if Path.DirectorySeparatorChar = '/' then
+        path
+    else
+        path.Replace('/', '\\')
 
 /// Finds all files in the given path and its subdirectories.
-let getAllFiles path = Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories)
+let getAllFiles path =
+    Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories)
 
 /// Returns true if the array starts with the zlib header (best compression).
 let inline hasZlibHeader (b: byte array) =
