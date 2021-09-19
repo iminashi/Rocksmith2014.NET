@@ -1,7 +1,7 @@
-﻿namespace Rocksmith2014.Conversion
+namespace Rocksmith2014.Conversion
 
-open Rocksmith2014.SNG
 open Rocksmith2014
+open Rocksmith2014.SNG
 open System.Collections.Generic
 open System.Threading
 
@@ -13,7 +13,10 @@ type NoteCountsMutable() =
     [<DefaultValue>] val mutable Ignored : int
 
     member this.AsImmutable() =
-        { Easy = this.Easy; Medium = this.Medium; Hard = this.Hard; Ignored = this.Ignored }
+        { Easy = this.Easy
+          Medium = this.Medium
+          Hard = this.Hard
+          Ignored = this.Ignored }
 
 /// Represents data that is being accumulated when mapping XML notes/chords into SNG notes.
 type AccuData =

@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.Conversion
+namespace Rocksmith2014.Conversion
 
 open System.Runtime.CompilerServices
 open Rocksmith2014.XML

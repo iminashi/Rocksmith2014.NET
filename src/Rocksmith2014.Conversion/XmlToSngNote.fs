@@ -121,8 +121,10 @@ let private createBendData32 (chordNote: XML.Note) =
 /// Creates a note mask array from the XML chord notes.
 let private createChordNotesMask (chordNotes: ResizeArray<XML.Note>) =
     let masks = Array.zeroCreate<NoteMask> 6
+
     for note in chordNotes do
         masks.[int note.String] <- createMaskForChordNote note
+
     masks
 
 /// Creates chord notes for the chord and returns the ID number for them.
@@ -152,7 +154,11 @@ let private createChordNotes (pendingLinkNexts: Dictionary<int8, int16>) thisId 
                 pendingLinkNexts.TryAdd(note.String, thisId) |> ignore
 
         let chordNotes =
-            { Mask = masks; BendData = bendData; SlideTo = slideTo; SlideUnpitchTo = slideUnpitchTo; Vibrato = vibrato }
+            { Mask = masks
+              BendData = bendData
+              SlideTo = slideTo
+              SlideUnpitchTo = slideUnpitchTo
+              Vibrato = vibrato }
 
         lock accuData.ChordNotesMap (fun () ->
             match accuData.ChordNotesMap.TryGetValue chordNotes with
@@ -181,7 +187,7 @@ let convertNote (noteTimes: int array)
     // Mapping: string number => index of note in phrase iteration
     let pendingLinkNexts = Dictionary<int8, int16>()
     // The previous converted note
-    let mutable previousNote : Note option = None
+    let mutable previousNote: Note option = None
 
     fun (index: int) (xmlEnt: XmlEntity) ->
 

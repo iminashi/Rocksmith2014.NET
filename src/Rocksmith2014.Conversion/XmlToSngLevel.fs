@@ -36,7 +36,9 @@ let convertLevel (accuData: AccuData) (piTimes: int array) (xmlArr: XML.Instrume
         |> Array.partition isArpeggio
     let fingerPrints = [| handShapes; arpeggios |]
 
-    let convertNote' = convertNote noteTimes piTimes fingerPrints accuData NoteFlagFunctions.onAnchorChange xmlArr difficulty
+    let convertNote' =
+        convertNote noteTimes piTimes fingerPrints accuData NoteFlagFunctions.onAnchorChange xmlArr difficulty
+
     let notes = xmlEntities |> Array.mapi convertNote'
 
     let anchors =

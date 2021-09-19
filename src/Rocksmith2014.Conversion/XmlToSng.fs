@@ -12,8 +12,8 @@ type NoteFlagger = Note option -> Note -> uint32
 
 [<Struct>]
 type XmlEntity =
-    | XmlNote of XmlNote : XML.Note
-    | XmlChord of XmlChord : XML.Chord
+    | XmlNote of XmlNote: XML.Note
+    | XmlChord of XmlChord: XML.Chord
 
 let inline getTimeCode entity =
     match entity with
@@ -66,10 +66,16 @@ let convertVocal (xmlVocal: XML.Vocal) =
 /// Converts an XML GlyphDefinition into an SNG SymbolDefinition.
 let convertSymbolDefinition (xmlGlyphDef: XML.GlyphDefinition) =
     { Symbol = xmlGlyphDef.Symbol
-      Outer = { XMin = xmlGlyphDef.OuterXMin; XMax = xmlGlyphDef.OuterXMax
-                YMin = xmlGlyphDef.OuterYMin; YMax = xmlGlyphDef.OuterYMax }
-      Inner = { XMin = xmlGlyphDef.InnerXMin; XMax = xmlGlyphDef.InnerXMax
-                YMin = xmlGlyphDef.InnerYMin; YMax = xmlGlyphDef.InnerYMax } }
+      Outer =
+          { XMin = xmlGlyphDef.OuterXMin
+            XMax = xmlGlyphDef.OuterXMax
+            YMin = xmlGlyphDef.OuterYMin
+            YMax = xmlGlyphDef.OuterYMax }
+      Inner =
+          { XMin = xmlGlyphDef.InnerXMin
+            XMax = xmlGlyphDef.InnerXMax
+            YMin = xmlGlyphDef.InnerYMin
+            YMax = xmlGlyphDef.InnerYMax } }
 
 /// Converts an XML Phrase into an SNG Phrase.
 let convertPhrase (xml: XML.InstrumentalArrangement) phraseId (xmlPhrase: XML.Phrase) =
@@ -119,7 +125,10 @@ let convertPhraseIteration (piTimes: int array) index (xmlPi: XML.PhraseIteratio
     { PhraseId = xmlPi.PhraseId
       StartTime = msToSec xmlPi.Time
       EndTime = msToSec piTimes.[index + 1]
-      Difficulty = [| int xmlPi.HeroLevels.Easy; int xmlPi.HeroLevels.Medium; int xmlPi.HeroLevels.Hard |] }
+      Difficulty =
+        [| int xmlPi.HeroLevels.Easy
+           int xmlPi.HeroLevels.Medium
+           int xmlPi.HeroLevels.Hard |] }
 
 /// Converts an XML NewLinkedDifficulty into an SNG NewLinkedDifficulty.
 let convertNLD (xmlNLD: XML.NewLinkedDiff) =
@@ -145,6 +154,7 @@ let convertSection (stringMasks: int8[][]) (xml: XML.InstrumentalArrangement) in
             xml.Sections.[index + 1].Time
 
     let startPi = findPhraseIterationId xmlSection.Time xml.PhraseIterations
+
     let endPi =
         let rec find index =
             if index >= xml.PhraseIterations.Count || xml.PhraseIterations.[index].Time >= endTime then
@@ -199,7 +209,8 @@ let convertAnchor (notes: Note array)
                 else
                     let prevNote = notes.[firstIndex - 1]
                     // If this anchor is at the end of a slide note, use the time where the target note would be
-                    if prevNote.Mask ?= NoteMask.Slide && prevNote.Time + prevNote.Sustain - startTime < 0.001f then
+                    if prevNote.Mask ?= NoteMask.Slide
+                       && prevNote.Time + prevNote.Sustain - startTime < 0.001f then
                         startTime
                     else
                         firstNote.Time
@@ -230,7 +241,12 @@ let convertHandshape (noteTimes: int array) (entities: XmlEntity array) (xmlHs: 
         | ValueSome (first, last) ->
             let endTime =
                 let t = noteTimes.[last] + getSustain entities.[last]
-                if t >= xmlHs.EndTime then -1.f else msToSec t
+
+                if t >= xmlHs.EndTime then
+                    -1.f
+                else
+                    msToSec t
+
             msToSec noteTimes.[first], endTime
 
     { ChordId = int xmlHs.ChordId

@@ -39,7 +39,8 @@ let convertPhraseIteration (sngPhraseIter: PhraseIteration) =
     XML.PhraseIteration(
         secToMs sngPhraseIter.StartTime,
         sngPhraseIter.PhraseId,
-        sngPhraseIter.Difficulty)
+        sngPhraseIter.Difficulty
+    )
 
 /// Converts an SNG PhraseExtraInfo into an XML PhraseProperty.
 let convertPhraseExtraInfo (sngInfo: PhraseExtraInfo) =
@@ -48,7 +49,8 @@ let convertPhraseExtraInfo (sngInfo: PhraseExtraInfo) =
         Difficulty = sngInfo.Difficulty,
         Empty = sngInfo.Empty,
         LevelJump = sngInfo.LevelJump,
-        Redundant = sngInfo.Redundant)
+        Redundant = sngInfo.Redundant
+    )
 
 /// Converts an SNG BendValue into an XML BendValue.
 let convertBendValue (sngBend: BendValue) =
@@ -71,7 +73,8 @@ let convertSymbolDefinition (sngSymbol: SymbolDefinition) =
         InnerYMin = sngSymbol.Inner.YMin,
         InnerYMax = sngSymbol.Inner.YMax,
         InnerXMin = sngSymbol.Inner.XMin,
-        InnerXMax = sngSymbol.Inner.XMax)
+        InnerXMax = sngSymbol.Inner.XMax
+    )
 
 /// Converts an SNG NewLinkedDifficulty into an XML NewLinkedDifficulty.
 let convertNLD (sngNld: NewLinkedDifficulty) =
@@ -90,6 +93,7 @@ let convertTone (attributes: Manifest.Attributes option) (sngTone: Tone) =
         | Some attr, 2 -> attr.Tone_C
         | Some attr, 3 -> attr.Tone_D
         | _, _ -> "N/A"
+
     XML.ToneChange(name, secToMs sngTone.Time, byte sngTone.ToneId)
 
 /// Converts an SNG Section into an XML Section.
@@ -208,10 +212,16 @@ let private createChordNotes (sng: SNG) (chord: Note) =
 let convertChord (sng: SNG) (sngNote: Note) =
     if sngNote.ChordId = -1 then invalidOp "Cannot convert a note into a chord."
     
-    XML.Chord(Mask = convertChordMask sngNote.Mask,
-              Time = secToMs sngNote.Time,
-              ChordId = int16 sngNote.ChordId,
-              ChordNotes = if sngNote.Mask ?= NoteMask.ChordPanel then createChordNotes sng sngNote else null)
+    XML.Chord(
+        Mask = convertChordMask sngNote.Mask,
+        Time = secToMs sngNote.Time,
+        ChordId = int16 sngNote.ChordId,
+        ChordNotes =
+            if sngNote.Mask ?= NoteMask.ChordPanel then
+                createChordNotes sng sngNote
+            else
+                null
+    )
 
 let private mapFingerPrints (handShapes: FingerPrint array) (arpeggios: FingerPrint array) =
     let result = ResizeArray<XML.HandShape>(handShapes.Length + arpeggios.Length)

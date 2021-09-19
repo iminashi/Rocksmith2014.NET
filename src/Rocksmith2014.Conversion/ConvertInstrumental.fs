@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Conversion.ConvertInstrumental
+module Rocksmith2014.Conversion.ConvertInstrumental
 
 open Rocksmith2014.Common
 open Rocksmith2014.Conversion
@@ -41,7 +41,8 @@ let private convertArrProps (arrProps: Manifest.ArrangementProperties) =
         Sustain = btb arrProps.sustain,
         PathLead = btb arrProps.pathLead,
         PathRhythm = btb arrProps.pathRhythm,
-        PathBass = btb arrProps.pathBass)
+        PathBass = btb arrProps.pathBass
+    )
 
 /// Converts an SNG arrangement into an InstrumentalArrangement.
 let sngToXml (attr: Manifest.Attributes option) (sng: SNG) =
@@ -71,16 +72,20 @@ let sngToXml (attr: Manifest.Attributes option) (sng: SNG) =
         | None ->
             MetaData()
         | Some attr ->
-            let m = MetaData(Arrangement = attr.ArrangementName,
-                             CentOffset = float32 (attr.CentOffset.GetValueOrDefault()),
-                             AverageTempo = attr.SongAverageTempo.GetValueOrDefault(),
-                             Title = attr.SongName,
-                             TitleSort = attr.SongNameSort,
-                             ArtistName = attr.ArtistName,
-                             ArtistNameSort = attr.ArtistNameSort,
-                             AlbumName = attr.AlbumName,
-                             AlbumNameSort = attr.AlbumNameSort,
-                             AlbumYear = attr.SongYear.GetValueOrDefault())
+            let m =
+                MetaData(
+                    Arrangement = attr.ArrangementName,
+                    CentOffset = float32 (attr.CentOffset.GetValueOrDefault()),
+                    AverageTempo = attr.SongAverageTempo.GetValueOrDefault(),
+                    Title = attr.SongName,
+                    TitleSort = attr.SongNameSort,
+                    ArtistName = attr.ArtistName,
+                    ArtistNameSort = attr.ArtistNameSort,
+                    AlbumName = attr.AlbumName,
+                    AlbumNameSort = attr.AlbumNameSort,
+                    AlbumYear = attr.SongYear.GetValueOrDefault()
+                )
+
             match attr.ArrangementProperties with
             | Some arrProps ->
                 m.ArrangementProperties <- convertArrProps arrProps
@@ -93,22 +98,26 @@ let sngToXml (attr: Manifest.Attributes option) (sng: SNG) =
     metaData.LastConversionDateTime <- sng.MetaData.LastConversionDateTime
     metaData.SongLength <- secToMs sng.MetaData.SongLength
 
-    let arr = InstrumentalArrangement(
-                MetaData = metaData,
-                Ebeats = beats,
-                Phrases = phrases,
-                PhraseIterations = phraseIterations,
-                PhraseProperties = phraseProperties,
-                Sections = sections,
-                NewLinkedDiffs = nld,
-                Events = events,
-                ChordTemplates = chordTemplates,
-                Levels = levels,
-                TranscriptionTrack = Level())
+    let arr =
+        InstrumentalArrangement(
+            MetaData = metaData,
+            Ebeats = beats,
+            Phrases = phrases,
+            PhraseIterations = phraseIterations,
+            PhraseProperties = phraseProperties,
+            Sections = sections,
+            NewLinkedDiffs = nld,
+            Events = events,
+            ChordTemplates = chordTemplates,
+            Levels = levels,
+            TranscriptionTrack = Level()
+        )
+
     Array.Copy (sng.MetaData.Tuning, arr.MetaData.Tuning.Strings, 6)
     arr.Tones.Changes <- tones
 
-    attr |> Option.iter (fun attr ->
+    attr
+    |> Option.iter (fun attr ->
         if String.notEmpty attr.Tone_Base then arr.Tones.BaseToneName <- attr.Tone_Base
         if String.notEmpty attr.Tone_A then arr.Tones.Names.[0] <- attr.Tone_A
         if String.notEmpty attr.Tone_B then arr.Tones.Names.[1] <- attr.Tone_B

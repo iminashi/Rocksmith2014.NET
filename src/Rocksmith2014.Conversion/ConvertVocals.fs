@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.Conversion
+namespace Rocksmith2014.Conversion
 
 open Microsoft.Extensions.FileProviders
 open Rocksmith2014.Common.BinaryReaders
@@ -10,7 +10,7 @@ open System.Text
 
 type FontOption =
     | DefaultFont
-    | CustomFont of glyphDefinitions : GlyphDefinitions * assetPath : string
+    | CustomFont of glyphDefinitions: GlyphDefinitions * assetPath: string
 
 module ConvertVocals =
     /// The default symbol textures used in SNG files that use the default font.
@@ -43,9 +43,11 @@ module ConvertVocals =
             sng.SymbolDefinitions
             |> Utils.mapToResizeArray SngToXml.convertSymbolDefinition
 
-        GlyphDefinitions(TextureWidth = sng.SymbolsTextures.[0].Width,
-                         TextureHeight = sng.SymbolsTextures.[0].Height,
-                         Glyphs = glyphs)
+        GlyphDefinitions(
+            TextureWidth = sng.SymbolsTextures.[0].Width,
+            TextureHeight = sng.SymbolsTextures.[0].Height,
+            Glyphs = glyphs
+        )
 
     /// Converts a list of XML vocals into SNG.
     let xmlToSng font (xml: ResizeArray<Vocal>) =
@@ -64,10 +66,11 @@ module ConvertVocals =
                 glyphs.Glyphs
                 |> Utils.mapToArray XmlToSng.convertSymbolDefinition
 
-        { SNG.Empty with Vocals = vocals
-                         SymbolsHeaders = headers
-                         SymbolsTextures = textures
-                         SymbolDefinitions = symbols }
+        { SNG.Empty with
+            Vocals = vocals
+            SymbolsHeaders = headers
+            SymbolsTextures = textures
+            SymbolDefinitions = symbols }
 
     /// Converts a vocals SNG file into an XML file.
     let sngFileToXml sngFile targetFile platform = async {
@@ -79,8 +82,10 @@ module ConvertVocals =
     let xmlFileToSng xmlFile targetFile customFont platform =
         let glyphs =
             match customFont with
-            | Some fileName -> CustomFont ((GlyphDefinitions.Load fileName), "placeholder.dds")
-            | None -> DefaultFont
+            | Some fileName ->
+                CustomFont ((GlyphDefinitions.Load fileName), "placeholder.dds")
+            | None ->
+                DefaultFont
 
         Vocals.Load xmlFile
         |> xmlToSng glyphs
