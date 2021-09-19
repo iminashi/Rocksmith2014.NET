@@ -1,3 +1,7 @@
+## 0.7.2 (Released 2021-09-19)
+
+- Fixed a bug where the window would be placed off-screen when starting the program.
+
 ## 0.7.1 (Released 2021-09-17)
 
 - Fixed incorrect behavior when opening multiple instances of the program.
