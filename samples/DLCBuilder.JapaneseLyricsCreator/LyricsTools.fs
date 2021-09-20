@@ -30,17 +30,17 @@ let private revCharListToString = List.rev >> Array.ofList >> String
 let hyphenate (str: string) =
     let rec getSyllables (results: string list) current list =
         match list with
-        | a::rest when isSpace a ->
+        | a :: rest when isSpace a ->
             let res = current |> revCharListToString
 
-            getSyllables (res::results) [] rest
+            getSyllables (res :: results) [] rest
 
-        | a::rest when not <| isForwardsCombining a && (isPunctuation a || isBackwardsCombining a || isCommonLatin a) ->
-            let current = a::current
+        | a :: rest when not <| isForwardsCombining a && (isPunctuation a || isBackwardsCombining a || isCommonLatin a) ->
+            let current = a :: current
 
             getSyllables results current rest
 
-        | a::rest ->
+        | a :: rest ->
             let results, current =
                 match current with
                 | [] ->
@@ -48,14 +48,14 @@ let hyphenate (str: string) =
                 | current when List.forall isPunctuation current ->
                     results, a::current
                 | current ->
-                    let result = '-'::current |> revCharListToString
-                    result::results, [ a ]
+                    let result = '-' :: current |> revCharListToString
+                    result :: results, [ a ]
 
             getSyllables results current rest
 
         | [] ->
             let result = current |> revCharListToString
-            result::results
+            result :: results
 
     str
     |> List.ofSeq
@@ -70,11 +70,11 @@ let hyphenateToSyllableLines (str: string) =
 let toLines (vocals: MatchedSyllable seq) =
     (([], []), vocals)
     ||> Seq.fold (fun (lines, currentLine) elem ->
-        if elem.Vocal.Lyric.EndsWith "+" then
+        if elem.Vocal.Lyric.EndsWith("+") then
             let result = (elem::currentLine) |> List.rev
-            result::lines, []
+            result :: lines, []
         else
-            lines, elem::currentLine)
+            lines, elem :: currentLine)
     |> fst
     |> List.rev
     |> List.map List.toArray
@@ -84,7 +84,7 @@ let matchHyphenation (oneWord: string) (manyWords: string array) =
     let startIndex =
         manyWords
         |> Array.tryFindIndex (fun x ->
-            x.EndsWith "-" &&
+            x.EndsWith("-") &&
             oneWord.AsSpan().StartsWith(x.AsSpan(0, x.Length - 1), StringComparison.OrdinalIgnoreCase))
 
     match startIndex with
@@ -93,7 +93,7 @@ let matchHyphenation (oneWord: string) (manyWords: string array) =
 
         let wordEnd =
             manyWords
-            |> Array.findIndex (fun x -> not <| x.EndsWith "-")
+            |> Array.findIndex (fun x -> not <| x.EndsWith("-"))
 
         let hyphenated =
             manyWords
@@ -101,7 +101,7 @@ let matchHyphenation (oneWord: string) (manyWords: string array) =
 
         let completeWord =
             hyphenated
-            |> Array.map (fun x -> if x.EndsWith "-" || x.EndsWith "+" then x.Substring(0, x.Length - 1) else x)
+            |> Array.map (fun x -> if x.EndsWith("-") || x.EndsWith("+") then x.Substring(0, x.Length - 1) else x)
             |> String.concat ""
 
         if String.equalsIgnoreCase completeWord oneWord then
@@ -153,9 +153,7 @@ let applyCombinations (replacements: CombinationLocation list) (japaneseLines: s
                     elif replacementIndex + 1 = i then
                         None
                     else
-                        Some word)
-            )
-    )
+                        Some word)))
 
 let createJapaneseLines matchedLines combinedJapanese japaneseText =
     japaneseText
@@ -164,5 +162,7 @@ let createJapaneseLines matchedLines combinedJapanese japaneseText =
     |> applyCombinations combinedJapanese
 
 let combineVocals (v1: Vocal) (v2: Vocal) =
-    let lyric = String.Concat(withoutTrailingDash v1.Lyric, v2.Lyric.AsSpan())
+    let lyric =
+        String.Concat(withoutTrailingDash v1.Lyric, v2.Lyric.AsSpan())
+
     Vocal(v1.Time, (v2.Time + v2.Length) - v1.Time, lyric, v1.Note)

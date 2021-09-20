@@ -2,7 +2,8 @@
 module DLCBuilder.GeneralTypes
 
 type Locale =
-    { Name : string; ShortName : string }
+    { Name: string
+      ShortName: string }
 
     override this.ToString() = this.Name
     static member Default = { Name = "English"; ShortName = "en" }

@@ -53,9 +53,9 @@ type MainWindow(commandLineArgs: string array) as this =
         | ProjectLoaded _ ->
             false
         | _ ->
-            newState.Config.AutoSave &&
-            newState.OpenProjectFile.IsSome &&
-            newState.Project <> oldState.Project
+            newState.Config.AutoSave
+            && newState.OpenProjectFile.IsSome
+            && newState.Project <> oldState.Project
 
     let mutable windowPosition = this.Position
     let mutable windowSize = Size(this.Width, this.Height)
@@ -98,7 +98,7 @@ type MainWindow(commandLineArgs: string array) as this =
                         else
                             this.Padding <- Thickness(0.))
 
-                Some (TitleBarButtons(this)), 640.0
+                Some(TitleBarButtons(this)), 640.0
             else
                 None, 670.0
 
@@ -131,7 +131,7 @@ type MainWindow(commandLineArgs: string array) as this =
         let autoSaveSub _ =
             let sub dispatch =
                 autoSaveSubject
-                    .Throttle(TimeSpan.FromSeconds 1.)
+                    .Throttle(TimeSpan.FromSeconds(1.))
                     .Add(fun () -> dispatch AutoSaveProject)
             Cmd.ofSub sub
 
@@ -164,14 +164,15 @@ type MainWindow(commandLineArgs: string array) as this =
                         state, Dialogs.showDialog this dialog state
                     | _ ->
                         Main.update msg state
+
                 if shouldAutoSave newState state msg then autoSaveSubject.OnNext()
 
                 // Workaround for focus issues when opening / closing overlays
                 match state, newState with
                 | { Overlay = NoOverlay }, { Overlay = overlay } when overlay <> NoOverlay ->
-                    FocusHelper.storeFocusedElement()
+                    FocusHelper.storeFocusedElement ()
                 | { Overlay = overlay }, { Overlay = NoOverlay } when overlay <> NoOverlay ->
-                    FocusHelper.restoreRootFocus()
+                    FocusHelper.restoreRootFocus ()
                 | _ ->
                     ()
 
@@ -186,21 +187,26 @@ type MainWindow(commandLineArgs: string array) as this =
 
                 let errorMessage =
                     $"Unhandled exception in the update function.\nMessage: {msg}\nException: {ex.Message}"
+
                 let exnInfo =
                     Utils.createExceptionInfoString ex
+
                 let newState =
-                    { state with StatusMessages = List.empty
-                                 RunningTasks = Set.empty
-                                 Overlay = ErrorMessage(errorMessage, Some exnInfo) }
+                    { state with
+                        StatusMessages = List.empty
+                        RunningTasks = Set.empty
+                        Overlay = ErrorMessage(errorMessage, Some exnInfo) }
+
                 newState, Cmd.none
 
         let databaseConnector =
             let appDataTones = Path.Combine(Configuration.appDataFolder, "tones")
+
             Database.createConnector
                 (OfficialDataBasePath <| Path.Combine(appDataTones, "official.db"))
                 (UserDataBasePath <| Path.Combine(appDataTones, "user.db"))
 
-        let init' = InitState.init (Localization.toInterface()) (AvaloniaBitmapLoader.createInterface()) databaseConnector
+        let init' = InitState.init (Localization.toInterface ()) (AvaloniaBitmapLoader.createInterface ()) databaseConnector
 
         FocusHelper.init this
 

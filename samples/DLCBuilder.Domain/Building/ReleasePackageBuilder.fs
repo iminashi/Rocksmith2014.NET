@@ -22,9 +22,13 @@ let build (openProject: string option) config project = async {
     let path = Path.Combine(releaseDir, fileName)
     let buildConfig =
         let baseConfig = BuildConfig.create Release config project (Set.toList config.ReleasePlatforms)
-        { baseConfig with IdResetConfig = Some { ProjectDirectory = releaseDir
-                                                 ConfirmIdRegeneration = IdRegenerationHelper.getConfirmation
-                                                 PostNewIds = IdRegenerationHelper.postNewIds } }
+
+        { baseConfig with
+            IdResetConfig =
+                Some
+                    { ProjectDirectory = releaseDir
+                      ConfirmIdRegeneration = IdRegenerationHelper.getConfirmation
+                      PostNewIds = IdRegenerationHelper.postNewIds } }
 
     do! PackageBuilder.buildPackages path buildConfig project
 
@@ -55,6 +59,7 @@ let buildPitchShifted (openProject: string option) config project = async {
     let shift = project.PitchShift |> Option.defaultValue 0s
     let title = { project.Title with SortValue = $"{project.Title.SortValue} Pitch" }
     let dlcKey = $"Pitch{project.DLCKey}"
+
     let arrangements =
         project.Arrangements
         |> List.map (function
@@ -78,10 +83,11 @@ let buildPitchShifted (openProject: string option) config project = async {
                 failwith $"Could not add pitch shift pedal to tone {tone.Key}.\nThere needs to be at least one free pre-pedal slot.")
 
     let pitchProject =
-        { project with DLCKey = dlcKey
-                       Title = title
-                       Arrangements = arrangements
-                       Tones = tones }
+        { project with
+            DLCKey = dlcKey
+            Title = title
+            Arrangements = arrangements
+            Tones = tones }
 
     let! _ = build openProject config pitchProject
 

@@ -88,6 +88,7 @@ let loadRepository () = async {
         allGear
         |> Array.filter (fun x -> x.Type = type')
         |> Array.sortBy sortBy
+
     let toDict = Array.map (fun x -> x.Key, x) >> readOnlyDict
 
     let data =
@@ -103,6 +104,7 @@ let loadRepository () = async {
 
     let cabinets = data.["Cabinets"].Array
     let cabinetChoices = cabinets |> Array.distinctBy (fun x -> x.Name)
+
     let micPositionsForCabinet =
         cabinets
         |> Array.groupBy (fun x -> x.Name)
@@ -136,6 +138,7 @@ let getGearDataForCurrentPedal repository (gearList: Gear) = function
 let emptyTone repository =
     let gear =
         let noPedals = Array.replicate 4 None
+
         { Amp = repository.Amps.[0] |> createPedalForGear
           Cabinet = repository.Cabinets.[0] |> createPedalForGear
           Racks = noPedals

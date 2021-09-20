@@ -11,7 +11,8 @@ let mutable private cached : Bitmap option = None
 
 /// Converts a DDS bitmap into an Avalonia bitmap.
 let private avaloniaBitmapFromDDS (fileName: string) =
-    use image = Pfim.FromFile fileName
+    use image = Pfim.FromFile(fileName)
+
     let pxFormat, data, stride =
         match image.Format with
         | ImageFormat.R5g6b5 ->
@@ -20,6 +21,7 @@ let private avaloniaBitmapFromDDS (fileName: string) =
             let pixels = image.DataLen / 3
             let newDataLen = pixels * 4
             let newData = Array.zeroCreate<byte> newDataLen
+
             for i = 0 to pixels - 1 do
                 newData.[i * 4] <- image.Data.[i * 3]
                 newData.[i * 4 + 1] <- image.Data.[i * 3 + 1]
@@ -30,6 +32,7 @@ let private avaloniaBitmapFromDDS (fileName: string) =
             PixelFormat.Bgra8888, newData, stride
         | _ ->
             PixelFormat.Bgra8888, image.Data, image.Stride
+
     let pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned)
     let address = pinnedArray.AddrOfPinnedObject()
     let bm = new Bitmap(pxFormat, AlphaFormat.Unpremul, address, PixelSize(image.Width, image.Height), Vector(96., 96.), stride)
@@ -41,7 +44,7 @@ let private avaloniaBitmapFromDDS (fileName: string) =
 let private tryLoadBitmap path =
     cached |> Option.iter (fun x -> x.Dispose())
 
-    if not <| IO.File.Exists path then
+    if not <| IO.File.Exists(path) then
         false
     else
         try
@@ -67,4 +70,4 @@ let getBitmap () = cached
 let createInterface () =
     { new IBitmapLoader with
         member _.InvalidateCache() = invalidate ()
-        member _.TryLoad path = tryLoadBitmap path }
+        member _.TryLoad(path) = tryLoadBitmap path }

@@ -10,12 +10,14 @@ let private updateArrangement index updated state =
     let arrangements =
         state.Project.Arrangements
         |> List.updateAt index updated
+
     { state with Project = { state.Project with Arrangements = arrangements } }
 
 let private updateTone index updated state =
     let tones =
         state.Project.Tones
         |> List.updateAt index updated
+
     { state with Project = { state.Project with Tones = tones } }
 
 /// Changes the priority of the arrangement if a main arrangement of the type already exists.

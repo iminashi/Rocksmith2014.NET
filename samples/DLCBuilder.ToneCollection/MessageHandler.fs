@@ -95,12 +95,16 @@ let update (state: ToneCollectionState) msg =
             option {
                 let! selectedTone = state.SelectedTone
                 let! tone = Database.getToneFromCollection state.ActiveCollection selectedTone.Id
+
                 // Needed if the user has changed the tone name in the collection
-                let tone = { tone with Name = selectedTone.Name
-                                       Key = selectedTone.Name }
+                let tone =
+                    { tone with
+                        Name = selectedTone.Name
+                        Key = selectedTone.Name }
 
                 return Effect.AddToneToProject tone
-            } |> Option.defaultValue Effect.Nothing
+            }
+            |> Option.defaultValue Effect.Nothing
 
         state, effect
 
@@ -108,6 +112,5 @@ let update (state: ToneCollectionState) msg =
         match state.SelectedTone with
         | Some selectedTone ->
             deleteUserTone selectedTone.Id state, Effect.Nothing
-
         | None ->
             state, Effect.Nothing

@@ -13,10 +13,10 @@ let hStack children =
     ]
 
 let vStack children =
-   StackPanel.create [
-       StackPanel.orientation Orientation.Vertical
-       StackPanel.children children
-   ]
+    StackPanel.create [
+        StackPanel.orientation Orientation.Vertical
+        StackPanel.children children
+    ]
 
 let locText key attr =
     TextBlock.create [

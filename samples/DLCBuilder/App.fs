@@ -11,8 +11,8 @@ type App() =
     inherit Application()
 
     override this.Initialize() =
-        this.Styles.Add (FluentTheme(baseUri = null, Mode = FluentThemeMode.Dark))
-        this.Styles.Load "avares://DLCBuilder/Styles.xaml"
+        this.Styles.Add(FluentTheme(baseUri = null, Mode = FluentThemeMode.Dark))
+        this.Styles.Load("avares://DLCBuilder/Styles.xaml")
         this.Name <- "Rocksmith 2014 DLC Builder"
 
     override this.OnFrameworkInitializationCompleted() =
@@ -20,8 +20,8 @@ type App() =
         | :? IClassicDesktopStyleApplicationLifetime as desktopLifetime ->
             // Delete the exit check file to indicate that the application exited normally
             desktopLifetime.Exit.Add <| fun _ ->
-                if File.Exists Configuration.exitCheckFilePath then
-                    File.Delete Configuration.exitCheckFilePath
+                if File.Exists(Configuration.exitCheckFilePath) then
+                    File.Delete(Configuration.exitCheckFilePath)
 
             desktopLifetime.MainWindow <- MainWindow(desktopLifetime.Args)
             base.OnFrameworkInitializationCompleted()

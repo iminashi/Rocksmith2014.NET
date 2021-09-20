@@ -36,7 +36,7 @@ let importTonesFromPSARC (psarcPath: string) = async {
             try
                 try
                     let! manifest = Manifest.fromJsonStream data
-                    return Some (Manifest.getSingletonAttributes manifest)
+                    return Some(Manifest.getSingletonAttributes manifest)
                 finally
                     data.Dispose()
             with _ ->
@@ -53,9 +53,9 @@ let importTonesFromPSARC (psarcPath: string) = async {
 
 /// Creates the path for the preview audio from the main audio path.
 let previewPathFromMainAudio (audioPath: string) =
-    let dir = Path.GetDirectoryName audioPath
-    let fn = Path.GetFileNameWithoutExtension audioPath
-    let ext = Path.GetExtension audioPath
+    let dir = Path.GetDirectoryName(audioPath)
+    let fn = Path.GetFileNameWithoutExtension(audioPath)
+    let ext = Path.GetExtension(audioPath)
     Path.Combine(dir, $"{fn}_preview{ext}")
 
 /// Checks an arrangement for issues.
@@ -96,7 +96,8 @@ let addDescriptors (tone: Tone) =
 
 /// Converts the project's audio and preview audio files to wem.
 let convertAudio cliPath project =
-    [| project.AudioFile.Path; project.AudioPreviewFile.Path |]
+    [| project.AudioFile.Path
+       project.AudioPreviewFile.Path |]
     |> Array.map (Wwise.convertToWem cliPath)
     |> Async.Parallel
     |> Async.Ignore
@@ -115,7 +116,7 @@ let addDefaultTonesIfNeeded (project: DLCProject) =
         project.Arrangements
         |> List.choose (function
             | Instrumental i when not (project.Tones |> List.exists (fun t -> t.Key = i.BaseTone)) ->
-                Some (i.BaseTone, i.RouteMask)
+                Some(i.BaseTone, i.RouteMask)
             | _ ->
                 None)
         |> List.distinctBy fst
@@ -125,6 +126,7 @@ let addDefaultTonesIfNeeded (project: DLCProject) =
                 | RouteMask.Lead -> DefaultTones.Lead.Value
                 | RouteMask.Bass -> DefaultTones.Bass.Value
                 | _ -> DefaultTones.Rhythm.Value
+
             { tone with Key = key })
 
     { project with Tones = neededTones @ project.Tones }
@@ -135,7 +137,7 @@ let addMetadata (md: MetaData option) charterName project =
     | Some md ->
         { project with
             DLCKey = DLCKey.create charterName md.ArtistName md.Title
-            ArtistName = SortableString.Create md.ArtistName // Ignore the sort value from the XML
+            ArtistName = SortableString.Create(md.ArtistName) // Ignore the sort value from the XML
             Title = SortableString.Create(md.Title, md.TitleSort)
             AlbumName = SortableString.Create(md.AlbumName, md.AlbumNameSort)
             Year = md.AlbumYear }
@@ -160,9 +162,9 @@ let removeDD project =
     project.Arrangements
     |> List.choose Arrangement.pickInstrumental
     |> List.map (fun inst -> async {
-        let arr = InstrumentalArrangement.Load inst.XML
-        do! arr.RemoveDD false
-        arr.Save inst.XML })
+        let arr = InstrumentalArrangement.Load(inst.XML)
+        do! arr.RemoveDD(false)
+        arr.Save(inst.XML) })
     |> Async.Sequential
     |> Async.Ignore
 

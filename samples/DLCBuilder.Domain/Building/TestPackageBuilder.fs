@@ -10,7 +10,8 @@ let createPackageName project =
     project.DLCKey.ToLowerInvariant()
 
 /// Generates new IDs for all the arrangements.
-let generateAllIds arrangements = List.map Arrangement.generateIds arrangements
+let generateAllIds arrangements =
+    List.map Arrangement.generateIds arrangements
 
 /// Returns a list of paths to the test builds for the project.
 let getTestBuildFiles config project =
@@ -26,12 +27,16 @@ let getTestBuildFiles config project =
 /// Returns an async computation for building a package for testing.
 let build platform config project = async {
     let isRocksmithRunning =
-        Process.GetProcessesByName "Rocksmith2014"
+        Process.GetProcessesByName("Rocksmith2014")
         |> (Array.isEmpty >> not)
 
     let packageFileName = createPackageName project
-    if packageFileName.Length < DLCKey.MinimumLength then failwith "DLC key length too short."
+
+    if packageFileName.Length < DLCKey.MinimumLength then
+        failwith "DLC key length too short."
+
     let targetFolder = config.TestFolderPath
+
     let existingPackages =
         Directory.EnumerateFiles targetFolder
         |> Seq.filter (Path.GetFileName >> (String.startsWith packageFileName))
@@ -42,12 +47,12 @@ let build platform config project = async {
         |> List.choose (fun fn ->
             let m = Regex.Match(fn, @"_v(\d+)")
             if m.Success then
-                Some (int m.Groups.[1].Captures.[0].Value)
+                Some(int m.Groups.[1].Captures.[0].Value)
             else
                 None)
         |> function
-        | [] -> existingPackages.Length
-        | list -> List.max list
+            | [] -> existingPackages.Length
+            | list -> List.max list
 
     let project, packageFileName, buildType =
         match isRocksmithRunning with
@@ -59,14 +64,17 @@ let build platform config project = async {
         | true ->
             let arrangements = generateAllIds project.Arrangements
             let versionString = $"v{maxVersion + 1}"
-            let title =
-                { project.Title with Value = $"{project.Title.Value} {versionString}"
-                                     SortValue = $"{project.Title.SortValue} {versionString}" }
 
-            { project with DLCKey = $"{project.DLCKey}{versionString}"
-                           Title = title
-                           JapaneseTitle = project.JapaneseTitle |> Option.map (fun title -> $"{title} {versionString}")
-                           Arrangements = arrangements },
+            let title =
+                { project.Title with
+                    Value = $"{project.Title.Value} {versionString}"
+                    SortValue = $"{project.Title.SortValue} {versionString}" }
+
+            { project with
+                DLCKey = $"{project.DLCKey}{versionString}"
+                Title = title
+                JapaneseTitle = project.JapaneseTitle |> Option.map (fun title -> $"{title} {versionString}")
+                Arrangements = arrangements },
             $"{packageFileName}_{versionString}",
             BuildCompleteType.TestNewVersion versionString
 

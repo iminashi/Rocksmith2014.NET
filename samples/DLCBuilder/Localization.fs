@@ -7,10 +7,10 @@ open System.Reflection
 open System.Text.Json
 
 module Locales =
-    let All = [
-        Locale.Default
-        { Name = "Suomi"; ShortName = "fi" }
-        { Name = "日本語"; ShortName = "jp" } ]
+    let All =
+        [ Locale.Default
+          { Name = "Suomi"; ShortName = "fi" }
+          { Name = "日本語"; ShortName = "jp" } ]
 
     let fromShortName shortName =
         All
@@ -19,7 +19,8 @@ module Locales =
 
 [<AutoOpen>]
 module Localization =
-    let private embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
+    let private embeddedProvider =
+        EmbeddedFileProvider(Assembly.GetExecutingAssembly())
 
     let private loadDictionary locale =
         use json = embeddedProvider.GetFileInfo($"i18n/%s{locale.ShortName}.json").CreateReadStream()
@@ -33,7 +34,10 @@ module Localization =
     /// Changes the current locale.
     let changeLocale locale =
         localeDictionary <-
-            if locale = Locale.Default then defaultDictionary else loadDictionary locale
+            if locale = Locale.Default then
+                defaultDictionary
+            else
+                loadDictionary locale
 
     /// Returns the localized string for the given key.
     let translate key =
@@ -42,8 +46,7 @@ module Localization =
         |> Option.defaultWith (fun () -> $"!!{key}!!")
 
     /// Returns the localized formatted string for the given key.
-    let translatef key args =
-        String.Format(translate key, args)
+    let translatef key args = String.Format(translate key, args)
 
     let toInterface () =
         { new IStringLocalizer with

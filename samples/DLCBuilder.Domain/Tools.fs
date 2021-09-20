@@ -77,7 +77,7 @@ let update msg state =
 
     | UnpackPSARC file ->
         let targetDirectory = Path.Combine(Path.GetDirectoryName file, Path.GetFileNameWithoutExtension file)
-        Directory.CreateDirectory targetDirectory |> ignore
+        Directory.CreateDirectory(targetDirectory) |> ignore
 
         let task () = async {
             use psarc = PSARC.ReadFile file
@@ -100,13 +100,15 @@ let update msg state =
                     do! arrangement.RemoveDD false
                     arrangement.Save file })
             Async.Parallel(computations, max 1 (Environment.ProcessorCount / 4))
+
         state, Cmd.OfAsync.attempt task () ErrorOccurred
 
     | InjectTonesIntoProfile files ->
         let cmd =
             if String.notEmpty state.Config.ProfilePath then
-                let task() = async { do! ToneInjector.injectTones state.Config.ProfilePath files }
+                let task () = async { do! ToneInjector.injectTones state.Config.ProfilePath files }
                 Cmd.OfAsync.attempt task () ErrorOccurred
             else
                 Cmd.none
+
         state, cmd

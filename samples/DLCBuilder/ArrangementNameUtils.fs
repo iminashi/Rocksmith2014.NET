@@ -1,4 +1,4 @@
-﻿module DLCBuilder.ArrangementNameUtils
+module DLCBuilder.ArrangementNameUtils
 
 open Rocksmith2014.DLCProject
 open System
@@ -17,10 +17,12 @@ let private getArrangementNumber arr project =
             |> Map.ofList
 
         let group = groups.[inst.Priority, inst.Name]
+
         if group.Length > 1 then
             let index =
                 group
                 |> List.findIndex (fun x -> x.PersistentID = inst.PersistentID)
+
             sprintf " %i" (1 + index)
         else
             String.Empty
@@ -33,6 +35,7 @@ let translateName project info arr =
     | Instrumental inst ->
         let baseName =
             let n, p = Arrangement.getNameAndPrefix arr
+
             if p.Length > 0 then
                 $"{translate p} {translate n}"
             else
@@ -55,4 +58,6 @@ let translateName project info arr =
 
             $"{baseName}{extra}"
     | _ ->
-        Arrangement.getNameAndPrefix arr |> fst |> translate
+        Arrangement.getNameAndPrefix arr
+        |> fst
+        |> translate

@@ -13,11 +13,11 @@ type AvailableUpdate =
     | BugFix
 
 type UpdateInformation =
-    { AvailableUpdate : AvailableUpdate
-      UpdateVersion : Version
-      ReleaseDate : DateTimeOffset
-      Changes : string
-      AssetUrl : string }
+    { AvailableUpdate: AvailableUpdate
+      UpdateVersion: Version
+      ReleaseDate: DateTimeOffset
+      Changes: string
+      AssetUrl: string }
 
 /// Attempts to get the latest release from GitHub.
 let private tryGetLatestRelease () = async {
@@ -55,7 +55,7 @@ let private tryGetReleaseAsset (release: Release) =
 /// Returns the update information for the given release if it is newer than the current version.
 let private getAvailableUpdateInformation (release: Release) =
     let latestVersion = Version(release.TagName.Substring 1)
-    let availableUpdate = getAvailableUpdate latestVersion       
+    let availableUpdate = getAvailableUpdate latestVersion
     let asset = tryGetReleaseAsset release
 
     (availableUpdate, asset)
@@ -75,11 +75,11 @@ let private client = new HttpClient()
 
 /// Downloads a file from the source URL to the target path.
 let private downloadFile (targetPath: string) (sourceUrl: string) = async {
-    let! response = client.GetAsync sourceUrl
+    let! response = client.GetAsync(sourceUrl)
     response.EnsureSuccessStatusCode() |> ignore
     use! stream = response.Content.ReadAsStreamAsync()
-    use file = File.Create targetPath
-    do! stream.CopyToAsync file }
+    use file = File.Create(targetPath)
+    do! stream.CopyToAsync(file) }
 
 /// Downloads the update and starts the Updater process.
 let downloadAndApplyUpdate (update: UpdateInformation) = async {
@@ -89,4 +89,4 @@ let downloadAndApplyUpdate (update: UpdateInformation) = async {
     let startInfo = ProcessStartInfo(FileName = updatePath, Arguments = $"/SILENT /CLOSEAPPLICATIONS")
     use update = new Process(StartInfo = startInfo)
     update.Start() |> ignore
-    Environment.Exit 0 }
+    Environment.Exit(0) }

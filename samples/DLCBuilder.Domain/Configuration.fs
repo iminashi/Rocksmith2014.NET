@@ -183,7 +183,7 @@ module Configuration =
             return Configuration.Default
         else
             try
-                use file = File.OpenRead configFilePath
+                use file = File.OpenRead(configFilePath)
                 let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
                 let! dto = JsonSerializer.DeserializeAsync<Dto>(file, options)
                 return fromDto t dto
@@ -192,6 +192,6 @@ module Configuration =
 
     /// Saves the configuration to the file defined in configFilePath.
     let save (config: Configuration) = async {
-        use file = File.Create configFilePath
+        use file = File.Create(configFilePath)
         let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
         do! JsonSerializer.SerializeAsync(file, toDto config, options) }

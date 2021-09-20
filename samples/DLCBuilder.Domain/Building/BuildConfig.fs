@@ -31,9 +31,11 @@ let create buildType config project platforms =
       Author = config.CharterName
       AppId = appId
       GenerateDD = config.GenerateDD || buildType = Release
-      DDConfig = { PhraseSearch = phraseSearch; LevelCountGeneration = config.DDLevelCountGeneration }
+      DDConfig =
+        { PhraseSearch = phraseSearch
+          LevelCountGeneration = config.DDLevelCountGeneration }
       ApplyImprovements = config.ApplyImprovements
       SaveDebugFiles = config.SaveDebugFiles && buildType <> Release
       AudioConversionTask = convTask
       IdResetConfig = None
-      ProgressReporter = Some (ProgressReporters.PackageBuild :> IProgress<float>) }
+      ProgressReporter = Some(ProgressReporters.PackageBuild :> IProgress<float>) }

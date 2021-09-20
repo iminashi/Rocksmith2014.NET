@@ -35,6 +35,7 @@ let private buildPackage build state =
                 state.Localizer.TranslateFormat (string error) [| DLCKey.MinimumLength |]
             | other ->
                 other |> string |> state.Localizer.Translate
+
         { state with Overlay = ErrorMessage(msg, None) }, Cmd.none
     | Ok () ->
         let task = build state.Config
@@ -43,7 +44,7 @@ let private buildPackage build state =
         Cmd.OfAsync.either task state.Project BuildComplete (fun ex -> TaskFailed(ex, BuildPackage))
 
 let update (msg: Msg) (state: State) =
-    let { Project=project; Config=config } = state
+    let { Project = project; Config = config } = state
     let translate = state.Localizer.Translate
     let translatef = state.Localizer.TranslateFormat
 
@@ -102,12 +103,14 @@ let update (msg: Msg) (state: State) =
 
     | NewProject ->
         state.AlbumArtLoader.InvalidateCache()
-        { state with Project = DLCProject.Empty
-                     SavedProject = DLCProject.Empty
-                     OpenProjectFile = None
-                     AlbumArtLoadTime = None
-                     SelectedArrangementIndex = -1
-                     SelectedToneIndex = -1 }, Cmd.none
+
+        { state with
+            Project = DLCProject.Empty
+            SavedProject = DLCProject.Empty
+            OpenProjectFile = None
+            AlbumArtLoadTime = None
+            SelectedArrangementIndex = -1
+            SelectedToneIndex = -1 }, Cmd.none
 
     | SetSelectedImportTones tones ->
         { state with SelectedImportTones = tones }, Cmd.none
@@ -154,7 +157,7 @@ let update (msg: Msg) (state: State) =
             { state with Overlay = NoOverlay }, cmd
 
     | ImportPsarc (psarcFile, targetFolder) ->
-        let task() = async {
+        let task () = async {
             let progress =
                 let maxProgress =
                     3.
@@ -168,7 +171,7 @@ let update (msg: Msg) (state: State) =
                 >> (ProgressReporters.PsarcImport :> IProgress<float>).Report
 
             let targetFolder = Path.Combine(targetFolder, Path.GetFileNameWithoutExtension(psarcFile))
-            Directory.CreateDirectory targetFolder |> ignore
+            Directory.CreateDirectory(targetFolder) |> ignore
             let! project, fileName = PsarcImporter.import progress psarcFile targetFolder
 
             match config.ConvertAudio with
@@ -176,15 +179,17 @@ let update (msg: Msg) (state: State) =
                 ()
             | ToOgg | ToWav as conv ->
                 DLCProject.getAudioFiles project
-                |> Seq.iter (fun { Path=path } ->
-                    if conv = ToOgg
-                    then Conversion.wemToOgg path
-                    else Conversion.wemToWav path)
-                progress()
+                |> Seq.iter (fun { Path = path } ->
+                    if conv = ToOgg then
+                        Conversion.wemToOgg path
+                    else
+                        Conversion.wemToWav path)
+
+                progress ()
 
             if config.RemoveDDOnImport then
                 do! Utils.removeDD project
-                progress()
+                progress ()
 
             return project, fileName }
 
@@ -192,9 +197,12 @@ let update (msg: Msg) (state: State) =
         Cmd.OfAsync.either task () PsarcImported (fun ex -> TaskFailed(ex, PsarcImport))
 
     | PsarcImported (project, projectFile) ->
-        let cmd = Cmd.batch [
-            Cmd.ofMsg (AddStatusMessage (translate "PsarcImportComplete"))
-            Cmd.ofMsg (ProjectLoaded(project, projectFile)) ]
+        let cmd =
+            Cmd.batch [
+                Cmd.ofMsg (AddStatusMessage(translate "PsarcImportComplete"))
+                Cmd.ofMsg (ProjectLoaded(project, projectFile))
+            ]
+
         removeTask PsarcImport state, cmd
 
     | ImportToolkitTemplate fileName ->
@@ -202,16 +210,17 @@ let update (msg: Msg) (state: State) =
             let project = ToolkitImporter.import fileName
 
             let albumArtLoadTime =
-                if state.AlbumArtLoader.TryLoad project.AlbumArtFile then
+                if state.AlbumArtLoader.TryLoad(project.AlbumArtFile) then
                     Some DateTime.Now
                 else
                     None
 
-            { state with Project = project
-                         OpenProjectFile = None
-                         AlbumArtLoadTime = albumArtLoadTime
-                         SelectedArrangementIndex = -1
-                         SelectedToneIndex = -1 }, Cmd.none
+            { state with
+                Project = project
+                OpenProjectFile = None
+                AlbumArtLoadTime = albumArtLoadTime
+                SelectedArrangementIndex = -1
+                SelectedToneIndex = -1 }, Cmd.none
         with e ->
             state, Cmd.ofMsg (ErrorOccurred e)
 
@@ -255,6 +264,7 @@ let update (msg: Msg) (state: State) =
         let previewPath =
             let previewPath = Utils.previewPathFromMainAudio fileName
             let wavPreview = Path.ChangeExtension(previewPath, "wav")
+
             if File.Exists previewPath then
                 previewPath
             elif File.Exists wavPreview then
@@ -296,12 +306,13 @@ let update (msg: Msg) (state: State) =
     | CalculateVolumes ->
         let doPreview =
             let previewPath = project.AudioPreviewFile.Path
-            File.Exists previewPath && not <| String.endsWith "wem" previewPath
+            File.Exists(previewPath) && not <| String.endsWith "wem" previewPath
 
         let cmds =
             Cmd.batch [
                 Cmd.ofMsg (CalculateVolume MainAudio)
-                if doPreview then Cmd.ofMsg (CalculateVolume PreviewAudio) ]
+                if doPreview then Cmd.ofMsg (CalculateVolume PreviewAudio)
+            ]
 
         state, cmds
 
@@ -312,6 +323,7 @@ let update (msg: Msg) (state: State) =
                 | MainAudio -> project.AudioFile.Path
                 | PreviewAudio -> project.AudioPreviewFile.Path
                 | CustomAudio (path, _) -> path
+
             return Volume.calculate path }
 
         addTask (VolumeCalculation target) state,
@@ -384,7 +396,7 @@ let update (msg: Msg) (state: State) =
         | Some repository ->
             let newTone = ToneGear.emptyTone repository
 
-            { state with Project = { project with Tones = newTone::project.Tones } }, Cmd.none
+            { state with Project = { project with Tones = newTone :: project.Tones } }, Cmd.none
         | None ->
             state, Cmd.none
 
@@ -392,7 +404,7 @@ let update (msg: Msg) (state: State) =
         getSelectedTone state
         |> Option.iter (ToneCollection.Database.addToneToUserCollection state.DatabaseConnector project)
 
-        state, Cmd.ofMsg (AddStatusMessage (translate "ToneAddedToCollection"))
+        state, Cmd.ofMsg (AddStatusMessage(translate "ToneAddedToCollection"))
 
     | DuplicateTone ->
         let duplicate =
@@ -405,7 +417,10 @@ let update (msg: Msg) (state: State) =
 
     | MoveTone dir ->
         let tones, index = Utils.moveSelected dir state.SelectedToneIndex project.Tones
-        { state with Project = { project with Tones = tones }; SelectedToneIndex = index }, Cmd.none
+
+        { state with
+            Project = { project with Tones = tones }
+            SelectedToneIndex = index }, Cmd.none
 
     | ShowToneCollection ->
         ToneCollection.CollectionState.init state.DatabaseConnector ToneCollection.ActiveTab.Official
@@ -414,8 +429,10 @@ let update (msg: Msg) (state: State) =
 
     | MoveArrangement dir ->
         let arrangements, index = Utils.moveSelected dir state.SelectedArrangementIndex project.Arrangements
-        { state with Project = { project with Arrangements = arrangements }
-                     SelectedArrangementIndex = index }, Cmd.none
+
+        { state with
+            Project = { project with Arrangements = arrangements }
+            SelectedArrangementIndex = index }, Cmd.none
 
     | CreatePreviewAudio SetupStartTime ->
         let audioLength = Utils.getLength project.AudioFile.Path
@@ -468,9 +485,9 @@ let update (msg: Msg) (state: State) =
 
     | SetConfiguration (newConfig, enableLoad, wasAbnormalExit) ->
         if config.Locale <> newConfig.Locale then
-            state.Localizer.ChangeLocale newConfig.Locale
+            state.Localizer.ChangeLocale(newConfig.Locale)
         let cmd =
-            if enableLoad && File.Exists newConfig.PreviousOpenedProject then
+            if enableLoad && File.Exists(newConfig.PreviousOpenedProject) then
                 if newConfig.LoadPreviousOpenedProject then
                     Cmd.ofMsg (OpenProject newConfig.PreviousOpenedProject)
                 elif wasAbnormalExit then
@@ -501,7 +518,7 @@ let update (msg: Msg) (state: State) =
                     state.StatusMessages
                     |> List.filter (function UpdateMessage _ -> false | _ -> true)
 
-                UpdateMessage(update)::statusMessages
+                UpdateMessage(update) :: statusMessages
             | _ ->
                 state.StatusMessages
 
@@ -530,7 +547,7 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfAsync.either OnlineUpdate.checkForUpdates () UpdateCheckCompleted ErrorOccurred
 
     | UpdateCheckCompleted (Error msg) ->
-        let cmd = Cmd.ofMsg (ShowOverlay (ErrorMessage(msg, None)))
+        let cmd = Cmd.ofMsg (ShowOverlay(ErrorMessage(msg, None)))
         { state with AvailableUpdate = None }, cmd
 
     | UpdateCheckCompleted (Ok update) ->
@@ -538,6 +555,7 @@ let update (msg: Msg) (state: State) =
             match update with
             | Some _ -> ShowUpdateInformation
             | None -> AddStatusMessage (translate "NoUpdateAvailable")
+
         { state with AvailableUpdate = update }, Cmd.ofMsg msg
 
     | UpdateAndRestart ->
@@ -545,7 +563,7 @@ let update (msg: Msg) (state: State) =
         | Some update ->
             let messageId = Guid.NewGuid()
             let statusMessages =
-                MessageString(messageId, translate "DownloadingUpdate")::state.StatusMessages
+                MessageString(messageId, translate "DownloadingUpdate") :: state.StatusMessages
 
             { state with StatusMessages = statusMessages; Overlay = NoOverlay },
             Cmd.OfAsync.attempt OnlineUpdate.downloadAndApplyUpdate update (fun e -> UpdateFailed(messageId, e))
@@ -559,7 +577,7 @@ let update (msg: Msg) (state: State) =
         state, Cmd.ofMsg (Dialog.SaveProjectAs |> ShowDialog)
 
     | SaveProject targetPath ->
-        let task() = async {
+        let task () = async {
             do! DLCProject.save targetPath project
             return targetPath }
 
@@ -568,16 +586,18 @@ let update (msg: Msg) (state: State) =
     | ProjectSaved target ->
         let recent, newConfig, cmd = updateRecentFilesAndConfig target state
 
-        { state with OpenProjectFile = Some target
-                     SavedProject = project
-                     RecentFiles = recent
-                     Config = newConfig }, cmd
+        { state with
+            OpenProjectFile = Some target
+            SavedProject = project
+            RecentFiles = recent
+            Config = newConfig }, cmd
 
     | ProjectSaveOrSaveAs ->
         let msg =
             state.OpenProjectFile
             |> Option.map SaveProject
             |> Option.defaultValue SaveProjectAs
+
         state, Cmd.ofMsg msg
 
     | AutoSaveProject ->
@@ -600,15 +620,16 @@ let update (msg: Msg) (state: State) =
             else
                 None
 
-        { state with Project = project
-                     SavedProject = project
-                     OpenProjectFile = Some projectFile
-                     RecentFiles = recent
-                     Config = newConfig
-                     ArrangementIssues = Map.empty
-                     AlbumArtLoadTime = albumArtLoadTime
-                     SelectedArrangementIndex = -1
-                     SelectedToneIndex = -1 }, cmd
+        { state with
+            Project = project
+            SavedProject = project
+            OpenProjectFile = Some projectFile
+            RecentFiles = recent
+            Config = newConfig
+            ArrangementIssues = Map.empty
+            AlbumArtLoadTime = albumArtLoadTime
+            SelectedArrangementIndex = -1
+            SelectedToneIndex = -1 }, cmd
 
     | LoadMultipleFiles paths ->
         let commands = handleFilesDrop paths
@@ -650,9 +671,9 @@ let update (msg: Msg) (state: State) =
     | DeleteTestBuilds ->
         match TestPackageBuilder.getTestBuildFiles config project with
         | [] ->
-            state, Cmd.ofMsg <| AddStatusMessage (translate "NoTestBuildsFound")
+            state, Cmd.ofMsg <| AddStatusMessage(translate "NoTestBuildsFound")
         | [ _ ] as one ->
-            state, Cmd.ofMsg (DeleteConfirmed one)
+            state, Cmd.ofMsg <| DeleteConfirmed one
         | many ->
             { state with Overlay = DeleteConfirmation(many) }, Cmd.none
 
@@ -665,6 +686,7 @@ let update (msg: Msg) (state: State) =
                 Cmd.ofMsg <| AddStatusMessage message
             with e ->
                 Cmd.ofMsg <| ErrorOccurred e
+
         { state with Overlay = NoOverlay }, cmd
 
     | GenerateNewIds ->
@@ -701,7 +723,7 @@ let update (msg: Msg) (state: State) =
         buildPackage (ReleasePackageBuilder.build state.OpenProjectFile) state
 
     | BuildComplete completed ->
-        let task() = async {
+        let task () = async {
             if completed = BuildCompleteType.Release && config.OpenFolderAfterReleaseBuild then
                 ReleasePackageBuilder.getTargetDirectory state.OpenProjectFile project
                 |> Utils.openWithShell }
@@ -713,18 +735,20 @@ let update (msg: Msg) (state: State) =
             | _ ->
                 translate "BuildPackageComplete"
 
-        let cmd = Cmd.batch [
-            Cmd.OfAsync.attempt task () ErrorOccurred
-            Cmd.ofMsg (AddStatusMessage message) ]
+        let cmd =
+            Cmd.batch [
+                Cmd.OfAsync.attempt task () ErrorOccurred
+                Cmd.ofMsg (AddStatusMessage message)
+            ]
 
         removeTask BuildPackage state, cmd
 
     | WemConversionComplete _ ->
         removeTask WemConversion state,
-        Cmd.ofMsg (AddStatusMessage (translate "WemConversionComplete"))
+        Cmd.ofMsg (AddStatusMessage(translate "WemConversionComplete"))
 
     | CheckArrangement arrangement ->
-        let task() = async {
+        let task () = async {
             let path = Arrangement.getFile arrangement
             return path, Utils.checkArrangement arrangement }
 
@@ -737,11 +761,12 @@ let update (msg: Msg) (state: State) =
             |> Map.add xmlFile issues
 
         { removeTask ArrangementCheckOne state with ArrangementIssues = issueMap },
-        Cmd.ofMsg (AddStatusMessage (translate "ValidationComplete"))
+        Cmd.ofMsg (AddStatusMessage(translate "ValidationComplete"))
 
     | CheckArrangements ->
         if canRunValidation state then
-            let task() = async { return Utils.checkArrangements project ProgressReporters.ArrangementCheck }
+            let task () = async {
+                return Utils.checkArrangements project ProgressReporters.ArrangementCheck }
 
             addTask ArrangementCheckAll state,
             Cmd.OfAsync.either task () CheckAllCompleted (fun ex -> TaskFailed(ex, ArrangementCheckAll))
@@ -750,7 +775,7 @@ let update (msg: Msg) (state: State) =
 
     | CheckAllCompleted issues ->
         { removeTask ArrangementCheckAll state with ArrangementIssues = issues },
-        Cmd.ofMsg (AddStatusMessage (translate "ValidationComplete"))
+        Cmd.ofMsg (AddStatusMessage(translate "ValidationComplete"))
 
     | TaskProgressChanged (progressedTask, progress) ->
         let messages =
@@ -758,6 +783,7 @@ let update (msg: Msg) (state: State) =
             |> List.map (function
                 | TaskWithProgress (task, _) when task = progressedTask -> TaskWithProgress(task, progress)
                 | other -> other)
+
         { state with StatusMessages = messages }, Cmd.none
 
     | PsarcUnpacked ->
@@ -769,7 +795,8 @@ let update (msg: Msg) (state: State) =
 
     | AddStatusMessage message ->
         let id = Guid.NewGuid()
-        let messages = MessageString(id,  message)::state.StatusMessages
+        let messages = MessageString(id,  message) :: state.StatusMessages
+
         { state with StatusMessages = messages }, Cmd.OfAsync.result (removeStatusMessage id)
 
     | RemoveStatusMessage removeId ->
@@ -778,6 +805,7 @@ let update (msg: Msg) (state: State) =
             |> List.filter (function
                 | MessageString (id, _) when id = removeId -> false
                 | _ -> true)
+
         { state with StatusMessages = messages }, Cmd.none
 
     | ShowIssueViewer ->
@@ -790,6 +818,7 @@ let update (msg: Msg) (state: State) =
     | OpenProjectFolder ->
         state.OpenProjectFile
         |> Option.iter (Path.GetDirectoryName >> Utils.openWithShell)
+
         state, Cmd.none
 
     | ErrorOccurred e ->
@@ -800,7 +829,7 @@ let update (msg: Msg) (state: State) =
 
     | ChangeLocale newLocale ->
         if config.Locale <> newLocale then
-            state.Localizer.ChangeLocale newLocale
+            state.Localizer.ChangeLocale(newLocale)
 
         { state with Config = { config with Locale = newLocale } }, Cmd.none
 
@@ -821,7 +850,7 @@ let update (msg: Msg) (state: State) =
             | ToneCollection.Nothing ->
                 newState, Cmd.none
             | ToneCollection.AddToneToProject tone ->
-                { newState with Project = { project with Tones = tone::project.Tones } },
+                { newState with Project = { project with Tones = tone :: project.Tones } },
                 Cmd.ofMsg (AddStatusMessage (translate "ToneAddedToProject"))
             | ToneCollection.ShowToneAddedToCollectionMessage ->
                 newState, Cmd.ofMsg (AddStatusMessage (translate "ToneAddedToCollection"))

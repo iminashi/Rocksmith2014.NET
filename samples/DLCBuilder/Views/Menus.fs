@@ -29,10 +29,12 @@ let audio notCalculatingVolume state dispatch =
         Menu.isVisible (String.notEmpty audioPath && not <| String.endsWith ".wem" audioPath)
         Menu.viewItems [
             MenuItem.create [
-                MenuItem.header (TextBlock.create [
-                    TextBlock.text "..."
-                    TextBlock.verticalAlignment VerticalAlignment.Center
-                ])
+                MenuItem.header (
+                    TextBlock.create [
+                        TextBlock.text "..."
+                        TextBlock.verticalAlignment VerticalAlignment.Center
+                    ]
+                )
 
                 MenuItem.viewItems [
                     // Calculate volumes

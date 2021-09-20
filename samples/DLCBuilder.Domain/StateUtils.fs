@@ -53,8 +53,9 @@ let addTask newTask state =
         | true -> TaskWithProgress(newTask, 0.)
         | false -> TaskWithoutProgress(newTask)
 
-    { state with RunningTasks = state.RunningTasks |> Set.add newTask
-                 StatusMessages = message::state.StatusMessages }
+    { state with
+        RunningTasks = state.RunningTasks |> Set.add newTask
+        StatusMessages = message :: state.StatusMessages }
 
 /// Removes the completed task from the state.
 let removeTask completedTask state =
@@ -67,18 +68,21 @@ let removeTask completedTask state =
             | _ ->
                 true)
 
-    { state with RunningTasks = state.RunningTasks |> Set.remove completedTask
-                 StatusMessages = messages }
+    { state with
+        RunningTasks = state.RunningTasks |> Set.remove completedTask
+        StatusMessages = messages }
 
 /// Updates the configuration and the recent files with the project filename.
 let updateRecentFilesAndConfig projectFile state =
     let recent = RecentFilesList.update projectFile state.RecentFiles
     let newConfig = { state.Config with PreviousOpenedProject = projectFile }
+
     let cmd =
         if state.Config.PreviousOpenedProject <> projectFile then
             Cmd.OfAsync.attempt Configuration.save newConfig ErrorOccurred
         else
             Cmd.none
+
     recent, newConfig, cmd
 
 /// Returns a delayed message to remove the status message with the given ID.
@@ -93,6 +97,7 @@ let addArrangements fileNames state =
 
     let shouldInclude arrangements arr =
         let count f = List.choose f arrangements |> List.length
+
         match arr with
         | Showlights _ when count Arrangement.pickShowlights = 1 ->
             Error MaxShowlights
@@ -111,7 +116,8 @@ let addArrangements fileNames state =
             && newInst.Priority = oldInst.Priority
             && oldInst.Priority = ArrangementPriority.Main)
 
-    let createErrorMsg (path: string) error = $"%s{Path.GetFileName path}:\n%s{error}"
+    let createErrorMsg (path: string) error =
+        $"%s{Path.GetFileName path}:\n%s{error}"
 
     let arrangements, errors =
         ((state.Project.Arrangements, []), results)
@@ -123,17 +129,17 @@ let addArrangements fileNames state =
                     // Prevent multiple main arrangements of the same type
                     Instrumental { inst with Priority = ArrangementPriority.Alternative }::arrs, errors
                 | Ok arr ->
-                    arr::arrs, errors
+                    arr :: arrs, errors
                 | Error error ->
                     let errorMsg = createErrorMsg (Arrangement.getFile arr) (t.Translate <| string error)
-                    arrs, errorMsg::errors
+                    arrs, errorMsg :: errors
             | Error (UnknownArrangement path) ->
                 let message = t.Translate "UnknownArrangementError"
                 let error = createErrorMsg path message
-                arrs, error::errors
+                arrs, error :: errors
             | Error (FailedWithException (path, ex)) ->
                 let error = createErrorMsg path ex.Message
-                arrs, error::errors)
+                arrs, error :: errors)
 
     let metadata =
         if state.Project.ArtistName = SortableString.Empty then
@@ -246,4 +252,5 @@ let handleFilesDrop paths =
     seq {
         if arrangements.Length > 0 then
             AddArrangements arrangements |> Cmd.ofMsg
-        yield! otherCommands }
+        yield! otherCommands
+    }

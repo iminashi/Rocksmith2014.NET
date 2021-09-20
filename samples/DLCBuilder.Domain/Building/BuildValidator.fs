@@ -46,4 +46,8 @@ let validate (project: DLCProject) =
     (Ok(), validators)
     ||> List.fold (fun acc (error, isInvalid) ->
         acc
-        |> Result.bind (fun () -> if isInvalid project then Error error else Ok()))
+        |> Result.bind (fun () ->
+            if isInvalid project then
+                Error error
+            else
+                Ok()))

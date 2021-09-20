@@ -26,7 +26,10 @@ let restoreFocus () =
 // Restores the focus to the oldest element in the stack.
 let restoreRootFocus () =
     let mutable element: IInputElement = null
-    while previouslyFocused.Count > 0 do element <- previouslyFocused.Pop()
+
+    while previouslyFocused.Count > 0 do
+        element <- previouslyFocused.Pop()
+
     if notNull element then
         element.Focus()
     else

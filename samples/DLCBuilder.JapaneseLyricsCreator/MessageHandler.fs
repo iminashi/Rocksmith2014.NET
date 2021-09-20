@@ -28,13 +28,15 @@ let update state msg =
                 line
                 |> Array.map (fun matched ->
                     let vocal = Vocal(matched.Vocal)
+
                     matched.Japanese
                     |> Option.iter (fun jp ->
                         vocal.Lyric <-
-                            if matched.Vocal.Lyric.EndsWith "+" && not <| jp.EndsWith "+" then
+                            if matched.Vocal.Lyric.EndsWith("+") && not <| jp.EndsWith("+") then
                                 jp + "+"
                             else
                                 jp)
+
                     vocal))
             |> ResizeArray
 
@@ -56,7 +58,7 @@ let update state msg =
         if not <| isWithinBounds state.JapaneseLines location.LineNumber location.Index then
             state, Effect.Nothing
         else
-            let combinedJp = location::state.CombinedJapanese
+            let combinedJp = location :: state.CombinedJapanese
 
             let japaneseLines =
                 LyricsTools.createJapaneseLines state.MatchedLines combinedJp state.JapaneseLyrics
