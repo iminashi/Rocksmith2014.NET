@@ -6,7 +6,7 @@ open Rocksmith2014.PSARC
 open Newtonsoft.Json.Linq
 
 let readFromAppDir file =
-    File.ReadLines (Path.Combine(AppContext.BaseDirectory, file))
+    File.ReadLines(Path.Combine(AppContext.BaseDirectory, file))
 
 /// Reads the on-disc IDs and keys from the prepared text files.
 let readOnDiscIdsAndKeys () =
@@ -41,7 +41,7 @@ let gatherDLCData verbose (directory: string) = async {
     let! results =
         let files =
             Directory.EnumerateFiles(directory, "*.psarc", SearchOption.AllDirectories)
-            |> Seq.filter (fun x -> not <| (x.Contains "inlay" || x.Contains "rs1compatibility"))
+            |> Seq.filter (fun x -> not <| (x.Contains("inlay") || x.Contains("rs1compatibility")))
             |> Seq.toArray
         files
         |> Array.mapi (fun i path-> async {
@@ -66,6 +66,7 @@ let filterJTokenIds (ids: Set<string>) (token: JToken) =
         token
         |> Seq.filter (fun x -> not <| ids.Contains((x :?> JProperty).Name))
         |> Seq.toArray
+
     filtered |> Array.iter (fun x -> x.Remove())
     filtered.Length
 
@@ -83,49 +84,53 @@ let backupProfile profilePath =
 let main argv =
     if argv.Length < 2 then
         Console.WriteLine "Give as arguments: path to profile file and path to DLC directory."
-    else async {
-        let profilePath = argv.[0]
-        let dlcDirectory = argv.[1]
-        let isVerbose = Array.tryItem 2 argv = Some "-v"
+    else
+        async {
+            let profilePath = argv.[0]
+            let dlcDirectory = argv.[1]
+            let isVerbose = Array.tryItem 2 argv = Some "-v"
 
-        Console.Clear()
-        let cursorVisibleOld = Console.CursorVisible
-        Console.CursorVisible <- false
+            Console.Clear()
+            let cursorVisibleOld = Console.CursorVisible
+            Console.CursorVisible <- false
 
-        let! ids, keys = async {
-            let odIds, odKeys = readOnDiscIdsAndKeys()
-            let! dlcIds, dlcKeys = gatherDLCData isVerbose dlcDirectory
-            return Set.union odIds (Set.ofList dlcIds), Set.union odKeys (Set.ofList dlcKeys) }
+            let! ids, keys =
+                async {
+                    let odIds, odKeys = readOnDiscIdsAndKeys ()
+                    let! dlcIds, dlcKeys = gatherDLCData isVerbose dlcDirectory
+                    return Set.union odIds (Set.ofList dlcIds), Set.union odKeys (Set.ofList dlcKeys)
+                }
 
-        let filterIds = filterJTokenIds ids
-        let filterKeys = filterJArrayKeys keys
-        let printStats section num =
-            printfn "%-9s: %i record%s removed" section num (if num = 1 then "" else "s")
+            let filterIds = filterJTokenIds ids
+            let filterKeys = filterJArrayKeys keys
+            let printStats section num =
+                printfn "%-9s: %i record%s removed" section num (if num = 1 then "" else "s")
 
-        Console.WriteLine "Reading profile..."
+            printfn "Reading profile..."
 
-        let! profile, id = Profile.readAsJToken profilePath
+            let! profile, id = Profile.readAsJToken profilePath
 
-        Console.WriteLine "Debloating profile..."
+            printfn "Debloating profile..."
 
-        filterIds profile.["Playnexts"].["Songs"] |> printStats "Playnexts"
-        filterIds profile.["Songs"] |> printStats "Songs"
-        filterIds profile.["SongsSA"] |> printStats "Songs SA"
-        filterIds profile.["Stats"].["Songs"] |> printStats "Stats"
+            filterIds profile.["Playnexts"].["Songs"] |> printStats "Playnexts"
+            filterIds profile.["Songs"] |> printStats "Songs"
+            filterIds profile.["SongsSA"] |> printStats "Songs SA"
+            filterIds profile.["Stats"].["Songs"] |> printStats "Stats"
 
-        profile.["SongListsRoot"].["SongLists"] :?> JArray
-        |> Seq.iter (fun songList -> songList :?> JArray |> filterKeys)
+            profile.["SongListsRoot"].["SongLists"] :?> JArray
+            |> Seq.iter (fun songList -> songList :?> JArray |> filterKeys)
 
-        profile.["FavoritesListRoot"].["FavoritesList"] :?> JArray
-        |> filterKeys
+            profile.["FavoritesListRoot"].["FavoritesList"] :?> JArray
+            |> filterKeys
 
-        Console.WriteLine "Saving profile file..."
+            printfn "Saving profile file..."
 
-        backupProfile profilePath
-        printfn "Backup file created."
+            backupProfile profilePath
+            printfn "Backup file created."
 
-        do! Profile.saveJToken profilePath id profile
-        Console.WriteLine "Profile saved."
-        Console.CursorVisible <- cursorVisibleOld }
+            do! Profile.saveJToken profilePath id profile
+            printfn "Profile saved."
+            Console.CursorVisible <- cursorVisibleOld
+        }
         |> Async.RunSynchronously
     0

@@ -98,13 +98,16 @@ let insertSql =
 let scanPsarcs (connection: SQLiteConnection) directory =
     seq {
         yield Path.Combine(directory, "songs.psarc")
-        yield! Directory.EnumerateFiles(Path.Combine(directory, "dlc"), "*_p.psarc") }
+        yield! Directory.EnumerateFiles(Path.Combine(directory, "dlc"), "*_p.psarc")
+    }
     |> Seq.map (fun path -> async {
         printfn "File %s:" (Path.GetFileName path)
 
-        let! tones = async {
-            use psarc = PSARC.ReadFile path
-            return! getUniqueTones psarc }
+        let! tones =
+            async {
+                use psarc = PSARC.ReadFile path
+                return! getUniqueTones psarc
+            }
 
         tones
         |> Array.iter (fun data ->
@@ -117,7 +120,7 @@ let scanPsarcs (connection: SQLiteConnection) directory =
 
 [<EntryPoint>]
 let main argv =
-    if not <| File.Exists databaseFilename then
+    if not <| File.Exists(databaseFilename) then
         createDataBase ()
 
     let connectionString = $"Data Source={databaseFilename};"

@@ -38,17 +38,20 @@ let fixManifests (psarcs: seq<PSARC>) =
 /// Returns the attributes of the first arrangement found.
 let getAttributes (psarc: PSARC) = async {
     // Use the first (non-vocals) JSON file to determine if a fix is needed
-    let jsonFile = psarc.Manifest |> List.find (fun x -> x.EndsWith "json" && not <| x.Contains "vocals")
-    use! stream = psarc.GetEntryStream jsonFile
+    let jsonFile =
+        psarc.Manifest
+        |> List.find (fun x -> x.EndsWith("json") && not <| x.Contains("vocals"))
+
+    use! stream = psarc.GetEntryStream(jsonFile)
     let! mani = Manifest.fromJsonStream stream
     return Manifest.getSingletonAttributes mani }
 
 /// Returns a sequence of PSARCs where the Japanese song name is an empty string.
 let findFixablePsarcs directory =
     Directory.EnumerateFiles(directory, "*.psarc", SearchOption.AllDirectories)
-    |> Seq.filter (fun x -> not <| x.Contains "inlay" && not <| x.Contains "rs1compatibility")
+    |> Seq.filter (fun x -> not <| x.Contains("inlay") && not <| x.Contains("rs1compatibility"))
     |> Seq.map (fun path -> async {
-        let psarc = PSARC.ReadFile path
+        let psarc = PSARC.ReadFile(path)
 
         let! attributes = getAttributes psarc
 
@@ -73,6 +76,7 @@ let main argv =
                 |> Array.choose id
                 |> fixManifests
                 |> Async.Sequential
-                |> Async.Ignore }
+                |> Async.Ignore
+        }
         |> Async.RunSynchronously
     0
