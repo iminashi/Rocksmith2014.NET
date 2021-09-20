@@ -39,7 +39,7 @@ let getUniqueTones (psarc: PSARC) = async {
             try
                 try
                     let! manifest = Manifest.fromJsonStream data
-                    return Some (Manifest.getSingletonAttributes manifest)
+                    return Some(Manifest.getSingletonAttributes manifest)
                 finally
                     data.Dispose()
             with _ ->
@@ -101,11 +101,11 @@ let scanPsarcs (connection: SQLiteConnection) directory =
         yield! Directory.EnumerateFiles(Path.Combine(directory, "dlc"), "*_p.psarc")
     }
     |> Seq.map (fun path -> async {
-        printfn "File %s:" (Path.GetFileName path)
+        printfn "File %s:" (Path.GetFileName(path))
 
         let! tones =
             async {
-                use psarc = PSARC.ReadFile path
+                use psarc = PSARC.ReadFile(path)
                 return! getUniqueTones psarc
             }
 

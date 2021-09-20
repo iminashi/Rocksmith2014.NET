@@ -69,7 +69,7 @@ let private findNextNote (notes: ResizeArray<Note>) currentIndex (note: Note) =
 
 let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
     if isLinkedToChord level note then
-        Some (issue NoteLinkedToChord note.Time)
+        Some(issue NoteLinkedToChord note.Time)
     else
         match findNextNote level.Notes currentIndex note with
         | None ->
@@ -259,7 +259,7 @@ let private findCloseAnchors (level: Level) =
     let pickTimeAndDistance noteTime (anchor: Anchor) =
         let distance = anchor.Time - noteTime 
         if distance <> 0 && abs distance <= 5 then
-            Some (anchor.Time, distance)
+            Some(anchor.Time, distance)
         else
             None
 

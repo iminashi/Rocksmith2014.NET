@@ -149,7 +149,9 @@ let addArrangements fileNames state =
             None
 
     let newState =
-        let project = Utils.addMetadata metadata state.Config.CharterName state.Project
+        let project =
+            Utils.addMetadata metadata state.Config.CharterName state.Project
+
         { state with Project = { project with Arrangements = List.sortBy Arrangement.sorter arrangements } }
 
     match errors with
@@ -170,7 +172,7 @@ let addJapaneseVocals (xmlPath: string) state =
             |> List.choose Arrangement.pickVocals
 
         state.OpenProjectFile
-        |> Option.exists (fun x -> Path.GetDirectoryName x = Path.GetDirectoryName xmlPath)
+        |> Option.exists (fun x -> Path.GetDirectoryName(x) = Path.GetDirectoryName(xmlPath))
         && currentVocals.Length < 2
         && not <| List.exists (fun x -> x.Japanese) currentVocals
 
@@ -182,11 +184,11 @@ let addJapaneseVocals (xmlPath: string) state =
                      Japanese = true
                      CustomFont = None
                      PersistentID = Guid.NewGuid()
-                     MasterID = RandomGenerator.next() }
+                     MasterID = RandomGenerator.next () }
 
         let updatedProject =
             let arrangements =
-                japaneseVocals::state.Project.Arrangements
+                japaneseVocals :: state.Project.Arrangements
                 |> List.sortBy Arrangement.sorter
             { state.Project with Arrangements = arrangements }
 
@@ -233,18 +235,18 @@ let handleFilesDrop paths =
         |> Array.choose (fun path ->
             match path with
             | HasExtension ".rs2dlc" ->
-                Some (OpenProject path)
+                Some(OpenProject path)
             | HasExtension ".psarc" ->
-                Some (path |> Dialog.PsarcImportTargetFolder |> ShowDialog)
+                Some(path |> Dialog.PsarcImportTargetFolder |> ShowDialog)
             | HasExtension (".png" | ".jpg" | ".dds") ->
-                Some (path |> SetAlbumArt |> EditProject)
+                Some(path |> SetAlbumArt |> EditProject)
             | HasExtension (".wav" | ".ogg" | ".wem") ->
-                Some (SetAudioFile path)
+                Some(SetAudioFile path)
             | EndsWith ".tone2014.xml"
             | EndsWith ".tone2014.json" ->
-                Some (ImportTonesFromFile path)
+                Some(ImportTonesFromFile path)
             | EndsWith ".dlc.xml" ->
-                Some (ImportToolkitTemplate path)
+                Some(ImportToolkitTemplate path)
             | _ ->
                 None)
         |> Array.map Cmd.ofMsg

@@ -15,11 +15,11 @@ type private WwiseVersion = Wwise2019 | Wwise2021
 let getCLIPath () =
     let cliPath =
         if OperatingSystem.IsWindows() then
-            WwiseFinder.findWindows()
+            WwiseFinder.findWindows ()
         elif OperatingSystem.IsMacOS() then
-            WwiseFinder.findMac()
+            WwiseFinder.findMac ()
         elif OperatingSystem.IsLinux() then
-            WwiseFinder.findLinux()
+            WwiseFinder.findLinux ()
         else
             raise <| NotSupportedException "Wwise conversion is not supported on this OS."
 
@@ -31,7 +31,7 @@ let getCLIPath () =
 /// Returns a path to an empty temporary directory.
 let private getTempDirectory () =
     let dir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())
-    if Directory.Exists dir then Directory.Delete(dir, true)
+    if Directory.Exists(dir) then Directory.Delete(dir, true)
     (Directory.CreateDirectory dir).FullName
 
 /// Extracts the Wwise template into the target directory.
@@ -43,7 +43,7 @@ let private extractTemplate targetDir (version: WwiseVersion) =
 
 /// Extracts the Wwise template and copies the audio files into the Originals/SFX directory.
 let private loadTemplate sourcePath version =
-    let templateDir = getTempDirectory()
+    let templateDir = getTempDirectory ()
     let targetPath = Path.Combine(templateDir, "Originals", "SFX", "Audio.wav")
     extractTemplate templateDir version
 
@@ -80,7 +80,7 @@ let private copyWemFile (destPath: string) (templateDir: string) =
 let private getWwiseVersion executablePath =
     if OperatingSystem.IsWindows() then
         let version =
-            FileVersionInfo.GetVersionInfo executablePath
+            FileVersionInfo.GetVersionInfo(executablePath)
 
         match version.ProductMajorPart with
         | 2019 -> Wwise2019
@@ -103,11 +103,11 @@ let convertToWem (cliPath: string option) (sourcePath: string) = async {
     let cliPath =
         match cliPath with
         | Some (Contains "WwiseConsole" as path) ->
-            if not <| File.Exists path then
+            if not <| File.Exists(path) then
                 failwith $"The file: \"{path}\" does not exist."
             path
         | None ->
-            getCLIPath()
+            getCLIPath ()
         | _ ->
             failwith "Path to Wwise console executable appears to be wrong.\nIt should be to WwiseConsole.exe on Windows or WwiseConsole.sh on macOS."
 
@@ -117,12 +117,19 @@ let convertToWem (cliPath: string option) (sourcePath: string) = async {
     try
         let startInfo =
             let args = createArgs templateDir
+
             let fileName, arguments =
                 if OperatingSystem.IsLinux() then
                     "wine", $"\"{cliPath}\" {args}"
                 else
                     cliPath, args
-            ProcessStartInfo(FileName = fileName, Arguments = arguments, CreateNoWindow = true, RedirectStandardOutput = true)
+
+            ProcessStartInfo(
+                FileName = fileName,
+                Arguments = arguments,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true
+            )
 
         use wwiseCli = new Process(StartInfo = startInfo)
         wwiseCli.Start() |> ignore

@@ -32,12 +32,14 @@ let gitName = "Rocksmith2014.NET"
 let publishDir = __SOURCE_DIRECTORY__ </> "publish"
 let samplesDir = __SOURCE_DIRECTORY__ </> "samples"
 let dlcBuilderDir = samplesDir </> "DLCBuilder"
+
 let msBuildParams trim =
     let properties =
         [ "PublishSingleFile", "true"
           if trim then
             "PublishTrimmed", "true"
             "TrimMode", "link" ]
+
     { MSBuild.CliArguments.Create() with Properties = properties }
 
 let release =
@@ -45,8 +47,8 @@ let release =
     |> ReleaseNotes.load
 
 let cleanPublishDirectory () =
-    if Directory.Exists publishDir then
-        Directory.Delete(publishDir, recursive = true)
+    if Directory.Exists(publishDir) then
+        Directory.Delete(publishDir, recursive=true)
 
 let createConfig appName platform trim (arg: DotNet.PublishOptions) =
     let targetDir = publishDir </> $"{appName}-{platform}"
@@ -59,7 +61,7 @@ let createConfig appName platform trim (arg: DotNet.PublishOptions) =
     { arg with OutputPath = Some targetDir
                Configuration = DotNet.BuildConfiguration.Release
                Runtime = Some runtime
-               SelfContained = Some (runtime <> "win-x64")
+               SelfContained = Some(runtime <> "win-x64")
                MSBuildParams = msBuildParams trim }
 
 let chmod arg file =
@@ -103,7 +105,7 @@ let createZipArchive platform =
 
 let createGitHubRelease file =
     let token =
-        match Environment.GetEnvironmentVariable "github_token" with
+        match Environment.GetEnvironmentVariable("github_token") with
         | null -> failwith "github_token environment variable is not set."
         | s -> s
 
@@ -123,7 +125,7 @@ let createGitHubRelease file =
 
 let addFileToRelease file =
     let token =
-        match Environment.GetEnvironmentVariable "github_token" with
+        match Environment.GetEnvironmentVariable("github_token") with
         | null -> failwith "github_token environment variable is not set."
         | s -> s
 

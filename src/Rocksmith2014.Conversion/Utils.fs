@@ -106,6 +106,7 @@ let findFirstAndLastTime (noteTimes: int array) startTime endTime =
             if noteTimes.[mid] < startTime then mid else 0
 
     let firstIndex = findIndex startIndex startTime noteTimes
+
     match firstIndex with
     | -1 ->
         ValueNone
@@ -115,4 +116,5 @@ let findFirstAndLastTime (noteTimes: int array) startTime endTime =
         let lastIndex =
             let i = findIndex firstIndex endTime noteTimes
             if i = -1 then noteTimes.Length - 1 else i - 1
-        ValueSome (struct (firstIndex, lastIndex))
+
+        ValueSome(struct (firstIndex, lastIndex))

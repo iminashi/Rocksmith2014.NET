@@ -45,7 +45,7 @@ type Tone =
                 $" ({ToneDescriptor.combineUINames this.ToneDescriptors})"
 
         let key =
-            if String.IsNullOrEmpty this.Key || this.Key = this.Name then
+            if String.IsNullOrEmpty(this.Key) || this.Key = this.Name then
                 String.Empty
             else
                 $" [{this.Key}]"
@@ -54,13 +54,13 @@ type Tone =
 
 [<AllowNullLiteral; Sealed>]
 type PedalDto() =
-    member val Type : string = null with get, set
-    member val KnobValues : IDictionary<string, float32> = null with get, set
+    member val Type: string = null with get, set
+    member val KnobValues: IDictionary<string, float32> = null with get, set
     [<JsonPropertyName("Key"); JsonProperty("Key")>]
-    member val PedalKey : string = null with get, set
-    member val Category : string = null with get, set
-    member val Skin : string = null with get, set
-    member val SkinIndex : Nullable<float32> = Nullable() with get, set
+    member val PedalKey: string = null with get, set
+    member val Category: string = null with get, set
+    member val Skin: string = null with get, set
+    member val SkinIndex: Nullable<float32> = Nullable() with get, set
 
 [<CLIMutable>]
 type GearDto =
@@ -130,8 +130,16 @@ module Tone =
               Type = (node pedal "Type").InnerText
               Key = (node pedal "PedalKey").InnerText
               KnobValues = knobValues
-              Skin = if not (isNull skin || skin.IsEmpty) then Some skin.InnerText else None
-              SkinIndex = if not (isNull skinIndex || skinIndex.IsEmpty) then Some (float32 skinIndex.InnerText) else None }
+              Skin =
+                if not (isNull skin || skin.IsEmpty) then
+                    Some skin.InnerText
+                else
+                    None
+              SkinIndex =
+                if not (isNull skinIndex || skinIndex.IsEmpty) then
+                    Some(float32 skinIndex.InnerText)
+                else
+                    None }
             |> Some
 
     let private getGearList (ns: string option) (gearList: XmlElement) =
@@ -183,7 +191,10 @@ module Tone =
           ToneDescriptors = getDescriptors (node "ToneDescriptors")
           NameSeparator = nodeText "NameSeparator"
           Volume = nodeText "Volume" |> volumeFromString
-          MacVolume = if isNull macVol then None else Some <| volumeFromString macVol.InnerText
+          MacVolume =
+            macVol
+            |> Option.ofObj
+            |> Option.map (fun x -> volumeFromString x.InnerText)
           Key = nodeText "Key"
           Name = nodeText "Name"
           // Sort order is not needed
@@ -206,8 +217,12 @@ module Tone =
           Key = dto.PedalKey
           KnobValues =
             match dto.KnobValues with
-            | null -> Map.empty
-            | values -> values |> Seq.map (|KeyValue|) |> Map.ofSeq
+            | null ->
+                Map.empty
+            | values ->
+                values
+                |> Seq.map (|KeyValue|)
+                |> Map.ofSeq
           Skin = Option.ofObj dto.Skin
           SkinIndex = Option.ofNullable dto.SkinIndex }
 
@@ -240,7 +255,7 @@ module Tone =
           ToneDescriptors = dto.ToneDescriptors
           NameSeparator = dto.NameSeparator
           Volume = volumeFromString dto.Volume
-          MacVolume = Option.ofObj dto.MacVolume |> Option.map volumeFromString
+          MacVolume = dto.MacVolume |> Option.ofObj |> Option.map volumeFromString
           Key = dto.Key
           Name = dto.Name
           SortOrder = Option.ofNullable dto.SortOrder }
@@ -298,12 +313,12 @@ module Tone =
 
     /// Imports a tone from a JSON file.
     let fromJsonFile (fileName: string) = async {
-        use file = File.OpenRead fileName
+        use file = File.OpenRead(fileName)
         return! fromJsonStream file }
 
     /// Exports a tone into a JSON file.
     let exportJson (path: string) (tone: Tone) = async {
-        use file = File.Create path
+        use file = File.Create(path)
 
         let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
         options.Converters.Add(JsonFSharpConverter())
@@ -316,7 +331,7 @@ module Tone =
               (fun writer -> serializer.WriteObject(writer, toDto tone))
 
         // Read the file back and fix it up to be importable in the Toolkit
-        let! text = File.ReadAllTextAsync path
+        let! text = File.ReadAllTextAsync(path)
         let sb = StringBuilder(text)
 
         let nl = Environment.NewLine
@@ -334,4 +349,5 @@ module Tone =
           // Change the namespace
           .Replace("http://schemas.datacontract.org/2004/07/Rocksmith2014.Common.Manifest", "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.Manifest.Tone")
           |> ignore
+
         do! File.WriteAllTextAsync(path, sb.ToString()) }

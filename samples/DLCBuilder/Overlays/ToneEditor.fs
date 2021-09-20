@@ -208,7 +208,7 @@ let private formatValue knob value =
 let private parseKnobValue knob (text: string) =
     match Single.TryParse text with
     | true, value ->
-        Some (Math.Clamp(value, knob.MinValue, knob.MaxValue))
+        Some(Math.Clamp(value, knob.MinValue, knob.MaxValue))
     | false, _ ->
         None
 

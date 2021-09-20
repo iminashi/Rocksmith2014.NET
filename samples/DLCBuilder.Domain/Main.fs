@@ -24,7 +24,7 @@ let private exceptionToErrorMessage (ex: exn) =
         | _ ->
             ex.Message
 
-    ErrorMessage (message, Some (Utils.createExceptionInfoString ex))
+    ErrorMessage(message, Some(Utils.createExceptionInfoString ex))
 
 let private buildPackage build state =
     match BuildValidator.validate state.Project with

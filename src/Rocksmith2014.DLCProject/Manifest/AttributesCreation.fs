@@ -100,14 +100,15 @@ let private convertPhraseIterations (sng: SNG) =
           EndTime = pi.EndTime })
 
 /// Converts SNG chord templates into manifest chord templates.
-let private convertChordTemplates (sng: SNG) = [|
-    for id = 0 to sng.Chords.Length - 1 do
-        let chord = sng.Chords.[id]
-        if String.notEmpty chord.Name && chord.Mask <> ChordMask.Arpeggio then
-            { ChordId = int16 id
-              ChordName = chord.Name
-              Fingers = chord.Fingers
-              Frets = chord.Frets } |]
+let private convertChordTemplates (sng: SNG) =
+    [| for id = 0 to sng.Chords.Length - 1 do
+           let chord = sng.Chords.[id]
+
+           if String.notEmpty chord.Name && chord.Mask <> ChordMask.Arpeggio then
+               { ChordId = int16 id
+                 ChordName = chord.Name
+                 Fingers = chord.Fingers
+                 Frets = chord.Frets } |]
 
 /// Returns a matching UI name for a section name.
 let private getSectionUIName (name: string) =
@@ -247,12 +248,14 @@ let private createChordMap (sng: SNG) =
 
         for i = 0 to sng.PhraseIterations.Length - 1 do
             let pi = sng.PhraseIterations.[i]
+
             let chordIds =
                 sng.Levels.[lvl].HandShapes
                 |> Seq.filter (fun x ->
                     (String.notEmpty sng.Chords.[x.ChordId].Name) && (x.StartTime >= pi.StartTime && x.StartTime < pi.EndTime))
                 |> Seq.map (fun x -> x.ChordId)
                 |> Set.ofSeq
+
             if chordIds.Count > 0 then
                 diffIds.Add(string i, Set.toArray chordIds)
 
@@ -275,11 +278,13 @@ let private createTechniqueMap (sng: SNG) =
 
         for i = 0 to sng.PhraseIterations.Length - 2 do
             let pi = sng.PhraseIterations.[i]
+
             let techIds =
                 sng.Levels.[lvl].Notes
                 |> Seq.filter (fun x -> (x.Time > pi.StartTime && x.Time <= pi.EndTime)) // Weird division into phrase iterations intentional
                 |> Seq.collect (Techniques.getTechniques sng)
                 |> Set.ofSeq
+
             if techIds.Count > 0 then
                 diffIds.Add(string i, Set.toArray techIds)
 
@@ -291,6 +296,7 @@ let private createTechniqueMap (sng: SNG) =
 /// Initializes attributes that are common to all arrangements (manifest headers).
 let private initBase name dlcKey (project: DLCProject) (arrangement: Arrangement) =
     let attr = Attributes()
+
     attr.AlbumArt <- $"urn:image:dds:album_%s{dlcKey}"
     attr.ArrangementName <- Arrangement.getName arrangement true
     attr.DLCKey <- project.DLCKey
@@ -371,13 +377,14 @@ let private initSongComplete (partition: int)
                              (attr: Attributes) =
     let tones =
         let toneKeysUsed =
-            instrumental.BaseTone::instrumental.Tones
+            instrumental.BaseTone :: instrumental.Tones
             |> Set.ofList
+
         project.Tones
-        |> List.filter (fun t -> toneKeysUsed.Contains t.Key)
+        |> List.filter (fun t -> toneKeysUsed.Contains(t.Key))
         |> List.toArray
 
-    attr.ArrangementProperties <- Some (convertArrangementProperties xmlMetaData.ArrangementProperties instrumental)
+    attr.ArrangementProperties <- Some(convertArrangementProperties xmlMetaData.ArrangementProperties instrumental)
     attr.ArrangementType <- LanguagePrimitives.EnumToValue instrumental.Name
     attr.Chords <- createChordMap sng
     attr.ChordTemplates <- convertChordTemplates sng
