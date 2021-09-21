@@ -15,7 +15,7 @@ let private validators = [
     fun project ->
         project.Arrangements
         |> List.choose Arrangement.pickInstrumental
-        |> List.exists (fun inst -> String.IsNullOrWhiteSpace inst.BaseTone)
+        |> List.exists (fun inst -> String.IsNullOrWhiteSpace(inst.BaseTone))
 
     SamePersistentID,
     fun project ->

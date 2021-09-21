@@ -29,15 +29,14 @@ let notBuilding state =
 /// Returns true if the project can be built.
 let canBuild state =
     notBuilding state
-    && (not <| state.RunningTasks.Contains PsarcImport)
+    && (not <| state.RunningTasks.Contains(PsarcImport))
     && state.Project.Arrangements.Length > 0
     && String.notEmpty state.Project.AudioFile.Path
 
 /// Returns true if the arrangement validation may be executed.
 let canRunValidation state =
     state.Project.Arrangements.Length > 0
-    &&
-    not (state.RunningTasks |> Set.contains ArrangementCheckAll)
+    && not (state.RunningTasks.Contains(ArrangementCheckAll))
 
 /// Returns true for tasks that report progress.
 let taskHasProgress = function
@@ -190,6 +189,7 @@ let addJapaneseVocals (xmlPath: string) state =
             let arrangements =
                 japaneseVocals :: state.Project.Arrangements
                 |> List.sortBy Arrangement.sorter
+
             { state.Project with Arrangements = arrangements }
 
         { state with Project = updatedProject },

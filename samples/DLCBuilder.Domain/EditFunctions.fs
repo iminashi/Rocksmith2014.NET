@@ -236,6 +236,7 @@ let editProject edit project =
 
 let editTone state edit index =
     let tone = state.Project.Tones.[index]
+
     let updatedTone =
         match edit with
         | SetName name ->

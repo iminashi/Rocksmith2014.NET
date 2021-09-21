@@ -27,7 +27,7 @@ type FixedTextBox() =
     member val AutoFocus = false with get, set
 
     member this.ValidationCallback
-        with get() : string -> bool = validationCallback
+        with get(): string -> bool = validationCallback
         and set(v) =
             if notNull validationSub then validationSub.Dispose()
             validationCallback <- v
@@ -35,12 +35,17 @@ type FixedTextBox() =
                 this.GetObservable(TextBox.TextProperty)
                     .Where(fun _ -> this.ValidationErrorMessage <> "")
                     .Subscribe(fun text ->
-                        let isValid = validationCallback text
-                        this.SetValue(DataValidationErrors.ErrorsProperty, if isValid then null else seq { box this.ValidationErrorMessage })
+                        let errors =
+                            if validationCallback text then
+                                null
+                            else
+                                seq { box this.ValidationErrorMessage }
+
+                        this.SetValue(DataValidationErrors.ErrorsProperty, errors)
                         |> ignore)
 
     member this.OnTextChangedCallback
-        with get() : string -> unit = changeCallback
+        with get(): string -> unit = changeCallback
         and set(v) =
             if notNull textChangedSub then textChangedSub.Dispose()
             changeCallback <- v

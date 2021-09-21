@@ -17,8 +17,8 @@ let generateAllIds arrangements =
 let getTestBuildFiles config project =
     let packageName = createPackageName project
 
-    if packageName.Length >= DLCKey.MinimumLength && Directory.Exists config.TestFolderPath then
-        Directory.EnumerateFiles config.TestFolderPath
+    if packageName.Length >= DLCKey.MinimumLength && Directory.Exists(config.TestFolderPath) then
+        Directory.EnumerateFiles(config.TestFolderPath)
         |> Seq.filter (Path.GetFileName >> (String.startsWith packageName))
         |> List.ofSeq
     else
@@ -27,8 +27,7 @@ let getTestBuildFiles config project =
 /// Returns an async computation for building a package for testing.
 let build platform config project = async {
     let isRocksmithRunning =
-        Process.GetProcessesByName("Rocksmith2014")
-        |> (Array.isEmpty >> not)
+        Process.GetProcessesByName("Rocksmith2014").Length > 0
 
     let packageFileName = createPackageName project
 
@@ -38,7 +37,7 @@ let build platform config project = async {
     let targetFolder = config.TestFolderPath
 
     let existingPackages =
-        Directory.EnumerateFiles targetFolder
+        Directory.EnumerateFiles(targetFolder)
         |> Seq.filter (Path.GetFileName >> (String.startsWith packageFileName))
         |> Seq.toList
 
@@ -73,7 +72,9 @@ let build platform config project = async {
             { project with
                 DLCKey = $"{project.DLCKey}{versionString}"
                 Title = title
-                JapaneseTitle = project.JapaneseTitle |> Option.map (fun title -> $"{title} {versionString}")
+                JapaneseTitle =
+                    project.JapaneseTitle
+                    |> Option.map (fun title -> $"{title} {versionString}")
                 Arrangements = arrangements },
             $"{packageFileName}_{versionString}",
             BuildCompleteType.TestNewVersion versionString

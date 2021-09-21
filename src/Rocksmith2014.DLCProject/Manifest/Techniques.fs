@@ -242,4 +242,5 @@ let getTechniques (sng: SNG) (note: Note) =
             if isDoubleStopTremolo sng note then 45
 
             // 46: Double stop bend (double stop tremolo in technique database)
-            if isDoubleStopBend sng note then 46 }
+            if isDoubleStopBend sng note then 46
+        }

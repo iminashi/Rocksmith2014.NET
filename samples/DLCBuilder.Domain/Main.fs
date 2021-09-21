@@ -342,10 +342,14 @@ let update (msg: Msg) (state: State) =
                     project.Arrangements
                     |> List.map (function
                         | Instrumental inst when inst.PersistentID = arrId ->
-                            let audio = inst.CustomAudio |> Option.map (fun a -> { a with Volume = volume })
+                            let audio =
+                                inst.CustomAudio
+                                |> Option.map (fun a -> { a with Volume = volume })
+
                             Instrumental { inst with CustomAudio = audio }
                         | other ->
                             other)
+
                 { project with Arrangements = arrangements }
 
         removeTask (VolumeCalculation target) { state with Project = project }, Cmd.none
@@ -781,8 +785,10 @@ let update (msg: Msg) (state: State) =
         let messages =
             state.StatusMessages
             |> List.map (function
-                | TaskWithProgress (task, _) when task = progressedTask -> TaskWithProgress(task, progress)
-                | other -> other)
+                | TaskWithProgress (task, _) when task = progressedTask ->
+                    TaskWithProgress(task, progress)
+                | other ->
+                    other)
 
         { state with StatusMessages = messages }, Cmd.none
 

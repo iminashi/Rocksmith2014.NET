@@ -76,11 +76,11 @@ let update msg state =
         Cmd.OfAsync.either task () WemConversionComplete (fun ex -> TaskFailed(ex, WemConversion))
 
     | UnpackPSARC file ->
-        let targetDirectory = Path.Combine(Path.GetDirectoryName file, Path.GetFileNameWithoutExtension file)
+        let targetDirectory = Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file))
         Directory.CreateDirectory(targetDirectory) |> ignore
 
         let task () = async {
-            use psarc = PSARC.ReadFile file
+            use psarc = PSARC.ReadFile(file)
             do! psarc.ExtractFiles(targetDirectory, ProgressReporters.PsarcUnpack) }
 
         StateUtils.addTask PsarcUnpack state,
@@ -96,9 +96,10 @@ let update msg state =
             let computations =
                 files
                 |> Array.map (fun file -> async {
-                    let arrangement = InstrumentalArrangement.Load file
-                    do! arrangement.RemoveDD false
-                    arrangement.Save file })
+                    let arrangement = InstrumentalArrangement.Load(file)
+                    do! arrangement.RemoveDD(false)
+                    arrangement.Save(file) })
+
             Async.Parallel(computations, max 1 (Environment.ProcessorCount / 4))
 
         state, Cmd.OfAsync.attempt task () ErrorOccurred

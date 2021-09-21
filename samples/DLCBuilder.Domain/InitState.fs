@@ -8,7 +8,7 @@ open System.Diagnostics
 open System.IO
 
 let private createExitCheckFile () =
-    using (File.Create Configuration.exitCheckFilePath) ignore
+    using (File.Create(Configuration.exitCheckFilePath)) ignore
 
 let init localizer albumArtLoader databaseConnector args =
     let commands =
@@ -30,7 +30,8 @@ let init localizer albumArtLoader databaseConnector args =
             Cmd.OfAsyncImmediate.perform RecentFilesList.load () SetRecentFiles
             Cmd.OfAsyncImmediate.perform OnlineUpdate.checkForUpdates () SetAvailableUpdate
             Cmd.OfAsyncImmediate.perform ToneGear.loadRepository () SetToneRepository
-            yield! loadProject ]
+            yield! loadProject
+        ]
 
     { Project = DLCProject.Empty
       SavedProject = DLCProject.Empty
