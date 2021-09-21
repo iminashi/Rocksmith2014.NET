@@ -96,19 +96,22 @@ type FixedTextBox() =
         // Keep the same callback once set
         let comparer _ = true
 
-        AttrBuilder<'t>.CreateProperty<string -> unit>("OnTextChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
+        AttrBuilder<'t>.CreateProperty<string -> unit>
+            ("OnTextChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
 
     static member validation<'t when 't :> FixedTextBox> fn =
         let getter: 't -> (string -> bool) = fun c -> c.ValidationCallback
         let setter: 't * (string -> bool) -> unit = fun (c, f) -> c.ValidationCallback <- f
 
-        AttrBuilder<'t>.CreateProperty<string -> bool>("Validation", fn, ValueSome getter, ValueSome setter, ValueNone)
+        AttrBuilder<'t>.CreateProperty<string -> bool>
+            ("Validation", fn, ValueSome getter, ValueSome setter, ValueNone)
 
     static member validationErrorMessage<'t when 't :> FixedTextBox> message =
         let getter: 't -> string = fun c -> c.ValidationErrorMessage
         let setter: 't * string -> unit = fun (c, v) -> c.ValidationErrorMessage <- v
 
-        AttrBuilder<'t>.CreateProperty<string>("ValidationErrorMessage", message, ValueSome getter, ValueSome setter, ValueNone)
+        AttrBuilder<'t>.CreateProperty<string>
+            ("ValidationErrorMessage", message, ValueSome getter, ValueSome setter, ValueNone)
 
     static member text<'t when 't :> FixedTextBox>(text: string) =
         let getter: 't -> string = fun c -> c.Text
@@ -118,15 +121,17 @@ type FixedTextBox() =
             c.Text <- v
             c.NoNotify <- false
 
-        AttrBuilder<'t>.CreateProperty<string>("Text", text, ValueSome getter, ValueSome setter, ValueNone)
+        AttrBuilder<'t>.CreateProperty<string>
+            ("Text", text, ValueSome getter, ValueSome setter, ValueNone)
 
     static member autoFocus<'t when 't :> FixedTextBox>(value: bool) =
         let getter: 't -> bool = fun c -> c.AutoFocus
         let setter: 't * bool -> unit = fun (c, v) -> c.AutoFocus <- v
 
-        AttrBuilder<'t>.CreateProperty<bool>("AutoFocus", value, ValueSome getter, ValueSome setter, ValueNone)
+        AttrBuilder<'t>.CreateProperty<bool>
+            ("AutoFocus", value, ValueSome getter, ValueSome setter, ValueNone)
 
 [<RequireQualifiedAccess>]
 module FixedTextBox =
-    let create (attrs: IAttr<FixedTextBox> list): IView<FixedTextBox> =
+    let create (attrs: IAttr<FixedTextBox> list) : IView<FixedTextBox> =
         ViewBuilder.Create<FixedTextBox>(attrs)

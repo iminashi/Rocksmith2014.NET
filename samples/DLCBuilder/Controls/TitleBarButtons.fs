@@ -43,7 +43,12 @@ type TitleBarButtons(window: Window) =
             let path = Path(Fill = Brushes.GhostWhite)
             let icon =
                 window.GetObservable(Window.WindowStateProperty)
-                |> Observable.map (fun state -> if state = WindowState.Maximized then Icons.restore else Icons.maximize)
+                |> Observable.map (fun state ->
+                    if state = WindowState.Maximized then
+                        Icons.restore
+                    else
+                        Icons.maximize)
+
             path.Bind(Path.DataProperty, icon) |> ignore
             button.Content <- path)
 

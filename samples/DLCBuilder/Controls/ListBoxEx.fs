@@ -18,9 +18,9 @@ open System
 type ListBoxEx() =
     inherit UserControl()
 
-    let mutable selectionChangedHandler : int -> unit = ignore
-    let mutable itemMovedHandler : MoveDirection -> unit = ignore
-    let mutable itemDeletedHandler : unit -> unit = ignore
+    let mutable selectionChangedHandler: int -> unit = ignore
+    let mutable itemMovedHandler: MoveDirection -> unit = ignore
+    let mutable itemDeletedHandler: unit -> unit = ignore
     let mutable selected = -1
     let st = StackPanel()
 
@@ -47,6 +47,7 @@ type ListBoxEx() =
             let change = if key = Key.Up then -1 else 1
             let oldSelection = selected
             selected <- Math.Clamp(selected + change, 0, st.Children.Count - 1)
+
             if oldSelection <> selected then
                 selectionChangedHandler selected
                 st.Children.[selected].BringIntoView()
@@ -74,20 +75,20 @@ type ListBoxEx() =
         and set(v) = itemDeletedHandler <- v
 
     static member children(value: IView list) =
-        let getter : ListBoxEx-> obj = (fun x -> x.Children :> obj)
+        let getter: ListBoxEx-> obj = (fun x -> x.Children :> obj)
 
         AttrBuilder<ListBoxEx>.CreateContentMultiple("Children", ValueSome getter, ValueNone, value)
 
     static member selectedIndex(index: int) =
         let getter (c: ListBoxEx) = c.SelectedIndex
-        let setter : ListBoxEx * int -> unit = fun (c, v) -> c.SelectedIndex <- v
+        let setter: ListBoxEx * int -> unit = fun (c, v) -> c.SelectedIndex <- v
 
         AttrBuilder<ListBoxEx>.CreateProperty<int>
             ("SelectedIndex", index, ValueSome getter, ValueSome setter, ValueNone)
 
     static member onSelectedIndexChanged (fn: int -> unit) =
         let getter (c: ListBoxEx) = c.OnSelectedIndexChanged
-        let setter : ListBoxEx * (int -> unit) -> unit = fun (c, f) -> c.OnSelectedIndexChanged <- f
+        let setter: ListBoxEx * (int -> unit) -> unit = fun (c, f) -> c.OnSelectedIndexChanged <- f
         // Keep the same callback once set
         let comparer _ = true
 
@@ -96,7 +97,7 @@ type ListBoxEx() =
 
     static member onItemMoved (fn: MoveDirection -> unit) =
         let getter (c: ListBoxEx) = c.OnItemMoved
-        let setter : ListBoxEx * (MoveDirection -> unit) -> unit = fun (c, f) -> c.OnItemMoved <- f
+        let setter: ListBoxEx * (MoveDirection -> unit) -> unit = fun (c, f) -> c.OnItemMoved <- f
         // Keep the same callback once set
         let comparer _ = true
 
@@ -105,7 +106,7 @@ type ListBoxEx() =
 
     static member onItemDeleted (fn: unit -> unit) =
         let getter (c: ListBoxEx) = c.OnItemDeleted
-        let setter : ListBoxEx * (unit -> unit) -> unit = fun (c, f) -> c.OnItemDeleted <- f
+        let setter: ListBoxEx * (unit -> unit) -> unit = fun (c, f) -> c.OnItemDeleted <- f
         // Keep the same callback once set
         let comparer _ = true
 
@@ -114,5 +115,5 @@ type ListBoxEx() =
 
 [<RequireQualifiedAccess>]
 module ListBoxEx =
-    let create (attrs: IAttr<ListBoxEx> list): IView<ListBoxEx> =
+    let create (attrs: IAttr<ListBoxEx> list) : IView<ListBoxEx> =
         ViewBuilder.Create<ListBoxEx>(attrs)

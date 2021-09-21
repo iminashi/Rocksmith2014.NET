@@ -19,7 +19,7 @@ type LyricsCreatorTextBlock() =
         { LineNumber = line; Index = index }
 
     member val Location = (0, 0) with get, set
-    member val Dispatch : CombinationLocation -> unit = ignore with get, set
+    member val Dispatch: CombinationLocation -> unit = ignore with get, set
 
     override this.OnKeyDown(e) =
         if e.Key = Key.Space then
@@ -40,7 +40,7 @@ type LyricsCreatorTextBlock() =
 
     static member onClick(fn: CombinationLocation -> unit) =
         let getter (c: LyricsCreatorTextBlock) = c.Dispatch
-        let setter : LyricsCreatorTextBlock * (CombinationLocation -> unit) -> unit = fun (c, f) -> c.Dispatch <- f
+        let setter: LyricsCreatorTextBlock * (CombinationLocation -> unit) -> unit = fun (c, f) -> c.Dispatch <- f
         // Keep the same callback once set
         let comparer _ = true
 
@@ -49,12 +49,12 @@ type LyricsCreatorTextBlock() =
 
     static member location(loc: int * int) =
         let getter (c: LyricsCreatorTextBlock) = c.Location
-        let setter : LyricsCreatorTextBlock * (int * int) -> unit = fun (c, v) -> c.Location <- v
+        let setter: LyricsCreatorTextBlock * (int * int) -> unit = fun (c, v) -> c.Location <- v
 
         AttrBuilder<LyricsCreatorTextBlock>.CreateProperty<int * int>
             ("Location", loc, ValueSome getter, ValueSome setter, ValueNone)
 
 [<RequireQualifiedAccess>]
 module LyricsCreatorTextBlock =
-    let create (attrs: IAttr<LyricsCreatorTextBlock> list): IView<LyricsCreatorTextBlock> =
+    let create (attrs: IAttr<LyricsCreatorTextBlock> list) : IView<LyricsCreatorTextBlock> =
         ViewBuilder.Create<LyricsCreatorTextBlock>(attrs)

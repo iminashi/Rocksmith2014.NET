@@ -12,15 +12,15 @@ open System.Reactive.Linq
 [<Sealed>]
 type FixedNumericUpDown() =
     inherit NumericUpDown()
-    let mutable sub : IDisposable = null
-    let mutable changeCallback : float -> unit = ignore
+    let mutable sub: IDisposable = null
+    let mutable changeCallback: float -> unit = ignore
 
     interface IStyleable with member _.StyleKey = typeof<NumericUpDown>
 
     member val NoNotify = false with get, set
 
     member this.OnValueChangedCallback
-        with get() : float -> unit = changeCallback
+        with get(): float -> unit = changeCallback
         and set(v) =
             if notNull sub then sub.Dispose()
             changeCallback <- v
@@ -36,8 +36,8 @@ type FixedNumericUpDown() =
         base.OnDetachedFromLogicalTree(e)
 
     static member onValueChanged(fn) =
-        let getter : FixedNumericUpDown -> (float -> unit) = fun c -> c.OnValueChangedCallback
-        let setter : FixedNumericUpDown * (float -> unit) -> unit = fun (c, f) -> c.OnValueChangedCallback <- f
+        let getter: FixedNumericUpDown -> (float -> unit) = fun c -> c.OnValueChangedCallback
+        let setter: FixedNumericUpDown * (float -> unit) -> unit = fun (c, f) -> c.OnValueChangedCallback <- f
         // Keep the same callback once set
         let comparer _ = true
 
@@ -45,8 +45,8 @@ type FixedNumericUpDown() =
             ("OnValueChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
 
     static member value(value: float) =
-        let getter : FixedNumericUpDown -> float = fun c -> c.Value
-        let setter : FixedNumericUpDown * float -> unit = fun (c, v) ->
+        let getter: FixedNumericUpDown -> float = fun c -> c.Value
+        let setter: FixedNumericUpDown * float -> unit = fun (c, v) ->
             // Ignore notifications originating from code
             c.NoNotify <- true
             c.Value <- v
@@ -57,5 +57,5 @@ type FixedNumericUpDown() =
 
 [<RequireQualifiedAccess>]
 module FixedNumericUpDown =
-    let create (attrs: IAttr<FixedNumericUpDown> list): IView<FixedNumericUpDown> =
+    let create (attrs: IAttr<FixedNumericUpDown> list) : IView<FixedNumericUpDown> =
         ViewBuilder.Create<FixedNumericUpDown>(attrs)

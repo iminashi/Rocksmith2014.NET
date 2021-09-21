@@ -94,5 +94,5 @@ type FixedAutoCompleteBox() =
 
 [<RequireQualifiedAccess>]
 module FixedAutoCompleteBox =
-    let create (attrs: IAttr<FixedAutoCompleteBox> list): IView<FixedAutoCompleteBox> =
+    let create (attrs: IAttr<FixedAutoCompleteBox> list) : IView<FixedAutoCompleteBox> =
         ViewBuilder.Create<FixedAutoCompleteBox>(attrs)

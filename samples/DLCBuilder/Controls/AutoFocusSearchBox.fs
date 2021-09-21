@@ -43,7 +43,7 @@ type AutoFocusSearchBox() =
 
     member _.TextBox = textBox
 
-    member val TextChanged : string -> unit = ignore with get, set
+    member val TextChanged: string -> unit = ignore with get, set
 
     override this.OnInitialized() =
         base.OnInitialized()
@@ -51,18 +51,20 @@ type AutoFocusSearchBox() =
 
 [<RequireQualifiedAccess>]
 module AutoFocusSearchBox =
-    let create (attrs: IAttr<AutoFocusSearchBox> list): IView<AutoFocusSearchBox> =
+    let create (attrs: IAttr<AutoFocusSearchBox> list) : IView<AutoFocusSearchBox> =
         ViewBuilder.Create<AutoFocusSearchBox>(attrs)
 
 type AutoFocusSearchBox with
     static member text(text: string) =
         let getter (c: AutoFocusSearchBox) = c.TextBox.Text
-        let setter : AutoFocusSearchBox * string -> unit = (fun (c, v) -> c.TextBox.Text <- v)
+        let setter: AutoFocusSearchBox * string -> unit = (fun (c, v) -> c.TextBox.Text <- v)
 
-        AttrBuilder<AutoFocusSearchBox>.CreateProperty<string>("Text", text, ValueSome getter, ValueSome setter, ValueNone)
+        AttrBuilder<AutoFocusSearchBox>.CreateProperty<string>
+            ("Text", text, ValueSome getter, ValueSome setter, ValueNone)
 
     static member onTextChanged(func: string -> unit) =
         let getter (c: AutoFocusSearchBox) = c.TextChanged
         let setter : AutoFocusSearchBox * (string -> unit) -> unit = (fun (c, v) -> c.TextChanged <- v)
 
-        AttrBuilder<AutoFocusSearchBox>.CreateProperty<string -> unit>("TextChanged", func, ValueSome getter, ValueSome setter, ValueNone)
+        AttrBuilder<AutoFocusSearchBox>.CreateProperty<string -> unit>
+            ("TextChanged", func, ValueSome getter, ValueSome setter, ValueNone)

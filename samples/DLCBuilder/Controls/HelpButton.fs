@@ -25,12 +25,12 @@ type HelpButton() =
 
     static member helpText(text: string) =
         let getter (c: HelpButton) = c.HelpText
-        let setter : HelpButton * string -> unit = fun (c, v) -> c.HelpText <- v
+        let setter: HelpButton * string -> unit = fun (c, v) -> c.HelpText <- v
 
         AttrBuilder<HelpButton>.CreateProperty<string>
             ("SelectedIndex", text, ValueSome getter, ValueSome setter, ValueNone)
 
 [<RequireQualifiedAccess>]
 module HelpButton =
-    let create (attrs: IAttr<HelpButton> list): IView<HelpButton> =
+    let create (attrs: IAttr<HelpButton> list) : IView<HelpButton> =
         ViewBuilder.Create<HelpButton>(attrs)

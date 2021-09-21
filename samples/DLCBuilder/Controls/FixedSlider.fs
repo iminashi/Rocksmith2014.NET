@@ -11,15 +11,15 @@ open System.Reactive.Linq
 
 type FixedSlider() =
     inherit Slider()
-    let mutable sub : IDisposable = null
-    let mutable changeCallback : double -> unit = ignore
+    let mutable sub: IDisposable = null
+    let mutable changeCallback: double -> unit = ignore
 
     interface IStyleable with member _.StyleKey = typeof<Slider>
 
     member val NoNotify = false with get, set
 
     member this.OnValueChangedCallback
-        with get() : double -> unit = changeCallback
+        with get(): double -> unit = changeCallback
         and set(v) =
             if notNull sub then sub.Dispose()
             changeCallback <- v
@@ -35,24 +35,26 @@ type FixedSlider() =
         base.OnDetachedFromLogicalTree(e)
 
     static member onValueChanged<'t when 't :> FixedSlider> fn =
-        let getter : 't -> (double -> unit) = fun c -> c.OnValueChangedCallback
-        let setter : 't * (double -> unit) -> unit = fun (c, f) -> c.OnValueChangedCallback <- f
+        let getter: 't -> (double -> unit) = fun c -> c.OnValueChangedCallback
+        let setter: 't * (double -> unit) -> unit = fun (c, f) -> c.OnValueChangedCallback <- f
         // Keep the same callback once set
         let comparer _ = true
 
-        AttrBuilder<'t>.CreateProperty<double -> unit>("OnValueChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
+        AttrBuilder<'t>.CreateProperty<double -> unit>
+            ("OnValueChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
 
     static member value<'t when 't :> FixedSlider>(value: double) =
-        let getter : 't -> double = fun c -> c.Value
-        let setter : 't * double -> unit = fun (c, v) ->
+        let getter: 't -> double = fun c -> c.Value
+        let setter: 't * double -> unit = fun (c, v) ->
             // Ignore notifications originating from code
             c.NoNotify <- true
             c.Value <- v
             c.NoNotify <- false
 
-        AttrBuilder<'t>.CreateProperty<double>("Value", value, ValueSome getter, ValueSome setter, ValueNone)
+        AttrBuilder<'t>.CreateProperty<double>
+            ("Value", value, ValueSome getter, ValueSome setter, ValueNone)
 
 [<RequireQualifiedAccess>]
 module FixedSlider =
-    let create (attrs: IAttr<FixedSlider> list): IView<FixedSlider> =
+    let create (attrs: IAttr<FixedSlider> list) : IView<FixedSlider> =
         ViewBuilder.Create<FixedSlider>(attrs)

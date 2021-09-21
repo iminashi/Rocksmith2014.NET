@@ -25,8 +25,8 @@ module private Default =
 type ToneKnobSlider() =
     inherit Slider()
     let mutable gearKnob = Default.Knob
-    let mutable sub : IDisposable = null
-    let mutable changeCallback : string * float32 -> unit = ignore
+    let mutable sub: IDisposable = null
+    let mutable changeCallback: string * float32 -> unit = ignore
 
     do base.IsSnapToTickEnabled <- true
 
@@ -44,7 +44,7 @@ type ToneKnobSlider() =
             this.Maximum <- float knob.MaxValue
 
     member this.OnValueChangedCallback
-        with get() : string * float32 -> unit = changeCallback
+        with get(): string * float32 -> unit = changeCallback
         and set(v) =
             if notNull sub then sub.Dispose()
             changeCallback <- v
@@ -62,32 +62,35 @@ type ToneKnobSlider() =
 
     static member onKnobValueChanged fn =
         let getter (c: ToneKnobSlider) = c.OnValueChangedCallback
-        let setter : ToneKnobSlider * (string * float32 -> unit) -> unit = fun (c, f) -> c.OnValueChangedCallback <- f
+        let setter: ToneKnobSlider * (string * float32 -> unit) -> unit = fun (c, f) -> c.OnValueChangedCallback <- f
         // Keep the same callback once set
         let comparer _ = true
 
-        AttrBuilder<ToneKnobSlider>.CreateProperty<string * float32 -> unit>("OnKnobValueChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
+        AttrBuilder<ToneKnobSlider>.CreateProperty<string * float32 -> unit>
+            ("OnKnobValueChanged", fn, ValueSome getter, ValueSome setter, ValueSome comparer)
 
     static member knob(knob: GearKnob) =
         let getter (c: ToneKnobSlider) = c.Knob
-        let setter : ToneKnobSlider * GearKnob -> unit = fun (c, v) ->
+        let setter: ToneKnobSlider * GearKnob -> unit = fun (c, v) ->
             c.NoNotify <- true
             c.Knob <- v
             c.NoNotify <- false
 
-        AttrBuilder<ToneKnobSlider>.CreateProperty<GearKnob>("Knob", knob, ValueSome getter, ValueSome setter, ValueNone)
+        AttrBuilder<ToneKnobSlider>.CreateProperty<GearKnob>
+            ("Knob", knob, ValueSome getter, ValueSome setter, ValueNone)
 
     static member value(value: double) =
         let getter (c: ToneKnobSlider) = c.Value
-        let setter : ToneKnobSlider * double -> unit = fun (c, v) ->
+        let setter: ToneKnobSlider * double -> unit = fun (c, v) ->
             // Ignore notifications originating from code
             c.NoNotify <- true
             c.Value <- v
             c.NoNotify <- false
 
-        AttrBuilder<ToneKnobSlider>.CreateProperty<double>("Value", value, ValueSome getter, ValueSome setter, ValueNone)
+        AttrBuilder<ToneKnobSlider>.CreateProperty<double>
+            ("Value", value, ValueSome getter, ValueSome setter, ValueNone)
 
 [<RequireQualifiedAccess>]
 module ToneKnobSlider =
-    let create (attrs: IAttr<ToneKnobSlider> list): IView<ToneKnobSlider> =
+    let create (attrs: IAttr<ToneKnobSlider> list) : IView<ToneKnobSlider> =
         ViewBuilder.Create<ToneKnobSlider>(attrs)
