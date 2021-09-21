@@ -101,22 +101,16 @@ let private gearSlotHeader locName =
 let private pedalSelectors dispatch repository selectedGearSlot gearList (locName, pedalFunc) =
     [ gearSlotHeader locName
 
-      for index in 0..3 do
+      for index in 0 .. 3 do
         let gearSlot = pedalFunc index
+
         let content =
             match getGearDataForCurrentPedal repository gearList gearSlot with
             | Some data -> data.Name
             | None -> String.Empty
+
         gearSlotSelector dispatch gearList selectedGearSlot content gearSlot
         |> generalize ]
-
-let private effectCount (gearList: Gear) =
-    seq {
-        yield! gearList.PrePedals
-        yield! gearList.PostPedals
-        yield! gearList.Racks }
-    |> Seq.choose id
-    |> Seq.length
 
 let private gearSlots repository state dispatch (gearList: Gear) =
     let ampName = repository.AmpDict.[gearList.Amp.Key].Name
@@ -130,10 +124,13 @@ let private gearSlots repository state dispatch (gearList: Gear) =
         gearSlotHeader "Cabinet"
         gearSlotSelector dispatch gearList state.SelectedGearSlot cabinetName Cabinet
 
-        yield! [ ("PrePedals", PrePedal); ("LoopPedals", PostPedal); ("Rack", Rack) ]
-                |> List.collect (pedalSelectors dispatch repository state.SelectedGearSlot gearList)
+        yield!
+            [ "PrePedals", PrePedal
+              "LoopPedals", PostPedal
+              "Rack", Rack ]
+            |> List.collect (pedalSelectors dispatch repository state.SelectedGearSlot gearList)
 
-        if effectCount gearList > 4 then
+        if Tone.getEffectCount gearList > 4 then
             hStack [
                 TextBlock.create [
                     TextBlock.foreground Brushes.OrangeRed

@@ -304,6 +304,15 @@ module Tone =
           Name = tone.Name
           SortOrder = Option.toNullable tone.SortOrder }
 
+    /// Returns the number of effects used in the gear list.
+    let getEffectCount (gearList: Gear) =
+        seq {
+            yield! gearList.PrePedals
+            yield! gearList.PostPedals
+            yield! gearList.Racks
+        }
+        |> Seq.sumBy Option.count
+
     /// Imports a tone from a JSON stream.
     let fromJsonStream (stream: Stream) = async {
         let options = JsonSerializerOptions(IgnoreNullValues = true)
