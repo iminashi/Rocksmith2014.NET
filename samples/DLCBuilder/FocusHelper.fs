@@ -10,18 +10,21 @@ let private previouslyFocused = Stack<IInputElement>()
 
 let init w = window <- Some w
 
+let private focusWindow () =
+    window |> Option.iter (fun w -> w.Focus())
+
 let storeFocusedElement () =
     if notNull FocusManager.Instance.Current then
         previouslyFocused.Push(FocusManager.Instance.Current)
 
     // Blur the focus from the element
-    window |> Option.iter (fun w -> w.Focus())
+    focusWindow ()
 
 let restoreFocus () =
     if previouslyFocused.Count > 0 then
         previouslyFocused.Pop().Focus()
     else
-        window.Value.Focus()
+        focusWindow ()
 
 // Restores the focus to the oldest element in the stack.
 let restoreRootFocus () =
@@ -33,4 +36,4 @@ let restoreRootFocus () =
     if notNull element then
         element.Focus()
     else
-        window |> Option.iter (fun w -> w.Focus())
+        focusWindow ()
