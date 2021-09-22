@@ -54,7 +54,10 @@ let update (msg: Msg) (state: State) =
         |> List.choose Arrangement.pickVocals
         |> List.tryFind (fun x -> not x.Japanese)
         |> Option.map (fun vocals ->
-            let initialState = JapaneseLyricsCreator.LyricsCreatorState.init (XML.Vocals.Load vocals.XML)
+            let initialState =
+                vocals.XML
+                |> XML.Vocals.Load
+                |> JapaneseLyricsCreator.LyricsCreatorState.init
 
             { state with Overlay = JapaneseLyricsCreator initialState }, Cmd.none)
         |> Option.defaultValue (state, Cmd.none)
@@ -168,7 +171,7 @@ let update (msg: Msg) (state: State) =
                 fun () ->
                     currentProgress <- currentProgress + 1.
                     currentProgress / maxProgress * 100.
-                >> (ProgressReporters.PsarcImport :> IProgress<float>).Report
+                    |> (ProgressReporters.PsarcImport :> IProgress<float>).Report
 
             let targetFolder = Path.Combine(targetFolder, Path.GetFileNameWithoutExtension(psarcFile))
             Directory.CreateDirectory(targetFolder) |> ignore
@@ -265,9 +268,9 @@ let update (msg: Msg) (state: State) =
             let previewPath = Utils.previewPathFromMainAudio fileName
             let wavPreview = Path.ChangeExtension(previewPath, "wav")
 
-            if File.Exists previewPath then
+            if File.Exists(previewPath) then
                 previewPath
-            elif File.Exists wavPreview then
+            elif File.Exists(wavPreview) then
                 wavPreview
             else
                 String.Empty
