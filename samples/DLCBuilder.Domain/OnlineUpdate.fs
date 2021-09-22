@@ -24,9 +24,9 @@ let private tryGetLatestRelease () = async {
     try
         let github = GitHubClient(ProductHeaderValue("rs2014-dlc-builder"))
         let! release = github.Repository.Release.GetLatest("iminashi", "Rocksmith2014.NET")
-        return (Ok release)
+        return Ok release
     with e ->
-        return (Error $"Getting latest release failed with: {e.Message}") }
+        return Error $"Getting latest release failed with: {e.Message}" }
 
 let private getAvailableUpdate (latestVersion: Version) =
     let currentVersion = AppVersion.current
@@ -68,7 +68,7 @@ let private getAvailableUpdateInformation (release: Release) =
 
 /// Fetches the latest release and returns the information for the available update.
 let checkForUpdates () = async {
-    let! release = tryGetLatestRelease()
+    let! release = tryGetLatestRelease ()
     return release |> Result.map getAvailableUpdateInformation }
 
 let private client = new HttpClient()
@@ -89,4 +89,5 @@ let downloadAndApplyUpdate (update: UpdateInformation) = async {
     let startInfo = ProcessStartInfo(FileName = updatePath, Arguments = $"/SILENT /CLOSEAPPLICATIONS")
     use update = new Process(StartInfo = startInfo)
     update.Start() |> ignore
+
     Environment.Exit(0) }
