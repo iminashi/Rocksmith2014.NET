@@ -161,12 +161,12 @@ let private createChordNotes (pendingLinkNexts: Dictionary<int8, int16>) thisId 
               Vibrato = vibrato }
 
         lock accuData.ChordNotesMap (fun () ->
-            match accuData.ChordNotesMap.TryGetValue chordNotes with
+            match accuData.ChordNotesMap.TryGetValue(chordNotes) with
             | true, id ->
                 id
             | false, _ ->
                 let id = accuData.ChordNotes.Count
-                accuData.ChordNotes.Add chordNotes
+                accuData.ChordNotes.Add(chordNotes)
                 accuData.ChordNotesMap.Add(chordNotes, id)
                 id)
 

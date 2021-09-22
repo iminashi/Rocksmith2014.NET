@@ -61,4 +61,4 @@ let wemToWav wemFile =
     let oggFile = Path.ChangeExtension(wemFile, "ogg")
     let targetPath = Path.ChangeExtension(wemFile, "wav")
     oggToWav oggFile targetPath
-    File.Delete oggFile
+    File.Delete(oggFile)

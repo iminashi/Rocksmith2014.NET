@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.DLCProject.Partitioner
+module Rocksmith2014.DLCProject.Partitioner
 
 open Rocksmith2014.DLCProject
 open System
@@ -13,9 +13,12 @@ let create (project: DLCProject) =
 
     fun (arrangement: Arrangement) ->
         match arrangement with
-        | Vocals v when v.Japanese -> 1, "jvocals"
-        | Vocals _ -> 1, "vocals"
-        | Showlights _ -> 1, "showlights"
+        | Vocals v when v.Japanese ->
+            1, "jvocals"
+        | Vocals _ ->
+            1, "vocals"
+        | Showlights _ ->
+            1, "showlights"
         | Instrumental inst ->
             let name = inst.Name.ToString().ToLowerInvariant()
             let group = groups.[inst.Name]

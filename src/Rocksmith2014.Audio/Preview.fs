@@ -19,7 +19,7 @@ let private getPreviewSection (offset: TimeSpan) (file: ISampleProvider) =
 
 /// Creates a preview audio file.
 let create (sourcePath: string) (targetPath: string) (startOffset: TimeSpan) =
-    use audio = AudioReader.Create sourcePath
+    use audio = AudioReader.Create(sourcePath)
     let audioLength = audio.Stream.TotalTime.TotalMilliseconds
 
     let fadeIn, fadeOut =

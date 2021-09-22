@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Common.BinaryReaders
+module Rocksmith2014.Common.BinaryReaders
 
 open System
 open System.IO
@@ -75,7 +75,7 @@ type LittleEndianBinaryReader(stream: Stream) =
             buffer
 
         member _.ReadSpan(span) =
-            let mutable bytesRead = stream.Read span
+            let mutable bytesRead = stream.Read(span)
             let mutable totalRead = bytesRead
             while totalRead < span.Length && bytesRead <> 0 do
                 bytesRead <- stream.Read(span.Slice totalRead)
@@ -149,7 +149,7 @@ type BigEndianBinaryReader(stream: Stream) =
             buffer
 
         member _.ReadSpan(span) =
-            let mutable bytesRead = stream.Read span
+            let mutable bytesRead = stream.Read(span)
             let mutable totalRead = bytesRead
             while totalRead < span.Length && bytesRead <> 0 do
                 bytesRead <- stream.Read(span.Slice totalRead)

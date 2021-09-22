@@ -113,7 +113,7 @@ let sngToXml (attr: Manifest.Attributes option) (sng: SNG) =
             TranscriptionTrack = Level()
         )
 
-    Array.Copy (sng.MetaData.Tuning, arr.MetaData.Tuning.Strings, 6)
+    Array.Copy(sng.MetaData.Tuning, arr.MetaData.Tuning.Strings, 6)
     arr.Tones.Changes <- tones
 
     attr
@@ -210,7 +210,7 @@ let xmlToSng (arr: InstrumentalArrangement) =
 let sngFileToXml sngFile targetFile platform = async {
     let! sng = SNG.readPackedFile sngFile platform
     let xml = sngToXml None sng
-    xml.Save targetFile }
+    xml.Save(targetFile) }
 
 /// Converts an XML instrumental arrangement into an SNG file.
 let xmlFileToSng xmlFile targetFile platform = async {

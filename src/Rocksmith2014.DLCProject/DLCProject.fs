@@ -190,15 +190,15 @@ module DLCProject =
                 | Instrumental inst when File.Exists inst.XML ->
                     Arrangement.updateToneInfo inst false
                     |> Instrumental
-                | other -> other)
+                | other ->
+                    other)
 
         { project with Arrangements = arrs }
 
     /// Returns true if the audio files for the project exist.
     let audioFilesExist (project: DLCProject) =
         File.Exists project.AudioFile.Path
-        &&
-        File.Exists project.AudioPreviewFile.Path
+        && File.Exists project.AudioPreviewFile.Path
 
     /// Returns a sequence of the audio files in the project.
     let getAudioFiles (project: DLCProject) =

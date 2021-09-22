@@ -5,7 +5,7 @@ open System.IO
 open System.Text.RegularExpressions
 
 let private tryEnv variable =
-    Environment.GetEnvironmentVariable variable
+    Environment.GetEnvironmentVariable(variable)
     |> Option.ofString
 
 let private tryFindWwiseInstallation rootDir =

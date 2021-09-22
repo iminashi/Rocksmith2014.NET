@@ -84,9 +84,9 @@ let convertPhrase (xml: XML.InstrumentalArrangement) phraseId (xmlPhrase: XML.Ph
         |> Seq.filter (fun pi -> pi.PhraseId = phraseId)
         |> Seq.length
 
-    { Solo = Convert.ToSByte xmlPhrase.IsSolo
-      Disparity = Convert.ToSByte xmlPhrase.IsDisparity
-      Ignore = Convert.ToSByte xmlPhrase.IsIgnore
+    { Solo = Convert.ToSByte(xmlPhrase.IsSolo)
+      Disparity = Convert.ToSByte(xmlPhrase.IsDisparity)
+      Ignore = Convert.ToSByte(xmlPhrase.IsIgnore)
       MaxDifficulty = int xmlPhrase.MaxDifficulty
       IterationCount = piLinks
       Name = xmlPhrase.Name }

@@ -23,7 +23,7 @@ let getCLIPath () =
         else
             raise <| NotSupportedException "Wwise conversion is not supported on this OS."
 
-    if not <| File.Exists cliPath then
+    if not <| File.Exists(cliPath) then
         failwith "Could not find Wwise Console executable."
 
     cliPath
@@ -62,7 +62,7 @@ let private fixHeader (path: string) =
     use file = File.Open(path, FileMode.Open, FileAccess.Write)
     let writer = LittleEndianBinaryWriter(file) :> IBinaryWriter
     file.Seek(40L, SeekOrigin.Begin) |> ignore
-    writer.WriteUInt32 3u
+    writer.WriteUInt32(3u)
 
 /// Copies the wem file from the template cache directory into the destination path.
 let private copyWemFile (destPath: string) (templateDir: string) =

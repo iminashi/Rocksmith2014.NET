@@ -30,7 +30,7 @@ let private getEncryptStream (output: Stream) =
 
 let private readHeader (stream: Stream) =
     let reader = LittleEndianBinaryReader(stream) :> IBinaryReader
-    let magic = reader.ReadBytes 4
+    let magic = reader.ReadBytes(4)
 
     if Encoding.ASCII.GetString magic <> "EVAS" then
         failwith "Profile magic check failed."
@@ -46,7 +46,7 @@ let decrypt (input: Stream) (output: Stream) = async {
     use decrypted = getDecryptStream input
     use unzipped = Compression.getInflateStream decrypted
 
-    do! unzipped.CopyToAsync output
+    do! unzipped.CopyToAsync(output)
 
     return header }
 
@@ -54,21 +54,21 @@ let decrypt (input: Stream) (output: Stream) = async {
 let private encryptProfileData (input: Stream) (output: Stream) = async {
     use eStream = getEncryptStream output
 
-    do! input.CopyToAsync eStream }
+    do! input.CopyToAsync(eStream) }
 
 /// Writes the profile data into the target file.
 let write (targetFile: string) (profileId: uint64) (jsonData: Stream) = async {
     // Write null-terminator
     jsonData.Seek(0L, SeekOrigin.End) |> ignore
-    jsonData.WriteByte 0uy
+    jsonData.WriteByte(0uy)
 
     use file = File.Create targetFile
 
     let writer = LittleEndianBinaryWriter(file) :> IBinaryWriter
-    writer.WriteBytes "EVAS"B
-    writer.WriteUInt32 1u
-    writer.WriteUInt64 profileId
-    writer.WriteUInt32 (uint32 jsonData.Length)
+    writer.WriteBytes("EVAS"B)
+    writer.WriteUInt32(1u)
+    writer.WriteUInt64(profileId)
+    writer.WriteUInt32(uint32 jsonData.Length)
 
     use zipped = MemoryStreamPool.Default.GetStream()
     jsonData.Position <- 0L
@@ -79,7 +79,7 @@ let write (targetFile: string) (profileId: uint64) (jsonData: Stream) = async {
 
 /// Reads a profile from the given path and returns the profile JToken and ID.
 let readAsJToken path = async {
-    use profileFile = File.OpenRead path
+    use profileFile = File.OpenRead(path)
     use mem = MemoryStreamPool.Default.GetStream()
     let! header = decrypt profileFile mem
 
@@ -87,7 +87,7 @@ let readAsJToken path = async {
     use textReader = new StreamReader(mem)
     use reader = new JsonTextReader(textReader)
 
-    return JToken.ReadFrom reader, header.ID }
+    return JToken.ReadFrom(reader), header.ID }
 
 /// Saves the profile data into the target path.
 let saveJToken targetPath id (json: JToken) = async {
@@ -103,7 +103,7 @@ let saveJToken targetPath id (json: JToken) = async {
             StringEscapeHandling = StringEscapeHandling.EscapeNonAscii
         )
 
-    json.WriteTo writer
+    json.WriteTo(writer)
     writer.Flush()
 
     do! write targetPath id jsonData }
@@ -129,10 +129,10 @@ let importTones (path: string) =
         while json.Read() && not (json.TokenType = JsonToken.StartArray && json.Path = "CustomTones") do ()
 
         if json.Path = "CustomTones" then
-            JsonSerializer().Deserialize<ToneDto array> json
+            JsonSerializer().Deserialize<ToneDto array>(json)
             |> Array.map Tone.fromDto
             |> Ok
         else
             Error NoTonesInProfile
     with ex ->
-        Error (Exception ex)
+        Error(Exception ex)

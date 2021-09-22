@@ -7,10 +7,10 @@ open System.Threading
 
 /// The note count for each hero level and the number of ignored notes in the hard level.
 type NoteCountsMutable() =
-    [<DefaultValue>] val mutable Easy : int
-    [<DefaultValue>] val mutable Medium : int
-    [<DefaultValue>] val mutable Hard : int
-    [<DefaultValue>] val mutable Ignored : int
+    [<DefaultValue>] val mutable Easy: int
+    [<DefaultValue>] val mutable Medium: int
+    [<DefaultValue>] val mutable Hard: int
+    [<DefaultValue>] val mutable Ignored: int
 
     member this.AsImmutable() =
         { Easy = this.Easy
@@ -20,13 +20,13 @@ type NoteCountsMutable() =
 
 /// Represents data that is being accumulated when mapping XML notes/chords into SNG notes.
 type AccuData =
-    { StringMasks : int8[][]
-      ChordNotes : ResizeArray<ChordNotes>
-      ChordNotesMap : Dictionary<ChordNotes, int>
-      AnchorExtensions : ResizeArray<AnchorExtension>[]
-      NotesInPhraseIterationsExclIgnored : int[][]
-      NotesInPhraseIterationsAll : int[][]
-      NoteCounts : NoteCountsMutable }
+    { StringMasks: int8[][]
+      ChordNotes: ResizeArray<ChordNotes>
+      ChordNotesMap: Dictionary<ChordNotes, int>
+      AnchorExtensions: ResizeArray<AnchorExtension>[]
+      NotesInPhraseIterationsExclIgnored: int[][]
+      NotesInPhraseIterationsAll: int[][]
+      NoteCounts: NoteCountsMutable }
 
     /// Increments the phrase iteration note count and hero level note counts.
     member this.AddNote(pi: int, difficulty: byte, heroLevels: XML.HeroLevels, ignored: bool) =

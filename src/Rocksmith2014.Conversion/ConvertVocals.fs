@@ -83,10 +83,10 @@ module ConvertVocals =
         let glyphs =
             match customFont with
             | Some fileName ->
-                CustomFont ((GlyphDefinitions.Load fileName), "placeholder.dds")
+                CustomFont((GlyphDefinitions.Load(fileName)), "placeholder.dds")
             | None ->
                 DefaultFont
 
-        Vocals.Load xmlFile
+        Vocals.Load(xmlFile)
         |> xmlToSng glyphs
         |> SNG.savePackedFile targetFile platform

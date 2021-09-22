@@ -10,7 +10,7 @@ let getLength (fileName: string) =
 ///
 /// Example: "some/path/file.ext" -> "some/path/file_preview.wav"
 let createPreviewAudioPath (sourcePath: string) =
-    let directory = Path.GetDirectoryName sourcePath
+    let directory = Path.GetDirectoryName(sourcePath)
 
     let fileName =
         $"{Path.GetFileNameWithoutExtension(sourcePath)}_preview.wav"

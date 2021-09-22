@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Common.Compression
+module Rocksmith2014.Common.Compression
 
 open System
 open System.IO
@@ -36,7 +36,7 @@ let blockZip blockSize (deflatedData: ResizeArray<Stream>) (zLengths: ResizeArra
     while input.Position < input.Length do
         let size = Math.Min(int (input.Length - input.Position), blockSize)
         let buffer = Array.zeroCreate<byte> size
-        let! bytesRead = input.AsyncRead buffer
+        let! bytesRead = input.AsyncRead(buffer)
         let plainStream = new MemoryStream(buffer)
         let zipStream = MemoryStreamPool.Default.GetStream("", size)
 
@@ -52,7 +52,8 @@ let blockZip blockSize (deflatedData: ResizeArray<Stream>) (zLengths: ResizeArra
                 zipStream.Dispose()
                 plainStream, bytesRead
 
-        deflatedData.Add data
+        deflatedData.Add(data)
         zLengths.Add(uint32 length)
         totalSize <- totalSize + int64 length
+
     return totalSize }

@@ -21,7 +21,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     let mutable blockSizeTable = blockSizeTable
 
     let buffer =
-        ArrayPool<byte>.Shared.Rent (int header.BlockSizeAlloc)
+        ArrayPool<byte>.Shared.Rent(int header.BlockSizeAlloc)
 
     let inflateEntry (entry: Entry) (output: Stream) = async {
         let blockSize = int header.BlockSizeAlloc
@@ -75,14 +75,14 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         manifest
         |> List.iteri (fun i name ->
             if i <> 0 then writer.WriteLine()
-            writer.Write name)
+            writer.Write(name))
 
         memory
 
     let getName (entry: Entry) = manifest.[entry.ID - 1]
 
     let addPlainData blockSize (deflatedData: ResizeArray<Stream>) (zLengths: ResizeArray<uint32>) (data: Stream) =
-        deflatedData.Add data
+        deflatedData.Add(data)
 
         if data.Length <= int64 blockSize then
             zLengths.Add(uint32 data.Length)
@@ -92,12 +92,13 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             let lastBlockSize = data.Length - int64 (blockCount * blockSize)
             zLengths.AddRange(Seq.replicate blockCount (uint32 blockSize))
             if lastBlockSize <> 0L then zLengths.Add(uint32 lastBlockSize)
+
         data.Length
 
     /// Deflates the data in the given named entries.
     let deflateEntries (entries: NamedEntry list) = async {
         // Add the manifest as the first entry
-        let entries = { Name = String.Empty; Data = createManifestData() } :: entries
+        let entries = { Name = String.Empty; Data = createManifestData () } :: entries
 
         let protoEntries = ResizeArray<Entry * int64>(entries.Length)
         let deflatedData = ResizeArray<Stream>()
@@ -134,7 +135,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             offset <- offset + uint64 size
             // Don't add the manifest to the ToC
             if i <> 0 then toc.Add entry
-            entry.Write tocWriter)
+            entry.Write(tocWriter))
 
         // Update and write the block sizes table
         blockSizeTable <-
@@ -154,7 +155,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         if encrypt then
             Cryptography.encrypt tocData source tocData.Length
         else
-            tocData.CopyTo source
+            tocData.CopyTo(source)
 
     let createNamedEntries mode = async {
         let getTargetStream =
@@ -246,7 +247,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         header.ToCLength <- uint (Header.Length + protoEntries.Length * int header.ToCEntrySize + blockTable.Length * zType)
         header.ToCEntryCount <- uint protoEntries.Length
         header.ArchiveFlags <- if options.EncryptTOC then 4u else 0u
-        header.Write writer
+        header.Write(writer)
 
         // Update and write TOC entries
         updateToc protoEntries blockTable zType options.EncryptTOC

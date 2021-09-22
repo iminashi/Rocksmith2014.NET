@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.PSARC.Cryptography
+module Rocksmith2014.PSARC.Cryptography
 
 open System
 open System.IO
@@ -16,7 +16,7 @@ let private psarcKey =
 
 /// AES CFB decryption utilizing SSE2 intrinsics.
 let private aesCfbDecryptSIMD (input: Stream) (output: Stream) (key: byte[]) length =
-    use aes = new AesManaged (Mode = CipherMode.ECB, Padding = PaddingMode.None)
+    use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.None)
     let blockSize = 16
     let iv = Array.zeroCreate<byte> 16
     let transform = aes.CreateEncryptor(key, iv)
@@ -33,8 +33,8 @@ let private aesCfbDecryptSIMD (input: Stream) (output: Stream) (key: byte[]) len
         let bytesRead = input.Read(buffer, 0, int toRead)
 
         if bytesRead = blockSize then
-            let v1 = Sse2.LoadVector128 bufPtr
-            let v2 = Sse2.LoadVector128 vecPtr
+            let v1 = Sse2.LoadVector128(bufPtr)
+            let v2 = Sse2.LoadVector128(vecPtr)
             Sse2.Store(vecPtr, Sse2.Xor(v1, v2))
             output.Write(vecBlock, 0, bytesRead)
         else
@@ -43,7 +43,7 @@ let private aesCfbDecryptSIMD (input: Stream) (output: Stream) (key: byte[]) len
 
 /// AES CFB decryption.
 let private aesCfbDecrypt (input: Stream) (output: Stream) (key: byte[]) length =
-    use aes = new AesManaged (Mode = CipherMode.ECB, Padding = PaddingMode.None)
+    use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.None)
     let blockSize = 16
     let iv = Array.zeroCreate<byte> 16
     let transform = aes.CreateEncryptor(key, iv)
@@ -62,7 +62,7 @@ let private aesCfbDecrypt (input: Stream) (output: Stream) (key: byte[]) length 
 
 /// AES CFB encryption utilizing SSE2 intrinsics.
 let private aesCfbEncryptSIMD (input: Stream) (output: Stream) (key: byte[]) length =
-    use aes = new AesManaged (Mode = CipherMode.ECB, Padding = PaddingMode.None)
+    use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.None)
     let blockSize = 16
     let iv = Array.zeroCreate<byte> 16
     let transform = aes.CreateEncryptor(key, iv)
@@ -79,8 +79,8 @@ let private aesCfbEncryptSIMD (input: Stream) (output: Stream) (key: byte[]) len
         let bytesRead = input.Read(buffer, 0, int toRead)
 
         if bytesRead = blockSize then
-            let v1 = Sse2.LoadVector128 bufPtr
-            let v2 = Sse2.LoadVector128 vecPtr
+            let v1 = Sse2.LoadVector128(bufPtr)
+            let v2 = Sse2.LoadVector128(vecPtr)
             Sse2.Store(bufPtr, Sse2.Xor(v1, v2))
             output.Write(buffer, 0, bytesRead)
         else
@@ -90,7 +90,7 @@ let private aesCfbEncryptSIMD (input: Stream) (output: Stream) (key: byte[]) len
 
 /// AES CFB encryption.
 let private aesCfbEncrypt (input: Stream) (output: Stream) (key: byte[]) length =
-    use aes = new AesManaged (Mode = CipherMode.ECB, Padding = PaddingMode.None)
+    use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.None)
     let blockSize = 16
     let iv = Array.zeroCreate<byte> 16
     let transform = aes.CreateEncryptor(key, iv)
@@ -127,7 +127,7 @@ let encrypt (input: Stream) (output: Stream) length =
 
 /// Calculates an MD5 hash for the given string.
 let md5Hash (name: string) =
-    if String.IsNullOrEmpty name then
+    if String.IsNullOrEmpty(name) then
         Array.zeroCreate<byte> 16
     else
-        using (new MD5CryptoServiceProvider()) (fun md5 -> md5.ComputeHash(Encoding.ASCII.GetBytes name))
+        using (new MD5CryptoServiceProvider()) (fun md5 -> md5.ComputeHash(Encoding.ASCII.GetBytes(name)))

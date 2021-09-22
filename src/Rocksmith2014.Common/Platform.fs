@@ -21,6 +21,6 @@ module Platform =
 
     /// Attempts to detect the platform from a package filename.
     let fromPackageFileName (filePath: string) =
-        match System.IO.Path.GetFileNameWithoutExtension filePath with
+        match System.IO.Path.GetFileNameWithoutExtension(filePath) with
         | EndsWith "_m" -> Mac
         | _ -> PC

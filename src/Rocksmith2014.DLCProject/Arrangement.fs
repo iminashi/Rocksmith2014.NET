@@ -137,7 +137,7 @@ module Arrangement =
 
             match rootName with
             | "song" ->
-                let metadata = MetaData.Read fileName
+                let metadata = MetaData.Read(fileName)
                 let arrProp = metadata.ArrangementProperties
                 let toneInfo = InstrumentalArrangement.ReadToneNames(fileName)
 
@@ -182,7 +182,7 @@ module Arrangement =
                         else
                             ArrangementPriority.Alternative
                       Tuning = metadata.Tuning.Strings
-                      TuningPitch = Utils.centsToTuningPitch(float metadata.CentOffset)
+                      TuningPitch = Utils.centsToTuningPitch (float metadata.CentOffset)
                       RouteMask = routeMask
                       ScrollSpeed = 1.3
                       BaseTone = baseTone

@@ -22,6 +22,7 @@ let private increment (arr: byte[]) =
         arr.[index] <- arr.[index] + 1uy
         if arr.[index] = 0uy && index <> 0 then
             inc (index - 1)
+
     inc (arr.Length - 1)
 
 // Disable unsafe code warning
@@ -31,7 +32,7 @@ let private increment (arr: byte[]) =
 
 /// AES CTR encryption utilizing SSE2 intrinsics. Slightly faster than the non SIMD version.
 let private aesCtrTransformSIMD (input: Stream) (output: Stream) (key: byte[]) (iv: byte[]) =
-    use aes = new AesManaged (Mode = CipherMode.ECB, Padding = PaddingMode.None)
+    use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.None)
     let blockSize = 16
     let counterEncryptor = aes.CreateEncryptor(key, null)
 
@@ -47,8 +48,8 @@ let private aesCtrTransformSIMD (input: Stream) (output: Stream) (key: byte[]) (
 
         let bytesRead = input.Read(buffer, 0, blockSize)
         if bytesRead = blockSize then
-            let v1 = Sse2.LoadVector128 bufPtr
-            let v2 = Sse2.LoadVector128 ctrPtr
+            let v1 = Sse2.LoadVector128(bufPtr)
+            let v2 = Sse2.LoadVector128(ctrPtr)
             Sse2.Store(bufPtr, Sse2.Xor(v1, v2))
             output.Write(buffer, 0, bytesRead)
         else
@@ -57,7 +58,7 @@ let private aesCtrTransformSIMD (input: Stream) (output: Stream) (key: byte[]) (
 
 /// Based on https://stackoverflow.com/a/51188472
 let private aesCtrTransform (input: Stream) (output: Stream) (key: byte[]) (iv: byte[]) =
-    use aes = new AesManaged (Mode = CipherMode.ECB, Padding = PaddingMode.None)
+    use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.None)
     let blockSize = 16
     let ctr = Array.copy iv
     let counterEncryptor = aes.CreateEncryptor(key, null)

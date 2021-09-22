@@ -8,15 +8,17 @@ open System.IO
 [<RequireQualifiedAccess>]
 module Async =
     /// Maps the result of an asynchronous computation.
-    let map f (task: Async<_>) = async {
-        let! x = task
-        return f x }
+    let map f (task: Async<_>) =
+        async {
+            let! x = task
+            return f x
+        }
 
 [<RequireQualifiedAccess>]
 module File =
     /// Calls the map function if the file with the given path exists.
     let tryMap f path =
-        if File.Exists path then
+        if File.Exists(path) then
             Some(f path)
         else
             None
@@ -25,7 +27,7 @@ module File =
 module Dictionary =
     /// Maps the result of IReadOnlyDictionary.TryGetValue into an option.
     let tryGetValue key (dict: IReadOnlyDictionary<_, _>) =
-        match dict.TryGetValue key with
+        match dict.TryGetValue(key) with
         | true, value ->
             Some value
         | false, _ ->
@@ -35,7 +37,7 @@ module Dictionary =
 module Option =
     /// Creates an option from a string, where a null or whitespace string equals None.
     let ofString s =
-        if String.IsNullOrWhiteSpace s then
+        if String.IsNullOrWhiteSpace(s) then
             None
         else
             Some s

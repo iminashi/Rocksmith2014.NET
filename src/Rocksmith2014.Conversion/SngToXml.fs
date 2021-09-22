@@ -140,19 +140,21 @@ let convertNote (sngNote: Note) =
         sngNote.BendData
         |> mapToResizeArray convertBendValue
 
-    XML.Note(Mask = mask,
-             Time = secToMs sngNote.Time,
-             String = sngNote.StringIndex,
-             Fret = sngNote.Fret,
-             Sustain = secToMs sngNote.Sustain,
-             Vibrato = byte sngNote.Vibrato,
-             SlideTo = sngNote.SlideTo,
-             SlideUnpitchTo = sngNote.SlideUnpitchTo,
-             LeftHand = sngNote.LeftHand,
-             MaxBend = sngNote.MaxBend,
-             BendValues = bendValues,
-             // Default value used for tap in XML is 0, in SNG it is -1
-             Tap = max 0y sngNote.Tap)
+    XML.Note(
+        Mask = mask,
+        Time = secToMs sngNote.Time,
+        String = sngNote.StringIndex,
+        Fret = sngNote.Fret,
+        Sustain = secToMs sngNote.Sustain,
+        Vibrato = byte sngNote.Vibrato,
+        SlideTo = sngNote.SlideTo,
+        SlideUnpitchTo = sngNote.SlideUnpitchTo,
+        LeftHand = sngNote.LeftHand,
+        MaxBend = sngNote.MaxBend,
+        BendValues = bendValues,
+        // Default value used for tap in XML is 0, in SNG it is -1
+        Tap = max 0y sngNote.Tap
+    )
 
 /// Converts an SNG NoteMask into an XML ChordMask.
 let convertChordMask (sngMask: NoteMask) =
@@ -190,21 +192,24 @@ let private createChordNotes (sng: SNG) (chord: Note) =
 
     for i = 0 to 5 do
         if template.Frets.[i] <> -1y then
-            let cn = XML.Note(
-                        Time = secToMs chord.Time,
-                        Fret = template.Frets.[i],
-                        LeftHand = template.Fingers.[i],
-                        String = sbyte i,
-                        Sustain = secToMs chord.Sustain)
+            let cn =
+                XML.Note(
+                    Time = secToMs chord.Time,
+                    Fret = template.Frets.[i],
+                    LeftHand = template.Fingers.[i],
+                    String = sbyte i,
+                    Sustain = secToMs chord.Sustain
+                )
 
-            chordNotes |> ValueOption.iter(fun chordNotes ->
+            chordNotes
+            |> ValueOption.iter(fun chordNotes ->
                 cn.Mask <- convertNoteMask chordNotes.Mask.[i]
                 cn.SlideTo <- chordNotes.SlideTo.[i]
                 cn.SlideUnpitchTo <- chordNotes.SlideUnpitchTo.[i]
                 cn.Vibrato <- byte chordNotes.Vibrato.[i]
                 cn.BendValues <- convertBendData32 chordNotes.BendData.[i])
 
-            xmlNotes.Add cn
+            xmlNotes.Add(cn)
             
     xmlNotes
 
