@@ -3,9 +3,9 @@
 // Fix: Unsupported log file format. Latest supported version is 9, the log file has version 13.
 #r "nuget: MSBuild.StructuredLogger"
 
-open System
 open Fake.DotNet
 open Fake.IO.Globbing.Operators
+open System
 
 let runtime =
     if OperatingSystem.IsMacOS() then
@@ -17,8 +17,8 @@ let runtime =
 
 let runTest (projectPath: string) =
     let rid =
-        if projectPath.EndsWith "Audio.Tests.fsproj" ||
-           projectPath.EndsWith "DLCProject.Tests.fsproj"
+        if projectPath.EndsWith("Audio.Tests.fsproj") ||
+           projectPath.EndsWith("DLCProject.Tests.fsproj")
         then
             $" --runtime {runtime}"
         else

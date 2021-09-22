@@ -2,7 +2,7 @@
 
 open Publish
 
-cleanPublishDirectory()
+cleanPublishDirectory ()
 publishBuilder Linux
 createZipArchive Linux
 |> addFileToRelease

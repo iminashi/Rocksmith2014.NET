@@ -31,7 +31,7 @@ let createAppBundle buildDir =
     |> String.replace "%VERSION%" release.NugetVersion
     |> File.writeString false (contentsDir </> "Info.plist")
 
-cleanPublishDirectory()
+cleanPublishDirectory ()
 publishBuilder MacOS
 |> createAppBundle
 createZipArchive MacOS

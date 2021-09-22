@@ -27,7 +27,7 @@ let createInstaller buildDir =
     Directory.EnumerateFiles(installerDir, "*.exe")
     |> Seq.head
 
-cleanPublishDirectory()
+cleanPublishDirectory ()
 publishBuilder Windows
 |> createInstaller
 |> createGitHubRelease

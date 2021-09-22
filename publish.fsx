@@ -103,12 +103,13 @@ let createZipArchive platform =
 
     targetFile
 
-let createGitHubRelease file =
-    let token =
-        match Environment.GetEnvironmentVariable("github_token") with
-        | null -> failwith "github_token environment variable is not set."
-        | s -> s
+let getGitHubToken () =
+    match Environment.GetEnvironmentVariable("github_token") with
+    | null -> failwith "github_token environment variable is not set."
+    | s -> s
 
+let createGitHubRelease file =
+    let token = getGitHubToken ()
     let tagName = $"v{release.NugetVersion}"
 
     let setParams (p: GitHub.CreateReleaseParams) =
@@ -124,11 +125,7 @@ let createGitHubRelease file =
     |> Async.RunSynchronously
 
 let addFileToRelease file =
-    let token =
-        match Environment.GetEnvironmentVariable("github_token") with
-        | null -> failwith "github_token environment variable is not set."
-        | s -> s
-
+    let token = getGitHubToken ()
     let tagName = $"v{release.NugetVersion}"
 
     GitHub.createClientWithToken token
