@@ -1,8 +1,8 @@
-open System
-open System.IO
-open Rocksmith2014.PSARC
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
+open Rocksmith2014.PSARC
+open System
+open System.IO
 
 /// Serializes the manifest data into a memory stream.
 let makeManifestData manifest = async {

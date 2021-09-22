@@ -1,9 +1,9 @@
-open System
-open System.IO
+open Newtonsoft.Json.Linq
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.PSARC
-open Newtonsoft.Json.Linq
+open System
+open System.IO
 
 let readFromAppDir file =
     File.ReadLines(Path.Combine(AppContext.BaseDirectory, file))
@@ -15,10 +15,14 @@ let readOnDiscIdsAndKeys () =
 
 /// Reads the IDs and keys from a PSARC with the given path.
 let readIDs path = async {
-    use psarc = PSARC.ReadFile path
-    let headerFile = psarc.Manifest |> List.find (String.endsWith "hsan")
-    use! stream = psarc.GetEntryStream headerFile
-    let! manifest = Manifest.fromJsonStream stream
+    use psarc = PSARC.ReadFile(path)
+
+    use! headerStream =
+        psarc.Manifest
+        |> List.find (String.endsWith "hsan")
+        |> psarc.GetEntryStream
+
+    let! manifest = Manifest.fromJsonStream headerStream
 
     let ids, songKeys =
         manifest.Entries
@@ -43,14 +47,17 @@ let gatherDLCData verbose (directory: string) = async {
             Directory.EnumerateFiles(directory, "*.psarc", SearchOption.AllDirectories)
             |> Seq.filter (fun x -> not <| (x.Contains("inlay") || x.Contains("rs1compatibility")))
             |> Seq.toArray
-        files
-        |> Array.mapi (fun i path-> async {
-            if verbose then
-                printfn "Reading IDs from %s" (Path.GetRelativePath(directory, path))
-            else
-                printProgress (i + 1) files.Length
 
-            return! readIDs path })
+        files
+        |> Array.mapi (fun i path ->
+            async {
+                if verbose then
+                    printfn "Reading IDs from %s" (Path.GetRelativePath(directory, path))
+                else
+                    printProgress (i + 1) files.Length
+
+                return! readIDs path
+            })
         |> Async.Sequential
 
     let ids, keys =

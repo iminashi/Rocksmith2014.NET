@@ -82,7 +82,7 @@ let private loadGearData () = async {
     return! JsonSerializer.DeserializeAsync<GearData[]>(gearDataFile, options) }
 
 let loadRepository () = async {
-    let! allGear = loadGearData()
+    let! allGear = loadGearData ()
 
     let filterSort type' sortBy =
         allGear

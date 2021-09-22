@@ -27,8 +27,9 @@ type WindowStatus =
 
     static member TryLoad() =
         try
-            if File.Exists WindowStatus.SavePath then
-                File.ReadAllText WindowStatus.SavePath
+            if File.Exists(WindowStatus.SavePath) then
+                WindowStatus.SavePath
+                |> File.ReadAllText
                 |> JsonSerializer.Deserialize<WindowStatus>
                 |> Some
             else
@@ -218,6 +219,6 @@ type MainWindow(commandLineArgs: string array) as this =
         |> Program.withSubscription idRegenerationConfirmationSub
         |> Program.withSubscription programClosingSub
         #if DEBUG
-        |> Program.withTrace (fun msg _state -> Diagnostics.Debug.WriteLine msg)
+        |> Program.withTrace (fun msg _state -> Diagnostics.Debug.WriteLine(msg))
         #endif
         |> Program.runWith commandLineArgs

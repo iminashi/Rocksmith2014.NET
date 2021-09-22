@@ -4,9 +4,8 @@ open Avalonia
 open System
 open System.IO
 
-[<EntryPoint; STAThread>]
-let main(args: string[]) =
-    // Set up logging for unhandled exceptions
+/// Sets up logging for unhandled exceptions.
+let setupCrashLogging () =
     AppDomain.CurrentDomain.UnhandledException.Add <| fun args ->
         let logMessage =
             match args.ExceptionObject with
@@ -21,7 +20,12 @@ let main(args: string[]) =
                     baseInfo
             | unknown ->
                 $"Unknown exception object: {unknown}"
+
         File.WriteAllText(Configuration.crashLogPath, logMessage)
+
+[<EntryPoint; STAThread>]
+let main(args: string[]) =
+    setupCrashLogging ()
 
     AppBuilder
         .Configure<App>()

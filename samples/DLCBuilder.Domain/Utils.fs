@@ -23,7 +23,8 @@ let createExceptionInfoString (ex: exn) =
 
 /// Imports tones from a PSARC file.
 let importTonesFromPSARC (psarcPath: string) = async {
-    use psarc = PSARC.ReadFile psarcPath
+    use psarc = PSARC.ReadFile(psarcPath)
+
     let! jsons =
         psarc.Manifest
         |> Seq.filter (String.endsWith "json")
@@ -62,13 +63,13 @@ let previewPathFromMainAudio (audioPath: string) =
 let checkArrangement arrangement =
     match arrangement with
     | Instrumental inst ->
-        InstrumentalArrangement.Load inst.XML
+        InstrumentalArrangement.Load(inst.XML)
         |> ArrangementChecker.checkInstrumental
     | Vocals { CustomFont = font; XML = xml } ->
-        Vocals.Load xml
+        Vocals.Load(xml)
         |> ArrangementChecker.checkVocals font.IsSome
     | Showlights sl ->
-        ShowLights.Load sl.XML
+        ShowLights.Load(sl.XML)
         |> ArrangementChecker.checkShowlights
         |> Option.toList
 

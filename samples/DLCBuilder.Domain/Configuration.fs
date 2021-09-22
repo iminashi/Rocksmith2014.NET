@@ -179,7 +179,7 @@ module Configuration =
 
     /// Loads a configuration from the file defined in configFilePath.
     let load (t: IStringLocalizer) = async {
-        if not <| File.Exists configFilePath then
+        if not <| File.Exists(configFilePath) then
             return Configuration.Default
         else
             try

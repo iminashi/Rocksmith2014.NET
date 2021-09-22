@@ -24,7 +24,7 @@ let execute (connection: SQLiteConnection) sql =
 
 let databaseFilename = "official.db"
 
-let createDataBase () = SQLiteConnection.CreateFile databaseFilename
+let createDataBase () = SQLiteConnection.CreateFile(databaseFilename)
 
 let getUniqueTones (psarc: PSARC) = async {
     let! jsons =

@@ -43,6 +43,7 @@ module ToneInjector =
                         return! Utils.importTonesFromPSARC path
                     | _ ->
                         return Array.empty })
+
             Async.Parallel(tasks, Environment.ProcessorCount)
             |> Async.map Array.concat
 
