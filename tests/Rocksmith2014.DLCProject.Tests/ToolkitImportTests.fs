@@ -1,13 +1,13 @@
-﻿module ToolkitImportTests
+module ToolkitImportTests
 
 open Expecto
 open Rocksmith2014.DLCProject
-open System.IO
 open System
+open System.IO
 
 let toPath =
-    let templatePath = Path.GetFullPath "toolkit-old.dlc.xml"
-    let templateDir = Path.GetDirectoryName templatePath
+    let templatePath = Path.GetFullPath("toolkit-old.dlc.xml")
+    let templateDir = Path.GetDirectoryName(templatePath)
 
     fun fileName -> Path.Combine(templateDir, fileName)
 
@@ -15,7 +15,7 @@ let toPath =
 let tests =
     testList "Toolkit Template Import Tests" [
         test "Old template can be imported" {
-            let templatePath = Path.GetFullPath "toolkit-old.dlc.xml"
+            let templatePath = Path.GetFullPath("toolkit-old.dlc.xml")
 
             let project = ToolkitImporter.import templatePath
             
@@ -38,7 +38,7 @@ let tests =
         }
 
         test "New template can be imported" {
-            let templatePath = Path.GetFullPath "toolkit-new.dlc.xml"
+            let templatePath = Path.GetFullPath("toolkit-new.dlc.xml")
 
             let project = ToolkitImporter.import templatePath
 

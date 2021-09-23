@@ -6,12 +6,35 @@ open Rocksmith2014.XML.Processing.Types
 open Rocksmith2014.XML.Processing.InstrumentalChecker
 open Rocksmith2014.XML.Processing
 
-let toneChanges = ResizeArray(seq { ToneChange("test", 5555, 1uy) })
-let sections = ResizeArray(seq { Section("noguitar", 6000, 1s); Section("riff", 6500, 1s); Section("noguitar", 8000, 2s) })
-let phrases = ResizeArray(seq { Phrase("mover6.700", 0uy, PhraseMask.None) })
-let phraseIterations = ResizeArray(seq { PhraseIteration(6500, 0) })
-let chordTemplates = ResizeArray(seq { ChordTemplate("", "", [| 2y; 2y; -1y; -1y; -1y; -1y |], [| 2y; 2y; -1y; -1y; -1y; -1y |]) })
-let testArr = InstrumentalArrangement(Sections = sections, ChordTemplates = chordTemplates, Phrases = phrases, PhraseIterations = phraseIterations)
+let toneChanges =
+    ResizeArray(seq { ToneChange("test", 5555, 1uy) })
+
+let sections =
+    ResizeArray(
+        seq {
+            Section("noguitar", 6000, 1s)
+            Section("riff", 6500, 1s)
+            Section("noguitar", 8000, 2s)
+        }
+    )
+
+let phrases =
+    ResizeArray(seq { Phrase("mover6.700", 0uy, PhraseMask.None) })
+
+let phraseIterations =
+    ResizeArray(seq { PhraseIteration(6500, 0) })
+
+let chordTemplates =
+    ResizeArray(seq { ChordTemplate("", "", [| 2y; 2y; -1y; -1y; -1y; -1y |], [| 2y; 2y; -1y; -1y; -1y; -1y |]) })
+
+let testArr =
+    InstrumentalArrangement(
+        Sections = sections,
+        ChordTemplates = chordTemplates,
+        Phrases = phrases,
+        PhraseIterations = phraseIterations
+    )
+
 testArr.Tones.Changes <- toneChanges
 testArr.MetaData.SongLength <- 10000
 

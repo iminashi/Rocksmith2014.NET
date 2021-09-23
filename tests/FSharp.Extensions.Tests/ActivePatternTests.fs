@@ -13,7 +13,8 @@ let tests =
                 | Contains "string" -> true
                 | _ -> false
 
-            Expect.isTrue result "Contains matched to true" }
+            Expect.isTrue result "Contains matched to true"
+        }
 
         test "Contains can fail to match" {
             let result =
@@ -21,7 +22,8 @@ let tests =
                 | Contains "xyz" -> true
                 | _ -> false
 
-            Expect.isFalse result "Contains matched to false" }
+            Expect.isFalse result "Contains matched to false"
+        }
 
         test "EndsWith ignores case" {
             let result =
@@ -29,7 +31,8 @@ let tests =
                 | EndsWith "string" -> true
                 | _ -> false
 
-            Expect.isTrue result "EndsWith matched to true" }
+            Expect.isTrue result "EndsWith matched to true"
+        }
 
         test "EndsWith can fail to match" {
             let result =
@@ -37,7 +40,8 @@ let tests =
                 | EndsWith "xyz" -> true
                 | _ -> false
 
-            Expect.isFalse result "EndsWith matched to false" }
+            Expect.isFalse result "EndsWith matched to false"
+        }
 
         test "StartsWith ignores case" {
             let result =
@@ -45,7 +49,8 @@ let tests =
                 | StartsWith "some" -> true
                 | _ -> false
 
-            Expect.isTrue result "StartsWith matched to true" }
+            Expect.isTrue result "StartsWith matched to true"
+        }
 
         test "StartsWith can fail to match" {
             let result =
@@ -53,5 +58,6 @@ let tests =
                 | StartsWith "xyz" -> true
                 | _ -> false
 
-            Expect.isFalse result "StartsWith matched to false" }
+            Expect.isFalse result "StartsWith matched to false"
+        }
     ]

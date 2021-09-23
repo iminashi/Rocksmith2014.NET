@@ -2,14 +2,14 @@ module WwiseTests
 
 open Expecto
 open Rocksmith2014.Audio
-open System.IO
 open System
+open System.IO
 
 let actualCliPath =
     // Skip the conversion tests if running in CI
     if Environment.GetEnvironmentVariable("CI") <> "true" then
         try
-            Some <| Wwise.getCLIPath()
+            Some <| Wwise.getCLIPath ()
         with _ ->
             None
     else
@@ -17,7 +17,7 @@ let actualCliPath =
 
 let testConversion testFile = async {
     let wemPath = Path.ChangeExtension(testFile, "wem")
-    if File.Exists wemPath then File.Delete wemPath
+    if File.Exists(wemPath) then File.Delete(wemPath)
 
     do! Wwise.convertToWem actualCliPath testFile
     let info = FileInfo(wemPath)
@@ -43,7 +43,7 @@ let wwiseDetectionTests =
             let expectedPath = Path.Combine(dummyWwiseDir, "Authoring", "x64", "Release", "bin", "WwiseConsole.exe")
             Environment.SetEnvironmentVariable("WWISEROOT", dummyWwiseDir)
 
-            let cliPath = WwiseFinder.findWindows()
+            let cliPath = WwiseFinder.findWindows ()
 
             Expect.equal cliPath expectedPath "WWISEROOT environment variable was used"
         }

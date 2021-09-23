@@ -439,8 +439,8 @@ let basicFixTests =
     ]
 
 [<Tests>]
-let integrationTests =
-    testList "Arrangement Improver Integration Tests" [
+let applyAllTests =
+    testList "Arrangement Improver (Apply All Fixes)" [
         testCase "Extra anchors are not created when moving phrases" <| fun _ ->
             let beats = ResizeArray(seq { Ebeat(900, 0s); Ebeat(1000, -1s); Ebeat(1200, -1s) })
             let phrases = ResizeArray(seq { Phrase("mover2", 0uy, PhraseMask.None); Phrase("END", 0uy, PhraseMask.None) })

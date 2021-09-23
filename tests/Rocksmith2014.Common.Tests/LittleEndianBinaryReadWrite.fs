@@ -1,11 +1,11 @@
-﻿module LittleEndianBinaryReadWrite
+module LittleEndianBinaryReadWrite
 
 open Expecto
 open FsCheck
-open System.IO
 open Rocksmith2014.Common
-open Rocksmith2014.Common.BinaryWriters
 open Rocksmith2014.Common.BinaryReaders
+open Rocksmith2014.Common.BinaryWriters
+open System.IO
 open Generators
 
 let writer (s: Stream) = LittleEndianBinaryWriter(s) :> IBinaryWriter

@@ -1,10 +1,10 @@
 module EditInstrumentalTests
 
-open Expecto
 open DLCBuilder
+open Elmish
+open Expecto
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
-open Elmish
 open System
 
 let lead =
@@ -35,10 +35,12 @@ let tests =
             Expect.equal newState initialState "State was not changed"            
 
         testCase "SetRouteMask, SetPriority, SetBassPicked, SetScrollSpeed" <| fun _ ->
-            let messages = [ SetRouteMask RouteMask.Bass
-                             SetPriority ArrangementPriority.Bonus
-                             SetBassPicked true
-                             SetScrollSpeed 2.0 ] |> List.map EditInstrumental
+            let messages =
+                [ SetRouteMask RouteMask.Bass
+                  SetPriority ArrangementPriority.Bonus
+                  SetBassPicked true
+                  SetScrollSpeed 2.0 ]
+                |> List.map EditInstrumental
 
             let newState, _ =
                 messages
@@ -55,10 +57,12 @@ let tests =
                 failwith "fail"
 
         testCase "SetArrangementName, SetTuning, SetTuningPitch, SetBaseTone" <| fun _ ->
-            let messages = [ SetArrangementName ArrangementName.Bass
-                             SetTuning (4, -2s)
-                             SetTuningPitch 358.
-                             SetBaseTone "new_tone" ] |> List.map EditInstrumental
+            let messages =
+                [ SetArrangementName ArrangementName.Bass
+                  SetTuning(4, -2s)
+                  SetTuningPitch 358.
+                  SetBaseTone "new_tone" ]
+                |> List.map EditInstrumental
 
             let newState, _ =
                 messages
@@ -76,10 +80,12 @@ let tests =
 
         testCase "SetMasterId, SetPersistentId, SetCustomAudioPath, SetCustomAudioVolume" <| fun _ ->
             let id = Guid.NewGuid()
-            let messages = [ SetMasterId 55555
-                             SetPersistentId id
-                             SetCustomAudioPath (Some "custom/audio")
-                             SetCustomAudioVolume -10. ] |> List.map EditInstrumental
+            let messages =
+                [ SetMasterId 55555
+                  SetPersistentId id
+                  SetCustomAudioPath(Some "custom/audio")
+                  SetCustomAudioVolume -10. ]
+                |> List.map EditInstrumental
 
             let newState, _ =
                 messages

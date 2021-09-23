@@ -1,4 +1,4 @@
-﻿module PsarcImportTests
+module PsarcImportTests
 
 open Expecto
 open Rocksmith2014.DLCProject
@@ -12,7 +12,7 @@ let expectedArrangements = [ "bass"; "lead"; "vocals"; "jvocals"; "showlights" ]
 let expectedTones = [ "bass"; "guitar" ]
 
 let testProject project path =
-    Expect.isTrue (File.Exists path) "Project file exists"
+    Expect.isTrue (File.Exists(path)) "Project file exists"
     Expect.equal project.DLCKey "IntegrationTest" "DLC key is correct"
     Expect.equal project.ArtistName.Value "Integration" "Artist name is correct"
     Expect.equal project.Title.Value "The Test" "Title is correct"
@@ -38,7 +38,7 @@ let testProject project path =
             ())
 
 let testFiles importPath =
-    let exists fileName = File.Exists (Path.Combine(importPath, fileName))
+    let exists fileName = File.Exists(Path.Combine(importPath, fileName))
     expectedArrangements
     |> List.iter (fun arr ->
         let file = $"arr_{arr}.xml"
@@ -54,14 +54,15 @@ let testFiles importPath =
 let pcTests =
     testSequenced <| testList "PC PSARC Import Tests" [
         testAsync "PSARC can be imported" {
-            if Directory.Exists PCImportDir then Directory.Delete(PCImportDir, true)
+            if Directory.Exists(PCImportDir) then Directory.Delete(PCImportDir, true)
             Directory.CreateDirectory(PCImportDir) |> ignore
 
             let! project, path = PsarcImporter.import ignore "./psarc/test_p.psarc" PCImportDir
 
             Expect.equal project.JapaneseArtistName (Some "アーティスト") "Japanese artist name is correct"
             Expect.equal project.JapaneseTitle (Some "曲名") "Japanese title is correct"
-            testProject project path }
+            testProject project path
+        }
 
         testCase "Project files were created" <| fun _ ->
             testFiles PCImportDir
@@ -71,14 +72,15 @@ let pcTests =
 let macTests =
     testSequenced <| testList "Mac PSARC Import Tests" [
         testAsync "PSARC can be imported" {
-            if Directory.Exists MacImportDir then Directory.Delete(MacImportDir, true)
+            if Directory.Exists(MacImportDir) then Directory.Delete(MacImportDir, true)
             Directory.CreateDirectory(MacImportDir) |> ignore
 
             let! project, path = PsarcImporter.import ignore "./psarc/test_m.psarc" MacImportDir
 
             Expect.isNone project.JapaneseArtistName "Japanese artist name is not set"
             Expect.isNone project.JapaneseTitle "Japanese title is not set"
-            testProject project path }
+            testProject project path
+        }
 
         testCase "Project files were created" <| fun _ ->
             testFiles MacImportDir

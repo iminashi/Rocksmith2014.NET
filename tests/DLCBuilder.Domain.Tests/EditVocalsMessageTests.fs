@@ -1,10 +1,10 @@
 module EditVocalsMessageTests
 
+open Elmish
 open Expecto
 open DLCBuilder
 open Rocksmith2014.DLCProject
 open System
-open Elmish
 
 let vocals =
     { XML = ""
@@ -26,8 +26,10 @@ let editVocalsTests =
             Expect.equal newState initialState "State was not changed"
 
         testCase "SetIsJapanese, SetCustomFont" <| fun _ ->
-            let messages = [ SetIsJapanese true
-                             SetCustomFont (Some "font") ] |> List.map EditVocals
+            let messages =
+                [ SetIsJapanese true
+                  SetCustomFont(Some "font") ]
+                |> List.map EditVocals
 
             let newState, _ =
                 messages

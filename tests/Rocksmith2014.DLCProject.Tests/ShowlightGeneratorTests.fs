@@ -1,12 +1,12 @@
-﻿module ShowlightGeneratorTests
+module ShowlightGeneratorTests
 
 open Expecto
-open System
 open Rocksmith2014.Common
-open Rocksmith2014.SNG
-open Rocksmith2014.DLCProject
-open Rocksmith2014.XML
 open Rocksmith2014.Conversion
+open Rocksmith2014.DLCProject
+open Rocksmith2014.SNG
+open Rocksmith2014.XML
+open System
 
 let testLead =
     { XML = "instrumental.xml"
@@ -33,11 +33,13 @@ let showlightGeneratorTests =
     testList "Showlight Generator Tests" [
         test "Fog and beam notes are generated" {
             Expect.exists showlights (fun x -> (x.Note >= ShowLight.BeamMin && x.Note <= ShowLight.BeamMax) || x.Note = ShowLight.BeamOff) "Beam note exists."
-            Expect.exists showlights (fun x -> x.Note >= ShowLight.FogMin && x.Note <= ShowLight.FogMax) "Fog note exists." }
+            Expect.exists showlights (fun x -> x.Note >= ShowLight.FogMin && x.Note <= ShowLight.FogMax) "Fog note exists."
+        }
         
         test "Laser light notes are generated" {
             Expect.exists showlights (fun x -> x.Note = ShowLight.LasersOn) "Lasers on note exists."
-            Expect.exists showlights (fun x -> x.Note = ShowLight.LasersOff) "Lasers off note exists." }
+            Expect.exists showlights (fun x -> x.Note = ShowLight.LasersOff) "Lasers off note exists."
+        }
 
         test "Duplicate fog notes are not generated" {
             let sections = ResizeArray(seq {
@@ -57,6 +59,5 @@ let showlightGeneratorTests =
             let distinct = showlights |> List.distinctBy (fun s -> s.Time, s.Note)
 
             Expect.equal showlights.Length distinct.Length "No duplicates were created"
-            
-         }
+        }
     ]

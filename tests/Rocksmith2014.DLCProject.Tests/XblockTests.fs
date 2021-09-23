@@ -1,4 +1,4 @@
-﻿module XblockTests
+module XblockTests
 
 open Expecto
 open Rocksmith2014.Common
@@ -21,7 +21,8 @@ let xblockTests =
         test "Can be created" {
             let x = create PC project
 
-            Expect.isNonEmpty x.EntitySet "Entity set has been populated" }
+            Expect.isNonEmpty x.EntitySet "Entity set has been populated"
+        }
 
         test "Entity set contents is correct" {
             let x = create PC project
@@ -46,15 +47,18 @@ let xblockTests =
             Expect.equal entitySet.[2].Name "SomeTest_Vocals" "Vocals entity name is correct"
             Expect.exists entitySet.[2].Properties (propertyEqual "Manifest" "urn:database:json-db:sometest_vocals") "Vocals entity manifest property is correct"
             Expect.exists entitySet.[2].Properties (propertyEqual "SngAsset" "urn:application:musicgame-song:sometest_vocals") "Vocals entity SNG asset property is correct"
-            Expect.exists entitySet.[2].Properties (propertyEqual "LyricArt" "") "Vocals entity lyric art property is empty" }
+            Expect.exists entitySet.[2].Properties (propertyEqual "LyricArt" "") "Vocals entity lyric art property is empty"
+        }
 
         test "Custom audio entity is correct" {
             let testArr = { testLead with CustomAudio = Some { Path = "Test.wem"; Volume = 0. } }
             let project = { project with Arrangements = [ Instrumental testArr ] }
+
             let x = create PC project
             let entitySet = x.EntitySet
 
-            Expect.all entitySet (hasProperty "SoundBank" "urn:audio:wwise-sound-bank:song_sometest_lead") "Contains sound bank property with correct URN" }
+            Expect.all entitySet (hasProperty "SoundBank" "urn:audio:wwise-sound-bank:song_sometest_lead") "Contains sound bank property with correct URN"
+        }
 
         test "Can be serialized" {
             let set = { Value = "urn:database:hsan-db:songs_dlc_test" }
@@ -74,12 +78,14 @@ let xblockTests =
             stream.Position <- 0L
             let xml = using (new StreamReader(stream)) (fun reader -> reader.ReadToEnd())
 
-            Expect.isNotEmpty xml "XML string is not empty" }
+            Expect.isNotEmpty xml "XML string is not empty"
+        }
 
         test "Can be deserialized" {
-            use file = File.OpenRead "test.xblock"
+            use file = File.OpenRead("test.xblock")
 
             let xblock = deserialize file
 
-            Expect.equal xblock.EntitySet.[0].ModelName "RSEnumerable_Song" "Model name is correct" }
+            Expect.equal xblock.EntitySet.[0].ModelName "RSEnumerable_Song" "Model name is correct"
+        }
     ]

@@ -2,7 +2,6 @@ module PhraseLevelComparerTests
 
 open Expecto
 open Rocksmith2014.DLCProject
-open System
 open Rocksmith2014.SNG
 
 let private p1 = "phrase1"

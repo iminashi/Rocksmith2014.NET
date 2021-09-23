@@ -23,7 +23,7 @@ let toneTests =
 
         testAsync "Can be exported to XML" {
             let testFile = "testExport.tone2014.xml"
-            if File.Exists testFile then File.Delete testFile
+            if File.Exists(testFile) then File.Delete(testFile)
             let imported = Tone.fromXmlFile "test.tone2014.xml"
 
             do! Tone.exportXml testFile imported
@@ -42,7 +42,7 @@ let toneTests =
 
         testAsync "Can be exported to JSON and imported from JSON" {
             let testFile = "testExport.tone2014.json"
-            if File.Exists testFile then File.Delete testFile
+            if File.Exists(testFile) then File.Delete(testFile)
             let imported = Tone.fromXmlFile "test.tone2014.xml"
 
             do! Tone.exportJson testFile imported

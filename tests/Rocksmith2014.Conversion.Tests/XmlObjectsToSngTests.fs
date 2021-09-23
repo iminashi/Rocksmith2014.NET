@@ -2,24 +2,24 @@ module Rocksmith2014.Conversion.Tests.XmlObjectsToSngTests
 
 open Expecto
 open Rocksmith2014
-open Rocksmith2014.XML
 open Rocksmith2014.Conversion
+open Rocksmith2014.Conversion.Utils
 open Rocksmith2014.Conversion.XmlToSng
 open Rocksmith2014.Conversion.XmlToSngLevel
-open Rocksmith2014.Conversion.Utils
-open System.Globalization
+open Rocksmith2014.XML
 open System
+open System.Globalization
 
 /// Testing function that converts a time in milliseconds into seconds without floating point arithmetic.
-let convertTime (time:int) =
+let convertTime (time: int) =
     Single.Parse(Utils.TimeCodeToString(time), NumberFormatInfo.InvariantInfo)
 
 let createTestArr () =
     let arr = InstrumentalArrangement()
     arr.MetaData.SongLength <- 4784_455
 
-    let f1 = [| 1y;1y;1y;1y;1y;1y |]
-    let f2 = [| 1y;1y;-1y;-1y;-1y;-1y |]
+    let f1 = [| 1y; 1y; 1y; 1y; 1y; 1y |]
+    let f2 = [| 1y; 1y; -1y; -1y; -1y; -1y |]
     arr.ChordTemplates.Add(ChordTemplate("A", "A", f1, f1))
     arr.ChordTemplates.Add(ChordTemplate("A", "A-arp", f2, f2))
 
@@ -51,20 +51,21 @@ let createTestArr () =
     arr.Levels.Add(lvl)
     arr
 
-let sharedAccData = AccuData.Init (createTestArr())
+let sharedAccData = AccuData.Init (createTestArr ())
 let flagFunc = NoteFlagFunctions.never
 
-let createNoteTimes (level:XML.Level) =
+let createNoteTimes (level: XML.Level) =
     let chords =
         level.Chords
         |> Seq.map (fun c -> c.Time)
+
     level.Notes
     |> Seq.map (fun n -> n.Time)
     |> Seq.append chords
     |> Seq.sort
     |> Seq.toArray
 
-let emptyFp: SNG.FingerPrint[][] = [| [||]; [||] |]
+let emptyFp: SNG.FingerPrint[][] = Array.replicate 2 Array.empty
 
 let createNoteConvertFunction (accuData: AccuData) (arr: InstrumentalArrangement) (level: Level) =
     let noteTimes = createNoteTimes level
@@ -77,7 +78,7 @@ let xmlToSngConversionTests =
         testCase "Beat (Strong)" <| fun _ ->
             let b = Ebeat(3666, 2s)
             let convert = XmlToSng.convertBeat ()
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             
             let sng = convert testArr b
             
@@ -91,7 +92,7 @@ let xmlToSngConversionTests =
         testCase "Beat (Weak)" <| fun _ ->
             let b = Ebeat(3666, -1s)
             let convert = XmlToSng.convertBeat ()
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             
             let sng = convert testArr b
             
@@ -104,7 +105,7 @@ let xmlToSngConversionTests =
             let b3 = Ebeat(3300, 2s)
             let b4 = Ebeat(3400, -1s)
             let convert = XmlToSng.convertBeat ()
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             
             let sngB0 = convert testArr b0
             let sngB1 = convert testArr b1
@@ -134,7 +135,7 @@ let xmlToSngConversionTests =
         
         testCase "Phrase" <| fun _ ->
             let ph = Phrase("ttt", 15uy, PhraseMask.Disparity ||| PhraseMask.Ignore ||| PhraseMask.Solo)
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             
             let sng = XmlToSng.convertPhrase testArr 1 ph
             
@@ -147,9 +148,9 @@ let xmlToSngConversionTests =
         
         testCase "Chord Template" <| fun _ ->
             let ct = ChordTemplate(Name = "EEE")
-            ct.SetFingering(1y,2y,3y,4y,5y,6y)
-            ct.SetFrets(1y,2y,3y,4y,5y,6y)
-            let testArr = createTestArr()
+            ct.SetFingering(1y, 2y, 3y, 4y, 5y, 6y)
+            ct.SetFrets(1y, 2y, 3y, 4y, 5y, 6y)
+            let testArr = createTestArr ()
             
             let sng = XmlToSng.convertChord testArr ct
             
@@ -159,8 +160,8 @@ let xmlToSngConversionTests =
         
         testCase "Chord Template (MIDI Notes)" <| fun _ ->
             let ct = ChordTemplate()
-            ct.SetFrets(1y,2y,3y,4y,5y,6y)
-            let testArr = createTestArr()
+            ct.SetFrets(1y, 2y, 3y, 4y, 5y, 6y)
+            let testArr = createTestArr ()
             
             let sng = XmlToSng.convertChord testArr ct
             
@@ -173,7 +174,7 @@ let xmlToSngConversionTests =
         
         testCase "Chord Template (Arpeggio)" <| fun _ ->
             let ct = ChordTemplate(DisplayName = "E-arp")
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
         
             let sng = XmlToSng.convertChord testArr ct
         
@@ -181,7 +182,7 @@ let xmlToSngConversionTests =
         
         testCase "Chord Template (Nop)" <| fun _ ->
             let ct = ChordTemplate(DisplayName = "E-nop")
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
         
             let sng = XmlToSng.convertChord testArr ct
         
@@ -196,7 +197,7 @@ let xmlToSngConversionTests =
             Expect.equal sng.Step bv.Step "Step is same"
         
         testCase "Phrase Iteration" <| fun _ ->
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             let pi = testArr.PhraseIterations.[1]
             let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
         
@@ -210,7 +211,7 @@ let xmlToSngConversionTests =
             Expect.equal sng.Difficulty.[2] (int pi.HeroLevels.Hard) "Hard difficulty level is same"
         
         testCase "Phrase Iteration (Last)" <| fun _ ->
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             let pi = testArr.PhraseIterations.[testArr.PhraseIterations.Count - 1]
             let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
         
@@ -245,7 +246,7 @@ let xmlToSngConversionTests =
         
         testCase "Section" <| fun _ ->
             let s = Section("section", 7554_003, 2s)
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
         
             let sng = XmlToSng.convertSection sharedAccData.StringMasks testArr 0 s
         
@@ -256,7 +257,7 @@ let xmlToSngConversionTests =
         
         testCase "Section (Last)" <| fun _ ->
             let s = Section("section", 4000_003, 2s)
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
         
             let sng = XmlToSng.convertSection sharedAccData.StringMasks testArr (testArr.Sections.Count - 1) s
         
@@ -264,7 +265,7 @@ let xmlToSngConversionTests =
         
         testCase "Section (Phrase Iteration Start/End, 1 Phrase Iteration)" <| fun _ ->
             let s = Section("section", 8000, 1s)
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
         
             let sng = XmlToSng.convertSection sharedAccData.StringMasks testArr 0 s
         
@@ -273,7 +274,7 @@ let xmlToSngConversionTests =
         
         testCase "Section (Phrase Iteration Start/End, 3 Phrase Iterations)" <| fun _ ->
             let s = Section("section", 1000, 1s)
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
         
             let sng = XmlToSng.convertSection sharedAccData.StringMasks testArr 0 s
         
@@ -282,7 +283,7 @@ let xmlToSngConversionTests =
         
         testCase "Anchor" <| fun _ ->
             let i = 0
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             let a = testArr.Levels.[0].Anchors.[i]
             let notes = [||]
             let noteTimes = [||]
@@ -334,7 +335,7 @@ let xmlToSngConversionTests =
                             LeftHand = 2y,
                             BendValues = ResizeArray(seq { BendValue(5556, 1.f) }))
             
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             testArr.Levels.[0].Notes.Add(note)
             testArr.Levels.[0].Anchors.Add(Anchor(7y, 5555, 5y))
         
@@ -366,16 +367,12 @@ let xmlToSngConversionTests =
             Expect.equal sng.PhraseIterationId 2 "Phrase iteration ID is correct"
         
         testCase "Note (Next/Previous Note IDs)" <| fun _ ->
-            let note0 = Note(Fret = 12y,
-                             String = 3y,
-                             Time = 1000,
-                             Sustain = 500)
-            let note1 = Note(Fret = 12y,
-                             String = 3y,
-                             Time = 1500,
-                             Sustain = 100)
-        
-            let testArr = createTestArr()
+            let note0 =
+                Note(Fret = 12y, String = 3y, Time = 1000, Sustain = 500)
+            let note1 =
+                Note(Fret = 12y, String = 3y, Time = 1500, Sustain = 100)
+
+            let testArr = createTestArr ()
             testArr.Levels.[0].Notes.Add(note0)
             testArr.Levels.[0].Notes.Add(note1)
         
@@ -402,7 +399,7 @@ let xmlToSngConversionTests =
                             Time = 1000,
                             Sustain = 500)
         
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             testArr.Levels.[0].Notes.Add(note)
             
             let noteTimes = createNoteTimes testArr.Levels.[0]
@@ -439,7 +436,7 @@ let xmlToSngConversionTests =
                             LeftHand = 1y,
                             BendValues = ResizeArray(seq { BendValue(1000, 1.f) }))
         
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             testArr.Levels.[0].Notes.Add(note)
         
             let noteTimes = createNoteTimes testArr.Levels.[0]
@@ -469,7 +466,7 @@ let xmlToSngConversionTests =
                              Time = 1500,
                              Sustain = 100)
         
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             testArr.Levels.[0].Notes.Add(parent)
             testArr.Levels.[0].Notes.Add(child)
             
@@ -491,7 +488,7 @@ let xmlToSngConversionTests =
                             Sustain = 500)
             let hs = HandShape(0s, 1000, 1500)
         
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             testArr.Levels.[0].Notes.Add(note)
             testArr.Levels.[0].HandShapes.Add(hs)
         
@@ -513,7 +510,7 @@ let xmlToSngConversionTests =
                             Sustain = 500)
             let hs = HandShape(1s, 1000, 1500)
         
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             testArr.Levels.[0].Notes.Add(note)
             testArr.Levels.[0].HandShapes.Add(hs)
         
@@ -530,7 +527,7 @@ let xmlToSngConversionTests =
             Expect.isTrue (sng.Mask ?= SNG.NoteMask.Arpeggio) "Arpeggio bit is set"
         
         testCase "Events to DNAs" <| fun _ ->
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
         
             let dnas = XmlToSng.createDNAs testArr
         
@@ -538,7 +535,7 @@ let xmlToSngConversionTests =
             Expect.equal dnas.[3].DnaId 2 "Last DNA ID is correct"
         
         testCase "Meta Data" <| fun _ ->
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
         
             let md = XmlToSng.createMetaData sharedAccData 10.f testArr
         
@@ -553,7 +550,7 @@ let xmlToSngConversionTests =
             let chord = Chord(Time = 1250, ChordId = 0s,
                               ChordNotes = ResizeArray(seq { Note(Sustain = 500); Note(Sustain = 500) }))
         
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             testArr.Levels.[0].Chords.Add(chord)
         
             let convert = createNoteConvertFunction sharedAccData testArr (testArr.Levels.[0]) 0
@@ -571,7 +568,7 @@ let xmlToSngConversionTests =
         
         testCase "Chord (Double stop, arpeggio, no chord notes)" <| fun _ ->
             let chord = Chord(Time = 1250, ChordId = 1s)
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             testArr.Levels.[0].Chords.Add(chord)
             let convert = createNoteConvertFunction sharedAccData testArr (testArr.Levels.[0]) 0
         
@@ -594,7 +591,7 @@ let xmlToSngConversionTests =
             testLevel.Chords.Add(chord)
             testLevel.Anchors.Add(Anchor(12y, 1000))
             testLevel.HandShapes.Add(HandShape(1s, 1000, 1500))
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             testArr.Levels.[0] <- testLevel
         
             let convert = createNoteConvertFunction sharedAccData testArr testLevel 0
@@ -613,7 +610,7 @@ let xmlToSngConversionTests =
                                                                   Sustain = 500, Mask = NoteMask.LinkNext) }))
         
             let note = Note(String = 2y, Fret = 3y, Time = 1750)
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             testArr.Levels.[0].Chords.Add(chord)
             testArr.Levels.[0].Notes.Add(note)
             
@@ -628,13 +625,12 @@ let xmlToSngConversionTests =
             Expect.equal childNote.ParentPrevNote 0s "Parent note ID of child note is correct"
         
         testCase "Chord notes are created when needed" <| fun _ ->
-            let chord = Chord(Mask = ChordMask.None,
-                              Time = 1250,
-                              ChordId = 1s)
+            let chord =
+                Chord(Mask = ChordMask.None, Time = 1250, ChordId = 1s)
             let chordNotes = ResizeArray(seq { Note(String = 0y, Sustain = 500, Vibrato = 80uy); Note(String = 1y, Sustain = 500) })
             chord.ChordNotes <- chordNotes
         
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             testArr.Levels.[0].Chords.Add(chord)
         
             let accuData = AccuData.Init(testArr)
@@ -649,14 +645,13 @@ let xmlToSngConversionTests =
             Expect.isTrue (sng.Mask ?= SNG.NoteMask.ChordNotes) "Chord notes flag is set"
         
         testCase "Chord notes are not created when not needed" <| fun _ ->
-            let chord = Chord(Mask = ChordMask.None,
-                              Time = 1250,
-                              ChordId = 1s)
+            let chord =
+                Chord(Mask = ChordMask.None, Time = 1250, ChordId = 1s)
             // Create chord notes that have no techniques that would require SNG chord notes
             let chordNotes = ResizeArray(seq { Note(Fret = 1y); Note(Fret = 1y) })
             chord.ChordNotes <- chordNotes
         
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             testArr.Levels.[0].Chords.Add(chord)
         
             let accuData = AccuData.Init(testArr)
@@ -670,7 +665,7 @@ let xmlToSngConversionTests =
         testCase "Anchor extensions are created for slide notes" <| fun _ ->
             let note = Note(Time = 1100, Sustain = 200, SlideTo = 8y)
         
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             testArr.Levels.[0].Notes.Add(note)
         
             let accuData = AccuData.Init(testArr)
@@ -683,7 +678,7 @@ let xmlToSngConversionTests =
             Expect.equal accuData.AnchorExtensions.[0].[0].FretId note.SlideTo "Fret is correct"
         
         testCase "Level" <| fun _ ->
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
             testArr.Phrases.Add(Phrase("default", 0uy, PhraseMask.None))
             testArr.Phrases.Add(Phrase("phrase1", 0uy, PhraseMask.None))
@@ -710,7 +705,7 @@ let xmlToSngConversionTests =
             let note2 = Note(String = 0y, Fret = 3y, Time = 1750)
             let note3 = Note(String = 5y, Fret = 0y, Time = 4000)
         
-            let testArr = createTestArr()
+            let testArr = createTestArr ()
             testArr.Levels.[0].Notes.Add(note1)
             testArr.Levels.[0].Notes.Add(note2)
             testArr.Levels.[0].Notes.Add(note3)

@@ -118,7 +118,7 @@ let roundTripTests =
             testEqual Anchor.Read a
         
         testProp "Anchor Extension" <| testEqual AnchorExtension.Read
-        testProp "Finger Print" <| testEqual FingerPrint.Read
+        testProp "Fingerprint" <| testEqual FingerPrint.Read
           
         testCase "Note" <| fun _ ->
             let n =
@@ -152,7 +152,7 @@ let roundTripTests =
             
             testEqual Note.Read n
         
-        testCase "Meta Data" <| fun _ ->
+        testCase "Metadata" <| fun _ ->
             let md =
               { MaxScore = 100000.0
                 MaxNotesAndChords = 456.0

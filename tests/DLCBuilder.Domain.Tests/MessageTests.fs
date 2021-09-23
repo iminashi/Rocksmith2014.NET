@@ -1,12 +1,12 @@
 module MessageTests
 
+open Elmish
 open Expecto
 open DLCBuilder
-open System
-open Rocksmith2014.DLCProject
-open Elmish
-open ToneCollection
 open DLCBuilder.OnlineUpdate
+open Rocksmith2014.DLCProject
+open System
+open ToneCollection
 
 let testUpdate =
     { AvailableUpdate = AvailableUpdate.Major
@@ -89,7 +89,7 @@ let messageTests =
             Expect.equal newState.RecentFiles [ "recent_file" ] "Recent file list was changed"
 
         testCase "ShowOverlay ConfigEditor shows configuration editor" <| fun _ ->
-            let newState, _ = Main.update (ShowOverlay (ConfigEditor FocusedSetting.ProfilePath)) initialState
+            let newState, _ = Main.update (ShowOverlay(ConfigEditor FocusedSetting.ProfilePath)) initialState
 
             Expect.equal newState.Overlay (ConfigEditor FocusedSetting.ProfilePath) "Overlay is set to configuration editor"
 
@@ -115,7 +115,7 @@ let messageTests =
                     member _.TryLoad _ = wasCalled <- true; true }
             let state = { initialState with AlbumArtLoader = bitmapLoaderMock }
 
-            let newState, _ = Main.update (ProjectLoaded (DLCProject.Empty, "")) state
+            let newState, _ = Main.update (ProjectLoaded(DLCProject.Empty, "")) state
 
             Expect.isTrue wasCalled "TryLoad was called"
             Expect.isSome newState.AlbumArtLoadTime "Load time has a value"
@@ -128,7 +128,7 @@ let messageTests =
                     member _.TryLoad _ = wasCalled <- true; true }
             let state = { initialState with AlbumArtLoader = bitmapLoaderMock }
 
-            let newState, _ = Main.update (EditProject (SetAlbumArt "")) state
+            let newState, _ = Main.update (EditProject(SetAlbumArt "")) state
 
             Expect.isTrue wasCalled "TryLoad was called"
             Expect.isSome newState.AlbumArtLoadTime "Load time has a value"
@@ -228,7 +228,7 @@ let messageTests =
 
             Expect.contains newState.RunningTasks (VolumeCalculation MainAudio) "Correct task was added"
             Expect.contains newState.RunningTasks (VolumeCalculation PreviewAudio) "Correct task was added"
-            Expect.contains newState.RunningTasks (VolumeCalculation (CustomAudio("custom.ogg", guid))) "Correct task was added"
+            Expect.contains newState.RunningTasks (VolumeCalculation(CustomAudio("custom.ogg", guid))) "Correct task was added"
             Expect.isNonEmpty cmd "Async command was returned"
 
         testCase "VolumeCalculated sets volume" <| fun _ ->
@@ -323,8 +323,9 @@ let messageTests =
         testCase "RemoveStatusMessage removes correct status message" <| fun _ ->
             let id = Guid.NewGuid()
             let expectedMessage = "test message 2"
-            let messages = [ MessageString(id, "test message")
-                             MessageString(Guid.NewGuid(), expectedMessage) ]
+            let messages =
+                [ MessageString(id, "test message")
+                  MessageString(Guid.NewGuid(), expectedMessage) ]
             let state = { initialState with StatusMessages = messages }
 
             let newState, _ = Main.update (RemoveStatusMessage id) state

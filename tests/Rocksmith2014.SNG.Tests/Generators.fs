@@ -1,17 +1,18 @@
-﻿module Rocksmith2014.SNG.Tests.Generators
+module Rocksmith2014.SNG.Tests.Generators
 
 open FsCheck
 open Rocksmith2014.SNG
+open System
 
 /// Does not generate NaN or infinity floating point values.
 type Overrides() =
     static member Float32() =
         Arb.Default.Float32()
-        |> Arb.filter (fun f -> not <| System.Single.IsNaN(f) && not <| System.Single.IsInfinity(f))
+        |> Arb.filter (fun f -> not <| Single.IsNaN(f) && not <| Single.IsInfinity(f))
 
     static member Float() =
         Arb.Default.Float()
-        |> Arb.filter (fun f -> not <| System.Double.IsNaN(f) && not <| System.Double.IsInfinity(f))
+        |> Arb.filter (fun f -> not <| Double.IsNaN(f) && not <| Double.IsInfinity(f))
 
 let private genTime = Overrides.Float32() |> Arb.toGen
 let private genSByte = Arb.Default.SByte() |> Arb.toGen

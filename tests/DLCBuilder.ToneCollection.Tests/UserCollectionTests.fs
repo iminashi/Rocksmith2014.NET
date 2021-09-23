@@ -16,12 +16,12 @@ let connector =
 let tests =
     testSequenced <| testList "User Collection Tests" [
         testCase "User database is created if it does not exist" <| fun _ ->
-            if File.Exists userPath then
-                File.Delete userPath
+            if File.Exists(userPath) then
+                File.Delete(userPath)
 
             using (connector.CreateUserTonesApi()) ignore
 
-            Expect.isTrue (File.Exists userPath) "Database file was created"
+            Expect.isTrue (File.Exists(userPath)) "Database file was created"
 
         testCase "Tone can be added to the database" <| fun _ ->
             use api = connector.CreateUserTonesApi()
@@ -37,7 +37,7 @@ let tests =
                   Description = "CLEAN|EFFECT"
                   Definition = "n/a" }
 
-            api.AddTone testTone
+            api.AddTone(testTone)
             let tones = api.GetTones(queryOptions)
 
             Expect.hasLength tones 1 "One tone returned"
@@ -62,8 +62,8 @@ let tests =
                   Description = "Can not be changed"
                   Definition = "Can not be changed" }
 
-            api.UpdateData updatedTone
-            let retrievedTone = api.GetToneDataById updatedTone.Id
+            api.UpdateData(updatedTone)
+            let retrievedTone = api.GetToneDataById(updatedTone.Id)
 
             match retrievedTone with
             | Some tone ->
@@ -81,7 +81,7 @@ let tests =
         testCase "Tone can be deleted from database" <| fun _ ->
             use api = connector.CreateUserTonesApi()
 
-            api.DeleteToneById 1L
+            api.DeleteToneById(1L)
             let tones = api.GetTones(queryOptions)
 
             Expect.isEmpty tones "No tones returned"

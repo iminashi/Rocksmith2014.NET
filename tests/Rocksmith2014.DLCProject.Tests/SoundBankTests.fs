@@ -1,8 +1,8 @@
-﻿module SoundBankTests
+module SoundBankTests
 
 open Expecto
-open Rocksmith2014.DLCProject
 open Rocksmith2014.Common
+open Rocksmith2014.DLCProject
 open System.IO
 
 [<Tests>]

@@ -1,7 +1,7 @@
-﻿module Generators
+module Generators
 
-open FsCheck
 open Expecto
+open FsCheck
 open System
 
 /// Does not generate NaN floating point values.
@@ -30,7 +30,12 @@ module Custom =
             (fun (UInt40 x) -> x |> DoNotSize)
             Arb.from
 
-let config = { FsCheckConfig.defaultConfig with arbitrary = [typeof<Overrides>;typeof<Custom.UInt24>.DeclaringType]
-                                                startSize = Int32.MinValue
-                                                endSize = Int32.MaxValue }
+let config =
+    { FsCheckConfig.defaultConfig with
+          arbitrary =
+              [ typeof<Overrides>
+                typeof<Custom.UInt24>.DeclaringType ]
+          startSize = Int32.MinValue
+          endSize = Int32.MaxValue }
+
 let testProp name = testPropertyWithConfig config name

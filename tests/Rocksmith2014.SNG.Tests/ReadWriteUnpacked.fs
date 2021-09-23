@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.SNG.Tests.ReadWriteUnpacked
+module Rocksmith2014.SNG.Tests.ReadWriteUnpacked
 
 open Expecto
 open Rocksmith2014.SNG
@@ -8,7 +8,8 @@ let testFileLevels = 12
 
 let testRead file expectedLevels =
     let sng = SNG.readUnpackedFile file
-    Expect.equal sng.Levels.Length expectedLevels (sprintf "Read %i levels" expectedLevels)
+    let msg = sprintf "Read %i levels" expectedLevels
+    Expect.equal sng.Levels.Length expectedLevels msg
 
 [<Tests>]
 let readWriteTests =

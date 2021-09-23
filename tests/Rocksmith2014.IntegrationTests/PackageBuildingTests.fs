@@ -61,63 +61,69 @@ let testCommonContents contents =
 let tests =
     testSequenced <| testList "Package Building Tests" [
         testAsync "Packages can be built for PC and Mac platforms" {
-            if Directory.Exists buildDir then Directory.Delete(buildDir, true)
+            if Directory.Exists(buildDir) then Directory.Delete(buildDir, true)
             Directory.CreateDirectory(buildDir) |> ignore
 
             let! project = DLCProject.load projectPath
             do! buildPackages psarcPath buildConfig project
 
-            Expect.isTrue (File.Exists psarcPathWin) "PC package was built"
-            Expect.isTrue (File.Exists psarcPathMac) "Mac package was built" }
+            Expect.isTrue (File.Exists(psarcPathWin)) "PC package was built"
+            Expect.isTrue (File.Exists(psarcPathMac)) "Mac package was built"
+        }
 
         testAsync "PC package contains correct files" {
-            use psarc = PSARC.ReadFile psarcPathWin
+            use psarc = PSARC.ReadFile(psarcPathWin)
 
             let contents = psarc.Manifest
 
             Expect.hasCountOf contents 2u (fileSelector "audio/windows" ".wem") "PSARC contains two audio files"
             Expect.hasCountOf contents 2u (fileSelector "audio/windows" ".bnk") "PSARC contains two soundbank files"
             Expect.hasCountOf contents 4u (fileSelector "songs/bin/generic" ".sng") "PSARC contains four SNG files"
-            testCommonContents contents }
+            testCommonContents contents
+        }
 
         testAsync "Mac package contains correct files" {
-            use psarc = PSARC.ReadFile psarcPathMac
+            use psarc = PSARC.ReadFile(psarcPathMac)
 
             let contents = psarc.Manifest
 
             Expect.hasCountOf contents 2u (fileSelector "audio/mac" ".wem") "PSARC contains two audio files"
             Expect.hasCountOf contents 2u (fileSelector "audio/mac" ".bnk") "PSARC contains two soundbank files"
             Expect.hasCountOf contents 4u (fileSelector "songs/bin/macos" ".sng") "PSARC contains four SNG files"
-            testCommonContents contents }
+            testCommonContents contents
+        }
 
         testAsync "App ID file contains correct app ID" {
-            use psarc = PSARC.ReadFile psarcPathWin
+            use psarc = PSARC.ReadFile(psarcPathWin)
 
-            use! stream = psarc.GetEntryStream "appid.appid"
+            use! stream = psarc.GetEntryStream("appid.appid")
             let appid = using (new StreamReader(stream)) (fun r -> r.ReadToEnd())
 
-            Expect.equal appid buildConfig.AppId "App ID was the one defined in the build configuration" }
+            Expect.equal appid buildConfig.AppId "App ID was the one defined in the build configuration"
+        }
 
         testAsync "Mac package contains correct SNG file" {
-            use psarc = PSARC.ReadFile psarcPathMac
+            use psarc = PSARC.ReadFile(psarcPathMac)
 
-            use! stream = psarc.GetEntryStream "songs/bin/macos/integrationtest_lead.sng"
+            use! stream = psarc.GetEntryStream("songs/bin/macos/integrationtest_lead.sng")
             let! sng = SNG.fromStream stream Mac
 
             Expect.exists sng.Sections (fun s -> s.Name = "melody") "SNG contains melody section"
-            Expect.isGreaterThan sng.Levels.Length 1 "SNG contains DD levels" }
+            Expect.isGreaterThan sng.Levels.Length 1 "SNG contains DD levels"
+        }
 
         testAsync "Mac package contains correct manifest file" {
-            use psarc = PSARC.ReadFile psarcPathMac
+            use psarc = PSARC.ReadFile(psarcPathMac)
 
             use! stream = psarc.GetEntryStream "manifests/songs_dlc_integrationtest/integrationtest_bass.json"
             let! mani = (Manifest.fromJsonStream stream).AsTask() |> Async.AwaitTask
             let attr = Manifest.getSingletonAttributes mani
 
-            Expect.exists attr.Tones (fun t -> t.Key = "bass") "Attributes contain a tone with key bass" }
+            Expect.exists attr.Tones (fun t -> t.Key = "bass") "Attributes contain a tone with key bass"
+        }
 
         testAsync "Mac package contains correct soundbank file" {
-            use psarc = PSARC.ReadFile psarcPathMac
+            use psarc = PSARC.ReadFile(psarcPathMac)
 
             use mem = new MemoryStream()
             do! psarc.InflateFile("audio/mac/song_integrationtest_preview.bnk", mem)
@@ -130,15 +136,17 @@ let tests =
 
             match id with
             | Ok id -> Expect.exists psarc.Manifest (String.contains (string id)) $"PSARC contains audio file with correct ID"
-            | Error e -> failwith e }
+            | Error e -> failwith e
+        }
 
         testAsync "PC package contains correct lead tone" {
-            use psarc = PSARC.ReadFile psarcPathWin
+            use psarc = PSARC.ReadFile(psarcPathWin)
 
             use! file = psarc.GetEntryStream("manifests/songs_dlc_integrationtest/integrationtest_lead.json")
             let! manifest = Manifest.fromJsonStream(file).AsTask() |> Async.AwaitTask
             let attributes = Manifest.getSingletonAttributes manifest
 
             Expect.equal attributes.Tones.[0].Key "guitar" "Tone key is correct"
-            Expect.equal attributes.Tones.[0].ToneDescriptors.[0] "$[35751]MULTI-EFFECT" "First tone descriptor is correct" }
+            Expect.equal attributes.Tones.[0].ToneDescriptors.[0] "$[35751]MULTI-EFFECT" "First tone descriptor is correct"
+        }
     ]

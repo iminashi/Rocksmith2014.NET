@@ -9,7 +9,7 @@ let conversionTests =
     testList "Audio Conversion Tests" [
         testCase "Vorbis file can be converted to wave file" <| fun _ ->
             let targetFile = "convtest.wav"
-            if File.Exists targetFile then File.Delete targetFile
+            if File.Exists(targetFile) then File.Delete(targetFile)
             let oggLength = Utils.getLength TestFiles.VorbisFile
 
             Conversion.oggToWav TestFiles.VorbisFile targetFile
@@ -19,7 +19,7 @@ let conversionTests =
 
         testCase "Wem file can be converted to vorbis file" <| fun _ ->
             let targetFile = Path.ChangeExtension(TestFiles.WemFile, "ogg")
-            if File.Exists targetFile then File.Delete targetFile
+            if File.Exists(targetFile) then File.Delete(targetFile)
 
             Conversion.wemToOgg <| Path.GetFullPath(TestFiles.WemFile)
             let oggLength = Utils.getLength targetFile

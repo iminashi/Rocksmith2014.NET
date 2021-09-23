@@ -1,4 +1,4 @@
-﻿module ArrangementTests
+module ArrangementTests
 
 open Expecto
 open Rocksmith2014.DLCProject
@@ -23,7 +23,8 @@ let tests =
                 Expect.equal inst.XML "instrumental.xml" "XML filename is correct"
                 Expect.notEqual inst.PersistentID Guid.Empty "Persistent ID is not an empty GUID"
             | _ ->
-                failwith "Wrong arrangement type" }
+                failwith "Wrong arrangement type"
+        }
 
         test "Vocals arrangement can be loaded from file" {
             let result = Arrangement.fromFile "jvocals.xml"
@@ -38,7 +39,8 @@ let tests =
                 Expect.equal v.XML "jvocals.xml" "XML filename is correct"
                 Expect.notEqual v.PersistentID Guid.Empty "Persistent ID is not an empty GUID"
             | _ ->
-                failwith "Wrong arrangement type" }
+                failwith "Wrong arrangement type"
+        }
 
         test "Showlights arrangement can be loaded from file" {
             let result = Arrangement.fromFile "showlights.xml"
@@ -51,7 +53,8 @@ let tests =
             | Showlights sl ->
                 Expect.equal sl.XML "showlights.xml" "XML filename is correct"
             | _ ->
-                failwith "Wrong arrangement type" }
+                failwith "Wrong arrangement type"
+        }
 
         test "Invalid file returns an error" {
             let result = Arrangement.fromFile "test.bnk"
@@ -63,5 +66,6 @@ let tests =
                 Expect.equal fileName "test.bnk" "Failed filename is correct"
                 Expect.isNotEmpty ex.Message "Exception has a message"
             | _ ->
-                failwith "Wrong error type" }
+                failwith "Wrong error type"
+        }
     ]

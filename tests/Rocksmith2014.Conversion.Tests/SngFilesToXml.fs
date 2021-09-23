@@ -1,14 +1,14 @@
-﻿module Rocksmith2014.Conversion.Tests.SngFilesToXml
+module Rocksmith2014.Conversion.Tests.SngFilesToXml
 
 open Expecto
 open Rocksmith2014.Common
+open Rocksmith2014.Conversion
 open Rocksmith2014.SNG
 open Rocksmith2014.XML
-open Rocksmith2014.Conversion
 open System.Globalization
 
 /// Testing function that converts a time in seconds into milliseconds without floating point arithmetic.
-let convertTime (time:float32) =
+let convertTime (time: float32) =
     Utils.TimeCodeFromFloatString (time.ToString(NumberFormatInfo.InvariantInfo))
 
 [<Tests>]
@@ -24,16 +24,18 @@ let sngToXmlConversionTests =
                 Expect.equal xml.[i].Lyric sng.Vocals.[i].Lyric (sprintf "Lyric #%i is same" i)
                 Expect.equal xml.[i].Note (sng.Vocals.[i].Note |> byte) (sprintf "Note #%i is same" i)
                 Expect.equal xml.[i].Time (sng.Vocals.[i].Time |> convertTime) (sprintf "Time #%i is same" i)
-                Expect.equal xml.[i].Length (sng.Vocals.[i].Length |> convertTime) (sprintf "Length #%i is same" i) }
+                Expect.equal xml.[i].Length (sng.Vocals.[i].Length |> convertTime) (sprintf "Length #%i is same" i)
+        }
         
         testAsync "Extract Glyphs" {
-           let! sng = SNG.readPackedFile "vocals.sng" PC
+            let! sng = SNG.readPackedFile "vocals.sng" PC
         
-           let xml = ConvertVocals.extractGlyphData sng
+            let xml = ConvertVocals.extractGlyphData sng
         
-           Expect.equal xml.Glyphs.Count sng.SymbolDefinitions.Length "Same glyph count"
-           Expect.equal xml.TextureWidth sng.SymbolsTextures.[0].Width "Same texture width"
-           Expect.equal xml.TextureHeight sng.SymbolsTextures.[0].Height "Same texture height" }
+            Expect.equal xml.Glyphs.Count sng.SymbolDefinitions.Length "Same glyph count"
+            Expect.equal xml.TextureWidth sng.SymbolsTextures.[0].Width "Same texture width"
+            Expect.equal xml.TextureHeight sng.SymbolsTextures.[0].Height "Same texture height"
+        }
         
         testAsync "Instrumental" {
             let! sng = SNG.readPackedFile "instrumental.sng" PC
@@ -55,5 +57,6 @@ let sngToXmlConversionTests =
             Expect.equal xml.Events.Count sng.Events.Length "Same event count"
             Expect.equal xml.Levels.Count sng.Levels.Length "Same level count"
             if sng.PhraseExtraInfo.Length > 0 then
-                Expect.equal xml.PhraseProperties.Count sng.PhraseExtraInfo.Length "Same phrase property count" }
+                Expect.equal xml.PhraseProperties.Count sng.PhraseExtraInfo.Length "Same phrase property count"
+        }
     ]

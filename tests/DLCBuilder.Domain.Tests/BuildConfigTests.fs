@@ -3,9 +3,9 @@ module BuildConfigTests
 open Expecto
 open DLCBuilder
 open Rocksmith2014.Common
+open Rocksmith2014.DD
 open Rocksmith2014.DLCProject
 open System
-open Rocksmith2014.DD
 
 let generalConfig =
     { Configuration.Default with

@@ -1,9 +1,9 @@
 module Rocksmith2014.Conversion.Tests.SngObjectsToXmlTests
 
 open Expecto
-open Rocksmith2014.SNG
-open Rocksmith2014.Conversion
 open Rocksmith2014.Common
+open Rocksmith2014.Conversion
+open Rocksmith2014.SNG
 
 let emptyMetaData =
     { MaxScore = 0.0

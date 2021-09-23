@@ -1,10 +1,10 @@
 module EditToneMessageTests
 
+open Elmish
 open Expecto
 open DLCBuilder
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
-open Elmish
 
 let testPedal =
     { Type = "Test"
@@ -43,9 +43,11 @@ let editToneTests =
             Expect.equal newState initialState "State was not changed"
 
         testCase "SetName, SetKey, SetVolume" <| fun _ ->
-            let messages = [ SetName "Test Tone"
-                             SetKey "Test_key"
-                             SetVolume 8.5 ] |> List.map EditTone
+            let messages =
+                [ SetName "Test Tone"
+                  SetKey "Test_key"
+                  SetVolume 8.5 ]
+                |> List.map EditTone
 
             let newState, _ =
                 messages
@@ -72,7 +74,7 @@ let editToneTests =
             Expect.equal newTone.ToneDescriptors.[0] "TONE" "First tone descriptor is correct"
 
         testCase "ChangeDescriptor changes a descriptor" <| fun _ ->
-            let newState, _ = Main.update (EditTone (ChangeDescriptor(0, ToneDescriptor.all.[2]))) state
+            let newState, _ = Main.update (EditTone(ChangeDescriptor(0, ToneDescriptor.all.[2]))) state
             let newTone = newState.Project.Tones |> List.head
 
             Expect.hasLength newTone.ToneDescriptors 2 "Tone has two descriptors"
@@ -166,8 +168,10 @@ let editToneTests =
             let newPedal = repository.Pedals.[5]
             let knobKey = newPedal.Knobs.Value.[0].Key
             let initialState = { state with SelectedGearSlot = ToneGear.PrePedal 0 }
-            let messages = [ SetPedal newPedal
-                             SetKnobValue(knobKey, 99f) ] |> List.map EditTone
+            let messages =
+                [ SetPedal newPedal
+                  SetKnobValue(knobKey, 99f) ]
+                |> List.map EditTone
 
             let newState, _ =
                 messages
@@ -180,8 +184,10 @@ let editToneTests =
             let newPedal = repository.Racks.[2]
             let knobKey = "noSuchKey"
             let initialState = { state with SelectedGearSlot = ToneGear.Rack 1 }
-            let messages = [ SetPedal newPedal
-                             SetKnobValue(knobKey, 99f) ] |> List.map EditTone
+            let messages =
+                [ SetPedal newPedal
+                  SetKnobValue(knobKey, 99f) ]
+                |> List.map EditTone
 
             let newState, _ =
                 messages

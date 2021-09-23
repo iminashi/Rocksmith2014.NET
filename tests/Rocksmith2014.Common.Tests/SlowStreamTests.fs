@@ -1,11 +1,11 @@
-﻿// fsharplint:disable MemberNames
+// fsharplint:disable MemberNames
 module SlowStreamTests
 
+open Expecto
+open Rocksmith2014.Common
+open Rocksmith2014.Common.BinaryReaders
 open System
 open System.IO
-open Expecto
-open Rocksmith2014.Common.BinaryReaders
-open Rocksmith2014.Common
 
 /// A stream that returns data one byte at a time
 type SlowStream() =
@@ -49,9 +49,10 @@ let bigEndianSlowStream =
             let reader = BigEndianBinaryReader(stream) :> IBinaryReader
             let expected = seq { 0uy; 1uy; 2uy; 3uy; 4uy }
         
-            let array = reader.ReadBytes 5
+            let array = reader.ReadBytes(5)
         
-            Expect.sequenceContainsOrder array expected "Sequence of 5 bytes is correct" }
+            Expect.sequenceContainsOrder array expected "Sequence of 5 bytes is correct"
+        }
         
         test "Can read signed 16-bit integer" {
             use stream = new SlowStream()
@@ -60,7 +61,8 @@ let bigEndianSlowStream =
         
             let read = reader.ReadInt16()
         
-            Expect.equal read expected "Signed 16-bit integer read correctly" }
+            Expect.equal read expected "Signed 16-bit integer read correctly"
+        }
         
         test "Can read unsigned 24-bit integer" {
             use stream = new SlowStream()
@@ -69,7 +71,8 @@ let bigEndianSlowStream =
         
             let read = reader.ReadUInt24()
         
-            Expect.equal read expected "Unsigned 24-bit integer read correctly" }
+            Expect.equal read expected "Unsigned 24-bit integer read correctly"
+        }
         
         test "Can read unsigned 64-bit integer" {
             use stream = new SlowStream()
@@ -78,7 +81,8 @@ let bigEndianSlowStream =
         
             let read = reader.ReadUInt64()
         
-            Expect.equal read expected "Unsigned 64-bit integer read correctly" }
+            Expect.equal read expected "Unsigned 64-bit integer read correctly"
+        }
     ]
 
 [<Tests>]
@@ -89,9 +93,10 @@ let littleEndianSlowStream =
             let reader = LittleEndianBinaryReader(stream) :> IBinaryReader
             let expected = seq { 0uy; 1uy; 2uy; 3uy; 4uy }
         
-            let array = reader.ReadBytes 5
+            let array = reader.ReadBytes(5)
         
-            Expect.sequenceContainsOrder array expected "Sequence of 5 bytes is correct" }
+            Expect.sequenceContainsOrder array expected "Sequence of 5 bytes is correct"
+        }
         
         test "Can read signed 16-bit integer" {
             use stream = new SlowStream()
@@ -100,7 +105,8 @@ let littleEndianSlowStream =
         
             let read = reader.ReadInt16()
         
-            Expect.equal read expected "Signed 16-bit integer read correctly" }
+            Expect.equal read expected "Signed 16-bit integer read correctly"
+        }
         
         test "Can read unsigned 24-bit integer" {
             use stream = new SlowStream()
@@ -109,7 +115,8 @@ let littleEndianSlowStream =
         
             let read = reader.ReadUInt24()
         
-            Expect.equal read expected "Unsigned 24-bit integer read correctly" }
+            Expect.equal read expected "Unsigned 24-bit integer read correctly"
+        }
         
         test "Can read unsigned 64-bit integer" {
             use stream = new SlowStream()
@@ -118,5 +125,6 @@ let littleEndianSlowStream =
         
             let read = reader.ReadUInt64()
         
-            Expect.equal read expected "Unsigned 64-bit integer read correctly" }
+            Expect.equal read expected "Unsigned 64-bit integer read correctly"
+        }
     ]
