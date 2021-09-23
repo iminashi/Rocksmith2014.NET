@@ -32,9 +32,9 @@ let private buildPackage build state =
         let msg =
             match error with
             | InvalidDLCKey ->
-                state.Localizer.TranslateFormat (string error) [| DLCKey.MinimumLength |]
+                state.Localizer.TranslateFormat(string error) [| DLCKey.MinimumLength |]
             | other ->
-                other |> string |> state.Localizer.Translate
+                state.Localizer.Translate(string other)
 
         { state with Overlay = ErrorMessage(msg, None) }, Cmd.none
     | Ok () ->
@@ -161,17 +161,7 @@ let update (msg: Msg) (state: State) =
 
     | ImportPsarc (psarcFile, targetFolder) ->
         let task () = async {
-            let progress =
-                let maxProgress =
-                    3.
-                    + match config.ConvertAudio with NoConversion -> 0. | _ -> 1.
-                    + match config.RemoveDDOnImport with false -> 0. | true -> 1.
-                let mutable currentProgress = 0.
-
-                fun () ->
-                    currentProgress <- currentProgress + 1.
-                    currentProgress / maxProgress * 100.
-                    |> (ProgressReporters.PsarcImport :> IProgress<float>).Report
+            let progress = createPsarcImportProgressReporter config
 
             let targetFolder = Path.Combine(targetFolder, Path.GetFileNameWithoutExtension(psarcFile))
             Directory.CreateDirectory(targetFolder) |> ignore
@@ -181,13 +171,7 @@ let update (msg: Msg) (state: State) =
             | NoConversion ->
                 ()
             | ToOgg | ToWav as conv ->
-                DLCProject.getAudioFiles project
-                |> Seq.iter (fun { Path = path } ->
-                    if conv = ToOgg then
-                        Conversion.wemToOgg path
-                    else
-                        Conversion.wemToWav path)
-
+                Utils.convertProjectAudioFromWem conv project
                 progress ()
 
             if config.RemoveDDOnImport then
@@ -263,29 +247,21 @@ let update (msg: Msg) (state: State) =
         | _ ->
             { state with SelectedImportTones = []; Overlay = ImportToneSelector tones }, Cmd.none
 
-    | SetAudioFile fileName ->
-        let previewPath =
-            let previewPath = Utils.previewPathFromMainAudio fileName
-            let wavPreview = Path.ChangeExtension(previewPath, "wav")
-
-            if File.Exists(previewPath) then
-                previewPath
-            elif File.Exists(wavPreview) then
-                wavPreview
-            else
-                String.Empty
+    | SetAudioFile audioPath ->
+        let previewPath = Utils.determinePreviewPath audioPath
 
         let cmd =
-            if config.AutoVolume && not <| String.endsWith ".wem" fileName then
+            if config.AutoVolume && not <| String.endsWith ".wem" audioPath then
                 Cmd.ofMsg CalculateVolumes
             else
                 Cmd.none
 
-        let audioFile = { project.AudioFile with Path = fileName }
-        let previewFile = { project.AudioPreviewFile with Path = previewPath }
+        let updatedProject =
+            { project with
+                AudioFile = { project.AudioFile with Path = audioPath }
+                AudioPreviewFile = { project.AudioPreviewFile with Path = previewPath } }
 
-        { state with Project = { project with AudioFile = audioFile
-                                              AudioPreviewFile = previewFile } }, cmd
+        { state with Project = updatedProject }, cmd
 
     | ConvertToWem ->
         if DLCProject.audioFilesExist project then

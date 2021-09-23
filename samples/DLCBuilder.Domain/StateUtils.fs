@@ -256,3 +256,16 @@ let handleFilesDrop paths =
             AddArrangements arrangements |> Cmd.ofMsg
         yield! otherCommands
     }
+
+let createPsarcImportProgressReporter config =
+    let maxProgress =
+        3.
+        + match config.ConvertAudio with NoConversion -> 0. | _ -> 1.
+        + match config.RemoveDDOnImport with false -> 0. | true -> 1.
+
+    let mutable currentProgress = 0.
+
+    fun () ->
+        currentProgress <- currentProgress + 1.
+        currentProgress / maxProgress * 100.
+        |> (ProgressReporters.PsarcImport :> IProgress<float>).Report

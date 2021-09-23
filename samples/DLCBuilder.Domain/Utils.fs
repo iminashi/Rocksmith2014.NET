@@ -183,3 +183,31 @@ let moveSelected dir selectedIndex (list: List<_>) =
             |> List.insertAt insertPos selected, insertPos
         else
             list, selectedIndex
+
+/// Converts the projects audio files to wav or ogg files.
+let convertProjectAudioFromWem conv project =
+    project
+    |> DLCProject.getAudioFiles 
+    |> Seq.iter (fun { Path = path } ->
+        if conv = ToOgg then
+            Conversion.wemToOgg path
+        else
+            Conversion.wemToWav path)
+
+/// Determines the path to the preview file from the main audio.
+let determinePreviewPath audioFilePath =
+    let previewPath = previewPathFromMainAudio audioFilePath
+
+    let alternativePath =
+        match previewPath with
+        | HasExtension ".wav" ->
+            Path.ChangeExtension(previewPath, "ogg")
+        | _ ->
+            Path.ChangeExtension(previewPath, "wav")
+
+    if File.Exists(previewPath) then
+        previewPath
+    elif File.Exists(alternativePath) then
+        alternativePath
+    else
+        String.Empty
