@@ -15,8 +15,8 @@ let private forwardCombiningChars = Set.ofList [ '“'; '「'; '｢'; '『'; '['
 
 let isPunctuation (c: char) = Char.IsPunctuation(c)
 let isSpace (c: char) = Char.IsWhiteSpace(c)
-let isBackwardsCombining (c: char) = backCombiningChars.Contains c
-let isForwardsCombining (c: char) = forwardCombiningChars.Contains c
+let isBackwardsCombining (c: char) = backCombiningChars.Contains(c)
+let isForwardsCombining (c: char) = forwardCombiningChars.Contains(c)
 let isCommonLatin (c: char) = c < char 0x0100
 
 let withoutTrailingDash (str: String) =
@@ -46,7 +46,7 @@ let hyphenate (str: string) =
                 | [] ->
                     results, [ a ]
                 | current when List.forall isPunctuation current ->
-                    results, a::current
+                    results, a :: current
                 | current ->
                     let result = '-' :: current |> revCharListToString
                     result :: results, [ a ]
@@ -71,7 +71,7 @@ let toLines (vocals: MatchedSyllable seq) =
     (([], []), vocals)
     ||> Seq.fold (fun (lines, currentLine) elem ->
         if elem.Vocal.Lyric.EndsWith("+") then
-            let result = (elem::currentLine) |> List.rev
+            let result = (elem :: currentLine) |> List.rev
             result :: lines, []
         else
             lines, elem :: currentLine)

@@ -32,7 +32,6 @@ let changePage page collectionState =
         collectionState
     else
         let queryOptions = { collectionState.QueryOptions with PageNumber = page }
-
         let tones = getTones collectionState.ActiveCollection queryOptions
 
         { collectionState with
@@ -49,7 +48,6 @@ let changeSearch searchString collectionState =
         collectionState
     else
         let queryOptions = { Search = searchString; PageNumber = 1 }
-
         let tones = getTones collectionState.ActiveCollection queryOptions
 
         { collectionState with
@@ -84,7 +82,7 @@ let changeCollection tab collectionState =
 let deleteUserTone id collectionState =
     match collectionState.ActiveCollection with
     | ActiveCollection.User api ->
-        api.DeleteToneById id
+        api.DeleteToneById(id)
         let tones = getTones collectionState.ActiveCollection collectionState.QueryOptions
 
         { collectionState with
@@ -97,7 +95,7 @@ let addSelectedToneToUserCollection collectionState =
     match collectionState with
     | { SelectedTone = Some selected
         ActiveCollection = ActiveCollection.Official (Some api) } ->
-        api.GetToneDataById selected.Id
+        api.GetToneDataById(selected.Id)
         |> Option.iter (addToneDataToUserCollection collectionState.Connector)
     | _ ->
         ()
@@ -107,8 +105,8 @@ let getSelectedToneDefinition collectionState =
     |> Option.bind (fun tone ->
         match collectionState.ActiveCollection with
         | ActiveCollection.Official (Some api) ->
-            api.GetToneById tone.Id
+            api.GetToneById(tone.Id)
         | ActiveCollection.User api ->
-            api.GetToneById tone.Id
+            api.GetToneById(tone.Id)
         | _ ->
             None)

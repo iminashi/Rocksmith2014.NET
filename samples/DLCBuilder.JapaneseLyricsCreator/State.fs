@@ -11,7 +11,7 @@ type LyricsCreatorState =
 
 module LyricsCreatorState =
     let canUndo state = state.UndoStates.HasItems
-    let addUndo state = state.UndoStates.Push state
+    let addUndo state = state.UndoStates.Push(state)
 
     let tryUndo state =
         if canUndo state then

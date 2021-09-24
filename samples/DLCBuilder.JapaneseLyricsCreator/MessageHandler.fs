@@ -19,37 +19,45 @@ let private updateMatchedLines matchedLines japaneseLines =
 
             { syllable with Japanese = jp }))
 
+let private createVocals matchedLines =
+    matchedLines
+    |> Array.collect (Array.map (fun matched ->
+        let oldVocal = matched.Vocal
+
+        let lyric =
+            match matched.Japanese with
+            | Some jp ->
+                if oldVocal.Lyric.EndsWith("+") && not <| jp.EndsWith("+") then
+                    jp + "+"
+                else
+                    jp
+            | None ->
+                oldVocal.Lyric
+
+        Vocal(
+            Time = oldVocal.Time,
+            Note = oldVocal.Note,
+            Length = oldVocal.Length,
+            Lyric = lyric
+        )))
+    |> ResizeArray
+
 let update state msg =
     match msg with
     | SaveLyricsToFile targetPath ->
-        let vocals =
-            state.MatchedLines
-            |> Array.collect (fun line ->
-                line
-                |> Array.map (fun matched ->
-                    let vocal = Vocal(matched.Vocal)
+        Vocals.Save(targetPath, createVocals state.MatchedLines)
 
-                    matched.Japanese
-                    |> Option.iter (fun jp ->
-                        vocal.Lyric <-
-                            if matched.Vocal.Lyric.EndsWith("+") && not <| jp.EndsWith("+") then
-                                jp + "+"
-                            else
-                                jp)
-
-                    vocal))
-            |> ResizeArray
-
-        Vocals.Save(targetPath, vocals)
         state, Effect.AddVocalsToProject targetPath
 
     | SetJapaneseLyrics jLyrics ->
         let japaneseLines =
             LyricsTools.createJapaneseLines state.MatchedLines state.CombinedJapanese jLyrics
+
         let matchedLines =
             updateMatchedLines state.MatchedLines japaneseLines
 
         LyricsCreatorState.addUndo state
+
         { state with MatchedLines = matchedLines
                      JapaneseLyrics = jLyrics
                      JapaneseLines = japaneseLines }, Effect.Nothing
@@ -67,6 +75,7 @@ let update state msg =
                 updateMatchedLines state.MatchedLines japaneseLines
 
             LyricsCreatorState.addUndo state
+
             { state with CombinedJapanese = combinedJp
                          JapaneseLines = japaneseLines
                          MatchedLines = matchedLines }, Effect.Nothing
@@ -80,16 +89,14 @@ let update state msg =
                 |> Array.mapi (fun linei line ->
                     if linei = lineNumber then
                         line
-                        |> Array.choosei (fun i x ->
+                        |> Array.choosei (fun i syllable ->
                             if i = index + 1 then
                                 None
                             elif i = index then
-                                let first = line.[index]
-                                let vNext = line.[index + 1].Vocal
-
-                                Some { first with Vocal = LyricsTools.combineVocals first.Vocal vNext }
+                                let vocal = LyricsTools.combineVocals syllable.Vocal line.[index + 1].Vocal
+                                Some { syllable with Vocal = vocal }
                             else
-                                Some x)
+                                Some syllable)
                     else
                         line)
 
