@@ -22,29 +22,31 @@ module ToneInjector =
             tones
             |> Array.truncate 50
             |> Array.mapi (fun i tone ->
-                let dto = Tone.toDto tone
-                { dto with SortOrder = Nullable(float32 (i + 1))
-                           IsCustom = Nullable(true) })
+                { Tone.toDto tone with
+                    SortOrder = Nullable(float32 (i + 1))
+                    IsCustom = Nullable(true) })
 
         JArray.FromObject(dtos, JsonSerializer(NullValueHandling = NullValueHandling.Ignore))
+
+    let private createToneImportTasks toneFiles =
+        toneFiles
+        |> Array.map (fun path ->
+            async {
+                match path with
+                | EndsWith "xml" ->
+                    return Tone.fromXmlFile path |> Array.singleton
+                | EndsWith "json" ->
+                    return! Tone.fromJsonFile path |> Async.map Array.singleton
+                | EndsWith "psarc" ->
+                    return! Utils.importTonesFromPSARC path
+                | _ ->
+                    return Array.empty
+            })
 
     /// Replaces the custom tones in the profile file with tones read from the files.
     let injectTones profilePath toneFiles = async  {
         let! tones =
-            let tasks =
-                toneFiles
-                |> Array.map (fun path -> async {
-                    match path with
-                    | EndsWith "xml" ->
-                        return Tone.fromXmlFile path |> Array.singleton
-                    | EndsWith "json" ->
-                        return! Tone.fromJsonFile path |> Async.map Array.singleton
-                    | EndsWith "psarc" ->
-                        return! Utils.importTonesFromPSARC path
-                    | _ ->
-                        return Array.empty })
-
-            Async.Parallel(tasks, Environment.ProcessorCount)
+            Async.Parallel(createToneImportTasks toneFiles, Environment.ProcessorCount)
             |> Async.map Array.concat
 
         let! profile, id = Profile.readAsJToken profilePath

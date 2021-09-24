@@ -24,6 +24,18 @@ let getTestBuildFiles config project =
     else
         List.empty
 
+let private getNewestVersionNumber existingPackages =
+    existingPackages
+    |> List.choose (fun fn ->
+        let m = Regex.Match(fn, @"_v(\d+)")
+        if m.Success then
+            Some(int m.Groups.[1].Captures.[0].Value)
+        else
+            None)
+    |> function
+        | [] -> existingPackages.Length
+        | list -> List.max list
+
 /// Returns an async computation for building a package for testing.
 let build platform config project = async {
     let isRocksmithRunning =
@@ -41,17 +53,7 @@ let build platform config project = async {
         |> Seq.filter (Path.GetFileName >> (String.startsWith packageFileName))
         |> Seq.toList
 
-    let maxVersion =
-        existingPackages
-        |> List.choose (fun fn ->
-            let m = Regex.Match(fn, @"_v(\d+)")
-            if m.Success then
-                Some(int m.Groups.[1].Captures.[0].Value)
-            else
-                None)
-        |> function
-            | [] -> existingPackages.Length
-            | list -> List.max list
+    let latestVersion = getNewestVersionNumber existingPackages
 
     let project, packageFileName, buildType =
         match isRocksmithRunning with
@@ -62,7 +64,7 @@ let build platform config project = async {
             project, packageFileName, BuildCompleteType.Test
         | true ->
             let arrangements = generateAllIds project.Arrangements
-            let versionString = $"v{maxVersion + 1}"
+            let versionString = $"v{latestVersion + 1}"
 
             let title =
                 { project.Title with

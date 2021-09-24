@@ -55,39 +55,37 @@ let private addPitchPedal index shift gearList =
 
     { gearList with PrePedals = prePedals }
 
-let buildPitchShifted (openProject: string option) config project = async {
-    let shift = project.PitchShift |> Option.defaultValue 0s
-    let title = { project.Title with SortValue = $"{project.Title.SortValue} Pitch" }
-    let dlcKey = $"Pitch{project.DLCKey}"
-
-    let arrangements =
-        project.Arrangements
-        |> List.map (function
-            | Instrumental inst ->
-                let tuning = inst.Tuning |> Array.map ((+) shift)
-                Instrumental { inst with Tuning = tuning }
-            | other ->
-                other)
-        |> TestPackageBuilder.generateAllIds
-
-    let tones =
-        project.Tones
-        |> List.map (fun tone ->
-            let freeIndex =
-                tone.GearList.PrePedals
-                |> Array.tryFindIndex Option.isNone
-            match freeIndex with
-            | Some index ->
-                { tone with GearList = addPitchPedal index shift tone.GearList }
+let private pitchShiftTones shift (tones: Tone list) =
+    tones
+    |> List.map (fun tone ->
+        tone.GearList.PrePedals
+        |> Array.tryFindIndex Option.isNone
+        |> function
+            | Some freeIndex ->
+                { tone with GearList = addPitchPedal freeIndex shift tone.GearList }
             | None ->
                 failwith $"Could not add pitch shift pedal to tone {tone.Key}.\nThere needs to be at least one free pre-pedal slot.")
 
+let private processArrangements shift arrangements =
+    arrangements
+    |> List.map (function
+        | Instrumental inst ->
+            let tuning = inst.Tuning |> Array.map ((+) shift)
+            Instrumental { inst with Tuning = tuning }
+        | other ->
+            other)
+    |> TestPackageBuilder.generateAllIds
+
+let buildPitchShifted (openProject: string option) config project = async {
+    let shift = project.PitchShift |> Option.defaultValue 0s
+    let title = { project.Title with SortValue = $"{project.Title.SortValue} Pitch" }
+
     let pitchProject =
         { project with
-            DLCKey = dlcKey
+            DLCKey = $"Pitch{project.DLCKey}"
             Title = title
-            Arrangements = arrangements
-            Tones = tones }
+            Arrangements = processArrangements shift project.Arrangements
+            Tones = pitchShiftTones shift project.Tones }
 
     let! _ = build openProject config pitchProject
 

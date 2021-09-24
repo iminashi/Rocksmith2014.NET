@@ -227,7 +227,7 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfAsync.either task () ShowImportToneSelector ErrorOccurred
 
     | ImportProfileTones ->
-        if String.IsNullOrWhiteSpace config.ProfilePath then
+        if String.IsNullOrWhiteSpace(config.ProfilePath) then
             showOverlay state (ConfigEditor FocusedSetting.ProfilePath)
         else
             match Profile.importTones config.ProfilePath with
