@@ -90,7 +90,7 @@ let private arrangementDetails state dispatch =
                                         TextBlock.create [
                                             TextBlock.fontSize 12.
                                             TextBlock.margin (8., 0.)
-                                            TextBlock.text $"{IO.Path.GetFileName xmlFile}"
+                                            TextBlock.text $"{IO.Path.GetFileName(xmlFile)}"
                                             TextBlock.foreground "#cccccc"
                                             TextBlock.verticalAlignment VerticalAlignment.Center
                                         ]

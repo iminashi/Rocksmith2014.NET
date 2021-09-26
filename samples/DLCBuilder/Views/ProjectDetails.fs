@@ -22,7 +22,7 @@ let private placeholder =
 let private audioControls state dispatch =
     let audioPath = state.Project.AudioFile.Path
     let previewPath = state.Project.AudioPreviewFile.Path
-    let previewExists = IO.File.Exists previewPath
+    let previewExists = IO.File.Exists(previewPath)
     let notCalculatingVolume =
         not (state.RunningTasks |> Set.exists (function VolumeCalculation (MainAudio | PreviewAudio) -> true | _ -> false))
 
@@ -64,7 +64,7 @@ let private audioControls state dispatch =
                                         TextBlock.verticalAlignment VerticalAlignment.Center
                                         TextBlock.text (
                                             if String.notEmpty audioPath then
-                                                IO.Path.GetFileName audioPath
+                                                IO.Path.GetFileName(audioPath)
                                             else
                                                 translate "NoAudioFile"
                                         )
@@ -114,7 +114,7 @@ let private audioControls state dispatch =
                                         TextBlock.margin (4.0, 4.0, 0.0, 4.0)
                                         TextBlock.text (
                                             if String.notEmpty previewPath then
-                                                IO.Path.GetFileName previewPath
+                                                IO.Path.GetFileName(previewPath)
                                             else
                                                 translate "NoAudioFile"
                                         )
@@ -352,7 +352,7 @@ let private coverArt state dispatch =
     let albumArt = AvaloniaBitmapLoader.getBitmap ()
     let brush, toolTip =
         if String.notEmpty state.Project.AlbumArtFile && albumArt.IsNone then
-            Brushes.DarkRed, translatef "LoadingCoverArtFailed" [| IO.Path.GetFileName state.Project.AlbumArtFile  |]
+            Brushes.DarkRed, translatef "LoadingCoverArtFailed" [| IO.Path.GetFileName(state.Project.AlbumArtFile) |]
         else
             Brushes.Black, translate "SelectCoverArtToolTip"
 

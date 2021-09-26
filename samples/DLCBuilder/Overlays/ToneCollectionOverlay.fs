@@ -5,6 +5,7 @@ open Avalonia.Controls.Shapes
 open Avalonia.FuncUI
 open Avalonia.FuncUI.Components
 open Avalonia.FuncUI.DSL
+open Avalonia.FuncUI.Types
 open Avalonia.Input
 open Avalonia.Layout
 open Avalonia.Media
@@ -14,7 +15,6 @@ open DLCBuilder.ToneGear
 open Rocksmith2014.Common.Manifest
 open System
 open System.Text.RegularExpressions
-open Avalonia.FuncUI.Types
 open ToneCollection
 
 let private translateDescription (description: string) =
@@ -45,7 +45,7 @@ let private toneTemplate dispatch isOfficial =
                             MenuItem.create [
                                 MenuItem.header (translate "EditMenuItem")
                                 MenuItem.onClick (fun _ ->
-                                    FocusHelper.storeFocusedElement()
+                                    FocusHelper.storeFocusedElement ()
                                     ShowUserToneEditor |> dispatch)
                                 MenuItem.inputGesture (KeyGesture(Key.E))
                             ]
@@ -160,7 +160,7 @@ let private paginationControls dispatch (collectionState: ToneCollectionState) =
                 TextBlock.text (
                     if collectionState.TotalPages = 0 then
                         String.Empty
-                        else
+                    else
                         $"{currentPage} / {collectionState.TotalPages}")
             ]
             Border.create [
@@ -264,7 +264,7 @@ let private userToneEditor dispatch data =
                         Button.content (translate "Save")
                         Button.isEnabled (String.notEmpty data.Name)
                         Button.onClick (fun _ ->
-                            FocusHelper.restoreFocus()
+                            FocusHelper.restoreFocus ()
                             ApplyUserToneEdit |> dispatch)
                     ]
                     Button.create [
@@ -273,7 +273,7 @@ let private userToneEditor dispatch data =
                         Button.padding (30., 10.)
                         Button.content (translate "Cancel")
                         Button.onClick (fun _ ->
-                            FocusHelper.restoreFocus()
+                            FocusHelper.restoreFocus ()
                             HideUserToneEditor |> dispatch)
                     ]
                 ]
@@ -404,7 +404,7 @@ let private toneInfoPanel state collectionState =
                     yield!
                         [ ("PrePedals", GearSlot.PrePedal); ("LoopPedals", GearSlot.PostPedal); ("Rack",GearSlot.Rack) ]
                         |> List.collect (fun (name, func) ->
-                            separator::(pedals repository name tone.GearList func))
+                            separator :: (pedals repository name tone.GearList func))
         ]
     ]
 

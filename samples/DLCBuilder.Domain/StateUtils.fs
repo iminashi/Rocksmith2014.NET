@@ -1,12 +1,12 @@
 module DLCBuilder.StateUtils
 
+open Elmish
 open Rocksmith2014.Audio
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open System
 open System.IO
-open Elmish
 
 let getSelectedArrangement state =
     List.tryItem state.SelectedArrangementIndex state.Project.Arrangements
@@ -17,8 +17,10 @@ let getSelectedTone state =
 /// Adds the given tones into the project.
 let addTones (state: State) (tones: Tone list) =
     let tones = List.map Utils.addDescriptors tones
-    { state with Project = { state.Project with Tones = tones @ state.Project.Tones }
-                 Overlay = NoOverlay }
+
+    { state with
+        Project = { state.Project with Tones = tones @ state.Project.Tones }
+        Overlay = NoOverlay }
 
 /// Returns true if a build or a wem conversion is not in progress.
 let notBuilding state =
@@ -29,7 +31,7 @@ let notBuilding state =
 /// Returns true if the project can be built.
 let canBuild state =
     notBuilding state
-    && (not <| state.RunningTasks.Contains(PsarcImport))
+    && not (state.RunningTasks.Contains(PsarcImport))
     && state.Project.Arrangements.Length > 0
     && String.notEmpty state.Project.AudioFile.Path
 
@@ -85,9 +87,11 @@ let updateRecentFilesAndConfig projectFile state =
     recent, newConfig, cmd
 
 /// Returns a delayed message to remove the status message with the given ID.
-let removeStatusMessage (id: Guid) = async {
-    do! Async.Sleep 4000
-    return RemoveStatusMessage id }
+let removeStatusMessage (id: Guid) =
+    async {
+        do! Async.Sleep 4000
+        return RemoveStatusMessage id
+    }
 
 /// Adds the arrangements from the given filenames into the project in the state.
 let addArrangements fileNames state =

@@ -291,6 +291,7 @@ let editTone state edit index =
             
         | RemovePedal ->
             let remove index = Utils.removeAndShift index
+
             let gearList =
                 match state.SelectedGearSlot with
                 | PrePedal index ->
@@ -319,6 +320,7 @@ let editTone state edit index =
             | _ ->
                 let newPedal = createPedalForGear gear
                 let setPedal index = Array.updateAt index (Some newPedal)
+
                 let gearList =
                     match state.SelectedGearSlot with
                     | Amp ->

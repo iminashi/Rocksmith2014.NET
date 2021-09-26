@@ -9,7 +9,7 @@ open DLCBuilder
 
 let view state dispatch (audioLength: TimeSpan) =
     // Remove the length of the preview from the total length
-    let length = audioLength - TimeSpan.FromSeconds 28.
+    let length = audioLength - TimeSpan.FromSeconds(28.)
 
     let previewStart =
         state.Project.AudioPreviewStartTime

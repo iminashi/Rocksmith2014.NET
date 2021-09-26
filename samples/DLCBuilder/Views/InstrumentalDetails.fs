@@ -14,7 +14,7 @@ open System
 open DLCBuilder
 
 let private isNumberGreaterThanZero (input: string) =
-    let parsed, number = Int32.TryParse input
+    let parsed, number = Int32.TryParse(input)
     parsed && number > 0
 
 let private tuningTextBox dispatch (tuning: int16 array) stringIndex =
@@ -24,9 +24,9 @@ let private tuningTextBox dispatch (tuning: int16 array) stringIndex =
         TextBox.width 40.
         FixedTextBox.text (string tuning.[stringIndex])
         FixedTextBox.onTextChanged (fun text ->
-            match Int16.TryParse text with
+            match Int16.TryParse(text) with
             | true, newTuning ->
-                SetTuning (stringIndex, newTuning)
+                SetTuning(stringIndex, newTuning)
                 |> EditInstrumental
                 |> dispatch
             | false, _ ->
@@ -37,7 +37,7 @@ let private tuningTextBox dispatch (tuning: int16 array) stringIndex =
             | Key.Up ->
                 arg.Handled <- true
                 let dir = if arg.Key = Key.Down then Down else Up
-                ChangeTuning (stringIndex, dir)
+                ChangeTuning(stringIndex, dir)
                 |> EditInstrumental
                 |> dispatch
             | _ ->
@@ -305,7 +305,7 @@ let view state dispatch (inst: Instrumental) =
                 FixedTextBox.validation isNumberGreaterThanZero
                 TextBox.onLostFocus (fun arg ->
                     let txtBox = arg.Source :?> TextBox
-                    match Int32.TryParse txtBox.Text with
+                    match Int32.TryParse(txtBox.Text) with
                     | true, masterId when masterId > 0 ->
                         SetMasterId masterId |> EditInstrumental |> dispatch
                     | _ ->
@@ -330,7 +330,7 @@ let view state dispatch (inst: Instrumental) =
                 FixedTextBox.validation (Guid.TryParse >> fst)
                 TextBox.onLostFocus (fun arg ->
                     let txtBox = arg.Source :?> TextBox
-                    match Guid.TryParse txtBox.Text with
+                    match Guid.TryParse(txtBox.Text) with
                     | true, id ->
                         SetPersistentId id |> EditInstrumental |> dispatch
                     | false, _ ->
@@ -388,7 +388,7 @@ let view state dispatch (inst: Instrumental) =
                     TextBlock.create [
                         TextBlock.margin (4., 2., 0., 0.)
                         TextBlock.text (
-                            Option.map (fun x -> IO.Path.GetFileName x.Path) inst.CustomAudio
+                            Option.map (fun x -> IO.Path.GetFileName(x.Path)) inst.CustomAudio
                             |> Option.defaultValue (translate "NoAudioFile")
                         )
                     ]

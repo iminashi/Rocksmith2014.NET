@@ -93,7 +93,10 @@ let addDescriptors (tone: Tone) =
             ToneDescriptor.getDescriptionsOrDefault tone.Name
             |> Array.map (fun x -> x.UIName))
 
-    { tone with ToneDescriptors = descs; SortOrder = None; NameSeparator = " - " }
+    { tone with
+        ToneDescriptors = descs
+        SortOrder = None
+        NameSeparator = " - " }
 
 /// Converts the project's audio and preview audio files to wem.
 let convertAudio cliPath project =

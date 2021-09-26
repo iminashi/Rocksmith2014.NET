@@ -40,7 +40,7 @@ let view state dispatch (tone: Tone) =
         state.Project.Arrangements
         |> List.collect (function
             | Instrumental i ->
-                i.BaseTone::i.Tones
+                i.BaseTone :: i.Tones
             | _ ->
                 List.empty)
         |> List.filter String.notEmpty

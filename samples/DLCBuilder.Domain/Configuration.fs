@@ -97,10 +97,10 @@ module Configuration =
     let private fromDto (t: IStringLocalizer) (dto: Dto) =
         let platforms =
             if not (dto.ReleasePC || dto.ReleaseMac) then
-                Set([ PC; Mac ])
+                [ PC; Mac ]
             else
-                Set([ if dto.ReleasePC then PC
-                      if dto.ReleaseMac then Mac ])
+                [ if dto.ReleasePC then PC
+                  if dto.ReleaseMac then Mac ]
 
         let threshold = Math.Clamp(dto.DDPhraseSearchThreshold, 0, 100)
 
@@ -115,7 +115,7 @@ module Configuration =
             | 1 -> LevelCountGeneration.MLModel
             | _ -> LevelCountGeneration.Simple
 
-        { ReleasePlatforms = platforms
+        { ReleasePlatforms = Set(platforms)
           ProfilePath = dto.ProfilePath
           TestFolderPath = dto.TestFolderPath
           ProjectsFolderPath = dto.ProjectsFolderPath

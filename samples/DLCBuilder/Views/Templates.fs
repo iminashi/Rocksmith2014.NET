@@ -114,7 +114,7 @@ let arrangement state dispatch index arr =
     let missingTones =
         match arr with
         | Instrumental inst ->
-            inst.BaseTone::inst.Tones
+            inst.BaseTone :: inst.Tones
             |> List.distinct
             |> List.filter (fun toneKey ->
                 state.Project.Tones
@@ -125,7 +125,7 @@ let arrangement state dispatch index arr =
 
     let isEmptyBaseToneKey =
         match arr with
-        | Instrumental inst when String.IsNullOrWhiteSpace inst.BaseTone ->
+        | Instrumental inst when String.IsNullOrWhiteSpace(inst.BaseTone) ->
             true
         | _ ->
             false

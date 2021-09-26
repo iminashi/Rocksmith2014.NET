@@ -147,7 +147,7 @@ let private generalConfig state dispatch focusedSetting =
                             FixedTextBox.onTextChanged (SetWwiseConsolePath >> EditConfig >> dispatch)
                             TextBox.onLostFocus (fun e ->
                                 let t = e.Source :?> TextBox
-                                if Directory.Exists t.Text then
+                                if Directory.Exists(t.Text) then
                                     tryFindWwiseExecutable t.Text
                                     |> Option.iter (SetWwiseConsolePath >> EditConfig >> dispatch))
                             ToolTip.tip (translate "WwiseConsolePathToolTip")

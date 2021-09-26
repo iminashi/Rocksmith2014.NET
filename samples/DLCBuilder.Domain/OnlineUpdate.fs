@@ -54,7 +54,7 @@ let private tryGetReleaseAsset (release: Release) =
 
 /// Returns the update information for the given release if it is newer than the current version.
 let private getAvailableUpdateInformation (release: Release) =
-    let latestVersion = Version(release.TagName.Substring 1)
+    let latestVersion = Version(release.TagName.Substring(1))
     let availableUpdate = getAvailableUpdate latestVersion
     let asset = tryGetReleaseAsset release
 
