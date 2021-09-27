@@ -47,7 +47,7 @@ let rec update (oldItem: 'a) (newItem: 'a) (list: 'a list) =
         h :: (update oldItem newItem tail)
 
 /// Replaces the item at the given index with the new one.
-let rec updateAt index newItem =
+let updateAt index newItem =
     List.mapi (fun i x -> if i = index then newItem else x)
 
 /// Tries to find the lowest element in the list, returns None for an empty list.
