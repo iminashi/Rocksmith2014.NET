@@ -115,12 +115,12 @@ module SNG =
     let pack (input: Stream) (output: Stream) platform = async {
         let header = 3
         let writer = BinaryWriters.getWriter output platform
-        writer.WriteInt32 0x4A
-        writer.WriteInt32 header
+        writer.WriteInt32(0x4A)
+        writer.WriteInt32(header)
 
         use payload = MemoryStreamPool.Default.GetStream()
         // Write the uncompressed length
-        (BinaryWriters.getWriter payload platform).WriteInt32 (input.Length |> int32)
+        (BinaryWriters.getWriter payload platform).WriteInt32(int32 input.Length)
         do! Compression.asyncZip input payload
 
         payload.Position <- 0L
@@ -128,15 +128,15 @@ module SNG =
 
     /// Unpacks the given encrypted SNG file and saves it with an "_unpacked.sng" postfix.
     let unpackFile fileName platform = async {
-        use file = File.OpenRead(fileName)
-        let targetFile =
+        use inputFile = File.OpenRead(fileName)
+        let targetPath =
             Path.Combine
                 (Path.GetDirectoryName(fileName),
                  Path.GetFileNameWithoutExtension(fileName)
                  + "_unpacked.sng")
 
-        use out = File.Open(targetFile, FileMode.Create, FileAccess.Write)
-        do! unpack file out platform }
+        use targetFile = File.Open(targetPath, FileMode.Create, FileAccess.Write)
+        do! unpack inputFile targetFile platform }
 
     /// Reads an SNG from the stream.
     let fromStream (input: Stream) platform = async {

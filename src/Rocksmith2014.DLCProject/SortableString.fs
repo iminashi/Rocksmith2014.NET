@@ -54,8 +54,8 @@ type SortableString =
 
         { Value = value
           SortValue =
-            if String.IsNullOrWhiteSpace sort then
-                SortableString.TryGetOfficialArtistNameSortValue value
+            if String.IsNullOrWhiteSpace(sort) then
+                SortableString.TryGetOfficialArtistNameSortValue(value)
                 |> Option.defaultWith (fun () -> StringValidator.removeArticles value)
             else
                 sort
@@ -63,7 +63,7 @@ type SortableString =
 
     /// Returns true if the string's value or sort value is null or empty.
     static member IsEmpty(str) =
-        String.IsNullOrEmpty str.Value || String.IsNullOrEmpty str.SortValue
+        String.IsNullOrEmpty(str.Value) || String.IsNullOrEmpty(str.SortValue)
 
     static member Empty =
         { Value = String.Empty

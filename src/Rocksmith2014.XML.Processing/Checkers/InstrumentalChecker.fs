@@ -193,10 +193,11 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
                 issue MissingBendValue time
 
             // EOF does not set LinkNext on chords correctly, so check all chords regardless of LinkNext status
-            yield! chordNotes
-                   |> Seq.filter (fun cn -> cn.IsLinkNext)
-                   |> Seq.map (fun cn -> checkLinkNext level -1 cn |> Option.toList)
-                   |> List.concat
+            yield!
+                chordNotes
+                |> Seq.filter (fun cn -> cn.IsLinkNext)
+                |> Seq.map (fun cn -> checkLinkNext level -1 cn |> Option.toList)
+                |> List.concat
 
         // Check for chords that have LinkNext, but no LinkNext chord notes
         if chord.IsLinkNext && (not chord.HasChordNotes || chord.ChordNotes.TrueForAll(fun cn -> not cn.IsLinkNext)) then

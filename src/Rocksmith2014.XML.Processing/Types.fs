@@ -32,5 +32,5 @@ type IssueType =
     | InvalidShowlights
 
 type Issue =
-    { Type : IssueType
+    { Type: IssueType
       TimeCode: int }

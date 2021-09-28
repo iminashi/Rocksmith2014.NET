@@ -1,10 +1,10 @@
-﻿module Rocksmith2014.XML.Processing.ChordNameProcessor
+module Rocksmith2014.XML.Processing.ChordNameProcessor
 
 open Rocksmith2014.XML
 open System
 
 let private emptyOrElse name orElse =
-    if String.IsNullOrWhiteSpace name then
+    if String.IsNullOrWhiteSpace(name) then
         String.Empty
     else
         orElse name

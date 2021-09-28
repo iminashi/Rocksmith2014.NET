@@ -15,7 +15,7 @@ type TempDDSFile =
       FileName: string }
 
     interface IDisposable with
-        member this.Dispose() = File.Delete this.FileName
+        member this.Dispose() = File.Delete(this.FileName)
 
 type DDSOptions =
     { Compression: Compression

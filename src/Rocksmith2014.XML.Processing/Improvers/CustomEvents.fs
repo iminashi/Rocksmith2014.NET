@@ -29,7 +29,7 @@ let improve (arrangement: InstrumentalArrangement) =
             | _ ->
                 ())
 
-        events.Remove event |> ignore)
+        events.Remove(event) |> ignore)
 
     // Remove beats event
     match events.Find(fun e -> String.equalsIgnoreCase "removebeats" e.Code) with

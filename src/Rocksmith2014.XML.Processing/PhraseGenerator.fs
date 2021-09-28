@@ -158,7 +158,7 @@ let private createPhrasesAndSections contentStartTime endPhraseTime (arr: Inst) 
     let mutable ngSectionNumber = 0s
     let mutable phraseNumber = 0s
     let mutable measureCounter = 0
-    let mutable nextPhraseTime : int option = None
+    let mutable nextPhraseTime: int option = None
     let level = arr.Levels.[0]
 
     // Add first phrase/section at content start time
