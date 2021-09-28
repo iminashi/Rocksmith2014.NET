@@ -24,7 +24,7 @@ let private iconButton icon onClick =
 
 let private stack children =
     StackPanel(Orientation = Orientation.Horizontal)
-    |> apply (fun p -> p.Children.AddRange children)
+    |> apply (fun p -> p.Children.AddRange(children))
 
 [<Sealed>]
 type TitleBarButtons(window: Window) =
@@ -32,7 +32,7 @@ type TitleBarButtons(window: Window) =
 
     let close =
         iconButton Icons.xThin (fun () -> window.Close())
-        |> apply (fun b -> b.Classes.Add "exit-btn")
+        |> apply (fun b -> b.Classes.Add("exit-btn"))
 
     let minimize =
         iconButton Icons.minimize (fun () -> window.WindowState <- WindowState.Minimized)

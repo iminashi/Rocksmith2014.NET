@@ -38,7 +38,7 @@ type ListBoxEx() =
             selectionChangedHandler selected
 
         | KeyModifiers.None, Key.Delete when selected <> -1 ->
-            itemDeletedHandler()
+            itemDeletedHandler ()
 
         | KeyModifiers.Alt, (Key.Up | Key.Down as key) when selected <> -1 ->
             itemMovedHandler (if key = Key.Up then Up else Down)

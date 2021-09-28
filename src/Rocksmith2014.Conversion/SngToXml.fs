@@ -202,7 +202,7 @@ let private createChordNotes (sng: SNG) (chord: Note) =
                 )
 
             chordNotes
-            |> ValueOption.iter(fun chordNotes ->
+            |> ValueOption.iter (fun chordNotes ->
                 cn.Mask <- convertNoteMask chordNotes.Mask.[i]
                 cn.SlideTo <- chordNotes.SlideTo.[i]
                 cn.SlideUnpitchTo <- chordNotes.SlideUnpitchTo.[i]

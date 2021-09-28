@@ -229,7 +229,7 @@ let private importConfig state dispatch =
                     ]
                     vStack [
                         yield! [ NoConversion; ToOgg; ToWav ]
-                        |> List.map(fun conv ->
+                        |> List.map (fun conv ->
                             RadioButton.create [
                                 RadioButton.isChecked (state.Config.ConvertAudio = conv)
                                 RadioButton.content (localize conv)

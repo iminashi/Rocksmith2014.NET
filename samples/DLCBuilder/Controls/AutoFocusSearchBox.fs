@@ -19,17 +19,19 @@ type AutoFocusSearchBox() =
         FixedTextBox(Watermark = translate "Search", AutoFocus = true)
 
     let deleteButton =
-        Border(Background = Brushes.Transparent,
-               IsVisible = false,
-               HorizontalAlignment = HorizontalAlignment.Right,
-               VerticalAlignment = VerticalAlignment.Center,
-               Margin = Thickness(0., 0., 10., 2.),
-               Cursor = Media.Cursors.hand,
-               Child = Path(Fill = Brushes.Gray, Data = Media.Icons.x))
+        Border(
+            Background = Brushes.Transparent,
+            IsVisible = false,
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = Thickness(0., 0., 10., 2.),
+            Cursor = Media.Cursors.hand,
+            Child = Path(Fill = Brushes.Gray, Data = Media.Icons.x)
+        )
 
     do
         textBox.KeyUp.Add (fun _ ->
-            deleteButton.IsVisible <- not <| String.IsNullOrEmpty textBox.Text)
+            deleteButton.IsVisible <- not <| String.IsNullOrEmpty(textBox.Text))
 
         deleteButton.Tapped.Add (fun _ ->
             deleteButton.IsVisible <- false
@@ -37,8 +39,7 @@ type AutoFocusSearchBox() =
             textBox.Focus())
 
         let panel = Panel()
-        panel.Children.Add textBox
-        panel.Children.Add deleteButton
+        panel.Children.AddRange [ textBox; deleteButton ]
         base.Content <- panel
 
     member _.TextBox = textBox
@@ -47,7 +48,7 @@ type AutoFocusSearchBox() =
 
     override this.OnInitialized() =
         base.OnInitialized()
-        textBox.GetObservable(TextBox.TextProperty).Add this.TextChanged
+        textBox.GetObservable(TextBox.TextProperty).Add(this.TextChanged)
 
 [<RequireQualifiedAccess>]
 module AutoFocusSearchBox =
@@ -64,7 +65,7 @@ type AutoFocusSearchBox with
 
     static member onTextChanged(func: string -> unit) =
         let getter (c: AutoFocusSearchBox) = c.TextChanged
-        let setter : AutoFocusSearchBox * (string -> unit) -> unit = (fun (c, v) -> c.TextChanged <- v)
+        let setter: AutoFocusSearchBox * (string -> unit) -> unit = (fun (c, v) -> c.TextChanged <- v)
 
         AttrBuilder<AutoFocusSearchBox>.CreateProperty<string -> unit>
             ("TextChanged", func, ValueSome getter, ValueSome setter, ValueNone)
