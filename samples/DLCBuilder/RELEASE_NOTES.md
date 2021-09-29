@@ -1,3 +1,7 @@
+## 0.7.4 (Released 2021-09-29)
+
+- Updated the vorbis library to fix a "Could not initialize container" error with some ogg files.
+
 ## 0.7.3 (Released 2021-09-19)
 
 - Fixed an issue in the auto update.
