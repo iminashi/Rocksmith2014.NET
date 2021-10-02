@@ -27,10 +27,10 @@ let toneDatabaseStub =
 
 let stringLocalizerStub =
     { new IStringLocalizer with
-        member _.Translate _ = String.Empty
-        member _.TranslateFormat _ _ = String.Empty
-        member _.ChangeLocale _ = ()
-        member _.LocaleFromShortName _ = Locale.Default }
+        member _.Translate(_) = String.Empty
+        member _.TranslateFormat(_, _) = String.Empty
+        member _.ChangeLocale(_) = ()
+        member _.LocaleFromShortName(_) = Locale.Default }
 
 let initialState =
     { Project = DLCProject.Empty

@@ -17,7 +17,7 @@ type IBitmapLoader =
 
 type IStringLocalizer =
     abstract member Translate : string -> string
-    abstract member TranslateFormat : string -> obj array -> string
+    abstract member TranslateFormat : string * obj array -> string
     abstract member ChangeLocale : Locale -> unit
     abstract member LocaleFromShortName : string -> Locale
 

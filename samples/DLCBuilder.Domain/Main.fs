@@ -32,7 +32,7 @@ let private buildPackage build state =
         let msg =
             match error with
             | InvalidDLCKey ->
-                state.Localizer.TranslateFormat(string error) [| DLCKey.MinimumLength |]
+                state.Localizer.TranslateFormat(string error, [| DLCKey.MinimumLength |])
             | other ->
                 state.Localizer.Translate(string other)
 
@@ -46,7 +46,7 @@ let private buildPackage build state =
 let update (msg: Msg) (state: State) =
     let { Project = project; Config = config } = state
     let translate = state.Localizer.Translate
-    let translatef = state.Localizer.TranslateFormat
+    let translatef key args = state.Localizer.TranslateFormat(key, args)
 
     match msg with
     | ShowJapaneseLyricsCreator ->

@@ -43,10 +43,10 @@ let messageTests =
             let mutable current = locale
             let stringLocalizer =
                 { new IStringLocalizer with
-                    member _.Translate _ = String.Empty
-                    member _.TranslateFormat _ _ = String.Empty
-                    member _.ChangeLocale x = current <- x
-                    member _.LocaleFromShortName _ = Locale.Default }
+                    member _.Translate(_) = String.Empty
+                    member _.TranslateFormat(_, _) = String.Empty
+                    member _.ChangeLocale(x) = current <- x
+                    member _.LocaleFromShortName(_) = Locale.Default }
             let state = { initialState with Localizer = stringLocalizer }
 
             let newState, _ = Main.update (ChangeLocale locale) state

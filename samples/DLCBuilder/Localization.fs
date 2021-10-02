@@ -50,7 +50,7 @@ module Localization =
 
     let toInterface () =
         { new IStringLocalizer with
-            member _.Translate key = translate key
-            member _.TranslateFormat key args = translatef key args
-            member _.ChangeLocale locale = changeLocale locale
-            member _.LocaleFromShortName shortName = Locales.fromShortName shortName }
+            member _.Translate(key) = translate key
+            member _.TranslateFormat(key, args) = translatef key args
+            member _.ChangeLocale(locale) = changeLocale locale
+            member _.LocaleFromShortName(shortName) = Locales.fromShortName shortName }
