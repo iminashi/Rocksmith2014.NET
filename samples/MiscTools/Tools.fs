@@ -191,7 +191,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                 async {
                     let platform = Platform.fromPackageFileName file
                     use psarc = PSARC.ReadFile(file)
-                    do! psarc.ExtractFiles targetDirectory
+                    do! psarc.ExtractFiles(targetDirectory)
 
                     if state.ConvertAudio then
                         Directory.EnumerateFiles(targetDirectory, "*.wem", SearchOption.AllDirectories)

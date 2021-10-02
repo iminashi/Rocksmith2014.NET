@@ -148,7 +148,7 @@ type InstrumentalEdit =
 type ToolsMsg =
     | ConvertWemToOgg of files: string array
     | ConvertAudioToWem of files: string array
-    | UnpackPSARC of file: string
+    | UnpackPSARC of paths: string array * targetRootDirectory: string
     | PackDirectoryIntoPSARC of directory: string * targetFile: string
     | RemoveDD of files: string array
     | InjectTonesIntoProfile of files: string array
@@ -161,6 +161,7 @@ type Dialog =
     | PsarcImport
     | PsarcImportTargetFolder of psarcPath: string
     | PsarcUnpack
+    | PsarcUnpackTargetFolder of psarcPaths: string array
     | PsarcPackDirectory
     | PsarcPackTargetFile of directory: string
     | WemFiles

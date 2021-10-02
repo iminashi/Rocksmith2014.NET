@@ -121,6 +121,7 @@ let private translateTitle dialogType =
     let locString =
         match dialogType with
         | Dialog.PsarcImportTargetFolder _ -> "PsarcImportTargetFolderDialogTitle"
+        | Dialog.PsarcUnpackTargetFolder _ -> "PsarcUnpackTargetFolderDialogTitle"
         | Dialog.AudioFile _ -> "AudioFileDialogTitle"
         | Dialog.ExportTone _ -> "ExportToneDialogTitle"
         | Dialog.PsarcPackTargetFile _ -> "PsarcPackTargetFileDialogTitle"
@@ -153,7 +154,7 @@ let showDialog window dialogType state =
             ofd FileFilter.Project OpenProject
 
         | Dialog.ToolkitImport ->
-            if state.RunningTasks.Contains PsarcImport then
+            if state.RunningTasks.Contains(PsarcImport) then
                 async { return None }
             else
                 ofd FileFilter.ToolkitTemplate ImportToolkitTemplate
@@ -165,11 +166,22 @@ let showDialog window dialogType state =
                 ofd FileFilter.PSARC (Dialog.PsarcImportTargetFolder >> ShowDialog)
 
         | Dialog.PsarcImportTargetFolder psarcPath ->
-            let initialDir = Path.GetDirectoryName psarcPath |> Some
+            let initialDir = Path.GetDirectoryName(psarcPath) |> Some
             openFolderDialog title initialDir (fun folder -> ImportPsarc(psarcPath, folder))
 
         | Dialog.PsarcUnpack ->
-            ofd FileFilter.PSARC (UnpackPSARC >> ToolsMsg)
+            if state.RunningTasks.Contains PsarcUnpack then
+                async { return None }
+            else
+                openMultiFileDialog title FileFilter.PSARC None (Dialog.PsarcUnpackTargetFolder >> ShowDialog)
+
+        | Dialog.PsarcUnpackTargetFolder psarcPaths ->
+            let initialDir =
+                psarcPaths
+                |> Array.tryHead
+                |> Option.map Path.GetDirectoryName
+
+            openFolderDialog title initialDir (fun folder -> UnpackPSARC(psarcPaths, folder) |> ToolsMsg)
 
         | Dialog.PsarcPackDirectory ->
             openFolderDialog title None (Dialog.PsarcPackTargetFile >> ShowDialog)
@@ -202,7 +214,11 @@ let showDialog window dialogType state =
             openFolderDialog title None (SetProjectsFolderPath >> EditConfig)
 
         | Dialog.ProfileFile ->
-            let initialDir = state.Config.ProfilePath |> Option.ofString |> Option.map Path.GetDirectoryName
+            let initialDir =
+                state.Config.ProfilePath
+                |> Option.ofString
+                |> Option.map Path.GetDirectoryName
+
             openFileDialog title FileFilter.Profile initialDir (SetProfilePath >> EditConfig)
 
         | Dialog.AddArrangements ->

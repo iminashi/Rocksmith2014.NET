@@ -205,7 +205,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         return memory }
 
     /// Extracts all the files from the PSARC into the given directory.
-    member _.ExtractFiles(baseDirectory: string, ?progress: IProgress<float>) = async {
+    member _.ExtractFiles(baseDirectory: string, ?progress: float -> unit) = async {
         let reportFrequency = max 4 (toc.Count / 50)
         for i = 0 to toc.Count - 1 do
             let entry = toc.[i]
@@ -220,7 +220,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
             match progress with
             | Some progress when i % reportFrequency = 0 ->
-                progress.Report(float (i + 1) / float toc.Count * 100.)
+                progress (float (i + 1) / float toc.Count * 100.)
             | _ ->
                 () }
 

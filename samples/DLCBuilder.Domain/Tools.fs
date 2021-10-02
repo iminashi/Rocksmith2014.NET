@@ -78,16 +78,29 @@ let update msg state =
         StateUtils.addTask WemConversion state,
         Cmd.OfAsync.either task () WemConversionComplete (fun ex -> TaskFailed(ex, WemConversion))
 
-    | UnpackPSARC file ->
-        let targetDirectory = Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file))
-        Directory.CreateDirectory(targetDirectory) |> ignore
+    | UnpackPSARC (paths, targetRootDirectory) ->
+        let totalFiles = float paths.Length
 
-        let task () = async {
-            use psarc = PSARC.ReadFile(file)
-            do! psarc.ExtractFiles(targetDirectory, ProgressReporters.PsarcUnpack) }
+        let progress currentIndex currentProgress =
+            let totalProgress =
+                let cumulativeProgress = (float currentIndex / totalFiles) * 100.
+                cumulativeProgress + (1. / totalFiles) * currentProgress
+            (ProgressReporters.PsarcUnpack :> IProgress<_>).Report(totalProgress)
+
+        let task () =
+            paths
+            |> Array.mapi (fun i path -> async {
+                let targetDirectory =
+                    Path.Combine(targetRootDirectory, Path.GetFileNameWithoutExtension(path))
+
+                Directory.CreateDirectory(targetDirectory) |> ignore
+
+                use psarc = PSARC.ReadFile(path)
+                do! psarc.ExtractFiles(targetDirectory, progress i) })
+            |> Async.Sequential
 
         StateUtils.addTask PsarcUnpack state,
-        Cmd.OfAsync.either task () (fun () -> PsarcUnpacked) (fun ex -> TaskFailed(ex, PsarcUnpack))
+        Cmd.OfAsync.either task () (fun _ -> PsarcUnpacked) (fun ex -> TaskFailed(ex, PsarcUnpack))
 
     | PackDirectoryIntoPSARC (directory, targetFile) ->
         let task () = PSARC.PackDirectory(directory, targetFile, true)

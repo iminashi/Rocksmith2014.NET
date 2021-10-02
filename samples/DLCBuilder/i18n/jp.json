@@ -21,6 +21,7 @@
   "AudioFileConversionDialogTitle": "変換するオーディオファイルを選択してください",
   "WemFilesDialogTitle": "Wwiseオーディオファイルを選択してください",
   "PsarcImportTargetFolderDialogTitle": "プロジェクトフォルダが作られるディレクトリを選択してください",
+  "PsarcUnpackTargetFolderDialogTitle": "PSARCが解凍されるフォルダが作られるディレクトリを選択してください",
   "WwiseConsoleDialogTitle": "Wwise 2019/2021コンソールアプリケーションを開く",
   "ExportToneDialogTitle": "トーンをエクスポート",
   "SaveProjectAsDialogTitle": "名前を付けてプロジェクトを保存",
