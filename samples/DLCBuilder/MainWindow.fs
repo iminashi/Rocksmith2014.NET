@@ -124,7 +124,11 @@ type MainWindow(commandLineArgs: string array) as this =
                   Y = windowPosition.Y
                   Width = windowSize.Width
                   Height = windowSize.Height
-                  State = if this.WindowState = WindowState.Maximized then WindowState.Maximized else WindowState.Normal }
+                  State =
+                    if this.WindowState = WindowState.Maximized then
+                        WindowState.Maximized
+                    else
+                        WindowState.Normal }
                 |> WindowStatus.Save
 
                 dispatch ProgramClosing)
@@ -207,7 +211,8 @@ type MainWindow(commandLineArgs: string array) as this =
                 (OfficialDataBasePath <| Path.Combine(appDataTones, "official.db"))
                 (UserDataBasePath <| Path.Combine(appDataTones, "user.db"))
 
-        let init' = InitState.init (Localization.toInterface ()) (AvaloniaBitmapLoader.createInterface ()) databaseConnector
+        let init' =
+            InitState.init (Localization.toInterface ()) (AvaloniaBitmapLoader.createInterface ()) databaseConnector
 
         FocusHelper.init this
 

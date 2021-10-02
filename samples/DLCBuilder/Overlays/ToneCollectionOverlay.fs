@@ -122,7 +122,7 @@ let tonesList dispatch collectionState isOfficial =
             | Key.Delete when not isOfficial ->
                 DeleteSelectedUserTone |> dispatch
             | Key.E when not isOfficial ->
-                FocusHelper.storeFocusedElement()
+                FocusHelper.storeFocusedElement ()
                 ShowUserToneEditor |> dispatch
             | _ ->
                 arg.Handled <- false
