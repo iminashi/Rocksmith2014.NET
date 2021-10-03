@@ -16,24 +16,22 @@ let addMissingChordLinkNext (arrangement: InstrumentalArrangement) =
 
 /// Removes linknext from chord notes that are not immediately followed by a note on the same string.
 let removeInvalidChordNoteLinkNexts (arrangement: InstrumentalArrangement) =
+    let fixChordNote (level: Level) (cn: Note) =
+        match level.Notes.Find(fun n -> n.Time > cn.Time && n.String = cn.String) with
+        | null ->
+            cn.IsLinkNext <- false
+        | note when note.Time - cn.Time - cn.Sustain > 2 ->
+            cn.IsLinkNext <- false
+        | _ ->
+            ()
+
     arrangement.Levels
     |> ResizeArray.iter (fun level ->
         level.Chords
-        |> Seq.filter (fun x -> x.IsLinkNext && x.HasChordNotes)
+        |> Seq.filter (fun chord -> chord.IsLinkNext && chord.HasChordNotes)
         |> Seq.iter (fun chord ->
             chord.ChordNotes
-            |> ResizeArray.iter (fun cn ->
-                if cn.IsLinkNext then
-                    match level.Notes.Find(fun n -> n.Time > cn.Time && n.String = cn.String) with
-                    | null ->
-                        cn.IsLinkNext <- false
-                    | note when note.Time - cn.Time - cn.Sustain > 2 ->
-                        cn.IsLinkNext <- false
-                    | _ ->
-                        ()
-            )
-        )
-    )
+            |> ResizeArray.iter (fun cn -> if cn.IsLinkNext then fixChordNote level cn)))
 
 /// Fixes incorrect crowd events: E0, E1, E2.
 let fixCrowdEvents (arrangement: InstrumentalArrangement) =
