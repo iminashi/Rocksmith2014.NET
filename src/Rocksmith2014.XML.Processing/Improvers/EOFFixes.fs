@@ -65,9 +65,7 @@ let fixPhraseStartAnchors (arrangement: InstrumentalArrangement) =
         // Skip the COUNT and END phrases
         for i = 1 to arrangement.PhraseIterations.Count - 2 do
             let piTime = arrangement.PhraseIterations.[i].Time
-
-            let activeAnchor =
-                anchors.FindLast(fun a -> a.Time <= piTime)
+            let activeAnchor = anchors.FindLast(fun a -> a.Time <= piTime)
 
             if notNull activeAnchor && activeAnchor.Time <> piTime then
                 // If an active anchor exists, copy it to the start of the phrase

@@ -1,3 +1,10 @@
+## 0.7.5 (Released 2021-10-03)
+
+- The "Unpack PSARC" dialog now allows you to select multiple files.
+- Improved the automatic fix that ensures that there is an anchor at the start of each phrase.
+- Fixed import of PSARC files that contain null values among the tones.
+- Fixed DD generation failing for files that contain chord templates without any notes.
+
 ## 0.7.4 (Released 2021-09-29)
 
 - Updated the vorbis library to fix a "Could not initialize container" error with some ogg files.
