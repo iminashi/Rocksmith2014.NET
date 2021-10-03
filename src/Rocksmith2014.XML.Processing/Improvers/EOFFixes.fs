@@ -1,6 +1,7 @@
 module Rocksmith2014.XML.Processing.EOFFixes
 
 open Rocksmith2014.XML
+open Rocksmith2014.XML.Extensions
 open System.Text.RegularExpressions
 
 /// Adds linknext to chords that have linknext chord notes, but are missing the attribute.
@@ -55,18 +56,28 @@ let fixChordSlideHandshapes (arrangement: InstrumentalArrangement) =
             if notNull handshape && handshape.EndTime > handshape.StartTime + chord.ChordNotes.[0].Sustain then
                 handshape.EndTime <- handshape.StartTime + chord.ChordNotes.[0].Sustain)
 
-/// Moves the first anchor of a phrase to the start time of the phrase if needed.
+/// Ensures that there is an anchor at the start of each phrase.
 let fixPhraseStartAnchors (arrangement: InstrumentalArrangement) =
     // If there are DD levels, assume that the anchors are correct
     if arrangement.Levels.Count = 1 then
-        arrangement.PhraseIterations
-        |> Seq.pairwise
-        |> Seq.iter (fun (first, second) ->
-            let firstAnchor =
-                arrangement.Levels.[0].Anchors.Find(fun a -> a.Time >= first.Time && a.Time < second.Time)
+        let anchors = arrangement.Levels.[0].Anchors
 
-            if notNull firstAnchor && firstAnchor.Time <> first.Time then
-                firstAnchor.Time <- first.Time)
+        // Skip the COUNT and END phrases
+        for i = 1 to arrangement.PhraseIterations.Count - 2 do
+            let piTime = arrangement.PhraseIterations.[i].Time
+
+            let activeAnchor =
+                anchors.FindLast(fun a -> a.Time <= piTime)
+
+            if notNull activeAnchor && activeAnchor.Time <> piTime then
+                // If an active anchor exists, copy it to the start of the phrase
+                anchors.InsertByTime(Anchor(activeAnchor.Fret, piTime, activeAnchor.Width))
+            elif isNull activeAnchor then
+                // Otherwise try to find the next anchor
+                let nextAnchor = anchors.Find(fun a -> a.Time > piTime)
+
+                if notNull nextAnchor then
+                    nextAnchor.Time <- piTime
 
 /// Applies all the fixes.
 let fixAll arrangement =

@@ -180,7 +180,7 @@ let eofFixTests =
             Expect.equal arr.Events.[2].Code "D3" "Event #3 code unchanged"
             Expect.equal arr.Events.[3].Code "E13" "Event #4 code unchanged"
 
-        testCase "Fixes incorrect hand shape lengths" <| fun _ ->
+        testCase "Fixes incorrect handshape lengths" <| fun _ ->
             let cn = ResizeArray(seq { Note(IsLinkNext = true, SlideTo = 5y, Sustain = 1000) })
             let chord = Chord(ChordNotes = cn, IsLinkNext = true)
             let chords = ResizeArray(seq { chord })
@@ -191,18 +191,40 @@ let eofFixTests =
 
             EOFFixes.fixChordSlideHandshapes arr
 
-            Expect.equal hs.EndTime 1000 "Hand shape end time is correct"
+            Expect.equal hs.EndTime 1000 "Handshape end time is correct"
 
         testCase "Moves anchor to the beginning of phrase" <| fun _ ->
             let anchor = Anchor(5y, 700)
             let anchors = ResizeArray(seq { anchor })
             let levels = ResizeArray(seq { Level(Anchors = anchors) })
-            let phraseIterations = ResizeArray(seq { PhraseIteration(650, 0); PhraseIteration(1000, 1) })
+            let phraseIterations = ResizeArray(seq { PhraseIteration(100, 0); PhraseIteration(650, 0); PhraseIteration(1000, 1) })
             let arr = InstrumentalArrangement(Levels = levels, PhraseIterations = phraseIterations)
 
             EOFFixes.fixPhraseStartAnchors arr
 
+            Expect.hasLength anchors 1 "Anchor was not copied"
             Expect.equal anchor.Time 650 "Anchor time is correct"
+
+        testCase "Copies active anchor to the beginning of phrase" <| fun _ ->
+            let anchor = Anchor(5y, 400, 7y)
+            let anchors = ResizeArray([ anchor ])
+            let levels = ResizeArray([ Level(Anchors = anchors) ])
+            let phraseIterations =
+                ResizeArray(
+                    [ PhraseIteration(100, 0)
+                      PhraseIteration(400, 0)
+                      PhraseIteration(650, 0)
+                      PhraseIteration(1000, 1) ]
+                )
+            let arr = InstrumentalArrangement(Levels = levels, PhraseIterations = phraseIterations)
+
+            EOFFixes.fixPhraseStartAnchors arr
+
+            Expect.hasLength anchors 2 "Anchor was copied"
+            Expect.equal anchor.Time 400 "Existing anchor time is correct"
+            Expect.equal anchors.[1].Time 650 "New anchor time is correct"
+            Expect.equal anchors.[1].Fret anchor.Fret "New anchor fret is correct"
+            Expect.equal anchors.[1].Width anchor.Width "New anchor width is correct"
     ]
 
 [<Tests>]
