@@ -22,10 +22,10 @@ let inline getSustain entity =
     | XmlNote xn ->
         xn.Sustain
     | XmlChord xc ->
-        if isNull xc.ChordNotes then
-            0
-        else
+        if xc.HasChordNotes then
             xc.ChordNotes.[0].Sustain
+        else
+            0
 
 let getAllowedChordNotes (diffPercent: float) maxChordNotesInPhrase =
     if maxChordNotesInPhrase = 0 then

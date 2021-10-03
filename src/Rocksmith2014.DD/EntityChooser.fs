@@ -290,7 +290,7 @@ let choose (diffPercent: float)
                 else
                     let copy = Chord(chord)
 
-                    // Create chord notes if this is the first chord in the hand shape
+                    // Create chord notes if this is the first chord in the handshape
                     if isNull copy.ChordNotes && isFirstChordInHs (List.map fst acc) handShapes copy then
                         copy.ChordNotes <- chordNotesFromTemplate template copy
 

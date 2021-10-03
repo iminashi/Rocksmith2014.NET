@@ -137,7 +137,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
 
     let metaData =
         fileAttributes
-        |> Array.find (fun (file, _) -> not <| file.Contains "vocals")
+        |> Array.find (fun (file, _) -> not <| file.Contains("vocals"))
         |> snd
 
     let! version = async {
