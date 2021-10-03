@@ -47,3 +47,10 @@ let inline filter (predicate: 'a -> bool) (a: ResizeArray<'a>) : ResizeArray<'a>
 let iter action (a: ResizeArray<_>) =
     for i = 0 to a.Count - 1 do
         action a.[i]
+
+/// Returns a ResizeArray that contains the single item.
+let singleton (value: 'a) =
+    let a = ResizeArray<'a>(1)
+    a.Add(value)
+    a
+

@@ -25,7 +25,7 @@ type FileFilter =
     | WwiseConsoleApplication
 
 let private createFilters name (extensions: string seq) =
-    List(seq { FileDialogFilter(Extensions = List(extensions), Name = name) })
+    ResizeArray.singleton (FileDialogFilter(Extensions = List(extensions), Name = name))
 
 let private wwiseConsoleExtension =
     PlatformSpecific.Value(mac="sh", windows="exe", linux="exe")
