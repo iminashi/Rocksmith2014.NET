@@ -52,7 +52,7 @@ let private applyChordId (templates: ResizeArray<ChordTemplate>) =
                     fingers, frets
 
                 let id =
-                    lock lockObj (fun _ ->
+                    lock lockObj (fun () ->
                         let existing = templates.FindIndex(fun x ->
                             x.DisplayName = template.Name
                             && x.Name = template.DisplayName
@@ -81,8 +81,8 @@ let private generateLevels (config: GeneratorConfig) (arr: InstrumentalArrangeme
     // Generate one level for empty phrases
     if phraseData.NoteCount + phraseData.ChordCount = 0 then
         // Copy anchors only
-        let level = Level 0y
-        level.Anchors.AddRange phraseData.Anchors
+        let level = Level(0y)
+        level.Anchors.AddRange(phraseData.Anchors)
         [| level |]
     else
         let entities =
@@ -173,11 +173,7 @@ let generateForArrangement (config: GeneratorConfig) (arr: InstrumentalArrangeme
         |> Array.Parallel.map (generateLevels config arr)
 
     let generatedLevelCount = levels |> Array.map Array.length
-
-    let maxDiff =
-        levels
-        |> Array.map (fun l -> l.Length)
-        |> Array.max
+    let maxDiff = generatedLevelCount |> Array.max
 
     // Combine the data in the levels
     let combinedLevels =
@@ -206,7 +202,7 @@ let generateForArrangement (config: GeneratorConfig) (arr: InstrumentalArrangeme
 /// Generates DD levels for an arrangement loaded from a file and saves it into the target file.
 let generateForFile config fileName targetFile =
     let arr =
-        InstrumentalArrangement.Load fileName
+        InstrumentalArrangement.Load(fileName)
         |> generateForArrangement config
 
     arr.Save(targetFile)

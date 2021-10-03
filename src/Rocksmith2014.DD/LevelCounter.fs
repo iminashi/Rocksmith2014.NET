@@ -33,7 +33,7 @@ let predictLevelCount (path: int) (p: DataExtractor.PhraseData) =
 
     // Load model and predict the output
     let result =
-        lock lockObj (fun _ -> ConsumeModel.Predict input)
+        lock lockObj (fun _ -> ConsumeModel.Predict(input))
 
     let levels = round result.Score |> int
     Math.Clamp(levels, 2, 30)

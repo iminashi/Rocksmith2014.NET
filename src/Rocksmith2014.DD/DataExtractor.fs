@@ -237,5 +237,4 @@ let toCSVLines (filePath: string) =
           .Append(data.AnchorCount).Append(',')
           .Append(data.MaxChordStrings).Append(',')
           .Append(if data.SoloPhrase then 1 else 0)
-          .ToString()
-        )
+          .ToString())
