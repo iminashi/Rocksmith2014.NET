@@ -25,8 +25,7 @@ type FileFilter =
     | WwiseConsoleApplication
 
 let private createFilters name (extensions: string seq) =
-    let filter = FileDialogFilter(Extensions = List(extensions), Name = name)
-    List(seq { filter })
+    List(seq { FileDialogFilter(Extensions = List(extensions), Name = name) })
 
 let private wwiseConsoleExtension =
     PlatformSpecific.Value(mac="sh", windows="exe", linux="exe")
@@ -76,23 +75,23 @@ let private openFolderDialog window title directory msg = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string>(fun () ->
             OpenFolderDialog(Title = title, Directory = Option.toObj directory)
-                .ShowAsync window)
+                .ShowAsync(window))
 
-    return Option.ofString result
-           |> Option.map msg }
+    return Option.ofString result |> Option.map msg }
 
 /// Shows a save file dialog.
 let private saveFileDialog window title filter initialFileName directory msg = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string>(fun () ->
-            SaveFileDialog(Title = title,
-                           Filters = createFileFilters filter,
-                           InitialFileName = Option.toObj initialFileName,
-                           Directory = Option.toObj directory)
-                .ShowAsync window)
+            SaveFileDialog(
+                Title = title,
+                Filters = createFileFilters filter,
+                InitialFileName = Option.toObj initialFileName,
+                Directory = Option.toObj directory
+            )
+                .ShowAsync(window))
 
-    return Option.ofString result
-           |> Option.map msg }
+    return Option.ofString result |> Option.map msg }
 
 let private createOpenFileDialog t f d m =
     OpenFileDialog(Title = t, Filters = createFileFilters f, Directory = Option.toObj d, AllowMultiple = m)
@@ -101,17 +100,18 @@ let private createOpenFileDialog t f d m =
 let private openFileDialog window title filter directory msg = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string[]>(fun () ->
-            (createOpenFileDialog title filter directory false).ShowAsync window)
+            (createOpenFileDialog title filter directory false).ShowAsync(window))
 
-    return Option.ofObj result
-           |> Option.bind Array.tryExactlyOne
-           |> Option.map msg }
+    return
+        Option.ofObj result
+        |> Option.bind Array.tryExactlyOne
+        |> Option.map msg }
 
 /// Shows an open file dialog that allows selecting multiple files.
 let private openMultiFileDialog window title filters directory msg = async {
     let! result =
         Dispatcher.UIThread.InvokeAsync<string[]>(fun () ->
-            (createOpenFileDialog title filters directory true).ShowAsync window)
+            (createOpenFileDialog title filters directory true).ShowAsync(window))
 
     return
         Option.ofArray result
@@ -148,7 +148,8 @@ let showDialog window dialogType state =
         match dialogType with
         | Dialog.SaveJapaneseLyrics ->
             let initialDir = getProjectDirectory state
-            saveFileDialog title FileFilter.XML (Some "PART JVOCALS_RS2.xml") initialDir (JapaneseLyricsCreator.SaveLyricsToFile >> LyricsCreatorMsg)
+            let msg = JapaneseLyricsCreator.SaveLyricsToFile >> LyricsCreatorMsg
+            saveFileDialog title FileFilter.XML (Some "PART JVOCALS_RS2.xml") initialDir msg
 
         | Dialog.OpenProject ->
             ofd FileFilter.Project OpenProject
@@ -194,8 +195,9 @@ let showDialog window dialogType state =
                 |> Some
 
             let initialDirectory = Directory.GetParent(directory).FullName |> Some
+            let msg targetFile = PackDirectoryIntoPSARC(directory, targetFile) |> ToolsMsg
 
-            saveFileDialog title FileFilter.PSARC initialFileName initialDirectory (fun targetFile -> PackDirectoryIntoPSARC(directory, targetFile) |> ToolsMsg)
+            saveFileDialog title FileFilter.PSARC initialFileName initialDirectory msg
 
         | Dialog.WemFiles ->
             openMultiFileDialog title FileFilter.Wem None (ConvertWemToOgg >> ToolsMsg)
