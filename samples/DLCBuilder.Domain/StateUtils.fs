@@ -220,11 +220,17 @@ let showOverlay state overlay =
     match state.Overlay with
     | IdRegenerationConfirmation (_, reply) ->
         // Might end up here in rare cases
-        reply.Reply false
+        reply.Reply(false)
+    | ToneCollection cs ->
+        match overlay with
+        | ToneCollection _ ->
+            ()
+        | _ ->
+            ToneCollection.CollectionState.disposeCollection cs.ActiveCollection
     | _ ->
         ()
 
-    { state with Overlay = overlay }, Cmd.none
+    { state with Overlay = overlay }
 
 let handleFilesDrop paths =
     let arrangements, other =

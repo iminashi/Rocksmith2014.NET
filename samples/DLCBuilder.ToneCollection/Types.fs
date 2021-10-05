@@ -96,8 +96,10 @@ type Msg =
     | HideUserToneEditor
     | EditUserToneData of edit: UserToneEdit
     | ApplyUserToneEdit
+    | DownloadOfficialTonesDatabase
 
 type Effect =
     | Nothing
     | ShowToneAddedToCollectionMessage
     | AddToneToProject of tone: Tone
+    | BeginDownloadingTonesDatabase

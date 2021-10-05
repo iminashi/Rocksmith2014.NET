@@ -114,3 +114,6 @@ let update (state: ToneCollectionState) msg =
             deleteUserTone selectedTone.Id state, Effect.Nothing
         | None ->
             state, Effect.Nothing
+
+    | DownloadOfficialTonesDatabase ->
+        state, Effect.BeginDownloadingTonesDatabase

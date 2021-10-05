@@ -101,7 +101,7 @@ let update (msg: Msg) (state: State) =
 
     | ShowToneEditor ->
         match getSelectedTone state with
-        | Some _ -> showOverlay state ToneEditor
+        | Some _ -> showOverlay state ToneEditor, Cmd.none
         | None -> state, Cmd.none
 
     | NewProject ->
@@ -228,7 +228,7 @@ let update (msg: Msg) (state: State) =
 
     | ImportProfileTones ->
         if String.IsNullOrWhiteSpace(config.ProfilePath) then
-            showOverlay state (ConfigEditor FocusedSetting.ProfilePath)
+            showOverlay state (ConfigEditor FocusedSetting.ProfilePath), Cmd.none
         else
             match Profile.importTones config.ProfilePath with
             | Ok toneArray ->
@@ -406,9 +406,11 @@ let update (msg: Msg) (state: State) =
             SelectedToneIndex = index }, Cmd.none
 
     | ShowToneCollection ->
-        ToneCollection.CollectionState.init state.DatabaseConnector ToneCollection.ActiveTab.Official
-        |> ToneCollection
-        |> showOverlay state
+        let overlay =
+            ToneCollection.CollectionState.init state.DatabaseConnector ToneCollection.ActiveTab.Official
+            |> ToneCollection
+
+        showOverlay state overlay, Cmd.none
 
     | MoveArrangement dir ->
         let arrangements, index = Utils.moveSelected dir state.SelectedArrangementIndex project.Arrangements
@@ -422,7 +424,7 @@ let update (msg: Msg) (state: State) =
         let initialPreviewStart = project.AudioPreviewStartTime |> Option.orElse (Some 0.)
         let newState = { state with Project = { project with AudioPreviewStartTime = initialPreviewStart } }
 
-        showOverlay newState (SelectPreviewStart audioLength)
+        showOverlay newState (SelectPreviewStart audioLength), Cmd.none
 
     | CreatePreviewAudio CreateFile ->
         match project.AudioPreviewStartTime with
@@ -464,7 +466,7 @@ let update (msg: Msg) (state: State) =
         { state with ShowJapaneseFields = shown }, Cmd.none
 
     | ShowOverlay overlay ->
-        showOverlay state overlay
+        showOverlay state overlay, Cmd.none
 
     | SetConfiguration (newConfig, enableLoad, wasAbnormalExit) ->
         if config.Locale <> newConfig.Locale then
@@ -549,12 +551,13 @@ let update (msg: Msg) (state: State) =
                 MessageString(messageId, translate "DownloadingUpdate") :: state.StatusMessages
 
             { state with StatusMessages = statusMessages; Overlay = NoOverlay },
-            Cmd.OfAsync.attempt OnlineUpdate.downloadAndApplyUpdate update (fun e -> UpdateFailed(messageId, e))
+            Cmd.OfAsync.attempt OnlineUpdate.downloadAndApplyUpdate update (fun e -> DownloadFailed(messageId, e))
         | None ->
             state, Cmd.none
 
-    | UpdateFailed (messageId, error) ->
-        { state with Overlay = exceptionToErrorMessage error }, Cmd.ofMsg (RemoveStatusMessage messageId)
+    | DownloadFailed (messageId, error) ->
+        showOverlay state (exceptionToErrorMessage error),
+        Cmd.ofMsg (RemoveStatusMessage messageId)
 
     | SaveProjectAs ->
         state, Cmd.ofMsg (Dialog.SaveProjectAs |> ShowDialog)
@@ -700,7 +703,7 @@ let update (msg: Msg) (state: State) =
         if String.notEmpty config.TestFolderPath then
             buildPackage (TestPackageBuilder.build state.CurrentPlatform) state
         else
-            showOverlay state (ConfigEditor FocusedSetting.TestFolder)
+            showOverlay state (ConfigEditor FocusedSetting.TestFolder), Cmd.none
 
     | Build Release ->
         buildPackage (ReleasePackageBuilder.build state.OpenProjectFile) state
@@ -807,7 +810,7 @@ let update (msg: Msg) (state: State) =
         state, Cmd.none
 
     | ErrorOccurred e ->
-        showOverlay state (exceptionToErrorMessage e)
+        showOverlay state (exceptionToErrorMessage e), Cmd.none
 
     | TaskFailed (e, failedTask) ->
         { removeTask failedTask state with Overlay = exceptionToErrorMessage e }, Cmd.none
@@ -825,6 +828,22 @@ let update (msg: Msg) (state: State) =
         // Handled elsewhere as a side effect
         state, Cmd.none
 
+    | OfficialTonesDatabaseDownloaded messageId ->
+        let cmd = Cmd.ofMsg (RemoveStatusMessage messageId)
+
+        match state with
+        | { Overlay = ToneCollection collectionState } ->
+            match collectionState with
+            | { ActiveCollection = ToneCollection.ActiveCollection.Official(None) } ->
+                let newCollectionState =
+                    ToneCollection.CollectionState.init collectionState.Connector ToneCollection.ActiveTab.Official
+
+                { state with Overlay = ToneCollection newCollectionState }, cmd
+            | _ ->
+                state, cmd
+        | _ ->
+            state, cmd
+
     | ToneCollectionMsg msg ->
         match state.Overlay with
         | ToneCollection collectionState ->
@@ -839,6 +858,18 @@ let update (msg: Msg) (state: State) =
                 Cmd.ofMsg (AddStatusMessage (translate "ToneAddedToProject"))
             | ToneCollection.ShowToneAddedToCollectionMessage ->
                 newState, Cmd.ofMsg (AddStatusMessage (translate "ToneAddedToCollection"))
+            | ToneCollection.BeginDownloadingTonesDatabase ->
+                let messageId = Guid.NewGuid()
+                let statusMessages =
+                    MessageString(messageId, translate "DownloadingToneDatabase") :: state.StatusMessages
+
+                let cmd =
+                    Cmd.OfAsync.either
+                        Downloader.downloadTonesDatabase ()
+                        (fun _ -> OfficialTonesDatabaseDownloaded messageId)
+                        (fun e -> DownloadFailed(messageId, e))
+
+                { newState with StatusMessages = statusMessages }, cmd
         | _ ->
             state, Cmd.none
 

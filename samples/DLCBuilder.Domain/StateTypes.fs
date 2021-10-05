@@ -216,7 +216,6 @@ type Msg =
     | DismissUpdateMessage
     | ShowUpdateInformation
     | UpdateAndRestart
-    | UpdateFailed of messageId: Guid * error: exn
     | DeleteTestBuilds
     | DeleteConfirmed of files: string list
     | DeleteSelectedArrangement
@@ -273,6 +272,8 @@ type Msg =
     | ShowJapaneseLyricsCreator
     | LyricsCreatorMsg of JapaneseLyricsCreator.Msg
     | LoadMultipleFiles of paths: string seq
+    | OfficialTonesDatabaseDownloaded of messageId: Guid
+    | DownloadFailed of messageId: Guid * error: exn
 
 type State =
     { Project: DLCProject

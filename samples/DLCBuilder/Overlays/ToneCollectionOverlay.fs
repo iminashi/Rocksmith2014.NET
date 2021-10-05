@@ -196,10 +196,20 @@ let private collectionView dispatch (collectionState: ToneCollectionState) =
             match collectionState.ActiveCollection with
             // Database file not found message
             | ActiveCollection.Official None ->
-                TextBlock.create [
-                    TextBlock.horizontalAlignment HorizontalAlignment.Center
-                    TextBlock.verticalAlignment VerticalAlignment.Center
-                    TextBlock.text (translate "OfficialTonesDbNotFound")
+                StackPanel.create [
+                    StackPanel.horizontalAlignment HorizontalAlignment.Center
+                    StackPanel.verticalAlignment VerticalAlignment.Center
+                    StackPanel.children [
+                        TextBlock.create [
+                            TextBlock.text (translate "OfficialTonesDbNotFound")
+                        ]
+                        Button.create [
+                            Button.margin 4.
+                            Button.padding (20., 10.)
+                            Button.content (translate "ClickToDownloadTonesDb")
+                            Button.onClick (fun _ -> DownloadOfficialTonesDatabase |> dispatch)
+                        ]
+                    ]
                 ]
             // Tones list
             | ActiveCollection.Official _ ->
