@@ -11,6 +11,7 @@ type IssueType =
     | LinkNextBendMismatch
     | IncorrectLinkNext
     | UnpitchedSlideWithLinkNext
+    | PhraseChangeOnLinkNextNote
     | DoubleHarmonic
     | MissingIgnore
     | SeventhFretHarmonicWithSustain

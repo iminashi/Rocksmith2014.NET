@@ -270,6 +270,8 @@
   "FirstPhraseNotEmptyHelp": "正しい機能のためには最初のフレーズがからっぽである必要があります。通常は、COUNTというフレーズで、EOFに自動的に作られます。",
   "NoEndPhrase": "ENDフレーズがない",
   "NoEndPhraseHelp": "アレンジにはENDというフレーズが存在しません。このフレーズはアレンジ終わりにアンカーゾーンを中断します。",
+  "PhraseChangeOnLinkNextNote": "LinkNextノートのサステイン中にフレーズが変わる",
+  "PhraseChangeOnLinkNextNoteHelp": "アレンジにDDレベルがあると、このノートの後にくる同じ弦のノートが消えることがあります。",
   "General": "一般",
   "Build": "ビルド",
   "ImportHeader": "インポート",

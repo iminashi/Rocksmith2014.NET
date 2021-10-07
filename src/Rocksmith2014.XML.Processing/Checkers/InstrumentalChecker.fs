@@ -130,6 +130,9 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
         if note.IsLinkNext && note.IsUnpitchedSlide then
             issue UnpitchedSlideWithLinkNext time
 
+        if note.IsLinkNext && arrangement.PhraseIterations.Exists(fun pi -> pi.Time > note.Time && pi.Time < note.Time + note.Sustain) then
+            issue PhraseChangeOnLinkNextNote time
+
         // Check for notes with both harmonic and pinch harmonic attributes
         if note.IsHarmonic && note.IsPinchHarmonic then
             issue DoubleHarmonic time
