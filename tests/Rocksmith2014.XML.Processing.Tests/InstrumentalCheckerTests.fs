@@ -248,6 +248,41 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 0 "No issues created"
+
+        testCase "Detects phrase on linknext note's sustain" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300, IsLinkNext = true, Sustain = 500)
+                                          Note(Fret = 1y, Time = 1800, Sustain = 100) })
+            let level = Level(Notes = notes)
+            let phrases =
+                ResizeArray(
+                    [ Phrase("default", 0uy, PhraseMask.None)
+                      Phrase("first", 0uy, PhraseMask.None)
+                      Phrase("bad", 0uy, PhraseMask.None) ]
+                 )
+            let iterations = ResizeArray(seq {  PhraseIteration(0, 0); PhraseIteration(1000, 1); PhraseIteration(1500, 2) })
+            let arr = InstrumentalArrangement(Phrases = phrases, PhraseIterations = iterations, Levels = ResizeArray([ level ]))
+
+            let results = checkNotes arr level
+
+            Expect.hasLength results 1 "One issue was created"
+            Expect.equal results.Head.Type PhraseChangeOnLinkNextNote "Correct issue type"
+
+        testCase "Mover phrase on linknext note's sustain is ignored" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300, IsLinkNext = true, Sustain = 500)
+                                          Note(Fret = 1y, Time = 1800, Sustain = 100) })
+            let level = Level(Notes = notes)
+            let phrases =
+                ResizeArray(
+                    [ Phrase("default", 0uy, PhraseMask.None)
+                      Phrase("first", 0uy, PhraseMask.None)
+                      Phrase("mover1", 0uy, PhraseMask.None) ]
+                 )
+            let iterations = ResizeArray(seq {  PhraseIteration(0, 0); PhraseIteration(1000, 1); PhraseIteration(1500, 2) })
+            let arr = InstrumentalArrangement(Phrases = phrases, PhraseIterations = iterations, Levels = ResizeArray([ level ]))
+
+            let results = checkNotes arr level
+
+            Expect.hasLength results 0 "No issues created"
     ]
 
 [<Tests>]

@@ -118,6 +118,12 @@ let private isOnToneChange (arr: InstrumentalArrangement) time =
     notNull arr.Tones.Changes
     && arr.Tones.Changes.Exists(fun t -> t.Time = time)
 
+let private isPhraseChangeOnSustain (arr: InstrumentalArrangement) (note: Note) =
+    arr.PhraseIterations.Exists(fun pi ->
+        pi.Time > note.Time
+        && pi.Time <= note.Time + note.Sustain
+        && (not <| String.startsWith "mover" arr.Phrases.[pi.PhraseId].Name))
+
 /// Checks the notes in the level for issues.
 let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
     let ngSections = getNoguitarSections arrangement
@@ -130,7 +136,8 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
         if note.IsLinkNext && note.IsUnpitchedSlide then
             issue UnpitchedSlideWithLinkNext time
 
-        if note.IsLinkNext && arrangement.PhraseIterations.Exists(fun pi -> pi.Time > note.Time && pi.Time < note.Time + note.Sustain) then
+        // Check for phrases placed on a LinkNext note's sustain
+        if note.IsLinkNext && isPhraseChangeOnSustain arrangement note then
             issue PhraseChangeOnLinkNextNote time
 
         // Check for notes with both harmonic and pinch harmonic attributes
