@@ -128,7 +128,7 @@ let private createChordNotesMask (chordNotes: ResizeArray<XML.Note>) =
     masks
 
 /// Creates chord notes for the chord and returns the ID number for them.
-let private createChordNotes (pendingLinkNexts: Dictionary<int8, int16>) thisId (accuData: AccuData) (chord: XML.Chord) =
+let private createChordNotes (pendingLinkNexts: Dictionary<int8, struct(XML.Note * int16)>) thisId (accuData: AccuData) (chord: XML.Chord) =
     // Convert the masks first to check if the chord notes need to be created at all
     let masks = createChordNotesMask chord.ChordNotes
 
@@ -151,7 +151,7 @@ let private createChordNotes (pendingLinkNexts: Dictionary<int8, int16>) thisId 
                 bendData.[strIndex] <- createBendData32 note
 
             if note.IsLinkNext then
-                pendingLinkNexts.TryAdd(note.String, thisId) |> ignore
+                pendingLinkNexts.TryAdd(note.String, struct(note, thisId)) |> ignore
 
         let chordNotes =
             { Mask = masks
@@ -184,8 +184,8 @@ let convertNote (noteTimes: int array)
                 (xml: XML.InstrumentalArrangement)
                 (difficulty: int) =
     // Dictionary of link-next parent notes in need of a child note.
-    // Mapping: string number => index of note in phrase iteration
-    let pendingLinkNexts = Dictionary<int8, int16>()
+    // Mapping: string number => the note and its index in the phrase iteration
+    let pendingLinkNexts = Dictionary<int8, struct(XML.Note * int16)>()
     // The previous converted note
     let mutable previousNote: Note option = None
 
@@ -228,8 +228,16 @@ let convertNote (noteTimes: int array)
             // XML Notes
             | XmlNote note ->
                 let parentNote =
-                    let mutable id = -1s
-                    if pendingLinkNexts.Remove(note.String, &id) then id else -1s
+                    let mutable linked: struct(XML.Note * int16) = struct(null, -1s)
+                    if pendingLinkNexts.Remove(note.String, &linked) then
+                        // Check if the this note is actually at the end of the sustain of the parent note
+                        match linked with
+                        | (parent, _) when note.Time - (parent.Time + parent.Sustain) > 2 ->
+                            -1s
+                        | (_, id) ->
+                            id
+                    else
+                        -1s
 
                 let bendValues =
                     match note.BendValues with
@@ -241,7 +249,7 @@ let convertNote (noteTimes: int array)
                         |> mapToArrayMaxSize 32 convertBendValue
 
                 // Using TryAdd because of possible link next errors in CDLC
-                if note.IsLinkNext then pendingLinkNexts.TryAdd(note.String, this) |> ignore
+                if note.IsLinkNext then pendingLinkNexts.TryAdd(note.String, struct(note, this)) |> ignore
                 let mask = createMaskForNote parentNote isArpeggio note
 
                 // Create anchor extension if needed

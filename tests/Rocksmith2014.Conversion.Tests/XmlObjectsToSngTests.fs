@@ -605,10 +605,14 @@ let xmlToSngConversionTests =
             Expect.isTrue (sng.Mask ?= SNG.NoteMask.HighDensity) "High-density chord has high-density flag"
         
         testCase "Chord (Link Next)" <| fun _ ->
-            let chord = Chord(Mask = ChordMask.LinkNext, Time = 1250, ChordId = 1s,
-                              ChordNotes = ResizeArray(seq { Note(String = 2y, Fret = 3y,
-                                                                  Sustain = 500, Mask = NoteMask.LinkNext) }))
-        
+            let chord =
+                Chord(
+                    Mask = ChordMask.LinkNext, Time = 1250, ChordId = 1s,
+                    ChordNotes =
+                        ResizeArray(
+                            seq { Note(Time = 1250, String = 2y, Fret = 3y, Sustain = 500, Mask = NoteMask.LinkNext)
+                            })
+                )
             let note = Note(String = 2y, Fret = 3y, Time = 1750)
             let testArr = createTestArr ()
             testArr.Levels.[0].Chords.Add(chord)

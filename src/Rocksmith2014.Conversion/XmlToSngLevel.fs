@@ -49,6 +49,7 @@ let convertLevel (accuData: AccuData) (piTimes: int array) (xmlArr: XML.Instrume
         let piNotes =
             accuData.NotesInPhraseIterationsAll.[difficulty]
             |> Array.indexed
+
         Array.init xmlArr.Phrases.Count (fun phraseId ->
             piNotes
             |> Array.filter (fun v -> xmlArr.PhraseIterations.[fst v].PhraseId = phraseId)
