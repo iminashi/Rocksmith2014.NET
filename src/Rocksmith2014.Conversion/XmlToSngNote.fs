@@ -230,7 +230,7 @@ let convertNote (noteTimes: int array)
                 let parentNote =
                     let mutable linked: struct(XML.Note * int16) = struct(null, -1s)
                     if pendingLinkNexts.Remove(note.String, &linked) then
-                        // Check if the this note is actually at the end of the sustain of the parent note
+                        // Check if this note is actually at the end of the sustain of the parent note
                         match linked with
                         | (parent, _) when note.Time - (parent.Time + parent.Sustain) > 2 ->
                             -1s
