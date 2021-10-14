@@ -7,6 +7,13 @@
     <Platforms>x64</Platforms>
     <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
   </PropertyGroup>
+
+  <!-- Workaround for not being able to specify the RuntimeIdentifier when building in VS -->
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <RuntimeIdentifier Condition=" '$([MSBuild]::IsOSPlatform(Windows))' ">win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition=" '$([MSBuild]::IsOSPlatform(Linux))' ">linux-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition=" '$([MSBuild]::IsOSPlatform(OSX))' ">osx-x64</RuntimeIdentifier>
+  </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
