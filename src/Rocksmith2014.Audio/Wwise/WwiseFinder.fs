@@ -11,7 +11,7 @@ let private tryEnv variable =
 let private tryFindWwiseInstallation rootDir =
     let audiokineticDirectory = Path.Combine(rootDir, "Audiokinetic")
 
-    if Directory.Exists audiokineticDirectory then
+    if Directory.Exists(audiokineticDirectory) then
         audiokineticDirectory
         |> Directory.EnumerateDirectories
         |> Seq.tryFind (fun fn -> Regex.IsMatch(fn, "20(19|21)"))
@@ -21,7 +21,7 @@ let private tryFindWwiseInstallation rootDir =
 let findWindows () =
     let wwiseRoot =
         match tryEnv "WWISEROOT" with
-        | Some (Contains "2019" | Contains "2021" as path) when Directory.Exists path ->
+        | Some (Contains "2019" | Contains "2021" as path) when Directory.Exists(path) ->
             path
         | _ ->
             // Try the default installation directory in program files

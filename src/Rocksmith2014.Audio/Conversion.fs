@@ -15,11 +15,18 @@ let oggToWav sourcePath targetPath =
     use ogg = new VorbisWaveReader(sourcePath)
     WaveFileWriter.CreateWaveFile16(targetPath, ogg)
 
-let private processFile cmd args (file: string) =
+let private createArgs path extraArgs =
+    let pathArg = $"\"%s{path}\""
+    if String.notEmpty extraArgs then
+        String.Join(' ', pathArg, extraArgs)
+    else
+        pathArg
+
+let private processFile cmd path extraArgs =
     let startInfo =
         ProcessStartInfo(
             FileName = cmd,
-            Arguments = String.Format(args, file),
+            Arguments = createArgs path extraArgs,
             WorkingDirectory = toolsDir,
             RedirectStandardOutput = true,
             CreateNoWindow = true
@@ -40,7 +47,7 @@ let private validateRevorbOutput (exitCode, output) =
             if String.notEmpty output then
                 $"output:\n{output}"
             else
-                $"exit code:\n{exitCode}"
+                $"exit code: {exitCode}"
 
         failwith $"revorb process failed with {message}"
 
@@ -48,10 +55,10 @@ let private validateRevorbOutput (exitCode, output) =
 let wemToOgg wemfile =
     let oggFile = Path.ChangeExtension(wemfile, "ogg")
 
-    processFile ww2ogg "\"{0}\" --pcb packed_codebooks_aoTuV_603.bin" wemfile
+    processFile ww2ogg wemfile "--pcb packed_codebooks_aoTuV_603.bin"
     |> validateWw2oggOutput
 
-    processFile revorb "\"{0}\"" oggFile
+    processFile revorb oggFile ""
     |> validateRevorbOutput
 
 /// Converts a wem file into a wave file.
