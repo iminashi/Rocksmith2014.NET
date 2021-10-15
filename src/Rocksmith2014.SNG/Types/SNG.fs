@@ -122,11 +122,12 @@ module SNG =
         // Write the uncompressed length
         (BinaryWriters.getWriter payload platform).WriteInt32(int32 input.Length)
         do! Compression.asyncZip input payload
-        // Write 56 extra bytes (not used by the game)
-        payload.Write((Array.zeroCreate<byte> 56), 0, 56)
 
         payload.Position <- 0L
-        Cryptography.encryptSNG payload output platform None }
+        Cryptography.encryptSNG payload output platform None
+
+        // Write 56 extra bytes (not used by the game)
+        writer.WriteBytes(Array.zeroCreate<byte> 56) }
 
     /// Unpacks the given encrypted SNG file and saves it with an "_unpacked.sng" postfix.
     let unpackFile fileName platform = async {
