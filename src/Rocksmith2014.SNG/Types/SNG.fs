@@ -122,6 +122,8 @@ module SNG =
         // Write the uncompressed length
         (BinaryWriters.getWriter payload platform).WriteInt32(int32 input.Length)
         do! Compression.asyncZip input payload
+        // Write 56 extra bytes (not used by the game)
+        payload.Write((Array.zeroCreate<byte> 56), 0, 56)
 
         payload.Position <- 0L
         Cryptography.encryptSNG payload output platform None }
