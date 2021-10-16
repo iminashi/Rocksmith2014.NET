@@ -42,7 +42,7 @@ let canRunValidation state =
 
 /// Returns true for tasks that report progress.
 let taskHasProgress = function
-    | BuildPackage | PsarcImport | PsarcUnpack | ArrangementCheckAll ->
+    | BuildPackage | PsarcImport | PsarcUnpack | ArrangementCheckAll | FileDownload _ ->
         true
     | _ ->
         false

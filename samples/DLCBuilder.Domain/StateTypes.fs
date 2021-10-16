@@ -57,6 +57,7 @@ type LongTask =
     | ArrangementCheckAll
     | ArrangementCheckOne
     | VolumeCalculation of VolumeTarget
+    | FileDownload of id: DownloadId
 
 type StatusMessage =
     | TaskWithoutProgress of task: LongTask
@@ -272,7 +273,7 @@ type Msg =
     | ShowJapaneseLyricsCreator
     | LyricsCreatorMsg of JapaneseLyricsCreator.Msg
     | LoadMultipleFiles of paths: string seq
-    | OfficialTonesDatabaseDownloaded of messageId: Guid
+    | OfficialTonesDatabaseDownloaded of downloadTask: LongTask
     | DownloadFailed of messageId: Guid * error: exn
 
 type State =

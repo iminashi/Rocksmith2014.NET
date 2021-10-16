@@ -763,17 +763,6 @@ let update (msg: Msg) (state: State) =
         { removeTask ArrangementCheckAll state with ArrangementIssues = issues },
         Cmd.ofMsg (AddStatusMessage(translate "ValidationComplete"))
 
-    | TaskProgressChanged (progressedTask, progress) ->
-        let messages =
-            state.StatusMessages
-            |> List.map (function
-                | TaskWithProgress (task, _) when task = progressedTask ->
-                    TaskWithProgress(task, progress)
-                | other ->
-                    other)
-
-        { state with StatusMessages = messages }, Cmd.none
-
     | PsarcUnpacked ->
         removeTask PsarcUnpack state,
         Cmd.ofMsg (AddStatusMessage (translate "PsarcUnpackComplete"))
@@ -792,6 +781,7 @@ let update (msg: Msg) (state: State) =
             state.StatusMessages
             |> List.filter (function
                 | MessageString (id, _) when id = removeId -> false
+                | TaskWithProgress(FileDownload({ Id = id }), _) when id = removeId -> false
                 | _ -> true)
 
         { state with StatusMessages = messages }, Cmd.none
@@ -812,6 +802,17 @@ let update (msg: Msg) (state: State) =
     | ErrorOccurred e ->
         showOverlay state (exceptionToErrorMessage e), Cmd.none
 
+    | TaskProgressChanged (progressedTask, progress) ->
+        let messages =
+            state.StatusMessages
+            |> List.map (function
+                | TaskWithProgress (task, _) when task = progressedTask ->
+                    TaskWithProgress(task, progress)
+                | other ->
+                    other)
+
+        { state with StatusMessages = messages }, Cmd.none
+
     | TaskFailed (e, failedTask) ->
         { removeTask failedTask state with Overlay = exceptionToErrorMessage e }, Cmd.none
 
@@ -828,21 +829,22 @@ let update (msg: Msg) (state: State) =
         // Handled elsewhere as a side effect
         state, Cmd.none
 
-    | OfficialTonesDatabaseDownloaded messageId ->
-        let cmd = Cmd.ofMsg (RemoveStatusMessage messageId)
+    | OfficialTonesDatabaseDownloaded downloadTask ->
+        let newState =
+            match state with
+            | { Overlay = ToneCollection collectionState } ->
+                match collectionState with
+                | { ActiveCollection = ToneCollection.ActiveCollection.Official(None) } ->
+                    let newCollectionState =
+                        ToneCollection.CollectionState.init collectionState.Connector ToneCollection.ActiveTab.Official
 
-        match state with
-        | { Overlay = ToneCollection collectionState } ->
-            match collectionState with
-            | { ActiveCollection = ToneCollection.ActiveCollection.Official(None) } ->
-                let newCollectionState =
-                    ToneCollection.CollectionState.init collectionState.Connector ToneCollection.ActiveTab.Official
-
-                { state with Overlay = ToneCollection newCollectionState }, cmd
+                    { state with Overlay = ToneCollection newCollectionState }
+                | _ ->
+                    state
             | _ ->
-                state, cmd
-        | _ ->
-            state, cmd
+                state
+
+        removeTask downloadTask newState, Cmd.none
 
     | ToneCollectionMsg msg ->
         match state.Overlay with
@@ -859,17 +861,18 @@ let update (msg: Msg) (state: State) =
             | ToneCollection.ShowToneAddedToCollectionMessage ->
                 newState, Cmd.ofMsg (AddStatusMessage (translate "ToneAddedToCollection"))
             | ToneCollection.BeginDownloadingTonesDatabase ->
-                let messageId = Guid.NewGuid()
-                let statusMessages =
-                    MessageString(messageId, translate "DownloadingToneDatabase") :: state.StatusMessages
+                let downloadId = { Id = Guid.NewGuid(); LocString = "DownloadingToneDatabase" }
+                let downloadTask = FileDownload downloadId
+                let targetPath =
+                    Path.Combine(Path.Combine(Configuration.appDataFolder, "tones"), "official.db")
 
                 let cmd =
                     Cmd.OfAsync.either
-                        Downloader.downloadTonesDatabase ()
-                        (fun _ -> OfficialTonesDatabaseDownloaded messageId)
-                        (fun e -> DownloadFailed(messageId, e))
+                        (Downloader.downloadFile Downloader.ToneDBUrl targetPath) downloadId
+                        (fun () -> OfficialTonesDatabaseDownloaded downloadTask)
+                        (fun ex -> TaskFailed(ex, downloadTask))
 
-                { newState with StatusMessages = statusMessages }, cmd
+                addTask downloadTask newState, cmd
         | _ ->
             state, Cmd.none
 

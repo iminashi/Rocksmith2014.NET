@@ -424,6 +424,6 @@
   "DDPhraseSimilarityHelp": "Samanlaisten fraasien taso nousee samanaikaisesti.\n\n100%:iin asetettuna fraaseilla täytyy olla täsmälleen sama määrä nuotteja samassa järjestyksessä.",
   "ApplyImprovementsHelp": "Tekee sovituksiin joitakin automatisoituja parannuksia.\n\nLisätietoja saat readme tiedostosta.",
   "SaveDebugFilesHelp": "Tallentaa .debug.xml tiedostot jokaiselle kitara- ja bassosovitukselle projektikansioon.\n\nNiistä voit nähdä miltä sovitukset näyttävät ennen kuin ne muunnetaan SNG muotoon (pelin käyttämä binääritiedostomuoto).",
-  "ClickToDownloadTonesDb": "Voit ladata sen tästä",
+  "ClickToDownloadTonesDb": "Lataa tietokanta",
   "DownloadingToneDatabase": "Ladataan sounditietokantaa..."
 }

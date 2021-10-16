@@ -1,6 +1,8 @@
 [<AutoOpen>]
 module DLCBuilder.GeneralTypes
 
+open System
+
 type Locale =
     { Name: string
       ShortName: string }
@@ -42,3 +44,5 @@ type BuildValidationError =
     | ConflictingVocals
     | MissingBaseToneKey
     | SamePersistentID
+
+type DownloadId = { Id: Guid; LocString: string }

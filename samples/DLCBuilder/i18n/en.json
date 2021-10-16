@@ -424,6 +424,6 @@
   "DDPhraseSimilarityHelp": "Similar phrases are set up to level up together.\n\nAt 100% the phrases need to have exactly the same number of notes and chords that come in the same order.",
   "ApplyImprovementsHelp": "Applies various automatic fixes to the arrangements.\n\nSee the readme for details.",
   "SaveDebugFilesHelp": "Saves .debug.xml files for each guitar or bass arrangement in the project directory.\n\nYou can use them too see what the arrangements look like before they are converted to SNG (the binary format used by the game).",
-  "ClickToDownloadTonesDb": "Click here to download it",
+  "ClickToDownloadTonesDb": "Download the database",
   "DownloadingToneDatabase": "Downloading tone database..."
 }

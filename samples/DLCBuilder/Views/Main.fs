@@ -289,10 +289,16 @@ let private statusMessageContents dispatch = function
             StackPanel.children [
                 TextBlock.create [
                     TextBlock.fontSize 15.
-                    TextBlock.text (task |> string |> translate)
+                    TextBlock.text (
+                        match task with
+                        | FileDownload { LocString = s } ->
+                            translate s
+                        | other ->
+                            other |> string |> translate)
                 ]
                 ProgressBar.create [
                     ProgressBar.maximum 100.
+                    ProgressBar.isIndeterminate (progress < 0.0)
                     ProgressBar.value progress
                 ]
             ]
@@ -306,6 +312,8 @@ let private statusMessageContents dispatch = function
                     translate $"VolumeCalculationCustomAudio"
                 | VolumeCalculation target ->
                     translate $"VolumeCalculation{target}"
+                | FileDownload { LocString = s } ->
+                    translate s
                 | other ->
                     other |> string |> translate)
         ] |> generalize
