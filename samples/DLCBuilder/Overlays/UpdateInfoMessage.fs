@@ -80,7 +80,7 @@ let view (update: UpdateInformation) dispatch =
                                 translate "GoToDownloadPage")
                         Button.onClick (fun _ ->
                             if OperatingSystem.IsWindows() then
-                                dispatch UpdateAndRestart
+                                dispatch DownloadUpdate
                             else
                                 Utils.openWithShell "https://github.com/iminashi/Rocksmith2014.NET/releases"
                                 dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))

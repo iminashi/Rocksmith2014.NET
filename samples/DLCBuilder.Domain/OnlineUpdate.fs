@@ -2,8 +2,6 @@ module DLCBuilder.OnlineUpdate
 
 open Octokit
 open System
-open System.Net.Http
-open System.IO
 open System.Diagnostics
 
 [<RequireQualifiedAccess>]
@@ -20,13 +18,15 @@ type UpdateInformation =
       AssetUrl: string }
 
 /// Attempts to get the latest release from GitHub.
-let private tryGetLatestRelease () = async {
-    try
-        let github = GitHubClient(ProductHeaderValue("rs2014-dlc-builder"))
-        let! release = github.Repository.Release.GetLatest("iminashi", "Rocksmith2014.NET")
-        return Ok release
-    with e ->
-        return Error $"Getting latest release failed with: {e.Message}" }
+let private tryGetLatestRelease () =
+    async {
+        try
+            let github = GitHubClient(ProductHeaderValue("rs2014-dlc-builder"))
+            let! release = github.Repository.Release.GetLatest("iminashi", "Rocksmith2014.NET")
+            return Ok release
+        with e ->
+            return Error $"Getting latest release failed with: {e.Message}"
+    }
 
 let private getAvailableUpdate (latestVersion: Version) =
     let currentVersion = AppVersion.current
@@ -67,27 +67,16 @@ let private getAvailableUpdateInformation (release: Release) =
           AssetUrl = asset.BrowserDownloadUrl })
 
 /// Fetches the latest release and returns the information for the available update.
-let checkForUpdates () = async {
-    let! release = tryGetLatestRelease ()
-    return release |> Result.map getAvailableUpdateInformation }
+let checkForUpdates () =
+    async {
+        let! release = tryGetLatestRelease ()
+        return release |> Result.map getAvailableUpdateInformation
+    }
 
-let private client = new HttpClient()
-
-/// Downloads a file from the source URL to the target path.
-let private downloadFile (targetPath: string) (sourceUrl: string) = async {
-    let! response = client.GetAsync(sourceUrl)
-    response.EnsureSuccessStatusCode() |> ignore
-    use! stream = response.Content.ReadAsStreamAsync()
-    use file = File.Create(targetPath)
-    do! stream.CopyToAsync(file) }
-
-/// Downloads the update and starts the Updater process.
-let downloadAndApplyUpdate (update: UpdateInformation) = async {
-    let updatePath = Path.Combine(Configuration.appDataFolder, "update.exe")
-    do! downloadFile updatePath update.AssetUrl
-
+/// Starts the installer process from the given path.
+let applyUpdate updatePath =
     let startInfo = ProcessStartInfo(FileName = updatePath, Arguments = $"/SILENT /CLOSEAPPLICATIONS")
     use update = new Process(StartInfo = startInfo)
     update.Start() |> ignore
 
-    Environment.Exit(0) }
+    Environment.Exit(0)

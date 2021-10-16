@@ -279,3 +279,7 @@ let createPsarcImportProgressReporter config =
         currentProgress <- currentProgress + 1.
         currentProgress / maxProgress * 100.
         |> (ProgressReporters.PsarcImport :> IProgress<float>).Report
+
+let createDownloadTask locString =
+    let id = { Id = Guid.NewGuid(); LocString = locString }
+    id, FileDownload id

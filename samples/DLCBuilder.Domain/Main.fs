@@ -543,21 +543,26 @@ let update (msg: Msg) (state: State) =
 
         { state with AvailableUpdate = update }, Cmd.ofMsg msg
 
-    | UpdateAndRestart ->
+    | DownloadUpdate ->
         match state.AvailableUpdate with
         | Some update ->
-            let messageId = Guid.NewGuid()
-            let statusMessages =
-                MessageString(messageId, translate "DownloadingUpdate") :: state.StatusMessages
+            let id, download = createDownloadTask "DownloadingUpdate"
+            let targetPath = Path.Combine(Configuration.appDataFolder, "update.exe")
 
-            { state with StatusMessages = statusMessages; Overlay = NoOverlay },
-            Cmd.OfAsync.attempt OnlineUpdate.downloadAndApplyUpdate update (fun e -> DownloadFailed(messageId, e))
+            let cmd =
+                Cmd.OfAsync.either
+                    (Downloader.downloadFile update.AssetUrl targetPath) id
+                    (fun () -> UpdateDownloaded targetPath)
+                    (fun ex -> TaskFailed(ex, download))
+
+            addTask download { state with Overlay = NoOverlay }, cmd
         | None ->
             state, Cmd.none
 
-    | DownloadFailed (messageId, error) ->
-        showOverlay state (exceptionToErrorMessage error),
-        Cmd.ofMsg (RemoveStatusMessage messageId)
+    | UpdateDownloaded installerPath ->
+        // Exits the program
+        OnlineUpdate.applyUpdate installerPath
+        state, Cmd.none
 
     | SaveProjectAs ->
         state, Cmd.ofMsg (Dialog.SaveProjectAs |> ShowDialog)
@@ -861,18 +866,16 @@ let update (msg: Msg) (state: State) =
             | ToneCollection.ShowToneAddedToCollectionMessage ->
                 newState, Cmd.ofMsg (AddStatusMessage (translate "ToneAddedToCollection"))
             | ToneCollection.BeginDownloadingTonesDatabase ->
-                let downloadId = { Id = Guid.NewGuid(); LocString = "DownloadingToneDatabase" }
-                let downloadTask = FileDownload downloadId
-                let targetPath =
-                    Path.Combine(Path.Combine(Configuration.appDataFolder, "tones"), "official.db")
+                let id, download = createDownloadTask "DownloadingToneDatabase"
+                let targetPath = Path.Combine(Configuration.appDataFolder, "tones", "official.db")
 
                 let cmd =
                     Cmd.OfAsync.either
-                        (Downloader.downloadFile Downloader.ToneDBUrl targetPath) downloadId
-                        (fun () -> OfficialTonesDatabaseDownloaded downloadTask)
-                        (fun ex -> TaskFailed(ex, downloadTask))
+                        (Downloader.downloadFile Downloader.ToneDBUrl targetPath) id
+                        (fun () -> OfficialTonesDatabaseDownloaded download)
+                        (fun ex -> TaskFailed(ex, download))
 
-                addTask downloadTask newState, cmd
+                addTask download newState, cmd
         | _ ->
             state, Cmd.none
 

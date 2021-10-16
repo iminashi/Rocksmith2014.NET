@@ -216,7 +216,7 @@ type Msg =
     | UpdateCheckCompleted of update: Result<UpdateInformation option, string>
     | DismissUpdateMessage
     | ShowUpdateInformation
-    | UpdateAndRestart
+    | DownloadUpdate
     | DeleteTestBuilds
     | DeleteConfirmed of files: string list
     | DeleteSelectedArrangement
@@ -274,7 +274,7 @@ type Msg =
     | LyricsCreatorMsg of JapaneseLyricsCreator.Msg
     | LoadMultipleFiles of paths: string seq
     | OfficialTonesDatabaseDownloaded of downloadTask: LongTask
-    | DownloadFailed of messageId: Guid * error: exn
+    | UpdateDownloaded of installerPath: string
 
 type State =
     { Project: DLCProject
