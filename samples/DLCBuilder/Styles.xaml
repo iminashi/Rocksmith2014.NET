@@ -54,16 +54,16 @@
     <Setter Property="TextDecorations" Value="Underline"/>
   </Style>
 
-  <Style Selector="Button.borderless-btn">
+  <Style Selector=":is(Button).borderless-btn">
     <Setter Property="Background" Value="Transparent"/>
   </Style>
-  <Style Selector="Button.borderless-btn:disabled">
+  <Style Selector=":is(Button).borderless-btn:disabled">
     <Setter Property="Opacity" Value="0.5"/>
   </Style>
-  <Style Selector="Button.borderless-btn:disabled /template/ ContentPresenter">
+  <Style Selector=":is(Button).borderless-btn:disabled /template/ ContentPresenter">
     <Setter Property="Background" Value="Transparent"/>
   </Style>
-  <Style Selector="Button.borderless-btn /template/ ContentPresenter">
+  <Style Selector=":is(Button).borderless-btn /template/ ContentPresenter">
     <Setter Property="CornerRadius" Value="0" />
   </Style>
 

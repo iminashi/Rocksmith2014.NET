@@ -140,20 +140,22 @@ let private paginationControls dispatch (collectionState: ToneCollectionState) =
         Grid.margin 4.
         Grid.columnDefinitions "*,auto,*"
         Grid.children [
-            Border.create [
+            // Previous Page
+            RepeatButton.create [
                 let isEnabled = currentPage > 1
-                Border.background Brushes.Transparent
-                Border.isEnabled isEnabled
-                Border.cursor (if isEnabled then Cursors.hand else Cursors.arrow)
-                Border.onTapped (fun _ -> ChangePage Left |> dispatch)
-                Border.child (
-                    Path.create [
-                        Path.data Icons.chevronLeft
-                        Path.fill (if isEnabled then Brushes.DarkGray else Brushes.DimGray)
-                        Path.margin (8., 4.)
-                    ]
-                )
+                RepeatButton.classes [ "borderless-btn" ]
+                RepeatButton.padding (10., 8.)
+                RepeatButton.content (
+                    PathIcon.create [
+                        PathIcon.data Icons.chevronLeft
+                        PathIcon.width 16.
+                        PathIcon.height 16.
+                    ])
+                RepeatButton.onClick (fun _ -> ChangePage Left |> dispatch)
+                RepeatButton.isEnabled isEnabled
             ]
+
+            // Current Page / Total Pages
             TextBlock.create [
                 Grid.column 1
                 TextBlock.margin 8.
@@ -165,20 +167,21 @@ let private paginationControls dispatch (collectionState: ToneCollectionState) =
                     else
                         $"{currentPage} / {collectionState.TotalPages}")
             ]
-            Border.create [
+
+            // Next Page
+            RepeatButton.create [
                 let isEnabled = currentPage < collectionState.TotalPages
                 Grid.column 2
-                Border.background Brushes.Transparent
-                Border.isEnabled isEnabled
-                Border.cursor (if isEnabled then Cursors.hand else Cursors.arrow)
-                Border.onTapped (fun _ -> ChangePage Right |> dispatch)
-                Border.child (
-                    Path.create [
-                        Path.data Icons.chevronRight
-                        Path.fill (if isEnabled then Brushes.DarkGray else Brushes.DimGray)
-                        Path.margin (8., 4.)
-                    ]
-                )
+                RepeatButton.classes [ "borderless-btn" ]
+                RepeatButton.padding (10., 8.)
+                RepeatButton.content (
+                    PathIcon.create [
+                        PathIcon.data Icons.chevronRight
+                        PathIcon.width 16.
+                        PathIcon.height 16.
+                    ])
+                RepeatButton.onClick (fun _ -> ChangePage Right |> dispatch)
+                RepeatButton.isEnabled isEnabled
             ]
         ]
     ]
@@ -269,6 +272,7 @@ let private userToneEditor dispatch data =
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.horizontalAlignment HorizontalAlignment.Center
                 StackPanel.children [
+                    // Save Button
                     Button.create [
                         Button.margin 4.
                         Button.fontSize 18.
@@ -279,6 +283,7 @@ let private userToneEditor dispatch data =
                             FocusHelper.restoreFocus ()
                             ApplyUserToneEdit |> dispatch)
                     ]
+                    // Cancel Button
                     Button.create [
                         Button.margin 4.
                         Button.fontSize 18.
@@ -305,7 +310,8 @@ let private knobProgressBar gearData (pedal: Pedal option) knobName : IView list
                 ProgressBar.value (
                     pedal
                     |> Option.map (fun x -> x.KnobValues |> Map.find knob.Key |> float)
-                    |> Option.defaultValue 1.)
+                    |> Option.defaultValue 1.
+                )
             ]
         ])
 
@@ -318,6 +324,8 @@ let private pedals repository title gearList gearSlot =
 
         for i = 0 to 3 do
             match getGearDataForCurrentPedal repository gearList (gearSlot i) with
+            | None ->
+                ()
             | Some gearData ->
                 let pedal = getPedalForSlot gearList (gearSlot i)
 
@@ -344,8 +352,6 @@ let private pedals repository title gearList gearSlot =
                         ]
                     )
                 ]
-            | None ->
-                ()
     ]
 
 let private separator =
@@ -422,6 +428,7 @@ let private toneInfoPanel state collectionState =
 
 let view state dispatch collectionState =
     let dispatch' = ToneCollectionMsg >> dispatch
+
     Panel.create [
         Panel.children [
             hStack [
@@ -476,6 +483,7 @@ let view state dispatch collectionState =
             | None ->
                 ()
 
+            // Close Button
             Border.create [
                 Border.cursor Cursors.hand
                 Border.background Brushes.Transparent
