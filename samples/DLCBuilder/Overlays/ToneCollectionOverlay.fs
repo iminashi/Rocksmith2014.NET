@@ -38,10 +38,24 @@ let private toneTemplate dispatch isOfficial =
                     ContextMenu.viewItems [
                         if isOfficial then
                             MenuItem.create [
+                                MenuItem.header (translate "AddToProjectMenuItem")
+                                MenuItem.onClick (fun _ -> AddSelectedToneFromCollection |> dispatch)
+                                MenuItem.inputGesture (KeyGesture(Key.Enter))
+                            ]
+
+                            MenuItem.create [ MenuItem.header "-" ]
+
+                            MenuItem.create [
                                 MenuItem.header (translate "AddToUserCollectionMenuItem")
                                 MenuItem.onClick (fun _ -> AddOfficialToneToUserCollection |> dispatch)
                             ]
                         else
+                            MenuItem.create [
+                                MenuItem.header (translate "AddToProjectMenuItem")
+                                MenuItem.onClick (fun _ -> AddSelectedToneFromCollection |> dispatch)
+                                MenuItem.inputGesture (KeyGesture(Key.Enter))
+                            ]
+
                             MenuItem.create [
                                 MenuItem.header (translate "EditMenuItem")
                                 MenuItem.onClick (fun _ ->
@@ -64,23 +78,11 @@ let private toneTemplate dispatch isOfficial =
             StackPanel.orientation Orientation.Horizontal
             StackPanel.onDoubleTapped (fun _ -> AddSelectedToneFromCollection |> dispatch)
             StackPanel.children [
-                Button.create [
-                    Button.content (
-                        PathIcon.create [
-                            PathIcon.data Icons.plus
-                            PathIcon.width 14.
-                            PathIcon.height 14.
-                        ]
-                    )
-                    Button.padding (10., 5.)
-                    Button.verticalAlignment VerticalAlignment.Stretch
-                    Button.onClick (fun _ -> AddSelectedToneFromCollection |> dispatch)
-                ]
-
-                Path.create [
-                    Path.verticalAlignment VerticalAlignment.Center
-                    Path.fill brush
-                    Path.data Icons.guitar
+                PathIcon.create [
+                    PathIcon.width 25.
+                    PathIcon.height 25.
+                    PathIcon.foreground brush
+                    PathIcon.data Icons.guitar
                 ]
 
                 StackPanel.create [

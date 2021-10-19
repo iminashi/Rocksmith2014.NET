@@ -386,6 +386,7 @@
   "Search": "検索",
   "ToneAddedToProject": "プロジェクトにトーンが追加されました。",
   "ToneAddedToCollection": "トーンがユーザーコレクションに追加されました。",
+  "AddToProjectMenuItem": "プロジェクトに追加",
   "AddToCollectionMenuItem": "コレクションに追加",
   "AddToUserCollectionMenuItem": "自分のコレクションに追加",
   "Official": "公式",

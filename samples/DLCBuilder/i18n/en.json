@@ -386,6 +386,7 @@
   "Search": "Search",
   "ToneAddedToProject": "The tone was added to the project.",
   "ToneAddedToCollection": "The tone was added to the user collection.",
+  "AddToProjectMenuItem": "Add to Project",
   "AddToCollectionMenuItem": "_Add to Collection",
   "AddToUserCollectionMenuItem": "Add to User Collection",
   "Official": "Official",

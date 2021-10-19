@@ -386,6 +386,7 @@
   "Search": "Haku",
   "ToneAddedToProject": "Soundi lisättiin projektiin.",
   "ToneAddedToCollection": "Suondi lisättiin käyttäjän kokoelmaan.",
+  "AddToProjectMenuItem": "Lisää projektiin",
   "AddToCollectionMenuItem": "_Lisää kokoelmaan",
   "AddToUserCollectionMenuItem": "Lisää omaan kokoelmaan",
   "Official": "Viralliset",
