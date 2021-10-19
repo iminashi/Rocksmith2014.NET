@@ -525,6 +525,7 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                                 Border.create [
                                     Border.padding (20., 10.)
                                     Border.cornerRadius 6.0
+                                    Border.boxShadow BoxShadow.overlay
                                     Border.horizontalAlignment HorizontalAlignment.Center
                                     Border.verticalAlignment VerticalAlignment.Center
                                     Border.background "#343434"

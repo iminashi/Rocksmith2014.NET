@@ -45,6 +45,10 @@ module Brushes =
     let toneKnobOdd = SolidColorBrush.Parse "#383838"
 
 [<RequireQualifiedAccess>]
+module BoxShadow =
+    let overlay = BoxShadow.Parse("2 2 10 1 #99000000")
+
+[<RequireQualifiedAccess>]
 module Cursors =
     let hand = new Cursor(StandardCursorType.Hand)
     let arrow = new Cursor(StandardCursorType.Arrow)
