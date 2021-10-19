@@ -36,7 +36,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         psarcContents
         |> filterFilesWithExtension "sng"
         |> List.map (fun file -> async {
-            use! stream = psarc.GetEntryStream file
+            use! stream = psarc.GetEntryStream(file)
             let! sng = SNG.fromStream stream platform
             return file, sng })
         |> Async.Sequential
@@ -45,7 +45,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         psarcContents
         |> filterFilesWithExtension "json"
         |> List.map (fun file -> async {
-            use! stream = psarc.GetEntryStream file
+            use! stream = psarc.GetEntryStream(file)
             let! manifest = Manifest.fromJsonStream stream
             return file, Manifest.getSingletonAttributes manifest })
         |> Async.Sequential
@@ -103,7 +103,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         |> Array.Parallel.map (fun (file, sng) ->
             // Change the filenames from "dlckey_name" to "arr_name"
             let targetFile =
-                let f = Path.GetFileName file
+                let f = Path.GetFileName(file)
                 toTargetPath <| Path.ChangeExtension("arr" + f.Substring(f.IndexOf '_'), "xml")
 
             let attributes =
@@ -145,7 +145,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         | false ->
             return "1"
         | true ->
-            use! stream = psarc.GetEntryStream "toolkit.version"
+            use! stream = psarc.GetEntryStream("toolkit.version")
             let text = using (new StreamReader(stream)) (fun reader -> reader.ReadToEnd())
             match Regex.Match(text, "Package Version: ([^\r\n]+)\r?\n") with
             | m when m.Success ->

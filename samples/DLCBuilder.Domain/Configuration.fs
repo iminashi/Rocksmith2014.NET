@@ -82,7 +82,7 @@ module Configuration =
 
     let appDataFolder =
         let dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
-        (Directory.CreateDirectory dir).FullName
+        Directory.CreateDirectory(dir).FullName
 
     let private configFilePath =
         Path.Combine(appDataFolder, "config.json")

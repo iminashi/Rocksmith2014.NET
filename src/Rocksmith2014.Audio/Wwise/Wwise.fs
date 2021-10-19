@@ -32,14 +32,14 @@ let getCLIPath () =
 let private getTempDirectory () =
     let dir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())
     if Directory.Exists(dir) then Directory.Delete(dir, true)
-    (Directory.CreateDirectory dir).FullName
+    Directory.CreateDirectory(dir).FullName
 
 /// Extracts the Wwise template into the target directory.
 let private extractTemplate targetDir (version: WwiseVersion) =
     let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
     let templateFile = version.ToString().ToLowerInvariant()
     use templateZip = embeddedProvider.GetFileInfo($"Wwise/{templateFile}.zip").CreateReadStream()
-    using (new ZipArchive(templateZip)) (fun zip -> zip.ExtractToDirectory targetDir)
+    using (new ZipArchive(templateZip)) (fun zip -> zip.ExtractToDirectory(targetDir))
 
 /// Extracts the Wwise template and copies the audio files into the Originals/SFX directory.
 let private loadTemplate sourcePath version =
