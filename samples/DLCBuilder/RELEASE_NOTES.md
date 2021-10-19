@@ -3,6 +3,7 @@
 - The official tone collection no longer needs to be installed manually.
 - New program icon created by Masel89.
 - Modified the XML to SNG conversion to ignore certain linknext errors.
+- Minor UI improvements.
 
 ## 0.7.5 (Released 2021-10-03)
 
