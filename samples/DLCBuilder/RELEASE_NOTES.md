@@ -1,4 +1,4 @@
-## 0.8.0 (Released 2021-10-xx)
+## 0.8.0 (Released 2021-10-20)
 
 - The official tone collection no longer needs to be installed manually.
 - New program icon created by Masel89.
