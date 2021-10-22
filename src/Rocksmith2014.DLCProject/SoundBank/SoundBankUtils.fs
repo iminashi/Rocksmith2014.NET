@@ -27,7 +27,7 @@ let rec seekToSection (stream: Stream) (reader: IBinaryReader) name =
     if stream.Position >= stream.Length then
         Error $"Could not find {name} section."
     else
-        let magic = reader.ReadBytes 4
+        let magic = reader.ReadBytes(4)
 
         if magic <> name then
             skipSection stream reader
