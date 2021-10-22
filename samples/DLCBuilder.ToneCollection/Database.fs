@@ -9,6 +9,25 @@ open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 
+[<Literal>]
+let CreateToneDbSql =
+    "CREATE TABLE Tones (
+       Id INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT,
+       Artist VARCHAR(100) NOT NULL,
+       ArtistSort VARCHAR(100) NOT NULL,
+       Title VARCHAR(100) NOT NULL,
+       TitleSort VARCHAR(100) NOT NULL,
+       Name VARCHAR(100) NOT NULL,
+       BassTone BOOLEAN NOT NULL,
+       Description VARCHAR(100) NOT NULL,
+       Definition VARCHAR(8000) NOT NULL)"
+
+let private executeNonQuery connection sql =
+    using (new SQLiteCommand(sql, connection)) (fun x -> x.ExecuteNonQuery() |> ignore)
+
+let private executeQuery (connection: SQLiteConnection) data sql =
+    connection.Execute(sql, data) |> ignore
+
 let private createConnection (connectionString: string) =
     new SQLiteConnection(connectionString)
     |> apply (fun c -> c.Open())
@@ -21,7 +40,7 @@ let private serialize (tone: Tone) =
     let dto = Tone.toDto { tone with SortOrder = None; MacVolume = None }
     JsonSerializer.Serialize(dto, FSharpJsonOptions.Create(ignoreNull=true))
 
-let private executeQuery (connection: SQLiteConnection) (searchString: string option) pageNumber =
+let private executeToneQuery (connection: SQLiteConnection) (searchString: string option) pageNumber =
     let limit = 5
     let offset = (pageNumber - 1) * limit
 
@@ -67,13 +86,13 @@ let private executeQuery (connection: SQLiteConnection) (searchString: string op
     | None ->
         connection.Query<DbTone>(sql)
 
-let private getToneById (connection: SQLiteConnection) id =
+let private getToneById (connection: SQLiteConnection) (id: int64) =
     $"SELECT definition FROM tones WHERE id = {id}"
     |> connection.Query<string>
     |> Seq.tryHead
     |> Option.map deserialize
 
-let private getToneDataById (connection: SQLiteConnection) id =
+let private getToneDataById (connection: SQLiteConnection) (id: int64) =
     $"SELECT id, artist, artistsort, title, titlesort, name, basstone, description, definition FROM tones WHERE id = {id}"
     |> connection.Query<DbToneData>
     |> Seq.tryHead
@@ -90,30 +109,17 @@ let private tryCreateOfficialTonesApi (OfficialDataBasePath dbPath) =
             member _.GetToneDataById(id: int64) = getToneDataById connection id
 
             member _.GetTones(options) =
-                executeQuery connection options.Search options.PageNumber
+                executeToneQuery connection options.Search options.PageNumber
                 |> Seq.toArray })
 
 let private ensureUserTonesDbCreated (UserDataBasePath dbPath) connectionString =
-    if not <| File.Exists dbPath then
-        Directory.CreateDirectory(Path.GetDirectoryName dbPath) |> ignore
-
-        SQLiteConnection.CreateFile dbPath
+    if not <| File.Exists(dbPath) then
+        Directory.CreateDirectory(Path.GetDirectoryName(dbPath)) |> ignore
+        SQLiteConnection.CreateFile(dbPath)
 
         use connection = createConnection connectionString
 
-        let sql =
-            """CREATE TABLE Tones (
-               Id INTEGER NOT NULL UNIQUE PRIMARY KEY AUTOINCREMENT,
-               Artist VARCHAR(100) NOT NULL,
-               ArtistSort VARCHAR(100) NOT NULL,
-               Title VARCHAR(100) NOT NULL,
-               TitleSort VARCHAR(100) NOT NULL,
-               Name VARCHAR(100) NOT NULL,
-               BassTone BOOLEAN NOT NULL,
-               Description VARCHAR(100) NOT NULL,
-               Definition VARCHAR(8000) NOT NULL)"""
-
-        using (new SQLiteCommand(sql, connection)) (fun x -> x.ExecuteNonQuery() |> ignore)
+        executeNonQuery connection CreateToneDbSql
 
 let private createUserTonesApi dbPath =
     let connectionString =
@@ -130,32 +136,28 @@ let private createUserTonesApi dbPath =
         member _.GetToneDataById(id: int64) = getToneDataById connection id
 
         member _.GetTones(options) =
-            executeQuery connection options.Search options.PageNumber
+            executeToneQuery connection options.Search options.PageNumber
             |> Seq.toArray
 
         member _.UpdateData(data: DbToneData) =
-            let sql =
-                $"""UPDATE tones
-                    SET artist = @artist,
-                        artistsort = @artistSort,
-                        title = @title,
-                        titlesort = @titleSort,
-                        name = @name,
-                        basstone = @basstone
-                    WHERE id = {data.Id}"""
-
-            connection.Execute(sql, data) |> ignore
+            $"UPDATE tones
+              SET artist = @artist,
+                  artistsort = @artistSort,
+                  title = @title,
+                  titlesort = @titleSort,
+                  name = @name,
+                  basstone = @basstone
+              WHERE id = {data.Id}"
+            |> executeQuery connection data
 
         member _.AddTone(data: DbToneData) =
-            let sql =
-                """INSERT INTO tones(artist, artistSort, title, titleSort, name, basstone, description, definition)
-                   VALUES (@artist, @artistSort, @title, @titleSort, @name, @basstone, @description, @definition)"""
-
-            connection.Execute(sql, data) |> ignore
+            "INSERT INTO tones(artist, artistSort, title, titleSort, name, basstone, description, definition)
+             VALUES (@artist, @artistSort, @title, @titleSort, @name, @basstone, @description, @definition)"
+            |> executeQuery connection data
 
         member _.DeleteToneById(id: int64) =
-            let sql = $"DELETE FROM tones WHERE id = {id}"
-            using (new SQLiteCommand(sql, connection)) (fun x -> x.ExecuteNonQuery() |> ignore) }
+            $"DELETE FROM tones WHERE id = {id}"
+            |> executeNonQuery connection }
 
 let createConnector officialTonesDbPath userTonesDbPath =
     { new IDatabaseConnector with
@@ -174,9 +176,9 @@ let internal getToneFromCollection collection id =
     match collection with
     | ActiveCollection.Official maybeApi ->
         maybeApi
-        |> Option.bind (fun x -> x.GetToneById id)
+        |> Option.bind (fun x -> x.GetToneById(id))
     | ActiveCollection.User api ->
-        api.GetToneById id
+        api.GetToneById(id)
 
 let internal getTones collection searchOptions =
     match collection with
@@ -189,7 +191,7 @@ let internal getTones collection searchOptions =
 
 let internal addToneDataToUserCollection (connector: IDatabaseConnector) (data: DbToneData) =
     use collection = connector.CreateUserTonesApi()
-    collection.AddTone data
+    collection.AddTone(data)
 
 let private prepareString (str: string) = String.truncate 100 (str.Trim())
 
