@@ -213,7 +213,7 @@ let private build (buildData: BuildData) progress targetFile project platform = 
     progress () }
 
 let private setupInstrumental part (inst: Instrumental) config =
-    let xml = InstrumentalArrangement.Load inst.XML
+    let xml = InstrumentalArrangement.Load(inst.XML)
 
     xml.MetaData.Part <- int16 part
 
@@ -250,7 +250,7 @@ let private getFontOption (dlcKey: string) =
             Path.ChangeExtension(fontFile, ".glyphs.xml")
             |> GlyphDefinitions.Load
 
-        FontOption.CustomFont (glyphs, $"assets/ui/lyrics/{dlcKey}/lyrics_{dlcKey}.dds"))
+        FontOption.CustomFont(glyphs, $"assets/ui/lyrics/{dlcKey}/lyrics_{dlcKey}.dds"))
     >> Option.defaultValue FontOption.DefaultFont
 
 /// Inserts an automatically generated show lights arrangement into the project.
@@ -362,7 +362,7 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
                     let dlcKey = project.DLCKey.ToLowerInvariant()
 
                     let sng =
-                        Vocals.Load v.XML
+                        Vocals.Load(v.XML)
                         |> ConvertVocals.xmlToSng (getFontOption dlcKey v.CustomFont)
 
                     Some(arr, sng)

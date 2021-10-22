@@ -14,10 +14,13 @@ let [<Literal>] private PhraseLevelFile = ".phrase-levels"
 
 let private tryGetStoredLevels directory =
     let levelsFile = Path.Combine(directory, PhraseLevelFile)
-    if File.Exists levelsFile then
+
+    if File.Exists(levelsFile) then
         try
-            let text = File.ReadAllText levelsFile
-            Some(JsonSerializer.Deserialize<ProjectLevels> text)
+            levelsFile
+            |> File.ReadAllText
+            |> JsonSerializer.Deserialize<ProjectLevels>
+            |> Some
         with _ ->
             None
     else
@@ -25,7 +28,7 @@ let private tryGetStoredLevels directory =
 
 let private savePhraseLevels directory (phraseLevels: ProjectLevels) =
     let levelsFile = Path.Combine(directory, PhraseLevelFile)
-    let text = JsonSerializer.Serialize phraseLevels
+    let text = JsonSerializer.Serialize(phraseLevels)
     File.WriteAllText(levelsFile, text)
 
 let private createLevelDictionary (arrangements: (Arrangement * SNG) list) : ProjectLevels =
@@ -42,6 +45,13 @@ let private createLevelDictionary (arrangements: (Arrangement * SNG) list) : Pro
         inst.PersistentID, phraseLevels)
     |> readOnlyDict
 
+let private harderStoredLevelExists phrases storedLevels =
+    phrases
+    |> Array.exists (fun phrase ->
+        storedLevels
+        |> Dictionary.tryGetValue phrase.Name
+        |> Option.exists (fun storedMaxDiff -> storedMaxDiff > phrase.MaxDifficulty))
+
 /// Compares the level counts of the arrangements to the stored level counts.
 let compareLevels (stored: ProjectLevels) (arrangements: (Arrangement * SNG) list) =
     arrangements
@@ -50,12 +60,9 @@ let compareLevels (stored: ProjectLevels) (arrangements: (Arrangement * SNG) lis
             option {
                 let! storedLevels = Dictionary.tryGetValue inst.PersistentID stored
 
-                if sng.Phrases |> Array.exists (fun phrase ->
-                    storedLevels
-                    |> Dictionary.tryGetValue phrase.Name
-                    |> Option.exists (fun storedMaxDiff -> storedMaxDiff > phrase.MaxDifficulty))
-                then
-                    return inst.PersistentID }
+                if harderStoredLevelExists sng.Phrases storedLevels then
+                    return inst.PersistentID
+            }
         | _ ->
             None)
 

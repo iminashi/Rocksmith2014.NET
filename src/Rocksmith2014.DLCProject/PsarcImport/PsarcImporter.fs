@@ -128,7 +128,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
     let tones =
         fileAttributes
         |> Array.choose (fun (_, attr) -> Option.ofObj attr.Tones)
-        |> Array.collect id
+        |> Array.concat
         // Filter out null values and tones without amps
         |> Array.filter (fun x -> notNull (box x) && notNull x.GearList.Amp)
         |> Array.distinctBy (fun x -> x.Key)

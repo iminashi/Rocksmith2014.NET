@@ -9,20 +9,22 @@ open System.IO
 open System
 
 /// Reads the volume and file ID from the PSARC for the sound bank with the given name.
-let getVolumeAndFileId (psarc: PSARC) platform bankName = async {
-    use! stream = psarc.GetEntryStream bankName
+let getVolumeAndFileId (psarc: PSARC) platform bankName =
+    async {
+        use! stream = psarc.GetEntryStream(bankName)
 
-    let volume =
-        match SoundBank.readVolume stream platform with
-        | Ok vol -> vol
-        | Error _ -> 0.0f
+        let volume =
+            match SoundBank.readVolume stream platform with
+            | Ok vol -> vol
+            | Error _ -> 0.0f
 
-    let fileId =
-        match SoundBank.readFileId stream platform with
-        | Ok vol -> vol
-        | Error err -> failwith err
+        let fileId =
+            match SoundBank.readFileId stream platform with
+            | Ok vol -> vol
+            | Error err -> failwith err
 
-    return volume, fileId }
+        return volume, fileId
+    }
 
 /// Active pattern for detecting arrangement type from a filename.
 let (|VocalsFile|JVocalsFile|InstrumentalFile|) = function
@@ -61,12 +63,15 @@ let importVocals targetDirectory targetFile customFont (attributes: Attributes) 
 /// Imports an instrumental SNG into an instrumental arrangement.
 let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile (attributes: Attributes) sng =
     let xml = ConvertInstrumental.sngToXml (Some attributes) sng
-    xml.Save targetFile
+    xml.Save(targetFile)
 
     let arrProps = Option.get attributes.ArrangementProperties
 
     let tones =
-        [ attributes.Tone_A; attributes.Tone_B; attributes.Tone_C; attributes.Tone_D ]
+        [ attributes.Tone_A
+          attributes.Tone_B
+          attributes.Tone_C
+          attributes.Tone_D ]
         |> List.choose Option.ofString
 
     let scrollSpeed =
@@ -82,7 +87,7 @@ let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile
             |> Array.tryFind (fun audio -> String.contains targetFilename audio.Path)
 
     { XML = targetFile
-      Name = ArrangementName.Parse attributes.ArrangementName
+      Name = ArrangementName.Parse(attributes.ArrangementName)
       Priority =
         if arrProps.represent = 1uy then
             ArrangementPriority.Main

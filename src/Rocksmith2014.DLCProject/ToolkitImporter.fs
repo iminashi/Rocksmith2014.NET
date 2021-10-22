@@ -170,7 +170,7 @@ let import (templatePath: string) =
             else
                 Path.Combine(Path.GetDirectoryName(templatePath), prevFile)
 
-        match File.Exists prevPath with
+        match File.Exists(prevPath) with
         | true -> prevFile
         | false -> String.Empty
 
@@ -222,4 +222,4 @@ let import (templatePath: string) =
       PitchShift = None
       Arrangements = arrangements
       Tones = tones }
-    |> DLCProject.toAbsolutePaths (Path.GetDirectoryName templatePath)
+    |> DLCProject.toAbsolutePaths (Path.GetDirectoryName(templatePath))
