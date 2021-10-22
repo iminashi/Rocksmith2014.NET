@@ -133,7 +133,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         |> Array.filter (fun x -> notNull (box x) && notNull x.GearList.Amp)
         |> Array.distinctBy (fun x -> x.Key)
         |> Array.toList
-        |> List.map Tone.fromDto
+        |> List.map toneFromDto
 
     let metaData =
         fileAttributes

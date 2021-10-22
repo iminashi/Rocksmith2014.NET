@@ -112,3 +112,15 @@ let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile
       PersistentID = Guid.Parse(attributes.PersistentID)
       CustomAudio = customAudio }
     |> Arrangement.Instrumental
+
+/// Converts a tone from a DTO, ensuring that the imported tone has descriptors.
+let toneFromDto dto =
+    let tone = Tone.fromDto dto
+
+    if tone.ToneDescriptors.Length = 0 then
+        { tone with
+            ToneDescriptors =
+                ToneDescriptor.getDescriptionsOrDefault tone.Key
+                |> Array.map (fun x -> x.UIName) }
+    else
+        tone
