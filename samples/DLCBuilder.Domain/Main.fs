@@ -837,15 +837,11 @@ let update (msg: Msg) (state: State) =
     | OfficialTonesDatabaseDownloaded downloadTask ->
         let newState =
             match state with
-            | { Overlay = ToneCollection collectionState } ->
-                match collectionState with
-                | { ActiveCollection = ToneCollection.ActiveCollection.Official(None) } ->
-                    let newCollectionState =
-                        ToneCollection.CollectionState.init collectionState.Connector ToneCollection.ActiveTab.Official
+            | { Overlay = ToneCollection ({ ActiveCollection = ToneCollection.ActiveCollection.Official(None) } as s) } ->
+                let newCollectionState =
+                    ToneCollection.CollectionState.init s.Connector ToneCollection.ActiveTab.Official
 
-                    { state with Overlay = ToneCollection newCollectionState }
-                | _ ->
-                    state
+                { state with Overlay = ToneCollection newCollectionState }
             | _ ->
                 state
 
@@ -862,9 +858,9 @@ let update (msg: Msg) (state: State) =
                 newState, Cmd.none
             | ToneCollection.AddToneToProject tone ->
                 { newState with Project = { project with Tones = tone :: project.Tones } },
-                Cmd.ofMsg (AddStatusMessage (translate "ToneAddedToProject"))
+                Cmd.ofMsg (AddStatusMessage(translate "ToneAddedToProject"))
             | ToneCollection.ShowToneAddedToCollectionMessage ->
-                newState, Cmd.ofMsg (AddStatusMessage (translate "ToneAddedToCollection"))
+                newState, Cmd.ofMsg (AddStatusMessage(translate "ToneAddedToCollection"))
             | ToneCollection.BeginDownloadingTonesDatabase ->
                 let id, download = createDownloadTask "DownloadingToneDatabase"
                 let targetPath = Path.Combine(Configuration.appDataFolder, "tones", "official.db")
