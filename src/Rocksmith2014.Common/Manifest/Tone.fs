@@ -102,7 +102,7 @@ module Tone =
             | Some ns ->
                 fun (xel: XmlElement) name -> xel.Item(name, ns)
             | None ->
-                fun (xel: XmlElement) name -> xel.Item name
+                fun (xel: XmlElement) name -> xel.Item(name)
 
         let pedal = node gearList name
 
@@ -181,7 +181,7 @@ module Tone =
                 fun name -> xmlNode.Item(name, ns)
             | None ->
                 // fsharplint:disable-next-line ReimplementsFunction
-                fun name -> xmlNode.Item name
+                fun name -> xmlNode.Item(name)
 
         let nodeText name = (node name).InnerText
 

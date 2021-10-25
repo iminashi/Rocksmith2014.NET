@@ -136,6 +136,7 @@ let update (msg: Msg) (state: State) =
             match path with
             | EndsWith "xml" -> Tone.exportXml path
             | _ -> Tone.exportJson path
+
         state, Cmd.OfAsync.attempt task tone ErrorOccurred
 
     | CloseOverlay method ->
@@ -539,7 +540,7 @@ let update (msg: Msg) (state: State) =
         let msg =
             match update with
             | Some _ -> ShowUpdateInformation
-            | None -> AddStatusMessage (translate "NoUpdateAvailable")
+            | None -> AddStatusMessage(translate "NoUpdateAvailable")
 
         { state with AvailableUpdate = update }, Cmd.ofMsg msg
 
@@ -606,7 +607,7 @@ let update (msg: Msg) (state: State) =
         let project = DLCProject.updateToneInfo project
         let recent, newConfig, cmd = updateRecentFilesAndConfig projectFile state
         let albumArtLoadTime =
-            if state.AlbumArtLoader.TryLoad project.AlbumArtFile then
+            if state.AlbumArtLoader.TryLoad(project.AlbumArtFile) then
                 Some DateTime.Now
             else
                 None
