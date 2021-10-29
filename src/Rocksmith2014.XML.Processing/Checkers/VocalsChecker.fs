@@ -26,10 +26,20 @@ let private findLongLyrics (vocals: ResizeArray<Vocal>) =
     |> Seq.filter isTooLong
     |> Seq.map (fun vocal -> issue (LyricTooLong vocal.Lyric) vocal.Time)
 
+let private hasNoLineBreaks (vocals: ResizeArray<Vocal>) =
+    vocals
+    // EOF may include a line break for the last vocal
+    |> Seq.take (vocals.Count - 1)
+    |> Seq.exists (fun vocal -> vocal.Lyric.EndsWith('+'))
+    |> not
+
 /// Checks the vocals for issues.
 let check hasCustomFont (vocals: ResizeArray<Vocal>) =
     [ // Check for too long lyrics
       yield! findLongLyrics vocals
+
+      if hasNoLineBreaks vocals then
+        yield issue LyricsHaveNoLineBreaks 0
 
       // Check for characters not included in the default font
       if not hasCustomFont then

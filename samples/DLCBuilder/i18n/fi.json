@@ -258,6 +258,8 @@
   "LyricWithInvalidCharHelp": "Tarvitaan mukautettu fontti, jotta tämä merkki näkyy pelissä.",
   "LyricTooLong": "Seuraava sanoituksen osa on liian pitkä:\n\"{0}\"",
   "LyricTooLongHelp": "Suurin sallittu pituus sanoituksen osalle on 47 tavua UTF-8 koodattuna. Tätä pidemmät osat lyhennetään automaatisesti.",
+  "LyricsHaveNoLineBreaks": "Sanoituksessa ei ole rivinvaihtoja",
+  "LyricsHaveNoLineBreaksHelp": "Käytä rivinvaihtoja, jotta lyriikat näyttävät hyvältä pelissä. EOF:ssä lyriikkarivit merkitään näppäinyhdistelmällä Ctrl+M.",
   "InvalidShowlights": "Valoshowssa pitää olla vähintään yksi \"fog\" nuotti ja yksi \"beam\" nuotti",
   "InvalidShowlightsHelp": "Tämä valoshowtiedosto kaataa pelin, kun kappale valitaan.",
   "AnchorInsideHandShape": "Ankkuri on handshapen sisällä",

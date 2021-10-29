@@ -30,6 +30,7 @@ type IssueType =
     | NoEndPhrase
     | LyricWithInvalidChar of invalidChar: char
     | LyricTooLong of lyric: string
+    | LyricsHaveNoLineBreaks
     | InvalidShowlights
 
 type Issue =

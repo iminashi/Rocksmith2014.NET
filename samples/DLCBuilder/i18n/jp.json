@@ -258,6 +258,8 @@
   "LyricWithInvalidCharHelp": "ゲーム内でこの文字を表示されるにはカスタムフォントが必要である。",
   "LyricTooLong": "次の歌詞が長すぎる:\n\"{0}\"",
   "LyricTooLongHelp": "一つの歌詞の最大長はUTF-8エンコードで47バイト。これより長い歌詞は自動的に短縮されます。",
+  "LyricsHaveNoLineBreaks": "歌詞には改行がない",
+  "LyricsHaveNoLineBreaksHelp": "ゲーム内で歌詞がちゃんと表示されるために改行を使いましょう。EOFで行をマークするにはCtrl+Mをつかいます。",
   "InvalidShowlights": "ショーライトがフォッグもしくはビームノートがいない",
   "InvalidShowlightsHelp": "ショーライトファイルには少なくともひとつのビームノートとひとつのフォッグノートがある必要があります。そうでないファイルはゲームをクラッシュします。",
   "AnchorInsideHandShape": "Handshape内にはアンカーがある",

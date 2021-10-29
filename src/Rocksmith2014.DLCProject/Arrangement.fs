@@ -132,7 +132,7 @@ module Arrangement =
     let fromFile (fileName: string) =
         try
             let rootName =
-                using (XmlReader.Create fileName)
+                using (XmlReader.Create(fileName))
                       (fun reader -> reader.MoveToContent() |> ignore; reader.LocalName)
 
             match rootName with
