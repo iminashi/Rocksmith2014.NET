@@ -373,7 +373,7 @@ let view state dispatch (inst: Instrumental) =
                         DockPanel.dock Dock.Right
                         Button.margin (0., 2., 2., 0.)
                         Button.content "W"
-                        Button.isEnabled (not <| state.RunningTasks.Contains WemConversion)
+                        Button.isEnabled (not <| state.RunningTasks.Contains(WemConversion))
                         Button.isVisible (
                             match inst.CustomAudio with
                             | Some audio when not <| String.endsWith ".wem" audio.Path ->

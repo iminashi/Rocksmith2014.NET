@@ -82,7 +82,7 @@ let private audioControls state dispatch =
                                         NumericUpDown.maximum 45.
                                         NumericUpDown.increment 0.5
                                         NumericUpDown.formatString "+0.0;-0.0;0.0"
-                                        NumericUpDown.isEnabled (not <| state.RunningTasks.Contains (VolumeCalculation MainAudio))
+                                        NumericUpDown.isEnabled (not <| state.RunningTasks.Contains(VolumeCalculation MainAudio))
                                         FixedNumericUpDown.value state.Project.AudioFile.Volume
                                         FixedNumericUpDown.onValueChanged (SetAudioVolume >> EditProject >> dispatch)
                                         ToolTip.tip (translate "AudioVolumeToolTip")
@@ -133,7 +133,7 @@ let private audioControls state dispatch =
                                         NumericUpDown.maximum 45.
                                         NumericUpDown.increment 0.5
                                         NumericUpDown.formatString "+0.0;-0.0;0.0"
-                                        NumericUpDown.isEnabled (not <| state.RunningTasks.Contains (VolumeCalculation PreviewAudio))
+                                        NumericUpDown.isEnabled (not <| state.RunningTasks.Contains(VolumeCalculation PreviewAudio))
                                         FixedNumericUpDown.value state.Project.AudioPreviewFile.Volume
                                         FixedNumericUpDown.onValueChanged (SetPreviewVolume >> EditProject >> dispatch)
                                         ToolTip.tip (translate "PreviewAudioVolumeToolTip")
@@ -145,7 +145,7 @@ let private audioControls state dispatch =
                                         Button.margin (0.0, 4.0, 4.0, 4.0)
                                         Button.padding (10.0, 0.0)
                                         Button.content (translate "Create")
-                                        Button.isEnabled (not <| String.endsWith ".wem" audioPath && IO.File.Exists audioPath)
+                                        Button.isEnabled (not <| String.endsWith ".wem" audioPath && IO.File.Exists(audioPath))
                                         Button.onClick (fun _ -> dispatch (CreatePreviewAudio SetupStartTime))
                                         ToolTip.tip (
                                             if previewExists then
@@ -237,7 +237,7 @@ let private projectInfo state dispatch =
                     let validValue = StringValidator.sortField txtBox.Text
                     txtBox.Text <- validValue
 
-                    validValue |> (SetArtistNameSort >> EditProject >> dispatch))
+                    validValue |> SetArtistNameSort |> EditProject |> dispatch)
                 ]
 
             // Japanese artist name
@@ -271,7 +271,7 @@ let private projectInfo state dispatch =
                     let validValue = StringValidator.sortField txtBox.Text
                     txtBox.Text <- validValue
 
-                    validValue |> (SetTitleSort >> EditProject >> dispatch))
+                    validValue |> SetTitleSort |> EditProject |> dispatch)
                 ]
 
             // Japanese title
@@ -305,7 +305,7 @@ let private projectInfo state dispatch =
                     let validValue = StringValidator.sortField txtBox.Text
                     txtBox.Text <- validValue
 
-                    validValue |> (SetAlbumNameSort >> EditProject >> dispatch))
+                    validValue |> SetAlbumNameSort |> EditProject |> dispatch)
                 ]
 
             // Year
@@ -316,9 +316,11 @@ let private projectInfo state dispatch =
                   TextBox.width 65.
                   FixedTextBox.text (string state.Project.Year)
                   FixedTextBox.onTextChanged (fun text ->
-                    match Int32.TryParse text with
-                    | true, year -> year |> SetYear |> EditProject |> dispatch
-                    | false, _ -> ())
+                    match Int32.TryParse(text) with
+                    | true, year ->
+                        year |> SetYear |> EditProject |> dispatch
+                    | false, _ ->
+                        ())
                 ]
 
             StackPanel.create [

@@ -75,6 +75,7 @@ let private getExtraText = function
                 translatef tuningType notes
             | _ ->
                 translate tuningType
+
         if inst.TuningPitch <> 440.0 then
             $"{tuning} (A{inst.TuningPitch})"
         else
