@@ -7,7 +7,7 @@ open Pfim
 open System
 open System.Runtime.InteropServices
 
-let mutable private cached : Bitmap option = None
+let mutable private cached: Bitmap option = None
 
 /// Converts a DDS bitmap into an Avalonia bitmap.
 let private avaloniaBitmapFromDDS (fileName: string) =

@@ -13,6 +13,20 @@ open Rocksmith2014.DLCProject
 open System
 open DLCBuilder
 
+let private enablePriorityChange arrangements priority inst =
+    // Disable the main option if a main arrangement of the type already exists
+    inst.Priority = priority
+    || not (
+        priority = ArrangementPriority.Main
+        && arrangements
+           |> List.exists (function
+               | Instrumental other ->
+                   inst.RouteMask = other.RouteMask
+                   && other.Priority = ArrangementPriority.Main
+               | _ ->
+                   false)
+    )
+
 let private isNumberGreaterThanZero (input: string) =
     let parsed, number = Int32.TryParse(input)
     parsed && number > 0
@@ -109,21 +123,7 @@ let view state dispatch (inst: Instrumental) =
                             RadioButton.content (translate(string priority))
                             RadioButton.isChecked (inst.Priority = priority)
                             RadioButton.onClick (fun _ -> priority |> SetPriority |> EditInstrumental |> dispatch)
-                            RadioButton.isEnabled (
-                                // Disable the main option if a main arrangement of the type already exists
-                                inst.Priority = priority
-                                ||
-                                not (priority = ArrangementPriority.Main
-                                     &&
-                                     state.Project.Arrangements
-                                     |> List.exists (function
-                                         | Instrumental other ->
-                                            inst.RouteMask = other.RouteMask
-                                            &&
-                                            other.Priority = ArrangementPriority.Main
-                                         | _ ->
-                                            false))
-                            )
+                            RadioButton.isEnabled (enablePriorityChange state.Project.Arrangements priority inst)
                         ]
                 ]
             ]

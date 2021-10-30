@@ -36,7 +36,7 @@ let handleEvent dispatch (event: KeyEventArgs) =
         dispatch NewProject
 
     | Ctrl, Key.G ->
-        dispatch (ShowOverlay (ConfigEditor FocusedSetting.None))
+        dispatch (ShowOverlay(ConfigEditor FocusedSetting.None))
 
     | Ctrl, Key.J ->
         dispatch ShowJapaneseLyricsCreator
