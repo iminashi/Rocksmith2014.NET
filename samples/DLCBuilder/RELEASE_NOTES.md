@@ -1,3 +1,8 @@
+## 0.8.1 (Released 2021-xx-xx)
+
+- Added a new issue for lyrics that contain no line breaks.
+- Fixed a minor issue in the PSARC import.
+
 ## 0.8.0 (Released 2021-10-20)
 
 - The official tone collection no longer needs to be installed manually.
