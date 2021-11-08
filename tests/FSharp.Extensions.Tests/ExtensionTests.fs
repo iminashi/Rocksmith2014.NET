@@ -32,22 +32,6 @@ let extensionTests =
             Expect.equal res.[1] "c" "Second element is c"
         }
         
-        test "List.removeAt" {
-            let list = [ "a"; "b"; "c" ]
-        
-            let res = List.removeAt 1 list
-        
-            Expect.sequenceContainsOrder res ["a"; "c"] "Result has correct elements"
-        }
-        
-        test "List.insertAt" {
-            let list = [ "a"; "b"; "c" ]
-        
-            let res = List.insertAt 1 "d" list
-        
-            Expect.sequenceContainsOrder res ["a"; "d"; "b"; "c"] "Result has correct elements"
-        }
-        
         test "List.update" {
             let b = "b"
             let list = [ "a"; b; "c" ]
@@ -70,16 +54,6 @@ let extensionTests =
             let! result = Async.map string task
         
             Expect.equal result "42" "Result is correct"
-        }
-
-        test "Array.updateAt" {
-            let arr = [| 0; 1; 2; 3 |]
-
-            let result = Array.updateAt 2 50 arr
-        
-            Expect.isFalse (Object.ReferenceEquals(arr, result)) "Result is a new array"
-            Expect.hasLength result 4 "Result has correct length"
-            Expect.equal result.[2] 50 "Correct value was changed"
         }
 
         test "Array.allSame (different values)" {
