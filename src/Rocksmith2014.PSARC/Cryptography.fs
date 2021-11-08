@@ -14,9 +14,15 @@ let private psarcKey =
 
 // At the moment, .NET Core does not support AES CFB, so it is implemented here via ECB.
 
+let createAes () =
+    Aes.Create()
+    |> apply (fun aes ->
+        aes.Mode <- CipherMode.ECB
+        aes.Padding <- PaddingMode.None)
+    
 /// AES CFB decryption utilizing SSE2 intrinsics.
 let private aesCfbDecryptSIMD (input: Stream) (output: Stream) (key: byte[]) length =
-    use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.None)
+    use aes = createAes ()
     let blockSize = 16
     let iv = Array.zeroCreate<byte> 16
     let transform = aes.CreateEncryptor(key, iv)
@@ -43,7 +49,7 @@ let private aesCfbDecryptSIMD (input: Stream) (output: Stream) (key: byte[]) len
 
 /// AES CFB decryption.
 let private aesCfbDecrypt (input: Stream) (output: Stream) (key: byte[]) length =
-    use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.None)
+    use aes = createAes ()
     let blockSize = 16
     let iv = Array.zeroCreate<byte> 16
     let transform = aes.CreateEncryptor(key, iv)
@@ -62,7 +68,7 @@ let private aesCfbDecrypt (input: Stream) (output: Stream) (key: byte[]) length 
 
 /// AES CFB encryption utilizing SSE2 intrinsics.
 let private aesCfbEncryptSIMD (input: Stream) (output: Stream) (key: byte[]) length =
-    use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.None)
+    use aes = createAes ()
     let blockSize = 16
     let iv = Array.zeroCreate<byte> 16
     let transform = aes.CreateEncryptor(key, iv)
@@ -90,7 +96,7 @@ let private aesCfbEncryptSIMD (input: Stream) (output: Stream) (key: byte[]) len
 
 /// AES CFB encryption.
 let private aesCfbEncrypt (input: Stream) (output: Stream) (key: byte[]) length =
-    use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.None)
+    use aes = createAes ()
     let blockSize = 16
     let iv = Array.zeroCreate<byte> 16
     let transform = aes.CreateEncryptor(key, iv)
@@ -130,4 +136,4 @@ let md5Hash (name: string) =
     if String.IsNullOrEmpty(name) then
         Array.zeroCreate<byte> 16
     else
-        using (new MD5CryptoServiceProvider()) (fun md5 -> md5.ComputeHash(Encoding.ASCII.GetBytes(name)))
+        using (MD5.Create()) (fun md5 -> md5.ComputeHash(Encoding.ASCII.GetBytes(name)))

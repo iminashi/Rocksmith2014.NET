@@ -1,10 +1,10 @@
 module Rocksmith2014.SNG.Cryptography
 
-open System.Security.Cryptography
-open System.Runtime.Intrinsics.X86
-open System.IO
-open System
 open Rocksmith2014.Common
+open System
+open System.IO
+open System.Runtime.Intrinsics.X86
+open System.Security.Cryptography
 
 let private sngKeyPC =
     "\xCB\x64\x8D\xF3\xD1\x2A\x16\xBF\x71\x70\x14\x14\xE6\x96\x19\xEC\x17\x1C\xCA\x5D\x2A\x14\x2E\x3E\x59\xDE\x7A\xDD\xA1\x8A\x3A\x30"B
@@ -32,7 +32,10 @@ let private increment (arr: byte[]) =
 
 /// AES CTR encryption utilizing SSE2 intrinsics. Slightly faster than the non SIMD version.
 let private aesCtrTransformSIMD (input: Stream) (output: Stream) (key: byte[]) (iv: byte[]) =
-    use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.None)
+    use aes = Aes.Create()
+    aes.Mode <- CipherMode.ECB
+    aes.Padding <- PaddingMode.None
+
     let blockSize = 16
     let counterEncryptor = aes.CreateEncryptor(key, null)
 
@@ -58,7 +61,10 @@ let private aesCtrTransformSIMD (input: Stream) (output: Stream) (key: byte[]) (
 
 /// Based on https://stackoverflow.com/a/51188472
 let private aesCtrTransform (input: Stream) (output: Stream) (key: byte[]) (iv: byte[]) =
-    use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.None)
+    use aes = Aes.Create()
+    aes.Mode <- CipherMode.ECB
+    aes.Padding <- PaddingMode.None
+
     let blockSize = 16
     let ctr = Array.copy iv
     let counterEncryptor = aes.CreateEncryptor(key, null)

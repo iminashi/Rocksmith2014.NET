@@ -19,12 +19,18 @@ let private profileKey =
     "\x72\x8B\x36\x9E\x24\xED\x01\x34\x76\x85\x11\x02\x18\x12\xAF\xC0\xA3\xC2\x5D\x02\x06\x5F\x16\x6B\x4B\xCC\x58\xCD\x26\x44\xF2\x9E"B
 
 let private getDecryptStream (input: Stream) =
-    use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.None)
+    use aes = Aes.Create()
+    aes.Mode <- CipherMode.ECB
+    aes.Padding <- PaddingMode.None
+    //use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.None)
     let decryptor = aes.CreateDecryptor(profileKey, null)
     new CryptoStream(input, decryptor, CryptoStreamMode.Read, leaveOpen = true)
 
 let private getEncryptStream (output: Stream) =
-    use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.Zeros)
+    use aes = Aes.Create()
+    aes.Mode <- CipherMode.ECB
+    aes.Padding <- PaddingMode.Zeros
+    //use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.Zeros)
     let encryptor = aes.CreateEncryptor(profileKey, null)
     new CryptoStream(output, encryptor, CryptoStreamMode.Write, leaveOpen = true)
 
