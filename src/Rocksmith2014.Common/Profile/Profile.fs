@@ -50,9 +50,7 @@ let decrypt (input: Stream) (output: Stream) = async {
     let header = readHeader input
 
     use decrypted = getDecryptStream input
-    use unzipped = Compression.getInflateStream decrypted
-
-    do! unzipped.CopyToAsync(output)
+    do! Compression.asyncUnzip decrypted output
 
     return header }
 
