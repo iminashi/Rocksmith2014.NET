@@ -4,6 +4,11 @@ open Expecto
 open Rocksmith2014.PSARC
 open System.IO
 
+let getTempPath subDir =
+    let tempPath = Path.Combine(Path.GetTempPath(), subDir)
+    if Directory.Exists(tempPath) then Directory.Delete(tempPath, true)
+    Directory.CreateDirectory(tempPath).FullName
+
 [<Tests>]
 let readTests =
     testList "Read and Extract Files" [
@@ -15,8 +20,7 @@ let readTests =
         testAsync "Can extract all files from PSARC" {
             use file = File.OpenRead("test_p.psarc")
             use psarc = PSARC.Read(file)
-            let tempPath = Path.Combine(Path.GetTempPath(), "extractTest")
-            Directory.CreateDirectory(tempPath) |> ignore
+            let tempPath = getTempPath "extractTest"
             
             do! psarc.ExtractFiles(tempPath)
         
@@ -28,8 +32,7 @@ let readTests =
         testAsync "Can extract partially compressed file" {
             // The test archive contains a single file where only the first block is zlib compressed
             use psarc = PSARC.ReadFile("partially_compressed_test_p.psarc")
-            let tempPath = Path.Combine(Path.GetTempPath(), "partiallyCompressedTest")
-            Directory.CreateDirectory(tempPath) |> ignore
+            let tempPath = getTempPath "partiallyCompressedTest"
 
             do! psarc.ExtractFiles(tempPath)
 
