@@ -22,7 +22,7 @@ let private getDecryptStream (input: Stream) =
     use aes = Aes.Create()
     aes.Mode <- CipherMode.ECB
     aes.Padding <- PaddingMode.None
-    //use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.None)
+
     let decryptor = aes.CreateDecryptor(profileKey, null)
     new CryptoStream(input, decryptor, CryptoStreamMode.Read, leaveOpen = true)
 
@@ -30,7 +30,7 @@ let private getEncryptStream (output: Stream) =
     use aes = Aes.Create()
     aes.Mode <- CipherMode.ECB
     aes.Padding <- PaddingMode.Zeros
-    //use aes = new AesManaged(Mode = CipherMode.ECB, Padding = PaddingMode.Zeros)
+
     let encryptor = aes.CreateEncryptor(profileKey, null)
     new CryptoStream(output, encryptor, CryptoStreamMode.Write, leaveOpen = true)
 

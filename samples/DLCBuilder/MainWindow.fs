@@ -28,10 +28,8 @@ type WindowStatus =
     static member TryLoad() =
         try
             if File.Exists(WindowStatus.SavePath) then
-                WindowStatus.SavePath
-                |> File.ReadAllText
-                |> JsonSerializer.Deserialize<WindowStatus>
-                |> Some
+                use file = File.OpenRead(WindowStatus.SavePath)
+                JsonSerializer.Deserialize<WindowStatus>(file) |> Some
             else
                 None
         with _ ->

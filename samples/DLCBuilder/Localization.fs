@@ -24,9 +24,7 @@ module Localization =
 
     let private loadDictionary locale =
         use json = embeddedProvider.GetFileInfo($"i18n/%s{locale.ShortName}.json").CreateReadStream()
-        JsonSerializer.DeserializeAsync<IReadOnlyDictionary<string, string>>(json).AsTask()
-        |> Async.AwaitTask
-        |> Async.RunSynchronously
+        JsonSerializer.Deserialize<IReadOnlyDictionary<string, string>>(json)
 
     let private defaultDictionary = loadDictionary Locale.Default
     let mutable private localeDictionary = defaultDictionary
