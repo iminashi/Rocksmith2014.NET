@@ -27,9 +27,8 @@ let private tryGetStoredLevels directory =
         None
 
 let private savePhraseLevels directory (phraseLevels: ProjectLevels) =
-    let levelsFile = Path.Combine(directory, PhraseLevelFile)
-    let text = JsonSerializer.Serialize(phraseLevels)
-    File.WriteAllText(levelsFile, text)
+    use file = File.Create(Path.Combine(directory, PhraseLevelFile))
+    JsonSerializer.Serialize(file, phraseLevels)
 
 let private createLevelDictionary (arrangements: (Arrangement * SNG) list) : ProjectLevels =
     arrangements

@@ -37,8 +37,8 @@ type WindowStatus =
 
     static member Save(state: WindowStatus) =
         try
-            let json = JsonSerializer.Serialize(state)
-            File.WriteAllText(WindowStatus.SavePath, json)
+            use file = File.Create(WindowStatus.SavePath)
+            JsonSerializer.Serialize(file, state)
         with _ ->
             ()
 
