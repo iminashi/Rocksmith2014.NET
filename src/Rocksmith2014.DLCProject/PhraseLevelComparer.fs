@@ -13,17 +13,12 @@ type ProjectLevels = IReadOnlyDictionary<Guid, IReadOnlyDictionary<PhraseName, i
 let [<Literal>] private PhraseLevelFile = ".phrase-levels"
 
 let private tryGetStoredLevels directory =
-    let levelsFile = Path.Combine(directory, PhraseLevelFile)
-
-    if File.Exists(levelsFile) then
-        try
-            levelsFile
-            |> File.ReadAllText
-            |> JsonSerializer.Deserialize<ProjectLevels>
-            |> Some
-        with _ ->
-            None
-    else
+    try
+        Path.Combine(directory, PhraseLevelFile)
+        |> File.tryMap (fun path ->
+            use file = File.OpenRead(path)
+            JsonSerializer.Deserialize<ProjectLevels>(file))
+    with _ ->
         None
 
 let private savePhraseLevels directory (phraseLevels: ProjectLevels) =
