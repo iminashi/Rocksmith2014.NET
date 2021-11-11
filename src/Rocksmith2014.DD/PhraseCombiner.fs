@@ -71,7 +71,7 @@ let private findSamePhrases threshold (levelCounts: int array) (iterationData: P
                     let isSameDifficulty =
                         ids
                         |> Array.append [| mainId |]
-                        |> Array.map (fun id -> levelCounts.[id])
+                        |> Array.map (fun id -> levelCounts[id])
                         |> Array.allSame
 
                     Some { MainId = mainId
@@ -80,14 +80,14 @@ let private findSamePhrases threshold (levelCounts: int array) (iterationData: P
 
 let private findEmptyPhrases (iterationData: PhraseData array) =
     let emptyIds =
-        iterationData.[1..(iterationData.Length - 2)]
+        iterationData[1..(iterationData.Length - 2)]
         |> Array.choosei (fun i data ->
             if isEmpty data then Some(i + 1) else None)
 
     if emptyIds.Length > 1 then
         Array.singleton
-            { MainId = emptyIds.[0]
-              Ids = emptyIds.[1..]
+            { MainId = emptyIds[0]
+              Ids = emptyIds[1..]
               IsSameDifficulty = true }
     else
         Array.empty
@@ -127,7 +127,7 @@ let combineSamePhrases (config: GeneratorConfig)
     let newPhraseIterations =
         (iterations, levelCounts)
         ||> Array.mapi2 (fun i oldPi levelCount ->
-            let pi = PhraseIteration(oldPi.Time, newPhraseIds.[i])
+            let pi = PhraseIteration(oldPi.Time, newPhraseIds[i])
             let maxDiff = byte (levelCount - 1)
 
             if maxDiff > 0uy then
@@ -144,15 +144,15 @@ let combineSamePhrases (config: GeneratorConfig)
         |> Array.map (fun data ->
             let ids =
                 seq {
-                    yield newPhraseIds.[data.MainId]
-                    yield! data.Ids |> Seq.map (fun x -> newPhraseIds.[x])
+                    yield newPhraseIds[data.MainId]
+                    yield! data.Ids |> Seq.map (fun x -> newPhraseIds[x])
                 }
 
             NewLinkedDiff(-1y, ids))
 
     // Create phrases
     let phrases =
-        let firstId = newPhraseIterations.[0].PhraseId
+        let firstId = newPhraseIterations[0].PhraseId
         let lastId = (Array.last newPhraseIterations).PhraseId
         let createdPhraseIds = HashSet<int>()
         let mutable counter = -1

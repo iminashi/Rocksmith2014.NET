@@ -54,7 +54,7 @@ let private getDivisionInPhrase startTime endTime time =
             findDivIndex (curr + 1)
 
     let divsionIndex = findDivIndex 0
-    phraseDivisions.[divsionIndex]
+    phraseDivisions[divsionIndex]
 
 let getDivision (phraseData: PhraseData) (time: int) (entity: XmlEntity) : BeatDivision =
     let { StartTime = phraseStartTime; EndTime = phraseEndTime; Beats = beats } = phraseData

@@ -20,9 +20,9 @@ let private createXmlEntityArray (xmlNotes: Note list) (xmlChords: Chord list) =
                 (xmlNotes.Length + xmlChords.Length)
                 (fun i ->
                     if i < xmlNotes.Length then
-                        XmlNote xmlNotes.[i]
+                        XmlNote xmlNotes[i]
                     else
-                        XmlChord xmlChords.[i - xmlNotes.Length])
+                        XmlChord xmlChords[i - xmlNotes.Length])
 
         Array.sortInPlaceBy getTimeCode entityArray
         entityArray
@@ -36,7 +36,7 @@ let private applyChordId (templates: ResizeArray<ChordTemplate>) =
             | true, id ->
                 id
             | false, _ ->
-                let template = templates.[int request.OriginalId]
+                let template = templates[int request.OriginalId]
                 let noteCount = getNoteCount template
 
                 let mutable removeNotes = noteCount - int request.NoteCount
@@ -45,10 +45,10 @@ let private applyChordId (templates: ResizeArray<ChordTemplate>) =
                     let fingers = Array.copy template.Fingers
                     let frets = Array.copy template.Frets
                     for i = frets.Length - 1 downto 0 do
-                        if frets.[i] <> -1y && removeNotes > 0 then
+                        if frets[i] <> -1y && removeNotes > 0 then
                             removeNotes <- removeNotes - 1
-                            fingers.[i] <- -1y
-                            frets.[i] <- -1y
+                            fingers[i] <- -1y
+                            frets[i] <- -1y
                     fingers, frets
 
                 let id =
@@ -183,10 +183,10 @@ let generateForArrangement (config: GeneratorConfig) (arr: InstrumentalArrangeme
             levels
             |> Array.iter (fun lvl ->
                 if diff < lvl.Length then
-                    level.Anchors.AddRange(lvl.[diff].Anchors)
-                    level.Notes.AddRange(lvl.[diff].Notes)
-                    level.HandShapes.AddRange(lvl.[diff].HandShapes)
-                    level.Chords.AddRange(lvl.[diff].Chords))
+                    level.Anchors.AddRange(lvl[diff].Anchors)
+                    level.Notes.AddRange(lvl[diff].Notes)
+                    level.HandShapes.AddRange(lvl[diff].HandShapes)
+                    level.Chords.AddRange(lvl[diff].Chords))
             level)
 
     let phrases, newPhraseIterations, newLinkedDiffs =

@@ -66,14 +66,14 @@ let private countNotesByPredicate pred (notes: Note seq) (chords: Chord seq) =
     |> lengthBy (fun c -> c.HasChordNotes && c.ChordNotes |> Seq.exists pred))
 
 let getPhraseIterationData (arr: InstrumentalArrangement) (iteration: PhraseIteration) =
-    let phrase = arr.Phrases.[iteration.PhraseId]
+    let phrase = arr.Phrases[iteration.PhraseId]
     let maxD = phrase.MaxDifficulty |> int
     let piIndex = arr.PhraseIterations.IndexOf(iteration)
     let startTime = iteration.Time
 
     let endTime =
         if piIndex + 1 = arr.PhraseIterations.Count then arr.MetaData.SongLength
-        else arr.PhraseIterations.[piIndex + 1].Time
+        else arr.PhraseIterations[piIndex + 1].Time
 
     let lengthMs = endTime - startTime
 
@@ -94,19 +94,19 @@ let getPhraseIterationData (arr: InstrumentalArrangement) (iteration: PhraseIter
         |> List.length
 
     let notes =
-        arr.Levels.[maxD].Notes
+        arr.Levels[maxD].Notes
         |> getRange startTime endTime
 
     let chords =
-        arr.Levels.[maxD].Chords
+        arr.Levels[maxD].Chords
         |> getRange startTime endTime
 
     let anchors =
-        arr.Levels.[maxD].Anchors
+        arr.Levels[maxD].Anchors
         |> getRange startTime endTime
 
     let handShapes =
-        arr.Levels.[maxD].HandShapes
+        arr.Levels[maxD].HandShapes
         |> getRange startTime endTime
 
     let repeatedNotes = notes |> getRepeatCount isRepeatedNote
@@ -138,17 +138,17 @@ let getPhraseIterationData (arr: InstrumentalArrangement) (iteration: PhraseIter
             chords
             |> Seq.distinctBy (fun c -> c.ChordId)
             |> Seq.map (fun c ->
-                let template = arr.ChordTemplates.[int c.ChordId]
+                let template = arr.ChordTemplates[int c.ChordId]
                 Array.FindAll(template.Frets, fun f -> f <> -1y).Length)
             |> Seq.max
 
     let uniqueLevels =
         let mutable unique = 1
         for l = 1 to maxD do
-            let ns1 = arr.Levels.[l].Notes |> getRange startTime endTime
-            let ns2 = arr.Levels.[l - 1].Notes |> getRange startTime endTime
-            let cs1 = arr.Levels.[l].Chords |> getRange startTime endTime
-            let cs2 = arr.Levels.[l - 1].Chords |> getRange startTime endTime
+            let ns1 = arr.Levels[l].Notes |> getRange startTime endTime
+            let ns2 = arr.Levels[l - 1].Notes |> getRange startTime endTime
+            let cs1 = arr.Levels[l].Chords |> getRange startTime endTime
+            let cs2 = arr.Levels[l - 1].Chords |> getRange startTime endTime
 
             if not (Comparers.sameNotes ns1 ns2) || not (Comparers.sameChords cs1 cs2) then
                 unique <- unique + 1
@@ -204,7 +204,7 @@ let toCSVLines (filePath: string) =
     let sb = StringBuilder()
     let arr = InstrumentalArrangement.Load(filePath)
     let fn = Path.GetFileNameWithoutExtension(filePath)
-    let key, arrName = let s = fn.Split('_') in s.[0], s.[1]
+    let key, arrName = let s = fn.Split('_') in s[0], s[1]
     let meta = sprintf "%s,%s,%i" key arrName (getPath arr)
 
     arr.Phrases

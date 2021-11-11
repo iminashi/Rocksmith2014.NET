@@ -28,7 +28,7 @@ let private isArpeggio (entities: XmlEntity array) (hs: HandShape) =
         false
     | notes ->
         notes
-        |> Array.forall (fun n -> n.String = notes.[0].String || n.Time = notes.[0].Time)
+        |> Array.forall (fun n -> n.String = notes[0].String || n.Time = notes[0].Time)
         |> not
 
 let choose (diffPercent: float)
@@ -41,7 +41,7 @@ let choose (diffPercent: float)
 
     handShapes
     |> List.choose (fun hs ->
-        let template = templates.[int hs.ChordId]
+        let template = templates[int hs.ChordId]
         let noteCount = getNoteCount template
 
         if noNotesInHandShape levelEntities hs then

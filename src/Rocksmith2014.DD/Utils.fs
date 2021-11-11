@@ -23,7 +23,7 @@ let inline getSustain entity =
         xn.Sustain
     | XmlChord xc ->
         if xc.HasChordNotes then
-            xc.ChordNotes.[0].Sustain
+            xc.ChordNotes[0].Sustain
         else
             0
 

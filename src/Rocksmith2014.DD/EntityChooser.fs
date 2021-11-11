@@ -37,11 +37,11 @@ let private pruneChordNotes diffPercent
     let notesToRemove = cn.Count - noteCount
 
     if notesToRemove < 0 then
-        failwith $"Chord at time {float cn.[0].Time / 1000.} has less chord notes than its chord template."
+        failwith $"Chord at time {float cn[0].Time / 1000.} has less chord notes than its chord template."
 
     for i = cn.Count - notesToRemove to cn.Count - 1 do
-        if cn.[i].IsLinkNext then
-            removedLinkNexts.Add cn.[i].String |> ignore
+        if cn[i].IsLinkNext then
+            removedLinkNexts.Add cn[i].String |> ignore
 
     cn.RemoveRange(cn.Count - notesToRemove, notesToRemove)
 
@@ -61,7 +61,7 @@ let private shouldExclude (diffPercent: float)
         true
     elif diffPercent >= range.Low && diffPercent < range.High then
         // The entity is within the difficulty range -> Check the number of allowed notes
-        let notes = notesInDivision.[division]
+        let notes = notesInDivision[division]
         let currentCount =
             match currentNotes.TryGetValue(division) with
             | true, v -> v
@@ -132,13 +132,13 @@ let private chordNotesFromTemplate (template: ChordTemplate) (chord: Chord) =
     let cn = ResizeArray<Note>()
 
     for i = 0 to 5 do
-        if template.Frets.[i] <> -1y then
+        if template.Frets[i] <> -1y then
             cn.Add(
                 Note(
                     Time = chord.Time,
                     String = sbyte i,
-                    Fret = template.Frets.[i],
-                    LeftHand = template.Fingers.[i],
+                    Fret = template.Frets[i],
+                    LeftHand = template.Fingers[i],
                     IsFretHandMute = chord.IsFretHandMute,
                     IsPalmMute = chord.IsPalmMute,
                     IsAccent = chord.IsAccent
@@ -155,10 +155,10 @@ let private noteFromChord (diffPercent: float)
     if chord.HasChordNotes then
         // Create the note from a chord note
         for i = 1 to chord.ChordNotes.Count - 1 do
-            if chord.ChordNotes.[i].IsLinkNext then
-                removedLinkNexts.Add(chord.ChordNotes.[i].String) |> ignore
+            if chord.ChordNotes[i].IsLinkNext then
+                removedLinkNexts.Add(chord.ChordNotes[i].String) |> ignore
 
-        let n = Note(chord.ChordNotes.[0], LeftHand = -1y)
+        let n = Note(chord.ChordNotes[0], LeftHand = -1y)
         pruneTechniques diffPercent removedLinkNexts n
         n
     else
@@ -168,7 +168,7 @@ let private noteFromChord (diffPercent: float)
         Note(
             Time = chord.Time,
             String = sbyte string,
-            Fret = template.Frets.[string],
+            Fret = template.Frets[string],
             IsFretHandMute = chord.IsFretHandMute,
             IsPalmMute = chord.IsPalmMute,
             IsAccent = chord.IsAccent,
@@ -190,16 +190,16 @@ let choose (diffPercent: float)
     let incrementCount division =
         match currentNotesInDivision.TryGetValue(division) with
         | true, v ->
-            currentNotesInDivision.[division] <- v + 1
+            currentNotesInDivision[division] <- v + 1
         | false, _ ->
-            currentNotesInDivision.[division] <- 1
+            currentNotesInDivision[division] <- 1
 
     let allowedChordNotes = getAllowedChordNotes diffPercent maxChordNotes
 
     ([], entities)
     ||> Array.fold (fun acc e ->
-        let division = noteTimeToDivision.[getTimeCode e]
-        let range = divisionMap.[division]
+        let division = noteTimeToDivision[getTimeCode e]
+        let range = divisionMap[division]
 
         let includeAlways =
             match e with
@@ -278,7 +278,7 @@ let choose (diffPercent: float)
             | XmlChord chord ->
                 incrementCount division
 
-                let template = templates.[int chord.ChordId]
+                let template = templates[int chord.ChordId]
                 let noteCount = getNoteCount template
 
                 if allowedChordNotes <= 1 then
