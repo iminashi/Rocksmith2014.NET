@@ -25,7 +25,7 @@ let getSustain = function
         xn.Sustain
     | XmlChord xc ->
         if xc.HasChordNotes then
-            xc.ChordNotes.[0].Sustain
+            xc.ChordNotes[0].Sustain
         else
             0
 
@@ -124,7 +124,7 @@ let convertBendValue (xmlBv: XML.BendValue) =
 let convertPhraseIteration (piTimes: int array) index (xmlPi: XML.PhraseIteration) =
     { PhraseId = xmlPi.PhraseId
       StartTime = msToSec xmlPi.Time
-      EndTime = msToSec piTimes.[index + 1]
+      EndTime = msToSec piTimes[index + 1]
       Difficulty =
         [| int xmlPi.HeroLevels.Easy
            int xmlPi.HeroLevels.Medium
@@ -151,13 +151,13 @@ let convertSection (stringMasks: int8[][]) (xml: XML.InstrumentalArrangement) in
         if index = xml.Sections.Count - 1 then
             xml.MetaData.SongLength
         else
-            xml.Sections.[index + 1].Time
+            xml.Sections[index + 1].Time
 
     let startPi = findPhraseIterationId xmlSection.Time xml.PhraseIterations
 
     let endPi =
         let rec find index =
-            if index >= xml.PhraseIterations.Count || xml.PhraseIterations.[index].Time >= endTime then
+            if index >= xml.PhraseIterations.Count || xml.PhraseIterations[index].Time >= endTime then
                 index - 1
             else
                 find (index + 1)
@@ -169,7 +169,7 @@ let convertSection (stringMasks: int8[][]) (xml: XML.InstrumentalArrangement) in
       EndTime = msToSec endTime
       StartPhraseIterationId = startPi
       EndPhraseIterationId = endPi
-      StringMask = stringMasks.[index] }
+      StringMask = stringMasks[index] }
 
 // Uninitialized values found in anchors that have no notes
 let [<Literal>] private UninitFirstNote = 3.4028234663852886e+38f
@@ -186,9 +186,9 @@ let convertAnchor (notes: Note array)
     let endTime =
         if index = level.Anchors.Count - 1 then
             // Use time of last phrase iteration (should be END)
-            xml.PhraseIterations.[xml.PhraseIterations.Count - 1].Time
+            xml.PhraseIterations[xml.PhraseIterations.Count - 1].Time
         else
-            level.Anchors.[index + 1].Time
+            level.Anchors[index + 1].Time
 
     (* It is likely impossible to get identical values when testing an official file SNG -> XML -> SNG
        Cases like these can be found:
@@ -201,13 +201,13 @@ let convertAnchor (notes: Note array)
         | ValueNone ->
             UninitFirstNote, UninitLastNote
         | ValueSome (firstIndex, lastIndex) ->
-            let firstNote = notes.[firstIndex]
-            let lastNote = notes.[lastIndex]
+            let firstNote = notes[firstIndex]
+            let lastNote = notes[lastIndex]
             let firstNoteTime =
                 if firstIndex = 0 then
                     firstNote.Time
                 else
-                    let prevNote = notes.[firstIndex - 1]
+                    let prevNote = notes[firstIndex - 1]
                     // If this anchor is at the end of a slide note, use the time where the target note would be
                     if prevNote.Mask ?= NoteMask.Slide
                        && prevNote.Time + prevNote.Sustain - startTime < 0.001f then
@@ -240,14 +240,14 @@ let convertHandshape (noteTimes: int array) (entities: XmlEntity array) (xmlHs: 
             -1.f, -1.f
         | ValueSome (first, last) ->
             let endTime =
-                let t = noteTimes.[last] + getSustain entities.[last]
+                let t = noteTimes[last] + getSustain entities[last]
 
                 if t >= xmlHs.EndTime then
                     -1.f
                 else
                     msToSec t
 
-            msToSec noteTimes.[first], endTime
+            msToSec noteTimes[first], endTime
 
     { ChordId = int xmlHs.ChordId
       StartTime = msToSec xmlHs.StartTime
@@ -280,7 +280,7 @@ let createMetaData (accuData: AccuData) firstNoteTime (xml: XML.InstrumentalArra
       MaxNotesAndChords = float accuData.NoteCounts.Hard
       MaxNotesAndChordsReal = float (accuData.NoteCounts.Hard - accuData.NoteCounts.Ignored)
       PointsPerNote = maxScore / float accuData.NoteCounts.Hard
-      FirstBeatLength = msToSec (xml.Ebeats.[1].Time - xml.Ebeats.[0].Time)
+      FirstBeatLength = msToSec (xml.Ebeats[1].Time - xml.Ebeats[0].Time)
       StartTime = msToSec xml.StartBeat
       CapoFretId = if xml.MetaData.Capo <= 0y then -1y else xml.MetaData.Capo
       LastConversionDateTime = conversionDate

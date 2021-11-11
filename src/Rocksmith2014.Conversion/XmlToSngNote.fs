@@ -111,7 +111,7 @@ let private createBendData32 (chordNote: XML.Note) =
     let usedCount = chordNote.BendValues.Count
     let bv = Array.init 32 (fun i ->
         if i < usedCount then
-            convertBendValue chordNote.BendValues.[i]
+            convertBendValue chordNote.BendValues[i]
         else
             BendValue.Empty)
 
@@ -123,7 +123,7 @@ let private createChordNotesMask (chordNotes: ResizeArray<XML.Note>) =
     let masks = Array.zeroCreate<NoteMask> 6
 
     for note in chordNotes do
-        masks.[int note.String] <- createMaskForChordNote note
+        masks[int note.String] <- createMaskForChordNote note
 
     masks
 
@@ -143,12 +143,12 @@ let private createChordNotes (pendingLinkNexts: Dictionary<int8, struct(XML.Note
         for note in chord.ChordNotes do
             let strIndex = int note.String
 
-            slideTo.[strIndex] <- note.SlideTo
-            slideUnpitchTo.[strIndex] <- note.SlideUnpitchTo
-            vibrato.[strIndex] <- int16 note.Vibrato
+            slideTo[strIndex] <- note.SlideTo
+            slideUnpitchTo[strIndex] <- note.SlideUnpitchTo
+            vibrato[strIndex] <- int16 note.Vibrato
 
             if note.IsBend then
-                bendData.[strIndex] <- createBendData32 note
+                bendData[strIndex] <- createBendData32 note
 
             if note.IsLinkNext then
                 pendingLinkNexts.TryAdd(note.String, struct(note, thisId)) |> ignore
@@ -172,8 +172,8 @@ let private createChordNotes (pendingLinkNexts: Dictionary<int8, struct(XML.Note
 
 /// Updates the string mask for the given section/difficulty.
 let inline private updateStringMask accuData sectionId difficulty noteString =
-    let sMask = accuData.StringMasks.[sectionId].[difficulty]
-    accuData.StringMasks.[sectionId].[difficulty] <- sMask ||| (1y <<< noteString)
+    let sMask = accuData.StringMasks[sectionId][difficulty]
+    accuData.StringMasks[sectionId][difficulty] <- sMask ||| (1y <<< noteString)
 
 /// Returns a function that is valid for converting notes in a single difficulty level.
 let convertNote (noteTimes: int array)
@@ -191,12 +191,12 @@ let convertNote (noteTimes: int array)
 
     fun (index: int) (xmlEnt: XmlEntity) ->
 
-        let level = xml.Levels.[difficulty]
+        let level = xml.Levels[difficulty]
         let timeCode = getTimeCode xmlEnt
         let timeSeconds = msToSec timeCode
 
         let piId = findPhraseIterationId timeCode xml.PhraseIterations
-        let phraseIteration = xml.PhraseIterations.[piId]
+        let phraseIteration = xml.PhraseIterations[piId]
         let phraseId = phraseIteration.PhraseId
         let anchor = findAnchor timeCode level.Anchors
         let sectionId = findSectionId timeCode xml.Sections
@@ -206,22 +206,22 @@ let convertNote (noteTimes: int array)
 
         // The index of the previous note in the same phrase iteration
         let previous =
-            if index = 0 || noteTimes.[index - 1] < phraseIteration.Time then
+            if index = 0 || noteTimes[index - 1] < phraseIteration.Time then
                 -1s
             else
                 this - 1s
 
         // The index of the next note in the same phrase iteration
         let next =
-            if index = noteTimes.Length - 1 || noteTimes.[index + 1] >= piTimes.[piId + 1] then
+            if index = noteTimes.Length - 1 || noteTimes[index + 1] >= piTimes[piId + 1] then
                 -1s
             else
                 this + 1s
 
         let fingerPrintIds =
-            [| int16 (findFingerPrintId timeSeconds fingerPrints.[0])
-               int16 (findFingerPrintId timeSeconds fingerPrints.[1]) |]
-        let isArpeggio = fingerPrintIds.[1] <> -1s
+            [| int16 (findFingerPrintId timeSeconds fingerPrints[0])
+               int16 (findFingerPrintId timeSeconds fingerPrints[1]) |]
+        let isArpeggio = fingerPrintIds[1] <> -1s
 
         let data =
             match xmlEnt with
@@ -257,7 +257,7 @@ let convertNote (noteTimes: int array)
                     let ax = 
                         { BeatTime = msToSec (timeCode + note.Sustain)
                           FretId = note.SlideTo }
-                    accuData.AnchorExtensions.[difficulty].Add(ax)
+                    accuData.AnchorExtensions[difficulty].Add(ax)
 
                 updateStringMask accuData sectionId difficulty (int note.String)
 
@@ -273,13 +273,13 @@ let convertNote (noteTimes: int array)
 
             // XML Chords
             | XmlChord chord ->
-                let template = xml.ChordTemplates.[int chord.ChordId]
+                let template = xml.ChordTemplates[int chord.ChordId]
                 let sustain, chordNoteId =
                     if chord.HasChordNotes then
                         for i = 0 to chord.ChordNotes.Count - 1 do
-                            updateStringMask accuData sectionId difficulty (int chord.ChordNotes.[i].String)
+                            updateStringMask accuData sectionId difficulty (int chord.ChordNotes[i].String)
 
-                        msToSec chord.ChordNotes.[0].Sustain, 
+                        msToSec chord.ChordNotes[0].Sustain, 
                         createChordNotes pendingLinkNexts this accuData chord
                     else
                         0.f, -1

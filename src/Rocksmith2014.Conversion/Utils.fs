@@ -21,7 +21,7 @@ let isDoubleStop (template: XML.ChordTemplate) =
     let mutable notes = 0
 
     for i = 0 to template.Frets.Length - 1 do
-        if template.Frets.[i] <> -1y then notes <- notes + 1
+        if template.Frets[i] <> -1y then notes <- notes + 1
 
     notes = 2
 
@@ -29,25 +29,25 @@ let isDoubleStop (template: XML.ChordTemplate) =
 let mapToResizeArray map (array: 'a array) =
     let ra = ResizeArray(array.Length)
     for i = 0 to array.Length - 1 do
-        ra.Add(map array.[i])
+        ra.Add(map array[i])
     ra
 
 /// Maps a ResizeArray into an array using the given map function.
 let mapToArray map (resizeArray: ResizeArray<_>) =
-    Array.init resizeArray.Count (fun i -> map resizeArray.[i])
+    Array.init resizeArray.Count (fun i -> map resizeArray[i])
 
 /// Maps a ResizeArray into an array using the given map function, specifying a maximum size.
 let mapToArrayMaxSize maxSize map (resizeArray: ResizeArray<_>) =
-    Array.init (min resizeArray.Count maxSize) (fun i -> map resizeArray.[i])
+    Array.init (min resizeArray.Count maxSize) (fun i -> map resizeArray[i])
 
 /// Maps a ResizeArray into an array using the given map function, with index.
 let mapiToArray map (resizeArray: ResizeArray<_>) =
-    Array.init resizeArray.Count (fun i -> map i resizeArray.[i])
+    Array.init resizeArray.Count (fun i -> map i resizeArray[i])
 
 /// Finds the index of the phrase iteration that contains the given time code.
 let findPiId inclusive (time: int) (iterations: ResizeArray<XML.PhraseIteration>) =
     let mutable id = iterations.Count - 1
-    while id > 0 && not ((inclusive && iterations.[id].Time = time) || iterations.[id].Time < time) do
+    while id > 0 && not ((inclusive && iterations[id].Time = time) || iterations[id].Time < time) do
         id <- id - 1
     id
 
@@ -59,7 +59,7 @@ let findPhraseIterationId time iterations = findPiId true time iterations
 /// Finds the ID of the section that contains the given time code.
 let findSectionId time (sections: ResizeArray<XML.Section>) =
     let mutable id = sections.Count - 1
-    while id > 0 && sections.[id].Time > time do
+    while id > 0 && sections[id].Time > time do
         id <- id - 1
     id
 
@@ -68,8 +68,8 @@ let findAnchor time (anchors: ResizeArray<XML.Anchor>) =
     let rec find index =
         if index < 0 then
             failwithf "No anchor found for note at time %.3f." (msToSec time)
-        elif anchors.[index].Time <= time then
-            anchors.[index]
+        elif anchors[index].Time <= time then
+            anchors[index]
         else
             find (index - 1)
     find (anchors.Count - 1)
@@ -77,9 +77,9 @@ let findAnchor time (anchors: ResizeArray<XML.Anchor>) =
 /// Finds the ID (if any) of the fingerprint for a note at the given time code.
 let findFingerPrintId time (fingerPrints: FingerPrint array) =
     let rec find index =
-        if index = fingerPrints.Length || fingerPrints.[index].StartTime > time then
+        if index = fingerPrints.Length || fingerPrints[index].StartTime > time then
             -1
-        elif time >= fingerPrints.[index].StartTime && time < fingerPrints.[index].EndTime then
+        elif time >= fingerPrints[index].StartTime && time < fingerPrints[index].EndTime then
             index
         else
             find (index + 1)
@@ -90,7 +90,7 @@ let private findIndex startIndex time (noteTimes: int array) =
     let rec find index =
         if index = noteTimes.Length then
             -1
-        elif noteTimes.[index] >= time then
+        elif noteTimes[index] >= time then
             index
         else
             find (index + 1)
@@ -103,14 +103,14 @@ let findFirstAndLastTime (noteTimes: int array) startTime endTime =
             0
         else
             let mid = noteTimes.Length / 2
-            if noteTimes.[mid] < startTime then mid else 0
+            if noteTimes[mid] < startTime then mid else 0
 
     let firstIndex = findIndex startIndex startTime noteTimes
 
     match firstIndex with
     | -1 ->
         ValueNone
-    | index when noteTimes.[index] >= endTime ->
+    | index when noteTimes[index] >= endTime ->
         ValueNone
     | firstIndex ->
         let lastIndex =

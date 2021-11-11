@@ -180,7 +180,7 @@ let convertBendData32 (bd: BendData32) =
 
 /// Creates a list of XML chord notes for an SNG Note.
 let private createChordNotes (sng: SNG) (chord: Note) =
-    let template = sng.Chords.[chord.ChordId]
+    let template = sng.Chords[chord.ChordId]
     let xmlNotes = ResizeArray()
 
     let chordNotes =
@@ -188,26 +188,26 @@ let private createChordNotes (sng: SNG) (chord: Note) =
         | id when id = -1 || id >= sng.ChordNotes.Length ->
             ValueNone
         | id ->
-            ValueSome sng.ChordNotes.[id]
+            ValueSome sng.ChordNotes[id]
 
     for i = 0 to 5 do
-        if template.Frets.[i] <> -1y then
+        if template.Frets[i] <> -1y then
             let cn =
                 XML.Note(
                     Time = secToMs chord.Time,
-                    Fret = template.Frets.[i],
-                    LeftHand = template.Fingers.[i],
+                    Fret = template.Frets[i],
+                    LeftHand = template.Fingers[i],
                     String = sbyte i,
                     Sustain = secToMs chord.Sustain
                 )
 
             chordNotes
             |> ValueOption.iter (fun chordNotes ->
-                cn.Mask <- convertNoteMask chordNotes.Mask.[i]
-                cn.SlideTo <- chordNotes.SlideTo.[i]
-                cn.SlideUnpitchTo <- chordNotes.SlideUnpitchTo.[i]
-                cn.Vibrato <- byte chordNotes.Vibrato.[i]
-                cn.BendValues <- convertBendData32 chordNotes.BendData.[i])
+                cn.Mask <- convertNoteMask chordNotes.Mask[i]
+                cn.SlideTo <- chordNotes.SlideTo[i]
+                cn.SlideUnpitchTo <- chordNotes.SlideUnpitchTo[i]
+                cn.Vibrato <- byte chordNotes.Vibrato[i]
+                cn.BendValues <- convertBendData32 chordNotes.BendData[i])
 
             xmlNotes.Add(cn)
             
@@ -232,9 +232,9 @@ let private mapFingerPrints (handShapes: FingerPrint array) (arpeggios: FingerPr
     let result = ResizeArray<XML.HandShape>(handShapes.Length + arpeggios.Length)
 
     for i = 0 to handShapes.Length - 1 do
-        result.Add(convertHandShape handShapes.[i])
+        result.Add(convertHandShape handShapes[i])
     for i = 0 to arpeggios.Length - 1 do
-        result.Add(convertHandShape arpeggios.[i])
+        result.Add(convertHandShape arpeggios[i])
 
     result.Sort(fun hs1 hs2 -> hs1.Time.CompareTo(hs2.Time))
     result

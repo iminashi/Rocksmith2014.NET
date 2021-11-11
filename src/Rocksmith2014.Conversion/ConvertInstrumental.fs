@@ -119,10 +119,10 @@ let sngToXml (attr: Manifest.Attributes option) (sng: SNG) =
     attr
     |> Option.iter (fun attr ->
         if String.notEmpty attr.Tone_Base then arr.Tones.BaseToneName <- attr.Tone_Base
-        if String.notEmpty attr.Tone_A then arr.Tones.Names.[0] <- attr.Tone_A
-        if String.notEmpty attr.Tone_B then arr.Tones.Names.[1] <- attr.Tone_B
-        if String.notEmpty attr.Tone_C then arr.Tones.Names.[2] <- attr.Tone_C
-        if String.notEmpty attr.Tone_D then arr.Tones.Names.[3] <- attr.Tone_D)
+        if String.notEmpty attr.Tone_A then arr.Tones.Names[0] <- attr.Tone_A
+        if String.notEmpty attr.Tone_B then arr.Tones.Names[1] <- attr.Tone_B
+        if String.notEmpty attr.Tone_C then arr.Tones.Names[2] <- attr.Tone_C
+        if String.notEmpty attr.Tone_D then arr.Tones.Names[3] <- attr.Tone_D)
 
     arr
 
@@ -130,8 +130,8 @@ let sngToXml (attr: Manifest.Attributes option) (sng: SNG) =
 let private processStringMasks (stringMasks: int8[][]) (maxDiff: int) =
     for s = 0 to stringMasks.Length - 2 do
         for d = 0 to maxDiff - 1 do
-            let mask = stringMasks.[s].[d]
-            stringMasks.[s].[d] <- mask ||| stringMasks.[s + 1].[d]
+            let mask = stringMasks[s][d]
+            stringMasks[s][d] <- mask ||| stringMasks[s + 1][d]
 
 /// Creates an array of phrase iteration start times, with the song length as the last value.
 let createPhraseIterationTimesArray (xml: InstrumentalArrangement) =
@@ -140,7 +140,7 @@ let createPhraseIterationTimesArray (xml: InstrumentalArrangement) =
             // Use song length as a sentinel
             xml.MetaData.SongLength
         else
-            xml.PhraseIterations.[i].Time)
+            xml.PhraseIterations[i].Time)
 
 /// Converts an InstrumentalArrangement into SNG.
 let xmlToSng (arr: InstrumentalArrangement) =
@@ -178,8 +178,8 @@ let xmlToSng (arr: InstrumentalArrangement) =
     let firstNoteTime =
         let mutable time = Single.MaxValue
         for level in levels do
-            if level.Notes.Length > 0 && level.Notes.[0].Time < time then
-                time <- level.Notes.[0].Time
+            if level.Notes.Length > 0 && level.Notes[0].Time < time then
+                time <- level.Notes[0].Time
         time
 
     let sections =

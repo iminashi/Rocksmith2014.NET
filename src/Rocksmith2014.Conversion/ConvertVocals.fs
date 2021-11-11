@@ -44,8 +44,8 @@ module ConvertVocals =
             |> Utils.mapToResizeArray SngToXml.convertSymbolDefinition
 
         GlyphDefinitions(
-            TextureWidth = sng.SymbolsTextures.[0].Width,
-            TextureHeight = sng.SymbolsTextures.[0].Height,
+            TextureWidth = sng.SymbolsTextures[0].Width,
+            TextureHeight = sng.SymbolsTextures[0].Height,
             Glyphs = glyphs
         )
 

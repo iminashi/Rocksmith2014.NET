@@ -15,15 +15,15 @@ let toMidiNote string fret (tuning: int16 array) capo isBass =
 
     let offset = if isBass then -12 else 0
 
-    standardTuningMidiNotes.[string]
-    + int tuning.[string]
+    standardTuningMidiNotes[string]
+    + int tuning[string]
     + fret
     + offset
 
 /// Maps the array of frets into an array of MIDI notes.
 let mapToMidiNotes (metaData: MetaData) (frets: sbyte array) =
     Array.init 6 (fun str ->
-        if frets.[str] = -1y then
+        if frets[str] = -1y then
             -1
         else
-            toMidiNote str frets.[str] metaData.Tuning.Strings metaData.Capo metaData.ArrangementProperties.PathBass)
+            toMidiNote str frets[str] metaData.Tuning.Strings metaData.Capo metaData.ArrangementProperties.PathBass)

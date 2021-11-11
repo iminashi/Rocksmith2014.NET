@@ -31,10 +31,10 @@ type AccuData =
     /// Increments the phrase iteration note count and hero level note counts.
     member this.AddNote(pi: int, difficulty: byte, heroLevels: XML.HeroLevels, ignored: bool) =
         let d = int difficulty
-        this.NotesInPhraseIterationsAll.[d].[pi] <- this.NotesInPhraseIterationsAll.[d].[pi] + 1
+        this.NotesInPhraseIterationsAll[d][pi] <- this.NotesInPhraseIterationsAll[d][pi] + 1
 
         if not ignored then
-            this.NotesInPhraseIterationsExclIgnored.[d].[pi] <- this.NotesInPhraseIterationsExclIgnored.[d].[pi] + 1
+            this.NotesInPhraseIterationsExclIgnored[d][pi] <- this.NotesInPhraseIterationsExclIgnored[d][pi] + 1
 
         if heroLevels.Easy = difficulty then
             Interlocked.Increment(&this.NoteCounts.Easy) |> ignore
