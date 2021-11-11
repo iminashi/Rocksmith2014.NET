@@ -29,7 +29,7 @@ let private toMidiNote (sng: SNG) (note: Note) =
         | -1 ->
             Midi.toMidiNote (int note.StringIndex) note.Fret sng.MetaData.Tuning sng.MetaData.CapoFretId false
         | chordId ->
-            sng.Chords.[chordId].Notes
+            sng.Chords[chordId].Notes
             |> Array.tryFind (fun x -> x > 0)
             |> Option.defaultValue 0
 
@@ -39,9 +39,9 @@ let private toMidiNote (sng: SNG) (note: Note) =
 let private getMidiNotes (sng: SNG) =
     sng.PhraseIterations
     |> Array.collect (fun pi ->
-        let maxDifficulty = sng.Phrases.[pi.PhraseId].MaxDifficulty
+        let maxDifficulty = sng.Phrases[pi.PhraseId].MaxDifficulty
 
-        sng.Levels.[maxDifficulty].Notes
+        sng.Levels[maxDifficulty].Notes
         |> Array.filter (isWithinPhraseIteration pi)
         |> Array.map (toMidiNote sng))
 
@@ -74,7 +74,7 @@ let private getFogNoteForSection () =
                     | None -> 0uy
 
                 let note = getRandomFogNote prevNote
-                sectionFogNotes.[sectionName] <- note
+                sectionFogNotes[sectionName] <- note
                 note)
 
         ShowLight(toMs time, note)

@@ -21,7 +21,7 @@ let create (project: DLCProject) =
             1, "showlights"
         | Instrumental inst ->
             let name = inst.Name.ToString().ToLowerInvariant()
-            let group = groups.[inst.Name]
+            let group = groups[inst.Name]
             let part = 1 + (group |> List.findIndex (fun x -> Object.ReferenceEquals(x, inst)))
             if part = 1 then
                 part, name

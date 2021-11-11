@@ -15,18 +15,18 @@ let private roots = [| "E"; "F"; "F#"; "G"; "Ab"; "A"; "Bb"; "B"; "C"; "C#"; "D"
 
 /// Returns the type of the given tuning and its root note(s).
 let getTuningName (tuning: int16 array) : string * obj array =
-    let first = tuning.[0]
+    let first = tuning[0]
 
     // Standard tunings
     if first > -11s && first < 3s && tuning.AsSpan().AllSame(first) then
         let i = int (first + 12s) % 12
-        "Standard", [| roots.[i] |]
+        "Standard", [| roots[i] |]
     // Drop tunings
-    elif first > -12s && first = tuning.[1] - 2s && tuning.AsSpan(1).AllSame(tuning.[1]) then
+    elif first > -12s && first = tuning[1] - 2s && tuning.AsSpan(1).AllSame(tuning[1]) then
         let i = int (first + 12s) % 12
-        let j = int (tuning.[1] + 12s) % 12
-        let root = if first < -2s then roots.[j] + " " else String.Empty
-        let drop = if roots.[i] = "C#" then "Db" else roots.[i]
+        let j = int (tuning[1] + 12s) % 12
+        let root = if first < -2s then roots[j] + " " else String.Empty
+        let drop = if roots[i] = "C#" then "Db" else roots[i]
         "Drop", [| root; drop |]
     else
         // Other tunings

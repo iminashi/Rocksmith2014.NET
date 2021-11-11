@@ -82,7 +82,7 @@ let parse (text: string) =
         |> Array.filter String.notEmpty
         |> Array.map (fun line ->
             let m = Regex.Match(line, """<urn:uuid:([^>]+)> <http://emergent.net/aweb/1.0/([^>]+)> "([^"]+)"\.""")
-            { UUID = m.Groups.[1].Value; TagType = m.Groups.[2].Value; Value = m.Groups.[3].Value })
+            { UUID = m.Groups[1].Value; TagType = m.Groups[2].Value; Value = m.Groups[3].Value })
         |> Array.groupBy (fun x -> x.UUID)
         |> Array.map (fun (uuid, values) ->
             { UUID = Guid.Parse uuid

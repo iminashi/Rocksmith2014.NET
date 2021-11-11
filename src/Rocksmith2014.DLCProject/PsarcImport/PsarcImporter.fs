@@ -149,7 +149,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
             let text = using (new StreamReader(stream)) (fun reader -> reader.ReadToEnd())
             match Regex.Match(text, "Package Version: ([^\r\n]+)\r?\n") with
             | m when m.Success ->
-                return m.Groups.[1].Captures.[0].Value
+                return m.Groups[1].Captures[0].Value
             | _ ->
                 return "1" }
 

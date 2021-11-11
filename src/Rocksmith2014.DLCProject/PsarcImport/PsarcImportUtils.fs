@@ -47,7 +47,7 @@ let importVocals targetDirectory targetFile customFont (attributes: Attributes) 
     Vocals.Save(targetFile, vocals)
 
     let hasCustomFont =
-        sng.SymbolsTextures.[0].Font <> "assets\ui\lyrics\lyrics.dds"
+        sng.SymbolsTextures[0].Font <> "assets\ui\lyrics\lyrics.dds"
 
     if hasCustomFont then
         let glyphs = ConvertVocals.extractGlyphData sng
@@ -76,7 +76,7 @@ let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile
 
     let scrollSpeed =
         let max = Math.Min(int attributes.MaxPhraseDifficulty, attributes.DynamicVisualDensity.Length - 1)
-        Math.Round(float attributes.DynamicVisualDensity.[max], 1, MidpointRounding.AwayFromZero)
+        Math.Round(float attributes.DynamicVisualDensity[max], 1, MidpointRounding.AwayFromZero)
 
     let customAudio =
         if attributes.SongBank = $"song_{dlcKey}.bnk" then

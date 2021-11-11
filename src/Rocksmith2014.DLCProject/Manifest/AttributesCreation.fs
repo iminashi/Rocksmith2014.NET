@@ -35,10 +35,10 @@ let private getDNATime (sng: SNG) dnaId =
             // Find the index of the next DNA None
             match Array.FindIndex(sng.DNAs, next, (fun x -> x.DnaId = DNA.None)) with
             | -1 ->
-                time + (sng.MetaData.SongLength - sng.DNAs.[next].Time)
+                time + (sng.MetaData.SongLength - sng.DNAs[next].Time)
             | none ->
                 // Find the next DNA ID -> DNA None range
-                time + getTotal none (sng.DNAs.[none].Time - sng.DNAs.[next].Time)
+                time + getTotal none (sng.DNAs[none].Time - sng.DNAs[next].Time)
 
     getTotal 0 0.f |> float
 
@@ -92,7 +92,7 @@ let private calculateDifficulties (metaData: XML.MetaData) (sng: SNG) =
 let private convertPhraseIterations (sng: SNG) =
     sng.PhraseIterations
     |> Array.map (fun pi ->
-        let phrase = sng.Phrases.[pi.PhraseId]
+        let phrase = sng.Phrases[pi.PhraseId]
         { PhraseIndex = pi.PhraseId
           MaxDifficulty = phrase.MaxDifficulty
           Name = phrase.Name
@@ -102,7 +102,7 @@ let private convertPhraseIterations (sng: SNG) =
 /// Converts SNG chord templates into manifest chord templates.
 let private convertChordTemplates (sng: SNG) =
     [| for id = 0 to sng.Chords.Length - 1 do
-           let chord = sng.Chords.[id]
+           let chord = sng.Chords[id]
 
            if String.notEmpty chord.Name && chord.Mask <> ChordMask.Arpeggio then
                { ChordId = int16 id
@@ -247,12 +247,12 @@ let private createChordMap (sng: SNG) =
         let diffIds = Dictionary<string, int array>()
 
         for i = 0 to sng.PhraseIterations.Length - 1 do
-            let pi = sng.PhraseIterations.[i]
+            let pi = sng.PhraseIterations[i]
 
             let chordIds =
-                sng.Levels.[lvl].HandShapes
+                sng.Levels[lvl].HandShapes
                 |> Seq.filter (fun x ->
-                    (String.notEmpty sng.Chords.[x.ChordId].Name) && (x.StartTime >= pi.StartTime && x.StartTime < pi.EndTime))
+                    (String.notEmpty sng.Chords[x.ChordId].Name) && (x.StartTime >= pi.StartTime && x.StartTime < pi.EndTime))
                 |> Seq.map (fun x -> x.ChordId)
                 |> Set.ofSeq
 
@@ -277,10 +277,10 @@ let private createTechniqueMap (sng: SNG) =
         let diffIds = Dictionary<string, int array>()
 
         for i = 0 to sng.PhraseIterations.Length - 2 do
-            let pi = sng.PhraseIterations.[i]
+            let pi = sng.PhraseIterations[i]
 
             let techIds =
-                sng.Levels.[lvl].Notes
+                sng.Levels[lvl].Notes
                 |> Seq.filter (fun x -> (x.Time > pi.StartTime && x.Time <= pi.EndTime)) // Weird division into phrase iterations intentional
                 |> Seq.collect (Techniques.getTechniques sng)
                 |> Set.ofSeq

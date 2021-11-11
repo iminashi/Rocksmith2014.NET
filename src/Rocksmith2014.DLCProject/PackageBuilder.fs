@@ -65,7 +65,7 @@ let private build (buildData: BuildData) progress targetFile project platform = 
         project.Arrangements
         |> List.choose (function
             | Instrumental i as arr ->
-                FromInstrumental(i, sngMap.[arr]) |> attributes arr
+                FromInstrumental(i, sngMap[arr]) |> attributes arr
             | Vocals v as arr ->
                 FromVocals v |> attributes arr
             | Showlights _ ->
@@ -84,7 +84,7 @@ let private build (buildData: BuildData) progress targetFile project platform = 
         do! project.Arrangements
             |> List.choose (function
                 | Instrumental i as arr ->
-                    FromInstrumental(i, sngMap.[arr]) |> header
+                    FromInstrumental(i, sngMap[arr]) |> header
                 | Vocals v ->
                     FromVocals v |> header
                 | Showlights _ ->
