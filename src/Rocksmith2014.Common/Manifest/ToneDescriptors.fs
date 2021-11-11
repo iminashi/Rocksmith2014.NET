@@ -191,12 +191,12 @@ module ToneDescriptor =
         match tryInfer name with
         | [||] ->
             // Use "Clean" as the default
-            Array.singleton uiNameToDesc.["$[35720]CLEAN"]
+            Array.singleton uiNameToDesc["$[35720]CLEAN"]
         | descriptors ->
             descriptors |> Array.truncate 3
 
     /// Returns a description name for the given UI name.
-    let uiNameToName (uiName: string) = uiNameToDesc.[uiName].Name
+    let uiNameToName (uiName: string) = uiNameToDesc[uiName].Name
 
     /// Combines an array of UI names into a string of description names separated by spaces.
     let combineUINames (uiNames: string array) =

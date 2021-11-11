@@ -28,7 +28,7 @@ type LittleEndianBinaryReader(stream: Stream) =
             let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
             let span = Span<byte>(buffer, length)
             (this :> IBinaryReader).ReadSpan(span.Slice(0, 3))
-            span.[3] <- 0uy
+            span[3] <- 0uy
             BinaryPrimitives.ReadUInt32LittleEndian(ReadOnlySpan(buffer, length))
 
         member this.ReadInt32() =
@@ -48,7 +48,7 @@ type LittleEndianBinaryReader(stream: Stream) =
             let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
             let span = Span<byte>(buffer, length)
             (this :> IBinaryReader).ReadSpan(span.Slice(0, 5))
-            span.[5] <- 0uy; span.[6] <- 0uy; span.[7] <- 0uy
+            span[5] <- 0uy; span[6] <- 0uy; span[7] <- 0uy
             BinaryPrimitives.ReadUInt64LittleEndian(ReadOnlySpan(buffer, length))
 
         member this.ReadUInt64() =
@@ -102,7 +102,7 @@ type BigEndianBinaryReader(stream: Stream) =
             let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
             let span = Span<byte>(buffer, length)
             (this :> IBinaryReader).ReadSpan(span.Slice(1, 3))
-            span.[0] <- 0uy
+            span[0] <- 0uy
             BinaryPrimitives.ReadUInt32BigEndian(ReadOnlySpan(buffer, length))
 
         member this.ReadInt32() =
@@ -122,7 +122,7 @@ type BigEndianBinaryReader(stream: Stream) =
              let buffer = NativePtr.stackalloc<byte> length |> NativePtr.toVoidPtr
              let span = Span<byte>(buffer, length)
              (this :> IBinaryReader).ReadSpan(span.Slice(3, 5))
-             span.[0] <- 0uy; span.[1] <- 0uy; span.[2] <- 0uy
+             span[0] <- 0uy; span[1] <- 0uy; span[2] <- 0uy
              BinaryPrimitives.ReadUInt64BigEndian(ReadOnlySpan(buffer, length))
 
         member this.ReadUInt64() =

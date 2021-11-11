@@ -26,9 +26,9 @@ type Tuning =
           string5 = 0s }
 
     static member FromArray(strings: int16 array) =
-        { string0 = strings.[0]
-          string1 = strings.[1]
-          string2 = strings.[2]
-          string3 = strings.[3]
-          string4 = strings.[4]
-          string5 = strings.[5] }
+        { string0 = strings[0]
+          string1 = strings[1]
+          string2 = strings[2]
+          string3 = strings[3]
+          string4 = strings[4]
+          string5 = strings[5] }
