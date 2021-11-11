@@ -19,8 +19,8 @@ let private getKey = function
 /// Increments a number that is represented as an array of bytes.
 let private increment (arr: byte[]) =
     let rec inc index =
-        arr.[index] <- arr.[index] + 1uy
-        if arr.[index] = 0uy && index <> 0 then
+        arr[index] <- arr[index] + 1uy
+        if arr[index] = 0uy && index <> 0 then
             inc (index - 1)
 
     inc (arr.Length - 1)
@@ -57,7 +57,7 @@ let private aesCtrTransformSIMD (input: Stream) (output: Stream) (key: byte[]) (
             output.Write(buffer, 0, bytesRead)
         else
             for i = 0 to bytesRead - 1 do
-                output.WriteByte(buffer.[i] ^^^ counterModeBlock.[i])
+                output.WriteByte(buffer[i] ^^^ counterModeBlock[i])
 
 /// Based on https://stackoverflow.com/a/51188472
 let private aesCtrTransform (input: Stream) (output: Stream) (key: byte[]) (iv: byte[]) =
@@ -77,7 +77,7 @@ let private aesCtrTransform (input: Stream) (output: Stream) (key: byte[]) (iv: 
 
         let bytesRead = input.Read(buffer)
         for i = 0 to bytesRead - 1 do
-            output.WriteByte(buffer.[i] ^^^ counterModeBlock.[i])
+            output.WriteByte(buffer[i] ^^^ counterModeBlock[i])
 
 /// Decrypts an encrypted SNG from the input stream into the output stream.
 let decryptSNG (input: Stream) (output: Stream) (platform: Platform) =

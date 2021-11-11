@@ -33,11 +33,11 @@ type ChordNotes =
                     true
                 else
                     let isEqual =
-                        this.Mask.[index] = other.Mask.[index] &&
-                        this.SlideTo.[index] = other.SlideTo.[index] &&
-                        this.SlideUnpitchTo.[index] = other.SlideUnpitchTo.[index] &&
-                        this.Vibrato.[index] = other.Vibrato.[index] &&
-                        this.BendData.[index] = other.BendData.[index]
+                        this.Mask[index] = other.Mask[index] &&
+                        this.SlideTo[index] = other.SlideTo[index] &&
+                        this.SlideUnpitchTo[index] = other.SlideUnpitchTo[index] &&
+                        this.Vibrato[index] = other.Vibrato[index] &&
+                        this.BendData[index] = other.BendData[index]
 
                     if isEqual then
                         test (index + 1)
@@ -53,9 +53,9 @@ type ChordNotes =
             false
 
     override this.GetHashCode () =
-        int this.Mask.[0]
-        + (int this.Mask.[1] * 2)
-        + (int this.Mask.[2] * 3)
-        + (int this.Mask.[3] * 4)
-        + (int this.Mask.[4] * 5)
-        + (int this.Mask.[5] * 6)
+        int this.Mask[0]
+        + (int this.Mask[1] * 2)
+        + (int this.Mask[2] * 3)
+        + (int this.Mask[3] * 4)
+        + (int this.Mask[4] * 5)
+        + (int this.Mask[5] * 6)
