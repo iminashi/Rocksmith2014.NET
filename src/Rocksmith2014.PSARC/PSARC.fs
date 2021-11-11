@@ -29,7 +29,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         source.Position <- int64 entry.Offset
 
         while output.Length < int64 entry.Length do
-            match int blockSizeTable.[zIndex] with
+            match int blockSizeTable[zIndex] with
             | 0 ->
                 // Raw, full cluster used
                 let! _bytesRead = source.AsyncRead(buffer, 0, blockSize)
@@ -60,7 +60,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         if toc.Count > 1 then
             // Initialize the manifest if a TOC was given in the constructor
             use data = MemoryStreamPool.Default.GetStream()
-            inflateEntry toc.[0] data |> Async.RunSynchronously
+            inflateEntry toc[0] data |> Async.RunSynchronously
             toc.RemoveAt 0
             use reader = new StreamReader(data, true)
             [ while reader.Peek() >= 0 do reader.ReadLine() ]
@@ -79,7 +79,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
         memory
 
-    let getName (entry: Entry) = manifest.[entry.ID - 1]
+    let getName (entry: Entry) = manifest[entry.ID - 1]
 
     let addPlainData blockSize (deflatedData: ResizeArray<Stream>) (zLengths: ResizeArray<uint32>) (data: Stream) =
         deflatedData.Add(data)
@@ -176,7 +176,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     let tryFindEntry name =
         match List.tryFindIndex ((=) name) manifest with
         | None -> raise <| FileNotFoundException($"PSARC did not contain file '{name}'", name)
-        | Some i -> toc.[i]
+        | Some i -> toc[i]
 
     /// Gets the manifest.
     member _.Manifest = manifest
@@ -208,7 +208,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     member _.ExtractFiles(baseDirectory: string, ?progress: float -> unit) = async {
         let reportFrequency = max 4 (toc.Count / 50)
         for i = 0 to toc.Count - 1 do
-            let entry = toc.[i]
+            let entry = toc[i]
 
             let path =
                 Path.Combine(baseDirectory, Utils.fixDirSeparator (getName entry))

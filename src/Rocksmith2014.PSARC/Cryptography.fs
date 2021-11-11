@@ -45,7 +45,7 @@ let private aesCfbDecryptSIMD (input: Stream) (output: Stream) (key: byte[]) len
             output.Write(vecBlock, 0, bytesRead)
         else
             for i = 0 to bytesRead - 1 do
-                output.WriteByte(buffer.[i] ^^^ vecBlock.[i])
+                output.WriteByte(buffer[i] ^^^ vecBlock[i])
 
 /// AES CFB decryption.
 let private aesCfbDecrypt (input: Stream) (output: Stream) (key: byte[]) length =
@@ -64,7 +64,7 @@ let private aesCfbDecrypt (input: Stream) (output: Stream) (key: byte[]) length 
         let bytesRead = input.Read(buffer, 0, int toRead)
 
         for i = 0 to bytesRead - 1 do
-            output.WriteByte(buffer.[i] ^^^ vecBlock.[i])
+            output.WriteByte(buffer[i] ^^^ vecBlock[i])
 
 /// AES CFB encryption utilizing SSE2 intrinsics.
 let private aesCfbEncryptSIMD (input: Stream) (output: Stream) (key: byte[]) length =
@@ -91,8 +91,8 @@ let private aesCfbEncryptSIMD (input: Stream) (output: Stream) (key: byte[]) len
             output.Write(buffer, 0, bytesRead)
         else
             for i = 0 to bytesRead - 1 do
-                buffer.[i] <- buffer.[i] ^^^ vecBlock.[i]
-                output.WriteByte(buffer.[i])
+                buffer[i] <- buffer[i] ^^^ vecBlock[i]
+                output.WriteByte(buffer[i])
 
 /// AES CFB encryption.
 let private aesCfbEncrypt (input: Stream) (output: Stream) (key: byte[]) length =
@@ -111,8 +111,8 @@ let private aesCfbEncrypt (input: Stream) (output: Stream) (key: byte[]) length 
         let bytesRead = input.Read(buffer, 0, int toRead)
 
         for i = 0 to bytesRead - 1 do
-            buffer.[i] <- buffer.[i] ^^^ vecBlock.[i]
-            output.WriteByte(buffer.[i])
+            buffer[i] <- buffer[i] ^^^ vecBlock[i]
+            output.WriteByte(buffer[i])
 
 /// Decrypts a PSARC header from the input stream into the output stream.
 let decrypt (input: Stream) (output: Stream) (length: uint32) =

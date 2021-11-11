@@ -93,4 +93,4 @@ let getAllFiles path =
 
 /// Returns true if the array starts with the zlib header (best compression).
 let inline hasZlibHeader (b: byte array) =
-    b.[0] = 0x78uy && b.[1] = 0xDAuy
+    b[0] = 0x78uy && b[1] = 0xDAuy
