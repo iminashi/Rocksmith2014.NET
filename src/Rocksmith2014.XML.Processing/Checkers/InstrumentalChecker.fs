@@ -36,13 +36,13 @@ let private getNoguitarSections (arrangement: InstrumentalArrangement) =
     [| let sections = arrangement.Sections
 
        for i in 1 .. sections.Count do
-           let section = sections.[i - 1]
+           let section = sections[i - 1]
 
            let endTime =
                if i = sections.Count then
                    arrangement.MetaData.SongLength
                else
-                   sections.[i].Time
+                   sections[i].Time
 
            if String.startsWith "noguitar" section.Name then
                { StartTime = section.Time
@@ -65,7 +65,7 @@ let private findNextNote (notes: ResizeArray<Note>) currentIndex (note: Note) =
         else
             notes.FindIndex(currentIndex + 1, fun n -> n.String = note.String)
 
-    if nextIndex = -1 then None else Some notes.[nextIndex]
+    if nextIndex = -1 then None else Some notes[nextIndex]
 
 let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
     if isLinkedToChord level note then
@@ -97,12 +97,12 @@ let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
         // Check if the bend values match
         | Some nextNote when note.IsBend ->
             let thisNoteLastBendValue =
-                note.BendValues.[note.BendValues.Count - 1].Step
+                note.BendValues[note.BendValues.Count - 1].Step
 
             // If the next note has bend values and the first one is at the same timecode as the note, compare to that bend value
             let nextNoteFirstBendValue =
-                if nextNote.IsBend && nextNote.Time = nextNote.BendValues.[0].Time then
-                    nextNote.BendValues.[0].Step
+                if nextNote.IsBend && nextNote.Time = nextNote.BendValues[0].Time then
+                    nextNote.BendValues[0].Step
                 else
                     0f
 
@@ -122,14 +122,14 @@ let private isPhraseChangeOnSustain (arr: InstrumentalArrangement) (note: Note) 
     arr.PhraseIterations.Exists(fun pi ->
         pi.Time > note.Time
         && pi.Time <= note.Time + note.Sustain
-        && (not <| String.startsWith "mover" arr.Phrases.[pi.PhraseId].Name))
+        && (not <| String.startsWith "mover" arr.Phrases[pi.PhraseId].Name))
 
 /// Checks the notes in the level for issues.
 let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
     let ngSections = getNoguitarSections arrangement
 
     [ for i = 0 to level.Notes.Count - 1 do
-        let note = level.Notes.[i]
+        let note = level.Notes[i]
         let time = note.Time
 
         // Check for notes with LinkNext and unpitched slide
@@ -179,7 +179,7 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
             let chordNotes = chord.ChordNotes
 
             // Check for inconsistent chord note sustains
-            if not <| chordNotes.TrueForAll(fun cn -> cn.Sustain = chordNotes.[0].Sustain) then
+            if not <| chordNotes.TrueForAll(fun cn -> cn.Sustain = chordNotes[0].Sustain) then
                 issue VaryingChordNoteSustains time
 
             // Check 7th fret harmonic notes with sustain (and without ignore)
@@ -242,17 +242,17 @@ let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
             false
         | Some neighbour ->
             let neighbourAnchor = anchors.FindLast(fun a -> a.Time <= neighbour.StartTime)
-            let neighbourTemplate = chordTemplates.[int neighbour.ChordId]
+            let neighbourTemplate = chordTemplates[int neighbour.ChordId]
 
             neighbourTemplate.Fingers |> Array.contains 1y && neighbourAnchor = activeAnchor
 
     [ for i = 0 to handShapes.Count - 1 do
-        let handShape = handShapes.[i]
+        let handShape = handShapes[i]
         let previous = handShapes |> ResizeArray.tryItem (i - 1)
         let next = handShapes |> ResizeArray.tryItem (i + 1)
 
         let activeAnchor = anchors.FindLast(fun a -> a.Time <= handShape.StartTime)
-        let chordTemplate = chordTemplates.[int handShape.ChordId]
+        let chordTemplate = chordTemplates[int handShape.ChordId]
 
         // Check only handshapes that do not use the 1st finger
         if not (chordTemplate.Fingers |> Array.contains 1y) && notNull activeAnchor then
@@ -351,7 +351,7 @@ let checkPhrases (arr: InstrumentalArrangement) =
 
         [ // Check for notes inside the first phrase
           match firstNoteTime with
-          | Some firstNoteTime when firstNoteTime < arr.PhraseIterations.[1].Time ->
+          | Some firstNoteTime when firstNoteTime < arr.PhraseIterations[1].Time ->
                 issue FirstPhraseNotEmpty firstNoteTime
           | _ ->
                 ()

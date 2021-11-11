@@ -51,18 +51,18 @@ let fixChordSlideHandshapes (arrangement: InstrumentalArrangement) =
             let handshape =
                 level.HandShapes.Find(fun hs -> hs.StartTime = chord.Time)
 
-            if notNull handshape && handshape.EndTime > handshape.StartTime + chord.ChordNotes.[0].Sustain then
-                handshape.EndTime <- handshape.StartTime + chord.ChordNotes.[0].Sustain)
+            if notNull handshape && handshape.EndTime > handshape.StartTime + chord.ChordNotes[0].Sustain then
+                handshape.EndTime <- handshape.StartTime + chord.ChordNotes[0].Sustain)
 
 /// Ensures that there is an anchor at the start of each phrase.
 let fixPhraseStartAnchors (arrangement: InstrumentalArrangement) =
     // If there are DD levels, assume that the anchors are correct
     if arrangement.Levels.Count = 1 then
-        let anchors = arrangement.Levels.[0].Anchors
+        let anchors = arrangement.Levels[0].Anchors
 
         // Skip the COUNT and END phrases
         for i = 1 to arrangement.PhraseIterations.Count - 2 do
-            let piTime = arrangement.PhraseIterations.[i].Time
+            let piTime = arrangement.PhraseIterations[i].Time
             let activeAnchor = anchors.FindLast(fun a -> a.Time <= piTime)
 
             if notNull activeAnchor && activeAnchor.Time <> piTime then

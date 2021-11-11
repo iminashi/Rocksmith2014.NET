@@ -19,7 +19,7 @@ let improve (arrangement: InstrumentalArrangement) =
             |> Option.map int
 
         // Supports only arrangements with no DD levels
-        arrangement.Levels.[0].Anchors
+        arrangement.Levels[0].Anchors
         |> Seq.tryFind (fun a -> a.Time >= event.Time)
         |> Option.iter (fun anchor ->
             anchor.Width <- 3y
@@ -48,9 +48,9 @@ let improve (arrangement: InstrumentalArrangement) =
             arrangement.PhraseIterations.FindLast(fun pi -> pi.Time <= slideEvent.Time)
 
         let diff =
-            arrangement.Phrases.[phraseIter.PhraseId].MaxDifficulty
+            arrangement.Phrases[phraseIter.PhraseId].MaxDifficulty
 
-        let level = arrangement.Levels.[int diff]
+        let level = arrangement.Levels[int diff]
 
         let slideTime =
             // If a number was given after the event code, get the time of the chord or note that is right of the event by that number
@@ -77,14 +77,14 @@ let improve (arrangement: InstrumentalArrangement) =
 
                 // Shorten hand shapes that include the slide out notes
                 // If chord notes is null here, there is an error in the XML file
-                if notNull chordHs && chordHs.EndTime > linkNextChord.Time + linkNextChord.ChordNotes.[0].Sustain then
-                    chordHs.EndTime <- linkNextChord.Time + linkNextChord.ChordNotes.[0].Sustain
+                if notNull chordHs && chordHs.EndTime > linkNextChord.Time + linkNextChord.ChordNotes[0].Sustain then
+                    chordHs.EndTime <- linkNextChord.Time + linkNextChord.ChordNotes[0].Sustain
 
                 level.Notes.FindAll(fun n -> n.Time = slideTime && n.IsUnpitchedSlide).ToArray(),
-                arrangement.ChordTemplates.[int linkNextChord.ChordId]
+                arrangement.ChordTemplates[int linkNextChord.ChordId]
             else
                 // It is a normal chord with unpitched slide out
-                let chord = level.Chords.[chordIndex]
+                let chord = level.Chords[chordIndex]
                 if isNull chord.ChordNotes then
                     failwith $"Chord missing chord notes for SlideOut event at {Utils.timeToString slideEvent.Time}"
 
@@ -94,14 +94,14 @@ let improve (arrangement: InstrumentalArrangement) =
                     chordHs.EndTime <- chordHs.StartTime + ((chordHs.EndTime - chordHs.StartTime) / 3)
 
                 chord.ChordNotes.FindAll(fun cn -> cn.IsUnpitchedSlide).ToArray(),
-                arrangement.ChordTemplates.[int chord.ChordId]
+                arrangement.ChordTemplates[int chord.ChordId]
 
         if notes.Length = 0 then
             failwith $"Invalid SlideOut event at {Utils.timeToString slideEvent.Time}"
 
         // Create a new handshape at the slide end (add 1ms to include the sustain of the notes inside the handshape)
-        let endTime = notes.[0].Time + notes.[0].Sustain + 1
-        let startTime = endTime - (notes.[0].Sustain / 3)
+        let endTime = notes[0].Time + notes[0].Sustain + 1
+        let startTime = endTime - (notes[0].Sustain / 3)
         let chordId = int16 arrangement.ChordTemplates.Count
         level.HandShapes.InsertByTime(HandShape(chordId, startTime, endTime))
 
@@ -109,8 +109,8 @@ let improve (arrangement: InstrumentalArrangement) =
         let soChordTemplate = ChordTemplate()
         for note in notes do
             let s = int note.String
-            soChordTemplate.Frets.[s] <- note.SlideUnpitchTo
-            soChordTemplate.Fingers.[s] <- originalChordTemplate.Fingers.[s]
+            soChordTemplate.Frets[s] <- note.SlideUnpitchTo
+            soChordTemplate.Fingers[s] <- originalChordTemplate.Fingers[s]
 
         arrangement.ChordTemplates.Add(soChordTemplate)
 

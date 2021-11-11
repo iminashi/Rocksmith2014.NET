@@ -27,7 +27,7 @@ let improve (arrangement: InstrumentalArrangement) =
             let phraseTime = iterationToMove.Time
             let movetoTime =
                 let moveBy = getMoveBy phraseTime phraseToMove
-                let level = arrangement.Levels.[int phraseToMove.MaxDifficulty]
+                let level = arrangement.Levels[int phraseToMove.MaxDifficulty]
                 Utils.findTimeOfNthNoteFrom level phraseTime moveBy
 
             // Check if anchor(s) should be moved
@@ -40,7 +40,7 @@ let improve (arrangement: InstrumentalArrangement) =
 
                 // If there is an anchor at the original position, but not at the new position, move it
                 if originalAnchorIndex <> -1 && movetoAnchorIndex = -1 then
-                    let originalAnchor = anchors.[originalAnchorIndex]
+                    let originalAnchor = anchors[originalAnchorIndex]
                     anchors.InsertByTime(Anchor(originalAnchor.Fret, movetoTime, originalAnchor.Width))
 
                     // Remove anchor at original phrase position if no note or chord present

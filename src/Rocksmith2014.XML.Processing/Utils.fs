@@ -44,18 +44,18 @@ let private getMinTime (first: int option) (second: int option) =
 
 let findFirstLevelWithContent (arrangement: InstrumentalArrangement) =
     if arrangement.Levels.Count = 1 then
-        Some arrangement.Levels.[0]
+        Some arrangement.Levels[0]
     else
         // Find the first phrase that has difficulty levels
         let firstPhraseIteration =
             arrangement.PhraseIterations
             |> ResizeArray.tryFind (fun pi ->
-                arrangement.Phrases.[pi.PhraseId].MaxDifficulty > 0uy)
+                arrangement.Phrases[pi.PhraseId].MaxDifficulty > 0uy)
 
         match firstPhraseIteration with
         | Some firstPhraseIteration ->
-            let firstPhrase = arrangement.Phrases.[firstPhraseIteration.PhraseId]
-            Some arrangement.Levels.[int firstPhrase.MaxDifficulty]
+            let firstPhrase = arrangement.Phrases[firstPhraseIteration.PhraseId]
+            Some arrangement.Levels[int firstPhrase.MaxDifficulty]
         | None ->
             // There are DD levels, but no phrases where MaxDifficulty > 0
             // Find the first level that has notes or chords

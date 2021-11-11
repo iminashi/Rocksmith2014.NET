@@ -15,19 +15,19 @@ let private maxOfThree defaultValue o1 o2 o3 =
 
 let private findContentEnd (arr: Inst) =
     let note =
-        arr.Levels.[0].Notes
+        arr.Levels[0].Notes
         |> ResizeArray.tryLast
         |> Option.map (fun x -> x.Time + x.Sustain)
 
     let chord =
-        arr.Levels.[0].Chords
+        arr.Levels[0].Chords
         |> ResizeArray.tryLast
         |> Option.map (fun x ->
             x.Time
-            + if x.HasChordNotes then x.ChordNotes.[0].Sustain else 0)
+            + if x.HasChordNotes then x.ChordNotes[0].Sustain else 0)
 
     let hs =
-        arr.Levels.[0].HandShapes
+        arr.Levels[0].HandShapes
         |> ResizeArray.tryLast
         |> Option.map (fun x -> x.EndTime)
 
@@ -70,7 +70,7 @@ let private getContentStartTime (arr: Inst) =
     |> Option.bind (fun level -> findNextContent level 0)
 
 let private getFirstPhraseTime contentStartTime (arr: Inst) =
-    let firstBeatTime = arr.Ebeats.[0].Time
+    let firstBeatTime = arr.Ebeats[0].Time
 
     if firstBeatTime = contentStartTime then
         if contentStartTime = 0 then
@@ -150,7 +150,7 @@ let private findGoodPhraseTime (level: Level) initialTime =
 
 let private findActiveAnchor (level: Level) time =
     match level.Anchors.FindLast(fun x -> x.Time <= time) with
-    | null -> level.Anchors.[0]
+    | null -> level.Anchors[0]
     | anchor -> anchor
 
 let private createPhrasesAndSections contentStartTime endPhraseTime (arr: Inst) =
@@ -159,7 +159,7 @@ let private createPhrasesAndSections contentStartTime endPhraseTime (arr: Inst) 
     let mutable phraseNumber = 0s
     let mutable measureCounter = 0
     let mutable nextPhraseTime: int option = None
-    let level = arr.Levels.[0]
+    let level = arr.Levels[0]
 
     // Add first phrase/section at content start time
     arr.Phrases.Add(Phrase($"p{ngSectionNumber}", 0uy, PhraseMask.None))
@@ -184,7 +184,7 @@ let private createPhrasesAndSections contentStartTime endPhraseTime (arr: Inst) 
                     t
 
             // Don't create duplicate phrases (could happen when there is handshape longer than 8 measures)
-            if time <> arr.Sections.[arr.Sections.Count - 1].Time then
+            if time <> arr.Sections[arr.Sections.Count - 1].Time then
                 let nextContentTime = findNextContent level time
 
                 let isNoGuitar =

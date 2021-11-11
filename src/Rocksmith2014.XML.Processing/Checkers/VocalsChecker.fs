@@ -14,7 +14,7 @@ let private findInvalidCharLyric (vocals: ResizeArray<Vocal>) =
     |> Seq.tryPick (fun vocal ->
         vocal.Lyric
         |> Seq.tryFindIndex (LyricsCharset.Contains >> not)
-        |> Option.map (fun i -> vocal, vocal.Lyric.[i]))
+        |> Option.map (fun i -> vocal, vocal.Lyric[i]))
     |> Option.map (fun (invalidVocal, invalidChar) ->
         issue (LyricWithInvalidChar invalidChar) invalidVocal.Time)
 

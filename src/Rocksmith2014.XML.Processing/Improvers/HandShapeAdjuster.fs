@@ -19,10 +19,10 @@ let improve (arrangement: InstrumentalArrangement) =
         let handShapes = level.HandShapes
 
         for i = 1 to handShapes.Count - 1 do
-            let followingStartTime = handShapes.[i].StartTime
-            let followingEndTime = handShapes.[i].EndTime
+            let followingStartTime = handShapes[i].StartTime
+            let followingEndTime = handShapes[i].EndTime
 
-            let precedingHandshape = handShapes.[i - 1]
+            let precedingHandshape = handShapes[i - 1]
             let precedingStartTime = precedingHandshape.StartTime
             let precedingEndTime = precedingHandshape.EndTime
 
@@ -33,8 +33,8 @@ let improve (arrangement: InstrumentalArrangement) =
                     // For handshapes that come after the last beat (bad XML) use the last beat
                     if i = -1 then arrangement.Ebeats.Count - 1 else i
 
-                let beat1 = arrangement.Ebeats.[beat2Index - 1]
-                let beat2 = arrangement.Ebeats.[beat2Index]
+                let beat1 = arrangement.Ebeats[beat2Index - 1]
+                let beat2 = arrangement.Ebeats[beat2Index]
 
                 let note32nd = (beat2.Time - beat1.Time) / 8
                 let shortenBy16thNote =
