@@ -73,19 +73,19 @@ type LufsMeter(blockDuration, overlap, sampleRate, numChannels) =
 
         // Initialize the process
         let mutable bufferPosition = 0
-        let bufferSampleCount = buffer.[0].Length
+        let bufferSampleCount = buffer[0].Length
         while bufferPosition + (stepSampleCount - stepBufferPosition) < bufferSampleCount do
             // Enough to fill a step
             for channel = 0 to numChannels - 1 do
-                Array.Copy(buffer.[channel], bufferPosition, stepBuffer.[channel], stepBufferPosition, stepSampleCount - stepBufferPosition)
+                Array.Copy(buffer[channel], bufferPosition, stepBuffer[channel], stepBufferPosition, stepSampleCount - stepBufferPosition)
 
             bufferPosition <- bufferPosition + stepSampleCount - stepBufferPosition
 
             // Swap buffer
-            let temp = blockBuffer.[0]
+            let temp = blockBuffer[0]
             for i = 1 to blockBuffer.Length - 1 do
-                blockBuffer.[i - 1] <- blockBuffer.[i]
-            blockBuffer.[blockBuffer.Length - 1] <- stepBuffer
+                blockBuffer[i - 1] <- blockBuffer[i]
+            blockBuffer[blockBuffer.Length - 1] <- stepBuffer
             stepBuffer <- temp
             stepBufferPosition <- 0
 
@@ -95,7 +95,7 @@ type LufsMeter(blockDuration, overlap, sampleRate, numChannels) =
                 let channelSquaredSum =
                     blockBuffer
                     |> Array.sumBy (fun stepBuffer ->
-                        SimdOps.Sum(ReadOnlySpan(stepBuffer.[channel]), VectorSquare(), Square()))
+                        SimdOps.Sum(ReadOnlySpan(stepBuffer[channel]), VectorSquare(), Square()))
                 let channelMeanSquare = channelSquaredSum / float (blockStepCount * stepSampleCount)
                 let channelWeight = getChannelWeight channel
                 momentaryMeanSquare <- momentaryMeanSquare + channelWeight * channelMeanSquare
@@ -109,7 +109,7 @@ type LufsMeter(blockDuration, overlap, sampleRate, numChannels) =
         // Process remaining samples
         let remainingLength = bufferSampleCount - bufferPosition
         for channel = 0 to numChannels - 1 do
-            Array.Copy(buffer.[channel], bufferPosition, stepBuffer.[channel], stepBufferPosition, remainingLength)
+            Array.Copy(buffer[channel], bufferPosition, stepBuffer[channel], stepBufferPosition, remainingLength)
         stepBufferPosition <- remainingLength
 
     member _.GetIntegratedLoudness () =

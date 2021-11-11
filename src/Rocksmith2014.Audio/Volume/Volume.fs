@@ -18,7 +18,7 @@ let private calculateLoudness (sampleProvider: ISampleProvider) =
         | samplesRead ->
             let perChannel = samplesRead / channels
             Array.init channels (fun ch ->
-                Array.init perChannel (fun pos -> float buffer.[pos * channels + ch]))
+                Array.init perChannel (fun pos -> float buffer[pos * channels + ch]))
             |> lufsMeter.ProcessBuffer
             loop ()
 

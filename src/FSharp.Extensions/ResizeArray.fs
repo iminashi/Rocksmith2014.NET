@@ -12,7 +12,7 @@ let init (size: int) f =
 /// Returns the element if the index is within the ResizeArray.
 let inline tryItem index (a: ResizeArray<_>) =
     if index >= 0 && index < a.Count then
-        Some a.[index]
+        Some a[index]
     else
         None
 
@@ -21,11 +21,11 @@ let inline tryLast (a: ResizeArray<_>) =
     if a.Count = 0 then
         None
     else
-        Some a.[a.Count - 1]
+        Some a[a.Count - 1]
 
 /// Returns the first element in the ResizeArray or None if it is empty.
 let inline tryHead (a: ResizeArray<_>) =
-    if a.Count = 0 then None else Some a.[0]
+    if a.Count = 0 then None else Some a[0]
 
 /// Returns the first element that matches the predicate, or None if no match is found.
 let tryFind (predicate: 'a -> bool) (a: ResizeArray<'a>) =
@@ -33,8 +33,8 @@ let tryFind (predicate: 'a -> bool) (a: ResizeArray<'a>) =
         if index = a.Count then
             None
         else
-            if predicate a.[index] then
-                Some a.[index]
+            if predicate a[index] then
+                Some a[index]
             else
                 seek (index + 1)
     seek 0
@@ -46,7 +46,7 @@ let inline filter (predicate: 'a -> bool) (a: ResizeArray<'a>) : ResizeArray<'a>
 /// Executes the action for each of the elements in the ResizeArray.
 let iter action (a: ResizeArray<_>) =
     for i = 0 to a.Count - 1 do
-        action a.[i]
+        action a[i]
 
 /// Returns a ResizeArray that contains the single item.
 let singleton (value: 'a) =

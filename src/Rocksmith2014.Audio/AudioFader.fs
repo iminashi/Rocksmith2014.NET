@@ -21,7 +21,7 @@ type AudioFader(source: ISampleProvider, fadeInLength: int<ms>, fadeOutLength: i
                 while sample < sourceSamplesRead && fadeInSamplePosition <= fadeInSampleCount do
                     let multiplier = float32 fadeInSamplePosition / float32 fadeInSampleCount
                     for _ch = 1 to source.WaveFormat.Channels do
-                        buffer.[offset + sample] <- buffer.[offset + sample] * multiplier
+                        buffer[offset + sample] <- buffer[offset + sample] * multiplier
                         sample <- sample + 1
                     fadeInSamplePosition <- fadeInSamplePosition + 1
 
@@ -35,7 +35,7 @@ type AudioFader(source: ISampleProvider, fadeInLength: int<ms>, fadeOutLength: i
                 while sample < sourceSamplesRead do
                     let multiplier = 1.0f - (float32 fadeOutSamplePosition / float32 fadeOutSampleCount)
                     for _ch = 1 to source.WaveFormat.Channels do
-                        buffer.[offset + sample] <- buffer.[offset + sample] * multiplier
+                        buffer[offset + sample] <- buffer[offset + sample] * multiplier
                         sample <- sample + 1
                     fadeOutSamplePosition <- fadeOutSamplePosition + 1
 

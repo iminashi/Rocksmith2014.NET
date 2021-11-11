@@ -12,7 +12,7 @@ let tryAverage = function
 let allSame (array: 'a array) =
     array.Length <= 1
     ||
-    array.AsSpan(1).TrimStart(array.[0]).IsEmpty
+    array.AsSpan(1).TrimStart(array[0]).IsEmpty
 
 /// Array.choose with the element index passed to the function.
 let choosei f array =
