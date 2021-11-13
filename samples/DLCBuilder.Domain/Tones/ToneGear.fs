@@ -50,11 +50,11 @@ let getPedalForSlot (gearList: Gear) gearSlot =
     | Cabinet ->
         Some gearList.Cabinet
     | PrePedal index ->
-        gearList.PrePedals.[index]
+        gearList.PrePedals[index]
     | PostPedal index ->
-        gearList.PostPedals.[index]
+        gearList.PostPedals[index]
     | Rack index ->
-        gearList.Racks.[index]
+        gearList.Racks[index]
 
 /// Returns the knob values for the pedal in the given gear slot.
 let getKnobValuesForGear (gearList: Gear) gearSlot =
@@ -102,7 +102,7 @@ let loadRepository () = async {
             gearType, {| Array = result; Dictionary = dict |})
         |> readOnlyDict
 
-    let cabinets = data.["Cabinets"].Array
+    let cabinets = data["Cabinets"].Array
     let cabinetChoices = cabinets |> Array.distinctBy (fun x -> x.Name)
 
     let micPositionsForCabinet =
@@ -111,36 +111,36 @@ let loadRepository () = async {
         |> readOnlyDict
 
     return
-        { Amps = data.["Amps"].Array
-          AmpDict = data.["Amps"].Dictionary
+        { Amps = data["Amps"].Array
+          AmpDict = data["Amps"].Dictionary
           Cabinets = cabinets
-          CabinetDict = data.["Cabinets"].Dictionary
-          Pedals = data.["Pedals"].Array
-          PedalDict = data.["Pedals"].Dictionary
-          Racks = data.["Racks"].Array
-          RackDict = data.["Racks"].Dictionary
+          CabinetDict = data["Cabinets"].Dictionary
+          Pedals = data["Pedals"].Array
+          PedalDict = data["Pedals"].Dictionary
+          Racks = data["Racks"].Array
+          RackDict = data["Racks"].Dictionary
           CabinetChoices = cabinetChoices
           MicPositionsForCabinet = micPositionsForCabinet } }
 
 /// Returns the gear data for the pedal in the given gear slot.
 let getGearDataForCurrentPedal repository (gearList: Gear) = function
     | Amp ->
-        Some repository.AmpDict.[gearList.Amp.Key]
+        Some repository.AmpDict[gearList.Amp.Key]
     | Cabinet ->
-        Some repository.CabinetDict.[gearList.Cabinet.Key]
+        Some repository.CabinetDict[gearList.Cabinet.Key]
     | PrePedal index ->
-        gearList.PrePedals.[index] |> Option.map (fun x -> repository.PedalDict.[x.Key])
+        gearList.PrePedals[index] |> Option.map (fun x -> repository.PedalDict[x.Key])
     | PostPedal index ->
-        gearList.PostPedals.[index] |> Option.map (fun x -> repository.PedalDict.[x.Key])
+        gearList.PostPedals[index] |> Option.map (fun x -> repository.PedalDict[x.Key])
     | Rack index ->
-        gearList.Racks.[index] |> Option.map (fun x -> repository.RackDict.[x.Key])
+        gearList.Racks[index] |> Option.map (fun x -> repository.RackDict[x.Key])
 
 let emptyTone repository =
     let gear =
         let noPedals = Array.replicate 4 None
 
-        { Amp = repository.Amps.[0] |> createPedalForGear
-          Cabinet = repository.Cabinets.[0] |> createPedalForGear
+        { Amp = repository.Amps[0] |> createPedalForGear
+          Cabinet = repository.Cabinets[0] |> createPedalForGear
           Racks = noPedals
           PrePedals = noPedals
           PostPedals = noPedals }

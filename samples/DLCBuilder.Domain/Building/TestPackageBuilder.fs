@@ -29,7 +29,7 @@ let private getNewestVersionNumber existingPackages =
     |> List.choose (fun fn ->
         let m = Regex.Match(fn, @"_v(\d+)")
         if m.Success then
-            Some(int m.Groups.[1].Captures.[0].Value)
+            Some(int m.Groups[1].Captures[0].Value)
         else
             None)
     |> function

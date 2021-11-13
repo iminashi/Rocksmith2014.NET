@@ -72,7 +72,7 @@ let editInstrumental state edit index inst =
 
         | ChangeTuning (index, direction) ->
             let change = match direction with Up -> 1s | Down -> -1s
-            let newTuning = inst.Tuning.[index] + change
+            let newTuning = inst.Tuning[index] + change
             { inst with Tuning = inst.Tuning |> Array.updateAt index newTuning }, Cmd.none
 
         | ChangeTuningAll direction ->
@@ -235,7 +235,7 @@ let editProject edit project =
         { project with PitchShift = Some shift }
 
 let editTone state edit index =
-    let tone = state.Project.Tones.[index]
+    let tone = state.Project.Tones[index]
 
     let updatedTone =
         match edit with
@@ -254,10 +254,10 @@ let editTone state edit index =
             { tone with Volume = -volume }
 
         | AddDescriptor ->
-            { tone with ToneDescriptors = tone.ToneDescriptors |> Array.append [| ToneDescriptor.all.[0].UIName |] }
+            { tone with ToneDescriptors = tone.ToneDescriptors |> Array.append [| ToneDescriptor.all[0].UIName |] }
 
         | RemoveDescriptor ->
-            { tone with ToneDescriptors = tone.ToneDescriptors.[1..] }
+            { tone with ToneDescriptors = tone.ToneDescriptors[1..] }
 
         | ChangeDescriptor (index, descriptor) ->
            { tone with ToneDescriptors = tone.ToneDescriptors |> Array.updateAt index descriptor.UIName }
@@ -272,8 +272,8 @@ let editTone state edit index =
             let move array index =
                 let newIndex = index + change
                 let newArray = Array.copy array
-                newArray.[newIndex] <- array.[index]
-                newArray.[index] <- array.[newIndex]
+                newArray[newIndex] <- array[index]
+                newArray[index] <- array[newIndex]
                 newArray
 
             let gearList =
@@ -310,9 +310,9 @@ let editTone state edit index =
                 match state.SelectedGearSlot with
                 | Amp -> Some tone.GearList.Amp
                 | Cabinet -> Some tone.GearList.Cabinet
-                | PrePedal index -> tone.GearList.PrePedals.[index]
-                | PostPedal index -> tone.GearList.PostPedals.[index]
-                | Rack index -> tone.GearList.Racks.[index]
+                | PrePedal index -> tone.GearList.PrePedals[index]
+                | PostPedal index -> tone.GearList.PostPedals[index]
+                | Rack index -> tone.GearList.Racks[index]
 
             match currentPedal with
             | Some currPedal when currPedal.Key = gear.Key ->

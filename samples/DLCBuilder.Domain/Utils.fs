@@ -110,8 +110,8 @@ let convertAudio cliPath project =
 let removeAndShift (index: int) array =
     let arr = Array.copy array
     for i = index to arr.Length - 2 do
-        arr.[i] <- arr.[i + 1]
-    arr.[arr.Length - 1] <- None
+        arr[i] <- arr[i + 1]
+    arr[arr.Length - 1] <- None
     arr
 
 /// Adds the path's default tone for arrangements whose base tones have no definitions.
@@ -178,7 +178,7 @@ let moveSelected dir selectedIndex (list: List<_>) =
     | -1 ->
         list, selectedIndex
     | index ->
-        let selected = list.[index]
+        let selected = list[index]
         let change = match dir with Up -> -1 | Down -> 1
         let insertPos = index + change
         if insertPos >= 0 && insertPos < list.Length then
