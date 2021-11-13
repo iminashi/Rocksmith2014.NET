@@ -50,7 +50,7 @@ type ListBoxEx() =
 
             if oldSelection <> selected then
                 selectionChangedHandler selected
-                st.Children.[selected].BringIntoView()
+                st.Children[selected].BringIntoView()
 
         | _ ->
             e.Handled <- false

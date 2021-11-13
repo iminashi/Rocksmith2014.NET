@@ -147,7 +147,7 @@ let main argv =
         Description VARCHAR(100) NOT NULL,
         Definition VARCHAR(8000) NOT NULL)"""
 
-    scanPsarcs connection argv.[0]
+    scanPsarcs connection argv[0]
 
     // Delete the test tone
     execute

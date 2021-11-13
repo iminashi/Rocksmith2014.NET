@@ -93,8 +93,8 @@ let main argv =
         Console.WriteLine "Give as arguments: path to profile file and path to DLC directory."
     else
         async {
-            let profilePath = argv.[0]
-            let dlcDirectory = argv.[1]
+            let profilePath = argv[0]
+            let dlcDirectory = argv[1]
             let isVerbose = Array.tryItem 2 argv = Some "-v"
 
             Console.Clear()
@@ -119,15 +119,15 @@ let main argv =
 
             printfn "Debloating profile..."
 
-            filterIds profile.["Playnexts"].["Songs"] |> printStats "Playnexts"
-            filterIds profile.["Songs"] |> printStats "Songs"
-            filterIds profile.["SongsSA"] |> printStats "Songs SA"
-            filterIds profile.["Stats"].["Songs"] |> printStats "Stats"
+            filterIds profile["Playnexts"].["Songs"] |> printStats "Playnexts"
+            filterIds profile["Songs"] |> printStats "Songs"
+            filterIds profile["SongsSA"] |> printStats "Songs SA"
+            filterIds profile["Stats"].["Songs"] |> printStats "Stats"
 
-            profile.["SongListsRoot"].["SongLists"] :?> JArray
+            profile["SongListsRoot"]["SongLists"] :?> JArray
             |> Seq.iter (fun songList -> songList :?> JArray |> filterKeys)
 
-            profile.["FavoritesListRoot"].["FavoritesList"] :?> JArray
+            profile["FavoritesListRoot"]["FavoritesList"] :?> JArray
             |> filterKeys
 
             printfn "Saving profile file..."

@@ -23,10 +23,10 @@ let private avaloniaBitmapFromDDS (fileName: string) =
             let newData = Array.zeroCreate<byte> newDataLen
 
             for i = 0 to pixels - 1 do
-                newData.[i * 4] <- image.Data.[i * 3]
-                newData.[i * 4 + 1] <- image.Data.[i * 3 + 1]
-                newData.[i * 4 + 2] <- image.Data.[i * 3 + 2]
-                newData.[i * 4 + 3] <- 255uy
+                newData[i * 4] <- image.Data[i * 3]
+                newData[i * 4 + 1] <- image.Data[i * 3 + 1]
+                newData[i * 4 + 2] <- image.Data[i * 3 + 2]
+                newData[i * 4 + 3] <- 255uy
 
             let stride = image.Width * 4
             PixelFormat.Bgra8888, newData, stride

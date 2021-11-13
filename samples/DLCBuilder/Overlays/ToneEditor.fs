@@ -19,16 +19,16 @@ let private enablePedalSelector gearList = function
     | PrePedal 0 | PostPedal 0 | Rack 0 ->
         true
     | PrePedal index ->
-        gearList.PrePedals.[index - 1] |> Option.isSome
+        gearList.PrePedals[index - 1] |> Option.isSome
     | PostPedal index ->
-        gearList.PostPedals.[index - 1] |> Option.isSome
+        gearList.PostPedals[index - 1] |> Option.isSome
     | Rack index ->
-        gearList.Racks.[index - 1] |> Option.isSome
+        gearList.Racks[index - 1] |> Option.isSome
 
 let private getValidMoves (array: 'a option array) index =
-    let exists = array.[index].IsSome
+    let exists = array[index].IsSome
     let up = exists && index > 0 
-    let down = exists && index < 3 && array.[index + 1].IsSome
+    let down = exists && index < 3 && array[index + 1].IsSome
     up, down
 
 let private gearSlotSelector dispatch gearList selectedGearSlot (content: string) gearSlot =
@@ -113,9 +113,9 @@ let private pedalSelectors dispatch repository selectedGearSlot gearList (locNam
         |> generalize ]
 
 let private gearSlots repository state dispatch (gearList: Gear) =
-    let ampName = repository.AmpDict.[gearList.Amp.Key].Name
+    let ampName = repository.AmpDict[gearList.Amp.Key].Name
     let cabinetName =
-        let c = repository.CabinetDict.[gearList.Cabinet.Key] in $"{c.Name} - {c.Category}"
+        let c = repository.CabinetDict[gearList.Cabinet.Key] in $"{c.Name} - {c.Category}"
 
     vStack [
         gearSlotHeader "Amp"
@@ -195,7 +195,7 @@ let private formatValue knob value =
     | Some enums ->
         // Some old CDLC may have out-of-bounds values
         let index = Math.Clamp(int value, 0, enums.Length - 1)
-        enums.[index]
+        enums[index]
     | None ->
         let unit = if knob.UnitType = "number" then String.Empty else $" {knob.UnitType}"
         let format = sprintf "{0:%s}%s" (getFormatString knob) unit
@@ -224,7 +224,7 @@ let private knobSliders state dispatch repository (gearList: Gear) gear =
     // Cabinets
     | { Knobs = None } as cabinet ->
         vStack [
-            let micPositions = repository.MicPositionsForCabinet.[cabinet.Name]
+            let micPositions = repository.MicPositionsForCabinet[cabinet.Name]
             TextBlock.create [
                 TextBlock.margin (0., 4.)
                 TextBlock.text (translate <| if micPositions.Length = 1 then "NothingToConfigure" else "MicPosition")

@@ -8,7 +8,7 @@ type String with
         if this.Length = 0 then
             ValueNone
         else
-            ValueSome this.[0]
+            ValueSome this[0]
 
 let private backCombiningChars = Set.ofList [ 'ゃ'; 'ゅ'; 'ょ'; 'ャ'; 'ュ'; 'ョ'; 'ァ'; 'ィ'; 'ゥ'; 'ェ'; 'ォ'; 'ぁ'; 'ぃ'; 'ぅ'; 'ぇ'; 'ぉ'; 'っ'; 'ー' ]
 let private forwardCombiningChars = Set.ofList [ '“'; '「'; '｢'; '『'; '['; '('; '〔'; '【'; '〈'; '《'; '«' ]
@@ -89,7 +89,7 @@ let matchHyphenation (oneWord: string) (manyWords: string array) =
 
     match startIndex with
     | Some startIndex ->
-        let manyWords = manyWords.[startIndex..]
+        let manyWords = manyWords[startIndex..]
 
         let wordEnd =
             manyWords
@@ -149,7 +149,7 @@ let applyCombinations (replacements: CombinationLocation list) (japaneseLines: s
                 acc
                 |> Array.choosei (fun i word ->
                     if i = replacementIndex && i + 1 < acc.Length then
-                        Some <| String.Concat(withoutTrailingDash word, acc.[i + 1].AsSpan())
+                        Some <| String.Concat(withoutTrailingDash word, acc[i + 1].AsSpan())
                     elif replacementIndex + 1 = i then
                         None
                     else

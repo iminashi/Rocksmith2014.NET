@@ -80,7 +80,7 @@ let main argv =
     else
         async {
             let! psarcs =
-                findFixablePsarcs argv.[0]
+                findFixablePsarcs argv[0]
                 |> Async.Sequential
 
             do! psarcs

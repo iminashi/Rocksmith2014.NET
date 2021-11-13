@@ -12,20 +12,20 @@ type LimitedStack<'a>(size: int) =
         else
             i
 
-    member _.HasItems with get() = items.[start].IsSome
+    member _.HasItems with get() = items[start].IsSome
 
     member _.Push(item) =
-        if items.[start].IsSome then
+        if items[start].IsSome then
             start <- wrap (start + 1)
 
-        items.[start] <- ValueSome item
+        items[start] <- ValueSome item
 
     member _.Pop() =
         let item =
-            items.[start]
+            items[start]
             |> ValueOption.defaultWith (fun () -> failwith "Stack has no items.")
 
-        items.[start] <- ValueNone
+        items[start] <- ValueNone
         start <- wrap (start - 1)
 
         item

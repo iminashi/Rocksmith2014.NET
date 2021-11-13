@@ -139,7 +139,7 @@ let showToneVolumeResults directory =
 
 [<EntryPoint>]
 let main argv =
-    let directory = argv.[0]
+    let directory = argv[0]
     Directory.EnumerateFiles(directory, "*_p.psarc", SearchOption.AllDirectories)
     |> Seq.map benchmarkDDGeneration
     |> Async.Sequential

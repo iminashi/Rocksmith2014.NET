@@ -16,7 +16,7 @@ let private getArrangementNumber arr project =
             |> List.groupBy (fun a -> a.Priority, a.Name)
             |> Map.ofList
 
-        let group = groups.[inst.Priority, inst.Name]
+        let group = groups[inst.Priority, inst.Name]
 
         if group.Length > 1 then
             let index =

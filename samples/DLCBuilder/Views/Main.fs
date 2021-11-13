@@ -69,7 +69,7 @@ let private arrangementDetails state dispatch =
                         ]
 
                     | index ->
-                        let arr = state.Project.Arrangements.[index]
+                        let arr = state.Project.Arrangements[index]
                         let xmlFile = Arrangement.getFile arr
 
                         Panel.create [
@@ -98,8 +98,8 @@ let private arrangementDetails state dispatch =
                                 ]
 
                                 // Validation Icon
-                                if state.ArrangementIssues.ContainsKey xmlFile then
-                                    let noIssues = state.ArrangementIssues.[xmlFile].IsEmpty
+                                if state.ArrangementIssues.ContainsKey(xmlFile) then
+                                    let noIssues = state.ArrangementIssues[xmlFile].IsEmpty
                                     validationIcon dispatch noIssues
                             ]
                         ]
@@ -239,7 +239,7 @@ let private tonesPanel state dispatch =
                             TextBlock.horizontalAlignment HorizontalAlignment.Center
                         ]
                     | index ->
-                        ToneDetails.view state dispatch state.Project.Tones.[index]
+                        ToneDetails.view state dispatch state.Project.Tones[index]
                 ]
             ]
         ]
@@ -268,7 +268,7 @@ let private overlay state dispatch =
         | -1 ->
             ErrorMessage.view dispatch "No tone selected. This should not happen." None
         | index ->
-            ToneEditor.view state dispatch state.Project.Tones.[index]
+            ToneEditor.view state dispatch state.Project.Tones[index]
     | ToneCollection collectionState ->
         ToneCollectionOverlay.view state dispatch collectionState
     | DeleteConfirmation files ->

@@ -93,7 +93,7 @@ let update state msg =
                             if i = index + 1 then
                                 None
                             elif i = index then
-                                let vocal = LyricsTools.combineVocals syllable.Vocal line.[index + 1].Vocal
+                                let vocal = LyricsTools.combineVocals syllable.Vocal line[index + 1].Vocal
                                 Some { syllable with Vocal = vocal }
                             else
                                 Some syllable)

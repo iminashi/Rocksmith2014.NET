@@ -22,7 +22,7 @@ let private createDescriptors dispatch (tone: Tone) =
                     ComboBox.margin 4.
                     ComboBox.dataItems ToneDescriptor.all
                     ComboBox.itemTemplate Templates.toneDescriptor
-                    FixedComboBox.selectedItem (ToneDescriptor.uiNameToDesc.[tone.ToneDescriptors.[i]])
+                    FixedComboBox.selectedItem (ToneDescriptor.uiNameToDesc[tone.ToneDescriptors[i]])
                     FixedComboBox.onSelectedItemChanged (function
                         | :? ToneDescriptor as td ->
                             ChangeDescriptor(i, td)

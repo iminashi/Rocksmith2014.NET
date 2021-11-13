@@ -36,7 +36,7 @@ let private tuningTextBox dispatch (tuning: int16 array) stringIndex =
         TextBox.margin (2., 0.)
         TextBox.minWidth 40.
         TextBox.width 40.
-        FixedTextBox.text (string tuning.[stringIndex])
+        FixedTextBox.text (string tuning[stringIndex])
         FixedTextBox.onTextChanged (fun text ->
             match Int16.TryParse(text) with
             | true, newTuning ->
