@@ -420,21 +420,46 @@ let update (msg: Msg) (state: State) =
             Project = { project with Arrangements = arrangements }
             SelectedArrangementIndex = index }, Cmd.none
 
-    | CreatePreviewAudio SetupStartTime ->
-        let audioLength = Utils.getLength project.AudioFile.Path
-        let initialPreviewStart = project.AudioPreviewStartTime |> Option.orElse (Some 0.)
+    | CreatePreviewAudio InitialSetup ->
+        let task () = async {
+            let projectAudio = project.AudioFile.Path
+            let sourceFile =
+                match projectAudio with
+                | HasExtension (".wav" | ".ogg") ->
+                    projectAudio
+                | _ ->
+                    let wavFile = Path.ChangeExtension(projectAudio, "wav")
+                    let oggFile = Path.ChangeExtension(projectAudio, "ogg")
+                    if File.Exists(wavFile) then
+                        wavFile
+                    elif File.Exists(oggFile) then
+                        oggFile
+                    else
+                        Conversion.wemToOgg projectAudio
+                        oggFile
+
+            return { SourceFile = sourceFile
+                     AudioLength = Utils.getLength sourceFile } }
+
+        state, Cmd.OfAsync.either task () (SetupStartTime >> CreatePreviewAudio) ErrorOccurred
+
+    | CreatePreviewAudio (SetupStartTime data) ->
+        let initialPreviewStart =
+            project.AudioPreviewStartTime
+            |> Option.orElse (Some 0.)
+
         let newState = { state with Project = { project with AudioPreviewStartTime = initialPreviewStart } }
 
-        showOverlay newState (SelectPreviewStart audioLength), Cmd.none
+        showOverlay newState (SelectPreviewStart data), Cmd.none
 
-    | CreatePreviewAudio CreateFile ->
+    | CreatePreviewAudio (CreateFile data) ->
         match project.AudioPreviewStartTime with
         | None ->
             state, Cmd.none
         | Some startTime ->
             let task () = async {
-                let targetPath = Utils.createPreviewAudioPath project.AudioFile.Path
-                Preview.create project.AudioFile.Path targetPath (TimeSpan.FromSeconds startTime)
+                let targetPath = Utils.createPreviewAudioPath data.SourceFile
+                Preview.create data.SourceFile targetPath (TimeSpan.FromSeconds(startTime))
                 return targetPath }
 
             { state with Overlay = NoOverlay },
