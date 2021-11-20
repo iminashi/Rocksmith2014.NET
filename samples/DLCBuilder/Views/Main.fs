@@ -46,7 +46,7 @@ let private validationIcon dispatch noIssues =
                 Path.margin (0., 0., 6., 0.)
             ]
 
-            TextBlock.create[
+            TextBlock.create [
                 TextBlock.text <| translate (if noIssues then "OK" else "Issues")
                 TextBlock.verticalAlignment VerticalAlignment.Center
             ]
