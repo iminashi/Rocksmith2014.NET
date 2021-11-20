@@ -15,6 +15,10 @@ type FocusedSetting =
     | ProfilePath
     | TestFolder
 
+type PreviewAudioCreationData =
+    { SourceFile: string
+      AudioLength: TimeSpan }
+
 type OverlayContents =
     | NoOverlay
     | AbnormalExitMessage
@@ -27,7 +31,7 @@ type OverlayContents =
     | IssueViewer of arrangement: Arrangement
     | JapaneseLyricsCreator of JapaneseLyricsCreator.LyricsCreatorState
     | PitchShifter
-    | SelectPreviewStart of audioLength: TimeSpan
+    | SelectPreviewStart of data: PreviewAudioCreationData
     | ToneCollection of state: ToneCollection.ToneCollectionState
     | ToneEditor
     | UpdateInformationDialog of update: UpdateInformation
@@ -39,8 +43,9 @@ type OverlayCloseMethod =
     | ClickedOutside
 
 type PreviewAudioCreation =
-    | SetupStartTime
-    | CreateFile
+    | FindAudioFile
+    | SetupStartTime of data: PreviewAudioCreationData
+    | CreateFile of data: PreviewAudioCreationData
     | FileCreated of path: string
 
 type VolumeTarget =

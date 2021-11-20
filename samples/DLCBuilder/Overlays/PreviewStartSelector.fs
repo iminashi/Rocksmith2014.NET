@@ -7,9 +7,9 @@ open Avalonia.Layout
 open System
 open DLCBuilder
 
-let view state dispatch (audioLength: TimeSpan) =
+let view state dispatch (data: PreviewAudioCreationData) =
     // Remove the length of the preview from the total length
-    let length = audioLength - TimeSpan.FromSeconds(28.)
+    let length = data.AudioLength - TimeSpan.FromSeconds(28.)
 
     let previewStart =
         state.Project.AudioPreviewStartTime
@@ -74,7 +74,7 @@ let view state dispatch (audioLength: TimeSpan) =
                         Button.fontSize 16.
                         Button.padding (50., 10.)
                         Button.content (translate "Create")
-                        Button.onClick (fun _ -> CreatePreviewAudio CreateFile |> dispatch)
+                        Button.onClick (fun _ -> CreatePreviewAudio (CreateFile data) |> dispatch)
                     ]
 
                     // Cancel

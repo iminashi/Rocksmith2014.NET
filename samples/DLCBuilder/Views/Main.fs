@@ -253,8 +253,8 @@ let private overlay state dispatch =
         IdRegenerationConfirmation.view state dispatch reply.Reply arrangements
     | ErrorMessage (msg, info) ->
         ErrorMessage.view dispatch msg info
-    | SelectPreviewStart audioLength ->
-        PreviewStartSelector.view state dispatch audioLength
+    | SelectPreviewStart data ->
+        PreviewStartSelector.view state dispatch data
     | ImportToneSelector tones ->
         ImportTonesSelector.view state dispatch tones
     | ConfigEditor focusedSetting ->
