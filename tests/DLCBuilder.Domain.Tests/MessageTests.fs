@@ -23,7 +23,7 @@ let foldMessages state messages =
 let messageTests =
     testList "Message Tests" [
         testCase "CloseOverlay closes overlay" <| fun _ ->
-            let state = { initialState with Overlay = SelectPreviewStart(TimeSpan.MinValue)}
+            let state = { initialState with Overlay = PitchShifter }
 
             let newState, _ = Main.update (CloseOverlay OverlayCloseMethod.EscapeKey) state
 
