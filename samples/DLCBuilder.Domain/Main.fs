@@ -420,7 +420,7 @@ let update (msg: Msg) (state: State) =
             Project = { project with Arrangements = arrangements }
             SelectedArrangementIndex = index }, Cmd.none
 
-    | CreatePreviewAudio FindAudioFile ->
+    | CreatePreviewAudio InitialSetup ->
         let task () = async {
             let projectAudio = project.AudioFile.Path
             let sourceFile =

@@ -146,7 +146,7 @@ let private audioControls state dispatch =
                                         Button.padding (10.0, 0.0)
                                         Button.content (translate "Create")
                                         Button.isEnabled (IO.File.Exists(audioPath))
-                                        Button.onClick (fun _ -> dispatch (CreatePreviewAudio FindAudioFile))
+                                        Button.onClick (fun _ -> dispatch (CreatePreviewAudio InitialSetup))
                                         ToolTip.tip (
                                             if previewExists then
                                                 translate "PreviewAudioExistsToolTip"

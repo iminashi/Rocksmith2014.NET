@@ -43,7 +43,7 @@ type OverlayCloseMethod =
     | ClickedOutside
 
 type PreviewAudioCreation =
-    | FindAudioFile
+    | InitialSetup
     | SetupStartTime of data: PreviewAudioCreationData
     | CreateFile of data: PreviewAudioCreationData
     | FileCreated of path: string
