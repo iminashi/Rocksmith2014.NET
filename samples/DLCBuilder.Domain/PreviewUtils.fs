@@ -39,7 +39,7 @@ let createAutoPreviewFile project =
                     
                     inst.Sections
                     |> ResizeArray.tryFind (fun x -> x.Name |> String.startsWith "Chorus")
-                    |> Option.map (fun x -> TimeSpan.FromMilliseconds(x.Time))
+                    |> Option.map (fun x -> TimeSpan.FromMilliseconds(float x.Time))
                     |> Option.defaultWith (fun () -> TimeSpan.FromMilliseconds(float inst.MetaData.SongLength / 2.))
                 | None ->
                     failwith "Project does not have any instrumental arrangements."
