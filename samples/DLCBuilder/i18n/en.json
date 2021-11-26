@@ -355,6 +355,7 @@
   "VolumeCalculationMainAudio": "Calculating main audio volume...",
   "VolumeCalculationPreviewAudio": "Calculating preview audio volume...",
   "VolumeCalculationCustomAudio": "Calculating custom audio volume...",
+  "AutomaticPreviewCreation": "Creating preview audio...",
   "WemConversionComplete": "Wem conversion completed.",
   "BuildPackageComplete": "Package building completed.",
   "BuildNewTestVersionComplete": "Package building completed.\n\nA new test version \"{0}\" was created.",

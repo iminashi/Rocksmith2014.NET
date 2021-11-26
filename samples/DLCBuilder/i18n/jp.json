@@ -355,6 +355,7 @@
   "VolumeCalculationMainAudio": "メインボリューム計算中...",
   "VolumeCalculationPreviewAudio": "プレビューボリューム計算中...",
   "VolumeCalculationCustomAudio": "カスタムオーディオのボリューム計算中...",
+  "AutomaticPreviewCreation": "プレビューオーディオ作成中...",
   "WemConversionComplete": "WEM変換完了。",
   "BuildPackageComplete": "パッケージ組み立て完了。",
   "BuildNewTestVersionComplete": "パッケージ組み立て完了。\n\n新しいテストバージョン「{0}」が作られました。",

@@ -41,6 +41,7 @@
     <Compile Include="RecentFilesList.fs" />
     <Compile Include="OnlineUpdate.fs" />
     <Compile Include="Downloader.fs" />
+    <Compile Include="PreviewUtils.fs" />
     <Compile Include="StateTypes.fs" />
     <Compile Include="StateUtils.fs" />
     <Compile Include="EditFunctions.fs" />

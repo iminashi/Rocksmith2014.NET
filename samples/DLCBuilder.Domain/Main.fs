@@ -422,21 +422,8 @@ let update (msg: Msg) (state: State) =
 
     | CreatePreviewAudio InitialSetup ->
         let task () = async {
-            let projectAudio = project.AudioFile.Path
             let sourceFile =
-                match projectAudio with
-                | HasExtension (".wav" | ".ogg") ->
-                    projectAudio
-                | _ ->
-                    let wavFile = Path.ChangeExtension(projectAudio, "wav")
-                    let oggFile = Path.ChangeExtension(projectAudio, "ogg")
-                    if File.Exists(wavFile) then
-                        wavFile
-                    elif File.Exists(oggFile) then
-                        oggFile
-                    else
-                        Conversion.wemToOgg projectAudio
-                        oggFile
+                PreviewUtils.getOggOrWavAudio project
 
             return { SourceFile = sourceFile
                      AudioLength = Utils.getLength sourceFile } }
@@ -726,6 +713,16 @@ let update (msg: Msg) (state: State) =
 
     | Build _ when not <| canBuild state ->
         state, Cmd.none
+
+    | Build _ when not <| File.Exists(project.AudioPreviewFile.Path) ->
+        addTask AutomaticPreviewCreation state,
+        Cmd.OfAsync.either PreviewUtils.createAutoPreviewFile project (fun path -> AutoPreviewCreated(path, msg)) ErrorOccurred
+
+    | AutoPreviewCreated (previewPath, continuation) ->
+        let preview = { project.AudioPreviewFile with Path = previewPath }
+        let newState = { state with Project = { project with AudioPreviewFile = preview } }
+
+        removeTask AutomaticPreviewCreation newState, Cmd.ofMsg continuation 
 
     | Build PitchShifted ->
         buildPackage (ReleasePackageBuilder.buildPitchShifted state.OpenProjectFile) state
