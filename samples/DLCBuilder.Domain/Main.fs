@@ -716,13 +716,23 @@ let update (msg: Msg) (state: State) =
 
     | Build _ when not <| File.Exists(project.AudioPreviewFile.Path) ->
         addTask AutomaticPreviewCreation state,
-        Cmd.OfAsync.either PreviewUtils.createAutoPreviewFile project (fun path -> AutoPreviewCreated(path, msg)) ErrorOccurred
+        Cmd.OfAsync.either
+            PreviewUtils.createAutoPreviewFile
+            project
+            (fun path -> AutoPreviewCreated(path, msg))
+            ErrorOccurred
 
     | AutoPreviewCreated (previewPath, continuation) ->
+        let cmds =
+            Cmd.batch [
+                if config.AutoVolume then Cmd.ofMsg (CalculateVolume PreviewAudio)
+                Cmd.ofMsg continuation
+            ]
+
         let preview = { project.AudioPreviewFile with Path = previewPath }
         let newState = { state with Project = { project with AudioPreviewFile = preview } }
 
-        removeTask AutomaticPreviewCreation newState, Cmd.ofMsg continuation 
+        removeTask AutomaticPreviewCreation newState, cmds
 
     | Build PitchShifted ->
         buildPackage (ReleasePackageBuilder.buildPitchShifted state.OpenProjectFile) state
