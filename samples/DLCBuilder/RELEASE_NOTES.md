@@ -1,5 +1,7 @@
-## 0.8.1 (Released 2021-xx-xx)
+## 0.9.0 (Released 2021-xx-xx)
 
+- Preview audio can now be created even if the main audio is set to a wem file.
+- Preview audio will be created automatically if not found when building a package.
 - Added a new issue for lyrics that contain no line breaks.
 - Fixed a minor issue in the PSARC import.
 
