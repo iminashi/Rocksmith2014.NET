@@ -31,7 +31,7 @@ let notBuilding state =
 /// Returns true if the project can be built.
 let canBuild state =
     notBuilding state
-    && not (state.RunningTasks.Contains(PsarcImport))
+    && not (state.RunningTasks.Contains(PsarcImport) || state.RunningTasks.Contains(AutomaticPreviewCreation))
     && state.Project.Arrangements.Length > 0
     && String.notEmpty state.Project.AudioFile.Path
 

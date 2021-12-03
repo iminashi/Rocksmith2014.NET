@@ -61,6 +61,7 @@ type LongTask =
     | WemToOggConversion
     | ArrangementCheckAll
     | ArrangementCheckOne
+    | AutomaticPreviewCreation
     | VolumeCalculation of VolumeTarget
     | FileDownload of id: DownloadId
 
@@ -233,6 +234,7 @@ type Msg =
     | ShowToneCollection
     | MoveArrangement of MoveDirection
     | CreatePreviewAudio of PreviewAudioCreation
+    | AutoPreviewCreated of previewPath: string * continuation: Msg
     | ShowSortFields of shown: bool
     | ShowJapaneseFields of shown: bool
     | GenerateNewIds

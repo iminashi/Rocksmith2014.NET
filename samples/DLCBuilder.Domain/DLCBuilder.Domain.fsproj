@@ -6,7 +6,7 @@
     <Platforms>x64</Platforms>
     <WarnOn>1182;3390;$(WarnOn)</WarnOn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <Version>0.8.0</Version>
+    <Version>0.9.0</Version>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -41,6 +41,7 @@
     <Compile Include="RecentFilesList.fs" />
     <Compile Include="OnlineUpdate.fs" />
     <Compile Include="Downloader.fs" />
+    <Compile Include="PreviewUtils.fs" />
     <Compile Include="StateTypes.fs" />
     <Compile Include="StateUtils.fs" />
     <Compile Include="EditFunctions.fs" />
