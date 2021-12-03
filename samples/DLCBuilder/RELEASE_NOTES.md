@@ -1,4 +1,4 @@
-## 0.9.0 (Released 2021-xx-xx)
+## 0.9.0 (Released 2021-12-03)
 
 - Preview audio can now be created even if the main audio is set to a wem file.
 - Preview audio will be created automatically if not found when building a package.
