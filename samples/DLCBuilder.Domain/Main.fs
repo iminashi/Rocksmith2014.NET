@@ -335,7 +335,25 @@ let update (msg: Msg) (state: State) =
         removeTask (VolumeCalculation target) { state with Project = project }, Cmd.none
 
     | AddArrangements files ->
-        addArrangements files state, Cmd.none
+        let newState = addArrangements files state
+
+        // Create a new project file if auto-save is enabled
+        let cmd =
+            if state.Config.AutoSave &&
+               state.OpenProjectFile.IsNone &&
+               not newState.Project.Arrangements.IsEmpty
+            then
+                let directory =
+                    Arrangement.getFile newState.Project.Arrangements.Head
+                    |> Path.GetDirectoryName
+
+                Path.Combine(directory, createProjectFilename newState)
+                |> SaveProject
+                |> Cmd.ofMsg
+            else
+                Cmd.none
+
+        newState, cmd
 
     | SetSelectedArrangementIndex index ->
         if index < project.Arrangements.Length then

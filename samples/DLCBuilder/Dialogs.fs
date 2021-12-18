@@ -262,9 +262,7 @@ let showDialog window dialogType state =
                 state.OpenProjectFile
                 |> Option.map Path.GetFileName
                 |> Option.orElseWith (fun () ->
-                    sprintf "%s_%s" state.Project.ArtistName.SortValue state.Project.Title.SortValue
-                    |> StringValidator.fileName
-                    |> sprintf "%s.rs2dlc"
+                    StateUtils.createProjectFilename state
                     |> Some)
 
             let initialDir =
