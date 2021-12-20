@@ -519,6 +519,10 @@ let update (msg: Msg) (state: State) =
         { state with RecentFiles = recent }, Cmd.none
 
     | ProgramClosing ->
+        if config.AutoSave && project <> state.SavedProject then
+            state.OpenProjectFile
+            |> Option.iter (fun path -> DLCProject.save path project |> Async.RunSynchronously)
+
         RecentFilesList.save state.RecentFiles |> Async.RunSynchronously
         state, Cmd.none
 
