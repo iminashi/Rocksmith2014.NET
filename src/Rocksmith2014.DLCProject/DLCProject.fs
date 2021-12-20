@@ -167,20 +167,20 @@ module DLCProject =
                     Path = rel project.AudioPreviewFile.Path } }
 
     /// Saves a project with the given filename.
-    let save (fileName: string) (project: DLCProject) = async {
-        use file = File.Create(fileName)
+    let save (path: string) (project: DLCProject) = async {
+        use file = File.Create(path)
         let options = FSharpJsonOptions.Create(indent=true, ignoreNull=true)
         let p =
-            toRelativePaths (Path.GetDirectoryName(fileName)) project
+            toRelativePaths (Path.GetDirectoryName(path)) project
             |> toDto
         do! JsonSerializer.SerializeAsync<Dto>(file, p, options) }
 
     /// Loads a project from a file with the given filename.
-    let load (fileName: string) = async {
+    let load (path: string) = async {
         let options = FSharpJsonOptions.Create(indent=true, ignoreNull=true)
-        use file = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan ||| FileOptions.Asynchronous)
+        use file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan ||| FileOptions.Asynchronous)
         let! project = JsonSerializer.DeserializeAsync<Dto>(file, options)
-        return toAbsolutePaths (Path.GetDirectoryName(fileName)) (fromDto project) }
+        return toAbsolutePaths (Path.GetDirectoryName(path)) (fromDto project) }
 
     /// Updates the tone names for the instrumental arrangements in the project from the XML files.
     let updateToneInfo (project: DLCProject) =
