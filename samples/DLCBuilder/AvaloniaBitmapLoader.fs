@@ -35,7 +35,16 @@ let private avaloniaBitmapFromDDS (fileName: string) =
 
     let pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned)
     let address = pinnedArray.AddrOfPinnedObject()
-    let bm = new Bitmap(pxFormat, AlphaFormat.Unpremul, address, PixelSize(image.Width, image.Height), Vector(96., 96.), stride)
+    let bm =
+        new Bitmap(
+            pxFormat,
+            AlphaFormat.Unpremul,
+            address,
+            PixelSize(image.Width, image.Height),
+            Vector(96., 96.),
+            stride
+        )
+
     pinnedArray.Free()
     bm
 
