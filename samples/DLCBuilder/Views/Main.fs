@@ -368,7 +368,12 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
     let title, titleToolTip =
         match state.OpenProjectFile with
         | Some project ->
-            let dot = if state.SavedProject <> state.Project then "*" else String.Empty
+            let dot =
+                if not state.Config.AutoSave && state.SavedProject <> state.Project then
+                    "*"
+                else
+                    String.Empty
+
             $"{dot}{state.Project.ArtistName.Value} - {state.Project.Title.Value}", project
         | None ->
             "Rocksmith 2014 DLC Builder", String.Empty

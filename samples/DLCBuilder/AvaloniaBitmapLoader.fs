@@ -35,14 +35,28 @@ let private avaloniaBitmapFromDDS (fileName: string) =
 
     let pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned)
     let address = pinnedArray.AddrOfPinnedObject()
-    let bm = new Bitmap(pxFormat, AlphaFormat.Unpremul, address, PixelSize(image.Width, image.Height), Vector(96., 96.), stride)
+    let bm =
+        new Bitmap(
+            pxFormat,
+            AlphaFormat.Unpremul,
+            address,
+            PixelSize(image.Width, image.Height),
+            Vector(96., 96.),
+            stride
+        )
+
     pinnedArray.Free()
     bm
+
+/// Disposes of any cached bitmap.
+let private invalidate () =
+    cached |> Option.iter (fun x -> x.Dispose())
+    cached <- None
 
 /// Tries to load and cache a bitmap from the given path.
 /// Returns false if the file does not exist or the loading fails.
 let private tryLoadBitmap path =
-    cached |> Option.iter (fun x -> x.Dispose())
+    invalidate ()
 
     if not <| IO.File.Exists(path) then
         false
@@ -58,11 +72,6 @@ let private tryLoadBitmap path =
             true
         with _ ->
             false
-
-/// Disposes of any cached bitmap.
-let private invalidate () =
-    cached |> Option.iter (fun x -> x.Dispose())
-    cached <- None
 
 /// Returns the cached bitmap if possible, None otherwise.
 let getBitmap () = cached

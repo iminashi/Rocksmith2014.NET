@@ -3,7 +3,6 @@ module DLCBuilder.Dialogs
 open Avalonia.Controls
 open Avalonia.Threading
 open Elmish
-open Rocksmith2014.DLCProject
 open System
 open System.Collections.Generic
 open System.IO
@@ -161,7 +160,7 @@ let showDialog window dialogType state =
                 ofd FileFilter.ToolkitTemplate ImportToolkitTemplate
 
         | Dialog.PsarcImport ->
-            if state.RunningTasks.Contains PsarcImport then
+            if state.RunningTasks.Contains(PsarcImport) then
                 async { return None }
             else
                 ofd FileFilter.PSARC (Dialog.PsarcImportTargetFolder >> ShowDialog)
@@ -171,7 +170,7 @@ let showDialog window dialogType state =
             openFolderDialog title initialDir (fun folder -> ImportPsarc(psarcPath, folder))
 
         | Dialog.PsarcUnpack ->
-            if state.RunningTasks.Contains PsarcUnpack then
+            if state.RunningTasks.Contains(PsarcUnpack) then
                 async { return None }
             else
                 openMultiFileDialog title FileFilter.PSARC None (Dialog.PsarcUnpackTargetFolder >> ShowDialog)
@@ -246,6 +245,7 @@ let showDialog window dialogType state =
                 match isCustom with
                 | true -> Some >> SetCustomAudioPath >> EditInstrumental
                 | false -> SetAudioFile
+
             let initialDir = getProjectDirectory state
             openFileDialog title FileFilter.Audio initialDir msg
 
@@ -262,9 +262,7 @@ let showDialog window dialogType state =
                 state.OpenProjectFile
                 |> Option.map Path.GetFileName
                 |> Option.orElseWith (fun () ->
-                    sprintf "%s_%s" state.Project.ArtistName.SortValue state.Project.Title.SortValue
-                    |> StringValidator.fileName
-                    |> sprintf "%s.rs2dlc"
+                    StateUtils.createProjectFilename state
                     |> Some)
 
             let initialDir =

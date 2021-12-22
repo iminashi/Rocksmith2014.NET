@@ -130,11 +130,11 @@ let addArrangements fileNames state =
                 match shouldInclude arrs arr with
                 | Ok (Instrumental inst) when mainArrangementExists inst arrs ->
                     // Prevent multiple main arrangements of the same type
-                    Instrumental { inst with Priority = ArrangementPriority.Alternative }::arrs, errors
+                    Instrumental { inst with Priority = ArrangementPriority.Alternative } :: arrs, errors
                 | Ok arr ->
                     arr :: arrs, errors
                 | Error error ->
-                    let errorMsg = createErrorMsg (Arrangement.getFile arr) (t.Translate <| string error)
+                    let errorMsg = createErrorMsg (Arrangement.getFile arr) (t.Translate(string error))
                     arrs, errorMsg :: errors
             | Error (UnknownArrangement path) ->
                 let message = t.Translate "UnknownArrangementError"
@@ -183,11 +183,12 @@ let addJapaneseVocals (xmlPath: string) state =
         state, Cmd.none
     else
         let japaneseVocals =
-            Vocals { XML = xmlPath
-                     Japanese = true
-                     CustomFont = None
-                     PersistentID = Guid.NewGuid()
-                     MasterID = RandomGenerator.next () }
+            { XML = xmlPath
+              Japanese = true
+              CustomFont = None
+              PersistentID = Guid.NewGuid()
+              MasterID = RandomGenerator.next () }
+            |> Vocals
 
         let updatedProject =
             let arrangements =
@@ -283,3 +284,9 @@ let createPsarcImportProgressReporter config =
 let createDownloadTask locString =
     let id = { Id = Guid.NewGuid(); LocString = locString }
     id, FileDownload id
+
+/// Returns a filename for the project: "artist_title.rs2dlc"
+let createProjectFilename state =
+    sprintf "%s_%s" state.Project.ArtistName.SortValue state.Project.Title.SortValue
+    |> StringValidator.fileName
+    |> sprintf "%s.rs2dlc"

@@ -1,3 +1,8 @@
+## 0.9.1 (Released 2021-12-xx)
+
+- If auto-save is enabled, a project file will be created automatically when adding an arrangement to a new project.
+- Fixed an issue with the cover art not being removed from the UI when opening a project that has no cover art set.
+
 ## 0.9.0 (Released 2021-12-03)
 
 - Preview audio can now be created even if the main audio is set to a wem file.
