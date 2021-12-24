@@ -67,7 +67,8 @@ type FixedTextBox() =
                 let! text =
                     (AvaloniaLocator.Current.GetService(typeof<IClipboard>) :?> IClipboard).GetTextAsync()
                     |> Async.AwaitTask
-                this.RaiseEvent(TextInputEventArgs(RoutedEvent = InputElement.TextInputEvent, Text = text, Source = this))
+                if notNull text then
+                    this.RaiseEvent(TextInputEventArgs(RoutedEvent = InputElement.TextInputEvent, Text = text, Source = this))
             } |> Async.StartImmediate
             e.Handled <- true
         else
