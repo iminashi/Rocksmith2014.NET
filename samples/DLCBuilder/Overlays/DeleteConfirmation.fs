@@ -7,6 +7,7 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Media
 open DLCBuilder
+open System.IO
 
 let view dispatch (files: string list) =
     StackPanel.create [
@@ -33,6 +34,16 @@ let view dispatch (files: string list) =
                 TextBlock.fontSize 16.
                 TextBlock.text (translatef "DeleteConfirmation" [| files.Length |])
                 TextBlock.margin 10.0
+            ]
+
+            // List of files to be deleted
+            ScrollViewer.create [
+                ScrollViewer.maxHeight 250.
+                ScrollViewer.content (
+                    ItemsControl.create [
+                        ItemsControl.dataItems (files |> List.map Path.GetFileName)
+                    ]
+                )
             ]
 
             StackPanel.create [

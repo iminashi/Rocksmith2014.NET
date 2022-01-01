@@ -701,7 +701,7 @@ let update (msg: Msg) (state: State) =
         | [ _ ] as one ->
             state, Cmd.ofMsg <| DeleteConfirmed one
         | many ->
-            { state with Overlay = DeleteConfirmation(many) }, Cmd.none
+            { state with Overlay = DeleteConfirmation many }, Cmd.none
 
     | DeleteConfirmed files ->
         let cmd =
