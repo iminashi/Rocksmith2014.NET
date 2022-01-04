@@ -1,4 +1,4 @@
-## 0.9.1 (Released 2022-01-xx)
+## 0.9.1 (Released 2022-01-04)
 
 - If auto-save is enabled, a save prompt will be displayed when first adding an arrangement to a new project.
 - Minor improvements to the "delete test builds" feature.
