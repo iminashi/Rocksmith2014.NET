@@ -119,42 +119,44 @@ type MainWindow(commandLineArgs: string array) as this =
         let hotKeysSub _initialModel = Cmd.ofSub (HotKeys.handleEvent >> this.KeyDown.Add)
 
         let programClosingSub _ =
-            Cmd.ofSub <| fun dispatch -> this.Closing.Add(fun _ ->
-                { X = windowPosition.X
-                  Y = windowPosition.Y
-                  Width = windowSize.Width
-                  Height = windowSize.Height
-                  State =
-                    if this.WindowState = WindowState.Maximized then
-                        WindowState.Maximized
-                    else
-                        WindowState.Normal }
-                |> WindowStatus.Save
+            fun dispatch ->
+                this.Closing.Add(fun _ ->
+                    { X = windowPosition.X
+                      Y = windowPosition.Y
+                      Width = windowSize.Width
+                      Height = windowSize.Height
+                      State =
+                        if this.WindowState = WindowState.Maximized then
+                            WindowState.Maximized
+                        else
+                            WindowState.Normal }
+                    |> WindowStatus.Save
 
-                dispatch ProgramClosing)
+                    dispatch ProgramClosing)
+            |> Cmd.ofSub
 
         let autoSaveSub _ =
-            let sub dispatch =
+            fun dispatch ->
                 autoSaveSubject
                     .Throttle(TimeSpan.FromSeconds(1.))
                     .Add(fun () -> dispatch AutoSaveProject)
-            Cmd.ofSub sub
+            |> Cmd.ofSub
 
         let progressReportingSub _ =
-            let sub dispatch =
+            fun dispatch ->
                 let dispatchProgress task progress = TaskProgressChanged(task, progress) |> dispatch
                 ProgressReporters.ArrangementCheck.ProgressChanged.Add(dispatchProgress ArrangementCheckAll)
                 ProgressReporters.PsarcImport.ProgressChanged.Add(dispatchProgress PsarcImport)
                 ProgressReporters.PsarcUnpack.ProgressChanged.Add(dispatchProgress PsarcUnpack)
                 ProgressReporters.PackageBuild.ProgressChanged.Add(dispatchProgress BuildPackage)
                 ProgressReporters.DownloadFile.ProgressChanged.Add(fun (id, progress) -> dispatchProgress (FileDownload id) progress)
-            Cmd.ofSub sub
+            |> Cmd.ofSub
 
         let idRegenerationConfirmationSub _ =
-            let sub dispatch =
+            fun dispatch ->
                 IdRegenerationHelper.RequestConfirmation.Add(ConfirmIdRegeneration >> dispatch)
                 IdRegenerationHelper.NewIdsGenerated.Add(SetNewArrangementIds >> dispatch)
-            Cmd.ofSub sub
+            |> Cmd.ofSub
 
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
         //this.VisualRoot.VisualRoot.Renderer.DrawDirtyRects <- true
