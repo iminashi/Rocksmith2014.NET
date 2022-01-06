@@ -49,11 +49,12 @@ let translateName project info arr =
             baseName
         | WithExtra ->
             let extra =
-                if inst.Name = ArrangementName.Combo then
+                match inst with
+                | { Name = ArrangementName.Combo } ->
                     let c = translate "ComboArr" in $" ({c})"
-                elif inst.RouteMask = RouteMask.Bass && inst.BassPicked then
+                | { RouteMask = RouteMask.Bass; BassPicked = true } ->
                     let p = translate "Picked" in $" ({p})"
-                else
+                | _ ->
                     String.Empty
 
             $"{baseName}{extra}"
