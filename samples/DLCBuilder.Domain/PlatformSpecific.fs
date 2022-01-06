@@ -7,6 +7,7 @@ type private SupportedPlatform =
     | MacOS
     | Linux
 
+[<AbstractClass; Sealed>]
 type PlatformSpecific() =
     static let current =
         if OperatingSystem.IsMacOS() then
