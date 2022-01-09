@@ -1,7 +1,7 @@
 module DLCBuilder.IdRegenerationHelper
 
-open System
 open Rocksmith2014.DLCProject
+open System
 open System.Threading.Tasks
 
 let private requestConfirmationEvent = Event<Guid list * AsyncReply>()

@@ -262,7 +262,7 @@ let showDialog window dialogType state =
                 state.OpenProjectFile
                 |> Option.map Path.GetFileName
                 |> Option.orElseWith (fun () ->
-                    StateUtils.createProjectFilename state
+                    StateUtils.createProjectFilename state.Project
                     |> Some)
 
             let initialDir =

@@ -337,19 +337,15 @@ let update (msg: Msg) (state: State) =
     | AddArrangements files ->
         let newState = addArrangements files state
 
-        // Create a new project file if auto-save is enabled
+        // Prompt to save a project file if auto-save is enabled
+        // Only when first adding arrangements into a new project
         let cmd =
             if state.Config.AutoSave &&
                state.OpenProjectFile.IsNone &&
+               state.Project.Arrangements.IsEmpty &&
                not newState.Project.Arrangements.IsEmpty
             then
-                let directory =
-                    Arrangement.getFile newState.Project.Arrangements.Head
-                    |> Path.GetDirectoryName
-
-                Path.Combine(directory, createProjectFilename newState)
-                |> SaveProject
-                |> Cmd.ofMsg
+                Cmd.ofMsg SaveProjectAs
             else
                 Cmd.none
 
@@ -701,7 +697,7 @@ let update (msg: Msg) (state: State) =
         | [ _ ] as one ->
             state, Cmd.ofMsg <| DeleteConfirmed one
         | many ->
-            { state with Overlay = DeleteConfirmation(many) }, Cmd.none
+            { state with Overlay = DeleteConfirmation many }, Cmd.none
 
     | DeleteConfirmed files ->
         let cmd =

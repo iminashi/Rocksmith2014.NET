@@ -2,9 +2,9 @@ module DLCBuilder.PreviewUtils
 
 open Rocksmith2014.Audio
 open Rocksmith2014.DLCProject
-open System.IO
 open Rocksmith2014.XML
 open System
+open System.IO
 
 /// Returns a path to the project's audio in wave or vorbis format.
 let getOggOrWavAudio (project: DLCProject) =

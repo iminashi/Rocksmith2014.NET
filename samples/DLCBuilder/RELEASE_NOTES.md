@@ -1,7 +1,9 @@
-## 0.9.1 (Released 2021-12-xx)
+## 0.9.1 (Released 2022-01-04)
 
-- If auto-save is enabled, a project file will be created automatically when adding an arrangement to a new project.
-- Fixed an issue with the cover art not being removed from the UI when opening a project that has no cover art set.
+- If auto-save is enabled, a save prompt will be displayed when first adding an arrangement to a new project.
+- Minor improvements to the "delete test builds" feature.
+- Fixed an issue with the previous cover art not being removed from the UI when opening a project that has no cover art set.
+- Fixed a crash when pasting into a textbox when the clipboard contains something other than text.
 
 ## 0.9.0 (Released 2021-12-03)
 
