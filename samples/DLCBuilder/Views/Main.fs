@@ -30,6 +30,8 @@ let private validationIcon state dispatch issues =
         issues
         |> List.forall (fun x -> state.Project.IgnoredIssues.Contains(issueCode x.Type))
 
+    let hasOnlyIgnoredIssues = noActiveIssues && not issues.IsEmpty
+
     StackPanel.create [
         StackPanel.margin (12., 0.)
         StackPanel.horizontalAlignment HorizontalAlignment.Left
@@ -43,6 +45,8 @@ let private validationIcon state dispatch issues =
                     dispatch ShowIssueViewer)
             StackPanel.cursor Cursors.hand
             StackPanel.focusable true
+        if hasOnlyIgnoredIssues then
+            ToolTip.tip (translate "ArrangementHasIgnoredIssues")
         StackPanel.children [
             Path.create [
                 Path.fill (if noActiveIssues then Brushes.Green else Brushes.Red)
@@ -51,9 +55,23 @@ let private validationIcon state dispatch issues =
                 Path.margin (0., 0., 6., 0.)
             ]
 
-            TextBlock.create [
-                TextBlock.text <| translate (if noActiveIssues then "OK" else "Issues")
-                TextBlock.verticalAlignment VerticalAlignment.Center
+            Panel.create [
+                Panel.children [
+                    TextBlock.create [
+                        TextBlock.text <| translate (if noActiveIssues then "OK" else "Issues")
+                        TextBlock.verticalAlignment VerticalAlignment.Center
+                    ]
+
+                    if hasOnlyIgnoredIssues then
+                        Ellipse.create [
+                            Ellipse.width 8.
+                            Ellipse.height 8.
+                            Ellipse.horizontalAlignment HorizontalAlignment.Right
+                            Ellipse.verticalAlignment VerticalAlignment.Top
+                            Ellipse.margin (0., 3., -5., 0.)
+                            Ellipse.fill Brushes.Orange
+                        ]
+                ]
             ]
         ]
     ]

@@ -434,5 +434,6 @@
   "IgnoreIssueToolTip": "Ignores this issue type for this project.",
   "EnableIssueToolTip": "Enables this issue type for this project.",
   "Enable": "Enable",
-  "IgnoredIssues": "Ignored Issues"
+  "IgnoredIssues": "Ignored Issues",
+  "ArrangementHasIgnoredIssues": "The arrangement contains ignored issues."
 }

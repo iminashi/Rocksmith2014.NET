@@ -434,5 +434,6 @@
   "IgnoreIssueToolTip": "このような問題点をこのプロジェクトではカウントされません。",
   "EnableIssueToolTip": "このような問題点をこのプロジェクトではカウントされます。",
   "Enable": "可能にする",
-  "IgnoredIssues": "無視された問題点"
+  "IgnoredIssues": "無視された問題点",
+  "ArrangementHasIgnoredIssues": "アレンジには無視された問題点が存在します。"
 }
