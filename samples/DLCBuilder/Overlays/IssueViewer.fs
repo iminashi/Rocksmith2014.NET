@@ -67,6 +67,7 @@ let private viewForIssue dispatch issueType times canIgnore =
                 ]
                 // Ignore/Enable Issue Button
                 Button.create [
+                    ToolTip.tip (translate (if canIgnore then "IgnoreIssueToolTip" else "EnableIssueToolTip"))
                     Button.content (translate (if canIgnore then "Ignore" else "Enable"))
                     Button.onClick ((fun _ ->
                         let msg =
