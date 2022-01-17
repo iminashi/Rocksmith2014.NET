@@ -49,6 +49,18 @@ let update (msg: Msg) (state: State) =
     let translatef key args = state.Localizer.TranslateFormat(key, args)
 
     match msg with
+    | EnableIssueForProject code ->
+        let updatedProject =
+            { project with IgnoredIssues = project.IgnoredIssues.Remove(code) }
+
+        { state with Project = updatedProject }, Cmd.none
+
+    | IgnoreIssueForProject code ->
+        let updatedProject =
+            { project with IgnoredIssues = project.IgnoredIssues.Add(code) }
+
+        { state with Project = updatedProject }, Cmd.none
+
     | ShowJapaneseLyricsCreator ->
         project.Arrangements
         |> List.choose Arrangement.pickVocals

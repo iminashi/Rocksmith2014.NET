@@ -188,6 +188,8 @@ type Dialog =
     | SaveJapaneseLyrics
 
 type Msg =
+    | IgnoreIssueForProject of issueCode: string
+    | EnableIssueForProject of issueCode: string
     | ConfirmIdRegeneration of arrIds: Guid list * reply: AsyncReply
     | SetNewArrangementIds of Map<Guid, Arrangement>
     | ImportPsarc of psarcFile: string * targetFolder: string
@@ -262,7 +264,7 @@ type Msg =
     | AddStatusMessage of message: string
     | RemoveStatusMessage of id: Guid
     | CheckOneCompleted of string * Issue list
-    | CheckAllCompleted of Map<string, Issue list>
+    | CheckAllCompleted of issues: Map<string, Issue list>
     | PsarcUnpacked
     | WemToOggConversionCompleted
     | ConvertToWem

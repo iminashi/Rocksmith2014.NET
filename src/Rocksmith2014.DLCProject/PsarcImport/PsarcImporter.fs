@@ -173,6 +173,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
           AudioPreviewFile = previewAudio
           AudioPreviewStartTime = None
           PitchShift = None
+          IgnoredIssues = Set.empty
           Arrangements = arrangements
           Tones = tones }
 

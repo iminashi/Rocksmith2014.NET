@@ -220,6 +220,7 @@ let import (templatePath: string) =
           Volume = float (itemText docEl "PreviewVolume") }
       AudioPreviewStartTime = None
       PitchShift = None
+      IgnoredIssues = Set.empty
       Arrangements = arrangements
       Tones = tones }
     |> DLCProject.toAbsolutePaths (Path.GetDirectoryName(templatePath))

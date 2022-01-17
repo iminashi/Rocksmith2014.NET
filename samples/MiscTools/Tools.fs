@@ -36,6 +36,7 @@ let project =
       AudioPreviewFile = { Path = "preview.wem"; Volume = 12. }
       AudioPreviewStartTime = None
       PitchShift = None
+      IgnoredIssues = Set.empty
       Arrangements = []
       Tones = [] }
 

@@ -48,7 +48,7 @@ let private isImportant = function
     | InvalidShowlights -> true
     | _ -> false
 
-let private viewForIssue issueType times =
+let private viewForIssue dispatch issueType times canIgnore =
     let header, help = getIssueHeaderAndHelp issueType
 
     StackPanel.create [
@@ -61,8 +61,24 @@ let private viewForIssue issueType times =
                     TextBlock.fontSize 16.
                     TextBlock.verticalAlignment VerticalAlignment.Center
                 ]
+                // Hep Button
                 HelpButton.create [
                     HelpButton.helpText help
+                ]
+                // Ignore/Enable Issue Button
+                Button.create [
+                    Button.content (translate (if canIgnore then "Ignore" else "Enable"))
+                    Button.onClick ((fun _ ->
+                        let msg =
+                            if canIgnore then
+                                IgnoreIssueForProject
+                            else
+                                EnableIssueForProject
+
+                        issueType
+                        |> issueCode
+                        |> msg
+                        |> dispatch), SubPatchOptions.Always)
                 ]
             ]
 
@@ -74,7 +90,7 @@ let private viewForIssue issueType times =
         ]
     ] |> generalize
 
-let private toIssueView issues =
+let private toIssueView dispatch canIgnore issues =
     issues
     |> List.groupBy (fun issue -> issue.Type)
     |> List.map (fun (issueType, issues) ->
@@ -88,16 +104,39 @@ let private toIssueView issues =
                     TextBlock.text (timeToString issue.TimeCode)
                 ] |> generalize)
 
-        viewForIssue issueType issueTimes)
+        viewForIssue dispatch issueType issueTimes canIgnore)
+
+let private issueListHeader locString =
+    Border.create [
+        Border.cornerRadius 8.
+        Border.borderThickness 2.
+        Border.borderBrush Brushes.Gray
+        Border.background "#222"
+        Border.child (
+            TextBlock.create [
+                TextBlock.classes [ "issue-header" ]
+                TextBlock.text (translate locString)
+            ]
+        )
+    ]
 
 let view state dispatch (arrangement: Arrangement) =
     let issues =
         state.ArrangementIssues
         |> Map.tryFind (Arrangement.getFile arrangement)
         |> Option.map (fun issues ->
-            issues
-            |> List.partition (fun x -> isImportant x.Type)
-            |> fun (i, u) -> toIssueView i, toIssueView u)
+            // Divide the issues into ignored and active
+            let ignored, active =
+                issues
+                |> List.partition (fun issue -> state.Project.IgnoredIssues.Contains(issueCode issue.Type))
+
+            // Divide the active ones into important and unimportant issues
+            let important, unimportant =
+                active
+                |> List.partition (fun x -> isImportant x.Type)
+                |> fun (i, u) -> toIssueView dispatch true i, toIssueView dispatch true u
+
+            important, unimportant, toIssueView dispatch false ignored)
 
     StackPanel.create [
         StackPanel.spacing 8.
@@ -143,45 +182,28 @@ let view state dispatch (arrangement: Arrangement) =
                                 TextBlock.horizontalAlignment HorizontalAlignment.Center
                                 TextBlock.verticalAlignment VerticalAlignment.Center
                             ]
-                        | Some (importantIssues, minorIssues) ->
-                            if importantIssues.IsEmpty && minorIssues.IsEmpty then
+                        | Some (importantIssues, minorIssues, ignoredIssues) ->
+                            if importantIssues.IsEmpty && minorIssues.IsEmpty && ignoredIssues.IsEmpty then
                                 TextBlock.create [
                                     TextBlock.text (translate "NoIssuesFound")
                                     TextBlock.horizontalAlignment HorizontalAlignment.Center
                                     TextBlock.verticalAlignment VerticalAlignment.Center
                                 ]
 
-                            // Important issues
+                            // Important
                             if not importantIssues.IsEmpty then
-                                Border.create [
-                                    Border.cornerRadius 8.
-                                    Border.borderThickness 2.
-                                    Border.borderBrush Brushes.Gray
-                                    Border.background "#222"
-                                    Border.child (
-                                        TextBlock.create [
-                                            TextBlock.classes [ "issue-header" ]
-                                            TextBlock.text (translate "ImportantIssues")
-                                        ]
-                                    )
-                                ]
+                                issueListHeader "ImportantIssues"
                                 vStack importantIssues
 
-                            // Minor issues
+                            // Minor
                             if not minorIssues.IsEmpty then
-                                Border.create [
-                                    Border.cornerRadius 8.
-                                    Border.borderThickness 2.
-                                    Border.borderBrush Brushes.Gray
-                                    Border.background "#222"
-                                    Border.child (
-                                        TextBlock.create [
-                                            TextBlock.classes [ "issue-header" ]
-                                            TextBlock.text (translate "MinorIssues")
-                                        ]
-                                    )
-                                ]
+                                issueListHeader "MinorIssues"
                                 vStack minorIssues
+
+                            // Ignored
+                            if not ignoredIssues.IsEmpty then
+                                issueListHeader "IgnoredIssues"
+                                vStack ignoredIssues
                     ]
                 )
             ]

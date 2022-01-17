@@ -1,4 +1,4 @@
-﻿[<AutoOpen>]
+[<AutoOpen>]
 module Common
 
 open System
@@ -88,5 +88,6 @@ let testProject =
       AudioPreviewFile = { Path = "audio_preview.wav"; Volume = 1. }
       AudioPreviewStartTime = None
       PitchShift = None
+      IgnoredIssues = Set.empty
       Arrangements = [ Instrumental testLead ]
       Tones = [ testTone; { testTone with Key = "Tone_2" } ] }

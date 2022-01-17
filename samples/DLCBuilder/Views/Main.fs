@@ -9,6 +9,7 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Input
 open Avalonia.Layout
 open Rocksmith2014.DLCProject
+open Rocksmith2014.XML.Processing
 open System
 open DLCBuilder
 open Media
@@ -24,13 +25,17 @@ let private arrangementList state dispatch =
             |> List.mapi (Templates.arrangement state dispatch))
     ]
 
-let private validationIcon dispatch noIssues =
+let private validationIcon state dispatch issues =
+    let noActiveIssues =
+        issues
+        |> List.forall (fun x -> state.Project.IgnoredIssues.Contains(issueCode x.Type))
+
     StackPanel.create [
         StackPanel.margin (12., 0.)
         StackPanel.horizontalAlignment HorizontalAlignment.Left
         StackPanel.orientation Orientation.Horizontal
         StackPanel.background Brushes.Transparent
-        if not noIssues then
+        if not issues.IsEmpty then
             StackPanel.onTapped (fun _ -> dispatch ShowIssueViewer)
             StackPanel.onKeyDown (fun args ->
                 if args.Key = Key.Space then
@@ -40,14 +45,14 @@ let private validationIcon dispatch noIssues =
             StackPanel.focusable true
         StackPanel.children [
             Path.create [
-                Path.fill (if noIssues then Brushes.Green else Brushes.Red)
-                Path.data (if noIssues then Icons.check else Icons.x)
+                Path.fill (if noActiveIssues then Brushes.Green else Brushes.Red)
+                Path.data (if noActiveIssues then Icons.check else Icons.x)
                 Path.verticalAlignment VerticalAlignment.Center
                 Path.margin (0., 0., 6., 0.)
             ]
 
             TextBlock.create [
-                TextBlock.text <| translate (if noIssues then "OK" else "Issues")
+                TextBlock.text <| translate (if noActiveIssues then "OK" else "Issues")
                 TextBlock.verticalAlignment VerticalAlignment.Center
             ]
         ]
@@ -98,9 +103,11 @@ let private arrangementDetails state dispatch =
                                 ]
 
                                 // Validation Icon
-                                if state.ArrangementIssues.ContainsKey xmlFile then
-                                    let noIssues = state.ArrangementIssues.[xmlFile].IsEmpty
-                                    validationIcon dispatch noIssues
+                                match state.ArrangementIssues.TryGetValue(xmlFile) with
+                                | true, issues ->
+                                    validationIcon state dispatch issues
+                                | false, _ ->
+                                    ()
                             ]
                         ]
 

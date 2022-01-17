@@ -45,6 +45,7 @@ let validProject =
       AudioPreviewFile = { AudioFile.Empty with Path = existingFile }
       AudioPreviewStartTime = None
       PitchShift = None
+      IgnoredIssues = Set.empty
       Arrangements = List.empty
       Tones = List.empty }
 
