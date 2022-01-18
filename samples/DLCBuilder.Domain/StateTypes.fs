@@ -188,6 +188,7 @@ type Dialog =
     | SaveJapaneseLyrics
 
 type Msg =
+    | OpenWithShell of path: string
     | IgnoreIssueForProject of issueCode: string
     | EnableIssueForProject of issueCode: string
     | ConfirmIdRegeneration of arrIds: Guid list * reply: AsyncReply

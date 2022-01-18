@@ -250,7 +250,8 @@ let help dispatch =
                 MenuItem.header (translate "ViewReadMeMenuItem")
                 MenuItem.onClick (fun _ ->
                     IO.Path.Combine(AppContext.BaseDirectory, "ReadMe.html")
-                    |> Utils.openWithShell
+                    |> OpenWithShell
+                    |> dispatch
                 )
             ]
 
@@ -269,7 +270,10 @@ let help dispatch =
             MenuItem.create [
                 MenuItem.header (translate "ViewCrashLogMenuItem")
                 MenuItem.isVisible crashLogExists
-                MenuItem.onClick (fun _ -> Configuration.crashLogPath |> Utils.openWithShell)
+                MenuItem.onClick (fun _ ->
+                    Configuration.crashLogPath
+                    |> OpenWithShell
+                    |> dispatch)
             ]
 
             separator
