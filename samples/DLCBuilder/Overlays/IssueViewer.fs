@@ -129,15 +129,17 @@ let view state dispatch (arrangement: Arrangement) =
             // Divide the issues into ignored and active
             let ignored, active =
                 issues
-                |> List.partition (fun issue -> state.Project.IgnoredIssues.Contains(issueCode issue.Type))
+                |> List.partition (fun issue ->
+                    state.Project.IgnoredIssues.Contains(issueCode issue.Type))
 
-            // Divide the active ones into important and unimportant issues
-            let important, unimportant =
+            // Divide the active ones into important and minor issues
+            let important, minor =
                 active
                 |> List.partition (fun x -> isImportant x.Type)
-                |> fun (i, u) -> toIssueView dispatch true i, toIssueView dispatch true u
 
-            important, unimportant, toIssueView dispatch false ignored)
+            {| Important = toIssueView dispatch true important
+               Minor = toIssueView dispatch true minor
+               Ignored = toIssueView dispatch false ignored |})
 
     StackPanel.create [
         StackPanel.spacing 8.
@@ -183,8 +185,8 @@ let view state dispatch (arrangement: Arrangement) =
                                 TextBlock.horizontalAlignment HorizontalAlignment.Center
                                 TextBlock.verticalAlignment VerticalAlignment.Center
                             ]
-                        | Some (importantIssues, minorIssues, ignoredIssues) ->
-                            if importantIssues.IsEmpty && minorIssues.IsEmpty && ignoredIssues.IsEmpty then
+                        | Some issues ->
+                            if issues.Important.IsEmpty && issues.Minor.IsEmpty && issues.Ignored.IsEmpty then
                                 TextBlock.create [
                                     TextBlock.text (translate "NoIssuesFound")
                                     TextBlock.horizontalAlignment HorizontalAlignment.Center
@@ -192,19 +194,19 @@ let view state dispatch (arrangement: Arrangement) =
                                 ]
 
                             // Important
-                            if not importantIssues.IsEmpty then
+                            if not issues.Important.IsEmpty then
                                 issueListHeader "ImportantIssues"
-                                vStack importantIssues
+                                vStack issues.Important
 
                             // Minor
-                            if not minorIssues.IsEmpty then
+                            if not issues.Minor.IsEmpty then
                                 issueListHeader "MinorIssues"
-                                vStack minorIssues
+                                vStack issues.Minor
 
                             // Ignored
-                            if not ignoredIssues.IsEmpty then
+                            if not issues.Ignored.IsEmpty then
                                 issueListHeader "IgnoredIssues"
-                                vStack ignoredIssues
+                                vStack issues.Ignored
                     ]
                 )
             ]
