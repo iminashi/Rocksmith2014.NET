@@ -49,6 +49,25 @@ let update (msg: Msg) (state: State) =
     let translatef key args = state.Localizer.TranslateFormat(key, args)
 
     match msg with
+    | OpenWithShell path ->
+        try
+            Utils.openWithShell path
+            state, Cmd.none
+        with e ->
+            state, Cmd.ofMsg (ErrorOccurred(e))
+
+    | EnableIssueForProject code ->
+        let updatedProject =
+            { project with IgnoredIssues = project.IgnoredIssues.Remove(code) }
+
+        { state with Project = updatedProject }, Cmd.none
+
+    | IgnoreIssueForProject code ->
+        let updatedProject =
+            { project with IgnoredIssues = project.IgnoredIssues.Add(code) }
+
+        { state with Project = updatedProject }, Cmd.none
+
     | ShowJapaneseLyricsCreator ->
         project.Arrangements
         |> List.choose Arrangement.pickVocals
@@ -765,11 +784,6 @@ let update (msg: Msg) (state: State) =
         buildPackage (ReleasePackageBuilder.build state.OpenProjectFile) state
 
     | BuildComplete completed ->
-        let task () = async {
-            if completed = BuildCompleteType.Release && config.OpenFolderAfterReleaseBuild then
-                ReleasePackageBuilder.getTargetDirectory state.OpenProjectFile project
-                |> Utils.openWithShell }
-
         let message =
             match completed with
             | BuildCompleteType.TestNewVersion version ->
@@ -779,7 +793,8 @@ let update (msg: Msg) (state: State) =
 
         let cmd =
             Cmd.batch [
-                Cmd.OfAsync.attempt task () ErrorOccurred
+                if completed = BuildCompleteType.Release && config.OpenFolderAfterReleaseBuild then
+                    Cmd.ofMsg (OpenWithShell(ReleasePackageBuilder.getTargetDirectory state.OpenProjectFile project))
                 Cmd.ofMsg (AddStatusMessage message)
             ]
 
@@ -850,10 +865,12 @@ let update (msg: Msg) (state: State) =
             state, Cmd.none
 
     | OpenProjectFolder ->
-        state.OpenProjectFile
-        |> Option.iter (Path.GetDirectoryName >> Utils.openWithShell)
+        let cmd =
+            state.OpenProjectFile
+            |> Option.map (Path.GetDirectoryName >> OpenWithShell >> Cmd.ofMsg)
+            |> Option.defaultValue Cmd.none
 
-        state, Cmd.none
+        state, cmd
 
     | ErrorOccurred e ->
         showOverlay state (exceptionToErrorMessage e), Cmd.none

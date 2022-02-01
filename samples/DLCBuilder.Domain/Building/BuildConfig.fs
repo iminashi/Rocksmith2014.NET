@@ -11,9 +11,11 @@ let [<Literal>] private CherubRock = "248750"
 /// Creates a build configuration data structure.
 let create buildType config project platforms =
     let convTask =
-        DLCProject.getFilesThatNeedConverting project
-        |> Seq.map (Wwise.convertToWem config.WwiseConsolePath)
-        |> Async.Parallel
+        let tasks =
+            DLCProject.getFilesThatNeedConverting project
+            |> Seq.map (Wwise.convertToWem config.WwiseConsolePath)
+
+        Async.Parallel(tasks, maxDegreeOfParallelism = 2)
         |> Async.Ignore
 
     let phraseSearch =

@@ -54,8 +54,8 @@ let view dispatch =
                     TextBlock.margin 4.
                     TextBlock.onTapped (fun ev ->
                         ev.Handled <- true
-                        Utils.openWithShell "https://github.com/iminashi/Rocksmith2014.NET"
-                    )
+                        OpenWithShell "https://github.com/iminashi/Rocksmith2014.NET"
+                        |> dispatch)
                 ]
             ]
         ]

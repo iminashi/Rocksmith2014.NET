@@ -10,6 +10,7 @@ open Avalonia.Layout
 open Avalonia.Media
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
+open Rocksmith2014.XML.Processing
 open System
 open DLCBuilder
 open DLCBuilder.Media
@@ -107,10 +108,10 @@ let arrangement state dispatch index arr =
             Icons.spotlight, Brushes.showlights
 
     let xmlFile = Arrangement.getFile arr
-    let hasIssues =
+    let noIssues =
         state.ArrangementIssues
         |> Map.tryFind xmlFile
-        |> Option.map (List.isEmpty >> not)
+        |> Option.map (List.forall (fun x -> state.Project.IgnoredIssues.Contains(issueCode x.Type)))
 
     let missingTones =
         match arr with
@@ -144,13 +145,13 @@ let arrangement state dispatch index arr =
             translatef "MissingToneDefinitionsToolTip" [| String.Join(", ", missingTones) |]
             |> ToolTip.tip
         DockPanel.children [
-            match hasIssues with
-            | Some hasIssues ->
+            match noIssues with
+            | Some noIssues ->
                 // Validation Icon
                 Path.create [
                     DockPanel.dock Dock.Right
-                    Path.fill (if hasIssues then Brushes.Red else Brushes.Green)
-                    Path.data (if hasIssues then Icons.x else Icons.check)
+                    Path.fill (if noIssues then Brushes.Green else Brushes.Red)
+                    Path.data (if noIssues then Icons.check else Icons.x)
                     Path.verticalAlignment VerticalAlignment.Center
                     Path.margin (0., 0., 6., 0.)
                 ]
