@@ -16,7 +16,7 @@ open System
 open System.IO
 open System.Runtime.InteropServices
 
-type TargetPlatForm =
+type TargetPlatform =
     | Windows
     | MacOS
     | Linux
