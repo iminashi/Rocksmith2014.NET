@@ -3,8 +3,6 @@
 #r "nuget: Fake.DotNet.Cli"
 #r "nuget: Fake.IO.FileSystem"
 #r "nuget: Fake.IO.Zip"
-// Fix: Unsupported log file format. Latest supported version is 9, the log file has version 13.
-#r "nuget: MSBuild.StructuredLogger, 2.1.507"
 
 open Fake.Api
 open Fake.Core
