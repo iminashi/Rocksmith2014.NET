@@ -114,14 +114,17 @@ let private build (buildData: BuildData) progress targetFile project platform = 
         let slFile = (List.pick Arrangement.pickShowlights project.Arrangements).XML
         entry $"songs/arr/{key}_showlights.xml" (readFile slFile)
 
-    use fontEntry =
+    use fontEntries =
         project.Arrangements
-        |> List.tryPick (function
-            | Vocals { CustomFont = Some _ as font } -> font
-            | _ -> None)
-        |> Option.map (fun f ->
-            entry $"assets/ui/lyrics/{key}/lyrics_{key}.dds" (readFile f))
-        |> (Option.toList >> toDisposableList)
+        |> List.choose (function
+            | Vocals ({ CustomFont = Some font } as v) ->
+                Some(v, font)
+            | _ ->
+                None)
+        |> List.map (fun (v, f) ->
+            let name = Utils.getCustomFontName v.Japanese key
+            entry $"assets/ui/lyrics/{key}/{name}.dds" (readFile f))
+        |> toDisposableList
 
     use flatModelEntries =
         let embedded = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
@@ -206,7 +209,7 @@ let private build (buildData: BuildData) progress targetFile project platform = 
         yield! flatModelEntries.Items
         yield graphEntry
         yield! audioEntries.Items
-        yield! fontEntry.Items
+        yield! fontEntries.Items
         yield toolkitEntry
         yield appIdEntry ])
 
@@ -244,13 +247,14 @@ let private setupInstrumental part (inst: Instrumental) config =
 
     xml
 
-let private getFontOption (dlcKey: string) =
+let private getFontOption (dlcKey: string) isJapanese =
     Option.map (fun fontFile ->
         let glyphs =
             Path.ChangeExtension(fontFile, ".glyphs.xml")
             |> GlyphDefinitions.Load
 
-        FontOption.CustomFont(glyphs, $"assets/ui/lyrics/{dlcKey}/lyrics_{dlcKey}.dds"))
+        let name = Utils.getCustomFontName isJapanese dlcKey
+        FontOption.CustomFont(glyphs, $"assets/ui/lyrics/{dlcKey}/{name}.dds"))
     >> Option.defaultValue FontOption.DefaultFont
 
 /// Inserts an automatically generated show lights arrangement into the project.
@@ -363,7 +367,7 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
 
                     let sng =
                         Vocals.Load(v.XML)
-                        |> ConvertVocals.xmlToSng (getFontOption dlcKey v.CustomFont)
+                        |> ConvertVocals.xmlToSng (getFontOption dlcKey v.Japanese v.CustomFont)
 
                     Some(arr, sng)
                 | Showlights _ ->
