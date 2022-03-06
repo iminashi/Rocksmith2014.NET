@@ -50,14 +50,17 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
             return file, Manifest.getSingletonAttributes manifest })
         |> Async.Sequential
 
-    let! customFont = async {
-        match List.tryFind (String.contains "assets/ui/lyrics") psarcContents with
-        | Some font ->
-            let targetPath = toTargetPath "lyrics.dds"
-            do! psarc.InflateFile(font, targetPath)
-            return Some targetPath
-        | None ->
-            return None }
+    // Extract custom font file(s)
+    do! psarcContents
+        |> List.filter (String.contains "assets/ui/lyrics")
+        |> List.map (fun psarcPath ->
+            async {
+                let targetFilename = getFontFilename psarcPath
+                let targetPath = toTargetPath $"{targetFilename}.dds"
+                do! psarc.InflateFile(psarcPath, targetPath)
+            })
+        |> Async.Sequential
+        |> Async.Ignore
 
     progress ()
 
@@ -112,7 +115,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
                     Path.GetFileNameWithoutExtension(mFile) = Path.GetFileNameWithoutExtension(file))
                 |> snd
 
-            let importVocals' = importVocals targetDirectory targetFile customFont attributes sng
+            let importVocals' = importVocals targetDirectory targetFile attributes sng
 
             match file with
             | JVocalsFile ->

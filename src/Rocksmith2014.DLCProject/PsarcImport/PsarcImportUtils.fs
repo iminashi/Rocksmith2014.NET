@@ -8,6 +8,8 @@ open Rocksmith2014.XML
 open System.IO
 open System
 
+let [<Literal>] private DefaultFontPath = "assets\ui\lyrics\lyrics.dds"
+
 /// Reads the volume and file ID from the PSARC for the sound bank with the given name.
 let getVolumeAndFileId (psarc: PSARC) platform bankName =
     async {
@@ -41,21 +43,31 @@ let createTargetAudioFilename (bankName: string) =
 
 let filterFilesWithExtension extension = List.filter (String.endsWith extension)
 
+/// Gets the filename for a custom font.
+/// ".../lyrics_dlckey.dds" -> "lyrics"
+/// ".../lyrics_something_dlckey.dds" -> "lyrics_something"
+let getFontFilename (path: string) =
+    let fn = Path.GetFileNameWithoutExtension(path)
+    fn.Substring(0, fn.LastIndexOf('_'))
+
 /// Imports a vocals SNG into a vocals arrangement.
-let importVocals targetDirectory targetFile customFont (attributes: Attributes) sng isJapanese =
+let importVocals targetDirectory targetFile (attributes: Attributes) sng isJapanese =
     let vocals = ConvertVocals.sngToXml sng
     Vocals.Save(targetFile, vocals)
 
-    let hasCustomFont =
-        sng.SymbolsTextures.[0].Font <> "assets\ui\lyrics\lyrics.dds"
-
-    if hasCustomFont then
-        let glyphs = ConvertVocals.extractGlyphData sng
-        glyphs.Save(Path.Combine(targetDirectory, "lyrics.glyphs.xml"))
+    let customFont =
+        match sng.SymbolsTextures.[0].Font with
+        | DefaultFontPath ->
+            None
+        | fontPath ->
+            let filename = getFontFilename fontPath
+            let glyphs = ConvertVocals.extractGlyphData sng
+            glyphs.Save(Path.Combine(targetDirectory, $"{filename}.glyphs.xml"))
+            Some(Path.Combine(targetDirectory, $"{filename}.dds"))
 
     { XML = targetFile
       Japanese = isJapanese
-      CustomFont = if hasCustomFont then customFont else None
+      CustomFont = customFont
       MasterID = attributes.MasterID_RDV
       PersistentID = Guid.Parse(attributes.PersistentID) }
     |> Arrangement.Vocals
