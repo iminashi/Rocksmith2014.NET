@@ -1,3 +1,7 @@
+## 0.x.x (Released 2022-03-xx)
+
+- Setting a custom fonts for both the regular vocals and Japanese vocals is now supported.
+
 ## 0.9.2 (Released 2022-02-13)
 
 - Individual validation issues can now be set as ignored.
