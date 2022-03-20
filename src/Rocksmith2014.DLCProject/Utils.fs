@@ -48,3 +48,8 @@ let distinctExceptionMessages (e: exn) =
         |> String.concat ", "
     | _ ->
         e.Message
+
+/// Returns the filename for a custom font.
+let getCustomFontName isJapanese dlcName =
+    let separator = if isJapanese then "" else "v_"
+    $"lyrics_{separator}{dlcName}"

@@ -47,12 +47,15 @@ let create (platform: Platform) (project: DLCProject) =
         |> List.map (fun size -> GraphItem.dds $"album_{dlcName}_{size}" CanonicalAlbumArt)
 
         yield! project.Arrangements
-        |> List.tryPick (function Vocals v -> v.CustomFont | _ -> None)
-        |> Option.map (fun _ ->
-            let name = $"lyrics_{dlcName}"
+        |> List.choose (function
+            | Vocals ({ CustomFont = Some _ } as v) ->
+                Some v
+            | _ ->
+                None)
+        |> List.map (fun v ->
+            let name = Utils.getCustomFontName v.Japanese dlcName
             let canonical = $"/assets/ui/lyrics/{dlcName}"
             GraphItem.dds name canonical)
-        |> Option.toList
 
         yield GraphItem.bnk $"song_{dlcName}" platform
         yield GraphItem.bnk $"song_{dlcName}_preview" platform ] }

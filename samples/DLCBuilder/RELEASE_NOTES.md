@@ -1,7 +1,12 @@
-## x.x.x (Released 2022-xx-xx)
+## 0.9.3 (Released 2022-03-20)
 
-- Individual validation issues can be set as ignored.
+- Setting a custom fonts for both the regular vocals and Japanese vocals is now supported.
+
+## 0.9.2 (Released 2022-02-13)
+
+- Individual validation issues can now be set as ignored.
 - Minor improvements to error handling.
+- Updated Avalonia version to fix crashes on Linux.
 
 ## 0.9.1 (Released 2022-01-04)
 
