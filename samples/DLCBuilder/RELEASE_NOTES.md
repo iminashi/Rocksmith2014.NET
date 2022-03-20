@@ -1,4 +1,4 @@
-## 0.x.x (Released 2022-03-xx)
+## 0.9.3 (Released 2022-03-20)
 
 - Setting a custom fonts for both the regular vocals and Japanese vocals is now supported.
 
