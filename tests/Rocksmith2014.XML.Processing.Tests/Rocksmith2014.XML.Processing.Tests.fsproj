@@ -31,7 +31,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.12.12" />
     <ProjectReference Include="..\..\src\Rocksmith2014.XML.Processing\Rocksmith2014.XML.Processing.fsproj" />
-    <PackageReference Update="FSharp.Core" Version="6.0.1" />
+    <PackageReference Update="FSharp.Core" Version="6.0.3" />
   </ItemGroup>
 
 </Project>

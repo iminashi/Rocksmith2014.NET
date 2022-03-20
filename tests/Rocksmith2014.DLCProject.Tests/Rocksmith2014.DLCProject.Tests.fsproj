@@ -76,7 +76,7 @@
     <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.12.12" />
     <ProjectReference Include="..\..\src\Rocksmith2014.Conversion\Rocksmith2014.Conversion.fsproj" />
     <ProjectReference Include="..\..\src\Rocksmith2014.DLCProject\Rocksmith2014.DLCProject.fsproj" />
-    <PackageReference Update="FSharp.Core" Version="6.0.1" />
+    <PackageReference Update="FSharp.Core" Version="6.0.3" />
   </ItemGroup>
 
 </Project>

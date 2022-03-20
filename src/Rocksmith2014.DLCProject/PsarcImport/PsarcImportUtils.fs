@@ -56,7 +56,7 @@ let importVocals targetDirectory targetFile (attributes: Attributes) sng isJapan
     Vocals.Save(targetFile, vocals)
 
     let customFont =
-        match sng.SymbolsTextures.[0].Font with
+        match sng.SymbolsTextures[0].Font with
         | DefaultFontPath ->
             None
         | fontPath ->
