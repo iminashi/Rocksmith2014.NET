@@ -92,9 +92,9 @@
 
   <ItemGroup>
     <PackageReference Include="Avalonia.Desktop" Version="0.10.13" />
-    <PackageReference Include="JaggerJo.Avalonia.FuncUI" Version="0.5.0-beta" />
-    <PackageReference Include="JaggerJo.Avalonia.FuncUI.DSL" Version="0.5.0-beta" />
-    <PackageReference Include="JaggerJo.Avalonia.FuncUI.Elmish" Version="0.5.0-beta" />
+    <PackageReference Include="JaggerJo.Avalonia.FuncUI" Version="0.5.0" />
+    <PackageReference Include="JaggerJo.Avalonia.FuncUI.DSL" Version="0.5.0" />
+    <PackageReference Include="JaggerJo.Avalonia.FuncUI.Elmish" Version="0.5.0" />
     <PackageReference Include="Pfim" Version="0.10.3" />
   </ItemGroup>
 

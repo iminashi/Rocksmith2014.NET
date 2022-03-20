@@ -3,7 +3,6 @@ module DLCBuilder.Views.IdRegenerationConfirmation
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
 open Avalonia.FuncUI
-open Avalonia.FuncUI.Components
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Media

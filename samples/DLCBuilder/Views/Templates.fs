@@ -2,8 +2,8 @@ module DLCBuilder.Views.Templates
 
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
+open Avalonia.Controls.Templates
 open Avalonia.FuncUI
-open Avalonia.FuncUI.Components
 open Avalonia.FuncUI.DSL
 open Avalonia.Interactivity
 open Avalonia.Layout
@@ -53,7 +53,7 @@ let tone state dispatch index (t: Tone) =
     ] |> generalize
 
 /// Template for a tone descriptor.
-let toneDescriptor =
+let toneDescriptor : IDataTemplate =
     DataTemplateView<ToneDescriptor>.create (fun desc ->
         let text =
             let name = translate desc.Name
@@ -62,7 +62,7 @@ let toneDescriptor =
         TextBlock.create [ TextBlock.text text ])
 
 /// Template for an arrangement name.
-let arrangementName =
+let arrangementName : IDataTemplate =
     DataTemplateView<ArrangementName>.create (fun name -> locText $"{name}Arr" [])
 
 let private getExtraText = function

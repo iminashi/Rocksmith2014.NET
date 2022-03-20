@@ -2,8 +2,8 @@ namespace DLCBuilder
 
 open Avalonia
 open Avalonia.Controls
-open Avalonia.FuncUI.Components.Hosts
 open Avalonia.FuncUI.Elmish
+open Avalonia.FuncUI.Hosts
 open Avalonia.Platform
 open Elmish
 open Microsoft.Extensions.FileProviders

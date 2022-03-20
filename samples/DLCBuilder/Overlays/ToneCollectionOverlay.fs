@@ -3,7 +3,6 @@ module DLCBuilder.Views.ToneCollectionOverlay
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
 open Avalonia.FuncUI
-open Avalonia.FuncUI.Components
 open Avalonia.FuncUI.DSL
 open Avalonia.FuncUI.Types
 open Avalonia.Input

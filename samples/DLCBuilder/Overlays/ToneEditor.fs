@@ -1,8 +1,8 @@
 module DLCBuilder.Views.ToneEditor
 
 open Avalonia.Controls
+open Avalonia.Controls.Templates
 open Avalonia.FuncUI
-open Avalonia.FuncUI.Components
 open Avalonia.FuncUI.DSL
 open Avalonia.Input
 open Avalonia.Layout
@@ -82,7 +82,7 @@ let private gearSlotSelector dispatch gearList selectedGearSlot (content: string
         )
     ]
 
-let private gearTemplate =
+let private gearTemplate : IDataTemplate =
     DataTemplateView<GearData>.create (fun gear ->
         match gear.Type with
         | "Amps" | "Cabinets" ->

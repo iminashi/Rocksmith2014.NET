@@ -18,26 +18,9 @@ module PathIcon =
     let create (attrs: IAttr<PathIcon> list) : IView<PathIcon> =
         ViewBuilder.Create<PathIcon>(attrs)
 
-type MenuItem with
-    static member inputGesture<'t when 't :> MenuItem>(value: KeyGesture) : IAttr<'t> =
-        AttrBuilder<'t>.CreateProperty<KeyGesture>(MenuItem.InputGestureProperty, value, ValueNone)
-
-type ListBox with
-    static member selection<'i, 't when 't :> ListBox>(value: SelectionModel<'i>) : IAttr<'t> =
-        AttrBuilder<'t>.CreateProperty<SelectionModel<'i>>(ListBox.SelectionProperty, value, ValueNone)
-
 module Panel =
     let create (attrs: IAttr<Panel> list) : IView<Panel> =
         ViewBuilder.Create<Panel>(attrs)
-
-module ExperimentalAcrylicBorder =
-    let create (attrs: IAttr<ExperimentalAcrylicBorder> list) : IView<ExperimentalAcrylicBorder> =
-        ViewBuilder.Create<ExperimentalAcrylicBorder>(attrs)
-
-type ExperimentalAcrylicBorder with
-    static member material<'t when 't :> ExperimentalAcrylicBorder>(value: ExperimentalAcrylicMaterial) : IAttr<'t> =
-        AttrBuilder<'t>.CreateProperty<ExperimentalAcrylicMaterial>
-            (ExperimentalAcrylicBorder.MaterialProperty, value, ValueNone)
 
 type KeyboardNavigation with
     static member isTabStop<'t when 't :> Control>(value: bool) : IAttr<'t> =
