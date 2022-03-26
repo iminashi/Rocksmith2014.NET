@@ -63,6 +63,7 @@
     <Compile Include="Controls\TitleBarButtons.fs" />
     <Compile Include="Controls\TitledTextBox.fs" />
     <Compile Include="Controls\FuncUIExtensions.fs" />
+    <Compile Include="Overlays\AdditionalMetaDataEditor.fs" />
     <Compile Include="Overlays\AbnormalExitMessage.fs" />
     <Compile Include="Overlays\IdRegenerationConfirmation.fs" />
     <Compile Include="Overlays\AboutMessage.fs" />

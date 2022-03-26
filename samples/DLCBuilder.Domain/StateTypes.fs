@@ -35,6 +35,7 @@ type OverlayContents =
     | ToneCollection of state: ToneCollection.ToneCollectionState
     | ToneEditor
     | UpdateInformationDialog of update: UpdateInformation
+    | AdditionalMetaDataEditor
 
 [<RequireQualifiedAccess>]
 type OverlayCloseMethod =
@@ -95,6 +96,7 @@ type ProjectEdit =
     | SetPreviewVolume of float
     | SetPreviewStartTime of float
     | SetPitchShift of int16
+    | SetAuthor of string
 
 type ToneEdit =
     | SetName of toneName: string

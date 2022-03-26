@@ -8,6 +8,7 @@ open System.Text.Json
 
 type DLCProject =
     { Version: string
+      Author: string option
       DLCKey: string
       ArtistName: SortableString
       JapaneseArtistName: string option
@@ -22,11 +23,11 @@ type DLCProject =
       PitchShift: int16 option
       IgnoredIssues: Set<string>
       Arrangements: Arrangement list
-      Tones: Tone list
-      Author: string option }
+      Tones: Tone list }
 
     static member Empty =
         { Version = "1"
+          Author = None
           DLCKey = String.Empty
           ArtistName = SortableString.Empty
           JapaneseArtistName = None
@@ -41,12 +42,12 @@ type DLCProject =
           PitchShift = None
           IgnoredIssues = Set.empty
           Arrangements = []
-          Tones = []
-          Author = None }
+          Tones = [] }
 
 module DLCProject =
     type Dto() =
         member val Version: string = String.Empty with get, set
+        member val Author: string = String.Empty with get, set
         member val DLCKey: string = String.Empty with get, set
         member val ArtistName: SortableString = SortableString.Empty with get, set
         member val JapaneseArtistName: string = null with get, set
@@ -62,7 +63,6 @@ module DLCProject =
         member val IgnoredIssues: string array = Array.empty with get, set
         member val Arrangements: Arrangement array = Array.empty with get, set
         member val Tones: ToneDto array = Array.empty with get, set
-        member val Author: string = String.Empty with get, set
 
     let private toDto (project: DLCProject) =
         let tones =
@@ -72,6 +72,7 @@ module DLCProject =
 
         Dto(
             Version = project.Version,
+            Author = Option.toObj project.Author,
             DLCKey = project.DLCKey,
             ArtistName = project.ArtistName,
             JapaneseArtistName = Option.toObj project.JapaneseArtistName,
@@ -86,12 +87,12 @@ module DLCProject =
             PitchShift = Option.toNullable project.PitchShift,
             IgnoredIssues = Set.toArray project.IgnoredIssues,
             Arrangements = Array.ofList project.Arrangements,
-            Tones = tones,
-            Author = Option.toObj project.Author
+            Tones = tones
         )
 
     let private fromDto (dto: Dto) =
         { Version = dto.Version
+          Author = Option.ofString dto.Author
           DLCKey = dto.DLCKey
           ArtistName = dto.ArtistName
           JapaneseArtistName = Option.ofString dto.JapaneseArtistName
@@ -106,8 +107,7 @@ module DLCProject =
           PitchShift = Option.ofNullable dto.PitchShift
           IgnoredIssues = dto.IgnoredIssues |> Set.ofArray
           Arrangements = dto.Arrangements |> List.ofArray
-          Tones = dto.Tones |> List.ofArray |> List.map Tone.fromDto
-          Author = Option.ofString dto.Author }
+          Tones = dto.Tones |> List.ofArray |> List.map Tone.fromDto }
 
     let private toAbsolutePath (baseDir: string) (fileName: string) =
         if String.IsNullOrWhiteSpace(fileName) || Path.IsPathFullyQualified(fileName) then

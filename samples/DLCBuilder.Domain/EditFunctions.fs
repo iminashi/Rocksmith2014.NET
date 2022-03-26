@@ -234,6 +234,9 @@ let editProject edit project =
     | SetPitchShift shift ->
         { project with PitchShift = Some shift }
 
+    | SetAuthor author ->
+        { project with Author = Option.ofString author }
+
 let editTone state edit index =
     let tone = state.Project.Tones[index]
 

@@ -306,6 +306,8 @@ let private overlay state dispatch =
         AboutMessage.view dispatch
     | UpdateInformationDialog update ->
         UpdateInfoMessage.view update dispatch
+    | AdditionalMetaDataEditor ->
+        AdditionalMetaDataEditor.view dispatch state
 
 let private statusMessageContents dispatch = function
     | TaskWithProgress (task, progress) ->

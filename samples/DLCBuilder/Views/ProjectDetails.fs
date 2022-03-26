@@ -251,6 +251,22 @@ let private projectInfo state dispatch =
                   FixedTextBox.onTextChanged (StringValidator.field >> Option.ofString >> SetJapaneseArtistName >> EditProject >> dispatch)
                 ]
 
+            // Additional metadata
+            Button.create [
+                Grid.column 1
+                Grid.row 1
+                Button.verticalAlignment VerticalAlignment.Bottom
+                Button.horizontalAlignment HorizontalAlignment.Center
+                Button.onClick (fun _ -> dispatch (ShowOverlay AdditionalMetaDataEditor))
+                Button.classes [ "borderless-btn" ]
+                Button.padding (10., 8.)
+                Button.content (
+                    PathIcon.create [
+                        PathIcon.data Icons.helpOutline // TODO
+                    ])
+                ToolTip.tip (translate "AdditionalMetadataButtonToolTip")
+            ] 
+
             // Title
             TitledTextBox.create "Title"
                 [ Grid.column 0
