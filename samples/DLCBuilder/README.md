@@ -4,7 +4,7 @@
 
 A 64-bit OS:
 
-- Windows 8.1 or greater with [.NET 5 runtime](https://dotnet.microsoft.com/download) installed
+- Windows 8.1 or greater with [.NET 6 runtime](https://dotnet.microsoft.com/download) installed
 - macOS 10.13 or greater
 - Linux: a distro that can run GUI applications created with [Avalonia](https://github.com/AvaloniaUI/Avalonia)
 
@@ -125,6 +125,7 @@ Reading the available tones from a profile file, opening the tone editor and rem
 - Tone collection for storing tones or adding an official tone into a project
 - Tool for creating a Japanese vocals arrangement by matching the lyrics to a romaji arrangement
 - Inject tones into a profile file
+- Support for using custom fonts for both the regular lyrics and the Japanese lyrics at the same time
 
 ### Features of the Toolkit Not Available in DLC Builder
 
