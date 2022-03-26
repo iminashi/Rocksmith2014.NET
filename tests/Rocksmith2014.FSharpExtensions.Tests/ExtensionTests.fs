@@ -15,11 +15,13 @@ let extensionTests =
         }
 
         test "File.tryMap" {
-            let fileName = "FSharp.Extensions.Tests.dll"
+            let fileName =
+                IO.Directory.EnumerateFiles(AppDomain.CurrentDomain.BaseDirectory)
+                |> Seq.head
 
             let result = File.tryMap (fun _ -> "success") fileName
         
-            Expect.equal result (Some "success") "Function was called"
+            Expect.equal result (Some "success") "File existed and lambda was called"
         }
 
         test "List.remove" {
