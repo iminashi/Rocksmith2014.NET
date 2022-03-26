@@ -30,7 +30,7 @@ let create buildType config project platforms =
 
     { Platforms = platforms
       BuilderVersion = $"DLC Builder {AppVersion.versionString}"
-      Author = config.CharterName
+      Author = project.Author |> Option.defaultValue config.CharterName
       AppId = appId
       GenerateDD = config.GenerateDD || buildType = Release
       DDConfig =

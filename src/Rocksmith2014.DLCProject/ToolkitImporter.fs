@@ -222,5 +222,6 @@ let import (templatePath: string) =
       PitchShift = None
       IgnoredIssues = Set.empty
       Arrangements = arrangements
-      Tones = tones }
+      Tones = tones
+      Author = None }
     |> DLCProject.toAbsolutePaths (Path.GetDirectoryName(templatePath))

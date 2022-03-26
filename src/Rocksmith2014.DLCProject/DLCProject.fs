@@ -22,7 +22,8 @@ type DLCProject =
       PitchShift: int16 option
       IgnoredIssues: Set<string>
       Arrangements: Arrangement list
-      Tones: Tone list }
+      Tones: Tone list
+      Author: string option }
 
     static member Empty =
         { Version = "1"
@@ -40,7 +41,8 @@ type DLCProject =
           PitchShift = None
           IgnoredIssues = Set.empty
           Arrangements = []
-          Tones = [] }
+          Tones = []
+          Author = None }
 
 module DLCProject =
     type Dto() =
@@ -60,6 +62,7 @@ module DLCProject =
         member val IgnoredIssues: string array = Array.empty with get, set
         member val Arrangements: Arrangement array = Array.empty with get, set
         member val Tones: ToneDto array = Array.empty with get, set
+        member val Author: string = String.Empty with get, set
 
     let private toDto (project: DLCProject) =
         let tones =
@@ -83,7 +86,8 @@ module DLCProject =
             PitchShift = Option.toNullable project.PitchShift,
             IgnoredIssues = Set.toArray project.IgnoredIssues,
             Arrangements = Array.ofList project.Arrangements,
-            Tones = tones
+            Tones = tones,
+            Author = Option.toObj project.Author
         )
 
     let private fromDto (dto: Dto) =
@@ -102,7 +106,8 @@ module DLCProject =
           PitchShift = Option.ofNullable dto.PitchShift
           IgnoredIssues = dto.IgnoredIssues |> Set.ofArray
           Arrangements = dto.Arrangements |> List.ofArray
-          Tones = dto.Tones |> List.ofArray |> List.map Tone.fromDto }
+          Tones = dto.Tones |> List.ofArray |> List.map Tone.fromDto
+          Author = Option.ofString dto.Author }
 
     let private toAbsolutePath (baseDir: string) (fileName: string) =
         if String.IsNullOrWhiteSpace(fileName) || Path.IsPathFullyQualified(fileName) then

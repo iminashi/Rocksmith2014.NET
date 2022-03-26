@@ -6,7 +6,6 @@ open Rocksmith2014.PSARC
 open Rocksmith2014.SNG
 open System
 open System.IO
-open System.Text.RegularExpressions
 open PsarcImportUtils
 
 /// Imports a PSARC from the given path into a DLCProject with the project created in the target directory.
@@ -143,18 +142,18 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         |> Array.find (fun (file, _) -> not <| file.Contains("vocals"))
         |> snd
 
-    let! version = async {
-        match List.contains "toolkit.version" psarcContents with
-        | false ->
-            return "1"
-        | true ->
-            use! stream = psarc.GetEntryStream("toolkit.version")
-            let text = using (new StreamReader(stream)) (fun reader -> reader.ReadToEnd())
-            match Regex.Match(text, "Package Version: ([^\r\n]+)\r?\n") with
-            | m when m.Success ->
-                return m.Groups[1].Captures[0].Value
-            | _ ->
-                return "1" }
+    let! version, author =
+        async {
+            match List.contains "toolkit.version" psarcContents with
+            | false ->
+                return "1", None
+            | true ->
+                use! stream = psarc.GetEntryStream("toolkit.version")
+                let text = using (new StreamReader(stream)) (fun reader -> reader.ReadToEnd())
+                let version = text |> parseToolkitMetadata "Version" id "1"
+                let author = text |> parseToolkitMetadata "Author" Some None
+                return version, author
+        }
 
     let project =
         { Version = version
@@ -178,7 +177,8 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
           PitchShift = None
           IgnoredIssues = Set.empty
           Arrangements = arrangements
-          Tones = tones }
+          Tones = tones
+          Author = author }
 
     let projectFile =
         sprintf "%s_%s" project.ArtistName.SortValue project.Title.SortValue

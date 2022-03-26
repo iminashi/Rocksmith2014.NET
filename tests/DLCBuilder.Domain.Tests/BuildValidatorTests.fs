@@ -47,7 +47,8 @@ let validProject =
       PitchShift = None
       IgnoredIssues = Set.empty
       Arrangements = List.empty
-      Tones = List.empty }
+      Tones = List.empty
+      Author = None }
 
 let expectError errorType result =
     match result with

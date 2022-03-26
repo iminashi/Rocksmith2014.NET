@@ -90,4 +90,5 @@ let testProject =
       PitchShift = None
       IgnoredIssues = Set.empty
       Arrangements = [ Instrumental testLead ]
-      Tones = [ testTone; { testTone with Key = "Tone_2" } ] }
+      Tones = [ testTone; { testTone with Key = "Tone_2" } ]
+      Author = None }

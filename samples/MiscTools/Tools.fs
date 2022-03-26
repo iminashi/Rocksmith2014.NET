@@ -38,7 +38,8 @@ let project =
       PitchShift = None
       IgnoredIssues = Set.empty
       Arrangements = []
-      Tones = [] }
+      Tones = []
+      Author = None }
 
 let private window =
     lazy (Application.Current.ApplicationLifetime :?> ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime).MainWindow

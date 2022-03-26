@@ -1,12 +1,13 @@
 module Rocksmith2014.DLCProject.PsarcImportUtils
 
-open Rocksmith2014.PSARC
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.Conversion
+open Rocksmith2014.PSARC
 open Rocksmith2014.XML
-open System.IO
 open System
+open System.IO
+open System.Text.RegularExpressions
 
 let [<Literal>] private DefaultFontPath = "assets\ui\lyrics\lyrics.dds"
 
@@ -136,3 +137,11 @@ let toneFromDto dto =
                 |> Array.map (fun x -> x.UIName) }
     else
         tone
+
+/// Parses a value from Toolkit.version text.
+let parseToolkitMetadata attr map defaultValue text =
+    match Regex.Match(text, $"Package {attr}: ([^\r\n]+)\r?\n") with
+    | m when m.Success ->
+        map m.Groups[1].Captures[0].Value
+    | _ ->
+        defaultValue

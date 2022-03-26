@@ -30,7 +30,8 @@ let project =
       PitchShift = None
       IgnoredIssues = Set.empty
       Arrangements = List.empty
-      Tones = List.empty }
+      Tones = List.empty
+      Author = None }
 
 let platforms = [ PC; Mac ]
 
@@ -54,12 +55,14 @@ let tests =
 
         testCase "Creates valid configuration for release build" <| fun _ ->
             let generalConfig = { generalConfig with DDPhraseSearchEnabled = false; DDLevelCountGeneration = LevelCountGeneration.MLModel }
+            let customAuthor = "Moai Moahashi"
+            let project = { project with Author = Some customAuthor }
 
             let buildConfig = BuildConfig.create Release generalConfig project [ PC ]
 
             Expect.equal buildConfig.AppId "248750" "App ID defaulted to Cherub Rock"
             Expect.equal buildConfig.ApplyImprovements generalConfig.ApplyImprovements "Apply improvements is correct"
-            Expect.equal buildConfig.Author generalConfig.CharterName "Author is correct"
+            Expect.equal buildConfig.Author customAuthor "Author is correct"
             Expect.stringStarts buildConfig.BuilderVersion "DLC Builder " "Builder version is correct"
             Expect.isTrue buildConfig.GenerateDD "Generate DD defaulted to true"
             Expect.isNone buildConfig.IdResetConfig "ID reset config is none"
