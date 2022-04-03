@@ -23,7 +23,7 @@ let createXmlEntityArray (xmlNotes: ResizeArray<XML.Note>) (xmlChords: ResizeArr
         Array.sortInPlaceBy getTimeCode entityArray
         entityArray
 
-/// Converts am XML level into an SNG level.
+/// Converts an XML level into an SNG level.
 let convertLevel (accuData: AccuData) (piTimes: int array) (xmlArr: XML.InstrumentalArrangement) (xmlLevel: XML.Level) =
     let difficulty = int xmlLevel.Difficulty
     let xmlEntities = createXmlEntityArray xmlLevel.Notes xmlLevel.Chords
