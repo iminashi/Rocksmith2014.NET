@@ -79,10 +79,10 @@ let private generalConfig state dispatch focusedSetting =
                         ]
                         FixedTextBox.create [
                             TextBox.margin (0., 4.)
-                            FixedTextBox.text state.Config.ProfilePath
-                            FixedTextBox.onTextChanged (SetProfilePath >> EditConfig >> dispatch)
                             FixedTextBox.validation (String.endsWith "_PRFLDB")
                             FixedTextBox.validationErrorMessage (translate "ProfileFilenameValidationError")
+                            FixedTextBox.text state.Config.ProfilePath
+                            FixedTextBox.onTextChanged (SetProfilePath >> EditConfig >> dispatch)
                             FixedTextBox.watermark (translate "ProfilePathPlaceholder")
                             FixedTextBox.autoFocus (FocusedSetting.ProfilePath = focusedSetting)
                         ]
