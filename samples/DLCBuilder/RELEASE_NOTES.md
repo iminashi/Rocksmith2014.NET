@@ -1,3 +1,8 @@
+## x.x.x (Released 2022-04-xx)
+
+- .NET 6 runtime now needs to be installed in order to run the program (on Windows).
+- The author of a CDLC is preserved when importing a PSARC and the value set in the configuration can be overridden for a project.
+
 ## 0.9.3 (Released 2022-03-20)
 
 - Setting a custom fonts for both the regular vocals and Japanese vocals is now supported.
