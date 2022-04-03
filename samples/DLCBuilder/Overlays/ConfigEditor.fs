@@ -44,12 +44,22 @@ let private generalConfig state dispatch focusedSetting =
                     Grid.row 1
                     TextBlock.verticalAlignment VerticalAlignment.Center
                 ]
-                FixedTextBox.create [
+                DockPanel.create [
                     Grid.column 2
                     Grid.row 1
-                    TextBox.margin (0., 4.)
-                    FixedTextBox.text state.Config.CharterName
-                    FixedTextBox.onTextChanged (SetCharterName >> EditConfig >> dispatch)
+                    DockPanel.children [
+                        HelpButton.create [
+                            DockPanel.dock Dock.Right
+                            HelpButton.margin (0., 4.)
+                            HelpButton.helpText (translate "CharterNameHelp")
+                        ]
+
+                        FixedTextBox.create [
+                            TextBox.margin (0., 4.)
+                            FixedTextBox.text state.Config.CharterName
+                            FixedTextBox.onTextChanged (SetCharterName >> EditConfig >> dispatch)
+                        ]
+                    ]
                 ]
 
                 // Profile Path
@@ -71,7 +81,9 @@ let private generalConfig state dispatch focusedSetting =
                             TextBox.margin (0., 4.)
                             FixedTextBox.text state.Config.ProfilePath
                             FixedTextBox.onTextChanged (SetProfilePath >> EditConfig >> dispatch)
-                            TextBox.watermark (translate "ProfilePathPlaceholder")
+                            FixedTextBox.validation (String.endsWith "_PRFLDB")
+                            FixedTextBox.validationErrorMessage "The filename should end with _PRFLDB."
+                            FixedTextBox.watermark (translate "ProfilePathPlaceholder")
                             FixedTextBox.autoFocus (FocusedSetting.ProfilePath = focusedSetting)
                         ]
                     ]
@@ -537,7 +549,7 @@ let private tabHeader (icon: Geometry) locKey =
 let view state dispatch focusedSetting =
     DockPanel.create [
         DockPanel.width 600.
-        DockPanel.height 460.
+        DockPanel.height 480.
         DockPanel.children [
             // Close button
             Button.create [
