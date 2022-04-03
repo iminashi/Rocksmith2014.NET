@@ -29,14 +29,14 @@ let view dispatch state =
 
             vStack [
                 hStack [
-                    locText "CharterName" [ TextBlock.verticalAlignment VerticalAlignment.Center ]
+                    locText "Author" [ TextBlock.verticalAlignment VerticalAlignment.Center ]
 
                     FixedTextBox.create [
                         FixedTextBox.text (state.Project.Author |> Option.toObj)
                         FixedTextBox.watermark state.Config.CharterName
                         FixedTextBox.width 250.
                         FixedTextBox.onTextChanged (SetAuthor >> EditProject >> dispatch)
-                        ToolTip.tip (translate "AdditionalMetadataCharterNameToolTip")
+                        ToolTip.tip (translate "AdditionalMetadataAuthorToolTip")
                     ]
                 ]
             ]
