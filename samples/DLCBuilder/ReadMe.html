@@ -153,7 +153,7 @@
 <h2 id="system-requirements">System Requirements</h2>
 <p>A 64-bit OS:</p>
 <ul>
-<li>Windows 8.1 or greater with <a href="https://dotnet.microsoft.com/download">.NET 5 runtime</a> installed</li>
+<li>Windows 8.1 or greater with <a href="https://dotnet.microsoft.com/download">.NET 6 runtime</a> installed</li>
 <li>macOS 10.13 or greater</li>
 <li>Linux: a distro that can run GUI applications created with <a href="https://github.com/AvaloniaUI/Avalonia">Avalonia</a></li>
 </ul>
@@ -167,7 +167,7 @@
 <h3 id="test-build">Test Build</h3>
 <p>The package for the current platform will be built into the folder specified in the configuration (creating a subfolder in the RS DLC folder is recommended). Generation of DD levels may be disabled and the App ID can be changed to a custom one.</p>
 <ul>
-<li>If RS is running, new packages will be created that have a different DLC key and arrangement IDs, with the version in the song title. This allows you to load a new test version into the game by triggering the DLC enumeration.</li>
+<li>If RS is running, new packages will be created that have a different DLC key and arrangement IDs, with a version number in the song title. This allows you to load a new test version into the game by triggering the DLC enumeration.</li>
 <li>If RS is not running, any previous test builds for the project will be replaced with a single package.</li>
 </ul>
 <h3 id="release-build">Release Build</h3>
@@ -222,11 +222,11 @@
 <li>Click on the romaji syllables or the Japanese kanji/kana to combine them with the next one when necessary.</li>
 <li>Repeat this until all the lyrics are matched.</li>
 </ol>
-<p>If a syllable in the original lyrics is not matched with a Japanese word, the original syllable will be used. For example, if the lyrics contain some Japanese at the start and the rest of them are in English, there is no need to match the English part.</p>
+<p>If a syllable in the original lyrics is not matched with a Japanese word, the original syllable will be used. For example, if the lyrics contain some Japanese at the beginning and the rest of them are in English, there is no need to match the English part.</p>
 <h2 id="differences-to-the-toolkit">Differences to the <a href="https://www.rscustom.net/">Toolkit</a></h2>
 <h3 id="performance">Performance</h3>
 <p>Depending on your hardware and the project, building of packages can be 6-10 times faster compared to the Toolkit + DDC.</p>
-<p>Memory use is more efficient. As an extreme example, building a complete discography chart: DLC Builder ~250MB vs Toolkit ~2.4GB (the 32-bit version runs out of memory). In regular use however, the DLC Builder may use more memory due to the 64-bit architecture, the UI library used, use of memory pooling, etc.</p>
+<p>Memory use is more efficient. As an extreme example, building a complete discography chart: DLC Builder ~250MB vs Toolkit ~2.4GB (the 32-bit version runs out of memory). In regular use however, the DLC Builder will use more memory due to the 64-bit architecture, the UI framework used, use of memory pooling, etc.</p>
 <p>Reading the available tones from a profile file, opening the tone editor and removing DD levels are much faster.</p>
 <h3 id="features-of-dlc-builder-not-available-in-the-toolkit">Features of DLC Builder Not Available in the Toolkit</h3>
 <ul>
@@ -238,7 +238,8 @@
 <li>Possibility to easily build a version of the project where the tuning is changed using a pitch shift pedal</li>
 <li>Tone collection for storing tones or adding an official tone into a project</li>
 <li>Tool for creating a Japanese vocals arrangement by matching the lyrics to a romaji arrangement</li>
-<li>Inject tones into a profile file</li>
+<li>Injection of tones into a profile file</li>
+<li>Support for using custom fonts for both the regular lyrics and the Japanese lyrics at the same time</li>
 </ul>
 <h3 id="features-of-the-toolkit-not-available-in-dlc-builder">Features of the Toolkit Not Available in DLC Builder</h3>
 <ul>

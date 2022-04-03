@@ -26,7 +26,7 @@ On Linux, Wine is used to run the Wwise console executable.
 
 The package for the current platform will be built into the folder specified in the configuration (creating a subfolder in the RS DLC folder is recommended). Generation of DD levels may be disabled and the App ID can be changed to a custom one.
 
-- If RS is running, new packages will be created that have a different DLC key and arrangement IDs, with the version in the song title. This allows you to load a new test version into the game by triggering the DLC enumeration.
+- If RS is running, new packages will be created that have a different DLC key and arrangement IDs, with a version number in the song title. This allows you to load a new test version into the game by triggering the DLC enumeration.
 - If RS is not running, any previous test builds for the project will be replaced with a single package.
 
 ### Release Build
@@ -102,7 +102,7 @@ The tool can be started when there is a vocals arrangement in the project.
 3. Click on the romaji syllables or the Japanese kanji/kana to combine them with the next one when necessary.
 4. Repeat this until all the lyrics are matched.
 
-If a syllable in the original lyrics is not matched with a Japanese word, the original syllable will be used. For example, if the lyrics contain some Japanese at the start and the rest of them are in English, there is no need to match the English part.
+If a syllable in the original lyrics is not matched with a Japanese word, the original syllable will be used. For example, if the lyrics contain some Japanese at the beginning and the rest of them are in English, there is no need to match the English part.
 
 ## Differences to the [Toolkit](https://www.rscustom.net/)
 
@@ -110,7 +110,7 @@ If a syllable in the original lyrics is not matched with a Japanese word, the or
 
 Depending on your hardware and the project, building of packages can be 6-10 times faster compared to the Toolkit + DDC.
 
-Memory use is more efficient. As an extreme example, building a complete discography chart: DLC Builder ~250MB vs Toolkit ~2.4GB (the 32-bit version runs out of memory). In regular use however, the DLC Builder may use more memory due to the 64-bit architecture, the UI library used, use of memory pooling, etc.
+Memory use is more efficient. As an extreme example, building a complete discography chart: DLC Builder ~250MB vs Toolkit ~2.4GB (the 32-bit version runs out of memory). In regular use however, the DLC Builder will use more memory due to the 64-bit architecture, the UI framework used, use of memory pooling, etc.
 
 Reading the available tones from a profile file, opening the tone editor and removing DD levels are much faster.
 
@@ -124,7 +124,7 @@ Reading the available tones from a profile file, opening the tone editor and rem
 - Possibility to easily build a version of the project where the tuning is changed using a pitch shift pedal
 - Tone collection for storing tones or adding an official tone into a project
 - Tool for creating a Japanese vocals arrangement by matching the lyrics to a romaji arrangement
-- Inject tones into a profile file
+- Injection of tones into a profile file
 - Support for using custom fonts for both the regular lyrics and the Japanese lyrics at the same time
 
 ### Features of the Toolkit Not Available in DLC Builder
