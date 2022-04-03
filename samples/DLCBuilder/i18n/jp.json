@@ -431,11 +431,12 @@
   "ClickToDownloadTonesDb": "オフィシャルトーンのデータベースをダウンロードする",
   "DownloadingToneDatabase": "トーンデータベースをダウンロード中...",
   "Ignore": "無視する",
-  "IgnoreIssueToolTip": "このような問題点をこのプロジェクトではカウントされません。",
-  "EnableIssueToolTip": "このような問題点をこのプロジェクトではカウントされます。",
+  "IgnoreIssueToolTip": "このような問題点はこのプロジェクトではカウントされません。",
+  "EnableIssueToolTip": "このような問題点はこのプロジェクトではカウントされます。",
   "Enable": "可能にする",
   "IgnoredIssues": "無視された問題点",
   "ArrangementHasIgnoredIssues": "アレンジには無視された問題点が存在します。",
   "NotARocksmithProfileFile": "トーンを読み込むことができません。\n与えられたファイルが正しいRocksmith 2014プロフィールではありません。",
-  "CharterNameHelp": "入力された名前は作られたプロジェクトのデフォルト作者名。\n\nCustomsForge Song Managerなどのプログラムに表示されます。"
+  "CharterNameHelp": "入力された名前は作られたプロジェクトのデフォルト作者名。\n\nCustomsForge Song Managerなどのプログラムに表示されます。",
+  "ProfileFilenameValidationError": "ファイル名の終わりには「_PRFLDB」という文字列があるはず。"
 }

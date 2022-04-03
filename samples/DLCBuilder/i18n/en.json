@@ -437,5 +437,6 @@
   "IgnoredIssues": "Ignored Issues",
   "ArrangementHasIgnoredIssues": "The arrangement contains ignored issues.",
   "NotARocksmithProfileFile": "Could not import tones.\nThe file does not appear to be a valid Rocksmith 2014 user profile.",
-  "CharterNameHelp": "The name you set will be used as the default author of built projects.\n\nCan be viewed with programs like CustomsForge Song Manager."
+  "CharterNameHelp": "The name you set will be used as the default author of built projects.\n\nCan be viewed with programs like CustomsForge Song Manager.",
+  "ProfileFilenameValidationError": "The filename should end with _PRFLDB."
 }

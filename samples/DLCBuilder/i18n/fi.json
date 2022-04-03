@@ -437,5 +437,6 @@
   "IgnoredIssues": "Ohitetut ongelmat",
   "ArrangementHasIgnoredIssues": "Sovituksessa on ongelmia, jotka on ohitettu.",
   "NotARocksmithProfileFile": "Soundeja ei voitu lukea.\nTiedosto ei vaikuta olevan kelvollinen Rocksmith 2014 profiilitiedosto.",
-  "CharterNameHelp": "Asetettu nimi on rakennettujen projektien oletustekijänimi.\n\nNäkyy ohjelmissa kuten CustomsForge Song Manager."
+  "CharterNameHelp": "Asetettu nimi on rakennettujen projektien oletustekijänimi.\n\nNäkyy ohjelmissa kuten CustomsForge Song Manager.",
+  "ProfileFilenameValidationError": "Tiedostonnimen pitäisi päättyä: _PRFLDB."
 }
