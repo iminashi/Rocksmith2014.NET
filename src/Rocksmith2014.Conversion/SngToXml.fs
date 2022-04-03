@@ -130,7 +130,7 @@ let convertNoteMask (sngMask: NoteMask) =
 
 /// Converts an SNG Note into an XML Note.
 let convertNote (sngNote: Note) =
-    if sngNote.ChordId <> -1 then invalidOp "Cannot convert a chord into a note."
+    if not <| isNote sngNote then invalidOp "Cannot convert a chord into a note."
     
     let mask =
         convertNoteMask sngNote.Mask
@@ -215,7 +215,7 @@ let private createChordNotes (sng: SNG) (chord: Note) =
 
 /// Converts an SNG Note into an XML Chord.
 let convertChord (sng: SNG) (sngNote: Note) =
-    if sngNote.ChordId = -1 then invalidOp "Cannot convert a note into a chord."
+    if isNote sngNote then invalidOp "Cannot convert a note into a chord."
     
     XML.Chord(
         Mask = convertChordMask sngNote.Mask,

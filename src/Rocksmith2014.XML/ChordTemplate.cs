@@ -25,7 +25,7 @@ namespace Rocksmith2014.XML
         public string DisplayName
         {
             get => displayName;
-            set { displayName = value; IsArpeggio = value.EndsWith("-arp"); }
+            set { displayName = value; IsArpeggio = value.EndsWith("-arp", StringComparison.Ordinal); }
         }
 
         /// <summary>
