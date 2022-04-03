@@ -21,12 +21,14 @@ let view dispatch state =
                 Button.isDefault true
             ]
 
+            // Title
             locText "AdditionalMetadata" [
                 DockPanel.dock Dock.Top
                 TextBlock.fontSize 18.
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
 
+            // Author
             vStack [
                 hStack [
                     locText "Author" [ TextBlock.verticalAlignment VerticalAlignment.Center ]

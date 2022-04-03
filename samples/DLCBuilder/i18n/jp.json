@@ -438,5 +438,9 @@
   "ArrangementHasIgnoredIssues": "アレンジには無視された問題点が存在します。",
   "NotARocksmithProfileFile": "トーンを読み込むことができません。\n与えられたファイルが正しいRocksmith 2014プロフィールではありません。",
   "CharterNameHelp": "入力された名前は作られたプロジェクトのデフォルト作者名。\n\nCustomsForge Song Managerなどのプログラムに表示されます。",
-  "ProfileFilenameValidationError": "ファイル名の終わりには「_PRFLDB」という文字列があるはず。"
+  "ProfileFilenameValidationError": "ファイル名の終わりには「_PRFLDB」という文字列があるはず。",
+  "AdditionalMetadataButtonToolTip": "追加メタデータを編集",
+  "AdditionalMetadata": "追加メタデータ",
+  "Author": "作者",
+  "AdditionalMetadataAuthorToolTip": "設定のクリエイター名を優先します。"
 }
