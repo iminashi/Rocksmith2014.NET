@@ -435,5 +435,6 @@
   "EnableIssueToolTip": "Varoita tämäntyyppisistä ongelmista tässä projektissa.",
   "Enable": "Aktivoi",
   "IgnoredIssues": "Ohitetut ongelmat",
-  "ArrangementHasIgnoredIssues": "Sovituksessa on ongelmia, jotka on ohitettu."
+  "ArrangementHasIgnoredIssues": "Sovituksessa on ongelmia, jotka on ohitettu.",
+  "NotARocksmithProfileFile": "Soundeja ei voitu lukea.\nTiedosto ei vaikuta olevan kelvollinen Rocksmith 2014 profiilitiedosto."
 }

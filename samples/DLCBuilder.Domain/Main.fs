@@ -5,6 +5,7 @@ open Rocksmith2014
 open Rocksmith2014.Audio
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
+open Rocksmith2014.Common.Profile
 open Rocksmith2014.DLCProject
 open Rocksmith2014.PSARC
 open Rocksmith2014.XML.Processing
@@ -256,7 +257,11 @@ let update (msg: Msg) (state: State) =
             | Error Profile.ToneImportError.NoTonesInProfile ->
                 { state with Overlay = ErrorMessage(translate "NoTonesInProfile", None) }, Cmd.none
             | Error (Profile.ToneImportError.Exception ex) ->
-                { state with Overlay = ErrorMessage(ex.Message, Option.ofString ex.StackTrace) }, Cmd.none
+                match ex with
+                | :? ProfileMagicCheckFailure ->
+                    { state with Overlay = ErrorMessage(translate "NotARocksmithProfileFile", None) }, Cmd.none
+                | ex ->
+                    { state with Overlay = ErrorMessage(ex.Message, Option.ofString ex.StackTrace) }, Cmd.none
 
     | ShowImportToneSelector tones ->
         match tones with

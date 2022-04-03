@@ -435,5 +435,6 @@
   "EnableIssueToolTip": "このような問題点をこのプロジェクトではカウントされます。",
   "Enable": "可能にする",
   "IgnoredIssues": "無視された問題点",
-  "ArrangementHasIgnoredIssues": "アレンジには無視された問題点が存在します。"
+  "ArrangementHasIgnoredIssues": "アレンジには無視された問題点が存在します。",
+  "NotARocksmithProfileFile": "トーンを読み込むことができません。\n与えられたファイルが正しいRocksmith 2014プロフィールではありません。"
 }

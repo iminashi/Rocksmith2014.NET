@@ -18,6 +18,8 @@ type ProfileHeader =
 let private profileKey =
     "\x72\x8B\x36\x9E\x24\xED\x01\x34\x76\x85\x11\x02\x18\x12\xAF\xC0\xA3\xC2\x5D\x02\x06\x5F\x16\x6B\x4B\xCC\x58\xCD\x26\x44\xF2\x9E"B
 
+exception ProfileMagicCheckFailure
+
 let private getDecryptStream (input: Stream) =
     use aes = Aes.Create()
     aes.Mode <- CipherMode.ECB
@@ -38,8 +40,8 @@ let private readHeader (stream: Stream) =
     let reader = LittleEndianBinaryReader(stream) :> IBinaryReader
     let magic = reader.ReadBytes(4)
 
-    if Encoding.ASCII.GetString magic <> "EVAS" then
-        failwith "Profile magic check failed."
+    if Encoding.ASCII.GetString(magic) <> "EVAS" then
+        raise ProfileMagicCheckFailure
 
     { Version = reader.ReadUInt32()
       ID = reader.ReadUInt64()
