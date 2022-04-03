@@ -27,7 +27,18 @@ type AudioConversionType = NoConversion | ToWav | ToOgg
 
 type MoveDirection = Up | Down
 
-type BuildType = Test | Release | PitchShifted
+type BuildType =
+    | Test
+    | Release
+    | PitchShifted
+    | ReplacePsarc of psarcPath: string
+
+type PsarcImportType =
+    | Normal
+    | Quick of psarcPath: string
+
+type PsarcQuickEditInformation =
+    { PsarcPath: string }
 
 type ArrangementAddingError =
     | MaxInstrumentals

@@ -22,7 +22,7 @@ let init localizer albumArtLoader databaseConnector args =
             args
             |> Array.tryFind (String.endsWith ".rs2dlc")
             |> Option.map (fun path ->
-                Cmd.OfAsyncImmediate.either DLCProject.load path (fun p -> ProjectLoaded(p, path)) ErrorOccurred)
+                Cmd.OfAsyncImmediate.either DLCProject.load path (fun p -> ProjectLoaded(p, path, None)) ErrorOccurred)
             |> Option.toList
 
         Cmd.batch [
@@ -53,6 +53,7 @@ let init localizer albumArtLoader databaseConnector args =
       AvailableUpdate = None
       ToneGearRepository = None
       AlbumArtLoadTime = None
+      QuickEditData = None
       Localizer = localizer
       AlbumArtLoader = albumArtLoader
       DatabaseConnector = databaseConnector }, commands

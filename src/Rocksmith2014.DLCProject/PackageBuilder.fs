@@ -29,6 +29,10 @@ type IdResetConfig =
       ConfirmIdRegeneration: Guid list -> Async<bool>
       PostNewIds: Map<Guid, Arrangement> -> unit }
 
+type TargetPathType =
+    | WithoutPlatformOrExtension of string
+    | WithPlatformAndExtension of string
+
 type BuildConfig =
     { Platforms: Platform list
       BuilderVersion: string
@@ -47,7 +51,7 @@ let private getResource (provider: EmbeddedFileProvider) name =
 
 let private toDisposableList items = new DisposableList<_>(items)
 
-let private build (buildData: BuildData) progress targetFile project platform = async {
+let private build (buildData: BuildData) progress targetPath project platform = async {
     let readFile = Utils.getFileStreamForRead
     let partition = Partitioner.create project
     let entry name data = { Name = name; Data = data }
@@ -196,10 +200,14 @@ let private build (buildData: BuildData) progress targetFile project platform = 
         )
         |> toDisposableList
 
-    let targetPath =
-        $"{targetFile}{getPathPart platform Path.PackageSuffix}.psarc"
+    let path =
+        match targetPath with
+        | WithoutPlatformOrExtension path ->
+            $"{path}{getPathPart platform Path.PackageSuffix}.psarc"
+        | WithPlatformAndExtension path ->
+            path
 
-    do! PSARC.Create(targetPath, true, [
+    do! PSARC.Create(path, true, [
         yield! sngEntries.Items
         yield showlightsEntry
         yield headerEntry
@@ -330,7 +338,13 @@ let private createProgressReporter maximum =
             float current / float maximum * 100.)
 
 /// Builds packages for the given platforms.
-let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProject) = async {
+let buildPackages (targetPath: TargetPathType) (config: BuildConfig) (project: DLCProject) = async {
+    match targetPath with
+    | WithPlatformAndExtension _ when config.Platforms.Length > 1 ->
+        failwith "Build config is for multiple platforms, but path given specifies platform!"
+    | _ ->
+        ()
+
     let! audioConversionTask =
         config.AudioConversionTask
         |> Async.StartChild
@@ -403,6 +417,6 @@ let buildPackages (targetFile: string) (config: BuildConfig) (project: DLCProjec
 
     do!
         config.Platforms
-        |> List.map (build data progress targetFile project)
+        |> List.map (build data progress targetPath project)
         |> Async.Parallel
         |> Async.Ignore }

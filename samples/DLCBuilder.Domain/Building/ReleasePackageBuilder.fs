@@ -3,6 +3,7 @@ module DLCBuilder.ReleasePackageBuilder
 open System.IO
 open Rocksmith2014.DLCProject
 open Rocksmith2014.Common.Manifest
+open Rocksmith2014.Common
 
 /// Returns the target directory for the project.
 let getTargetDirectory (projectPath: string option) project =
@@ -15,11 +16,14 @@ let build (openProject: string option) config project = async {
     let project = Utils.addDefaultTonesIfNeeded project
     let releaseDir = getTargetDirectory openProject project
 
-    let fileName =
+    let fileNameWithoutExtension =
         sprintf "%s_%s_v%s" project.ArtistName.SortValue project.Title.SortValue (project.Version.Replace('.', '_'))
         |> StringValidator.fileName
 
-    let path = Path.Combine(releaseDir, fileName)
+    let path =
+        Path.Combine(releaseDir, fileNameWithoutExtension)
+        |> PackageBuilder.WithoutPlatformOrExtension
+
     let buildConfig =
         let baseConfig = BuildConfig.create Release config project (Set.toList config.ReleasePlatforms)
 
@@ -90,3 +94,14 @@ let buildPitchShifted (openProject: string option) config project = async {
     let! _ = build openProject config pitchProject
 
     return BuildCompleteType.PitchShifted }
+
+let buildReplacePsarc psarcPath config project =
+    async {
+        let platform = Platform.fromPackageFileName psarcPath
+        let buildConfig = BuildConfig.create Release config project [ platform ]
+
+        // TODO: Preserve App ID from imported PSARC
+        do! PackageBuilder.buildPackages (PackageBuilder.WithPlatformAndExtension psarcPath) buildConfig project
+
+        return BuildCompleteType.ReplacePsarc
+    }

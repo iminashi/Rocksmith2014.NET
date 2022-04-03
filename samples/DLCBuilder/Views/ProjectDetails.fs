@@ -171,26 +171,39 @@ let private buildControls state dispatch =
         Grid.horizontalAlignment HorizontalAlignment.Center
         Grid.columnDefinitions "*,*"
         Grid.children [
-            // Build test
-            Button.create [
-                Button.padding (20., 8.)
-                Button.margin 4.
-                Button.fontSize 16.
-                Button.content (translate "BuildTest")
-                Button.isEnabled canBuild
-                Button.onClick (fun _ -> dispatch <| Build Test)
-            ]
+            match state.QuickEditData with
+            | Some data ->
+                // Apply Edits
+                Button.create [
+                    Grid.columnSpan 2
+                    Button.padding (20., 8.)
+                    Button.margin 4.
+                    Button.fontSize 16.
+                    Button.content ("Apply Edits & Clean Up")
+                    Button.isEnabled canBuild
+                    Button.onClick (fun _ -> data.PsarcPath |> ReplacePsarc |> Build |> dispatch)
+                ]
+            | None ->
+                // Build test
+                Button.create [
+                    Button.padding (20., 8.)
+                    Button.margin 4.
+                    Button.fontSize 16.
+                    Button.content (translate "BuildTest")
+                    Button.isEnabled canBuild
+                    Button.onClick (fun _ -> dispatch <| Build Test)
+                ]
 
-            // Build release
-            Button.create [
-                Grid.column 1
-                Button.padding (20., 8.)
-                Button.margin 4.
-                Button.fontSize 16.
-                Button.content (translate "BuildRelease")
-                Button.isEnabled canBuild
-                Button.onClick (fun _ -> dispatch <| Build Release)
-            ]
+                // Build release
+                Button.create [
+                    Grid.column 1
+                    Button.padding (20., 8.)
+                    Button.margin 4.
+                    Button.fontSize 16.
+                    Button.content (translate "BuildRelease")
+                    Button.isEnabled canBuild
+                    Button.onClick (fun _ -> dispatch <| Build Release)
+                ]
         ]
     ]
 

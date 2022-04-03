@@ -180,6 +180,33 @@ let update (msg: Msg) (state: State) =
         | _ ->
             { state with Overlay = NoOverlay }, cmd
 
+    | ImportPsarcQuick psarcPath ->
+        let task () =
+            async {
+                let progress = createPsarcImportProgressReporter config
+
+                let targetFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())
+                Directory.CreateDirectory(targetFolder) |> ignore
+                let! project, fileName = PsarcImporter.import progress psarcPath targetFolder
+
+                Utils.convertProjectAudioFromWem ToOgg project
+                progress ()
+
+                if config.RemoveDDOnImport then
+                    do! Utils.removeDD project
+                    progress ()
+
+                let project =
+                    { project with
+                        AudioFile = { project.AudioFile with Path = Path.ChangeExtension(project.AudioFile.Path, "ogg") }
+                        AudioPreviewFile = { project.AudioPreviewFile with Path = Path.ChangeExtension(project.AudioPreviewFile.Path, "ogg") } }
+
+                return project, fileName, Quick(psarcPath)
+            }
+
+        addTask PsarcImport state,
+        Cmd.OfAsync.either task () PsarcImported (fun ex -> TaskFailed(ex, PsarcImport))
+
     | ImportPsarc (psarcFile, targetFolder) ->
         let task () = async {
             let progress = createPsarcImportProgressReporter config
@@ -199,16 +226,16 @@ let update (msg: Msg) (state: State) =
                 do! Utils.removeDD project
                 progress ()
 
-            return project, fileName }
+            return project, fileName, Normal }
 
         addTask PsarcImport state,
         Cmd.OfAsync.either task () PsarcImported (fun ex -> TaskFailed(ex, PsarcImport))
 
-    | PsarcImported (project, projectFile) ->
+    | PsarcImported (project, projectFile, importType) ->
         let cmd =
             Cmd.batch [
                 Cmd.ofMsg (AddStatusMessage(translate "PsarcImportComplete"))
-                Cmd.ofMsg (ProjectLoaded(project, projectFile))
+                Cmd.ofMsg (ProjectLoaded(project, projectFile, Some importType))
             ]
 
         removeTask PsarcImport state, cmd
@@ -655,15 +682,23 @@ let update (msg: Msg) (state: State) =
         { state with Overlay = NoOverlay }, Cmd.ofMsg (OpenProject config.PreviousOpenedProject)
 
     | OpenProject fileName ->
-        state, Cmd.OfAsync.either DLCProject.load fileName (fun p -> ProjectLoaded(p, fileName)) ErrorOccurred
+        state, Cmd.OfAsync.either DLCProject.load fileName (fun p -> ProjectLoaded(p, fileName, None)) ErrorOccurred
 
-    | ProjectLoaded (project, projectFile) ->
-        let project = DLCProject.updateToneInfo project
+    | ProjectLoaded (project, projectFile, psarcImport) ->
+        let project =
+            if psarcImport.IsNone then DLCProject.updateToneInfo project else project
         let recent, newConfig, cmd = updateRecentFilesAndConfig projectFile state
         let albumArtLoadTime =
             if state.AlbumArtLoader.TryLoad(project.AlbumArtFile) then
                 Some DateTime.Now
             else
+                None
+
+        let quickEditData =
+            match psarcImport with
+            | Some (Quick psarcPath) ->
+                Some { PsarcPath = psarcPath }
+            | _ ->
                 None
 
         { state with
@@ -674,6 +709,7 @@ let update (msg: Msg) (state: State) =
             Config = newConfig
             ArrangementIssues = Map.empty
             AlbumArtLoadTime = albumArtLoadTime
+            QuickEditData = quickEditData
             SelectedArrangementIndex = -1
             SelectedToneIndex = -1 }, cmd
 
@@ -787,6 +823,9 @@ let update (msg: Msg) (state: State) =
 
     | Build Release ->
         buildPackage (ReleasePackageBuilder.build state.OpenProjectFile) state
+
+    | Build (ReplacePsarc path) ->
+        buildPackage (ReleasePackageBuilder.buildReplacePsarc path) state
 
     | BuildComplete completed ->
         let message =

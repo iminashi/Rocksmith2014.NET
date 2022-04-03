@@ -159,6 +159,12 @@ let showDialog window dialogType state =
             else
                 ofd FileFilter.ToolkitTemplate ImportToolkitTemplate
 
+        | Dialog.PsarcImportQuick ->
+            if state.RunningTasks.Contains(PsarcImport) then
+                async { return None }
+            else
+                ofd FileFilter.PSARC ImportPsarcQuick
+
         | Dialog.PsarcImport ->
             if state.RunningTasks.Contains(PsarcImport) then
                 async { return None }

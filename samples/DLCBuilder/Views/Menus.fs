@@ -119,6 +119,14 @@ let file state dispatch =
                 MenuItem.onClick (fun _ -> Dialog.PsarcImport |> ShowDialog |> dispatch)
             ]
 
+            // Import PSARC file for quick editing
+            MenuItem.create [
+                MenuItem.header (translate "ImportPSARCQuickFileMenuItem")
+                MenuItem.isEnabled (not isImporting)
+                MenuItem.inputGesture (KeyGesture(Key.Q, keyModifierCtrl))
+                MenuItem.onClick (fun _ -> Dialog.PsarcImportQuick |> ShowDialog |> dispatch)
+            ]
+
             separator
 
             // Recent files

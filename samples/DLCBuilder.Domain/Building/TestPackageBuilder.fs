@@ -81,7 +81,10 @@ let build platform config project = async {
             $"{packageFileName}_{versionString}",
             BuildCompleteType.TestNewVersion versionString
 
-    let path = Path.Combine(targetFolder, packageFileName)
+    let path =
+        Path.Combine(targetFolder, packageFileName)
+        |> PackageBuilder.WithoutPlatformOrExtension
+
     let buildConfig = BuildConfig.create Test config project [ platform ]
 
     do! PackageBuilder.buildPackages path buildConfig project
