@@ -44,6 +44,13 @@ let private buildPackage build state =
         addTask BuildPackage state,
         Cmd.OfAsync.either task state.Project BuildComplete (fun ex -> TaskFailed(ex, BuildPackage))
 
+let private deleteTempFiles (state: State) =
+    state.OpenProjectFile
+    |> Option.iter (fun projectPath ->
+        try
+            Directory.Delete(Path.GetDirectoryName(projectPath), recursive=true)
+        with _ -> ())
+
 let update (msg: Msg) (state: State) =
     let { Project = project; Config = config } = state
     let translate = state.Localizer.Translate
@@ -126,6 +133,9 @@ let update (msg: Msg) (state: State) =
 
     | NewProject ->
         state.AlbumArtLoader.InvalidateCache()
+
+        // Delete temporary files for quick edit
+        if state.QuickEditData.IsSome then deleteTempFiles state
 
         { state with
             Project = DLCProject.Empty
@@ -571,6 +581,9 @@ let update (msg: Msg) (state: State) =
             state.OpenProjectFile
             |> Option.iter (fun path -> DLCProject.save path project |> Async.RunSynchronously)
 
+        // Delete temporary files for quick edit
+        if state.QuickEditData.IsSome then deleteTempFiles state
+
         RecentFilesList.save state.RecentFiles |> Async.RunSynchronously
         state, Cmd.none
 
@@ -702,6 +715,9 @@ let update (msg: Msg) (state: State) =
             else
                 None
 
+        // Delete temporary files for quick edit
+        if state.QuickEditData.IsSome then deleteTempFiles state
+
         let quickEditData =
             match psarcImport with
             | Some (Quick psarcPath) ->
@@ -722,9 +738,7 @@ let update (msg: Msg) (state: State) =
             SelectedToneIndex = -1 }, cmd
 
     | LoadMultipleFiles paths ->
-        let commands = handleFilesDrop paths
-
-        state, Cmd.batch commands
+        state, Cmd.batch (handleFilesDrop paths)
 
     | EditInstrumental edit ->
         match getSelectedArrangement state with
@@ -851,15 +865,6 @@ let update (msg: Msg) (state: State) =
                 if completed = BuildCompleteType.ReplacePsarc then
                     Cmd.ofMsg NewProject
             ]
-
-        // Delete temporary files
-        match completed, state.OpenProjectFile with
-        | BuildCompleteType.ReplacePsarc, Some projectPath ->
-            try
-                Directory.Delete(Path.GetDirectoryName(projectPath), recursive=true)
-            with _ -> ()
-        | _ ->
-            ()
 
         removeTask BuildPackage state, cmd
 

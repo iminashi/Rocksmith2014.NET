@@ -37,8 +37,7 @@ type PsarcImportType =
     | Normal
     | Quick of psarcPath: string
 
-type PsarcQuickEditInformation =
-    { PsarcPath: string }
+type PsarcQuickEditInformation = { PsarcPath: string }
 
 type ArrangementAddingError =
     | MaxInstrumentals
