@@ -123,7 +123,7 @@ let file state dispatch =
             MenuItem.create [
                 MenuItem.header (translate "ImportPSARCQuickFileMenuItem")
                 MenuItem.isEnabled (not isImporting)
-                MenuItem.inputGesture (KeyGesture(Key.Q, keyModifierCtrl))
+                MenuItem.inputGesture (KeyGesture(Key.E, keyModifierCtrl))
                 MenuItem.onClick (fun _ -> Dialog.PsarcImportQuick |> ShowDialog |> dispatch)
             ]
 

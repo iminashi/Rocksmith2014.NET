@@ -50,6 +50,9 @@ let handleEvent dispatch (event: KeyEventArgs) =
     | Ctrl, Key.A ->
         dispatch (ShowDialog Dialog.PsarcImport)
 
+    | Ctrl, Key.E ->
+        dispatch (ShowDialog Dialog.PsarcImportQuick)
+
     | Ctrl, Key.B ->
         dispatch (Build Test)
 
