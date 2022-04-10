@@ -115,7 +115,7 @@ let messageTests =
                     member _.TryLoad _ = wasCalled <- true; true }
             let state = { initialState with AlbumArtLoader = bitmapLoaderMock }
 
-            let newState, _ = Main.update (ProjectLoaded(DLCProject.Empty, "")) state
+            let newState, _ = Main.update (ProjectLoaded(DLCProject.Empty, "", None)) state
 
             Expect.isTrue wasCalled "TryLoad was called"
             Expect.isSome newState.AlbumArtLoadTime "Load time has a value"

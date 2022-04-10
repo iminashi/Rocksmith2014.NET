@@ -53,6 +53,7 @@ let initialState =
       ArrangementIssues = Map.empty
       ToneGearRepository = None
       AlbumArtLoadTime = None
+      QuickEditData = None
       Localizer = stringLocalizerStub
       AlbumArtLoader = albumArtLoaderStub
       DatabaseConnector = toneDatabaseStub }
