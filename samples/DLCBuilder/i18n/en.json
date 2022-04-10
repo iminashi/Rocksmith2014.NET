@@ -15,6 +15,7 @@
   "RemoveDDDialogTitle": "Select Arrangements to Remove DD From",
   "ToolkitImportDialogTitle": "Select a Toolkit Template to Import",
   "PsarcImportDialogTitle": "Select a PSARC File to Import",
+  "PsarcImportQuickDialogTitle": "Select a PSARC File to Import for Quick Editing",
   "PsarcUnpackDialogTitle": "Select PSARC Files to Unpack",
   "PsarcPackDirectoryDialogTitle": "Select Directory to Pack into a PSARC File",
   "PsarcPackTargetFileDialogTitle": "Select the Target PSARC File",
@@ -69,6 +70,7 @@
   "SaveProjectAsMenuItem": "Save Project _As...",
   "ImportToolkitTemplateMenuItem": "Import _Toolkit Template...",
   "ImportPSARCFileMenuItem": "Import _PSARC File...",
+  "ImportPSARCQuickFileMenuItem": "Import PSARC File _(Quick Edit)...",
   "RecentProjectsMenuItem": "_Recent Projects",
   "DeleteTestBuildsMenuItem": "_Delete Test Builds",
   "DeleteTestBuildsToolTip": "Deletes any test builds that exist for this project.",
@@ -442,5 +444,6 @@
   "AdditionalMetadataButtonToolTip": "Edit additional metadata",
   "AdditionalMetadata": "Additional Metadata",
   "Author": "Author",
-  "AdditionalMetadataAuthorToolTip": "Overrides the charter name set in the configuration."
+  "AdditionalMetadataAuthorToolTip": "Overrides the charter name set in the configuration.",
+  "FinishEditing": "Finish Editing"
 }

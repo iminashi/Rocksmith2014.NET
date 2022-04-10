@@ -179,7 +179,7 @@ let private buildControls state dispatch =
                     Button.padding (20., 8.)
                     Button.margin 4.
                     Button.fontSize 16.
-                    Button.content ("Apply Edits & Clean Up")
+                    Button.content (translate "FinishEditing")
                     Button.isEnabled canBuild
                     Button.onClick (fun _ -> data.PsarcPath |> ReplacePsarc |> Build |> dispatch)
                 ]
