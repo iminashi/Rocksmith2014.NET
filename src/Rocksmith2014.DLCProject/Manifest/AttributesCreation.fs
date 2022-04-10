@@ -40,13 +40,14 @@ let private getDNATime (sng: SNG) dnaId =
                 // Find the next DNA ID -> DNA None range
                 time + getTotal none (sng.DNAs[none].Time - sng.DNAs[next].Time)
 
-    getTotal 0 0.f |> float
+    let time = getTotal 0 0.f |> float
+    Math.Round(time, 3)
 
 /// Calculates the times for the three types of DNA.
 let private calculateDNAs (sng: SNG) =
-    Math.Round(getDNATime sng DNA.Chord, 3),
-    Math.Round(getDNATime sng DNA.Riff, 3),
-    Math.Round(getDNATime sng DNA.Solo, 3)
+    {| Chords = getDNATime sng DNA.Chord
+       Riffs = getDNATime sng DNA.Riff
+       Solo = getDNATime sng DNA.Solo |}
 
 /// Calculates difficulty values for hard, medium and easy.
 let private calculateDifficulties (metaData: XML.MetaData) (sng: SNG) =
@@ -83,10 +84,14 @@ let private calculateDifficulties (metaData: XML.MetaData) (sng: SNG) =
         else
             techCoeff
 
+    let round9 v = Math.Round((v: float), 9)
+    let songLength = float sng.MetaData.SongLength
+    let notes = sng.NoteCounts
+
     // In official content, the maximum value for SongDiffHard is 1.0
-    Math.Round(float (techCoeff * sng.NoteCounts.Hard) / float sng.MetaData.SongLength / 100.0, 9),
-    Math.Round(float (techCoeff * sng.NoteCounts.Medium) / float sng.MetaData.SongLength / 50.0, 9),
-    Math.Round(float (techCoeff * sng.NoteCounts.Easy) / float sng.MetaData.SongLength / 25.0, 9)
+    {| Hard = float (techCoeff * notes.Hard) / songLength / 100.0 |> round9
+       Medium = float (techCoeff * notes.Medium) / songLength / 50.0 |> round9
+       Easy = float (techCoeff * notes.Easy) / songLength / 25.0 |> round9 |}
 
 /// Converts SNG phrase iterations into manifest phrase iterations.
 let private convertPhraseIterations (sng: SNG) =
@@ -335,8 +340,8 @@ let private initAttributesCommon name dlcKey levels (project: DLCProject) (arran
 
 /// Initializes attributes that are common to instrumental arrangement headers and non-headers.
 let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Instrumental) (sng: SNG) (attr: Attributes) =
-    let diffHard, diffMed, diffEasy = calculateDifficulties xmlMetaData sng
-    let dnaChords, dnaRiffs, dnaSolo = calculateDNAs sng
+    let diffs = calculateDifficulties xmlMetaData sng
+    let dnas = calculateDNAs sng
 
     attr.AlbumName <- project.AlbumName.Value
     attr.AlbumNameSort <- project.AlbumName.SortValue
@@ -344,18 +349,18 @@ let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Inst
     attr.ArtistNameSort <- project.ArtistName.SortValue
     if xmlMetaData.Capo > 0y then attr.CapoFret <- Nullable(float xmlMetaData.Capo)
     attr.CentOffset <- Utils.tuningPitchToCents instrumental.TuningPitch
-    attr.DNA_Chords <- dnaChords
-    attr.DNA_Riffs <- dnaRiffs
-    attr.DNA_Solo <- dnaSolo
+    attr.DNA_Chords <- dnas.Chords
+    attr.DNA_Riffs <- dnas.Riffs
+    attr.DNA_Solo <- dnas.Solo
     attr.EasyMastery <- Math.Round(float sng.NoteCounts.Easy / float sng.NoteCounts.Hard, 9)
     attr.MediumMastery <- Math.Round(float sng.NoteCounts.Medium / float sng.NoteCounts.Hard, 9)
     attr.NotesEasy <- float32 sng.NoteCounts.Easy
     attr.NotesHard <- float32 sng.NoteCounts.Hard
     attr.NotesMedium <- float32 sng.NoteCounts.Medium
-    attr.SongDiffEasy <- diffEasy
-    attr.SongDiffHard <- diffHard
-    attr.SongDiffMed <- diffMed
-    attr.SongDifficulty <- diffHard
+    attr.SongDiffEasy <- diffs.Easy
+    attr.SongDiffHard <- diffs.Hard
+    attr.SongDiffMed <- diffs.Medium
+    attr.SongDifficulty <- diffs.Hard
     attr.SongLength <- sng.MetaData.SongLength
     attr.SongName <- project.Title.Value
     attr.SongNameSort <- project.Title.SortValue
