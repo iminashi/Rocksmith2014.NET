@@ -137,7 +137,8 @@ let file state dispatch =
                     state.RecentFiles
                     |> List.mapi (fun i fileName ->
                         MenuItem.create [
-                            MenuItem.header $"_{i + 1} {IO.Path.GetFileName fileName}"
+                            MenuItem.header $"_{i + 1} {IO.Path.GetFileName(fileName)}"
+                            ToolTip.tip fileName
                             MenuItem.onClick (
                                 (fun _ -> OpenProject fileName |> dispatch),
                                 SubPatchOptions.OnChangeOf state.RecentFiles)
