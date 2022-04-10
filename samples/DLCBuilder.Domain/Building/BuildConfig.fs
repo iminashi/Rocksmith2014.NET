@@ -37,7 +37,7 @@ let create buildType config project platforms =
         { PhraseSearch = phraseSearch
           LevelCountGeneration = config.DDLevelCountGeneration }
       ApplyImprovements = config.ApplyImprovements
-      SaveDebugFiles = config.SaveDebugFiles && buildType <> Release
+      SaveDebugFiles = config.SaveDebugFiles && buildType = Test
       AudioConversionTask = convTask
       IdResetConfig = None
       ProgressReporter = Some(ProgressReporters.PackageBuild :> IProgress<float>) }

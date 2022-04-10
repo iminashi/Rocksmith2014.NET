@@ -132,6 +132,7 @@ let update (msg: Msg) (state: State) =
             SavedProject = DLCProject.Empty
             OpenProjectFile = None
             AlbumArtLoadTime = None
+            QuickEditData = None
             SelectedArrangementIndex = -1
             SelectedToneIndex = -1 }, Cmd.none
 
@@ -687,7 +688,14 @@ let update (msg: Msg) (state: State) =
     | ProjectLoaded (project, projectFile, psarcImport) ->
         let project =
             if psarcImport.IsNone then DLCProject.updateToneInfo project else project
-        let recent, newConfig, cmd = updateRecentFilesAndConfig projectFile state
+        let recent, newConfig, cmd =
+            // Don't add quick edit PSARC projects to recent files
+            match psarcImport with
+            | Some (Quick _) ->
+                state.RecentFiles, state.Config, Cmd.none
+            | _ ->
+                updateRecentFilesAndConfig projectFile state
+
         let albumArtLoadTime =
             if state.AlbumArtLoader.TryLoad(project.AlbumArtFile) then
                 Some DateTime.Now
@@ -840,7 +848,18 @@ let update (msg: Msg) (state: State) =
                 if completed = BuildCompleteType.Release && config.OpenFolderAfterReleaseBuild then
                     Cmd.ofMsg (OpenWithShell(ReleasePackageBuilder.getTargetDirectory state.OpenProjectFile project))
                 Cmd.ofMsg (AddStatusMessage message)
+                if completed = BuildCompleteType.ReplacePsarc then
+                    Cmd.ofMsg NewProject
             ]
+
+        // Delete temporary files
+        match completed, state.OpenProjectFile with
+        | BuildCompleteType.ReplacePsarc, Some projectPath ->
+            try
+                Directory.Delete(Path.GetDirectoryName(projectPath), recursive=true)
+            with _ -> ()
+        | _ ->
+            ()
 
         removeTask BuildPackage state, cmd
 
