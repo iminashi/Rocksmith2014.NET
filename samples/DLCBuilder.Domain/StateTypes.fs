@@ -290,6 +290,7 @@ type Msg =
     | LoadMultipleFiles of paths: string seq
     | OfficialTonesDatabaseDownloaded of downloadTask: LongTask
     | UpdateDownloaded of installerPath: string
+    | SetEditedPsarcAppId of appId: string
 
 type State =
     { Project: DLCProject

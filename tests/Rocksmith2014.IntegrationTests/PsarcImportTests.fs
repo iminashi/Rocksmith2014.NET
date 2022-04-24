@@ -57,11 +57,11 @@ let pcTests =
             if Directory.Exists(PCImportDir) then Directory.Delete(PCImportDir, true)
             Directory.CreateDirectory(PCImportDir) |> ignore
 
-            let! project, path = PsarcImporter.import ignore "./psarc/test_p.psarc" PCImportDir
+            let! r = PsarcImporter.import ignore "./psarc/test_p.psarc" PCImportDir
 
-            Expect.equal project.JapaneseArtistName (Some "アーティスト") "Japanese artist name is correct"
-            Expect.equal project.JapaneseTitle (Some "曲名") "Japanese title is correct"
-            testProject project path
+            Expect.equal r.Project.JapaneseArtistName (Some "アーティスト") "Japanese artist name is correct"
+            Expect.equal r.Project.JapaneseTitle (Some "曲名") "Japanese title is correct"
+            testProject r.Project r.ProjectPath
         }
 
         testCase "Project files were created" <| fun _ ->
@@ -75,11 +75,11 @@ let macTests =
             if Directory.Exists(MacImportDir) then Directory.Delete(MacImportDir, true)
             Directory.CreateDirectory(MacImportDir) |> ignore
 
-            let! project, path = PsarcImporter.import ignore "./psarc/test_m.psarc" MacImportDir
+            let! r = PsarcImporter.import ignore "./psarc/test_m.psarc" MacImportDir
 
-            Expect.isNone project.JapaneseArtistName "Japanese artist name is not set"
-            Expect.isNone project.JapaneseTitle "Japanese title is not set"
-            testProject project path
+            Expect.isNone r.Project.JapaneseArtistName "Japanese artist name is not set"
+            Expect.isNone r.Project.JapaneseTitle "Japanese title is not set"
+            testProject r.Project r.ProjectPath
         }
 
         testCase "Project files were created" <| fun _ ->

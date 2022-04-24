@@ -95,13 +95,12 @@ let buildPitchShifted (openProject: string option) config project = async {
 
     return BuildCompleteType.PitchShifted }
 
-let buildReplacePsarc psarcPath config project =
+let buildReplacePsarc info config project =
     async {
-        let platform = Platform.fromPackageFileName psarcPath
-        let buildConfig = BuildConfig.create Release config project [ platform ]
+        let platform = Platform.fromPackageFileName info.PsarcPath
+        let buildConfig = BuildConfig.create (ReplacePsarc info) config project [ platform ]
 
-        // TODO: Preserve App ID from imported PSARC
-        do! PackageBuilder.buildPackages (PackageBuilder.WithPlatformAndExtension psarcPath) buildConfig project
+        do! PackageBuilder.buildPackages (PackageBuilder.WithPlatformAndExtension info.PsarcPath) buildConfig project
 
         return BuildCompleteType.ReplacePsarc
     }

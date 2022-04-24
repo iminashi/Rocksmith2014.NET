@@ -29,7 +29,7 @@ let getVolumeAndFileId (psarc: PSARC) platform bankName =
         return volume, fileId
     }
 
-/// Active pattern for detecting arrangement type from a filename.
+/// Active pattern for detecting an arrangement type from a filename.
 let (|VocalsFile|JVocalsFile|InstrumentalFile|) = function
     | Contains "jvocals" -> JVocalsFile
     | Contains "vocals" -> VocalsFile
@@ -145,3 +145,20 @@ let parseToolkitMetadata attr map defaultValue text =
         map m.Groups[1].Captures[0].Value
     | _ ->
         defaultValue
+
+let private getFileContents (psarc: PSARC) pathInPsarc =
+    async {
+        use! stream = psarc.GetEntryStream(pathInPsarc)
+        return using (new StreamReader(stream)) (fun reader -> reader.ReadToEnd())
+    }
+
+/// Returns the file contents as string if the file is found in the PSARC.
+let tryGetFileContents (pathInPsarc: string) (psarc: PSARC) =
+    async {
+        match List.contains pathInPsarc psarc.Manifest with
+        | false ->
+            return None
+        | true ->
+            let! text = getFileContents psarc pathInPsarc
+            return Some text
+    }

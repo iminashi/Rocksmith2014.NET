@@ -181,7 +181,7 @@ let private buildControls state dispatch =
                     Button.fontSize 16.
                     Button.content (translate "FinishEditing")
                     Button.isEnabled canBuild
-                    Button.onClick (fun _ -> data.PsarcPath |> ReplacePsarc |> Build |> dispatch)
+                    Button.onClick ((fun _ -> data |> ReplacePsarc |> Build |> dispatch), OnChangeOf data)
                 ]
             | None ->
                 // Build test

@@ -57,6 +57,10 @@ let update (msg: Msg) (state: State) =
     let translatef key args = state.Localizer.TranslateFormat(key, args)
 
     match msg with
+    | SetEditedPsarcAppId appId ->
+        let quickEditData = state.QuickEditData |> Option.map (fun x -> { x with AppId = Option.ofString appId })
+        { state with QuickEditData = quickEditData }, Cmd.none
+
     | OpenWithShell path ->
         try
             Utils.openWithShell path
@@ -198,7 +202,8 @@ let update (msg: Msg) (state: State) =
 
                 let targetFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())
                 Directory.CreateDirectory(targetFolder) |> ignore
-                let! project, fileName = PsarcImporter.import progress psarcPath targetFolder
+                let! r = PsarcImporter.import progress psarcPath targetFolder
+                let project = r.Project
 
                 Utils.convertProjectAudioFromWem ToOgg project
                 progress ()
@@ -207,12 +212,14 @@ let update (msg: Msg) (state: State) =
                     do! Utils.removeDD project
                     progress ()
 
+                let audioFile =
+                    { project.AudioFile with Path = Path.ChangeExtension(project.AudioFile.Path, "ogg") }
+                let previewFile =
+                    { project.AudioPreviewFile with Path = Path.ChangeExtension(project.AudioPreviewFile.Path, "ogg") }
                 let project =
-                    { project with
-                        AudioFile = { project.AudioFile with Path = Path.ChangeExtension(project.AudioFile.Path, "ogg") }
-                        AudioPreviewFile = { project.AudioPreviewFile with Path = Path.ChangeExtension(project.AudioPreviewFile.Path, "ogg") } }
+                    { project with AudioFile = audioFile; AudioPreviewFile = previewFile }
 
-                return project, fileName, Quick(psarcPath)
+                return project, r.ProjectPath, Quick({ PsarcPath = psarcPath; AppId = r.AppId })
             }
 
         addTask PsarcImport state,
@@ -224,7 +231,8 @@ let update (msg: Msg) (state: State) =
 
             let targetFolder = Path.Combine(targetFolder, Path.GetFileNameWithoutExtension(psarcFile))
             Directory.CreateDirectory(targetFolder) |> ignore
-            let! project, fileName = PsarcImporter.import progress psarcFile targetFolder
+            let! r = PsarcImporter.import progress psarcFile targetFolder
+            let project = r.Project
 
             match config.ConvertAudio with
             | NoConversion ->
@@ -237,7 +245,7 @@ let update (msg: Msg) (state: State) =
                 do! Utils.removeDD project
                 progress ()
 
-            return project, fileName, Normal }
+            return project, r.ProjectPath, Normal }
 
         addTask PsarcImport state,
         Cmd.OfAsync.either task () PsarcImported (fun ex -> TaskFailed(ex, PsarcImport))
@@ -720,8 +728,8 @@ let update (msg: Msg) (state: State) =
 
         let quickEditData =
             match psarcImport with
-            | Some (Quick psarcPath) ->
-                Some { PsarcPath = psarcPath }
+            | Some (Quick info) ->
+                Some info
             | _ ->
                 None
 
@@ -846,8 +854,8 @@ let update (msg: Msg) (state: State) =
     | Build Release ->
         buildPackage (ReleasePackageBuilder.build state.OpenProjectFile) state
 
-    | Build (ReplacePsarc path) ->
-        buildPackage (ReleasePackageBuilder.buildReplacePsarc path) state
+    | Build (ReplacePsarc info) ->
+        buildPackage (ReleasePackageBuilder.buildReplacePsarc info) state
 
     | BuildComplete completed ->
         let message =

@@ -28,18 +28,38 @@ let view dispatch state =
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
 
-            // Author
-            vStack [
-                hStack [
+            Grid.create [
+                Grid.columnDefinitions "auto,*"
+                Grid.rowDefinitions "auto,auto"
+                Grid.children [
+                    // Author
                     locText "Author" [ TextBlock.verticalAlignment VerticalAlignment.Center ]
 
                     FixedTextBox.create [
+                        Grid.column 1
                         FixedTextBox.text (state.Project.Author |> Option.toObj)
                         FixedTextBox.watermark state.Config.CharterName
-                        FixedTextBox.width 250.
                         FixedTextBox.onTextChanged (SetAuthor >> EditProject >> dispatch)
                         ToolTip.tip (translate "AdditionalMetadataAuthorToolTip")
                     ]
+
+                    // App ID (when using PSARC quick edit)
+                    match state.QuickEditData with
+                    | Some data ->
+                        locText "AppID" [
+                            Grid.row 1
+                            TextBlock.verticalAlignment VerticalAlignment.Center
+                        ]
+
+                        FixedTextBox.create [
+                            Grid.row 1
+                            Grid.column 1
+                            FixedTextBox.text (data.AppId |> Option.toObj)
+                            FixedTextBox.watermark AppId.CherubRock
+                            FixedTextBox.onTextChanged (SetEditedPsarcAppId >> dispatch)
+                        ]
+                    | None ->
+                        ()
                 ]
             ]
         ]

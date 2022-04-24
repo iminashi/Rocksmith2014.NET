@@ -385,7 +385,7 @@ let buildPackages (targetPath: TargetPathType) (config: BuildConfig) (project: D
 
                     Some(arr, sng)
                 | Showlights _ ->
-                    None 
+                    None
             with e ->
                 let failedFile = Arrangement.getFile arr |> Path.GetFileName
                 raise <| Exception($"Converting file {failedFile} failed.\n\n{Utils.distinctExceptionMessages e}", e))

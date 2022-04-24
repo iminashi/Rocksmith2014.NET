@@ -8,6 +8,12 @@ open System
 open System.IO
 open PsarcImportUtils
 
+type PsarcImportResult =
+    { Project: DLCProject
+      /// Path to the project file that was saved when importing the PSARC.
+      ProjectPath: string
+      AppId: string option }
+
 /// Imports a PSARC from the given path into a DLCProject with the project created in the target directory.
 let import progress (psarcPath: string) (targetDirectory: string) = async {
     let platform = Platform.fromPackageFileName psarcPath
@@ -49,7 +55,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
             return file, Manifest.getSingletonAttributes manifest })
         |> Async.Sequential
 
-    // Extract custom font file(s)
+    // Extract any custom font files
     do! psarcContents
         |> List.filter (String.contains "assets/ui/lyrics")
         |> List.map (fun psarcPath ->
@@ -143,17 +149,18 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         |> snd
 
     let! version, author =
-        async {
-            match List.contains "toolkit.version" psarcContents with
-            | false ->
-                return "1", None
-            | true ->
-                use! stream = psarc.GetEntryStream("toolkit.version")
-                let text = using (new StreamReader(stream)) (fun reader -> reader.ReadToEnd())
+        tryGetFileContents "toolkit.version" psarc
+        |> Async.map (function
+            | None ->
+                "1", None
+            | Some text ->
                 let version = text |> parseToolkitMetadata "Version" id "1"
                 let author = text |> parseToolkitMetadata "Author" Some None
-                return version, author
-        }
+                version, author)
+
+    let! appId =
+        tryGetFileContents "appid.appid" psarc
+        |> Async.map (Option.map (fun text -> text.Trim()))
 
     let project =
         { Version = version
@@ -190,4 +197,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
 
     progress ()
 
-    return project, projectFile }
+    return
+        { Project = project
+          ProjectPath = projectFile
+          AppId = appId } }

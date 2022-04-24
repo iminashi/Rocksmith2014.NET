@@ -6,8 +6,6 @@ open Rocksmith2014.DD
 open Rocksmith2014.DLCProject
 open Rocksmith2014.DLCProject.PackageBuilder
 
-let [<Literal>] private CherubRock = "248750"
-
 /// Creates a build configuration data structure.
 let create buildType config project platforms =
     let convTask =
@@ -25,8 +23,12 @@ let create buildType config project platforms =
 
     let appId =
         match buildType, config.CustomAppId with
-        | Test, Some customId -> customId
-        | _ -> CherubRock
+        | Test, Some customId ->
+            customId
+        | ReplacePsarc { AppId = Some appId }, _ ->
+            appId
+        | _ ->
+            AppId.CherubRock
 
     { Platforms = platforms
       BuilderVersion = $"DLC Builder {AppVersion.versionString}"
