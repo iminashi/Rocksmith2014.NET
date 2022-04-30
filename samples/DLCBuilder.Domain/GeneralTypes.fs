@@ -27,17 +27,47 @@ type AudioConversionType = NoConversion | ToWav | ToOgg
 
 type MoveDirection = Up | Down
 
-type PsarcQuickEditInformation = { PsarcPath: string; AppId: string option }
+type PsarcQuickEditData =
+    { PsarcPath: string
+      TempDirectory: string
+      AppId: string option }
 
 type BuildType =
     | Test
     | Release
     | PitchShifted
-    | ReplacePsarc of PsarcQuickEditInformation
+    | ReplacePsarc of PsarcQuickEditData
 
 type PsarcImportType =
-    | Normal
-    | Quick of PsarcQuickEditInformation
+    | Normal of createdProjectFilePath: string
+    | Quick of data: PsarcQuickEditData
+
+type LoadedProjectOrigin =
+    | FromFile of path: string
+    | FromPsarcImport of importType: PsarcImportType
+    | FromToolkitTemplateImport
+
+    member this.ReloadTonesFromProjectFile =
+        match this with
+        | FromFile _ ->
+            true
+        | _ ->
+            false
+
+    member this.QuickEditData =
+        match this with
+        | FromPsarcImport (Quick info) ->
+            Some info
+        | _ ->
+            None
+
+    member this.ProjectPath =
+        match this with
+        | FromFile path
+        | FromPsarcImport (Normal path) ->
+            Some path
+        | _ ->
+            None
 
 type ArrangementAddingError =
     | MaxInstrumentals

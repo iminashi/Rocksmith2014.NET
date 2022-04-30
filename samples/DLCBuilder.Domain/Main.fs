@@ -44,13 +44,6 @@ let private buildPackage build state =
         addTask BuildPackage state,
         Cmd.OfAsync.either task state.Project BuildComplete (fun ex -> TaskFailed(ex, BuildPackage))
 
-let private deleteTempFiles (state: State) =
-    state.OpenProjectFile
-    |> Option.iter (fun projectPath ->
-        try
-            Directory.Delete(Path.GetDirectoryName(projectPath), recursive=true)
-        with _ -> ())
-
 let update (msg: Msg) (state: State) =
     let { Project = project; Config = config } = state
     let translate = state.Localizer.Translate
@@ -58,7 +51,10 @@ let update (msg: Msg) (state: State) =
 
     match msg with
     | SetEditedPsarcAppId appId ->
-        let quickEditData = state.QuickEditData |> Option.map (fun x -> { x with AppId = Option.ofString appId })
+        let quickEditData =
+            state.QuickEditData
+            |> Option.map (fun x -> { x with AppId = Option.ofString appId })
+
         { state with QuickEditData = quickEditData }, Cmd.none
 
     | OpenWithShell path ->
@@ -137,9 +133,7 @@ let update (msg: Msg) (state: State) =
 
     | NewProject ->
         state.AlbumArtLoader.InvalidateCache()
-
-        // Delete temporary files for quick edit
-        if state.QuickEditData.IsSome then deleteTempFiles state
+        deleteTemporaryFilesForQuickEdit state
 
         { state with
             Project = DLCProject.Empty
@@ -198,85 +192,50 @@ let update (msg: Msg) (state: State) =
     | ImportPsarcQuick psarcPath ->
         let task () =
             async {
-                let progress = createPsarcImportProgressReporter config
-
                 let targetFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())
-                Directory.CreateDirectory(targetFolder) |> ignore
-                let! r = PsarcImporter.import progress psarcPath targetFolder
-                let project = r.Project
+                let! r = importPsarc config targetFolder psarcPath
+                let data =
+                    { PsarcPath = psarcPath
+                      TempDirectory = targetFolder
+                      AppId = r.AppId }
 
-                Utils.convertProjectAudioFromWem ToOgg project
-                progress ()
-
-                if config.RemoveDDOnImport then
-                    do! Utils.removeDD project
-                    progress ()
-
-                let audioFile =
-                    { project.AudioFile with Path = Path.ChangeExtension(project.AudioFile.Path, "ogg") }
-                let previewFile =
-                    { project.AudioPreviewFile with Path = Path.ChangeExtension(project.AudioPreviewFile.Path, "ogg") }
-                let project =
-                    { project with AudioFile = audioFile; AudioPreviewFile = previewFile }
-
-                return project, r.ProjectPath, Quick({ PsarcPath = psarcPath; AppId = r.AppId })
+                return r.Project, Quick data
             }
 
         addTask PsarcImport state,
         Cmd.OfAsync.either task () PsarcImported (fun ex -> TaskFailed(ex, PsarcImport))
 
-    | ImportPsarc (psarcFile, targetFolder) ->
-        let task () = async {
-            let progress = createPsarcImportProgressReporter config
+    | ImportPsarc (psarcPath, targetFolder) ->
+        let task () =
+            async {
+                let targetFolder = Path.Combine(targetFolder, Path.GetFileNameWithoutExtension(psarcPath))
+                let! r = importPsarc config targetFolder psarcPath
 
-            let targetFolder = Path.Combine(targetFolder, Path.GetFileNameWithoutExtension(psarcFile))
-            Directory.CreateDirectory(targetFolder) |> ignore
-            let! r = PsarcImporter.import progress psarcFile targetFolder
-            let project = r.Project
-
-            match config.ConvertAudio with
-            | NoConversion ->
-                ()
-            | ToOgg | ToWav as conv ->
-                Utils.convertProjectAudioFromWem conv project
-                progress ()
-
-            if config.RemoveDDOnImport then
-                do! Utils.removeDD project
-                progress ()
-
-            return project, r.ProjectPath, Normal }
+                return r.Project, Normal r.ProjectPath
+            }
 
         addTask PsarcImport state,
         Cmd.OfAsync.either task () PsarcImported (fun ex -> TaskFailed(ex, PsarcImport))
 
-    | PsarcImported (project, projectFile, importType) ->
+    | PsarcImported (project, importType) ->
         let cmd =
             Cmd.batch [
                 Cmd.ofMsg (AddStatusMessage(translate "PsarcImportComplete"))
-                Cmd.ofMsg (ProjectLoaded(project, projectFile, Some importType))
+                Cmd.ofMsg (ProjectLoaded(project, FromPsarcImport importType))
             ]
 
         removeTask PsarcImport state, cmd
 
     | ImportToolkitTemplate fileName ->
-        try
-            let project = ToolkitImporter.import fileName
+        let cmd =
+            try
+                let project = ToolkitImporter.import fileName
 
-            let albumArtLoadTime =
-                if state.AlbumArtLoader.TryLoad(project.AlbumArtFile) then
-                    Some DateTime.Now
-                else
-                    None
+                Cmd.ofMsg (ProjectLoaded(project, FromToolkitTemplateImport))
+            with e ->
+                Cmd.ofMsg (ErrorOccurred e)
 
-            { state with
-                Project = project
-                OpenProjectFile = None
-                AlbumArtLoadTime = albumArtLoadTime
-                SelectedArrangementIndex = -1
-                SelectedToneIndex = -1 }, Cmd.none
-        with e ->
-            state, Cmd.ofMsg (ErrorOccurred e)
+        state, cmd
 
     | ImportTonesFromFile fileName ->
         let task () =
@@ -589,8 +548,7 @@ let update (msg: Msg) (state: State) =
             state.OpenProjectFile
             |> Option.iter (fun path -> DLCProject.save path project |> Async.RunSynchronously)
 
-        // Delete temporary files for quick edit
-        if state.QuickEditData.IsSome then deleteTempFiles state
+        deleteTemporaryFilesForQuickEdit state
 
         RecentFilesList.save state.RecentFiles |> Async.RunSynchronously
         state, Cmd.none
@@ -704,18 +662,19 @@ let update (msg: Msg) (state: State) =
         { state with Overlay = NoOverlay }, Cmd.ofMsg (OpenProject config.PreviousOpenedProject)
 
     | OpenProject fileName ->
-        state, Cmd.OfAsync.either DLCProject.load fileName (fun p -> ProjectLoaded(p, fileName, None)) ErrorOccurred
+        state, Cmd.OfAsync.either DLCProject.load fileName (fun p -> ProjectLoaded(p, FromFile fileName)) ErrorOccurred
 
-    | ProjectLoaded (project, projectFile, psarcImport) ->
+    | ProjectLoaded (project, loadOrigin) ->
         let project =
-            if psarcImport.IsNone then DLCProject.updateToneInfo project else project
+            if loadOrigin.ReloadTonesFromProjectFile then DLCProject.updateToneInfo project else project
+        let projectPath = loadOrigin.ProjectPath
         let recent, newConfig, cmd =
-            // Don't add quick edit PSARC projects to recent files
-            match psarcImport with
-            | Some (Quick _) ->
+            // Quick edit PSARC projects are not added to recent files
+            match projectPath with
+            | Some projectPath ->
+                updateRecentFilesAndConfig projectPath state
+            | None ->
                 state.RecentFiles, state.Config, Cmd.none
-            | _ ->
-                updateRecentFilesAndConfig projectFile state
 
         let albumArtLoadTime =
             if state.AlbumArtLoader.TryLoad(project.AlbumArtFile) then
@@ -723,25 +682,17 @@ let update (msg: Msg) (state: State) =
             else
                 None
 
-        // Delete temporary files for quick edit
-        if state.QuickEditData.IsSome then deleteTempFiles state
-
-        let quickEditData =
-            match psarcImport with
-            | Some (Quick info) ->
-                Some info
-            | _ ->
-                None
+        deleteTemporaryFilesForQuickEdit state
 
         { state with
             Project = project
             SavedProject = project
-            OpenProjectFile = Some projectFile
+            OpenProjectFile = projectPath
             RecentFiles = recent
             Config = newConfig
             ArrangementIssues = Map.empty
             AlbumArtLoadTime = albumArtLoadTime
-            QuickEditData = quickEditData
+            QuickEditData = loadOrigin.QuickEditData
             SelectedArrangementIndex = -1
             SelectedToneIndex = -1 }, cmd
 

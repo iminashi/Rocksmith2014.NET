@@ -64,7 +64,7 @@ let private tryLoadBitmap path =
         try
             cached <-
                 match path with
-                | EndsWith "dds" ->
+                | HasExtension ".dds" ->
                     avaloniaBitmapFromDDS path
                 | _ ->
                     new Bitmap(path)

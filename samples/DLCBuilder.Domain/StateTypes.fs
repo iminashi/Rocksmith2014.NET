@@ -199,7 +199,7 @@ type Msg =
     | SetNewArrangementIds of Map<Guid, Arrangement>
     | ImportPsarcQuick of psarcFile: string
     | ImportPsarc of psarcFile: string * targetFolder: string
-    | PsarcImported of project: DLCProject * projectFile: string * importType: PsarcImportType
+    | PsarcImported of project: DLCProject * importType: PsarcImportType
     | ImportToolkitTemplate of fileName: string
     | ImportTonesFromFile of fileName: string
     | ImportProfileTones
@@ -208,7 +208,7 @@ type Msg =
     | SetSelectedImportTones of selectedTones: Tone list
     | NewProject
     | OpenProject of fileName: string
-    | ProjectLoaded of project: DLCProject * projectFile: string * psarcImport: PsarcImportType option
+    | ProjectLoaded of project: DLCProject * origin: LoadedProjectOrigin
     | ProjectSaveOrSaveAs
     | SaveProjectAs
     | SaveProject of fileName: string
@@ -312,7 +312,7 @@ type State =
       ArrangementIssues: Map<string, Issue list>
       AvailableUpdate: UpdateInformation option
       ToneGearRepository: ToneGear.Repository option
-      QuickEditData: PsarcQuickEditInformation option
+      QuickEditData: PsarcQuickEditData option
       /// For forcing a view update if the user loads the same album art file, but the file has been modified.
       AlbumArtLoadTime: DateTime option
       Localizer: IStringLocalizer

@@ -281,6 +281,38 @@ let createPsarcImportProgressReporter config =
         currentProgress / maxProgress * 100.
         |> (ProgressReporters.PsarcImport :> IProgress<float>).Report
 
+let importPsarc config targetFolder (psarcPath: string)  =
+    async {
+        let progress = createPsarcImportProgressReporter config
+
+        let targetFolder = Path.Combine(targetFolder, Path.GetFileNameWithoutExtension(psarcPath))
+        Directory.CreateDirectory(targetFolder) |> ignore
+        let! r = PsarcImporter.import progress psarcPath targetFolder
+        let project = r.Project
+
+        let audioExtension =
+            match config.ConvertAudio with
+            | NoConversion ->
+                "wem"
+            | ToOgg | ToWav as conv ->
+                Utils.convertProjectAudioFromWem conv project
+                progress ()
+                if conv = ToOgg then "ogg" else "wav"
+
+        if config.RemoveDDOnImport then
+            do! Utils.removeDD project
+            progress ()
+
+        let audioFile =
+            { project.AudioFile with Path = Path.ChangeExtension(project.AudioFile.Path, audioExtension) }
+        let previewFile =
+            { project.AudioPreviewFile with Path = Path.ChangeExtension(project.AudioPreviewFile.Path, audioExtension) }
+        let project =
+            { project with AudioFile = audioFile; AudioPreviewFile = previewFile }
+
+        return { r with Project = project }
+    }
+
 let createDownloadTask locString =
     let id = { Id = Guid.NewGuid(); LocString = locString }
     id, FileDownload id
@@ -305,3 +337,11 @@ let createProjectFilename project =
         |> StringValidator.fileName
         |> sprintf "%s.rs2dlc")
     |> Option.defaultValue "new_project.rs2dlc"
+
+let private deleteTempFiles { TempDirectory = dir } =
+    try
+        Directory.Delete(dir, recursive=true)
+    with _ -> ()
+
+let deleteTemporaryFilesForQuickEdit state =
+    state.QuickEditData |> Option.iter deleteTempFiles

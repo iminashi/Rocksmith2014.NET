@@ -115,7 +115,7 @@ module Configuration =
             | 1 -> LevelCountGeneration.MLModel
             | _ -> LevelCountGeneration.Simple
 
-        { ReleasePlatforms = Set(platforms)
+        { ReleasePlatforms = set platforms
           ProfilePath = dto.ProfilePath
           TestFolderPath = dto.TestFolderPath
           ProjectsFolderPath = dto.ProjectsFolderPath
