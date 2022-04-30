@@ -666,7 +666,11 @@ let update (msg: Msg) (state: State) =
 
     | ProjectLoaded (project, loadOrigin) ->
         let project =
-            if loadOrigin.ReloadTonesFromProjectFile then DLCProject.updateToneInfo project else project
+            if loadOrigin.ReloadTonesFromArrangementFiles then
+                DLCProject.updateToneInfo project
+            else
+                project
+
         let projectPath = loadOrigin.ProjectPath
         let recent, newConfig, cmd =
             // Quick edit PSARC projects are not added to recent files
