@@ -8,8 +8,8 @@ open SimpleSimd
 // Ported from: https://github.com/xuan525/R128Normalization
 // Functionality for calculating integrated loudness once.
 
+/// Stores mean square info of previous sample blocks from the time the measurement was started (for integrated loudness)
 [<IsReadOnly; Struct>]
-/// Store mean square infos of previous sample blocks from the time the measurement was started (for integrated loudness)
 type internal MeanSquareLoudness = { MeanSquare: float; Loudness: float }
 
 [<IsReadOnly; Struct>]
