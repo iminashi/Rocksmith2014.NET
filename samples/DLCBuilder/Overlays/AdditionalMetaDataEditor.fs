@@ -56,7 +56,7 @@ let view dispatch state =
                             Grid.row 1
                             Grid.column 1
                             FixedTextBox.text (data.AppId |> Option.toObj)
-                            FixedTextBox.watermark AppId.CherubRock
+                            FixedTextBox.watermark $"{AppId.CherubRock} (Cherub Rock)"
                             FixedTextBox.onTextChanged (SetEditedPsarcAppId >> dispatch)
                         ]
                     | None ->

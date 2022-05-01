@@ -145,8 +145,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
 
     let metaData =
         fileAttributes
-        |> Array.find (fun (file, _) -> not <| file.Contains("vocals"))
-        |> snd
+        |> Array.pick (fun (file, attr) -> if file.Contains("vocals") then None else Some attr)
 
     let! version, author =
         tryGetFileContents "toolkit.version" psarc
@@ -160,7 +159,10 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
 
     let! appId =
         tryGetFileContents "appid.appid" psarc
-        |> Async.map (Option.map (fun text -> text.Trim()))
+        |> Async.map (Option.bind (fun text ->
+            match text.Trim() with
+            | AppId.CherubRock -> None
+            | appId -> Some appId))
 
     let project =
         { Version = version
