@@ -412,6 +412,7 @@ let view state dispatch (inst: Instrumental) =
                         | _ ->
                             true)
                     NumericUpDown.horizontalAlignment HorizontalAlignment.Left
+                    NumericUpDown.minWidth 130.
                     NumericUpDown.minimum -45.
                     NumericUpDown.maximum 45.
                     NumericUpDown.increment 0.5
