@@ -9,6 +9,7 @@ open Rocksmith2014.DLCProject
 
 let view dispatch state =
     DockPanel.create [
+        DockPanel.minWidth 400.
         DockPanel.children [
             // Close button
             Button.create [
