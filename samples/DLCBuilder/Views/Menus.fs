@@ -529,7 +529,7 @@ let project state dispatch =
             // Delete test builds
             MenuItem.create [
                 MenuItem.header (translate "DeleteTestBuildsMenuItem")
-                MenuItem.isEnabled (String.notEmpty state.Config.TestFolderPath)
+                MenuItem.isEnabled (String.notEmpty state.Config.TestFolderPath && String.notEmpty state.Project.DLCKey)
                 MenuItem.onClick (fun _ -> dispatch DeleteTestBuilds)
                 ToolTip.tip (translate "DeleteTestBuildsToolTip")
             ]
