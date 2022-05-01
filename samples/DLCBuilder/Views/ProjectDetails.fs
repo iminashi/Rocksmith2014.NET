@@ -77,6 +77,7 @@ let private audioControls state dispatch =
                                 StackPanel.children [
                                     // Main volume
                                     FixedNumericUpDown.create [
+                                        NumericUpDown.minWidth 130.
                                         NumericUpDown.margin (2.0, 2.0, 2.0, 2.0)
                                         NumericUpDown.minimum -45.
                                         NumericUpDown.maximum 45.
@@ -127,6 +128,7 @@ let private audioControls state dispatch =
                                 StackPanel.children [
                                     // Preview audio volume
                                     FixedNumericUpDown.create [
+                                        NumericUpDown.minWidth 130.
                                         NumericUpDown.margin (2.0, 2.0, 2.0, 2.0)
                                         NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                                         NumericUpDown.minimum -45.
