@@ -12,7 +12,8 @@ type PsarcImportResult =
     { Project: DLCProject
       /// Path to the project file that was saved when importing the PSARC.
       ProjectPath: string
-      AppId: string option }
+      /// App ID of the PSARC if it was other than Cherub Rock.
+      AppId: AppId option }
 
 /// Imports a PSARC from the given path into a DLCProject with the project created in the target directory.
 let import progress (psarcPath: string) (targetDirectory: string) = async {
@@ -159,10 +160,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
 
     let! appId =
         tryGetFileContents "appid.appid" psarc
-        |> Async.map (Option.bind (fun text ->
-            match text.Trim() with
-            | AppId.CherubRock -> None
-            | appId -> Some appId))
+        |> Async.map (Option.bind AppId.tryCustom)
 
     let project =
         { Version = version

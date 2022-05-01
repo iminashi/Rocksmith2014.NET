@@ -7,6 +7,7 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Media
 open Rocksmith2014.Common
+open Rocksmith2014.DLCProject
 open Rocksmith2014.DD
 open System.IO
 open System.Text.RegularExpressions
@@ -482,7 +483,7 @@ let private buildConfig state dispatch =
                     ]
                     vStack [
                         RadioButton.create [
-                            RadioButton.content "Cherub Rock (248750)"
+                            RadioButton.content $"Cherub Rock ({AppId.toString AppId.CherubRock})"
                             RadioButton.isChecked state.Config.CustomAppId.IsNone
                             RadioButton.onChecked (fun _ -> None |> SetCustomAppId |> EditConfig |> dispatch)
                         ]
@@ -497,8 +498,8 @@ let private buildConfig state dispatch =
                                         TextBox.verticalAlignment VerticalAlignment.Center
                                         TextBox.width 120.
                                         TextBox.onTextInput (fun e -> e.Text <- Regex.Replace(e.Text, "[^0-9]", ""))
-                                        FixedTextBox.text (Option.toObj state.Config.CustomAppId)
-                                        FixedTextBox.onTextChanged (Option.ofString >> SetCustomAppId >> EditConfig >> dispatch)
+                                        FixedTextBox.text (state.Config.CustomAppId |> Option.map AppId.toString |> Option.toObj)
+                                        FixedTextBox.onTextChanged (AppId.ofString >> SetCustomAppId >> EditConfig >> dispatch)
                                     ]
                                 ]
                             )

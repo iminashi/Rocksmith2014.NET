@@ -1,6 +1,8 @@
 [<AutoOpen>]
 module ActivePatterns
 
+open System
+
 let (|Contains|_|) (substr: string) (str: string) =
     if String.containsIgnoreCase substr str then
         Some()
@@ -20,4 +22,10 @@ let (|EndsWith|_|) (suffix: string) (str: string) =
         None
 
 let (|HasExtension|) (path: string) =
-    System.IO.Path.GetExtension(path).ToLowerInvariant()
+    IO.Path.GetExtension(path).ToLowerInvariant()
+
+[<return: Struct>]
+let (|UInt64|_|) (str: string) =
+    match UInt64.TryParse str with
+    | true, v -> ValueSome v
+    | false, _ -> ValueNone

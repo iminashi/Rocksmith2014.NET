@@ -21,7 +21,7 @@ type private BuildData =
       CoverArtFiles: DisposableList<DDS.TempDDSFile>
       BuilderVersion: string
       Author: string
-      AppId: string
+      AppId: AppId
       AudioConversionTask: Async<unit> }
 
 type IdResetConfig =
@@ -37,7 +37,7 @@ type BuildConfig =
     { Platforms: Platform list
       BuilderVersion: string
       Author: string
-      AppId: string
+      AppId: AppId
       GenerateDD: bool
       DDConfig: GeneratorConfig
       ApplyImprovements: bool
@@ -148,7 +148,7 @@ let private build (buildData: BuildData) progress targetPath project platform = 
         entry $"gamexblocks/nsongs/{key}.xblock" data
 
     use appIdEntry =
-        entry "appid.appid" (new MemoryStream(Encoding.ASCII.GetBytes(buildData.AppId)))
+        entry "appid.appid" (new MemoryStream(Encoding.ASCII.GetBytes(AppId.toString buildData.AppId)))
 
     use graphEntry =
         let data = MemoryStreamPool.Default.GetStream()

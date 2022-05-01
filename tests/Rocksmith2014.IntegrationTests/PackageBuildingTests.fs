@@ -15,7 +15,7 @@ let buildConfig =
     { Platforms = [ PC; Mac ]
       BuilderVersion = "1.0"
       Author = "Author"
-      AppId = "123456"
+      AppId = AppId 123456UL
       GenerateDD = true
       DDConfig = { PhraseSearch = WithThreshold 80; LevelCountGeneration = LevelCountGeneration.Simple }
       ApplyImprovements = true
@@ -97,9 +97,9 @@ let tests =
             use psarc = PSARC.ReadFile(psarcPathWin)
 
             use! stream = psarc.GetEntryStream("appid.appid")
-            let appid = using (new StreamReader(stream)) (fun r -> r.ReadToEnd())
+            let appid = using (new StreamReader(stream)) (fun r -> r.ReadToEnd() |> AppId.ofString)
 
-            Expect.equal appid buildConfig.AppId "App ID was the one defined in the build configuration"
+            Expect.equal appid.Value buildConfig.AppId "App ID was the one defined in the build configuration"
         }
 
         testAsync "Mac package contains correct SNG file" {

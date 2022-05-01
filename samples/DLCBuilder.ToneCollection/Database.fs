@@ -193,7 +193,7 @@ let internal addToneDataToUserCollection (connector: IDatabaseConnector) (data: 
     use collection = connector.CreateUserTonesApi()
     collection.AddTone(data)
 
-let private prepareString (str: string) = String.truncate 100 (str.Trim())
+let private prepareString = String.trim >> String.truncate 100
 
 let addToneToUserCollection (connector: IDatabaseConnector) (project: DLCProject) (tone: Tone) =
     let description =

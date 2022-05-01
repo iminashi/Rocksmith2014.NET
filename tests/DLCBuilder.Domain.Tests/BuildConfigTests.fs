@@ -7,10 +7,12 @@ open Rocksmith2014.DD
 open Rocksmith2014.DLCProject
 open System
 
+let private customAppId = AppId 77777UL
+
 let generalConfig =
     { Configuration.Default with
         CharterName = "test charter"
-        CustomAppId = Some "custom id"
+        CustomAppId = Some customAppId
         GenerateDD = false
         SaveDebugFiles = true }
 
@@ -41,7 +43,7 @@ let tests =
         testCase "Creates valid configuration for test build" <| fun _ ->
             let buildConfig = BuildConfig.create Test generalConfig project platforms
 
-            Expect.equal buildConfig.AppId "custom id" "Custom app ID is correct"
+            Expect.equal buildConfig.AppId customAppId "Custom app ID is correct"
             Expect.equal buildConfig.ApplyImprovements generalConfig.ApplyImprovements "Apply improvements is correct"
             Expect.equal buildConfig.Author generalConfig.CharterName "Author is correct"
             Expect.stringStarts buildConfig.BuilderVersion "DLC Builder " "Builder version is correct"
@@ -60,7 +62,7 @@ let tests =
 
             let buildConfig = BuildConfig.create Release generalConfig project [ PC ]
 
-            Expect.equal buildConfig.AppId "248750" "App ID defaulted to Cherub Rock"
+            Expect.equal buildConfig.AppId AppId.CherubRock "App ID defaulted to Cherub Rock"
             Expect.equal buildConfig.ApplyImprovements generalConfig.ApplyImprovements "Apply improvements is correct"
             Expect.equal buildConfig.Author customAuthor "Author is correct"
             Expect.stringStarts buildConfig.BuilderVersion "DLC Builder " "Builder version is correct"

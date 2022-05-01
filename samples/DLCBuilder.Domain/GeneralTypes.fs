@@ -1,6 +1,7 @@
 [<AutoOpen>]
 module DLCBuilder.GeneralTypes
 
+open Rocksmith2014.Common
 open System
 
 type Locale =
@@ -30,7 +31,7 @@ type MoveDirection = Up | Down
 type PsarcQuickEditData =
     { PsarcPath: string
       TempDirectory: string
-      AppId: string option }
+      AppId: AppId option }
 
 type BuildType =
     | Test

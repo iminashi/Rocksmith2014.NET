@@ -1,6 +1,7 @@
 namespace DLCBuilder
 
 open Rocksmith2014.Common
+open Rocksmith2014.DLCProject
 open Rocksmith2014.DD
 open System
 open System.IO
@@ -28,7 +29,7 @@ type Configuration =
       PreviousOpenedProject: string
       Locale: Locale
       WwiseConsolePath: string option
-      CustomAppId: string option }
+      CustomAppId: AppId option }
 
     static member Default =
         { ReleasePlatforms = Set([ PC; Mac ])
@@ -136,7 +137,7 @@ module Configuration =
           PreviousOpenedProject = dto.PreviousOpenedProject
           Locale = t.LocaleFromShortName dto.Locale
           WwiseConsolePath = Option.ofString dto.WwiseConsolePath
-          CustomAppId = Option.ofString dto.CustomAppId }
+          CustomAppId = AppId.ofString dto.CustomAppId }
 
     /// Converts a configuration into a configuration DTO.
     let private toDto (config: Configuration) =
@@ -150,6 +151,9 @@ module Configuration =
             match config.DDLevelCountGeneration with
             | LevelCountGeneration.Simple -> 0
             | LevelCountGeneration.MLModel -> 1
+
+        let customAppId =
+            config.CustomAppId |> Option.map AppId.toString |> Option.toObj
 
         Dto(
             ReleasePC = (config.ReleasePlatforms |> Set.contains PC),
@@ -174,7 +178,7 @@ module Configuration =
             PreviousOpenedProject = config.PreviousOpenedProject,
             SaveDebugFiles = config.SaveDebugFiles,
             WwiseConsolePath = Option.toObj config.WwiseConsolePath,
-            CustomAppId = Option.toObj config.CustomAppId
+            CustomAppId = customAppId 
         )
 
     /// Loads a configuration from the file defined in configFilePath.

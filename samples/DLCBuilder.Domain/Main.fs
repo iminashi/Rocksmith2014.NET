@@ -53,7 +53,7 @@ let update (msg: Msg) (state: State) =
     | SetEditedPsarcAppId appId ->
         let quickEditData =
             state.QuickEditData
-            |> Option.map (fun x -> { x with AppId = Option.ofString appId })
+            |> Option.map (fun x -> { x with AppId = AppId.ofString appId })
 
         { state with QuickEditData = quickEditData }, Cmd.none
 

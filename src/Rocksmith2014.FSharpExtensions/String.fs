@@ -32,3 +32,6 @@ let truncate (maxLength: int) (str: string) =
         str.Substring(0, maxLength)
     else
         str
+
+/// Trims leading and trailing whitespace from the string.
+let inline trim (str: string) = str.Trim()

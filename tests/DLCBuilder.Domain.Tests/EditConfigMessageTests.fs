@@ -51,9 +51,10 @@ let editConfigTests =
 
         testCase "SetSaveDebugFiles, SetCustomAppId, SetConvertAudio" <| fun _ ->
             let saveDebug = not initialState.Config.SaveDebugFiles
+            let testAppId = AppId 43210UL
             let messages =
                 [ SetSaveDebugFiles saveDebug
-                  SetCustomAppId(Some "test")
+                  SetCustomAppId(Some testAppId)
                   SetConvertAudio ToWav ]
                 |> List.map EditConfig
 
@@ -62,7 +63,7 @@ let editConfigTests =
                 |> List.fold (fun (state, _) message -> Main.update message state) (initialState, Cmd.none)
                 
             Expect.equal newState.Config.SaveDebugFiles saveDebug "Save debug files is correct"
-            Expect.equal newState.Config.CustomAppId (Some "test") "Custom app ID is correct"
+            Expect.equal newState.Config.CustomAppId (Some testAppId) "Custom app ID is correct"
             Expect.equal newState.Config.ConvertAudio ToWav "Convert audio is correct"
 
         testCase "AddReleasePlatform" <| fun _ ->

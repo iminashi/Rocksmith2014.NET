@@ -2,6 +2,12 @@ namespace Rocksmith2014.Common
 
 open System
 
+[<Struct>]
+type AppId =
+    | AppId of uint64
+
+    member this.Value = match this with AppId id -> id
+
 type AudioFile =
     { Path: string
       Volume: float }

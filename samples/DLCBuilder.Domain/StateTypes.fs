@@ -130,7 +130,7 @@ type ConfigEdit =
     | SetDDLevelCountGeneration of LevelCountGeneration
     | SetApplyImprovements of bool
     | SetSaveDebugFiles of bool
-    | SetCustomAppId of string option
+    | SetCustomAppId of AppId option
     | SetConvertAudio of AudioConversionType
     | SetOpenFolderAfterReleaseBuild of bool
     | SetLoadPreviousProject of bool
