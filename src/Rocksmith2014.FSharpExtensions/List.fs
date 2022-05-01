@@ -26,3 +26,6 @@ let tryMin list =
     match list with
     | [] -> None
     | _ -> Some(List.min list)
+
+/// Adds a new item to the start of the list.
+let add newHead list = newHead :: list

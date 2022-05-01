@@ -130,7 +130,7 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
             | InstrumentalFile ->
                 importInstrumental targetAudioFiles dlcKey targetFile attributes sng)
         |> Array.toList
-        |> List.append [ Showlights { XML = toTargetPath "arr_showlights.xml" } ]
+        |> List.add (Showlights { XML = toTargetPath "arr_showlights.xml" })
         |> List.sortBy Arrangement.sorter
 
     let tones =
