@@ -93,6 +93,15 @@ You can also specify a fret number in this format: "w3-22". This allows you to c
 
 Removes the beats starting from the beat that is placed on until the end.
 
+## PSARC Quick Edit Import
+
+The feature is meant for making quick changes to a PSARC without preserving the extracted files.
+The files inside the PSARC are extracted into a temporary folder and will be deleted when editing is finished or another project is loaded.
+Building the package will replace the original PSARC file.
+
+Since the process includes conversion of the arrangements into XML, there may be some differences in them compared to the original when building the package again, even if you do not edit them, especially for very old or poorly made customs.
+If you want to stay as close as possible to the original arrangements, disable the options "Remove DD Levels" in PSARC import and "Apply Improvements" in the build options.
+
 ## Using the Japanese Lyrics Creator Tool
 
 The tool can be started when there is a vocals arrangement in the project.
