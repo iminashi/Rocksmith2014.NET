@@ -313,9 +313,7 @@ let update (msg: Msg) (state: State) =
             state, Cmd.none
 
     | CalculateVolumes ->
-        let doPreview =
-            let previewPath = project.AudioPreviewFile.Path
-            File.Exists(previewPath) && not <| String.endsWith "wem" previewPath
+        let doPreview = File.Exists(project.AudioPreviewFile.Path)
 
         let cmds =
             Cmd.batch [
@@ -326,14 +324,21 @@ let update (msg: Msg) (state: State) =
         state, cmds
 
     | CalculateVolume target ->
-        let task () = async {
-            let path =
-                match target with
-                | MainAudio -> project.AudioFile.Path
-                | PreviewAudio -> project.AudioPreviewFile.Path
-                | CustomAudio (path, _) -> path
+        let task () =
+            async {
+                let path =
+                    match target with
+                    | MainAudio -> project.AudioFile.Path
+                    | PreviewAudio -> project.AudioPreviewFile.Path
+                    | CustomAudio (path, _) -> path
 
-            return Volume.calculate path }
+                return
+                    match path with
+                    | HasExtension ".wem" ->
+                        Conversion.withTempOggFile Volume.calculate path
+                    | _ ->
+                        Volume.calculate path
+            }
 
         addTask (VolumeCalculation target) state,
         Cmd.OfAsync.either task () (fun v -> VolumeCalculated(v, target))
@@ -464,12 +469,13 @@ let update (msg: Msg) (state: State) =
             SelectedArrangementIndex = index }, Cmd.none
 
     | CreatePreviewAudio InitialSetup ->
-        let task () = async {
-            let sourceFile =
-                PreviewUtils.getOggOrWavAudio project
+        let task () =
+            async {
+                let sourceFile = PreviewUtils.getOggOrWavAudio project
 
-            return { SourceFile = sourceFile
-                     AudioLength = Utils.getLength sourceFile } }
+                return { SourceFile = sourceFile
+                         AudioLength = Utils.getLength sourceFile }
+            }
 
         state, Cmd.OfAsync.either task () (SetupStartTime >> CreatePreviewAudio) ErrorOccurred
 
@@ -487,10 +493,12 @@ let update (msg: Msg) (state: State) =
         | None ->
             state, Cmd.none
         | Some startTime ->
-            let task () = async {
-                let targetPath = Utils.createPreviewAudioPath data.SourceFile
-                Preview.create data.SourceFile targetPath (TimeSpan.FromSeconds(startTime))
-                return targetPath }
+            let task () =
+                async {
+                    let targetPath = Utils.createPreviewAudioPath data.SourceFile
+                    Preview.create data.SourceFile targetPath (TimeSpan.FromSeconds(startTime))
+                    return targetPath
+                }
 
             { state with Overlay = NoOverlay },
             Cmd.OfAsync.either task () (FileCreated >> CreatePreviewAudio) ErrorOccurred

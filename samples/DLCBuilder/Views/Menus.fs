@@ -26,7 +26,7 @@ let audio notCalculatingVolume state dispatch =
     Menu.create [
         Menu.fontSize 16.
         Menu.margin (0., 0., 4., 0.)
-        Menu.isVisible (String.notEmpty audioPath && not <| String.endsWith ".wem" audioPath)
+        Menu.isVisible (String.notEmpty audioPath)
         Menu.viewItems [
             MenuItem.create [
                 MenuItem.header (
@@ -47,7 +47,7 @@ let audio notCalculatingVolume state dispatch =
                     // Wem conversion
                     MenuItem.create [
                         MenuItem.header (translate "Convert")
-                        MenuItem.isEnabled noBuildInProgress
+                        MenuItem.isEnabled (noBuildInProgress && not <| String.endsWith ".wem" audioPath)
                         MenuItem.onClick (fun _ -> dispatch ConvertToWem)
                         ToolTip.tip (translate "ConvertMultipleToWemToolTip")
                     ]

@@ -51,15 +51,17 @@ let private validateRevorbOutput (exitCode, output) =
 
         failwith $"revorb process failed with {message}"
 
-/// Converts a wem file into a vorbis file.
-let wemToOgg wemfile =
-    let oggFile = Path.ChangeExtension(wemfile, "ogg")
-
-    processFile ww2ogg wemfile "--pcb packed_codebooks_aoTuV_603.bin"
+let private wemToOggImpl sourcePath targetPath =
+    processFile ww2ogg sourcePath $"""-o "{targetPath}" --pcb packed_codebooks_aoTuV_603.bin"""
     |> validateWw2oggOutput
 
-    processFile revorb oggFile ""
+    processFile revorb targetPath ""
     |> validateRevorbOutput
+
+/// Converts a wem file into a vorbis file.
+let wemToOgg wemFile =
+    let oggFile = Path.ChangeExtension(wemFile, "ogg")
+    wemToOggImpl wemFile oggFile
 
 /// Converts a wem file into a wave file.
 let wemToWav wemFile =
@@ -69,3 +71,11 @@ let wemToWav wemFile =
     let targetPath = Path.ChangeExtension(wemFile, "wav")
     oggToWav oggFile targetPath
     File.Delete(oggFile)
+
+/// Does an operation with a wem file converted into a vorbis file temporarily.
+let withTempOggFile f wemPath =
+    let tempOggPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.ogg")
+    wemToOggImpl wemPath tempOggPath
+    let res = f tempOggPath
+    File.Delete(tempOggPath)
+    res
