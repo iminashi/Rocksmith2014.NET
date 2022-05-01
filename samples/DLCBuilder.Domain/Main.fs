@@ -899,7 +899,11 @@ let update (msg: Msg) (state: State) =
     | ShowIssueViewer ->
         match getSelectedArrangement state with
         | Some arr ->
-            { state with Overlay = IssueViewer arr }, Cmd.none
+            match state.ArrangementIssues.TryGetValue(Arrangement.getFile arr) with
+            | true, issues when not issues.IsEmpty ->
+                { state with Overlay = IssueViewer arr }, Cmd.none
+            | _ ->
+                state, Cmd.none
         | None ->
             state, Cmd.none
 

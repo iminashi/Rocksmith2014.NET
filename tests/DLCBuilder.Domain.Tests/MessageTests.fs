@@ -5,6 +5,7 @@ open Expecto
 open DLCBuilder
 open DLCBuilder.OnlineUpdate
 open Rocksmith2014.DLCProject
+open Rocksmith2014.XML.Processing
 open System
 open ToneCollection
 
@@ -312,13 +313,15 @@ let messageTests =
             | _ ->
                 failwith "Wrong arrangement type"
 
-        testCase "ShowIssueViewer opens overlay" <| fun _ ->
-            let project = { initialState.Project with Arrangements = [ Instrumental testLead; Vocals testVocals ] }
-            let state = { initialState with Project = project; SelectedArrangementIndex = 0 }
+        testCase "ShowIssueViewer opens overlay when arrangement has issues" <| fun _ ->
+            let lead = Instrumental testLead
+            let project = { initialState.Project with Arrangements = [ lead; Vocals testVocals ] }
+            let issues = Map.ofList [ Arrangement.getFile lead, [ { Type = ApplauseEventWithoutEnd; TimeCode = 0 } ] ]
+            let state = { initialState with Project = project; SelectedArrangementIndex = 0; ArrangementIssues = issues }
 
             let newState, _ = Main.update ShowIssueViewer state
 
-            Expect.equal newState.Overlay (IssueViewer state.Project.Arrangements.[0]) "Issue viewer overlay was opened"
+            Expect.equal newState.Overlay (IssueViewer lead) "Issue viewer overlay was opened"
 
         testCase "RemoveStatusMessage removes correct status message" <| fun _ ->
             let id = Guid.NewGuid()

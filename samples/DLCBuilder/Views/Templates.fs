@@ -138,6 +138,7 @@ let arrangement state dispatch index arr =
             if e.Route = RoutingStrategies.Bubble then
                 index |> SetSelectedArrangementIndex |> dispatch),
             SubPatchOptions.OnChangeOf index)
+        DockPanel.onDoubleTapped (fun _ -> ShowIssueViewer |> dispatch)
         DockPanel.contextMenu (Menus.Context.arrangement state dispatch)
         if isEmptyBaseToneKey then
             ToolTip.tip (translate "EmptyBaseToneToolTip")

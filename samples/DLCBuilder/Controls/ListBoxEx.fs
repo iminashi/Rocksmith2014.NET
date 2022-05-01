@@ -26,7 +26,11 @@ type ListBoxEx() =
 
     do
         base.Focusable <- true
-        base.Content <- ScrollViewer(HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, Content = st)
+        base.Content <-
+            ScrollViewer(
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Content = st
+            )
 
     override _.OnKeyDown(e) =
         e.Handled <- true

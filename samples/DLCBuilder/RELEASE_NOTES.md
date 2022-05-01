@@ -1,9 +1,10 @@
 ## 1.0.0 (Released 2022-05-01)
 
 - .NET 6 runtime now needs to be installed in order to run the program (on Windows).
-- Added "quick edit" PSARC feature: the files will be extracted into a temporary folder and the original PSARC file will be replaced when the package is built.
+- Added "quick edit" PSARC import feature: the files will be extracted into a temporary folder and the original PSARC file will be replaced when the package is built.
 - The author of a CDLC is preserved when importing a PSARC and the value for the charter name set in the configuration can be overridden for a project.
 - Volume values can now be calculated even if the audio file is a wem file (via conversion to temporary ogg file).
+- The issue viewer can be opened by double clicking an arrangement in the list.
 - Minor UI improvements.
 
 ## 0.9.3 (Released 2022-03-20)
