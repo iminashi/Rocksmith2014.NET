@@ -179,7 +179,8 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
             let chordNotes = chord.ChordNotes
 
             // Check for inconsistent chord note sustains
-            if not <| chordNotes.TrueForAll(fun cn -> cn.Sustain = chordNotes[0].Sustain) then
+            // DISABLED
+            if false && not <| chordNotes.TrueForAll(fun cn -> cn.Sustain = chordNotes[0].Sustain) then
                 issue VaryingChordNoteSustains time
 
             // Check 7th fret harmonic notes with sustain (and without ignore)

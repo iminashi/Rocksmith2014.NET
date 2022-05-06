@@ -288,7 +288,8 @@ let noteTests =
 [<Tests>]
 let chordTests =
     testList "Arrangement Checker (Chords)" [
-        testCase "Detects chord with inconsistent chord note sustains" <| fun _ ->
+        // DISABLED
+        ptestCase "Detects chord with inconsistent chord note sustains" <| fun _ ->
             let cn = ResizeArray(seq { Note(Sustain = 200); Note(Sustain = 400) })
             let chords = ResizeArray(seq { Chord(ChordNotes = cn) })
             let level = Level(Chords = chords)
