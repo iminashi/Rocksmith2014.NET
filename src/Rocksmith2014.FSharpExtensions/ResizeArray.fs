@@ -54,3 +54,10 @@ let singleton (value: 'a) =
     a.Add(value)
     a
 
+/// Returns the largest value found using the projection.
+let findMaxBy (projection: 'a -> 'b) (a: ResizeArray<'a>) =
+    let mutable max = projection a[0]
+    for i = 1 to a.Count - 1 do
+        let res = projection a[i]
+        if res > max then max <- res
+    max

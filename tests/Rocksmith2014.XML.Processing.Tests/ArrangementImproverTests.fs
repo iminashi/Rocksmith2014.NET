@@ -125,14 +125,24 @@ let beatRemoverTests =
 [<Tests>]
 let eofFixTests =
     testList "Arrangement Improver (EOF Fixes)" [
-        testCase "Fixes LinkNext chords" <| fun _ ->
+        testCase "Adds LinkNext to chords missing the attribute" <| fun _ ->
             let chord = Chord(ChordNotes = ra [ Note(IsLinkNext = true) ])
             let levels = ra [ Level(Chords = ra [ chord ]) ]
             let arr = InstrumentalArrangement(Levels = levels)
 
-            EOFFixes.addMissingChordLinkNext arr
+            EOFFixes.fixChordNotes arr
 
             Expect.isTrue chord.IsLinkNext "LinkNext was enabled"
+
+        testCase "Fixes varying sustain of chord notes" <| fun _ ->
+            let correctSustain = 500
+            let chord = Chord(ChordNotes = ra [ Note(Sustain = 0); Note(String = 1y, Sustain = correctSustain); Note(String = 2y, Sustain = 85) ])
+            let levels = ra [ Level(Chords = ra [ chord ]) ]
+            let arr = InstrumentalArrangement(Levels = levels)
+
+            EOFFixes.fixChordNotes arr
+
+            Expect.all levels[0].Chords (fun c -> c.ChordNotes |> Seq.forall (fun cn -> cn.Sustain = correctSustain)) "Sustain was changed"
 
         testCase "Removes incorrect chord note linknexts" <| fun _ ->
             let cn = ra [ Note(IsLinkNext = true) ]

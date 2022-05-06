@@ -5,14 +5,17 @@ open Rocksmith2014.XML.Extensions
 open System.Text.RegularExpressions
 
 /// Adds linknext to chords that have linknext chord notes, but are missing the attribute.
-let addMissingChordLinkNext (arrangement: InstrumentalArrangement) =
+/// Fixes the sustain to be same for all chord notes.
+let fixChordNotes (arrangement: InstrumentalArrangement) =
     arrangement.Levels
     |> Seq.collect (fun l -> l.Chords)
-    |> Seq.filter (fun chord ->
-        chord.HasChordNotes
-        && not chord.IsLinkNext
-        && chord.ChordNotes.Exists(fun cn -> cn.IsLinkNext))
-    |> Seq.iter (fun chord -> chord.IsLinkNext <- true)
+    |> Seq.iter (fun chord ->
+        if chord.HasChordNotes then
+            let sustain = chord.ChordNotes |> ResizeArray.findMaxBy (fun cn -> cn.Sustain)
+            chord.ChordNotes |> ResizeArray.iter (fun cn -> cn.Sustain <- sustain)
+
+            if not chord.IsLinkNext && chord.ChordNotes.Exists(fun cn -> cn.IsLinkNext) then
+                chord.IsLinkNext <- true)
 
 /// Removes linknext from chord notes that are not immediately followed by a note on the same string.
 let removeInvalidChordNoteLinkNexts (arrangement: InstrumentalArrangement) =
@@ -78,7 +81,7 @@ let fixPhraseStartAnchors (arrangement: InstrumentalArrangement) =
 /// Applies all the fixes.
 let fixAll arrangement =
     fixCrowdEvents arrangement
-    addMissingChordLinkNext arrangement
+    fixChordNotes arrangement
     removeInvalidChordNoteLinkNexts arrangement
     fixChordSlideHandshapes arrangement
     fixPhraseStartAnchors arrangement
