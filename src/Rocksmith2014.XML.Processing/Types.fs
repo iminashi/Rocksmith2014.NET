@@ -22,6 +22,7 @@ type IssueType =
     | MissingLinkNextChordNotes
     | ChordAtEndOfHandShape
     | FingeringAnchorMismatch
+    | PossiblyWrongChordFingering
     | AnchorInsideHandShape
     | AnchorInsideHandShapeAtPhraseBoundary
     | AnchorCloseToUnpitchedSlide
@@ -64,6 +65,7 @@ let issueCode = function
     | AnchorNotOnNote _ -> "I24"
     | FirstPhraseNotEmpty -> "I25"
     | NoEndPhrase -> "I26"
+    | PossiblyWrongChordFingering -> "I27"
     | LyricWithInvalidChar _ -> "V01"
     | LyricTooLong _ -> "V02"
     | LyricsHaveNoLineBreaks -> "V03"

@@ -252,6 +252,8 @@
   "MissingLinkNextChordNotesHelp": "コード自体にはLinkNextはありますが、コードにはLinkNextノートがひとつもいません。このようなコードがアレンジにあるとゲームはクラッシュします。",
   "ChordAtEndOfHandShape": "Handshape終了時のコード",
   "ChordAtEndOfHandShapeHelp": "Handshape終了時ぴったりのコードが多少みにくい。Handshapeの長さを調整しましょう。",
+  "PossiblyWrongChordFingering": "コードに妙な運指が使われている",
+  "PossiblyWrongChordFingeringHelp": "運指には通常のコードには見られない指の交差が要求されている。",
   "FingeringAnchorMismatch": "アンカーポジションとコードの運指が不一致",
   "FingeringAnchorMismatchHelp": "アンカー(FHP)が一つ目の指を使わないコードの一番低いフレットと同じ。意図的である場合はこの問題点を無視していい。",
   "AnchorNotOnNote": "アンカーがノートから外れている。一番近いノートとの距離: {0} ms",

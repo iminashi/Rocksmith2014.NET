@@ -252,6 +252,8 @@
   "MissingLinkNextChordNotesHelp": "A chord itself has the LinkNext attribute set, but it does not contain any chord notes that have the attribute. Such a chord will crash the game.",
   "ChordAtEndOfHandShape": "Chord at the end of a handshape",
   "ChordAtEndOfHandShapeHelp": "A chord exactly at the end of a handshape looks ugly. Increase the length of the handshape.",
+  "PossiblyWrongChordFingering": "Chord fingering appears to be wrong",
+  "PossiblyWrongChordFingeringHelp": "The chord fingering requires the fingers to cross in a way not used in common chords.",
   "FingeringAnchorMismatch": "Handshape fingering does not match anchor position",
   "FingeringAnchorMismatchHelp": "An anchor (FHP) was on the same fret as the lowest note of a chord that does not use the first finger. Sometimes this can be intended.",
   "AnchorNotOnNote": "Anchor not on a note. Distance to closest note: {0} ms",

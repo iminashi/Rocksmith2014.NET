@@ -25,7 +25,21 @@ let phraseIterations =
     ResizeArray(seq { PhraseIteration(6500, 0) })
 
 let chordTemplates =
-    ResizeArray(seq { ChordTemplate("", "", [| 2y; 2y; -1y; -1y; -1y; -1y |], [| 2y; 2y; -1y; -1y; -1y; -1y |]) })
+    ResizeArray(seq {
+        ChordTemplate("", "", fingers = [| 2y; 2y; -1y; -1y; -1y; -1y |], frets = [| 2y; 2y; -1y; -1y; -1y; -1y |])
+        // 1st finger not on lowest fret
+        // | | 3 | | |
+        // | 2 | 1 | |
+        ChordTemplate("WEIRDO1", "", fingers = [| -1y; 2y; 3y; 1y; -1y; -1y |], frets = [| -1y; 2y; 1y; 2y; -1y; -1y |])
+        // 2nd finger not on lowest fret
+        // | | 4 | | |
+        // | 2 | 3 | |
+        ChordTemplate("WEIRDO2", "", fingers = [| -1y; 2y; 4y; 3y; -1y; -1y |], frets = [| -1y; 2y; 1y; 2y; -1y; -1y |])
+        // Chord using thumb, fingering perfectly possible
+        // | | 1 1 1 |
+        // 0 | | | | |
+        ChordTemplate("THUMB", "", fingers = [| 0y; -1y; 1y; 1y; 1y; -1y |], frets = [| 2y; -1y; 1y; 1y; 1y; -1y |])
+    })
 
 let testArr =
     InstrumentalArrangement(
@@ -448,6 +462,22 @@ let chordTests =
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type MissingLinkNextChordNotes "Correct issue type"
+
+        testCase "Detects chords with weird fingering" <| fun _ ->
+            // Dummy chord notes
+            let cn = ResizeArray(seq { Note(String = 1y, Time = 1000, Sustain = 100) })
+            let chords =
+                ResizeArray(seq {
+                    Chord(ChordId = 1s, ChordNotes = cn)
+                    Chord(ChordId = 2s, ChordNotes = cn)
+                    Chord(ChordId = 3s, ChordNotes = cn)
+                })
+            let level = Level(Chords = chords)
+
+            let results = checkChords testArr level
+
+            Expect.hasLength results 2 "Two issues created"
+            Expect.all results (fun x -> x.Type = PossiblyWrongChordFingering) "Correct issue types"
     ]
 
 [<Tests>]

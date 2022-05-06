@@ -168,6 +168,20 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
         if isInsideNoguitarSection ngSections time then
             issue NoteInsideNoguitarSection time ]
 
+let private chordHasStrangeFingering (chord: Chord) (chordTemplates: ResizeArray<ChordTemplate>) =
+    option {
+        let! chordTemplate = chordTemplates |> ResizeArray.tryItem (int chord.ChordId)
+        let fingersSorted = chordTemplate.Fingers |> Array.sort
+        // Ignore thumb
+        let! lowestFinger = fingersSorted |> Array.tryFind (fun f -> f > 0y)
+        let fingerIndex = Array.IndexOf(chordTemplate.Fingers, lowestFinger)
+        let lowestFingerFret = chordTemplate.Frets[fingerIndex]
+        return
+            chordTemplate.Frets
+            |> Array.exists (fun fret -> fret > 0y && fret < lowestFingerFret)
+    }
+    |> Option.contains true
+
 /// Checks the chords in the level for issues.
 let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
     let ngSections = getNoguitarSections arrangement
@@ -225,6 +239,10 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
 
         if notNull handShape && handShape.EndTime - time <= 5 then
             issue ChordAtEndOfHandShape time
+
+        // Check the fingering of the chord
+        if chord.HasChordNotes && chordHasStrangeFingering chord arrangement.ChordTemplates then
+            issue PossiblyWrongChordFingering chord.Time
 
         // Check for chords inside noguitar sections
         if isInsideNoguitarSection ngSections time then
