@@ -362,19 +362,31 @@ let checkPhrases (arr: InstrumentalArrangement) =
     else
         List.empty
 
+let private getInstrumentalChecks arr =
+    [| checkNotes arr
+       checkChords arr
+       checkHandshapes arr
+       checkAnchors arr |]
+
+let private parallelizeInstrumentalCheck arr =
+    let checks = getInstrumentalChecks arr
+    if arr.Levels.Count = 1 then
+        let level = arr.Levels[0]
+        checks
+        |> Array.Parallel.map (fun check -> check level)
+    else
+        arr.Levels.ToArray()
+        |> Array.Parallel.collect (fun level -> Array.map (fun check -> check level) checks)
+    |> List.concat
+
+let private allChecks =
+    [ checkCrowdEventPlacement
+      checkPhrases
+      parallelizeInstrumentalCheck ]
+
 /// Runs all the checks on the given arrangement.
 let runAllChecks (arr: InstrumentalArrangement) =
-    let results =
-        arr.Levels.ToArray()
-        |> Array.Parallel.map (fun level ->
-            [ yield! checkNotes arr level
-              yield! checkChords arr level
-              yield! checkHandshapes arr level
-              yield! checkAnchors arr level ])
-        |> List.concat
-
-    [ yield! checkCrowdEventPlacement arr
-      yield! checkPhrases arr
-      yield! results ]
+    allChecks
+    |> List.collect (fun check -> check arr)
     |> List.distinct
     |> List.sortBy (fun issue -> issue.TimeCode)
