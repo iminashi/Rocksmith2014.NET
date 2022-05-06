@@ -77,17 +77,20 @@ let update (msg: Msg) (state: State) =
         { state with Project = updatedProject }, Cmd.none
 
     | ShowJapaneseLyricsCreator ->
-        project.Arrangements
-        |> List.choose Arrangement.pickVocals
-        |> List.tryFind (fun x -> not x.Japanese)
-        |> Option.map (fun vocals ->
-            let initialState =
-                vocals.XML
-                |> XML.Vocals.Load
-                |> JapaneseLyricsCreator.LyricsCreatorState.init
+        let newState =
+            project.Arrangements
+            |> List.choose Arrangement.pickVocals
+            |> List.tryFind (fun x -> not x.Japanese)
+            |> Option.map (fun vocals ->
+                let initialState =
+                    vocals.XML
+                    |> XML.Vocals.Load
+                    |> JapaneseLyricsCreator.LyricsCreatorState.init
 
-            { state with Overlay = JapaneseLyricsCreator initialState }, Cmd.none)
-        |> Option.defaultValue (state, Cmd.none)
+                { state with Overlay = JapaneseLyricsCreator initialState })
+            |> Option.defaultValue state
+
+        newState, Cmd.none
 
     | ConfirmIdRegeneration (ids, reply) ->
         let arrangements =

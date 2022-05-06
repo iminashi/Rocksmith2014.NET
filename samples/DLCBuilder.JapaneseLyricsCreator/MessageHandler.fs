@@ -27,7 +27,7 @@ let private createVocals matchedLines =
         let lyric =
             match matched.Japanese with
             | Some jp ->
-                if oldVocal.Lyric.EndsWith("+") && not <| jp.EndsWith("+") then
+                if oldVocal.Lyric.EndsWith('+') && not <| jp.EndsWith('+') then
                     jp + "+"
                 else
                     jp

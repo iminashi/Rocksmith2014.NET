@@ -27,6 +27,7 @@ let withoutTrailingDash (str: String) =
 
 let private revCharListToString = List.rev >> Array.ofList >> String
 
+/// Hyphenates a string of Japanese into a list of kanji/kana.
 let hyphenate (str: string) =
     let rec getSyllables (results: string list) current list =
         match list with
@@ -62,15 +63,17 @@ let hyphenate (str: string) =
     |> getSyllables [] []
     |> List.rev
 
+/// Converts a string of Japanese into an array of hyphenated lines.
 let hyphenateToSyllableLines (str: string) =
     str.Split('\n')
     |> Array.map (hyphenate >> List.filter String.notEmpty >> List.toArray)
     |> Array.filter (Array.isEmpty >> not)
 
+/// Splits a matched syllable sequence into lines with the character '+' as a line break.
 let toLines (vocals: MatchedSyllable seq) =
     (([], []), vocals)
     ||> Seq.fold (fun (lines, currentLine) elem ->
-        if elem.Vocal.Lyric.EndsWith("+") then
+        if elem.Vocal.Lyric.EndsWith('+') then
             let result = (elem :: currentLine) |> List.rev
             result :: lines, []
         else
@@ -80,37 +83,39 @@ let toLines (vocals: MatchedSyllable seq) =
     |> List.map List.toArray
     |> List.toArray
 
-let matchHyphenation (oneWord: string) (manyWords: string array) =
+/// Tries to find the word in the syllable array and returns the hyphenated word if successful.
+let matchHyphenation (word: string) (syllables: string array) =
     let startIndex =
-        manyWords
+        syllables
         |> Array.tryFindIndex (fun x ->
-            x.EndsWith("-") &&
-            oneWord.AsSpan().StartsWith(x.AsSpan(0, x.Length - 1), StringComparison.OrdinalIgnoreCase))
+            x.EndsWith('-') &&
+            word.AsSpan().StartsWith(x.AsSpan(0, x.Length - 1), StringComparison.OrdinalIgnoreCase))
 
     match startIndex with
     | Some startIndex ->
-        let manyWords = manyWords[startIndex..]
+        let syllables = syllables[startIndex..]
 
         let wordEnd =
-            manyWords
-            |> Array.findIndex (fun x -> not <| x.EndsWith("-"))
+            syllables
+            |> Array.findIndex (fun x -> not <| x.EndsWith('-'))
 
         let hyphenated =
-            manyWords
+            syllables
             |> Array.take (wordEnd + 1)
 
         let completeWord =
             hyphenated
-            |> Array.map (fun x -> if x.EndsWith("-") || x.EndsWith("+") then x.Substring(0, x.Length - 1) else x)
-            |> String.concat ""
+            |> Array.map (fun x -> if x.EndsWith('-') || x.EndsWith('+') then x.Substring(0, x.Length - 1) else x)
+            |> String.Concat
 
-        if String.equalsIgnoreCase completeWord oneWord then
+        if String.equalsIgnoreCase completeWord word then
             hyphenated
         else
-            Array.singleton oneWord
+            Array.singleton word
     | None ->
-        Array.singleton oneWord
+        Array.singleton word
 
+/// Tries to match non-Japanese words included in the Japanese lines to the hyphenation found in the matched lines.
 let matchNonJapaneseHyphenation (matchedLines: MatchedSyllable array array) (japaneseLines: String array array) =
     japaneseLines
     |> Array.mapi (fun lineNumber line ->
@@ -131,10 +136,11 @@ let matchNonJapaneseHyphenation (matchedLines: MatchedSyllable array array) (jap
             | _ ->
                Array.singleton word))
 
-let applyCombinations (replacements: CombinationLocation list) (japaneseLines: string array array) =
+/// Applies the given combinations to the lines of Japanese kanji/kana.
+let applyCombinations (combinations: CombinationLocation list) (japaneseLines: string array array) =
     japaneseLines
     |> Array.mapi (fun lineNumber line ->
-        match replacements |> List.filter (fun x -> x.LineNumber = lineNumber) with
+        match combinations |> List.filter (fun x -> x.LineNumber = lineNumber) with
         | [] ->
             line
         | rep ->
@@ -155,11 +161,11 @@ let applyCombinations (replacements: CombinationLocation list) (japaneseLines: s
                     else
                         Some word)))
 
-let createJapaneseLines matchedLines combinedJapanese japaneseText =
+let createJapaneseLines matchedLines combinations japaneseText =
     japaneseText
     |> hyphenateToSyllableLines
     |> matchNonJapaneseHyphenation matchedLines
-    |> applyCombinations combinedJapanese
+    |> applyCombinations combinations
 
 let combineVocals (v1: Vocal) (v2: Vocal) =
     let lyric =
