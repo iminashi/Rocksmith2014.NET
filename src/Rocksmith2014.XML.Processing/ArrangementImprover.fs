@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.XML.Processing.ArrangementImprover
+module Rocksmith2014.XML.Processing.ArrangementImprover
 
 /// Adds crowd events to the arrangement if it does not have them.
 let addCrowdEvents = CrowdEventAdder.improve
@@ -35,4 +35,5 @@ let applyAll arrangement =
 /// Applies the basic needed improvements to the arrangement.
 let applyMinimum arrangement =
     BasicFixes.validatePhraseNames arrangement
+    EOFFixes.fixChordNotes arrangement
     EOFFixes.fixPhraseStartAnchors arrangement
