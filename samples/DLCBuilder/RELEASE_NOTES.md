@@ -1,3 +1,10 @@
+## 1.1.0 (Released 2022-05-xx)
+
+- The start time for the preview audio is now entered in minutes, seconds and milliseconds.
+- Wem conversion is automatically done again if the audio file set for the project is newer than an existing wem file.
+- Added a new automatic fix for chords that have different sustains on the chord notes.
+- Added a new validation check for chords that have "impossible" fingerings.
+
 ## 1.0.0 (Released 2022-05-01)
 
 - .NET 6 runtime now needs to be installed in order to run the program (on Windows).
