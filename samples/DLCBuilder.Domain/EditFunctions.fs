@@ -228,7 +228,17 @@ let editProject edit project =
     | SetPreviewVolume volume ->
         { project with AudioPreviewFile = { project.AudioPreviewFile with Volume = volume } }
 
-    | SetPreviewStartTime startTime ->
+    | SetPreviewStartTime timeComponent ->
+        let currentTime = project.AudioPreviewStartTime |> Option.defaultValue (TimeSpan())
+        let startTime =
+            match timeComponent with
+            | Minutes min ->
+                TimeSpan(0, 0, int min, currentTime.Seconds, currentTime.Milliseconds)
+            | Seconds sec ->
+                TimeSpan(0, 0, currentTime.Minutes, int sec, currentTime.Milliseconds)
+            | Milliseconds ms ->
+                TimeSpan(0, 0, currentTime.Minutes, currentTime.Seconds, int ms)
+            
         { project with AudioPreviewStartTime = Some startTime }
 
     | SetPitchShift shift ->

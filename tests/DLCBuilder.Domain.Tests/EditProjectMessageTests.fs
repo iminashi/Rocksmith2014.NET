@@ -5,6 +5,7 @@ open Expecto
 open DLCBuilder
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
+open System
 
 [<Tests>]
 let editProjectTests =
@@ -75,7 +76,8 @@ let editProjectTests =
             let messages =
                 [ SetAudioVolume 9.
                   SetPreviewVolume -9.
-                  SetPreviewStartTime 50. ]
+                  SetPreviewStartTime (Seconds 50.)
+                  SetPreviewStartTime (Minutes 2.)]
                 |> List.map EditProject
 
             let newState, _ =
@@ -85,7 +87,7 @@ let editProjectTests =
 
             Expect.equal project.AudioFile.Volume 9. "Volume is correct"
             Expect.equal project.AudioPreviewFile.Volume -9. "Preview volume is correct"
-            Expect.equal project.AudioPreviewStartTime (Some 50.) "Preview start time is correct"
+            Expect.equal project.AudioPreviewStartTime (Some (TimeSpan.FromSeconds(2. * 60. + 50.))) "Preview start time is correct"
 
         testCase "SetPitchShift" <| fun _ ->
             let messages = [ SetPitchShift 1s ] |> List.map EditProject

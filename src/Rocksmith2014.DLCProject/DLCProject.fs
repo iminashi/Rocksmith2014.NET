@@ -19,7 +19,7 @@ type DLCProject =
       AlbumArtFile: string
       AudioFile: AudioFile
       AudioPreviewFile: AudioFile
-      AudioPreviewStartTime: float option
+      AudioPreviewStartTime: TimeSpan option
       PitchShift: int16 option
       IgnoredIssues: Set<string>
       Arrangements: Arrangement list
@@ -70,6 +70,11 @@ module DLCProject =
             |> List.map Tone.toDto
             |> Array.ofList
 
+        let previewStart =
+            project.AudioPreviewStartTime
+            |> Option.map (fun x -> float x.TotalSeconds)
+            |> Option.toNullable
+
         Dto(
             Version = project.Version,
             Author = Option.toObj project.Author,
@@ -83,7 +88,7 @@ module DLCProject =
             AlbumArtFile = project.AlbumArtFile,
             AudioFile = project.AudioFile,
             AudioPreviewFile = project.AudioPreviewFile,
-            AudioPreviewStartTime = Option.toNullable project.AudioPreviewStartTime,
+            AudioPreviewStartTime = previewStart,
             PitchShift = Option.toNullable project.PitchShift,
             IgnoredIssues = Set.toArray project.IgnoredIssues,
             Arrangements = Array.ofList project.Arrangements,
@@ -103,7 +108,7 @@ module DLCProject =
           AlbumArtFile = dto.AlbumArtFile
           AudioFile = dto.AudioFile
           AudioPreviewFile = dto.AudioPreviewFile
-          AudioPreviewStartTime = Option.ofNullable dto.AudioPreviewStartTime
+          AudioPreviewStartTime = dto.AudioPreviewStartTime |> Option.ofNullable |> Option.map TimeSpan.FromSeconds
           PitchShift = Option.ofNullable dto.PitchShift
           IgnoredIssues = dto.IgnoredIssues |> Set.ofArray
           Arrangements = dto.Arrangements |> List.ofArray

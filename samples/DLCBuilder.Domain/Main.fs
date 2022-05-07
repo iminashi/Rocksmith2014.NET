@@ -475,9 +475,11 @@ let update (msg: Msg) (state: State) =
         let task () =
             async {
                 let sourceFile = PreviewUtils.getOggOrWavAudio project
+                let audioLength = Utils.getLength sourceFile
 
-                return { SourceFile = sourceFile
-                         AudioLength = Utils.getLength sourceFile }
+                return
+                    { SourceFile = sourceFile
+                      MaxPreviewStart = audioLength - Preview.DefaultPreviewLength }
             }
 
         state, Cmd.OfAsync.either task () (SetupStartTime >> CreatePreviewAudio) ErrorOccurred
@@ -485,7 +487,7 @@ let update (msg: Msg) (state: State) =
     | CreatePreviewAudio (SetupStartTime data) ->
         let initialPreviewStart =
             project.AudioPreviewStartTime
-            |> Option.orElse (Some 0.)
+            |> Option.orElse (Some (TimeSpan()))
 
         let newState = { state with Project = { project with AudioPreviewStartTime = initialPreviewStart } }
 
@@ -499,7 +501,7 @@ let update (msg: Msg) (state: State) =
             let task () =
                 async {
                     let targetPath = Utils.createPreviewAudioPath data.SourceFile
-                    Preview.create data.SourceFile targetPath (TimeSpan.FromSeconds(startTime))
+                    Preview.create data.SourceFile targetPath startTime
                     return targetPath
                 }
 

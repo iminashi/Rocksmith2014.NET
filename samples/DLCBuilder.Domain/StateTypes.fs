@@ -17,7 +17,7 @@ type FocusedSetting =
 
 type PreviewAudioCreationData =
     { SourceFile: string
-      AudioLength: TimeSpan }
+      MaxPreviewStart: TimeSpan }
 
 type OverlayContents =
     | NoOverlay
@@ -80,6 +80,11 @@ type BuildCompleteType =
     | PitchShifted
     | ReplacePsarc
 
+type TimeComponent =
+    | Minutes of float
+    | Seconds of float
+    | Milliseconds of float
+
 type ProjectEdit =
     | SetDLCKey of string
     | SetVersion of string
@@ -95,7 +100,7 @@ type ProjectEdit =
     | SetYear of int
     | SetAudioVolume of float
     | SetPreviewVolume of float
-    | SetPreviewStartTime of float
+    | SetPreviewStartTime of TimeComponent
     | SetPitchShift of int16
     | SetAuthor of string
 

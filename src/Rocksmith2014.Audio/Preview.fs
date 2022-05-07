@@ -7,6 +7,8 @@ let [<Literal>] private FadeIn = 2500<ms>
 let [<Literal>] private FadeOut = 3000<ms>
 let [<Literal>] private PreviewLength = 28_000L<ms>
 
+let DefaultPreviewLength = TimeSpan.FromMilliseconds(float PreviewLength)
+
 /// Adds a fade-in and fade-out to the sample provider.
 let private fade fadeIn fadeOut audioLength sampleProvider =
     AudioFader(sampleProvider, fadeIn, fadeOut, audioLength) :> ISampleProvider
@@ -15,7 +17,7 @@ let private fade fadeIn fadeOut audioLength sampleProvider =
 let private getPreviewSection (offset: TimeSpan) (file: ISampleProvider) =
     file
         .Skip(offset)
-        .Take(TimeSpan.FromMilliseconds(float PreviewLength))
+        .Take(DefaultPreviewLength)
 
 /// Creates a preview audio file.
 let create (sourcePath: string) (targetPath: string) (startOffset: TimeSpan) =

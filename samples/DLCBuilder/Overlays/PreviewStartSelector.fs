@@ -8,12 +8,12 @@ open System
 open DLCBuilder
 
 let view state dispatch (data: PreviewAudioCreationData) =
-    // Remove the length of the preview from the total length
-    let length = data.AudioLength - TimeSpan.FromSeconds(28.)
-
     let previewStart =
         state.Project.AudioPreviewStartTime
-        |> Option.defaultValue 0.
+        |> Option.defaultValue (TimeSpan())
+
+    let maxSecs = if previewStart.Minutes = data.MaxPreviewStart.Minutes then data.MaxPreviewStart.Seconds else 59
+    let maxMs = if previewStart.Seconds = data.MaxPreviewStart.Seconds then data.MaxPreviewStart.Milliseconds else 999
 
     StackPanel.create [
         StackPanel.spacing 8.
@@ -36,31 +36,55 @@ let view state dispatch (data: PreviewAudioCreationData) =
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.horizontalAlignment HorizontalAlignment.Center
                 StackPanel.spacing 8.
-                StackPanel.isVisible (length.TotalSeconds > 0.)
+                StackPanel.isVisible (data.MaxPreviewStart.TotalSeconds > 0.)
                 StackPanel.children [
                     // Start time
                     locText "StartTime" [
                         TextBlock.verticalAlignment VerticalAlignment.Center
                     ]
+
+                    // Minutes
                     FixedNumericUpDown.create [
-                        NumericUpDown.width 180.
+                        NumericUpDown.width 60.
                         NumericUpDown.minimum 0.
-                        NumericUpDown.maximum (max 0. length.TotalSeconds)
-                        NumericUpDown.formatString "F3"
-                        FixedNumericUpDown.value previewStart
-                        FixedNumericUpDown.onValueChanged (SetPreviewStartTime >> EditProject >> dispatch)
+                        NumericUpDown.maximum data.MaxPreviewStart.Minutes
+                        NumericUpDown.formatString "0"
+                        NumericUpDown.showButtonSpinner false
+                        FixedNumericUpDown.value previewStart.Minutes
+                        FixedNumericUpDown.onValueChanged (Minutes >> SetPreviewStartTime >> EditProject >> dispatch)
                     ]
-                    TextBlock.create [
-                        let minutes = previewStart / 60. |> floor
-                        let seconds = previewStart - minutes * 60.
-                        TextBlock.width 100.
-                        TextBlock.text $"(%02i{int minutes}:%06.3f{seconds})"
-                        TextBlock.verticalAlignment VerticalAlignment.Center
+
+                    TextBlock.create [ TextBlock.text "m"; TextBlock.verticalAlignment VerticalAlignment.Center ]
+
+                    // Seconds
+                    FixedNumericUpDown.create [
+                        NumericUpDown.width 60.
+                        NumericUpDown.minimum 0.
+                        NumericUpDown.maximum (float maxSecs)
+                        NumericUpDown.formatString "00"
+                        NumericUpDown.showButtonSpinner false
+                        FixedNumericUpDown.value previewStart.Seconds
+                        FixedNumericUpDown.onValueChanged (Seconds >> SetPreviewStartTime >> EditProject >> dispatch)
                     ]
+
+                    TextBlock.create [ TextBlock.text "."; TextBlock.verticalAlignment VerticalAlignment.Center ]
+
+                    // Milliseconds
+                    FixedNumericUpDown.create [
+                        NumericUpDown.width 80.
+                        NumericUpDown.minimum 0.
+                        NumericUpDown.maximum (float maxMs)
+                        NumericUpDown.formatString "000"
+                        NumericUpDown.showButtonSpinner false
+                        FixedNumericUpDown.value previewStart.Milliseconds
+                        FixedNumericUpDown.onValueChanged (Milliseconds >> SetPreviewStartTime >> EditProject >> dispatch)
+                    ]
+
+                    TextBlock.create [ TextBlock.text "s"; TextBlock.verticalAlignment VerticalAlignment.Center ]
                 ]
             ]
 
-            if length.TotalSeconds <= 0. then
+            if data.MaxPreviewStart.TotalSeconds <= 0. then
                 locText "PreviewAudioLengthNotification" []
 
             // Buttons
