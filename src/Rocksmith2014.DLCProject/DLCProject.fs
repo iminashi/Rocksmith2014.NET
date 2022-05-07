@@ -224,10 +224,19 @@ module DLCProject =
                    |> List.choose (function Instrumental i -> i.CustomAudio | _ -> None)
         }
 
+    let private needsConversion path =
+        let wemPath = Path.ChangeExtension(path, "wem")
+
+        if not <| File.Exists(wemPath) then
+            true
+        else
+            let sourceAudioDate = FileInfo(path).LastWriteTime
+            let wemAudioDate = FileInfo(wemPath).LastWriteTime
+
+            sourceAudioDate > wemAudioDate
+
     /// Returns the paths to the audio files that need converting to wem.
     let getFilesThatNeedConverting (project: DLCProject) =
         getAudioFiles project
         |> Seq.map (fun audio -> audio.Path)
-        |> Seq.filter (fun path ->
-            not <| String.endsWith "wem" path
-            && not <| File.Exists(Path.ChangeExtension(path, "wem")))
+        |> Seq.filter needsConversion
