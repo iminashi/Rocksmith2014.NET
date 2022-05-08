@@ -146,7 +146,7 @@ let private audioControls state dispatch =
                                         Button.minWidth 80.
                                         Button.margin (0.0, 4.0, 4.0, 4.0)
                                         Button.padding (10.0, 0.0)
-                                        Button.content (translate "Create")
+                                        Button.content (translate "Create...")
                                         Button.isEnabled (IO.File.Exists(audioPath))
                                         Button.onClick (fun _ -> dispatch (CreatePreviewAudio InitialSetup))
                                         ToolTip.tip (

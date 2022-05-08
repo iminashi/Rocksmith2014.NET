@@ -485,28 +485,21 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfAsync.either task () (SetupStartTime >> CreatePreviewAudio) ErrorOccurred
 
     | CreatePreviewAudio (SetupStartTime data) ->
-        let initialPreviewStart =
-            project.AudioPreviewStartTime
-            |> Option.orElse (Some (TimeSpan()))
-
-        let newState = { state with Project = { project with AudioPreviewStartTime = initialPreviewStart } }
-
-        showOverlay newState (SelectPreviewStart data), Cmd.none
+        showOverlay state (SelectPreviewStart data), Cmd.none
 
     | CreatePreviewAudio (CreateFile data) ->
-        match project.AudioPreviewStartTime with
-        | None ->
-            state, Cmd.none
-        | Some startTime ->
-            let task () =
-                async {
-                    let targetPath = Utils.createPreviewAudioPath data.SourceFile
-                    Preview.create data.SourceFile targetPath startTime
-                    return targetPath
-                }
+        let task () =
+            async {
+                let startTime =
+                    project.AudioPreviewStartTime
+                    |> Option.defaultValue (TimeSpan())
+                let targetPath = Utils.createPreviewAudioPath data.SourceFile
+                Preview.create data.SourceFile targetPath startTime
+                return targetPath
+            }
 
-            { state with Overlay = NoOverlay },
-            Cmd.OfAsync.either task () (FileCreated >> CreatePreviewAudio) ErrorOccurred
+        { state with Overlay = NoOverlay },
+        Cmd.OfAsync.either task () (FileCreated >> CreatePreviewAudio) ErrorOccurred
 
     | CreatePreviewAudio (FileCreated previewPath) ->
         let previewFile = { project.AudioPreviewFile with Path = previewPath }
