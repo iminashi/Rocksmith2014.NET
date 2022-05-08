@@ -3,12 +3,10 @@ module DLCBuilder.Views.Menus
 open Avalonia
 open Avalonia.Controls
 open Avalonia.Controls.ApplicationLifetimes
-open Avalonia.Controls.Shapes
 open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
 open Avalonia.FuncUI.Types
 open Avalonia.Input
-open Avalonia.Layout
 open System
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
@@ -30,9 +28,8 @@ let audio notCalculatingVolume state dispatch =
         Menu.viewItems [
             MenuItem.create [
                 MenuItem.header (
-                    TextBlock.create [
-                        TextBlock.text "..."
-                        TextBlock.verticalAlignment VerticalAlignment.Center
+                    PathIcon.create [
+                        PathIcon.data Media.Icons.ellipsis
                     ]
                 )
 

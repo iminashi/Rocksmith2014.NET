@@ -192,6 +192,7 @@ type Dialog =
     | WwiseConsole
     | CoverArt
     | AudioFile of isCustom: bool
+    | PreviewFile
     | CustomFont
     | ExportTone of tone: Tone
     | SaveJapaneseLyrics
@@ -221,7 +222,8 @@ type Msg =
     | AutoSaveProject
     | OpenProjectFolder
     | AddArrangements of files: string array
-    | SetAudioFile of fileName: string
+    | SetAudioFile of path: string
+    | SetPreviewAudioFile of path: string
     | SetConfiguration of config: Configuration * enableLoad: bool * wasAbnormalExit: bool
     | SetRecentFiles of files: string list
     | ProgramClosing

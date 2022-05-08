@@ -91,11 +91,12 @@ let private audioControls state dispatch =
 
                                     // Select audio file
                                     Button.create [
-                                        Button.minWidth 80.
-                                        Button.margin (0.0, 4.0, 4.0, 4.0)
-                                        Button.padding (10.0, 0.0)
-                                        Button.content (translate "Browse...")
+                                        Button.content (
+                                            PathIcon.create [
+                                                PathIcon.data Icons.folderOpen
+                                            ])
                                         Button.isEnabled notCalculatingVolume
+                                        Button.classes [ "borderless-btn" ]
                                         Button.onClick (fun _ -> Dialog.AudioFile false |> ShowDialog |> dispatch)
                                         ToolTip.tip (translate "SelectAudioFile")
                                     ]
@@ -139,6 +140,18 @@ let private audioControls state dispatch =
                                         FixedNumericUpDown.value state.Project.AudioPreviewFile.Volume
                                         FixedNumericUpDown.onValueChanged (SetPreviewVolume >> EditProject >> dispatch)
                                         ToolTip.tip (translate "PreviewAudioVolumeToolTip")
+                                    ]
+
+                                    // Select preview audio file
+                                    Button.create [
+                                        Button.content (
+                                            PathIcon.create [
+                                                PathIcon.data Icons.folderOpen
+                                            ])
+                                        Button.isEnabled notCalculatingVolume
+                                        Button.classes [ "borderless-btn" ]
+                                        Button.onClick (fun _ -> Dialog.PreviewFile |> ShowDialog |> dispatch)
+                                        ToolTip.tip (translate "SelectPreviewAudioFile")
                                     ]
 
                                     // Create preview audio

@@ -263,6 +263,10 @@ let showDialog window dialogType state =
             let initialDir = getProjectDirectory state
             openFileDialog title FileFilter.Audio initialDir msg
 
+        | Dialog.PreviewFile ->
+            let initialDir = getProjectDirectory state
+            openFileDialog title FileFilter.Audio initialDir SetPreviewAudioFile
+
         | Dialog.CustomFont ->
             let initialDir = getProjectDirectory state
             openFileDialog title FileFilter.DDS initialDir (Some >> SetCustomFont >> EditVocals)

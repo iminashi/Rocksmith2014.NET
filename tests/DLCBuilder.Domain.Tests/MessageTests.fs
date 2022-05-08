@@ -218,6 +218,12 @@ let messageTests =
             Expect.equal newState.Project.AudioFile.Path "groovy.wav" "Audio path was changed"
             Expect.isNonEmpty cmd "Auto volume command was returned"
 
+        testCase "SetPreviewAudioFile sets preview audio file" <| fun _ ->
+            let newState, cmd = Main.update (SetPreviewAudioFile "groovy.wav") initialState
+
+            Expect.equal newState.Project.AudioPreviewFile.Path "groovy.wav" "Preview audio path was changed"
+            Expect.isNonEmpty cmd "Auto volume command was returned"
+
         testCase "CalculateVolume adds long running task" <| fun _ ->
             let guid = Guid.NewGuid()
 

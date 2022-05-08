@@ -281,11 +281,19 @@ let update (msg: Msg) (state: State) =
             { state with SelectedImportTones = []; Overlay = ImportToneSelector tones }, Cmd.none
 
     | SetAudioFile audioPath ->
-        let previewPath = Utils.determinePreviewPath audioPath
+        let previewPath =
+            if String.IsNullOrEmpty project.AudioPreviewFile.Path then
+                Utils.determinePreviewPath audioPath
+            else
+                project.AudioPreviewFile.Path
 
         let cmd =
             if config.AutoVolume && not <| String.endsWith ".wem" audioPath then
-                Cmd.ofMsg CalculateVolumes
+                let previewChanged = project.AudioPreviewFile.Path <> previewPath
+                if previewChanged then
+                    Cmd.ofMsg CalculateVolumes
+                else
+                    Cmd.ofMsg (CalculateVolume MainAudio)
             else
                 Cmd.none
 
@@ -293,6 +301,18 @@ let update (msg: Msg) (state: State) =
             { project with
                 AudioFile = { project.AudioFile with Path = audioPath }
                 AudioPreviewFile = { project.AudioPreviewFile with Path = previewPath } }
+
+        { state with Project = updatedProject }, cmd
+
+    | SetPreviewAudioFile previewPath ->
+        let cmd =
+            if config.AutoVolume && not <| String.endsWith ".wem" previewPath then
+                Cmd.ofMsg (CalculateVolume PreviewAudio)
+            else
+                Cmd.none
+
+        let updatedProject =
+            { project with AudioPreviewFile = { project.AudioPreviewFile with Path = previewPath } }
 
         { state with Project = updatedProject }, cmd
 
