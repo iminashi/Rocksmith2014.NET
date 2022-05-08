@@ -1,7 +1,8 @@
-## 1.1.0 (Released 2022-05-xx)
+## 1.1.0 (Released 2022-05-08)
 
 - The start time for the preview audio is now entered in minutes, seconds and milliseconds.
-- Wem conversion is automatically done again if the audio file set for the project is newer than an existing wem file.
+- The preview audio file can now be selected separately from the main audio file.
+- Wem conversion is automatically done again if the wav/ogg audio file is newer than the existing wem file.
 - Added a new automatic fix for chords that have different sustains on the chord notes.
 - Added a new validation check for chords that have "impossible" fingerings.
 
