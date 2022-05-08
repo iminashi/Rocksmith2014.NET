@@ -14,7 +14,7 @@ module ToneInjector =
     open Rocksmith2014.Common.Manifest
 
     let backupProfile profilePath =
-        File.Copy(profilePath, $"%s{profilePath}.backup", overwrite=true)
+        File.Copy(profilePath, $"%s{profilePath}.backup", overwrite = true)
 
     /// Converts an array of tones into a JArray.
     let private createToneJArray (tones: Tone array) =
@@ -44,36 +44,41 @@ module ToneInjector =
             })
 
     /// Replaces the custom tones in the profile file with tones read from the files.
-    let injectTones profilePath toneFiles = async  {
-        let! tones =
-            Async.Parallel(createToneImportTasks toneFiles, Environment.ProcessorCount)
-            |> Async.map Array.concat
+    let injectTones profilePath toneFiles =
+        async {
+            let! tones =
+                Async.Parallel(createToneImportTasks toneFiles, Environment.ProcessorCount)
+                |> Async.map Array.concat
 
-        let! profile, id = Profile.readAsJToken profilePath
+            let! profile, id = Profile.readAsJToken profilePath
 
-        profile.Item("CustomTones").Replace(createToneJArray tones)
+            profile.Item("CustomTones").Replace(createToneJArray tones)
 
-        backupProfile profilePath
+            backupProfile profilePath
     
-        do! Profile.saveJToken profilePath id profile }
+            do! Profile.saveJToken profilePath id profile
+        }
 
 let update msg state =
     match msg with
     | ConvertWemToOgg files ->
-        let task () = async {
-            files
-            |> Array.iter Conversion.wemToOgg }
+        let task () =
+            async {
+                Array.iter Conversion.wemToOgg files
+            }
 
         StateUtils.addTask WemToOggConversion state,
         Cmd.OfAsync.either task () (fun () -> WemToOggConversionCompleted) (fun ex -> TaskFailed(ex, WemToOggConversion))
 
     | ConvertAudioToWem files ->
-        let task () = async {
-            let t =
-                files
-                |> Array.map (Wwise.convertToWem state.Config.WwiseConsolePath)
+        let task () =
+            async {
+                let tasks =
+                    files
+                    |> Array.map (Wwise.convertToWem state.Config.WwiseConsolePath)
 
-            do! Async.Parallel(t, 4) |> Async.Ignore }
+                do! Async.Parallel(tasks, 4) |> Async.Ignore
+            }
 
         StateUtils.addTask WemConversion state,
         Cmd.OfAsync.either task () WemConversionComplete (fun ex -> TaskFailed(ex, WemConversion))
@@ -89,14 +94,16 @@ let update msg state =
 
         let task () =
             paths
-            |> Array.mapi (fun i path -> async {
-                let targetDirectory =
-                    Path.Combine(targetRootDirectory, Path.GetFileNameWithoutExtension(path))
+            |> Array.mapi (fun i path ->
+                async {
+                    let targetDirectory =
+                        Path.Combine(targetRootDirectory, Path.GetFileNameWithoutExtension(path))
 
-                Directory.CreateDirectory(targetDirectory) |> ignore
+                    Directory.CreateDirectory(targetDirectory) |> ignore
 
-                use psarc = PSARC.ReadFile(path)
-                do! psarc.ExtractFiles(targetDirectory, progress i) })
+                    use psarc = PSARC.ReadFile(path)
+                    do! psarc.ExtractFiles(targetDirectory, progress i)
+                })
             |> Async.Sequential
 
         StateUtils.addTask PsarcUnpack state,
@@ -111,10 +118,12 @@ let update msg state =
         let task () =
             let computations =
                 files
-                |> Array.map (fun file -> async {
-                    let arrangement = InstrumentalArrangement.Load(file)
-                    do! arrangement.RemoveDD(false)
-                    arrangement.Save(file) })
+                |> Array.map (fun file ->
+                    async {
+                        let arrangement = InstrumentalArrangement.Load(file)
+                        do! arrangement.RemoveDD(matchPhrasesToSections = false)
+                        arrangement.Save(file)
+                    })
 
             Async.Parallel(computations, max 1 (Environment.ProcessorCount / 4))
 

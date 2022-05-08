@@ -26,70 +26,76 @@ let databaseFilename = "official.db"
 
 let createDataBase () = SQLiteConnection.CreateFile(databaseFilename)
 
-let getUniqueTones (psarc: PSARC) = async {
-    let! jsons =
-        psarc.Manifest
-        |> Seq.filter (String.endsWith ".json")
-        |> Seq.map psarc.GetEntryStream
-        |> Async.Sequential
+let getUniqueTones (psarc: PSARC) =
+    async {
+        let! jsons =
+            psarc.Manifest
+            |> Seq.filter (String.endsWith ".json")
+            |> Seq.map psarc.GetEntryStream
+            |> Async.Sequential
 
-    let! manifests =
-        jsons
-        |> Array.map (fun data -> async {
-            try
-                try
-                    let! manifest = Manifest.fromJsonStream data
-                    return Some(Manifest.getSingletonAttributes manifest)
-                finally
-                    data.Dispose()
-            with _ ->
-                return None })
-        |> Async.Parallel
+        let! manifests =
+            jsons
+            |> Array.map (fun data ->
+                async {
+                    try
+                        try
+                            let! manifest = Manifest.fromJsonStream data
+                            return Some(Manifest.getSingletonAttributes manifest)
+                        finally
+                            data.Dispose()
+                    with _ ->
+                        return None
+                })
+            |> Async.Parallel
 
-    return
-        manifests
-        |> Array.Parallel.choose (fun m ->
-            match m with
-            | None ->
-                None
-            | Some m when isNull m.Tones ->
-                None
-            | Some m ->
-                m.Tones
-                |> Array.map (fun dto ->
-                    let isBass =
-                        match m.ArrangementProperties with
-                        | Some { pathBass = 1uy } ->
-                            true
-                        | _ ->
-                            // Some guitar arrangements may contain a tone from the bass arrangement
-                            dto.ToneDescriptors
-                            |> Option.ofObj
-                            |> Option.exists (Array.contains "$[35715]BASS")
+        return
+            manifests
+            |> Array.Parallel.choose (fun m ->
+                match m with
+                | None ->
+                    None
+                | Some m when isNull m.Tones ->
+                    None
+                | Some m ->
+                    m.Tones
+                    |> Array.map (fun dto ->
+                        let isBass =
+                            match m.ArrangementProperties with
+                            | Some { pathBass = 1uy } ->
+                                true
+                            | _ ->
+                                // Some guitar arrangements may contain a tone from the bass arrangement
+                                dto.ToneDescriptors
+                                |> Option.ofObj
+                                |> Option.exists (Array.contains "$[35715]BASS")
 
-                    let description =
-                        match dto.ToneDescriptors with
-                        | null ->
-                            String.Empty
-                        | descs ->
-                            String.Join("|", Array.map ToneDescriptor.uiNameToName descs)
+                        let description =
+                            match dto.ToneDescriptors with
+                            | null ->
+                                String.Empty
+                            | descs ->
+                                String.Join("|", Array.map ToneDescriptor.uiNameToName descs)
 
-                    let definition =
-                        JsonSerializer.Serialize({ dto with SortOrder = Nullable()
-                                                            MacVolume = null }, FSharpJsonOptions.Create(ignoreNull=true))
+                        let definition =
+                            JsonSerializer.Serialize(
+                                { dto with SortOrder = Nullable(); MacVolume = null },
+                                FSharpJsonOptions.Create(ignoreNull = true)
+                             )
 
-                    { Name = dto.Name |> String.truncate 100
-                      Key = dto.Key
-                      Artist = m.ArtistName.Trim() |> String.truncate 100
-                      ArtistSort = m.ArtistNameSort.Trim() |> String.truncate 100
-                      Title = m.SongName.Trim() |> String.truncate 100
-                      TitleSort = m.SongNameSort.Trim() |> String.truncate 100
-                      BassTone = isBass
-                      Description = description
-                      Definition = definition })
-                |> Some)
-        |> Array.concat
-        |> Array.distinctBy (fun x -> x.Key) }
+                        { Name = dto.Name |> String.truncate 100
+                          Key = dto.Key
+                          Artist = m.ArtistName.Trim() |> String.truncate 100
+                          ArtistSort = m.ArtistNameSort.Trim() |> String.truncate 100
+                          Title = m.SongName.Trim() |> String.truncate 100
+                          TitleSort = m.SongNameSort.Trim() |> String.truncate 100
+                          BassTone = isBass
+                          Description = description
+                          Definition = definition })
+                    |> Some)
+            |> Array.concat
+            |> Array.distinctBy (fun x -> x.Key)
+    }
 
 let insertSql =
     """INSERT INTO tones(artist, artistSort, title, titleSort, name, basstone, description, definition)
@@ -100,24 +106,25 @@ let scanPsarcs (connection: SQLiteConnection) directory =
         yield Path.Combine(directory, "songs.psarc")
         yield! Directory.EnumerateFiles(Path.Combine(directory, "dlc"), "*_p.psarc")
     }
-    |> Seq.map (fun path -> async {
-        printfn "File %s:" (Path.GetFileName(path))
+    |> Seq.map (fun path ->
+        async {
+            printfn "File %s:" (Path.GetFileName(path))
 
-        let! tones =
-            async {
-                use psarc = PSARC.ReadFile(path)
-                if psarc.Manifest |> List.contains "toolkit.version" then
-                    printfn "    Skipping CDLC."
-                    return Array.empty
-                else
-                    return! getUniqueTones psarc
-            }
+            let! tones =
+                async {
+                    use psarc = PSARC.ReadFile(path)
+                    if psarc.Manifest |> List.contains "toolkit.version" then
+                        printfn "    Skipping CDLC."
+                        return Array.empty
+                    else
+                        return! getUniqueTones psarc
+                }
 
-        tones
-        |> Array.iter (fun data ->
-            printfn "    \"%s\" (%s - %s)" data.Name data.Artist data.Title
-            connection.Execute(insertSql, data) |> ignore)
-    })
+            tones
+            |> Array.iter (fun data ->
+                printfn "    \"%s\" (%s - %s)" data.Name data.Artist data.Title
+                connection.Execute(insertSql, data) |> ignore)
+        })
     |> Async.Sequential
     |> Async.Ignore
     |> Async.RunSynchronously
@@ -151,6 +158,6 @@ let main argv =
 
     // Delete the test tone
     execute
-       """DELETE FROM tones WHERE description = ''"""
+       "DELETE FROM tones WHERE description = ''"
 
     0

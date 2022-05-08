@@ -75,52 +75,56 @@ let createPedalForGear (gear: GearData) =
       SkinIndex = None
       KnobValues = getDefaultKnobValues gear }
 
-let private loadGearData () = async {
-    let provider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
-    let options = FSharpJsonOptions.Create(ignoreNull=true)
-    use gearDataFile = provider.GetFileInfo("Tones/tone_gear_data.json").CreateReadStream()
-    return! JsonSerializer.DeserializeAsync<GearData[]>(gearDataFile, options) }
+let private loadGearData () =
+    async {
+        let provider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
+        let options = FSharpJsonOptions.Create(ignoreNull = true)
+        use gearDataFile = provider.GetFileInfo("Tones/tone_gear_data.json").CreateReadStream()
+        return! JsonSerializer.DeserializeAsync<GearData[]>(gearDataFile, options)
+    }
 
-let loadRepository () = async {
-    let! allGear = loadGearData ()
+let loadRepository () =
+    async {
+        let! allGear = loadGearData ()
 
-    let filterSort type' sortBy =
-        allGear
-        |> Array.filter (fun x -> x.Type = type')
-        |> Array.sortBy sortBy
+        let filterSort type' sortBy =
+            allGear
+            |> Array.filter (fun x -> x.Type = type')
+            |> Array.sortBy sortBy
 
-    let toDict = Array.map (fun x -> x.Key, x) >> readOnlyDict
+        let toDict = Array.map (fun x -> x.Key, x) >> readOnlyDict
 
-    let data =
-        [| "Amps", (fun x -> x.Name)
-           "Cabinets", (fun x -> x.Name)
-           "Pedals", (fun x -> x.Category + x.Name)
-           "Racks", (fun x -> x.Category + x.Name) |]
-        |> Array.Parallel.map (fun (gearType, sorter) ->
-            let result = filterSort gearType sorter
-            let dict = toDict result
-            gearType, {| Array = result; Dictionary = dict |})
-        |> readOnlyDict
+        let data =
+            [| "Amps", (fun x -> x.Name)
+               "Cabinets", (fun x -> x.Name)
+               "Pedals", (fun x -> x.Category + x.Name)
+               "Racks", (fun x -> x.Category + x.Name) |]
+            |> Array.Parallel.map (fun (gearType, sorter) ->
+                let result = filterSort gearType sorter
+                let dict = toDict result
+                gearType, {| Array = result; Dictionary = dict |})
+            |> readOnlyDict
 
-    let cabinets = data["Cabinets"].Array
-    let cabinetChoices = cabinets |> Array.distinctBy (fun x -> x.Name)
+        let cabinets = data["Cabinets"].Array
+        let cabinetChoices = cabinets |> Array.distinctBy (fun x -> x.Name)
 
-    let micPositionsForCabinet =
-        cabinets
-        |> Array.groupBy (fun x -> x.Name)
-        |> readOnlyDict
+        let micPositionsForCabinet =
+            cabinets
+            |> Array.groupBy (fun x -> x.Name)
+            |> readOnlyDict
 
-    return
-        { Amps = data["Amps"].Array
-          AmpDict = data["Amps"].Dictionary
-          Cabinets = cabinets
-          CabinetDict = data["Cabinets"].Dictionary
-          Pedals = data["Pedals"].Array
-          PedalDict = data["Pedals"].Dictionary
-          Racks = data["Racks"].Array
-          RackDict = data["Racks"].Dictionary
-          CabinetChoices = cabinetChoices
-          MicPositionsForCabinet = micPositionsForCabinet } }
+        return
+            { Amps = data["Amps"].Array
+              AmpDict = data["Amps"].Dictionary
+              Cabinets = cabinets
+              CabinetDict = data["Cabinets"].Dictionary
+              Pedals = data["Pedals"].Array
+              PedalDict = data["Pedals"].Dictionary
+              Racks = data["Racks"].Array
+              RackDict = data["Racks"].Dictionary
+              CabinetChoices = cabinetChoices
+              MicPositionsForCabinet = micPositionsForCabinet }
+    }
 
 /// Returns the gear data for the pedal in the given gear slot.
 let getGearDataForCurrentPedal repository (gearList: Gear) = function

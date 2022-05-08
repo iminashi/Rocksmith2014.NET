@@ -1,5 +1,7 @@
 namespace JapaneseLyricsCreator
 
+/// Stack with a fixed size.
+/// When a new item is pushed when the stack is full, the oldest item gets replaced.
 type LimitedStack<'a>(size: int) =
     let mutable start = 0
     let items: 'a voption array = Array.replicate size ValueNone

@@ -12,31 +12,33 @@ let getTargetDirectory (projectPath: string option) project =
     |> Path.GetDirectoryName
 
 /// Returns an async task for building packages for release.
-let build (openProject: string option) config project = async {
-    let project = Utils.addDefaultTonesIfNeeded project
-    let releaseDir = getTargetDirectory openProject project
+let build (openProject: string option) config project =
+    async {
+        let project = Utils.addDefaultTonesIfNeeded project
+        let releaseDir = getTargetDirectory openProject project
 
-    let fileNameWithoutExtension =
-        sprintf "%s_%s_v%s" project.ArtistName.SortValue project.Title.SortValue (project.Version.Replace('.', '_'))
-        |> StringValidator.fileName
+        let fileNameWithoutExtension =
+            sprintf "%s_%s_v%s" project.ArtistName.SortValue project.Title.SortValue (project.Version.Replace('.', '_'))
+            |> StringValidator.fileName
 
-    let path =
-        Path.Combine(releaseDir, fileNameWithoutExtension)
-        |> PackageBuilder.WithoutPlatformOrExtension
+        let path =
+            Path.Combine(releaseDir, fileNameWithoutExtension)
+            |> PackageBuilder.WithoutPlatformOrExtension
 
-    let buildConfig =
-        let baseConfig = BuildConfig.create Release config project (Set.toList config.ReleasePlatforms)
+        let buildConfig =
+            let baseConfig = BuildConfig.create Release config project (Set.toList config.ReleasePlatforms)
 
-        { baseConfig with
-            IdResetConfig =
-                Some
-                    { ProjectDirectory = releaseDir
-                      ConfirmIdRegeneration = IdRegenerationHelper.getConfirmation
-                      PostNewIds = IdRegenerationHelper.postNewIds } }
+            { baseConfig with
+                IdResetConfig =
+                    Some
+                        { ProjectDirectory = releaseDir
+                          ConfirmIdRegeneration = IdRegenerationHelper.getConfirmation
+                          PostNewIds = IdRegenerationHelper.postNewIds } }
 
-    do! PackageBuilder.buildPackages path buildConfig project
+        do! PackageBuilder.buildPackages path buildConfig project
 
-    return BuildCompleteType.Release }
+        return BuildCompleteType.Release
+    }
 
 let private addPitchPedal index shift gearList =
     let knobs =
@@ -80,20 +82,22 @@ let private processArrangements shift arrangements =
             other)
     |> TestPackageBuilder.generateAllIds
 
-let buildPitchShifted (openProject: string option) config project = async {
-    let shift = project.PitchShift |> Option.defaultValue 0s
-    let title = { project.Title with SortValue = $"{project.Title.SortValue} Pitch" }
+let buildPitchShifted (openProject: string option) config project =
+    async {
+        let shift = project.PitchShift |> Option.defaultValue 0s
+        let title = { project.Title with SortValue = $"{project.Title.SortValue} Pitch" }
 
-    let pitchProject =
-        { project with
-            DLCKey = $"Pitch{project.DLCKey}"
-            Title = title
-            Arrangements = processArrangements shift project.Arrangements
-            Tones = pitchShiftTones shift project.Tones }
+        let pitchProject =
+            { project with
+                DLCKey = $"Pitch{project.DLCKey}"
+                Title = title
+                Arrangements = processArrangements shift project.Arrangements
+                Tones = pitchShiftTones shift project.Tones }
 
-    let! _ = build openProject config pitchProject
+        let! _ = build openProject config pitchProject
 
-    return BuildCompleteType.PitchShifted }
+        return BuildCompleteType.PitchShifted
+    }
 
 let buildReplacePsarc info config project =
     async {

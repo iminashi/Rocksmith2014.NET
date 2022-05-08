@@ -37,55 +37,57 @@ let private getNewestVersionNumber existingPackages =
         | list -> List.max list
 
 /// Returns an async computation for building a package for testing.
-let build platform config project = async {
-    let isRocksmithRunning =
-        Process.GetProcessesByName("Rocksmith2014").Length > 0
+let build platform config project =
+    async {
+        let isRocksmithRunning =
+            Process.GetProcessesByName("Rocksmith2014").Length > 0
 
-    let packageFileName = createPackageName project
+        let packageFileName = createPackageName project
 
-    if packageFileName.Length < DLCKey.MinimumLength then
-        failwith "DLC key length too short."
+        if packageFileName.Length < DLCKey.MinimumLength then
+            failwith "DLC key length too short."
 
-    let targetFolder = config.TestFolderPath
+        let targetFolder = config.TestFolderPath
 
-    let existingPackages =
-        Directory.EnumerateFiles(targetFolder)
-        |> Seq.filter (Path.GetFileName >> (String.startsWith packageFileName))
-        |> Seq.toList
+        let existingPackages =
+            Directory.EnumerateFiles(targetFolder)
+            |> Seq.filter (Path.GetFileName >> (String.startsWith packageFileName))
+            |> Seq.toList
 
-    let latestVersion = getNewestVersionNumber existingPackages
+        let latestVersion = getNewestVersionNumber existingPackages
 
-    let project, packageFileName, buildType =
-        match isRocksmithRunning with
-        | false ->
-            // Delete any previous versions
-            List.iter File.Delete existingPackages
+        let project, packageFileName, buildType =
+            match isRocksmithRunning with
+            | false ->
+                // Delete any previous versions
+                List.iter File.Delete existingPackages
 
-            project, packageFileName, BuildCompleteType.Test
-        | true ->
-            let arrangements = generateAllIds project.Arrangements
-            let versionString = $"v{latestVersion + 1}"
+                project, packageFileName, BuildCompleteType.Test
+            | true ->
+                let arrangements = generateAllIds project.Arrangements
+                let versionString = $"v{latestVersion + 1}"
 
-            let title =
-                { project.Title with
-                    Value = $"{project.Title.Value} {versionString}"
-                    SortValue = $"{project.Title.SortValue} {versionString}" }
+                let title =
+                    { project.Title with
+                        Value = $"{project.Title.Value} {versionString}"
+                        SortValue = $"{project.Title.SortValue} {versionString}" }
 
-            { project with
-                DLCKey = $"{project.DLCKey}{versionString}"
-                Title = title
-                JapaneseTitle =
-                    project.JapaneseTitle
-                    |> Option.map (fun title -> $"{title} {versionString}")
-                Arrangements = arrangements },
-            $"{packageFileName}_{versionString}",
-            BuildCompleteType.TestNewVersion versionString
+                { project with
+                    DLCKey = $"{project.DLCKey}{versionString}"
+                    Title = title
+                    JapaneseTitle =
+                        project.JapaneseTitle
+                        |> Option.map (fun title -> $"{title} {versionString}")
+                    Arrangements = arrangements },
+                $"{packageFileName}_{versionString}",
+                BuildCompleteType.TestNewVersion versionString
 
-    let path =
-        Path.Combine(targetFolder, packageFileName)
-        |> PackageBuilder.WithoutPlatformOrExtension
+        let path =
+            Path.Combine(targetFolder, packageFileName)
+            |> PackageBuilder.WithoutPlatformOrExtension
 
-    let buildConfig = BuildConfig.create Test config project [ platform ]
+        let buildConfig = BuildConfig.create Test config project [ platform ]
 
-    do! PackageBuilder.buildPackages path buildConfig project
-    return buildType }
+        do! PackageBuilder.buildPackages path buildConfig project
+        return buildType
+    }

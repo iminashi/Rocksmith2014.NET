@@ -22,35 +22,39 @@ let createExceptionInfoString (ex: exn) =
         $"{exnInfo ex}\n\nInner exception:\n{exnInfo innerEx}"
 
 /// Imports tones from a PSARC file.
-let importTonesFromPSARC (psarcPath: string) = async {
-    use psarc = PSARC.ReadFile(psarcPath)
+let importTonesFromPSARC (psarcPath: string) =
+    async {
+        use psarc = PSARC.ReadFile(psarcPath)
 
-    let! jsons =
-        psarc.Manifest
-        |> Seq.filter (String.endsWith "json")
-        |> Seq.map psarc.GetEntryStream
-        |> Async.Sequential
+        let! jsons =
+            psarc.Manifest
+            |> Seq.filter (String.endsWith "json")
+            |> Seq.map psarc.GetEntryStream
+            |> Async.Sequential
 
-    let! manifests =
-        jsons
-        |> Array.map (fun data -> async {
-            try
-                try
-                    let! manifest = Manifest.fromJsonStream data
-                    return Some(Manifest.getSingletonAttributes manifest)
-                finally
-                    data.Dispose()
-            with _ ->
-                return None })
-        |> Async.Parallel
+        let! manifests =
+            jsons
+            |> Array.map (fun data ->
+                async {
+                    try
+                        try
+                            let! manifest = Manifest.fromJsonStream data
+                            return Some(Manifest.getSingletonAttributes manifest)
+                        finally
+                            data.Dispose()
+                    with _ ->
+                        return None
+                })
+            |> Async.Parallel
 
-    return
-        manifests
-        |> Array.choose (Option.bind (fun a -> Option.ofObj a.Tones))
-        |> Array.concat
-        |> Array.distinctBy (fun x -> x.Key)
-        |> Array.filter (fun x -> notNull x.GearList.Amp)
-        |> Array.map Tone.fromDto }
+        return
+            manifests
+            |> Array.choose (Option.bind (fun a -> Option.ofObj a.Tones))
+            |> Array.concat
+            |> Array.distinctBy (fun x -> x.Key)
+            |> Array.filter (fun x -> notNull x.GearList.Amp)
+            |> Array.map Tone.fromDto
+    }
 
 /// Creates the path for the preview audio from the main audio path.
 let previewPathFromMainAudio (audioPath: string) =

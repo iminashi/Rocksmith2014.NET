@@ -182,20 +182,24 @@ module Configuration =
         )
 
     /// Loads a configuration from the file defined in configFilePath.
-    let load (t: IStringLocalizer) = async {
-        if not <| File.Exists(configFilePath) then
-            return Configuration.Default
-        else
-            try
-                use file = File.OpenRead(configFilePath)
-                let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
-                let! dto = JsonSerializer.DeserializeAsync<Dto>(file, options)
-                return fromDto t dto
-            with _ ->
-                return Configuration.Default }
+    let load (t: IStringLocalizer) =
+        async {
+            if not <| File.Exists(configFilePath) then
+                return Configuration.Default
+            else
+                try
+                    use file = File.OpenRead(configFilePath)
+                    let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
+                    let! dto = JsonSerializer.DeserializeAsync<Dto>(file, options)
+                    return fromDto t dto
+                with _ ->
+                    return Configuration.Default
+        }
 
     /// Saves the configuration to the file defined in configFilePath.
-    let save (config: Configuration) = async {
-        use file = File.Create(configFilePath)
-        let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
-        do! JsonSerializer.SerializeAsync(file, toDto config, options) }
+    let save (config: Configuration) =
+        async {
+            use file = File.Create(configFilePath)
+            let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
+            do! JsonSerializer.SerializeAsync(file, toDto config, options)
+        }

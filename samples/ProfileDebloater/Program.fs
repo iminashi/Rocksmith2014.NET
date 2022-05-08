@@ -14,23 +14,25 @@ let readOnDiscIdsAndKeys () =
     Set.ofSeq (readFromAppDir "onDiscKeys.txt")
 
 /// Reads the IDs and keys from a PSARC with the given path.
-let readIDs path = async {
-    use psarc = PSARC.ReadFile(path)
+let readIDs path =
+    async {
+        use psarc = PSARC.ReadFile(path)
 
-    use! headerStream =
-        psarc.Manifest
-        |> List.find (String.endsWith "hsan")
-        |> psarc.GetEntryStream
+        use! headerStream =
+            psarc.Manifest
+            |> List.find (String.endsWith "hsan")
+            |> psarc.GetEntryStream
 
-    let! manifest = Manifest.fromJsonStream headerStream
+        let! manifest = Manifest.fromJsonStream headerStream
 
-    let ids, songKeys =
-        manifest.Entries
-        |> Map.toList
-        |> List.map (fun (id, entry) -> id, entry.Attributes.SongKey)
-        |> List.unzip
+        let ids, songKeys =
+            manifest.Entries
+            |> Map.toList
+            |> List.map (fun (id, entry) -> id, entry.Attributes.SongKey)
+            |> List.unzip
 
-    return ids, List.distinct songKeys }
+        return ids, List.distinct songKeys
+    }
 
 let printProgress current max =
     Console.CursorLeft <- 0
@@ -41,31 +43,33 @@ let printProgress current max =
     printfn "[%-60s]" bar
     
 /// Reads IDs and keys from psarcs in the given directory and its subdirectories.
-let gatherDLCData verbose (directory: string) = async {
-    let! results =
-        let files =
-            Directory.EnumerateFiles(directory, "*.psarc", SearchOption.AllDirectories)
-            |> Seq.filter (fun x -> not <| (x.Contains("inlay") || x.Contains("rs1compatibility")))
-            |> Seq.toArray
+let gatherDLCData verbose (directory: string) =
+    async {
+        let! results =
+            let files =
+                Directory.EnumerateFiles(directory, "*.psarc", SearchOption.AllDirectories)
+                |> Seq.filter (fun x -> not <| (x.Contains("inlay") || x.Contains("rs1compatibility")))
+                |> Seq.toArray
 
-        files
-        |> Array.mapi (fun i path ->
-            async {
-                if verbose then
-                    printfn "Reading IDs from %s" (Path.GetRelativePath(directory, path))
-                else
-                    printProgress (i + 1) files.Length
+            files
+            |> Array.mapi (fun i path ->
+                async {
+                    if verbose then
+                        printfn "Reading IDs from %s" (Path.GetRelativePath(directory, path))
+                    else
+                        printProgress (i + 1) files.Length
 
-                return! readIDs path
-            })
-        |> Async.Sequential
+                    return! readIDs path
+                })
+            |> Async.Sequential
 
-    let ids, keys =
-        results
-        |> List.ofArray
-        |> List.unzip
+        let ids, keys =
+            results
+            |> List.ofArray
+            |> List.unzip
 
-    return List.collect id ids, List.collect id keys }
+        return List.collect id ids, List.collect id keys
+    }
 
 /// Removes the children whose names are not in the IDs set from the JToken.
 let filterJTokenIds (ids: Set<string>) (token: JToken) =
@@ -85,7 +89,7 @@ let filterJArrayKeys (keys: Set<string>) (array: JArray) =
     |> Array.iter (array.Remove >> ignore)
 
 let backupProfile profilePath =
-    File.Copy(profilePath, $"%s{profilePath}.backup", overwrite=true)
+    File.Copy(profilePath, $"%s{profilePath}.backup", overwrite = true)
 
 [<EntryPoint>]
 let main argv =

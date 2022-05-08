@@ -643,9 +643,11 @@ let update (msg: Msg) (state: State) =
         state, Cmd.ofMsg (Dialog.SaveProjectAs |> ShowDialog)
 
     | SaveProject targetPath ->
-        let task () = async {
-            do! DLCProject.save targetPath project
-            return targetPath }
+        let task () =
+            async {
+                do! DLCProject.save targetPath project
+                return targetPath
+            }
 
         state, Cmd.OfAsync.either task () ProjectSaved ErrorOccurred
 
@@ -849,9 +851,11 @@ let update (msg: Msg) (state: State) =
         Cmd.ofMsg (AddStatusMessage(translate "WemConversionComplete"))
 
     | CheckArrangement arrangement ->
-        let task () = async {
-            let path = Arrangement.getFile arrangement
-            return path, Utils.checkArrangement arrangement }
+        let task () =
+            async {
+                let path = Arrangement.getFile arrangement
+                return path, Utils.checkArrangement arrangement
+            }
 
         addTask ArrangementCheckOne state,
         Cmd.OfAsync.either task () CheckOneCompleted (fun ex -> TaskFailed(ex, ArrangementCheckOne))
@@ -866,8 +870,10 @@ let update (msg: Msg) (state: State) =
 
     | CheckArrangements ->
         if canRunValidation state then
-            let task () = async {
-                return Utils.checkArrangements project ProgressReporters.ArrangementCheck }
+            let task () =
+                async {
+                    return Utils.checkArrangements project ProgressReporters.ArrangementCheck
+                }
 
             addTask ArrangementCheckAll state,
             Cmd.OfAsync.either task () CheckAllCompleted (fun ex -> TaskFailed(ex, ArrangementCheckAll))

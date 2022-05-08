@@ -347,11 +347,11 @@ module Tone =
             // Read the file back and fix it up to be importable in the Toolkit
             let! text = File.ReadAllTextAsync(path)
             let sb = StringBuilder(text)
-
             let nl = Environment.NewLine
 
-            // The class name is Tone2014
-            sb.Replace("ToneDto", "Tone2014")
+            sb
+              // The class name is Tone2014
+              .Replace("ToneDto", "Tone2014")
               // F# incompatibility stuff
               .Replace("_x0040_", "")
               // Sort order is not nullable
