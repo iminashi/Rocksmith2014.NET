@@ -48,71 +48,79 @@ let private readHeader (stream: Stream) =
       UncompressedLength = reader.ReadUInt32() }
 
 /// Decrypts the Rocksmith 2014 profile data from the input stream into the output stream.
-let decrypt (input: Stream) (output: Stream) = async {
-    let header = readHeader input
+let decrypt (input: Stream) (output: Stream) =
+    async {
+        let header = readHeader input
 
-    use decrypted = getDecryptStream input
-    do! Compression.asyncUnzip decrypted output
+        use decrypted = getDecryptStream input
+        do! Compression.asyncUnzip decrypted output
 
-    return header }
+        return header
+    }
 
 /// Encrypts profile data from the input stream into the output stream.
-let private encryptProfileData (input: Stream) (output: Stream) = async {
-    use eStream = getEncryptStream output
-
-    do! input.CopyToAsync(eStream) }
+let private encryptProfileData (input: Stream) (output: Stream) =
+    async {
+        use eStream = getEncryptStream output
+        do! input.CopyToAsync(eStream)
+    }
 
 /// Writes the profile data into the target file.
-let write (targetFile: string) (profileId: uint64) (jsonData: Stream) = async {
-    // Write null-terminator
-    jsonData.Seek(0L, SeekOrigin.End) |> ignore
-    jsonData.WriteByte(0uy)
+let write (targetFile: string) (profileId: uint64) (jsonData: Stream) =
+    async {
+        // Write null-terminator
+        jsonData.Seek(0L, SeekOrigin.End) |> ignore
+        jsonData.WriteByte(0uy)
 
-    use file = File.Create targetFile
+        use file = File.Create targetFile
 
-    let writer = LittleEndianBinaryWriter(file) :> IBinaryWriter
-    writer.WriteBytes("EVAS"B)
-    writer.WriteUInt32(1u)
-    writer.WriteUInt64(profileId)
-    writer.WriteUInt32(uint32 jsonData.Length)
+        let writer = LittleEndianBinaryWriter(file) :> IBinaryWriter
+        writer.WriteBytes("EVAS"B)
+        writer.WriteUInt32(1u)
+        writer.WriteUInt64(profileId)
+        writer.WriteUInt32(uint32 jsonData.Length)
 
-    use zipped = MemoryStreamPool.Default.GetStream()
-    jsonData.Position <- 0L
-    Compression.zip 8192 jsonData zipped
+        use zipped = MemoryStreamPool.Default.GetStream()
+        jsonData.Position <- 0L
+        Compression.zip 8192 jsonData zipped
 
-    zipped.Position <- 0L
-    do! encryptProfileData zipped file }
+        zipped.Position <- 0L
+        do! encryptProfileData zipped file
+    }
 
 /// Reads a profile from the given path and returns the profile JToken and ID.
-let readAsJToken path = async {
-    use profileFile = File.OpenRead(path)
-    use mem = MemoryStreamPool.Default.GetStream()
-    let! header = decrypt profileFile mem
+let readAsJToken path =
+    async {
+        use profileFile = File.OpenRead(path)
+        use mem = MemoryStreamPool.Default.GetStream()
+        let! header = decrypt profileFile mem
 
-    mem.Position <- 0L
-    use textReader = new StreamReader(mem)
-    use reader = new JsonTextReader(textReader)
+        mem.Position <- 0L
+        use textReader = new StreamReader(mem)
+        use reader = new JsonTextReader(textReader)
 
-    return JToken.ReadFrom(reader), header.ID }
+        return JToken.ReadFrom(reader), header.ID
+    }
 
 /// Saves the profile data into the target path.
-let saveJToken targetPath id (json: JToken) = async {
-    use jsonData = MemoryStreamPool.Default.GetStream()
+let saveJToken targetPath id (json: JToken) =
+    async {
+        use jsonData = MemoryStreamPool.Default.GetStream()
+        use streamWriter = new StreamWriter(jsonData, NewLine = "\n")
 
-    use streamWriter = new StreamWriter(jsonData, NewLine = "\n")
+        use writer =
+            new JsonTextWriter(
+                streamWriter,
+                Formatting = Formatting.Indented,
+                Indentation = 0,
+                StringEscapeHandling = StringEscapeHandling.EscapeNonAscii
+            )
 
-    use writer =
-        new JsonTextWriter(
-            streamWriter,
-            Formatting = Formatting.Indented,
-            Indentation = 0,
-            StringEscapeHandling = StringEscapeHandling.EscapeNonAscii
-        )
+        json.WriteTo(writer)
+        writer.Flush()
 
-    json.WriteTo(writer)
-    writer.Flush()
-
-    do! write targetPath id jsonData }
+        do! write targetPath id jsonData
+    }
 
 type ToneImportError =
     | NoTonesInProfile

@@ -36,7 +36,7 @@ let convertToDDS (sourceFile: string) (output: Stream) (options: DDSOptions) =
 
     image.Write(output)
 
-/// Creates three cover art images from the source file and returns the file names of the temp files.
+/// Creates three cover art images from the source file and returns the filenames of the temporary files.
 let createCoverArtImages (sourceFile: string) =
     [| 64; 128; 256 |]
     |> Array.Parallel.map (fun size ->

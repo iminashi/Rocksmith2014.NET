@@ -5,6 +5,6 @@ open Rocksmith2014.XML
 
 [<Extension>]
 type InstrumentalArrangementExtension =
-    [<Extension>]
     /// Converts the instrumental arrangement into SNG.
+    [<Extension>]
     static member inline ToSng(arr: InstrumentalArrangement) = ConvertInstrumental.xmlToSng arr

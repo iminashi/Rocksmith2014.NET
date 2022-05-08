@@ -72,7 +72,7 @@ let private copyWemFile (destPath: string) (templateDir: string) =
     |> Seq.tryHead
     |> function
         | Some convertedFile ->
-            File.Copy(convertedFile, destPath, overwrite=true)
+            File.Copy(convertedFile, destPath, overwrite = true)
             fixHeader destPath
         | None ->
             failwith "Could not find converted Wwise audio file."
@@ -97,47 +97,49 @@ let private createArgs templateDir =
     |> sprintf """generate-soundbank "%s" --platform "Windows" --language "English(US)" --no-decode --quiet"""
 
 /// Converts the source audio file into a wem file.
-let convertToWem (cliPath: string option) (sourcePath: string) = async {
-    let destPath = Path.ChangeExtension(sourcePath, "wem")
+let convertToWem (cliPath: string option) (sourcePath: string) =
+    async {
+        let destPath = Path.ChangeExtension(sourcePath, "wem")
 
-    let cliPath =
-        match cliPath with
-        | Some (Contains "WwiseConsole" as path) ->
-            if not <| File.Exists(path) then
-                failwith $"The file: \"{path}\" does not exist."
-            path
-        | None ->
-            getCLIPath ()
-        | _ ->
-            failwith "Path to Wwise console executable appears to be wrong.\nIt should be to WwiseConsole.exe on Windows or WwiseConsole.sh on macOS."
+        let cliPath =
+            match cliPath with
+            | Some (Contains "WwiseConsole" as path) ->
+                if not <| File.Exists(path) then
+                    failwith $"The file: \"{path}\" does not exist."
+                path
+            | None ->
+                getCLIPath ()
+            | _ ->
+                failwith "Path to Wwise console executable appears to be wrong.\nIt should be to WwiseConsole.exe on Windows or WwiseConsole.sh on macOS."
 
-    let version = getWwiseVersion cliPath
-    let templateDir = loadTemplate sourcePath version
+        let version = getWwiseVersion cliPath
+        let templateDir = loadTemplate sourcePath version
 
-    try
-        let startInfo =
-            let args = createArgs templateDir
+        try
+            let startInfo =
+                let args = createArgs templateDir
 
-            let fileName, arguments =
-                if OperatingSystem.IsLinux() then
-                    "wine", $"\"{cliPath}\" {args}"
-                else
-                    cliPath, args
+                let fileName, arguments =
+                    if OperatingSystem.IsLinux() then
+                        "wine", $"\"{cliPath}\" {args}"
+                    else
+                        cliPath, args
 
-            ProcessStartInfo(
-                FileName = fileName,
-                Arguments = arguments,
-                CreateNoWindow = true,
-                RedirectStandardOutput = true
-            )
+                ProcessStartInfo(
+                    FileName = fileName,
+                    Arguments = arguments,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true
+                )
 
-        use wwiseCli = new Process(StartInfo = startInfo)
-        wwiseCli.Start() |> ignore
-        do! wwiseCli.WaitForExitAsync()
+            use wwiseCli = new Process(StartInfo = startInfo)
+            wwiseCli.Start() |> ignore
+            do! wwiseCli.WaitForExitAsync()
 
-        let output = wwiseCli.StandardOutput.ReadToEnd()
-        if output.Length > 0 then failwith output
+            let output = wwiseCli.StandardOutput.ReadToEnd()
+            if output.Length > 0 then failwith output
 
-        copyWemFile destPath templateDir
-    finally
-        Directory.Delete(templateDir, true) }
+            copyWemFile destPath templateDir
+        finally
+            Directory.Delete(templateDir, recursive = true)
+    }
