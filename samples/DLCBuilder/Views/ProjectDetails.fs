@@ -156,10 +156,14 @@ let private audioControls state dispatch =
 
                                     // Create preview audio
                                     Button.create [
-                                        Button.minWidth 80.
-                                        Button.margin (0.0, 4.0, 4.0, 4.0)
-                                        Button.padding (10.0, 0.0)
-                                        Button.content (translate "Create...")
+                                        Button.content (
+                                            hStack [
+                                                PathIcon.create [
+                                                    PathIcon.data Icons.scissors
+                                                ]
+                                                locText "Create..." [ TextBlock.margin (8., 0., 0., 0.) ]
+                                            ])
+                                        Button.classes [ "borderless-btn" ]
                                         Button.isEnabled (IO.File.Exists(audioPath))
                                         Button.onClick (fun _ -> dispatch (CreatePreviewAudio InitialSetup))
                                         ToolTip.tip (
