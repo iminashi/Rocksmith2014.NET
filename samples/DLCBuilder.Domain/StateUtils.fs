@@ -285,7 +285,6 @@ let importPsarc config targetFolder (psarcPath: string)  =
     async {
         let progress = createPsarcImportProgressReporter config
 
-        let targetFolder = Path.Combine(targetFolder, Path.GetFileNameWithoutExtension(psarcPath))
         Directory.CreateDirectory(targetFolder) |> ignore
         let! r = PsarcImporter.import progress psarcPath targetFolder
         let project = r.Project
