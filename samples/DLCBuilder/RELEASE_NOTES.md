@@ -1,3 +1,7 @@
+## 1.1.1 (Released 2022-05-08)
+
+- Fixed bug in directory creation when importing a PSARC.
+
 ## 1.1.0 (Released 2022-05-08)
 
 - The start time for the preview audio is now entered in minutes, seconds and milliseconds.
