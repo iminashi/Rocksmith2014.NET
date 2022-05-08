@@ -11,6 +11,7 @@ open System.Text.Json.Serialization
 open System.Text.RegularExpressions
 open System.Xml
 open Newtonsoft.Json
+open Rocksmith2014.Common
 
 type Pedal =
     { Type: string
@@ -314,49 +315,56 @@ module Tone =
         |> Seq.sumBy Option.count
 
     /// Imports a tone from a JSON stream.
-    let fromJsonStream (stream: Stream) = async {
-        let options = JsonSerializerOptions(IgnoreNullValues = true)
-        options.Converters.Add(JsonFSharpConverter())
-        let! dto = JsonSerializer.DeserializeAsync<ToneDto>(stream, options)
-        return fromDto dto }
+    let fromJsonStream (stream: Stream) =
+        async {
+            let options = FSharpJsonOptions.Create(ignoreNull = true)
+            let! dto = JsonSerializer.DeserializeAsync<ToneDto>(stream, options)
+            return fromDto dto
+        }
 
     /// Imports a tone from a JSON file.
-    let fromJsonFile (fileName: string) = async {
-        use file = File.OpenRead(fileName)
-        return! fromJsonStream file }
+    let fromJsonFile (fileName: string) =
+        async {
+            use file = File.OpenRead(fileName)
+            return! fromJsonStream file
+        }
 
     /// Exports a tone into a JSON file.
-    let exportJson (path: string) (tone: Tone) = async {
-        use file = File.Create(path)
-
-        let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
-        options.Converters.Add(JsonFSharpConverter())
-        do! JsonSerializer.SerializeAsync(file, toDto tone, options) }
+    let exportJson (path: string) (tone: Tone) =
+        async {
+            use file = File.Create(path)
+            let options = FSharpJsonOptions.Create(indent = true, ignoreNull = true)
+            do! JsonSerializer.SerializeAsync(file, toDto tone, options)
+        }
 
     /// Exports a tone into an XML file in a format that is compatible with the Toolkit.
-    let exportXml (path: string) (tone: Tone) = async {
-        let serializer = DataContractSerializer(typeof<ToneDto>)
-        using (XmlWriter.Create(path, XmlWriterSettings(Indent = true)))
-              (fun writer -> serializer.WriteObject(writer, toDto tone))
+    let exportXml (path: string) (tone: Tone) =
+        async {
+            let serializer = DataContractSerializer(typeof<ToneDto>)
+            using (XmlWriter.Create(path, XmlWriterSettings(Indent = true)))
+                  (fun writer -> serializer.WriteObject(writer, toDto tone))
 
-        // Read the file back and fix it up to be importable in the Toolkit
-        let! text = File.ReadAllTextAsync(path)
-        let sb = StringBuilder(text)
+            // Read the file back and fix it up to be importable in the Toolkit
+            let! text = File.ReadAllTextAsync(path)
+            let sb = StringBuilder(text)
 
-        let nl = Environment.NewLine
+            let nl = Environment.NewLine
 
-        // The class name is Tone2014
-        sb.Replace("ToneDto", "Tone2014")
-          // F# incompatibility stuff
-          .Replace("_x0040_", "")
-          // Sort order is not nullable
-          .Replace("""<SortOrder i:nil="true" />""", "<SortOrder>0.0</SortOrder>")
-          // Toolkit does not have MacVolume
-          .Replace($"  <MacVolume i:nil=\"true\" />{nl}", "")
-          // Tone key/name import does not seem to work otherwise
-          .Replace($"<NameSeparator>{tone.NameSeparator}</NameSeparator>{nl}  <Name>{tone.Name}</Name>", $"<Name>{tone.Name}</Name>{nl}  <NameSeparator>{tone.NameSeparator}</NameSeparator>")
-          // Change the namespace
-          .Replace("http://schemas.datacontract.org/2004/07/Rocksmith2014.Common.Manifest", "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.Manifest.Tone")
-          |> ignore
+            // The class name is Tone2014
+            sb.Replace("ToneDto", "Tone2014")
+              // F# incompatibility stuff
+              .Replace("_x0040_", "")
+              // Sort order is not nullable
+              .Replace("""<SortOrder i:nil="true" />""", "<SortOrder>0.0</SortOrder>")
+              // Toolkit does not have MacVolume
+              .Replace($"  <MacVolume i:nil=\"true\" />{nl}", "")
+              // Tone key/name import does not seem to work otherwise
+              .Replace($"<NameSeparator>{tone.NameSeparator}</NameSeparator>{nl}  <Name>{tone.Name}</Name>", $"<Name>{tone.Name}</Name>{nl}  <NameSeparator>{tone.NameSeparator}</NameSeparator>")
+              // Change the namespace
+              .Replace("http://schemas.datacontract.org/2004/07/Rocksmith2014.Common.Manifest", "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.Manifest.Tone")
+              |> ignore
 
-        do! File.WriteAllTextAsync(path, sb.ToString()) }
+            use file = File.Create(path)
+            use writer = new StreamWriter(file)
+            do! writer.WriteAsync(sb)
+        }
