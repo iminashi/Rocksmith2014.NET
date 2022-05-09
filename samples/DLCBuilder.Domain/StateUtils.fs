@@ -25,7 +25,7 @@ let addTones (state: State) (tones: Tone list) =
 /// Returns true if a build or a wem conversion is not in progress.
 let notBuilding state =
     state.RunningTasks
-    |> Set.intersect (Set([ BuildPackage; WemConversion ]))
+    |> Set.intersect (set [ BuildPackage; WemConversion ])
     |> Set.isEmpty
 
 /// Returns true if the project can be built.
@@ -198,7 +198,7 @@ let addJapaneseVocals (xmlPath: string) state =
             { state.Project with Arrangements = arrangements }
 
         { state with Project = updatedProject },
-        Cmd.ofMsg (AddStatusMessage (state.Localizer.Translate "ArrangementWasAddedToProject"))        
+        Cmd.ofMsg (AddStatusMessage (state.Localizer.Translate "ArrangementWasAddedToProject"))
 
 /// Applies the low tuning fix to the selected arrangement.
 let applyLowTuningFix state =
@@ -339,7 +339,7 @@ let createProjectFilename project =
 
 let private deleteTempFiles { TempDirectory = dir } =
     try
-        Directory.Delete(dir, recursive=true)
+        Directory.Delete(dir, recursive = true)
     with _ -> ()
 
 let deleteTemporaryFilesForQuickEdit state =
