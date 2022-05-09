@@ -41,19 +41,23 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
     let! sngs =
         psarcContents
         |> filterFilesWithExtension "sng"
-        |> List.map (fun file -> async {
-            use! stream = psarc.GetEntryStream(file)
-            let! sng = SNG.fromStream stream platform
-            return file, sng })
+        |> List.map (fun file ->
+            async {
+                use! stream = psarc.GetEntryStream(file)
+                let! sng = SNG.fromStream stream platform
+                return file, sng
+            })
         |> Async.Sequential
 
     let! fileAttributes =
         psarcContents
         |> filterFilesWithExtension "json"
-        |> List.map (fun file -> async {
-            use! stream = psarc.GetEntryStream(file)
-            let! manifest = Manifest.fromJsonStream stream
-            return file, Manifest.getSingletonAttributes manifest })
+        |> List.map (fun file ->
+            async {
+                use! stream = psarc.GetEntryStream(file)
+                let! manifest = Manifest.fromJsonStream stream
+                return file, Manifest.getSingletonAttributes manifest
+            })
         |> Async.Sequential
 
     // Extract any custom font files
@@ -73,15 +77,17 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
     let! targetAudioFilesById =
         psarcContents
         |> filterFilesWithExtension "bnk"
-        |> List.map (fun bankName -> async {
-            let! volume, id = getVolumeAndFileId psarc platform bankName
-            let targetFilename = createTargetAudioFilename bankName
+        |> List.map (fun bankName ->
+            async {
+                let! volume, id = getVolumeAndFileId psarc platform bankName
+                let targetFilename = createTargetAudioFilename bankName
 
-            let audio =
-                { Path = toTargetPath targetFilename
-                  Volume = Math.Round(float volume, 1) }
+                let audio =
+                    { Path = toTargetPath targetFilename
+                      Volume = Math.Round(float volume, 1) }
 
-            return string id, audio })
+                return string id, audio
+            })
         |> Async.Sequential
 
     let targetAudioFiles = targetAudioFilesById |> Array.map snd
@@ -96,12 +102,14 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
 
     // Extract audio files
     do! targetAudioFilesById
-        |> Array.map (fun (id, targetFile) -> async {
-            match psarcContents |> List.tryFind (String.contains id) with
-            | Some psarcPath ->
-                do! psarc.InflateFile(psarcPath, targetFile.Path)
-            | None ->
-                () })
+        |> Array.map (fun (id, targetFile) ->
+            async {
+                match psarcContents |> List.tryFind (String.contains id) with
+                | Some psarcPath ->
+                    do! psarc.InflateFile(psarcPath, targetFile.Path)
+                | None ->
+                    ()
+            })
         |> Async.Sequential
         |> Async.Ignore
 

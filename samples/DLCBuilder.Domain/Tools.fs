@@ -132,8 +132,7 @@ let update msg state =
     | InjectTonesIntoProfile files ->
         let cmd =
             if String.notEmpty state.Config.ProfilePath then
-                let task () = async { do! ToneInjector.injectTones state.Config.ProfilePath files }
-                Cmd.OfAsync.attempt task () ErrorOccurred
+                Cmd.OfAsync.attempt (ToneInjector.injectTones state.Config.ProfilePath) files ErrorOccurred
             else
                 Cmd.none
 

@@ -15,15 +15,17 @@ let actualCliPath =
     else
         None
 
-let testConversion testFile = async {
-    let wemPath = Path.ChangeExtension(testFile, "wem")
-    if File.Exists(wemPath) then File.Delete(wemPath)
+let testConversion testFile =
+    async {
+        let wemPath = Path.ChangeExtension(testFile, "wem")
+        if File.Exists(wemPath) then File.Delete(wemPath)
 
-    do! Wwise.convertToWem actualCliPath testFile
-    let info = FileInfo(wemPath)
+        do! Wwise.convertToWem actualCliPath testFile
+        let info = FileInfo(wemPath)
 
-    Expect.isTrue info.Exists "Wem file was created"
-    Expect.isGreaterThan info.Length 100_000L "File is larger than 100KB" }
+        Expect.isTrue info.Exists "Wem file was created"
+        Expect.isGreaterThan info.Length 100_000L "File is larger than 100KB"
+    }
 
 [<Tests>]
 let wwiseTests =

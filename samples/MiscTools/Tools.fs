@@ -226,8 +226,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                                                 async {
                                                     let! manifest = Manifest.fromJsonFile m
                                                     return Manifest.getSingletonAttributes manifest
-                                                }
-                                                |> Async.RunSynchronously)
+                                                } |> Async.RunSynchronously)
 
                                         let xml = ConvertInstrumental.sngToXml attributes sng
                                         xml.Save(targetPath)

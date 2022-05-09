@@ -169,10 +169,12 @@ let removeSelected initialList index =
 let removeDD project =
     project.Arrangements
     |> List.choose Arrangement.pickInstrumental
-    |> List.map (fun inst -> async {
-        let arr = InstrumentalArrangement.Load(inst.XML)
-        do! arr.RemoveDD(false)
-        arr.Save(inst.XML) })
+    |> List.map (fun inst ->
+        async {
+            let arr = InstrumentalArrangement.Load(inst.XML)
+            do! arr.RemoveDD(false)
+            arr.Save(inst.XML)
+        })
     |> Async.Sequential
     |> Async.Ignore
 

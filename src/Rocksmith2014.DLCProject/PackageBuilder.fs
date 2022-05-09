@@ -74,41 +74,47 @@ let private build (buildData: BuildData) progress targetPath project platform = 
                 FromVocals v |> attributes arr
             | Showlights _ ->
                 None)
-        |> List.map (fun (name, attr) -> async {
-            let data = MemoryStreamPool.Default.GetStream()
-            do! Manifest.create attr |> Manifest.toJsonStream data
-            return entry name data })
+        |> List.map (fun (name, attr) ->
+            async {
+                let data = MemoryStreamPool.Default.GetStream()
+                do! Manifest.create attr |> Manifest.toJsonStream data
+                return entry name data
+            })
         |> Async.Parallel
         |> Async.map (List.ofArray >> toDisposableList)
 
-    use! headerEntry = async {
-        let header = createAttributesHeader project >> Some
-        let data = MemoryStreamPool.Default.GetStream()
+    use! headerEntry =
+        async {
+            let header = createAttributesHeader project >> Some
+            let data = MemoryStreamPool.Default.GetStream()
 
-        do! project.Arrangements
-            |> List.choose (function
-                | Instrumental i as arr ->
-                    FromInstrumental(i, sngMap[arr]) |> header
-                | Vocals v ->
-                    FromVocals v |> header
-                | Showlights _ ->
-                    None)
-            |> Manifest.createHeader
-            |> Manifest.toJsonStream data
-        return entry $"manifests/songs_dlc_{key}/songs_dlc_{key}.hsan" data }
+            do! project.Arrangements
+                |> List.choose (function
+                    | Instrumental i as arr ->
+                        FromInstrumental(i, sngMap[arr]) |> header
+                    | Vocals v ->
+                        FromVocals v |> header
+                    | Showlights _ ->
+                        None)
+                |> Manifest.createHeader
+                |> Manifest.toJsonStream data
+            return entry $"manifests/songs_dlc_{key}/songs_dlc_{key}.hsan" data
+        }
 
     use! sngEntries =
         buildData.SNGs
-        |> List.map (fun (arr, sng) -> async {
-            let data = MemoryStreamPool.Default.GetStream()
-            do! SNG.savePacked data platform sng
+        |> List.map (fun (arr, sng) ->
+            async {
+                let data = MemoryStreamPool.Default.GetStream()
+                do! SNG.savePacked data platform sng
 
-            let name =
-                let part = partition arr |> snd
-                let path = getPathPart platform Path.SNG
-                $"songs/bin/{path}/{key}_{part}.sng"
+                let name =
+                    let part = partition arr |> snd
+                    let path = getPathPart platform Path.SNG
+                    $"songs/bin/{path}/{key}_{part}.sng"
 
-            return entry name data })
+                return entry name data
+            })
         |> Async.Parallel
         |> Async.map (List.ofArray >> toDisposableList)
 
@@ -280,35 +286,37 @@ let private addShowLights sngs project =
 
     { project with Arrangements = arrangments }
 
-let private checkArrangementIdRegeneration sngs project config = async {
-    match config.IdResetConfig with
-    | None ->
-        return Map.empty
-    | Some resetConfig ->
-        let idsToReplace =
-            PhraseLevelComparer.compareToExisting resetConfig.ProjectDirectory sngs
-
-        PhraseLevelComparer.saveLevels resetConfig.ProjectDirectory sngs
-
-        if idsToReplace.IsEmpty then
+let private checkArrangementIdRegeneration sngs project config =
+    async {
+        match config.IdResetConfig with
+        | None ->
             return Map.empty
-        else
-            match! resetConfig.ConfirmIdRegeneration(idsToReplace) with
-            | false ->
+        | Some resetConfig ->
+            let idsToReplace =
+                PhraseLevelComparer.compareToExisting resetConfig.ProjectDirectory sngs
+
+            PhraseLevelComparer.saveLevels resetConfig.ProjectDirectory sngs
+
+            if idsToReplace.IsEmpty then
                 return Map.empty
-            | true ->
-                let replacements =
-                    project.Arrangements
-                    |> List.choose (function
-                        | Instrumental inst as arr when idsToReplace |> List.contains inst.PersistentID ->
-                            Some(inst.PersistentID, Arrangement.generateIds arr)
-                        | _ ->
-                            None)
-                    |> Map.ofList
+            else
+                match! resetConfig.ConfirmIdRegeneration(idsToReplace) with
+                | false ->
+                    return Map.empty
+                | true ->
+                    let replacements =
+                        project.Arrangements
+                        |> List.choose (function
+                            | Instrumental inst as arr when idsToReplace |> List.contains inst.PersistentID ->
+                                Some(inst.PersistentID, Arrangement.generateIds arr)
+                            | _ ->
+                                None)
+                        |> Map.ofList
 
-                resetConfig.PostNewIds(replacements)
+                    resetConfig.PostNewIds(replacements)
 
-                return replacements }
+                    return replacements
+    }
 
 let private applyReplacements replacements project sngs =
     let update = function
