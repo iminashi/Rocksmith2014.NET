@@ -192,8 +192,7 @@ let private chordHasBarreOverOpenStrings (chordTemplates: ResizeArray<ChordTempl
             let high = Array.LastIndexOf(ct.Fingers, finger)
 
             low <> -1 && high > low &&
-            ct.Frets[low..high]
-            |> Array.contains 0y))
+            ct.Frets.AsSpan(low, high - low).Contains(0y)))
 
 /// Checks the chords in the level for issues.
 let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
