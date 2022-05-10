@@ -501,6 +501,31 @@ let chordTests =
 
             Expect.hasLength results 2 "Two issues created"
             Expect.all results (fun x -> x.Type = BarreOverOpenStrings) "Correct issue types"
+
+        testCase "Detects non-muted chords with that contain muted strings" <| fun _ ->
+            // Invalid chord notes (muted and not muted)
+            let cn1 =
+                ResizeArray(seq {
+                    Note(String = 0y, Time = 1000, IsFretHandMute = true)
+                    Note(String = 1y, Time = 1000)
+                })
+            // Valid chord notes (all muted)
+            let cn2 =
+                ResizeArray(seq {
+                    Note(String = 0y, Time = 1000, IsFretHandMute = true)
+                    Note(String = 1y, Time = 1000, IsFretHandMute = true)
+                })
+            let chords =
+                ResizeArray(seq {
+                    Chord(ChordId = 0s, ChordNotes = cn1)
+                    Chord(ChordId = 0s, ChordNotes = cn2)
+                })
+            let level = Level(Chords = chords)
+
+            let results = checkChords testArr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.all results (fun x -> x.Type = MutedStringInNonMutedChord) "Correct issue types"
     ]
 
 [<Tests>]

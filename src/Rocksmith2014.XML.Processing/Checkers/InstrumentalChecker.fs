@@ -194,6 +194,11 @@ let private chordHasBarreOverOpenStrings (chordTemplates: ResizeArray<ChordTempl
             low <> -1 && high > low &&
             ct.Frets.AsSpan(low, high - low).Contains(0y)))
 
+let private chordHasMutedString (chord: Chord) =
+    not chord.IsFretHandMute &&
+    chord.ChordNotes.Exists(fun n -> n.IsFretHandMute) &&
+    not (chord.ChordNotes.TrueForAll(fun n -> n.IsFretHandMute))
+
 /// Checks the chords in the level for issues.
 let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
     let ngSections = getNoguitarSections arrangement
@@ -252,12 +257,14 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
         if notNull handShape && handShape.EndTime - time <= 5 then
             issue ChordAtEndOfHandShape time
 
-        // Check the fingering of the chord
+        // Check the fingering of the chord and invalid muted strings
         if chord.HasChordNotes then
             if chordHasStrangeFingering arrangement.ChordTemplates chord then
                 issue PossiblyWrongChordFingering chord.Time
             if chordHasBarreOverOpenStrings arrangement.ChordTemplates chord then
                 issue BarreOverOpenStrings chord.Time
+            if chordHasMutedString chord then
+                issue MutedStringInNonMutedChord chord.Time
 
         // Check for chords inside noguitar sections
         if isInsideNoguitarSection ngSections time then
