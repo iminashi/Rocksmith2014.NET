@@ -37,8 +37,16 @@ let chordTemplates =
         ChordTemplate("WEIRDO2", "", fingers = [| -1y; 2y; 4y; 3y; -1y; -1y |], frets = [| -1y; 2y; 1y; 2y; -1y; -1y |])
         // Chord using thumb, fingering perfectly possible
         // | | 1 1 1 |
-        // 0 | | | | |
+        // T | | | | |
         ChordTemplate("THUMB", "", fingers = [| 0y; -1y; 1y; 1y; 1y; -1y |], frets = [| 2y; -1y; 1y; 1y; 1y; -1y |])
+        // Chord with impossible barre
+        // | | o o | |
+        // 1 | o o 1 |
+        ChordTemplate("BARRE2", "", fingers = [| 1y; -1y; -1y; -1y; 1y; -1y |], frets = [| 3y; -1y; 0y; 0y; 3y; -1y |])
+        // Chord with impossible barre
+        // | o | | | |
+        // 2 o 2 2 1 |
+        ChordTemplate("BARRE2", "", fingers = [| 2y; -1y; 2y; 2y; 1y; -1y |], frets = [| 2y; 0y; 2y; 2y; 2y; -1y |])
     })
 
 let testArr =
@@ -478,6 +486,21 @@ let chordTests =
 
             Expect.hasLength results 2 "Two issues created"
             Expect.all results (fun x -> x.Type = PossiblyWrongChordFingering) "Correct issue types"
+
+        testCase "Detects chords with barre over open strings" <| fun _ ->
+            // Dummy chord notes
+            let cn = ResizeArray(seq { Note(String = 1y, Time = 1000, Sustain = 100) })
+            let chords =
+                ResizeArray(seq {
+                    Chord(ChordId = 4s, ChordNotes = cn)
+                    Chord(ChordId = 5s, ChordNotes = cn)
+                })
+            let level = Level(Chords = chords)
+
+            let results = checkChords testArr level
+
+            Expect.hasLength results 2 "Two issues created"
+            Expect.all results (fun x -> x.Type = BarreOverOpenStrings) "Correct issue types"
     ]
 
 [<Tests>]

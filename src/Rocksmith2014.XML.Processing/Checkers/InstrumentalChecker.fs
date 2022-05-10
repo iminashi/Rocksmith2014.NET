@@ -168,7 +168,7 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
         if isInsideNoguitarSection ngSections time then
             issue NoteInsideNoguitarSection time ]
 
-let private chordHasStrangeFingering (chord: Chord) (chordTemplates: ResizeArray<ChordTemplate>) =
+let private chordHasStrangeFingering (chordTemplates: ResizeArray<ChordTemplate>) (chord: Chord) =
     option {
         let! chordTemplate = chordTemplates |> ResizeArray.tryItem (int chord.ChordId)
         let fingersSorted = chordTemplate.Fingers |> Array.sort
@@ -181,6 +181,19 @@ let private chordHasStrangeFingering (chord: Chord) (chordTemplates: ResizeArray
             |> Array.exists (fun fret -> fret > 0y && fret < lowestFingerFret)
     }
     |> Option.contains true
+
+let private chordHasBarreOverOpenStrings (chordTemplates: ResizeArray<ChordTemplate>) (chord: Chord) =
+    chordTemplates
+    |> ResizeArray.tryItem (int chord.ChordId)
+    |> Option.exists (fun ct ->
+        [ 0y..4y ]
+        |> List.exists (fun finger ->
+            let low = Array.IndexOf(ct.Fingers, finger)
+            let high = Array.LastIndexOf(ct.Fingers, finger)
+
+            low <> -1 && high > low &&
+            ct.Frets[low..high]
+            |> Array.contains 0y))
 
 /// Checks the chords in the level for issues.
 let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
@@ -241,8 +254,11 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
             issue ChordAtEndOfHandShape time
 
         // Check the fingering of the chord
-        if chord.HasChordNotes && chordHasStrangeFingering chord arrangement.ChordTemplates then
-            issue PossiblyWrongChordFingering chord.Time
+        if chord.HasChordNotes then
+            if chordHasStrangeFingering arrangement.ChordTemplates chord then
+                issue PossiblyWrongChordFingering chord.Time
+            if chordHasBarreOverOpenStrings arrangement.ChordTemplates chord then
+                issue BarreOverOpenStrings chord.Time
 
         // Check for chords inside noguitar sections
         if isInsideNoguitarSection ngSections time then

@@ -23,6 +23,7 @@ type IssueType =
     | ChordAtEndOfHandShape
     | FingeringAnchorMismatch
     | PossiblyWrongChordFingering
+    | BarreOverOpenStrings
     | AnchorInsideHandShape
     | AnchorInsideHandShapeAtPhraseBoundary
     | AnchorCloseToUnpitchedSlide
@@ -66,6 +67,7 @@ let issueCode = function
     | FirstPhraseNotEmpty -> "I25"
     | NoEndPhrase -> "I26"
     | PossiblyWrongChordFingering -> "I27"
+    | BarreOverOpenStrings -> "I28"
     | LyricWithInvalidChar _ -> "V01"
     | LyricTooLong _ -> "V02"
     | LyricsHaveNoLineBreaks -> "V03"
