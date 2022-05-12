@@ -3,6 +3,7 @@ module DLCBuilder.Dialogs
 open Avalonia.Controls
 open Avalonia.Threading
 open Elmish
+open Rocksmith2014.DLCProject
 open System
 open System.Collections.Generic
 open System.IO
@@ -285,8 +286,9 @@ let showDialog window dialogType state =
 
             let initialDir =
                 state.OpenProjectFile
-                |> Option.map Path.GetDirectoryName
+                |> Option.orElse (state.Project.Arrangements |> List.tryHead |> Option.map Arrangement.getFile)
                 |> Option.orElse (Option.ofString state.Config.ProjectsFolderPath)
+                |> Option.map Path.GetDirectoryName
 
             saveFileDialog title FileFilter.Project initialFileName initialDir SaveProject
 
