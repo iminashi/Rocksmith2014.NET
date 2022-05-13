@@ -274,16 +274,18 @@ let showDialog window dialogType state =
             saveFileDialog title FileFilter.ToneExport initialFileName None (fun path -> ExportTone(tone, path))
 
         | Dialog.SaveProjectAs ->
+            let project = state.Project
+            let openProjectPath = state.OpenProjectFile
             let initialFileName =
-                state.OpenProjectFile
+                openProjectPath
                 |> Option.map Path.GetFileName
-                |> Option.orElseWith (fun () ->
-                    StateUtils.createProjectFilename state.Project
-                    |> Some)
+                |> Option.orElseWith (fun () -> StateUtils.createProjectFilename project |> Some)
 
             let initialDir =
-                state.OpenProjectFile
-                |> Option.orElse (state.Project.Arrangements |> List.tryHead |> Option.map Arrangement.getFile)
+                openProjectPath
+                |> Option.orElse (project.Arrangements |> List.tryHead |> Option.map Arrangement.getFile)
+                |> Option.orElse (project.AudioFile.Path |> Option.ofString)
+                |> Option.orElse (project.AlbumArtFile |> Option.ofString)
                 |> Option.map Path.GetDirectoryName
 
             saveFileDialog title FileFilter.Project initialFileName initialDir SaveProject

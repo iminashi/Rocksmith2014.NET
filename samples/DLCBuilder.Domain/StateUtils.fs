@@ -331,11 +331,9 @@ let createProjectFilename project =
         optionFromSortableString project.Title
 
     (artist, title)
-    ||> Option.map2 (fun artist title ->
-        sprintf "%s_%s" artist title
-        |> StringValidator.fileName
-        |> sprintf "%s.rs2dlc")
-    |> Option.defaultValue "new_project.rs2dlc"
+    ||> Option.map2 (fun artist title -> StringValidator.fileName $"{artist}_{title}")
+    |> Option.defaultValue "new_project"
+    |> sprintf "%s.rs2dlc"
 
 let private deleteTempFiles { TempDirectory = dir } =
     try
