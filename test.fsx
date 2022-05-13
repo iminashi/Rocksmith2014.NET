@@ -18,7 +18,7 @@ let runTest (projectPath: string) =
         if projectPath.EndsWith("Audio.Tests.fsproj") ||
            projectPath.EndsWith("DLCProject.Tests.fsproj")
         then
-            $" --no-self-contained --runtime {runtime}"
+            $" --runtime {runtime}"
         else
             String.Empty
 
