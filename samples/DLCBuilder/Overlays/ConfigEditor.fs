@@ -14,7 +14,7 @@ open System.Text.RegularExpressions
 open DLCBuilder
 
 let private tryFindWwiseExecutable basePath =
-    let ext = PlatformSpecific.Value(mac="sh", windows="exe", linux="exe")
+    let ext = PlatformSpecific.Value(mac = "sh", windows = "exe", linux = "exe")
     Directory.EnumerateFiles(basePath, $"WwiseConsole.{ext}", SearchOption.AllDirectories)
     |> Seq.tryHead
 
@@ -22,7 +22,7 @@ let private generalConfig state dispatch focusedSetting =
     vStack [
         Grid.create [
             Grid.columnDefinitions "auto,5,*"
-            Grid.rowDefinitions "auto,auto,auto,auto,auto,auto"
+            Grid.rowDefinitions "auto,auto,auto,auto,auto"
             Grid.children [
                 // Language
                 locText "Language" [
@@ -115,37 +115,14 @@ let private generalConfig state dispatch focusedSetting =
                     ]
                 ]
 
-                // Projects Folder
-                locText "ProjectsFolder" [
-                    Grid.row 4
-                    TextBlock.verticalAlignment VerticalAlignment.Center
-                ]
-                DockPanel.create [
-                    Grid.column 2
-                    Grid.row 4
-                    DockPanel.children [
-                        Button.create [
-                            DockPanel.dock Dock.Right
-                            Button.margin (0., 4.)
-                            Button.content "..."
-                            Button.onClick (fun _ -> Dialog.ProjectFolder |> ShowDialog |> dispatch)
-                        ]
-                        FixedTextBox.create [
-                            TextBox.margin (0., 4.)
-                            FixedTextBox.text state.Config.ProjectsFolderPath
-                            FixedTextBox.onTextChanged (SetProjectsFolderPath >> EditConfig >> dispatch)
-                        ]
-                    ]
-                ]
-
                 // Wwise Console Path
                 locText "WwiseConsolePath" [
-                    Grid.row 5
+                    Grid.row 4
                     TextBlock.verticalAlignment VerticalAlignment.Center
                 ]
                 DockPanel.create [
                     Grid.column 2
-                    Grid.row 5
+                    Grid.row 4
                     DockPanel.children [
                         Button.create [
                             DockPanel.dock Dock.Right

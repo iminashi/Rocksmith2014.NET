@@ -226,9 +226,6 @@ let showDialog window dialogType state =
             let initialDir = state.Config.TestFolderPath |> Option.ofString
             openFolderDialog title initialDir (SetTestFolderPath >> EditConfig)
 
-        | Dialog.ProjectFolder ->
-            openFolderDialog title None (SetProjectsFolderPath >> EditConfig)
-
         | Dialog.ProfileFile ->
             let initialDir =
                 state.Config.ProfilePath
@@ -287,7 +284,6 @@ let showDialog window dialogType state =
             let initialDir =
                 state.OpenProjectFile
                 |> Option.orElse (state.Project.Arrangements |> List.tryHead |> Option.map Arrangement.getFile)
-                |> Option.orElse (Option.ofString state.Config.ProjectsFolderPath)
                 |> Option.map Path.GetDirectoryName
 
             saveFileDialog title FileFilter.Project initialFileName initialDir SaveProject

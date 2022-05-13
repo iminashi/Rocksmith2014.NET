@@ -166,9 +166,6 @@ let editConfig edit config =
     | SetTestFolderPath path ->
         { config with TestFolderPath = path }
 
-    | SetProjectsFolderPath path ->
-        { config with ProjectsFolderPath = path }
-
     | SetOpenFolderAfterReleaseBuild openFolder ->
         { config with OpenFolderAfterReleaseBuild = openFolder }
 

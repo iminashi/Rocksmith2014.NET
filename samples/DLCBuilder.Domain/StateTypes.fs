@@ -124,7 +124,6 @@ type ConfigEdit =
     | SetCharterName of string
     | SetProfilePath of string
     | SetTestFolderPath of string
-    | SetProjectsFolderPath of string
     | SetWwiseConsolePath of string
     | SetAutoVolume of bool
     | SetShowAdvanced of bool
@@ -185,7 +184,6 @@ type Dialog =
     | RemoveDD
     | TestFolder
     | ProfileFile
-    | ProjectFolder
     | AddArrangements
     | ToneImport
     | ToneInject
