@@ -258,7 +258,7 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
             issue ChordAtEndOfHandShape time
 
         // Check the fingering of the chord and invalid muted strings
-        if chord.HasChordNotes then
+        if chord.HasChordNotes && not chord.IsHighDensity then
             if chordHasStrangeFingering arrangement.ChordTemplates chord then
                 issue PossiblyWrongChordFingering chord.Time
             if chordHasBarreOverOpenStrings arrangement.ChordTemplates chord then
