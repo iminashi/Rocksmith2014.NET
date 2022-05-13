@@ -96,7 +96,6 @@ let editConfigTests =
         testCase "SetTestFolderPath, SetProjectsFolderPath, SetWwiseConsolePath, SetProfilePath" <| fun _ ->
             let messages =
                 [ SetTestFolderPath "TestFolder"
-                  SetProjectsFolderPath "ProjectFolder"
                   SetWwiseConsolePath "WwiseConsole"
                   SetProfilePath "profile_prfldb" ]
                 |> List.map EditConfig
@@ -106,7 +105,6 @@ let editConfigTests =
                 |> List.fold (fun (state, _) message -> Main.update message state) (initialState, Cmd.none)
                 
             Expect.equal newState.Config.TestFolderPath "TestFolder" "Test folder path is correct"
-            Expect.equal newState.Config.ProjectsFolderPath "ProjectFolder" "Projects folder path is correct"
             Expect.equal newState.Config.WwiseConsolePath (Some "WwiseConsole") "Wwise console path is correct"
             Expect.equal newState.Config.ProfilePath "profile_prfldb" "Profile path is correct"
 
