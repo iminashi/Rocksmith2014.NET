@@ -50,6 +50,21 @@ let update (msg: Msg) (state: State) =
     let translatef key args = state.Localizer.TranslateFormat(key, args)
 
     match msg with
+    | ReadAudioLength ->
+        let task () =
+            async {
+                match project.AudioFile.Path |> Option.ofString with
+                | Some (HasExtension (".wav" | ".ogg") as path) ->
+                    return Audio.Utils.getLength path |> Some
+                | _ ->
+                    return None
+            }
+
+        state, Cmd.OfAsync.either task () SetAudioLength ErrorOccurred
+
+    | SetAudioLength length ->
+        { state with AudioLength = length }, Cmd.none
+
     | SetEditedPsarcAppId appId ->
         let quickEditData =
             state.QuickEditData
@@ -144,6 +159,7 @@ let update (msg: Msg) (state: State) =
             OpenProjectFile = None
             AlbumArtLoadTime = None
             QuickEditData = None
+            AudioLength = None
             SelectedArrangementIndex = -1
             SelectedToneIndex = -1 }, Cmd.none
 
@@ -287,22 +303,23 @@ let update (msg: Msg) (state: State) =
             else
                 project.AudioPreviewFile.Path
 
-        let cmd =
-            if config.AutoVolume && not <| String.endsWith ".wem" audioPath then
-                let previewChanged = project.AudioPreviewFile.Path <> previewPath
-                if previewChanged then
-                    Cmd.ofMsg CalculateVolumes
-                else
-                    Cmd.ofMsg (CalculateVolume MainAudio)
-            else
-                Cmd.none
+        let cmds =
+            [
+                if config.AutoVolume && not <| String.endsWith ".wem" audioPath then
+                    let previewChanged = project.AudioPreviewFile.Path <> previewPath
+                    if previewChanged then
+                        Cmd.ofMsg CalculateVolumes
+                    else
+                        Cmd.ofMsg (CalculateVolume MainAudio)
+                Cmd.ofMsg ReadAudioLength
+            ]
 
         let updatedProject =
             { project with
                 AudioFile = { project.AudioFile with Path = audioPath }
                 AudioPreviewFile = { project.AudioPreviewFile with Path = previewPath } }
 
-        { state with Project = updatedProject }, cmd
+        { state with Project = updatedProject }, Cmd.batch cmds
 
     | SetPreviewAudioFile previewPath ->
         let cmd =
@@ -716,6 +733,8 @@ let update (msg: Msg) (state: State) =
 
         deleteTemporaryFilesForQuickEdit state
 
+        let cmds = Cmd.batch [ Cmd.ofMsg ReadAudioLength; cmd ]
+
         { state with
             Project = project
             SavedProject = project
@@ -725,8 +744,9 @@ let update (msg: Msg) (state: State) =
             ArrangementIssues = Map.empty
             AlbumArtLoadTime = albumArtLoadTime
             QuickEditData = loadOrigin.QuickEditData
+            AudioLength = None
             SelectedArrangementIndex = -1
-            SelectedToneIndex = -1 }, cmd
+            SelectedToneIndex = -1 }, cmds
 
     | LoadMultipleFiles paths ->
         state, Cmd.batch (handleFilesDrop paths)

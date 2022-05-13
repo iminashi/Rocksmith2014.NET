@@ -208,6 +208,8 @@
   "PreviewNotFound": "Preview audio file not found.",
   "MissingBaseToneKey": "An arrangement in the project has an empty base tone key.",
   "SamePersistentID": "Multiple arrangements in the project have the same persistent ID.",
+  "NoMainAudioFile": "No Main Audio",
+  "NoPreviewAudioFile": "No Preview Audio",
   "NoAudioFile": "None",
   "cents": "cents",
   "ReloadToneKeysMenuItem": "_Reload Tone Keys",
@@ -449,5 +451,7 @@
   "AdditionalMetadata": "Additional Metadata",
   "Author": "Author",
   "AdditionalMetadataAuthorToolTip": "Overrides the charter name set in the configuration.",
-  "FinishEditing": "Finish Editing"
+  "FinishEditing": "Finish Editing",
+  "Duration": "Duration: {0}",
+  "ClickToCopyDuration": "Click to copy the audio duration to the clipboard."
 }

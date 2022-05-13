@@ -208,6 +208,8 @@
   "PreviewNotFound": "Esikatseluäänitiedostoa ei löydy.",
   "MissingBaseToneKey": "Yhdellä projektin sovituksista on tyhjä perus-soundiavain.",
   "SamePersistentID": "Usealla projektin sovituksella on sama pysyvä ID.",
+  "NoMainAudioFile": "Ei äänitiedostoa",
+  "NoPreviewAudioFile": "Ei esikatseluäänitiedostoa",
   "NoAudioFile": "Ei olemassa",
   "cents": "senttiä",
   "ReloadToneKeysMenuItem": "_Lue uudelleen soundiavaimet",
@@ -449,5 +451,7 @@
   "AdditionalMetadata": "Lisämetadata",
   "Author": "Tekijä",
   "AdditionalMetadataAuthorToolTip": "Kumoaa asetuksissa annetun tekijänimen.",
-  "FinishEditing": "Muokkaus valmis"
+  "FinishEditing": "Muokkaus valmis",
+  "Duration": "Kesto: {0}",
+  "ClickToCopyDuration": "Klikkaa kopioidaksesi kappaleen keston leikepöydälle."
 }

@@ -296,6 +296,8 @@ type Msg =
     | OfficialTonesDatabaseDownloaded of downloadTask: LongTask
     | UpdateDownloaded of installerPath: string
     | SetEditedPsarcAppId of appId: string
+    | ReadAudioLength
+    | SetAudioLength of audioLength: TimeSpan option
 
 type State =
     { Project: DLCProject
@@ -318,6 +320,7 @@ type State =
       AvailableUpdate: UpdateInformation option
       ToneGearRepository: ToneGear.Repository option
       QuickEditData: PsarcQuickEditData option
+      AudioLength: TimeSpan option
       /// For forcing a view update if the user loads the same album art file, but the file has been modified.
       AlbumArtLoadTime: DateTime option
       Localizer: IStringLocalizer

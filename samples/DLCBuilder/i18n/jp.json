@@ -208,6 +208,8 @@
   "PreviewNotFound": "プレビューオーディオファイルが存在しません。",
   "MissingBaseToneKey": "プロジェクトのアレンジの一つにベーストーンキーがない。",
   "SamePersistentID": "複数のアレンジには同じ持続的IDがある。",
+  "NoMainAudioFile": "メインオーディオ不在",
+  "NoPreviewAudioFile": "プレビューオーディオ不在",
   "NoAudioFile": "不在",
   "cents": "セント",
   "ReloadToneKeysMenuItem": "トーンキーをリロード",
@@ -449,5 +451,7 @@
   "AdditionalMetadata": "追加メタデータ",
   "Author": "作者",
   "AdditionalMetadataAuthorToolTip": "設定のクリエイター名を優先します。",
-  "FinishEditing": "エディット完了"
+  "FinishEditing": "エディット完了",
+  "Duration": "長さ: {0}",
+  "ClickToCopyDuration": "クリックして曲の長さをクリップボードにコピー。"
 }

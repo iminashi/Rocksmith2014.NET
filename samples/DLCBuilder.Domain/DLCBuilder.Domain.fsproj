@@ -32,6 +32,7 @@
     <Compile Include="Tones\ToneGear.fs" />
     <Compile Include="Tones\DefaultTones.fs" />
     <Compile Include="AppVersion.fs" />
+    <Compile Include="ElmishExtensions.fs" />
     <Compile Include="PlatformSpecific.fs" />
     <Compile Include="GeneralTypes.fs" />
     <Compile Include="Utils.fs" />

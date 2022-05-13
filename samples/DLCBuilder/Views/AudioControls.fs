@@ -40,10 +40,6 @@ let private panel state dispatch =
                         StackPanel.orientation Orientation.Horizontal
                         StackPanel.children [
                             // Main audio filename
-                            locText "MainAudioFile" [
-                                TextBlock.margin (4.0, 4.0, 0.0, 4.0)
-                                TextBlock.verticalAlignment VerticalAlignment.Center
-                            ]
                             TextBlock.create [
                                 TextBlock.margin (4.0, 4.0, 0.0, 4.0)
                                 TextBlock.verticalAlignment VerticalAlignment.Center
@@ -51,9 +47,41 @@ let private panel state dispatch =
                                     if String.notEmpty audioPath then
                                         IO.Path.GetFileName(audioPath)
                                     else
-                                        translate "NoAudioFile"
+                                        translate "NoMainAudioFile"
                                 )
                             ]
+
+                            match state.AudioLength with
+                            | Some audioLength ->
+                                let lengthStr =
+                                    if audioLength.TotalHours >= 1 then
+                                        "hh\:mm\:ss"
+                                    else
+                                        "mm\:ss"
+                                    |> audioLength.ToString
+
+                                // Separator
+                                TextBlock.create [
+                                    TextBlock.verticalAlignment VerticalAlignment.Center
+                                    TextBlock.text "  |  "
+                                ]
+
+                                // Audio length
+                                TextBlock.create [
+                                    TextBlock.verticalAlignment VerticalAlignment.Center
+                                    TextBlock.text lengthStr
+                                    TextBlock.cursor Cursors.hand
+                                    TextBlock.onTapped (fun e ->
+                                        match e.Source with
+                                        | :? TextBlock as t ->
+                                            Application.Current.Clipboard.SetTextAsync(t.Text)
+                                            |> ignore
+                                        | _ ->
+                                            ())
+                                    ToolTip.tip (translate "ClickToCopyDuration")
+                                ]
+                            | None ->
+                                ()
                         ]
                     ]
 
@@ -94,16 +122,13 @@ let private panel state dispatch =
                         StackPanel.orientation Orientation.Horizontal
                         StackPanel.children [
                             // Preview audio filename
-                            locText "Preview" [
-                                TextBlock.margin (4.0, 4.0, 0.0, 4.0)
-                            ]
                             TextBlock.create [
                                 TextBlock.margin (4.0, 4.0, 0.0, 4.0)
                                 TextBlock.text (
                                     if String.notEmpty previewPath then
                                         IO.Path.GetFileName(previewPath)
                                     else
-                                        translate "NoAudioFile"
+                                        translate "NoPreviewAudioFile"
                                 )
                             ]
                         ]

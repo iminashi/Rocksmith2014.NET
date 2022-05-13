@@ -54,6 +54,7 @@ let initialState =
       ToneGearRepository = None
       AlbumArtLoadTime = None
       QuickEditData = None
+      AudioLength = None
       Localizer = stringLocalizerStub
       AlbumArtLoader = albumArtLoaderStub
       DatabaseConnector = toneDatabaseStub }
