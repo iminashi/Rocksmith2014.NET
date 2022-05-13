@@ -45,6 +45,7 @@ let private isImportant = function
     | AnchorInsideHandShapeAtPhraseBoundary
     | FirstPhraseNotEmpty
     | LyricTooLong _
+    | MutedStringInNonMutedChord
     | InvalidShowlights -> true
     | _ -> false
 
