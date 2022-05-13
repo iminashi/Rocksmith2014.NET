@@ -37,7 +37,7 @@ let build (openProject: string option) config project =
 
         do! PackageBuilder.buildPackages path buildConfig project
 
-        return BuildCompleteType.Release
+        return (BuildCompleteType.Release releaseDir)
     }
 
 let private addPitchPedal index shift gearList =

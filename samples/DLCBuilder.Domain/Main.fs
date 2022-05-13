@@ -850,11 +850,14 @@ let update (msg: Msg) (state: State) =
 
         let cmd =
             Cmd.batch [
-                if completed = BuildCompleteType.Release && config.OpenFolderAfterReleaseBuild then
-                    Cmd.ofMsg (OpenWithShell(ReleasePackageBuilder.getTargetDirectory state.OpenProjectFile project))
-                Cmd.ofMsg (AddStatusMessage message)
-                if completed = BuildCompleteType.ReplacePsarc then
+                match completed with
+                | BuildCompleteType.Release targetDirectory when config.OpenFolderAfterReleaseBuild ->
+                    Cmd.ofMsg (OpenWithShell targetDirectory)
+                | BuildCompleteType.ReplacePsarc ->
                     Cmd.ofMsg NewProject
+                | _ ->
+                    ()
+                Cmd.ofMsg (AddStatusMessage message)
             ]
 
         removeTask BuildPackage state, cmd

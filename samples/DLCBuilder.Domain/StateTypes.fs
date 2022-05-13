@@ -76,7 +76,7 @@ type StatusMessage =
 type BuildCompleteType =
     | Test
     | TestNewVersion of version: string
-    | Release
+    | Release of targetDirectory: string
     | PitchShifted
     | ReplacePsarc
 
