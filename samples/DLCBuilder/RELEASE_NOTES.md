@@ -1,3 +1,10 @@
+## 1.2.0 (Released 2022-05-xx)
+
+- The audio duration is shown in the UI.
+- Removed the "projects folder" setting.
+- Added a new validation check for chords with open strings in the middle of a barre.
+- Added a new validation check for non-muted chords that have muted strings.
+
 ## 1.1.1 (Released 2022-05-08)
 
 - Fixed bug in directory creation when importing a PSARC.
