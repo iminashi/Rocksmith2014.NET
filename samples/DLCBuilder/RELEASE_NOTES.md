@@ -1,8 +1,9 @@
-## 1.2.0 (Released 2022-05-xx)
+## 1.2.0 (Released 2022-05-14)
 
-- The audio duration is shown in the UI.
-- Removed the "projects folder" setting.
+- The audio duration is now shown in the UI.
+- Removed the "projects folder" setting since it was not being used for anything meaningful.
 - The filename of the cover art is now shown in the tooltip.
+- Added a link to the release notes into the help menu.
 - Added a new validation check for chords with open strings in the middle of a barre.
 - Added a new validation check for non-muted chords that have muted strings.
 

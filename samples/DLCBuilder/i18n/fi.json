@@ -379,6 +379,7 @@
   "HelpMenuItem": "_Apua",
   "CheckForUpdatesMenuItem": "Tarkista _päivitykset",
   "ViewReadMeMenuItem": "Näytä _Read Me",
+  "ViewReleaseNotesMenuItem": "Näytä _päivitysmuutokset",
   "ViewCrashLogMenuItem": "_Näytä kaatumislogi",
   "AboutMenuItem": "_Tietoja sovelluksesta",
   "ProgramVersion": "Versio: {0}",

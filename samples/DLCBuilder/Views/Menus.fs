@@ -261,6 +261,16 @@ let help dispatch =
                 )
             ]
 
+            // View Release Notes
+            MenuItem.create [
+                MenuItem.header (translate "ViewReleaseNotesMenuItem")
+                MenuItem.onClick (fun _ ->
+                    "https://github.com/iminashi/Rocksmith2014.NET/blob/main/samples/DLCBuilder/RELEASE_NOTES.md"
+                    |> OpenWithShell
+                    |> dispatch
+                )
+            ]
+
             // Check for Updates
             MenuItem.create [
                 MenuItem.header (translate "CheckForUpdatesMenuItem")
