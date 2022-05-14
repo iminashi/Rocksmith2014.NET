@@ -2,6 +2,7 @@
 
 - The audio duration is shown in the UI.
 - Removed the "projects folder" setting.
+- The filename of the cover art is now shown in the tooltip.
 - Added a new validation check for chords with open strings in the middle of a barre.
 - Added a new validation check for non-muted chords that have muted strings.
 

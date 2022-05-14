@@ -13,7 +13,7 @@ open System
 open DLCBuilder
 open Media
 
-let private placeholder =
+let private coverArtPlaceholder =
     let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
     new Bitmap(assets.Open(Uri("avares://DLCBuilder/Assets/coverart_placeholder.png")))
 
@@ -237,9 +237,14 @@ let private projectInfo state dispatch =
 let private coverArt state dispatch =
     let albumArt = AvaloniaBitmapLoader.getBitmap ()
     let brush, toolTip =
-        if String.notEmpty state.Project.AlbumArtFile && albumArt.IsNone then
-            Brushes.DarkRed, translatef "LoadingCoverArtFailed" [| IO.Path.GetFileName(state.Project.AlbumArtFile) |]
-        else
+        match Option.ofString state.Project.AlbumArtFile, albumArt with
+        | Some path, None ->
+            Brushes.DarkRed, translatef "LoadingCoverArtFailed" [| IO.Path.GetFileName(path) |]
+        | Some path, Some _ ->
+            let fileName = IO.Path.GetFileName(path)
+            let help = translate "SelectCoverArtToolTip"
+            Brushes.Black, $"{fileName}\n\n{help}"
+        | None, _ ->
             Brushes.Black, translate "SelectCoverArtToolTip"
 
     Border.create [
@@ -249,7 +254,7 @@ let private coverArt state dispatch =
         Border.borderBrush brush
         Border.child (
             Image.create [
-                Image.source (albumArt |> Option.defaultValue placeholder)
+                Image.source (albumArt |> Option.defaultValue coverArtPlaceholder)
                 Image.width 200.
                 Image.height 200.
                 Image.onTapped (fun _ -> Dialog.CoverArt |> ShowDialog |> dispatch)
