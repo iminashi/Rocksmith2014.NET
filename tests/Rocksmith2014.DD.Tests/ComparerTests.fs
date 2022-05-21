@@ -1,8 +1,37 @@
-﻿module Rocksmith2014.DD.Tests.ComparerTests
+module Rocksmith2014.DD.Tests.ComparerTests
 
 open Expecto
 open Rocksmith2014.XML
 open Rocksmith2014.DD.Comparers
+
+
+[<Tests>]
+let maxSimilarityFastTests =
+    testList "getMaxSimilarityFast Tests" [
+        testCase "Correct similarity percent for two elements" <| fun _ ->
+            let l1 = [ 1; 2 ]
+            let l2 = [ 9; 1 ]
+
+            let similarity = getMaxSimilarityFast id l1 l2
+
+            Expect.equal similarity 50.0 "50% was returned"
+
+        testCase "Correct similarity percent for three elements" <| fun _ ->
+            let l1 = [ 1; 2; 3 ]
+            let l2 = [ 9; 1; 5 ]
+
+            let similarity = getMaxSimilarityFast id l1 l2
+
+            Expect.floatClose Accuracy.high similarity 33.33333 "33.3% was returned"
+
+        testCase "Correct similarity percent for four elements" <| fun _ ->
+            let l1 = [ 1; 2; 3 ]
+            let l2 = [ 9; 1; 5; 3 ]
+
+            let similarity = getMaxSimilarityFast id l1 l2
+
+            Expect.floatClose Accuracy.high similarity 66.66666 "66.6% was returned"
+    ]
 
 [<Tests>]
 let comparerTests =

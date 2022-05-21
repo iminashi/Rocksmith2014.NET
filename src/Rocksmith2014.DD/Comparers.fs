@@ -135,7 +135,7 @@ let getMaxSimilarityFast projection l1 l2 =
             ||> Map.fold (fun state key count1 ->
                 match map2.TryFind key with
                 | Some count2 ->
-                    state + count1 + count2 - max count1 count2
+                    state + min count1 count2
                 | None ->
                     state)
 
