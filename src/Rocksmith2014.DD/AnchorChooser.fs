@@ -1,6 +1,7 @@
 module Rocksmith2014.DD.AnchorChooser
 
 open Rocksmith2014.XML
+open Rocksmith2014.XML.Extension
 
 // Assume that notes up to 3ms before the anchor were meant to be on the anchor
 let [<Literal>] private ErrorMargin = 3

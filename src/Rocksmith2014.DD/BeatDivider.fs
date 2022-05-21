@@ -2,6 +2,7 @@ module internal Rocksmith2014.DD.BeatDivider
 
 open Rocksmith2014.DD.DataExtractor
 open Rocksmith2014.XML
+open Rocksmith2014.XML.Extension
 open System
 
 let round (value: float) =

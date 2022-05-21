@@ -1,6 +1,7 @@
 module Rocksmith2014.DD.HandShapeChooser
 
 open Rocksmith2014.XML
+open Rocksmith2014.XML.Extension
 
 let private isInsideHandShape (hs: HandShape) time =
     time >= hs.StartTime && time < hs.EndTime

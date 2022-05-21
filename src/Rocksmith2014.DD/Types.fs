@@ -1,12 +1,8 @@
-﻿[<AutoOpen>]
+[<AutoOpen>]
 module Rocksmith2014.DD.Types
 
 open Rocksmith2014.XML
 open System.Collections.Generic
-
-type XmlEntity =
-    | XmlNote of xmlNote: Note
-    | XmlChord of xmlChord: Chord
 
 type RequestTarget =
     | ChordTarget of chordTarget: Chord

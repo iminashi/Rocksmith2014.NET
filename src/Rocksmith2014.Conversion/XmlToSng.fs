@@ -5,29 +5,9 @@ open System.Globalization
 open Rocksmith2014
 open Rocksmith2014.Conversion.Utils
 open Rocksmith2014.SNG
+open Rocksmith2014.XML.Extension
 
 type NoteFlagger = Note option -> Note -> uint32
-
-// TODO: Duplicate code in Conversion and DD libraries
-
-[<Struct>]
-type XmlEntity =
-    | XmlNote of XmlNote: XML.Note
-    | XmlChord of XmlChord: XML.Chord
-
-let inline getTimeCode entity =
-    match entity with
-    | XmlNote xn -> xn.Time
-    | XmlChord xc -> xc.Time
-
-let getSustain = function
-    | XmlNote xn ->
-        xn.Sustain
-    | XmlChord xc ->
-        if xc.HasChordNotes then
-            xc.ChordNotes[0].Sustain
-        else
-            0
 
 /// Returns a function that keeps a track of the current measure and the current beat.
 let convertBeat () =

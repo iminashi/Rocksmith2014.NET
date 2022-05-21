@@ -88,6 +88,8 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.FSharpExtensi
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "DLCBuilder.JapaneseLyricsCreator.Tests", "tests\DLCBuilder.JapaneseLyricsCreator.Tests\DLCBuilder.JapaneseLyricsCreator.Tests.fsproj", "{E6A7D168-36FB-403C-BFBB-EF87BD5FC5F0}"
 EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.XML.Extension", "src\Rocksmith2014.XML.Extension\Rocksmith2014.XML.Extension.fsproj", "{231F895E-A392-4E32-81D7-284AEF4809D3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -338,6 +340,14 @@ Global
 		{E6A7D168-36FB-403C-BFBB-EF87BD5FC5F0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E6A7D168-36FB-403C-BFBB-EF87BD5FC5F0}.Release|x64.ActiveCfg = Release|x64
 		{E6A7D168-36FB-403C-BFBB-EF87BD5FC5F0}.Release|x64.Build.0 = Release|x64
+		{231F895E-A392-4E32-81D7-284AEF4809D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{231F895E-A392-4E32-81D7-284AEF4809D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{231F895E-A392-4E32-81D7-284AEF4809D3}.Debug|x64.ActiveCfg = Debug|x64
+		{231F895E-A392-4E32-81D7-284AEF4809D3}.Debug|x64.Build.0 = Debug|x64
+		{231F895E-A392-4E32-81D7-284AEF4809D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{231F895E-A392-4E32-81D7-284AEF4809D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{231F895E-A392-4E32-81D7-284AEF4809D3}.Release|x64.ActiveCfg = Release|x64
+		{231F895E-A392-4E32-81D7-284AEF4809D3}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -377,6 +387,7 @@ Global
 		{C2871B13-817E-48C0-992B-A487A445696F} = {D205B519-E450-49DC-AE3A-C73C88DD7FE3}
 		{7F82FAE2-E249-46EB-804D-75693C0D3B07} = {0FF21B35-CA73-45A8-939A-F14614C11471}
 		{E6A7D168-36FB-403C-BFBB-EF87BD5FC5F0} = {0FF21B35-CA73-45A8-939A-F14614C11471}
+		{231F895E-A392-4E32-81D7-284AEF4809D3} = {D205B519-E450-49DC-AE3A-C73C88DD7FE3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0B1D2436-1840-458A-B570-F533FC009333}

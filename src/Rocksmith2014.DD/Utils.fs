@@ -12,21 +12,6 @@ let getNoteCount (template: ChordTemplate) =
     template.Frets
     |> Array.sumBy (fun fret -> Convert.ToInt32(fret >= 0y))
 
-let inline getTimeCode entity =
-    match entity with
-    | XmlNote xn -> xn.Time
-    | XmlChord xc -> xc.Time
-
-let inline getSustain entity =
-    match entity with
-    | XmlNote xn ->
-        xn.Sustain
-    | XmlChord xc ->
-        if xc.HasChordNotes then
-            xc.ChordNotes[0].Sustain
-        else
-            0
-
 let getAllowedChordNotes (diffPercent: float) maxChordNotesInPhrase =
     if maxChordNotesInPhrase = 0 then
         0

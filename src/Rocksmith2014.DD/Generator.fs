@@ -1,31 +1,10 @@
 module Rocksmith2014.DD.Generator
 
 open Rocksmith2014.XML
+open Rocksmith2014.XML.Extension
 open System.Collections.Generic
 
 let private lockObj = obj ()
-
-/// Creates an XML entity array from the notes and chords.
-let private createXmlEntityArray (xmlNotes: Note list) (xmlChords: Chord list) =
-    let xmlNotes = Array.ofList xmlNotes
-    let xmlChords = Array.ofList xmlChords
-
-    if xmlChords.Length = 0 then
-        Array.map XmlNote xmlNotes
-    elif xmlNotes.Length = 0 then
-        Array.map XmlChord xmlChords
-    else
-        let entityArray =
-            Array.init
-                (xmlNotes.Length + xmlChords.Length)
-                (fun i ->
-                    if i < xmlNotes.Length then
-                        XmlNote xmlNotes[i]
-                    else
-                        XmlChord xmlChords[i - xmlNotes.Length])
-
-        Array.sortInPlaceBy getTimeCode entityArray
-        entityArray
 
 let private applyChordId (templates: ResizeArray<ChordTemplate>) =
     let templateMap = Dictionary<int16 * byte, int16>()
@@ -86,7 +65,7 @@ let private generateLevels (config: GeneratorConfig) (arr: InstrumentalArrangeme
         [| level |]
     else
         let entities =
-            createXmlEntityArray phraseData.Notes phraseData.Chords
+            createXmlEntityArrayFromLists phraseData.Notes phraseData.Chords
 
         let divisions =
             entities

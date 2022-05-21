@@ -4,29 +4,13 @@ open Rocksmith2014
 open Rocksmith2014.Conversion.XmlToSng
 open Rocksmith2014.Conversion.Utils
 open Rocksmith2014.SNG
+open Rocksmith2014.XML.Extension
 open XmlToSngNote
-
-/// Creates an XML entity array from the notes and chords.
-let createXmlEntityArray (xmlNotes: ResizeArray<XML.Note>) (xmlChords: ResizeArray<XML.Chord>) =
-    if xmlChords.Count = 0 then
-        Array.init xmlNotes.Count (fun i -> XmlNote xmlNotes[i])
-    elif xmlNotes.Count = 0 then
-        Array.init xmlChords.Count (fun i -> XmlChord xmlChords[i])
-    else
-        let entityArray = Array.zeroCreate<XmlEntity> (xmlNotes.Count + xmlChords.Count)
-
-        for i = 0 to xmlNotes.Count - 1 do
-            entityArray[i] <- XmlNote xmlNotes[i]
-        for i = 0 to xmlChords.Count - 1 do
-            entityArray[xmlNotes.Count + i] <- XmlChord xmlChords[i]
-
-        Array.sortInPlaceBy getTimeCode entityArray
-        entityArray
 
 /// Converts an XML level into an SNG level.
 let convertLevel (accuData: AccuData) (piTimes: int array) (xmlArr: XML.InstrumentalArrangement) (xmlLevel: XML.Level) =
     let difficulty = int xmlLevel.Difficulty
-    let xmlEntities = createXmlEntityArray xmlLevel.Notes xmlLevel.Chords
+    let xmlEntities = createXmlEntityArrayFromLevel xmlLevel
     let noteTimes = Array.map getTimeCode xmlEntities
     let isArpeggio (fp: FingerPrint) = xmlArr.ChordTemplates[int fp.ChordId].IsArpeggio
 

@@ -4,6 +4,7 @@ open Rocksmith2014
 open Rocksmith2014.SNG
 open Rocksmith2014.Conversion.XmlToSng
 open Rocksmith2014.Conversion.Utils
+open Rocksmith2014.XML.Extension
 open System.Collections.Generic
 
 /// Calculates a hash value for a note.
