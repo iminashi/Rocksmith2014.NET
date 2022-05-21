@@ -1,8 +1,9 @@
-﻿module Rocksmith2014.DD.Tests.HandShapeChooserTests
+module Rocksmith2014.DD.Tests.HandShapeChooserTests
 
 open Expecto
-open Rocksmith2014.XML
 open Rocksmith2014.DD
+open Rocksmith2014.XML
+open Rocksmith2014.XML.Extension
 
 [<Tests>]
 let handShapeChooserTests =

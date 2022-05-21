@@ -4,9 +4,8 @@ open Expecto
 open Rocksmith2014
 open Rocksmith2014.Conversion
 open Rocksmith2014.Conversion.Utils
-open Rocksmith2014.Conversion.XmlToSng
-open Rocksmith2014.Conversion.XmlToSngLevel
 open Rocksmith2014.XML
+open Rocksmith2014.XML.Extension
 open System
 open System.Globalization
 
@@ -343,7 +342,7 @@ let xmlToSngConversionTests =
             let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
             let convert = XmlToSngNote.convertNote noteTimes piTimes emptyFp sharedAccData flagFunc testArr 0
         
-            let sng = convert 0 (XmlToSng.XmlNote note)
+            let sng = convert 0 (XmlNote note)
         
             Expect.equal sng.ChordId -1 "Chord ID is -1"
             Expect.equal sng.ChordNotesId -1 "Chord notes ID is -1"
@@ -380,8 +379,8 @@ let xmlToSngConversionTests =
             let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
             let convert = XmlToSngNote.convertNote noteTimes piTimes emptyFp sharedAccData flagFunc testArr 0
         
-            let sngNote0 = convert 0 (XmlToSng.XmlNote note0)
-            let sngNote1 = convert 1 (XmlToSng.XmlNote note1)
+            let sngNote0 = convert 0 (XmlNote note0)
+            let sngNote1 = convert 1 (XmlNote note1)
         
             Expect.equal sngNote0.PrevIterNote -1s "Previous note index of first note is -1"
             Expect.equal sngNote0.NextIterNote 1s "Next note index of first note is 1"
@@ -406,7 +405,7 @@ let xmlToSngConversionTests =
             let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
             let convert = XmlToSngNote.convertNote noteTimes piTimes emptyFp sharedAccData flagFunc testArr 0
         
-            let sngNote = convert 0 (XmlToSng.XmlNote note)
+            let sngNote = convert 0 (XmlNote note)
         
             Expect.isTrue (sngNote.Mask ?= SNG.NoteMask.Single) "Single note has single flag"
             Expect.isTrue (sngNote.Mask ?= SNG.NoteMask.Open) "Open string note has open flag"
@@ -443,7 +442,7 @@ let xmlToSngConversionTests =
             let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
             let convert = XmlToSngNote.convertNote noteTimes piTimes emptyFp sharedAccData flagFunc testArr 0
         
-            let sngNote = convert 0 (XmlToSng.XmlNote note)
+            let sngNote = convert 0 (XmlNote note)
         
             Expect.isFalse (sngNote.Mask ?= SNG.NoteMask.Open) "Non-open string note does not have open flag"
             Expect.isFalse (sngNote.Mask ?= SNG.NoteMask.Sustain) "Non-sustained note does not have sustain flag"
@@ -474,8 +473,8 @@ let xmlToSngConversionTests =
             let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
             let convert = XmlToSngNote.convertNote noteTimes piTimes emptyFp sharedAccData flagFunc testArr 0
         
-            let sngParent = convert 0 (XmlToSng.XmlNote parent)
-            let sngChild = convert 1 (XmlToSng.XmlNote child)
+            let sngParent = convert 0 (XmlNote parent)
+            let sngChild = convert 1 (XmlNote child)
         
             Expect.isTrue (sngParent.Mask ?= SNG.NoteMask.Parent) "Parent has correct mask set"
             Expect.isTrue (sngChild.Mask ?= SNG.NoteMask.Child) "Child has correct mask set"
@@ -493,12 +492,12 @@ let xmlToSngConversionTests =
             testArr.Levels.[0].HandShapes.Add(hs)
         
             let noteTimes = createNoteTimes testArr.Levels.[0]
-            let entities = createXmlEntityArray testArr.Levels.[0].Notes testArr.Levels.[0].Chords
+            let entities = createXmlEntityArrayFromLevel testArr.Levels.[0]
             let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
             let fp = XmlToSng.convertHandshape noteTimes entities hs
             let convert = XmlToSngNote.convertNote noteTimes piTimes [| [| fp |]; [||] |] sharedAccData flagFunc testArr 0
         
-            let sng = convert 0 (XmlToSng.XmlNote note)
+            let sng = convert 0 (XmlNote note)
         
             Expect.equal (sng.FingerPrintId.[0]) 0s "Fingerprint ID is correct"
             Expect.equal (sng.FingerPrintId.[1]) -1s "Arpeggio ID is -1"
@@ -515,12 +514,12 @@ let xmlToSngConversionTests =
             testArr.Levels.[0].HandShapes.Add(hs)
         
             let noteTimes = createNoteTimes testArr.Levels.[0]
-            let entities = createXmlEntityArray testArr.Levels.[0].Notes testArr.Levels.[0].Chords
+            let entities = createXmlEntityArrayFromLevel testArr.Levels.[0]
             let piTimes = ConvertInstrumental.createPhraseIterationTimesArray testArr
             let fp = XmlToSng.convertHandshape noteTimes entities hs
             let convert = XmlToSngNote.convertNote noteTimes piTimes [| [||]; [| fp |] |] sharedAccData flagFunc testArr 0
         
-            let sng = convert 0 (XmlToSng.XmlNote note)
+            let sng = convert 0 (XmlNote note)
         
             Expect.equal (sng.FingerPrintId.[1]) 0s "Arpeggio fingerprint ID is correct"
             Expect.equal (sng.FingerPrintId.[0]) -1s "Fingerprint ID is -1"
@@ -555,7 +554,7 @@ let xmlToSngConversionTests =
         
             let convert = createNoteConvertFunction sharedAccData testArr (testArr.Levels.[0]) 0
         
-            let sng = convert 0 (XmlToSng.XmlChord chord)
+            let sng = convert 0 (XmlChord chord)
         
             Expect.equal sng.ChordId (int chord.ChordId) "Chord ID is same"
             Expect.equal sng.Sustain (convertTime chord.ChordNotes.[1].Sustain) "Sustain is same"
@@ -572,7 +571,7 @@ let xmlToSngConversionTests =
             testArr.Levels.[0].Chords.Add(chord)
             let convert = createNoteConvertFunction sharedAccData testArr (testArr.Levels.[0]) 0
         
-            let sng = convert 0 (XmlToSng.XmlChord chord)
+            let sng = convert 0 (XmlChord chord)
         
             Expect.equal sng.ChordId (int chord.ChordId) "Chord ID is same"
             Expect.isTrue (sng.Mask ?= SNG.NoteMask.Chord) "Chord has chord flag"
@@ -596,7 +595,7 @@ let xmlToSngConversionTests =
         
             let convert = createNoteConvertFunction sharedAccData testArr testLevel 0
         
-            let sng = convert 0 (XmlToSng.XmlChord chord)
+            let sng = convert 0 (XmlChord chord)
         
             Expect.isTrue (sng.Mask ?= SNG.NoteMask.Accent) "Accented chord has accent flag"
             Expect.isTrue (sng.Mask ?= SNG.NoteMask.FretHandMute) "Fret-hand-muted chord has fret-hand mute flag"
@@ -621,8 +620,8 @@ let xmlToSngConversionTests =
             let accuData = AccuData.Init(testArr)
             let convert = createNoteConvertFunction accuData testArr (testArr.Levels.[0]) 0
         
-            let parentChord = convert 0 (XmlToSng.XmlChord chord)
-            let childNote = convert 1 (XmlToSng.XmlNote note)
+            let parentChord = convert 0 (XmlChord chord)
+            let childNote = convert 1 (XmlNote note)
         
             Expect.isTrue (parentChord.Mask ?= SNG.NoteMask.Parent) "Link-next chord has parent flag"
             Expect.isTrue (childNote.Mask ?= SNG.NoteMask.Child) "Child note has child flag"
@@ -640,7 +639,7 @@ let xmlToSngConversionTests =
             let accuData = AccuData.Init(testArr)
             let convert = createNoteConvertFunction accuData testArr (testArr.Levels.[0]) 0
         
-            let sng = convert 0 (XmlToSng.XmlChord chord)
+            let sng = convert 0 (XmlChord chord)
         
             Expect.equal accuData.ChordNotes.Count 1 "One chord notes object created"
             Expect.allEqual accuData.ChordNotes.[0].SlideTo -1y "All slides are -1"
@@ -661,7 +660,7 @@ let xmlToSngConversionTests =
             let accuData = AccuData.Init(testArr)
             let convert = createNoteConvertFunction accuData testArr (testArr.Levels.[0]) 0
         
-            let sng = convert 0 (XmlToSng.XmlChord chord)
+            let sng = convert 0 (XmlChord chord)
         
             Expect.equal accuData.ChordNotes.Count 0 "No chord notes object created"
             Expect.isFalse (sng.Mask ?= SNG.NoteMask.ChordNotes) "Chord notes flag is not set"
@@ -675,7 +674,7 @@ let xmlToSngConversionTests =
             let accuData = AccuData.Init(testArr)
             let convert = createNoteConvertFunction accuData testArr (testArr.Levels.[0]) 0
         
-            let _sng = convert 0 (XmlToSng.XmlNote note)
+            let _sng = convert 0 (XmlNote note)
         
             Expect.equal accuData.AnchorExtensions.[0].Count 1 "Anchor extension was created"
             Expect.equal accuData.AnchorExtensions.[0].[0].BeatTime 1.3f "Time is correct"
@@ -717,9 +716,9 @@ let xmlToSngConversionTests =
             let accuData = AccuData.Init(testArr)
             let convert = createNoteConvertFunction accuData testArr (testArr.Levels.[0]) 0
         
-            let _sng1 = convert 0 (XmlToSng.XmlNote note1)
-            let _sng2 = convert 1 (XmlToSng.XmlNote note2)
-            let _sng3 = convert 2 (XmlToSng.XmlNote note3)
+            let _sng1 = convert 0 (XmlNote note1)
+            let _sng2 = convert 1 (XmlNote note2)
+            let _sng3 = convert 2 (XmlNote note3)
         
             Expect.equal accuData.StringMasks.[0].[0] 5y "String mask for section 0, difficulty 0 is 5"
             Expect.equal accuData.StringMasks.[1].[0] 32y "String mask for section 1, difficulty 0 is 32"

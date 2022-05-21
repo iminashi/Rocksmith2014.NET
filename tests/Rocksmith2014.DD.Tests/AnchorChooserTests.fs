@@ -1,8 +1,9 @@
-﻿module Rocksmith2014.DD.Tests.AnchorChooserTests
+module Rocksmith2014.DD.Tests.AnchorChooserTests
 
 open Expecto
-open Rocksmith2014.XML
 open Rocksmith2014.DD
+open Rocksmith2014.XML
+open Rocksmith2014.XML.Extension
 
 [<Tests>]
 let anchorChooserTests =
