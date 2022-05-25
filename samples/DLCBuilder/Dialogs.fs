@@ -5,7 +5,6 @@ open Avalonia.Threading
 open Elmish
 open Rocksmith2014.DLCProject
 open System
-open System.Collections.Generic
 open System.IO
 
 [<RequireQualifiedAccess>]
@@ -25,7 +24,7 @@ type FileFilter =
     | WwiseConsoleApplication
 
 let private createFilters name (extensions: string seq) =
-    ResizeArray.singleton (FileDialogFilter(Extensions = List(extensions), Name = name))
+    ResizeArray.singleton (FileDialogFilter(Extensions = ResizeArray(extensions), Name = name))
 
 let private wwiseConsoleExtension =
     PlatformSpecific.Value(mac = "sh", windows = "exe", linux = "exe")
@@ -50,7 +49,7 @@ let private createFileFilters filter =
         | FileFilter.Project ->
             [ "rs2dlc" ]
         | FileFilter.PSARC ->
-            [ "psarc"]
+            [ "psarc" ]
         | FileFilter.ToolkitTemplate ->
             [ "dlc.xml" ]
         | FileFilter.ToneImport ->

@@ -142,7 +142,7 @@ let update (msg: Msg) (state: State) =
         { state with SelectedGearSlot = gearSlot }, Cmd.none
 
     | SetManuallyEditingKnobKey key ->
-        { state with ManuallyEditingKnobKey = key}, Cmd.none
+        { state with ManuallyEditingKnobKey = key }, Cmd.none
 
     | ShowToneEditor ->
         match getSelectedTone state with
@@ -203,7 +203,7 @@ let update (msg: Msg) (state: State) =
             // The confirmation needs to be answered with the buttons in the overlay
             state, cmd
         | JapaneseLyricsCreator _ when method = OverlayCloseMethod.ClickedOutside ->
-            // Disabled to prevent accidentally closing the overlay with a click
+            // Disabled to prevent accidentally closing the overlay with a click outside
             state, cmd
         | _ ->
             { state with Overlay = NoOverlay }, cmd
@@ -336,9 +336,10 @@ let update (msg: Msg) (state: State) =
     | ConvertToWem ->
         if DLCProject.audioFilesExist project then
             addTask WemConversion state,
-            Cmd.OfAsync.either (Utils.convertAudio config.WwiseConsolePath) project
-                               WemConversionComplete
-                               (fun ex -> TaskFailed(ex, WemConversion))
+            Cmd.OfAsync.either
+                (Utils.convertAudio config.WwiseConsolePath) project
+                WemConversionComplete
+                (fun ex -> TaskFailed(ex, WemConversion))
         else
             state, Cmd.none
 
@@ -346,9 +347,10 @@ let update (msg: Msg) (state: State) =
         match getSelectedArrangement state with
         | Some (Instrumental { CustomAudio = Some audio }) ->
             addTask WemConversion state,
-            Cmd.OfAsync.either (Wwise.convertToWem config.WwiseConsolePath) audio.Path
-                               WemConversionComplete
-                               (fun ex -> TaskFailed(ex, WemConversion))
+            Cmd.OfAsync.either
+                (Wwise.convertToWem config.WwiseConsolePath) audio.Path
+                WemConversionComplete
+                (fun ex -> TaskFailed(ex, WemConversion))
         | _ ->
             state, Cmd.none
 
