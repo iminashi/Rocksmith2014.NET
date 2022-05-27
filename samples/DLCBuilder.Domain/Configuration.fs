@@ -22,7 +22,7 @@ type Configuration =
       SaveDebugFiles: bool
       AutoVolume: bool
       AutoSave: bool
-      ConvertAudio: AudioConversionType
+      ConvertAudio: AudioConversionType option
       OpenFolderAfterReleaseBuild: bool
       LoadPreviousOpenedProject: bool
       PreviousOpenedProject: string
@@ -45,7 +45,7 @@ type Configuration =
           SaveDebugFiles = false
           AutoVolume = true
           AutoSave = false
-          ConvertAudio = NoConversion
+          ConvertAudio = None
           OpenFolderAfterReleaseBuild = true
           LoadPreviousOpenedProject = false
           PreviousOpenedProject = String.Empty
@@ -104,9 +104,9 @@ module Configuration =
 
         let convertAudio =
             match dto.ConvertAudio with
-            | 1 -> ToOgg
-            | 2 -> ToWav
-            | _ -> NoConversion
+            | 1 -> Some ToOgg
+            | 2 -> Some ToWav
+            | _ -> None
 
         let levelCountGeneration =
             match dto.DDLevelCountGeneration with
@@ -139,9 +139,9 @@ module Configuration =
     let private toDto (config: Configuration) =
         let convertAudio =
             match config.ConvertAudio with
-            | NoConversion -> 0
-            | ToOgg -> 1
-            | ToWav -> 2
+            | None -> 0
+            | Some ToOgg -> 1
+            | Some ToWav -> 2
 
         let levelCountGeneration =
             match config.DDLevelCountGeneration with

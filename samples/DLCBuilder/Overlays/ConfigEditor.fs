@@ -183,9 +183,9 @@ let private generalConfig state dispatch focusedSetting =
 let private importConfig state dispatch =
     let localize conv =
         match conv with
-        | NoConversion -> "NoConversion"
-        | ToOgg -> "ToOggFiles"
-        | ToWav -> "ToWaveFiles"
+        | None -> "NoConversion"
+        | Some ToOgg -> "ToOggFiles"
+        | Some ToWav -> "ToWaveFiles"
         |> translate
 
     vStack [
@@ -218,7 +218,7 @@ let private importConfig state dispatch =
                         TextBlock.verticalAlignment VerticalAlignment.Center
                     ]
                     vStack [
-                        yield! [ NoConversion; ToOgg; ToWav ]
+                        yield! [ None; Some ToOgg; Some ToWav ]
                         |> List.map (fun conv ->
                             RadioButton.create [
                                 RadioButton.isChecked (state.Config.ConvertAudio = conv)

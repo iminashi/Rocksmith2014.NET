@@ -85,7 +85,7 @@ let checkArrangements (project: DLCProject) (progress: IProgress<float>) =
     |> List.mapi (fun i arr ->
         let result = checkArrangement arr
         progress.Report(float (i + 1) / length * 100.)
-        Arrangement.getFile arr ,result)
+        Arrangement.getFile arr, result)
     |> Map.ofList
 
 /// Adds descriptors to tones that have none.
@@ -195,13 +195,14 @@ let moveSelected dir selectedIndex (list: List<_>) =
 
 /// Converts the projects audio files to wav or ogg files.
 let convertProjectAudioFromWem conv project =
+    let convert =
+        match conv with
+        | ToOgg -> Conversion.wemToOgg
+        | ToWav -> Conversion.wemToWav
+
     project
     |> DLCProject.getAudioFiles 
-    |> Seq.iter (fun { Path = path } ->
-        if conv = ToOgg then
-            Conversion.wemToOgg path
-        else
-            Conversion.wemToWav path)
+    |> Seq.iter (fun { Path = path } -> convert path)
 
 /// Determines the path to the preview file from the main audio.
 let determinePreviewPath audioFilePath =

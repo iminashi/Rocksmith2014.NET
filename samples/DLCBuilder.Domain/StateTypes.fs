@@ -136,7 +136,7 @@ type ConfigEdit =
     | SetApplyImprovements of bool
     | SetSaveDebugFiles of bool
     | SetCustomAppId of AppId option
-    | SetConvertAudio of AudioConversionType
+    | SetConvertAudio of AudioConversionType option
     | SetOpenFolderAfterReleaseBuild of bool
     | SetLoadPreviousProject of bool
     | SetAutoSave of bool

@@ -271,7 +271,7 @@ let handleFilesDrop paths =
 let createPsarcImportProgressReporter config =
     let maxProgress =
         3.
-        + match config.ConvertAudio with NoConversion -> 0. | _ -> 1.
+        + match config.ConvertAudio with None -> 0. | _ -> 1.
         + match config.RemoveDDOnImport with false -> 0. | true -> 1.
 
     let mutable currentProgress = 0.
@@ -291,12 +291,12 @@ let importPsarc config targetFolder (psarcPath: string)  =
 
         let audioExtension =
             match config.ConvertAudio with
-            | NoConversion ->
+            | None ->
                 "wem"
-            | ToOgg | ToWav as conv ->
+            | Some conv ->
                 Utils.convertProjectAudioFromWem conv project
                 progress ()
-                if conv = ToOgg then "ogg" else "wav"
+                conv.ToExtension
 
         if config.RemoveDDOnImport then
             do! Utils.removeDD project

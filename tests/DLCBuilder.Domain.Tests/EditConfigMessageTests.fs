@@ -55,7 +55,7 @@ let editConfigTests =
             let messages =
                 [ SetSaveDebugFiles saveDebug
                   SetCustomAppId(Some testAppId)
-                  SetConvertAudio ToWav ]
+                  SetConvertAudio(Some ToWav) ]
                 |> List.map EditConfig
 
             let newState, _ =
@@ -64,7 +64,7 @@ let editConfigTests =
                 
             Expect.equal newState.Config.SaveDebugFiles saveDebug "Save debug files is correct"
             Expect.equal newState.Config.CustomAppId (Some testAppId) "Custom app ID is correct"
-            Expect.equal newState.Config.ConvertAudio ToWav "Convert audio is correct"
+            Expect.equal newState.Config.ConvertAudio (Some ToWav) "Convert audio is correct"
 
         testCase "AddReleasePlatform" <| fun _ ->
             let state = { initialState with Config = { initialState.Config with ReleasePlatforms = Set.empty } }

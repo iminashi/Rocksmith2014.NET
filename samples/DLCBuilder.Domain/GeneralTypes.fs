@@ -24,7 +24,11 @@ type IStringLocalizer =
     abstract member ChangeLocale : Locale -> unit
     abstract member LocaleFromShortName : string -> Locale
 
-type AudioConversionType = NoConversion | ToWav | ToOgg
+type AudioConversionType =
+    | ToWav
+    | ToOgg
+
+    member this.ToExtension = match this with ToWav -> "wav" | ToOgg -> "ogg"
 
 type MoveDirection = Up | Down
 
