@@ -569,6 +569,17 @@ let update (msg: Msg) (state: State) =
     | ShowOverlay overlay ->
         showOverlay state overlay, Cmd.none
 
+    | ShowLyricsViewer ->
+        match getSelectedArrangement state with
+        | Some (Vocals v) ->
+            let lyrics =
+                XML.Vocals.Load(v.XML)
+                |> Utils.createLyricsString
+            let overlay = LyricsViewer(lyrics, v.Japanese)
+            showOverlay state overlay, Cmd.none
+        | _ ->
+            state, Cmd.none
+
     | SetConfiguration (newConfig, enableLoad, wasAbnormalExit) ->
         if config.Locale <> newConfig.Locale then
             state.Localizer.ChangeLocale(newConfig.Locale)

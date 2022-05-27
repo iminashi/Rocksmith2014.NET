@@ -457,5 +457,6 @@
   "Author": "Tekijä",
   "AdditionalMetadataAuthorToolTip": "Kumoaa asetuksissa annetun tekijänimen.",
   "FinishEditing": "Muokkaus valmis",
-  "ClickToCopyDuration": "Klikkaa kopioidaksesi kappaleen keston leikepöydälle."
+  "ClickToCopyDuration": "Klikkaa kopioidaksesi kappaleen keston leikepöydälle.",
+  "ViewLyrics": "Näytä sanat"
 }

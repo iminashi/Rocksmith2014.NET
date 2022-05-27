@@ -457,5 +457,6 @@
   "Author": "Author",
   "AdditionalMetadataAuthorToolTip": "Overrides the charter name set in the configuration.",
   "FinishEditing": "Finish Editing",
-  "ClickToCopyDuration": "Click to copy the audio duration to the clipboard."
+  "ClickToCopyDuration": "Click to copy the audio duration to the clipboard.",
+  "ViewLyrics": "View Lyrics"
 }

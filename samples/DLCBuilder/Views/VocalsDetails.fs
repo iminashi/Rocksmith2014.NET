@@ -75,5 +75,13 @@ let view dispatch (vocals: Vocals) =
                     ]
                 ]
             ]
+
+            // View Lyrics Button
+            Button.create [
+                Button.padding (25., 10.)
+                Button.content (translate "ViewLyrics")
+                Button.horizontalAlignment HorizontalAlignment.Center
+                Button.onClick (fun _ -> dispatch ShowLyricsViewer)
+            ]
         ]
     ]

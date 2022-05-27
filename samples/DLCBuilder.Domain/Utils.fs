@@ -220,3 +220,24 @@ let determinePreviewPath audioFilePath =
         alternativePath
     else
         String.Empty
+
+let createLyricsString (lyrics: Vocal seq) =
+    let skipLast (v: Vocal) = v.Lyric.Substring(0, v.Lyric.Length - 1)
+    let revJoin (sep: char) (list: string list) = String.Join(sep, List.rev list)
+    let revConcat = List.rev >> String.Concat
+
+    (([], [], []), lyrics)
+    ||> Seq.fold (fun (word, line, lines) elem ->
+        match elem.Lyric with
+        | EndsWith "-" ->
+            skipLast elem :: word, line, lines
+        | EndsWith "+" ->
+            let w = skipLast elem :: word
+            let l = revConcat w :: line
+            [], [], revJoin ' ' l :: lines
+        | _ ->
+            let w = elem.Lyric :: word
+            [], revConcat w :: line, lines)
+    |> (fun (_, line, res) ->
+        let res = if not line.IsEmpty then revJoin ' ' line :: res else res
+        revJoin '\n' res)

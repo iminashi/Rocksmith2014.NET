@@ -308,6 +308,8 @@ let private overlay state dispatch =
         UpdateInfoMessage.view update dispatch
     | AdditionalMetaDataEditor ->
         AdditionalMetaDataEditor.view dispatch state
+    | LyricsViewer (lyrics, isJapanese) ->
+        LyricsViewer.view dispatch lyrics isJapanese
 
 let private statusMessageContents dispatch = function
     | TaskWithProgress (task, progress) ->

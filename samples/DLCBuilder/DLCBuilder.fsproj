@@ -72,6 +72,7 @@
     <Compile Include="Overlays\ImportTonesSelector.fs" />
     <Compile Include="Overlays\IssueViewer.fs" />
     <Compile Include="Overlays\JapaneseLyricsCreatorOverlay.fs" />
+    <Compile Include="Overlays\LyricsViewer.fs" />
     <Compile Include="Overlays\PitchShifter.fs" />
     <Compile Include="Overlays\PreviewStartSelector.fs" />
     <Compile Include="Overlays\ToneCollectionOverlay.fs" />
