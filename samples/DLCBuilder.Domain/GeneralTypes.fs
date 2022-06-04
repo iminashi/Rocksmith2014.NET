@@ -52,7 +52,7 @@ type LoadedProjectOrigin =
     | FromPsarcImport of importType: PsarcImportType
     | FromToolkitTemplateImport
 
-    member this.ReloadTonesFromArrangementFiles =
+    member this.ShouldReloadTonesFromArrangementFiles =
         match this with
         | FromFile _ ->
             true

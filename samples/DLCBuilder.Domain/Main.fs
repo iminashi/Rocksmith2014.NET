@@ -724,7 +724,7 @@ let update (msg: Msg) (state: State) =
 
     | ProjectLoaded (project, loadOrigin) ->
         let project =
-            if loadOrigin.ReloadTonesFromArrangementFiles then
+            if loadOrigin.ShouldReloadTonesFromArrangementFiles then
                 DLCProject.updateToneInfo project
             else
                 project
