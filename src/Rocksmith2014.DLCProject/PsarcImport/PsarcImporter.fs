@@ -157,7 +157,9 @@ let import progress (psarcPath: string) (targetDirectory: string) =
 
         let metaData =
             fileAttributes
-            |> Array.pick (fun (file, attr) -> if file.Contains("vocals") then None else Some attr)
+            |> Array.tryPick (fun (file, attr) -> if file.Contains("vocals") then None else Some attr)
+            // No instrumental arrangements in PSARC, should not happen
+            |> Option.defaultWith (fun () -> fileAttributes[0] |> snd)
 
         let! version, author, toolkitVersion =
             tryGetFileContents "toolkit.version" psarc
