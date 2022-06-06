@@ -51,7 +51,7 @@ let init localizer albumArtLoader databaseConnector args =
       Overlay = NoOverlay
       RunningTasks = Set.empty
       StatusMessages = List.empty
-      CurrentPlatform = PlatformSpecific.Value(mac=Mac, windows=PC, linux=PC)
+      CurrentPlatform = PlatformSpecific.Value(mac = Mac, windows = PC, linux = PC)
       OpenProjectFile = None
       ArrangementIssues = Map.empty
       AvailableUpdate = None

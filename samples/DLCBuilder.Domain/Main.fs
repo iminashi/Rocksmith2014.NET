@@ -278,7 +278,7 @@ let update (msg: Msg) (state: State) =
 
     | ImportProfileTones ->
         if String.IsNullOrWhiteSpace(config.ProfilePath) then
-            showOverlay state (ConfigEditor FocusedSetting.ProfilePath), Cmd.none
+            showOverlay state (ConfigEditor (Some FocusedSetting.ProfilePath)), Cmd.none
         else
             match Profile.importTones config.ProfilePath with
             | Ok toneArray ->
@@ -871,7 +871,7 @@ let update (msg: Msg) (state: State) =
         if String.notEmpty config.TestFolderPath then
             buildPackage (TestPackageBuilder.build state.CurrentPlatform) state
         else
-            showOverlay state (ConfigEditor FocusedSetting.TestFolder), Cmd.none
+            showOverlay state (ConfigEditor (Some FocusedSetting.TestFolder)), Cmd.none
 
     | Build Release ->
         buildPackage (ReleasePackageBuilder.build state.OpenProjectFile) state

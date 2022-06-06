@@ -85,7 +85,7 @@ let private generalConfig state dispatch focusedSetting =
                             FixedTextBox.text state.Config.ProfilePath
                             FixedTextBox.onTextChanged (SetProfilePath >> EditConfig >> dispatch)
                             FixedTextBox.watermark (translate "ProfilePathPlaceholder")
-                            FixedTextBox.autoFocus (FocusedSetting.ProfilePath = focusedSetting)
+                            FixedTextBox.autoFocus (Option.contains FocusedSetting.ProfilePath focusedSetting)
                         ]
                     ]
                 ]
@@ -110,7 +110,7 @@ let private generalConfig state dispatch focusedSetting =
                             FixedTextBox.text state.Config.TestFolderPath
                             TextBox.watermark (translate "TestFolderPlaceholder")
                             FixedTextBox.onTextChanged (SetTestFolderPath >> EditConfig >> dispatch)
-                            FixedTextBox.autoFocus (FocusedSetting.TestFolder = focusedSetting)
+                            FixedTextBox.autoFocus (Option.contains FocusedSetting.TestFolder focusedSetting)
                         ]
                     ]
                 ]

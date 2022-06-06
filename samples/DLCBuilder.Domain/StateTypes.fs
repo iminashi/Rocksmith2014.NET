@@ -11,7 +11,6 @@ open OnlineUpdate
 
 [<RequireQualifiedAccess>]
 type FocusedSetting =
-    | None
     | ProfilePath
     | TestFolder
 
@@ -23,7 +22,7 @@ type OverlayContents =
     | NoOverlay
     | AbnormalExitMessage
     | AboutMessage
-    | ConfigEditor of focus: FocusedSetting
+    | ConfigEditor of focus: FocusedSetting option
     | DeleteConfirmation of files: string list
     | ErrorMessage of message: string * moreInfo: string option
     | IdRegenerationConfirmation of arrangements: Arrangement list * reply: AsyncReply

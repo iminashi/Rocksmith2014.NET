@@ -90,9 +90,9 @@ let messageTests =
             Expect.equal newState.RecentFiles [ "recent_file" ] "Recent file list was changed"
 
         testCase "ShowOverlay ConfigEditor shows configuration editor" <| fun _ ->
-            let newState, _ = Main.update (ShowOverlay(ConfigEditor FocusedSetting.ProfilePath)) initialState
+            let newState, _ = Main.update (ShowOverlay(ConfigEditor (Some FocusedSetting.ProfilePath))) initialState
 
-            Expect.equal newState.Overlay (ConfigEditor FocusedSetting.ProfilePath) "Overlay is set to configuration editor"
+            Expect.equal newState.Overlay (ConfigEditor (Some FocusedSetting.ProfilePath)) "Overlay is set to configuration editor"
 
         testCase "NewProject invalidates bitmap cache" <| fun _ ->
             let mutable wasInvalidated = false

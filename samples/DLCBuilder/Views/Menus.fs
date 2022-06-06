@@ -95,7 +95,7 @@ let file state dispatch =
             MenuItem.create [
                 MenuItem.header (translate "ConfigurationMenuItem")
                 MenuItem.inputGesture (KeyGesture(Key.G, keyModifierCtrl))
-                MenuItem.onClick (fun _ -> ShowOverlay (ConfigEditor FocusedSetting.None) |> dispatch)
+                MenuItem.onClick (fun _ -> ShowOverlay (ConfigEditor None) |> dispatch)
             ]
 
             separator

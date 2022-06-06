@@ -485,7 +485,7 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                                 Button.classes [ "borderless-btn" ]
                                 Button.isEnabled noOverlayIsOpen
                                 KeyboardNavigation.isTabStop false
-                                Button.onClick (fun _ -> FocusedSetting.None |> ConfigEditor |> ShowOverlay |> dispatch)
+                                Button.onClick (fun _ -> None |> ConfigEditor |> ShowOverlay |> dispatch)
                                 Button.content (
                                     PathIcon.create [
                                         PathIcon.data Icons.cog
