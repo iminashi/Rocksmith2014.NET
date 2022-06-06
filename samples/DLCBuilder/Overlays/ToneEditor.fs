@@ -113,9 +113,9 @@ let private pedalSelectors dispatch repository selectedGearSlot gearList (locNam
         |> generalize ]
 
 let private gearSlots repository state dispatch (gearList: Gear) =
-    let ampName = repository.AmpDict[gearList.Amp.Key].Name
+    let ampName = repository.AmpsByKey[gearList.Amp.Key].Name
     let cabinetName =
-        let c = repository.CabinetDict[gearList.Cabinet.Key] in $"{c.Name} - {c.Category}"
+        let c = repository.CabinetsByKey[gearList.Cabinet.Key] in $"{c.Name} - {c.Category}"
 
     vStack [
         gearSlotHeader "Amp"

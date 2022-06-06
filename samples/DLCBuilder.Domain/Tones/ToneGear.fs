@@ -33,13 +33,13 @@ type GearData =
 
 type Repository =
     { Amps: GearData array
-      AmpDict: IReadOnlyDictionary<string, GearData>
+      AmpsByKey: IReadOnlyDictionary<string, GearData>
       Cabinets: GearData array
-      CabinetDict: IReadOnlyDictionary<string, GearData>
+      CabinetsByKey: IReadOnlyDictionary<string, GearData>
       Pedals: GearData array
-      PedalDict: IReadOnlyDictionary<string, GearData>
+      PedalsByKey: IReadOnlyDictionary<string, GearData>
       Racks: GearData array
-      RackDict: IReadOnlyDictionary<string, GearData>
+      RacksByKey: IReadOnlyDictionary<string, GearData>
       CabinetChoices: GearData array
       MicPositionsForCabinet: IReadOnlyDictionary<string, GearData array> }
 
@@ -115,13 +115,13 @@ let loadRepository () =
 
         return
             { Amps = data["Amps"].Array
-              AmpDict = data["Amps"].Dictionary
+              AmpsByKey = data["Amps"].Dictionary
               Cabinets = cabinets
-              CabinetDict = data["Cabinets"].Dictionary
+              CabinetsByKey = data["Cabinets"].Dictionary
               Pedals = data["Pedals"].Array
-              PedalDict = data["Pedals"].Dictionary
+              PedalsByKey = data["Pedals"].Dictionary
               Racks = data["Racks"].Array
-              RackDict = data["Racks"].Dictionary
+              RacksByKey = data["Racks"].Dictionary
               CabinetChoices = cabinetChoices
               MicPositionsForCabinet = micPositionsForCabinet }
     }
@@ -129,15 +129,15 @@ let loadRepository () =
 /// Returns the gear data for the pedal in the given gear slot.
 let getGearDataForCurrentPedal repository (gearList: Gear) = function
     | Amp ->
-        Some repository.AmpDict[gearList.Amp.Key]
+        Some repository.AmpsByKey[gearList.Amp.Key]
     | Cabinet ->
-        Some repository.CabinetDict[gearList.Cabinet.Key]
+        Some repository.CabinetsByKey[gearList.Cabinet.Key]
     | PrePedal index ->
-        gearList.PrePedals[index] |> Option.map (fun x -> repository.PedalDict[x.Key])
+        gearList.PrePedals[index] |> Option.map (fun x -> repository.PedalsByKey[x.Key])
     | PostPedal index ->
-        gearList.PostPedals[index] |> Option.map (fun x -> repository.PedalDict[x.Key])
+        gearList.PostPedals[index] |> Option.map (fun x -> repository.PedalsByKey[x.Key])
     | Rack index ->
-        gearList.Racks[index] |> Option.map (fun x -> repository.RackDict[x.Key])
+        gearList.Racks[index] |> Option.map (fun x -> repository.RacksByKey[x.Key])
 
 let emptyTone repository =
     let gear =
