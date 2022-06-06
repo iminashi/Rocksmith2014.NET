@@ -35,7 +35,12 @@ type MoveDirection = Up | Down
 type PsarcQuickEditData =
     { PsarcPath: string
       TempDirectory: string
-      AppId: AppId option }
+      AppId: AppId option
+      BuildToolVersion: string option }
+
+type PsarcNormalImportData =
+    { ProjectFilePath: string
+      BuildToolVersion: string option }
 
 type BuildType =
     | Test
@@ -44,7 +49,7 @@ type BuildType =
     | ReplacePsarc of PsarcQuickEditData
 
 type PsarcImportType =
-    | Normal of createdProjectFilePath: string
+    | Normal of data: PsarcNormalImportData
     | Quick of data: PsarcQuickEditData
 
 type LoadedProjectOrigin =
@@ -61,16 +66,23 @@ type LoadedProjectOrigin =
 
     member this.QuickEditData =
         match this with
-        | FromPsarcImport (Quick info) ->
-            Some info
+        | FromPsarcImport (Quick data) ->
+            Some data
         | _ ->
             None
 
     member this.ProjectPath =
         match this with
         | FromFile path
-        | FromPsarcImport (Normal path) ->
+        | FromPsarcImport (Normal { ProjectFilePath = path }) ->
             Some path
+        | _ ->
+            None
+
+    member this.BuildToolVersion =
+        match this with
+        | FromPsarcImport (Quick { BuildToolVersion = v } | Normal { BuildToolVersion = v }) ->
+            v
         | _ ->
             None
 

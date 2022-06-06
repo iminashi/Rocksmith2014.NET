@@ -31,7 +31,7 @@ let view dispatch state =
 
             Grid.create [
                 Grid.columnDefinitions "auto,*"
-                Grid.rowDefinitions "auto,auto"
+                Grid.rowDefinitions "auto,auto,auto"
                 Grid.children [
                     // Author
                     locText "Author" [ TextBlock.verticalAlignment VerticalAlignment.Center ]
@@ -58,6 +58,23 @@ let view dispatch state =
                             FixedTextBox.text (data.AppId |> Option.map AppId.toString |> Option.toObj)
                             FixedTextBox.watermark $"{AppId.toString AppId.CherubRock} (Cherub Rock)"
                             FixedTextBox.onTextChanged (SetEditedPsarcAppId >> dispatch)
+                        ]
+                    | None ->
+                        ()
+
+                    // Build Tool Version
+                    match state.ImportedBuildToolVersion with
+                    | Some version ->
+                        locText "BuildToolVersion" [
+                            Grid.row 2
+                            TextBlock.verticalAlignment VerticalAlignment.Center
+                        ]
+
+                        FixedTextBox.create [
+                            Grid.row 2
+                            Grid.column 1
+                            FixedTextBox.text version
+                            FixedTextBox.isReadOnly true
                         ]
                     | None ->
                         ()

@@ -58,6 +58,7 @@ let init localizer albumArtLoader databaseConnector args =
       ToneGearRepository = None
       AlbumArtLoadTime = None
       QuickEditData = None
+      ImportedBuildToolVersion = None
       AudioLength = None
       Localizer = localizer
       AlbumArtLoader = albumArtLoader

@@ -140,11 +140,23 @@ let toneFromDto dto =
 
 /// Parses a value from Toolkit.version text.
 let parseToolkitMetadata attr map defaultValue text =
-    match Regex.Match(text, $"Package {attr}: ([^\r\n]+)\r?\n") with
+    match Regex.Match(text, $"{attr}: ([^\r\n]+)\r?\n") with
     | m when m.Success ->
         map m.Groups[1].Captures[0].Value
     | _ ->
         defaultValue
+
+/// Parses a value (starting with "Package") from Toolkit.version text.
+let parseToolkitPackageMetadata attr = parseToolkitMetadata $"Package {attr}"
+
+/// Prefixes the version string with "Toolkit" if it starts with a four part version number. 
+let prefixWithToolkit versionOpt =
+    versionOpt
+    |> Option.map (fun version ->
+        if Regex.IsMatch(version, "\d+\.\d+\.\d+\.\d+") then
+            $"Toolkit {version}"
+        else
+            version)
 
 let private getFileContents (psarc: PSARC) pathInPsarc =
     async {

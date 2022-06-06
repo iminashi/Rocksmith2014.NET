@@ -322,6 +322,7 @@ type State =
       AvailableUpdate: UpdateInformation option
       ToneGearRepository: ToneGear.Repository option
       QuickEditData: PsarcQuickEditData option
+      ImportedBuildToolVersion: string option
       AudioLength: TimeSpan option
       /// For forcing a view update if the user loads the same album art file, but the file has been modified.
       AlbumArtLoadTime: DateTime option

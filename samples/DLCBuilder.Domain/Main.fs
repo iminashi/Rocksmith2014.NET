@@ -159,6 +159,7 @@ let update (msg: Msg) (state: State) =
             OpenProjectFile = None
             AlbumArtLoadTime = None
             QuickEditData = None
+            ImportedBuildToolVersion = None
             AudioLength = None
             SelectedArrangementIndex = -1
             SelectedToneIndex = -1 }, Cmd.none
@@ -216,7 +217,8 @@ let update (msg: Msg) (state: State) =
                 let data =
                     { PsarcPath = psarcPath
                       TempDirectory = targetFolder
-                      AppId = r.AppId }
+                      AppId = r.AppId
+                      BuildToolVersion = r.BuildToolVersion }
 
                 return r.Project, Quick data
             }
@@ -229,8 +231,11 @@ let update (msg: Msg) (state: State) =
             async {
                 let targetFolder = Path.Combine(targetFolder, Path.GetFileNameWithoutExtension(psarcPath))
                 let! r = importPsarc config targetFolder psarcPath
+                let data =
+                    { ProjectFilePath = r.ProjectPath
+                      BuildToolVersion = r.BuildToolVersion }
 
-                return r.Project, Normal r.ProjectPath
+                return r.Project, Normal data
             }
 
         addTask PsarcImport state,
@@ -757,6 +762,7 @@ let update (msg: Msg) (state: State) =
             ArrangementIssues = Map.empty
             AlbumArtLoadTime = albumArtLoadTime
             QuickEditData = loadOrigin.QuickEditData
+            ImportedBuildToolVersion = loadOrigin.BuildToolVersion
             AudioLength = None
             SelectedArrangementIndex = -1
             SelectedToneIndex = -1 }, cmds

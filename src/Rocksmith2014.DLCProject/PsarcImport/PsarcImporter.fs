@@ -13,7 +13,9 @@ type PsarcImportResult =
       /// Path to the project file that was saved when importing the PSARC.
       ProjectPath: string
       /// App ID of the PSARC if it was other than Cherub Rock.
-      AppId: AppId option }
+      AppId: AppId option
+      /// The version of the Toolkit or DLC Builder that was used to build the package.
+      BuildToolVersion: string option }
 
 /// Imports a PSARC from the given path into a DLCProject with the project created in the target directory.
 let import progress (psarcPath: string) (targetDirectory: string) = async {
@@ -156,15 +158,16 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
         fileAttributes
         |> Array.pick (fun (file, attr) -> if file.Contains("vocals") then None else Some attr)
 
-    let! version, author =
+    let! version, author, toolkitVersion =
         tryGetFileContents "toolkit.version" psarc
         |> Async.map (function
             | None ->
-                "1", None
+                "1", None, None
             | Some text ->
-                let version = text |> parseToolkitMetadata "Version" id "1"
-                let author = text |> parseToolkitMetadata "Author" Some None
-                version, author)
+                let version = text |> parseToolkitPackageMetadata "Version" id "1"
+                let author = text |> parseToolkitPackageMetadata "Author" Some None
+                let toolkitVersion = text |> parseToolkitMetadata "Toolkit version" Some None |> prefixWithToolkit
+                version, author, toolkitVersion)
 
     let! appId =
         tryGetFileContents "appid.appid" psarc
@@ -208,4 +211,5 @@ let import progress (psarcPath: string) (targetDirectory: string) = async {
     return
         { Project = project
           ProjectPath = projectFile
-          AppId = appId } }
+          AppId = appId
+          BuildToolVersion = toolkitVersion } }

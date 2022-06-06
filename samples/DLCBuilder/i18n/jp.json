@@ -458,5 +458,6 @@
   "AdditionalMetadataAuthorToolTip": "設定のクリエイター名を優先します。",
   "FinishEditing": "エディット完了",
   "ClickToCopyDuration": "クリックして曲の長さをクリップボードにコピー。",
-  "ViewLyrics": "歌詞を表示"
+  "ViewLyrics": "歌詞を表示",
+  "BuildToolVersion": "ツールバージョン"
 }
