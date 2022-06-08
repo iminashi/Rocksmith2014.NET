@@ -5,6 +5,7 @@ open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DD
 open Rocksmith2014.DLCProject
+open Rocksmith2014.XML
 open Rocksmith2014.XML.Processing
 open System
 open OnlineUpdate
@@ -36,6 +37,7 @@ type OverlayContents =
     | UpdateInformationDialog of update: UpdateInformation
     | AdditionalMetaDataEditor
     | LyricsViewer of lyrics: string * isJapanese: bool
+    | InstrumentalXmlDetailsViewer of arrangement: InstrumentalArrangement
 
 [<RequireQualifiedAccess>]
 type OverlayCloseMethod =
@@ -267,6 +269,7 @@ type Msg =
     | ShowIssueViewer
     | ShowImportToneSelector of tones: Tone array
     | ShowLyricsViewer
+    | ShowInstrumentalXmlDetailsViewer
     | Build of BuildType
     | BuildComplete of BuildCompleteType
     | WemConversionComplete of unit

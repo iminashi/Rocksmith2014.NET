@@ -116,6 +116,7 @@ let private arrangementDetails state dispatch =
                                             TextBlock.text $"{IO.Path.GetFileName(xmlFile)}"
                                             TextBlock.foreground "#cccccc"
                                             TextBlock.verticalAlignment VerticalAlignment.Center
+                                            TextBlock.onTapped (fun _ -> ShowInstrumentalXmlDetailsViewer |> dispatch)
                                         ]
                                     ]
                                 ]
@@ -310,6 +311,8 @@ let private overlay state dispatch =
         AdditionalMetaDataEditor.view dispatch state
     | LyricsViewer (lyrics, isJapanese) ->
         LyricsViewer.view dispatch lyrics isJapanese
+    | InstrumentalXmlDetailsViewer arr ->
+        InstrumentalXmlDetails.view dispatch arr
 
 let private statusMessageContents dispatch = function
     | TaskWithProgress (task, progress) ->

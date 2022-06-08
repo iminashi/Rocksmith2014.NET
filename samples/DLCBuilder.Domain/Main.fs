@@ -585,6 +585,16 @@ let update (msg: Msg) (state: State) =
         | _ ->
             state, Cmd.none
 
+    | ShowInstrumentalXmlDetailsViewer ->
+        match getSelectedArrangement state with
+        | Some (Instrumental a) ->
+            let arr =
+                XML.InstrumentalArrangement.Load(a.XML)
+            let overlay = InstrumentalXmlDetailsViewer(arr)
+            showOverlay state overlay, Cmd.none
+        | _ ->
+            state, Cmd.none
+
     | SetConfiguration (newConfig, enableLoad, wasAbnormalExit) ->
         if config.Locale <> newConfig.Locale then
             state.Localizer.ChangeLocale(newConfig.Locale)
