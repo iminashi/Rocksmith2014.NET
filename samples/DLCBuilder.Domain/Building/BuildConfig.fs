@@ -30,11 +30,14 @@ let create buildType config project platforms =
         | _ ->
             AppId.CherubRock
 
+    let disableDDGeneration =
+        buildType = Test && not config.GenerateDD
+
     { Platforms = platforms
       BuilderVersion = $"DLC Builder {AppVersion.versionString}"
       Author = project.Author |> Option.defaultValue config.CharterName
       AppId = appId
-      GenerateDD = config.GenerateDD || buildType = Release
+      GenerateDD = not disableDDGeneration
       DDConfig =
         { PhraseSearch = phraseSearch
           LevelCountGeneration = config.DDLevelCountGeneration }
