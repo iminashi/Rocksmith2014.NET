@@ -126,9 +126,10 @@ let file state dispatch =
 
             separator
 
-            // Recent files
+            // Recent projects
             MenuItem.create [
                 MenuItem.header (translate "RecentProjectsMenuItem")
+                MenuItem.isEnabled (not state.RecentFiles.IsEmpty)
 
                 MenuItem.viewItems (
                     state.RecentFiles
