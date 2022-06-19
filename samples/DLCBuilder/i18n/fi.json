@@ -459,5 +459,14 @@
   "FinishEditing": "Muokkaus valmis",
   "ClickToCopyDuration": "Klikkaa kopioidaksesi kappaleen keston leikepöydälle.",
   "ViewLyrics": "Näytä sanat",
-  "BuildToolVersion": "Työkaluversio"
+  "BuildToolVersion": "Työkaluversio",
+  "Info": "Tietoja",
+  "AverageTempo": "Keskitempo: {0}",
+  "FirstBeatTime": "Ensimmäinen tahti: {0}",
+  "Phrases": "Fraaseja: {0}",
+  "Sections": "Osiots: {0}",
+  "Levels": "Tasoja: {0}",
+  "Notes": "Nuotteja: {0}",
+  "Chords": "Sointuja: {0}",
+  "ArrangementProperties": "Sovituksen ominaisuudet"
 }

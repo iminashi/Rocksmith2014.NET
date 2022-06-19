@@ -459,5 +459,14 @@
   "FinishEditing": "エディット完了",
   "ClickToCopyDuration": "クリックして曲の長さをクリップボードにコピー。",
   "ViewLyrics": "歌詞を表示",
-  "BuildToolVersion": "ツールバージョン"
+  "BuildToolVersion": "ツールバージョン",
+  "Info": "詳細",
+  "AverageTempo": "平均的テンポ: {0}",
+  "FirstBeatTime": "最初の拍子: {0}",
+  "Phrases": "フレーズの数: {0}",
+  "Sections": "セクションの数: {0}",
+  "Levels": "レベルの数: {0}",
+  "Notes": "ノートの数: {0}",
+  "Chords": "コードの数: {0}",
+  "ArrangementProperties": "アレンジの特徴"
 }

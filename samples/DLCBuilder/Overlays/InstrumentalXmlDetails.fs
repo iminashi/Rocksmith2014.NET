@@ -30,43 +30,54 @@ let view dispatch (arrangement: InstrumentalArrangement) =
             ]
 
             StackPanel.create [
-                StackPanel.margin (12., 0., 0., 0.)
-                StackPanel.spacing 4.
+                StackPanel.orientation Orientation.Horizontal
                 StackPanel.children [
-                    TextBlock.create [
-                        TextBlock.text $"Average tempo: {arrangement.MetaData.AverageTempo}"
-                    ]
+                    StackPanel.create [
+                        StackPanel.margin (12., 0., 0., 0.)
+                        StackPanel.spacing 4.
+                        StackPanel.children [
+                            TextBlock.create [
+                                TextBlock.text (translatef "AverageTempo" [| arrangement.MetaData.AverageTempo |])
+                            ]
 
-                    let startBeatStr = TimeSpan.FromMilliseconds(arrangement.StartBeat).ToString("mm\:ss\.fff")
+                            let startBeatStr = TimeSpan.FromMilliseconds(arrangement.StartBeat).ToString("mm\:ss\.fff")
 
-                    TextBlock.create [
-                        TextBlock.text $"First Beat Time: {startBeatStr}"
-                    ]
+                            TextBlock.create [
+                                TextBlock.text (translatef "FirstBeatTime" [| startBeatStr |])
+                            ]
 
-                    TextBlock.create [
-                        TextBlock.text $"Phrases: {arrangement.PhraseIterations.Count}"
-                    ]
+                            TextBlock.create [
+                                TextBlock.text (translatef "Phrases" [| arrangement.PhraseIterations.Count |])
+                            ]
 
-                    TextBlock.create [
-                        TextBlock.text $"Sections: {arrangement.Sections.Count}"
-                    ]
-
-                    TextBlock.create [
-                        TextBlock.text $"Levels: {arrangement.Levels.Count}"
-                    ]
-
-                    if arrangement.Levels.Count = 1 then
-                        TextBlock.create [
-                            TextBlock.text $"Notes: {arrangement.Levels[0].Notes.Count}"
+                            TextBlock.create [
+                                TextBlock.text (translatef "Sections" [| arrangement.Sections.Count |])
+                            ]
                         ]
-                        TextBlock.create [
-                            TextBlock.text $"Chords: {arrangement.Levels[0].Chords.Count}"
+                    ]
+
+                    StackPanel.create [
+                        StackPanel.margin (22., 0., 0., 0.)
+                        StackPanel.spacing 4.
+                        StackPanel.children [
+                            TextBlock.create [
+                                TextBlock.text (translatef "Levels" [| arrangement.Levels.Count |])
+                            ]
+
+                            if arrangement.Levels.Count = 1 then
+                                TextBlock.create [
+                                    TextBlock.text (translatef "Notes" [| arrangement.Levels[0].Notes.Count |])
+                                ]
+                                TextBlock.create [
+                                    TextBlock.text (translatef "Chords" [| arrangement.Levels[0].Chords.Count |])
+                                ]
                         ]
+                    ]
                 ]
             ]
 
             TextBlock.create [
-                TextBlock.text $"Arrangement Properties"
+                TextBlock.text (translate "ArrangementProperties")
                 TextBlock.fontSize 18.
             ]
 

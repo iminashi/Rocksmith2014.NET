@@ -459,5 +459,14 @@
   "FinishEditing": "Finish Editing",
   "ClickToCopyDuration": "Click to copy the audio duration to the clipboard.",
   "ViewLyrics": "View Lyrics",
-  "BuildToolVersion": "Tool Version"
+  "BuildToolVersion": "Tool Version",
+  "Info": "Info",
+  "AverageTempo": "Average Tempo: {0}",
+  "FirstBeatTime": "First Beat Time: {0}",
+  "Phrases": "Phrases: {0}",
+  "Sections": "Sections: {0}",
+  "Levels": "Levels: {0}",
+  "Notes": "Notes: {0}",
+  "Chords": "Chords: {0}",
+  "ArrangementProperties": "Arrangement Properties"
 }

@@ -106,7 +106,7 @@ let private arrangementDetails state dispatch =
                                         TextBlock.create [
                                             TextBlock.fontSize 17.
                                             TextBlock.text (ArrangementNameUtils.translateName state.Project ArrangementNameUtils.NameOnly arr)
-                                            TextBlock.verticalAlignment VerticalAlignment.Bottom
+                                            TextBlock.verticalAlignment VerticalAlignment.Center
                                         ]
 
                                         // Arrangement filename
@@ -116,7 +116,6 @@ let private arrangementDetails state dispatch =
                                             TextBlock.text $"{IO.Path.GetFileName(xmlFile)}"
                                             TextBlock.foreground "#cccccc"
                                             TextBlock.verticalAlignment VerticalAlignment.Center
-                                            TextBlock.onTapped (fun _ -> ShowInstrumentalXmlDetailsViewer |> dispatch)
                                         ]
                                     ]
                                 ]
@@ -126,6 +125,19 @@ let private arrangementDetails state dispatch =
                                 | true, issues ->
                                     validationIcon state dispatch issues
                                 | false, _ ->
+                                    ()
+
+                                // Instrumental arrangement info button
+                                match arr with
+                                | Instrumental _ ->
+                                    Button.create [
+                                        Button.margin (12., 0.)
+                                        Button.padding (14., 4.)
+                                        Button.horizontalAlignment HorizontalAlignment.Right
+                                        Button.content (translate "Info")
+                                        Button.onClick (fun _ -> ShowInstrumentalXmlDetailsViewer |> dispatch)
+                                    ]
+                                | _ ->
                                     ()
                             ]
                         ]
