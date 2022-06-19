@@ -31,8 +31,8 @@
     </PackageReference>
     <PackageReference Include="Expecto" Version="9.0.4" />
     <PackageReference Include="Expecto.FsCheck" Version="9.0.4" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
-    <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.12.20" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
+    <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.13.3" />
     <ProjectReference Include="..\..\src\Rocksmith2014.Common\Rocksmith2014.Common.fsproj" />
     <PackageReference Update="FSharp.Core" Version="6.0.5" />
   </ItemGroup>
