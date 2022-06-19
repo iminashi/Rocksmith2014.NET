@@ -1,8 +1,9 @@
 ## 1.3.0 (Released 2022-06-xx)
 
-- The lyrics of a vocals arrangement can be viewed.
+- Added a button for viewing the lyrics of a vocals arrangement.
+- Added a button for viewing some information about a guitar/bass arrangement.
 - The version of the Toolkit or DLC Builder used to build the imported PSARC is now shown in the additional metadata dialog.
-- Fixed bug where disabling DD generation for test builds affected PSARC quick edit import.
+- Fixed a bug where disabling DD generation for test builds affected PSARC quick edit import.
 
 ## 1.2.0 (Released 2022-05-14)
 
