@@ -1,4 +1,4 @@
-## 1.3.0 (Released 2022-06-xx)
+## 1.3.0 (Released 2022-06-19)
 
 - Added a button for viewing the lyrics of a vocals arrangement.
 - Added a button for viewing some information about a guitar/bass arrangement.
