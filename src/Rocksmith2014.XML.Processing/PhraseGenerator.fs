@@ -7,24 +7,25 @@ open Utils
 type private Inst = InstrumentalArrangement
 
 let private maxOfThree defaultValue o1 o2 o3 =
-    let v1 = o1 |> Option.defaultValue defaultValue
-    let v2 = o2 |> Option.defaultValue defaultValue
-    let v3 = o3 |> Option.defaultValue defaultValue
+    [ o1; o2; o3 ]
+    |> List.choose id
+    |> List.tryMax
+    |> Option.defaultValue defaultValue
 
-    max v1 v2 |> max v3
+let private tryMax f (ra: ResizeArray<_>) =
+    match ra.Count with
+    | 0 -> None
+    | _ -> ra |> Seq.map f |> Seq.max |> Some
 
 let private findContentEnd (arr: Inst) =
     let note =
         arr.Levels[0].Notes
-        |> ResizeArray.tryLast
-        |> Option.map (fun x -> x.Time + x.Sustain)
+        |> tryMax (fun x -> x.Time + x.Sustain)
 
     let chord =
         arr.Levels[0].Chords
-        |> ResizeArray.tryLast
-        |> Option.map (fun x ->
-            x.Time
-            + if x.HasChordNotes then x.ChordNotes[0].Sustain else 0)
+        |> tryMax (fun x ->
+            x.Time + if x.HasChordNotes then x.ChordNotes[0].Sustain else 0)
 
     let hs =
         arr.Levels[0].HandShapes
@@ -41,17 +42,20 @@ let private getEndPhraseTime (arr: Inst) =
             arr.PhraseIterations
             |> ResizeArray.tryFind (fun x -> x.PhraseId = index))
 
-    match oldEndPhrase with
-    | Some oldEnd ->
-        oldEnd.Time
-    | None ->
-        let noMoreContentTime = findContentEnd arr
+    let noMoreContentTime = findContentEnd arr
+    let endPhraseTime =
+        match oldEndPhrase with
+        | Some oldEnd ->
+            // EOF may place the END phrase poorly in some cases
+            if oldEnd.Time < noMoreContentTime then noMoreContentTime else oldEnd.Time
+        | None ->
+            noMoreContentTime
 
-        // Use the next beat after the content has ended
-        arr.Ebeats
-        |> ResizeArray.tryFind (fun x -> x.Time >= noMoreContentTime)
-        |> Option.map (fun x -> x.Time)
-        |> Option.defaultValue noMoreContentTime
+    // Use the next beat after the content has ended
+    arr.Ebeats
+    |> ResizeArray.tryFind (fun x -> x.Time >= endPhraseTime)
+    |> Option.map (fun x -> x.Time)
+    |> Option.defaultValue endPhraseTime
 
 let private findNextContent (level: Level) time =
     let tryFindNext (ra: ResizeArray<#IHasTimeCode>) =
@@ -74,9 +78,10 @@ let private getFirstPhraseTime contentStartTime (arr: Inst) =
 
     if firstBeatTime = contentStartTime then
         if contentStartTime = 0 then
-            failwith "There is no room for an empty phrase before the arrangement content starts."
+            failwith "Phrase generation failed:\nThere is no room for an empty phrase before the arrangement content starts."
         else
-            let newBeatTime = max 0 (firstBeatTime - 500)
+            let beatLength = arr.Ebeats[1].Time - firstBeatTime
+            let newBeatTime = max 0 (firstBeatTime - beatLength)
             let newBeat = Ebeat(newBeatTime, 0s)
             Error newBeat
     else
@@ -104,16 +109,17 @@ let private addFirstPhrase firstPhraseTime (arr: Inst) =
         arr.Ebeats.Insert(0, newBeat)
         arr.PhraseIterations.Add(PhraseIteration(newBeat.Time, 0))
 
+let private closestToInitial initial startTime endTime =
+    if initial - startTime < endTime - initial then
+        startTime
+    else
+        endTime
+
 let private findGoodPhraseTime (level: Level) initialTime =
     let outsideNoteSustainTime =
         level.Notes
-        |> ResizeArray.tryFind (fun x ->
-            x.Time < initialTime && x.Time + x.Sustain > initialTime)
-        |> Option.map (fun x ->
-            if initialTime - x.Time < x.Time + x.Sustain - initialTime then
-                x.Time
-            else
-                x.Time + x.Sustain)
+        |> ResizeArray.tryFind (fun x -> x.Time < initialTime && x.Time + x.Sustain > initialTime)
+        |> Option.map (fun x -> closestToInitial initialTime x.Time (x.Time + x.Sustain))
 
     let outsideNoteLinkNextTime =
         let time =
@@ -126,9 +132,8 @@ let private findGoodPhraseTime (level: Level) initialTime =
 
     let outsideHandShapeTime =
         level.HandShapes
-        |> ResizeArray.tryFind (fun x ->
-            x.StartTime < initialTime && x.EndTime > initialTime)
-        |> Option.map (fun x -> x.StartTime)
+        |> ResizeArray.tryFind (fun x -> x.StartTime < initialTime && x.EndTime > initialTime)
+        |> Option.map (fun x -> closestToInitial initialTime x.StartTime x.EndTime)
 
     let outsideChordLinkNextTime =
         let time =

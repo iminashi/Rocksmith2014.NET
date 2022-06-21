@@ -27,5 +27,11 @@ let tryMin list =
     | [] -> None
     | _ -> Some(List.min list)
 
+/// Tries to find the greatest element in the list, returns None for an empty list.
+let tryMax list =
+    match list with
+    | [] -> None
+    | _ -> Some(List.max list)
+
 /// Adds a new item to the start of the list.
 let add newHead list = newHead :: list

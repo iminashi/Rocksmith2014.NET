@@ -1,12 +1,14 @@
-﻿module PhraseGeneratorTests
+module PhraseGeneratorTests
 
 open Expecto
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Processing
 
+// In the tests the content starts at the second beat, so the second phrase will be created at 10s.
+
 let beats = ResizeArray.init 15 (fun i -> Ebeat((i + 1) * 1000, int16 i))
 
-let createBaseArrangement() =
+let createBaseArrangement () =
     let levels = ResizeArray(seq { Level() })
     InstrumentalArrangement(Ebeats = beats, Levels = levels)
 
@@ -28,7 +30,7 @@ let tests =
             Expect.equal arr.PhraseIterations.[1].Time 2000 "Second phrase is at first note"
             Expect.equal arr.Sections.[0].Time 2000 "First section is at first note"
 
-        testCase "Does not create a phrase in the middle of handshape" <| fun _ ->
+        testCase "Does not create a phrase in the middle of a handshape" <| fun _ ->
             let arr = createBaseArrangement()
             arr.Levels.[0].Notes.Add(Note(Time = 2_000))
             arr.Levels.[0].Anchors.Add(Anchor(1y, 2_000))
@@ -37,8 +39,9 @@ let tests =
 
             PhraseGenerator.generate arr
 
-            Expect.exists arr.PhraseIterations (fun x -> x.Time = 8500) "Phrase was created at the handshape start time"
-            Expect.exists arr.Sections (fun x -> x.Time = 8500) "Section was created at the handshape start time"
+            // The end time is closer to the time where the phrase would be created (10s)
+            Expect.exists arr.PhraseIterations (fun x -> x.Time = 10_800) "Phrase was created at the handshape end time"
+            Expect.exists arr.Sections (fun x -> x.Time = 10_800) "Section was created at the handshape end time"
 
         testCase "Does not create a phrase in the middle of note sustain" <| fun _ ->
             let arr = createBaseArrangement()
