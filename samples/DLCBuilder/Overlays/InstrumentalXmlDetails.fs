@@ -53,6 +53,15 @@ let view dispatch (arrangement: InstrumentalArrangement) =
                             TextBlock.create [
                                 TextBlock.text (translatef "Sections" [| arrangement.Sections.Count |])
                             ]
+
+                            TextBlock.create [
+                                let capoStr =
+                                    if arrangement.MetaData.Capo > 0y then
+                                        translatef "Fret" [| string arrangement.MetaData.Capo |]
+                                    else
+                                        translate "Not Used"
+                                TextBlock.text (translatef "Capo" [| capoStr |])
+                            ]
                         ]
                     ]
 

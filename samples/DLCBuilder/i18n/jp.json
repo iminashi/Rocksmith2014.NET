@@ -165,7 +165,7 @@
   "Main": "メイン",
   "Alternative": "オルタネイト",
   "Bonus": "ボーナス",
-  "None": "不在",
+  "Not Used": "不在",
   "Acoustic": "アコースティック",
   "Bass": "ベース",
   "Chorus": "コーラス",
@@ -468,5 +468,7 @@
   "Levels": "レベルの数: {0}",
   "Notes": "ノートの数: {0}",
   "Chords": "コードの数: {0}",
-  "ArrangementProperties": "アレンジの特徴"
+  "ArrangementProperties": "アレンジの特徴",
+  "Capo": "カポ: {0}",
+  "Fret": "フレット {0}"
 }

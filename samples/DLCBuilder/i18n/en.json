@@ -165,7 +165,7 @@
   "Main": "Main",
   "Alternative": "Alternative",
   "Bonus": "Bonus",
-  "None": "None",
+  "Not Used": "Not Used",
   "Acoustic": "Acoustic",
   "Bass": "Bass",
   "Chorus": "Chorus",
@@ -468,5 +468,7 @@
   "Levels": "Levels: {0}",
   "Notes": "Notes: {0}",
   "Chords": "Chords: {0}",
-  "ArrangementProperties": "Arrangement Properties"
+  "ArrangementProperties": "Arrangement Properties",
+  "Capo": "Capo: {0}",
+  "Fret": "Fret {0}"
 }

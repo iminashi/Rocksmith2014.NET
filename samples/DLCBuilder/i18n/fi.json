@@ -165,7 +165,7 @@
   "Main": "Ensisijainen",
   "Alternative": "Vaihtoehtoinen",
   "Bonus": "Bonus",
-  "None": "Ei käytössä",
+  "Not Used": "Ei käytössä",
   "Acoustic": "Acoustic",
   "Bass": "Bass",
   "Chorus": "Chorus",
@@ -468,5 +468,7 @@
   "Levels": "Tasoja: {0}",
   "Notes": "Nuotteja: {0}",
   "Chords": "Sointuja: {0}",
-  "ArrangementProperties": "Sovituksen ominaisuudet"
+  "ArrangementProperties": "Sovituksen ominaisuudet",
+  "Capo": "Capo: {0}",
+  "Fret": "Nauha {0}"
 }
