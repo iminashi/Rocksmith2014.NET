@@ -162,8 +162,8 @@ let private addPhrase =
     let mutable number = 0s
 
     fun time (arr: Inst) ->
+        arr.PhraseIterations.Add(PhraseIteration(time, arr.Phrases.Count))
         arr.Phrases.Add(Phrase($"p%i{number}", 0uy, PhraseMask.None))
-        arr.PhraseIterations.Add(PhraseIteration(time, arr.Phrases.Count - 1))
         number <- number + 1s
 
 let private createPhrasesAndSections contentStartTime endPhraseTime (arr: Inst) =
@@ -214,7 +214,7 @@ let private createPhrasesAndSections contentStartTime endPhraseTime (arr: Inst) 
                 if activeAnchor.Time <> time then
                     level.Anchors.InsertByTime(Anchor(activeAnchor.Fret, time, activeAnchor.Width))
 
-                addPhrase contentStartTime arr
+                addPhrase time arr
 
                 let name, number =
                     if isNoGuitar then
