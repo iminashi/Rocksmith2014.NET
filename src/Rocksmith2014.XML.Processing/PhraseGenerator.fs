@@ -158,17 +158,23 @@ let private findActiveAnchor (level: Level) time =
     | null -> level.Anchors[0]
     | anchor -> anchor
 
+let private addPhrase =
+    let mutable number = 0s
+
+    fun time (arr: Inst) ->
+        arr.Phrases.Add(Phrase($"p%i{number}", 0uy, PhraseMask.None))
+        arr.PhraseIterations.Add(PhraseIteration(time, arr.Phrases.Count - 1))
+        number <- number + 1s
+
 let private createPhrasesAndSections contentStartTime endPhraseTime (arr: Inst) =
     let mutable riffNumber = 1s
     let mutable ngSectionNumber = 0s
-    let mutable phraseNumber = 0s
     let mutable measureCounter = 0
     let mutable nextPhraseTime: int option = None
     let level = arr.Levels[0]
 
     // Add first phrase/section at content start time
-    arr.Phrases.Add(Phrase($"p{ngSectionNumber}", 0uy, PhraseMask.None))
-    arr.PhraseIterations.Add(PhraseIteration(contentStartTime, arr.Phrases.Count - 1))
+    addPhrase contentStartTime arr
     arr.Sections.Add(Section("riff", contentStartTime, riffNumber))
 
     arr.Ebeats
@@ -188,7 +194,7 @@ let private createPhrasesAndSections contentStartTime endPhraseTime (arr: Inst) 
                     nextPhraseTime <- None
                     t
 
-            // Don't create duplicate phrases (could happen when there is handshape longer than 8 measures)
+            // Don't create duplicate phrases
             if time <> arr.Sections[arr.Sections.Count - 1].Time then
                 let nextContentTime = findNextContent level time
 
@@ -208,9 +214,7 @@ let private createPhrasesAndSections contentStartTime endPhraseTime (arr: Inst) 
                 if activeAnchor.Time <> time then
                     level.Anchors.InsertByTime(Anchor(activeAnchor.Fret, time, activeAnchor.Width))
 
-                phraseNumber <- phraseNumber + 1s
-                arr.Phrases.Add(Phrase($"p{phraseNumber}", 0uy, PhraseMask.None))
-                arr.PhraseIterations.Add(PhraseIteration(time, arr.Phrases.Count - 1))
+                addPhrase contentStartTime arr
 
                 let name, number =
                     if isNoGuitar then
