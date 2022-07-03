@@ -37,7 +37,7 @@ type OverlayContents =
     | UpdateInformationDialog of update: UpdateInformation
     | AdditionalMetaDataEditor
     | LyricsViewer of lyrics: string * isJapanese: bool
-    | InstrumentalXmlDetailsViewer of arrangement: InstrumentalArrangement
+    | InstrumentalXmlDetailsViewer of xml: InstrumentalArrangement
 
 [<RequireQualifiedAccess>]
 type OverlayCloseMethod =
@@ -144,6 +144,11 @@ type ConfigEdit =
     | AddReleasePlatform of Platform
     | RemoveReleasePlatform of Platform
 
+[<RequireQualifiedAccess>]
+type ArrPropOp =
+    | Enable of ArrangementPropertiesOverride.ArrPropFlags
+    | Disable of ArrangementPropertiesOverride.ArrPropFlags
+
 type InstrumentalEdit =
     | SetArrangementName of ArrangementName
     | SetPriority of ArrangementPriority
@@ -160,6 +165,8 @@ type InstrumentalEdit =
     | SetCustomAudioPath of string option
     | SetCustomAudioVolume of float
     | UpdateToneInfo
+    | ToggleArrangementPropertiesOverride of ArrangementProperties
+    | ToggleArrangementProperty of ArrPropOp
 
 type ToolsMsg =
     | ConvertWemToOgg of files: string array

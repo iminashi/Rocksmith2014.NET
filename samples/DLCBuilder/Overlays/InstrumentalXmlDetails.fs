@@ -5,27 +5,55 @@ open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open DLCBuilder
+open Rocksmith2014.DLCProject
+open Rocksmith2014.DLCProject.ArrangementPropertiesOverride
 open Rocksmith2014.XML
 open System
+open DLCBuilder.StateUtils
 
-let checkBox col row (isChecked: bool) (text: string) =
-    CheckBox.create [
-        Grid.column col
-        Grid.row row
-        CheckBox.isEnabled false
-        CheckBox.isChecked isChecked
-        CheckBox.content text
-        CheckBox.margin (2., 0.)
-    ]
+let view state dispatch (xml: InstrumentalArrangement) =
+    let arrProps = xml.MetaData.ArrangementProperties
+    let instArrProps =
+        match getSelectedArrangement state with
+        | Some (Instrumental inst) ->
+            inst.ArrangementProperties
+        | _ ->
+            // Should not happen
+            None
 
-let view dispatch (arrangement: InstrumentalArrangement) =
-    let arrProps = arrangement.MetaData.ArrangementProperties
+    let flags, allowEditing =
+        match instArrProps with
+        | Some props -> props, true
+        | None -> fromArrangementProperties arrProps, false
+
+    let editInstrumental = EditInstrumental >> dispatch
+
+    let checkBox col row (flag: ArrPropFlags) (text: string) =
+        let isChecked = (flags &&& flag) = flag
+    
+        CheckBox.create [
+            Grid.column col
+            Grid.row row
+            CheckBox.isEnabled allowEditing
+            CheckBox.isChecked isChecked
+            CheckBox.content text
+            CheckBox.margin (2., 0.)
+            if allowEditing then
+                CheckBox.onChecked (fun _ ->
+                    ArrPropOp.Enable flag
+                    |> ToggleArrangementProperty
+                    |> editInstrumental)
+                CheckBox.onUnchecked (fun _ ->
+                    ArrPropOp.Disable flag
+                    |> ToggleArrangementProperty
+                    |> editInstrumental)
+        ]
 
     StackPanel.create [
         StackPanel.spacing 8.
         StackPanel.children [
             TextBlock.create [
-                TextBlock.text arrangement.MetaData.Arrangement
+                TextBlock.text xml.MetaData.Arrangement
                 TextBlock.fontSize 22.
             ]
 
@@ -37,27 +65,27 @@ let view dispatch (arrangement: InstrumentalArrangement) =
                         StackPanel.spacing 4.
                         StackPanel.children [
                             TextBlock.create [
-                                TextBlock.text (translatef "AverageTempo" [| arrangement.MetaData.AverageTempo |])
+                                TextBlock.text (translatef "AverageTempo" [| xml.MetaData.AverageTempo |])
                             ]
 
-                            let startBeatStr = TimeSpan.FromMilliseconds(arrangement.StartBeat).ToString("mm\:ss\.fff")
+                            let startBeatStr = TimeSpan.FromMilliseconds(xml.StartBeat).ToString("mm\:ss\.fff")
 
                             TextBlock.create [
                                 TextBlock.text (translatef "FirstBeatTime" [| startBeatStr |])
                             ]
 
                             TextBlock.create [
-                                TextBlock.text (translatef "Phrases" [| arrangement.PhraseIterations.Count |])
+                                TextBlock.text (translatef "Phrases" [| xml.PhraseIterations.Count |])
                             ]
 
                             TextBlock.create [
-                                TextBlock.text (translatef "Sections" [| arrangement.Sections.Count |])
+                                TextBlock.text (translatef "Sections" [| xml.Sections.Count |])
                             ]
 
                             TextBlock.create [
                                 let capoStr =
-                                    if arrangement.MetaData.Capo > 0y then
-                                        translatef "Fret" [| string arrangement.MetaData.Capo |]
+                                    if xml.MetaData.Capo > 0y then
+                                        translatef "Fret" [| string xml.MetaData.Capo |]
                                     else
                                         translate "Not Used"
                                 TextBlock.text (translatef "Capo" [| capoStr |])
@@ -70,15 +98,15 @@ let view dispatch (arrangement: InstrumentalArrangement) =
                         StackPanel.spacing 4.
                         StackPanel.children [
                             TextBlock.create [
-                                TextBlock.text (translatef "Levels" [| arrangement.Levels.Count |])
+                                TextBlock.text (translatef "Levels" [| xml.Levels.Count |])
                             ]
 
-                            if arrangement.Levels.Count = 1 then
+                            if xml.Levels.Count = 1 then
                                 TextBlock.create [
-                                    TextBlock.text (translatef "Notes" [| arrangement.Levels[0].Notes.Count |])
+                                    TextBlock.text (translatef "Notes" [| xml.Levels[0].Notes.Count |])
                                 ]
                                 TextBlock.create [
-                                    TextBlock.text (translatef "Chords" [| arrangement.Levels[0].Chords.Count |])
+                                    TextBlock.text (translatef "Chords" [| xml.Levels[0].Chords.Count |])
                                 ]
                         ]
                     ]
@@ -90,33 +118,46 @@ let view dispatch (arrangement: InstrumentalArrangement) =
                 TextBlock.fontSize 18.
             ]
 
+            CheckBox.create [
+                CheckBox.content "Override"
+                CheckBox.isChecked allowEditing
+                CheckBox.onChecked ((fun _ ->
+                    arrProps
+                    |> ToggleArrangementPropertiesOverride
+                    |> editInstrumental), SubPatchOptions.OnChangeOf arrProps)
+                CheckBox.onUnchecked (fun _ ->
+                    arrProps
+                    |> ToggleArrangementPropertiesOverride
+                    |> editInstrumental)
+            ]
+
             Grid.create [
                 Grid.columnDefinitions "*,*,*"
                 Grid.rowDefinitions (Seq.replicate 8 "*" |> String.concat ",")
                 Grid.children [
-                    checkBox 0 0 arrProps.BarreChords "Barre Chords"
-                    checkBox 0 1 arrProps.Bends "Bends"
-                    checkBox 0 2 arrProps.DoubleStops "Double Stops"
-                    checkBox 0 3 arrProps.DropDPower "Drop D Power Chords"
-                    checkBox 0 4 arrProps.FifthsAndOctaves "Fifths and Octaves"
-                    checkBox 0 5 arrProps.FingerPicking "Finger Picking"
-                    checkBox 0 6 arrProps.Harmonics "Natural Harmonics"
-                    checkBox 0 7 arrProps.PinchHarmonics "Pinch Harmonics"
-                    checkBox 1 0 arrProps.SlapPop "Slap/Pop"
-                    checkBox 1 1 arrProps.Sustain "Sustains"
-                    checkBox 1 2 arrProps.Tapping "Tapping"
-                    checkBox 1 3 arrProps.TwoFingerPicking "Two Finger Picking"
-                    checkBox 1 4 arrProps.PalmMutes "Palm Mutes"
-                    checkBox 1 5 arrProps.FretHandMutes "Frethand Mutes"
-                    checkBox 1 6 arrProps.Hopo "HOPO"
-                    checkBox 1 7 arrProps.NonStandardChords "Non-Standard Chords"
-                    checkBox 2 0 arrProps.OpenChords "Open Chords"
-                    checkBox 2 1 arrProps.PowerChords "Power Chords"
-                    checkBox 2 2 arrProps.Slides "Slides"
-                    checkBox 2 3 arrProps.UnpitchedSlides "Unpitched Slides"
-                    checkBox 2 4 arrProps.Syncopation "Syncopation"
-                    checkBox 2 5 arrProps.Tremolo "Tremolo Picking"
-                    checkBox 2 6 arrProps.Vibrato "Vibrato"
+                    checkBox 0 0 ArrPropFlags.BarreChords "Barre Chords"
+                    checkBox 0 1 ArrPropFlags.Bends "Bends"
+                    checkBox 0 2 ArrPropFlags.DoubleStops "Double Stops"
+                    checkBox 0 3 ArrPropFlags.DropDPower "Drop D Power Chords"
+                    checkBox 0 4 ArrPropFlags.FifthsAndOctaves "Fifths and Octaves"
+                    checkBox 0 5 ArrPropFlags.FingerPicking "Finger Picking"
+                    checkBox 0 6 ArrPropFlags.Harmonics "Natural Harmonics"
+                    checkBox 0 7 ArrPropFlags.PinchHarmonics "Pinch Harmonics"
+                    checkBox 1 0 ArrPropFlags.SlapPop "Slap/Pop"
+                    checkBox 1 1 ArrPropFlags.Sustain "Sustains"
+                    checkBox 1 2 ArrPropFlags.Tapping "Tapping"
+                    checkBox 1 3 ArrPropFlags.TwoFingerPicking "Two Finger Picking"
+                    checkBox 1 4 ArrPropFlags.PalmMutes "Palm Mutes"
+                    checkBox 1 5 ArrPropFlags.FretHandMutes "Frethand Mutes"
+                    checkBox 1 6 ArrPropFlags.Hopo "HOPO"
+                    checkBox 1 7 ArrPropFlags.NonStandardChords "Non-Standard Chords"
+                    checkBox 2 0 ArrPropFlags.OpenChords "Open Chords"
+                    checkBox 2 1 ArrPropFlags.PowerChords "Power Chords"
+                    checkBox 2 2 ArrPropFlags.Slides "Slides"
+                    checkBox 2 3 ArrPropFlags.UnpitchedSlides "Unpitched Slides"
+                    checkBox 2 4 ArrPropFlags.Syncopation "Syncopation"
+                    checkBox 2 5 ArrPropFlags.Tremolo "Tremolo Picking"
+                    checkBox 2 6 ArrPropFlags.Vibrato "Vibrato"
                 ]
             ]
 

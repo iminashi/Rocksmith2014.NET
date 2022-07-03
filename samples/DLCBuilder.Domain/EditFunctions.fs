@@ -117,6 +117,24 @@ let editInstrumental state edit index inst =
         | SetCustomAudioVolume volume ->
             { inst with CustomAudio = Option.map (fun x -> { x with Volume = volume }) inst.CustomAudio }, Cmd.none
 
+        | ToggleArrangementPropertiesOverride arrProp ->
+            match inst.ArrangementProperties with
+            | Some _ ->
+                { inst with ArrangementProperties = None }, Cmd.none
+            | None ->
+                { inst with ArrangementProperties = Some <| ArrangementPropertiesOverride.fromArrangementProperties arrProp }, Cmd.none
+
+        | ToggleArrangementProperty op ->
+            match inst.ArrangementProperties with
+            | Some flags ->
+                let newFlags =
+                    match op with
+                    | ArrPropOp.Enable flag -> flags ||| flag
+                    | ArrPropOp.Disable flag -> flags &&& ~~~flag
+                { inst with ArrangementProperties = Some newFlags }, Cmd.none
+            | None ->
+                inst, Cmd.none
+
     updateArrangement index (Instrumental updated) state, cmd
 
 let editConfig edit config =
