@@ -13,6 +13,33 @@ open System
 let private testArr = Rocksmith2014.XML.InstrumentalArrangement.Load("instrumental.xml")
 let private testSng = ConvertInstrumental.xmlToSng testArr
 
+let testProps : (ArrPropFlags * (ArrangementProperties -> byte)) list  =
+    [
+        ArrPropFlags.BarreChords, fun p -> p.barreChords
+        ArrPropFlags.Bends, fun p -> p.bends
+        ArrPropFlags.DoubleStops, fun p -> p.doubleStops
+        ArrPropFlags.DropDPower, fun p -> p.dropDPower
+        ArrPropFlags.FifthsAndOctaves, fun p -> p.fifthsAndOctaves
+        ArrPropFlags.FingerPicking, fun p -> p.fingerPicking
+        ArrPropFlags.Harmonics, fun p -> p.harmonics
+        ArrPropFlags.PinchHarmonics, fun p -> p.pinchHarmonics
+        ArrPropFlags.SlapPop, fun p -> p.slapPop
+        ArrPropFlags.Sustain, fun p -> p.sustain
+        ArrPropFlags.Tapping, fun p -> p.tapping
+        ArrPropFlags.TwoFingerPicking, fun p -> p.twoFingerPicking
+        ArrPropFlags.PalmMutes, fun p -> p.palmMutes
+        ArrPropFlags.FretHandMutes, fun p -> p.fretHandMutes
+        ArrPropFlags.Hopo, fun p -> p.hopo
+        ArrPropFlags.NonStandardChords, fun p -> p.nonStandardChords
+        ArrPropFlags.OpenChords, fun p -> p.openChords
+        ArrPropFlags.PowerChords, fun p -> p.powerChords
+        ArrPropFlags.Slides, fun p -> p.slides
+        ArrPropFlags.UnpitchedSlides, fun p -> p.unpitchedSlides
+        ArrPropFlags.Syncopation, fun p -> p.syncopation
+        ArrPropFlags.Tremolo, fun p -> p.tremolo
+        ArrPropFlags.Vibrato, fun p -> p.vibrato
+    ]
+
 [<Tests>]
 let attributeTests =
     testList "Attribute Tests" [
@@ -240,34 +267,7 @@ let attributeTests =
             Expect.equal attr.JapaneseArtistName "アーティスト" "Japanese artist name is correct"
             Expect.equal attr.JapaneseSongName "タイトル" "Japanese song name is correct"
 
-        let testProps : (ArrPropFlags * (ArrangementProperties -> byte)) list  =
-            [
-                ArrPropFlags.BarreChords, fun p -> p.barreChords
-                ArrPropFlags.Bends, fun p -> p.bends
-                ArrPropFlags.DoubleStops, fun p -> p.doubleStops
-                ArrPropFlags.DropDPower, fun p -> p.dropDPower
-                ArrPropFlags.FifthsAndOctaves, fun p -> p.fifthsAndOctaves
-                ArrPropFlags.FingerPicking, fun p -> p.fingerPicking
-                ArrPropFlags.Harmonics, fun p -> p.harmonics
-                ArrPropFlags.PinchHarmonics, fun p -> p.pinchHarmonics
-                ArrPropFlags.SlapPop, fun p -> p.slapPop
-                ArrPropFlags.Sustain, fun p -> p.sustain
-                ArrPropFlags.Tapping, fun p -> p.tapping
-                ArrPropFlags.TwoFingerPicking, fun p -> p.twoFingerPicking
-                ArrPropFlags.PalmMutes, fun p -> p.palmMutes
-                ArrPropFlags.FretHandMutes, fun p -> p.fretHandMutes
-                ArrPropFlags.Hopo, fun p -> p.hopo
-                ArrPropFlags.NonStandardChords, fun p -> p.nonStandardChords
-                ArrPropFlags.OpenChords, fun p -> p.openChords
-                ArrPropFlags.PowerChords, fun p -> p.powerChords
-                ArrPropFlags.Slides, fun p -> p.slides
-                ArrPropFlags.UnpitchedSlides, fun p -> p.unpitchedSlides
-                ArrPropFlags.Syncopation, fun p -> p.syncopation
-                ArrPropFlags.Tremolo, fun p -> p.tremolo
-                ArrPropFlags.Vibrato, fun p -> p.vibrato
-            ]
-
-        testCase "Arrangement properties are set correctly" <| fun _ ->
+        testCase "Overridden arrangement properties are set correctly" <| fun _ ->
             for (prop, f) in testProps do
                 let inst = { testLead with ArrangementProperties = Some prop }
                 let project = { testProject with Arrangements = [ Instrumental inst ] }
