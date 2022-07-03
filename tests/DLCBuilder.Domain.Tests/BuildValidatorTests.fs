@@ -15,19 +15,11 @@ let vocals =
       PersistentID = Guid.NewGuid() }
 
 let instrumental =
-    { XML = "instrumental.xml"
-      Name = ArrangementName.Lead
-      RouteMask = RouteMask.Lead
-      Priority = ArrangementPriority.Main
-      TuningPitch = 440.
-      Tuning = [|0s;0s;0s;0s;0s;0s|]
-      BaseTone = "Base_Tone"
-      Tones = ["Tone_1"; "Tone_2"; "Tone_3"; "Tone_4"]
-      ScrollSpeed = 1.3
-      BassPicked = false
-      MasterID = 12345
-      PersistentID = Guid.NewGuid()
-      CustomAudio = None }
+    { Instrumental.Empty with 
+          XML = "instrumental.xml"
+          BaseTone = "Base_Tone"
+          Tones = [ "Tone_1"; "Tone_2"; "Tone_3"; "Tone_4" ]
+          MasterID = 12345 }
 
 let existingFile = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.*") |> Seq.head
 

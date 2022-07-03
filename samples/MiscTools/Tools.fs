@@ -258,19 +258,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
 
         | CreateManifest file ->
             let arrangement =
-                { XML = file
-                  Name = ArrangementName.Lead
-                  RouteMask = RouteMask.Lead
-                  Priority = ArrangementPriority.Main
-                  TuningPitch = 440.
-                  Tuning = [||]
-                  BaseTone = String.Empty
-                  Tones = []
-                  ScrollSpeed = 1.3
-                  BassPicked = false
-                  MasterID = 12345
-                  PersistentID = Guid.NewGuid()
-                  CustomAudio = None }
+                { Instrumental.Empty with XML = file }
 
             let project = { project with Arrangements = [ Instrumental arrangement ] }
 

@@ -214,7 +214,7 @@ let attributeTests =
 
         testCase "Maximum scroll speed is correct" <| fun _ ->
             let attr = createAttributes testProject (FromInstrumental(testLead, testSng))
-            let dvd = attr.DynamicVisualDensity.[(testArr.Levels.Count - 1)..]
+            let dvd = attr.DynamicVisualDensity[(testArr.Levels.Count - 1)..]
 
             Expect.allEqual dvd (float32 testLead.ScrollSpeed) "Maximum scroll speed is correct"
 

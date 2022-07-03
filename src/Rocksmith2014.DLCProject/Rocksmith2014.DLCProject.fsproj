@@ -22,6 +22,7 @@
     <EmbeddedResource Include="res\rsenumerable_song.flat" />
     <Compile Include="Utils.fs" />
     <Compile Include="AppId.fs" />
+    <Compile Include="ArrangementPropertiesOverride.fs" />
     <Compile Include="Arrangement.fs" />
     <Compile Include="DDS.fs" />
     <Compile Include="StringValidator.fs" />

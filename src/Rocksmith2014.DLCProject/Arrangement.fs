@@ -6,6 +6,7 @@ open System.Text.RegularExpressions
 open System.Xml
 open Rocksmith2014.Common
 open Rocksmith2014.XML
+open Rocksmith2014.DLCProject.ArrangementPropertiesOverride
 
 type ArrangementName =
     | Lead = 0
@@ -37,8 +38,25 @@ type Instrumental =
       BaseTone: string
       Tones: string list
       CustomAudio: AudioFile option
+      ArrangementProperties: ArrPropFlags option
       MasterID: int
       PersistentID: Guid }
+
+    static member Empty =
+        { XML = String.Empty
+          Name = ArrangementName.Lead
+          RouteMask = RouteMask.Lead
+          Priority = ArrangementPriority.Main
+          ScrollSpeed = 1.3
+          BassPicked = false
+          Tuning = Array.replicate 6 0s
+          TuningPitch = 440.
+          BaseTone = String.Empty
+          Tones = List.empty
+          CustomAudio = None
+          ArrangementProperties = None
+          MasterID = 0
+          PersistentID = Guid.NewGuid() }
 
 type Vocals =
     { XML: string
@@ -190,7 +208,8 @@ module Arrangement =
                       BassPicked = arrProp.BassPick
                       MasterID = RandomGenerator.next ()
                       PersistentID = Guid.NewGuid()
-                      CustomAudio = None }
+                      CustomAudio = None
+                      ArrangementProperties = None }
                     |> Arrangement.Instrumental
 
                 Ok(arr, Some metadata)

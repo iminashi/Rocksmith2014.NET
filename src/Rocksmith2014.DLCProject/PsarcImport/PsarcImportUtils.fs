@@ -123,7 +123,8 @@ let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile
       BassPicked = arrProps.bassPick = 1uy
       MasterID = attributes.MasterID_RDV
       PersistentID = Guid.Parse(attributes.PersistentID)
-      CustomAudio = customAudio }
+      CustomAudio = customAudio
+      ArrangementProperties = None }
     |> Arrangement.Instrumental
 
 /// Converts a tone from a DTO, ensuring that the imported tone has descriptors.
