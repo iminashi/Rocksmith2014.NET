@@ -240,10 +240,6 @@ let private setupInstrumental part (inst: Instrumental) config =
     // Copy the tuning in case it was edited
     Array.Copy(inst.Tuning, xml.MetaData.Tuning.Strings, 6)
 
-    // Override arrangement properties of the XML file
-    inst.ArrangementProperties
-    |> Option.iter (ArrangementPropertiesOverride.apply xml.MetaData.ArrangementProperties)
-
     if xml.Version < 8uy then xml.FixHighDensity()
 
     if xml.PhraseIterations.Count <= 3 && xml.Sections.Count <= 3 then

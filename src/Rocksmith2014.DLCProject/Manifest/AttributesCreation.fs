@@ -197,6 +197,10 @@ let private createDynamicVisualDensity (levels: int) (arrangement: Arrangement) 
 
 /// Converts XML arrangement properties into manifest arrangement properties.
 let private convertArrangementProperties (arrProps: XML.ArrangementProperties) (instrumental: Instrumental) =
+    // Apply optional override of the arrangement properties from the XML file
+    instrumental.ArrangementProperties
+    |> Option.iter (ArrangementPropertiesOverride.apply arrProps)
+
     { represent = btb (instrumental.Priority = ArrangementPriority.Main)
       bonusArr = btb (instrumental.Priority = ArrangementPriority.Bonus)
       standardTuning = btb arrProps.StandardTuning
