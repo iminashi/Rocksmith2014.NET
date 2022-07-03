@@ -113,22 +113,42 @@ let view state dispatch (xml: InstrumentalArrangement) =
                 ]
             ]
 
-            TextBlock.create [
-                TextBlock.text (translate "ArrangementProperties")
-                TextBlock.fontSize 18.
-            ]
+            DockPanel.create [
+                DockPanel.children [
+                    StackPanel.create [
+                        DockPanel.dock Dock.Left
+                        StackPanel.verticalAlignment VerticalAlignment.Center
+                        StackPanel.orientation Orientation.Horizontal
+                        StackPanel.children [
+                            TextBlock.create [
+                                TextBlock.verticalAlignment VerticalAlignment.Center
+                                TextBlock.text (translate "ArrangementProperties")
+                                TextBlock.fontSize 18.
+                            ]
 
-            CheckBox.create [
-                CheckBox.content "Override"
-                CheckBox.isChecked allowEditing
-                CheckBox.onChecked ((fun _ ->
-                    arrProps
-                    |> ToggleArrangementPropertiesOverride
-                    |> editInstrumental), SubPatchOptions.OnChangeOf arrProps)
-                CheckBox.onUnchecked (fun _ ->
-                    arrProps
-                    |> ToggleArrangementPropertiesOverride
-                    |> editInstrumental)
+                            HelpButton.create [
+                                HelpButton.margin (0., 4.)
+                                HelpButton.helpText (translate "ArrangementPropertyHelp")
+                            ]
+                        ]
+                    ]
+
+                    CheckBox.create [
+                        DockPanel.dock Dock.Right
+                        CheckBox.horizontalAlignment HorizontalAlignment.Right
+                        CheckBox.verticalAlignment VerticalAlignment.Center
+                        CheckBox.content (translate "Edit")
+                        CheckBox.isChecked allowEditing
+                        CheckBox.onChecked ((fun _ ->
+                            arrProps
+                            |> ToggleArrangementPropertiesOverride
+                            |> editInstrumental), SubPatchOptions.OnChangeOf arrProps)
+                        CheckBox.onUnchecked (fun _ ->
+                            arrProps
+                            |> ToggleArrangementPropertiesOverride
+                            |> editInstrumental)
+                    ]
+                ]
             ]
 
             Grid.create [

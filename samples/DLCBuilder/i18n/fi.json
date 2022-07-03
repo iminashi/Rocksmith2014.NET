@@ -470,5 +470,6 @@
   "Chords": "Sointuja: {0}",
   "ArrangementProperties": "Sovituksen ominaisuudet",
   "Capo": "Capo: {0}",
-  "Fret": "Nauha {0}"
+  "Fret": "Nauha {0}",
+  "ArrangementPropertyHelp": "Yleensä EOF asettaa nämä ominaisuudet automaattisesti."
 }

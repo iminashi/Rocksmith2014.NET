@@ -470,5 +470,6 @@
   "Chords": "Chords: {0}",
   "ArrangementProperties": "Arrangement Properties",
   "Capo": "Capo: {0}",
-  "Fret": "Fret {0}"
+  "Fret": "Fret {0}",
+  "ArrangementPropertyHelp": "These properties are normally set by EOF automatically."
 }

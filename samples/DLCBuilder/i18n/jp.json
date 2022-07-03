@@ -165,7 +165,7 @@
   "Main": "メイン",
   "Alternative": "オルタネイト",
   "Bonus": "ボーナス",
-  "Not Used": "不在",
+  "Not Used": "使われていない",
   "Acoustic": "アコースティック",
   "Bass": "ベース",
   "Chorus": "コーラス",
@@ -470,5 +470,6 @@
   "Chords": "コードの数: {0}",
   "ArrangementProperties": "アレンジの特徴",
   "Capo": "カポ: {0}",
-  "Fret": "フレット {0}"
+  "Fret": "フレット {0}",
+  "ArrangementPropertyHelp": "この特徴は普段、EOFによって設定されている。"
 }
