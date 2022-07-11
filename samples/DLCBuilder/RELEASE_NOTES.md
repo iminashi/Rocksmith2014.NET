@@ -1,3 +1,9 @@
+## 1.4.0 (Released 2022-07-xx)
+
+- The arrangement properties in the info dialog can now be edited by the user.
+- The capo fret of an arrangement is now shown in the info dialog.
+- Minor improvements to the phrase generator.
+
 ## 1.3.0 (Released 2022-06-19)
 
 - Added a button for viewing the lyrics of a vocals arrangement.
