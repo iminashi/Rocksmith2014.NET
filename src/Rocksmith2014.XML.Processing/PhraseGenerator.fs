@@ -211,16 +211,16 @@ module private Helpers =
                 if time <> arr.Sections[arr.Sections.Count - 1].Time then
                     let nextContentTime = findNextContent level time
 
-                    let isNoGuitar =
+                    let sectionType =
                         match nextContentTime with
                         | None ->
-                            true
+                            NoGuitar
                         | Some nextContentTime ->
                             if nextContentTime - time >= 2500 then
                                 nextPhraseTime <- Some nextContentTime
-                                true
+                                NoGuitar
                             else
-                                false
+                                Riff
 
                     // Check if a new anchor needs to be created
                     let activeAnchor = findActiveAnchor level time
@@ -228,7 +228,7 @@ module private Helpers =
                         level.Anchors.InsertByTime(Anchor(activeAnchor.Fret, time, activeAnchor.Width))
 
                     addPhrase time arr
-                    addSection (if isNoGuitar then NoGuitar else Riff) time arr
+                    addSection sectionType time arr
         )
 
 let generate (arr: Inst) =
