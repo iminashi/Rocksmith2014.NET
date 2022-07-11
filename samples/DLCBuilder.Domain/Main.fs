@@ -589,7 +589,7 @@ let update (msg: Msg) (state: State) =
         match getSelectedArrangement state with
         | Some (Instrumental inst) ->
             let xml = XML.InstrumentalArrangement.Load(inst.XML)
-            let overlay = InstrumentalXmlDetailsViewer xml
+            let overlay = InstrumentalXmlDetailsViewer(xml, Path.GetFileName(inst.XML))
             showOverlay state overlay, Cmd.none
         | _ ->
             state, Cmd.none

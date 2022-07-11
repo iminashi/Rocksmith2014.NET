@@ -37,7 +37,7 @@ type OverlayContents =
     | UpdateInformationDialog of update: UpdateInformation
     | AdditionalMetaDataEditor
     | LyricsViewer of lyrics: string * isJapanese: bool
-    | InstrumentalXmlDetailsViewer of xml: InstrumentalArrangement
+    | InstrumentalXmlDetailsViewer of xml: InstrumentalArrangement * fileName: string
 
 [<RequireQualifiedAccess>]
 type OverlayCloseMethod =

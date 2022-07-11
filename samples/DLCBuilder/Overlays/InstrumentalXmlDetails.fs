@@ -11,7 +11,7 @@ open Rocksmith2014.XML
 open System
 open DLCBuilder.StateUtils
 
-let view state dispatch (xml: InstrumentalArrangement) =
+let view state dispatch (fileName: string) (xml: InstrumentalArrangement) =
     let arrProps = xml.MetaData.ArrangementProperties
     let instArrProps =
         match getSelectedArrangement state with
@@ -53,7 +53,7 @@ let view state dispatch (xml: InstrumentalArrangement) =
         StackPanel.spacing 8.
         StackPanel.children [
             TextBlock.create [
-                TextBlock.text xml.MetaData.Arrangement
+                TextBlock.text fileName
                 TextBlock.fontSize 22.
             ]
 

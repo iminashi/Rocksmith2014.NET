@@ -323,8 +323,8 @@ let private overlay state dispatch =
         AdditionalMetaDataEditor.view dispatch state
     | LyricsViewer (lyrics, isJapanese) ->
         LyricsViewer.view dispatch lyrics isJapanese
-    | InstrumentalXmlDetailsViewer xml ->
-        InstrumentalXmlDetails.view state dispatch xml
+    | InstrumentalXmlDetailsViewer (xml, fileName) ->
+        InstrumentalXmlDetails.view state dispatch fileName xml
 
 let private statusMessageContents dispatch = function
     | TaskWithProgress (task, progress) ->
