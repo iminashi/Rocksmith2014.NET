@@ -79,4 +79,13 @@ let tests =
 
             Expect.exists arr.PhraseIterations (fun x -> x.Time = 9500) "Phrase was created at the chord time"
             Expect.exists arr.Sections (fun x -> x.Time = 9500) "Section was created at the chord time"
+
+        testCase "Does not create END phrase on the last note" <| fun _ ->
+            let arr = createBaseArrangement()
+            arr.Levels.[0].Notes.AddRange([ Note(Time = 2_000); Note(Time = 6_000) ])
+
+            PhraseGenerator.generate arr
+
+            let endPharse = arr.PhraseIterations |> Seq.last
+            Expect.notEqual endPharse.Time 6_000 "Phrase was not created on the last note"
    ]

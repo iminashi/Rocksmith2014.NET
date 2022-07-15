@@ -53,16 +53,25 @@ module private Helpers =
         let endPhraseTime =
             match oldEndPhrase with
             | Some oldEnd ->
-                // EOF may place the END phrase poorly in some cases
+                // EOF may place the END phrase poorly in some rare cases
                 if oldEnd.Time < noMoreContentTime then noMoreContentTime else oldEnd.Time
             | None ->
                 noMoreContentTime
 
-        // Use the next beat after the content has ended
-        arr.Ebeats
-        |> ResizeArray.tryFind (fun x -> x.Time >= endPhraseTime)
-        |> Option.map (fun x -> x.Time)
-        |> Option.defaultValue endPhraseTime
+        if endPhraseTime <> noMoreContentTime then
+            // The old END phrase time is usable
+            endPhraseTime
+        else
+            // Use the next beat after the content has ended
+            arr.Ebeats
+            |> Seq.tryFindIndexBack (fun b -> b.Time <= endPhraseTime)
+            |> Option.bind (fun i -> arr.Ebeats |> ResizeArray.tryItem (i + 1))
+            |> function
+                | Some b ->
+                    b.Time
+                | None ->
+                    // If a beat is not found, create the phrase 100ms after content end time
+                    min (endPhraseTime + 100) (arr.MetaData.SongLength - 100)
 
     let findNextContent (level: Level) time =
         let tryFindNext (ra: ResizeArray<#IHasTimeCode>) =
