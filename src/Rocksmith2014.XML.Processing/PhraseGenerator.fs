@@ -9,6 +9,9 @@ module private Helpers =
     type Inst = InstrumentalArrangement
 
     type SectionName = Riff | NoGuitar
+    type FirstPhraseResult =
+        | CreateAtTime of int
+        | InsertNewBeat of Ebeat
 
     let maxOfThree defaultValue o1 o2 o3 =
         [ o1; o2; o3 ]
@@ -86,10 +89,9 @@ module private Helpers =
             else
                 let beatLength = arr.Ebeats[1].Time - firstBeatTime
                 let newBeatTime = max 0 (firstBeatTime - beatLength)
-                let newBeat = Ebeat(newBeatTime, 0s)
-                Error newBeat
+                InsertNewBeat(Ebeat(newBeatTime, 0s))
         else
-            Ok firstBeatTime
+            CreateAtTime firstBeatTime
 
     let addPhrase =
         let mutable number = 0s
@@ -122,13 +124,13 @@ module private Helpers =
         arr.PhraseIterations.Clear()
         arr.Sections.Clear()
 
-    let addFirstPhrase firstPhraseTime (arr: Inst) =
+    let addFirstPhrase firstPhraseResult (arr: Inst) =
         arr.Phrases.Add(Phrase("COUNT", 0uy, PhraseMask.None))
 
-        match firstPhraseTime with
-        | Ok firstTime ->
-            arr.PhraseIterations.Add(PhraseIteration(firstTime, 0))
-        | Error newBeat ->
+        match firstPhraseResult with
+        | CreateAtTime time ->
+            arr.PhraseIterations.Add(PhraseIteration(time, 0))
+        | InsertNewBeat newBeat ->
             arr.Ebeats.Insert(0, newBeat)
             arr.PhraseIterations.Add(PhraseIteration(newBeat.Time, 0))
 
@@ -235,10 +237,10 @@ let generate (arr: Inst) =
     match getContentStartTime arr with
     | Some contentStartTime ->
         let endPhraseTime = getEndPhraseTime arr
-        let firstPhraseTime = getFirstPhraseTime contentStartTime arr
+        let firstPhraseResult = getFirstPhraseTime contentStartTime arr
 
         erasePhrasesAndSections arr
-        addFirstPhrase firstPhraseTime arr
+        addFirstPhrase firstPhraseResult arr
         createPhrasesAndSections contentStartTime endPhraseTime arr
         addEndPhrase endPhraseTime arr
     | None ->
