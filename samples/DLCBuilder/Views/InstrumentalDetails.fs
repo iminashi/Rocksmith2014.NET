@@ -353,16 +353,22 @@ let view state dispatch (inst: Instrumental) =
                     // Select audio file
                     Button.create [
                         DockPanel.dock Dock.Right
-                        Button.content "..."
-                        Button.margin (0., 2., 0., 0.)
+                        Button.content (
+                            PathIcon.create [
+                                PathIcon.data Media.Icons.folderOpen
+                            ])
+                        Button.classes [ "borderless-btn" ]
                         Button.onClick (fun _ -> Dialog.AudioFile true |> ShowDialog |> dispatch)
                     ]
 
                     // Remove audio file
                     Button.create [
                         DockPanel.dock Dock.Right
-                        Button.margin (0., 2., 2., 0.)
-                        Button.content "X"
+                        Button.content (
+                            PathIcon.create [
+                                PathIcon.data Media.Icons.x
+                            ])
+                        Button.classes [ "borderless-btn" ]
                         Button.isVisible inst.CustomAudio.IsSome
                         Button.onClick (fun _ -> None |> SetCustomAudioPath |> EditInstrumental |> dispatch)
                         ToolTip.tip (translate "RemoveCustomAudioToolTip")
@@ -371,8 +377,11 @@ let view state dispatch (inst: Instrumental) =
                     // Convert to wem
                     Button.create [
                         DockPanel.dock Dock.Right
-                        Button.margin (0., 2., 2., 0.)
-                        Button.content "W"
+                        Button.content (
+                            PathIcon.create [
+                                PathIcon.data Media.Icons.update
+                            ])
+                        Button.classes [ "borderless-btn" ]
                         Button.isEnabled (not <| state.RunningTasks.Contains(WemConversion))
                         Button.isVisible (
                             match inst.CustomAudio with

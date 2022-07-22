@@ -64,8 +64,12 @@ let view state dispatch (tone: Tone) =
                     // Remove key
                     Button.create [
                         DockPanel.dock Dock.Right
+                        Button.content (
+                            PathIcon.create [
+                                PathIcon.data Media.Icons.x
+                            ])
+                        Button.classes [ "borderless-btn" ]
                         Button.margin 4.
-                        Button.content "X"
                         Button.isEnabled (String.notEmpty tone.Key)
                         Button.onClick (fun _ -> String.Empty |> SetKey |> EditTone |> dispatch)
                         ToolTip.tip (translate "RemoveKeyToolTip")
