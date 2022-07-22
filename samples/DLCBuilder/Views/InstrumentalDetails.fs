@@ -351,37 +351,22 @@ let view state dispatch (inst: Instrumental) =
                 DockPanel.isVisible state.Config.ShowAdvanced
                 DockPanel.children [
                     // Select audio file
-                    Button.create [
+                    iconButton Media.Icons.folderOpen [
                         DockPanel.dock Dock.Right
-                        Button.content (
-                            PathIcon.create [
-                                PathIcon.data Media.Icons.folderOpen
-                            ])
-                        Button.classes [ "borderless-btn" ]
                         Button.onClick (fun _ -> Dialog.AudioFile true |> ShowDialog |> dispatch)
                     ]
 
                     // Remove audio file
-                    Button.create [
+                    iconButton Media.Icons.x [
                         DockPanel.dock Dock.Right
-                        Button.content (
-                            PathIcon.create [
-                                PathIcon.data Media.Icons.x
-                            ])
-                        Button.classes [ "borderless-btn" ]
                         Button.isVisible inst.CustomAudio.IsSome
                         Button.onClick (fun _ -> None |> SetCustomAudioPath |> EditInstrumental |> dispatch)
                         ToolTip.tip (translate "RemoveCustomAudioToolTip")
                     ]
 
                     // Convert to wem
-                    Button.create [
+                    iconButton Media.Icons.update [
                         DockPanel.dock Dock.Right
-                        Button.content (
-                            PathIcon.create [
-                                PathIcon.data Media.Icons.update
-                            ])
-                        Button.classes [ "borderless-btn" ]
                         Button.isEnabled (not <| state.RunningTasks.Contains(WemConversion))
                         Button.isVisible (
                             match inst.CustomAudio with

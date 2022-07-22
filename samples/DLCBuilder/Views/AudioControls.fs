@@ -103,13 +103,8 @@ let private panel state dispatch =
                             ]
 
                             // Select audio file
-                            Button.create [
-                                Button.content (
-                                    PathIcon.create [
-                                        PathIcon.data Icons.folderOpen
-                                    ])
+                            iconButton Icons.folderOpen [
                                 Button.isEnabled notCalculatingVolume
-                                Button.classes [ "borderless-btn" ]
                                 Button.onClick (fun _ -> Dialog.AudioFile false |> ShowDialog |> dispatch)
                                 ToolTip.tip (translate "SelectAudioFile")
                             ]
@@ -153,13 +148,8 @@ let private panel state dispatch =
                             ]
 
                             // Select preview audio file
-                            Button.create [
-                                Button.content (
-                                    PathIcon.create [
-                                        PathIcon.data Icons.folderOpen
-                                    ])
+                            iconButton Icons.folderOpen [
                                 Button.isEnabled notCalculatingVolume
-                                Button.classes [ "borderless-btn" ]
                                 Button.onClick (fun _ -> Dialog.PreviewFile |> ShowDialog |> dispatch)
                                 ToolTip.tip (translate "SelectPreviewAudioFile")
                             ]

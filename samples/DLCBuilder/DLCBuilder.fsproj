@@ -47,6 +47,7 @@
     <Compile Include="AvaloniaBitmapLoader.fs" />
     <Compile Include="Dialogs.fs" />
     <Compile Include="ArrangementNameUtils.fs" />
+    <Compile Include="Controls\FuncUIExtensions.fs" />
     <Compile Include="Controls\Helpers.fs" />
     <Compile Include="Controls\FixedTextBox.fs" />
     <Compile Include="Controls\FixedAutoCompleteBox.fs" />
@@ -61,7 +62,6 @@
     <Compile Include="Controls\HelpButton.fs" />
     <Compile Include="Controls\TitleBarButtons.fs" />
     <Compile Include="Controls\TitledTextBox.fs" />
-    <Compile Include="Controls\FuncUIExtensions.fs" />
     <Compile Include="Overlays\AdditionalMetaDataEditor.fs" />
     <Compile Include="Overlays\AbnormalExitMessage.fs" />
     <Compile Include="Overlays\IdRegenerationConfirmation.fs" />

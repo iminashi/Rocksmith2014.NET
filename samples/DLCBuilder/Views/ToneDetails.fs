@@ -62,13 +62,8 @@ let view state dispatch (tone: Tone) =
                 Grid.column 1
                 StackPanel.children [
                     // Remove key
-                    Button.create [
+                    iconButton Media.Icons.x [
                         DockPanel.dock Dock.Right
-                        Button.content (
-                            PathIcon.create [
-                                PathIcon.data Media.Icons.x
-                            ])
-                        Button.classes [ "borderless-btn" ]
                         Button.margin 4.
                         Button.isEnabled (String.notEmpty tone.Key)
                         Button.onClick (fun _ -> String.Empty |> SetKey |> EditTone |> dispatch)

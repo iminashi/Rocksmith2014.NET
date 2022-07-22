@@ -187,14 +187,9 @@ let private arrangementPanel state dispatch =
                             ]
 
                             // Validate arrangements
-                            Button.create [
+                            iconButton Icons.checkList [
                                 Grid.column 2
-                                Button.classes [ "borderless-btn" ]
                                 Button.padding (10., 8.)
-                                Button.content (
-                                    PathIcon.create [
-                                        PathIcon.data Icons.checkList
-                                    ])
                                 Button.onClick (fun _ -> dispatch CheckArrangements)
                                 Button.isEnabled (StateUtils.canRunValidation state)
                                 ToolTip.tip (translate "ValidateArrangementsToolTip")
