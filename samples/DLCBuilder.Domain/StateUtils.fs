@@ -324,19 +324,16 @@ let createDownloadTask locString =
     let id = { Id = Guid.NewGuid(); LocString = locString }
     id, FileDownload id
 
-let optionFromSortableString sStr =
+let optionFromSortableString f sStr =
     sStr.SortValue
     |> Option.ofString
-    |> Option.orElse (Option.ofString sStr.Value)
+    |> Option.orElse (Option.ofString sStr.Value |> Option.map (f >> StringValidator.convertToSortField))
 
 /// Returns a filename for the project: "artist_title.rs2dlc"
 /// Or "new_project.rs2dlc" if artist and title are not set.
 let createProjectFilename project =
-    let artist =
-        optionFromSortableString project.ArtistName
-
-    let title =
-        optionFromSortableString project.Title
+    let artist = optionFromSortableString StringValidator.FieldType.ArtistName project.ArtistName
+    let title = optionFromSortableString StringValidator.FieldType.Title project.Title
 
     (artist, title)
     ||> Option.map2 (fun artist title -> StringValidator.fileName $"{artist}_{title}")

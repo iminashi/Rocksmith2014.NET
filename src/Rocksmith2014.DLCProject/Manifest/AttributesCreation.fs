@@ -346,11 +346,15 @@ let private initAttributesCommon name dlcKey levels (project: DLCProject) (arran
 let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Instrumental) (sng: SNG) (attr: Attributes) =
     let diffs = calculateDifficulties xmlMetaData sng
     let dnas = calculateDNAs sng
+    let getSortValue (c: string -> StringValidator.FieldType) (ss: SortableString) =
+        ss.SortValue
+        |> Option.ofString
+        |> Option.defaultWith (fun () -> StringValidator.convertToSortField (c ss.Value))
 
     attr.AlbumName <- project.AlbumName.Value
-    attr.AlbumNameSort <- project.AlbumName.SortValue
+    attr.AlbumNameSort <- getSortValue StringValidator.FieldType.AlbumName project.AlbumName 
     attr.ArtistName <- project.ArtistName.Value
-    attr.ArtistNameSort <- project.ArtistName.SortValue
+    attr.ArtistNameSort <- getSortValue StringValidator.FieldType.ArtistName project.ArtistName 
     if xmlMetaData.Capo > 0y then attr.CapoFret <- Nullable(float xmlMetaData.Capo)
     attr.CentOffset <- Utils.tuningPitchToCents instrumental.TuningPitch
     attr.DNA_Chords <- dnas.Chords
@@ -367,7 +371,7 @@ let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Inst
     attr.SongDifficulty <- diffs.Hard
     attr.SongLength <- sng.MetaData.SongLength
     attr.SongName <- project.Title.Value
-    attr.SongNameSort <- project.Title.SortValue
+    attr.SongNameSort <- getSortValue StringValidator.FieldType.Title project.Title 
     attr.SongYear <- project.Year
     attr.Tuning <- Tuning.FromArray(instrumental.Tuning) |> Some
 

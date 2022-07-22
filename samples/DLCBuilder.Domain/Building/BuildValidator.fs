@@ -7,8 +7,8 @@ open System.IO
 
 let private validators = [
     InvalidDLCKey,    fun project -> project.DLCKey.Length < DLCKey.MinimumLength
-    TitleEmpty,       fun project -> SortableString.IsEmpty project.Title
-    ArtistNameEmpty,  fun project -> SortableString.IsEmpty project.ArtistName
+    TitleEmpty,       fun project -> String.IsNullOrEmpty project.Title.Value
+    ArtistNameEmpty,  fun project -> String.IsNullOrEmpty project.ArtistName.Value
     AlbumArtNotFound, fun project -> not <| File.Exists project.AlbumArtFile
     PreviewNotFound,  fun project -> not <| File.Exists project.AudioPreviewFile.Path
     MissingBaseToneKey,

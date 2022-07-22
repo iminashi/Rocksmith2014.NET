@@ -99,6 +99,7 @@ let private projectInfo state dispatch =
                   Grid.row 1
                   StackPanel.isVisible (state.ShowSortFields && not state.ShowJapaneseFields) ]
                 [ FixedTextBox.text state.Project.ArtistName.SortValue
+                  FixedTextBox.watermark (state.Project.ArtistName.Value |> StringValidator.FieldType.ArtistName |> StringValidator.convertToSortField)
                   TextBox.onLostFocus (fun e ->
                     let txtBox = e.Source :?> TextBox
                     let validValue = StringValidator.sortField txtBox.Text
@@ -133,6 +134,7 @@ let private projectInfo state dispatch =
                   Grid.row 2
                   StackPanel.isVisible state.ShowSortFields ]
                 [ FixedTextBox.text state.Project.Title.SortValue
+                  FixedTextBox.watermark (state.Project.Title.Value |> StringValidator.FieldType.Title |> StringValidator.convertToSortField)
                   TextBox.onLostFocus (fun e ->
                     let txtBox = e.Source :?> TextBox
                     let validValue = StringValidator.sortField txtBox.Text
@@ -184,6 +186,7 @@ let private projectInfo state dispatch =
                   Grid.row 3
                   StackPanel.isVisible state.ShowSortFields ]
                 [ FixedTextBox.text state.Project.AlbumName.SortValue
+                  FixedTextBox.watermark (state.Project.AlbumName.Value |> StringValidator.FieldType.AlbumName |> StringValidator.convertToSortField)
                   TextBox.onLostFocus (fun e ->
                     let txtBox = e.Source :?> TextBox
                     let validValue = StringValidator.sortField txtBox.Text

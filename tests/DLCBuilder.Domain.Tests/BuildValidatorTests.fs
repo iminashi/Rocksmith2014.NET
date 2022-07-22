@@ -69,12 +69,6 @@ let tests =
             BuildValidator.validate project
             |> expectError ArtistNameEmpty
 
-        testCase "Detects missing title sort value" <| fun _ ->
-            let project = { validProject with Title = { validProject.Title with SortValue = "" } }
-
-            BuildValidator.validate project
-            |> expectError TitleEmpty
-
         testCase "Detects missing album art file" <| fun _ ->
             let project = { validProject with AlbumArtFile = "na" }
 
