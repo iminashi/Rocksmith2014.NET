@@ -51,15 +51,16 @@ let tryGetOfficialArtistNameSortValue (value: string) =
     | _ ->
         None
 
-/// Validates a DLC key.
+/// Validates a DLC key: only alphanumeric characters allowed.
 let dlcKey (input: string) =
     Regex.Replace(input, "[^0-9a-zA-Z]", "")
 
-/// Validates a DLC project field (artist, title, album).
+/// Validates a DLC project field (artist, title, album):
+/// only characters included in the fonts the game uses are allowed.
 let field (input: string) =
     String.filter UsableCharacters.Contains input
 
-/// Validates a DLC project sort field (must start with an alphanumeric character).
+/// Validates a DLC project sort field: must start with an alphanumeric character.
 let sortField (input: string) =
     Regex.Replace(input, "^[^0-9a-zA-Z]*", "")
 
@@ -104,7 +105,7 @@ let removeDiacritics (input: string) =
     |> String.filter (fun c -> CharUnicodeInfo.GetUnicodeCategory(c) <> UnicodeCategory.NonSpacingMark)
     |> fun x -> x.Normalize(NormalizationForm.FormC)
 
-/// Validates a tone name (removes double quotes).
+/// Validates a tone name: double quotes are not allowed.
 let toneName (input: string) = input.Replace("\"", "")
 
 /// Validates a filename without the extension.
