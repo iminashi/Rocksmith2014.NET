@@ -277,12 +277,12 @@ let attributeTests =
                 Expect.equal (f attr.ArrangementProperties.Value) 1uy "Arrangement property was set correctly"
 
         testCase "Sort values are created if they are missing from the project" <| fun _ ->
-            let set v ss = { ss with Value = v; SortValue = "" }
+            let set v sv ss = { ss with Value = v; SortValue = sv }
             let project =
                 { testProject with
-                    ArtistName = set "B.B. King" testProject.ArtistName
-                    Title = set "The Title" testProject.Title
-                    AlbumName = set "B.B. King" testProject.AlbumName }
+                    ArtistName = set "B.B. King" "" testProject.ArtistName
+                    Title = set "The Title" null testProject.Title
+                    AlbumName = set "B.B. King" "   " testProject.AlbumName }
 
             let attr = createAttributes project (FromInstrumental(testLead, testSng))
 
