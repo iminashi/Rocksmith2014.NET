@@ -1,8 +1,8 @@
-## 1.4.0 (Released 2022-07-xx)
+## 1.4.0 (Released 2022-07-23)
 
-- The arrangement properties in the info dialog can now be edited by the user.
+- The arrangement properties in the info dialog can now be edited.
 - The capo fret of an arrangement is now shown in the info dialog.
-- The sort fields can now be left empty, in which case they will be created from the regular fields automatically.
+- The sort fields can now be left empty, in which case they will be automatically created from the regular fields.
 - Minor improvements to the phrase generator.
 
 ## 1.3.0 (Released 2022-06-19)
