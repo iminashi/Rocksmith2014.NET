@@ -32,7 +32,9 @@ let init localizer albumArtLoader databaseConnector args =
         Cmd.batch [
             Cmd.OfAsyncImmediate.perform Configuration.load localizer (fun config -> SetConfiguration(config, loadProject.IsEmpty, wasAbnormalExit))
             Cmd.OfAsyncImmediate.perform RecentFilesList.load () SetRecentFiles
+#if !DEBUG
             Cmd.OfAsyncImmediate.perform OnlineUpdate.checkForUpdates () SetAvailableUpdate
+#endif
             Cmd.OfAsyncImmediate.perform ToneGear.loadRepository () SetToneRepository
             yield! loadProject
         ]
