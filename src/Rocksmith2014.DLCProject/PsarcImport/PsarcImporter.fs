@@ -178,7 +178,7 @@ let import progress (psarcPath: string) (targetDirectory: string) =
 
         let project =
             { Version = version
-              DLCKey = metaData.DLCKey
+              DLCKey = StringValidator.dlcKey metaData.DLCKey
               ArtistName =
                 { Value = metaData.ArtistName
                   SortValue = metaData.ArtistNameSort }

@@ -71,9 +71,9 @@ let serialize (output: Stream) (graph: Graph) =
         GraphItem.write writer item)
 
 type private ParsedLine =
-    { UUID : string
-      TagType : string
-      Value : string }
+    { UUID: string
+      TagType: string
+      Value: string }
 
 /// Parses an aggregate graph from a string.
 let parse (text: string) =

@@ -199,7 +199,7 @@ let import (templatePath: string) =
         | tkInfo -> itemText tkInfo "PackageVersion"
 
     { Version = version
-      DLCKey = itemText docEl "Name"
+      DLCKey = itemText docEl "Name" |> StringValidator.dlcKey
       ArtistName =
         { Value = itemText songInfo "Artist"
           SortValue = itemText songInfo "ArtistSort" }
