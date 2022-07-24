@@ -33,16 +33,18 @@ let private convertSNG (data: Stream) =
         do! SNG.pack unpacked data Mac
     }
 
+let private convertEntry (entry: NamedEntry) =
+    match entry.Name with
+    | Contains "audio/windows" ->
+        { entry with Name = entry.Name.Replace("audio/windows", "audio/mac") }
+    | Contains "bin/generic" ->
+        convertSNG entry.Data |> Async.RunSynchronously
+        { entry with Name = entry.Name.Replace("bin/generic", "bin/macos") }
+    | EndsWith "aggregategraph.nt" ->
+        { entry with Data = convertGraph entry.Data }
+    | _ ->
+        entry
+
 /// Converts a PSARC from PC to Mac platform.
 let pcToMac (psarc: PSARC) =
-    psarc.Edit(EditOptions.Default, List.map (fun entry ->
-        match entry.Name with
-        | Contains "audio/windows" ->
-            { entry with Name = entry.Name.Replace("audio/windows", "audio/mac") }
-        | Contains "bin/generic" ->
-            convertSNG entry.Data |> Async.RunSynchronously
-            { entry with Name = entry.Name.Replace("bin/generic", "bin/macos") }
-        | EndsWith "aggregategraph.nt" ->
-            { entry with Data = convertGraph entry.Data }
-        | _ ->
-            entry))
+    psarc.Edit(EditOptions.Default, List.map convertEntry)
