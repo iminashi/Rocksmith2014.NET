@@ -11,6 +11,20 @@ let getTargetDirectory (projectPath: string option) project =
     |> Option.defaultValue (Arrangement.getFile project.Arrangements.Head)
     |> Path.GetDirectoryName
 
+let private getArtistAndTitle project =
+    let artist =
+        project.ArtistName.SortValue
+        |> Option.ofString
+        |> Option.defaultWith (fun () ->
+            StringValidator.convertToSortField (StringValidator.FieldType.ArtistName project.ArtistName.Value))
+
+    let title =
+        project.Title.SortValue
+        |> Option.ofString
+        |> Option.defaultWith (fun () ->
+            StringValidator.convertToSortField (StringValidator.FieldType.Title project.Title.Value))
+
+    artist, title
 /// Returns an async task for building packages for release.
 let build (openProject: string option) config project =
     async {
@@ -18,7 +32,8 @@ let build (openProject: string option) config project =
         let releaseDir = getTargetDirectory openProject project
 
         let fileNameWithoutExtension =
-            sprintf "%s_%s_v%s" project.ArtistName.SortValue project.Title.SortValue (project.Version.Replace('.', '_'))
+            let artist, title = getArtistAndTitle project
+            sprintf "%s_%s_v%s" artist title (project.Version.Replace('.', '_'))
             |> StringValidator.fileName
 
         let path =
