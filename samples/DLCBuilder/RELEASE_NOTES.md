@@ -1,3 +1,7 @@
+## 1.4.1 (Released 2022-07-25)
+
+- Fixed wrong filename for release build PSARCs when the sort fields were left empty.
+
 ## 1.4.0 (Released 2022-07-23)
 
 - The arrangement properties in the info dialog can now be edited.
