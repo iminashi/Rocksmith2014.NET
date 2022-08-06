@@ -5,7 +5,7 @@ open Rocksmith2014.DD
 open Rocksmith2014.XML
 
 let config =
-    { PhraseSearch = WithThreshold 85
+    { PhraseSearchThreshold = Some 85
       LevelCountGeneration = LevelCountGeneration.Simple }
 
 let arrangement (levels: Level seq) (chordTemplates: ChordTemplate seq) =

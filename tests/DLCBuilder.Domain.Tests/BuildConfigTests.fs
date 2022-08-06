@@ -53,7 +53,7 @@ let tests =
             Expect.equal buildConfig.SaveDebugFiles generalConfig.SaveDebugFiles "Save debug files is correct"
 
             Expect.equal buildConfig.DDConfig.LevelCountGeneration generalConfig.DDLevelCountGeneration "DD level count generation is correct"
-            Expect.equal buildConfig.DDConfig.PhraseSearch (PhraseSearch.WithThreshold 80) "DD phrase search is correct"
+            Expect.equal buildConfig.DDConfig.PhraseSearchThreshold (Some 80) "DD phrase search threshold is correct"
 
         testCase "Creates valid configuration for release build" <| fun _ ->
             let generalConfig = { generalConfig with DDPhraseSearchEnabled = false; DDLevelCountGeneration = LevelCountGeneration.MLModel }
@@ -72,5 +72,5 @@ let tests =
             Expect.isFalse buildConfig.SaveDebugFiles "Save debug files defaulted to false"
 
             Expect.equal buildConfig.DDConfig.LevelCountGeneration generalConfig.DDLevelCountGeneration "DD level count generation is correct"
-            Expect.equal buildConfig.DDConfig.PhraseSearch PhraseSearch.SearchDisabled "DD phrase search is correct"
+            Expect.equal buildConfig.DDConfig.PhraseSearchThreshold None "DD phrase search threshold is correct"
     ]

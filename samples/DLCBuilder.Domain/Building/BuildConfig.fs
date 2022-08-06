@@ -16,10 +16,10 @@ let create buildType config project platforms =
         Async.Parallel(tasks, maxDegreeOfParallelism = 2)
         |> Async.Ignore
 
-    let phraseSearch =
+    let phraseSearchThreshold =
         match config.DDPhraseSearchEnabled with
-        | true -> WithThreshold config.DDPhraseSearchThreshold
-        | false -> SearchDisabled
+        | true -> Some config.DDPhraseSearchThreshold
+        | false -> None
 
     let appId =
         match buildType, config.CustomAppId with
@@ -39,7 +39,7 @@ let create buildType config project platforms =
       AppId = appId
       GenerateDD = not disableDDGeneration
       DDConfig =
-        { PhraseSearch = phraseSearch
+        { PhraseSearchThreshold = phraseSearchThreshold
           LevelCountGeneration = config.DDLevelCountGeneration }
       ApplyImprovements = config.ApplyImprovements
       SaveDebugFiles = config.SaveDebugFiles && buildType = Test

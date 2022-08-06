@@ -56,10 +56,7 @@ let choose (diffPercent: float)
             Some(hs, None)
         else
             let copy = HandShape(hs)
-
             let request =
-                { OriginalId = hs.ChordId
-                  NoteCount = byte allowedNotes
-                  Target = HandShapeTarget copy }
+                createTemplateRequest hs.ChordId allowedNotes noteCount template (HandShapeTarget copy)
 
             Some(copy, Some request))

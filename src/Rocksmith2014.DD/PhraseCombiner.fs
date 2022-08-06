@@ -97,10 +97,10 @@ let combineSamePhrases (config: GeneratorConfig)
                        (iterations: PhraseIteration array)
                        (levelCounts: int array) =
     let sameDifficulties, differentDifficulties =
-        match config.PhraseSearch with
-        | SearchDisabled ->
+        match config.PhraseSearchThreshold with
+        | None ->
             findEmptyPhrases iterationData, Array.empty
-        | WithThreshold threshold ->
+        | Some threshold ->
             findSamePhrases threshold levelCounts iterationData
             |> Array.partition (fun x -> x.IsSameDifficulty)
 

@@ -11,7 +11,7 @@ open Rocksmith2014.SNG
 
 let benchmarkDDGeneration (psarcPath: string) = async {
     let config =
-        { PhraseSearch = PhraseSearch.WithThreshold 80
+        { PhraseSearchThreshold = Some 80
           LevelCountGeneration = LevelCountGeneration.Simple }
 
     printfn "Processing: %s" (Path.GetFileName psarcPath)

@@ -11,11 +11,8 @@ type RequestTarget =
 type TemplateRequest =
     { OriginalId: int16
       NoteCount: byte
+      FromHighestNote: bool
       Target: RequestTarget }
-
-type PhraseSearch =
-    | SearchDisabled
-    | WithThreshold of threshold: int
 
 [<RequireQualifiedAccess>]
 type LevelCountGeneration =
@@ -25,7 +22,7 @@ type LevelCountGeneration =
     | Constant of levelCount: int
 
 type GeneratorConfig =
-    { PhraseSearch: PhraseSearch
+    { PhraseSearchThreshold: int option
       LevelCountGeneration: LevelCountGeneration }
 
 type internal DifficultyRange = { Low: float; High: float }

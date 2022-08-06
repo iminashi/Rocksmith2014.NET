@@ -309,9 +309,8 @@ let choose (diffPercent: float)
                             pruneChordNotes diffPercent allowedChordNotes removedLinkNexts pendingLinkNexts copy
 
                         let templateRequest =
-                            { OriginalId = chord.ChordId
-                              NoteCount = byte allowedChordNotes
-                              Target = ChordTarget copy }
+                            ChordTarget copy
+                            |> createTemplateRequest chord.ChordId allowedChordNotes noteCount template
 
                         (XmlChord copy, Some templateRequest) :: acc)
     |> List.rev
