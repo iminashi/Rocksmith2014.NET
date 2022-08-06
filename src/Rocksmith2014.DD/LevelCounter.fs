@@ -32,19 +32,19 @@ let predictLevelCount (path: int) (p: DataExtractor.PhraseData) =
         )
 
     // Load model and predict the output
-    let result =
-        lock lockObj (fun _ -> ConsumeModel.Predict(input))
+    let result = lock lockObj (fun _ -> ConsumeModel.Predict(input))
 
     let levels = round result.Score |> int
     Math.Clamp(levels, 2, 30)
 
 let private getRepeatedNotePercent (phraseData: DataExtractor.PhraseData) =
-    float (phraseData.RepeatedNotes + phraseData.RepeatedChords)
-    /
-    float (phraseData.NoteCount + phraseData.ChordCount)
+    let repeated = float (phraseData.RepeatedNotes + phraseData.RepeatedChords)
+    let total = float (phraseData.NoteCount + phraseData.ChordCount)
+    repeated / total
 
-let getSimpleLevelCount (phraseData: DataExtractor.PhraseData)
-                        (divisionMap: DivisionMap) =
+let getSimpleLevelCount
+        (phraseData: DataExtractor.PhraseData)
+        (divisionMap: DivisionMap) =
     let baseCount = divisionMap.Count
 
     // Try to prevent inflated level count for phrases that are mostly repeated notes

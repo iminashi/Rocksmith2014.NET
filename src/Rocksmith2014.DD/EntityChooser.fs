@@ -14,7 +14,7 @@ let private pruneTechniques diffPercent (removedLinkNexts: HashSet<sbyte>) (note
             note.Sustain <- 0
 
         if note.IsLinkNext then
-            removedLinkNexts.Add note.String |> ignore
+            removedLinkNexts.Add(note.String) |> ignore
             note.IsLinkNext <- false
 
         note.Mask <- note.Mask &&& AlwaysEnabledTechs
@@ -29,11 +29,12 @@ let private pruneTechniques diffPercent (removedLinkNexts: HashSet<sbyte>) (note
     if diffPercent <= 0.60 && note.IsPinchHarmonic then
         note.IsPinchHarmonic <- false
 
-let private pruneChordNotes diffPercent
-                            noteCount
-                            (removedLinkNexts: HashSet<sbyte>)
-                            (pendingLinkNexts: Dictionary<sbyte, Note>)
-                            (chord: Chord) =
+let private pruneChordNotes
+        (diffPercent: float)
+        (noteCount: int)
+        (removedLinkNexts: HashSet<sbyte>)
+        (pendingLinkNexts: Dictionary<sbyte, Note>)
+        (chord: Chord) =
     let cn = chord.ChordNotes
     let notesToRemove = cn.Count - noteCount
 
@@ -42,7 +43,7 @@ let private pruneChordNotes diffPercent
 
     for i = cn.Count - notesToRemove to cn.Count - 1 do
         if cn[i].IsLinkNext then
-            removedLinkNexts.Add cn[i].String |> ignore
+            removedLinkNexts.Add(cn[i].String) |> ignore
 
     cn.RemoveRange(cn.Count - notesToRemove, notesToRemove)
 
@@ -52,11 +53,12 @@ let private pruneChordNotes diffPercent
         if n.IsLinkNext then
             pendingLinkNexts.TryAdd(n.String, n) |> ignore
 
-let private shouldExclude (diffPercent: float)
-                          (division: BeatDivision)
-                          (notesInDivision: IReadOnlyDictionary<BeatDivision, int>)
-                          (currentNotes: Dictionary<BeatDivision, int>)
-                          (range: DifficultyRange) =
+let private shouldExclude
+        (diffPercent: float)
+        (division: BeatDivision)
+        (notesInDivision: IReadOnlyDictionary<BeatDivision, int>)
+        (currentNotes: Dictionary<BeatDivision, int>)
+        (range: DifficultyRange) =
     if diffPercent < range.Low then
         // The entity is outside of the difficulty range -> Exclude
         true

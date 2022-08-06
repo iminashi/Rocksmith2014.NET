@@ -2,66 +2,6 @@ module Rocksmith2014.DD.Generator
 
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Extension
-open System.Collections.Generic
-
-let private lockObj = obj ()
-
-/// Returns new finger and fret arrays for the chord template with the given number of notes removed.
-let private removeNotes notesToRemove fromHighest (template: ChordTemplate) =
-    let fingers = Array.copy template.Fingers
-    let frets = Array.copy template.Frets
-    let startIndex, change = if fromHighest then 0, 1 else frets.Length - 1, -1
-
-    let rec loop i leftToRemove =
-        if leftToRemove = 0 || i < 0 || i > 5 then
-            assert (leftToRemove = 0)
-            struct {| Fingers = fingers; Frets = frets |}
-        elif frets[i] <> -1y then
-            fingers[i] <- -1y
-            frets[i] <- -1y
-            loop (i + change) (leftToRemove - 1)
-        else
-            loop (i + change) leftToRemove
-
-    loop startIndex notesToRemove
-
-let private applyChordId (templates: ResizeArray<ChordTemplate>) =
-    let templateMap = Dictionary<int16 * byte, int16>()
-
-    fun (request: TemplateRequest) ->
-        let chordId =
-            match templateMap.TryGetValue((request.OriginalId, request.NoteCount)) with
-            | true, chordId ->
-                chordId
-            | false, _ ->
-                let template = templates[int request.OriginalId]
-                let noteCount = getNoteCount template
-                let notesToRemove = noteCount - int request.NoteCount
-                let newTemp = removeNotes notesToRemove request.FromHighestNote template
-
-                let chordId =
-                    lock lockObj (fun () ->
-                        let existing = templates.FindIndex(fun x ->
-                            x.DisplayName = template.Name
-                            && x.Name = template.DisplayName
-                            && x.Frets = newTemp.Frets
-                            && x.Fingers = newTemp.Fingers)
-
-                        match existing with
-                        | -1 ->
-                            ChordTemplate(template.Name, template.DisplayName, newTemp.Fingers, newTemp.Frets)
-                            |> templates.Add
-
-                            int16 (templates.Count - 1)
-                        | index ->
-                            int16 index)
-
-                templateMap.Add((request.OriginalId, request.NoteCount), chordId)
-                chordId
-
-        match request.Target with
-        | ChordTarget chord -> chord.ChordId <- chordId
-        | HandShapeTarget hs -> hs.ChordId <- chordId
 
 let private generateLevels (config: GeneratorConfig) (arr: InstrumentalArrangement) (phraseData: DataExtractor.PhraseData) =
     // Generate one level for empty phrases with only anchors copied
@@ -98,7 +38,7 @@ let private generateLevels (config: GeneratorConfig) (arr: InstrumentalArrangeme
             | LevelCountGeneration.Constant count ->
                 count
 
-        let applyChordId' = applyChordId arr.ChordTemplates
+        let applyChordId = TemplateRequestApplier.applyChordId arr.ChordTemplates
 
         Array.init levelCount (fun diff ->
             // Copy everything for the hardest level
@@ -117,7 +57,7 @@ let private generateLevels (config: GeneratorConfig) (arr: InstrumentalArrangeme
                     EntityChooser.choose diffPercent divisionMap noteTimeToDivision notesInDivision arr.ChordTemplates phraseData.HandShapes phraseData.MaxChordStrings entities
                     |> Array.unzip
                 let notes = levelEntities |> Array.choose (function XmlNote n -> Some n | _ -> None)
-                let chords = levelEntities |> Array.choose (function XmlChord n -> Some n | _ -> None)
+                let chords = levelEntities |> Array.choose (function XmlChord c -> Some c | _ -> None)
 
                 // Ensure that the link next attributes for chords are correct
                 // A chord that has a link next attribute, but does not have any notes with link next will crash the game
@@ -136,7 +76,7 @@ let private generateLevels (config: GeneratorConfig) (arr: InstrumentalArrangeme
                 templateRequests1
                 |> Seq.append templateRequests2
                 |> Seq.choose id
-                |> Seq.iter applyChordId'
+                |> Seq.iter applyChordId
 
                 Level(
                     sbyte diff,
@@ -146,7 +86,7 @@ let private generateLevels (config: GeneratorConfig) (arr: InstrumentalArrangeme
                     ResizeArray(handShapes)
                 ))
 
-/// Generates DD levels for an arrangement.
+/// Generates DD levels for an arrangement. Returns the mutated arrangement.
 let generateForArrangement (config: GeneratorConfig) (arr: InstrumentalArrangement) =
     let phraseIterations = arr.PhraseIterations.ToArray()
 
@@ -155,29 +95,29 @@ let generateForArrangement (config: GeneratorConfig) (arr: InstrumentalArrangeme
         |> Array.Parallel.map (DataExtractor.getPhraseIterationData arr)
 
     // Create the difficulty levels
-    let levels =
+    let levelDataForPhrases =
         phraseIterationData
         |> Array.Parallel.map (generateLevels config arr)
 
-    let generatedLevelCount = levels |> Array.map Array.length
-    let maxDiff = generatedLevelCount |> Array.max
+    let generatedLevelCounts = levelDataForPhrases |> Array.map Array.length
+    let maxDiff = generatedLevelCounts |> Array.max
 
     // Combine the data in the levels
     let combinedLevels =
         Seq.init maxDiff (fun diff -> 
             let level = Level(sbyte diff)
 
-            levels
-            |> Array.iter (fun lvl ->
-                if diff < lvl.Length then
-                    level.Anchors.AddRange(lvl[diff].Anchors)
-                    level.Notes.AddRange(lvl[diff].Notes)
-                    level.HandShapes.AddRange(lvl[diff].HandShapes)
-                    level.Chords.AddRange(lvl[diff].Chords))
+            levelDataForPhrases
+            |> Array.iter (fun phraseData ->
+                if diff < phraseData.Length then
+                    level.Anchors.AddRange(phraseData[diff].Anchors)
+                    level.Notes.AddRange(phraseData[diff].Notes)
+                    level.HandShapes.AddRange(phraseData[diff].HandShapes)
+                    level.Chords.AddRange(phraseData[diff].Chords))
             level)
 
     let phrases, newPhraseIterations, newLinkedDiffs =
-        PhraseCombiner.combineSamePhrases config phraseIterationData phraseIterations generatedLevelCount
+        PhraseCombiner.combineSamePhrases config phraseIterationData phraseIterations generatedLevelCounts
 
     arr.Levels <- ResizeArray(combinedLevels)
     arr.Phrases <- ResizeArray(phrases)
@@ -187,9 +127,9 @@ let generateForArrangement (config: GeneratorConfig) (arr: InstrumentalArrangeme
     arr
 
 /// Generates DD levels for an arrangement loaded from a file and saves it into the target file.
-let generateForFile config fileName targetFile =
+let generateForFile config sourcePath targetPath =
     let arr =
-        InstrumentalArrangement.Load(fileName)
+        InstrumentalArrangement.Load(sourcePath)
         |> generateForArrangement config
 
-    arr.Save(targetFile)
+    arr.Save(targetPath)
