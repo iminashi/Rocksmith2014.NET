@@ -58,9 +58,9 @@ let ddGeneratorTests =
             let highestLevel = arr.Levels[9]
             Expect.hasLength arr.Levels[0].Notes 1 "Note exists in lowest level"
 
-            // Note should have no sustain at diffculty < 20%
+            // Note should have no sustain at difficulty < 20%
             Expect.equal arr.Levels[0].Notes[0].Sustain 0 "Note sustain is correct at level 1"
-            // Note should have sustain at diffculty >= 20%
+            // Note should have sustain at difficulty >= 20%
             Expect.equal arr.Levels[2].Notes[0].Sustain 800 "Note sustain is correct at level 3"
 
             Expect.hasLength highestLevel.Notes 0 "Notes do not exist in highest level"
