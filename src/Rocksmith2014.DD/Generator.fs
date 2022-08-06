@@ -6,60 +6,66 @@ open System.Collections.Generic
 
 let private lockObj = obj ()
 
+/// Returns new finger and fret arrays for the chord template with the given number of notes removed.
+let private removeNotes notesToRemove fromHighest (template: ChordTemplate) =
+    let fingers = Array.copy template.Fingers
+    let frets = Array.copy template.Frets
+    let startIndex, change = if fromHighest then 0, 1 else frets.Length - 1, -1
+
+    let rec loop i leftToRemove =
+        if leftToRemove = 0 || i < 0 || i > 5 then
+            assert (leftToRemove = 0)
+            struct {| Fingers = fingers; Frets = frets |}
+        elif frets[i] <> -1y then
+            fingers[i] <- -1y
+            frets[i] <- -1y
+            loop (i + change) (leftToRemove - 1)
+        else
+            loop (i + change) leftToRemove
+
+    loop startIndex notesToRemove
+
 let private applyChordId (templates: ResizeArray<ChordTemplate>) =
     let templateMap = Dictionary<int16 * byte, int16>()
 
     fun (request: TemplateRequest) ->
-        let id =
+        let chordId =
             match templateMap.TryGetValue((request.OriginalId, request.NoteCount)) with
-            | true, id ->
-                id
+            | true, chordId ->
+                chordId
             | false, _ ->
                 let template = templates[int request.OriginalId]
                 let noteCount = getNoteCount template
+                let notesToRemove = noteCount - int request.NoteCount
+                let newTemp = removeNotes notesToRemove request.FromHighestNote template
 
-                let mutable removeNotes = noteCount - int request.NoteCount
-
-                let newFingers, newFrets =
-                    let fingers = Array.copy template.Fingers
-                    let frets = Array.copy template.Frets
-                    for i = frets.Length - 1 downto 0 do
-                        if frets[i] <> -1y && removeNotes > 0 then
-                            removeNotes <- removeNotes - 1
-                            fingers[i] <- -1y
-                            frets[i] <- -1y
-                    fingers, frets
-
-                let id =
+                let chordId =
                     lock lockObj (fun () ->
                         let existing = templates.FindIndex(fun x ->
                             x.DisplayName = template.Name
                             && x.Name = template.DisplayName
-                            && x.Frets = newFrets
-                            && x.Fingers = newFingers)
+                            && x.Frets = newTemp.Frets
+                            && x.Fingers = newTemp.Fingers)
 
                         match existing with
                         | -1 ->
-                            let id = int16 templates.Count
-
-                            ChordTemplate(template.Name, template.DisplayName, newFingers, newFrets)
+                            ChordTemplate(template.Name, template.DisplayName, newTemp.Fingers, newTemp.Frets)
                             |> templates.Add
 
-                            id
+                            int16 (templates.Count - 1)
                         | index ->
                             int16 index)
 
-                templateMap.Add((request.OriginalId, request.NoteCount), id)
-                id
+                templateMap.Add((request.OriginalId, request.NoteCount), chordId)
+                chordId
 
         match request.Target with
-        | ChordTarget chord -> chord.ChordId <- id
-        | HandShapeTarget hs -> hs.ChordId <- id
+        | ChordTarget chord -> chord.ChordId <- chordId
+        | HandShapeTarget hs -> hs.ChordId <- chordId
 
 let private generateLevels (config: GeneratorConfig) (arr: InstrumentalArrangement) (phraseData: DataExtractor.PhraseData) =
-    // Generate one level for empty phrases
+    // Generate one level for empty phrases with only anchors copied
     if phraseData.NoteCount + phraseData.ChordCount = 0 then
-        // Copy anchors only
         let level = Level(0y)
         level.Anchors.AddRange(phraseData.Anchors)
         [| level |]

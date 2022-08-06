@@ -149,22 +149,29 @@ let private chordNotesFromTemplate (template: ChordTemplate) (chord: Chord) =
     cn
 
 /// Creates a note from a chord.
-let private noteFromChord (diffPercent: float)
-                          (removedLinkNexts: HashSet<sbyte>)
-                          (template: ChordTemplate)
-                          (chord: Chord) =
-    if chord.HasChordNotes then
-        // Create the note from a chord note
-        for i = 1 to chord.ChordNotes.Count - 1 do
-            if chord.ChordNotes[i].IsLinkNext then
-                removedLinkNexts.Add(chord.ChordNotes[i].String) |> ignore
+let private noteFromChord
+        (diffPercent: float)
+        (removedLinkNexts: HashSet<sbyte>)
+        (chordTotalNotes: int)
+        (template: ChordTemplate)
+        (chord: Chord) =
+    let fromHighest = shouldStartFromHighestNote chordTotalNotes template
 
-        let n = Note(chord.ChordNotes[0], LeftHand = -1y)
-        pruneTechniques diffPercent removedLinkNexts n
-        n
+    if chord.HasChordNotes then
+        let cns = chord.ChordNotes
+        let noteIndex = if fromHighest then cns.Count - 1 else 0
+        // Create the note from a chord note
+        for i = 0 to cns.Count - 1 do
+            if i <> noteIndex && cns[i].IsLinkNext then
+                removedLinkNexts.Add(cns[i].String) |> ignore
+
+        let note = Note(cns[noteIndex], LeftHand = -1y)
+        pruneTechniques diffPercent removedLinkNexts note
+        note
     else
         // Create the note from the chord template
-        let string = template.Frets |> Array.findIndex ((<>) -1y)
+        let find = if fromHighest then Array.findIndexBack else Array.findIndex
+        let string = template.Frets |> find ((<>) -1y)
 
         Note(
             Time = chord.Time,
@@ -284,7 +291,7 @@ let choose (diffPercent: float)
 
                 if allowedChordNotes <= 1 then
                     // Convert the chord into a note
-                    let note = noteFromChord diffPercent removedLinkNexts template chord
+                    let note = noteFromChord diffPercent removedLinkNexts noteCount template chord
                     if note.IsLinkNext then pendingLinkNexts.TryAdd(note.String, note) |> ignore
 
                     (XmlNote note, None) :: acc

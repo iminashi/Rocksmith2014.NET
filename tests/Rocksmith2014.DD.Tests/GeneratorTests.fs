@@ -65,4 +65,22 @@ let ddGeneratorTests =
 
             Expect.hasLength highestLevel.Notes 0 "Notes do not exist in highest level"
             Expect.hasLength highestLevel.Chords 1 "Chord exists in highest level"
+
+        testCase "Note on lowest level for double stop on high strings is the highest string" <| fun _ ->
+            let cn = ResizeArray(seq {
+                Note(String = 4y, Fret = 5y, Time = 5000, Sustain = 800)
+                Note(String = 5y, Fret = 5y, Time = 5000, Sustain = 800)
+            })
+            let chords = ResizeArray(seq { Chord(Time = 5000, ChordNotes = cn) })
+            let handshapes = ResizeArray(seq { HandShape(0s, 5000, 800) })
+            let level = Level(0y, Chords = chords, HandShapes = handshapes)
+            let template = ChordTemplate("", "", [| -1y; -1y; -1y; -1y; 1y; 1y; |], [| -1y; -1y; -1y; -1y; 5y; 5y |])
+
+            let conf = { config with LevelCountGeneration = LevelCountGeneration.Constant 10 }
+            let arr =
+                arrangement [ level ] [ template ]
+                |> Generator.generateForArrangement conf
+
+            Expect.hasLength arr.Levels[0].Notes 1 "Note exists in lowest level"
+            Expect.equal arr.Levels[0].Notes[0].String 5y "String is correct"
     ]

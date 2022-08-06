@@ -19,12 +19,14 @@ let getAllowedChordNotes (diffPercent: float) maxChordNotesInPhrase =
         diffPercent * float maxChordNotesInPhrase
         |> (ceil >> int)
 
+/// For double and triple stops on the highest strings, start adding notes from the highest string.
+let shouldStartFromHighestNote (totalNotes: int) (template: ChordTemplate) =
+    let fr = template.Frets
+    (totalNotes = 3 && fr[5] > -1y && fr[4] > -1y && fr[3] > -1y)
+    || (totalNotes = 2 && fr[5] > -1y && fr[4] > -1y)
+
 let createTemplateRequest (originalId: int16) (noteCount: int) (totalNotes: int) (template: ChordTemplate) target =
-    // For double and triple stops on the highest strings, start adding notes from the highest string
-    let startFromHighestNote =
-        let fr = template.Frets
-        (totalNotes = 3 && fr[5] > -1y && fr[4] > -1y && fr[3] > -1y)
-        || (totalNotes = 2 && fr[5] > -1y && fr[4] > -1y)
+    let startFromHighestNote = shouldStartFromHighestNote totalNotes template
 
     { OriginalId = originalId
       NoteCount = byte noteCount
