@@ -147,6 +147,7 @@ module Configuration =
             match config.DDLevelCountGeneration with
             | LevelCountGeneration.Simple -> 0
             | LevelCountGeneration.MLModel -> 1
+            | LevelCountGeneration.Constant _ -> 2 // Should never be here
 
         let customAppId =
             config.CustomAppId |> Option.map AppId.toString |> Option.toObj

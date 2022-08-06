@@ -89,6 +89,8 @@ let private generateLevels (config: GeneratorConfig) (arr: InstrumentalArrangeme
                 LevelCounter.getSimpleLevelCount phraseData divisionMap
             | LevelCountGeneration.MLModel ->
                 LevelCounter.predictLevelCount (DataExtractor.getPath arr) phraseData
+            | LevelCountGeneration.Constant count ->
+                count
 
         let applyChordId' = applyChordId arr.ChordTemplates
 

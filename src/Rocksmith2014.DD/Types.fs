@@ -21,6 +21,8 @@ type PhraseSearch =
 type LevelCountGeneration =
     | Simple
     | MLModel
+    /// Generates the same number of levels for all phrases. For testing purposes.
+    | Constant of levelCount: int
 
 type GeneratorConfig =
     { PhraseSearch: PhraseSearch
