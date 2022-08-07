@@ -44,8 +44,8 @@ let private getRepeatedNotePercent (phraseData: DataExtractor.PhraseData) =
 
 let getSimpleLevelCount
         (phraseData: DataExtractor.PhraseData)
-        (divisionMap: DivisionMap) =
-    let baseCount = divisionMap.Count
+        (scoreMap: ScoreMap) =
+    let baseCount = scoreMap.Count
 
     // Try to prevent inflated level count for phrases that are mostly repeated notes
     let levelCount =

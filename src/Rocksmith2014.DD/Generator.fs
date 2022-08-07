@@ -13,26 +13,26 @@ let private generateLevels (config: GeneratorConfig) (arr: InstrumentalArrangeme
         let entities =
             createXmlEntityArrayFromLists phraseData.Notes phraseData.Chords
 
-        let divisions =
+        let scores =
             entities
             |> Array.map (fun e ->
                 let time = getTimeCode e
-                time, BeatDivider.getDivision phraseData time e)
+                time, NoteScorer.getScore phraseData time e)
 
-        let notesInDivision =
-            divisions
+        let notesWithScore =
+            scores
             |> Array.groupBy snd
             |> Array.map (fun (group, elems) -> group, elems.Length)
             |> readOnlyDict
 
-        let noteTimeToDivision = readOnlyDict divisions
-        let divisionMap = BeatDivider.createDivisionMap divisions entities.Length
+        let noteTimeToScore = readOnlyDict scores
+        let scoreMap = NoteScorer.createScoreMap scores entities.Length
 
         // Determine the number of levels to generate for this phrase
         let levelCount =
             match config.LevelCountGeneration with
             | LevelCountGeneration.Simple ->
-                LevelCounter.getSimpleLevelCount phraseData divisionMap
+                LevelCounter.getSimpleLevelCount phraseData scoreMap
             | LevelCountGeneration.MLModel ->
                 LevelCounter.predictLevelCount (DataExtractor.getPath arr) phraseData
             | LevelCountGeneration.Constant count ->
@@ -54,7 +54,7 @@ let private generateLevels (config: GeneratorConfig) (arr: InstrumentalArrangeme
                 let diffPercent = float (diff + 1) / float levelCount
 
                 let levelEntities, templateRequests1 =
-                    EntityChooser.choose diffPercent divisionMap noteTimeToDivision notesInDivision arr.ChordTemplates phraseData.HandShapes phraseData.MaxChordStrings entities
+                    EntityChooser.choose diffPercent scoreMap noteTimeToScore notesWithScore arr.ChordTemplates phraseData.HandShapes phraseData.MaxChordStrings entities
                     |> Array.unzip
                 let notes = levelEntities |> Array.choose (function XmlNote n -> Some n | _ -> None)
                 let chords = levelEntities |> Array.choose (function XmlChord c -> Some c | _ -> None)

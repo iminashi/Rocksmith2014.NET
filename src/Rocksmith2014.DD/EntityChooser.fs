@@ -55,18 +55,18 @@ let private pruneChordNotes
 
 let private shouldExclude
         (diffPercent: float)
-        (division: BeatDivision)
-        (notesInDivision: IReadOnlyDictionary<BeatDivision, int>)
-        (currentNotes: Dictionary<BeatDivision, int>)
+        (score: NoteScore)
+        (notesWithScore: IReadOnlyDictionary<NoteScore, int>)
+        (currentNotes: Dictionary<NoteScore, int>)
         (range: DifficultyRange) =
     if diffPercent < range.Low then
         // The entity is outside of the difficulty range -> Exclude
         true
     elif diffPercent >= range.Low && diffPercent < range.High then
         // The entity is within the difficulty range -> Check the number of allowed notes
-        let notes = notesInDivision[division]
+        let notes = notesWithScore[score]
         let currentCount =
-            match currentNotes.TryGetValue(division) with
+            match currentNotes.TryGetValue(score) with
             | true, v -> v
             | false, _ -> 0
         let allowedPercent = (diffPercent - range.Low) / (range.High - range.Low)
@@ -186,30 +186,30 @@ let private noteFromChord
         )
 
 let choose (diffPercent: float)
-           (divisionMap: DivisionMap)
-           (noteTimeToDivision: IReadOnlyDictionary<int, BeatDivision>)
-           (notesInDivision: IReadOnlyDictionary<BeatDivision, int>)
+           (divisionMap: ScoreMap)
+           (noteTimeToScore: IReadOnlyDictionary<int, NoteScore>)
+           (notesWithScore: IReadOnlyDictionary<NoteScore, int>)
            (templates: ResizeArray<ChordTemplate>)
            (handShapes: HandShape list)
            (maxChordNotes: int)
            (entities: XmlEntity array) =
     let removedLinkNexts = HashSet<sbyte>()
     let pendingLinkNexts = Dictionary<sbyte, Note>()
-    let currentNotesInDivision = Dictionary<BeatDivision, int>()
+    let currentNotesWithScore = Dictionary<NoteScore, int>()
 
     let incrementCount division =
-        match currentNotesInDivision.TryGetValue(division) with
+        match currentNotesWithScore.TryGetValue(division) with
         | true, v ->
-            currentNotesInDivision[division] <- v + 1
+            currentNotesWithScore[division] <- v + 1
         | false, _ ->
-            currentNotesInDivision[division] <- 1
+            currentNotesWithScore[division] <- 1
 
     let allowedChordNotes = getAllowedChordNotes diffPercent maxChordNotes
 
     ([], entities)
     ||> Array.fold (fun acc e ->
-        let division = noteTimeToDivision[getTimeCode e]
-        let range = divisionMap[division]
+        let score = noteTimeToScore[getTimeCode e]
+        let range = divisionMap[score]
 
         let includeAlways =
             match e with
@@ -221,7 +221,7 @@ let choose (diffPercent: float)
                 && pendingLinkNexts.ContainsKey n.String
                 && not (n.IsSlide || n.IsUnpitchedSlide || n.IsBend || n.IsVibrato)
 
-        if not includeAlways && shouldExclude diffPercent division notesInDivision currentNotesInDivision range then
+        if not includeAlways && shouldExclude diffPercent score notesWithScore currentNotesWithScore range then
             removePreviousLinkNext pendingLinkNexts e
 
             // Update removedLinkNexts (when not a slide)
@@ -248,7 +248,7 @@ let choose (diffPercent: float)
 
                     acc
                 else
-                    incrementCount division
+                    incrementCount score
                     let note = Note(oNote)
 
                     pruneTechniques diffPercent removedLinkNexts note
@@ -286,7 +286,7 @@ let choose (diffPercent: float)
                     (XmlNote note, None) :: acc
 
             | XmlChord chord ->
-                incrementCount division
+                incrementCount score
 
                 let template = templates[int chord.ChordId]
                 let noteCount = getNoteCount template

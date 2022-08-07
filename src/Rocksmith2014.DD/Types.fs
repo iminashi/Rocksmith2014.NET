@@ -27,6 +27,6 @@ type GeneratorConfig =
 
 type internal DifficultyRange = { Low: float; High: float }
 
-type internal BeatDivision = int
+type internal NoteScore = int
 
-type internal DivisionMap = IReadOnlyDictionary<BeatDivision, DifficultyRange>
+type internal ScoreMap = IReadOnlyDictionary<NoteScore, DifficultyRange>

@@ -1,11 +1,11 @@
-module internal Rocksmith2014.DD.BeatDivider
+module internal Rocksmith2014.DD.NoteScorer
 
 open Rocksmith2014.DD.DataExtractor
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Extension
 open System
 
-let round (value: float) =
+let private round (value: float) =
     Math.Round(value, MidpointRounding.AwayFromZero)
 
 let private getSubdivision startTime endTime time =
@@ -57,7 +57,22 @@ let private getDivisionInPhrase startTime endTime time =
     let divsionIndex = findDivIndex 0
     phraseDivisions[divsionIndex]
 
-let getDivision (phraseData: PhraseData) (time: int) (entity: XmlEntity) : BeatDivision =
+let private getTechniquePenalties (entity: XmlEntity) =
+    let isFretHandMute, isBend =
+        match entity with
+        | XmlNote n ->
+            n.IsFretHandMute, n.MaxBend > 0.0f
+        | XmlChord c ->
+            c.IsFretHandMute, false
+
+    if isFretHandMute then
+        20
+    elif isBend then
+        10
+    else
+        0
+
+let getScore (phraseData: PhraseData) (time: int) (entity: XmlEntity) : NoteScore =
     let { StartTime = phraseStartTime; EndTime = phraseEndTime; Beats = beats } = phraseData
 
     let beat1 =
@@ -69,14 +84,9 @@ let getDivision (phraseData: PhraseData) (time: int) (entity: XmlEntity) : BeatD
         |> List.tryFind (fun b -> b.Time >= time)
 
     let divisionInPhrase = getDivisionInPhrase phraseStartTime phraseEndTime time
+    let penalties = getTechniquePenalties entity
 
-    let isFretHandMute =
-        match entity with
-        | XmlNote n -> n.IsFretHandMute
-        | XmlChord c -> c.IsFretHandMute
-
-    // De-emphasize fret hand mutes
-    if isFretHandMute then 20 else 0
+    penalties
     + divisionInPhrase
     + match beat1, beat2 with
       | None, _ ->
@@ -95,12 +105,12 @@ let getDivision (phraseData: PhraseData) (time: int) (entity: XmlEntity) : BeatD
           // The note comes after the last beat in the phrase
           10 * getSubdivision b1.Time phraseEndTime time
 
-let createDivisionMap (divisions: (int * BeatDivision) array) totalNotes =
-    divisions
+let createScoreMap (scores: (int * NoteScore) array) totalNotes =
+    scores
     |> Array.groupBy snd
     |> Seq.map (fun (group, elems) -> group, elems.Length)
     |> Seq.sortBy fst
-    |> Seq.fold (fun acc (division, notes) ->
+    |> Seq.fold (fun acc (score, notes) ->
         let low =
             match List.tryHead acc with
             | None ->
@@ -110,6 +120,6 @@ let createDivisionMap (divisions: (int * BeatDivision) array) totalNotes =
 
         let high = low + (float notes / float totalNotes)
 
-        (division, { Low = low; High = high }) :: acc
+        (score, { Low = low; High = high }) :: acc
     ) []
     |> readOnlyDict

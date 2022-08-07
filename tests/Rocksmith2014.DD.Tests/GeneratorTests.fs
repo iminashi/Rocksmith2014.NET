@@ -14,7 +14,11 @@ let arrangement (levels: Level seq) (chordTemplates: ChordTemplate seq) =
         Phrase("riff", 0uy, PhraseMask.None)
         Phrase("END", 0uy, PhraseMask.None) })
 
-    let iterations = ResizeArray(seq { PhraseIteration(0, 0); PhraseIteration(5000, 1); PhraseIteration(9000, 2) })
+    let iterations = ResizeArray(seq {
+        PhraseIteration(0, 0)
+        PhraseIteration(5000, 1)
+        PhraseIteration(9000, 2) })
+
     let metadata = MetaData(SongLength = 10_000)
 
     InstrumentalArrangement(

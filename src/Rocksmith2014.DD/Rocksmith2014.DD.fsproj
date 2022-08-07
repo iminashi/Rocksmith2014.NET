@@ -21,7 +21,7 @@
     <Compile Include="Utils.fs" />
     <Compile Include="Comparers.fs" />
     <Compile Include="DataExtractor.fs" />
-    <Compile Include="BeatDivider.fs" />
+    <Compile Include="NoteScorer.fs" />
     <Compile Include="LevelCounter.fs" />
     <Compile Include="AnchorChooser.fs" />
     <Compile Include="HandShapeChooser.fs" />
