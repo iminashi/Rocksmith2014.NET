@@ -72,7 +72,7 @@ let private getTechniquePenalties (entity: XmlEntity) =
     else
         0
 
-let getScore (phraseData: PhraseData) (time: int) (entity: XmlEntity) : NoteScore =
+let getScore (phraseData: PhraseData) (time: NoteTime) (entity: XmlEntity) : NoteScore =
     let { StartTime = phraseStartTime; EndTime = phraseEndTime; Beats = beats } = phraseData
 
     let beat1 =
@@ -105,7 +105,7 @@ let getScore (phraseData: PhraseData) (time: int) (entity: XmlEntity) : NoteScor
           // The note comes after the last beat in the phrase
           10 * getSubdivision b1.Time phraseEndTime time
 
-let createScoreMap (scores: (int * NoteScore) array) totalNotes =
+let createScoreMap (scores: (NoteTime * NoteScore) array) totalNotes =
     scores
     |> Array.groupBy snd
     |> Seq.map (fun (group, elems) -> group, elems.Length)

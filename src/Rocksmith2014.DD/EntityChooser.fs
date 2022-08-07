@@ -187,7 +187,7 @@ let private noteFromChord
 
 let choose (diffPercent: float)
            (divisionMap: ScoreMap)
-           (noteTimeToScore: IReadOnlyDictionary<int, NoteScore>)
+           (noteTimeToScore: IReadOnlyDictionary<NoteTime, NoteScore>)
            (notesWithScore: IReadOnlyDictionary<NoteScore, int>)
            (templates: ResizeArray<ChordTemplate>)
            (handShapes: HandShape list)

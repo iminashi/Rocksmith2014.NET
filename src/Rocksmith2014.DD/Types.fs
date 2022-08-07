@@ -28,5 +28,6 @@ type GeneratorConfig =
 type internal DifficultyRange = { Low: float; High: float }
 
 type internal NoteScore = int
+type internal NoteTime = int
 
 type internal ScoreMap = IReadOnlyDictionary<NoteScore, DifficultyRange>
