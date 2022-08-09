@@ -7,18 +7,22 @@ open EOFTypes
 let getClosestBeat (beats: Ebeat array) (time: int) =
     let index =
         beats
-        |> Array.findIndexBack (fun b -> b.Time <= time)
+        |> Array.tryFindIndexBack (fun b -> b.Time <= time)
 
-    let next = beats |> Array.tryItem (index + 1)
+    let next =
+        index
+        |> Option.bind (fun i -> beats |> Array.tryItem (i + 1))
 
-    match next with
-    | Some nextBeat ->
+    match index, next with
+    | Some index, Some nextBeat ->
         if abs (time - beats[index].Time) < abs (time - nextBeat.Time) then
             index
         else
             index + 1
-    | None ->
+    | Some index, None ->
         index
+    | _ ->
+        0
 
 let createEOFEvents (inst: InstrumentalArrangement) =
     let beats = inst.Ebeats.ToArray()

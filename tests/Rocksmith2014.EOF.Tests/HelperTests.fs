@@ -57,4 +57,31 @@ let tests =
             ]
             Expect.sequenceEqual timeSignatures expected "Parse results were correct"
         }
+
+        test "Closest beat is found correctly" {
+            let beats = [|
+                Ebeat(4000, -1s)
+                Ebeat(5100, -1s)
+                Ebeat(6400, -1s)
+                Ebeat(7000, -1s)
+            |]
+            let times = [
+                3900
+                4100
+                4800
+                6750
+                8000
+            ]
+
+            let closestBeatNumbers = times |> List.map (getClosestBeat beats)
+
+            let expected = [
+                0
+                0
+                1
+                3
+                3
+            ]
+            Expect.sequenceEqual closestBeatNumbers expected "Closest beats are correct"
+        }
     ]
