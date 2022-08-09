@@ -62,6 +62,7 @@ let writeVocalsTrack (name: string) (vocalSeq: Vocal seq) =
         // MIDI tone
         5y
 
+        // Vocals
         vocals.Length
         for v in vocals do yield! writeVocal v
 

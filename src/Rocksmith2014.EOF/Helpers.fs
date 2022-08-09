@@ -74,7 +74,12 @@ let createEOFEvents (inst: InstrumentalArrangement) =
 let tryParseTimeSignature (text: string) =
     let m = Regex.Match(text, "TS:(\d+)/(\d+)")
     if m.Success then
-        Some (m.Groups[1].Value |> uint, m.Groups[2].Value |> uint)
+        let n = m.Groups[1].Value |> uint
+        let d = m.Groups[2].Value |> uint
+        if n <> 0u && d <> 0u then
+            Some (n, d)
+        else
+            None
     else
         None
 

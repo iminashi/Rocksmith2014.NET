@@ -4,7 +4,7 @@ open Rocksmith2014.XML
 open EOFTypes
 open BinaryFileWriter
 
-let [<Literal>] anchoredFlag = 1u
+let [<Literal>] AnchoredFlag = 1u
 
 let private tsFlagGetter (tsEvents: (int * EOFTimeSignature) list) =
     let tsMap = tsEvents |> readOnlyDict
@@ -51,7 +51,7 @@ let writeBeat
         // Position
         beat.Time
         // Flags
-        anchoredFlag ||| eventFlag ||| tsFlag
+        AnchoredFlag ||| eventFlag ||| tsFlag
         // Key signature
         0y
     }

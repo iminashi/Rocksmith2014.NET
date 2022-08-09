@@ -34,4 +34,27 @@ let tests =
             }
             Expect.sequenceEqual timeSignatures expected "Beat counts and times are correct"
         }
+
+        test "Time signatures are parsed from event string correctly" {
+            let tsStrings = [
+                "TS:4/4"
+                "TS:5/4"
+                "TS:6-8"
+                "TS:-1/4"
+                "TS:0/2"
+                "TS:2/0"
+            ]
+
+            let timeSignatures = tsStrings |> List.map tryParseTimeSignature
+
+            let expected = [
+                Some (4u, 4u)
+                Some (5u, 4u)
+                None
+                None
+                None
+                None
+            ]
+            Expect.sequenceEqual timeSignatures expected "Parse results were correct"
+        }
     ]
