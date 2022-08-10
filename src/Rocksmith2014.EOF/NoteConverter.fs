@@ -33,6 +33,10 @@ let getNoteFlags (note: Note) =
 
         if note.IsIgnore then EOFNoteFlag.EXTENDED_FLAGS
 
+        if note.IsBend then
+            EOFNoteFlag.RS_NOTATION
+            EOFNoteFlag.BEND
+
         if note.IsSlide then
             EOFNoteFlag.RS_NOTATION
             if note.SlideTo > note.Fret then
@@ -73,7 +77,7 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
                 Flags = getNoteFlags note
 
                 SlideEndFret = if note.IsSlide then ValueSome (byte note.SlideTo) else ValueNone
-                BendStrength = ValueNone
+                BendStrength = if note.IsBend then ValueSome (byte note.MaxBend) else ValueNone // TODO correct conversion
                 UnpitchedSlideEndFret = if note.IsUnpitchedSlide then ValueSome (byte note.SlideUnpitchTo) else ValueNone
                 ExtendedNoteFlags = getExtendedNoteFlags note
             }
