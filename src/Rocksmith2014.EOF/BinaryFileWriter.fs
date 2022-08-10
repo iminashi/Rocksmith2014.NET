@@ -25,7 +25,7 @@ type BinaryFileWriterBuilder () =
 
     member inline _.YieldFrom (f: Writer) = f
 
-    //member inline _.Zero() = ignore
+    member inline _.Zero() = ignore
 
     member _.Combine (f, g) = fun (b: BinaryWriter) -> f b; g b
 

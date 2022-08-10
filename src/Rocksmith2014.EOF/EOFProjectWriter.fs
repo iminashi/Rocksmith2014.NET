@@ -38,6 +38,7 @@ let writeEvents (events: (int * EOFEvent) array) =
             // associated_beat_number_or_position
             e.BeatNumber
             // associated_track_number
+            // TODO
             0us
             // Flags
             e.Flag

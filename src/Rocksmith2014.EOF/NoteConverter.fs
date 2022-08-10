@@ -19,6 +19,19 @@ let getNoteFlags (note: Note) =
     flags {
         if note.IsUnpitchedSlide then EOFNoteFlag.UNPITCH_SLIDE
         if note.IsFretHandMute then EOFNoteFlag.STRING_MUTE
+        if note.IsPalmMute then EOFNoteFlag.PALM_MUTE
+        if note.IsHarmonic then EOFNoteFlag.HARMONIC
+        if note.IsPinchHarmonic then EOFNoteFlag.P_HARMONIC
+        if note.IsHammerOn then EOFNoteFlag.HO
+        if note.IsPullOff then EOFNoteFlag.PO
+        if note.IsTap then EOFNoteFlag.TAP
+        if note.IsVibrato then EOFNoteFlag.VIBRATO
+        if note.IsSlap then EOFNoteFlag.SLAP
+        if note.IsPluck then EOFNoteFlag.POP
+        if note.IsLinkNext then EOFNoteFlag.LINKNEXT
+        if note.IsAccent then EOFNoteFlag.ACCENT
+
+        if note.IsIgnore then EOFNoteFlag.EXTENDED_FLAGS
 
         if note.IsSlide then
             EOFNoteFlag.RS_NOTATION
@@ -26,6 +39,11 @@ let getNoteFlags (note: Note) =
                 EOFNoteFlag.SLIDE_UP
             else
                 EOFNoteFlag.SLIDE_DOWN
+    }
+
+let getExtendedNoteFlags (note: Note) =
+    flags {
+        if note.IsIgnore then EOFExtendedNoteFlag.IGNORE
     }
 
 let convertNotes (inst: InstrumentalArrangement) (level: Level) =
@@ -39,10 +57,8 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
             // TODO: Combine 'split' chords
             let bitFlag = getBitFlag note.String
             let frets =
-                let f =
-                    if note.IsFretHandMute then 128uy ||| byte note.Fret else byte note.Fret
-
-                Array.singleton f
+                if note.IsFretHandMute then 128uy ||| byte note.Fret else byte note.Fret
+                |> Array.singleton
 
             {
                 ChordName = String.Empty
@@ -59,7 +75,7 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
                 SlideEndFret = if note.IsSlide then ValueSome (byte note.SlideTo) else ValueNone
                 BendStrength = ValueNone
                 UnpitchedSlideEndFret = if note.IsUnpitchedSlide then ValueSome (byte note.SlideUnpitchTo) else ValueNone
-                ExtendedNoteFlags = 0u
+                ExtendedNoteFlags = getExtendedNoteFlags note
             }
         | XmlChord chord ->
             {
@@ -77,6 +93,6 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
                 SlideEndFret = ValueNone
                 BendStrength = ValueNone
                 UnpitchedSlideEndFret = ValueNone
-                ExtendedNoteFlags = 0u
+                ExtendedNoteFlags = EOFExtendedNoteFlag.ZERO
             }
     )

@@ -43,30 +43,41 @@ type IniString =
       Value: string }
 
 type EOFNoteFlag =
-     | ZERO          = 0u
-     | ACCENT        = 32u
-     | P_HARMONIC    = 64u
-     | LINKNEXT      = 128u
-     | UNPITCH_SLIDE = 256u
-     | HO            = 512u
-     | PO            = 1024u
-     | TAP           = 2048u
-     | SLIDE_UP      = 4096u
-     | SLIDE_DOWN    = 8192u
-     | STRING_MUTE   = 16384u
-     | PALM_MUTE     = 32768u
-     | UP_STRUM      = 262144u
-     | DOWN_STRUM    = 524288u
-     | MID_STRUM     = 1048576u
-     | BEND          = 2097152u
-     | HARMONIC      = 4194304u
-     | SLIDE_REVERSE = 8388608u
-     | VIBRATO       = 16777216u
-     | RS_NOTATION   = 33554432u
-     | POP           = 67108864u
-     | SLAP          = 134217728u
-     | HD            = 268435456u
-     | SPLIT         = 536870912u
+     | ZERO           = 0u
+     | ACCENT         = 32u
+     | P_HARMONIC     = 64u
+     | LINKNEXT       = 128u
+     | UNPITCH_SLIDE  = 256u
+     | HO             = 512u
+     | PO             = 1024u
+     | TAP            = 2048u
+     | SLIDE_UP       = 4096u
+     | SLIDE_DOWN     = 8192u
+     | STRING_MUTE    = 16384u
+     | PALM_MUTE      = 32768u
+   //| UP_STRUM       = 262144u
+   //| DOWN_STRUM     = 524288u
+   //| MID_STRUM      = 1048576u
+     | BEND           = 2097152u
+     | HARMONIC       = 4194304u
+   //| SLIDE_REVERSE  = 8388608u
+     | VIBRATO        = 16777216u
+     | RS_NOTATION    = 33554432u
+     | POP            = 67108864u
+     | SLAP           = 134217728u
+   //| HD             = 268435456u
+     | SPLIT          = 536870912u
+     | EXTENDED_FLAGS = 2147483648u
+
+type EOFExtendedNoteFlag =
+    | ZERO       = 0u
+    | IGNORE     = 1u
+    | SUSTAIN    = 2u
+    | STOP       = 4u
+    | GHOST_HS   = 8u
+    | CHORDIFY   = 16u
+    | FINGERLESS = 32u
+    | PRE_BEND   = 64u
 
 type EOFNote =
     {
@@ -85,5 +96,5 @@ type EOFNote =
         BendStrength: byte voption
         UnpitchedSlideEndFret: byte voption
         //[4 bytes:] Extended note flags (if the MSB of the note flags field is set, another 4 byte flag field follows, and if its MSB is set, another 4 byte flag field, etc)
-        ExtendedNoteFlags: uint
+        ExtendedNoteFlags: EOFExtendedNoteFlag
     }

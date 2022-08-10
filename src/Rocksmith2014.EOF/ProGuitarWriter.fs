@@ -40,6 +40,7 @@ let writeNote (note: EOFNote) =
         note.SlideEndFret
         note.BendStrength
         note.UnpitchedSlideEndFret
+        if note.ExtendedNoteFlags <> EOFExtendedNoteFlag.ZERO then note.ExtendedNoteFlags |> uint
     }
 
 let customDataBlock (blockId: int) (data: byte array) =
@@ -54,9 +55,7 @@ let writeProTrack (inst: InstrumentalArrangement) =
     let notes = convertNotes inst inst.Levels[0]
     let fingeringData =
         notes
-        |> Array.map (fun _ -> 0uy
-            
-        )
+        |> Array.map (fun _ -> 0uy)
 
     binaryWriter {
         "PART REAL_GUITAR"
