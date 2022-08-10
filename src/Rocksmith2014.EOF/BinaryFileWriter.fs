@@ -21,8 +21,11 @@ type BinaryFileWriterBuilder () =
     member inline _.Yield (i: uint32) = fun (b: BinaryWriter) -> b.Write(i)
     member inline _.Yield (i: int32) = fun (b: BinaryWriter) -> b.Write(i)
     member inline _.Yield (i: int64) = fun (b: BinaryWriter) -> b.Write(i)
+    member inline _.Yield (i: byte voption) = fun (b: BinaryWriter) -> i |> ValueOption.iter b.Write
 
     member inline _.YieldFrom (f: Writer) = f
+
+    //member inline _.Zero() = ignore
 
     member _.Combine (f, g) = fun (b: BinaryWriter) -> f b; g b
 

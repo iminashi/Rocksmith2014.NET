@@ -7,6 +7,7 @@ open Helpers
 open IniWriters
 open BeatWriter
 open VocalsWriter
+open ProGuitarWriter
 open System
 
 let writeOggProfiles (delay: int) =
@@ -46,60 +47,6 @@ let writeEvents (events: (int * EOFEvent) array) =
 let customData =
     binaryWriter {
         0u // number int
-    }
-
-let writeEmptyProGuitarTrack (name: string) =
-    binaryWriter {
-        name
-        4uy // format
-        5uy // behaviour
-        9uy // type
-        -1y // difficulty level
-        4u // flags
-        0us // compliance flags
-
-        24uy // highest fret
-        let strings = if name.Contains("BASS") then 4uy else 6uy
-        strings // strings
-        Array.replicate (int strings) 0uy // tuning
-
-        0u // notes
-        0us // number of sections
-        0u // custom data blocks
-    }
-
-let writeProTrack (_inst: InstrumentalArrangement) =
-    binaryWriter {
-        "arr_lead"
-        4uy // format
-        5uy // behaviour
-        9uy // type
-        -1y // difficulty level
-        4u // flags
-        0us // compliance flags
-
-        24uy // highest fret
-        6uy // strings
-        Array.replicate 6 0uy // tuning
-
-        0u // notes
-        //writeString writer "" // chord name
-        //writer.Write(0y)
-        //writer.Write(0b00000001y)
-        //writer.Write(0y)
-        //writer.Write(5y) // frets
-        //writer.Write(0y)
-        //writer.Write(4500)
-        //writer.Write(497)
-        //writer.Write(0) // flags
-
-        0us // number of sections
-
-        0u // custom data blocks
-
-        //writer.Write(5) // size
-        //writer.Write(2) // ID
-        //writer.Write(0y) // data
     }
 
 let writeDummyLegacyTack (name: string, behavior: byte, type': byte, lanes: byte) =
@@ -154,7 +101,7 @@ let writeTracks (tracks: EOFTrack list) =
                 yield! writeEmptyProGuitarTrack name
     }
 
-let tracks vocals =
+let tracks testArr vocals =
     [
         Legacy ("PART GUITAR", 1uy, 1uy, 5uy)
         Legacy ("PART BASS", 1uy, 2uy, 5uy)
@@ -164,7 +111,7 @@ let tracks vocals =
         Vocals ("PART VOCALS", vocals)
         Legacy ("PART KEYS", 4uy, 7uy, 5uy)
         ProGuitar (EmptyTrack "PART REAL_BASS")
-        ProGuitar (EmptyTrack "PART REAL_GUITAR")
+        ProGuitar (ExistingTrack testArr)
         Legacy ("PART DANCE", 7uy, 10uy, 4uy)
         ProGuitar (EmptyTrack "PART REAL_BASS_22")
         ProGuitar (EmptyTrack "PART REAL_GUITAR_22")
@@ -224,6 +171,6 @@ let writeEofProject (path: string) (inst: InstrumentalArrangement) (vocals: Voca
         yield! writeBeats inst events tsEvents
         yield! writeEvents events
         yield! customData
-        yield! writeTracks (tracks vocals)
+        yield! writeTracks (tracks inst vocals)
     }
     |> toFile path
