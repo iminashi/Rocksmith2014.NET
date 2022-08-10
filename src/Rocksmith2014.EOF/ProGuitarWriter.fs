@@ -55,7 +55,7 @@ let writeProTrack (inst: InstrumentalArrangement) =
     let notes = convertNotes inst inst.Levels[0]
     let fingeringData =
         notes
-        |> Array.map (fun _ -> 0uy)
+        |> Array.collect (fun n -> n.Frets |> Array.map (fun _ -> 0uy))
 
     binaryWriter {
         "PART REAL_GUITAR"

@@ -44,6 +44,9 @@ type IniString =
 
 type EOFNoteFlag =
      | ZERO           = 0u
+     | HOPO           = 1u
+     | CRAZY          = 4u
+     | F_HOPO         = 8u // Manually defines the note as being HOPO
      | ACCENT         = 32u
      | P_HARMONIC     = 64u
      | LINKNEXT       = 128u

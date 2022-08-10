@@ -24,6 +24,9 @@ let getNoteFlags (note: Note) =
         if note.IsPinchHarmonic then EOFNoteFlag.P_HARMONIC
         if note.IsHammerOn then EOFNoteFlag.HO
         if note.IsPullOff then EOFNoteFlag.PO
+        if note.IsHopo then
+            EOFNoteFlag.HOPO
+            EOFNoteFlag.F_HOPO
         if note.IsTap then EOFNoteFlag.TAP
         if note.IsVibrato then EOFNoteFlag.VIBRATO
         if note.IsSlap then EOFNoteFlag.SLAP
@@ -59,7 +62,6 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
         match noteOrChord with
         | XmlNote note ->
             // TODO: Combine 'split' chords
-            let bitFlag = getBitFlag note.String
             let frets =
                 if note.IsFretHandMute then 128uy ||| byte note.Fret else byte note.Fret
                 |> Array.singleton
@@ -68,7 +70,7 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
                 ChordName = String.Empty
                 ChordNumber = 0uy
                 NoteType = 0uy
-                BitFlag = bitFlag
+                BitFlag = getBitFlag note.String
                 GhostBitFlag = 0uy
                 Frets = frets
                 LegacyBitFlags = 0uy
@@ -82,13 +84,23 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
                 ExtendedNoteFlags = getExtendedNoteFlags note
             }
         | XmlChord chord ->
+            let template = chordTemplates[int chord.ChordId]
+            let bitFlag =
+                template.Frets
+                |> Array.indexed
+                |> Array.fold (fun acc (string, fret) ->
+                    if fret > -1y then
+                        acc ||| getBitFlag (sbyte string)
+                    else
+                        acc) 0uy
+
             {
-                ChordName = chordTemplates[int chord.ChordId].Name
+                ChordName = template.Name
                 ChordNumber = 0uy
                 NoteType = 0uy
-                BitFlag = 0uy
+                BitFlag = bitFlag
                 GhostBitFlag = 0uy
-                Frets = Array.empty
+                Frets = template.Frets |> Array.filter (fun x -> x > -1y) |> Array.map byte
                 LegacyBitFlags = 0uy
                 Position = chord.Time |> uint
                 Length = 0u
