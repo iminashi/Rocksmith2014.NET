@@ -52,10 +52,13 @@ let customDataBlock (blockId: int) (data: byte array) =
     }
 
 let writeProTrack (inst: InstrumentalArrangement) =
-    let notes = convertNotes inst inst.Levels[0]
+    let notes, fingeringData =
+        convertNotes inst inst.Levels[0]
+        |> Array.unzip
+
     let fingeringData =
-        notes
-        |> Array.collect (fun n -> n.Frets |> Array.map (fun _ -> 0uy))
+        fingeringData
+        |> Array.collect id
 
     binaryWriter {
         "PART REAL_GUITAR"

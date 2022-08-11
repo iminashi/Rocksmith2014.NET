@@ -8,7 +8,7 @@ let inline getBitFlag (string: sbyte) = 1uy <<< (int string)
 
 type FlagBuilder () =
     member inline _.Yield(f) = f
-    member inline _.Zero() = LanguagePrimitives.EnumOfValue(0u)
+    member inline _.Zero() = LanguagePrimitives.EnumOfValue(LanguagePrimitives.GenericZero)
     member inline _.Combine(f1, f2) = f1 ||| f2
     member inline _.Delay(f) = f()
 
@@ -54,6 +54,8 @@ let getExtendedNoteFlags wasChord (notes: Note array) =
             EOFExtendedNoteFlag.SUSTAIN
     }
 
+type ChordData = { Template: ChordTemplate; Fingering: byte array }
+
 let createNoteArray (inst: InstrumentalArrangement) (level: Level) =
     let notes =
         level.Notes.ToArray()
@@ -63,8 +65,45 @@ let createNoteArray (inst: InstrumentalArrangement) (level: Level) =
     let chords =
         level.Chords.ToArray()
         |> Array.map (fun c ->
-            // TODO: create note array for repeat strums
-            Some inst.ChordTemplates[int c.ChordId], c.ChordNotes.ToArray())
+            let template = inst.ChordTemplates[int c.ChordId]
+            let notes =
+                if c.HasChordNotes then
+                    c.ChordNotes.ToArray()
+                else
+                    template.Frets
+                    |> Array.choosei (fun stringIndex fret ->
+                        if fret < 0y then
+                            None
+                        else
+                            let mask =
+                                flags {
+                                    if c.IsAccent then NoteMask.Accent
+                                    if c.IsFretHandMute then NoteMask.FretHandMute
+                                    if c.IsPalmMute then NoteMask.PalmMute
+                                    if c.IsIgnore then NoteMask.Ignore
+                                }
+
+                            Note(
+                                Time = c.Time,
+                                String = sbyte stringIndex,
+                                Fret = fret,
+                                Mask = mask
+                            )
+                            |> Some
+                    )
+
+            let chordData =
+                let fingering =
+                    notes
+                    |> Array.map (fun n ->
+                        match template.Fingers[int n.String] with
+                        | 0y -> 5uy // Thumb
+                        | f when f < 0y -> 0uy
+                        | f -> byte f)
+
+                { Template = template; Fingering = fingering }
+
+            Some chordData, notes)
 
     let combined = Array.append chords notes
 
@@ -77,12 +116,12 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
     let noteGroups = createNoteArray inst level
 
     noteGroups
-    |> Array.map (fun (templateOpt, notes) ->
+    |> Array.map (fun (chordOpt, notes) ->
         let bitFlag =
             notes
             |> Array.fold (fun acc n -> acc ||| getBitFlag (sbyte n.String)) 0uy
 
-        let extendedFlags = getExtendedNoteFlags templateOpt.IsSome notes
+        let extendedFlags = getExtendedNoteFlags chordOpt.IsSome notes
 
         let exFlag =
             if extendedFlags <> EOFExtendedNoteFlag.ZERO then
@@ -91,7 +130,7 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
                 EOFNoteFlag.ZERO
 
         let splitFlag =
-            if templateOpt.IsNone && notes.Length > 1 then
+            if chordOpt.IsNone && notes.Length > 1 then
                 EOFNoteFlag.SPLIT
             else
                 EOFNoteFlag.ZERO
@@ -121,7 +160,7 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
                 ValueNone
 
         {
-            ChordName = templateOpt |> Option.map (fun x -> x.Name) |> Option.defaultValue String.Empty
+            ChordName = chordOpt |> Option.map (fun x -> x.Template.Name) |> Option.defaultValue String.Empty
             ChordNumber = 0uy
             NoteType = 0uy
             BitFlag = bitFlag
@@ -136,5 +175,9 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
             BendStrength = ValueNone
             UnpitchedSlideEndFret = unpitchedSlide
             ExtendedNoteFlags = extendedFlags
-        }
+        },
+        chordOpt
+        |> Option.map (fun x -> x.Fingering)
+        // TODO: fingering for split chord with handshape defined?
+        |> Option.defaultWith (fun () -> Array.replicate notes.Length 0uy)
     )
