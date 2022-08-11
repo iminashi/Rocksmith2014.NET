@@ -52,13 +52,49 @@ let customDataBlock (blockId: uint) (data: byte array) =
         data
     }
 
+[<return: Struct>]
+let (|Combinable|_|) (a: EOFNote) (b: EOFNote) =
+    if a.Position = b.Position
+        && a.BendStrength = b.BendStrength
+        && a.SlideEndFret = b.SlideEndFret
+        && a.UnpitchedSlideEndFret = b.UnpitchedSlideEndFret
+        && a.Flags = b.Flags
+        && a.ExtendedNoteFlags = b.ExtendedNoteFlags
+    then
+        ValueSome b
+    else
+        ValueNone
+
+let combineTechNotes (techNotes: EOFNote array) =
+    let folder current acc =
+        match acc with
+        | (Combinable current prev) :: tail ->
+            let combined =
+                { current with
+                    BitFlag = current.BitFlag ||| prev.BitFlag
+                    Frets = current.Frets |> Array.append prev.Frets
+                    ExtendedNoteFlags = current.ExtendedNoteFlags ||| prev.ExtendedNoteFlags }
+            combined :: tail
+        | [] ->
+            [ current ]
+        | _ ->
+            current :: acc
+
+    techNotes
+    |> Seq.sortBy (fun x -> x.Position)
+    |> fun s -> Seq.foldBack folder s []
+    |> List.toArray
+
 let writeProTrack (inst: InstrumentalArrangement) =
     let notes, fingeringData, techNotes =
         convertNotes inst inst.Levels[0]
         |> Array.unzip3
 
     let fingeringData = fingeringData |> Array.concat
-    let techNotes = techNotes |> Array.concat
+    let techNotes =
+        techNotes
+        |> Array.concat
+        |> combineTechNotes
 
     let techNotesData =
         use m = new MemoryStream()

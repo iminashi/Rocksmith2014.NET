@@ -14,7 +14,7 @@ type FlagBuilder () =
 
 let flags = FlagBuilder()
 
-let getNoteFlags (note: Note) =
+let getNoteFlags (extFlag: EOFExtendedNoteFlag) (note: Note) =
     flags {
         if note.IsUnpitchedSlide then EOFNoteFlag.UNPITCH_SLIDE
         if note.IsFretHandMute then EOFNoteFlag.STRING_MUTE
@@ -32,6 +32,7 @@ let getNoteFlags (note: Note) =
         if note.IsPluck then EOFNoteFlag.POP
         if note.IsLinkNext then EOFNoteFlag.LINKNEXT
         if note.IsAccent then EOFNoteFlag.ACCENT
+        if note.IsTremolo then EOFNoteFlag.TREMOLO
 
         if note.IsSlide then
             EOFNoteFlag.RS_NOTATION
@@ -39,18 +40,40 @@ let getNoteFlags (note: Note) =
                 EOFNoteFlag.SLIDE_UP
             else
                 EOFNoteFlag.SLIDE_DOWN
+
+        if extFlag <> EOFExtendedNoteFlag.ZERO then
+            EOFNoteFlag.EXTENDED_FLAGS
     }
 
-let getExtendedNoteFlags wasChord (notes: Note array) =
+let getExtendedNoteFlags wasChord (note: Note) =
     flags {
-        if notes |> Array.forall (fun n -> n.IsIgnore) then
-            EOFExtendedNoteFlag.IGNORE
-
-        if wasChord && notes[0].Sustain > 0 then
-            EOFExtendedNoteFlag.SUSTAIN
+        if note.IsIgnore then EOFExtendedNoteFlag.IGNORE
+        if wasChord && note.Sustain > 0 then EOFExtendedNoteFlag.SUSTAIN
     }
 
 type ChordData = { Template: ChordTemplate; Fingering: byte array }
+
+let notesFromTemplate (c: Chord) (template: ChordTemplate) =
+    template.Frets
+    |> Array.choosei (fun stringIndex fret ->
+        if fret < 0y then
+            None
+        else
+            let mask =
+                flags {
+                    if c.IsAccent then NoteMask.Accent
+                    if c.IsFretHandMute then NoteMask.FretHandMute
+                    if c.IsPalmMute then NoteMask.PalmMute
+                    if c.IsIgnore then NoteMask.Ignore
+                }
+
+            Note(
+                Time = c.Time,
+                String = sbyte stringIndex,
+                Fret = fret,
+                Mask = mask
+            )
+            |> Some)
 
 let createNoteArray (inst: InstrumentalArrangement) (level: Level) =
     let notes =
@@ -66,27 +89,7 @@ let createNoteArray (inst: InstrumentalArrangement) (level: Level) =
                 if c.HasChordNotes then
                     c.ChordNotes.ToArray()
                 else
-                    template.Frets
-                    |> Array.choosei (fun stringIndex fret ->
-                        if fret < 0y then
-                            None
-                        else
-                            let mask =
-                                flags {
-                                    if c.IsAccent then NoteMask.Accent
-                                    if c.IsFretHandMute then NoteMask.FretHandMute
-                                    if c.IsPalmMute then NoteMask.PalmMute
-                                    if c.IsIgnore then NoteMask.Ignore
-                                }
-
-                            Note(
-                                Time = c.Time,
-                                String = sbyte stringIndex,
-                                Fret = fret,
-                                Mask = mask
-                            )
-                            |> Some
-                    )
+                    notesFromTemplate c template
 
             let chordData =
                 let fingering =
@@ -108,6 +111,13 @@ let createNoteArray (inst: InstrumentalArrangement) (level: Level) =
 
     combined
 
+let convertBendValue (step: float32) =
+    let isQuarter = ceil step <> step
+    if isQuarter then
+        byte (step * 2.f) ||| 128uy
+    else
+        byte step
+
 let convertNotes (inst: InstrumentalArrangement) (level: Level) =
     let noteGroups = createNoteArray inst level
 
@@ -117,13 +127,8 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
             notes
             |> Array.map (fun n -> getBitFlag (sbyte n.String))
 
-        let extendedFlags = getExtendedNoteFlags chordOpt.IsSome notes
-
-        let exFlag =
-            if extendedFlags <> EOFExtendedNoteFlag.ZERO then
-                EOFNoteFlag.EXTENDED_FLAGS
-             else
-                EOFNoteFlag.ZERO
+        let extendedNoteFlags = notes |> Array.map (getExtendedNoteFlags chordOpt.IsSome)
+        let commonExtendedNoteFlags = extendedNoteFlags |> Array.reduce (&&&)
 
         let splitFlag =
             if chordOpt.IsNone && notes.Length > 1 then
@@ -131,7 +136,7 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
             else
                 EOFNoteFlag.ZERO
 
-        let noteFlags = notes |> Array.map getNoteFlags
+        let noteFlags = notes |> Array.mapi (fun i n -> getNoteFlags extendedNoteFlags[i] n)
         let commonFlags = noteFlags |> Array.reduce (&&&)
 
         let frets =
@@ -155,17 +160,26 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
         let techNotes =
             noteFlags
             |> Array.choosei (fun i flag ->
-                if flag &&& commonFlags = flag then
+                let extFlag = extendedNoteFlags[i]
+                if (flag &&& commonFlags = flag) && (extFlag &&& commonExtendedNoteFlags = extFlag) then
                     None
                 else
+                    let n = notes[i]
                     { EOFNote.Empty with
                         BitFlag = bitFlags[i]
-                        Position = notes[0].Time |> uint // TODO
-                        Flags = flag
-                        // TODO
-                        //SlideEndFret = ValueNone
-                        //UnpitchedSlideEndFret = ValueNone
-                        //ExtendedNoteFlags = EOFExtendedNoteFlag.ZERO
+                        Position = n.Time |> uint
+                        Flags = flag &&& (~~~ commonFlags)
+                        SlideEndFret =
+                            if slide.IsNone && n.IsSlide then
+                                ValueSome (byte n.SlideTo)
+                            else
+                                ValueNone
+                        UnpitchedSlideEndFret =
+                            if unpitchedSlide.IsNone && n.IsUnpitchedSlide then
+                                ValueSome (byte n.SlideUnpitchTo)
+                            else
+                                ValueNone
+                        ExtendedNoteFlags = extFlag &&& (~~~ commonExtendedNoteFlags)
                     }
                     |> Some)
 
@@ -181,7 +195,7 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
                             BitFlag = getBitFlag (sbyte n.String)
                             Position = uint bv.Time
                             Flags = EOFNoteFlag.RS_NOTATION ||| EOFNoteFlag.BEND
-                            BendStrength = ValueSome (byte bv.Step) // TODO
+                            BendStrength = ValueSome (convertBendValue bv.Step)
                         }
                     )
             )
@@ -199,10 +213,10 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
             Frets = frets
             Position = notes[0].Time |> uint
             Length = max (uint notes[0].Sustain) 1u
-            Flags = commonFlags ||| exFlag ||| splitFlag
+            Flags = commonFlags ||| splitFlag
             SlideEndFret = slide
             UnpitchedSlideEndFret = unpitchedSlide
-            ExtendedNoteFlags = extendedFlags
+            ExtendedNoteFlags = commonExtendedNoteFlags
         },
 
         chordOpt

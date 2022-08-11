@@ -60,6 +60,7 @@ type EOFNoteFlag =
      | SLIDE_DOWN     = 8192u
      | STRING_MUTE    = 16384u
      | PALM_MUTE      = 32768u
+     | TREMOLO        = 131072u
    //| UP_STRUM       = 262144u
    //| DOWN_STRUM     = 524288u
    //| MID_STRUM      = 1048576u
