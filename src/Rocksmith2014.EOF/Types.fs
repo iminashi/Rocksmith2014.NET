@@ -1,6 +1,7 @@
 module EOFTypes
 
 open Rocksmith2014.XML
+open System
 
 type ProGuitarTrack =
     | ExistingTrack of InstrumentalArrangement
@@ -42,6 +43,7 @@ type IniString =
     { StringType: IniStringType
       Value: string }
 
+[<Flags>]
 type EOFNoteFlag =
      | ZERO           = 0u
      | HOPO           = 1u
@@ -72,6 +74,7 @@ type EOFNoteFlag =
      | SPLIT          = 536870912u
      | EXTENDED_FLAGS = 2147483648u
 
+[<Flags>]
 type EOFExtendedNoteFlag =
     | ZERO       = 0u
     | IGNORE     = 1u

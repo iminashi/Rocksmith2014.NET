@@ -4,6 +4,7 @@ open Rocksmith2014.XML
 open BinaryFileWriter
 open NoteConverter
 open EOFTypes
+open System.IO
 
 let writeEmptyProGuitarTrack (name: string) =
     binaryWriter {
@@ -43,7 +44,7 @@ let writeNote (note: EOFNote) =
         if note.ExtendedNoteFlags <> EOFExtendedNoteFlag.ZERO then note.ExtendedNoteFlags |> uint
     }
 
-let customDataBlock (blockId: int) (data: byte array) =
+let customDataBlock (blockId: uint) (data: byte array) =
     binaryWriter {
         // Custom data block size (+ 4 bytes for block ID)
         data.Length + 4
@@ -52,13 +53,22 @@ let customDataBlock (blockId: int) (data: byte array) =
     }
 
 let writeProTrack (inst: InstrumentalArrangement) =
-    let notes, fingeringData =
+    let notes, fingeringData, techNotes =
         convertNotes inst inst.Levels[0]
-        |> Array.unzip
+        |> Array.unzip3
 
-    let fingeringData =
-        fingeringData
-        |> Array.collect id
+    let fingeringData = fingeringData |> Array.concat
+    let techNotes = techNotes |> Array.concat
+
+    let techNotesData =
+        use m = new MemoryStream()
+        binaryWriter {
+            if techNotes.Length > 0 then techNotes.Length
+            for tn in techNotes do yield! writeNote tn
+        } |> toStream(m)
+        m.ToArray()
+
+    let writeTechNotes = techNotesData.Length > 0
 
     binaryWriter {
         "PART REAL_GUITAR"
@@ -81,11 +91,15 @@ let writeProTrack (inst: InstrumentalArrangement) =
         0us
 
         // Number of custom data blocks
-        2u
+        if writeTechNotes then 3u else 2u
 
         // ID 2 = Pro guitar finger arrays
-        yield! customDataBlock 2 fingeringData
+        yield! customDataBlock 2u fingeringData
 
         // ID 4 = Pro guitar track tuning not honored
-        yield! customDataBlock 4 (Array.singleton 1uy)
+        yield! customDataBlock 4u (Array.singleton 1uy)
+
+        // ID 7 = Tech notes
+        if writeTechNotes then
+            yield! customDataBlock 7u techNotesData
     }

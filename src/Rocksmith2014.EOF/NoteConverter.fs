@@ -117,9 +117,9 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
 
     noteGroups
     |> Array.map (fun (chordOpt, notes) ->
-        let bitFlag =
+        let bitFlags =
             notes
-            |> Array.fold (fun acc n -> acc ||| getBitFlag (sbyte n.String)) 0uy
+            |> Array.map (fun n -> getBitFlag (sbyte n.String))
 
         let extendedFlags = getExtendedNoteFlags chordOpt.IsSome notes
 
@@ -135,11 +135,8 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
             else
                 EOFNoteFlag.ZERO
 
-        let commonFlags =
-            (LanguagePrimitives.EnumOfValue(~~~ 0u), notes)
-            ||> Seq.fold (fun acc note -> getNoteFlags note &&& acc)
-
-        // TODO: tech notes
+        let noteFlags = notes |> Array.map getNoteFlags
+        let commonFlags = noteFlags |> Array.reduce (&&&)
 
         let frets =
             notes
@@ -159,11 +156,36 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
             else
                 ValueNone
 
+        let techNotes =
+            noteFlags
+            |> Array.choosei (fun i flag ->
+                if flag &&& commonFlags = flag then
+                    None
+                else
+                    {
+                        ChordName = String.Empty
+                        ChordNumber = 0uy
+                        NoteType = 0uy
+                        BitFlag = bitFlags[i]
+                        GhostBitFlag = 0uy
+                        Frets = Array.singleton 0uy
+                        LegacyBitFlags = 0uy
+                        Position = notes[0].Time |> uint
+                        Length = 1u
+                        Flags = flag
+
+                        SlideEndFret = ValueNone
+                        BendStrength = ValueNone
+                        UnpitchedSlideEndFret = ValueNone
+                        ExtendedNoteFlags = EOFExtendedNoteFlag.ZERO
+                    }
+                    |> Some)
+
         {
             ChordName = chordOpt |> Option.map (fun x -> x.Template.Name) |> Option.defaultValue String.Empty
             ChordNumber = 0uy
             NoteType = 0uy
-            BitFlag = bitFlag
+            BitFlag = bitFlags |> Array.reduce (|||)
             GhostBitFlag = 0uy
             Frets = frets
             LegacyBitFlags = 0uy
@@ -179,5 +201,6 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
         chordOpt
         |> Option.map (fun x -> x.Fingering)
         // TODO: fingering for split chord with handshape defined?
-        |> Option.defaultWith (fun () -> Array.replicate notes.Length 0uy)
+        |> Option.defaultWith (fun () -> Array.replicate notes.Length 0uy),
+        techNotes
     )

@@ -6,8 +6,10 @@ open System.Text
 type Writer = BinaryWriter -> unit
  
 let toFile path (f: Writer) = using (new BinaryWriter(File.Create(path))) f
+
+let toStream s (f: Writer) = using (new BinaryWriter(s)) f
  
-type BinaryFileWriterBuilder () =
+type BinaryWriterBuilder () =
     member inline _.Yield (str: string) =
         fun (b: BinaryWriter) ->
             let bytes = Encoding.ASCII.GetBytes(str)
@@ -40,4 +42,4 @@ type BinaryFileWriterBuilder () =
     member _.While (p: unit -> bool, f: Writer) =
         fun (b: BinaryWriter) -> while p () do f b
  
-let binaryWriter = new BinaryFileWriterBuilder ()
+let binaryWriter = new BinaryWriterBuilder ()
