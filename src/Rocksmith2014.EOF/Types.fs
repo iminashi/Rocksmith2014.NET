@@ -104,3 +104,22 @@ type EOFNote =
         //[4 bytes:] Extended note flags (if the MSB of the note flags field is set, another 4 byte flag field follows, and if its MSB is set, another 4 byte flag field, etc)
         ExtendedNoteFlags: EOFExtendedNoteFlag
     }
+
+module EOFNote =
+    let Empty =
+        {
+            ChordName = String.Empty
+            ChordNumber = 0uy
+            NoteType = 0uy
+            BitFlag = 0uy
+            GhostBitFlag = 0uy
+            Frets = Array.singleton 0uy
+            LegacyBitFlags = 0uy
+            Position = 0u
+            Length = 1u
+            Flags = EOFNoteFlag.ZERO
+            SlideEndFret = ValueNone
+            BendStrength = ValueNone
+            UnpitchedSlideEndFret = ValueNone
+            ExtendedNoteFlags = EOFExtendedNoteFlag.ZERO
+        }

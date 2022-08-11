@@ -33,10 +33,6 @@ let getNoteFlags (note: Note) =
         if note.IsLinkNext then EOFNoteFlag.LINKNEXT
         if note.IsAccent then EOFNoteFlag.ACCENT
 
-        if note.IsBend then
-            EOFNoteFlag.RS_NOTATION
-            EOFNoteFlag.BEND
-
         if note.IsSlide then
             EOFNoteFlag.RS_NOTATION
             if note.SlideTo > note.Fret then
@@ -162,45 +158,58 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
                 if flag &&& commonFlags = flag then
                     None
                 else
-                    {
-                        ChordName = String.Empty
-                        ChordNumber = 0uy
-                        NoteType = 0uy
+                    { EOFNote.Empty with
                         BitFlag = bitFlags[i]
-                        GhostBitFlag = 0uy
-                        Frets = Array.singleton 0uy
-                        LegacyBitFlags = 0uy
-                        Position = notes[0].Time |> uint
-                        Length = 1u
+                        Position = notes[0].Time |> uint // TODO
                         Flags = flag
-
-                        SlideEndFret = ValueNone
-                        BendStrength = ValueNone
-                        UnpitchedSlideEndFret = ValueNone
-                        ExtendedNoteFlags = EOFExtendedNoteFlag.ZERO
+                        // TODO
+                        //SlideEndFret = ValueNone
+                        //UnpitchedSlideEndFret = ValueNone
+                        //ExtendedNoteFlags = EOFExtendedNoteFlag.ZERO
                     }
                     |> Some)
 
-        {
-            ChordName = chordOpt |> Option.map (fun x -> x.Template.Name) |> Option.defaultValue String.Empty
-            ChordNumber = 0uy
-            NoteType = 0uy
+        let bendTechNotes =
+            notes
+            |> Array.collect (fun n ->
+                if not n.IsBend then
+                    Array.empty
+                else
+                    n.BendValues.ToArray()
+                    |> Array.map (fun bv ->
+                        { EOFNote.Empty with
+                            BitFlag = getBitFlag (sbyte n.String)
+                            Position = uint bv.Time
+                            Flags = EOFNoteFlag.RS_NOTATION ||| EOFNoteFlag.BEND
+                            BendStrength = ValueSome (byte bv.Step) // TODO
+                        }
+                    )
+            )
+
+        let chordName =
+            chordOpt
+            |> Option.map (fun x -> x.Template.Name)
+            |> Option.defaultValue String.Empty
+
+        { EOFNote.Empty with
+            ChordName = chordName
             BitFlag = bitFlags |> Array.reduce (|||)
-            GhostBitFlag = 0uy
+            // TODO
+            //GhostBitFlag = 0uy
             Frets = frets
-            LegacyBitFlags = 0uy
             Position = notes[0].Time |> uint
             Length = max (uint notes[0].Sustain) 1u
             Flags = commonFlags ||| exFlag ||| splitFlag
-
             SlideEndFret = slide
-            BendStrength = ValueNone
             UnpitchedSlideEndFret = unpitchedSlide
             ExtendedNoteFlags = extendedFlags
         },
+
         chordOpt
         |> Option.map (fun x -> x.Fingering)
         // TODO: fingering for split chord with handshape defined?
         |> Option.defaultWith (fun () -> Array.replicate notes.Length 0uy),
+
         techNotes
+        |> Array.append bendTechNotes
     )
