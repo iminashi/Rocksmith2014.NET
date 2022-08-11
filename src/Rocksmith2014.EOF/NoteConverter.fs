@@ -1,7 +1,6 @@
 module NoteConverter
 
 open Rocksmith2014.XML
-open Rocksmith2014.XML.Extension
 open System
 open EOFTypes
 
@@ -34,8 +33,6 @@ let getNoteFlags (note: Note) =
         if note.IsLinkNext then EOFNoteFlag.LINKNEXT
         if note.IsAccent then EOFNoteFlag.ACCENT
 
-        if note.IsIgnore then EOFNoteFlag.EXTENDED_FLAGS
-
         if note.IsBend then
             EOFNoteFlag.RS_NOTATION
             EOFNoteFlag.BEND
@@ -48,67 +45,96 @@ let getNoteFlags (note: Note) =
                 EOFNoteFlag.SLIDE_DOWN
     }
 
-let getExtendedNoteFlags (note: Note) =
+let getExtendedNoteFlags wasChord (notes: Note array) =
     flags {
-        if note.IsIgnore then EOFExtendedNoteFlag.IGNORE
+        if notes |> Array.forall (fun n -> n.IsIgnore) then
+            EOFExtendedNoteFlag.IGNORE
+
+        if wasChord && notes[0].Sustain > 0 then
+            EOFExtendedNoteFlag.SUSTAIN
     }
 
+let createNoteArray (inst: InstrumentalArrangement) (level: Level) =
+    let notes =
+        level.Notes.ToArray()
+        |> Array.groupBy (fun x -> x.Time)
+        |> Array.map (fun (_, group) -> None, group)
+
+    let chords =
+        level.Chords.ToArray()
+        |> Array.map (fun c ->
+            // TODO: create note array for repeat strums
+            Some inst.ChordTemplates[int c.ChordId], c.ChordNotes.ToArray())
+
+    let combined = Array.append chords notes
+
+    combined
+    |> Array.sortInPlaceBy (fun (_, ns) -> ns[0].Time)
+
+    combined
+
 let convertNotes (inst: InstrumentalArrangement) (level: Level) =
-    let entities = createXmlEntityArrayFromLevel level
-    let chordTemplates = inst.ChordTemplates
+    let noteGroups = createNoteArray inst level
 
-    entities
-    |> Array.map (fun noteOrChord ->
-        match noteOrChord with
-        | XmlNote note ->
-            // TODO: Combine 'split' chords
-            let frets =
-                if note.IsFretHandMute then 128uy ||| byte note.Fret else byte note.Fret
-                |> Array.singleton
+    noteGroups
+    |> Array.map (fun (templateOpt, notes) ->
+        let bitFlag =
+            notes
+            |> Array.fold (fun acc n -> acc ||| getBitFlag (sbyte n.String)) 0uy
 
-            {
-                ChordName = String.Empty
-                ChordNumber = 0uy
-                NoteType = 0uy
-                BitFlag = getBitFlag note.String
-                GhostBitFlag = 0uy
-                Frets = frets
-                LegacyBitFlags = 0uy
-                Position = note.Time |> uint
-                Length = max (uint note.Sustain) 1u
-                Flags = getNoteFlags note
+        let extendedFlags = getExtendedNoteFlags templateOpt.IsSome notes
 
-                SlideEndFret = if note.IsSlide then ValueSome (byte note.SlideTo) else ValueNone
-                BendStrength = if note.IsBend then ValueSome (byte note.MaxBend) else ValueNone // TODO correct conversion
-                UnpitchedSlideEndFret = if note.IsUnpitchedSlide then ValueSome (byte note.SlideUnpitchTo) else ValueNone
-                ExtendedNoteFlags = getExtendedNoteFlags note
-            }
-        | XmlChord chord ->
-            let template = chordTemplates[int chord.ChordId]
-            let bitFlag =
-                template.Frets
-                |> Array.indexed
-                |> Array.fold (fun acc (string, fret) ->
-                    if fret > -1y then
-                        acc ||| getBitFlag (sbyte string)
-                    else
-                        acc) 0uy
+        let exFlag =
+            if extendedFlags <> EOFExtendedNoteFlag.ZERO then
+                EOFNoteFlag.EXTENDED_FLAGS
+             else
+                EOFNoteFlag.ZERO
 
-            {
-                ChordName = template.Name
-                ChordNumber = 0uy
-                NoteType = 0uy
-                BitFlag = bitFlag
-                GhostBitFlag = 0uy
-                Frets = template.Frets |> Array.filter (fun x -> x > -1y) |> Array.map byte
-                LegacyBitFlags = 0uy
-                Position = chord.Time |> uint
-                Length = 0u
-                Flags = EOFNoteFlag.ZERO
+        let splitFlag =
+            if templateOpt.IsNone && notes.Length > 1 then
+                EOFNoteFlag.SPLIT
+            else
+                EOFNoteFlag.ZERO
 
-                SlideEndFret = ValueNone
-                BendStrength = ValueNone
-                UnpitchedSlideEndFret = ValueNone
-                ExtendedNoteFlags = EOFExtendedNoteFlag.ZERO
-            }
+        let commonFlags =
+            (LanguagePrimitives.EnumOfValue(~~~ 0u), notes)
+            ||> Seq.fold (fun acc note -> getNoteFlags note &&& acc)
+
+        // TODO: tech notes
+
+        let frets =
+            notes
+            |> Array.map (fun note -> if note.IsFretHandMute then 128uy ||| byte note.Fret else byte note.Fret)
+
+        let slide =
+            let s1 = notes[0].SlideTo
+            if s1 > 0y && notes |> Array.forall (fun n -> n.SlideTo = s1) then
+                ValueSome (byte s1)
+            else
+                ValueNone
+
+        let unpitchedSlide =
+            let s1 = notes[0].SlideUnpitchTo
+            if s1 > 0y && notes |> Array.forall (fun n -> n.SlideUnpitchTo = s1) then
+                ValueSome (byte s1)
+            else
+                ValueNone
+
+        {
+            ChordName = templateOpt |> Option.map (fun x -> x.Name) |> Option.defaultValue String.Empty
+            ChordNumber = 0uy
+            NoteType = 0uy
+            BitFlag = bitFlag
+            GhostBitFlag = 0uy
+            Frets = frets
+            LegacyBitFlags = 0uy
+            Position = notes[0].Time |> uint
+            Length = max (uint notes[0].Sustain) 1u
+            Flags = commonFlags ||| exFlag ||| splitFlag
+
+            SlideEndFret = slide
+            BendStrength = ValueNone
+            UnpitchedSlideEndFret = unpitchedSlide
+            ExtendedNoteFlags = extendedFlags
+        }
     )

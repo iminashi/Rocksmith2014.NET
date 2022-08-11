@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Rocksmith2014.FSharpExtensions\Rocksmith2014.FSharpExtensions.fsproj" />
-    <ProjectReference Include="..\Rocksmith2014.XML.Extension\Rocksmith2014.XML.Extension.fsproj" />
     <ProjectReference Include="..\Rocksmith2014.XML\Rocksmith2014.XML.csproj" />
   </ItemGroup>
 
