@@ -16,7 +16,6 @@ let flags = FlagBuilder()
 
 let getNoteFlags (extFlag: EOFExtendedNoteFlag) (note: Note) =
     flags {
-        if note.IsUnpitchedSlide then EOFNoteFlag.UNPITCH_SLIDE
         if note.IsFretHandMute then EOFNoteFlag.STRING_MUTE
         if note.IsPalmMute then EOFNoteFlag.PALM_MUTE
         if note.IsHarmonic then EOFNoteFlag.HARMONIC
@@ -34,6 +33,7 @@ let getNoteFlags (extFlag: EOFExtendedNoteFlag) (note: Note) =
         if note.IsAccent then EOFNoteFlag.ACCENT
         if note.IsTremolo then EOFNoteFlag.TREMOLO
 
+        if note.IsUnpitchedSlide then EOFNoteFlag.UNPITCH_SLIDE
         if note.IsSlide then
             EOFNoteFlag.RS_NOTATION
             if note.SlideTo > note.Fret then
@@ -136,13 +136,6 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
             else
                 EOFNoteFlag.ZERO
 
-        let noteFlags = notes |> Array.mapi (fun i n -> getNoteFlags extendedNoteFlags[i] n)
-        let commonFlags = noteFlags |> Array.reduce (&&&)
-
-        let frets =
-            notes
-            |> Array.map (fun note -> if note.IsFretHandMute then 128uy ||| byte note.Fret else byte note.Fret)
-
         let slide =
             let s1 = notes[0].SlideTo
             if s1 > 0y && notes |> Array.forall (fun n -> n.SlideTo = s1) then
@@ -156,6 +149,22 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
                 ValueSome (byte s1)
             else
                 ValueNone
+
+        let noteFlags =
+            notes
+            |> Array.mapi (fun i n ->
+                getNoteFlags extendedNoteFlags[i] n)
+
+        let commonFlags =
+            let c = noteFlags |> Array.reduce (&&&)
+            if slide.IsNone then
+                c &&& (~~~ (EOFNoteFlag.SLIDE_DOWN ||| EOFNoteFlag.SLIDE_UP ||| EOFNoteFlag.RS_NOTATION))
+            else
+                c
+
+        let frets =
+            notes
+            |> Array.map (fun note -> if note.IsFretHandMute then 128uy ||| byte note.Fret else byte note.Fret)
 
         let techNotes =
             noteFlags

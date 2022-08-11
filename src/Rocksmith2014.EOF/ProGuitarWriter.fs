@@ -80,9 +80,21 @@ let combineTechNotes (techNotes: EOFNote array) =
         | _ ->
             current :: acc
 
+    let folder2 a acc =
+        match acc with
+        | b :: tail when a.Position = b.Position ->
+            let b2 =
+                { b with Position = b.Position + 50u }
+            a :: b2 :: tail
+        | [] ->
+            [ a ]
+        | _ ->
+            a :: acc
+
     techNotes
     |> Seq.sortBy (fun x -> x.Position)
     |> fun s -> Seq.foldBack folder s []
+    |> fun s -> Seq.foldBack folder2 s []
     |> List.toArray
 
 let writeProTrack (inst: InstrumentalArrangement) =
