@@ -157,14 +157,33 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
 
         let commonFlags =
             let c = noteFlags |> Array.reduce (&&&)
-            if slide.IsNone then
-                c &&& (~~~ (EOFNoteFlag.SLIDE_DOWN ||| EOFNoteFlag.SLIDE_UP ||| EOFNoteFlag.RS_NOTATION))
-            else
-                c
+            let c2 =
+                if slide.IsNone then
+                    c &&& (~~~ (EOFNoteFlag.SLIDE_DOWN ||| EOFNoteFlag.SLIDE_UP ||| EOFNoteFlag.RS_NOTATION))
+                else
+                    c
+            if unpitchedSlide.IsNone then c2 &&& (~~~ EOFNoteFlag.UNPITCH_SLIDE) else c2
 
         let frets =
             notes
             |> Array.map (fun note -> if note.IsFretHandMute then 128uy ||| byte note.Fret else byte note.Fret)
+
+        let maxSus = (notes |> Array.maxBy (fun n -> n.Sustain)).Sustain
+        let stopTechNotes =
+            if splitFlag = EOFNoteFlag.ZERO || notes.Length = 1 then
+                Array.empty
+            else
+                notes
+                |> Array.choose (fun n ->
+                    if maxSus - n.Sustain > 3 then
+                        { EOFNote.Empty with
+                              BitFlag = getBitFlag (sbyte n.String)
+                              Position = uint (n.Time + n.Sustain)
+                              Flags = EOFNoteFlag.EXTENDED_FLAGS
+                              ExtendedNoteFlags = EOFExtendedNoteFlag.STOP }
+                        |> Some
+                    else
+                        None)
 
         let techNotes =
             noteFlags
@@ -221,7 +240,7 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
             //GhostBitFlag = 0uy
             Frets = frets
             Position = notes[0].Time |> uint
-            Length = max (uint notes[0].Sustain) 1u
+            Length = max (uint maxSus) 1u
             Flags = commonFlags ||| splitFlag
             SlideEndFret = slide
             UnpitchedSlideEndFret = unpitchedSlide
@@ -233,6 +252,5 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
         // TODO: fingering for split chord with handshape defined?
         |> Option.defaultWith (fun () -> Array.replicate notes.Length 0uy),
 
-        techNotes
-        |> Array.append bendTechNotes
+        Array.concat [ techNotes; bendTechNotes; stopTechNotes ]
     )
