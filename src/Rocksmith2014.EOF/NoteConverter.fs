@@ -137,16 +137,18 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
                 EOFNoteFlag.ZERO
 
         let slide =
-            let s1 = notes[0].SlideTo
-            if s1 > 0y && notes |> Array.forall (fun n -> n.SlideTo = s1) then
-                ValueSome (byte s1)
+            let slideTo = notes[0].SlideTo
+            let distance = notes[0].Fret - slideTo
+            if slideTo > 0y && notes |> Array.forall (fun n -> n.Fret - n.SlideTo = distance) then
+                ValueSome (byte slideTo)
             else
                 ValueNone
 
         let unpitchedSlide =
-            let s1 = notes[0].SlideUnpitchTo
-            if s1 > 0y && notes |> Array.forall (fun n -> n.SlideUnpitchTo = s1) then
-                ValueSome (byte s1)
+            let uSlideTo = notes[0].SlideUnpitchTo
+            let distance = notes[0].Fret - uSlideTo
+            if uSlideTo > 0y && notes |> Array.forall (fun n -> n.Fret - n.SlideUnpitchTo = distance) then
+                ValueSome (byte uSlideTo)
             else
                 ValueNone
 
@@ -223,8 +225,7 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
                             BitFlag = getBitFlag (sbyte n.String)
                             Position = uint bv.Time
                             Flags = EOFNoteFlag.RS_NOTATION ||| EOFNoteFlag.BEND
-                            BendStrength = ValueSome (convertBendValue bv.Step)
-                        }
+                            BendStrength = ValueSome (convertBendValue bv.Step) }
                     )
             )
 
