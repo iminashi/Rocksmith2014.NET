@@ -1,10 +1,11 @@
 module ProGuitarWriter
 
 open Rocksmith2014.XML
+open System.IO
 open BinaryFileWriter
 open NoteConverter
 open EOFTypes
-open System.IO
+open SectionWriter
 
 let writeEmptyProGuitarTrack (name: string) =
     binaryWriter {
@@ -97,10 +98,16 @@ let combineTechNotes (techNotes: EOFNote array) =
     |> fun s -> Seq.foldBack folder2 s []
     |> List.toArray
 
+let convertAnchors (level: Level) =
+    level.Anchors.ToArray()
+    |> Array.map (fun a -> EOFSection.Create(0uy, a.Time, int a.Fret, 0u))
+
 let writeProTrack (inst: InstrumentalArrangement) =
     let notes, fingeringData, techNotes =
         convertNotes inst inst.Levels[0]
         |> Array.unzip3
+
+    let anchors = convertAnchors inst.Levels[0]
 
     let fingeringData = fingeringData |> Array.concat
     let techNotes =
@@ -117,6 +124,7 @@ let writeProTrack (inst: InstrumentalArrangement) =
         m.ToArray()
 
     let writeTechNotes = techNotesData.Length > 0
+
 
     binaryWriter {
         "PART REAL_GUITAR"
@@ -136,7 +144,13 @@ let writeProTrack (inst: InstrumentalArrangement) =
         for n in notes do yield! writeNote n
 
         // Number of sections
-        0us
+        if anchors.Length > 0 then 1us else 0us
+
+        // Section type 16 = FHP
+        if anchors.Length > 0 then
+            16us
+            anchors.Length
+            for a in anchors do yield! writeSection a
 
         // Number of custom data blocks
         if writeTechNotes then 3u else 2u

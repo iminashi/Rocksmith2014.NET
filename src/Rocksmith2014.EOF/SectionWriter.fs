@@ -1,21 +1,22 @@
 module SectionWriter
 
 open BinaryFileWriter
+open EOFTypes
 
-let writeSection (name: string) (type': byte) (startTime: int) (endTime: int) (flags: uint) =
+let writeSection (section: EOFSection) =
     binaryWriter {
         // Name
-        name
+        section.Name
 
         // Type
-        type'
+        section.Type
 
         // Start time (or data)
-        startTime
+        section.StartTime
 
         // End time (or data)
-        endTime
+        section.EndTime
 
         // Flags
-        flags
+        section.Flags
     }

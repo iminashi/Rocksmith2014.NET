@@ -18,6 +18,16 @@ type EOFEvent =
       // TODO: track number
       Flag: uint16 }
 
+type EOFSection =
+    { Name: string
+      Type: byte
+      StartTime: int
+      EndTime: int
+      Flags: uint }
+
+    static member Create(t, s, e, f) =
+        { Name = String.Empty; Type = t; StartTime = s; EndTime = e; Flags = f }
+
 type EOFTimeSignature =
     | ``TS 2 | 4``
     | ``TS 3 | 4``
