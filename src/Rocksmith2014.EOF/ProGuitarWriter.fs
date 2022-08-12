@@ -1,6 +1,7 @@
 module ProGuitarWriter
 
 open Rocksmith2014.XML
+open System
 open System.IO
 open BinaryFileWriter
 open NoteConverter
@@ -102,12 +103,65 @@ let convertAnchors (level: Level) =
     level.Anchors.ToArray()
     |> Array.map (fun a -> EOFSection.Create(0uy, a.Time, int a.Fret, 0u))
 
+let handShapeNotNeeded isArpeggio (notesInHs: EOFNote array) =
+    let b = notesInHs |> Array.tryHead |> Option.map (fun x -> x.BitFlag)
+    match b with
+    | None ->
+        // Empty handshape: always include
+        false
+    | Some b ->
+        // Include if arpeggio or all the chords are the same in the handshape
+        not isArpeggio
+        && notesInHs |> Array.forall (fun n -> n.BitFlag = b && n.Flags &&& EOFNoteFlag.SPLIT = EOFNoteFlag.ZERO)
+
+type HsResult =
+    | AdjustSustains of (uint * uint) array
+    | SectionCreated of EOFSection
+
+let convertHandShapes (inst: InstrumentalArrangement) (notes: EOFNote array) (level: Level) =
+    level.HandShapes.ToArray()
+    |> Array.map (fun hs ->
+        let notesInHs =
+            notes
+            |> Array.filter (fun n -> int n.Position >= hs.StartTime && int n.Position < hs.EndTime)
+
+        let isArpeggio = inst.ChordTemplates[int hs.ChordId].IsArpeggio
+
+        if handShapeNotNeeded isArpeggio notesInHs then
+            let updates =
+                notesInHs
+                |> Array.mapi (fun i n ->
+                    match notesInHs |> Array.tryItem (i + 1) with
+                    | Some next ->
+                        n.Position, next.Position - n.Position - 5u
+                    | None ->
+                        n.Position, uint hs.EndTime - n.Position)
+
+            AdjustSustains updates
+        else
+            SectionCreated <| EOFSection.Create(0uy, hs.StartTime, hs.EndTime, if isArpeggio then 0u else 2u)
+    )
+
 let writeProTrack (inst: InstrumentalArrangement) =
     let notes, fingeringData, techNotes =
         convertNotes inst inst.Levels[0]
         |> Array.unzip3
 
     let anchors = convertAnchors inst.Levels[0]
+    let handShapeResult = convertHandShapes inst notes inst.Levels[0]
+    let notes =
+        let updates =
+            handShapeResult
+            |> Array.collect (function AdjustSustains s -> s | _ -> Array.empty)
+            |> readOnlyDict
+
+        notes
+        |> Array.map (fun n ->
+            match updates.TryGetValue n.Position with
+            | true, length -> { n with Length = length }
+            | false, _ -> n)
+
+    let handShapes = handShapeResult |> Array.choose (function SectionCreated s -> Some s | _ -> None)
 
     let fingeringData = fingeringData |> Array.concat
     let techNotes =
@@ -125,6 +179,9 @@ let writeProTrack (inst: InstrumentalArrangement) =
 
     let writeTechNotes = techNotesData.Length > 0
 
+    let sectionCount =
+        Convert.ToUInt16(anchors.Length > 0)
+        + Convert.ToUInt16(handShapes.Length > 0)
 
     binaryWriter {
         "PART REAL_GUITAR"
@@ -144,7 +201,13 @@ let writeProTrack (inst: InstrumentalArrangement) =
         for n in notes do yield! writeNote n
 
         // Number of sections
-        if anchors.Length > 0 then 1us else 0us
+        sectionCount
+
+        // Section type 10 = Handshapes
+        if handShapes.Length > 0 then
+            10us
+            handShapes.Length
+            for hs in handShapes do yield! writeSection hs
 
         // Section type 16 = FHP
         if anchors.Length > 0 then
