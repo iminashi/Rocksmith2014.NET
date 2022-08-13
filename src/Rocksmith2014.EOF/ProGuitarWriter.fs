@@ -50,7 +50,7 @@ let (|Combinable|_|) (a: EOFNote) (b: EOFNote) =
         ValueNone
 
 let combineTechNotes (techNotes: EOFNote array) =
-    let folder current acc =
+    let combiner current acc =
         match acc with
         | (Combinable current prev) :: tail ->
             let combined =
@@ -64,7 +64,8 @@ let combineTechNotes (techNotes: EOFNote array) =
         | _ ->
             current :: acc
 
-    let folder2 a acc =
+    // TODO
+    let separator a acc =
         match acc with
         | b :: tail when a.Position = b.Position ->
             let b2 =
@@ -77,8 +78,8 @@ let combineTechNotes (techNotes: EOFNote array) =
 
     techNotes
     |> Seq.sortBy (fun x -> x.Position)
-    |> fun s -> Seq.foldBack folder s []
-    |> fun s -> Seq.foldBack folder2 s []
+    |> fun s -> Seq.foldBack combiner s []
+    |> fun s -> Seq.foldBack separator s []
     |> List.toArray
 
 let convertAnchors (level: Level) =
@@ -205,9 +206,10 @@ let writeProTrack (inst: InstrumentalArrangement) =
         |> List.sumBy (fun x -> Convert.ToUInt16(x.Length > 0))
 
     let customDataBlockCount =
+        let fingering = if fingeringData.Length > 0 then 1u else 0u
         let capo = if inst.MetaData.Capo > 0y then 1u else 0u
         let tech = if techNotesData.Length > 0 then 1u else 0u
-        3u + capo + tech
+        2u + fingering + capo + tech
 
     let trackFlag =
         let ap = inst.MetaData.ArrangementProperties
@@ -267,7 +269,8 @@ let writeProTrack (inst: InstrumentalArrangement) =
         customDataBlockCount
 
         // ID 2 = Pro guitar finger arrays
-        yield! customDataBlock 2u fingeringData
+        if fingeringData.Length > 0 then
+            yield! customDataBlock 2u fingeringData
 
         // ID 3 = Arrangement type
         yield! customDataBlock 3u (Array.singleton (getArrangementType inst))
