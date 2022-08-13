@@ -142,11 +142,18 @@ let convertHandShapes (inst: InstrumentalArrangement) (notes: EOFNote array) (le
             SectionCreated <| EOFSection.Create(0uy, hs.StartTime, hs.EndTime, if isArpeggio then 0u else 2u)
     )
 
+let convertTones (inst: InstrumentalArrangement) =
+    inst.Tones.Changes.ToArray()
+    |> Array.map (fun t ->
+        let endTime = if t.Name = inst.Tones.BaseToneName then 1 else 0
+        { EOFSection.Create(255uy, t.Time, endTime, 0u) with Name = t.Name })
+
 let writeProTrack (inst: InstrumentalArrangement) =
     let notes, fingeringData, techNotes =
         convertNotes inst inst.Levels[0]
         |> Array.unzip3
 
+    let tones = convertTones inst
     let anchors = convertAnchors inst.Levels[0]
     let handShapeResult = convertHandShapes inst notes inst.Levels[0]
     let notes =
@@ -180,8 +187,8 @@ let writeProTrack (inst: InstrumentalArrangement) =
     let writeTechNotes = techNotesData.Length > 0
 
     let sectionCount =
-        Convert.ToUInt16(anchors.Length > 0)
-        + Convert.ToUInt16(handShapes.Length > 0)
+        [ anchors; handShapes; tones ]
+        |> List.sumBy (fun x -> Convert.ToUInt16(x.Length > 0))
 
     binaryWriter {
         "PART REAL_GUITAR"
@@ -214,6 +221,12 @@ let writeProTrack (inst: InstrumentalArrangement) =
             16us
             anchors.Length
             for a in anchors do yield! writeSection a
+
+        // Section type 18 = Tone changes
+        if tones.Length > 0 then
+            18us
+            tones.Length
+            for t in tones do yield! writeSection t
 
         // Number of custom data blocks
         if writeTechNotes then 3u else 2u
