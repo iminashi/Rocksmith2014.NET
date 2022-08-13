@@ -110,8 +110,8 @@ let fretsFromTemplate (notes: Note array) (ct: ChordTemplate) =
 
 let fingeringFromTemplate (ct: ChordTemplate) =
     ct.Frets
-    |> Array.mapi (fun i x -> if x >= 0y then i else -1)
-    |> Array.filter (fun i -> i > 0)
+    |> Array.mapi (fun i x -> if x >= 0y then i else 0xDEADBEEF)
+    |> Array.filter ((<>) 0xDEADBEEF)
     |> Array.map (convertTemplateFingering ct)
 
 let bitFlagFromTemplate (ct: ChordTemplate) =
@@ -379,9 +379,11 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
                     chordOpt
                     |> Option.map (fun x -> x.Fingering))
                 // No fingering defined
-                |> Option.defaultWith (fun () -> Array.replicate notes.Length 0uy)
+                |> Option.defaultWith (fun () -> Array.replicate eofNote.Frets.Length 0uy)
 
             let techNotes = Array.concat [ techNotes; bendTechNotes; stopTechNotes ]
+
+            assert (fingering.Length = eofNote.Frets.Length)
 
             eofNote, fingering, techNotes
     )
