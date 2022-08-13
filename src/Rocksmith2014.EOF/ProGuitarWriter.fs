@@ -28,24 +28,6 @@ let writeEmptyProGuitarTrack (name: string) =
         0u // custom data blocks
     }
 
-let writeNote (note: EOFNote) =
-    binaryWriter {
-        note.ChordName
-        note.ChordNumber
-        note.NoteType
-        note.BitFlag
-        note.GhostBitFlag
-        note.Frets
-        note.LegacyBitFlags
-        note.Position
-        note.Length
-        note.Flags |> uint
-        note.SlideEndFret
-        note.BendStrength
-        note.UnpitchedSlideEndFret
-        if note.ExtendedNoteFlags <> EOFExtendedNoteFlag.ZERO then note.ExtendedNoteFlags |> uint
-    }
-
 let customDataBlock (blockId: uint) (data: byte array) =
     binaryWriter {
         // Custom data block size (+ 4 bytes for block ID)
@@ -185,12 +167,12 @@ let writeProTrack (inst: InstrumentalArrangement) =
         |> combineTechNotes
 
     let techNotesData =
-        use m = new MemoryStream()
-        binaryWriter {
-            if techNotes.Length > 0 then techNotes.Length
-            for tn in techNotes do yield! writeNote tn
-        } |> toStream(m)
-        m.ToArray()
+        if techNotes.Length > 0 then
+            use m = new MemoryStream()
+            binaryWriter { techNotes } |> toStream(m)
+            m.ToArray()
+        else
+            Array.empty
 
     let sectionCount =
         [ anchors; handShapes; tones ]
@@ -226,8 +208,7 @@ let writeProTrack (inst: InstrumentalArrangement) =
         inst.MetaData.Tuning.Strings |> Array.map byte
 
         // Notes
-        notes.Length
-        for n in notes do yield! writeNote n
+        notes
 
         // Number of sections
         sectionCount

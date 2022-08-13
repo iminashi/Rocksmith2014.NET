@@ -2,19 +2,45 @@ module BinaryFileWriter
 
 open System.IO
 open System.Text
+open EOFTypes
 
 type Writer = BinaryWriter -> unit
  
 let toFile path (f: Writer) = using (new BinaryWriter(File.Create(path))) f
 
 let toStream s (f: Writer) = using (new BinaryWriter(s)) f
+
+let writeString (b: BinaryWriter) (str: string) =
+    let bytes = Encoding.ASCII.GetBytes(str)
+    b.Write(bytes.Length |> int16)
+    b.Write(bytes)
  
 type BinaryWriterBuilder () =
     member inline _.Yield (str: string) =
+        fun (b: BinaryWriter) -> writeString b str
+
+    member _.Yield (notes: EOFNote array) =
         fun (b: BinaryWriter) ->
-            let bytes = Encoding.ASCII.GetBytes(str)
-            b.Write(bytes.Length |> int16)
-            b.Write(bytes)
+            // Number of notes
+            b.Write(notes.Length)
+
+            notes
+            |> Array.iter (fun note ->
+                writeString b note.ChordName
+                b.Write(note.ChordNumber)
+                b.Write(note.NoteType)
+                b.Write(note.BitFlag)
+                b.Write(note.GhostBitFlag)
+                b.Write(note.Frets)
+                b.Write(note.LegacyBitFlags)
+                b.Write(note.Position)
+                b.Write(note.Length)
+                b.Write(note.Flags |> uint)
+                note.SlideEndFret |> ValueOption.iter b.Write
+                note.BendStrength |> ValueOption.iter b.Write
+                note.UnpitchedSlideEndFret |> ValueOption.iter b.Write
+                if note.ExtendedNoteFlags <> EOFExtendedNoteFlag.ZERO then b.Write(note.ExtendedNoteFlags |> uint)
+            )
 
     member inline _.Yield (data: byte array) = fun (b: BinaryWriter) -> b.Write(data)
     member inline _.Yield (i: sbyte) = fun (b: BinaryWriter) -> b.Write(i)
