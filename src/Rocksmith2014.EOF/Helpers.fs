@@ -122,7 +122,7 @@ let getBeatCountChanges (beats: Ebeat seq) =
                 Counter = 1
                 BeatCounts = (beat.Time, state.Counter) :: rest |})
 
-let inferTimesignatures (beats: Ebeat seq) =
+let inferTimeSignatures (beats: Ebeat seq) =
     let result = getBeatCountChanges beats
 
     result.BeatCounts

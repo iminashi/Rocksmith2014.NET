@@ -75,7 +75,7 @@ let writeVocalsTrack (name: string) (vocalSeq: Vocal seq) =
         // Number of sections
         sectionTimes.Length
         for startTime, endTime in sectionTimes do
-            yield! writeSection (EOFSection.Create(0uy, startTime, endTime, 0u))
+            yield! writeSection (EOFSection.Create(0uy, uint startTime, uint endTime, 0u))
 
         // Number of custom data blocks
         1

@@ -21,8 +21,8 @@ type EOFEvent =
 type EOFSection =
     { Name: string
       Type: byte
-      StartTime: int
-      EndTime: int
+      StartTime: uint
+      EndTime: uint
       Flags: uint }
 
     static member Create(t, s, e, f) =

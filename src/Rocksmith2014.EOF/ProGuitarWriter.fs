@@ -83,7 +83,7 @@ let combineTechNotes (techNotes: EOFNote array) =
 
 let convertAnchors (level: Level) =
     level.Anchors.ToArray()
-    |> Array.map (fun a -> EOFSection.Create(0uy, a.Time, int a.Fret, 0u))
+    |> Array.map (fun a -> EOFSection.Create(0uy, uint a.Time, uint a.Fret, 0u))
 
 let handShapeNotNeeded isArpeggio (notesInHs: EOFNote array) =
     let b = notesInHs |> Array.tryHead |> Option.map (fun x -> x.BitFlag)
@@ -121,14 +121,14 @@ let convertHandShapes (inst: InstrumentalArrangement) (notes: EOFNote array) (le
 
             AdjustSustains updates
         else
-            SectionCreated <| EOFSection.Create(0uy, hs.StartTime, hs.EndTime, if isArpeggio then 0u else 2u)
+            SectionCreated <| EOFSection.Create(0uy, uint hs.StartTime, uint hs.EndTime, if isArpeggio then 0u else 2u)
     )
 
 let convertTones (inst: InstrumentalArrangement) =
     inst.Tones.Changes.ToArray()
     |> Array.map (fun t ->
-        let endTime = if t.Name = inst.Tones.BaseToneName then 1 else 0
-        { EOFSection.Create(255uy, t.Time, endTime, 0u) with Name = t.Name })
+        let endTime = if t.Name = inst.Tones.BaseToneName then 1u else 0u
+        { EOFSection.Create(255uy, uint t.Time, endTime, 0u) with Name = t.Name })
 
 let getArrangementType (inst: InstrumentalArrangement) =
     match inst.MetaData.Arrangement.ToLowerInvariant() with
@@ -137,6 +137,30 @@ let getArrangementType (inst: InstrumentalArrangement) =
     | "lead" -> 3uy
     | "bass" -> 4uy
     | _ -> 0uy
+
+type TempTremoloSection =
+    { PrevIndex: int
+      StartTime: uint
+      EndTime: uint }
+
+let createTremoloSections (notes: EOFNote array) =
+    notes
+    |> Array.indexed
+    |> Array.fold (fun acc (i, note) ->
+        if note.Flags &&& EOFNoteFlag.TREMOLO = EOFNoteFlag.ZERO then
+            acc
+        else
+            match acc with
+            | h :: t when h.PrevIndex = i - 1 ->
+                // Extend previous tremolo section
+                { h with PrevIndex = i; EndTime = note.Position + note.Length } :: t
+            | _ ->
+                // Create new tremolo section
+                { StartTime = note.Position; PrevIndex = i; EndTime = note.Position + note.Length } :: acc
+    ) []
+    |> List.rev
+    |> List.map (fun x -> EOFSection.Create(0uy, x.StartTime, x.EndTime, 0u))
+    |> List.toArray
 
 let writeProTrack (inst: InstrumentalArrangement) =
     let notes, fingeringData, techNotes =
@@ -174,8 +198,10 @@ let writeProTrack (inst: InstrumentalArrangement) =
         else
             Array.empty
 
+    let tremoloSections = createTremoloSections notes
+
     let sectionCount =
-        [ anchors; handShapes; tones ]
+        [ anchors; handShapes; tones; tremoloSections ]
         |> List.sumBy (fun x -> Convert.ToUInt16(x.Length > 0))
 
     let customDataBlockCount =
@@ -218,6 +244,12 @@ let writeProTrack (inst: InstrumentalArrangement) =
             10us
             handShapes.Length
             for hs in handShapes do yield! writeSection hs
+
+        // Section type 14 = Tremolo
+        if tremoloSections.Length > 0 then
+            14us
+            tremoloSections.Length
+            for ts in tremoloSections do yield! writeSection ts
 
         // Section type 16 = FHP
         if anchors.Length > 0 then

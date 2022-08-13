@@ -142,7 +142,7 @@ let writeEofProject (path: string) (inst: InstrumentalArrangement) (vocals: Voca
         if not tsEvents.IsEmpty then
             getTimeSignatures tsEvents
         else
-            inferTimesignatures inst.Ebeats
+            inferTimeSignatures inst.Ebeats
 
     let iniStrings =
         [|
