@@ -51,7 +51,13 @@ let getExtendedNoteFlags wasChord (note: Note) =
         if wasChord && note.Sustain > 0 then EOFExtendedNoteFlag.SUSTAIN
     }
 
-type ChordData = { Template: ChordTemplate; Fingering: byte array }
+type ChordData =
+    { Template: ChordTemplate
+      ChordId: int16
+      HandshapeId: int
+      IsFullPanel: bool
+      IsFirstInHandShape: bool
+      Fingering: byte array }
 
 let notesFromTemplate (c: Chord) (template: ChordTemplate) =
     template.Frets
@@ -100,7 +106,17 @@ let createNoteArray (inst: InstrumentalArrangement) (level: Level) =
                         | f when f < 0y -> 0uy
                         | f -> byte f)
 
-                { Template = template; Fingering = fingering }
+                let handshapeId =
+                    level.HandShapes.FindIndex(fun hs -> c.Time >= hs.StartTime && c.Time < hs.EndTime)
+                let handshapeStartTime =
+                    if handshapeId < 0 then -1 else level.HandShapes[handshapeId].StartTime
+
+                { Template = template
+                  ChordId = c.ChordId
+                  HandshapeId = handshapeId
+                  IsFullPanel = c.HasChordNotes && not c.IsHighDensity
+                  IsFirstInHandShape = c.Time = handshapeStartTime
+                  Fingering = fingering }
 
             Some chordData, notes)
 
@@ -122,7 +138,22 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
     let noteGroups = createNoteArray inst level
 
     noteGroups
-    |> Array.map (fun (chordOpt, notes) ->
+    |> Array.mapi (fun index (chordOpt, notes) ->
+        let crazyFlag =
+            chordOpt
+            |> Option.bind (fun c ->
+                noteGroups
+                |> Array.tryItem (index - 1)
+                |> Option.bind fst
+                |> Option.map (fun prevData ->
+                    // Apply "crazy" if the previous chord is in a different handshape
+                    prevData.ChordId = c.ChordId && prevData.HandshapeId <> c.HandshapeId)
+                |> Option.orElse (Some (c.IsFullPanel && not c.IsFirstInHandShape))
+            )
+            |> function
+            | Some true -> EOFNoteFlag.CRAZY
+            | _ -> EOFNoteFlag.ZERO
+
         let bitFlags =
             notes
             |> Array.map (fun n -> getBitFlag (sbyte n.String))
@@ -242,7 +273,7 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
             Frets = frets
             Position = notes[0].Time |> uint
             Length = max (uint maxSus) 1u
-            Flags = commonFlags ||| splitFlag
+            Flags = commonFlags ||| splitFlag ||| crazyFlag
             SlideEndFret = slide
             UnpitchedSlideEndFret = unpitchedSlide
             ExtendedNoteFlags = commonExtendedNoteFlags
