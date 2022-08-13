@@ -184,11 +184,14 @@ let writeProTrack (inst: InstrumentalArrangement) =
         } |> toStream(m)
         m.ToArray()
 
-    let writeTechNotes = techNotesData.Length > 0
-
     let sectionCount =
         [ anchors; handShapes; tones ]
         |> List.sumBy (fun x -> Convert.ToUInt16(x.Length > 0))
+
+    let customDataBlockCount =
+        let capo = if inst.MetaData.Capo > 0y then 1u else 0u
+        let tech = if techNotesData.Length > 0 then 1u else 0u
+        2u + capo + tech
 
     binaryWriter {
         "PART REAL_GUITAR"
@@ -229,7 +232,7 @@ let writeProTrack (inst: InstrumentalArrangement) =
             for t in tones do yield! writeSection t
 
         // Number of custom data blocks
-        if writeTechNotes then 3u else 2u
+        customDataBlockCount
 
         // ID 2 = Pro guitar finger arrays
         yield! customDataBlock 2u fingeringData
@@ -237,7 +240,11 @@ let writeProTrack (inst: InstrumentalArrangement) =
         // ID 4 = Pro guitar track tuning not honored
         yield! customDataBlock 4u (Array.singleton 1uy)
 
+        // ID 6 = Capo position
+        if inst.MetaData.Capo > 0y then
+            yield! customDataBlock 6u (Array.singleton (byte inst.MetaData.Capo))
+
         // ID 7 = Tech notes
-        if writeTechNotes then
+        if techNotesData.Length > 0 then
             yield! customDataBlock 7u techNotesData
     }
