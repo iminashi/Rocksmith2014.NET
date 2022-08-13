@@ -96,6 +96,17 @@ type EOFExtendedNoteFlag =
     | FINGERLESS = 32u
     | PRE_BEND   = 64u
 
+[<Flags>]
+type EOFTrackFlag =
+    | SIX_LANES       = 1u
+    | ALT_NAME        = 2u
+    | UNLIMITED_DIFFS = 4u
+    | GHL_MODE        = 8u
+    | RS_BONUS_ARR    = 16u
+    | GHL_MODE_MS     = 32u
+    | RS_ALT_ARR      = 64u
+    | RS_PICKED_BASS  = 128u
+
 type EOFNote =
     {
         ChordName: string

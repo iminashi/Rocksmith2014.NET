@@ -148,6 +148,14 @@ let convertTones (inst: InstrumentalArrangement) =
         let endTime = if t.Name = inst.Tones.BaseToneName then 1 else 0
         { EOFSection.Create(255uy, t.Time, endTime, 0u) with Name = t.Name })
 
+let getArrangementType (inst: InstrumentalArrangement) =
+    match inst.MetaData.Arrangement.ToLowerInvariant() with
+    | "combo" -> 1uy
+    | "rhythm" -> 2uy
+    | "lead" -> 3uy
+    | "bass" -> 4uy
+    | _ -> 0uy
+
 let writeProTrack (inst: InstrumentalArrangement) =
     let notes, fingeringData, techNotes =
         convertNotes inst inst.Levels[0]
@@ -191,7 +199,18 @@ let writeProTrack (inst: InstrumentalArrangement) =
     let customDataBlockCount =
         let capo = if inst.MetaData.Capo > 0y then 1u else 0u
         let tech = if techNotesData.Length > 0 then 1u else 0u
-        2u + capo + tech
+        3u + capo + tech
+
+    let trackFlag =
+        let ap = inst.MetaData.ArrangementProperties
+        flags {
+            EOFTrackFlag.UNLIMITED_DIFFS
+            if ap.BassPick then EOFTrackFlag.RS_PICKED_BASS
+            if ap.BonusArrangement then
+                EOFTrackFlag.RS_BONUS_ARR
+            elif not ap.Represent then
+                EOFTrackFlag.RS_ALT_ARR
+        }
 
     binaryWriter {
         "PART REAL_GUITAR"
@@ -199,7 +218,7 @@ let writeProTrack (inst: InstrumentalArrangement) =
         5uy // behaviour
         9uy // type
         -1y // difficulty level
-        4u // flags
+        trackFlag |> uint // flags
         0us // compliance flags
 
         24uy // highest fret
@@ -236,6 +255,9 @@ let writeProTrack (inst: InstrumentalArrangement) =
 
         // ID 2 = Pro guitar finger arrays
         yield! customDataBlock 2u fingeringData
+
+        // ID 3 = Arrangement type
+        yield! customDataBlock 3u (Array.singleton (getArrangementType inst))
 
         // ID 4 = Pro guitar track tuning not honored
         yield! customDataBlock 4u (Array.singleton 1uy)
