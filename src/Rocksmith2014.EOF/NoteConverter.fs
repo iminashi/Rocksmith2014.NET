@@ -81,20 +81,65 @@ let notesFromTemplate (c: Chord) (template: ChordTemplate) =
             )
             |> Some)
 
-let getTemplateFingering (template: ChordTemplate) (stringIndex: int) =
+let convertTemplateFingering (template: ChordTemplate) (stringIndex: int) =
     match template.Fingers[stringIndex] with
     | 0y -> 5uy // Thumb
     | f when f < 0y -> 0uy
     | f -> byte f
-
-// TODO: handshapes where no note/chord is found at the start time
 
 type NoteGroup =
     { Chord: ChordData option
       Time: uint
       Notes: Note array }
 
+let fretsFromTemplate (notes: Note array) (ct: ChordTemplate) =
+    ct.Frets
+    |> Array.choosei (fun i f ->
+        let isMuted =
+            notes
+            |> Array.exists (fun n -> n.String = sbyte i && n.IsFretHandMute)
+
+        if f < 0y then
+            None
+        else
+            if isMuted then
+                128uy ||| byte f
+            else
+                byte f
+            |> Some)
+
+let fingeringFromTemplate (ct: ChordTemplate) =
+    ct.Frets
+    |> Array.mapi (fun i x -> if x >= 0y then i else -1)
+    |> Array.filter (fun i -> i > 0)
+    |> Array.map (convertTemplateFingering ct)
+
+let bitFlagFromTemplate (ct: ChordTemplate) =
+    ct.Frets
+    |> Array.mapi (fun i f -> if f >= 0y then getBitFlag (sbyte i) else 0uy)
+    |> Array.reduce (|||)
+
 let createNoteGroups (inst: InstrumentalArrangement) (level: Level) =
+    let ghostChords =
+        level.HandShapes
+        |> Seq.filter (fun hs ->
+            level.Notes.Exists(fun n -> n.Time = hs.StartTime) |> not
+            && level.Chords.Exists(fun c -> c.Time = hs.StartTime) |> not)
+        |> Seq.map (fun hs ->
+            let ct = inst.ChordTemplates[int hs.ChordId]
+            let fingering = fingeringFromTemplate ct
+
+            let chordData =
+                { Template = ct
+                  ChordId = hs.ChordId
+                  HandshapeId = -1
+                  IsFullPanel = false
+                  IsFirstInHandShape = true
+                  Fingering = fingering }
+
+            { Chord = Some chordData; Time = uint hs.StartTime; Notes = Array.empty })
+        |> Seq.toArray
+
     let notes =
         level.Notes.ToArray()
         |> Array.groupBy (fun x -> x.Time)
@@ -113,7 +158,7 @@ let createNoteGroups (inst: InstrumentalArrangement) (level: Level) =
             let chordData =
                 let fingering =
                     notes
-                    |> Array.map (fun n -> getTemplateFingering template (int n.String))
+                    |> Array.map (fun n -> convertTemplateFingering template (int n.String))
 
                 let handshapeId =
                     level.HandShapes.FindIndex(fun hs -> c.Time >= hs.StartTime && c.Time < hs.EndTime)
@@ -129,7 +174,7 @@ let createNoteGroups (inst: InstrumentalArrangement) (level: Level) =
 
             { Chord = Some chordData; Notes = notes; Time = uint c.Time })
 
-    let combined = Array.append chords notes
+    let combined = Array.concat [ chords; notes; ghostChords ]
 
     combined
     |> Array.sortInPlaceBy (fun x -> x.Time)
@@ -148,199 +193,195 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
 
     noteGroups
     |> Array.mapi (fun index { Chord = chordOpt; Notes = notes; Time = time } ->
-        let crazyFlag =
-            chordOpt
-            |> Option.bind (fun c ->
-                noteGroups
-                |> Array.tryItem (index - 1)
-                |> Option.bind (fun x -> x.Chord)
-                |> Option.map (fun prevData ->
-                    // Apply "crazy" if the previous chord is in a different handshape
-                    prevData.ChordId = c.ChordId && prevData.HandshapeId <> c.HandshapeId)
-                |> Option.orElse (Some (c.IsFullPanel && not c.IsFirstInHandShape))
-            )
-            |> function
-            | Some true -> EOFNoteFlag.CRAZY
-            | _ -> EOFNoteFlag.ZERO
+        if notes.Length = 0 then
+            // Create ghost chord
+            let chord = chordOpt |> Option.get
+            let bitFlag = bitFlagFromTemplate chord.Template
+            let frets = (fretsFromTemplate notes chord.Template)
 
-        // Find possible chord template for handshape at note time
-        let handshapeTemplate =
-            level.HandShapes.Find(fun hs -> hs.StartTime = int time)
-            |> Option.ofObj
-            |> Option.map (fun hs -> inst.ChordTemplates.[int hs.ChordId])
+            let eofNote =
+                { EOFNote.Empty with
+                    ChordName =  chord.Template.Name
+                    BitFlag = bitFlag
+                    GhostBitFlag = bitFlag
+                    Frets = frets
+                    Position = time }
 
-        let bitFlagsFromHandshape =
-            handshapeTemplate
-            |> Option.map (fun hst ->
-                hst.Frets
-                |> Array.mapi (fun i f -> if f >= 0y then getBitFlag (sbyte i) else 0uy)
-                |> Array.reduce (|||))
+            eofNote, chord.Fingering, Array.empty
+        else
+            let crazyFlag =
+                chordOpt
+                |> Option.bind (fun c ->
+                    noteGroups
+                    |> Array.tryItem (index - 1)
+                    |> Option.bind (fun x -> x.Chord)
+                    |> Option.map (fun prevData ->
+                        // Apply "crazy" if the previous chord is in a different handshape
+                        prevData.ChordId = c.ChordId && prevData.HandshapeId <> c.HandshapeId)
+                    |> Option.orElse (Some (c.IsFullPanel && not c.IsFirstInHandShape))
+                )
+                |> function
+                | Some true -> EOFNoteFlag.CRAZY
+                | _ -> EOFNoteFlag.ZERO
 
-        let bitFlags =
-            notes
-            |> Array.map (fun n -> getBitFlag (sbyte n.String))
-        let trueBitFlag = bitFlags |> Array.reduce (|||)
-        let commonBitFlag =
-            bitFlagsFromHandshape
-            |> Option.defaultValue trueBitFlag
+            // Find possible chord template for handshape at note time
+            let handshapeTemplate =
+                level.HandShapes.Find(fun hs -> hs.StartTime = int time)
+                |> Option.ofObj
+                |> Option.map (fun hs -> inst.ChordTemplates.[int hs.ChordId])
 
-        let ghostBitFlag =
-            bitFlagsFromHandshape
-            |> Option.map (fun tbf -> trueBitFlag ^^^ tbf)
-            |> Option.defaultValue 0uy
+            let bitFlagFromHandshape =
+                handshapeTemplate
+                |> Option.map bitFlagFromTemplate
 
-        let extendedNoteFlags = notes |> Array.map (getExtendedNoteFlags chordOpt.IsSome)
-        let commonExtendedNoteFlags = extendedNoteFlags |> Array.reduce (&&&)
-
-        let splitFlag =
-            if chordOpt.IsNone && notes.Length > 1 then
-                EOFNoteFlag.SPLIT
-            else
-                EOFNoteFlag.ZERO
-
-        let slide =
-            let slideTo = notes[0].SlideTo
-            let distance = notes[0].Fret - slideTo
-            if slideTo > 0y && notes |> Array.forall (fun n -> n.Fret - n.SlideTo = distance) then
-                ValueSome (byte slideTo)
-            else
-                ValueNone
-
-        let unpitchedSlide =
-            let uSlideTo = notes[0].SlideUnpitchTo
-            let distance = notes[0].Fret - uSlideTo
-            if uSlideTo > 0y && notes |> Array.forall (fun n -> n.Fret - n.SlideUnpitchTo = distance) then
-                ValueSome (byte uSlideTo)
-            else
-                ValueNone
-
-        let noteFlags =
-            notes
-            |> Array.mapi (fun i n -> getNoteFlags extendedNoteFlags[i] n)
-
-        let commonFlags =
-            let c = noteFlags |> Array.reduce (&&&)
-            let c2 =
-                if slide.IsNone then
-                    c &&& (~~~ (EOFNoteFlag.SLIDE_DOWN ||| EOFNoteFlag.SLIDE_UP ||| EOFNoteFlag.RS_NOTATION))
-                else
-                    c
-            if unpitchedSlide.IsNone then c2 &&& (~~~ EOFNoteFlag.UNPITCH_SLIDE) else c2
-
-        let frets =
-            handshapeTemplate
-            |> Option.map (fun hst ->
-                hst.Frets
-                |> Array.choosei (fun i f ->
-                    let isMuted =
-                        notes
-                        |> Array.exists (fun n -> n.String = sbyte i && n.IsFretHandMute)
-                    if f < 0y then
-                        None
-                    else
-                        if isMuted then
-                            128uy ||| byte f
-                        else
-                            byte f
-                        |> Some))
-            |> Option.defaultWith (fun () ->
+            let bitFlags =
                 notes
-                |> Array.map (fun note ->
-                    if note.IsFretHandMute then 128uy ||| byte note.Fret else byte note.Fret))
+                |> Array.map (fun n -> getBitFlag (sbyte n.String))
+            let trueBitFlag = bitFlags |> Array.reduce (|||)
+            let commonBitFlag =
+                bitFlagFromHandshape
+                |> Option.defaultValue trueBitFlag
 
-        let maxSus = (notes |> Array.maxBy (fun n -> n.Sustain)).Sustain
-        let stopTechNotes =
-            if splitFlag = EOFNoteFlag.ZERO || notes.Length = 1 then
-                Array.empty
-            else
-                notes
-                |> Array.choose (fun n ->
-                    if maxSus - n.Sustain > 3 then
-                        { EOFNote.Empty with
-                              BitFlag = getBitFlag (sbyte n.String)
-                              Position = uint (n.Time + n.Sustain)
-                              Flags = EOFNoteFlag.EXTENDED_FLAGS
-                              ExtendedNoteFlags = EOFExtendedNoteFlag.STOP }
-                        |> Some
-                    else
-                        None)
+            let ghostBitFlag =
+                bitFlagFromHandshape
+                |> Option.map (fun tbf -> trueBitFlag ^^^ tbf)
+                |> Option.defaultValue 0uy
 
-        let techNotes =
-            noteFlags
-            |> Array.choosei (fun i flag ->
-                let extFlag = extendedNoteFlags[i]
-                if (flag &&& commonFlags = flag) && (extFlag &&& commonExtendedNoteFlags = extFlag) then
-                    None
+            let extendedNoteFlags = notes |> Array.map (getExtendedNoteFlags chordOpt.IsSome)
+            let commonExtendedNoteFlags = extendedNoteFlags |> Array.reduce (&&&)
+
+            let splitFlag =
+                if chordOpt.IsNone && notes.Length > 1 then
+                    EOFNoteFlag.SPLIT
                 else
-                    let n = notes[i]
-                    { EOFNote.Empty with
-                        BitFlag = bitFlags[i]
-                        Position = time
-                        Flags = flag &&& (~~~ commonFlags)
-                        SlideEndFret =
-                            if slide.IsNone && n.IsSlide then
-                                ValueSome (byte n.SlideTo)
-                            else
-                                ValueNone
-                        UnpitchedSlideEndFret =
-                            if unpitchedSlide.IsNone && n.IsUnpitchedSlide then
-                                ValueSome (byte n.SlideUnpitchTo)
-                            else
-                                ValueNone
-                        ExtendedNoteFlags = extFlag &&& (~~~ commonExtendedNoteFlags)
-                    }
-                    |> Some)
+                    EOFNoteFlag.ZERO
 
-        let bendTechNotes =
-            notes
-            |> Array.collect (fun n ->
-                if not n.IsBend then
+            let slide =
+                let slideTo = notes[0].SlideTo
+                let distance = notes[0].Fret - slideTo
+                if slideTo > 0y && notes |> Array.forall (fun n -> n.Fret - n.SlideTo = distance) then
+                    ValueSome (byte slideTo)
+                else
+                    ValueNone
+
+            let unpitchedSlide =
+                let uSlideTo = notes[0].SlideUnpitchTo
+                let distance = notes[0].Fret - uSlideTo
+                if uSlideTo > 0y && notes |> Array.forall (fun n -> n.Fret - n.SlideUnpitchTo = distance) then
+                    ValueSome (byte uSlideTo)
+                else
+                    ValueNone
+
+            let noteFlags =
+                notes
+                |> Array.mapi (fun i n -> getNoteFlags extendedNoteFlags[i] n)
+
+            let commonFlags =
+                let c = noteFlags |> Array.reduce (&&&)
+                let c2 =
+                    if slide.IsNone then
+                        c &&& (~~~ (EOFNoteFlag.SLIDE_DOWN ||| EOFNoteFlag.SLIDE_UP ||| EOFNoteFlag.RS_NOTATION))
+                    else
+                        c
+                if unpitchedSlide.IsNone then c2 &&& (~~~ EOFNoteFlag.UNPITCH_SLIDE) else c2
+
+            let frets =
+                handshapeTemplate
+                |> Option.map (fretsFromTemplate notes)
+                |> Option.defaultWith (fun () ->
+                    notes
+                    |> Array.map (fun note ->
+                        if note.IsFretHandMute then 128uy ||| byte note.Fret else byte note.Fret))
+
+            let maxSus = (notes |> Array.maxBy (fun n -> n.Sustain)).Sustain
+            let stopTechNotes =
+                if splitFlag = EOFNoteFlag.ZERO || notes.Length = 1 then
                     Array.empty
                 else
-                    n.BendValues.ToArray()
-                    |> Array.map (fun bv ->
+                    notes
+                    |> Array.choose (fun n ->
+                        if maxSus - n.Sustain > 3 then
+                            { EOFNote.Empty with
+                                  BitFlag = getBitFlag (sbyte n.String)
+                                  Position = uint (n.Time + n.Sustain)
+                                  Flags = EOFNoteFlag.EXTENDED_FLAGS
+                                  ExtendedNoteFlags = EOFExtendedNoteFlag.STOP }
+                            |> Some
+                        else
+                            None)
+
+            let techNotes =
+                noteFlags
+                |> Array.choosei (fun i flag ->
+                    let extFlag = extendedNoteFlags[i]
+                    if (flag &&& commonFlags = flag) && (extFlag &&& commonExtendedNoteFlags = extFlag) then
+                        None
+                    else
+                        let n = notes[i]
                         { EOFNote.Empty with
-                            BitFlag = getBitFlag (sbyte n.String)
-                            Position = uint bv.Time
-                            Flags = EOFNoteFlag.RS_NOTATION ||| EOFNoteFlag.BEND
-                            BendStrength = ValueSome (convertBendValue bv.Step) }
-                    )
-            )
+                            BitFlag = bitFlags[i]
+                            Position = time
+                            Flags = flag &&& (~~~ commonFlags)
+                            SlideEndFret =
+                                if slide.IsNone && n.IsSlide then
+                                    ValueSome (byte n.SlideTo)
+                                else
+                                    ValueNone
+                            UnpitchedSlideEndFret =
+                                if unpitchedSlide.IsNone && n.IsUnpitchedSlide then
+                                    ValueSome (byte n.SlideUnpitchTo)
+                                else
+                                    ValueNone
+                            ExtendedNoteFlags = extFlag &&& (~~~ commonExtendedNoteFlags)
+                        }
+                        |> Some)
 
-        let chordName =
-            chordOpt
-            |> Option.map (fun x -> x.Template.Name)
-            |> Option.defaultValue String.Empty
+            let bendTechNotes =
+                notes
+                |> Array.collect (fun n ->
+                    if not n.IsBend then
+                        Array.empty
+                    else
+                        n.BendValues.ToArray()
+                        |> Array.map (fun bv ->
+                            { EOFNote.Empty with
+                                BitFlag = getBitFlag (sbyte n.String)
+                                Position = uint bv.Time
+                                Flags = EOFNoteFlag.RS_NOTATION ||| EOFNoteFlag.BEND
+                                BendStrength = ValueSome (convertBendValue bv.Step) }
+                        )
+                )
 
-        let eofNote =
-            { EOFNote.Empty with
-                ChordName = chordName
-                BitFlag = commonBitFlag
-                GhostBitFlag = ghostBitFlag
-                Frets = frets
-                Position = time
-                Length = max (uint maxSus) 1u
-                Flags = commonFlags ||| splitFlag ||| crazyFlag
-                SlideEndFret = slide
-                UnpitchedSlideEndFret = unpitchedSlide
-                ExtendedNoteFlags = commonExtendedNoteFlags
-            }
-
-        let fingering =
-            handshapeTemplate
-            // Prefer fingering from template
-            |> Option.map (fun x ->
-                x.Frets
-                |> Array.mapi (fun i x -> if x >= 0y then i else -1)
-                |> Array.filter (fun i -> i > 0)
-                |> Array.map (getTemplateFingering x))
-            |> Option.orElseWith (fun () ->
+            let chordName =
                 chordOpt
-                |> Option.map (fun x -> x.Fingering))
-            // No fingering defined
-            |> Option.defaultWith (fun () -> Array.replicate notes.Length 0uy)
+                |> Option.map (fun x -> x.Template.Name)
+                |> Option.defaultValue String.Empty
 
-        let techNotes = Array.concat [ techNotes; bendTechNotes; stopTechNotes ]
+            let eofNote =
+                { EOFNote.Empty with
+                    ChordName = chordName
+                    BitFlag = commonBitFlag
+                    GhostBitFlag = ghostBitFlag
+                    Frets = frets
+                    Position = time
+                    Length = max (uint maxSus) 1u
+                    Flags = commonFlags ||| splitFlag ||| crazyFlag
+                    SlideEndFret = slide
+                    UnpitchedSlideEndFret = unpitchedSlide
+                    ExtendedNoteFlags = commonExtendedNoteFlags
+                }
 
-        eofNote, fingering, techNotes
+            let fingering =
+                handshapeTemplate
+                // Prefer fingering from template
+                |> Option.map fingeringFromTemplate
+                |> Option.orElseWith (fun () ->
+                    chordOpt
+                    |> Option.map (fun x -> x.Fingering))
+                // No fingering defined
+                |> Option.defaultWith (fun () -> Array.replicate notes.Length 0uy)
+
+            let techNotes = Array.concat [ techNotes; bendTechNotes; stopTechNotes ]
+
+            eofNote, fingering, techNotes
     )
