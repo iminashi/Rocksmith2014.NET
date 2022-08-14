@@ -7,8 +7,8 @@ let private handShapeNotNeeded isArpeggio (notesInHs: EOFNote array) =
     let b = notesInHs |> Array.tryHead |> Option.map (fun x -> x.BitFlag)
     match b with
     | None ->
-        // Empty handshape: always include
-        // TODO: this is probably not needed
+        // Should never get here
+        // There should be always at least a full ghost chord at the start of the handshape
         false
     | Some b ->
         // Exclude if not an arpeggio or all the chords are the same in the handshape
@@ -25,8 +25,7 @@ let convertHandShapes (inst: InstrumentalArrangement) (notes: EOFNote array) =
             let notesInHs =
                 notes
                 |> Array.filter (fun n ->
-                    n.NoteType = diff
-                    && int n.Position >= hs.StartTime && int n.Position < hs.EndTime)
+                    n.NoteType = diff && (int n.Position >= hs.StartTime && int n.Position < hs.EndTime))
 
             let isArpeggio = inst.ChordTemplates[int hs.ChordId].IsArpeggio
 

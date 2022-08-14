@@ -18,11 +18,11 @@ let private (|Combinable|_|) (a: EOFNote) (b: EOFNote) =
     else
         ValueNone
 
-let combineTechNotes (techNotes: EOFNote array) =
-    let canMove (tn: EOFNote) =
-        tn.Flags &&& EOFNoteFlag.BEND = EOFNoteFlag.ZERO
-        && tn.ExtendedNoteFlags &&& EOFExtendedNoteFlag.STOP = EOFExtendedNoteFlag.ZERO
+let private canMove (tn: EOFNote) =
+    tn.Flags &&& EOFNoteFlag.BEND = EOFNoteFlag.ZERO
+    && tn.ExtendedNoteFlags &&& EOFExtendedNoteFlag.STOP = EOFExtendedNoteFlag.ZERO
 
+let combineTechNotes (techNotes: EOFNote array) =
     let combiner current acc =
         match acc with
         | (Combinable current prev) :: tail ->

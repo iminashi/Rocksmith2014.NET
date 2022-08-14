@@ -8,6 +8,7 @@ type ProGuitarTrack =
     | EmptyTrack of name: string
 
 type EOFTrack =
+    | Track0
     | Legacy of name: string * behavior: byte * type': byte * lanes: byte
     | Vocals of vocals: Vocal seq
     | ProGuitar of guitarTrack: ProGuitarTrack

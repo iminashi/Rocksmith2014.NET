@@ -32,7 +32,7 @@ let writeOggProfiles (delay: int) =
 let writeEvents (events: EOFEvent array) =
     binaryWriter {
         // Number of events
-        events.Length 
+        events.Length
 
         for e in events do
             // Text
@@ -48,7 +48,8 @@ let writeEvents (events: EOFEvent array) =
 
 let customData =
     binaryWriter {
-        0u // number int
+        // Number of custom data
+        0u
     }
 
 let writeDummyLegacyTack (name: string, behavior: byte, type': byte, lanes: byte) =
@@ -74,24 +75,25 @@ let writeDummyLegacyTack (name: string, behavior: byte, type': byte, lanes: byte
 
 let writeTracks (tracks: EOFTrack list) =
     binaryWriter {
-        tracks.Length + 1 // number int
-
-        // Track 0, which stores non track-specific sections like bookmarks
-        ""
-        0uy // format
-        0uy // behaviour
-        0uy // type
-        0y // difficulty level
-        0 // flags
-        65535us // compliance flags
-
-        0us // number of sections
-        1 // custom data blocks
-        4 // custom data block size
-        0xFFFFFFFFu // custom data
+        // Number of tracks
+        tracks.Length
 
         for t in tracks do
             match t with
+            | Track0 ->
+                // Track 0, which stores non track-specific sections like bookmarks
+                ""
+                0uy // format
+                0uy // behaviour
+                0uy // type
+                0y // difficulty level
+                0 // flags
+                65535us // compliance flags
+
+                0us // number of sections
+                1 // custom data blocks
+                4 // custom data block size
+                0xFFFFFFFFu // custom data
             | Legacy (n, b, t, l) ->
                 yield! writeDummyLegacyTack (n, b, t, l)
             | Vocals vocals ->
@@ -110,6 +112,7 @@ let getTracks (eofProject: EOFProTracks) =
         |> Option.defaultValue (EmptyTrack name)
 
     [
+        Track0
         Legacy ("PART GUITAR", 1uy, 1uy, 5uy)
         Legacy ("PART BASS", 1uy, 2uy, 5uy)
         Legacy ("PART GUITAR COOP", 1uy, 3uy, 5uy)
@@ -146,15 +149,12 @@ let writeHeader =
     }
 
 let getTrackIndex (tracks: EOFTrack list) (arr: InstrumentalArrangement) =
-    let index =
-        tracks
-        |> List.findIndex (function
-            | ProGuitar (ActualTrack (_, actual)) ->
-                Object.ReferenceEquals(actual.Data, arr)
-            | _ ->
-                false)
-    // Account for Track 0
-    index + 1
+    tracks
+    |> List.findIndex (function
+        | ProGuitar (ActualTrack (_, actual)) ->
+            Object.ReferenceEquals(actual.Data, arr)
+        | _ ->
+            false)
 
 /// Write project.
 let writeEofProject (path: string) (eofProject: EOFProTracks) =
