@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Compile Include="HelperTests.fs" />
+    <Compile Include="NoteConversionTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

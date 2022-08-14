@@ -399,3 +399,4 @@ let convertNotes (inst: InstrumentalArrangement) =
 
             eofNote, fingering, techNotes
     )
+    |> Array.unzip3

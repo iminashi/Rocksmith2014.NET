@@ -24,7 +24,7 @@ let tests =
                 Ebeat(1100, 4s)
             }
 
-            let timeSignatures = inferTimesignatures beats
+            let timeSignatures = inferTimeSignatures beats
 
             let expected = seq {
                 100, ``TS 3 | 4``

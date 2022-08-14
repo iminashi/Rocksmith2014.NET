@@ -198,29 +198,41 @@ let createTremoloSections (notes: EOFNote array) =
     |> List.map (fun x -> EOFSection.Create(x.Difficulty, x.StartTime, x.EndTime, 0u))
     |> List.toArray
 
-let writeProTrack (inst: InstrumentalArrangement) =
-    let notes, fingeringData, techNotes =
-        convertNotes inst
-        |> Array.unzip3
+let prepareNotes (handShapeResult: HsResult array) (inst: InstrumentalArrangement) (notes: EOFNote array) =
+    let updates =
+        handShapeResult
+        |> Array.collect (function AdjustSustains s -> s | _ -> Array.empty)
+        |> Array.map (fun x -> (x.Difficulty, x.Time), x.NewSustain)
+        |> readOnlyDict
 
+    // Update note sustains if necessary
+    let notes =
+        if updates.Count = 0 then
+            notes
+        else
+            notes
+            |> Array.map (fun n ->
+                match updates.TryGetValue((n.NoteType, n.Position)) with
+                | true, length -> { n with Length = length }
+                | false, _ -> n)
+
+    // Fix fret numbers if capo is used
+    if inst.MetaData.Capo > 0y then
+        notes
+        |> Array.map (fun n ->
+            let newFrets =
+                n.Frets
+                |> Array.map (fun f -> if f = 0uy then 0uy else f - byte inst.MetaData.Capo)
+            { n with Frets = newFrets })
+    else
+        notes
+
+let writeProTrack (inst: InstrumentalArrangement) =
+    let notes, fingeringData, techNotes = convertNotes inst
     let tones = convertTones inst
     let anchors = convertAnchors inst
     let handShapeResult = convertHandShapes inst notes
-    let notes =
-        let updates =
-            handShapeResult
-            |> Array.collect (function AdjustSustains s -> s | _ -> Array.empty)
-            |> Array.map (fun x -> (x.Difficulty, x.Time), x.NewSustain)
-            |> readOnlyDict
-
-        notes
-        |> Array.map (fun n ->
-            match updates.TryGetValue((n.NoteType, n.Position)) with
-            | true, length -> { n with Length = length }
-            | false, _ -> n)
-
-    // TODO: Fix frets if capo used
-
+    let notes = prepareNotes handShapeResult inst notes
     let handShapes = handShapeResult |> Array.choose (function SectionCreated s -> Some s | _ -> None)
 
     let fingeringData = fingeringData |> Array.concat
