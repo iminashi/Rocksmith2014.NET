@@ -14,6 +14,7 @@ open Rocksmith2014.Conversion
 open Rocksmith2014.DLCProject
 open Rocksmith2014.DLCProject.DDS
 open Rocksmith2014.DLCProject.Manifest
+open Rocksmith2014.EOF
 open Rocksmith2014.PSARC
 open Rocksmith2014.SNG
 open Rocksmith2014.XML
@@ -108,6 +109,7 @@ let init () =
     Cmd.none
 
 type Msg =
+    | ConvertXMLtoEOF of path: string
     | UnpackSNGFile of file: string
     | PackSNGFile of file: string
     | ConvertVocalsSNGtoXML of file: string
@@ -141,6 +143,12 @@ let convertFileToSng platform (fileName: string) =
 let update (msg: Msg) (state: State) : State * Cmd<Msg> =
     try
         match msg with
+        | ConvertXMLtoEOF path ->
+            let targetPath = Path.Combine(Path.GetDirectoryName(path), "conversion_test.eof")
+            let xml = InstrumentalArrangement.Load(path)
+
+            EOFProjectWriter.writeEofProject targetPath xml Seq.empty
+            state, Cmd.none
         | UnpackSNGFile file ->
             let t () = SNG.unpackFile file state.Platform
             state, Cmd.OfAsync.attempt t () Error
@@ -538,6 +546,11 @@ let view (state: State) dispatch =
                     Button.create [
                         Button.onClick (fun _ -> ofdXml (CheckXml >> dispatch))
                         Button.content "Check Instrumental XML..."
+                    ]
+
+                    Button.create [
+                        Button.onClick (fun _ -> ofdXml (ConvertXMLtoEOF >> dispatch))
+                        Button.content "Convert XML to EOF..."
                     ]
                 ]
             ]

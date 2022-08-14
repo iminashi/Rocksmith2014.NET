@@ -13,7 +13,7 @@ type MainWindow() as this =
     do
         base.Title <- "Tools"
         base.Width <- 800.0
-        base.Height <- 700.0
+        base.Height <- 750.0
 
         Elmish.Program.mkProgram Tools.init Tools.update Tools.view
         |> Program.withHost this
