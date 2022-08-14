@@ -46,7 +46,7 @@ let getSectionTimes vocals =
     |> getTimes None []
     |> List.rev
 
-let writeVocalsTrack (name: string) (vocalSeq: Vocal seq) =
+let writeVocalsTrack (vocalSeq: Vocal seq) =
     let vocals = vocalSeq |> List.ofSeq
     let sections =
         getSectionTimes vocals
@@ -54,7 +54,7 @@ let writeVocalsTrack (name: string) (vocalSeq: Vocal seq) =
         |> List.toArray
 
     binaryWriter {
-        name
+        "PART VOCALS"
         2uy // format
         3uy // behaviour
         6uy // type

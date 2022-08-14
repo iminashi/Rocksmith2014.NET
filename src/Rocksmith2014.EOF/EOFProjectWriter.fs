@@ -93,9 +93,9 @@ let writeTracks (tracks: EOFTrack list) =
             match t with
             | Legacy (n, b, t, l) ->
                 yield! writeDummyLegacyTack (n, b, t, l)
-            | Vocals (name, vocals) ->
-                yield! writeVocalsTrack name vocals
-            | ProGuitar (ExistingTrack (name, imported)) ->
+            | Vocals vocals ->
+                yield! writeVocalsTrack vocals
+            | ProGuitar (ActualTrack (name, imported)) ->
                 yield! writeProTrack name imported
             | ProGuitar (EmptyTrack name) ->
                 yield! writeEmptyProGuitarTrack name
@@ -105,7 +105,7 @@ let getTracks (eofProject: EOFProTracks) =
     let getOrDefault name index (array: ImportedArrangement array) =
         array
         |> Array.tryItem index
-        |> Option.map (fun arr -> ExistingTrack(name, arr))
+        |> Option.map (fun arr -> ActualTrack(name, arr))
         |> Option.defaultValue (EmptyTrack name)
 
     [
@@ -114,7 +114,7 @@ let getTracks (eofProject: EOFProTracks) =
         Legacy ("PART GUITAR COOP", 1uy, 3uy, 5uy)
         Legacy ("PART RHYTHM", 1uy, 4uy, 5uy)
         Legacy ("PART DRUMS", 2uy, 5uy, 5uy)
-        Vocals ("PART VOCALS", eofProject.PartVocals)
+        Vocals eofProject.PartVocals
         Legacy ("PART KEYS", 4uy, 7uy, 5uy)
         ProGuitar (getOrDefault "REAL_BASS" 0 eofProject.PartBass)
         ProGuitar (getOrDefault "PART REAL_GUITAR" 0 eofProject.PartGuitar)
@@ -124,7 +124,7 @@ let getTracks (eofProject: EOFProTracks) =
         Legacy ("PART REAL_DRUMS_PS", 2uy, 13uy, 5uy)
         match eofProject.PartBonus with
         | Some bonus ->
-            ProGuitar (ExistingTrack ("PART REAL_GUITAR_BONUS", bonus))
+            ProGuitar (ActualTrack ("PART REAL_GUITAR_BONUS", bonus))
         | None ->
             ()
     ]
