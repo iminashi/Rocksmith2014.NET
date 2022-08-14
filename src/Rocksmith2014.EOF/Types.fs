@@ -145,3 +145,27 @@ module EOFNote =
             UnpitchedSlideEndFret = ValueNone
             ExtendedNoteFlags = EOFExtendedNoteFlag.ZERO
         }
+
+[<Struct>]
+type SustainAdjustment =
+    { Difficulty: byte
+      Time: uint
+      NewSustain: uint }
+
+type HsResult =
+    | AdjustSustains of SustainAdjustment array
+    | SectionCreated of EOFSection
+
+type ChordData =
+    { Template: ChordTemplate
+      ChordId: int16
+      HandshapeId: int
+      IsFullPanel: bool
+      IsFirstInHandShape: bool
+      Fingering: byte array }
+
+type NoteGroup =
+    { Chord: ChordData option
+      Time: uint
+      Difficulty: byte
+      Notes: Note array }

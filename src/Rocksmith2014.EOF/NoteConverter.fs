@@ -3,16 +3,9 @@ module NoteConverter
 open Rocksmith2014.XML
 open System
 open EOFTypes
+open FlagBuilder
 
 let inline getBitFlag (string: sbyte) = 1uy <<< (int string)
-
-type FlagBuilder () =
-    member inline _.Yield(f) = f
-    member inline _.Zero() = LanguagePrimitives.EnumOfValue(LanguagePrimitives.GenericZero)
-    member inline _.Combine(f1, f2) = f1 ||| f2
-    member inline _.Delay(f) = f()
-
-let flags = FlagBuilder()
 
 let getNoteFlags (extFlag: EOFExtendedNoteFlag) (note: Note) =
     flags {
@@ -51,14 +44,6 @@ let getExtendedNoteFlags wasChord (note: Note) =
         if wasChord && note.Sustain > 0 then EOFExtendedNoteFlag.SUSTAIN
     }
 
-type ChordData =
-    { Template: ChordTemplate
-      ChordId: int16
-      HandshapeId: int
-      IsFullPanel: bool
-      IsFirstInHandShape: bool
-      Fingering: byte array }
-
 let notesFromTemplate (c: Chord) (template: ChordTemplate) =
     template.Frets
     |> Array.choosei (fun stringIndex fret ->
@@ -86,12 +71,6 @@ let convertTemplateFingering (template: ChordTemplate) (stringIndex: int) =
     | 0y -> 5uy // Thumb
     | f when f < 0y -> 0uy
     | f -> byte f
-
-type NoteGroup =
-    { Chord: ChordData option
-      Time: uint
-      Difficulty: byte
-      Notes: Note array }
 
 let fretsFromTemplate (notes: Note array) (ct: ChordTemplate) =
     ct.Frets

@@ -11,11 +11,15 @@
     <Compile Include="Types.fs" />
     <Compile Include="Helpers.fs" />
     <Compile Include="BinaryFileWriter.fs" />
+    <Compile Include="FlagBuilder.fs" />
     <Compile Include="IniWriters.fs" />
     <Compile Include="SectionWriter.fs" />
     <Compile Include="BeatWriter.fs" />
     <Compile Include="VocalsWriter.fs" />
     <Compile Include="NoteConverter.fs" />
+    <Compile Include="Tremolo.fs" />
+    <Compile Include="TechNotes.fs" />
+    <Compile Include="HandShapes.fs" />
     <Compile Include="ProGuitarWriter.fs" />
     <None Include="Test.fsx" />
     <Compile Include="EOFProjectWriter.fs" />
