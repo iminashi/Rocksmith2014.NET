@@ -147,7 +147,13 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             let targetPath = Path.Combine(Path.GetDirectoryName(path), "conversion_test.eof")
             let xml = InstrumentalArrangement.Load(path)
 
-            EOFProjectWriter.writeEofProject targetPath xml Seq.empty
+            let eofProject =
+                { PartGuitar = Array.singleton({ Data = xml; CustomName = "PART_LEAD" })
+                  PartBass = Array.empty
+                  PartBonus = None
+                  PartVocals = Seq.empty }
+
+            EOFProjectWriter.writeEofProject targetPath eofProject
             state, Cmd.none
         | UnpackSNGFile file ->
             let t () = SNG.unpackFile file state.Platform

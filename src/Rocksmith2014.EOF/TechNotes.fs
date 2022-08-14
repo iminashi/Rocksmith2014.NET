@@ -1,8 +1,8 @@
 module TechNotes
 
+open Rocksmith2014.EOF.EOFTypes
 open System.IO
 open BinaryFileWriter
-open EOFTypes
 
 [<return: Struct>]
 let private (|Combinable|_|) (a: EOFNote) (b: EOFNote) =

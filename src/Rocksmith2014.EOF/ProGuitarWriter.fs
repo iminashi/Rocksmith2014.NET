@@ -1,11 +1,11 @@
-module ProGuitarWriter
+module Rocksmith2014.EOF.ProGuitarWriter
 
 open Rocksmith2014.XML
 open System
+open EOFTypes
 open BinaryFileWriter
 open FlagBuilder
 open NoteConverter
-open EOFTypes
 open SectionWriter
 open Tremolo
 open TechNotes
@@ -90,7 +90,8 @@ let prepareNotes (handShapeResult: HsResult array) (inst: InstrumentalArrangemen
     else
         notes
 
-let writeProTrack (inst: InstrumentalArrangement) =
+let writeProTrack (name: string) (imported: ImportedArrangement) =
+    let inst = imported.Data
     let notes, fingeringData, techNotes = convertNotes inst
     let tones = convertTones inst
     let anchors = convertAnchors inst
@@ -122,25 +123,53 @@ let writeProTrack (inst: InstrumentalArrangement) =
         let ap = inst.MetaData.ArrangementProperties
         flags {
             EOFTrackFlag.UNLIMITED_DIFFS
-            if ap.BassPick then EOFTrackFlag.RS_PICKED_BASS
+            EOFTrackFlag.ALT_NAME
+
+            if ap.BassPick then
+                EOFTrackFlag.RS_PICKED_BASS
+
             if ap.BonusArrangement then
                 EOFTrackFlag.RS_BONUS_ARR
+
             elif not ap.Represent then
                 EOFTrackFlag.RS_ALT_ARR
         }
 
+    let stringCount =
+        if inst.MetaData.ArrangementProperties.PathBass then 4uy else 6uy
+    let tuning =
+        inst.MetaData.Tuning.Strings
+        |> Array.take (int stringCount)
+        |> Array.map byte
+
+    let trackType =
+        match name with
+        | Contains "BONUS" -> 14uy
+        | Contains "BASS" -> 8uy
+        | _ -> 9uy
+
     binaryWriter {
-        "PART REAL_GUITAR"
-        4uy // format
-        5uy // behaviour
-        9uy // type
-        -1y // difficulty level
-        trackFlag |> uint // flags
-        0us // compliance flags
+        // Name (PART REAL...)
+        name
+        // Format (4 = Pro Guitar/Bass)
+        4uy 
+        // Behaviour (5 = Pro Guitar/Bass)
+        5uy
+        // Type
+        trackType
+        // Difficulty level
+        -1y
+        //Flags
+        trackFlag |> uint
+        // Compliance flags
+        0us
+
+        // Alternative name
+        imported.CustomName
 
         24uy // highest fret
-        6uy // strings
-        inst.MetaData.Tuning.Strings |> Array.map byte
+        stringCount // strings
+        tuning
 
         // Notes
         notes

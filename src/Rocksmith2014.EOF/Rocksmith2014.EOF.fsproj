@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="ImportTypes.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="Helpers.fs" />
     <Compile Include="BinaryFileWriter.fs" />

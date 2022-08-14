@@ -1,7 +1,7 @@
 module SectionWriter
 
+open Rocksmith2014.EOF.EOFTypes
 open BinaryFileWriter
-open EOFTypes
 
 let writeSection (section: EOFSection) =
     binaryWriter {

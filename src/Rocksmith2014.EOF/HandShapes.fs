@@ -1,7 +1,7 @@
 module HandShapes
 
+open Rocksmith2014.EOF.EOFTypes
 open Rocksmith2014.XML
-open EOFTypes
 
 let private handShapeNotNeeded isArpeggio (notesInHs: EOFNote array) =
     let b = notesInHs |> Array.tryHead |> Option.map (fun x -> x.BitFlag)

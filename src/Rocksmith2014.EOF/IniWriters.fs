@@ -1,7 +1,7 @@
 module IniWriters
 
+open Rocksmith2014.EOF.EOFTypes
 open BinaryFileWriter
-open EOFTypes
 
 let writeIniStrings (iniStrings: IniString array) =
     binaryWriter {

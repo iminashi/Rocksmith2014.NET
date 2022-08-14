@@ -1,6 +1,6 @@
 module Tremolo
 
-open EOFTypes
+open Rocksmith2014.EOF.EOFTypes
 
 type private TempTremoloSection =
     { Difficulty: byte

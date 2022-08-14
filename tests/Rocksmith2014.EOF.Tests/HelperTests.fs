@@ -2,8 +2,8 @@ module HelperTests
 
 open Expecto
 open Rocksmith2014.XML
+open Rocksmith2014.EOF.EOFTypes
 open Rocksmith2014.EOF.Helpers
-open EOFTypes
 
 [<Tests>]
 let tests =

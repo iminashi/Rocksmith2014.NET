@@ -1,10 +1,10 @@
 module NoteConversionTests
 
 open Expecto
+open Rocksmith2014.EOF.EOFTypes
+open Rocksmith2014.EOF.ProGuitarWriter
+open Rocksmith2014.EOF.NoteConverter
 open Rocksmith2014.XML
-open EOFTypes
-open NoteConverter
-open ProGuitarWriter
 
 [<Tests>]
 let tests =

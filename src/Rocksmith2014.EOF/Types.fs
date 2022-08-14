@@ -1,10 +1,10 @@
-module EOFTypes
+module Rocksmith2014.EOF.EOFTypes
 
 open Rocksmith2014.XML
 open System
 
 type ProGuitarTrack =
-    | ExistingTrack of InstrumentalArrangement
+    | ExistingTrack of name: string * ImportedArrangement
     | EmptyTrack of name: string
 
 type EOFTrack =
@@ -123,7 +123,6 @@ type EOFNote =
         SlideEndFret: byte voption
         BendStrength: byte voption
         UnpitchedSlideEndFret: byte voption
-        //[4 bytes:] Extended note flags (if the MSB of the note flags field is set, another 4 byte flag field follows, and if its MSB is set, another 4 byte flag field, etc)
         ExtendedNoteFlags: EOFExtendedNoteFlag
     }
 

@@ -1,6 +1,5 @@
 module Rocksmith2014.EOF.EOFProjectWriter
 
-open Rocksmith2014.XML
 open BinaryFileWriter
 open EOFTypes
 open Helpers
@@ -96,27 +95,38 @@ let writeTracks (tracks: EOFTrack list) =
                 yield! writeDummyLegacyTack (n, b, t, l)
             | Vocals (name, vocals) ->
                 yield! writeVocalsTrack name vocals
-            | ProGuitar (ExistingTrack arr) ->
-                yield! writeProTrack arr
+            | ProGuitar (ExistingTrack (name, imported)) ->
+                yield! writeProTrack name imported
             | ProGuitar (EmptyTrack name) ->
                 yield! writeEmptyProGuitarTrack name
     }
 
-let tracks testArr vocals =
+let tracks (eofProject: EOFProTracks) =
+    let getOrDefault name index (array: ImportedArrangement array) =
+        array
+        |> Array.tryItem index
+        |> Option.map (fun arr -> ExistingTrack(name, arr))
+        |> Option.defaultValue (EmptyTrack name)
+
     [
         Legacy ("PART GUITAR", 1uy, 1uy, 5uy)
         Legacy ("PART BASS", 1uy, 2uy, 5uy)
         Legacy ("PART GUITAR COOP", 1uy, 3uy, 5uy)
         Legacy ("PART RHYTHM", 1uy, 4uy, 5uy)
         Legacy ("PART DRUMS", 2uy, 5uy, 5uy)
-        Vocals ("PART VOCALS", vocals)
+        Vocals ("PART VOCALS", eofProject.PartVocals)
         Legacy ("PART KEYS", 4uy, 7uy, 5uy)
-        ProGuitar (EmptyTrack "PART REAL_BASS")
-        ProGuitar (ExistingTrack testArr)
+        ProGuitar (getOrDefault "REAL_BASS" 0 eofProject.PartBass)
+        ProGuitar (getOrDefault "PART REAL_GUITAR" 0 eofProject.PartGuitar)
         Legacy ("PART DANCE", 7uy, 10uy, 4uy)
-        ProGuitar (EmptyTrack "PART REAL_BASS_22")
-        ProGuitar (EmptyTrack "PART REAL_GUITAR_22")
+        ProGuitar (getOrDefault "PART REAL_BASS_22" 1 eofProject.PartBass)
+        ProGuitar (getOrDefault "PART REAL_GUITAR_22" 1 eofProject.PartGuitar)
         Legacy ("PART REAL_DRUMS_PS", 2uy, 13uy, 5uy)
+        match eofProject.PartBonus with
+        | Some bonus ->
+            ProGuitar (ExistingTrack ("PART REAL_GUITAR_BONUS", bonus))
+        | None ->
+            ()
     ]
 
 let writeHeader =
@@ -135,7 +145,8 @@ let writeHeader =
     }
 
 /// Write project.
-let writeEofProject (path: string) (inst: InstrumentalArrangement) (vocals: Vocal seq) =
+let writeEofProject (path: string) (eofProject: EOFProTracks) =
+    let inst = eofProject.GetAnyInstrumental.Data
     let events, tsEvents = createEOFEvents inst
 
     let tsEvents =
@@ -172,6 +183,6 @@ let writeEofProject (path: string) (inst: InstrumentalArrangement) (vocals: Voca
         yield! writeBeats inst events tsEvents
         yield! writeEvents events
         yield! customData
-        yield! writeTracks (tracks inst vocals)
+        yield! writeTracks (tracks eofProject)
     }
     |> toFile path

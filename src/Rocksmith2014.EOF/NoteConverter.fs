@@ -1,4 +1,4 @@
-module NoteConverter
+module Rocksmith2014.EOF.NoteConverter
 
 open Rocksmith2014.XML
 open System

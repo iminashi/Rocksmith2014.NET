@@ -1,8 +1,8 @@
 module BinaryFileWriter
 
+open Rocksmith2014.EOF.EOFTypes
 open System.IO
 open System.Text
-open EOFTypes
 
 type Writer = BinaryWriter -> unit
  

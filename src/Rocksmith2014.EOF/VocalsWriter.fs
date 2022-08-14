@@ -1,9 +1,9 @@
 module VocalsWriter
 
+open Rocksmith2014.EOF.EOFTypes
 open Rocksmith2014.XML
 open BinaryFileWriter
 open SectionWriter
-open EOFTypes
 
 let writeVocal (vocal: Vocal) =
     binaryWriter {
