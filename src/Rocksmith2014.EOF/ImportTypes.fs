@@ -19,3 +19,12 @@ type EOFProTracks =
         |> Option.orElse (this.PartBass |> Array.tryItem 0)
         |> Option.orElse this.PartBonus
         |> Option.defaultWith (fun () -> failwith "One instrumental arrangement needed for EOF export.")
+
+    member this.AllInstrumentals =
+        seq {
+            yield! this.PartGuitar
+            yield! this.PartBass
+            match this.PartBonus with
+            | Some b -> b
+            | None -> ()
+        }

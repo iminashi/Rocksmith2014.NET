@@ -15,7 +15,7 @@ type EOFTrack =
 type EOFEvent =
     { Text: string
       BeatNumber: int
-      // TODO: track number
+      TrackNumber: uint16
       Flag: uint16 }
 
 type EOFSection =

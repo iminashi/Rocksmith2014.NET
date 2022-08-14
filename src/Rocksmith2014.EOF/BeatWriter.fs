@@ -46,7 +46,7 @@ let writeBeat
             |> Option.map (fun x -> x.Time)
             |> Option.defaultValue inst.MetaData.SongLength
 
-        let eventFlag = if events.Contains(beat.Time) then 2u else 0u
+        let eventFlag = if events.Contains(index) then 2u else 0u
         let tsFlag =
             // Ignore any time signature change on the last beat
             if nextBeat.IsSome then getTsFlag beat.Time else 0u
@@ -68,11 +68,11 @@ let writeBeat
 
 let writeBeats
         (inst: InstrumentalArrangement)
-        (events: (int * EOFEvent) array)
+        (events: EOFEvent array)
         (tsEvents: (int * EOFTimeSignature) list) =
     let eventsSet =
         events
-        |> Array.map fst
+        |> Array.map (fun e -> e.BeatNumber)
         |> Set.ofArray
 
     let getTsFlag = tsFlagGetter tsEvents

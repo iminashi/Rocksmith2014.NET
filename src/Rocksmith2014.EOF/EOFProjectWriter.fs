@@ -1,5 +1,6 @@
 module Rocksmith2014.EOF.EOFProjectWriter
 
+open Rocksmith2014.XML
 open BinaryWriterBuilder
 open EOFTypes
 open Helpers
@@ -27,19 +28,18 @@ let writeOggProfiles (delay: int) =
         0
     }
 
-let writeEvents (events: (int * EOFEvent) array) =
+let writeEvents (events: EOFEvent array) =
     binaryWriter {
         // Number of events
         events.Length 
 
-        for _, e in events do
+        for e in events do
             // Text
             e.Text
-            // associated_beat_number_or_position
+            // Associated beat number or position
             e.BeatNumber
-            // associated_track_number
-            // TODO
-            0us
+            // Associated track number
+            e.TrackNumber
             // Flags
             e.Flag
     }
@@ -144,10 +144,29 @@ let writeHeader =
         480
     }
 
+let getTrackIndex (tracks: EOFTrack list) (arr: InstrumentalArrangement) =
+    let index =
+        tracks
+        |> List.findIndex (function
+            | ProGuitar (ActualTrack (_, actual)) -> Object.ReferenceEquals(actual.Data, arr)
+            | _ -> false)
+    // Account for Track 0
+    index + 1 
+
 /// Write project.
 let writeEofProject (path: string) (eofProject: EOFProTracks) =
     let inst = eofProject.GetAnyInstrumental.Data
-    let events, tsEvents = createEOFEvents inst
+    let tsEvents =
+        inst.Events
+        |> Seq.filter (fun e -> e.Code.StartsWith("TS"))
+        |> Seq.toList
+
+    let tracks = getTracks eofProject
+    let events =
+        eofProject.AllInstrumentals
+        |> Seq.collect (fun imported -> createEOFEvents (getTrackIndex tracks) imported.Data)
+        |> Seq.sortBy (fun e -> e.BeatNumber)
+        |> Seq.toArray
 
     let tsEvents =
         if not tsEvents.IsEmpty then
@@ -183,6 +202,6 @@ let writeEofProject (path: string) (eofProject: EOFProTracks) =
         yield! writeBeats inst events tsEvents
         yield! writeEvents events
         yield! customData
-        yield! writeTracks (getTracks eofProject)
+        yield! writeTracks tracks
     }
     |> toFile path
