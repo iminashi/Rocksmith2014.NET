@@ -39,6 +39,7 @@ let customDataBlock (blockId: uint) (data: byte array) =
 [<return: Struct>]
 let (|Combinable|_|) (a: EOFNote) (b: EOFNote) =
     if a.Position = b.Position
+        && a.NoteType = b.NoteType
         && a.BendStrength = b.BendStrength
         && a.SlideEndFret = b.SlideEndFret
         && a.UnpitchedSlideEndFret = b.UnpitchedSlideEndFret
@@ -50,6 +51,10 @@ let (|Combinable|_|) (a: EOFNote) (b: EOFNote) =
         ValueNone
 
 let combineTechNotes (techNotes: EOFNote array) =
+    let canMove (tn: EOFNote) =
+        tn.Flags &&& EOFNoteFlag.BEND = EOFNoteFlag.ZERO
+        && tn.ExtendedNoteFlags &&& EOFExtendedNoteFlag.STOP = EOFExtendedNoteFlag.ZERO
+
     let combiner current acc =
         match acc with
         | (Combinable current prev) :: tail ->
@@ -64,27 +69,36 @@ let combineTechNotes (techNotes: EOFNote array) =
         | _ ->
             current :: acc
 
-    // TODO
+    // TODO: Improve
     let separator a acc =
         match acc with
         | b :: tail when a.Position = b.Position ->
-            let b2 =
-                { b with Position = b.Position + 50u }
-            a :: b2 :: tail
+            if canMove b then
+                let b2 = { b with Position = b.Position + 50u }
+                a :: b2 :: tail
+            elif canMove a then
+                let a2 = { a with Position = a.Position + 50u }
+                b :: a2 :: tail
+            else
+                acc
         | [] ->
             [ a ]
         | _ ->
             a :: acc
 
     techNotes
-    |> Seq.sortBy (fun x -> x.Position)
+    |> Seq.sortBy (fun x -> x.Position, x.NoteType)
     |> fun s -> Seq.foldBack combiner s []
     |> fun s -> Seq.foldBack separator s []
     |> List.toArray
 
-let convertAnchors (level: Level) =
-    level.Anchors.ToArray()
-    |> Array.map (fun a -> EOFSection.Create(0uy, uint a.Time, uint a.Fret, 0u))
+let convertAnchors (inst: InstrumentalArrangement) =
+    inst.Levels
+    |> Seq.mapi (fun diff level ->
+        level.Anchors.ToArray()
+        |> Array.map (fun a -> EOFSection.Create(byte diff, uint a.Time, uint a.Fret, 0u))
+    )
+    |> Array.concat
 
 let handShapeNotNeeded isArpeggio (notesInHs: EOFNote array) =
     let b = notesInHs |> Array.tryHead |> Option.map (fun x -> x.BitFlag)
@@ -97,33 +111,47 @@ let handShapeNotNeeded isArpeggio (notesInHs: EOFNote array) =
         not isArpeggio
         && notesInHs |> Array.forall (fun n -> n.BitFlag = b && n.Flags &&& EOFNoteFlag.SPLIT = EOFNoteFlag.ZERO)
 
+[<Struct>]
+type SustainAdjustment =
+    { Difficulty: byte
+      Time: uint
+      NewSustain: uint }
+
 type HsResult =
-    | AdjustSustains of (uint * uint) array
+    | AdjustSustains of SustainAdjustment array
     | SectionCreated of EOFSection
 
-let convertHandShapes (inst: InstrumentalArrangement) (notes: EOFNote array) (level: Level) =
-    level.HandShapes.ToArray()
-    |> Array.map (fun hs ->
-        let notesInHs =
-            notes
-            |> Array.filter (fun n -> int n.Position >= hs.StartTime && int n.Position < hs.EndTime)
+let convertHandShapes (inst: InstrumentalArrangement) (notes: EOFNote array) =
+    inst.Levels
+    |> Seq.mapi (fun diff level ->
+        let diff = byte diff
 
-        let isArpeggio = inst.ChordTemplates[int hs.ChordId].IsArpeggio
+        level.HandShapes.ToArray()
+        |> Array.map (fun hs ->
+            let notesInHs =
+                notes
+                |> Array.filter (fun n ->
+                    n.NoteType = diff
+                    && int n.Position >= hs.StartTime && int n.Position < hs.EndTime)
 
-        if handShapeNotNeeded isArpeggio notesInHs then
-            let updates =
-                notesInHs
-                |> Array.mapi (fun i n ->
-                    match notesInHs |> Array.tryItem (i + 1) with
-                    | Some next ->
-                        n.Position, next.Position - n.Position - 5u
-                    | None ->
-                        n.Position, uint hs.EndTime - n.Position)
+            let isArpeggio = inst.ChordTemplates[int hs.ChordId].IsArpeggio
 
-            AdjustSustains updates
-        else
-            SectionCreated <| EOFSection.Create(0uy, uint hs.StartTime, uint hs.EndTime, if isArpeggio then 0u else 2u)
+            if handShapeNotNeeded isArpeggio notesInHs then
+                let updates =
+                    notesInHs
+                    |> Array.mapi (fun i n ->
+                        match notesInHs |> Array.tryItem (i + 1) with
+                        | Some next ->
+                            { Difficulty = diff; Time = n.Position; NewSustain = next.Position - n.Position - 5u }
+                        | None ->
+                            { Difficulty = diff; Time = n.Position; NewSustain = uint hs.EndTime - n.Position })
+
+                AdjustSustains updates
+            else
+                SectionCreated <| EOFSection.Create(diff, uint hs.StartTime, uint hs.EndTime, if isArpeggio then 0u else 2u)
+        )
     )
+    |> Array.concat
 
 let convertTones (inst: InstrumentalArrangement) =
     inst.Tones.Changes.ToArray()
@@ -140,7 +168,8 @@ let getArrangementType (inst: InstrumentalArrangement) =
     | _ -> 0uy
 
 type TempTremoloSection =
-    { PrevIndex: int
+    { Difficulty: byte
+      PrevIndex: int
       StartTime: uint
       EndTime: uint }
 
@@ -157,31 +186,40 @@ let createTremoloSections (notes: EOFNote array) =
                 { h with PrevIndex = i; EndTime = note.Position + note.Length } :: t
             | _ ->
                 // Create new tremolo section
-                { StartTime = note.Position; PrevIndex = i; EndTime = note.Position + note.Length } :: acc
+                let newTremolo =
+                    { Difficulty = note.NoteType
+                      PrevIndex = i
+                      StartTime = note.Position
+                      EndTime = note.Position + note.Length }
+
+                newTremolo :: acc
     ) []
     |> List.rev
-    |> List.map (fun x -> EOFSection.Create(0uy, x.StartTime, x.EndTime, 0u))
+    |> List.map (fun x -> EOFSection.Create(x.Difficulty, x.StartTime, x.EndTime, 0u))
     |> List.toArray
 
 let writeProTrack (inst: InstrumentalArrangement) =
     let notes, fingeringData, techNotes =
-        convertNotes inst inst.Levels[0]
+        convertNotes inst
         |> Array.unzip3
 
     let tones = convertTones inst
-    let anchors = convertAnchors inst.Levels[0]
-    let handShapeResult = convertHandShapes inst notes inst.Levels[0]
+    let anchors = convertAnchors inst
+    let handShapeResult = convertHandShapes inst notes
     let notes =
         let updates =
             handShapeResult
             |> Array.collect (function AdjustSustains s -> s | _ -> Array.empty)
+            |> Array.map (fun x -> (x.Difficulty, x.Time), x.NewSustain)
             |> readOnlyDict
 
         notes
         |> Array.map (fun n ->
-            match updates.TryGetValue n.Position with
+            match updates.TryGetValue((n.NoteType, n.Position)) with
             | true, length -> { n with Length = length }
             | false, _ -> n)
+
+    // TODO: Fix frets if capo used
 
     let handShapes = handShapeResult |> Array.choose (function SectionCreated s -> Some s | _ -> None)
 
@@ -209,7 +247,8 @@ let writeProTrack (inst: InstrumentalArrangement) =
         let fingering = if fingeringData.Length > 0 then 1u else 0u
         let capo = if inst.MetaData.Capo > 0y then 1u else 0u
         let tech = if techNotesData.Length > 0 then 1u else 0u
-        2u + fingering + capo + tech
+        let diff = if inst.Levels.Count > 5 then 1u else 0u
+        2u + fingering + capo + tech + diff
 
     let trackFlag =
         let ap = inst.MetaData.ArrangementProperties
@@ -285,4 +324,8 @@ let writeProTrack (inst: InstrumentalArrangement) =
         // ID 7 = Tech notes
         if techNotesData.Length > 0 then
             yield! customDataBlock 7u techNotesData
+
+        // ID 9 = Difficulty level count
+        if inst.Levels.Count > 5 then
+            yield! customDataBlock 9u (Array.singleton (byte inst.Levels.Count))
     }

@@ -90,6 +90,7 @@ let convertTemplateFingering (template: ChordTemplate) (stringIndex: int) =
 type NoteGroup =
     { Chord: ChordData option
       Time: uint
+      Difficulty: byte
       Notes: Note array }
 
 let fretsFromTemplate (notes: Note array) (ct: ChordTemplate) =
@@ -119,67 +120,74 @@ let bitFlagFromTemplate (ct: ChordTemplate) =
     |> Array.mapi (fun i f -> if f >= 0y then getBitFlag (sbyte i) else 0uy)
     |> Array.reduce (|||)
 
-let createNoteGroups (inst: InstrumentalArrangement) (level: Level) =
-    let ghostChords =
-        level.HandShapes
-        |> Seq.filter (fun hs ->
-            level.Notes.Exists(fun n -> n.Time = hs.StartTime) |> not
-            && level.Chords.Exists(fun c -> c.Time = hs.StartTime) |> not)
-        |> Seq.map (fun hs ->
-            let ct = inst.ChordTemplates[int hs.ChordId]
-            let fingering = fingeringFromTemplate ct
+let createNoteGroups (inst: InstrumentalArrangement) =
+    inst.Levels
+    |> Seq.mapi (fun diff level ->
+        let ghostChords =
+            level.HandShapes
+            |> Seq.filter (fun hs ->
+                level.Notes.Exists(fun n -> n.Time = hs.StartTime) |> not
+                && level.Chords.Exists(fun c -> c.Time = hs.StartTime) |> not)
+            |> Seq.map (fun hs ->
+                let ct = inst.ChordTemplates[int hs.ChordId]
+                let fingering = fingeringFromTemplate ct
 
-            let chordData =
-                { Template = ct
-                  ChordId = hs.ChordId
-                  HandshapeId = -1
-                  IsFullPanel = false
-                  IsFirstInHandShape = true
-                  Fingering = fingering }
+                let chordData =
+                    { Template = ct
+                      ChordId = hs.ChordId
+                      HandshapeId = -1
+                      IsFullPanel = false
+                      IsFirstInHandShape = true
+                      Fingering = fingering }
 
-            { Chord = Some chordData; Time = uint hs.StartTime; Notes = Array.empty })
-        |> Seq.toArray
+                { Chord = Some chordData
+                  Time = uint hs.StartTime
+                  Difficulty = byte diff
+                  Notes = Array.empty })
+            |> Seq.toArray
 
-    let notes =
-        level.Notes.ToArray()
-        |> Array.groupBy (fun x -> x.Time)
-        |> Array.map (fun (t, group) -> { Chord = None; Notes = group; Time = uint t })
+        let notes =
+            level.Notes.ToArray()
+            |> Array.groupBy (fun x -> x.Time)
+            |> Array.map (fun (t, group) -> { Chord = None; Notes = group; Time = uint t; Difficulty = byte diff })
 
-    let chords =
-        level.Chords.ToArray()
-        |> Array.map (fun c ->
-            let template = inst.ChordTemplates[int c.ChordId]
-            let notes =
-                if c.HasChordNotes then
-                    c.ChordNotes.ToArray()
-                else
-                    notesFromTemplate c template
+        let chords =
+            level.Chords.ToArray()
+            |> Array.map (fun c ->
+                let template = inst.ChordTemplates[int c.ChordId]
+                let notes =
+                    if c.HasChordNotes then
+                        c.ChordNotes.ToArray()
+                    else
+                        notesFromTemplate c template
 
-            let chordData =
-                let fingering =
-                    notes
-                    |> Array.map (fun n -> convertTemplateFingering template (int n.String))
+                let chordData =
+                    let fingering =
+                        notes
+                        |> Array.map (fun n -> convertTemplateFingering template (int n.String))
 
-                let handshapeId =
-                    level.HandShapes.FindIndex(fun hs -> c.Time >= hs.StartTime && c.Time < hs.EndTime)
-                let handshapeStartTime =
-                    if handshapeId < 0 then -1 else level.HandShapes[handshapeId].StartTime
+                    let handshapeId =
+                        level.HandShapes.FindIndex(fun hs -> c.Time >= hs.StartTime && c.Time < hs.EndTime)
+                    let handshapeStartTime =
+                        if handshapeId < 0 then -1 else level.HandShapes[handshapeId].StartTime
 
-                { Template = template
-                  ChordId = c.ChordId
-                  HandshapeId = handshapeId
-                  IsFullPanel = c.HasChordNotes && not c.IsHighDensity
-                  IsFirstInHandShape = c.Time = handshapeStartTime
-                  Fingering = fingering }
+                    { Template = template
+                      ChordId = c.ChordId
+                      HandshapeId = handshapeId
+                      IsFullPanel = c.HasChordNotes && not c.IsHighDensity
+                      IsFirstInHandShape = c.Time = handshapeStartTime
+                      Fingering = fingering }
 
-            { Chord = Some chordData; Notes = notes; Time = uint c.Time })
+                { Chord = Some chordData
+                  Notes = notes
+                  Difficulty = byte diff
+                  Time = uint c.Time })
 
-    let combined = Array.concat [ chords; notes; ghostChords ]
-
-    combined
-    |> Array.sortInPlaceBy (fun x -> x.Time)
-
-    combined
+        Seq.concat [ chords; notes; ghostChords ]
+    )
+    |> Seq.concat
+    |> Seq.sortBy (fun x -> x.Time, x.Difficulty)
+    |> Seq.toArray
 
 let convertBendValue (step: float32) =
     let isQuarter = ceil step <> step
@@ -188,11 +196,11 @@ let convertBendValue (step: float32) =
     else
         byte step
 
-let convertNotes (inst: InstrumentalArrangement) (level: Level) =
-    let noteGroups = createNoteGroups inst level
+let convertNotes (inst: InstrumentalArrangement) =
+    let noteGroups = createNoteGroups inst
 
     noteGroups
-    |> Array.mapi (fun index { Chord = chordOpt; Notes = notes; Time = time } ->
+    |> Array.mapi (fun index { Chord = chordOpt; Notes = notes; Time = time; Difficulty = diff } ->
         if notes.Length = 0 then
             // Create ghost chord
             let chord = chordOpt |> Option.get
@@ -201,6 +209,7 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
 
             let eofNote =
                 { EOFNote.Empty with
+                    NoteType = diff
                     ChordName =  chord.Template.Name
                     BitFlag = bitFlag
                     GhostBitFlag = bitFlag
@@ -226,7 +235,7 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
 
             // Find possible chord template for handshape at note time
             let handshapeTemplate =
-                level.HandShapes.Find(fun hs -> hs.StartTime = int time)
+                inst.Levels[int diff].HandShapes.Find(fun hs -> hs.StartTime = int time)
                 |> Option.ofObj
                 |> Option.map (fun hs -> inst.ChordTemplates.[int hs.ChordId])
 
@@ -302,10 +311,11 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
                     |> Array.choose (fun n ->
                         if maxSus - n.Sustain > 3 then
                             { EOFNote.Empty with
-                                  BitFlag = getBitFlag (sbyte n.String)
-                                  Position = uint (n.Time + n.Sustain)
-                                  Flags = EOFNoteFlag.EXTENDED_FLAGS
-                                  ExtendedNoteFlags = EOFExtendedNoteFlag.STOP }
+                                NoteType = diff
+                                BitFlag = getBitFlag (sbyte n.String)
+                                Position = uint (n.Time + n.Sustain)
+                                Flags = EOFNoteFlag.EXTENDED_FLAGS
+                                ExtendedNoteFlags = EOFExtendedNoteFlag.STOP }
                             |> Some
                         else
                             None)
@@ -319,6 +329,7 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
                     else
                         let n = notes[i]
                         { EOFNote.Empty with
+                            NoteType = diff
                             BitFlag = bitFlags[i]
                             Position = time
                             Flags = flag &&& (~~~ commonFlags)
@@ -359,6 +370,7 @@ let convertNotes (inst: InstrumentalArrangement) (level: Level) =
 
             let eofNote =
                 { EOFNote.Empty with
+                    NoteType = diff
                     ChordName = chordName
                     BitFlag = commonBitFlag
                     GhostBitFlag = ghostBitFlag
