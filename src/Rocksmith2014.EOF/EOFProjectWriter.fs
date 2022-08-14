@@ -1,6 +1,7 @@
 module Rocksmith2014.EOF.EOFProjectWriter
 
 open Rocksmith2014.XML
+open System
 open BinaryWriterBuilder
 open EOFTypes
 open Helpers
@@ -8,7 +9,7 @@ open IniWriters
 open BeatWriter
 open VocalsWriter
 open ProGuitarWriter
-open System
+open EventConverter
 
 let writeOggProfiles (delay: int) =
     binaryWriter {
@@ -41,7 +42,7 @@ let writeEvents (events: EOFEvent array) =
             // Associated track number
             e.TrackNumber
             // Flags
-            e.Flag
+            e.Flag |> uint16
     }
 
 
@@ -151,7 +152,7 @@ let getTrackIndex (tracks: EOFTrack list) (arr: InstrumentalArrangement) =
             | ProGuitar (ActualTrack (_, actual)) -> Object.ReferenceEquals(actual.Data, arr)
             | _ -> false)
     // Account for Track 0
-    index + 1 
+    index + 1
 
 /// Write project.
 let writeEofProject (path: string) (eofProject: EOFProTracks) =
@@ -162,11 +163,13 @@ let writeEofProject (path: string) (eofProject: EOFProTracks) =
         |> Seq.toList
 
     let tracks = getTracks eofProject
+    let instrumentals = eofProject.AllInstrumentals |> Seq.toList
     let events =
-        eofProject.AllInstrumentals
+        instrumentals
         |> Seq.collect (fun imported -> createEOFEvents (getTrackIndex tracks) imported.Data)
         |> Seq.sortBy (fun e -> e.BeatNumber)
         |> Seq.toArray
+        |> unifyEvents instrumentals.Length
 
     let tsEvents =
         if not tsEvents.IsEmpty then

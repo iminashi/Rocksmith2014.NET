@@ -24,62 +24,6 @@ let getClosestBeat (beats: Ebeat array) (time: int) =
     | _ ->
         0
 
-let createEOFEvents (getTrackNumber: InstrumentalArrangement -> int) (inst: InstrumentalArrangement) =
-    let beats = inst.Ebeats.ToArray()
-
-    // Do not import time signature events
-    let otherEvents =
-        inst.Events
-        |> Seq.filter (fun e -> e.Code.StartsWith("TS") |> not)
-
-    let create text time flags =
-        { Text = text
-          BeatNumber = getClosestBeat beats time
-          TrackNumber = getTrackNumber inst |> uint16
-          Flag = flags }
-
-    let phraseEvents =
-        inst.PhraseIterations
-        |> Seq.map (fun p ->
-            let phrase = inst.Phrases[p.PhraseId]
-            create phrase.Name p.Time 1us)
-        |> Seq.cache
-
-    let sectionEvents =
-        inst.Sections
-        |> Seq.map (fun s -> create s.Name s.Time 2us)
-        |> Seq.cache
-
-    let otherEvents =
-        otherEvents
-        |> Seq.map (fun e -> create e.Code e.Time 4us)
-
-    let unifiedPhrasesAndSections =
-        phraseEvents
-        |> Seq.choose (fun p ->
-            if sectionEvents |> Seq.exists (fun s -> s.BeatNumber = p.BeatNumber && s.Text = p.Text) then
-                Some { p with Flag = 3us }
-            else
-                None)
-        |> Seq.cache
-
-    let phraseEvents =
-        phraseEvents
-        |> Seq.filter (fun p ->
-            unifiedPhrasesAndSections
-            |> Seq.exists (fun u -> p.BeatNumber = u.BeatNumber) |> not)
-
-    let sectionEvents =
-        sectionEvents
-        |> Seq.filter (fun s ->
-            unifiedPhrasesAndSections
-            |> Seq.exists (fun u -> s.BeatNumber = u.BeatNumber) |> not)
-
-    unifiedPhrasesAndSections
-    |> Seq.append phraseEvents
-    |> Seq.append sectionEvents
-    |> Seq.append otherEvents
-
 let tryParseTimeSignature (text: string) =
     let m = Regex.Match(text, "TS:(\d+)/(\d+)")
     if m.Success then

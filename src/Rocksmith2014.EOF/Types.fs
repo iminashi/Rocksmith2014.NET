@@ -12,12 +12,6 @@ type EOFTrack =
     | Vocals of vocals: Vocal seq
     | ProGuitar of guitarTrack: ProGuitarTrack
 
-type EOFEvent =
-    { Text: string
-      BeatNumber: int
-      TrackNumber: uint16
-      Flag: uint16 }
-
 type EOFSection =
     { Name: string
       Type: byte
@@ -106,6 +100,20 @@ type EOFTrackFlag =
     | GHL_MODE_MS     = 32u
     | RS_ALT_ARR      = 64u
     | RS_PICKED_BASS  = 128u
+
+[<Flags>]
+type EOFEventFlag =
+    | RS_PHRASE      = 1us
+    | RS_SECTION     = 2us
+    | RS_EVENT       = 4us
+    | RS_SOLO_PHRASE = 8us
+    | FLOATING_POS   = 16us
+
+type EOFEvent =
+    { Text: string
+      BeatNumber: int
+      TrackNumber: uint16
+      Flag: EOFEventFlag }
 
 type EOFNote =
     {
