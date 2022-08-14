@@ -2,7 +2,7 @@ module BeatWriter
 
 open Rocksmith2014.EOF.EOFTypes
 open Rocksmith2014.XML
-open BinaryFileWriter
+open BinaryWriterBuilder
 
 let [<Literal>] AnchoredFlag = 1u
 

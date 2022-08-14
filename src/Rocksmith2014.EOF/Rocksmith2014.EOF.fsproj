@@ -11,7 +11,7 @@
     <Compile Include="ImportTypes.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="Helpers.fs" />
-    <Compile Include="BinaryFileWriter.fs" />
+    <Compile Include="BinaryWriterBuilder.fs" />
     <Compile Include="FlagBuilder.fs" />
     <Compile Include="IniWriters.fs" />
     <Compile Include="BeatWriter.fs" />

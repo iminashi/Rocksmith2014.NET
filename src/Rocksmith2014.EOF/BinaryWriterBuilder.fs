@@ -1,4 +1,4 @@
-module BinaryFileWriter
+module BinaryWriterBuilder
 
 open Rocksmith2014.EOF.EOFTypes
 open System.IO

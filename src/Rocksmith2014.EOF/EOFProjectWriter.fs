@@ -1,6 +1,6 @@
 module Rocksmith2014.EOF.EOFProjectWriter
 
-open BinaryFileWriter
+open BinaryWriterBuilder
 open EOFTypes
 open Helpers
 open IniWriters
@@ -101,7 +101,7 @@ let writeTracks (tracks: EOFTrack list) =
                 yield! writeEmptyProGuitarTrack name
     }
 
-let tracks (eofProject: EOFProTracks) =
+let getTracks (eofProject: EOFProTracks) =
     let getOrDefault name index (array: ImportedArrangement array) =
         array
         |> Array.tryItem index
@@ -183,6 +183,6 @@ let writeEofProject (path: string) (eofProject: EOFProTracks) =
         yield! writeBeats inst events tsEvents
         yield! writeEvents events
         yield! customData
-        yield! writeTracks (tracks eofProject)
+        yield! writeTracks (getTracks eofProject)
     }
     |> toFile path

@@ -3,7 +3,7 @@ module Rocksmith2014.EOF.ProGuitarWriter
 open Rocksmith2014.XML
 open System
 open EOFTypes
-open BinaryFileWriter
+open BinaryWriterBuilder
 open FlagBuilder
 open NoteConverter
 open Tremolo
