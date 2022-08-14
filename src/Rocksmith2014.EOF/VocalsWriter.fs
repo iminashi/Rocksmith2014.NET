@@ -3,7 +3,6 @@ module VocalsWriter
 open Rocksmith2014.EOF.EOFTypes
 open Rocksmith2014.XML
 open BinaryFileWriter
-open SectionWriter
 
 let writeVocal (vocal: Vocal) =
     binaryWriter {
@@ -49,7 +48,10 @@ let getSectionTimes vocals =
 
 let writeVocalsTrack (name: string) (vocalSeq: Vocal seq) =
     let vocals = vocalSeq |> List.ofSeq
-    let sectionTimes = getSectionTimes vocals
+    let sections =
+        getSectionTimes vocals
+        |> List.map (fun (startTime, endTime) -> EOFSection.Create(0uy, uint startTime, uint endTime, 0u))
+        |> List.toArray
 
     binaryWriter {
         name
@@ -72,10 +74,8 @@ let writeVocalsTrack (name: string) (vocalSeq: Vocal seq) =
         // Lyrics section
         5us
 
-        // Number of sections
-        sectionTimes.Length
-        for startTime, endTime in sectionTimes do
-            yield! writeSection (EOFSection.Create(0uy, uint startTime, uint endTime, 0u))
+        // Sections
+        sections
 
         // Number of custom data blocks
         1

@@ -14,7 +14,6 @@
     <Compile Include="BinaryFileWriter.fs" />
     <Compile Include="FlagBuilder.fs" />
     <Compile Include="IniWriters.fs" />
-    <Compile Include="SectionWriter.fs" />
     <Compile Include="BeatWriter.fs" />
     <Compile Include="VocalsWriter.fs" />
     <Compile Include="NoteConverter.fs" />

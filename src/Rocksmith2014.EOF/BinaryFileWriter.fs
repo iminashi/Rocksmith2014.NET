@@ -42,6 +42,25 @@ type BinaryWriterBuilder () =
                 if note.ExtendedNoteFlags <> EOFExtendedNoteFlag.ZERO then b.Write(note.ExtendedNoteFlags |> uint)
             )
 
+    member _.Yield (sections: EOFSection array) =
+        fun (b: BinaryWriter) ->
+            // Number of sections
+            b.Write(sections.Length)
+
+            sections
+            |> Array.iter (fun section ->
+                // Name
+                writeString b section.Name
+                // Type
+                b.Write(section.Type)
+                // Start time (or data)
+                b.Write(section.StartTime)
+                // End time (or data)
+                b.Write(section.EndTime)
+                // Flags
+                b.Write(section.Flags)
+            )
+
     member inline _.Yield (data: byte array) = fun (b: BinaryWriter) -> b.Write(data)
     member inline _.Yield (i: sbyte) = fun (b: BinaryWriter) -> b.Write(i)
     member inline _.Yield (i: byte) = fun (b: BinaryWriter) -> b.Write(i)

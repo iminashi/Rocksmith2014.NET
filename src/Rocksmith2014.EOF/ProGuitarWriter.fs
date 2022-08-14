@@ -6,7 +6,6 @@ open EOFTypes
 open BinaryFileWriter
 open FlagBuilder
 open NoteConverter
-open SectionWriter
 open Tremolo
 open TechNotes
 open HandShapes
@@ -130,7 +129,6 @@ let writeProTrack (name: string) (imported: ImportedArrangement) =
 
             if ap.BonusArrangement then
                 EOFTrackFlag.RS_BONUS_ARR
-
             elif not ap.Represent then
                 EOFTrackFlag.RS_ALT_ARR
         }
@@ -180,26 +178,22 @@ let writeProTrack (name: string) (imported: ImportedArrangement) =
         // Section type 10 = Handshapes
         if handShapes.Length > 0 then
             10us
-            handShapes.Length
-            for hs in handShapes do yield! writeSection hs
+            handShapes
 
         // Section type 14 = Tremolo
         if tremoloSections.Length > 0 then
             14us
-            tremoloSections.Length
-            for ts in tremoloSections do yield! writeSection ts
+            tremoloSections
 
         // Section type 16 = FHP
         if anchors.Length > 0 then
             16us
-            anchors.Length
-            for a in anchors do yield! writeSection a
+            anchors
 
         // Section type 18 = Tone changes
         if tones.Length > 0 then
             18us
-            tones.Length
-            for t in tones do yield! writeSection t
+            tones
 
         // Number of custom data blocks
         customDataBlockCount

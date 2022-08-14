@@ -15,6 +15,7 @@ let writeOggProfiles (delay: int) =
         1us
 
         // File name
+        // TODO: correct name
         "guitar.ogg"
         // orig. filename length
         0us
@@ -69,7 +70,6 @@ let writeDummyLegacyTack (name: string, behavior: byte, type': byte, lanes: byte
         4 // custom data block size
         0xFFFFFFFFu // custom data
     }
-
 
 let writeTracks (tracks: EOFTrack list) =
     binaryWriter {
