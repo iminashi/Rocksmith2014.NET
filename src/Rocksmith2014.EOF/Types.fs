@@ -170,6 +170,7 @@ type ChordData =
       HandshapeId: int
       IsFullPanel: bool
       IsFirstInHandShape: bool
+      IsLinkNext: bool
       Fingering: byte array }
 
 type NoteGroup =

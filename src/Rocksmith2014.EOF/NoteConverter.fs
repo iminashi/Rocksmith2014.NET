@@ -38,10 +38,15 @@ let getNoteFlags (extFlag: EOFExtendedNoteFlag) (note: Note) =
             EOFNoteFlag.EXTENDED_FLAGS
     }
 
-let getExtendedNoteFlags wasChord (note: Note) =
+let getExtendedNoteFlags (chordData: ChordData option) (note: Note) =
+    let isChordAndNotLinked =
+        match chordData with
+        | Some c -> not c.IsLinkNext
+        | None -> false
+
     flags {
         if note.IsIgnore then EOFExtendedNoteFlag.IGNORE
-        if wasChord && note.Sustain > 0 then EOFExtendedNoteFlag.SUSTAIN
+        if isChordAndNotLinked && note.Sustain > 0 then EOFExtendedNoteFlag.SUSTAIN
     }
 
 let notesFromTemplate (c: Chord) (template: ChordTemplate) =
@@ -117,6 +122,7 @@ let createNoteGroups (inst: InstrumentalArrangement) =
                       HandshapeId = -1
                       IsFullPanel = false
                       IsFirstInHandShape = true
+                      IsLinkNext = false
                       Fingering = fingering }
 
                 { Chord = Some chordData
@@ -155,6 +161,7 @@ let createNoteGroups (inst: InstrumentalArrangement) =
                       HandshapeId = handshapeId
                       IsFullPanel = c.HasChordNotes && not c.IsHighDensity
                       IsFirstInHandShape = c.Time = handshapeStartTime
+                      IsLinkNext = c.IsLinkNext
                       Fingering = fingering }
 
                 { Chord = Some chordData
@@ -235,7 +242,7 @@ let convertNotes (inst: InstrumentalArrangement) =
                 |> Option.map (fun tbf -> trueBitFlag ^^^ tbf)
                 |> Option.defaultValue 0uy
 
-            let extendedNoteFlags = notes |> Array.map (getExtendedNoteFlags chordOpt.IsSome)
+            let extendedNoteFlags = notes |> Array.map (getExtendedNoteFlags chordOpt)
             let commonExtendedNoteFlags = extendedNoteFlags |> Array.reduce (&&&)
 
             let splitFlag =
