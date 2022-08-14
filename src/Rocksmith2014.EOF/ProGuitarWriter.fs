@@ -82,10 +82,13 @@ let prepareNotes (handShapeResult: HsResult array) (inst: InstrumentalArrangemen
     if inst.MetaData.Capo > 0y then
         notes
         |> Array.map (fun n ->
+            let capo = byte inst.MetaData.Capo
             let newFrets =
                 n.Frets
-                |> Array.map (fun f -> if f = 0uy then 0uy else f - byte inst.MetaData.Capo)
-            { n with Frets = newFrets })
+                |> Array.map (fun f -> if f = 0uy then 0uy else f - capo)
+            let newSlide = n.SlideEndFret |> ValueOption.map (fun f -> f - capo)
+            let newUpSlide = n.UnpitchedSlideEndFret |> ValueOption.map (fun f -> f - capo)
+            { n with Frets = newFrets; SlideEndFret = newSlide; UnpitchedSlideEndFret = newUpSlide })
     else
         notes
 
