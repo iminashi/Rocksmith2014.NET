@@ -37,17 +37,27 @@ let writeBeat
         (index: int)
         (beat: Ebeat) =
     binaryWriter {
-        let nextBeatTime =
+        let nextBeat =
             inst.Ebeats
-            |> Seq.tryItem (index + 1)
+            |> ResizeArray.tryItem (index + 1)
+
+        let nextBeatTime =
+            nextBeat
             |> Option.map (fun x -> x.Time)
             |> Option.defaultValue inst.MetaData.SongLength
 
         let eventFlag = if events.Contains(beat.Time) then 2u else 0u
-        let tsFlag = getTsFlag beat.Time
+        let tsFlag =
+            // Ignore any time signature change on the last beat
+            if nextBeat.IsSome then getTsFlag beat.Time else 0u
 
-        // Tempo 
-        (nextBeatTime - beat.Time) * 1000 // TODO
+        // TODO
+        let tempo =
+            (nextBeatTime - beat.Time) * 1000
+
+        // Tempo
+        // TODO
+        if tempo = 0 then 493000 else tempo
         // Position
         beat.Time
         // Flags
