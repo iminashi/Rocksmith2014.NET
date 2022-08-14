@@ -149,8 +149,10 @@ let getTrackIndex (tracks: EOFTrack list) (arr: InstrumentalArrangement) =
     let index =
         tracks
         |> List.findIndex (function
-            | ProGuitar (ActualTrack (_, actual)) -> Object.ReferenceEquals(actual.Data, arr)
-            | _ -> false)
+            | ProGuitar (ActualTrack (_, actual)) ->
+                Object.ReferenceEquals(actual.Data, arr)
+            | _ ->
+                false)
     // Account for Track 0
     index + 1
 
@@ -165,8 +167,9 @@ let writeEofProject (path: string) (eofProject: EOFProTracks) =
     let tracks = getTracks eofProject
     let instrumentals = eofProject.AllInstrumentals |> Seq.toList
     let events =
+        let beats = inst.Ebeats.ToArray()
         instrumentals
-        |> Seq.collect (fun imported -> createEOFEvents (getTrackIndex tracks) imported.Data)
+        |> Seq.collect (fun imported -> createEOFEvents (getTrackIndex tracks) beats imported.Data)
         |> Seq.sortBy (fun e -> e.BeatNumber)
         |> Seq.toArray
         |> unifyEvents instrumentals.Length

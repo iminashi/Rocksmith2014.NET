@@ -4,9 +4,10 @@ open Rocksmith2014.XML
 open Rocksmith2014.EOF.EOFTypes
 open Rocksmith2014.EOF.Helpers
 
-let createEOFEvents (getTrackNumber: InstrumentalArrangement -> int) (inst: InstrumentalArrangement) =
-    let beats = inst.Ebeats.ToArray()
-
+let createEOFEvents
+        (getTrackNumber: InstrumentalArrangement -> int)
+        (beats: Ebeat array)
+        (inst: InstrumentalArrangement) =
     // Do not import time signature events
     let otherEvents =
         inst.Events
