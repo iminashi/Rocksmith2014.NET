@@ -7,6 +7,8 @@ open BinaryWriterBuilder
 [<return: Struct>]
 let private (|Combinable|_|) (a: EOFNote) (b: EOFNote) =
     if a.Position = b.Position
+        // For linknext notes, the last bendvalue may be at the same time as the note linked to
+        && a.BitFlag <> b.BitFlag
         && a.NoteType = b.NoteType
         && a.BendStrength = b.BendStrength
         && a.SlideEndFret = b.SlideEndFret
@@ -31,6 +33,8 @@ let combineTechNotes (techNotes: EOFNote array) =
                     BitFlag = current.BitFlag ||| prev.BitFlag
                     Frets = current.Frets |> Array.append prev.Frets
                     ExtendedNoteFlags = current.ExtendedNoteFlags ||| prev.ExtendedNoteFlags }
+
+            assert (current.BitFlag <> prev.BitFlag)
             combined :: tail
         | [] ->
             [ current ]
@@ -40,7 +44,7 @@ let combineTechNotes (techNotes: EOFNote array) =
     // TODO: Improve
     let separator a acc =
         match acc with
-        | b :: tail when a.Position = b.Position ->
+        | b :: tail when a.Position = b.Position && a.NoteType = b.NoteType ->
             if canMove b then
                 let b2 = { b with Position = b.Position + 50u }
                 a :: b2 :: tail
@@ -48,7 +52,7 @@ let combineTechNotes (techNotes: EOFNote array) =
                 let a2 = { a with Position = a.Position + 50u }
                 b :: a2 :: tail
             else
-                acc
+               a :: acc
         | [] ->
             [ a ]
         | _ ->

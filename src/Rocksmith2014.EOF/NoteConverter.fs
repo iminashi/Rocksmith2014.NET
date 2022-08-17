@@ -342,6 +342,7 @@ let convertNotes (inst: InstrumentalArrangement) =
                         n.BendValues.ToArray()
                         |> Array.map (fun bv ->
                             { EOFNote.Empty with
+                                NoteType = diff
                                 BitFlag = getBitFlag (sbyte n.String)
                                 Position = uint bv.Time
                                 Flags = EOFNoteFlag.RS_NOTATION ||| EOFNoteFlag.BEND
