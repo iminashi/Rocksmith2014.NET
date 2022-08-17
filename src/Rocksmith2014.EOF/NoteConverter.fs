@@ -39,14 +39,18 @@ let getNoteFlags (extFlag: EOFExtendedNoteFlag) (note: Note) =
     }
 
 let getExtendedNoteFlags (chordData: ChordData option) (note: Note) =
-    let isChordAndNotLinked =
-        match chordData with
-        | Some c -> not c.IsLinkNext
-        | None -> false
+    let sustainFlagNeeded =
+        chordData
+        |> Option.exists (fun c ->
+            not (c.IsLinkNext || note.IsVibrato || note.IsBend || note.IsTremolo || note.IsSlide || note.IsUnpitchedSlide)
+        )
 
     flags {
-        if note.IsIgnore then EOFExtendedNoteFlag.IGNORE
-        if isChordAndNotLinked && note.Sustain > 0 then EOFExtendedNoteFlag.SUSTAIN
+        if note.IsIgnore then
+            EOFExtendedNoteFlag.IGNORE
+
+        if sustainFlagNeeded && note.Sustain > 0 then
+            EOFExtendedNoteFlag.SUSTAIN
     }
 
 let notesFromTemplate (c: Chord) (template: ChordTemplate) =
