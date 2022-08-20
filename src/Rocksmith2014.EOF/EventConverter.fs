@@ -8,16 +8,17 @@ let createEOFEvents
         (getTrackNumber: InstrumentalArrangement -> int)
         (beats: Ebeat array)
         (inst: InstrumentalArrangement) =
-    // Do not import time signature events
-    let otherEvents =
-        inst.Events
-        |> Seq.filter (fun e -> e.Code.StartsWith("TS") |> not)
-
     let create text time flags =
         { Text = text
           BeatNumber = getClosestBeat beats time
           TrackNumber = getTrackNumber inst |> uint16
           Flag = flags }
+
+    // Do not import time signature events
+    let otherEvents =
+        inst.Events
+        |> Seq.filter (fun e -> e.Code.StartsWith("TS") |> not)
+        |> Seq.map (fun e -> create e.Code e.Time EOFEventFlag.RS_EVENT)
 
     let sectionEvents =
         inst.Sections
@@ -40,10 +41,6 @@ let createEOFEvents
             else
                 e)
         |> Seq.cache
-
-    let otherEvents =
-        otherEvents
-        |> Seq.map (fun e -> create e.Code e.Time EOFEventFlag.RS_EVENT)
 
     //let unifiedPhrasesAndSections =
     //    phraseEvents

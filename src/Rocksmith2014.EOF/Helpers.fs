@@ -1,6 +1,8 @@
 module Rocksmith2014.EOF.Helpers
 
+open FSharp.Extensions
 open Rocksmith2014.XML
+open System
 open System.Text.RegularExpressions
 open EOFTypes
 
@@ -87,3 +89,7 @@ let inferTimeSignatures (beats: Ebeat seq) =
             | 12 -> CustomTS (12u, 8u)
             | v -> CustomTS (uint v, 4u)
         time, ts)
+
+let isDropTuning (tuning: int16 array) =
+    let first = tuning[0]
+    first = tuning[1] - 2s && tuning.AsSpan(1).AllSame(tuning[1])

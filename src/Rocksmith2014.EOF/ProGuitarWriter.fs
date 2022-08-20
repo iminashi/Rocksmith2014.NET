@@ -149,6 +149,9 @@ let writeProTrack (name: string) (imported: ImportedArrangement) =
         | Contains "BASS" -> 8uy
         | _ -> 9uy
 
+    let tuningNotHonored =
+        if Helpers.isDropTuning inst.MetaData.Tuning.Strings then 0uy else 1uy
+
     binaryWriter {
         // Name (PART REAL...)
         name
@@ -209,7 +212,7 @@ let writeProTrack (name: string) (imported: ImportedArrangement) =
         yield! customDataBlock 3u (Array.singleton (getArrangementType inst))
 
         // ID 4 = Pro guitar track tuning not honored
-        yield! customDataBlock 4u (Array.singleton 1uy)
+        yield! customDataBlock 4u (Array.singleton tuningNotHonored)
 
         // ID 6 = Capo position
         if inst.MetaData.Capo > 0y then
