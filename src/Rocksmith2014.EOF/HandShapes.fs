@@ -41,7 +41,8 @@ let convertHandShapes (inst: InstrumentalArrangement) (notes: EOFNote array) =
 
                 AdjustSustains updates
             else
-                SectionCreated <| EOFSection.Create(diff, uint hs.StartTime, uint hs.EndTime, if isArpeggio then 0u else 2u)
+                EOFSection.Create(diff, uint hs.StartTime, uint hs.EndTime, if isArpeggio then 0u else 2u)
+                |> SectionCreated
         )
     )
     |> Array.concat

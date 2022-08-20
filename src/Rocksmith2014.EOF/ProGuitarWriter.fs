@@ -115,10 +115,11 @@ let writeProTrack (name: string) (imported: ImportedArrangement) =
         |> List.sumBy (fun x -> Convert.ToUInt16(x.Length > 0))
 
     let customDataBlockCount =
-        let fingering = if fingeringData.Length > 0 then 1u else 0u
-        let capo = if inst.MetaData.Capo > 0y then 1u else 0u
-        let tech = if techNotesData.Length > 0 then 1u else 0u
-        let diff = if inst.Levels.Count > 5 then 1u else 0u
+        let toUint (b: bool) = Convert.ToUInt32 b
+        let fingering = toUint (fingeringData.Length > 0)
+        let capo = toUint (inst.MetaData.Capo > 0y)
+        let tech = toUint (techNotesData.Length > 0)
+        let diff = toUint (inst.Levels.Count > 5)
         2u + fingering + capo + tech + diff
 
     let trackFlag =
