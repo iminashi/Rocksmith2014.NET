@@ -25,7 +25,7 @@ let convertHandShapes (inst: InstrumentalArrangement) (notes: EOFNote array) =
             let notesInHs =
                 notes
                 |> Array.filter (fun n ->
-                    n.NoteType = diff && (int n.Position >= hs.StartTime && int n.Position < hs.EndTime))
+                    n.Difficulty = diff && (int n.Position >= hs.StartTime && int n.Position < hs.EndTime))
 
             let isArpeggio = inst.ChordTemplates[int hs.ChordId].IsArpeggio
 

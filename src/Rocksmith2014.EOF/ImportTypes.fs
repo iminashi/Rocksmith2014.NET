@@ -24,7 +24,5 @@ type EOFProTracks =
         seq {
             yield! this.PartGuitar
             yield! this.PartBass
-            match this.PartBonus with
-            | Some b -> b
-            | None -> ()
+            yield! this.PartBonus |> Option.toList
         }

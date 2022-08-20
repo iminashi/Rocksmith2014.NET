@@ -199,7 +199,7 @@ let convertNotes (inst: InstrumentalArrangement) =
 
             let eofNote =
                 { EOFNote.Empty with
-                    NoteType = diff
+                    Difficulty = diff
                     ChordName =  chord.Template.Name
                     BitFlag = bitFlag
                     GhostBitFlag = bitFlag
@@ -301,7 +301,7 @@ let convertNotes (inst: InstrumentalArrangement) =
                     |> Array.choose (fun n ->
                         if maxSus - n.Sustain > 3 then
                             { EOFNote.Empty with
-                                NoteType = diff
+                                Difficulty = diff
                                 BitFlag = getBitFlag (sbyte n.String)
                                 Position = uint (n.Time + n.Sustain)
                                 Flags = EOFNoteFlag.EXTENDED_FLAGS
@@ -319,7 +319,7 @@ let convertNotes (inst: InstrumentalArrangement) =
                     else
                         let n = notes[i]
                         { EOFNote.Empty with
-                            NoteType = diff
+                            Difficulty = diff
                             BitFlag = bitFlags[i]
                             Position = time
                             Flags = flag &&& (~~~ commonFlags)
@@ -346,7 +346,7 @@ let convertNotes (inst: InstrumentalArrangement) =
                         n.BendValues.ToArray()
                         |> Array.map (fun bv ->
                             { EOFNote.Empty with
-                                NoteType = diff
+                                Difficulty = diff
                                 BitFlag = getBitFlag (sbyte n.String)
                                 Position = uint bv.Time
                                 Flags = EOFNoteFlag.RS_NOTATION ||| EOFNoteFlag.BEND
@@ -361,7 +361,7 @@ let convertNotes (inst: InstrumentalArrangement) =
 
             let eofNote =
                 { EOFNote.Empty with
-                    NoteType = diff
+                    Difficulty = diff
                     ChordName = chordName
                     BitFlag = commonBitFlag
                     GhostBitFlag = ghostBitFlag

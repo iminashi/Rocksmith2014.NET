@@ -22,7 +22,7 @@ let createTremoloSections (notes: EOFNote array) =
             | _ ->
                 // Create new tremolo section
                 let newTremolo =
-                    { Difficulty = note.NoteType
+                    { Difficulty = note.Difficulty
                       PrevIndex = i
                       StartTime = note.Position
                       EndTime = note.Position + note.Length }

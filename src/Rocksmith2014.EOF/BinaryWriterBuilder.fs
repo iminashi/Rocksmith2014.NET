@@ -28,7 +28,7 @@ type BinaryWriterBuilder () =
             |> Array.iter (fun note ->
                 writeString b note.ChordName
                 b.Write(note.ChordNumber)
-                b.Write(note.NoteType)
+                b.Write(note.Difficulty)
                 b.Write(note.BitFlag)
                 b.Write(note.GhostBitFlag)
                 b.Write(note.Frets)

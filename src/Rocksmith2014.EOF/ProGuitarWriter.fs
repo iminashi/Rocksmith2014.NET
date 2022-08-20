@@ -74,7 +74,7 @@ let prepareNotes (handShapeResult: HsResult array) (inst: InstrumentalArrangemen
         else
             notes
             |> Array.map (fun n ->
-                match updates.TryGetValue((n.NoteType, n.Position)) with
+                match updates.TryGetValue((n.Difficulty, n.Position)) with
                 | true, length -> { n with Length = length }
                 | false, _ -> n)
 

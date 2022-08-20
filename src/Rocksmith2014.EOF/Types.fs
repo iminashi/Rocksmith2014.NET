@@ -120,7 +120,7 @@ type EOFNote =
     {
         ChordName: string
         ChordNumber: byte
-        NoteType: byte
+        Difficulty: byte
         BitFlag: byte
         GhostBitFlag: byte
         Frets: byte array
@@ -140,7 +140,7 @@ module EOFNote =
         {
             ChordName = String.Empty
             ChordNumber = 0uy
-            NoteType = 0uy
+            Difficulty = 0uy
             BitFlag = 0uy
             GhostBitFlag = 0uy
             Frets = Array.singleton 0uy
