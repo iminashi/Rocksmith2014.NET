@@ -8,32 +8,51 @@ let [<Literal>] AnchoredFlag = 1u
 
 let private tsFlagGetter (tsEvents: (int * EOFTimeSignature) list) =
     let tsMap = tsEvents |> readOnlyDict
+    let mutable denominator = 4
 
     fun (time: int) ->
         match tsMap.TryGetValue time with
         | false, _ ->
-            0u
+            0u, denominator
         | true, ts ->
-            match ts with
-            | ``TS 2 | 4`` ->
-                512u
-            | ``TS 3 | 4`` ->
-                8u
-            | ``TS 4 | 4`` ->
-                4u
-            | ``TS 5 | 4`` ->
-                16u
-            | ``TS 6 | 4`` ->
-                32u
-            | CustomTS (d, n) ->
-                64u
-                ||| ((d - 1u) <<< 24)
-                ||| ((n - 1u) <<< 16)
+            denominator <-
+                match ts with
+                | CustomTS (_, d) -> int d
+                | _ -> 4
+
+            let flag =
+                match ts with
+                | ``TS 2 | 4`` ->
+                    512u
+                | ``TS 3 | 4`` ->
+                    8u
+                | ``TS 4 | 4`` ->
+                    4u
+                | ``TS 5 | 4`` ->
+                    16u
+                | ``TS 6 | 4`` ->
+                    32u
+                | CustomTS (n, d) ->
+                    64u
+                    ||| ((n - 1u) <<< 24)
+                    ||| ((d - 1u) <<< 16)
+
+            flag, denominator
+
+let private getTempo den nextBeatTime beatTime =
+    let tempo =
+        let beatLength = float (nextBeatTime - beatTime) * 1000.0
+        // Adjust for time signature and round up
+        beatLength * (den / 4.0) + 0.5
+        |> int
+
+    // Tempo of 0 on the last beat causes strange issues
+    if tempo = 0 then 400000 else tempo
 
 let writeBeat
         (inst: InstrumentalArrangement)
         (events: Set<int>)
-        (getTsFlag: int -> uint)
+        (getTs: int -> uint * int)
         (index: int)
         (beat: Ebeat) =
     binaryWriter {
@@ -47,17 +66,15 @@ let writeBeat
             |> Option.defaultValue inst.MetaData.SongLength
 
         let eventFlag = if events.Contains(index) then 2u else 0u
-        let tsFlag =
+        let tsFlag, den =
+            let flag, den = getTs beat.Time
             // Ignore any time signature change on the last beat
-            if nextBeat.IsSome then getTsFlag beat.Time else 0u
+            (if nextBeat.IsSome then flag else 0u), float den
 
-        // TODO
-        let tempo =
-            (nextBeatTime - beat.Time) * 1000
+        let tempo = getTempo den nextBeatTime beat.Time
 
         // Tempo
-        // TODO
-        if tempo = 0 then 493000 else tempo
+        tempo
         // Position
         beat.Time
         // Flags

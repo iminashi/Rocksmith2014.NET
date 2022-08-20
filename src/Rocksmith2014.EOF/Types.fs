@@ -29,7 +29,7 @@ type EOFTimeSignature =
     | ``TS 4 | 4``
     | ``TS 5 | 4``
     | ``TS 6 | 4``
-    | CustomTS of denominator: uint * nominator: uint
+    | CustomTS of nominator: uint * denominator: uint
 
 type IniStringType =
     | Custom = 0uy

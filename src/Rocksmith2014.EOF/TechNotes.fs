@@ -24,18 +24,18 @@ let private canMove (tn: EOFNote) =
     tn.Flags &&& EOFNoteFlag.BEND = EOFNoteFlag.ZERO
     && tn.ExtendedNoteFlags &&& EOFExtendedNoteFlag.STOP = EOFExtendedNoteFlag.ZERO
 
+let private combine current prev =
+    { current with
+        BitFlag = current.BitFlag ||| prev.BitFlag
+        Frets = current.Frets |> Array.append prev.Frets
+        ExtendedNoteFlags = current.ExtendedNoteFlags ||| prev.ExtendedNoteFlags }
+
 let combineTechNotes (techNotes: EOFNote array) =
     let combiner current acc =
         match acc with
         | (Combinable current prev) :: tail ->
-            let combined =
-                { current with
-                    BitFlag = current.BitFlag ||| prev.BitFlag
-                    Frets = current.Frets |> Array.append prev.Frets
-                    ExtendedNoteFlags = current.ExtendedNoteFlags ||| prev.ExtendedNoteFlags }
-
             assert (current.BitFlag <> prev.BitFlag)
-            combined :: tail
+            (combine current prev) :: tail
         | [] ->
             [ current ]
         | _ ->
