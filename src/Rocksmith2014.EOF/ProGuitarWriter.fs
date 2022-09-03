@@ -38,12 +38,19 @@ let customDataBlock (blockId: uint) (data: byte array) =
         data
     }
 
-let convertAnchors (inst: InstrumentalArrangement) =
+let convertAnchors (capoFret: sbyte) (inst: InstrumentalArrangement) =
     inst.Levels
     |> Seq.mapi (fun diff level ->
         level.Anchors.ToArray()
-        |> Array.map (fun a -> EOFSection.Create(byte diff, uint a.Time, uint a.Fret, 0u))
-    )
+        |> Array.map (fun anchor ->
+            // Adjust fret if capo is used
+            let fret =
+                if capoFret > 0y && anchor.Fret > 0y then
+                    anchor.Fret - capoFret
+                else
+                    anchor.Fret
+
+            EOFSection.Create(byte diff, uint anchor.Time, uint fret, 0u)))
     |> Array.concat
 
 let convertTones (inst: InstrumentalArrangement) =
@@ -96,7 +103,7 @@ let writeProTrack (name: string) (imported: ImportedArrangement) =
     let inst = imported.Data
     let notes, fingeringData, techNotes = convertNotes inst
     let tones = convertTones inst
-    let anchors = convertAnchors inst
+    let anchors = convertAnchors inst.MetaData.Capo inst
     let handShapeResult = convertHandShapes inst notes
     let notes = prepareNotes handShapeResult inst notes
     let handShapes = handShapeResult |> Array.choose (function SectionCreated s -> Some s | _ -> None)
