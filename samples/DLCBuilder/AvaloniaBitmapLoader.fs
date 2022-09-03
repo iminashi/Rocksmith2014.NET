@@ -11,7 +11,7 @@ let mutable private cached: Bitmap option = None
 
 /// Converts a DDS bitmap into an Avalonia bitmap.
 let private avaloniaBitmapFromDDS (fileName: string) =
-    use image = Pfim.FromFile(fileName)
+    use image = Pfimage.FromFile(fileName)
 
     let pxFormat, data, stride =
         match image.Format with
