@@ -1,3 +1,9 @@
+## 1.5.0 (Released 2022-09-xx)
+
+- Added option to automatically create an EOF project when importing PSARC.
+- Added "double drop" tunings to supported tunings.
+- Minor improvement to the DD generation algorithm.
+
 ## 1.4.1 (Released 2022-07-25)
 
 - Fixed wrong filename for release build PSARCs when the sort fields were left empty.
