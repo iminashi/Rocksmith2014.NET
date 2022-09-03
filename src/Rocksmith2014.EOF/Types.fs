@@ -133,6 +133,11 @@ type EOFNote =
         BendStrength: byte voption
         UnpitchedSlideEndFret: byte voption
         ExtendedNoteFlags: EOFExtendedNoteFlag
+
+        // Start time of the actual note for tech notes.
+        ActualNotePosition: uint
+        /// End time of the actual note's sustain for tech notes.
+        EndPosition: uint
     }
 
 module EOFNote =
@@ -152,6 +157,8 @@ module EOFNote =
             BendStrength = ValueNone
             UnpitchedSlideEndFret = ValueNone
             ExtendedNoteFlags = EOFExtendedNoteFlag.ZERO
+            ActualNotePosition = 0u
+            EndPosition = 0u
         }
 
 [<Struct>]

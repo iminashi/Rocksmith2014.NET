@@ -30,6 +30,14 @@ let private combine current prev =
         Frets = current.Frets |> Array.append prev.Frets
         ExtendedNoteFlags = current.ExtendedNoteFlags ||| prev.ExtendedNoteFlags }
 
+let private movePosition (techNote: EOFNote) =
+    { techNote with Position = min (techNote.Position + 50u) techNote.EndPosition }
+
+let private convertToPreBend (techNote: EOFNote) =
+    { techNote with
+        Flags = techNote.Flags ||| EOFNoteFlag.EXTENDED_FLAGS
+        ExtendedNoteFlags = techNote.ExtendedNoteFlags ||| EOFExtendedNoteFlag.PRE_BEND }
+
 let combineTechNotes (techNotes: EOFNote array) =
     let combiner current acc =
         match acc with
@@ -41,18 +49,29 @@ let combineTechNotes (techNotes: EOFNote array) =
         | _ ->
             current :: acc
 
-    // TODO: Improve
     let separator a acc =
         match acc with
         | b :: tail when a.Position = b.Position && a.Difficulty = b.Difficulty ->
             if canMove b then
-                let b2 = { b with Position = b.Position + 50u }
-                a :: b2 :: tail
+                a :: movePosition b :: tail
             elif canMove a then
-                let a2 = { a with Position = a.Position + 50u }
-                b :: a2 :: tail
+                b :: movePosition a :: tail
             else
-               a :: acc
+                // Neither tech note can be moved
+                // Check if bends can be converted to pre-bends
+                if a.Position = a.ActualNotePosition && b.Position = b.ActualNotePosition then
+                    if a.Flags &&& EOFNoteFlag.BEND <> EOFNoteFlag.ZERO then
+                        let a2 = movePosition a |> convertToPreBend
+                        b :: a2 :: tail
+                    elif b.Flags &&& EOFNoteFlag.BEND <> EOFNoteFlag.ZERO then
+                        // Convert b to pre-bend
+                        let b2 = movePosition b |> convertToPreBend
+                        a :: b2 :: tail
+                    else
+                        // Two stop tech notes at note time? Should not end up here
+                        a :: acc
+                else
+                    a :: acc
         | [] ->
             [ a ]
         | _ ->

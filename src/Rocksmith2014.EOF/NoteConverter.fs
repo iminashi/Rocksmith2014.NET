@@ -305,7 +305,10 @@ let convertNotes (inst: InstrumentalArrangement) =
                                 BitFlag = getBitFlag (sbyte n.String)
                                 Position = uint (n.Time + n.Sustain)
                                 Flags = EOFNoteFlag.EXTENDED_FLAGS
-                                ExtendedNoteFlags = EOFExtendedNoteFlag.STOP }
+                                ExtendedNoteFlags = EOFExtendedNoteFlag.STOP
+                                ActualNotePosition = time
+                                EndPosition = time + uint maxSus
+                            }
                             |> Some
                         else
                             None)
@@ -334,6 +337,8 @@ let convertNotes (inst: InstrumentalArrangement) =
                                 else
                                     ValueNone
                             ExtendedNoteFlags = extFlag &&& (~~~ commonExtendedNoteFlags)
+                            ActualNotePosition = time
+                            EndPosition = time + uint maxSus
                         }
                         |> Some)
 
@@ -350,7 +355,10 @@ let convertNotes (inst: InstrumentalArrangement) =
                                 BitFlag = getBitFlag (sbyte n.String)
                                 Position = uint bv.Time
                                 Flags = EOFNoteFlag.RS_NOTATION ||| EOFNoteFlag.BEND
-                                BendStrength = ValueSome (convertBendValue bv.Step) }
+                                BendStrength = ValueSome (convertBendValue bv.Step)
+                                ActualNotePosition = time
+                                EndPosition = time + uint maxSus
+                            }
                         )
                 )
 
