@@ -6,8 +6,8 @@ open BinaryWriterBuilder
 
 let [<Literal>] AnchoredFlag = 1u
 
-let private tsFlagGetter (tsEvents: (int * EOFTimeSignature) list) =
-    let tsMap = tsEvents |> readOnlyDict
+let private tsFlagGetter (timeSignatures: (int * EOFTimeSignature) list) =
+    let tsMap = timeSignatures |> readOnlyDict
     let mutable denominator = 4
 
     fun (time: int) ->
@@ -86,13 +86,13 @@ let writeBeat
 let writeBeats
         (inst: InstrumentalArrangement)
         (events: EOFEvent array)
-        (tsEvents: (int * EOFTimeSignature) list) =
+        (timeSignatures: (int * EOFTimeSignature) list) =
     let eventsSet =
         events
         |> Array.map (fun e -> e.BeatNumber)
         |> Set.ofArray
 
-    let getTsFlag = tsFlagGetter tsEvents
+    let getTsFlag = tsFlagGetter timeSignatures
 
     binaryWriter {
         inst.Ebeats.Count

@@ -11,14 +11,13 @@ open VocalsWriter
 open ProGuitarWriter
 open EventConverter
 
-let writeOggProfiles (delay: int) =
+let writeOggProfiles (oggFile: string) (delay: int) =
     binaryWriter {
         // Number of OGG profiles
         1us
 
         // File name
-        // TODO: correct name
-        "guitar.ogg"
+        oggFile
         // orig. filename length
         0us
         // ogg profile length
@@ -157,7 +156,7 @@ let getTrackIndex (tracks: EOFTrack list) (arr: InstrumentalArrangement) =
             false)
 
 /// Write project.
-let writeEofProject (path: string) (eofProject: EOFProTracks) =
+let writeEofProject (oggFile: string) (path: string) (eofProject: EOFProTracks) =
     let inst = eofProject.GetAnyInstrumental.Data
     let tsEvents =
         inst.Events
@@ -174,7 +173,7 @@ let writeEofProject (path: string) (eofProject: EOFProTracks) =
         |> Seq.toArray
         |> unifyEvents instrumentals.Length
 
-    let tsEvents =
+    let timeSignatures =
         if not tsEvents.IsEmpty then
             getTimeSignatures tsEvents
         else
@@ -204,8 +203,8 @@ let writeEofProject (path: string) (eofProject: EOFProTracks) =
         yield! writeIniStrings iniStrings
         yield! writeIniBooleans
         yield! writeIniNumbers
-        yield! writeOggProfiles inst.StartBeat
-        yield! writeBeats inst events tsEvents
+        yield! writeOggProfiles oggFile inst.StartBeat
+        yield! writeBeats inst events timeSignatures
         yield! writeEvents events
         yield! customData
         yield! writeTracks tracks
