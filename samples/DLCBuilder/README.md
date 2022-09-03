@@ -151,6 +151,7 @@ Reading the available tones from a profile file, opening the tone editor and rem
 - Better at opening templates created with old versions of the Toolkit than the Toolkit itself
 - The UI prevents you from creating two main arrangements (represent = 1) for the same path
 - Option to remove DD levels when importing a PSARC
+- Option to generate an EOF project file when importing a PSARC
 - Nicer looking tone editor that prevents gaps between gear slots
 - Command to generate new IDs per arrangement or for all arrangements
 - No arbitrary limitations on what characters can be used in artist/song names or their sort values
