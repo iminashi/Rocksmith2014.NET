@@ -7,15 +7,7 @@ open Rocksmith2014.SNG
 open System
 open System.IO
 open PsarcImportUtils
-
-type PsarcImportResult =
-    { Project: DLCProject
-      /// Path to the project file that was saved when importing the PSARC.
-      ProjectPath: string
-      /// App ID of the PSARC if it was other than Cherub Rock.
-      AppId: AppId option
-      /// The version of the Toolkit or DLC Builder that was used to build the package.
-      BuildToolVersion: string option }
+open PsarcImportTypes
 
 /// Imports a PSARC from the given path into a DLCProject with the project created in the target directory.
 let import progress (psarcPath: string) (targetDirectory: string) =
@@ -142,8 +134,8 @@ let import progress (psarcPath: string) (targetDirectory: string) =
                 | InstrumentalFile ->
                     importInstrumental targetAudioFiles dlcKey targetFile attributes sng)
             |> Array.toList
-            |> List.add (Showlights { XML = toTargetPath "arr_showlights.xml" })
-            |> List.sortBy Arrangement.sorter
+            |> List.add (Showlights { XML = toTargetPath "arr_showlights.xml" }, ImportedData.ShowLights)
+            |> List.sortBy (fst >> Arrangement.sorter)
 
         let tones =
             fileAttributes
@@ -197,7 +189,7 @@ let import progress (psarcPath: string) (targetDirectory: string) =
               AudioPreviewStartTime = None
               PitchShift = None
               IgnoredIssues = Set.empty
-              Arrangements = arrangements
+              Arrangements = arrangements |> List.map fst
               Tones = tones
               Author = author }
 
@@ -212,8 +204,9 @@ let import progress (psarcPath: string) (targetDirectory: string) =
         progress ()
 
         return
-            { Project = project
+            { GeneratedProject = project
               ProjectPath = projectFile
               AppId = appId
-              BuildToolVersion = toolkitVersion }
+              BuildToolVersion = toolkitVersion
+              ArrangementData = arrangements }
     }

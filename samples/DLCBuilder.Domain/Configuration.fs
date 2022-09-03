@@ -18,6 +18,7 @@ type Configuration =
       DDPhraseSearchThreshold: int
       DDLevelCountGeneration: LevelCountGeneration
       RemoveDDOnImport: bool
+      CreateEOFProjectOnImport: bool
       ApplyImprovements: bool
       SaveDebugFiles: bool
       AutoVolume: bool
@@ -41,6 +42,7 @@ type Configuration =
           DDPhraseSearchThreshold = 80
           DDLevelCountGeneration = LevelCountGeneration.Simple
           RemoveDDOnImport = false
+          CreateEOFProjectOnImport = false
           ApplyImprovements = true
           SaveDebugFiles = false
           AutoVolume = true
@@ -66,6 +68,7 @@ module Configuration =
         member val DDPhraseSearchThreshold: int = 80 with get, set
         member val DDLevelCountGeneration: int = 0 with get, set
         member val RemoveDDOnImport: bool = false with get, set
+        member val CreateEOFProjectOnImport: bool = false with get, set
         member val ApplyImprovements: bool = true with get, set
         member val SaveDebugFiles: bool = false with get, set
         member val AutoVolume: bool = true with get, set
@@ -123,6 +126,7 @@ module Configuration =
           DDPhraseSearchThreshold = threshold
           DDLevelCountGeneration = levelCountGeneration
           RemoveDDOnImport = dto.RemoveDDOnImport
+          CreateEOFProjectOnImport = dto.CreateEOFProjectOnImport
           ApplyImprovements = dto.ApplyImprovements
           SaveDebugFiles = dto.SaveDebugFiles
           AutoVolume = dto.AutoVolume
@@ -165,6 +169,7 @@ module Configuration =
             DDPhraseSearchThreshold = config.DDPhraseSearchThreshold,
             DDLevelCountGeneration = levelCountGeneration,
             RemoveDDOnImport = config.RemoveDDOnImport,
+            CreateEOFProjectOnImport = config.CreateEOFProjectOnImport,
             ApplyImprovements = config.ApplyImprovements,
             AutoVolume = config.AutoVolume,
             AutoSave = config.AutoSave,

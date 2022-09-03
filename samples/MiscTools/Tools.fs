@@ -153,7 +153,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                   PartBonus = None
                   PartVocals = Seq.empty }
 
-            EOFProjectWriter.writeEofProject targetPath eofProject
+            EOFProjectWriter.writeEofProject "" targetPath eofProject
             state, Cmd.none
         | UnpackSNGFile file ->
             let t () = SNG.unpackFile file state.Platform

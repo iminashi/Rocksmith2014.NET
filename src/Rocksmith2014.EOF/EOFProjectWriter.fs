@@ -119,7 +119,7 @@ let getTracks (eofProject: EOFProTracks) =
         Legacy ("PART DRUMS", 2uy, 5uy, 5uy)
         Vocals eofProject.PartVocals
         Legacy ("PART KEYS", 4uy, 7uy, 5uy)
-        ProGuitar (getOrDefault "REAL_BASS" 0 eofProject.PartBass)
+        ProGuitar (getOrDefault "PART REAL_BASS" 0 eofProject.PartBass)
         ProGuitar (getOrDefault "PART REAL_GUITAR" 0 eofProject.PartGuitar)
         Legacy ("PART DANCE", 7uy, 10uy, 4uy)
         ProGuitar (getOrDefault "PART REAL_BASS_22" 1 eofProject.PartBass)

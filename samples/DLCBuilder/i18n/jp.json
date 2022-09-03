@@ -315,6 +315,7 @@
   "ConvertToWemToolTip": "オーディオをWwise WEMフォーマットに変換する",
   "ConvertMultipleToWemToolTip": "メインとプレビューオーディオをWwise WEMフォーマットに変換する",
   "RemoveDDLevels": "DDレベルを除去する",
+  "CreateEOFProject": "EOFプロジェクトファイルを作成",
   "All": "すべて",
   "Remove": "削除",
   "RemoveMenuItem": "削除",

@@ -8,6 +8,7 @@ open Rocksmith2014.XML
 open System
 open System.IO
 open System.Text.RegularExpressions
+open PsarcImportTypes
 
 let [<Literal>] private DefaultFontPath = "assets\ui\lyrics\lyrics.dds"
 
@@ -71,7 +72,8 @@ let importVocals targetDirectory targetFile (attributes: Attributes) sng isJapan
       CustomFont = customFont
       MasterID = attributes.MasterID_RDV
       PersistentID = Guid.Parse(attributes.PersistentID) }
-    |> Arrangement.Vocals
+    |> Arrangement.Vocals,
+    ImportedData.Vocals vocals
 
 /// Imports an instrumental SNG into an instrumental arrangement.
 let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile (attributes: Attributes) sng =
@@ -125,7 +127,8 @@ let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile
       PersistentID = Guid.Parse(attributes.PersistentID)
       CustomAudio = customAudio
       ArrangementProperties = None }
-    |> Arrangement.Instrumental
+    |> Arrangement.Instrumental,
+    ImportedData.Instrumental xml
 
 /// Converts a tone from a DTO, ensuring that the imported tone has descriptors.
 let toneFromDto dto =

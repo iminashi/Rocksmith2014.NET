@@ -38,6 +38,7 @@
     <Compile Include="Manifest\AttributesCreation.fs" />
     <Compile Include="SoundBank\SoundBankUtils.fs" />
     <Compile Include="SoundBank\SoundBank.fs" />
+    <Compile Include="PsarcImport\PsarcImportTypes.fs" />
     <Compile Include="PsarcImport\PsarcImportUtils.fs" />
     <Compile Include="PsarcImport\PsarcImporter.fs" />
     <Compile Include="ToolkitImporter.fs" />

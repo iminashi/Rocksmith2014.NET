@@ -235,6 +235,14 @@ let private importConfig state dispatch =
                     CheckBox.onChecked (fun _ -> true |> SetRemoveDDOnImport |> EditConfig |> dispatch)
                     CheckBox.onUnchecked (fun _ -> false |> SetRemoveDDOnImport |> EditConfig |> dispatch)
                 ]
+
+                // Create EOF Project
+                CheckBox.create [
+                    CheckBox.content (translate "CreateEOFProject")
+                    CheckBox.isChecked state.Config.CreateEOFProjectOnImport
+                    CheckBox.onChecked (fun _ -> true |> SetCreateEOFProjectOnImport |> EditConfig |> dispatch)
+                    CheckBox.onUnchecked (fun _ -> false |> SetCreateEOFProjectOnImport |> EditConfig |> dispatch)
+                ]
             ]
         ]
     ]

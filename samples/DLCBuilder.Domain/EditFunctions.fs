@@ -151,6 +151,9 @@ let editConfig edit config =
     | SetRemoveDDOnImport removeDD ->
         { config with RemoveDDOnImport = removeDD }
 
+    | SetCreateEOFProjectOnImport createEofProject ->
+        { config with CreateEOFProjectOnImport = createEofProject }
+
     | SetGenerateDD generateDD ->
         { config with GenerateDD = generateDD }
 

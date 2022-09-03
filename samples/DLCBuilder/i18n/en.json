@@ -315,6 +315,7 @@
   "ConvertToWemToolTip": "Convert the audio file into Wwise wem format.",
   "ConvertMultipleToWemToolTip": "Convert the audio and preview audio files into Wwise wem format.",
   "RemoveDDLevels": "Remove DD Levels",
+  "CreateEOFProject": "Create EOF Project",
   "All": "All",
   "Remove": "Remove",
   "RemoveMenuItem": "Remo_ve",

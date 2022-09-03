@@ -5,6 +5,8 @@ open Rocksmith2014.Audio
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
+open Rocksmith2014.DLCProject.PsarcImportTypes
+open Rocksmith2014.EOF
 open System
 open System.IO
 
@@ -276,11 +278,12 @@ let handleFilesDrop paths =
         yield! otherCommands
     }
 
-let createPsarcImportProgressReporter config =
+let private createPsarcImportProgressReporter config =
     let maxProgress =
         3.
         + match config.ConvertAudio with None -> 0. | _ -> 1.
-        + match config.RemoveDDOnImport with false -> 0. | true -> 1.
+        + Convert.ToDouble(config.RemoveDDOnImport)
+        + Convert.ToDouble(config.CreateEOFProjectOnImport)
 
     let mutable currentProgress = 0.
 
@@ -289,13 +292,86 @@ let createPsarcImportProgressReporter config =
         currentProgress / maxProgress * 100.
         |> (ProgressReporters.PsarcImport :> IProgress<float>).Report
 
+let private importTrackSorter (arr: Arrangement, _) =
+    match arr with
+    | Instrumental i ->
+        // Sorts by lead, rhythm, bass
+        // Main arrangements first, then alternative, last bonus arrangements
+        LanguagePrimitives.EnumToValue(i.RouteMask) + 10 * LanguagePrimitives.EnumToValue(i.Priority)
+    | _ ->
+        // Order of vocals and showlights does not matter
+        99
+
+let private createEofTrackList (arrangements: (Arrangement * ImportedData) list) =
+    let arrangements = arrangements |> List.sortBy importTrackSorter
+
+    let vocals =
+        arrangements
+        |> List.tryPick (function
+            | Vocals { Japanese = false }, ImportedData.Vocals v ->
+                Some (v :> seq<_>)
+            | _ ->
+                None)
+
+    let getInstrumental filter input =
+        match input with
+        | Instrumental { XML = xml; Name = name }, ImportedData.Instrumental data ->
+            if filter name then
+                let eofTrack =
+                    { Data = data
+                      CustomName = Path.GetFileNameWithoutExtension(xml) }
+                Some eofTrack
+            else
+                None
+        | _ ->
+            None
+
+    let mainAndRest arr =
+        if Array.length arr <= 2 then
+            arr, Array.empty
+        else
+            arr |> Array.splitAt 2
+
+    let guitar, extraGuitar =
+        arrangements
+        |> List.choose (getInstrumental (fun name -> name <> ArrangementName.Bass))
+        |> List.toArray
+        |> mainAndRest
+
+    let bass, extraBass =
+        arrangements
+        |> List.choose (getInstrumental (fun name -> name = ArrangementName.Bass))
+        |> List.toArray
+        |> mainAndRest
+
+    let guitar, bass, bonus =
+        if extraGuitar.Length = 1 then
+            guitar, bass, Some extraGuitar[0]
+        elif extraGuitar.Length > 1 then
+            // Append extra guitar arrangements to the bass arrangements
+            let bonus, extra = extraGuitar |> Array.splitAt 1
+            guitar, bass |> Array.append extra, Some bonus[0]
+        elif extraBass.Length = 1 then
+            guitar, bass, Some extraBass[0]
+        elif extraBass.Length > 1 then
+            // Append extra bass arrangements to the guitar arrangements
+            let bonus, extra = extraBass |> Array.splitAt 1
+            guitar |> Array.append extra, bass, Some bonus[0]
+        else
+            guitar, bass, None
+
+    { PartGuitar = guitar |> Array.truncate 2
+      PartBass = bass |> Array.truncate 2
+      PartBonus = bonus
+      PartVocals = vocals |> Option.defaultValue Seq.empty }
+
 let importPsarc config targetFolder (psarcPath: string)  =
     async {
         let progress = createPsarcImportProgressReporter config
 
         Directory.CreateDirectory(targetFolder) |> ignore
         let! r = PsarcImporter.import progress psarcPath targetFolder
-        let project = r.Project
+        let project = r.GeneratedProject
 
         let audioExtension =
             match config.ConvertAudio with
@@ -306,25 +382,49 @@ let importPsarc config targetFolder (psarcPath: string)  =
                 progress ()
                 conv.ToExtension
 
+        // Remove DD levels
         if config.RemoveDDOnImport then
-            do! Utils.removeDD project
+            let instrumentalData =
+                r.ArrangementData
+                |> List.choose (fun (arr, data) ->
+                    match data with
+                    | ImportedData.Instrumental data ->
+                        Some (Arrangement.getFile arr, data)
+                    | _ ->
+                        None)
+
+            do! Utils.removeDD instrumentalData
             progress ()
 
-        let audioFile =
-            { project.AudioFile with Path = Path.ChangeExtension(project.AudioFile.Path, audioExtension) }
-        let previewFile =
-            { project.AudioPreviewFile with Path = Path.ChangeExtension(project.AudioPreviewFile.Path, audioExtension) }
-        let project =
-            { project with AudioFile = audioFile; AudioPreviewFile = previewFile }
+        let audioFilePath = Path.ChangeExtension(project.AudioFile.Path, audioExtension)
+        let previewFilePath = Path.ChangeExtension(project.AudioPreviewFile.Path, audioExtension)
+        let oggFileName =
+            match config.ConvertAudio with
+            | Some ToOgg ->
+                Path.GetFileName(audioFilePath)
+            | _ ->
+                String.Empty
 
-        return { r with Project = project }
+        // Create EOF project
+        if config.CreateEOFProjectOnImport then
+            let eofProjectPath = Path.Combine(Path.GetDirectoryName(r.ProjectPath), "notes.eof")
+            let eofTracks = createEofTrackList r.ArrangementData
+            EOFProjectWriter.writeEofProject oggFileName eofProjectPath eofTracks
+            progress ()
+
+        let audioFile = { project.AudioFile with Path = audioFilePath }
+        let previewFile = { project.AudioPreviewFile with Path = previewFilePath }
+        let project = { project with AudioFile = audioFile; AudioPreviewFile = previewFile }
+
+        return { r with GeneratedProject = project }
     }
 
 let createDownloadTask locString =
     let id = { Id = Guid.NewGuid(); LocString = locString }
     id, FileDownload id
 
-let optionFromSortableString f sStr =
+/// Gets the sort value from the sortable string if it is defined or can be created from the value.
+let private sortValueFromSortableString f sStr =
     sStr.SortValue
     |> Option.ofString
     |> Option.orElse (Option.ofString sStr.Value |> Option.map (f >> StringValidator.convertToSortField))
@@ -332,8 +432,8 @@ let optionFromSortableString f sStr =
 /// Returns a filename for the project: "artist_title.rs2dlc"
 /// Or "new_project.rs2dlc" if artist and title are not set.
 let createProjectFilename project =
-    let artist = optionFromSortableString StringValidator.FieldType.ArtistName project.ArtistName
-    let title = optionFromSortableString StringValidator.FieldType.Title project.Title
+    let artist = sortValueFromSortableString StringValidator.FieldType.ArtistName project.ArtistName
+    let title = sortValueFromSortableString StringValidator.FieldType.Title project.Title
 
     (artist, title)
     ||> Option.map2 (fun artist title -> StringValidator.fileName $"{artist}_{title}")

@@ -220,7 +220,7 @@ let update (msg: Msg) (state: State) =
                       AppId = r.AppId
                       BuildToolVersion = r.BuildToolVersion }
 
-                return r.Project, Quick data
+                return r.GeneratedProject, Quick data
             }
 
         addTask PsarcImport state,
@@ -235,7 +235,7 @@ let update (msg: Msg) (state: State) =
                     { ProjectFilePath = r.ProjectPath
                       BuildToolVersion = r.BuildToolVersion }
 
-                return r.Project, Normal data
+                return r.GeneratedProject, Normal data
             }
 
         addTask PsarcImport state,

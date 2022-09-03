@@ -315,6 +315,7 @@
   "ConvertToWemToolTip": "Muunna äänitiedosto Wwise wem muotoon.",
   "ConvertMultipleToWemToolTip": "Muunna ääni- ja esikatseluäänitiedostot Wwise wem muotoon.",
   "RemoveDDLevels": "Poista DD tasot",
+  "CreateEOFProject": "Luo EOF projekti",
   "All": "Kaikki",
   "Remove": "Poista",
   "RemoveMenuItem": "_Poista",

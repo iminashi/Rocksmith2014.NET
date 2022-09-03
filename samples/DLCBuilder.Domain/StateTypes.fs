@@ -130,6 +130,7 @@ type ConfigEdit =
     | SetAutoVolume of bool
     | SetShowAdvanced of bool
     | SetRemoveDDOnImport of bool
+    | SetCreateEOFProjectOnImport of bool
     | SetGenerateDD of bool
     | SetDDPhraseSearchEnabled of bool
     | SetDDPhraseSearchThreshold of int
