@@ -337,6 +337,7 @@
   "OpenContainingFolderAfterBuild": "ビルド後にフォルダを開く",
   "Standard": "{0}スタンダード",
   "Drop": "{0}ドロップ{1}",
+  "Double Drop": "ダブルドロップ{0}",
   "Custom Tuning": "カスタムチューニング",
   "Open": "オープン{0}",
   "ComboArr": "コンボ",

@@ -13,23 +13,46 @@ let centsToTuningPitch (cents: float) =
 
 let private roots = [| "E"; "F"; "F#"; "G"; "Ab"; "A"; "Bb"; "B"; "C"; "C#"; "D"; "Eb" |]
 
+let private isDoubleDropTuning first (strings: int16 array) =
+    first > -12s && first < -1s
+    && first = strings[1] - 2s && first = strings[5]
+    && strings.AsSpan(1, 4).AllSame(strings[1])
+
+let private (|Standard|Drop|DoubleDrop|Other|) (strings: int16 array) =
+    let first = strings[0]
+
+    // Standard tunings
+    if first > -11s && first < 3s && strings.AsSpan().AllSame(first) then
+        Standard
+    // Drop tunings
+    elif first > -12s && first = strings[1] - 2s && strings.AsSpan(1).AllSame(strings[1]) then
+        Drop
+    // Double drop tunings
+    elif isDoubleDropTuning first strings then
+        DoubleDrop
+    // Other tunings
+    else
+        Other
+
 /// Returns the type of the given tuning and its root note(s).
 let getTuningName (tuning: int16 array) : string * obj array =
     let first = tuning[0]
 
-    // Standard tunings
-    if first > -11s && first < 3s && tuning.AsSpan().AllSame(first) then
+    match tuning with
+    | Standard ->
         let i = int (first + 12s) % 12
         "Standard", [| roots[i] |]
-    // Drop tunings
-    elif first > -12s && first = tuning[1] - 2s && tuning.AsSpan(1).AllSame(tuning[1]) then
+    | Drop ->
         let i = int (first + 12s) % 12
         let j = int (tuning[1] + 12s) % 12
         let root = if first < -2s then roots[j] + " " else String.Empty
         let drop = if roots[i] = "C#" then "Db" else roots[i]
         "Drop", [| root; drop |]
-    else
-        // Other tunings
+    | DoubleDrop ->
+        let i = int (first + 12s) % 12
+        let drop = if roots[i] = "C#" then "Db" else roots[i]
+        "Double Drop", [| drop |]
+    | Other ->
         match tuning with
         | [| -2s;  0s; 0s; -1s; -2s; -2s |] -> "Open", [| "D" |]
         | [|  0s;  0s; 2s;  2s;  2s;  0s |] -> "Open", [| "A" |]

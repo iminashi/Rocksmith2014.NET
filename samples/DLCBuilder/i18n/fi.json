@@ -337,6 +337,7 @@
   "OpenContainingFolderAfterBuild": "Avaa kansio buildin valmistuttua",
   "Standard": "{0} vakioviritys",
   "Drop": "{0}Pudotettu {1}",
+  "Double Drop": "Kaks. pudotettu {0}",
   "Custom Tuning": "Mukautettu viritys",
   "Open": "Avoin {0}",
   "ComboArr": "Yhdistelmä",

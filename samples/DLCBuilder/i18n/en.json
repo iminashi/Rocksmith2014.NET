@@ -337,6 +337,7 @@
   "OpenContainingFolderAfterBuild": "Open Containing Folder after Build",
   "Standard": "{0} Standard",
   "Drop": "{0}Drop {1}",
+  "Double Drop": "Double Drop {0}",
   "Custom Tuning": "Custom Tuning",
   "Open": "Open {0}",
   "ComboArr": "Combo",
