@@ -10,7 +10,7 @@ open System.IO
 open System.Text.RegularExpressions
 open PsarcImportTypes
 
-let [<Literal>] private DefaultFontPath = "assets\ui\lyrics\lyrics.dds"
+let [<Literal>] private DefaultFontPath = @"assets\ui\lyrics\lyrics.dds"
 
 /// Reads the volume and file ID from the PSARC for the sound bank with the given name.
 let getVolumeAndFileId (psarc: PSARC) platform bankName =
