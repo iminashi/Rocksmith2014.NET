@@ -58,6 +58,10 @@ A machine learning model for predicting level counts. Created with ML.NET model 
 
 Contains the Arrangement and DLCProject types and also miscellaneous functionality needed for creating CDLC (DDS conversion, showlight generation, etc.).
 
+### EOF
+
+Contains functionality for creating an EOF project file from Rocksmith arrangements.
+
 ### PSARC
 
 For opening and creating PSARC archives.

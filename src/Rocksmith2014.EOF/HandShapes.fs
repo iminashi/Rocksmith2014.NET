@@ -11,7 +11,7 @@ let private handShapeNotNeeded isArpeggio (notesInHs: EOFNote array) =
         // There should be always at least a full ghost chord at the start of the handshape
         false
     | Some b ->
-        // Exclude if not an arpeggio or all the chords are the same in the handshape
+        // Exclude if not an arpeggio and all the chords are the same in the handshape
         not isArpeggio
         && notesInHs |> Array.forall (fun n -> n.BitFlag = b && n.Flags &&& EOFNoteFlag.SPLIT = EOFNoteFlag.ZERO)
 
