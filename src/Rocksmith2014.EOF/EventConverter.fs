@@ -23,7 +23,6 @@ let createEOFEvents
     let sectionEvents =
         inst.Sections
         |> Seq.map (fun s -> create s.Name s.Time EOFEventFlag.RS_SECTION)
-        |> Seq.cache
 
     let phraseEvents =
         inst.PhraseIterations
@@ -40,28 +39,6 @@ let createEOFEvents
                 { e with Flag = e.Flag ||| EOFEventFlag.RS_SOLO_PHRASE }
             else
                 e)
-        |> Seq.cache
-
-    //let unifiedPhrasesAndSections =
-    //    phraseEvents
-    //    |> Seq.choose (fun p ->
-    //        if sectionEvents |> Seq.exists (fun s -> s.BeatNumber = p.BeatNumber && s.Text = p.Text) then
-    //            Some { p with Flag = EOFEventFlag.RS_PHRASE ||| EOFEventFlag.RS_SECTION }
-    //        else
-    //            None)
-    //    |> Seq.cache
-
-    //let phraseEvents =
-    //    phraseEvents
-    //    |> Seq.filter (fun p ->
-    //        unifiedPhrasesAndSections
-    //        |> Seq.exists (fun u -> p.BeatNumber = u.BeatNumber) |> not)
-
-    //let sectionEvents =
-    //    sectionEvents
-    //    |> Seq.filter (fun s ->
-    //        unifiedPhrasesAndSections
-    //        |> Seq.exists (fun u -> s.BeatNumber = u.BeatNumber) |> not)
 
     //unifiedPhrasesAndSections
     phraseEvents
