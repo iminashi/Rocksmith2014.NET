@@ -51,7 +51,7 @@
   <ItemGroup>
     <PackageReference Include="FSharp.SystemTextJson" Version="0.19.13" />
     <PackageReference Include="Magick.NET-Q8-x64" Version="8.4.0" />
-    <PackageReference Update="FSharp.Core" Version="6.0.5" />
+    <PackageReference Update="FSharp.Core" Version="6.0.6" />
   </ItemGroup>
 
   <!-- On Mac, use an older version of Magick.NET that works on macOS 10.13 -->
