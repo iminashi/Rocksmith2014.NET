@@ -2,6 +2,7 @@ module Rocksmith2014.DLCProject.ArrangementPropertiesOverride
 
 open Rocksmith2014.XML
 open System
+open FlagBuilder
 
 [<Flags>]
 type ArrPropFlags =
@@ -30,55 +31,59 @@ type ArrPropFlags =
     | Tremolo =           0b001000000000000000000000u
     | Vibrato =           0b010000000000000000000000u
 
+open type ArrPropFlags
+
 let fromArrangementProperties (prop: ArrangementProperties) =
-    if prop.BarreChords then ArrPropFlags.BarreChords else ArrPropFlags.Empty
-    ||| if prop.Bends then ArrPropFlags.Bends else ArrPropFlags.Empty
-    ||| if prop.DoubleStops then ArrPropFlags.DoubleStops else ArrPropFlags.Empty
-    ||| if prop.DropDPower then ArrPropFlags.DropDPower else ArrPropFlags.Empty
-    ||| if prop.FifthsAndOctaves then ArrPropFlags.FifthsAndOctaves else ArrPropFlags.Empty
-    ||| if prop.FingerPicking then ArrPropFlags.FingerPicking else ArrPropFlags.Empty
-    ||| if prop.Harmonics then ArrPropFlags.Harmonics else ArrPropFlags.Empty
-    ||| if prop.PinchHarmonics then ArrPropFlags.PinchHarmonics else ArrPropFlags.Empty
-    ||| if prop.SlapPop then ArrPropFlags.SlapPop else ArrPropFlags.Empty
-    ||| if prop.Sustain then ArrPropFlags.Sustain else ArrPropFlags.Empty
-    ||| if prop.Tapping then ArrPropFlags.Tapping else ArrPropFlags.Empty
-    ||| if prop.TwoFingerPicking then ArrPropFlags.TwoFingerPicking else ArrPropFlags.Empty
-    ||| if prop.PalmMutes then ArrPropFlags.PalmMutes else ArrPropFlags.Empty
-    ||| if prop.FretHandMutes then ArrPropFlags.FretHandMutes else ArrPropFlags.Empty
-    ||| if prop.Hopo then ArrPropFlags.Hopo else ArrPropFlags.Empty
-    ||| if prop.NonStandardChords then ArrPropFlags.NonStandardChords else ArrPropFlags.Empty
-    ||| if prop.OpenChords then ArrPropFlags.OpenChords else ArrPropFlags.Empty
-    ||| if prop.PowerChords then ArrPropFlags.PowerChords else ArrPropFlags.Empty
-    ||| if prop.Slides then ArrPropFlags.Slides else ArrPropFlags.Empty
-    ||| if prop.UnpitchedSlides then ArrPropFlags.UnpitchedSlides else ArrPropFlags.Empty
-    ||| if prop.Syncopation then ArrPropFlags.Syncopation else ArrPropFlags.Empty
-    ||| if prop.Tremolo then ArrPropFlags.Tremolo else ArrPropFlags.Empty
-    ||| if prop.Vibrato then ArrPropFlags.Vibrato else ArrPropFlags.Empty
+    flags {
+        if prop.BarreChords then BarreChords
+        if prop.Bends then Bends
+        if prop.DoubleStops then DoubleStops
+        if prop.DropDPower then DropDPower
+        if prop.FifthsAndOctaves then FifthsAndOctaves
+        if prop.FingerPicking then FingerPicking
+        if prop.Harmonics then Harmonics
+        if prop.PinchHarmonics then PinchHarmonics
+        if prop.SlapPop then SlapPop
+        if prop.Sustain then Sustain
+        if prop.Tapping then Tapping
+        if prop.TwoFingerPicking then TwoFingerPicking
+        if prop.PalmMutes then PalmMutes
+        if prop.FretHandMutes then FretHandMutes
+        if prop.Hopo then Hopo
+        if prop.NonStandardChords then NonStandardChords
+        if prop.OpenChords then OpenChords
+        if prop.PowerChords then PowerChords
+        if prop.Slides then Slides
+        if prop.UnpitchedSlides then UnpitchedSlides
+        if prop.Syncopation then Syncopation
+        if prop.Tremolo then Tremolo
+        if prop.Vibrato then Vibrato
+    }
 
 /// Applies the flags to the arrangement properties object.
 let apply (props: ArrangementProperties) (flags: ArrPropFlags) =
     let (!!) flag = (flags &&& flag) = flag
-    
-    props.BarreChords <- !! ArrPropFlags.BarreChords
-    props.Bends <- !! ArrPropFlags.Bends
-    props.DoubleStops <- !! ArrPropFlags.DoubleStops
-    props.DropDPower <- !! ArrPropFlags.DropDPower
-    props.FifthsAndOctaves <- !! ArrPropFlags.FifthsAndOctaves
-    props.FingerPicking <- !! ArrPropFlags.FingerPicking
-    props.Harmonics <- !! ArrPropFlags.Harmonics
-    props.PinchHarmonics <- !! ArrPropFlags.PinchHarmonics
-    props.SlapPop <- !! ArrPropFlags.SlapPop
-    props.Sustain <- !! ArrPropFlags.Sustain
-    props.Tapping <- !! ArrPropFlags.Tapping
-    props.TwoFingerPicking <- !! ArrPropFlags.TwoFingerPicking
-    props.PalmMutes <- !! ArrPropFlags.PalmMutes
-    props.FretHandMutes <- !! ArrPropFlags.FretHandMutes
-    props.Hopo <- !! ArrPropFlags.Hopo
-    props.NonStandardChords <- !! ArrPropFlags.NonStandardChords
-    props.OpenChords <- !! ArrPropFlags.OpenChords
-    props.PowerChords <- !! ArrPropFlags.PowerChords
-    props.Slides <- !! ArrPropFlags.Slides
-    props.UnpitchedSlides <- !! ArrPropFlags.UnpitchedSlides
-    props.Syncopation <- !! ArrPropFlags.Syncopation
-    props.Tremolo <- !! ArrPropFlags.Tremolo
-    props.Vibrato <- !! ArrPropFlags.Vibrato
+
+    props.BarreChords <- !! BarreChords
+    props.Bends <- !! Bends
+    props.DoubleStops <- !! DoubleStops
+    props.DropDPower <- !! DropDPower
+    props.FifthsAndOctaves <- !! FifthsAndOctaves
+    props.FingerPicking <- !! FingerPicking
+    props.Harmonics <- !! Harmonics
+    props.PinchHarmonics <- !! PinchHarmonics
+    props.SlapPop <- !! SlapPop
+    props.Sustain <- !! Sustain
+    props.Tapping <- !! Tapping
+    props.TwoFingerPicking <- !! TwoFingerPicking
+    props.PalmMutes <- !! PalmMutes
+    props.FretHandMutes <- !! FretHandMutes
+    props.Hopo <- !! Hopo
+    props.NonStandardChords <- !! NonStandardChords
+    props.OpenChords <- !! OpenChords
+    props.PowerChords <- !! PowerChords
+    props.Slides <- !! Slides
+    props.UnpitchedSlides <- !! UnpitchedSlides
+    props.Syncopation <- !! Syncopation
+    props.Tremolo <- !! Tremolo
+    props.Vibrato <- !! Vibrato
