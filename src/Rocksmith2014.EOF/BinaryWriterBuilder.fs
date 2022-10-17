@@ -77,13 +77,13 @@ type BinaryWriterBuilder () =
     member _.Combine (f, g) = fun (b: BinaryWriter) -> f b; g b
 
     member _.Delay f = fun (b: BinaryWriter) -> (f()) b
-        
+
     member _.For (xs: 'a seq, f: 'a -> Writer) =
         fun (b: BinaryWriter) ->
             use e = xs.GetEnumerator()
             while e.MoveNext() do
                 (f e.Current) b
-        
+
     member _.While (p: unit -> bool, f: Writer) =
         fun (b: BinaryWriter) -> while p () do f b
  
