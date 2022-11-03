@@ -1,3 +1,8 @@
+## 1.5.1 (Released 2022-11-xx)
+
+- Fixed a bug in automatically created song title sort values in test builds.
+- Updated the Vorbis library to the latest version.
+
 ## 1.5.0 (Released 2022-09-18)
 
 - Added an option to automatically create an EOF project when importing a PSARC.
