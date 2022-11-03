@@ -25,10 +25,9 @@
     <Compile Include="MessageTests.fs" />
     <Compile Include="BuildConfigTests.fs" />
     <Compile Include="BuildValidatorTests.fs" />
+    <Compile Include="MiscTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
-
-  <ItemGroup />
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="3.1.2">

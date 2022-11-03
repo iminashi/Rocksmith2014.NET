@@ -36,6 +36,24 @@ let private getNewestVersionNumber existingPackages =
         | [] -> existingPackages.Length
         | list -> List.max list
 
+let updateProject versionString project =
+    let arrangements = generateAllIds project.Arrangements
+
+    let titleValue = $"{project.Title.Value} %s{versionString}"
+    let titleSortValue =
+        project.Title.SortValue
+        |> Option.ofString
+        |> Option.defaultWith (fun () ->
+            StringValidator.convertToSortField (StringValidator.FieldType.Title titleValue))
+
+    { project with
+        DLCKey = $"{project.DLCKey}{versionString}"
+        Title = SortableString.Create(titleValue, titleSortValue)
+        JapaneseTitle =
+            project.JapaneseTitle
+            |> Option.map (fun title -> $"{title} {versionString}")
+        Arrangements = arrangements }
+
 /// Returns an async computation for building a package for testing.
 let build platform config project =
     async {
@@ -64,21 +82,9 @@ let build platform config project =
 
                 project, packageFileName, BuildCompleteType.Test
             | true ->
-                let arrangements = generateAllIds project.Arrangements
                 let versionString = $"v{latestVersion + 1}"
 
-                let title =
-                    { project.Title with
-                        Value = $"{project.Title.Value} {versionString}"
-                        SortValue = $"{project.Title.SortValue} {versionString}" }
-
-                { project with
-                    DLCKey = $"{project.DLCKey}{versionString}"
-                    Title = title
-                    JapaneseTitle =
-                        project.JapaneseTitle
-                        |> Option.map (fun title -> $"{title} {versionString}")
-                    Arrangements = arrangements },
+                updateProject versionString project,
                 $"{packageFileName}_{versionString}",
                 BuildCompleteType.TestNewVersion versionString
 
