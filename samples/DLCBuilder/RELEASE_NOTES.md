@@ -1,7 +1,7 @@
-## 1.5.1 (Released 2022-11-xx)
+## 1.5.1 (Released 2022-11-06)
 
 - Fixed a bug in automatically created song title sort values in test builds.
-- Updated the Vorbis library to the latest version.
+- Updated the NVorbis library to the latest version.
 
 ## 1.5.0 (Released 2022-09-18)
 
