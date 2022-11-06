@@ -12,7 +12,7 @@ let testProject =
       ArtistName = SortableString.Create "Artist"
       JapaneseArtistName = None
       JapaneseTitle = Some "日本"
-      Title = { Value = "Title"; SortValue = "" }
+      Title = { Value = "The Title"; SortValue = "" }
       AlbumName = SortableString.Create "Album"
       Year = DateTime.Now.Year
       AlbumArtFile = ""
@@ -33,7 +33,7 @@ let tests =
 
             Expect.equal updatedProject.DLCKey "Abcdefghijklmnv3" "DLC key is correct"
             Expect.equal updatedProject.Title.SortValue "Title v3" "Title sort value is correct"
-            Expect.equal updatedProject.Title.Value "Title v3" "Title value is correct"
+            Expect.equal updatedProject.Title.Value "The Title v3" "Title value is correct"
             Expect.equal updatedProject.JapaneseTitle (Some "日本 v3") "Japanese title is correct"
         }
     ]
