@@ -1,3 +1,7 @@
+## 1.5.2 (Released 2022-11-09)
+
+- Fixed a bug in test build sort values caused by the previous fix.
+
 ## 1.5.1 (Released 2022-11-06)
 
 - Fixed a bug in automatically created song title sort values in test builds.
