@@ -43,6 +43,7 @@ let updateProject versionString project =
     let titleSortValue =
         project.Title.SortValue
         |> Option.ofString
+        |> Option.map (fun sort -> sprintf "%s %s" sort versionString)
         |> Option.defaultWith (fun () ->
             StringValidator.convertToSortField (StringValidator.FieldType.Title titleValue))
 

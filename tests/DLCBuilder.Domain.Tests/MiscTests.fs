@@ -28,12 +28,20 @@ let testProject =
 [<Tests>]
 let tests =
     testList "Misc Builder Tests" [
-        test "Test build project is updated correctly" {
+        test "Test build project is updated correctly (missing title sort value)" {
             let updatedProject = TestPackageBuilder.updateProject "v3" testProject
 
             Expect.equal updatedProject.DLCKey "Abcdefghijklmnv3" "DLC key is correct"
             Expect.equal updatedProject.Title.SortValue "Title v3" "Title sort value is correct"
             Expect.equal updatedProject.Title.Value "The Title v3" "Title value is correct"
             Expect.equal updatedProject.JapaneseTitle (Some "日本 v3") "Japanese title is correct"
+        }
+
+        test "Test build project sort value is set correctly" {
+            let project = { testProject with Title = { testProject.Title with SortValue = "The Title" } }
+
+            let updatedProject = TestPackageBuilder.updateProject "v3" project
+
+            Expect.equal updatedProject.Title.SortValue "The Title v3" "Title sort value is correct ('The' should not be removed)"
         }
     ]
