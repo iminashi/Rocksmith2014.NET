@@ -4,8 +4,8 @@
 
 A 64-bit OS:
 
-- Windows 8.1 or greater with [.NET 6 runtime](https://dotnet.microsoft.com/download) installed
-- macOS 10.13 or greater
+- Windows 10 or greater with [.NET 7 runtime](https://dotnet.microsoft.com/download) installed
+- macOS 10.15 or greater
 - Linux: a distro that can run GUI applications created with [Avalonia](https://github.com/AvaloniaUI/Avalonia)
 
 ## Wwise
