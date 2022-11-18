@@ -154,7 +154,7 @@ let parseToolkitMetadata attr map defaultValue text =
 let parseToolkitPackageMetadata attr = parseToolkitMetadata $"Package {attr}"
 
 /// Prefixes the version string with "Toolkit" if it starts with a four part version number. 
-let prefixWithToolkit versionOpt =
+let prefixWithToolkit (versionOpt: string option) =
     versionOpt
     |> Option.map (fun version ->
         if Regex.IsMatch(version, "\d+\.\d+\.\d+\.\d+") then
