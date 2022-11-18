@@ -35,16 +35,15 @@ let readIDs path =
     }
 
 let printProgress current max =
-    Console.CursorLeft <- 0
-    Console.CursorTop <- 0
-    printfn "Reading IDs..."
     let progress = (float current / float max)
     let bar = String.replicate (int (60. * progress)) "="
-    printfn "[%-60s]" bar
-    
+    printf "\r[%-60s]" bar
+
 /// Reads IDs and keys from psarcs in the given directory and its subdirectories.
 let gatherDLCData verbose (directory: string) =
     async {
+        printfn "Reading IDs..."
+
         let! results =
             let files =
                 Directory.EnumerateFiles(directory, "*.psarc", SearchOption.AllDirectories)
@@ -62,6 +61,8 @@ let gatherDLCData verbose (directory: string) =
                     return! readIDs path
                 })
             |> Async.Sequential
+
+        printfn ""
 
         let ids, keys =
             results
