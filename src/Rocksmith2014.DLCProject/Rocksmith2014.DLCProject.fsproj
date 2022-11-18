@@ -50,18 +50,9 @@
 
   <ItemGroup>
     <PackageReference Include="FSharp.SystemTextJson" Version="1.0.6" />
-    <PackageReference Include="Magick.NET-Q8-x64" Version="8.4.0" />
+    <PackageReference Include="Magick.NET-Q8-x64" Version="12.2.1" />
     <PackageReference Update="FSharp.Core" Version="7.0.0" />
   </ItemGroup>
-
-  <!-- On Mac, use an older version of Magick.NET that works on macOS 10.13 -->
-  <Choose>
-    <When Condition=" '$(RuntimeIdentifier)'=='osx-x64' ">
-      <ItemGroup>
-        <PackageReference Update="Magick.NET-Q8-x64" Version="7.5.0.1" />
-      </ItemGroup>
-    </When>
-  </Choose>
 
   <ItemGroup>
     <ProjectReference Include="..\Rocksmith2014.Conversion\Rocksmith2014.Conversion.fsproj" />
