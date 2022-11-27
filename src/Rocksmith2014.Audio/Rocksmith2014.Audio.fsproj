@@ -14,7 +14,7 @@
     <RuntimeIdentifier Condition=" '$([MSBuild]::IsOSPlatform(Linux))' ">linux-x64</RuntimeIdentifier>
     <RuntimeIdentifier Condition=" '$([MSBuild]::IsOSPlatform(OSX))' ">osx-x64</RuntimeIdentifier>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
@@ -23,14 +23,14 @@
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
-  
+
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='win-x64'">
     <Content Include="Tools\win\ww2ogg.exe" Link="Tools\ww2ogg.exe" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Tools\win\revorb.exe" Link="Tools\revorb.exe" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-  
+
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='osx-x64'">
-    <Content Include="Tools\mac\ww2ogg" Link="Tools\ww2ogg" CopyToOutputDirectory="PreserveNewest " />
+    <Content Include="Tools\mac\ww2ogg" Link="Tools\ww2ogg" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Tools\mac\revorb" Link="Tools\revorb" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
@@ -38,7 +38,7 @@
     <Content Include="Tools\linux\ww2ogg" Link="Tools\ww2ogg" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Tools\linux\revorb" Link="Tools\revorb" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Content Include="Tools\packed_codebooks.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
