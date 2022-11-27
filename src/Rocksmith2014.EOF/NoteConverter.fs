@@ -190,12 +190,12 @@ let convertNotes (inst: InstrumentalArrangement) =
     let noteGroups = createNoteGroups inst
 
     noteGroups
-    |> Array.mapi (fun index { Chord = chordOpt; Notes = notes; Time = time; Difficulty = diff } ->
+    |> Array.Parallel.mapi (fun index { Chord = chordOpt; Notes = notes; Time = time; Difficulty = diff } ->
         if notes.Length = 0 then
             // Create ghost chord
             let chord = chordOpt |> Option.get
             let bitFlag = bitFlagFromTemplate chord.Template
-            let frets = (fretsFromTemplate notes chord.Template)
+            let frets = fretsFromTemplate notes chord.Template
 
             let eofNote =
                 { EOFNote.Empty with
@@ -349,6 +349,8 @@ let convertNotes (inst: InstrumentalArrangement) =
                         Array.empty
                     else
                         n.BendValues.ToArray()
+                        // Don't import 0 strength bends at note start time
+                        |> Array.filter (fun bv -> not (bv.Time = n.Time && bv.Step = 0.0f))
                         |> Array.map (fun bv ->
                             { EOFNote.Empty with
                                 Difficulty = diff
@@ -396,6 +398,5 @@ let convertNotes (inst: InstrumentalArrangement) =
 
             assert (fingering.Length = eofNote.Frets.Length)
 
-            eofNote, fingering, techNotes
-    )
+            eofNote, fingering, techNotes)
     |> Array.unzip3
