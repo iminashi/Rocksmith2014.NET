@@ -49,39 +49,41 @@ let private getTempo den nextBeatTime beatTime =
     // Tempo of 0 on the last beat causes strange issues
     if tempo = 0 then 400000 else tempo
 
-let writeBeat
-        (inst: InstrumentalArrangement)
-        (events: Set<int>)
-        (getTs: int -> uint * int)
-        (index: int)
-        (beat: Ebeat) =
-    binaryWriter {
-        let nextBeat =
-            inst.Ebeats
-            |> ResizeArray.tryItem (index + 1)
+let private getBeatWriter (inst: InstrumentalArrangement) (events: Set<int>) (getTs: int -> uint * int) =
+    let mutable prevTempo: int voption = ValueNone
 
-        let nextBeatTime =
-            nextBeat
-            |> Option.map (fun x -> x.Time)
-            |> Option.defaultValue inst.MetaData.SongLength
+    fun (index: int) (beat: Ebeat) ->
+        binaryWriter {
+            let nextBeat =
+                inst.Ebeats
+                |> ResizeArray.tryItem (index + 1)
 
-        let eventFlag = if events.Contains(index) then 2u else 0u
-        let tsFlag, den =
-            let flag, den = getTs beat.Time
-            // Ignore any time signature change on the last beat
-            (if nextBeat.IsSome then flag else 0u), float den
+            let nextBeatTime =
+                nextBeat
+                |> Option.map (fun x -> x.Time)
+                |> Option.defaultValue inst.MetaData.SongLength
 
-        let tempo = getTempo den nextBeatTime beat.Time
+            let eventFlag = if events.Contains(index) then 2u else 0u
+            let tsFlag, den =
+                let flag, den = getTs beat.Time
+                // Ignore any time signature change on the last beat
+                (if nextBeat.IsSome then flag else 0u), float den
 
-        // Tempo
-        tempo
-        // Position
-        beat.Time
-        // Flags
-        AnchoredFlag ||| eventFlag ||| tsFlag
-        // Key signature
-        0y
-    }
+            let tempo = getTempo den nextBeatTime beat.Time
+
+            // Anchor only beats where the tempo actually changes
+            let anchorFlag = if prevTempo |> ValueOption.contains tempo then 0u else AnchoredFlag
+            prevTempo <- ValueSome tempo
+
+            // Tempo
+            tempo
+            // Position
+            beat.Time
+            // Flags
+            anchorFlag ||| eventFlag ||| tsFlag
+            // Key signature
+            0y
+        }
 
 let writeBeats
         (inst: InstrumentalArrangement)
@@ -93,10 +95,11 @@ let writeBeats
         |> Set.ofArray
 
     let getTsFlag = tsFlagGetter timeSignatures
+    let writeBeat = getBeatWriter inst eventsSet getTsFlag
 
     binaryWriter {
         inst.Ebeats.Count
 
-        for (i, b) in inst.Ebeats |> Seq.indexed do
-            yield! writeBeat inst eventsSet getTsFlag i b
+        for i, b in inst.Ebeats |> Seq.indexed do
+            yield! writeBeat i b
     }
