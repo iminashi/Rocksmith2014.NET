@@ -1,3 +1,9 @@
+## 1.5.3 (Released 2022-11-27)
+
+- Improvements to the EOF project creation:
+- Only beats where the tempo changes are now anchored, instead of all the beats.
+- Zero strength bend values at the note time will not be imported as tech notes.
+
 ## 1.5.2 (Released 2022-11-09)
 
 - Fixed a bug in test build sort values caused by the previous fix.
