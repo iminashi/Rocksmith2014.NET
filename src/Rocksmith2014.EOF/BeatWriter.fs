@@ -17,8 +17,10 @@ let private tsFlagGetter (timeSignatures: (int * EOFTimeSignature) list) =
         | true, ts ->
             denominator <-
                 match ts with
-                | CustomTS (_, d) -> int d
-                | _ -> 4
+                | CustomTS (denominator = d) ->
+                    int d
+                | _ ->
+                    4
 
             let flag =
                 match ts with
@@ -40,17 +42,15 @@ let private tsFlagGetter (timeSignatures: (int * EOFTimeSignature) list) =
             flag, denominator
 
 let private getTempo den nextBeatTime beatTime =
-    let tempo =
-        let beatLength = float (nextBeatTime - beatTime) * 1000.0
-        // Adjust for time signature and round up
-        beatLength * (den / 4.0) + 0.5
-        |> int
+    let beatLength = float (nextBeatTime - beatTime) * 1000.0
 
-    // Tempo of 0 on the last beat causes strange issues
-    if tempo = 0 then 400000 else tempo
+    // Adjust for time signature and round up
+    beatLength * (den / 4.0) + 0.5
+    |> int
 
 let private getBeatWriter (inst: InstrumentalArrangement) (events: Set<int>) (getTs: int -> uint * int) =
-    let mutable prevTempo: int voption = ValueNone
+    // The uninitialized value should never get used
+    let mutable prevTempo: int = -1
 
     fun (index: int) (beat: Ebeat) ->
         binaryWriter {
@@ -69,11 +69,16 @@ let private getBeatWriter (inst: InstrumentalArrangement) (events: Set<int>) (ge
                 // Ignore any time signature change on the last beat
                 (if nextBeat.IsSome then flag else 0u), float den
 
-            let tempo = getTempo den nextBeatTime beat.Time
+            let tempo =
+                if nextBeat.IsNone then
+                    // For the last beat, use the previous tempo
+                    prevTempo
+                else
+                    getTempo den nextBeatTime beat.Time
 
             // Anchor only beats where the tempo actually changes
-            let anchorFlag = if prevTempo |> ValueOption.contains tempo then 0u else AnchoredFlag
-            prevTempo <- ValueSome tempo
+            let anchorFlag = if prevTempo = tempo then 0u else AnchoredFlag
+            prevTempo <- tempo
 
             // Tempo
             tempo
