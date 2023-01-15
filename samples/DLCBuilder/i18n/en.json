@@ -284,6 +284,8 @@
   "FirstPhraseNotEmptyHelp": "The game requires that the first phrase of an arrangement is an empty one. Usually it is created automatically by EOF and called COUNT.",
   "NoEndPhrase": "Missing END phrase",
   "NoEndPhraseHelp": "The arrangement does not contain a phrase called END. This phrase cuts off the anchor zone at the end of an arrangement.",
+  "MoreThan100Phrases": "More than 100 phrases",
+  "MoreThan100PhrasesHelp": "The arrangement contains more than 100 phrases. This will prevent the DD bars for the phrases from showing up. The game may also crash if there is a very large quantity of phrases.",
   "PhraseChangeOnLinkNextNote": "Phrase changes on LinkNext note's sustain",
   "PhraseChangeOnLinkNextNoteHelp": "This can cause a note on the same string later in the song to turn invisible when the arrangement has DD levels.",
   "General": "General",

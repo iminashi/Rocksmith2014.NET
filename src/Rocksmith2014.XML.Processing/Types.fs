@@ -31,6 +31,7 @@ type IssueType =
     | AnchorNotOnNote of distance: int
     | FirstPhraseNotEmpty
     | NoEndPhrase
+    | MoreThan100Phrases
     | LyricWithInvalidChar of invalidChar: char
     | LyricTooLong of lyric: string
     | LyricsHaveNoLineBreaks
@@ -70,6 +71,7 @@ let issueCode = function
     | PossiblyWrongChordFingering -> "I27"
     | BarreOverOpenStrings -> "I28"
     | MutedStringInNonMutedChord -> "I29"
+    | MoreThan100Phrases -> "I30"
     | LyricWithInvalidChar _ -> "V01"
     | LyricTooLong _ -> "V02"
     | LyricsHaveNoLineBreaks -> "V03"

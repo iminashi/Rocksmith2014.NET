@@ -659,6 +659,29 @@ let phraseTests =
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type NoEndPhrase "Correct issue type"
+
+        testCase "Detects more than 100 phrases" <| fun _ ->
+            let phrases =
+                ResizeArray(seq {
+                    Phrase("COUNT", 0uy, PhraseMask.None)
+                    Phrase("riff", 0uy, PhraseMask.None)
+                    Phrase("END", 0uy, PhraseMask.None) })
+
+            let phraseIterations =
+                seq {
+                    yield PhraseIteration(1000, 0)
+                    for i in 1..99 -> PhraseIteration(1000 + i * 100, 1)
+                    yield PhraseIteration(9000, 2)
+                } |> ResizeArray
+
+            let notes = ResizeArray(seq { Note(Time = 1600) })
+            let levels = ResizeArray(seq { Level(0y, Notes = notes) })
+            let noEndTestArr = InstrumentalArrangement(Sections = sections, Phrases = phrases, PhraseIterations = phraseIterations, Levels = levels)
+
+            let results = checkPhrases noEndTestArr
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type MoreThan100Phrases "Correct issue type"
     ]
 
 [<Tests>]

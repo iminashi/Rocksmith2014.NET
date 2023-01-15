@@ -284,6 +284,8 @@
   "FirstPhraseNotEmptyHelp": "正しい機能のためには最初のフレーズがからっぽである必要があります。通常は、COUNTというフレーズで、EOFに自動的に作られます。",
   "NoEndPhrase": "ENDフレーズがない",
   "NoEndPhraseHelp": "アレンジにはENDというフレーズが存在しません。このフレーズはアレンジ終わりにアンカーゾーンを中断します。",
+  "MoreThan100Phrases": "フレーズの数が100を超える",
+  "MoreThan100PhrasesHelp": "アレンジには100以上のフレーズがあると画面上のDDバーが表示されません。フレーズの数が非常に多いなら、ゲームがクラッシュする場合もあります。",
   "PhraseChangeOnLinkNextNote": "LinkNextノートのサステイン中にフレーズが変わる",
   "PhraseChangeOnLinkNextNoteHelp": "アレンジにDDレベルがあると、このノートの後にくる同じ弦のノートが消えることがあります。",
   "General": "一般",

@@ -390,16 +390,22 @@ let checkPhrases (arr: InstrumentalArrangement) =
     if arr.PhraseIterations.Count >= 2 then
         let firstNoteTime = Utils.getFirstNoteTime arr
 
-        [ // Check for notes inside the first phrase
-          match firstNoteTime with
-          | Some firstNoteTime when firstNoteTime < arr.PhraseIterations[1].Time ->
+        [
+            // Check for notes inside the first phrase
+            match firstNoteTime with
+            | Some firstNoteTime when firstNoteTime < arr.PhraseIterations[1].Time ->
                 issue FirstPhraseNotEmpty firstNoteTime
-          | _ ->
+            | _ ->
                 ()
 
-          // Check for missing END phrase
-          if not <| arr.Phrases.Exists(fun p -> String.equalsIgnoreCase "END" p.Name) then
-            issue NoEndPhrase 0 ]
+            // Check for missing END phrase
+            if not <| arr.Phrases.Exists(fun p -> String.equalsIgnoreCase "END" p.Name) then
+                issue NoEndPhrase 0
+
+            // Check for more than 100 phrases
+            if arr.PhraseIterations.Count > 100 then
+                issue MoreThan100Phrases 0
+        ]
     else
         List.empty
 
