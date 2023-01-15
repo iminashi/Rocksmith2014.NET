@@ -1,3 +1,8 @@
+## 1.5.4 (Released 2023-01-15)
+
+- Added a validation issue for more than 100 phrases in an arrangement.
+- Fixed a bug that caused issues with the last beat in the generated EOF project.
+
 ## 1.5.3 (Released 2022-11-27)
 
 - Improvements to the EOF project creation:
