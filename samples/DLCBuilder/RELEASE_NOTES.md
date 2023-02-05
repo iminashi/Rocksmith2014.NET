@@ -1,3 +1,7 @@
+## 1.5.5 (Released 2023-02-05)
+
+- Fixed an issue where the generated EOF project could not be opened in EOF if the 5th or 6th string was used in a bass arrangement.
+
 ## 1.5.4 (Released 2023-01-15)
 
 - Added a validation issue for more than 100 phrases in an arrangement.
