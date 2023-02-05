@@ -145,7 +145,18 @@ let writeProTrack (name: string) (imported: ImportedArrangement) =
         }
 
     let stringCount =
-        if inst.MetaData.ArrangementProperties.PathBass then 4uy else 6uy
+        if inst.MetaData.ArrangementProperties.PathBass then
+            // Badly made CDLC may have notes on the the 5th or 6th strings
+            // If such notes exist, use 6 strings so that the opening the project in EOF does not fail
+            let moreThanFourStrings =
+                inst.Levels
+                |> Seq.collect (fun l -> l.Notes)
+                |> Seq.exists (fun n -> n.String > 3y)
+
+            if moreThanFourStrings then 6uy else 4uy
+        else
+            6uy
+
     let tuning =
         inst.MetaData.Tuning.Strings
         |> Array.take (int stringCount)
@@ -164,7 +175,7 @@ let writeProTrack (name: string) (imported: ImportedArrangement) =
         // Name (PART REAL...)
         name
         // Format (4 = Pro Guitar/Bass)
-        4uy 
+        4uy
         // Behaviour (5 = Pro Guitar/Bass)
         5uy
         // Type
