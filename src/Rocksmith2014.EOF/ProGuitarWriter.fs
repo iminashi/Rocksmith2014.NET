@@ -147,7 +147,7 @@ let writeProTrack (name: string) (imported: ImportedArrangement) =
     let stringCount =
         if inst.MetaData.ArrangementProperties.PathBass then
             // Badly made CDLC may have notes on the the 5th or 6th strings
-            // If such notes exist, use 6 strings so that the opening the project in EOF does not fail
+            // If such notes exist, use 6 strings so that opening the project in EOF does not fail
             let moreThanFourStrings =
                 inst.Levels
                 |> Seq.collect (fun l -> l.Notes)
