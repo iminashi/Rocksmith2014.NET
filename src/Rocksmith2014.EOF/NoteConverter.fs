@@ -40,6 +40,7 @@ let getNoteFlags (extFlag: EOFExtendedNoteFlag) (note: Note) =
 
 let getExtendedNoteFlags (chordData: ChordData option) (note: Note) =
     let sustainFlagNeeded =
+        note.Sustain > 0 &&
         chordData
         |> Option.exists (fun c ->
             not (c.IsLinkNext || note.IsVibrato || note.IsBend || note.IsTremolo || note.IsSlide || note.IsUnpitchedSlide)
@@ -49,7 +50,7 @@ let getExtendedNoteFlags (chordData: ChordData option) (note: Note) =
         if note.IsIgnore then
             EOFExtendedNoteFlag.IGNORE
 
-        if sustainFlagNeeded && note.Sustain > 0 then
+        if sustainFlagNeeded then
             EOFExtendedNoteFlag.SUSTAIN
     }
 
@@ -255,10 +256,13 @@ let convertNotes (inst: InstrumentalArrangement) =
                 else
                     EOFNoteFlag.ZERO
 
+            let slideCheck slideTo fret distance =
+                slideTo > 0y && fret - slideTo = distance
+
             let slide =
                 let slideTo = notes[0].SlideTo
                 let distance = notes[0].Fret - slideTo
-                if slideTo > 0y && notes |> Array.forall (fun n -> n.Fret - n.SlideTo = distance) then
+                if slideTo > 0y && notes |> Array.forall (fun n -> slideCheck n.SlideTo n.Fret distance) then
                     ValueSome (byte slideTo)
                 else
                     ValueNone
@@ -266,7 +270,7 @@ let convertNotes (inst: InstrumentalArrangement) =
             let unpitchedSlide =
                 let uSlideTo = notes[0].SlideUnpitchTo
                 let distance = notes[0].Fret - uSlideTo
-                if uSlideTo > 0y && notes |> Array.forall (fun n -> n.Fret - n.SlideUnpitchTo = distance) then
+                if uSlideTo > 0y && notes |> Array.forall (fun n -> slideCheck n.SlideUnpitchTo n.Fret distance) then
                     ValueSome (byte uSlideTo)
                 else
                     ValueNone
