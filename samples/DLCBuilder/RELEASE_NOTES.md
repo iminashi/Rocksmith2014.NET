@@ -1,3 +1,7 @@
+## 1.5.6 (Released 2023-02-12)
+
+- Fixed a bug that would cause a corrupted EOF project file to be created.
+
 ## 1.5.5 (Released 2023-02-05)
 
 - Fixed an issue where the generated EOF project could not be opened in EOF if the 5th or 6th string was used in a bass arrangement.
