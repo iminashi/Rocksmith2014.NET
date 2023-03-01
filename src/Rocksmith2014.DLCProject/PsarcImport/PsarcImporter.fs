@@ -30,8 +30,9 @@ let import progress (psarcPath: string) (targetDirectory: string) =
         let artFile = List.find (String.endsWith "256.dds") psarcContents
         do! psarc.InflateFile(artFile, toTargetPath "cover.dds")
 
+        let showLightsPath = toTargetPath "arr_showlights_RS2.xml"
         let showlights = List.find (String.contains "showlights") psarcContents
-        do! psarc.InflateFile(showlights, toTargetPath "arr_showlights.xml")
+        do! psarc.InflateFile(showlights, showLightsPath)
 
         let! sngs =
             psarcContents
@@ -113,10 +114,12 @@ let import progress (psarcPath: string) (targetDirectory: string) =
         let arrangements =
             sngs
             |> Array.Parallel.map (fun (file, sng) ->
-                // Change the filenames from "dlckey_name" to "arr_name"
+                // Change the filenames from "../../dlckey_{NAME}.sng" to "arr_{NAME}_RS2.xml"
                 let targetFile =
-                    let f = Path.GetFileName(file)
-                    toTargetPath <| Path.ChangeExtension("arr" + f.Substring(f.IndexOf '_'), "xml")
+                    let withoutPath = Path.GetFileName(file)
+                    let withoutDlcKey = withoutPath.Substring(withoutPath.IndexOf('_'))
+                    let withoutExtension = withoutDlcKey.Remove(withoutDlcKey.Length - 4)
+                    toTargetPath $"arr{withoutExtension}_RS2.xml"
 
                 let attributes =
                     fileAttributes
@@ -134,7 +137,7 @@ let import progress (psarcPath: string) (targetDirectory: string) =
                 | InstrumentalFile ->
                     importInstrumental targetAudioFiles dlcKey targetFile attributes sng)
             |> Array.toList
-            |> List.add (Showlights { XML = toTargetPath "arr_showlights.xml" }, ImportedData.ShowLights)
+            |> List.add (Showlights { XML = showLightsPath }, ImportedData.ShowLights)
             |> List.sortBy (fst >> Arrangement.sorter)
 
         let tones =

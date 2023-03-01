@@ -304,12 +304,18 @@ let private importTrackSorter (arr: Arrangement, _) =
 
 let private createEofTrackList (arrangements: (Arrangement * ImportedData) list) =
     let arrangements = arrangements |> List.sortBy importTrackSorter
+    let getCustomName (xmlPath: string) =
+        let fn = Path.GetFileNameWithoutExtension(xmlPath)
+        if fn.EndsWith("_RS2") then
+            fn.Remove(fn.Length - 4)
+        else
+            fn
 
     let vocals =
         arrangements
         |> List.tryPick (function
             | Vocals { XML = xml; Japanese = false }, ImportedData.Vocals v ->
-                Some { Vocals = v :> seq<_>; CustomName = Path.GetFileNameWithoutExtension(xml) }
+                Some { Vocals = v :> seq<_>; CustomName = getCustomName xml }
             | _ ->
                 None)
 
@@ -317,10 +323,7 @@ let private createEofTrackList (arrangements: (Arrangement * ImportedData) list)
         match input with
         | Instrumental { XML = xml; Name = name }, ImportedData.Instrumental data ->
             if filter name then
-                let eofTrack =
-                    { Data = data
-                      CustomName = Path.GetFileNameWithoutExtension(xml) }
-                Some eofTrack
+                Some { Data = data ; CustomName = getCustomName xml }
             else
                 None
         | _ ->

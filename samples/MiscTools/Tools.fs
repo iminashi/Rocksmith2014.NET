@@ -151,7 +151,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                 { PartGuitar = Array.singleton({ Data = xml; CustomName = "PART_LEAD" })
                   PartBass = Array.empty
                   PartBonus = None
-                  PartVocals = Seq.empty }
+                  PartVocals = None }
 
             EOFProjectWriter.writeEofProject "" targetPath eofProject
             state, Cmd.none
