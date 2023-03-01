@@ -174,7 +174,7 @@ let view state dispatch (arrangement: Arrangement) =
 
             ScrollViewer.create [
                 ScrollViewer.maxHeight 500.
-                ScrollViewer.maxWidth 650.
+                ScrollViewer.maxWidth 700.
                 ScrollViewer.padding 8.
                 ScrollViewer.content (
                     vStack [
