@@ -7,11 +7,15 @@ type ImportedArrangement =
     { Data: InstrumentalArrangement
       CustomName: string }
 
+type ImportedVocals =
+    { Vocals: Vocal seq
+      CustomName: string }
+
 type EOFProTracks =
     { PartGuitar: ImportedArrangement array
       PartBass: ImportedArrangement array
       PartBonus: ImportedArrangement option
-      PartVocals: Vocal seq }
+      PartVocals: ImportedVocals option }
 
     member this.GetAnyInstrumental =
         this.PartGuitar

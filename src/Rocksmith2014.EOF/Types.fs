@@ -4,13 +4,13 @@ open Rocksmith2014.XML
 open System
 
 type ProGuitarTrack =
-    | ActualTrack of name: string * ImportedArrangement
+    | ActualTrack of name: string * data: ImportedArrangement
     | EmptyTrack of name: string
 
 type EOFTrack =
     | Track0
     | Legacy of name: string * behavior: byte * type': byte * lanes: byte
-    | Vocals of vocals: Vocal seq
+    | Vocals of ImportedVocals option
     | ProGuitar of guitarTrack: ProGuitarTrack
 
 type EOFSection =

@@ -308,8 +308,8 @@ let private createEofTrackList (arrangements: (Arrangement * ImportedData) list)
     let vocals =
         arrangements
         |> List.tryPick (function
-            | Vocals { Japanese = false }, ImportedData.Vocals v ->
-                Some (v :> seq<_>)
+            | Vocals { XML = xml; Japanese = false }, ImportedData.Vocals v ->
+                Some { Vocals = v :> seq<_>; CustomName = Path.GetFileNameWithoutExtension(xml) }
             | _ ->
                 None)
 
@@ -363,7 +363,7 @@ let private createEofTrackList (arrangements: (Arrangement * ImportedData) list)
     { PartGuitar = guitar |> Array.truncate 2
       PartBass = bass |> Array.truncate 2
       PartBonus = bonus
-      PartVocals = vocals |> Option.defaultValue Seq.empty }
+      PartVocals = vocals }
 
 let importPsarc config targetFolder (psarcPath: string)  =
     async {

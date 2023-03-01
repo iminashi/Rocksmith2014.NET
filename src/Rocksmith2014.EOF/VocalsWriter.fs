@@ -1,6 +1,8 @@
 module VocalsWriter
 
+open System
 open Rocksmith2014.EOF.EOFTypes
+open Rocksmith2014.EOF.ImportTypes
 open Rocksmith2014.XML
 open BinaryWriterBuilder
 
@@ -46,8 +48,19 @@ let getSectionTimes vocals =
     |> getTimes None []
     |> List.rev
 
-let writeVocalsTrack (vocalSeq: Vocal seq) =
-    let vocals = vocalSeq |> List.ofSeq
+let writeVocalsTrack (vocalsData: ImportedVocals option) =
+    let vocals =
+        vocalsData
+        |> Option.map (fun x -> List.ofSeq x.Vocals)
+        |> Option.defaultValue List.empty
+
+    let trackFlags, customName =
+        match vocalsData |> Option.bind (fun x -> x.CustomName |> Option.ofString) with
+        | Some customName ->
+            4278190082u, customName
+        | None ->
+            4278190080u, ""
+
     let sections =
         getSectionTimes vocals
         |> List.map (fun (startTime, endTime) -> EOFSection.Create(0uy, uint startTime, uint endTime, 0u))
@@ -59,8 +72,10 @@ let writeVocalsTrack (vocalSeq: Vocal seq) =
         3uy // behaviour
         6uy // type
         -1y // difficulty level
-        4278190080u // flags
+        trackFlags // flags
         0us // compliance flags
+
+        if not <| String.IsNullOrEmpty(customName) then customName
 
         // MIDI tone
         5y
