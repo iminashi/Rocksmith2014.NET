@@ -1,3 +1,8 @@
+## 1.5.7 (Released 2023-03-08)
+
+- Changed the naming of the XML files saved when importing a PSARC to match the files EOF saves.
+- Fixed a bug where unused tones with the same key would prevent building the project.
+
 ## 1.5.6 (Released 2023-02-12)
 
 - Fixed a bug that would cause a corrupted EOF project file to be created.
