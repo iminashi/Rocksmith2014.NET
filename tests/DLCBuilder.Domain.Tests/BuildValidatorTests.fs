@@ -14,11 +14,13 @@ let vocals =
       MasterID = 1
       PersistentID = Guid.NewGuid() }
 
+let toneKey1 = "Tone_1"
+
 let instrumental =
     { Instrumental.Empty with 
           XML = "instrumental.xml"
           BaseTone = "Base_Tone"
-          Tones = [ "Tone_1"; "Tone_2"; "Tone_3"; "Tone_4" ]
+          Tones = [ toneKey1; "Tone_2"; "Tone_3"; "Tone_4" ]
           MasterID = 12345 }
 
 let existingFile = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.*") |> Seq.head
@@ -95,7 +97,12 @@ let tests =
             |> expectError SamePersistentID
 
         testCase "Detects same key on multiple tones" <| fun _ ->
-            let project = { validProject with Tones = [ testTone; testTone ] }
+            let project =
+                let tone = { testTone with Key = toneKey1 }
+                let instrumental2 = { instrumental with PersistentID = Guid.NewGuid(); MasterID = Random.Shared.Next() }
+                { validProject with
+                    Arrangements = [ Instrumental instrumental; Instrumental instrumental2 ]
+                    Tones = [ tone; tone ] }
 
             BuildValidator.validate project
             |> expectError MultipleTonesSameKey
