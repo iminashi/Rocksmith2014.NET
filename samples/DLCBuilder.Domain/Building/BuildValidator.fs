@@ -5,6 +5,14 @@ open Rocksmith2014.DLCProject
 open System
 open System.IO
 
+let private toneIsUsedInArrangement project toneKey =
+    project.Arrangements
+    |> List.exists (function
+        | Instrumental inst ->
+            List.contains toneKey inst.Tones
+        | _ ->
+            false)
+
 let private validators = [
     InvalidDLCKey,    fun project -> project.DLCKey.Length < DLCKey.MinimumLength
     TitleEmpty,       fun project -> String.IsNullOrEmpty project.Title.Value
@@ -32,7 +40,10 @@ let private validators = [
     fun project ->
         project.Tones
         |> List.groupBy (fun x -> x.Key)
-        |> List.exists (fun (_, list) -> list.Length > 1)
+        |> List.exists (fun (key, list) ->
+            list.Length > 1
+            && String.notEmpty key
+            && toneIsUsedInArrangement project key)
 
     ConflictingVocals,
     fun project ->

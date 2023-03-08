@@ -3,6 +3,7 @@ module DLCBuilder.ToneGear
 open Microsoft.Extensions.FileProviders
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
+open System
 open System.Collections.Generic
 open System.Reflection
 open System.Text.Json
@@ -154,6 +155,6 @@ let emptyTone repository =
       NameSeparator = " - "
       Volume = -18.
       MacVolume = None
-      Key = "new_tone"
+      Key = String.Empty
       Name = "new_tone"
       SortOrder = None }
