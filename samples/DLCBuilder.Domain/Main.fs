@@ -34,6 +34,8 @@ let private buildPackage build state =
             match error with
             | InvalidDLCKey ->
                 state.Localizer.TranslateFormat(string error, [| DLCKey.MinimumLength |])
+            | MultipleTonesSameKey key ->
+                state.Localizer.TranslateFormat("MultipleTonesSameKey", [| key |])
             | other ->
                 state.Localizer.Translate(string other)
 

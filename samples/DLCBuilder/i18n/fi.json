@@ -203,7 +203,7 @@
   "TitleEmpty": "Kappaleen nimi ei voi olla tyhjä.",
   "ArtistNameEmpty": "Artistin nimi ei voi olla tyhjä.",
   "AlbumArtNotFound": "Kansikuvatiedostoa ei löydy.",
-  "MultipleTonesSameKey": "Yhdelle soundiavaimelle on määritelty useita eri soundeja.",
+  "MultipleTonesSameKey": "Soundiavaimelle \"{0}\" on määritelty useita eri soundeja.",
   "ConflictingVocals": "Projektissa on kaksi päällekkäistä sanoitus-sovitusta.\nJompikumpi niistä pitää asettaa japaninkieliseksi.",
   "PreviewNotFound": "Esikatseluäänitiedostoa ei löydy.",
   "MissingBaseToneKey": "Yhdellä projektin sovituksista on tyhjä perus-soundiavain.",

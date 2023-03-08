@@ -203,7 +203,7 @@
   "TitleEmpty": "The song title cannot be empty.",
   "ArtistNameEmpty": "The artist name cannot be empty.",
   "AlbumArtNotFound": "Album art file not found.",
-  "MultipleTonesSameKey": "A tone key has more than one defined tone.",
+  "MultipleTonesSameKey": "The tone key \"{0}\" has more than one defined tone.",
   "ConflictingVocals": "There are two conflicting vocals arrangements.\nOne needs to be set as Japanese.",
   "PreviewNotFound": "Preview audio file not found.",
   "MissingBaseToneKey": "An arrangement in the project has an empty base tone key.",

@@ -105,7 +105,7 @@ let tests =
                     Tones = [ tone; tone ] }
 
             BuildValidator.validate project
-            |> expectError MultipleTonesSameKey
+            |> expectError (MultipleTonesSameKey toneKey1)
 
         testCase "Detects conflicting vocals arrangements" <| fun _ ->
             let vocals2 = { vocals with PersistentID = Guid.NewGuid() }

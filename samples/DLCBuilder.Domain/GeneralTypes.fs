@@ -97,7 +97,7 @@ type BuildValidationError =
     | ArtistNameEmpty
     | AlbumArtNotFound
     | PreviewNotFound
-    | MultipleTonesSameKey
+    | MultipleTonesSameKey of conflictingKey: string
     | ConflictingVocals
     | MissingBaseToneKey
     | SamePersistentID

@@ -42,6 +42,9 @@ type Instrumental =
       MasterID: int
       PersistentID: Guid }
 
+    member this.AllTones =
+        this.BaseTone :: this.Tones
+
     static member Empty =
         { XML = String.Empty
           Name = ArrangementName.Lead
