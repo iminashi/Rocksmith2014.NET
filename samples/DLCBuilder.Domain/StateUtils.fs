@@ -376,14 +376,12 @@ let importPsarc config targetFolder (psarcPath: string)  =
         let! r = PsarcImporter.import progress psarcPath targetFolder
         let project = r.GeneratedProject
 
-        let audioExtension =
-            match config.ConvertAudio with
-            | None ->
-                "wem"
-            | Some conv ->
-                Utils.convertProjectAudioFromWem conv project
-                progress ()
-                conv.ToExtension
+        match config.ConvertAudio with
+        | None ->
+            ()
+        | Some conv ->
+            Utils.convertProjectAudioFromWem conv project
+            progress ()
 
         // Remove DD levels
         if config.RemoveDDOnImport then
@@ -399,12 +397,10 @@ let importPsarc config targetFolder (psarcPath: string)  =
             do! Utils.removeDD instrumentalData
             progress ()
 
-        let audioFilePath = Path.ChangeExtension(project.AudioFile.Path, audioExtension)
-        let previewFilePath = Path.ChangeExtension(project.AudioPreviewFile.Path, audioExtension)
         let oggFileName =
             match config.ConvertAudio with
             | Some ToOgg ->
-                Path.GetFileName(audioFilePath)
+                Path.ChangeExtension(project.AudioFile.Path, "ogg")
             | _ ->
                 String.Empty
 
@@ -414,10 +410,6 @@ let importPsarc config targetFolder (psarcPath: string)  =
             let eofTracks = createEofTrackList r.ArrangementData
             EOFProjectWriter.writeEofProject oggFileName eofProjectPath eofTracks
             progress ()
-
-        let audioFile = { project.AudioFile with Path = audioFilePath }
-        let previewFile = { project.AudioPreviewFile with Path = previewFilePath }
-        let project = { project with AudioFile = audioFile; AudioPreviewFile = previewFile }
 
         return { r with GeneratedProject = project }
     }
@@ -450,3 +442,15 @@ let private deleteTempFiles { TempDirectory = dir } =
 
 let deleteTemporaryFilesForQuickEdit state =
     state.QuickEditData |> Option.iter deleteTempFiles
+
+/// Returns path to wav or ogg audio file if one exists.
+let tryGetNonWemAudioFile wemPath =
+    match Path.ChangeExtension(wemPath, "wav") with
+    | wavPath when File.Exists(wavPath) ->
+        Some wavPath
+    | _ ->
+        match Path.ChangeExtension(wemPath, "ogg") with
+        | oggPath when File.Exists(oggPath) ->
+            Some oggPath
+        | _ ->
+            None

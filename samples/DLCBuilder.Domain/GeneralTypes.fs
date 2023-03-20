@@ -28,8 +28,6 @@ type AudioConversionType =
     | ToWav
     | ToOgg
 
-    member this.ToExtension = match this with ToWav -> "wav" | ToOgg -> "ogg"
-
 type MoveDirection = Up | Down
 
 type PsarcQuickEditData =
