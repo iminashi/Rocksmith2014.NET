@@ -384,7 +384,11 @@ let update (msg: Msg) (state: State) =
                 return
                     match path with
                     | HasExtension ".wem" ->
-                        Conversion.withTempOggFile Volume.calculate path
+                        match tryGetNonWemAudioFile path with
+                        | Some altPath ->
+                            Volume.calculate altPath
+                        | None ->
+                            Conversion.withTempOggFile Volume.calculate path
                     | _ ->
                         Volume.calculate path
             }
