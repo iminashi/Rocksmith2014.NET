@@ -55,7 +55,7 @@ let dlcProjectTests =
             let wemPath = Path.ChangeExtension(audioPath, "wem")
             File.WriteAllText(wemPath, "dummy content")
             // Ensure that the source audio file is newer
-            Thread.Sleep(100)
+            Thread.Sleep(3_000)
             File.WriteAllText(audioPath, "dummy content")
 
             let files = DLCProject.getFilesThatNeedConverting projectWithExistingFiles
