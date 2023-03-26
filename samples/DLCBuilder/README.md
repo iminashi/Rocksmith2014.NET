@@ -8,9 +8,9 @@ A 64-bit OS:
 - macOS 10.13 or greater
 - Linux: a distro that can run GUI applications created with [Avalonia](https://github.com/AvaloniaUI/Avalonia)
 
-## Wwise 2019/2021
+## Wwise
 
-Converting audio files to wem requires Wwise 2019 or 2021 to be installed.
+Converting audio files to wem requires Wwise 2019, 2021 or 2022 to be installed.
 
 During the installation, check only "Authoring" in Packages and leave all Deployment Platforms and Plug-ins unchecked (unless you need them for something else).
 
