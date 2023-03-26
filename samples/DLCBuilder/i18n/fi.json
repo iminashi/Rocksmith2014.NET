@@ -432,6 +432,8 @@
   "LoadingCoverArtFailed": "Kansikuvatiedoston \"{0}\" lataaminen epäonnistui!",
   "RegenerateArrangementIds": "Uudelleengeneroidaanko tunnistetiedot?",
   "FollowingIDsShouldBeRegenerated": "Seuraavien sovitusten tunnistetiedot kannattaa generoida uudelleen:",
+  "NewIdsGenerated": "Uudet tunnistetiedot generoitu sovitukselle.",
+  "NewIdsGeneratedAll": "Uudet tunnistetiedot generoitu kaikille sovituksille.",
   "ArrangementIDRegenerationExplanation": "Jos fraasin DD tasojen määrä on muuttunut, ja sen maksimivaikeus on pienempi kuin käyttäjän profiiliin tallennetusta arvo, peli saattaa kaatua, kun fraasin vaikeutta muutetaan.",
   "Browse...": "Selaa...",
   "GlyphsFileNotFound": "Symbolitiedostoa (.glyphs.xml) ei löydy.",

@@ -432,6 +432,8 @@
   "LoadingCoverArtFailed": "カバーアートファイル「{0}」のロードに失敗しました!",
   "RegenerateArrangementIds": "アレンジに新しいIDをジェネレートしますか?",
   "FollowingIDsShouldBeRegenerated": "次のアレンジのIDのリジェネレートを勧めます:",
+  "NewIdsGenerated": "新しいIDがジェネレートされました。",
+  "NewIdsGeneratedAll": "すべてのアレンジに新しいＩＤがジェネレートされました。",
   "ArrangementIDRegenerationExplanation": "フレーズの最大レベル値が変わると、そしてそれがユーザーのプロフィールに保存された数値より低い場合、フレーズの難易度を変えられた時にゲームがクラッシュすることがあります。",
   "Browse...": "参照...",
   "GlyphsFileNotFound": "グリフファイル(.glyphs.xml)が存在しません。",

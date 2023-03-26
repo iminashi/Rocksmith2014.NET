@@ -847,11 +847,13 @@ let update (msg: Msg) (state: State) =
                 else
                     arr)
 
-        { state with Project = { project with Arrangements = arrangements } }, Cmd.none
+        let msg = Cmd.ofMsg (AddStatusMessage (translate "NewIdsGenerated"))
+        { state with Project = { project with Arrangements = arrangements } }, msg
 
     | GenerateAllIds ->
         let arrangements = TestPackageBuilder.generateAllIds project.Arrangements
-        { state with Project = { project with Arrangements = arrangements } }, Cmd.none
+        let msg = Cmd.ofMsg (AddStatusMessage (translate "NewIdsGeneratedAll"))
+        { state with Project = { project with Arrangements = arrangements } }, msg
 
     | ApplyLowTuningFix ->
         applyLowTuningFix state, Cmd.none
