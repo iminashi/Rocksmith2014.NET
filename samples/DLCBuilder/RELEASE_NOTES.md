@@ -1,3 +1,10 @@
+## 1.6.0 (Released 2023-03-26)
+
+- Added support for Wwise 2022.
+- Audio files are set to wem when importing PSARC even if audio conversion is enabled.
+- Wave/Ogg audio will be used for volume calculation when project audio files are set to wem and wav/ogg file with same name exist.
+- Minor UI improvement.
+
 ## 1.5.7 (Released 2023-03-08)
 
 - Changed the naming of the XML files saved when importing a PSARC to match the files EOF saves.
