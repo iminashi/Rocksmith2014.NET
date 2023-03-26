@@ -9,7 +9,7 @@ open Microsoft.Extensions.FileProviders
 open Rocksmith2014.Common
 open Rocksmith2014.Common.BinaryWriters
 
-type private WwiseVersion = Wwise2019 | Wwise2021
+type private WwiseVersion = Wwise2019 | Wwise2021 | Wwise2022
 
 /// Returns the path to the Wwise console executable.
 let getCLIPath () =
@@ -85,11 +85,13 @@ let private getWwiseVersion executablePath =
         match version.ProductMajorPart with
         | 2019 -> Wwise2019
         | 2021 -> Wwise2021
-        | _ -> failwith $"Unsupported Wwise version ({version.FileVersion}).\nMust be major version 2019 or 2021."
+        | 2022 -> Wwise2022
+        | _ -> failwith $"Unsupported Wwise version ({version.FileVersion}).\nMust be major version 2019, 2021 or 2022."
     else
         match executablePath with
         | Contains "2019" -> Wwise2019
         | Contains "2021" -> Wwise2021
+        | Contains "2022" -> Wwise2022
         | _ -> Wwise2021
 
 let private createArgs templateDir =

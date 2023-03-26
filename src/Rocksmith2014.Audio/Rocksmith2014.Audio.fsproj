@@ -51,6 +51,7 @@
     <Compile Include="Conversion.fs" />
     <EmbeddedResource Include="Wwise\wwise2019.zip" />
     <EmbeddedResource Include="Wwise\wwise2021.zip" />
+    <EmbeddedResource Include="Wwise\wwise2022.zip" />
     <Compile Include="Wwise\WwiseFinder.fs" />
     <Compile Include="Wwise\Wwise.fs" />
     <Compile Include="Volume\SecondOrderIIRFilter.fs" />
