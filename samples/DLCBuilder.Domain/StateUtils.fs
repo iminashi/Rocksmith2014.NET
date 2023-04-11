@@ -400,7 +400,7 @@ let importPsarc config targetFolder (psarcPath: string)  =
         let oggFileName =
             match config.ConvertAudio with
             | Some ToOgg ->
-                Path.ChangeExtension(project.AudioFile.Path, "ogg")
+                Path.ChangeExtension(Path.GetFileName(project.AudioFile.Path), "ogg")
             | _ ->
                 String.Empty
 
