@@ -1,3 +1,7 @@
+## 1.6.1 (Released 2023-04-11)
+
+- Fixed a bug in writing the ogg path to the EOF file.
+
 ## 1.6.0 (Released 2023-03-26)
 
 - Added support for Wwise 2022.
