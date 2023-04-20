@@ -27,7 +27,7 @@ let findWindows () =
             // Try the default installation directory in program files
             tryFindWwiseInstallation (Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86))
             |> Option.orElseWith (fun () -> tryFindWwiseInstallation (Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)))
-            |> Option.defaultWith (fun () -> failwith "Could not locate Wwise 2019, 2021 or 2022 installation from WWISEROOT environment variable or path Program Files\Audiokinetic.")
+            |> Option.defaultWith (fun () -> failwith @"Could not locate Wwise 2019, 2021 or 2022 installation from WWISEROOT environment variable or path Program Files\Audiokinetic.")
 
     Path.Combine(wwiseRoot, "Authoring", "x64", "Release", "bin", "WwiseConsole.exe")
 
