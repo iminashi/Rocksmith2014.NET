@@ -228,7 +228,7 @@ module DLCProject =
                    |> List.choose (function Instrumental i -> i.CustomAudio | _ -> None)
         }
 
-    let private needsConversion path =
+    let private needsConversion (convertIfNewerThan: TimeSpan) (path: string) =
         let wemPath = Path.ChangeExtension(path, "wem")
 
         if String.endsWith "wem" path then
@@ -242,10 +242,10 @@ module DLCProject =
             let wemAudioDate = FileInfo(wemPath).LastWriteTime
 
             // Convert if source file is newer then the existing wem file
-            sourceAudioDate - wemAudioDate >= TimeSpan.FromSeconds(3.0)
+            sourceAudioDate - wemAudioDate >= convertIfNewerThan
 
     /// Returns the paths to the audio files that need converting to wem.
-    let getFilesThatNeedConverting (project: DLCProject) =
+    let getFilesThatNeedConverting (convertIfNewerThan: TimeSpan) (project: DLCProject) =
         getAudioFiles project
         |> Seq.map (fun audio -> audio.Path)
-        |> Seq.filter needsConversion
+        |> Seq.filter (needsConversion convertIfNewerThan)

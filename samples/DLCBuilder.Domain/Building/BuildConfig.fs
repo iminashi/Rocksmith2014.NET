@@ -10,7 +10,7 @@ open Rocksmith2014.DLCProject.PackageBuilder
 let create buildType config project platforms =
     let convTask =
         let tasks =
-            DLCProject.getFilesThatNeedConverting project
+            DLCProject.getFilesThatNeedConverting (TimeSpan.FromSeconds(3.0)) project
             |> Seq.map (Wwise.convertToWem config.WwiseConsolePath)
 
         Async.Parallel(tasks, maxDegreeOfParallelism = 2)
