@@ -250,8 +250,6 @@
   "MissingBendValueHelp": "チョーキングノートには０以上のチョーキング値がひとつもありません。",
   "ToneChangeOnNote": "ノートと同時のトーンチェンジ",
   "ToneChangeOnNoteHelp": "普段はトーンチェンジをノートのちょっと前に置くといいでしょう。",
-  "VaryingChordNoteSustains": "コードのコードノートのサステイン値がばらばら",
-  "VaryingChordNoteSustainsHelp": "コードのノートのサステインが全部同じである必要があります。EOFではノートにSustainアトリビュートを追加しましょう。",
   "MissingLinkNextChordNotes": "LinkNextコードにはLinkNextノートがいない",
   "MissingLinkNextChordNotesHelp": "コード自体にはLinkNextはありますが、コードにはLinkNextノートがひとつもいません。このようなコードがアレンジにあるとゲームはクラッシュします。",
   "ChordAtEndOfHandShape": "Handshape終了時のコード",

@@ -310,17 +310,6 @@ let noteTests =
 [<Tests>]
 let chordTests =
     testList "Arrangement Checker (Chords)" [
-        // DISABLED
-        ptestCase "Detects chord with inconsistent chord note sustains" <| fun _ ->
-            let cn = ResizeArray(seq { Note(Sustain = 200); Note(Sustain = 400) })
-            let chords = ResizeArray(seq { Chord(ChordNotes = cn) })
-            let level = Level(Chords = chords)
-
-            let results = checkChords testArr level
-
-            Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type VaryingChordNoteSustains "Correct issue type"
-
         testCase "Detects chord note with linknext and unpitched slide" <| fun _ ->
             let cn = ResizeArray(seq { Note(IsLinkNext = true, SlideUnpitchTo = 10y, Sustain = 100) })
             let chords = ResizeArray(seq { Chord(ChordNotes = cn) })

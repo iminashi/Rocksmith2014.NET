@@ -250,8 +250,6 @@
   "MissingBendValueHelp": "A note was set as a bend, but did not have any non-zero bend values.",
   "ToneChangeOnNote": "Tone change occurs on a note",
   "ToneChangeOnNoteHelp": "Generally it is good practice to place the tone change slightly before a note than exactly on it.",
-  "VaryingChordNoteSustains": "Chord with varying chord note sustains",
-  "VaryingChordNoteSustainsHelp": "The sustains of all chord notes must be the same. Add the sustain attribute to the note in EOF.",
   "MissingLinkNextChordNotes": "LinkNext chord without LinkNext chord notes",
   "MissingLinkNextChordNotesHelp": "A chord itself has the LinkNext attribute set, but it does not contain any chord notes that have the attribute. Such a chord will crash the game.",
   "ChordAtEndOfHandShape": "Chord at the end of a handshape",

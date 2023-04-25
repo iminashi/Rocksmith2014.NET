@@ -18,7 +18,6 @@ type IssueType =
     | MissingBendValue
     | ToneChangeOnNote
     | NoteInsideNoguitarSection
-    | VaryingChordNoteSustains
     | MissingLinkNextChordNotes
     | ChordAtEndOfHandShape
     | FingeringAnchorMismatch
@@ -58,7 +57,7 @@ let issueCode = function
     | MissingBendValue -> "I14"
     | ToneChangeOnNote -> "I15"
     | NoteInsideNoguitarSection -> "I16"
-    | VaryingChordNoteSustains -> "I17"
+    //| VaryingChordNoteSustains -> "I17"
     | MissingLinkNextChordNotes -> "I18"
     | ChordAtEndOfHandShape -> "I19"
     | FingeringAnchorMismatch -> "I20"
