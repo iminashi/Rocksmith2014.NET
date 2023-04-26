@@ -140,7 +140,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
             let entry = { proto with Offset = offset; ID = i }
             offset <- offset + uint64 size
             // Don't add the manifest to the ToC
-            if i <> 0 then toc.Add entry
+            if i <> 0 then toc.Add(entry)
             entry.Write(tocWriter))
 
         // Update and write the block sizes table
@@ -159,7 +159,9 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
         tocData.Position <- 0L
         if encrypt then
-            Cryptography.encrypt tocData source tocData.Length
+            Cryptography.encrypt tocData source
+            // Ignore the zero padding from the encryption (https://github.com/dotnet/runtime/issues/85205)
+            source.Position <- int64 header.ToCLength
         else
             tocData.CopyTo(source)
 
@@ -318,8 +320,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
         let toc, zLengths =
             if header.IsEncrypted then
-                use decStream = MemoryStreamPool.Default.GetStream()
-                Cryptography.decrypt input decStream header.ToCLength
+                use decStream = Cryptography.decrypt input tocSize
 
                 if decStream.Length <> int64 tocSize then
                     failwith "ToC decryption failed: Incorrect ToC size."

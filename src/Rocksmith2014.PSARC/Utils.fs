@@ -16,7 +16,7 @@ let internal readToC (header: Header) (reader: IBinaryReader) =
     let blockSizeTableLength = int header.ToCLength - Header.Length - tocSize
     let blockSizeCount = blockSizeTableLength / zType
 
-    let read = 
+    let read =
         match zType with
         | 2 -> fun _ -> uint32 (reader.ReadUInt16()) // 64KB
         | 3 -> fun _ -> reader.ReadUInt24() // 16MB
