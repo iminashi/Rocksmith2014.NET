@@ -252,7 +252,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             state, Cmd.OfAsync.attempt t () Error
 
         | PackDirectoryPSARC path ->
-            let t () = PSARC.PackDirectory(path, path + ".psarc", true)
+            let t () = PSARC.PackDirectory(path, path + ".psarc", true) |> Async.AwaitTask
 
             state, Cmd.OfAsync.attempt t () Error
 

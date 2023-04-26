@@ -29,7 +29,7 @@ let importTonesFromPSARC (psarcPath: string) =
         let! jsons =
             psarc.Manifest
             |> Seq.filter (String.endsWith "json")
-            |> Seq.map psarc.GetEntryStream
+            |> Seq.map (fun j -> async { return! psarc.GetEntryStream(j) |> Async.AwaitTask })
             |> Async.Sequential
 
         let! manifests =

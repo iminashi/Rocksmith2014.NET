@@ -5,7 +5,7 @@ open Rocksmith2014.PSARC
 open System.IO
 
 let copyToMemory (fileName: string) =
-    async {
+    task {
         use file = File.OpenRead(fileName)
         let memory = new MemoryStream(int file.Length)
         do! file.CopyToAsync(memory)
@@ -18,7 +18,7 @@ let options = { Mode = InMemory; EncryptTOC = true }
 [<Tests>]
 let editTests =
     testList "Edit Files" [
-        testAsync "Manifest is same after null edit" {
+        testTask "Manifest is same after null edit" {
             use! memory = copyToMemory "test_edit_p.psarc"
             use psarc = PSARC.Read(memory)
             let oldManifest = psarc.Manifest
@@ -28,7 +28,7 @@ let editTests =
             Expect.sequenceContainsOrder psarc.Manifest oldManifest "Manifest is unchanged"
         }
         
-        testAsync "Can be read after editing" {
+        testTask "Can be read after editing" {
             use! memory = copyToMemory "test_edit_p.psarc"
             let psarc = PSARC.Read(memory)
             let oldManifest = psarc.Manifest
@@ -43,7 +43,7 @@ let editTests =
                 Expect.equal psarc2.TOC.[i].Length oldToc.[i].Length "File length is same"
         }
         
-        testAsync "Can remove files" {
+        testTask "Can remove files" {
             use! memory = copyToMemory "test_edit_p.psarc"
             let psarc = PSARC.Read(memory)
             let oldManifest = psarc.Manifest
@@ -58,7 +58,7 @@ let editTests =
             Expect.isTrue (memory.Length < oldSize) "Size is smaller"
         }
         
-        testAsync "Can add a file" {
+        testTask "Can add a file" {
             use! memory = copyToMemory "test_edit_p.psarc"
             let psarc = PSARC.Read(memory)
             let oldManifest = psarc.Manifest
@@ -73,7 +73,7 @@ let editTests =
             Expect.isFalse fileToAdd.Data.CanRead "Data stream has been disposed"
         }
         
-        testAsync "Can reorder files" {
+        testTask "Can reorder files" {
             use! memory = copyToMemory "test_edit_p.psarc"
             let psarc = PSARC.Read(memory)
             let oldManifest = psarc.Manifest
@@ -86,7 +86,7 @@ let editTests =
             Expect.equal psarc.Manifest.[psarc.Manifest.Length - 1] oldManifest.[0] "First file is now last"
         }
         
-        testAsync "Can rename files" {
+        testTask "Can rename files" {
             use! memory = copyToMemory "test_edit_p.psarc"
             let psarc = PSARC.Read(memory)
             let oldManifest = psarc.Manifest

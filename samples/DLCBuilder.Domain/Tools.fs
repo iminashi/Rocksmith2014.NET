@@ -110,7 +110,7 @@ let update msg state =
         Cmd.OfAsync.either task () (fun _ -> PsarcUnpacked) (fun ex -> TaskFailed(ex, PsarcUnpack))
 
     | PackDirectoryIntoPSARC (directory, targetFile) ->
-        let task () = PSARC.PackDirectory(directory, targetFile, true)
+        let task () = PSARC.PackDirectory(directory, targetFile, true) |> Async.AwaitTask
         
         state, Cmd.OfAsync.attempt task () ErrorOccurred
 

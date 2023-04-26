@@ -31,7 +31,7 @@ let getUniqueTones (psarc: PSARC) =
         let! jsons =
             psarc.Manifest
             |> Seq.filter (String.endsWith ".json")
-            |> Seq.map psarc.GetEntryStream
+            |> Seq.map (fun j -> async { return! psarc.GetEntryStream(j) |> Async.AwaitTask })
             |> Async.Sequential
 
         let! manifests =

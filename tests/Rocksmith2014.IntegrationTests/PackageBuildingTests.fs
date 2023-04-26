@@ -93,7 +93,7 @@ let tests =
             testCommonContents contents
         }
 
-        testAsync "App ID file contains correct app ID" {
+        testTask "App ID file contains correct app ID" {
             use psarc = PSARC.ReadFile(psarcPathWin)
 
             use! stream = psarc.GetEntryStream("appid.appid")
@@ -102,27 +102,27 @@ let tests =
             Expect.equal appid.Value buildConfig.AppId "App ID was the one defined in the build configuration"
         }
 
-        testAsync "Mac package contains correct SNG file" {
+        testTask "Mac package contains correct SNG file" {
             use psarc = PSARC.ReadFile(psarcPathMac)
 
             use! stream = psarc.GetEntryStream("songs/bin/macos/integrationtest_lead.sng")
-            let! sng = SNG.fromStream stream Mac
+            let! sng = SNG.fromStream stream Mac |> Async.StartAsTask
 
             Expect.exists sng.Sections (fun s -> s.Name = "melody") "SNG contains melody section"
             Expect.isGreaterThan sng.Levels.Length 1 "SNG contains DD levels"
         }
 
-        testAsync "Mac package contains correct manifest file" {
+        testTask "Mac package contains correct manifest file" {
             use psarc = PSARC.ReadFile(psarcPathMac)
 
             use! stream = psarc.GetEntryStream "manifests/songs_dlc_integrationtest/integrationtest_bass.json"
-            let! mani = (Manifest.fromJsonStream stream).AsTask() |> Async.AwaitTask
+            let! mani = (Manifest.fromJsonStream stream).AsTask()
             let attr = Manifest.getSingletonAttributes mani
 
             Expect.exists attr.Tones (fun t -> t.Key = "bass") "Attributes contain a tone with key bass"
         }
 
-        testAsync "Mac package contains correct soundbank file" {
+        testTask "Mac package contains correct soundbank file" {
             use psarc = PSARC.ReadFile(psarcPathMac)
 
             use mem = new MemoryStream()
@@ -139,11 +139,11 @@ let tests =
             | Error e -> failwith e
         }
 
-        testAsync "PC package contains correct lead tone" {
+        testTask "PC package contains correct lead tone" {
             use psarc = PSARC.ReadFile(psarcPathWin)
 
             use! file = psarc.GetEntryStream("manifests/songs_dlc_integrationtest/integrationtest_lead.json")
-            let! manifest = Manifest.fromJsonStream(file).AsTask() |> Async.AwaitTask
+            let! manifest = Manifest.fromJsonStream(file).AsTask()
             let attributes = Manifest.getSingletonAttributes manifest
 
             Expect.equal attributes.Tones.[0].Key "guitar" "Tone key is correct"

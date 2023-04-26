@@ -6,7 +6,7 @@ open System.IO.Compression
 
 /// Zips the data from the input stream into the output stream in zlib format, asynchronously, using the best compression.
 let asyncZip (input: Stream) (output: Stream) =
-    async {
+    task {
         use zipStream = new ZLibStream(output, CompressionLevel.SmallestSize, leaveOpen = true)
         do! input.CopyToAsync(zipStream, 65536)
     }
@@ -23,7 +23,7 @@ let unzip (input: Stream) (output: Stream) =
 
 /// Asynchronously unzips zlib data from the input stream into the output stream.
 let asyncUnzip (input: Stream) (output: Stream) =
-    async {
+    task {
         use inflateStream = new ZLibStream(input, CompressionMode.Decompress, leaveOpen = true)
         do! inflateStream.CopyToAsync(output, 65536)
     }
@@ -33,14 +33,14 @@ let getInflateStream (input: Stream) = new ZLibStream(input, CompressionMode.Dec
 
 /// Divides the input stream into zipped blocks with the maximum block size.
 let blockZip blockSize (deflatedData: ResizeArray<Stream>) (zLengths: ResizeArray<uint32>) (input: Stream) =
-    async {
+    task {
         let mutable totalSize = 0L
         input.Position <- 0L
 
         while input.Position < input.Length do
             let size = Math.Min(int (input.Length - input.Position), blockSize)
             let buffer = Array.zeroCreate<byte> size
-            let! bytesRead = input.AsyncRead(buffer)
+            let! bytesRead = input.ReadAsync(buffer)
             let plainStream = new MemoryStream(buffer)
             let zipStream = MemoryStreamPool.Default.GetStream("", size)
 

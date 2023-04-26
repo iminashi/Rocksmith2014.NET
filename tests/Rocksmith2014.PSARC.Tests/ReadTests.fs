@@ -17,7 +17,7 @@ let readTests =
             use psarc = PSARC.Read(file)
             Expect.equal psarc.Manifest.[0] "gfxassets/album_art/album_testtest_64.dds" "First file name is correct"
         
-        testAsync "Can extract all files from PSARC" {
+        testTask "Can extract all files from PSARC" {
             use file = File.OpenRead("test_p.psarc")
             use psarc = PSARC.Read(file)
             let tempPath = getTempPath "extractTest"
@@ -29,7 +29,7 @@ let readTests =
             Directory.Delete(tempPath, true)
         }
 
-        testAsync "Can extract partially compressed file" {
+        testTask "Can extract partially compressed file" {
             // The test archive contains a single file where only the first block is zlib compressed
             use psarc = PSARC.ReadFile("partially_compressed_test_p.psarc")
             let tempPath = getTempPath "partiallyCompressedTest"
