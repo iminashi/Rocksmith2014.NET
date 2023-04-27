@@ -340,31 +340,30 @@ module Tone =
     /// Exports a tone into an XML file in a format that is compatible with the Toolkit.
     let exportXml (path: string) (tone: Tone) =
         backgroundTask {
-            let serializer = DataContractSerializer(typeof<ToneDto>)
-            using (XmlWriter.Create(path, XmlWriterSettings(Indent = true)))
-                  (fun writer -> serializer.WriteObject(writer, toDto tone))
-
-            // Read the file back and fix it up to be importable in the Toolkit
-            let! text = File.ReadAllTextAsync(path)
-            let sb = StringBuilder(text)
             let nl = Environment.NewLine
+            let sb = StringBuilder()
+            let serializer = DataContractSerializer(typeof<ToneDto>)
 
-            sb
-              // The class name is Tone2014
-              .Replace("ToneDto", "Tone2014")
-              // F# incompatibility stuff
-              .Replace("_x0040_", "")
-              // Sort order is not nullable
-              .Replace("""<SortOrder i:nil="true" />""", "<SortOrder>0.0</SortOrder>")
-              // Toolkit does not have MacVolume
-              .Replace($"  <MacVolume i:nil=\"true\" />{nl}", "")
-              // Tone key/name import does not seem to work otherwise
-              .Replace($"<NameSeparator>{tone.NameSeparator}</NameSeparator>{nl}  <Name>{tone.Name}</Name>", $"<Name>{tone.Name}</Name>{nl}  <NameSeparator>{tone.NameSeparator}</NameSeparator>")
-              // Change the namespace
-              .Replace("http://schemas.datacontract.org/2004/07/Rocksmith2014.Common.Manifest", "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.Manifest.Tone")
-              |> ignore
+            using (XmlWriter.Create(sb, XmlWriterSettings(Indent = true)))
+                  (fun writer -> serializer.WriteObject(writer, toDto tone))
 
             use file = File.Create(path)
             use writer = new StreamWriter(file)
-            do! writer.WriteAsync(sb)
+
+            // Fix up the XML for it to be importable in the Toolkit
+            do!
+                sb
+                  // The class name is Tone2014
+                  .Replace("ToneDto", "Tone2014")
+                  // F# incompatibility stuff
+                  .Replace("_x0040_", "")
+                  // Sort order is not nullable
+                  .Replace("""<SortOrder i:nil="true" />""", "<SortOrder>0.0</SortOrder>")
+                  // Toolkit does not have MacVolume
+                  .Replace($"  <MacVolume i:nil=\"true\" />{nl}", "")
+                  // Tone key/name import does not seem to work otherwise
+                  .Replace($"<NameSeparator>{tone.NameSeparator}</NameSeparator>{nl}  <Name>{tone.Name}</Name>", $"<Name>{tone.Name}</Name>{nl}  <NameSeparator>{tone.NameSeparator}</NameSeparator>")
+                  // Change the namespace
+                  .Replace("http://schemas.datacontract.org/2004/07/Rocksmith2014.Common.Manifest", "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.Manifest.Tone")
+               |> writer.WriteAsync
         }
