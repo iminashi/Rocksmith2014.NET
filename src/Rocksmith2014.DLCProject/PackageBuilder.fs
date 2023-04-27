@@ -77,7 +77,7 @@ let private build (buildData: BuildData) progress targetPath project platform = 
         |> List.map (fun (name, attr) ->
             async {
                 let data = MemoryStreamPool.Default.GetStream()
-                do! Manifest.create attr |> Manifest.toJsonStream data
+                do! Manifest.create attr |> Manifest.toJsonStream data |> Async.AwaitTask
                 return entry name data
             })
         |> Async.Parallel
@@ -98,6 +98,7 @@ let private build (buildData: BuildData) progress targetPath project platform = 
                         None)
                 |> Manifest.createHeader
                 |> Manifest.toJsonStream data
+                |> Async.AwaitTask
             return entry $"manifests/songs_dlc_{key}/songs_dlc_{key}.hsan" data
         }
 
@@ -225,7 +226,7 @@ let private build (buildData: BuildData) progress targetPath project platform = 
         yield! audioEntries.Items
         yield! fontEntries.Items
         yield toolkitEntry
-        yield appIdEntry ])
+        yield appIdEntry ]) |> Async.AwaitTask
 
     progress () }
 

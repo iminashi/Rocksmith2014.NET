@@ -38,7 +38,7 @@ let importTonesFromPSARC (psarcPath: string) =
                 async {
                     try
                         try
-                            let! manifest = Manifest.fromJsonStream data
+                            let! manifest = (Manifest.fromJsonStream data).AsTask() |> Async.AwaitTask
                             return Some(Manifest.getSingletonAttributes manifest)
                         finally
                             data.Dispose()
@@ -170,7 +170,7 @@ let removeDD (instrumentals: (string * InstrumentalArrangement) list) =
     instrumentals
     |> List.map (fun (path, inst) ->
         async {
-            do! inst.RemoveDD(false)
+            do! inst.RemoveDD(false) |> Async.AwaitTask
             inst.Save(path)
         })
     |> Async.Sequential

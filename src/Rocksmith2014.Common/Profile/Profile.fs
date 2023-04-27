@@ -49,7 +49,7 @@ let private readHeader (stream: Stream) =
 
 /// Decrypts the Rocksmith 2014 profile data from the input stream into the output stream.
 let decrypt (input: Stream) (output: Stream) =
-    async {
+    backgroundTask {
         let header = readHeader input
 
         use decrypted = getDecryptStream input
@@ -60,14 +60,14 @@ let decrypt (input: Stream) (output: Stream) =
 
 /// Encrypts profile data from the input stream into the output stream.
 let private encryptProfileData (input: Stream) (output: Stream) =
-    async {
+    backgroundTask {
         use eStream = getEncryptStream output
         do! input.CopyToAsync(eStream)
     }
 
 /// Writes the profile data into the target file.
 let write (targetFile: string) (profileId: uint64) (jsonData: Stream) =
-    async {
+    backgroundTask {
         // Write null-terminator
         jsonData.Seek(0L, SeekOrigin.End) |> ignore
         jsonData.WriteByte(0uy)
@@ -90,7 +90,7 @@ let write (targetFile: string) (profileId: uint64) (jsonData: Stream) =
 
 /// Reads a profile from the given path and returns the profile JToken and ID.
 let readAsJToken path =
-    async {
+    backgroundTask {
         use profileFile = File.OpenRead(path)
         use mem = MemoryStreamPool.Default.GetStream()
         let! header = decrypt profileFile mem
@@ -104,7 +104,7 @@ let readAsJToken path =
 
 /// Saves the profile data into the target path.
 let saveJToken targetPath id (json: JToken) =
-    async {
+    backgroundTask {
         use jsonData = MemoryStreamPool.Default.GetStream()
         use streamWriter = new StreamWriter(jsonData, NewLine = "\n")
 

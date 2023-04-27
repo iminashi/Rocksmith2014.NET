@@ -21,7 +21,7 @@ let toneTests =
             Expect.isSome tone.GearList.PrePedals.[0] "Pre-pedal 1 was imported"
         }
 
-        testAsync "Can be exported to XML" {
+        testTask "Can be exported to XML" {
             let testFile = "testExport.tone2014.xml"
             if File.Exists(testFile) then File.Delete(testFile)
             let imported = Tone.fromXmlFile "test.tone2014.xml"
@@ -40,13 +40,13 @@ let toneTests =
             Expect.isSome tone.GearList.PrePedals.[0] "Pre-pedal 1 was imported"
         }
 
-        testAsync "Can be exported to JSON and imported from JSON" {
+        testTask "Can be exported to JSON and imported from JSON" {
             let testFile = "testExport.tone2014.json"
             if File.Exists(testFile) then File.Delete(testFile)
             let imported = Tone.fromXmlFile "test.tone2014.xml"
 
             do! Tone.exportJson testFile imported
-            let! tone = Tone.fromJsonFile testFile
+            let! (tone: Tone) = Tone.fromJsonFile testFile
 
             Expect.equal tone.Volume -12. "Volume is correct"
             Expect.equal tone.Key "Test" "Key is correct"

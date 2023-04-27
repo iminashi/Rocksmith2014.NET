@@ -40,7 +40,7 @@ module Manifest =
         |> fun (_, container) -> container.Attributes
 
     let private options () =
-        FSharpJsonOptions.Create(indent=true, ignoreNull=true)
+        FSharpJsonOptions.Create(indent = true, ignoreNull = true)
         |> apply (fun o -> o.Encoder <- JavaScriptEncoder.UnsafeRelaxedJsonEscaping)
 
     /// Serializes the manifest into a JSON string.
@@ -61,7 +61,7 @@ module Manifest =
 
     /// Deserializes a manifest from a file.
     let fromJsonFile (path: string) =
-        async {
+        backgroundTask {
             use file =
                 new FileStream(
                     path,

@@ -207,7 +207,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                 async {
                     let platform = Platform.fromPackageFileName file
                     use psarc = PSARC.ReadFile(file)
-                    do! psarc.ExtractFiles(targetDirectory)
+                    do! psarc.ExtractFiles(targetDirectory) |> Async.AwaitTask
 
                     if state.ConvertAudio then
                         Directory.EnumerateFiles(targetDirectory, "*.wem", SearchOption.AllDirectories)
@@ -238,7 +238,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                                             |> List.tryFind (fun m -> Path.GetFileNameWithoutExtension(m) = Path.GetFileNameWithoutExtension(path))
                                             |> Option.map (fun m ->
                                                 async {
-                                                    let! manifest = Manifest.fromJsonFile m
+                                                    let! manifest = Manifest.fromJsonFile m |> Async.AwaitTask
                                                     return Manifest.getSingletonAttributes manifest
                                                 } |> Async.RunSynchronously)
 
@@ -261,14 +261,14 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                 { state with Status = "Filename has to end in _p.psarc." }, Cmd.none
             else
                 let t () =
-                    async {
+                    task {
                         let targetFile = file.Replace("_p.psarc", "_m.psarc")
                         File.Copy(file, targetFile)
                         use psarc = PSARC.ReadFile(targetFile)
                         do! PlatformConverter.pcToMac psarc
                     }
 
-                state, Cmd.OfAsync.attempt t () Error
+                state, Cmd.OfTask.attempt t () Error
 
         | CreateManifest file ->
             let arrangement =
@@ -283,13 +283,13 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             let attr = AttributesCreation.createAttributes project (AttributesCreation.FromInstrumental(arrangement, sng))
 
             let t () =
-                async {
+                task {
                     use target = File.Create(Path.ChangeExtension(file, "json"))
                     do! Manifest.create attr
                         |> Manifest.toJsonStream target
                 }
 
-            state, Cmd.OfAsync.attempt t () Error
+            state, Cmd.OfTask.attempt t () Error
 
         | ExtractSNGtoXML files ->
             let t () =
@@ -306,7 +306,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                             |> List.filter (String.endsWith "sng")
                             |> List.map (fun path ->
                                 async {
-                                    use! stream = psarc.GetEntryStream(path)
+                                    use! stream = psarc.GetEntryStream(path) |> Async.AwaitTask
                                     let! sng = SNG.fromStream stream platform
                                     return {| File = path; SNG = sng |}
                                 })
@@ -317,8 +317,8 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                             |> List.filter (String.endsWith "json")
                             |> List.map (fun path ->
                                 async {
-                                    use! stream = psarc.GetEntryStream(path)
-                                    let! manifest = Manifest.fromJsonStream stream
+                                    use! stream = psarc.GetEntryStream(path) |> Async.AwaitTask
+                                    let! manifest = (Manifest.fromJsonStream stream).AsTask() |> Async.AwaitTask
                                     return {| File = path; Manifest = manifest |}
                                 })
                             |> Async.Sequential
@@ -371,13 +371,14 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
 
         | DecryptProfile file ->
             let t () =
-                async {
+                task {
                     use profFile = File.OpenRead(file)
                     use targetFile = File.Create(file + ".json")
-                    do! Profile.decrypt profFile targetFile |> Async.Ignore
+                    let! _ = Profile.decrypt profFile targetFile
+                    ()
                 }
 
-            state, Cmd.OfAsync.attempt t () Error
+            state, Cmd.OfTask.attempt t () Error
 
         | ChangePlatform platform ->
             { state with Platform = platform }, Cmd.none

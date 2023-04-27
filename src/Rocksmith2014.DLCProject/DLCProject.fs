@@ -183,7 +183,7 @@ module DLCProject =
 
     /// Saves a project with the given filename.
     let save (path: string) (project: DLCProject) =
-        async {
+        backgroundTask {
             use file = File.Create(path)
             let options = FSharpJsonOptions.Create(indent = true, ignoreNull = true)
             let dto =
@@ -194,7 +194,7 @@ module DLCProject =
 
     /// Loads a project from a file with the given filename.
     let load (path: string) =
-        async {
+        backgroundTask {
             let options = FSharpJsonOptions.Create(indent = true, ignoreNull = true)
             use file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan ||| FileOptions.Asynchronous)
             let! project = JsonSerializer.DeserializeAsync<Dto>(file, options)

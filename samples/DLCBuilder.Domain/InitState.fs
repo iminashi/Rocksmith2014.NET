@@ -22,7 +22,7 @@ let init localizer albumArtLoader databaseConnector args =
             args
             |> Array.tryFind (String.endsWith ".rs2dlc")
             |> Option.map (fun path ->
-                Cmd.OfAsyncImmediate.either
+                Cmd.OfTask.either
                     DLCProject.load
                     path
                     (fun p -> ProjectLoaded(p, FromFile path))
@@ -30,12 +30,12 @@ let init localizer albumArtLoader databaseConnector args =
             |> Option.toList
 
         Cmd.batch [
-            Cmd.OfAsyncImmediate.perform Configuration.load localizer (fun config -> SetConfiguration(config, loadProject.IsEmpty, wasAbnormalExit))
-            Cmd.OfAsyncImmediate.perform RecentFilesList.load () SetRecentFiles
+            Cmd.OfTask.perform Configuration.load localizer (fun config -> SetConfiguration(config, loadProject.IsEmpty, wasAbnormalExit))
+            Cmd.OfTask.perform RecentFilesList.load () SetRecentFiles
 #if !DEBUG
-            Cmd.OfAsyncImmediate.perform OnlineUpdate.checkForUpdates () SetAvailableUpdate
+            Cmd.OfTask.perform OnlineUpdate.checkForUpdates () SetAvailableUpdate
 #endif
-            Cmd.OfAsyncImmediate.perform ToneGear.loadRepository () SetToneRepository
+            Cmd.OfTask.perform ToneGear.loadRepository () SetToneRepository
             yield! loadProject
         ]
 

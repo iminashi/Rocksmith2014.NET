@@ -26,7 +26,7 @@ let benchmarkDDGeneration (psarcPath: string) = async {
 
             let sw = Stopwatch.StartNew()
 
-            use! data = psarc.GetEntryStream sngPath
+            use! data = psarc.GetEntryStream sngPath |> Async.AwaitTask
             let! sng = SNG.fromStream data PC
             let xml = ConvertInstrumental.sngToXml None sng
 
@@ -46,7 +46,7 @@ let getOddVolumeValues (psarcPath: string) = async {
         |> List.filter (fun x -> x.EndsWith ".json" && not <| x.Contains "vocal")
         |> List.map (fun jsonPath -> async {
             try
-                use! data = psarc.GetEntryStream jsonPath
+                use! data = psarc.GetEntryStream(jsonPath) |> Async.AwaitTask
                 let str = using (new StreamReader(data)) (fun reader -> reader.ReadToEnd())
 
                 let matched = Regex.Match(str, "Volume\": \"-[0-9.]*[^0-9.][0-9.]*\"")
@@ -75,7 +75,8 @@ let getSortValues (psarcPath: string) = async {
         psarc.Manifest
         |> List.find (fun x -> x.EndsWith ".json" && not <| x.Contains "vocal")
         |> psarc.GetEntryStream
-    let! manifest = Manifest.fromJsonStream manifestData
+        |> Async.AwaitTask
+    let! manifest = (Manifest.fromJsonStream manifestData).AsTask() |> Async.AwaitTask
     let attributes = manifest |> Manifest.getSingletonAttributes
     return seq {
         let artistLower = attributes.ArtistName.ToLowerInvariant()
@@ -102,8 +103,8 @@ let collectToneVolumes (psarcPath: string) = async {
         |> List.filter (fun x -> x.EndsWith ".json" && not <| x.Contains "vocal")
         |> List.map (fun jsonPath -> async {
             try
-                use! data = psarc.GetEntryStream jsonPath
-                let! manifest = Manifest.fromJsonStream data
+                use! data = psarc.GetEntryStream(jsonPath) |> Async.AwaitTask
+                let! manifest = (Manifest.fromJsonStream data).AsTask() |> Async.AwaitTask
                 let attributes = manifest |> Manifest.getSingletonAttributes
 
                 return

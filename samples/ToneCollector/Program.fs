@@ -40,7 +40,7 @@ let getUniqueTones (psarc: PSARC) =
                 async {
                     try
                         try
-                            let! manifest = Manifest.fromJsonStream data
+                            let! manifest = (Manifest.fromJsonStream data).AsTask() |> Async.AwaitTask
                             return Some(Manifest.getSingletonAttributes manifest)
                         finally
                             data.Dispose()

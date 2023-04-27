@@ -109,7 +109,7 @@ module SNG =
             Cryptography.decryptSNG input decrypted platform
 
             let _plainLength = reader.ReadUInt32()
-            do! Compression.asyncUnzip decrypted output
+            do! Compression.asyncUnzip decrypted output |> Async.AwaitTask
             output.Position <- 0L
         }
 
@@ -124,7 +124,7 @@ module SNG =
             use payload = MemoryStreamPool.Default.GetStream()
             // Write the uncompressed length
             (BinaryWriters.getWriter payload platform).WriteInt32(int32 input.Length)
-            do! Compression.asyncZip input payload
+            do! Compression.asyncZip input payload |> Async.AwaitTask
 
             payload.Position <- 0L
             Cryptography.encryptSNG payload output platform None

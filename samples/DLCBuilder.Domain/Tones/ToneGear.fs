@@ -77,7 +77,7 @@ let createPedalForGear (gear: GearData) =
       KnobValues = getDefaultKnobValues gear }
 
 let private loadGearData () =
-    async {
+    backgroundTask {
         let provider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
         let options = FSharpJsonOptions.Create(ignoreNull = true)
         use gearDataFile = provider.GetFileInfo("Tones/tone_gear_data.json").CreateReadStream()
@@ -85,7 +85,7 @@ let private loadGearData () =
     }
 
 let loadRepository () =
-    async {
+    backgroundTask {
         let! allGear = loadGearData ()
 
         let filterSort type' sortBy =

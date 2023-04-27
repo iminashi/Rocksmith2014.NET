@@ -136,7 +136,7 @@ let convertToWem (cliPath: string option) (sourcePath: string) =
 
             use wwiseCli = new Process(StartInfo = startInfo)
             wwiseCli.Start() |> ignore
-            do! wwiseCli.WaitForExitAsync()
+            do! wwiseCli.WaitForExitAsync() |> Async.AwaitTask
 
             let output = wwiseCli.StandardOutput.ReadToEnd()
             if output.Length > 0 then failwith output

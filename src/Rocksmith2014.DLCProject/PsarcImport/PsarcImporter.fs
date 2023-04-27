@@ -11,7 +11,7 @@ open PsarcImportTypes
 
 /// Imports a PSARC from the given path into a DLCProject with the project created in the target directory.
 let import progress (psarcPath: string) (targetDirectory: string) =
-    async {
+    backgroundTask {
         let platform = Platform.fromPackageFileName psarcPath
         let toTargetPath filename = Path.Combine(targetDirectory, filename)
 
@@ -39,7 +39,7 @@ let import progress (psarcPath: string) (targetDirectory: string) =
             |> filterFilesWithExtension "sng"
             |> List.map (fun file ->
                 async {
-                    use! stream = psarc.GetEntryStream(file)
+                    use! stream = psarc.GetEntryStream(file) |> Async.AwaitTask
                     let! sng = SNG.fromStream stream platform
                     return file, sng
                 })
@@ -50,8 +50,8 @@ let import progress (psarcPath: string) (targetDirectory: string) =
             |> filterFilesWithExtension "json"
             |> List.map (fun file ->
                 async {
-                    use! stream = psarc.GetEntryStream(file)
-                    let! manifest = Manifest.fromJsonStream stream
+                    use! stream = psarc.GetEntryStream(file) |> Async.AwaitTask
+                    let! manifest =( Manifest.fromJsonStream stream).AsTask() |> Async.AwaitTask
                     return file, Manifest.getSingletonAttributes manifest
                 })
             |> Async.Sequential
@@ -63,7 +63,7 @@ let import progress (psarcPath: string) (targetDirectory: string) =
                 async {
                     let targetFilename = getFontFilename psarcPath
                     let targetPath = toTargetPath $"{targetFilename}.dds"
-                    do! psarc.InflateFile(psarcPath, targetPath)
+                    do! psarc.InflateFile(psarcPath, targetPath) |> Async.AwaitTask
                 })
             |> Async.Sequential
             |> Async.Ignore
@@ -75,7 +75,7 @@ let import progress (psarcPath: string) (targetDirectory: string) =
             |> filterFilesWithExtension "bnk"
             |> List.map (fun bankName ->
                 async {
-                    let! volume, id = getVolumeAndFileId psarc platform bankName
+                    let! volume, id = getVolumeAndFileId psarc platform bankName |> Async.AwaitTask
                     let targetFilename = createTargetAudioFilename bankName
 
                     let audio =
@@ -102,7 +102,7 @@ let import progress (psarcPath: string) (targetDirectory: string) =
                 async {
                     match psarcContents |> List.tryFind (String.contains id) with
                     | Some psarcPath ->
-                        do! psarc.InflateFile(psarcPath, targetFile.Path)
+                        do! psarc.InflateFile(psarcPath, targetFile.Path) |> Async.AwaitTask
                     | None ->
                         ()
                 })

@@ -14,7 +14,7 @@ let [<Literal>] private DefaultFontPath = @"assets\ui\lyrics\lyrics.dds"
 
 /// Reads the volume and file ID from the PSARC for the sound bank with the given name.
 let getVolumeAndFileId (psarc: PSARC) platform bankName =
-    async {
+    backgroundTask {
         use! stream = psarc.GetEntryStream(bankName)
 
         let volume =
@@ -163,7 +163,7 @@ let prefixWithToolkit (versionOpt: string option) =
             version)
 
 let private getFileContents (psarc: PSARC) pathInPsarc =
-    async {
+    backgroundTask {
         use! stream = psarc.GetEntryStream(pathInPsarc)
         return using (new StreamReader(stream)) (fun reader -> reader.ReadToEnd())
     }
@@ -175,6 +175,6 @@ let tryGetFileContents (pathInPsarc: string) (psarc: PSARC) =
         | false ->
             return None
         | true ->
-            let! text = getFileContents psarc pathInPsarc
+            let! text = getFileContents psarc pathInPsarc |> Async.AwaitTask
             return Some text
     }

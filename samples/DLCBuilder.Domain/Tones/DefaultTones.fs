@@ -5,7 +5,7 @@ open Rocksmith2014.Common.Manifest
 open System.Reflection
 
 let private loadTone path =
-    async {
+    task {
         let provider =
             EmbeddedFileProvider(Assembly.GetExecutingAssembly())
 
@@ -16,10 +16,10 @@ let private loadTone path =
     }
 
 let Lead =
-    lazy Async.RunSynchronously (loadTone "lead")
+    lazy (loadTone "lead").Result
 
 let Rhythm =
-    lazy Async.RunSynchronously (loadTone "rhythm")
+    lazy (loadTone "rhythm").Result
 
 let Bass =
-    lazy Async.RunSynchronously (loadTone "bass")
+    lazy (loadTone "bass").Result

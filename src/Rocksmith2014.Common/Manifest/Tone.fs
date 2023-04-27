@@ -316,7 +316,7 @@ module Tone =
 
     /// Imports a tone from a JSON stream.
     let fromJsonStream (stream: Stream) =
-        async {
+        backgroundTask {
             let options = FSharpJsonOptions.Create(ignoreNull = true)
             let! dto = JsonSerializer.DeserializeAsync<ToneDto>(stream, options)
             return fromDto dto
@@ -324,14 +324,14 @@ module Tone =
 
     /// Imports a tone from a JSON file.
     let fromJsonFile (fileName: string) =
-        async {
+        backgroundTask {
             use file = File.OpenRead(fileName)
             return! fromJsonStream file
         }
 
     /// Exports a tone into a JSON file.
     let exportJson (path: string) (tone: Tone) =
-        async {
+        backgroundTask {
             use file = File.Create(path)
             let options = FSharpJsonOptions.Create(indent = true, ignoreNull = true)
             do! JsonSerializer.SerializeAsync(file, toDto tone, options)
@@ -339,7 +339,7 @@ module Tone =
 
     /// Exports a tone into an XML file in a format that is compatible with the Toolkit.
     let exportXml (path: string) (tone: Tone) =
-        async {
+        backgroundTask {
             let serializer = DataContractSerializer(typeof<ToneDto>)
             using (XmlWriter.Create(path, XmlWriterSettings(Indent = true)))
                   (fun writer -> serializer.WriteObject(writer, toDto tone))

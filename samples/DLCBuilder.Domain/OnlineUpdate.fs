@@ -19,7 +19,7 @@ type UpdateInformation =
 
 /// Attempts to get the latest release from GitHub.
 let private tryGetLatestRelease () =
-    async {
+    backgroundTask {
         try
             let github = GitHubClient(ProductHeaderValue("rs2014-dlc-builder"))
             let! release = github.Repository.Release.GetLatest("iminashi", "Rocksmith2014.NET")
@@ -68,7 +68,7 @@ let private getAvailableUpdateInformation (release: Release) =
 
 /// Fetches the latest release and returns the information for the available update.
 let checkForUpdates () =
-    async {
+    backgroundTask {
         let! release = tryGetLatestRelease ()
         return release |> Result.map getAvailableUpdateInformation
     }

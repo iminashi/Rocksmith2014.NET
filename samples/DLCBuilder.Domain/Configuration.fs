@@ -184,7 +184,7 @@ module Configuration =
 
     /// Loads a configuration from the file defined in configFilePath.
     let load (t: IStringLocalizer) =
-        async {
+        backgroundTask {
             if not <| File.Exists(configFilePath) then
                 return Configuration.Default
             else
@@ -199,7 +199,7 @@ module Configuration =
 
     /// Saves the configuration to the file defined in configFilePath.
     let save (config: Configuration) =
-        async {
+        backgroundTask {
             use file = File.Create(configFilePath)
             let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
             do! JsonSerializer.SerializeAsync(file, toDto config, options)

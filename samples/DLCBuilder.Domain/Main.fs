@@ -188,13 +188,13 @@ let update (msg: Msg) (state: State) =
             | EndsWith "xml" -> Tone.exportXml path
             | _ -> Tone.exportJson path
 
-        state, Cmd.OfAsync.attempt task tone ErrorOccurred
+        state, Cmd.OfTask.attempt task tone ErrorOccurred
 
     | CloseOverlay method ->
         let cmd =
             match state.Overlay with
             | ConfigEditor _ ->
-                Cmd.OfAsync.attempt Configuration.save config ErrorOccurred
+                Cmd.OfTask.attempt Configuration.save config ErrorOccurred
             | ToneCollection c ->
                 ToneCollection.CollectionState.disposeCollection c.ActiveCollection
                 Cmd.none
@@ -213,7 +213,7 @@ let update (msg: Msg) (state: State) =
 
     | ImportPsarcQuick psarcPath ->
         let task () =
-            async {
+            task {
                 let targetFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())
                 let! r = importPsarc config targetFolder psarcPath
                 let data =
@@ -226,11 +226,11 @@ let update (msg: Msg) (state: State) =
             }
 
         addTask PsarcImport state,
-        Cmd.OfAsync.either task () PsarcImported (fun ex -> TaskFailed(ex, PsarcImport))
+        Cmd.OfTask.either task () PsarcImported (fun ex -> TaskFailed(ex, PsarcImport))
 
     | ImportPsarc (psarcPath, targetFolder) ->
         let task () =
-            async {
+            task {
                 let targetFolder = Path.Combine(targetFolder, Path.GetFileNameWithoutExtension(psarcPath))
                 let! r = importPsarc config targetFolder psarcPath
                 let data =
@@ -241,7 +241,7 @@ let update (msg: Msg) (state: State) =
             }
 
         addTask PsarcImport state,
-        Cmd.OfAsync.either task () PsarcImported (fun ex -> TaskFailed(ex, PsarcImport))
+        Cmd.OfTask.either task () PsarcImported (fun ex -> TaskFailed(ex, PsarcImport))
 
     | PsarcImported (project, importType) ->
         let cmd =
@@ -272,6 +272,7 @@ let update (msg: Msg) (state: State) =
                 async { return [| Tone.fromXmlFile fileName |] }
             | EndsWith "json" ->
                 Tone.fromJsonFile fileName
+                |> Async.AwaitTask
                 |> Async.map Array.singleton
             | _ ->
                 failwith "Unknown tone file format."
@@ -620,13 +621,21 @@ let update (msg: Msg) (state: State) =
         { state with RecentFiles = recent }, Cmd.none
 
     | ProgramClosing ->
-        if config.AutoSave && project <> state.SavedProject then
-            state.OpenProjectFile
-            |> Option.iter (fun path -> DLCProject.save path project |> Async.RunSynchronously)
+        let task =
+            backgroundTask {
+                if config.AutoSave && project <> state.SavedProject then
+                    match state.OpenProjectFile with
+                    | Some path ->
+                        do! DLCProject.save path project
+                    | None ->
+                        ()
 
-        deleteTemporaryFilesForQuickEdit state
+                deleteTemporaryFilesForQuickEdit state
 
-        RecentFilesList.save state.RecentFiles |> Async.RunSynchronously
+                do! RecentFilesList.save state.RecentFiles
+            }
+
+        task.Wait()
         state, Cmd.none
 
     | SetAvailableUpdate (Error _) ->
@@ -667,7 +676,7 @@ let update (msg: Msg) (state: State) =
         newState, Cmd.none
 
     | CheckForUpdates ->
-        state, Cmd.OfAsync.either OnlineUpdate.checkForUpdates () UpdateCheckCompleted ErrorOccurred
+        state, Cmd.OfTask.either OnlineUpdate.checkForUpdates () UpdateCheckCompleted ErrorOccurred
 
     | UpdateCheckCompleted (Error msg) ->
         let cmd = Cmd.ofMsg (ShowOverlay(ErrorMessage(msg, None)))
@@ -688,7 +697,7 @@ let update (msg: Msg) (state: State) =
             let targetPath = Path.Combine(Configuration.appDataFolder, "update.exe")
 
             let cmd =
-                Cmd.OfAsync.either
+                Cmd.OfTask.either
                     (Downloader.downloadFile update.AssetUrl targetPath) id
                     (fun () -> UpdateDownloaded targetPath)
                     (fun ex -> TaskFailed(ex, download))
@@ -707,12 +716,12 @@ let update (msg: Msg) (state: State) =
 
     | SaveProject targetPath ->
         let task () =
-            async {
+            task {
                 do! DLCProject.save targetPath project
                 return targetPath
             }
 
-        state, Cmd.OfAsync.either task () ProjectSaved ErrorOccurred
+        state, Cmd.OfTask.either task () ProjectSaved ErrorOccurred
 
     | ProjectSaved target ->
         let recent, newConfig, cmd = updateRecentFilesAndConfig target state
@@ -740,7 +749,7 @@ let update (msg: Msg) (state: State) =
         { state with Overlay = NoOverlay }, Cmd.ofMsg (OpenProject config.PreviousOpenedProject)
 
     | OpenProject fileName ->
-        state, Cmd.OfAsync.either DLCProject.load fileName (fun p -> ProjectLoaded(p, FromFile fileName)) ErrorOccurred
+        state, Cmd.OfTask.either DLCProject.load fileName (fun p -> ProjectLoaded(p, FromFile fileName)) ErrorOccurred
 
     | ProjectLoaded (project, loadOrigin) ->
         let project =
@@ -1060,7 +1069,7 @@ let update (msg: Msg) (state: State) =
                 let targetPath = Path.Combine(Configuration.appDataFolder, "tones", "official.db")
 
                 let cmd =
-                    Cmd.OfAsync.either
+                    Cmd.OfTask.either
                         (Downloader.downloadFile Downloader.ToneDBUrl targetPath) id
                         (fun () -> OfficialTonesDatabaseDownloaded download)
                         (fun ex -> TaskFailed(ex, download))

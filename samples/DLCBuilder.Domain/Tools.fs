@@ -36,7 +36,7 @@ module ToneInjector =
                 | EndsWith "xml" ->
                     return Tone.fromXmlFile path |> Array.singleton
                 | EndsWith "json" ->
-                    return! Tone.fromJsonFile path |> Async.map Array.singleton
+                    return! Tone.fromJsonFile path |> Async.AwaitTask |> Async.map Array.singleton
                 | EndsWith "psarc" ->
                     return! Utils.importTonesFromPSARC path
                 | _ ->
@@ -45,7 +45,7 @@ module ToneInjector =
 
     /// Replaces the custom tones in the profile file with tones read from the files.
     let injectTones profilePath toneFiles =
-        async {
+        backgroundTask {
             let! tones =
                 Async.Parallel(createToneImportTasks toneFiles, Environment.ProcessorCount)
                 |> Async.map Array.concat
@@ -102,7 +102,7 @@ let update msg state =
                     Directory.CreateDirectory(targetDirectory) |> ignore
 
                     use psarc = PSARC.ReadFile(path)
-                    do! psarc.ExtractFiles(targetDirectory, progress i)
+                    do! psarc.ExtractFiles(targetDirectory, progress i) |> Async.AwaitTask
                 })
             |> Async.Sequential
 
@@ -121,7 +121,7 @@ let update msg state =
                 |> Array.map (fun file ->
                     async {
                         let arrangement = InstrumentalArrangement.Load(file)
-                        do! arrangement.RemoveDD(matchPhrasesToSections = false)
+                        do! arrangement.RemoveDD(matchPhrasesToSections = false) |> Async.AwaitTask
                         arrangement.Save(file)
                     })
 
@@ -132,7 +132,7 @@ let update msg state =
     | InjectTonesIntoProfile files ->
         let cmd =
             if String.notEmpty state.Config.ProfilePath then
-                Cmd.OfAsync.attempt (ToneInjector.injectTones state.Config.ProfilePath) files ErrorOccurred
+                Cmd.OfTask.attempt (ToneInjector.injectTones state.Config.ProfilePath) files ErrorOccurred
             else
                 Cmd.none
 

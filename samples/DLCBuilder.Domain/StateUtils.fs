@@ -90,7 +90,7 @@ let updateRecentFilesAndConfig projectFile state =
 
     let cmd =
         if state.Config.PreviousOpenedProject <> projectFile then
-            Cmd.OfAsync.attempt Configuration.save newConfig ErrorOccurred
+            Cmd.OfTask.attempt Configuration.save newConfig ErrorOccurred
         else
             Cmd.none
 
@@ -368,8 +368,8 @@ let private createEofTrackList (arrangements: (Arrangement * ImportedData) list)
       PartBonus = bonus
       PartVocals = vocals }
 
-let importPsarc config targetFolder (psarcPath: string)  =
-    async {
+let importPsarc (config: Configuration) (targetFolder: string) (psarcPath: string)  =
+    backgroundTask {
         let progress = createPsarcImportProgressReporter config
 
         Directory.CreateDirectory(targetFolder) |> ignore

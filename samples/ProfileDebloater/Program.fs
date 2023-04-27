@@ -15,7 +15,7 @@ let readOnDiscIdsAndKeys () =
 
 /// Reads the IDs and keys from a PSARC with the given path.
 let readIDs path =
-    async {
+    backgroundTask {
         use psarc = PSARC.ReadFile(path)
 
         use! headerStream =
@@ -58,7 +58,7 @@ let gatherDLCData verbose (directory: string) =
                     else
                         printProgress (i + 1) files.Length
 
-                    return! readIDs path
+                    return! readIDs path |> Async.AwaitTask
                 })
             |> Async.Sequential
 
@@ -97,7 +97,7 @@ let main argv =
     if argv.Length < 2 then
         Console.WriteLine "Give as arguments: path to profile file and path to DLC directory."
     else
-        async {
+        backgroundTask {
             let profilePath = argv[0]
             let dlcDirectory = argv[1]
             let isVerbose = Array.tryItem 2 argv = Some "-v"
@@ -144,5 +144,5 @@ let main argv =
             printfn "Profile saved."
             Console.CursorVisible <- cursorVisibleOld
         }
-        |> Async.RunSynchronously
+        |> fun t -> t.Wait()
     0

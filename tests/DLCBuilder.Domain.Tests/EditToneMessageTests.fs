@@ -32,7 +32,7 @@ let tone: Tone =
 let project = { initialState.Project with Tones = [ tone ] }
 let state = { initialState with Project = project; SelectedToneIndex = 0 }
 
-let repository = ToneGear.loadRepository() |> Async.RunSynchronously
+let repository = ToneGear.loadRepository().Result
 
 [<Tests>]
 let editToneTests =

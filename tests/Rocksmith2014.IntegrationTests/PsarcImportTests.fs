@@ -2,6 +2,7 @@ module PsarcImportTests
 
 open Expecto
 open Rocksmith2014.DLCProject
+open Rocksmith2014.DLCProject.PsarcImportTypes
 open System.IO
 open System
 
@@ -53,7 +54,7 @@ let testFiles importPath =
 [<Tests>]
 let pcTests =
     testSequenced <| testList "PC PSARC Import Tests" [
-        testAsync "PSARC can be imported" {
+        testTask "PSARC can be imported" {
             if Directory.Exists(PCImportDir) then Directory.Delete(PCImportDir, true)
             Directory.CreateDirectory(PCImportDir) |> ignore
 
@@ -71,7 +72,7 @@ let pcTests =
 [<Tests>]
 let macTests =
     testSequenced <| testList "Mac PSARC Import Tests" [
-        testAsync "PSARC can be imported" {
+        testTask "PSARC can be imported" {
             if Directory.Exists(MacImportDir) then Directory.Delete(MacImportDir, true)
             Directory.CreateDirectory(MacImportDir) |> ignore
 

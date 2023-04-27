@@ -6,7 +6,7 @@ open System.IO
 
 /// Serializes the manifest data into a memory stream.
 let makeManifestData manifest =
-    async {
+    task {
         let mem = MemoryStreamPool.Default.GetStream()
         do! Manifest.toJsonStream mem manifest
         return mem
@@ -14,7 +14,7 @@ let makeManifestData manifest =
 
 /// Fixes a manifest entry by setting the JapaneseSongName attribute to null.
 let fixManifest entry =
-    async {
+    task {
         let! manifest = Manifest.fromJsonStream entry.Data
 
         manifest.Entries
@@ -29,6 +29,7 @@ let mapEntry (entry: NamedEntry) =
     match entry with
     | { Name = HasExtension (".hsan" | ".json") } ->
         fixManifest entry
+        |> Async.AwaitTask
         |> Async.RunSynchronously
     | _ ->
         entry
@@ -38,7 +39,7 @@ let fixManifests (psarcs: seq<PSARC>) =
     psarcs
     |> Seq.map (fun psarc ->
         async {
-            do! psarc.Edit(EditOptions.Default, List.map mapEntry)
+            do! psarc.Edit(EditOptions.Default, List.map mapEntry) |> Async.AwaitTask
             (psarc :> IDisposable).Dispose()
         })
 
@@ -50,8 +51,8 @@ let getAttributes (psarc: PSARC) =
             psarc.Manifest
             |> List.find (fun x -> x.EndsWith("json") && not <| x.Contains("vocals"))
 
-        use! stream = psarc.GetEntryStream(jsonFile)
-        let! mani = Manifest.fromJsonStream stream
+        use! stream = psarc.GetEntryStream(jsonFile) |> Async.AwaitTask
+        let! mani = (Manifest.fromJsonStream stream).AsTask() |> Async.AwaitTask
         return Manifest.getSingletonAttributes mani
     }
 

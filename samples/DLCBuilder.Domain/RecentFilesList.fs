@@ -12,7 +12,7 @@ let private recentFilePath =
 
 /// Saves the recent files list into a file.
 let save (recentList: string list) =
-    async {
+    backgroundTask {
         try
             use file = File.Create(recentFilePath)
             do! JsonSerializer.SerializeAsync(file, recentList, FSharpJsonOptions.Create())
@@ -30,11 +30,11 @@ let update newFile oldList =
 
 /// Loads a recent files list from a file.
 let load () =
-    recentFilePath
-    |> File.tryMap (fun path ->
-        async {
-            use file = File.OpenRead(path)
+    backgroundTask {
+        if File.Exists(recentFilePath) then
+            use file = File.OpenRead(recentFilePath)
             let! recent = JsonSerializer.DeserializeAsync<string list>(file, FSharpJsonOptions.Create())
             return List.filter File.Exists recent
-        })
-    |> Option.defaultValue (async { return List.empty })
+        else
+            return List.Empty
+    }

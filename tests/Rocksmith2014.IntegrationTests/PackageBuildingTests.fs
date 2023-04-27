@@ -60,12 +60,12 @@ let testCommonContents contents =
 [<Tests>]
 let tests =
     testSequenced <| testList "Package Building Tests" [
-        testAsync "Packages can be built for PC and Mac platforms" {
+        testTask "Packages can be built for PC and Mac platforms" {
             if Directory.Exists(buildDir) then Directory.Delete(buildDir, true)
             Directory.CreateDirectory(buildDir) |> ignore
 
             let! project = DLCProject.load projectPath
-            do! buildPackages (WithoutPlatformOrExtension psarcPath) buildConfig project
+            do! buildPackages (WithoutPlatformOrExtension psarcPath) buildConfig project |> Async.StartAsTask
 
             Expect.isTrue (File.Exists(psarcPathWin)) "PC package was built"
             Expect.isTrue (File.Exists(psarcPathMac)) "Mac package was built"
