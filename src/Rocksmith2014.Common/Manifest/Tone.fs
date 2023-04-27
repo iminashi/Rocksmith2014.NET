@@ -341,14 +341,19 @@ module Tone =
     let exportXml (path: string) (tone: Tone) =
         backgroundTask {
             let nl = Environment.NewLine
-            let sb = StringBuilder()
             let serializer = DataContractSerializer(typeof<ToneDto>)
+            use mem = MemoryStreamPool.Default.GetStream()
+            use writer = XmlWriter.Create(mem, XmlWriterSettings(Indent = true, Encoding = Encoding.UTF8))
 
-            using (XmlWriter.Create(sb, XmlWriterSettings(Indent = true)))
-                  (fun writer -> serializer.WriteObject(writer, toDto tone))
+            let sb =
+                serializer.WriteObject(writer, toDto tone)
+                writer.Flush()
+                mem.Position <- 0L
+                use reader = new StreamReader(mem)
+                StringBuilder(reader.ReadToEnd())
 
             use file = File.Create(path)
-            use writer = new StreamWriter(file)
+            use writer = new StreamWriter(file, Encoding.UTF8)
 
             // Fix up the XML for it to be importable in the Toolkit
             do!
