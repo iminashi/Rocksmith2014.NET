@@ -7,6 +7,7 @@ open System
 open System.Buffers
 open System.IO
 open System.Text
+open System.Threading
 
 type EditMode = InMemory | TempFiles
 
@@ -19,40 +20,46 @@ type EditOptions =
 
 type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, blockSizeTable: uint32 array) =
     let mutable blockSizeTable = blockSizeTable
+    let inflateSemphore = new SemaphoreSlim(1, 1)
 
     let buffer =
         ArrayPool<byte>.Shared.Rent(int header.BlockSizeAlloc)
 
     let inflateEntry (entry: Entry) (output: Stream) =
-        task {
+        backgroundTask {
             let blockSize = int header.BlockSizeAlloc
             let mutable zIndex = int entry.ZIndexBegin
-            source.Position <- int64 entry.Offset
 
-            while output.Length < int64 entry.Length do
-                match int blockSizeTable[zIndex] with
-                | 0 ->
-                    // Raw, full cluster used
-                    let! _bytesRead = source.ReadAsync(buffer, 0, blockSize)
-                    do! output.WriteAsync(buffer, 0, blockSize)
-                | size ->
-                    let! _bytesRead = source.ReadAsync(buffer, 0, size)
+            try
+                do! inflateSemphore.WaitAsync()
+                source.Position <- int64 entry.Offset
 
-                    if Utils.hasZlibHeader buffer then
-                        try
-                            use memory = new MemoryStream(buffer, 0, size)
-                            Compression.unzip memory output
-                        with _ ->
-                            (* audio.psarc contains a block for a wem file that starts with the same bytes as a zlib header.
-                               Wem files are not compressed in official PSARC files.
+                while output.Length < int64 entry.Length do
+                    match int blockSizeTable[zIndex] with
+                    | 0 ->
+                        // Raw, full cluster used
+                        do! source.ReadExactlyAsync(buffer, 0, blockSize)
+                        do! output.WriteAsync(buffer, 0, blockSize)
+                    | size ->
+                        do! source.ReadExactlyAsync(buffer, 0, size)
 
-                               Whether a file is compressed cannot be determined from the first block.
-                               The Toolkit can create archives that contain SNG files that are partially compressed. *)
+                        if Utils.hasZlibHeader buffer then
+                            try
+                                use memory = new MemoryStream(buffer, 0, size)
+                                Compression.unzip memory output
+                            with _ ->
+                                (* audio.psarc contains a block for a wem file that starts with the same bytes as a zlib header.
+                                    Wem files are not compressed in official PSARC files.
+
+                                    Whether a file is compressed cannot be determined from the first block.
+                                    The Toolkit can create archives that contain SNG files that are partially compressed. *)
+                                do! output.WriteAsync(buffer, 0, size)
+                        else
                             do! output.WriteAsync(buffer, 0, size)
-                    else
-                        do! output.WriteAsync(buffer, 0, size)
 
-                zIndex <- zIndex + 1
+                    zIndex <- zIndex + 1
+            finally
+                inflateSemphore.Release() |> ignore
 
             output.Position <- 0L
             do! output.FlushAsync()
@@ -99,7 +106,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     /// Deflates the data in the given named entries.
     let deflateEntries (entries: NamedEntry list) =
-        task {
+        backgroundTask {
             // Add the manifest as the first entry
             let entries = { Name = String.Empty; Data = createManifestData () } :: entries
 
@@ -112,7 +119,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                 let proto = Entry.CreateProto entry (uint32 zLengths.Count)
 
                 let! totalLength =
-                    task {
+                    backgroundTask {
                         if Utils.usePlain entry then 
                             return addPlainData blockSize deflatedData zLengths entry.Data
                         else
@@ -177,7 +184,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
                 |> Seq.map (fun entry ->
                     async {
                         let data = getTargetStream ()
-                        do! inflateEntry entry data
+                        do! inflateEntry entry data |> Async.AwaitTask
                         return { Name = getName entry; Data = data }
                     })
                 |> Async.Sequential
@@ -201,21 +208,21 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     /// Inflates the entry with the given file name into the output stream.
     member _.InflateFile(name: string, output: Stream) =
-        task {
+        backgroundTask {
             let entry = tryFindEntry name
             do! inflateEntry entry output
         }
 
     /// Inflates the entry with the given file name into the target file.
     member this.InflateFile(name: string, targetFile: string) =
-        task {
+        backgroundTask {
             use file = File.Create(targetFile)
             do! this.InflateFile(name, file)
         }
 
     /// Returns an in-memory read stream for the entry with the given name.
     member _.GetEntryStream(name: string) =
-        task {
+        backgroundTask {
             let entry = tryFindEntry name
             let memory = MemoryStreamPool.Default.GetStream(name, int entry.Length)
             do! inflateEntry entry memory
@@ -224,7 +231,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     /// Extracts all the files from the PSARC into the given directory.
     member _.ExtractFiles(baseDirectory: string, ?progress: float -> unit) =
-        task {
+        backgroundTask {
             let reportFrequency = max 4 (toc.Count / 50)
             let reportProgress =
                 match progress with
@@ -248,7 +255,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     /// Edits the contents of the PSARC with the given edit function.
     member _.Edit(options: EditOptions, editFunc: NamedEntry list -> NamedEntry list) =
-        task {
+        backgroundTask {
             // Map the table of contents to entry names and data
             use! namedEntries = createNamedEntries options.Mode
 
@@ -289,7 +296,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     /// Creates a new PSARC into the given stream with the given contents.
     static member Create(stream, encrypt, content) =
-        task {
+        backgroundTask {
             let options = { Mode = InMemory; EncryptTOC = encrypt }
             use psarc = PSARC.CreateEmpty(stream)
             do! psarc.Edit(options, fun _ -> content)
@@ -297,14 +304,14 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     /// Creates a new PSARC file with the given contents.
     static member Create(fileName, encrypt, content) =
-        task {
+        backgroundTask {
             use file = Utils.createFileStreamForPSARC fileName
             do! PSARC.Create(file, encrypt, content)
         }
 
     /// Packs all the files in the directory and subdirectories into a PSARC file with the given filename.
     static member PackDirectory(path, targetFile: string, encrypt) =
-        task {
+        backgroundTask {
             do! PSARC.Create(targetFile, encrypt, [
                 for file in Utils.getAllFiles path do
                     let name = Path.GetRelativePath(path, file).Replace('\\', '/')
@@ -340,4 +347,5 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     interface IDisposable with
         member _.Dispose() =
             source.Dispose()
+            inflateSemphore.Dispose()
             ArrayPool.Shared.Return(buffer)
