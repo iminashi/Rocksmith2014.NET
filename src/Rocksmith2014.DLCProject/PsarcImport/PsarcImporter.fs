@@ -15,7 +15,7 @@ let import progress (psarcPath: string) (targetDirectory: string) =
         let platform = Platform.fromPackageFileName psarcPath
         let toTargetPath filename = Path.Combine(targetDirectory, filename)
 
-        use psarc = PSARC.ReadFile(psarcPath)
+        use psarc = PSARC.OpenFile(psarcPath)
         let psarcContents = psarc.Manifest
 
         let dlcKey =

@@ -16,7 +16,7 @@ let benchmarkDDGeneration (psarcPath: string) = async {
 
     printfn "Processing: %s" (Path.GetFileName psarcPath)
 
-    use psarc = PSARC.ReadFile psarcPath
+    use psarc = PSARC.OpenFile psarcPath
 
     return!
         psarc.Manifest
@@ -39,7 +39,7 @@ let benchmarkDDGeneration (psarcPath: string) = async {
         |> Async.Sequential }
 
 let getOddVolumeValues (psarcPath: string) = async {
-    use psarc = PSARC.ReadFile psarcPath
+    use psarc = PSARC.OpenFile psarcPath
 
     let! oddVolumes =
         psarc.Manifest
@@ -69,7 +69,7 @@ let printOddVolumeResults directory =
     |> Seq.iter (printfn "%s")
 
 let getSortValues (psarcPath: string) = async {
-    use psarc = PSARC.ReadFile psarcPath
+    use psarc = PSARC.OpenFile psarcPath
 
     use! manifestData =
         psarc.Manifest
@@ -96,7 +96,7 @@ let printSortValueResults directory =
 let collectToneVolumes (psarcPath: string) = async {
     //printfn "Processing: %s" (Path.GetFileName psarcPath)
 
-    use psarc = PSARC.ReadFile psarcPath
+    use psarc = PSARC.OpenFile psarcPath
 
     let! volumeValues =
         psarc.Manifest

@@ -31,7 +31,7 @@ let readTests =
 
         testTask "Can extract partially compressed file" {
             // The test archive contains a single file where only the first block is zlib compressed
-            use psarc = PSARC.ReadFile("partially_compressed_test_p.psarc")
+            use psarc = PSARC.OpenFile("partially_compressed_test_p.psarc")
             let tempPath = getTempPath "partiallyCompressedTest"
 
             do! psarc.ExtractFiles(tempPath)

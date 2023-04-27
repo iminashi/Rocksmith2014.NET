@@ -206,7 +206,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             let t () =
                 async {
                     let platform = Platform.fromPackageFileName file
-                    use psarc = PSARC.ReadFile(file)
+                    use psarc = PSARC.OpenFile(file)
                     do! psarc.ExtractFiles(targetDirectory) |> Async.AwaitTask
 
                     if state.ConvertAudio then
@@ -264,7 +264,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                     task {
                         let targetFile = file.Replace("_p.psarc", "_m.psarc")
                         File.Copy(file, targetFile)
-                        use psarc = PSARC.ReadFile(targetFile)
+                        use psarc = PSARC.OpenFile(targetFile)
                         do! PlatformConverter.pcToMac psarc
                     }
 
@@ -299,7 +299,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
                         Directory.CreateDirectory(targetDirectory) |> ignore
 
                         let platform = Platform.fromPackageFileName file
-                        use psarc = PSARC.ReadFile(file)
+                        use psarc = PSARC.OpenFile(file)
 
                         let! sngs =
                             psarc.Manifest

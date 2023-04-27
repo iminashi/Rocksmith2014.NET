@@ -338,9 +338,9 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
         new PSARC(input, header, toc, zLengths)
 
-    /// Initializes a PSARC from a file with the given name.
-    static member ReadFile(fileName: string) =
-        Utils.openFileStreamForPSARC fileName
+    /// Initializes a PSARC from a file from the given path.
+    static member OpenFile(path: string) =
+        Utils.openFileStreamForPSARC path
         |> PSARC.Read
 
     // IDisposable implementation.

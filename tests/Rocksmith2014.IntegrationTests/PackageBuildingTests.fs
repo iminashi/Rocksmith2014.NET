@@ -72,7 +72,7 @@ let tests =
         }
 
         testAsync "PC package contains correct files" {
-            use psarc = PSARC.ReadFile(psarcPathWin)
+            use psarc = PSARC.OpenFile(psarcPathWin)
 
             let contents = psarc.Manifest
 
@@ -83,7 +83,7 @@ let tests =
         }
 
         testAsync "Mac package contains correct files" {
-            use psarc = PSARC.ReadFile(psarcPathMac)
+            use psarc = PSARC.OpenFile(psarcPathMac)
 
             let contents = psarc.Manifest
 
@@ -94,7 +94,7 @@ let tests =
         }
 
         testTask "App ID file contains correct app ID" {
-            use psarc = PSARC.ReadFile(psarcPathWin)
+            use psarc = PSARC.OpenFile(psarcPathWin)
 
             use! stream = psarc.GetEntryStream("appid.appid")
             let appid = using (new StreamReader(stream)) (fun r -> r.ReadToEnd() |> AppId.ofString)
@@ -103,7 +103,7 @@ let tests =
         }
 
         testTask "Mac package contains correct SNG file" {
-            use psarc = PSARC.ReadFile(psarcPathMac)
+            use psarc = PSARC.OpenFile(psarcPathMac)
 
             use! stream = psarc.GetEntryStream("songs/bin/macos/integrationtest_lead.sng")
             let! sng = SNG.fromStream stream Mac |> Async.StartAsTask
@@ -113,7 +113,7 @@ let tests =
         }
 
         testTask "Mac package contains correct manifest file" {
-            use psarc = PSARC.ReadFile(psarcPathMac)
+            use psarc = PSARC.OpenFile(psarcPathMac)
 
             use! stream = psarc.GetEntryStream "manifests/songs_dlc_integrationtest/integrationtest_bass.json"
             let! mani = (Manifest.fromJsonStream stream).AsTask()
@@ -123,7 +123,7 @@ let tests =
         }
 
         testTask "Mac package contains correct soundbank file" {
-            use psarc = PSARC.ReadFile(psarcPathMac)
+            use psarc = PSARC.OpenFile(psarcPathMac)
 
             use mem = new MemoryStream()
             do! psarc.InflateFile("audio/mac/song_integrationtest_preview.bnk", mem)
@@ -140,7 +140,7 @@ let tests =
         }
 
         testTask "PC package contains correct lead tone" {
-            use psarc = PSARC.ReadFile(psarcPathWin)
+            use psarc = PSARC.OpenFile(psarcPathWin)
 
             use! file = psarc.GetEntryStream("manifests/songs_dlc_integrationtest/integrationtest_lead.json")
             let! manifest = Manifest.fromJsonStream(file).AsTask()

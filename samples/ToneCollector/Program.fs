@@ -112,7 +112,7 @@ let scanPsarcs (connection: SQLiteConnection) directory =
 
             let! tones =
                 async {
-                    use psarc = PSARC.ReadFile(path)
+                    use psarc = PSARC.OpenFile(path)
                     if psarc.Manifest |> List.contains "toolkit.version" then
                         printfn "    Skipping CDLC."
                         return Array.empty

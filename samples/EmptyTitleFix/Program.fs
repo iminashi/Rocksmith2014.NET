@@ -62,7 +62,7 @@ let findFixablePsarcs directory =
     |> Seq.filter (fun x -> not <| x.Contains("inlay") && not <| x.Contains("rs1compatibility"))
     |> Seq.map (fun path ->
         async {
-            let psarc = PSARC.ReadFile(path)
+            let psarc = PSARC.OpenFile(path)
 
             let! attributes = getAttributes psarc
 

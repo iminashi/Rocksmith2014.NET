@@ -101,7 +101,7 @@ let update msg state =
 
                     Directory.CreateDirectory(targetDirectory) |> ignore
 
-                    use psarc = PSARC.ReadFile(path)
+                    use psarc = PSARC.OpenFile(path)
                     do! psarc.ExtractFiles(targetDirectory, progress i) |> Async.AwaitTask
                 })
             |> Async.Sequential

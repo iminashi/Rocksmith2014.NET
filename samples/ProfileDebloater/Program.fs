@@ -16,7 +16,7 @@ let readOnDiscIdsAndKeys () =
 /// Reads the IDs and keys from a PSARC with the given path.
 let readIDs path =
     backgroundTask {
-        use psarc = PSARC.ReadFile(path)
+        use psarc = PSARC.OpenFile(path)
 
         use! headerStream =
             psarc.Manifest

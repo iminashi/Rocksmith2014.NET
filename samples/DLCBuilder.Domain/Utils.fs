@@ -24,7 +24,7 @@ let createExceptionInfoString (ex: exn) =
 /// Imports tones from a PSARC file.
 let importTonesFromPSARC (psarcPath: string) =
     async {
-        use psarc = PSARC.ReadFile(psarcPath)
+        use psarc = PSARC.OpenFile(psarcPath)
 
         let! jsons =
             psarc.Manifest
