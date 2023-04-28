@@ -1,5 +1,6 @@
 ﻿{
   "UnknownArrangementError": "ロックスミス2014のアレンジファイルではない。",
+  "EofExtVocalsFileError": "このボーカルXMLファイルが使用する事ができません。\nファイル名に「_EXT」が入っていないXMLファイルを使いましょう。",
   "Select": "選択",
   "SelectAudioFile": "オーディオファイルを開く",
   "SelectPreviewAudioFile": "プレビューオーディオファイルを開く",

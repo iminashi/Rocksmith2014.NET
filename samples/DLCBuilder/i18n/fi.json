@@ -1,5 +1,6 @@
 ﻿{
   "UnknownArrangementError": "Tämä ei ole Rocksmith 2014 sovitus.",
+  "EofExtVocalsFileError": "Tätä lyriikkatiedostoja ei voida käyttää.\nKäytä tavallista XML tiedostoa, joka ei sisällä '_EXT' tekstiä tiedostonnimessä.",
   "Select": "Valitse",
   "SelectAudioFile": "Valitse äänitiedosto",
   "SelectPreviewAudioFile": "Valitse esikatseluäänitiedosto",

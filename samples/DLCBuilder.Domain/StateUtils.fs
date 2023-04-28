@@ -150,6 +150,10 @@ let addArrangements fileNames state =
                 let message = t.Translate "UnknownArrangementError"
                 let error = createErrorMsg path message
                 arrs, error :: errors
+            | Error (EofExtVocalsFile path) ->
+                let message =  t.Translate "EofExtVocalsFileError"
+                let error = createErrorMsg path message
+                arrs, error :: errors
             | Error (FailedWithException (path, ex)) ->
                 let error = createErrorMsg path ex.Message
                 arrs, error :: errors)
@@ -167,10 +171,9 @@ let addArrangements fileNames state =
 
         { state with Project = { project with Arrangements = List.sortBy Arrangement.sorter arrangements } }
 
-    match errors with
-    | [] ->
+    if errors.IsEmpty then
         newState
-    | _ ->
+    else
         let errorMessage = errors |> String.concat "\n\n"
 
         { newState with Overlay = ErrorMessage(errorMessage, None) }

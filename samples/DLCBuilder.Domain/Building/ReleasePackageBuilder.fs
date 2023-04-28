@@ -25,6 +25,7 @@ let private getArtistAndTitle project =
             StringValidator.convertToSortField (StringValidator.FieldType.Title project.Title.Value))
 
     artist, title
+
 /// Returns an async task for building packages for release.
 let build (openProject: string option) config project =
     async {

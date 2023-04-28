@@ -1,5 +1,6 @@
 ﻿{
   "UnknownArrangementError": "Not a Rocksmith 2014 arrangement.",
+  "EofExtVocalsFileError": "This vocals file cannot be used.\nUse the regular XML file which does not include '_EXT' in the filename.",
   "Select": "Select",
   "SelectAudioFile": "Select audio file",
   "SelectPreviewAudioFile": "Select preview audio file",

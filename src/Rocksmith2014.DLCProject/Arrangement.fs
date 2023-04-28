@@ -78,6 +78,7 @@ type Arrangement =
 type ArrangementLoadError =
     | UnknownArrangement of failedFile: string
     | FailedWithException of failedFile: string * exn
+    | EofExtVocalsFile of failedFile: string
 
 module Arrangement =
     /// Returns the master ID of an arrangement.
@@ -150,17 +151,17 @@ module Arrangement =
             7, 0
 
     /// Loads an arrangement from a file.
-    let fromFile (fileName: string) =
+    let fromFile (path: string) =
         try
             let rootName =
-                using (XmlReader.Create(fileName))
+                using (XmlReader.Create(path))
                       (fun reader -> reader.MoveToContent() |> ignore; reader.LocalName)
 
             match rootName with
             | "song" ->
-                let metadata = MetaData.Read(fileName)
+                let metadata = MetaData.Read(path)
                 let arrProp = metadata.ArrangementProperties
-                let toneInfo = InstrumentalArrangement.ReadToneNames(fileName)
+                let toneInfo = InstrumentalArrangement.ReadToneNames(path)
 
                 let baseTone =
                     match toneInfo.BaseToneName with
@@ -193,7 +194,7 @@ module Arrangement =
                         | _ -> ArrangementName.Lead
 
                 let arr =
-                    { XML = fileName
+                    { XML = path
                       Name = name
                       Priority =
                         if arrProp.Represent then
@@ -220,12 +221,12 @@ module Arrangement =
             | "vocals" ->
                 // Attempt to infer whether the lyrics are Japanese from the filename
                 let isJapanese =
-                    Regex.IsMatch(fileName, "j.?(vocal|lyric)", RegexOptions.IgnoreCase)
+                    Regex.IsMatch(Path.GetFileName(path), "j.?(vocal|lyric)", RegexOptions.IgnoreCase)
 
                 // Try to find custom font for Japanese vocals
                 let customFont =
                     let fontFile =
-                        Path.Combine(Path.GetDirectoryName(fileName), "lyrics.dds")
+                        Path.Combine(Path.GetDirectoryName(path), "lyrics.dds")
 
                     if isJapanese && File.Exists(fontFile) then
                         Some fontFile
@@ -233,7 +234,7 @@ module Arrangement =
                         None
 
                 let arr =
-                    { XML = fileName
+                    { XML = path
                       Japanese = isJapanese
                       CustomFont = customFont
                       MasterID = RandomGenerator.next ()
@@ -243,13 +244,16 @@ module Arrangement =
                 Ok(arr, None)
 
             | "showlights" ->
-                let arr = Arrangement.Showlights { XML = fileName }
+                let arr = Arrangement.Showlights { XML = path }
                 Ok(arr, None)
 
             | _ ->
-                Error(UnknownArrangement fileName)
-        with ex ->
-            Error(FailedWithException(fileName, ex))
+                Error(UnknownArrangement path)
+        with
+        | :? XmlException when Path.GetFileNameWithoutExtension(path) |> String.endsWith "_EXT" ->
+            Error(EofExtVocalsFile(path))
+        | ex ->
+            Error(FailedWithException(path, ex))
 
     /// Reads the tone info from the arrangement's XML file.
     let updateToneInfo (inst: Instrumental) updateBaseTone =
