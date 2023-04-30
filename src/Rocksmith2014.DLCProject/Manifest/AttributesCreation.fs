@@ -402,11 +402,11 @@ let private initSongComplete (partition: int)
     attr.Chords <- createChordMap sng
     attr.ChordTemplates <- convertChordTemplates sng
     attr.LastConversionDateTime <- sng.MetaData.LastConversionDateTime
-    attr.MaxPhraseDifficulty <- (sng.Levels.Length - 1)
+    attr.MaxPhraseDifficulty <- sng.Levels.Length - 1
     attr.PhraseIterations <- convertPhraseIterations sng
     attr.Phrases <- convertPhrases sng
     attr.Score_MaxNotes <- float32 sng.NoteCounts.Hard
-    attr.Score_PNV <- (100_000.f / float32 sng.NoteCounts.Hard)
+    attr.Score_PNV <- 100_000.f / float32 sng.NoteCounts.Hard
     attr.Sections <- convertSections sng
     attr.SongAverageTempo <- if xmlMetaData.AverageTempo <= 0.f then 120.f else xmlMetaData.AverageTempo
     attr.SongOffset <- -sng.MetaData.StartTime
