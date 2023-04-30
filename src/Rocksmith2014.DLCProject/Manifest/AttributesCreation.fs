@@ -259,13 +259,14 @@ let private createChordMap (sng: SNG) =
             let pi = sng.PhraseIterations[i]
 
             let chordIds =
-                sng.Levels[lvl].HandShapes
-                |> Seq.filter (fun x ->
-                    (String.notEmpty sng.Chords[x.ChordId].Name) && (x.StartTime >= pi.StartTime && x.StartTime < pi.EndTime))
-                |> Seq.map (fun x -> x.ChordId)
-                |> Set.ofSeq
+                (Set.empty, sng.Levels[lvl].HandShapes)
+                ||> Array.fold (fun state hs ->
+                    if (String.notEmpty sng.Chords[hs.ChordId].Name) && (hs.StartTime >= pi.StartTime && hs.StartTime < pi.EndTime) then
+                        state.Add(hs.ChordId)
+                    else
+                        state)
 
-            if chordIds.Count > 0 then
+            if not chordIds.IsEmpty then
                 diffIds.Add(string i, Set.toArray chordIds)
 
         if diffIds.Count > 0 then
@@ -290,11 +291,11 @@ let private createTechniqueMap (sng: SNG) =
 
             let techIds =
                 sng.Levels[lvl].Notes
-                |> Seq.filter (fun x -> (x.Time > pi.StartTime && x.Time <= pi.EndTime)) // Weird division into phrase iterations intentional
+                |> Seq.filter (fun x -> x.Time > pi.StartTime && x.Time <= pi.EndTime) // Weird division into phrase iterations intentional
                 |> Seq.collect (Techniques.getTechniques sng)
                 |> Set.ofSeq
 
-            if techIds.Count > 0 then
+            if not techIds.IsEmpty then
                 diffIds.Add(string i, Set.toArray techIds)
 
         if diffIds.Count > 0 then
