@@ -1,3 +1,9 @@
+## 1.7.0 (Released 2023-05-xx)
+
+- Updated to .NET 7.
+- A better error message is shown when loading an "EXT" vocals file fails.
+- Internal changes related to PSARC encryption and asynchronous code.
+
 ## 1.6.1 (Released 2023-04-11)
 
 - Fixed a bug in writing the ogg path to the EOF file.
