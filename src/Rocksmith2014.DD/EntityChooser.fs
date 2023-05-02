@@ -3,18 +3,22 @@ module internal Rocksmith2014.DD.EntityChooser
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Extension
 open System
+open System.Collections
 open System.Collections.Generic
+
+// Array index = string number
+type private PendingLinkNexts = Note array
 
 let [<Literal>] private AlwaysEnabledTechs =
     NoteMask.Ignore ||| NoteMask.FretHandMute ||| NoteMask.PalmMute ||| NoteMask.Harmonic
 
-let private pruneTechniques diffPercent (removedLinkNexts: HashSet<sbyte>) (note: Note) =
+let private pruneTechniques (diffPercent: float) (removedLinkNexts: BitArray) (note: Note) =
     if diffPercent <= 0.2 then
         if not note.IsBend then
             note.Sustain <- 0
 
         if note.IsLinkNext then
-            removedLinkNexts.Add(note.String) |> ignore
+            removedLinkNexts.Set(int note.String, true)
             note.IsLinkNext <- false
 
         note.Mask <- note.Mask &&& AlwaysEnabledTechs
@@ -32,8 +36,8 @@ let private pruneTechniques diffPercent (removedLinkNexts: HashSet<sbyte>) (note
 let private pruneChordNotes
         (diffPercent: float)
         (noteCount: int)
-        (removedLinkNexts: HashSet<sbyte>)
-        (pendingLinkNexts: Dictionary<sbyte, Note>)
+        (removedLinkNexts: BitArray)
+        (pendingLinkNexts: PendingLinkNexts)
         (chord: Chord) =
     let cn = chord.ChordNotes
     let notesToRemove = cn.Count - noteCount
@@ -43,7 +47,7 @@ let private pruneChordNotes
 
     for i = cn.Count - notesToRemove to cn.Count - 1 do
         if cn[i].IsLinkNext then
-            removedLinkNexts.Add(cn[i].String) |> ignore
+            removedLinkNexts.Set(int cn[i].String, true)
 
     cn.RemoveRange(cn.Count - notesToRemove, notesToRemove)
 
@@ -51,7 +55,7 @@ let private pruneChordNotes
         pruneTechniques diffPercent removedLinkNexts n
 
         if n.IsLinkNext then
-            pendingLinkNexts.TryAdd(n.String, n) |> ignore
+            pendingLinkNexts[int n.String] <- n
 
 let private shouldExclude
         (diffPercent: float)
@@ -79,12 +83,14 @@ let private shouldExclude
         // The current difficulty is greater than the upper limit of the range -> Include
         false
 
-let private removePreviousLinkNext (pendingLinkNexts: Dictionary<sbyte, Note>) = function
+let private removePreviousLinkNext (pendingLinkNexts: PendingLinkNexts) = function
     | XmlChord _ ->
         ()
     | XmlNote note ->
-        let mutable lnNote = null
-        if pendingLinkNexts.Remove(note.String, &lnNote) then
+        let strIndex = int note.String
+        let lnNote = pendingLinkNexts[strIndex]
+        pendingLinkNexts[strIndex] <- null
+        if notNull lnNote then
             if lnNote.IsSlide then
                 lnNote.SlideTo <- -1y
                 lnNote.Sustain <- 0
@@ -98,7 +104,7 @@ let private findEntityWithString (entities: XmlEntity seq) string =
         | XmlChord c ->
             c.HasChordNotes && c.ChordNotes.Exists(fun cn -> cn.String = string))
 
-let private findPrevEntityAll (allEntities: XmlEntity array) string time =
+let private findPrevEntityAll (allEntities: XmlEntity array) (string: sbyte) (time: int) =
     allEntities
     |> Array.tryFindBack (function
         | XmlNote n ->
@@ -153,7 +159,7 @@ let private chordNotesFromTemplate (template: ChordTemplate) (chord: Chord) =
 /// Creates a note from a chord.
 let private noteFromChord
         (diffPercent: float)
-        (removedLinkNexts: HashSet<sbyte>)
+        (removedLinkNexts: BitArray)
         (chordTotalNotes: int)
         (template: ChordTemplate)
         (chord: Chord) =
@@ -165,7 +171,7 @@ let private noteFromChord
         // Create the note from a chord note
         for i = 0 to cns.Count - 1 do
             if i <> noteIndex && cns[i].IsLinkNext then
-                removedLinkNexts.Add(cns[i].String) |> ignore
+                removedLinkNexts.Set(int cns[i].String, true)
 
         let note = Note(cns[noteIndex], LeftHand = -1y)
         pruneTechniques diffPercent removedLinkNexts note
@@ -193,8 +199,9 @@ let choose (diffPercent: float)
            (handShapes: HandShape list)
            (maxChordNotes: int)
            (entities: XmlEntity array) =
-    let removedLinkNexts = HashSet<sbyte>()
-    let pendingLinkNexts = Dictionary<sbyte, Note>()
+    // Strings from which a linknext note has been removed
+    let removedLinkNexts = BitArray(6)
+    let pendingLinkNexts: PendingLinkNexts = Array.zeroCreate 6
     let currentNotesWithScore = Dictionary<NoteScore, int>()
 
     let incrementCount division =
@@ -218,7 +225,7 @@ let choose (diffPercent: float)
             | XmlNote n ->
                 // Always include notes without techniques that are linked into
                 n.Mask &&& (~~~ (NoteMask.Ignore ||| NoteMask.LinkNext)) = NoteMask.None
-                && pendingLinkNexts.ContainsKey n.String
+                && notNull pendingLinkNexts[int n.String]
                 && not (n.IsSlide || n.IsUnpitchedSlide || n.IsBend || n.IsVibrato)
 
         if not includeAlways && shouldExclude diffPercent score notesWithScore currentNotesWithScore range then
@@ -227,13 +234,13 @@ let choose (diffPercent: float)
             // Update removedLinkNexts (when not a slide)
             match e with
             | XmlNote xn when xn.IsLinkNext && not xn.IsSlide ->
-                removedLinkNexts.Add xn.String |> ignore
+                removedLinkNexts.Set(int xn.String, true)
             | XmlNote xn ->
-                removedLinkNexts.Remove xn.String |> ignore
+                removedLinkNexts.Set(int xn.String, false)
             | XmlChord xc when xc.IsLinkNext && notNull xc.ChordNotes ->
                 for cn in xc.ChordNotes do
                     if cn.IsLinkNext && not cn.IsSlide then
-                        removedLinkNexts.Add cn.String |> ignore
+                        removedLinkNexts.Set(int cn.String, true)
             | _ ->
                 ()
 
@@ -242,9 +249,11 @@ let choose (diffPercent: float)
         else
             match e with
             | XmlNote oNote ->
-                if removedLinkNexts.Contains oNote.String then
+                if removedLinkNexts[int oNote.String] then
+                    // Previous note on the same string had linknext and was removed, remove this note also
+                    // Reset removed linknext bit for this string unless this note also has linknext
                     if not oNote.IsLinkNext then
-                        removedLinkNexts.Remove oNote.String |> ignore
+                        removedLinkNexts.Set(int oNote.String, false)
 
                     acc
                 else
@@ -253,8 +262,8 @@ let choose (diffPercent: float)
 
                     pruneTechniques diffPercent removedLinkNexts note
 
-                    pendingLinkNexts.Remove(note.String) |> ignore
-                    if note.IsLinkNext then pendingLinkNexts.Add(note.String, note)
+                    pendingLinkNexts[int note.String] <- null
+                    if note.IsLinkNext then pendingLinkNexts[int note.String] <- note
 
                     if note.IsHopo then
                         let prevLevelEntity = findEntityWithString (acc |> Seq.map fst) note.String
@@ -294,7 +303,7 @@ let choose (diffPercent: float)
                 if allowedChordNotes <= 1 then
                     // Convert the chord into a note
                     let note = noteFromChord diffPercent removedLinkNexts noteCount template chord
-                    if note.IsLinkNext then pendingLinkNexts.TryAdd(note.String, note) |> ignore
+                    if note.IsLinkNext then pendingLinkNexts[int note.String] <- note
 
                     (XmlNote note, None) :: acc
                 else
@@ -310,7 +319,7 @@ let choose (diffPercent: float)
                                 pruneTechniques diffPercent removedLinkNexts cn
 
                                 if cn.IsLinkNext then
-                                    pendingLinkNexts.TryAdd(cn.String, cn) |> ignore
+                                    pendingLinkNexts[int cn.String] <- cn
 
                         (XmlChord copy, None) :: acc
                     else
