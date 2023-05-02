@@ -5,7 +5,10 @@ open Rocksmith2014.SNG
 open Rocksmith2014.Conversion.XmlToSng
 open Rocksmith2014.Conversion.Utils
 open Rocksmith2014.XML.Extension
-open System.Collections.Generic
+
+type private PendingLinkNexts = (struct(XML.Note * int16)) array
+
+let [<Literal>] StringCount = 6
 
 /// Calculates a hash value for a note.
 let inline private hashNote (note: Note) = hash note |> uint32
@@ -84,7 +87,8 @@ let private createMaskForNote parentNote isArpeggio (note: XML.Note) =
         ||| if note.IsSlap          then NoteMask.Slap          else NoteMask.None
 
 /// Creates an SNG note mask for a chord.
-let private createMaskForChord (template: XML.ChordTemplate) sustain chordNoteId isArpeggio (chord: XML.Chord) =
+let private createMaskForChord
+        (template: XML.ChordTemplate) (sustain: float32) (chordNoteId: int) (isArpeggio: bool) (chord: XML.Chord) =
     // Apply flags from properties not in the XML chord mask
     let baseMask =
         NoteMask.Chord
@@ -129,17 +133,17 @@ let private createChordNotesMask (chordNotes: ResizeArray<XML.Note>) =
     masks
 
 /// Creates chord notes for the chord and returns the ID number for them.
-let private createChordNotes (pendingLinkNexts: Dictionary<int8, struct(XML.Note * int16)>) thisId (accuData: AccuData) (chord: XML.Chord) =
+let private createChordNotes (pendingLinkNexts: PendingLinkNexts) (thisId: int16) (accuData: AccuData) (chord: XML.Chord) =
     // Convert the masks first to check if the chord notes need to be created at all
     let masks = createChordNotesMask chord.ChordNotes
 
     if Array.forall ((=) NoteMask.None) masks then
         -1
     else
-        let slideTo = Array.replicate 6 -1y
-        let slideUnpitchTo = Array.replicate 6 -1y
-        let vibrato = Array.zeroCreate<int16> 6
-        let bendData = Array.replicate 6 BendData32.Empty
+        let slideTo = Array.replicate StringCount -1y
+        let slideUnpitchTo = Array.replicate StringCount -1y
+        let vibrato = Array.zeroCreate<int16> StringCount
+        let bendData = Array.replicate StringCount BendData32.Empty
 
         for note in chord.ChordNotes do
             let strIndex = int note.String
@@ -152,7 +156,7 @@ let private createChordNotes (pendingLinkNexts: Dictionary<int8, struct(XML.Note
                 bendData[strIndex] <- createBendData32 note
 
             if note.IsLinkNext then
-                pendingLinkNexts.TryAdd(note.String, struct(note, thisId)) |> ignore
+                pendingLinkNexts[int note.String] <- struct(note, thisId)
 
         let chordNotes =
             { Mask = masks
@@ -184,14 +188,13 @@ let convertNote (noteTimes: int array)
                 (flag: NoteFlagger)
                 (xml: XML.InstrumentalArrangement)
                 (difficulty: int) =
-    // Dictionary of link-next parent notes in need of a child note.
+    // Lookup array of link-next parent notes in need of a child note.
     // Mapping: string number => the note and its index in the phrase iteration
-    let pendingLinkNexts = Dictionary<int8, struct(XML.Note * int16)>()
+    let pendingLinkNexts: PendingLinkNexts = Array.replicate StringCount struct(null, -1s)
     // The previous converted note
     let mutable previousNote: Note option = None
 
     fun (index: int) (xmlEnt: XmlEntity) ->
-
         let level = xml.Levels[difficulty]
         let timeCode = getTimeCode xmlEnt
         let timeSeconds = msToSec timeCode
@@ -228,15 +231,13 @@ let convertNote (noteTimes: int array)
             match xmlEnt with
             // XML Notes
             | XmlNote note ->
+                let strIndex = int note.String
                 let parentNote =
-                    let mutable linked: struct(XML.Note * int16) = struct(null, -1s)
-                    if pendingLinkNexts.Remove(note.String, &linked) then
-                        // Check if this note is actually at the end of the sustain of the parent note
-                        match linked with
-                        | (parent, _) when note.Time - (parent.Time + parent.Sustain) > 2 ->
-                            -1s
-                        | (_, id) ->
-                            id
+                    let struct(parent, parentId) = pendingLinkNexts[strIndex]
+                    pendingLinkNexts[strIndex] <- struct(null, -1s)
+                    // Check if this note is actually at the end of the sustain of the parent note
+                    if parentId <> -1s && note.Time - (parent.Time + parent.Sustain) <= 2 then
+                        parentId
                     else
                         -1s
 
@@ -249,20 +250,19 @@ let convertNote (noteTimes: int array)
                         bendValues
                         |> mapToArrayMaxSize 32 convertBendValue
 
-                // Using TryAdd because of possible link next errors in CDLC
-                if note.IsLinkNext then pendingLinkNexts.TryAdd(note.String, struct(note, this)) |> ignore
+                if note.IsLinkNext then pendingLinkNexts[strIndex] <- struct(note, this)
                 let mask = createMaskForNote parentNote isArpeggio note
 
                 // Create anchor extension if needed
                 if note.IsSlide then
-                    let ax = 
+                    let ax =
                         { BeatTime = msToSec (timeCode + note.Sustain)
                           FretId = note.SlideTo }
                     accuData.AnchorExtensions[difficulty].Add(ax)
 
-                updateStringMask accuData sectionId difficulty (int note.String)
+                updateStringMask accuData sectionId difficulty strIndex
 
-                {| String = note.String; Fret = note.Fret; Mask = mask; Parent = parentNote;
+                {| String = note.String; Fret = note.Fret; Mask = mask; Parent = parentNote
                    BendValues = bendValues; SlideTo = note.SlideTo; UnpSlide = note.SlideUnpitchTo; LeftHand = note.LeftHand
                    Vibrato = int16 note.Vibrato; Sustain = msToSec note.Sustain; MaxBend = note.MaxBend
                    PickDirection = if (note.Mask &&& XML.NoteMask.PickDirection) <> XML.NoteMask.None then 1y else 0y
@@ -280,16 +280,16 @@ let convertNote (noteTimes: int array)
                         for i = 0 to chord.ChordNotes.Count - 1 do
                             updateStringMask accuData sectionId difficulty (int chord.ChordNotes[i].String)
 
-                        msToSec chord.ChordNotes[0].Sustain, 
+                        msToSec chord.ChordNotes[0].Sustain,
                         createChordNotes pendingLinkNexts this accuData chord
                     else
                         0.f, -1
 
                 let mask = createMaskForChord template sustain chordNoteId isArpeggio chord
 
-                {| Mask = mask; ChordId = int chord.ChordId; ChordNoteId = chordNoteId; Sustain = sustain;
+                {| Mask = mask; ChordId = int chord.ChordId; ChordNoteId = chordNoteId; Sustain = sustain
                    // Other values are not applicable to chords
-                   String = -1y; Fret = -1y; Parent = -1s; BendValues = [||]; SlideTo = -1y; UnpSlide = -1y;
+                   String = -1y; Fret = -1y; Parent = -1s; BendValues = [||]; SlideTo = -1y; UnpSlide = -1y
                    LeftHand = -1y; Tap = -1y; PickDirection = -1y; Slap = -1y; Pluck = -1y
                    Vibrato = 0s; MaxBend = 0.f |}
 
