@@ -27,15 +27,25 @@ let private buildControls state dispatch =
         Grid.children [
             match state.QuickEditData with
             | Some data ->
-                // Apply Edits
+                // Apply edits
                 Button.create [
-                    Grid.columnSpan 2
                     Button.padding (20., 8.)
                     Button.margin 4.
                     Button.fontSize 16.
                     Button.content (translate "FinishEditing")
                     Button.isEnabled canBuild
                     Button.onClick ((fun _ -> data |> ReplacePsarc |> Build |> dispatch), OnChangeOf data)
+                ]
+
+                // Cancel edit
+                Button.create [
+                    Grid.column 1
+                    Button.padding (20., 8.)
+                    Button.margin 4.
+                    Button.fontSize 16.
+                    Button.content (translate "Cancel")
+                    Button.isEnabled canBuild
+                    Button.onClick (fun _ -> dispatch NewProject)
                 ]
             | None ->
                 // Build test
