@@ -309,6 +309,42 @@ let noteTests =
             let results = checkNotes arr level
 
             Expect.hasLength results 0 "No issues created"
+
+        testCase "Detects hammer-on into same fret" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300)
+                                          Note(Fret = 1y, Time = 1800, IsHammerOn = true) })
+            let level = Level(Notes = notes)
+            let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
+
+            let results = checkNotes arr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type HopoIntoSameNote "Correct issue type"
+
+        testCase "No false positive for hammer-on from nowhere" <| fun _ ->
+            let notes = ResizeArray(seq {
+                Note(Fret = 5y, String = 2y, Time = 1000)
+                Note(Fret = 3y, String = 3y, Time = 1100)
+                Note(Fret = 5y, String = 3y, Time = 1200)
+                Note(Fret = 3y, String = 3y, Time = 1300, IsPullOff = true)
+                Note(Fret = 5y, String = 2y, Time = 1400, IsHammerOn = true) })
+            let level = Level(Notes = notes)
+            let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
+
+            let results = checkNotes arr level
+
+            Expect.hasLength results 0 "No issues created"
+
+        testCase "Detects pull-off into same fret" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300)
+                                          Note(Fret = 1y, Time = 1800, IsPullOff = true) })
+            let level = Level(Notes = notes)
+            let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
+
+            let results = checkNotes arr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type HopoIntoSameNote "Correct issue type"
     ]
 
 [<Tests>]

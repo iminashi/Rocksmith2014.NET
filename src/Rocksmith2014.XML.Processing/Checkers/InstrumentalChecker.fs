@@ -124,49 +124,73 @@ let private isPhraseChangeOnSustain (arr: InstrumentalArrangement) (note: Note) 
         && pi.Time <= note.Time + note.Sustain
         && (not <| String.startsWith "mover" arr.Phrases[pi.PhraseId].Name))
 
+let private findPreviousNoteOnSameString (notes: ResizeArray<Note>) (startIndex: int) =
+    let startNote = notes[startIndex]
+    let rec search index =
+        match ResizeArray.tryItem index notes with
+        | None ->
+            None
+        | Some n when n.Time = startNote.Time ->
+            search (index - 1)
+        | Some n when n.String <> startNote.String ->
+            // Ignore if there are notes on a different string between this note and the previous note on this string
+            // Should prevent false positives for "hammer-ons from nowhere"
+            None
+        | Some n ->
+            Some n
+
+    search (startIndex - 1)
+
 /// Checks the notes in the level for issues.
 let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
     let ngSections = getNoguitarSections arrangement
 
-    [ for i = 0 to level.Notes.Count - 1 do
-        let note = level.Notes[i]
-        let time = note.Time
+    [
+        for i = 0 to level.Notes.Count - 1 do
+            let note = level.Notes[i]
+            let time = note.Time
+            let prevNoteOnSameStringOpt = findPreviousNoteOnSameString level.Notes i
 
-        // Check for notes with LinkNext and unpitched slide
-        if note.IsLinkNext && note.IsUnpitchedSlide then
-            issue UnpitchedSlideWithLinkNext time
+            // Check for notes with LinkNext and unpitched slide
+            if note.IsLinkNext && note.IsUnpitchedSlide then
+                issue UnpitchedSlideWithLinkNext time
 
-        // Check for phrases placed on a LinkNext note's sustain
-        if note.IsLinkNext && isPhraseChangeOnSustain arrangement note then
-            issue PhraseChangeOnLinkNextNote time
+            // Check for phrases placed on a LinkNext note's sustain
+            if note.IsLinkNext && isPhraseChangeOnSustain arrangement note then
+                issue PhraseChangeOnLinkNextNote time
 
-        // Check for notes with both harmonic and pinch harmonic attributes
-        if note.IsHarmonic && note.IsPinchHarmonic then
-            issue DoubleHarmonic time
+            // Check for notes with both harmonic and pinch harmonic attributes
+            if note.IsHarmonic && note.IsPinchHarmonic then
+                issue DoubleHarmonic time
 
-        // Check 23rd and 24th fret notes without ignore attribute
-        if note.Fret >= 23y && not note.IsIgnore then
-            issue MissingIgnore time
+            // Check 23rd and 24th fret notes without ignore attribute
+            if note.Fret >= 23y && not note.IsIgnore then
+                issue MissingIgnore time
 
-        // Check 7th fret harmonic notes with sustain (and without ignore)
-        if not note.IsIgnore && note.Fret = 7y && note.IsHarmonic && note.Sustain > 0 then
-            issue SeventhFretHarmonicWithSustain time
+            // Check 7th fret harmonic notes with sustain (and without ignore)
+            if not note.IsIgnore && note.Fret = 7y && note.IsHarmonic && note.Sustain > 0 then
+                issue SeventhFretHarmonicWithSustain time
 
-        // Check for missing bend values
-        if note.IsBend && note.BendValues.FindIndex(fun bv -> bv.Step <> 0.0f) = -1 then
-            issue MissingBendValue time
+            // Check for missing bend values
+            if note.IsBend && note.BendValues.FindIndex(fun bv -> bv.Step <> 0.0f) = -1 then
+                issue MissingBendValue time
 
-        // Check tone change placement
-        if isOnToneChange arrangement time then
-            issue ToneChangeOnNote time
+            // Check tone change placement
+            if isOnToneChange arrangement time then
+                issue ToneChangeOnNote time
 
-        // Check LinkNext issues
-        if note.IsLinkNext then
-            yield! checkLinkNext level i note |> Option.toList
+            // Check LinkNext issues
+            if note.IsLinkNext then
+                yield! checkLinkNext level i note |> Option.toList
 
-        // Check for notes inside noguitar sections
-        if isInsideNoguitarSection ngSections time then
-            issue NoteInsideNoguitarSection time ]
+            // Check for notes inside noguitar sections
+            if isInsideNoguitarSection ngSections time then
+                issue NoteInsideNoguitarSection time
+
+            // Check for HOPO on same fret as previous note
+            if prevNoteOnSameStringOpt |> Option.exists (fun pn -> pn.Fret = note.Fret && note.IsHopo) then
+                issue HopoIntoSameNote time
+    ]
 
 let private chordHasStrangeFingering (chordTemplates: ResizeArray<ChordTemplate>) (chord: Chord) =
     option {
