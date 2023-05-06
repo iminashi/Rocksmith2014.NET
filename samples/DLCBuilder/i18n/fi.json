@@ -285,6 +285,8 @@
   "NoEndPhraseHelp": "Sovituksessa ei ole fraasia nimeltä END. Tämä fraasi katkaisee \"anchor zone\":n sovituksen lopussa.",
   "MoreThan100Phrases": "Yli sata fraasia",
   "MoreThan100PhrasesHelp": "Koska sovituksessa on yli sata fraasia, niiden DD palkit eivät enää näy pelissä. Peli saattaa myös kaatua, jos fraaseja on todella paljon.",
+  "HopoIntoSameNote": "Nauhaisku/-nyhtäisy samalla nauhalla kuin edellinen sävel",
+  "HopoIntoSameNoteHelp": "Nauhaisku tai nyhtäisy käyttää samaa nauhaa kuin edellinen sävel samalla kielellä.",
   "PhraseChangeOnLinkNextNote": "Fraasi vaihtuu LinkNext nuotin sustainin kohdalla",
   "PhraseChangeOnLinkNextNoteHelp": "Tämä voi muuttaa kappaleessa myöhemmin tulevan nuotin samalla kielellä näkymättömäksi, kun sovituksella on DD tasoja.",
   "General": "Yleinen",
