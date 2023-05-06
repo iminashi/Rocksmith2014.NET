@@ -47,6 +47,10 @@ let chordTemplates =
         // | o | | | |
         // 2 o 2 2 1 |
         ChordTemplate("BARRE2", "", fingers = [| 2y; -1y; 2y; 2y; 1y; -1y |], frets = [| 2y; 0y; 2y; 2y; 2y; -1y |])
+        // Chord using thumb with open strings
+        // | | o o o |
+        // T | o o o |
+        ChordTemplate("THUMB2", "", fingers = [| 0y; -1y; -1y; -1y; -1y; -1y |], frets = [| 5y; -1y; 0y; 0y; 0y; -1y |])
     })
 
 let testArr =
@@ -529,6 +533,15 @@ let handshapeTests =
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type FingeringAnchorMismatch "Correct issue type"
+
+        testCase "Logic ignores fingering using thumb" <| fun _ ->
+            let hs = ResizeArray(seq { HandShape(6s, 1000, 1500) })
+            let anchors = ResizeArray(seq { Anchor(5y, 1000) })
+            let level = Level(HandShapes = hs, Anchors = anchors)
+
+            let results = checkHandshapes testArr level
+
+            Expect.hasLength results 0 "No issues created"
     ]
 
 [<Tests>]
