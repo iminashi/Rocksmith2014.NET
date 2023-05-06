@@ -2,6 +2,7 @@
 
 - Updated to .NET 7.
 - A better error message is shown when loading an "EXT" vocals file fails.
+- Fixed false positive in check for anchor position in relation to chord fingering with chords that use the thumb.
 - Internal changes related to PSARC encryption and asynchronous code.
 
 ## 1.6.1 (Released 2023-04-11)
