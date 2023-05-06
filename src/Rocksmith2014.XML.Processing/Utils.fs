@@ -76,3 +76,29 @@ let getFirstNoteTime (arrangement: InstrumentalArrangement) =
             |> Option.map (fun c -> c.Time)
 
         getMinTime firstNote firstChord)
+
+let findPreviousNoteOnSameString (notes: ResizeArray<Note>) (startIndex: int) =
+    let startNote = notes[startIndex]
+    let rec search index diffStringNotesInBetween =
+        match ResizeArray.tryItem index notes with
+        | None ->
+            None, diffStringNotesInBetween
+        | Some n when n.Time = startNote.Time ->
+            search (index - 1) diffStringNotesInBetween
+        | Some n when n.String <> startNote.String ->
+            search (index - 1) true
+        | Some _ as pn ->
+            pn, diffStringNotesInBetween
+
+    search (startIndex - 1) false
+
+let findActiveAnchor (level: Level) (time: int) =
+    let anchors = level.Anchors
+    let rec search index =
+        if index >= anchors.Count || anchors[index].Time > time then
+            // Edge case: no anchors in level?
+            anchors[max 0 (index - 1)]
+        else
+            search (index + 1)
+
+    search 0

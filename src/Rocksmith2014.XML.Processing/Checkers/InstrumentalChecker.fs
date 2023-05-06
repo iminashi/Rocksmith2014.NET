@@ -1,6 +1,7 @@
 module Rocksmith2014.XML.Processing.InstrumentalChecker
 
 open Rocksmith2014.XML
+open Rocksmith2014.XML.Extensions
 open System
 open System.Runtime.CompilerServices
 open System.Text.RegularExpressions
@@ -124,23 +125,6 @@ let private isPhraseChangeOnSustain (arr: InstrumentalArrangement) (note: Note) 
         && pi.Time <= note.Time + note.Sustain
         && (not <| String.startsWith "mover" arr.Phrases[pi.PhraseId].Name))
 
-let private findPreviousNoteOnSameString (notes: ResizeArray<Note>) (startIndex: int) =
-    let startNote = notes[startIndex]
-    let rec search index =
-        match ResizeArray.tryItem index notes with
-        | None ->
-            None
-        | Some n when n.Time = startNote.Time ->
-            search (index - 1)
-        | Some n when n.String <> startNote.String ->
-            // Ignore if there are notes on a different string between this note and the previous note on this string
-            // Should prevent false positives for "hammer-ons from nowhere"
-            None
-        | Some n ->
-            Some n
-
-    search (startIndex - 1)
-
 /// Checks the notes in the level for issues.
 let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
     let ngSections = getNoguitarSections arrangement
@@ -149,7 +133,9 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
         for i = 0 to level.Notes.Count - 1 do
             let note = level.Notes[i]
             let time = note.Time
-            let prevNoteOnSameStringOpt = findPreviousNoteOnSameString level.Notes i
+            let prevNoteOnSameStringOpt, differentStringNotesBetweenPrevNoteOnSameString =
+                findPreviousNoteOnSameString level.Notes i
+            let anchorAtNoteOpt = level.Anchors.FindByTime(time) |> Option.ofObj
 
             // Check for notes with LinkNext and unpitched slide
             if note.IsLinkNext && note.IsUnpitchedSlide then
@@ -188,8 +174,23 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
                 issue NoteInsideNoguitarSection time
 
             // Check for HOPO on same fret as previous note
-            if prevNoteOnSameStringOpt |> Option.exists (fun pn -> pn.Fret = note.Fret && note.IsHopo) then
+            // Don't create an issue if there are notes on a different string between this note and the previous note on the same string
+            // Should prevent false positives for "hammer-ons from nowhere"
+            if not differentStringNotesBetweenPrevNoteOnSameString
+               && prevNoteOnSameStringOpt |> Option.exists (fun pn -> pn.Fret = note.Fret && note.IsHopo)
+            then
                 issue HopoIntoSameNote time
+
+            // Check for finger change during slide
+            match anchorAtNoteOpt, prevNoteOnSameStringOpt with
+            | Some thisAnchor, Some prevNote when prevNote.IsLinkNext && prevNote.IsSlide ->
+                let previousActiveAnchor = findActiveAnchor level prevNote.Time
+                let prevFinger = prevNote.Fret - previousActiveAnchor.Fret
+                let thisFinger = note.Fret - thisAnchor.Fret
+                if prevFinger <> thisFinger then
+                    issue FingerChangeDuringSlide time
+            | _ ->
+                ()
     ]
 
 let private chordHasStrangeFingering (chordTemplates: ResizeArray<ChordTemplate>) (chord: Chord) =

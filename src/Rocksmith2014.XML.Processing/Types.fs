@@ -32,6 +32,7 @@ type IssueType =
     | NoEndPhrase
     | MoreThan100Phrases
     | HopoIntoSameNote
+    | FingerChangeDuringSlide
     | LyricWithInvalidChar of invalidChar: char
     | LyricTooLong of lyric: string
     | LyricsHaveNoLineBreaks
@@ -73,6 +74,7 @@ let issueCode = function
     | MutedStringInNonMutedChord -> "I29"
     | MoreThan100Phrases -> "I30"
     | HopoIntoSameNote -> "I31"
+    | FingerChangeDuringSlide -> "I32"
     | LyricWithInvalidChar _ -> "V01"
     | LyricTooLong _ -> "V02"
     | LyricsHaveNoLineBreaks -> "V03"

@@ -187,11 +187,6 @@ module private Helpers =
         |> Option.orElse outsideHandShapeTime
         |> Option.defaultValue initialTime
 
-    let findActiveAnchor (level: Level) time =
-        match level.Anchors.FindLast(fun x -> x.Time <= time) with
-        | null -> level.Anchors[0]
-        | anchor -> anchor
-
     let createPhrasesAndSections contentStartTime endPhraseTime (arr: Inst) =
         let mutable measureCounter = 0
         let mutable nextPhraseTime: int option = None

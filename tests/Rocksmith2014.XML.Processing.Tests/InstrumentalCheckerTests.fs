@@ -345,6 +345,18 @@ let noteTests =
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type HopoIntoSameNote "Correct issue type"
+
+        testCase "Detects finger change during slide" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300, IsLinkNext = true, SlideTo = 5y, Sustain = 500)
+                                          Note(Fret = 5y, Time = 1800) })
+            let anchors = ResizeArray(seq { Anchor(1y, 1300); Anchor(3y, 1800)})
+            let level = Level(Notes = notes, Anchors = anchors)
+            let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
+
+            let results = checkNotes arr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type FingerChangeDuringSlide "Correct issue type"
     ]
 
 [<Tests>]
