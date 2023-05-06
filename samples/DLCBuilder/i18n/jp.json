@@ -287,6 +287,8 @@
   "MoreThan100PhrasesHelp": "アレンジには100以上のフレーズがあると画面上のDDバーが表示されません。フレーズの数が非常に多いなら、ゲームがクラッシュする場合もあります。",
   "HopoIntoSameNote": "ハンマリング / プリングが前のノートと同じフレット",
   "HopoIntoSameNoteHelp": "ハンマリング･オン、もしくはプリング･オフが同じ弦の前のノートと同じフレットにあります。",
+  "FingerChangeDuringSlide": "スライド中に使われる指が変わる",
+  "FingerChangeDuringSlideHelp": "アンカーポジションのフレットナンバーからするとスライドに使われる指がスライド中に変わります。\n\n例えば\nアンカー 1, フレット 3 (指 3)\nスライド\nアンカー 5, フレット 5 (指 1)",
   "PhraseChangeOnLinkNextNote": "LinkNextノートのサステイン中にフレーズが変わる",
   "PhraseChangeOnLinkNextNoteHelp": "アレンジにDDレベルがあると、このノートの後にくる同じ弦のノートが消えることがあります。",
   "General": "一般",

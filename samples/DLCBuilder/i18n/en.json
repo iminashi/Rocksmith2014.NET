@@ -287,6 +287,8 @@
   "MoreThan100PhrasesHelp": "The arrangement contains more than 100 phrases. This will prevent the DD bars for the phrases from showing up. The game may also crash if there is a very large quantity of phrases.",
   "HopoIntoSameNote": "Hammer-on/pull-of on same fret as previous note",
   "HopoIntoSameNoteHelp": "A hammer-on or pull-of uses the same fret as the previous note on the same string.",
+  "FingerChangeDuringSlide": "Finger used changes during slide",
+  "FingerChangeDuringSlideHelp": "Based on the anchor fret positions, the finger used to play the note changes during the slide.\n\nFor example:\nAnchor: 1, Fret: 3 (Used finger: 3)\nslides to\nAnchor: 5, Fret: 5 (Used finger: 1)",
   "PhraseChangeOnLinkNextNote": "Phrase changes on LinkNext note's sustain",
   "PhraseChangeOnLinkNextNoteHelp": "This can cause a note on the same string later in the song to turn invisible when the arrangement has DD levels.",
   "General": "General",

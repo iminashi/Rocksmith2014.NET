@@ -287,6 +287,8 @@
   "MoreThan100PhrasesHelp": "Koska sovituksessa on yli sata fraasia, niiden DD palkit eivät enää näy pelissä. Peli saattaa myös kaatua, jos fraaseja on todella paljon.",
   "HopoIntoSameNote": "Nauhaisku/-nyhtäisy samalla nauhalla kuin edellinen sävel",
   "HopoIntoSameNoteHelp": "Nauhaisku tai nyhtäisy käyttää samaa nauhaa kuin edellinen sävel samalla kielellä.",
+  "FingerChangeDuringSlide": "Käytetty sormi vaihtuu kesken liu'un",
+  "FingerChangeDuringSlideHelp": "Ankkureiden nauhanumeroiden perusteella käytetty sormi vaihtuu liu'un aikana.\n\nEsimerkiksi:\nAnkkuri: 1, Nauha: 3 (Sormi: 3)\nliuku\nAnkkuri: 5, Nauha: 5 (Sormi: 1)",
   "PhraseChangeOnLinkNextNote": "Fraasi vaihtuu LinkNext nuotin sustainin kohdalla",
   "PhraseChangeOnLinkNextNoteHelp": "Tämä voi muuttaa kappaleessa myöhemmin tulevan nuotin samalla kielellä näkymättömäksi, kun sovituksella on DD tasoja.",
   "General": "Yleinen",
