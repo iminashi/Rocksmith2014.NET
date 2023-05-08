@@ -4,6 +4,7 @@
 - A cancel button is now shown when in quick edit "mode".
 - Added a new validation check for hammer-ons/pull-offs that are on the same fret as the previous note on the same string.
 - Added a new validation check for a finger changing during a slide.
+- Added a new validation check for position shift into a pull-off.
 - Fixed false positive in validation for anchor position in relation to chord fingering with chords that use the thumb.
 - A better error message is shown when loading an "EXT" vocals file fails.
 - Internal changes related to PSARC encryption and asynchronous code.
