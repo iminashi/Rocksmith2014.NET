@@ -191,6 +191,15 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
                     issue FingerChangeDuringSlide time
             | _ ->
                 ()
+
+            // Check for position shift into pull-off
+            match anchorAtNoteOpt with
+            | Some activeAnchor ->
+                let previousAnchor = findActiveAnchor level (time - 10) 
+                if previousAnchor <> activeAnchor && note.IsPullOff then
+                    issue PositionShiftIntoPullOff time
+            | None ->
+                ()
     ]
 
 let private chordHasStrangeFingering (chordTemplates: ResizeArray<ChordTemplate>) (chord: Chord) =
@@ -228,67 +237,79 @@ let private chordHasMutedString (chord: Chord) =
 let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
     let ngSections = getNoguitarSections arrangement
 
-    [ for chord in level.Chords do
-        let time = chord.Time
+    [
+        for chord in level.Chords do
+            let time = chord.Time
 
-        if chord.HasChordNotes then
-            let chordNotes = chord.ChordNotes
+            if chord.HasChordNotes then
+                let chordNotes = chord.ChordNotes
+                let anchorAtChordOpt = level.Anchors.FindByTime(time) |> Option.ofObj
 
-            // Check 7th fret harmonic notes with sustain (and without ignore)
-            if not chord.IsIgnore && chordNotes.Exists(fun cn -> cn.Sustain > 0 && cn.Fret = 7y && cn.IsHarmonic) then
-                issue SeventhFretHarmonicWithSustain time
+                // Check 7th fret harmonic notes with sustain (and without ignore)
+                if not chord.IsIgnore && chordNotes.Exists(fun cn -> cn.Sustain > 0 && cn.Fret = 7y && cn.IsHarmonic) then
+                    issue SeventhFretHarmonicWithSustain time
 
-            // Check for notes with LinkNext and unpitched slide
-            if chordNotes.Exists(fun cn -> cn.IsLinkNext && cn.IsUnpitchedSlide) then
-                issue UnpitchedSlideWithLinkNext time
+                // Check for notes with LinkNext and unpitched slide
+                if chordNotes.Exists(fun cn -> cn.IsLinkNext && cn.IsUnpitchedSlide) then
+                    issue UnpitchedSlideWithLinkNext time
 
-            // Check for notes with both harmonic and pinch harmonic attributes
-            if chordNotes.Exists(fun cn -> cn.IsHarmonic && cn.IsPinchHarmonic) then
-                issue DoubleHarmonic time
+                // Check for notes with both harmonic and pinch harmonic attributes
+                if chordNotes.Exists(fun cn -> cn.IsHarmonic && cn.IsPinchHarmonic) then
+                    issue DoubleHarmonic time
 
-            // Check 23rd and 24th fret chords without ignore attribute
-            if chordNotes.TrueForAll(fun cn -> cn.Fret >= 23y) && not chord.IsIgnore then
-                issue MissingIgnore time
+                // Check 23rd and 24th fret chords without ignore attribute
+                if chordNotes.TrueForAll(fun cn -> cn.Fret >= 23y) && not chord.IsIgnore then
+                    issue MissingIgnore time
 
-            // Check for missing bend values
-            if chordNotes.Exists(fun cn -> cn.IsBend && cn.BendValues.FindIndex(fun bv -> bv.Step <> 0.0f) = -1) then
-                issue MissingBendValue time
+                // Check for missing bend values
+                if chordNotes.Exists(fun cn -> cn.IsBend && cn.BendValues.FindIndex(fun bv -> bv.Step <> 0.0f) = -1) then
+                    issue MissingBendValue time
 
-            // EOF does not set LinkNext on chords correctly, so check all chords regardless of LinkNext status
-            yield!
-                chordNotes
-                |> Seq.filter (fun cn -> cn.IsLinkNext)
-                |> Seq.map (fun cn -> checkLinkNext level -1 cn |> Option.toList)
-                |> List.concat
+                // EOF does not set LinkNext on chords correctly, so check all chords regardless of LinkNext status
+                yield!
+                    chordNotes
+                    |> Seq.filter (fun cn -> cn.IsLinkNext)
+                    |> Seq.map (fun cn -> checkLinkNext level -1 cn |> Option.toList)
+                    |> List.concat
 
-        // Check for chords that have LinkNext, but no LinkNext chord notes
-        if chord.IsLinkNext && (not chord.HasChordNotes || chord.ChordNotes.TrueForAll(fun cn -> not cn.IsLinkNext)) then
-            issue MissingLinkNextChordNotes time
+                // Check for position shift into pull-off
+                match anchorAtChordOpt with
+                | Some activeAnchor ->
+                    let previousAnchor = findActiveAnchor level (time - 10) 
+                    if previousAnchor <> activeAnchor && chordNotes.Exists(fun note -> note.IsPullOff) then
+                        issue PositionShiftIntoPullOff time
+                | None ->
+                    ()
 
-        // Check tone change placement
-        if isOnToneChange arrangement time then
-            issue ToneChangeOnNote time
+            // Check for chords that have LinkNext, but no LinkNext chord notes
+            if chord.IsLinkNext && (not chord.HasChordNotes || chord.ChordNotes.TrueForAll(fun cn -> not cn.IsLinkNext)) then
+                issue MissingLinkNextChordNotes time
 
-        // Check chords at the end of handshape (no "handshape sustain")
-        let handShape =
-            level.HandShapes.Find(fun hs ->
-                hs.ChordId = chord.ChordId && time >= hs.StartTime && time <= hs.EndTime)
+            // Check tone change placement
+            if isOnToneChange arrangement time then
+                issue ToneChangeOnNote time
 
-        if notNull handShape && handShape.EndTime - time <= 5 then
-            issue ChordAtEndOfHandShape time
+            // Check chords at the end of handshape (no "handshape sustain")
+            let handShape =
+                level.HandShapes.Find(fun hs ->
+                    hs.ChordId = chord.ChordId && time >= hs.StartTime && time <= hs.EndTime)
 
-        // Check the fingering of the chord and invalid muted strings
-        if chord.HasChordNotes && not chord.IsHighDensity then
-            if chordHasStrangeFingering arrangement.ChordTemplates chord then
-                issue PossiblyWrongChordFingering chord.Time
-            if chordHasBarreOverOpenStrings arrangement.ChordTemplates chord then
-                issue BarreOverOpenStrings chord.Time
-            if chordHasMutedString chord then
-                issue MutedStringInNonMutedChord chord.Time
+            if notNull handShape && handShape.EndTime - time <= 5 then
+                issue ChordAtEndOfHandShape time
 
-        // Check for chords inside noguitar sections
-        if isInsideNoguitarSection ngSections time then
-            issue NoteInsideNoguitarSection time ]
+            // Check the fingering of the chord and invalid muted strings
+            if chord.HasChordNotes && not chord.IsHighDensity then
+                if chordHasStrangeFingering arrangement.ChordTemplates chord then
+                    issue PossiblyWrongChordFingering chord.Time
+                if chordHasBarreOverOpenStrings arrangement.ChordTemplates chord then
+                    issue BarreOverOpenStrings chord.Time
+                if chordHasMutedString chord then
+                    issue MutedStringInNonMutedChord chord.Time
+
+            // Check for chords inside noguitar sections
+            if isInsideNoguitarSection ngSections time then
+                issue NoteInsideNoguitarSection time
+    ]
 
 /// Checks the handshapes in the level for issues.
 let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =

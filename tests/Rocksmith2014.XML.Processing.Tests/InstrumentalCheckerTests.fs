@@ -357,6 +357,18 @@ let noteTests =
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type FingerChangeDuringSlide "Correct issue type"
+
+        testCase "Detects position shift into pull-off" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Fret = 10y, Time = 1300)
+                                          Note(Fret = 5y, Time = 1800, IsPullOff = true) })
+            let anchors = ResizeArray(seq { Anchor(10y, 1300); Anchor(5y, 1800)})
+            let level = Level(Notes = notes, Anchors = anchors)
+            let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
+
+            let results = checkNotes arr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type PositionShiftIntoPullOff "Correct issue type"
     ]
 
 [<Tests>]
@@ -567,6 +579,31 @@ let chordTests =
 
             Expect.hasLength results 1 "One issue created"
             Expect.all results (fun x -> x.Type = MutedStringInNonMutedChord) "Correct issue types"
+
+        testCase "Detects position shift into pull-off (double stops)" <| fun _ ->
+            let cn1 =
+                ResizeArray(seq {
+                    Note(String = 4y, Fret = 12y, Time = 1000)
+                    Note(String = 5y, Fret = 12y, Time = 1000)
+                })
+            let cn2 =
+                ResizeArray(seq {
+                    Note(String = 4y, Fret = 10y, Time = 1500, IsPullOff = true)
+                    Note(String = 5y, Fret = 10y, Time = 1500, IsPullOff = true)
+                })
+            let chords =
+                ResizeArray(seq {
+                    Chord(ChordId = 0s, Time = 1000, ChordNotes = cn1)
+                    Chord(ChordId = 0s, Time = 1500, ChordNotes = cn2)
+                })
+            let anchors = ResizeArray(seq { Anchor(12y, 1000); Anchor(10y, 1500)})
+            let level = Level(Chords = chords, Anchors = anchors)
+            let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
+
+            let results = checkChords arr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type PositionShiftIntoPullOff "Correct issue type"
     ]
 
 [<Tests>]
