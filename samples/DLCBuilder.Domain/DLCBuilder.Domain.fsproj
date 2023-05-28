@@ -8,7 +8,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Version>1.6.1</Version>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
@@ -21,6 +21,7 @@
   <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="7.0.200" />
     <PackageReference Include="Elmish" Version="3.1.0" />
+    <PackageReference Include="FSharp.Control.Reactive" Version="5.0.5" />
     <PackageReference Include="Octokit" Version="5.0.4" />
   </ItemGroup>
 
@@ -37,6 +38,7 @@
     <Compile Include="GeneralTypes.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="ProgressReporters.fs" />
+    <Compile Include="FontGeneratorHelper.fs" />
     <Compile Include="IdRegenerationHelper.fs" />
     <Compile Include="Configuration.fs" />
     <Compile Include="RecentFilesList.fs" />

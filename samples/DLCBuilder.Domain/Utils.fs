@@ -243,5 +243,5 @@ let createLyricsString (lyrics: Vocal seq) =
 
 let startProcess path args =
     let startInfo = ProcessStartInfo(FileName = path, Arguments = args)
-    use update = new Process(StartInfo = startInfo)
-    update.Start() |> ignore
+    use p = new Process(StartInfo = startInfo)
+    p.Start() |> ignore

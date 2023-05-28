@@ -9,6 +9,7 @@ open Rocksmith2014.XML
 open Rocksmith2014.XML.Processing
 open System
 open OnlineUpdate
+open System.IO
 
 [<RequireQualifiedAccess>]
 type FocusedSetting =
@@ -314,6 +315,7 @@ type Msg =
     | ReadAudioLength
     | SetAudioLength of audioLength: TimeSpan option
     | StartFontGenerator
+    | FontGenerated of arrangementId: Guid * glyphsXmlPath: string
 
 type State =
     { Project: DLCProject
@@ -338,6 +340,7 @@ type State =
       QuickEditData: PsarcQuickEditData option
       ImportedBuildToolVersion: string option
       AudioLength: TimeSpan option
+      FontGenerationWatcher: FileSystemWatcher option
       /// For forcing a view update if the user loads the same album art file, but the file has been modified.
       AlbumArtLoadTime: DateTime option
       Localizer: IStringLocalizer

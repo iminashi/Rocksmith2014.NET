@@ -11,6 +11,7 @@ open Rocksmith2014.PSARC
 open Rocksmith2014.XML.Processing
 open System
 open System.IO
+open FSharp.Control.Reactive
 open EditFunctions
 open StateUtils
 
@@ -153,6 +154,7 @@ let update (msg: Msg) (state: State) =
 
     | NewProject ->
         state.AlbumArtLoader.InvalidateCache()
+        state.FontGenerationWatcher |> Option.iter (fun f -> f.Dispose())
         deleteTemporaryFilesForQuickEdit state
 
         { state with
@@ -163,6 +165,7 @@ let update (msg: Msg) (state: State) =
             QuickEditData = None
             ImportedBuildToolVersion = None
             AudioLength = None
+            FontGenerationWatcher = None
             SelectedArrangementIndex = -1
             SelectedToneIndex = -1 }, Cmd.none
 
@@ -635,6 +638,7 @@ let update (msg: Msg) (state: State) =
                 do! RecentFilesList.save state.RecentFiles
             }
 
+        state.FontGenerationWatcher |> Option.iter (fun f -> f.Dispose())
         task.Wait()
         state, Cmd.none
 
@@ -774,6 +778,7 @@ let update (msg: Msg) (state: State) =
                 None
 
         deleteTemporaryFilesForQuickEdit state
+        state.FontGenerationWatcher |> Option.iter (fun f -> f.Dispose())
 
         let cmds = Cmd.batch [ Cmd.ofMsg ReadAudioLength; cmd ]
 
@@ -788,6 +793,7 @@ let update (msg: Msg) (state: State) =
             QuickEditData = loadOrigin.QuickEditData
             ImportedBuildToolVersion = loadOrigin.BuildToolVersion
             AudioLength = None
+            FontGenerationWatcher = None
             SelectedArrangementIndex = -1
             SelectedToneIndex = -1 }, cmds
 
@@ -1104,9 +1110,40 @@ let update (msg: Msg) (state: State) =
 
     | StartFontGenerator ->
         match getSelectedArrangement state, state.Config.FontGeneratorPath with
-        | Some (Vocals { XML = xml }), Some generatorPath ->
-            Utils.startProcess generatorPath $"\"{xml}\""
-        | _ ->
-            ()
+        | Some (Vocals { XML = xml; PersistentID = id }), Some generatorPath ->
+            // Dispose any previous watcher
+            state.FontGenerationWatcher |> Option.iter (fun f -> f.Dispose())
 
-        state, Cmd.none
+            Utils.startProcess generatorPath $"\"{xml}\""
+
+            let fontWatcher =
+                let fsWatcher = new System.IO.FileSystemWatcher(Path.GetDirectoryName(xml), "*.glyphs.xml", EnableRaisingEvents = true)
+                fsWatcher.NotifyFilter <- NotifyFilters.FileName ||| NotifyFilters.DirectoryName
+                fsWatcher.Created
+                |> Observable.take 1
+                |> Observable.add (fun fsArgs -> FontGeneratorHelper.fontGenerated(id, fsArgs.FullPath))
+
+                fsWatcher
+
+            { state with FontGenerationWatcher = Some fontWatcher }, Cmd.none
+        | _ ->
+            state, Cmd.none
+
+    | FontGenerated (arrId, glyphsXmlPath) ->
+        let arrangements =
+            project.Arrangements
+            |> List.map (function
+                | Vocals v when v.PersistentID = arrId ->
+                    let fontPath =
+                        // Change path/file.glyphs.xml to path/file.dds
+                        let fontFile = Path.ChangeExtension(Path.GetFileNameWithoutExtension(glyphsXmlPath), "dds")
+                        Path.Combine(Path.GetDirectoryName(glyphsXmlPath), fontFile)
+                    Vocals { v with CustomFont = Some fontPath }
+                | other ->
+                    other)
+
+        state.FontGenerationWatcher |> Option.iter (fun f -> f.Dispose())
+
+        { state with
+            FontGenerationWatcher = None
+            Project = { project with Arrangements = arrangements } },Cmd.none

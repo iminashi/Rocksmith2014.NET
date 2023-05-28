@@ -156,6 +156,11 @@ type MainWindow(commandLineArgs: string array) as this =
                 IdRegenerationHelper.NewIdsGenerated.Add(SetNewArrangementIds >> dispatch)
             |> Cmd.ofSub
 
+        let fontGeneratedSub _ =
+            fun dispatch ->
+                FontGeneratorHelper.FontGenerated.Add(FontGenerated >> dispatch)
+            |> Cmd.ofSub
+
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
         //this.VisualRoot.VisualRoot.Renderer.DrawDirtyRects <- true
 
@@ -224,6 +229,7 @@ type MainWindow(commandLineArgs: string array) as this =
         |> Program.withSubscription autoSaveSub
         |> Program.withSubscription idRegenerationConfirmationSub
         |> Program.withSubscription programClosingSub
+        |> Program.withSubscription fontGeneratedSub
         #if DEBUG
         |> Program.withTrace (fun msg _state -> Diagnostics.Debug.WriteLine(msg))
         #endif

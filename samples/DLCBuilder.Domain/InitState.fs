@@ -62,6 +62,7 @@ let init localizer albumArtLoader databaseConnector args =
       QuickEditData = None
       ImportedBuildToolVersion = None
       AudioLength = None
+      FontGenerationWatcher = None
       Localizer = localizer
       AlbumArtLoader = albumArtLoader
       DatabaseConnector = databaseConnector }, commands

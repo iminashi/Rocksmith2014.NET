@@ -2,7 +2,8 @@
 
 - Updated to .NET 7.
 - A cancel button is now shown when in quick edit "mode".
-- Added an option for the format of the base tone key created automatically.
+- Added possibility to launch the custom font generator from the UI.
+- Added an option for the naming of the base tone key created automatically.
 - Added a new validation check for hammer-ons/pull-offs that are on the same fret as the previous note on the same string.
 - Added a new validation check for a finger changing during a slide.
 - Added a new validation check for position shift into a pull-off.
