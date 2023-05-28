@@ -4,11 +4,13 @@ open Expecto
 open Rocksmith2014.DLCProject
 open System
 
+let private createBaseToneName _ = "base_tone"
+
 [<Tests>]
 let tests =
     testList "Arrangement Tests" [
         test "Instrumental arrangement can be loaded from file" {
-            let result = Arrangement.fromFile "instrumental.xml"
+            let result = Arrangement.fromFile createBaseToneName "instrumental.xml"
 
             let arr, metadata = Expect.wantOk result "Arrangement was loaded"
 
@@ -27,7 +29,7 @@ let tests =
         }
 
         test "Vocals arrangement can be loaded from file" {
-            let result = Arrangement.fromFile "jvocals.xml"
+            let result = Arrangement.fromFile createBaseToneName "jvocals.xml"
 
             let arr, metadata = Expect.wantOk result "Arrangement was loaded"
 
@@ -43,7 +45,7 @@ let tests =
         }
 
         test "Trying to load EXT vocals arrangements returns correct error" {
-            let result = Arrangement.fromFile "vocals_RS2_EXT.xml"
+            let result = Arrangement.fromFile createBaseToneName "vocals_RS2_EXT.xml"
 
             let error = Expect.wantError result "Expected arrangement load to fail with error"
 
@@ -55,7 +57,7 @@ let tests =
         }
 
         test "Showlights arrangement can be loaded from file" {
-            let result = Arrangement.fromFile "showlights.xml"
+            let result = Arrangement.fromFile createBaseToneName "showlights.xml"
 
             let arr, metadata = Expect.wantOk result "Arrangement was loaded"
 
@@ -69,7 +71,7 @@ let tests =
         }
 
         test "Invalid file returns an error" {
-            let result = Arrangement.fromFile "test.bnk"
+            let result = Arrangement.fromFile createBaseToneName "test.bnk"
 
             let error = Expect.wantError result "Loading arrangement failed"
 

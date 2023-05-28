@@ -202,6 +202,9 @@ let editConfig edit config =
     | SetProfilePath path ->
         { config with ProfilePath = path }
 
+    | SetBaseToneNaming scheme ->
+        { config with BaseToneNamingScheme = scheme }
+
 let editProject edit project =
     match edit with
     | SetDLCKey key ->
@@ -256,7 +259,7 @@ let editProject edit project =
                 TimeSpan(0, 0, currentTime.Minutes, int sec, currentTime.Milliseconds)
             | Milliseconds ms ->
                 TimeSpan(0, 0, currentTime.Minutes, currentTime.Seconds, int ms)
-            
+
         { project with AudioPreviewStartTime = Some startTime }
 
     | SetPitchShift shift ->
@@ -295,7 +298,7 @@ let editTone state edit index =
 
         | MovePedal (gearSlot, direction) ->
             let change = match direction with Up -> -1 | Down -> +1
-            
+
             let isValidMove index =
                 let newIndex = index + change
                 newIndex >= 0 && newIndex < 4
@@ -319,7 +322,7 @@ let editTone state edit index =
                     tone.GearList
 
             { tone with GearList = gearList }
-            
+
         | RemovePedal ->
             let remove index = Utils.removeAndShift index
 

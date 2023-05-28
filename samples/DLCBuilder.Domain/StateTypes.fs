@@ -142,6 +142,7 @@ type ConfigEdit =
     | SetOpenFolderAfterReleaseBuild of bool
     | SetLoadPreviousProject of bool
     | SetAutoSave of bool
+    | SetBaseToneNaming of BaseToneNamingScheme
     | AddReleasePlatform of Platform
     | RemoveReleasePlatform of Platform
 

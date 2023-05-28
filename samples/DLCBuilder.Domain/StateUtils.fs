@@ -103,9 +103,29 @@ let removeStatusMessage (id: Guid) =
         return RemoveStatusMessage id
     }
 
+let createToneKeyFromTitleAndArrangmentName title arrangementName =
+    title
+    |> StringValidator.fileName
+    |> fun t ->
+        let titleLower = t.Replace("-", "").ToLowerInvariant()
+        $"{titleLower}_{arrangementName}"
+
 /// Adds the arrangements from the given filenames into the project in the state.
 let addArrangements fileNames state =
-    let results = Array.map Arrangement.fromFile fileNames
+    let getBaseToneName (metadata: Rocksmith2014.XML.MetaData) =
+        let arrName = metadata.Arrangement.ToLowerInvariant()
+        let getDefault () = $"{arrName}_base"
+
+        match state.Config.BaseToneNamingScheme with
+        | BaseToneNamingScheme.Default ->
+            getDefault ()
+        | BaseToneNamingScheme.TitleAndArrangement ->
+            Option.ofString state.Project.Title.Value
+            |> Option.orElseWith (fun () -> Option.ofString metadata.Title)
+            |> Option.map (fun title -> createToneKeyFromTitleAndArrangmentName title arrName)
+            |> Option.defaultWith getDefault
+
+    let results = Array.map (Arrangement.fromFile getBaseToneName) fileNames
     let t = state.Localizer
 
     let shouldInclude arrangements arr =
@@ -227,9 +247,9 @@ let applyLowTuningFix state =
             |> List.updateAt state.SelectedArrangementIndex updated
         | _ ->
             state.Project.Arrangements
-    
+
     { state with Project = { state.Project with Arrangements = arrangements } }
-    
+
 let showOverlay state overlay =
     match state.Overlay with
     | IdRegenerationConfirmation (_, reply) ->

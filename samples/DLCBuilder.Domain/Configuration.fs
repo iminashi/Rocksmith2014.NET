@@ -7,6 +7,18 @@ open System
 open System.IO
 open System.Text.Json
 
+[<RequireQualifiedAccess>]
+type BaseToneNamingScheme =
+    | Default
+    | TitleAndArrangement
+
+    override this.ToString() =
+        match this with
+        | BaseToneNamingScheme.Default ->
+            "DefaultBaseToneNamingScheme"
+        | BaseToneNamingScheme.TitleAndArrangement ->
+            "TitleAndArrangementBaseToneNamingScheme"
+
 type Configuration =
     { ReleasePlatforms: Platform Set
       ProfilePath: string
@@ -29,7 +41,8 @@ type Configuration =
       PreviousOpenedProject: string
       Locale: Locale
       WwiseConsolePath: string option
-      CustomAppId: AppId option }
+      CustomAppId: AppId option
+      BaseToneNamingScheme: BaseToneNamingScheme }
 
     static member Default =
         { ReleasePlatforms = Set([ PC; Mac ])
@@ -53,7 +66,8 @@ type Configuration =
           PreviousOpenedProject = String.Empty
           Locale = Locale.Default
           WwiseConsolePath = None
-          CustomAppId = None }
+          CustomAppId = None
+          BaseToneNamingScheme = BaseToneNamingScheme.Default }
 
 module Configuration =
     type Dto() =
@@ -80,6 +94,7 @@ module Configuration =
         member val Locale: string = Locale.Default.ShortName with get, set
         member val WwiseConsolePath: string = String.Empty with get, set
         member val CustomAppId: string = String.Empty with get, set
+        member val BaseToneNaming: int = 1 with get, set
 
     let appDataFolder =
         let dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
@@ -116,6 +131,11 @@ module Configuration =
             | 1 -> LevelCountGeneration.MLModel
             | _ -> LevelCountGeneration.Simple
 
+        let baseToneNaming =
+            match dto.BaseToneNaming with
+            | 1 -> BaseToneNamingScheme.Default
+            | _ -> BaseToneNamingScheme.TitleAndArrangement
+
         { ReleasePlatforms = set platforms
           ProfilePath = dto.ProfilePath
           TestFolderPath = dto.TestFolderPath
@@ -137,7 +157,8 @@ module Configuration =
           PreviousOpenedProject = dto.PreviousOpenedProject
           Locale = t.LocaleFromShortName dto.Locale
           WwiseConsolePath = Option.ofString dto.WwiseConsolePath
-          CustomAppId = AppId.ofString dto.CustomAppId }
+          CustomAppId = AppId.ofString dto.CustomAppId
+          BaseToneNamingScheme = baseToneNaming }
 
     /// Converts a configuration into a configuration DTO.
     let private toDto (config: Configuration) =
@@ -155,6 +176,11 @@ module Configuration =
 
         let customAppId =
             config.CustomAppId |> Option.map AppId.toString |> Option.toObj
+
+        let baseToneNaming =
+            match config.BaseToneNamingScheme with
+            | BaseToneNamingScheme.Default -> 1
+            | BaseToneNamingScheme.TitleAndArrangement -> 2
 
         Dto(
             ReleasePC = (config.ReleasePlatforms |> Set.contains PC),
@@ -179,7 +205,8 @@ module Configuration =
             PreviousOpenedProject = config.PreviousOpenedProject,
             SaveDebugFiles = config.SaveDebugFiles,
             WwiseConsolePath = Option.toObj config.WwiseConsolePath,
-            CustomAppId = customAppId 
+            CustomAppId = customAppId,
+            BaseToneNaming = baseToneNaming
         )
 
     /// Loads a configuration from the file defined in configFilePath.

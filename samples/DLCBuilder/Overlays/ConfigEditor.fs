@@ -19,11 +19,36 @@ let private tryFindWwiseExecutable basePath =
     Directory.EnumerateFiles(basePath, $"WwiseConsole.{ext}", SearchOption.AllDirectories)
     |> Seq.tryHead
 
+let private headerWithLine (locString: string) (includeHelpButton: bool) =
+    DockPanel.create [
+        DockPanel.margin (0., 8., 0., 2.)
+        DockPanel.children [
+            TextBlock.create [
+                DockPanel.dock Dock.Left
+                TextBlock.fontSize 16.
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text (translate locString)
+            ]
+
+            if includeHelpButton then
+                HelpButton.create [
+                    DockPanel.dock Dock.Left
+                    HelpButton.helpText (translate $"{locString}Help")
+                ]
+
+            Rectangle.create [
+                Rectangle.height 1.
+                Rectangle.fill Brushes.Gray
+                Rectangle.margin (8., 0.)
+            ]
+        ]
+    ]
+
 let private generalConfig state dispatch =
     vStack [
         Grid.create [
             Grid.columnDefinitions "auto,5,*"
-            Grid.rowDefinitions "auto,auto,auto,auto,auto"
+            Grid.rowDefinitions "auto,auto"
             Grid.children [
                 // Language
                 locText "Language" [
@@ -97,30 +122,47 @@ let private generalConfig state dispatch =
             CheckBox.onChecked (fun _ -> true |> SetShowAdvanced |> EditConfig |> dispatch)
             CheckBox.onUnchecked (fun _ -> false |> SetShowAdvanced |> EditConfig |> dispatch)
         ]
-    ]
 
-let private headerWithLine (locString: string) =
-    DockPanel.create [
-        DockPanel.margin (0., 8., 0., 2.)
-        DockPanel.children [
-            TextBlock.create [
-                DockPanel.dock Dock.Left
-                TextBlock.fontSize 16.
-                TextBlock.verticalAlignment VerticalAlignment.Center
-                TextBlock.text (translate locString)
-            ]
+        headerWithLine "BaseToneNaming" true
 
-            Rectangle.create [
-                Rectangle.height 1.
-                Rectangle.fill Brushes.Gray
-                Rectangle.margin (8., 0.)
-            ]
-        ]
+        let exampleKey =
+            state.Project.Title.Value
+            |> Option.ofString
+            |> Option.map (fun title -> StateUtils.createToneKeyFromTitleAndArrangmentName title "bass")
+            |> Option.defaultValue "comfortablynumb_bass"
+
+        vStack (
+            [ BaseToneNamingScheme.Default, "bass_base"
+              BaseToneNamingScheme.TitleAndArrangement, exampleKey ]
+            |> List.map (fun (option, example) ->
+                RadioButton.create [
+                    RadioButton.verticalAlignment VerticalAlignment.Center
+                    RadioButton.margin (8., 2.)
+                    RadioButton.content (
+                        StackPanel.create [
+                            StackPanel.children [
+                                locText (string option) [
+                                    TextBlock.fontSize 16.
+                                    TextBlock.padding (0., 4., 0., 0.)
+                                    TextBlock.margin 0.
+                                ]
+                                TextBlock.create [
+                                    TextBlock.text (translatef $"{option}Help" [| example |])
+                                    TextBlock.padding (5., 5.)
+                                    TextBlock.textWrapping TextWrapping.Wrap
+                                ]
+                            ]
+                        ])
+                    RadioButton.isChecked (state.Config.BaseToneNamingScheme = option)
+                    RadioButton.onClick (fun _ ->
+                        option |> SetBaseToneNaming |> EditConfig |> dispatch)
+                ] |> generalize)
+        )
     ]
 
 let private pathsConfig state dispatch focusedSetting =
     vStack [
-        headerWithLine "ProfilePath"
+        headerWithLine "ProfilePath" false
 
         DockPanel.create [
             Grid.column 2
@@ -149,7 +191,7 @@ let private pathsConfig state dispatch focusedSetting =
             ]
         ]
 
-        headerWithLine "TestFolder"
+        headerWithLine "TestFolder" false
 
         DockPanel.create [
             Grid.column 2
@@ -171,7 +213,7 @@ let private pathsConfig state dispatch focusedSetting =
             ]
         ]
 
-        headerWithLine "WwiseConsolePath"
+        headerWithLine "WwiseConsolePath" true
 
         DockPanel.create [
             Grid.column 2
@@ -209,7 +251,7 @@ let private importConfig state dispatch =
 
     vStack [
         // Header
-        headerWithLine "PSARCImportHeader"
+        headerWithLine "PSARCImportHeader" false
 
         StackPanel.create [
             StackPanel.margin (8., 4.)
@@ -306,7 +348,7 @@ let private ddConfig state dispatch =
         ]
 
         // Level Count Generation
-        headerWithLine "PhraseLevelCountGeneration"
+        headerWithLine "PhraseLevelCountGeneration" false
 
         vStack (
             [ LevelCountGeneration.Simple; LevelCountGeneration.MLModel ]
@@ -338,7 +380,7 @@ let private ddConfig state dispatch =
 let private buildConfig state dispatch =
     vStack [
         // Common Options
-        headerWithLine "Common"
+        headerWithLine "Common" false
 
         hStack [
             // Apply Improvements
@@ -356,7 +398,7 @@ let private buildConfig state dispatch =
         ]
 
         // Release Build Options
-        headerWithLine "Release"
+        headerWithLine "Release" false
 
         StackPanel.create [
             StackPanel.margin (8., 2.)
@@ -399,7 +441,7 @@ let private buildConfig state dispatch =
         ]
 
         // Test Build Options
-        headerWithLine "Test"
+        headerWithLine "Test" false
 
         StackPanel.create [
             StackPanel.margin (8., 2.)
