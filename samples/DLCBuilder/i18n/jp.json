@@ -141,6 +141,7 @@
   "SelectTonesToImport": "インポートするトーンを選択してください",
   "Platforms": "プラットフォーム:",
   "CharterName": "クリエイター名",
+  "Paths": "パス",
   "ProfilePath": "プロフィールファイル",
   "ProfilePathPlaceholder": "トーンをインポートするには、ロックスミス2014のプロフィールを設定してください",
   "TestFolder": "テストフォルダ",

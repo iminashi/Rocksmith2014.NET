@@ -141,6 +141,7 @@
   "SelectTonesToImport": "Select Tones to Import",
   "Platforms": "Platforms:",
   "CharterName": "Charter Name",
+  "Paths": "Paths",
   "ProfilePath": "Profile Path",
   "ProfilePathPlaceholder": "Set a Rocksmith 2014 profile path to import tones from it.",
   "TestFolder": "Test Folder",

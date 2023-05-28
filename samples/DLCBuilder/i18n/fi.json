@@ -141,6 +141,7 @@
   "SelectTonesToImport": "Valitse tuotavat soundit",
   "Platforms": "Alustat:",
   "CharterName": "Tekijänimi",
+  "Paths": "Polut",
   "ProfilePath": "Profiilin polku",
   "ProfilePathPlaceholder": "Määritä Rocksmith 2014 profiilin sijainti tuodaksesi soundeja.",
   "TestFolder": "Testikansio",

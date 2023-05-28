@@ -9,6 +9,7 @@ open Avalonia.Media
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open Rocksmith2014.DD
+open System
 open System.IO
 open System.Text.RegularExpressions
 open DLCBuilder
@@ -18,7 +19,7 @@ let private tryFindWwiseExecutable basePath =
     Directory.EnumerateFiles(basePath, $"WwiseConsole.{ext}", SearchOption.AllDirectories)
     |> Seq.tryHead
 
-let private generalConfig state dispatch focusedSetting =
+let private generalConfig state dispatch =
     vStack [
         Grid.create [
             Grid.columnDefinitions "auto,5,*"
@@ -62,88 +63,6 @@ let private generalConfig state dispatch focusedSetting =
                         ]
                     ]
                 ]
-
-                // Profile Path
-                locText "ProfilePath" [
-                    Grid.row 2
-                    TextBlock.verticalAlignment VerticalAlignment.Center
-                ]
-                DockPanel.create [
-                    Grid.column 2
-                    Grid.row 2
-                    DockPanel.children [
-                        Button.create [
-                            DockPanel.dock Dock.Right
-                            Button.margin (0., 4.)
-                            Button.content "..."
-                            Button.onClick (fun _ -> Dialog.ProfileFile |> ShowDialog |> dispatch)
-                        ]
-                        FixedTextBox.create [
-                            TextBox.margin (0., 4.)
-                            FixedTextBox.validation (String.endsWith "_PRFLDB")
-                            FixedTextBox.validationErrorMessage (translate "ProfileFilenameValidationError")
-                            FixedTextBox.text state.Config.ProfilePath
-                            FixedTextBox.onTextChanged (SetProfilePath >> EditConfig >> dispatch)
-                            FixedTextBox.watermark (translate "ProfilePathPlaceholder")
-                            FixedTextBox.autoFocus (Option.contains FocusedSetting.ProfilePath focusedSetting)
-                        ]
-                    ]
-                ]
-
-                // Test Folder
-                locText "TestFolder" [
-                    Grid.row 3
-                    TextBlock.verticalAlignment VerticalAlignment.Center
-                ]
-                DockPanel.create [
-                    Grid.column 2
-                    Grid.row 3
-                    DockPanel.children [
-                        Button.create [
-                            DockPanel.dock Dock.Right
-                            Button.margin (0., 4.)
-                            Button.content "..."
-                            Button.onClick (fun _ -> Dialog.TestFolder |> ShowDialog |> dispatch)
-                        ]
-                        FixedTextBox.create [
-                            TextBox.margin (0., 4.)
-                            FixedTextBox.text state.Config.TestFolderPath
-                            TextBox.watermark (translate "TestFolderPlaceholder")
-                            FixedTextBox.onTextChanged (SetTestFolderPath >> EditConfig >> dispatch)
-                            FixedTextBox.autoFocus (Option.contains FocusedSetting.TestFolder focusedSetting)
-                        ]
-                    ]
-                ]
-
-                // Wwise Console Path
-                locText "WwiseConsolePath" [
-                    Grid.row 4
-                    TextBlock.verticalAlignment VerticalAlignment.Center
-                ]
-                DockPanel.create [
-                    Grid.column 2
-                    Grid.row 4
-                    DockPanel.children [
-                        Button.create [
-                            DockPanel.dock Dock.Right
-                            Button.margin (0., 4.)
-                            Button.content "..."
-                            Button.onClick (fun _ -> Dialog.WwiseConsole |> ShowDialog |> dispatch)
-                        ]
-                        FixedTextBox.create [
-                            TextBox.margin (0., 4.)
-                            TextBox.watermark (translate "WwiseConsolePathPlaceholder")
-                            FixedTextBox.text (Option.toObj state.Config.WwiseConsolePath)
-                            FixedTextBox.onTextChanged (SetWwiseConsolePath >> EditConfig >> dispatch)
-                            TextBox.onLostFocus (fun e ->
-                                let t = e.Source :?> TextBox
-                                if Directory.Exists(t.Text) then
-                                    tryFindWwiseExecutable t.Text
-                                    |> Option.iter (SetWwiseConsolePath >> EditConfig >> dispatch))
-                            ToolTip.tip (translate "WwiseConsolePathToolTip")
-                        ]
-                    ]
-                ]
             ]
         ]
 
@@ -180,6 +99,106 @@ let private generalConfig state dispatch focusedSetting =
         ]
     ]
 
+let private headerWithLine (locString: string) =
+    DockPanel.create [
+        DockPanel.margin (0., 8., 0., 2.)
+        DockPanel.children [
+            TextBlock.create [
+                DockPanel.dock Dock.Left
+                TextBlock.fontSize 16.
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text (translate locString)
+            ]
+
+            Rectangle.create [
+                Rectangle.height 1.
+                Rectangle.fill Brushes.Gray
+                Rectangle.margin (8., 0.)
+            ]
+        ]
+    ]
+
+let private pathsConfig state dispatch focusedSetting =
+    vStack [
+        headerWithLine "ProfilePath"
+
+        DockPanel.create [
+            Grid.column 2
+            Grid.row 2
+            DockPanel.children [
+                Button.create [
+                    DockPanel.dock Dock.Right
+                    Button.margin (0., 4.)
+                    Button.content "..."
+                    Button.onClick (fun _ -> Dialog.ProfileFile |> ShowDialog |> dispatch)
+                ]
+
+                FixedTextBox.create [
+                    TextBox.margin (0., 4.)
+                    FixedTextBox.validation (fun path ->
+                        if String.IsNullOrEmpty(path) then
+                            true
+                        else
+                            String.endsWith "_PRFLDB" path)
+                    FixedTextBox.validationErrorMessage (translate "ProfileFilenameValidationError")
+                    FixedTextBox.text state.Config.ProfilePath
+                    FixedTextBox.onTextChanged (SetProfilePath >> EditConfig >> dispatch)
+                    FixedTextBox.watermark (translate "ProfilePathPlaceholder")
+                    FixedTextBox.autoFocus (Option.contains FocusedSetting.ProfilePath focusedSetting)
+                ]
+            ]
+        ]
+
+        headerWithLine "TestFolder"
+
+        DockPanel.create [
+            Grid.column 2
+            Grid.row 3
+            DockPanel.children [
+                Button.create [
+                    DockPanel.dock Dock.Right
+                    Button.margin (0., 4.)
+                    Button.content "..."
+                    Button.onClick (fun _ -> Dialog.TestFolder |> ShowDialog |> dispatch)
+                ]
+                FixedTextBox.create [
+                    TextBox.margin (0., 4.)
+                    FixedTextBox.text state.Config.TestFolderPath
+                    TextBox.watermark (translate "TestFolderPlaceholder")
+                    FixedTextBox.onTextChanged (SetTestFolderPath >> EditConfig >> dispatch)
+                    FixedTextBox.autoFocus (Option.contains FocusedSetting.TestFolder focusedSetting)
+                ]
+            ]
+        ]
+
+        headerWithLine "WwiseConsolePath"
+
+        DockPanel.create [
+            Grid.column 2
+            Grid.row 4
+            DockPanel.children [
+                Button.create [
+                    DockPanel.dock Dock.Right
+                    Button.margin (0., 4.)
+                    Button.content "..."
+                    Button.onClick (fun _ -> Dialog.WwiseConsole |> ShowDialog |> dispatch)
+                ]
+                FixedTextBox.create [
+                    TextBox.margin (0., 4.)
+                    TextBox.watermark (translate "WwiseConsolePathPlaceholder")
+                    FixedTextBox.text (Option.toObj state.Config.WwiseConsolePath)
+                    FixedTextBox.onTextChanged (SetWwiseConsolePath >> EditConfig >> dispatch)
+                    TextBox.onLostFocus (fun e ->
+                        let t = e.Source :?> TextBox
+                        if Directory.Exists(t.Text) then
+                            tryFindWwiseExecutable t.Text
+                            |> Option.iter (SetWwiseConsolePath >> EditConfig >> dispatch))
+                    ToolTip.tip (translate "WwiseConsolePathToolTip")
+                ]
+            ]
+        ]
+    ]
+
 let private importConfig state dispatch =
     let localize conv =
         match conv with
@@ -190,23 +209,7 @@ let private importConfig state dispatch =
 
     vStack [
         // Header
-        DockPanel.create [
-            DockPanel.margin (0., 8., 0., 2.)
-            DockPanel.children [
-                TextBlock.create [
-                    DockPanel.dock Dock.Left
-                    TextBlock.fontSize 16.
-                    TextBlock.verticalAlignment VerticalAlignment.Center
-                    TextBlock.text (translate "PSARCImportHeader")
-                ]
-
-                Rectangle.create [
-                    Rectangle.height 1.
-                    Rectangle.fill Brushes.Gray
-                    Rectangle.margin (8., 0.)
-                ]
-            ]
-        ]
+        headerWithLine "PSARCImportHeader"
 
         StackPanel.create [
             StackPanel.margin (8., 4.)
@@ -303,21 +306,7 @@ let private ddConfig state dispatch =
         ]
 
         // Level Count Generation
-        DockPanel.create [
-            DockPanel.margin (0., 8., 0., 4.)
-            DockPanel.children [
-                locText "PhraseLevelCountGeneration" [
-                    DockPanel.dock Dock.Left
-                    TextBlock.fontSize 16.
-                ]
-
-                Rectangle.create [
-                    Rectangle.height 1.
-                    Rectangle.fill Brushes.Gray
-                    Rectangle.margin (8., 0.)
-                ]
-            ]
-        ]
+        headerWithLine "PhraseLevelCountGeneration"
 
         vStack (
             [ LevelCountGeneration.Simple; LevelCountGeneration.MLModel ]
@@ -349,23 +338,8 @@ let private ddConfig state dispatch =
 let private buildConfig state dispatch =
     vStack [
         // Common Options
-        DockPanel.create [
-            DockPanel.margin (0., 8., 0., 2.)
-            DockPanel.children [
-                TextBlock.create [
-                    DockPanel.dock Dock.Left
-                    TextBlock.fontSize 16.
-                    TextBlock.verticalAlignment VerticalAlignment.Center
-                    TextBlock.text (translate "Common")
-                ]
+        headerWithLine "Common"
 
-                Rectangle.create [
-                    Rectangle.height 1.
-                    Rectangle.fill Brushes.Gray
-                    Rectangle.margin (8., 0.)
-                ]
-            ]
-        ]
         hStack [
             // Apply Improvements
             CheckBox.create [
@@ -382,23 +356,8 @@ let private buildConfig state dispatch =
         ]
 
         // Release Build Options
-        DockPanel.create [
-            DockPanel.margin (0., 8., 0., 2.)
-            DockPanel.children [
-                TextBlock.create [
-                    DockPanel.dock Dock.Left
-                    TextBlock.fontSize 16.
-                    TextBlock.verticalAlignment VerticalAlignment.Center
-                    TextBlock.text (translate "Release")
-                ]
+        headerWithLine "Release"
 
-                Rectangle.create [
-                    Rectangle.height 1.
-                    Rectangle.fill Brushes.Gray
-                    Rectangle.margin (8., 0.)
-                ]
-            ]
-        ]
         StackPanel.create [
             StackPanel.margin (8., 2.)
             StackPanel.children [
@@ -440,23 +399,8 @@ let private buildConfig state dispatch =
         ]
 
         // Test Build Options
-        DockPanel.create [
-            DockPanel.margin (0., 8., 0., 2.)
-            DockPanel.children [
-                TextBlock.create [
-                    DockPanel.dock Dock.Left
-                    TextBlock.fontSize 16.
-                    TextBlock.verticalAlignment VerticalAlignment.Center
-                    TextBlock.text (translate "Test")
-                ]
+        headerWithLine "Test"
 
-                Rectangle.create [
-                    Rectangle.height 1.
-                    Rectangle.fill Brushes.Gray
-                    Rectangle.margin (8., 0.)
-                ]
-            ]
-        ]
         StackPanel.create [
             StackPanel.margin (8., 2.)
             StackPanel.children [
@@ -552,7 +496,13 @@ let view state dispatch focusedSetting =
                     TabItem.create [
                         TabItem.horizontalAlignment HorizontalAlignment.Center
                         TabItem.header (tabHeader Media.Icons.cog "General")
-                        TabItem.content (generalConfig state dispatch focusedSetting)
+                        TabItem.content (generalConfig state dispatch)
+                    ]
+                    TabItem.create [
+                        TabItem.isSelected (Option.isSome focusedSetting)
+                        TabItem.horizontalAlignment HorizontalAlignment.Center
+                        TabItem.header (tabHeader Media.Icons.folderOpen "Paths")
+                        TabItem.content (pathsConfig state dispatch focusedSetting)
                     ]
                     TabItem.create [
                         TabItem.horizontalAlignment HorizontalAlignment.Center
