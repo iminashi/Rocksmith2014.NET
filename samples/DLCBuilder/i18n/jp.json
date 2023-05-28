@@ -29,6 +29,7 @@
   "ExportToneDialogTitle": "トーンをエクスポート",
   "SaveProjectAsDialogTitle": "名前を付けてプロジェクトを保存",
   "SaveJapaneseLyricsDialogTitle": "名前を付けて歌詞を保存",
+  "FontGeneratorPathDialogTitle": "フォントジェネレーターの実行ファイルを選択してください",
   "ToneInjectDialogTitle": "プロフィールに読み込むトーンを選択してください",
   "CouldNotFindTonesError": "トーンを見つかる事ができませんでした",
   "Arrangements": "アレンジ",
@@ -147,9 +148,11 @@
   "TestFolder": "テストフォルダ",
   "TestFolderPlaceholder": "テストビルドが作成されるフォルダ",
   "ProjectsFolder": "プロジェクトフォルダ",
+  "FontGeneratorPath": "フォントジェネレーター",
   "ShowAdvancedFeatures": "上級者向けの機能を表示",
   "Close": "閉じる",
   "Language": "言語",
+  "ExecutableFiles": "実行ファイル",
   "AudioFiles": "オーディオファイル",
   "WavOggFiles": "オーディオファイル",
   "WemFiles": "Wwiseオーディオファイル",
@@ -489,5 +492,6 @@
   "ArrangementProperties": "アレンジの特徴",
   "Capo": "カポ: {0}",
   "Fret": "フレット {0}",
-  "ArrangementPropertyHelp": "この特徴は普段、EOFによって設定されている。"
+  "ArrangementPropertyHelp": "この特徴は普段、EOFによって設定されている。",
+  "GenerateFont": "フォントを作成"
 }

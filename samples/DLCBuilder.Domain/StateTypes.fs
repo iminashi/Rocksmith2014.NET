@@ -127,6 +127,7 @@ type ConfigEdit =
     | SetProfilePath of string
     | SetTestFolderPath of string
     | SetWwiseConsolePath of string
+    | SetFontGeneratorPath of string
     | SetAutoVolume of bool
     | SetShowAdvanced of bool
     | SetRemoveDDOnImport of bool
@@ -199,6 +200,7 @@ type Dialog =
     | ToneImport
     | ToneInject
     | WwiseConsole
+    | FontGeneratorPath
     | CoverArt
     | AudioFile of isCustom: bool
     | PreviewFile
@@ -311,6 +313,7 @@ type Msg =
     | SetEditedPsarcAppId of appId: string
     | ReadAudioLength
     | SetAudioLength of audioLength: TimeSpan option
+    | StartFontGenerator
 
 type State =
     { Project: DLCProject

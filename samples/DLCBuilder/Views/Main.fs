@@ -145,7 +145,7 @@ let private arrangementDetails state dispatch =
                         match arr with
                         | Showlights _ -> ()
                         | Instrumental i -> InstrumentalDetails.view state dispatch i
-                        | Vocals v -> VocalsDetails.view dispatch v
+                        | Vocals v -> VocalsDetails.view state dispatch v
                 ]
             ]
         )

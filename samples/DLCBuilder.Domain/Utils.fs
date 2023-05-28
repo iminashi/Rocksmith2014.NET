@@ -199,7 +199,7 @@ let convertProjectAudioFromWem conv project =
         | ToWav -> Conversion.wemToWav
 
     project
-    |> DLCProject.getAudioFiles 
+    |> DLCProject.getAudioFiles
     |> Seq.iter (fun { Path = path } -> convert path)
 
 /// Determines the path to the preview file from the main audio.
@@ -240,3 +240,8 @@ let createLyricsString (lyrics: Vocal seq) =
     |> (fun (_, line, res) ->
         let res = if not line.IsEmpty then revJoin ' ' line :: res else res
         revJoin '\n' res)
+
+let startProcess path args =
+    let startInfo = ProcessStartInfo(FileName = path, Arguments = args)
+    use update = new Process(StartInfo = startInfo)
+    update.Start() |> ignore

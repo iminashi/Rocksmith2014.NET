@@ -29,6 +29,7 @@
   "ExportToneDialogTitle": "Export Tone As",
   "SaveProjectAsDialogTitle": "Save Project As",
   "SaveJapaneseLyricsDialogTitle": "Save Lyrics As",
+  "FontGeneratorPathDialogTitle": "Select Font Generator Executable",
   "ToneInjectDialogTitle": "Select Tones to Inject into Profile",
   "CouldNotFindTonesError": "Could not find any tones.",
   "Arrangements": "Arrangements",
@@ -147,9 +148,11 @@
   "TestFolder": "Test Folder",
   "TestFolderPlaceholder": "The folder where test builds will be created.",
   "ProjectsFolder": "Projects Folder",
+  "FontGeneratorPath": "Font Generator",
   "ShowAdvancedFeatures": "Show Advanced Features",
   "Close": "Close",
   "Language": "Language",
+  "ExecutableFiles": "Executables",
   "AudioFiles": "Audio Files",
   "WavOggFiles": "Audio Files",
   "WemFiles": "Wwise Audio Files",
@@ -489,5 +492,6 @@
   "ArrangementProperties": "Arrangement Properties",
   "Capo": "Capo: {0}",
   "Fret": "Fret {0}",
-  "ArrangementPropertyHelp": "These properties are normally set by EOF automatically."
+  "ArrangementPropertyHelp": "These properties are normally set by EOF automatically.",
+  "GenerateFont": "Generate Font"
 }

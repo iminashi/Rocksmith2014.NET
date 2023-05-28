@@ -165,8 +165,6 @@ let private pathsConfig state dispatch focusedSetting =
         headerWithLine "ProfilePath" false
 
         DockPanel.create [
-            Grid.column 2
-            Grid.row 2
             DockPanel.children [
                 Button.create [
                     DockPanel.dock Dock.Right
@@ -194,8 +192,6 @@ let private pathsConfig state dispatch focusedSetting =
         headerWithLine "TestFolder" false
 
         DockPanel.create [
-            Grid.column 2
-            Grid.row 3
             DockPanel.children [
                 Button.create [
                     DockPanel.dock Dock.Right
@@ -216,8 +212,6 @@ let private pathsConfig state dispatch focusedSetting =
         headerWithLine "WwiseConsolePath" true
 
         DockPanel.create [
-            Grid.column 2
-            Grid.row 4
             DockPanel.children [
                 Button.create [
                     DockPanel.dock Dock.Right
@@ -236,6 +230,24 @@ let private pathsConfig state dispatch focusedSetting =
                             tryFindWwiseExecutable t.Text
                             |> Option.iter (SetWwiseConsolePath >> EditConfig >> dispatch))
                     ToolTip.tip (translate "WwiseConsolePathToolTip")
+                ]
+            ]
+        ]
+
+        headerWithLine "FontGeneratorPath" false
+
+        DockPanel.create [
+            DockPanel.children [
+                Button.create [
+                    DockPanel.dock Dock.Right
+                    Button.margin (0., 4.)
+                    Button.content "..."
+                    Button.onClick (fun _ -> Dialog.FontGeneratorPath |> ShowDialog |> dispatch)
+                ]
+                FixedTextBox.create [
+                    TextBox.margin (0., 4.)
+                    FixedTextBox.text (Option.toObj state.Config.FontGeneratorPath)
+                    FixedTextBox.onTextChanged (SetFontGeneratorPath >> EditConfig >> dispatch)
                 ]
             ]
         ]

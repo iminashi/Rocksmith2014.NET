@@ -1101,3 +1101,12 @@ let update (msg: Msg) (state: State) =
         | _ ->
             // Ignore the message when an overlay is open
             state, Cmd.none
+
+    | StartFontGenerator ->
+        match getSelectedArrangement state, state.Config.FontGeneratorPath with
+        | Some (Vocals { XML = xml }), Some generatorPath ->
+            Utils.startProcess generatorPath $"\"{xml}\""
+        | _ ->
+            ()
+
+        state, Cmd.none

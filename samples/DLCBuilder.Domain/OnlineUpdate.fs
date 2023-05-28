@@ -75,8 +75,5 @@ let checkForUpdates () =
 
 /// Starts the installer process from the given path.
 let applyUpdate updatePath =
-    let startInfo = ProcessStartInfo(FileName = updatePath, Arguments = $"/SILENT /CLOSEAPPLICATIONS")
-    use update = new Process(StartInfo = startInfo)
-    update.Start() |> ignore
-
+    Utils.startProcess updatePath $"/SILENT /CLOSEAPPLICATIONS"
     Environment.Exit(0)

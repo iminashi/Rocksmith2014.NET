@@ -22,6 +22,7 @@ type FileFilter =
     | ToneImport
     | ToneExport
     | WwiseConsoleApplication
+    | Executable
 
 let private createFilters name (extensions: string seq) =
     ResizeArray.singleton (FileDialogFilter(Extensions = ResizeArray(extensions), Name = name))
@@ -58,6 +59,8 @@ let private createFileFilters filter =
             [ "tone2014.xml"; "tone2014.json" ]
         | FileFilter.WwiseConsoleApplication ->
             [ wwiseConsoleExtension ]
+        | FileFilter.Executable ->
+            [ "exe" ] // TODO: Windows-only
 
     let name =
         match filter with
@@ -230,6 +233,9 @@ let showDialog window dialogType state =
                 |> Option.map Path.GetDirectoryName
 
             openFileDialog title FileFilter.Profile initialDir (SetProfilePath >> EditConfig)
+
+        | Dialog.FontGeneratorPath ->
+            openFileDialog title FileFilter.Executable None (SetFontGeneratorPath >> EditConfig)
 
         | Dialog.AddArrangements ->
             openMultiFileDialog title FileFilter.XML projectDirectory AddArrangements

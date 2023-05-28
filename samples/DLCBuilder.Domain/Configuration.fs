@@ -41,6 +41,7 @@ type Configuration =
       PreviousOpenedProject: string
       Locale: Locale
       WwiseConsolePath: string option
+      FontGeneratorPath: string option
       CustomAppId: AppId option
       BaseToneNamingScheme: BaseToneNamingScheme }
 
@@ -66,6 +67,7 @@ type Configuration =
           PreviousOpenedProject = String.Empty
           Locale = Locale.Default
           WwiseConsolePath = None
+          FontGeneratorPath = None
           CustomAppId = None
           BaseToneNamingScheme = BaseToneNamingScheme.Default }
 
@@ -93,6 +95,7 @@ module Configuration =
         member val PreviousOpenedProject: string = String.Empty with get, set
         member val Locale: string = Locale.Default.ShortName with get, set
         member val WwiseConsolePath: string = String.Empty with get, set
+        member val FontGeneratorPath: string = String.Empty with get, set
         member val CustomAppId: string = String.Empty with get, set
         member val BaseToneNaming: int = 1 with get, set
 
@@ -157,6 +160,7 @@ module Configuration =
           PreviousOpenedProject = dto.PreviousOpenedProject
           Locale = t.LocaleFromShortName dto.Locale
           WwiseConsolePath = Option.ofString dto.WwiseConsolePath
+          FontGeneratorPath = Option.ofString dto.FontGeneratorPath
           CustomAppId = AppId.ofString dto.CustomAppId
           BaseToneNamingScheme = baseToneNaming }
 
@@ -205,6 +209,7 @@ module Configuration =
             PreviousOpenedProject = config.PreviousOpenedProject,
             SaveDebugFiles = config.SaveDebugFiles,
             WwiseConsolePath = Option.toObj config.WwiseConsolePath,
+            FontGeneratorPath = Option.toObj config.FontGeneratorPath,
             CustomAppId = customAppId,
             BaseToneNaming = baseToneNaming
         )

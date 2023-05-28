@@ -9,7 +9,7 @@ open Rocksmith2014.DLCProject
 open System.IO
 open DLCBuilder
 
-let view dispatch (vocals: Vocals) =
+let view state dispatch (vocals: Vocals) =
     StackPanel.create [
         StackPanel.margin 6.
         StackPanel.children [
@@ -55,6 +55,15 @@ let view dispatch (vocals: Vocals) =
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.horizontalAlignment HorizontalAlignment.Center
                 StackPanel.children [
+                    // Generate Font Button
+                    Button.create [
+                        Button.margin (0.0, 4.0, 4.0, 4.0)
+                        Button.padding (15., 5.)
+                        Button.content (translate "GenerateFont")
+                        Button.onClick (fun _ -> dispatch StartFontGenerator)
+                        Button.isEnabled state.Config.FontGeneratorPath.IsSome
+                    ]
+
                     // Select Button
                     Button.create [
                         Button.margin (0.0, 4.0, 4.0, 4.0)

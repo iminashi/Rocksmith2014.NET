@@ -29,6 +29,7 @@
   "ExportToneDialogTitle": "Vie soundi nimellä",
   "SaveProjectAsDialogTitle": "Tallenna projekti nimellä",
   "SaveJapaneseLyricsDialogTitle": "Tallenna lyriikat nimellä",
+  "FontGeneratorPathDialogTitle": "Valitse fonttigeneraattorin ajotiedosto",
   "ToneInjectDialogTitle": "Valitse profiiliin ladattavat soundit",
   "CouldNotFindTonesError": "Ei löytynyt yhtään soundia.",
   "Arrangements": "Sovitukset",
@@ -147,9 +148,11 @@
   "TestFolder": "Testikansio",
   "TestFolderPlaceholder": "Kansio, jonne testausbuildit luodaan.",
   "ProjectsFolder": "Projektikansio",
+  "FontGeneratorPath": "Fonttigeneraattori",
   "ShowAdvancedFeatures": "Näytä edistyneet ominaisuudet",
   "Close": "Sulje",
   "Language": "Kieli",
+  "ExecutableFiles": "Ajotiedostot",
   "AudioFiles": "Äänitiedostot",
   "WavOggFiles": "Äänitiedostot",
   "WemFiles": "Wwise äänitiedostot",
@@ -489,5 +492,6 @@
   "ArrangementProperties": "Sovituksen ominaisuudet",
   "Capo": "Capo: {0}",
   "Fret": "Nauha {0}",
-  "ArrangementPropertyHelp": "Yleensä EOF asettaa nämä ominaisuudet automaattisesti."
+  "ArrangementPropertyHelp": "Yleensä EOF asettaa nämä ominaisuudet automaattisesti.",
+  "GenerateFont": "Luo fontti"
 }

@@ -199,6 +199,9 @@ let editConfig edit config =
     | SetWwiseConsolePath path ->
         { config with WwiseConsolePath = Option.ofString path }
 
+    | SetFontGeneratorPath path ->
+        { config with FontGeneratorPath = Option.ofString path }
+
     | SetProfilePath path ->
         { config with ProfilePath = path }
 
