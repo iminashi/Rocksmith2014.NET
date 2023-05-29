@@ -56,6 +56,7 @@ let initialState =
       QuickEditData = None
       ImportedBuildToolVersion = None
       AudioLength = None
+      FontGenerationWatcher = None
       Localizer = stringLocalizerStub
       AlbumArtLoader = albumArtLoaderStub
       DatabaseConnector = toneDatabaseStub }
