@@ -111,7 +111,7 @@ let import progress (psarcPath: string) (targetDirectory: string) =
 
         progress ()
 
-        let arrangements =
+        let arrangementsWithSng =
             sngs
             |> Array.Parallel.map (fun (file, sng) ->
                 // Change the filenames from "../../dlckey_{NAME}.sng" to "arr_{NAME}_RS2.xml"
@@ -129,16 +129,28 @@ let import progress (psarcPath: string) (targetDirectory: string) =
 
                 let importVocals' = importVocals targetDirectory targetFile attributes sng
 
-                match file with
-                | JVocalsFile ->
-                    importVocals' true
-                | VocalsFile ->
-                    importVocals' false
-                | InstrumentalFile ->
-                    importInstrumental targetAudioFiles dlcKey targetFile attributes sng)
+                let importedData =
+                    match file with
+                    | JVocalsFile ->
+                        importVocals' true
+                    | VocalsFile ->
+                        importVocals' false
+                    | InstrumentalFile ->
+                        importInstrumental targetAudioFiles dlcKey targetFile attributes sng
+
+                sng, importedData)
             |> Array.toList
+
+        let arrangements =
+            arrangementsWithSng
+            |> List.map snd
             |> List.add (Showlights { XML = showLightsPath }, ImportedData.ShowLights)
             |> List.sortBy (fst >> Arrangement.sorter)
+
+        // Save phrase levels
+        arrangementsWithSng
+        |> List.map (fun (sng, (arr, _)) -> arr, sng)
+        |> PhraseLevelComparer.saveLevels targetDirectory
 
         let tones =
             fileAttributes

@@ -31,6 +31,7 @@
     <Compile Include="DLCProject.fs" />
     <Compile Include="Partitioner.fs" />
     <Compile Include="XBlock.fs" />
+    <Compile Include="PhraseLevelComparer.fs" />
     <Compile Include="AggregateGraph\Tags.fs" />
     <Compile Include="AggregateGraph\GraphItem.fs" />
     <Compile Include="AggregateGraph\AggregateGraph.fs" />
@@ -44,7 +45,6 @@
     <Compile Include="ToolkitImporter.fs" />
     <Compile Include="ShowLightGenerator.fs" />
     <Compile Include="PlatformConverter.fs" />
-    <Compile Include="PhraseLevelComparer.fs" />
     <Compile Include="PackageBuilder.fs" />
   </ItemGroup>
 
