@@ -901,7 +901,8 @@ let update (msg: Msg) (state: State) =
 
     | Build Test ->
         if String.notEmpty config.TestFolderPath then
-            buildPackage (TestPackageBuilder.build state.CurrentPlatform) state
+            let projectDir = state.OpenProjectFile |> Option.map Path.GetDirectoryName
+            buildPackage (TestPackageBuilder.build state.CurrentPlatform projectDir) state
         else
             showOverlay state (ConfigEditor (Some FocusedSetting.TestFolder)), Cmd.none
 

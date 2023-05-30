@@ -490,6 +490,19 @@ let private buildConfig state dispatch =
                     ]
                 ]
 
+                // Compare Phrase Levels
+                hStack [
+                    CheckBox.create [
+                        CheckBox.content (translate "ComparePhraseLevelsOnTestBuild")
+                        CheckBox.isChecked state.Config.ComparePhraseLevelsOnTestBuild
+                        CheckBox.onChecked (fun _ -> true |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
+                        CheckBox.onUnchecked (fun _ -> false |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
+                    ]
+                    HelpButton.create [
+                        HelpButton.helpText (translate "ComparePhraseLevelsOnTestBuildHelp")
+                    ]
+                ]
+
                 // Generate DD
                 CheckBox.create [
                     CheckBox.verticalAlignment VerticalAlignment.Center

@@ -301,6 +301,8 @@
   "Build": "Build",
   "ImportHeader": "Import",
   "GenerateDDLevels": "Generate DD Levels",
+  "ComparePhraseLevelsOnTestBuild": "Compare Phrase Level Counts to Previous Version",
+  "ComparePhraseLevelsOnTestBuildHelp": "Compares phrase level counts to the previous build and shows a notification if the arrangement IDs should be regenerated.\n\nWhen disabled, the check is only done for release builds.",
   "FindSimilarPhrases": "Find Similar Phrases",
   "SimilarityThreshold": "Similarity Threshold:",
   "PhraseLevelCountGeneration": "Phrase Level Count Generation",

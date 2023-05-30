@@ -301,6 +301,8 @@
   "Build": "ビルド",
   "ImportHeader": "インポート",
   "GenerateDDLevels": "DDレベルをジェネレート",
+  "ComparePhraseLevelsOnTestBuild": "フレーズのレベル数を前のバージョンと比較",
+  "ComparePhraseLevelsOnTestBuildHelp": "フレーズのレベル数を前のビルドと比較して、フレーズIDを更新する必要がある場合、警告が表示されます。\n\nオフにすると、この比較はリリースビルドの時だけに行われます。",
   "FindSimilarPhrases": "同じようなフレーズを見出す",
   "SimilarityThreshold": "同一しきい値:",
   "PhraseLevelCountGeneration": "フレーズのレベル数の計算",

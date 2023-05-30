@@ -35,6 +35,7 @@ type Configuration =
       SaveDebugFiles: bool
       AutoVolume: bool
       AutoSave: bool
+      ComparePhraseLevelsOnTestBuild: bool
       ConvertAudio: AudioConversionType option
       OpenFolderAfterReleaseBuild: bool
       LoadPreviousOpenedProject: bool
@@ -61,6 +62,7 @@ type Configuration =
           SaveDebugFiles = false
           AutoVolume = true
           AutoSave = false
+          ComparePhraseLevelsOnTestBuild = false
           ConvertAudio = None
           OpenFolderAfterReleaseBuild = true
           LoadPreviousOpenedProject = false
@@ -89,6 +91,7 @@ module Configuration =
         member val SaveDebugFiles: bool = false with get, set
         member val AutoVolume: bool = true with get, set
         member val AutoSave: bool = false with get, set
+        member val ComparePhraseLevelsOnTestBuild: bool = false with get, set
         member val ConvertAudio: int = 0 with get, set
         member val OpenFolderAfterReleaseBuild: bool = true with get, set
         member val LoadPreviousOpenedProject: bool = false with get, set
@@ -154,6 +157,7 @@ module Configuration =
           SaveDebugFiles = dto.SaveDebugFiles
           AutoVolume = dto.AutoVolume
           AutoSave = dto.AutoSave
+          ComparePhraseLevelsOnTestBuild = dto.ComparePhraseLevelsOnTestBuild
           ConvertAudio = convertAudio
           OpenFolderAfterReleaseBuild = dto.OpenFolderAfterReleaseBuild
           LoadPreviousOpenedProject = dto.LoadPreviousOpenedProject
@@ -203,6 +207,7 @@ module Configuration =
             ApplyImprovements = config.ApplyImprovements,
             AutoVolume = config.AutoVolume,
             AutoSave = config.AutoSave,
+            ComparePhraseLevelsOnTestBuild = config.ComparePhraseLevelsOnTestBuild,
             ConvertAudio = convertAudio,
             OpenFolderAfterReleaseBuild = config.OpenFolderAfterReleaseBuild,
             LoadPreviousOpenedProject = config.LoadPreviousOpenedProject,

@@ -56,7 +56,7 @@ let updateProject versionString project =
         Arrangements = arrangements }
 
 /// Returns an async computation for building a package for testing.
-let build platform config project =
+let build platform projectDir config project =
     async {
         let isRocksmithRunning =
             Process.GetProcessesByName("Rocksmith2014").Length > 0
@@ -93,7 +93,20 @@ let build platform config project =
             Path.Combine(targetFolder, packageFileName)
             |> PackageBuilder.WithoutPlatformOrExtension
 
-        let buildConfig = BuildConfig.create Test config project [ platform ]
+        let initialConfig = BuildConfig.create Test config project [ platform ]
+
+        let buildConfig =
+            match projectDir with
+            | Some dir when config.ComparePhraseLevelsOnTestBuild ->
+                { initialConfig with
+                    IdResetConfig =
+                        Some
+                            { ProjectDirectory = dir
+                              ConfirmIdRegeneration = IdRegenerationHelper.getConfirmation
+                              PostNewIds = IdRegenerationHelper.postNewIds }
+                }
+            | _ ->
+                initialConfig
 
         do! PackageBuilder.buildPackages path buildConfig project
         return buildType

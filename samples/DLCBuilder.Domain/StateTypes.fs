@@ -134,6 +134,7 @@ type ConfigEdit =
     | SetRemoveDDOnImport of bool
     | SetCreateEOFProjectOnImport of bool
     | SetGenerateDD of bool
+    | SetComparePhraseLevelsOnTestBuild of bool
     | SetDDPhraseSearchEnabled of bool
     | SetDDPhraseSearchThreshold of int
     | SetDDLevelCountGeneration of LevelCountGeneration

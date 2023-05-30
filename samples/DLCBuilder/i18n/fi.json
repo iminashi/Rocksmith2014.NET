@@ -301,6 +301,8 @@
   "Build": "Rakennus",
   "ImportHeader": "Tuonti",
   "GenerateDDLevels": "Generoi DD tasot",
+  "ComparePhraseLevelsOnTestBuild": "Vertaa fraasien tasojen määrää edelliseen versioon",
+  "ComparePhraseLevelsOnTestBuildHelp": "Vertaa sovitusten fraasien tasojen määrää edelliseen rakennettuun versioon, ja näyttää ilmoituksen, jos sovitusten ID:t kannattaa uudelleengeneroida.\n\nKun asetus on pois päältä, tämä tarkistus tehdään vain julkaisupakettia rakennettaessa.",
   "FindSimilarPhrases": "Etsi samanlaiset fraasit",
   "SimilarityThreshold": "Samuuskynnys:",
   "PhraseLevelCountGeneration": "Fraasin tasojen määrän määrittely",

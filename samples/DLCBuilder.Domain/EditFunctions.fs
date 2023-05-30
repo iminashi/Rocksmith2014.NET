@@ -157,6 +157,9 @@ let editConfig edit config =
     | SetGenerateDD generateDD ->
         { config with GenerateDD = generateDD }
 
+    | SetComparePhraseLevelsOnTestBuild compareLevels ->
+        { config with ComparePhraseLevelsOnTestBuild = compareLevels }
+
     | SetDDPhraseSearchEnabled phraseSearch ->
         { config with DDPhraseSearchEnabled = phraseSearch }
 
