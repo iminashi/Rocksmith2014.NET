@@ -27,10 +27,6 @@ let private enablePriorityChange arrangements priority inst =
                    false)
     )
 
-let private isNumberGreaterThanZero (input: string) =
-    let parsed, number = Int32.TryParse(input)
-    parsed && number > 0
-
 let private tuningTextBox dispatch (tuning: int16 array) stringIndex =
     FixedTextBox.create [
         TextBox.margin (2., 0.)
@@ -302,7 +298,7 @@ let view state dispatch (inst: Instrumental) =
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
                 FixedTextBox.text (string inst.MasterID)
                 FixedTextBox.validationErrorMessage (translate "EnterNumberLargerThanZero")
-                FixedTextBox.validation isNumberGreaterThanZero
+                FixedTextBox.validation Utils.isNumberGreaterThanZero
                 TextBox.onLostFocus (fun arg ->
                     let txtBox = arg.Source :?> TextBox
                     match Int32.TryParse(txtBox.Text) with

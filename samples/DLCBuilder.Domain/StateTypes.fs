@@ -122,6 +122,8 @@ type ToneEdit =
 type VocalsEdit =
     | SetIsJapanese of bool
     | SetCustomFont of string option
+    | SetVocalsMasterId of int
+    | SetVocalsPersistentId of Guid
 
 type ConfigEdit =
     | SetCharterName of string

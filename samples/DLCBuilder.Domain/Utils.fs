@@ -245,3 +245,7 @@ let startProcess path args =
     let startInfo = ProcessStartInfo(FileName = path, Arguments = args)
     use p = new Process(StartInfo = startInfo)
     p.Start() |> ignore
+
+let isNumberGreaterThanZero (input: string) =
+    let parsed, number = Int32.TryParse(input)
+    parsed && number > 0

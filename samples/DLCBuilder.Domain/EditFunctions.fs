@@ -422,6 +422,10 @@ let editVocals state edit index (vocals: Vocals) =
             { vocals with Japanese = japanese }
         | SetCustomFont font ->
             { vocals with CustomFont = font }
+        | SetVocalsMasterId mid ->
+            { vocals with MasterID = mid }
+        | SetVocalsPersistentId pid ->
+            { vocals with PersistentID = pid }
 
     updateArrangement index (Vocals updated) state, Cmd.none
 

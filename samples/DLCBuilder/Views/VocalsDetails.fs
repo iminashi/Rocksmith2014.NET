@@ -6,6 +6,7 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Media
 open Rocksmith2014.DLCProject
+open System
 open System.IO
 open DLCBuilder
 
@@ -22,6 +23,61 @@ let view state dispatch (vocals: Vocals) =
                 CheckBox.onUnchecked (fun _ -> false |> SetIsJapanese |> EditVocals |> dispatch)
                 ToolTip.tip (translate "JapaneseLyricsToolTip")
             ]
+
+            Grid.create [
+                 Grid.columnDefinitions "auto,*"
+                 Grid.rowDefinitions "*,*"
+                 Grid.margin (0., 0., 0., 8.)
+                 Grid.children [
+                     // Master ID
+                     locText "MasterID" [
+                         TextBlock.isVisible state.Config.ShowAdvanced
+                         TextBlock.verticalAlignment VerticalAlignment.Center
+                         TextBlock.horizontalAlignment HorizontalAlignment.Center
+                     ]
+                     FixedTextBox.create [
+                         Grid.column 1
+                         TextBox.isVisible state.Config.ShowAdvanced
+                         TextBox.horizontalAlignment HorizontalAlignment.Stretch
+                         FixedTextBox.text (string vocals.MasterID)
+                         FixedTextBox.validationErrorMessage (translate "EnterNumberLargerThanZero")
+                         FixedTextBox.validation Utils.isNumberGreaterThanZero
+                         TextBox.onLostFocus (fun arg ->
+                             let txtBox = arg.Source :?> TextBox
+                             match Int32.TryParse(txtBox.Text) with
+                             | true, masterId when masterId > 0 ->
+                                 SetVocalsMasterId masterId |> EditVocals |> dispatch
+                             | _ ->
+                                 ()
+                         )
+                     ]
+
+                     // Persistent ID
+                     locText "PersistentID" [
+                         Grid.row 1
+                         TextBlock.isVisible state.Config.ShowAdvanced
+                         TextBlock.verticalAlignment VerticalAlignment.Center
+                         TextBlock.horizontalAlignment HorizontalAlignment.Center
+                     ]
+                     FixedTextBox.create [
+                         Grid.row 1
+                         Grid.column 1
+                         TextBox.isVisible state.Config.ShowAdvanced
+                         TextBox.horizontalAlignment HorizontalAlignment.Stretch
+                         FixedTextBox.text (vocals.PersistentID.ToString("N"))
+                         FixedTextBox.validationErrorMessage (translate "EnterAValidGUID")
+                         FixedTextBox.validation (Guid.TryParse >> fst)
+                         TextBox.onLostFocus (fun arg ->
+                             let txtBox = arg.Source :?> TextBox
+                             match Guid.TryParse(txtBox.Text) with
+                             | true, id ->
+                                 SetVocalsPersistentId id |> EditVocals |> dispatch
+                             | false, _ ->
+                                 ()
+                         )
+                     ]
+                 ]
+             ]
 
             // Custom Font
             DockPanel.create [
@@ -85,7 +141,7 @@ let view state dispatch (vocals: Vocals) =
                 ]
             ]
 
-            // View Lyrics Button
+             // View Lyrics Button
             Button.create [
                 Button.padding (25., 10.)
                 Button.content (translate "ViewLyrics")
