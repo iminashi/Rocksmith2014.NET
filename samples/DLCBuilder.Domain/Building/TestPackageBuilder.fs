@@ -93,20 +93,8 @@ let build platform projectDir config project =
             Path.Combine(targetFolder, packageFileName)
             |> PackageBuilder.WithoutPlatformOrExtension
 
-        let initialConfig = BuildConfig.create Test config project [ platform ]
-
-        let buildConfig =
-            match projectDir with
-            | Some dir when config.ComparePhraseLevelsOnTestBuild ->
-                { initialConfig with
-                    IdResetConfig =
-                        Some
-                            { ProjectDirectory = dir
-                              ConfirmIdRegeneration = IdRegenerationHelper.getConfirmation
-                              PostNewIds = IdRegenerationHelper.postNewIds }
-                }
-            | _ ->
-                initialConfig
+        let projectDir = projectDir |> Option.filter (fun _ -> config.ComparePhraseLevelsOnTestBuild)
+        let buildConfig = BuildConfig.create Test config projectDir project [ platform ]
 
         do! PackageBuilder.buildPackages path buildConfig project
         return buildType

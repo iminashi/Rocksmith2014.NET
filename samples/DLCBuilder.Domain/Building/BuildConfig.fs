@@ -7,7 +7,7 @@ open Rocksmith2014.DLCProject
 open Rocksmith2014.DLCProject.PackageBuilder
 
 /// Creates a build configuration data structure.
-let create buildType config project platforms =
+let create buildType config directoryForPhraseLevels project platforms =
     let convTask =
         let tasks =
             DLCProject.getFilesThatNeedConverting (TimeSpan.FromSeconds(3.0)) project
@@ -44,5 +44,10 @@ let create buildType config project platforms =
       ApplyImprovements = config.ApplyImprovements
       SaveDebugFiles = config.SaveDebugFiles && buildType = Test
       AudioConversionTask = convTask
-      IdResetConfig = None
+      IdResetConfig =
+        directoryForPhraseLevels
+        |> Option.map (fun dir ->
+            { ProjectDirectory = dir
+              ConfirmIdRegeneration = IdRegenerationHelper.getConfirmation
+              PostNewIds = IdRegenerationHelper.postNewIds })
       ProgressReporter = Some(ProgressReporters.PackageBuild :> IProgress<float>) }

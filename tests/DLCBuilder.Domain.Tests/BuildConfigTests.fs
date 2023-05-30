@@ -41,7 +41,7 @@ let platforms = [ PC; Mac ]
 let tests =
     testList "Build Configuration Tests" [
         testCase "Creates valid configuration for test build" <| fun _ ->
-            let buildConfig = BuildConfig.create Test generalConfig project platforms
+            let buildConfig = BuildConfig.create Test generalConfig None project platforms
 
             Expect.equal buildConfig.AppId customAppId "Custom app ID is correct"
             Expect.equal buildConfig.ApplyImprovements generalConfig.ApplyImprovements "Apply improvements is correct"
@@ -60,7 +60,7 @@ let tests =
             let customAuthor = "Moai Moahashi"
             let project = { project with Author = Some customAuthor }
 
-            let buildConfig = BuildConfig.create Release generalConfig project [ PC ]
+            let buildConfig = BuildConfig.create Release generalConfig None project [ PC ]
 
             Expect.equal buildConfig.AppId AppId.CherubRock "App ID defaulted to Cherub Rock"
             Expect.equal buildConfig.ApplyImprovements generalConfig.ApplyImprovements "Apply improvements is correct"

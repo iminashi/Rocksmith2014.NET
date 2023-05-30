@@ -42,14 +42,7 @@ let build (openProject: string option) config project =
             |> PackageBuilder.WithoutPlatformOrExtension
 
         let buildConfig =
-            let baseConfig = BuildConfig.create Release config project (Set.toList config.ReleasePlatforms)
-
-            { baseConfig with
-                IdResetConfig =
-                    Some
-                        { ProjectDirectory = releaseDir
-                          ConfirmIdRegeneration = IdRegenerationHelper.getConfirmation
-                          PostNewIds = IdRegenerationHelper.postNewIds } }
+            BuildConfig.create Release config (Some releaseDir) project (Set.toList config.ReleasePlatforms)
 
         do! PackageBuilder.buildPackages path buildConfig project
 
@@ -118,7 +111,7 @@ let buildPitchShifted (openProject: string option) config project =
 let buildReplacePsarc info config project =
     async {
         let platform = Platform.fromPackageFileName info.PsarcPath
-        let buildConfig = BuildConfig.create (ReplacePsarc info) config project [ platform ]
+        let buildConfig = BuildConfig.create (ReplacePsarc info) config None project [ platform ]
 
         do! PackageBuilder.buildPackages (PackageBuilder.WithPlatformAndExtension info.PsarcPath) buildConfig project
 
