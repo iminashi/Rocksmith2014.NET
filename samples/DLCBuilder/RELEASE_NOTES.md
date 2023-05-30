@@ -11,6 +11,7 @@
 - Fixed false positive in validation for anchor position in relation to chord fingering with chords that use the thumb.
 - A better error message is shown when loading an "EXT" vocals file fails.
 - Phrase level file is now created also when a PSARC is imported.
+- Master ID and persistent ID can now be manually edited also for vocals arrangements when "show advanced features" is enabled.
 - Minor UI improvements.
 - Minor optimizations to package generation.
 - Updated the UI framework to new minor version.
