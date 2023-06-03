@@ -33,7 +33,7 @@ type FixedTextBox() =
             validationCallback <- v
             validationSub <-
                 this.GetObservable(TextBox.TextProperty)
-                    .Where(fun _ -> this.ValidationErrorMessage <> "")
+                    .Where(fun _ -> not <| String.IsNullOrEmpty(this.ValidationErrorMessage))
                     .Subscribe(fun text ->
                         let errors =
                             if validationCallback text then

@@ -9,6 +9,7 @@ open Rocksmith2014.DLCProject
 open System
 open System.IO
 open DLCBuilder
+open DLCBuilder.Media
 
 let view state dispatch (vocals: Vocals) =
     StackPanel.create [
@@ -91,22 +92,29 @@ let view state dispatch (vocals: Vocals) =
                     ]
                 ]
             ]
-            // Custom Font Filename
-            FixedTextBox.create [
-                TextBox.margin 8.
-                TextBox.watermark (translate "CustomFontPath")
-                FixedTextBox.text (vocals.CustomFont |> Option.toObj)
-                FixedTextBox.validation (fun text ->
-                    match text with
-                    | null | "" ->
-                        true
-                    | path ->
-                        File.Exists(Path.ChangeExtension(path, "glyphs.xml")))
-                FixedTextBox.validationErrorMessage (translate "GlyphsFileNotFound")
-                TextBox.onLostFocus (fun e ->
-                    let txtBox = e.Source :?> TextBox
-                    txtBox.Text |> Option.ofString |> SetCustomFont |> EditVocals |> dispatch)
+            DockPanel.create [
+                DockPanel.children [
+                    // Select Button
+                    iconButton Icons.folderOpen [
+                        DockPanel.dock Dock.Right
+                        Button.onClick (fun _ -> Dialog.CustomFont |> ShowDialog |> dispatch)
+                        ToolTip.tip (translate "SelectCustomFontToolTip")
+                    ]
+
+                    // Custom Font Filename
+                    FixedTextBox.create [
+                        TextBox.watermark (translate "CustomFontPath")
+                        FixedTextBox.text (vocals.CustomFont |> Option.toObj)
+                        FixedTextBox.validation (fun path ->
+                            String.IsNullOrEmpty(path) || File.Exists(Path.ChangeExtension(path, "glyphs.xml")))
+                        FixedTextBox.validationErrorMessage (translate "GlyphsFileNotFound")
+                        TextBox.onLostFocus (fun e ->
+                            let txtBox = e.Source :?> TextBox
+                            txtBox.Text |> Option.ofString |> SetCustomFont |> EditVocals |> dispatch)
+                    ]
+                ]
             ]
+
             StackPanel.create [
                 StackPanel.orientation Orientation.Horizontal
                 StackPanel.horizontalAlignment HorizontalAlignment.Center
@@ -118,15 +126,6 @@ let view state dispatch (vocals: Vocals) =
                         Button.content (translate "GenerateFont")
                         Button.onClick (fun _ -> dispatch StartFontGenerator)
                         Button.isEnabled state.Config.FontGeneratorPath.IsSome
-                    ]
-
-                    // Select Button
-                    Button.create [
-                        Button.margin (0.0, 4.0, 4.0, 4.0)
-                        Button.padding (15., 5.)
-                        Button.content (translate "Browse...")
-                        Button.onClick (fun _ -> Dialog.CustomFont |> ShowDialog |> dispatch)
-                        ToolTip.tip (translate "SelectCustomFontToolTip")
                     ]
 
                     // Remove Button
