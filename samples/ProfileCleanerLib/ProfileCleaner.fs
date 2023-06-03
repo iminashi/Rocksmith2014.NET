@@ -5,6 +5,7 @@ open Rocksmith2014.Common.Manifest
 open Rocksmith2014.PSARC
 open Microsoft.Extensions.FileProviders
 open Newtonsoft.Json.Linq
+open System
 open System.IO
 open System.Reflection
 
@@ -54,9 +55,8 @@ let private gatherDLCData (reportProgress: IdReadingProgress -> unit) (directory
     async {
         let! results =
             let files =
-                Directory.EnumerateFiles(directory, "*.psarc", SearchOption.AllDirectories)
-                |> Seq.filter (fun x -> not <| (x.Contains("inlay") || x.Contains("rs1compatibility")))
-                |> Seq.toArray
+                Directory.GetFiles(directory, "*.psarc", SearchOption.AllDirectories)
+                |> Array.filter (fun path -> not (Path.GetFileNameWithoutExtension(path).Contains("rs1compatibility")))
 
             files
             |> Array.map (fun path ->
@@ -67,7 +67,7 @@ let private gatherDLCData (reportProgress: IdReadingProgress -> unit) (directory
 
                     return! readIDs path |> Async.AwaitTask
                 })
-            |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = 6)
+            |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = min 6 Environment.ProcessorCount)
 
         let ids, keys =
             results
