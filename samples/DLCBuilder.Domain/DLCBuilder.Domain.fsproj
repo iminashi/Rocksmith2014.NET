@@ -63,6 +63,7 @@
     <ProjectReference Include="..\..\src\Rocksmith2014.EOF\Rocksmith2014.EOF.fsproj" />
     <ProjectReference Include="..\DLCBuilder.JapaneseLyricsCreator\DLCBuilder.JapaneseLyricsCreator.fsproj" />
     <ProjectReference Include="..\DLCBuilder.ToneCollection\DLCBuilder.ToneCollection.fsproj" />
+    <ProjectReference Include="..\ProfileCleanerLib\ProfileCleanerLib.fsproj" />
   </ItemGroup>
 
 </Project>

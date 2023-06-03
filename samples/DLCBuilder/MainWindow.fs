@@ -148,6 +148,7 @@ type MainWindow(commandLineArgs: string array) as this =
                 ProgressReporters.PsarcUnpack.ProgressChanged.Add(dispatchProgress PsarcUnpack)
                 ProgressReporters.PackageBuild.ProgressChanged.Add(dispatchProgress BuildPackage)
                 ProgressReporters.DownloadFile.ProgressChanged.Add(fun (id, progress) -> dispatchProgress (FileDownload id) progress)
+                ProgressReporters.ProfileCleaner.ProgressChanged.Add(ProfileCleanerProgressChanged >> ToolsMsg >> dispatch)
             |> Cmd.ofSub
 
         let idRegenerationConfirmationSub _ =

@@ -78,6 +78,7 @@
     <Compile Include="Overlays\ToneCollectionOverlay.fs" />
     <Compile Include="Overlays\ToneEditor.fs" />
     <Compile Include="Overlays\InstrumentalXmlDetails.fs" />
+    <Compile Include="Overlays\ProfileCleanerOverlay.fs" />
     <Compile Include="Overlays\UpdateInfoMessage.fs" />
     <Compile Include="Views\Menus.fs" />
     <Compile Include="Views\Templates.fs" />

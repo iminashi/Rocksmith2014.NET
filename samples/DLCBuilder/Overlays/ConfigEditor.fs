@@ -222,6 +222,7 @@ let private pathsConfig state dispatch focusedSetting =
                 FixedTextBox.create [
                     FixedTextBox.text state.Config.DlcFolderPath
                     FixedTextBox.onTextChanged (SetDlcFolderPath >> EditConfig >> dispatch)
+                    FixedTextBox.autoFocus (Option.contains FocusedSetting.DLCFolder focusedSetting)
                 ]
             ]
         ]

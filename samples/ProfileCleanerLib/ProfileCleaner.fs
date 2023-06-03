@@ -13,6 +13,10 @@ type IdReadingProgress =
     { CurrentFilePath: string
       Progress: float }
 
+type IdData =
+    { Ids: Set<string>
+      Keys: Set<string> }
+
 let private readEmbeddedFileLines (file: string) =
     let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
     use embeddedFile = embeddedProvider.GetFileInfo(file).CreateReadStream()
@@ -80,8 +84,8 @@ let gatherIdAndKeyData (reportProgress: IdReadingProgress -> unit) (dlcDirectory
         let! dlcIds, dlcKeys = gatherDLCData reportProgress dlcDirectory
 
         return
-            {| Ids = Set.union onDisc.OnDiscIds (Set.ofList dlcIds)
-               Keys = Set.union onDisc.OnDiscKeys (Set.ofList dlcKeys) |}
+            { Ids = Set.union onDisc.OnDiscIds (Set.ofList dlcIds)
+              Keys = Set.union onDisc.OnDiscKeys (Set.ofList dlcKeys) }
     }
 
 /// Removes the children whose names are not in the IDs set from the JToken.
@@ -102,7 +106,7 @@ let private filterJArrayKeys (keys: Set<string>) (array: JArray) =
     |> Array.iter (array.Remove >> ignore)
 
 /// Returns functions for filtering IDs and keys from the profile JSON.
-let getFilteringFunctions (data: {| Ids: Set<string>; Keys: Set<string> |}) =
+let getFilteringFunctions (data: IdData) =
     let filterIds = filterJTokenIds data.Ids
     let filterKeys = filterJArrayKeys data.Keys
 

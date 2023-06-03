@@ -15,10 +15,24 @@ open System.IO
 type FocusedSetting =
     | ProfilePath
     | TestFolder
+    | DLCFolder
 
 type PreviewAudioCreationData =
     { SourceFile: string
       MaxPreviewStart: TimeSpan }
+
+type ProfileCleanerRecordsRemoved =
+    { PlayNext: int
+      Songs: int
+      ScoreAttack: int
+      Stats: int }
+
+[<RequireQualifiedAccess>]
+type ProfileCleanerState =
+    | Idle
+    | ReadingIds of progress: float
+    | CleaningProfile
+    | Completed of result: ProfileCleanerRecordsRemoved
 
 type OverlayContents =
     | NoOverlay
@@ -39,6 +53,7 @@ type OverlayContents =
     | AdditionalMetaDataEditor
     | LyricsViewer of lyrics: string * isJapanese: bool
     | InstrumentalXmlDetailsViewer of xml: InstrumentalArrangement * fileName: string
+    | ProfileCleaner of state: ProfileCleanerState
 
 [<RequireQualifiedAccess>]
 type OverlayCloseMethod =
@@ -183,6 +198,10 @@ type ToolsMsg =
     | PackDirectoryIntoPSARC of directory: string * targetFile: string
     | RemoveDD of files: string array
     | InjectTonesIntoProfile of files: string array
+    | StartProfileCleaner
+    | ProfileCleanerProgressChanged of progress: float
+    | IdDataReadingCompleted of data: ProfileCleaner.IdData
+    | ProfileCleaned of result: ProfileCleanerRecordsRemoved
 
 [<RequireQualifiedAccess>]
 type Dialog =
@@ -200,6 +219,7 @@ type Dialog =
     | AudioFileConversion
     | RemoveDD
     | TestFolder
+    | DlcFolder
     | ProfileFile
     | AddArrangements
     | ToneImport

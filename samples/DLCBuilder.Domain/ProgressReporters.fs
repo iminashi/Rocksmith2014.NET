@@ -11,3 +11,5 @@ let PsarcImport = Progress<float>()
 let ArrangementCheck = Progress<float>()
 
 let DownloadFile = Progress<DownloadId * float>()
+
+let ProfileCleaner = Progress<float>()

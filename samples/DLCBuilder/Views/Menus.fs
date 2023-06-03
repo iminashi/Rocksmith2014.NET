@@ -242,6 +242,12 @@ let tools state dispatch =
                 MenuItem.isEnabled (String.notEmpty state.Config.ProfilePath)
                 ToolTip.tip (translate "InjectTonesIntoProfileToolTip")
             ]
+
+            // Profile Cleaner
+            MenuItem.create [
+                MenuItem.header (translate "ProfileCleanerMenuItem")
+                MenuItem.onClick (fun _ -> ShowOverlay (ProfileCleaner ProfileCleanerState.Idle) |> dispatch)
+            ]
         ]
     ]
 

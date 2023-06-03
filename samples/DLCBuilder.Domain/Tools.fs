@@ -7,10 +7,10 @@ open Rocksmith2014.PSARC
 open Rocksmith2014.XML
 open System
 open System.IO
+open Newtonsoft.Json.Linq
 
 module ToneInjector =
     open Newtonsoft.Json
-    open Newtonsoft.Json.Linq
     open Rocksmith2014.Common.Manifest
 
     let backupProfile profilePath =
@@ -55,8 +55,46 @@ module ToneInjector =
             profile.Item("CustomTones").Replace(createToneJArray tones)
 
             backupProfile profilePath
-    
+
             do! Profile.saveJToken profilePath id profile
+        }
+
+module ProfileCleanerTool =
+    let readIdData dlcDirectory =
+        async {
+            let progressReporter (p: ProfileCleaner.IdReadingProgress) =
+                (ProgressReporters.ProfileCleaner :> IProgress<float>).Report(p.Progress)
+
+            return! ProfileCleaner.gatherIdAndKeyData progressReporter dlcDirectory
+        }
+
+    let cleanProfile data profilePath =
+        async {
+            let filterIds, filterKeys = ProfileCleaner.getFilteringFunctions data
+
+            //ProfileCleaner.backupProfile profilePath
+
+            let! profile, _profileId = Profile.readAsJToken profilePath |> Async.AwaitTask
+
+            let pnRecs = filterIds profile["Playnexts"].["Songs"]
+            let songRecs = filterIds profile["Songs"]
+            let saRecs = filterIds profile["SongsSA"]
+            let statsRecs = filterIds profile["Stats"].["Songs"]
+
+            profile["SongListsRoot"]["SongLists"] :?> JArray
+            |> Seq.iter (fun songList -> songList :?> JArray |> filterKeys)
+
+            profile["FavoritesListRoot"]["FavoritesList"] :?> JArray
+            |> filterKeys
+
+            //do! Profile.saveJToken profilePath profileId profile |> Async.AwaitTask
+            let result =
+                { PlayNext = pnRecs
+                  Songs = songRecs
+                  ScoreAttack = saRecs
+                  Stats = statsRecs }
+
+            return result
         }
 
 let update msg state =
@@ -111,7 +149,7 @@ let update msg state =
 
     | PackDirectoryIntoPSARC (directory, targetFile) ->
         let task () = PSARC.PackDirectory(directory, targetFile, true) |> Async.AwaitTask
-        
+
         state, Cmd.OfAsync.attempt task () ErrorOccurred
 
     | RemoveDD files ->
@@ -137,3 +175,27 @@ let update msg state =
                 Cmd.none
 
         state, cmd
+
+    | StartProfileCleaner ->
+        match File.Exists(state.Config.ProfilePath), Directory.Exists(state.Config.DlcFolderPath), state.Overlay with
+        | true, true, ProfileCleaner ProfileCleanerState.Idle ->
+            { state with Overlay = ProfileCleaner (ProfileCleanerState.ReadingIds 0.0) },
+            Cmd.OfAsync.either ProfileCleanerTool.readIdData state.Config.DlcFolderPath (IdDataReadingCompleted >> ToolsMsg) ErrorOccurred
+        | _ ->
+            state, Cmd.none
+
+    | ProfileCleanerProgressChanged progress ->
+        match state.Overlay with
+        | ProfileCleaner (ProfileCleanerState.ReadingIds _) ->
+            { state with Overlay = ProfileCleaner (ProfileCleanerState.ReadingIds progress) }, Cmd.none
+        | _ ->
+            state, Cmd.none
+
+    | IdDataReadingCompleted data ->
+        let task () = ProfileCleanerTool.cleanProfile data state.Config.ProfilePath
+
+        { state with Overlay = ProfileCleaner ProfileCleanerState.CleaningProfile },
+        Cmd.OfAsync.either task () (ProfileCleaned >> ToolsMsg) ErrorOccurred
+
+    | ProfileCleaned result ->
+        { state with Overlay = ProfileCleaner (ProfileCleanerState.Completed result) }, Cmd.none
