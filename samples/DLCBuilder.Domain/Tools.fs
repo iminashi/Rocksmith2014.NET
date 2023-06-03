@@ -7,6 +7,7 @@ open Rocksmith2014.PSARC
 open Rocksmith2014.XML
 open System
 open System.IO
+open System.Threading
 open Newtonsoft.Json.Linq
 
 module ToneInjector =
@@ -62,10 +63,13 @@ module ToneInjector =
 module ProfileCleanerTool =
     let readIdData dlcDirectory =
         async {
-            let progressReporter (p: ProfileCleaner.IdReadingProgress) =
-                // Only update the UI for every third file to keep it responsive
-                if p.CurrentFileIndex % 3 = 0 then
-                    (ProgressReporters.ProfileCleaner :> IProgress<float>).Report(100.0 * float p.CurrentFileIndex / float p.TotalFiles)
+            let progressReporter =
+                let mutable processedFiles = 0
+                fun (p: ProfileCleaner.IdReadingProgress) ->
+                    let num = Interlocked.Increment(&processedFiles)
+                    // Only trigger the event for every sixth report to keep the UI responsive
+                    if num % 6 = 0 then
+                        (ProgressReporters.ProfileCleaner :> IProgress<float>).Report(100.0 * float num / float p.TotalFiles)
 
             return! ProfileCleaner.gatherIdAndKeyData progressReporter dlcDirectory
         }

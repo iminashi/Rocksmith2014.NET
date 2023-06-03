@@ -2,17 +2,25 @@ open Newtonsoft.Json.Linq
 open Rocksmith2014.Common
 open System
 open System.IO
+open System.Threading
 
-let printProgress (directory: string) (isVerbose: bool) (p: ProfileCleaner.IdReadingProgress) =
-    Console.SetCursorPosition(0, 1)
-    let progressBar = String('=', (int (60. * (float p.CurrentFileIndex / float p.TotalFiles))))
-    printf "[%-60s]" progressBar
+let printerLock = obj()
 
-    if isVerbose then
-        Console.SetCursorPosition(0, 2)
-        printf "%s" (String(' ', Console.BufferWidth))
-        let fn = Path.GetRelativePath(directory, p.CurrentFilePath)
-        printf $"\r{fn}"
+let printProgress (directory: string) (isVerbose: bool) =
+    let mutable processedFiles = 0
+
+    fun (p: ProfileCleaner.IdReadingProgress) ->
+        Interlocked.Increment(&processedFiles) |> ignore
+
+        lock printerLock (fun () ->
+            let totalProgress = float processedFiles / float p.TotalFiles
+            if isVerbose then
+                let progressStr = sprintf "%-5.1f%%" (100. * totalProgress)
+                let fn = Path.GetRelativePath(directory, p.CurrentFilePath)
+                printfn $"{progressStr} - {fn}"
+            else
+                let progressBar = String('=', (int (60. * totalProgress)))
+                printf "\r[%-60s]" progressBar)
 
 [<EntryPoint>]
 let main argv =
@@ -31,7 +39,9 @@ let main argv =
 
             printfn "Reading IDs..."
 
-            let! data = ProfileCleaner.gatherIdAndKeyData (printProgress dlcDirectory isVerbose) dlcDirectory
+            let progressReporter = printProgress dlcDirectory isVerbose
+
+            let! data = ProfileCleaner.gatherIdAndKeyData progressReporter dlcDirectory
             let filterIds, filterKeys = ProfileCleaner.getFilteringFunctions data
 
             printfn ""

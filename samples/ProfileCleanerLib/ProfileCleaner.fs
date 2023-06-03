@@ -11,7 +11,6 @@ open System.Reflection
 [<Struct>]
 type IdReadingProgress =
     { CurrentFilePath: string
-      CurrentFileIndex: int
       TotalFiles: int }
 
 type IdData =
@@ -60,16 +59,15 @@ let private gatherDLCData (reportProgress: IdReadingProgress -> unit) (directory
                 |> Seq.toArray
 
             files
-            |> Array.mapi (fun i path ->
+            |> Array.map (fun path ->
                 async {
                     reportProgress
                         { CurrentFilePath = path
-                          CurrentFileIndex = i + 1
                           TotalFiles = files.Length }
 
                     return! readIDs path |> Async.AwaitTask
                 })
-            |> Async.Sequential
+            |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = 6)
 
         let ids, keys =
             results
