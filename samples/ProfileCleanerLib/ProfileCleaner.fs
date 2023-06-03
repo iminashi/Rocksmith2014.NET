@@ -10,22 +10,22 @@ open System.Reflection
 
 [<Struct>]
 type IdReadingProgress =
-    { FileName: string
+    { CurrentFilePath: string
       Progress: float }
 
-let private readFromAppDir (file: string) =
+let private readEmbeddedFileLines (file: string) =
     let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
     use embeddedFile = embeddedProvider.GetFileInfo(file).CreateReadStream()
     use reader = new StreamReader(embeddedFile)
     [ while not reader.EndOfStream do reader.ReadLine() ]
 
 /// Reads the on-disc IDs and keys from the prepared text files.
-let readOnDiscIdsAndKeys () =
-    {| OnDiscIds = Set.ofList (readFromAppDir "onDiscIDs.txt")
-       OnDiscKeys = Set.ofList (readFromAppDir "onDiscKeys.txt") |}
+let private readOnDiscIdsAndKeys () =
+    {| OnDiscIds = Set.ofList (readEmbeddedFileLines "onDiscIDs.txt")
+       OnDiscKeys = Set.ofList (readEmbeddedFileLines "onDiscKeys.txt") |}
 
 /// Reads the IDs and keys from a PSARC with the given path.
-let readIDs (path: string) =
+let private readIDs (path: string) =
     backgroundTask {
         use psarc = PSARC.OpenFile(path)
 
@@ -46,7 +46,7 @@ let readIDs (path: string) =
     }
 
 /// Reads IDs and keys from psarcs in the given directory and its subdirectories.
-let gatherDLCData (reportProgress: IdReadingProgress -> unit) (directory: string) =
+let private gatherDLCData (reportProgress: IdReadingProgress -> unit) (directory: string) =
     async {
         let! results =
             let files =
@@ -58,7 +58,7 @@ let gatherDLCData (reportProgress: IdReadingProgress -> unit) (directory: string
             |> Array.mapi (fun i path ->
                 async {
                     reportProgress
-                        { FileName = Path.GetRelativePath(directory, path)
+                        { CurrentFilePath = path
                           Progress = float (i + 1) / float files.Length }
 
                     return! readIDs path |> Async.AwaitTask
@@ -70,11 +70,22 @@ let gatherDLCData (reportProgress: IdReadingProgress -> unit) (directory: string
             |> List.ofArray
             |> List.unzip
 
-        return List.collect id ids, List.collect id keys
+        return List.concat ids, List.concat keys
+    }
+
+/// Returns IDs and keys collected from PSARCs from the given directory together with on-disc IDs and keys.
+let gatherIdAndKeyData (reportProgress: IdReadingProgress -> unit) (dlcDirectory: string) =
+    async {
+        let onDisc = readOnDiscIdsAndKeys()
+        let! dlcIds, dlcKeys = gatherDLCData reportProgress dlcDirectory
+
+        return
+            {| Ids = Set.union onDisc.OnDiscIds (Set.ofList dlcIds)
+               Keys = Set.union onDisc.OnDiscKeys (Set.ofList dlcKeys) |}
     }
 
 /// Removes the children whose names are not in the IDs set from the JToken.
-let filterJTokenIds (ids: Set<string>) (token: JToken) =
+let private filterJTokenIds (ids: Set<string>) (token: JToken) =
     let filtered =
         token
         |> Seq.filter (fun x -> not <| ids.Contains((x :?> JProperty).Name))
@@ -84,66 +95,18 @@ let filterJTokenIds (ids: Set<string>) (token: JToken) =
     filtered.Length
 
 /// Removes the elements that are not in the keys set from the JArray.
-let filterJArrayKeys (keys: Set<string>) (array: JArray) =
+let private filterJArrayKeys (keys: Set<string>) (array: JArray) =
     array
     |> Seq.filter (fun x -> not <| keys.Contains(x.Value<string>()))
     |> Seq.toArray
     |> Array.iter (array.Remove >> ignore)
 
+/// Returns functions for filtering IDs and keys from the profile JSON.
+let getFilteringFunctions (data: {| Ids: Set<string>; Keys: Set<string> |}) =
+    let filterIds = filterJTokenIds data.Ids
+    let filterKeys = filterJArrayKeys data.Keys
+
+    filterIds, filterKeys
+
 let backupProfile (profilePath: string) =
     File.Copy(profilePath, $"%s{profilePath}.backup", overwrite = true)
-
-//[<EntryPoint>]
-//let main argv =
-//    if argv.Length < 2 then
-//        Console.WriteLine "Give as arguments: path to profile file and path to DLC directory."
-//    else
-//        backgroundTask {
-//            let profilePath = argv[0]
-//            let dlcDirectory = argv[1]
-//            let isVerbose = Array.tryItem 2 argv = Some "-v"
-
-//            Console.Clear()
-//            let cursorVisibleOld = Console.CursorVisible
-//            Console.CursorVisible <- false
-
-//            let! ids, keys =
-//                async {
-//                    let odIds, odKeys = readOnDiscIdsAndKeys ()
-//                    let! dlcIds, dlcKeys = gatherDLCData ignore isVerbose dlcDirectory
-//                    return Set.union odIds (Set.ofList dlcIds), Set.union odKeys (Set.ofList dlcKeys)
-//                }
-
-//            let filterIds = filterJTokenIds ids
-//            let filterKeys = filterJArrayKeys keys
-//            let printStats section num =
-//                printfn "%-9s: %i record%s removed" section num (if num = 1 then "" else "s")
-
-//            printfn "Reading profile..."
-
-//            let! profile, id = Profile.readAsJToken profilePath
-
-//            printfn "Debloating profile..."
-
-//            filterIds profile["Playnexts"].["Songs"] |> printStats "Playnexts"
-//            filterIds profile["Songs"] |> printStats "Songs"
-//            filterIds profile["SongsSA"] |> printStats "Songs SA"
-//            filterIds profile["Stats"].["Songs"] |> printStats "Stats"
-
-//            profile["SongListsRoot"]["SongLists"] :?> JArray
-//            |> Seq.iter (fun songList -> songList :?> JArray |> filterKeys)
-
-//            profile["FavoritesListRoot"]["FavoritesList"] :?> JArray
-//            |> filterKeys
-
-//            printfn "Saving profile file..."
-
-//            backupProfile profilePath
-//            printfn "Backup file created."
-
-//            do! Profile.saveJToken profilePath id profile
-//            printfn "Profile saved."
-//            Console.CursorVisible <- cursorVisibleOld
-//        }
-//        |> fun t -> t.Wait()
-//    0

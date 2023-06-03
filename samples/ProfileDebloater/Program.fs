@@ -1,8 +1,9 @@
 open Newtonsoft.Json.Linq
 open Rocksmith2014.Common
 open System
+open System.IO
 
-let printProgress (isVerbose: bool) (p: ProfileCleaner.IdReadingProgress) =
+let printProgress (directory: string) (isVerbose: bool) (p: ProfileCleaner.IdReadingProgress) =
     Console.SetCursorPosition(0, 1)
     let progressBar = String('=', (int (60. * p.Progress)))
     printf "[%-60s]" progressBar
@@ -10,7 +11,8 @@ let printProgress (isVerbose: bool) (p: ProfileCleaner.IdReadingProgress) =
     if isVerbose then
         Console.SetCursorPosition(0, 2)
         printf "%s" (String(' ', Console.BufferWidth))
-        printf $"\r{p.FileName}"
+        let fn = Path.GetRelativePath(directory, p.CurrentFilePath)
+        printf $"\r{fn}"
 
 [<EntryPoint>]
 let main argv =
@@ -27,17 +29,13 @@ let main argv =
             let cursorVisibleOld = Console.CursorVisible
             Console.CursorVisible <- false
 
-            let! ids, keys =
-                async {
-                    let onDisc = ProfileCleaner.readOnDiscIdsAndKeys ()
-                    printfn "Reading IDs..."
-                    let! dlcIds, dlcKeys = ProfileCleaner.gatherDLCData (printProgress isVerbose) dlcDirectory
-                    printfn ""
-                    return Set.union onDisc.OnDiscIds (Set.ofList dlcIds), Set.union onDisc.OnDiscKeys (Set.ofList dlcKeys)
-                }
+            printfn "Reading IDs..."
 
-            let filterIds = ProfileCleaner.filterJTokenIds ids
-            let filterKeys = ProfileCleaner.filterJArrayKeys keys
+            let! data = ProfileCleaner.gatherIdAndKeyData (printProgress dlcDirectory isVerbose) dlcDirectory
+            let filterIds, filterKeys = ProfileCleaner.getFilteringFunctions data
+
+            printfn ""
+
             let printStats section num =
                 printfn "%-9s: %i record%s removed" section num (if num = 1 then "" else "s")
 
