@@ -499,5 +499,6 @@
   "Capo": "Capo: {0}",
   "Fret": "Nauha {0}",
   "ArrangementPropertyHelp": "Yleensä EOF asettaa nämä ominaisuudet automaattisesti.",
-  "GenerateFont": "Luo fontti"
+  "GenerateFont": "Luo fontti",
+  "Start": "Käynnistä"
 }

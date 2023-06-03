@@ -499,5 +499,6 @@
   "Capo": "Capo: {0}",
   "Fret": "Fret {0}",
   "ArrangementPropertyHelp": "These properties are normally set by EOF automatically.",
-  "GenerateFont": "Generate Font"
+  "GenerateFont": "Generate Font",
+  "Start": "Start"
 }

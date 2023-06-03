@@ -499,5 +499,6 @@
   "Capo": "カポ: {0}",
   "Fret": "フレット {0}",
   "ArrangementPropertyHelp": "この特徴は普段、EOFによって設定されている。",
-  "GenerateFont": "フォントを作成"
+  "GenerateFont": "フォントを作成",
+  "Start": "スタート"
 }

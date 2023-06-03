@@ -63,7 +63,9 @@ module ProfileCleanerTool =
     let readIdData dlcDirectory =
         async {
             let progressReporter (p: ProfileCleaner.IdReadingProgress) =
-                (ProgressReporters.ProfileCleaner :> IProgress<float>).Report(p.Progress)
+                // Only update the UI for every third file to keep it responsive
+                if p.CurrentFileIndex % 3 = 0 then
+                    (ProgressReporters.ProfileCleaner :> IProgress<float>).Report(100.0 * float p.CurrentFileIndex / float p.TotalFiles)
 
             return! ProfileCleaner.gatherIdAndKeyData progressReporter dlcDirectory
         }
@@ -177,8 +179,9 @@ let update msg state =
         state, cmd
 
     | StartProfileCleaner ->
-        match File.Exists(state.Config.ProfilePath), Directory.Exists(state.Config.DlcFolderPath), state.ProfileCleanerState with
-        | true, true, ProfileCleanerState.Idle ->
+        match state.ProfileCleanerState with
+        | ProfileCleanerState.Idle
+        | ProfileCleanerState.Completed _ when File.Exists(state.Config.ProfilePath) && Directory.Exists(state.Config.DlcFolderPath) ->
             { state with ProfileCleanerState = ProfileCleanerState.ReadingIds 0.0 },
             Cmd.OfAsync.either ProfileCleanerTool.readIdData state.Config.DlcFolderPath (IdDataReadingCompleted >> ToolsMsg) ErrorOccurred
         | _ ->

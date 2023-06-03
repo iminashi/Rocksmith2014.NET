@@ -11,7 +11,8 @@ open System.Reflection
 [<Struct>]
 type IdReadingProgress =
     { CurrentFilePath: string
-      Progress: float }
+      CurrentFileIndex: int
+      TotalFiles: int }
 
 type IdData =
     { Ids: Set<string>
@@ -63,7 +64,8 @@ let private gatherDLCData (reportProgress: IdReadingProgress -> unit) (directory
                 async {
                     reportProgress
                         { CurrentFilePath = path
-                          Progress = float (i + 1) / float files.Length }
+                          CurrentFileIndex = i + 1
+                          TotalFiles = files.Length }
 
                     return! readIDs path |> Async.AwaitTask
                 })

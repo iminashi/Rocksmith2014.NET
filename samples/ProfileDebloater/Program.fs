@@ -5,7 +5,7 @@ open System.IO
 
 let printProgress (directory: string) (isVerbose: bool) (p: ProfileCleaner.IdReadingProgress) =
     Console.SetCursorPosition(0, 1)
-    let progressBar = String('=', (int (60. * p.Progress)))
+    let progressBar = String('=', (int (60. * (float p.CurrentFileIndex / float p.TotalFiles))))
     printf "[%-60s]" progressBar
 
     if isVerbose then

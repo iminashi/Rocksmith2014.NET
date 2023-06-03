@@ -36,7 +36,7 @@ let view dispatch (state: State) =
                                 TextBlock.create [ TextBlock.text "Profile path is not correctly set" ]
 
                                 Button.create [
-                                    Button.content "Open Configuration"
+                                    Button.content (translate "OpenConfiguration")
                                     Button.onClick (fun _ -> ShowOverlay (ConfigEditor (Some FocusedSetting.ProfilePath)) |> dispatch)
                                 ]
                             ]
@@ -45,7 +45,7 @@ let view dispatch (state: State) =
                                 TextBlock.create [ TextBlock.text "DLC directory path is not correctly set" ]
 
                                 Button.create [
-                                    Button.content "Open Configuration"
+                                    Button.content (translate "OpenConfiguration")
                                     Button.onClick (fun _ -> ShowOverlay (ConfigEditor (Some FocusedSetting.DLCFolder)) |> dispatch)
                                 ]
                             ]
@@ -55,7 +55,7 @@ let view dispatch (state: State) =
                         TextBlock.create [ TextBlock.text "Reading IDs..." ]
 
                         ProgressBar.create [
-                            ProgressBar.value (100. * progress)
+                            ProgressBar.value progress
                             ProgressBar.height 16.
                         ]
                     ]
@@ -68,8 +68,62 @@ let view dispatch (state: State) =
                             ProgressBar.height 16.
                         ]
                     ]
-                | ProfileCleanerState.Completed _result ->
-                    TextBlock.create [ TextBlock.text "Completed." ]
+                | ProfileCleanerState.Completed result ->
+                    Grid.create [
+                        Grid.columnDefinitions "auto,4,*"
+                        Grid.rowDefinitions "*,*,*,*,*"
+                        Grid.children [
+                            TextBlock.create [
+                                Grid.columnSpan 3
+                                TextBlock.margin (0., 4.)
+                                TextBlock.text "Cleaning completed.\n\nRecords removed:"
+                            ]
+
+                            TextBlock.create [
+                                Grid.row 1
+                                Grid.column 0
+                                TextBlock.text "Stats:"
+                            ]
+                            TextBlock.create [
+                                Grid.row 1
+                                Grid.column 2
+                                TextBlock.text (string result.Stats)
+                            ]
+
+                            TextBlock.create [
+                                Grid.row 2
+                                Grid.column 0
+                                TextBlock.text "Songs:"
+                            ]
+                            TextBlock.create [
+                                Grid.row 2
+                                Grid.column 2
+                                TextBlock.text (string result.Songs)
+                            ]
+
+                            TextBlock.create [
+                                Grid.row 3
+                                Grid.column 0
+                                TextBlock.text "Score Attack:"
+                            ]
+                            TextBlock.create [
+                                Grid.row 3
+                                Grid.column 2
+                                TextBlock.text (string result.ScoreAttack)
+                            ]
+
+                            TextBlock.create [
+                                Grid.row 4
+                                Grid.column 0
+                                TextBlock.text "Playnexts:"
+                            ]
+                            TextBlock.create [
+                                Grid.row 4
+                                Grid.column 2
+                                TextBlock.text (string result.PlayNext)
+                            ]
+                        ]
+                    ]
             ]
 
             hStack [
