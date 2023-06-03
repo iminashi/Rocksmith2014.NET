@@ -23,7 +23,7 @@ let editConfigTests =
             let newState, _ =
                 messages
                 |> List.fold (fun (state, _) message -> Main.update message state) (initialState, Cmd.none)
-                
+
             Expect.equal newState.Config.CharterName "Tester" "Charter name is correct"
             Expect.equal newState.Config.AutoVolume autoVolume "Auto volume is correct"
             Expect.equal newState.Config.ShowAdvanced showAdvanced "Show advanced is correct"
@@ -43,7 +43,7 @@ let editConfigTests =
             let newState, _ =
                 messages
                 |> List.fold (fun (state, _) message -> Main.update message state) (initialState, Cmd.none)
-                
+
             Expect.equal newState.Config.GenerateDD generateDD "Generate DD is correct"
             Expect.equal newState.Config.DDPhraseSearchEnabled phraseSearch "DD phrase search enabled is correct"
             Expect.equal newState.Config.DDPhraseSearchThreshold 50 "DD phrase search threshold is correct"
@@ -61,7 +61,7 @@ let editConfigTests =
             let newState, _ =
                 messages
                 |> List.fold (fun (state, _) message -> Main.update message state) (initialState, Cmd.none)
-                
+
             Expect.equal newState.Config.SaveDebugFiles saveDebug "Save debug files is correct"
             Expect.equal newState.Config.CustomAppId (Some testAppId) "Custom app ID is correct"
             Expect.equal newState.Config.ConvertAudio (Some ToWav) "Convert audio is correct"
@@ -76,7 +76,7 @@ let editConfigTests =
             let newState, _ =
                 messages
                 |> List.fold (fun (state, _) message -> Main.update message state) (state, Cmd.none)
-                
+
             Expect.contains newState.Config.ReleasePlatforms PC "Release platforms contains PC"
             Expect.contains newState.Config.ReleasePlatforms Mac "Release platforms contains Mac"
 
@@ -90,7 +90,7 @@ let editConfigTests =
             let newState, _ =
                 messages
                 |> List.fold (fun (state, _) message -> Main.update message state) (state, Cmd.none)
-                
+
             Expect.isEmpty newState.Config.ReleasePlatforms "Release platforms is empty"
 
         testCase "SetTestFolderPath, SetProjectsFolderPath, SetWwiseConsolePath, SetProfilePath" <| fun _ ->
@@ -103,7 +103,7 @@ let editConfigTests =
             let newState, _ =
                 messages
                 |> List.fold (fun (state, _) message -> Main.update message state) (initialState, Cmd.none)
-                
+
             Expect.equal newState.Config.TestFolderPath "TestFolder" "Test folder path is correct"
             Expect.equal newState.Config.WwiseConsolePath (Some "WwiseConsole") "Wwise console path is correct"
             Expect.equal newState.Config.ProfilePath "profile_prfldb" "Profile path is correct"
@@ -119,7 +119,7 @@ let editConfigTests =
             let newState, _ =
                 messages
                 |> List.fold (fun (state, _) message -> Main.update message state) (initialState, Cmd.none)
-                
+
             Expect.equal newState.Config.OpenFolderAfterReleaseBuild openFolder "Open folder after release is correct"
             Expect.equal newState.Config.LoadPreviousOpenedProject loadProject "Load previous opened project is correct"
 
@@ -133,7 +133,7 @@ let editConfigTests =
             let newState, _ =
                 messages
                 |> List.fold (fun (state, _) message -> Main.update message state) (initialState, Cmd.none)
-                
+
             Expect.equal newState.Config.DDLevelCountGeneration LevelCountGeneration.MLModel "DD level count generation is correct"
             Expect.equal newState.Config.AutoSave autoSave "Auto-save is correct"
     ]

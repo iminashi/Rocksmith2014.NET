@@ -23,6 +23,7 @@ type Configuration =
     { ReleasePlatforms: Platform Set
       ProfilePath: string
       TestFolderPath: string
+      DlcFolderPath: string
       CharterName: string
       ShowAdvanced: bool
       GenerateDD: bool
@@ -50,6 +51,7 @@ type Configuration =
         { ReleasePlatforms = Set([ PC; Mac ])
           ProfilePath = String.Empty
           TestFolderPath = String.Empty
+          DlcFolderPath = String.Empty
           CharterName = String.Empty
           ShowAdvanced = false
           GenerateDD = true
@@ -79,6 +81,7 @@ module Configuration =
         member val ReleaseMac: bool = true with get, set
         member val ProfilePath: string = String.Empty with get, set
         member val TestFolderPath: string = String.Empty with get, set
+        member val DlcFolderPath: string = String.Empty with get, set
         member val CharterName: string = String.Empty with get, set
         member val ShowAdvanced: bool = false with get, set
         member val GenerateDD: bool = true with get, set
@@ -145,6 +148,7 @@ module Configuration =
         { ReleasePlatforms = set platforms
           ProfilePath = dto.ProfilePath
           TestFolderPath = dto.TestFolderPath
+          DlcFolderPath = dto.DlcFolderPath
           CharterName = dto.CharterName
           ShowAdvanced = dto.ShowAdvanced
           GenerateDD = dto.GenerateDD
@@ -195,6 +199,7 @@ module Configuration =
             ReleaseMac = (config.ReleasePlatforms |> Set.contains Mac),
             ProfilePath = config.ProfilePath,
             TestFolderPath = config.TestFolderPath,
+            DlcFolderPath = config.DlcFolderPath,
             CharterName = config.CharterName,
             ShowAdvanced = config.ShowAdvanced,
             Locale = config.Locale.ShortName,

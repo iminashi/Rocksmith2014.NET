@@ -129,6 +129,7 @@ type ConfigEdit =
     | SetCharterName of string
     | SetProfilePath of string
     | SetTestFolderPath of string
+    | SetDlcFolderPath of string
     | SetWwiseConsolePath of string
     | SetFontGeneratorPath of string
     | SetAutoVolume of bool

@@ -190,6 +190,9 @@ let editConfig edit config =
     | SetTestFolderPath path ->
         { config with TestFolderPath = path }
 
+    | SetDlcFolderPath path ->
+        { config with DlcFolderPath = path }
+
     | SetOpenFolderAfterReleaseBuild openFolder ->
         { config with OpenFolderAfterReleaseBuild = openFolder }
 
