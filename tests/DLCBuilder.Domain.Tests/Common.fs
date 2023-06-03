@@ -57,6 +57,7 @@ let initialState =
       ImportedBuildToolVersion = None
       AudioLength = None
       FontGenerationWatcher = None
+      ProfileCleanerState = ProfileCleanerState.Idle
       Localizer = stringLocalizerStub
       AlbumArtLoader = albumArtLoaderStub
       DatabaseConnector = toneDatabaseStub }

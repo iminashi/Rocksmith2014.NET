@@ -98,6 +98,7 @@
   "ConvertAudioToWemMenuItem": "Muunna _äänitiedosto Wem muotoon...",
   "InjectTonesIntoProfileMenuItem": "_Lataa soundeja profiiliin...",
   "InjectTonesIntoProfileToolTip": "Valitse soundit, jotka ladataan asetuksissa asetetuun profiilitiedostoon.\n\nHUOMIO:\nProfiilissa olevat soundit korvataan.\nOn suositeltavaa tehdä profiilista varmuuskopio ennen käyttöä.",
+  "ProfileCleanerMenuItem": "Pr_ofiilin siivooja...",
   "BuildTest": "Rakenna testi",
   "BuildRelease": "Rakenna julkaisu",
   "Release": "Julkaisu",

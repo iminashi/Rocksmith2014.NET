@@ -7,21 +7,26 @@ open Avalonia.Layout
 open DLCBuilder
 open System.IO
 
-let view dispatch (cleanerState: ProfileCleanerState) (globalState: State) =
+let view dispatch (state: State) =
     let isRunning =
-        match cleanerState with ProfileCleanerState.Idle | ProfileCleanerState.Completed _ -> false | _ -> true
+        match state.ProfileCleanerState with
+        | ProfileCleanerState.Idle
+        | ProfileCleanerState.Completed _ ->
+            false
+        | ProfileCleanerState.ReadingIds _
+         | ProfileCleanerState.CleaningProfile ->
+            true
 
     let profileFileExists () =
-        String.endsWith "_PRFLDB" globalState.Config.ProfilePath && File.Exists(globalState.Config.ProfilePath)
-
+        String.endsWith "_PRFLDB" state.Config.ProfilePath && File.Exists(state.Config.ProfilePath)
 
     let dlcFolderExists () =
-        Directory.Exists(globalState.Config.DlcFolderPath)
+        Directory.Exists(state.Config.DlcFolderPath)
 
     StackPanel.create [
         StackPanel.children [
             vStack [
-                match cleanerState with
+                match state.ProfileCleanerState with
                 | ProfileCleanerState.Idle ->
                     vStack [
                         TextBlock.create [ TextBlock.text "...Instructions..." ]

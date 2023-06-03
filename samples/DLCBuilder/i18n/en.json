@@ -98,6 +98,7 @@
   "ConvertAudioToWemMenuItem": "Convert _Audio to Wem...",
   "InjectTonesIntoProfileMenuItem": "_Inject Tones into Profile...",
   "InjectTonesIntoProfileToolTip": "Select tones to be loaded into the profile file set in the configuration.\n\nNOTE:\nThe existing custom tones in the profile will be replaced.\nIt is recommended that you create a backup of your profile before use.",
+  "ProfileCleanerMenuItem": "Pr_ofile Cleaner...",
   "BuildTest": "Build Test",
   "BuildRelease": "Build Release",
   "Release": "Release",

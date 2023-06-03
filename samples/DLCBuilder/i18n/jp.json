@@ -98,6 +98,7 @@
   "ConvertAudioToWemMenuItem": "オーディオファイルをWemに変換...",
   "InjectTonesIntoProfileMenuItem": "プロフィールにトーンを読み込む...",
   "InjectTonesIntoProfileToolTip": "設定で入力されたプロフィールファイルにトーンを読み込みます。\n\n注意:\nプロフィールに存在するカスタムトーンが上書きされます。\n事前にプロフィールファイルをバックアップする事を推奨します。",
+  "ProfileCleanerMenuItem": "プロフィール掃除...",
   "BuildTest": "テストビルド",
   "BuildRelease": "リリースビルド",
   "Release": "リリース",

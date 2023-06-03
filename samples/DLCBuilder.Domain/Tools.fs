@@ -177,25 +177,25 @@ let update msg state =
         state, cmd
 
     | StartProfileCleaner ->
-        match File.Exists(state.Config.ProfilePath), Directory.Exists(state.Config.DlcFolderPath), state.Overlay with
-        | true, true, ProfileCleaner ProfileCleanerState.Idle ->
-            { state with Overlay = ProfileCleaner (ProfileCleanerState.ReadingIds 0.0) },
+        match File.Exists(state.Config.ProfilePath), Directory.Exists(state.Config.DlcFolderPath), state.ProfileCleanerState with
+        | true, true, ProfileCleanerState.Idle ->
+            { state with ProfileCleanerState = ProfileCleanerState.ReadingIds 0.0 },
             Cmd.OfAsync.either ProfileCleanerTool.readIdData state.Config.DlcFolderPath (IdDataReadingCompleted >> ToolsMsg) ErrorOccurred
         | _ ->
             state, Cmd.none
 
     | ProfileCleanerProgressChanged progress ->
-        match state.Overlay with
-        | ProfileCleaner (ProfileCleanerState.ReadingIds _) ->
-            { state with Overlay = ProfileCleaner (ProfileCleanerState.ReadingIds progress) }, Cmd.none
+        match state.ProfileCleanerState with
+        | ProfileCleanerState.ReadingIds _ ->
+            { state with ProfileCleanerState = ProfileCleanerState.ReadingIds progress }, Cmd.none
         | _ ->
             state, Cmd.none
 
     | IdDataReadingCompleted data ->
         let task () = ProfileCleanerTool.cleanProfile data state.Config.ProfilePath
 
-        { state with Overlay = ProfileCleaner ProfileCleanerState.CleaningProfile },
+        { state with ProfileCleanerState = ProfileCleanerState.CleaningProfile },
         Cmd.OfAsync.either task () (ProfileCleaned >> ToolsMsg) ErrorOccurred
 
     | ProfileCleaned result ->
-        { state with Overlay = ProfileCleaner (ProfileCleanerState.Completed result) }, Cmd.none
+        { state with ProfileCleanerState = ProfileCleanerState.Completed result }, Cmd.none

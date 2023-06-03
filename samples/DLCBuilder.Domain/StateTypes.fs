@@ -53,7 +53,7 @@ type OverlayContents =
     | AdditionalMetaDataEditor
     | LyricsViewer of lyrics: string * isJapanese: bool
     | InstrumentalXmlDetailsViewer of xml: InstrumentalArrangement * fileName: string
-    | ProfileCleaner of state: ProfileCleanerState
+    | ProfileCleaner
 
 [<RequireQualifiedAccess>]
 type OverlayCloseMethod =
@@ -365,6 +365,7 @@ type State =
       ImportedBuildToolVersion: string option
       AudioLength: TimeSpan option
       FontGenerationWatcher: FileSystemWatcher option
+      ProfileCleanerState: ProfileCleanerState
       /// For forcing a view update if the user loads the same album art file, but the file has been modified.
       AlbumArtLoadTime: DateTime option
       Localizer: IStringLocalizer

@@ -63,6 +63,7 @@ let init localizer albumArtLoader databaseConnector args =
       ImportedBuildToolVersion = None
       AudioLength = None
       FontGenerationWatcher = None
+      ProfileCleanerState = ProfileCleanerState.Idle
       Localizer = localizer
       AlbumArtLoader = albumArtLoader
       DatabaseConnector = databaseConnector }, commands

@@ -246,7 +246,7 @@ let tools state dispatch =
             // Profile Cleaner
             MenuItem.create [
                 MenuItem.header (translate "ProfileCleanerMenuItem")
-                MenuItem.onClick (fun _ -> ShowOverlay (ProfileCleaner ProfileCleanerState.Idle) |> dispatch)
+                MenuItem.onClick (fun _ -> ShowOverlay ProfileCleaner |> dispatch)
             ]
         ]
     ]

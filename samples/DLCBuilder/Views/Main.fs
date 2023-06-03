@@ -320,8 +320,8 @@ let private overlay state dispatch =
         LyricsViewer.view dispatch lyrics isJapanese
     | InstrumentalXmlDetailsViewer (xml, fileName) ->
         InstrumentalXmlDetails.view state dispatch fileName xml
-    | ProfileCleaner cleanerState ->
-        ProfileCleanerOverlay.view dispatch cleanerState state
+    | ProfileCleaner ->
+        ProfileCleanerOverlay.view dispatch state
 
 let private statusMessageContents dispatch = function
     | TaskWithProgress (task, progress) ->
