@@ -209,6 +209,23 @@ let private pathsConfig state dispatch focusedSetting =
             ]
         ]
 
+        headerWithLine "DLCFolder" true
+
+        DockPanel.create [
+            DockPanel.children [
+                Button.create [
+                    DockPanel.dock Dock.Right
+                    Button.margin (0., 4.)
+                    Button.content "..."
+                    Button.onClick (fun _ -> Dialog.DlcFolder |> ShowDialog |> dispatch)
+                ]
+                FixedTextBox.create [
+                    FixedTextBox.text state.Config.DlcFolderPath
+                    FixedTextBox.onTextChanged (SetDlcFolderPath >> EditConfig >> dispatch)
+                ]
+            ]
+        ]
+
         headerWithLine "WwiseConsolePath" true
 
         DockPanel.create [

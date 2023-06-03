@@ -226,6 +226,10 @@ let showDialog window dialogType state =
             let initialDir = state.Config.TestFolderPath |> Option.ofString
             openFolderDialog title initialDir (SetTestFolderPath >> EditConfig)
 
+        | Dialog.DlcFolder ->
+            let initialDir = state.Config.DlcFolderPath |> Option.ofString
+            openFolderDialog title initialDir (SetDlcFolderPath >> EditConfig)
+
         | Dialog.ProfileFile ->
             let initialDir =
                 state.Config.ProfilePath
