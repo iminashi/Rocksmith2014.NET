@@ -500,5 +500,13 @@
   "Fret": "Nauha {0}",
   "ArrangementPropertyHelp": "Yleensä EOF asettaa nämä ominaisuudet automaattisesti.",
   "GenerateFont": "Luo fontti",
-  "Start": "Käynnistä"
+  "Start": "Käynnistä",
+  "ProfilePathNotCorrectlySet": "Profiilitiedoston polku ei ole kelvollinen.",
+  "DLCDirectoryPathIsNotCorrectlySet": "DLC hakemiston polku ei ole kelvollinen.",
+  "OpenConfiguration": "Avaa asetukset",
+  "ProfileCleaner": "Profiilin siivooja",
+  "ProfileCleanerInfo": "Sellaisten sovitusten, jotka eivät löydy DLC hakemistosta, tiedot poistetaan profiilitiedostosta.\n\nProfiilista luodaan varmuuskopio automaattisetti.",
+  "ReadingIDs": "Luetaan ID:t...",
+  "CleaningProfile": "Siivotaan profiilia...",
+  "CleaningCompleted": "Siivous valmis. Poistetut tiedot:"
 }

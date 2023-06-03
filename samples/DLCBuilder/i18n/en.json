@@ -500,5 +500,13 @@
   "Fret": "Fret {0}",
   "ArrangementPropertyHelp": "These properties are normally set by EOF automatically.",
   "GenerateFont": "Generate Font",
-  "Start": "Start"
+  "Start": "Start",
+  "ProfilePathNotCorrectlySet": "Path to the profile file is not set correctly.",
+  "DLCDirectoryPathIsNotCorrectlySet": "Path to DLC folder is not set correctly.",
+  "OpenConfiguration": "Open configuration",
+  "ProfileCleaner": "Profile Cleaner",
+  "ProfileCleanerInfo": "Records for arrangements not found in the DLC directory will be removed from the profile file.\n\nA backup of the profile will be created automatically.",
+  "ReadingIDs": "Reading IDs...",
+  "CleaningProfile": "Cleaning profile...",
+  "CleaningCompleted": "Cleaning completed. Records removed:"
 }
