@@ -19,18 +19,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="onDiscIDs.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="onDiscKeys.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Rocksmith2014.Common\Rocksmith2014.Common.fsproj" />
-    <ProjectReference Include="..\..\src\Rocksmith2014.PSARC\Rocksmith2014.PSARC.fsproj" />
+    <ProjectReference Include="..\ProfileCleanerLib\ProfileCleanerLib.fsproj" />
   </ItemGroup>
 
   <ItemGroup>

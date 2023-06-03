@@ -94,6 +94,8 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.EOF", "src\Ro
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Rocksmith2014.EOF.Tests", "tests\Rocksmith2014.EOF.Tests\Rocksmith2014.EOF.Tests.fsproj", "{1F1E03F2-77B2-42CA-AC22-0B85FC435C4A}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ProfileCleanerLib", "samples\ProfileCleanerLib\ProfileCleanerLib.fsproj", "{4C24D3C2-64E2-4574-9ED4-C4B0AB7C958C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -368,6 +370,14 @@ Global
 		{1F1E03F2-77B2-42CA-AC22-0B85FC435C4A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1F1E03F2-77B2-42CA-AC22-0B85FC435C4A}.Release|x64.ActiveCfg = Release|x64
 		{1F1E03F2-77B2-42CA-AC22-0B85FC435C4A}.Release|x64.Build.0 = Release|x64
+		{4C24D3C2-64E2-4574-9ED4-C4B0AB7C958C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C24D3C2-64E2-4574-9ED4-C4B0AB7C958C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C24D3C2-64E2-4574-9ED4-C4B0AB7C958C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4C24D3C2-64E2-4574-9ED4-C4B0AB7C958C}.Debug|x64.Build.0 = Debug|Any CPU
+		{4C24D3C2-64E2-4574-9ED4-C4B0AB7C958C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C24D3C2-64E2-4574-9ED4-C4B0AB7C958C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C24D3C2-64E2-4574-9ED4-C4B0AB7C958C}.Release|x64.ActiveCfg = Release|Any CPU
+		{4C24D3C2-64E2-4574-9ED4-C4B0AB7C958C}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -410,6 +420,7 @@ Global
 		{231F895E-A392-4E32-81D7-284AEF4809D3} = {D205B519-E450-49DC-AE3A-C73C88DD7FE3}
 		{BF682120-0FA7-4B10-A8FC-7F472A2A4550} = {D205B519-E450-49DC-AE3A-C73C88DD7FE3}
 		{1F1E03F2-77B2-42CA-AC22-0B85FC435C4A} = {0FF21B35-CA73-45A8-939A-F14614C11471}
+		{4C24D3C2-64E2-4574-9ED4-C4B0AB7C958C} = {5372FA3F-22E5-4217-B4E1-D439C943AEA0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0B1D2436-1840-458A-B570-F533FC009333}

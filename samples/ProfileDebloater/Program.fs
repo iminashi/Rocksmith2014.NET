@@ -1,96 +1,16 @@
 open Newtonsoft.Json.Linq
 open Rocksmith2014.Common
-open Rocksmith2014.Common.Manifest
-open Rocksmith2014.PSARC
 open System
-open System.IO
 
-let readFromAppDir file =
-    File.ReadLines(Path.Combine(AppContext.BaseDirectory, file))
+let printProgress (isVerbose: bool) (p: ProfileCleaner.IdReadingProgress) =
+    Console.SetCursorPosition(0, 1)
+    let progressBar = String('=', (int (60. * p.Progress)))
+    printf "[%-60s]" progressBar
 
-/// Reads the on-disc IDs and keys from the prepared text files.
-let readOnDiscIdsAndKeys () =
-    Set.ofSeq (readFromAppDir "onDiscIDs.txt"),
-    Set.ofSeq (readFromAppDir "onDiscKeys.txt")
-
-/// Reads the IDs and keys from a PSARC with the given path.
-let readIDs path =
-    backgroundTask {
-        use psarc = PSARC.OpenFile(path)
-
-        use! headerStream =
-            psarc.Manifest
-            |> List.find (String.endsWith "hsan")
-            |> psarc.GetEntryStream
-
-        let! manifest = Manifest.fromJsonStream headerStream
-
-        let ids, songKeys =
-            manifest.Entries
-            |> Map.toList
-            |> List.map (fun (id, entry) -> id, entry.Attributes.SongKey)
-            |> List.unzip
-
-        return ids, List.distinct songKeys
-    }
-
-let printProgress current max =
-    let progress = (float current / float max)
-    let bar = String.replicate (int (60. * progress)) "="
-    printf "\r[%-60s]" bar
-
-/// Reads IDs and keys from psarcs in the given directory and its subdirectories.
-let gatherDLCData verbose (directory: string) =
-    async {
-        printfn "Reading IDs..."
-
-        let! results =
-            let files =
-                Directory.EnumerateFiles(directory, "*.psarc", SearchOption.AllDirectories)
-                |> Seq.filter (fun x -> not <| (x.Contains("inlay") || x.Contains("rs1compatibility")))
-                |> Seq.toArray
-
-            files
-            |> Array.mapi (fun i path ->
-                async {
-                    if verbose then
-                        printfn "Reading IDs from %s" (Path.GetRelativePath(directory, path))
-                    else
-                        printProgress (i + 1) files.Length
-
-                    return! readIDs path |> Async.AwaitTask
-                })
-            |> Async.Sequential
-
-        printfn ""
-
-        let ids, keys =
-            results
-            |> List.ofArray
-            |> List.unzip
-
-        return List.collect id ids, List.collect id keys
-    }
-
-/// Removes the children whose names are not in the IDs set from the JToken.
-let filterJTokenIds (ids: Set<string>) (token: JToken) =
-    let filtered =
-        token
-        |> Seq.filter (fun x -> not <| ids.Contains((x :?> JProperty).Name))
-        |> Seq.toArray
-
-    filtered |> Array.iter (fun x -> x.Remove())
-    filtered.Length
-
-/// Removes the elements that are not in the keys set from the JArray.
-let filterJArrayKeys (keys: Set<string>) (array: JArray) =
-    array
-    |> Seq.filter (fun x -> not <| keys.Contains(x.Value<string>()))
-    |> Seq.toArray
-    |> Array.iter (array.Remove >> ignore)
-
-let backupProfile profilePath =
-    File.Copy(profilePath, $"%s{profilePath}.backup", overwrite = true)
+    if isVerbose then
+        Console.SetCursorPosition(0, 2)
+        printf "%s" (String(' ', Console.BufferWidth))
+        printf $"\r{p.FileName}"
 
 [<EntryPoint>]
 let main argv =
@@ -100,7 +20,8 @@ let main argv =
         backgroundTask {
             let profilePath = argv[0]
             let dlcDirectory = argv[1]
-            let isVerbose = Array.tryItem 2 argv = Some "-v"
+            let isVerbose = Array.contains "-v" argv
+            let isDryRun = Array.contains "-d" argv
 
             Console.Clear()
             let cursorVisibleOld = Console.CursorVisible
@@ -108,21 +29,23 @@ let main argv =
 
             let! ids, keys =
                 async {
-                    let odIds, odKeys = readOnDiscIdsAndKeys ()
-                    let! dlcIds, dlcKeys = gatherDLCData isVerbose dlcDirectory
-                    return Set.union odIds (Set.ofList dlcIds), Set.union odKeys (Set.ofList dlcKeys)
+                    let onDisc = ProfileCleaner.readOnDiscIdsAndKeys ()
+                    printfn "Reading IDs..."
+                    let! dlcIds, dlcKeys = ProfileCleaner.gatherDLCData (printProgress isVerbose) dlcDirectory
+                    printfn ""
+                    return Set.union onDisc.OnDiscIds (Set.ofList dlcIds), Set.union onDisc.OnDiscKeys (Set.ofList dlcKeys)
                 }
 
-            let filterIds = filterJTokenIds ids
-            let filterKeys = filterJArrayKeys keys
+            let filterIds = ProfileCleaner.filterJTokenIds ids
+            let filterKeys = ProfileCleaner.filterJArrayKeys keys
             let printStats section num =
                 printfn "%-9s: %i record%s removed" section num (if num = 1 then "" else "s")
 
             printfn "Reading profile..."
 
-            let! profile, id = Profile.readAsJToken profilePath
+            let! profile, profileId = Profile.readAsJToken profilePath
 
-            printfn "Debloating profile..."
+            printfn "Cleaning profile..."
 
             filterIds profile["Playnexts"].["Songs"] |> printStats "Playnexts"
             filterIds profile["Songs"] |> printStats "Songs"
@@ -135,13 +58,15 @@ let main argv =
             profile["FavoritesListRoot"]["FavoritesList"] :?> JArray
             |> filterKeys
 
-            printfn "Saving profile file..."
+            if not isDryRun then
+                printfn "Saving profile file..."
 
-            backupProfile profilePath
-            printfn "Backup file created."
+                ProfileCleaner.backupProfile profilePath
+                printfn "Backup file created."
 
-            do! Profile.saveJToken profilePath id profile
-            printfn "Profile saved."
+                do! Profile.saveJToken profilePath profileId profile
+                printfn "Profile saved."
+
             Console.CursorVisible <- cursorVisibleOld
         }
         |> fun t -> t.Wait()
