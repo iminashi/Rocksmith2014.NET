@@ -123,11 +123,13 @@ let editConfigTests =
             Expect.equal newState.Config.OpenFolderAfterReleaseBuild openFolder "Open folder after release is correct"
             Expect.equal newState.Config.LoadPreviousOpenedProject loadProject "Load previous opened project is correct"
 
-        testCase "SetDDLevelCountGeneration, SetAutoSave" <| fun _ ->
+        testCase "SetDDLevelCountGeneration, SetAutoSave, SetAutoAudioConversion" <| fun _ ->
             let autoSave = not initialState.Config.AutoSave
+            let autoConversion = not initialState.Config.AutoAudioConversion
             let messages =
                 [ SetDDLevelCountGeneration LevelCountGeneration.MLModel
-                  SetAutoSave autoSave ]
+                  SetAutoSave autoSave
+                  SetAutoAudioConversion autoConversion ]
                 |> List.map EditConfig
 
             let newState, _ =
@@ -136,4 +138,5 @@ let editConfigTests =
 
             Expect.equal newState.Config.DDLevelCountGeneration LevelCountGeneration.MLModel "DD level count generation is correct"
             Expect.equal newState.Config.AutoSave autoSave "Auto-save is correct"
+            Expect.equal newState.Config.AutoAudioConversion autoConversion "Auto audio conversion is correct"
     ]

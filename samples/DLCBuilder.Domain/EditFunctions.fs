@@ -145,6 +145,9 @@ let editConfig edit config =
     | SetAutoVolume autoVolume ->
         { config with AutoVolume = autoVolume }
 
+    | SetAutoAudioConversion autoConversion ->
+        { config with AutoAudioConversion = autoConversion }
+
     | SetShowAdvanced showAdvanced ->
         { config with ShowAdvanced = showAdvanced }
 

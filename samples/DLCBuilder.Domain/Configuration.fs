@@ -36,6 +36,7 @@ type Configuration =
       SaveDebugFiles: bool
       AutoVolume: bool
       AutoSave: bool
+      AutoAudioConversion: bool
       ComparePhraseLevelsOnTestBuild: bool
       ConvertAudio: AudioConversionType option
       OpenFolderAfterReleaseBuild: bool
@@ -64,6 +65,7 @@ type Configuration =
           SaveDebugFiles = false
           AutoVolume = true
           AutoSave = false
+          AutoAudioConversion = true
           ComparePhraseLevelsOnTestBuild = false
           ConvertAudio = None
           OpenFolderAfterReleaseBuild = true
@@ -79,25 +81,26 @@ module Configuration =
     type Dto() =
         member val ReleasePC: bool = true with get, set
         member val ReleaseMac: bool = true with get, set
-        member val ProfilePath: string = String.Empty with get, set
-        member val TestFolderPath: string = String.Empty with get, set
-        member val DlcFolderPath: string = String.Empty with get, set
-        member val CharterName: string = String.Empty with get, set
-        member val ShowAdvanced: bool = false with get, set
-        member val GenerateDD: bool = true with get, set
-        member val DDPhraseSearchEnabled: bool = true with get, set
-        member val DDPhraseSearchThreshold: int = 80 with get, set
+        member val ProfilePath: string = Configuration.Default.ProfilePath with get, set
+        member val TestFolderPath: string = Configuration.Default.TestFolderPath with get, set
+        member val DlcFolderPath: string = Configuration.Default.DlcFolderPath with get, set
+        member val CharterName: string = Configuration.Default.CharterName with get, set
+        member val ShowAdvanced: bool = Configuration.Default.ShowAdvanced with get, set
+        member val GenerateDD: bool = Configuration.Default.GenerateDD with get, set
+        member val DDPhraseSearchEnabled: bool = Configuration.Default.DDPhraseSearchEnabled with get, set
+        member val DDPhraseSearchThreshold: int = Configuration.Default.DDPhraseSearchThreshold with get, set
         member val DDLevelCountGeneration: int = 0 with get, set
-        member val RemoveDDOnImport: bool = false with get, set
-        member val CreateEOFProjectOnImport: bool = false with get, set
-        member val ApplyImprovements: bool = true with get, set
-        member val SaveDebugFiles: bool = false with get, set
-        member val AutoVolume: bool = true with get, set
-        member val AutoSave: bool = false with get, set
+        member val RemoveDDOnImport: bool = Configuration.Default.RemoveDDOnImport with get, set
+        member val CreateEOFProjectOnImport: bool = Configuration.Default.CreateEOFProjectOnImport with get, set
+        member val ApplyImprovements: bool = Configuration.Default.ApplyImprovements with get, set
+        member val SaveDebugFiles: bool = Configuration.Default.SaveDebugFiles with get, set
+        member val AutoVolume: bool = Configuration.Default.AutoVolume with get, set
+        member val AutoSave: bool = Configuration.Default.AutoSave with get, set
+        member val AutoAudioConversion: bool = Configuration.Default.AutoAudioConversion with get, set
         member val ComparePhraseLevelsOnTestBuild: bool = false with get, set
         member val ConvertAudio: int = 0 with get, set
-        member val OpenFolderAfterReleaseBuild: bool = true with get, set
-        member val LoadPreviousOpenedProject: bool = false with get, set
+        member val OpenFolderAfterReleaseBuild: bool = Configuration.Default.OpenFolderAfterReleaseBuild with get, set
+        member val LoadPreviousOpenedProject: bool = Configuration.Default.LoadPreviousOpenedProject with get, set
         member val PreviousOpenedProject: string = String.Empty with get, set
         member val Locale: string = Locale.Default.ShortName with get, set
         member val WwiseConsolePath: string = String.Empty with get, set
@@ -161,6 +164,7 @@ module Configuration =
           SaveDebugFiles = dto.SaveDebugFiles
           AutoVolume = dto.AutoVolume
           AutoSave = dto.AutoSave
+          AutoAudioConversion = dto.AutoAudioConversion
           ComparePhraseLevelsOnTestBuild = dto.ComparePhraseLevelsOnTestBuild
           ConvertAudio = convertAudio
           OpenFolderAfterReleaseBuild = dto.OpenFolderAfterReleaseBuild
@@ -212,6 +216,7 @@ module Configuration =
             ApplyImprovements = config.ApplyImprovements,
             AutoVolume = config.AutoVolume,
             AutoSave = config.AutoSave,
+            AutoAudioConversion = config.AutoAudioConversion,
             ComparePhraseLevelsOnTestBuild = config.ComparePhraseLevelsOnTestBuild,
             ConvertAudio = convertAudio,
             OpenFolderAfterReleaseBuild = config.OpenFolderAfterReleaseBuild,

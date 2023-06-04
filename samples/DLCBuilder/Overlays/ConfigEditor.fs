@@ -99,6 +99,14 @@ let private generalConfig state dispatch =
             CheckBox.onUnchecked (fun _ -> false |> SetAutoVolume |> EditConfig |> dispatch)
         ]
 
+        // Convert Audio in the Background
+        CheckBox.create [
+            CheckBox.content (translate "ConvertAudioInTheBackground")
+            CheckBox.isChecked state.Config.AutoAudioConversion
+            CheckBox.onChecked (fun _ -> true |> SetAutoAudioConversion |> EditConfig |> dispatch)
+            CheckBox.onUnchecked (fun _ -> false |> SetAutoAudioConversion |> EditConfig |> dispatch)
+        ]
+
         // Load Previously Opened Project Automatically
         CheckBox.create [
             CheckBox.content (translate "LoadPreviousProjectAutomatically")

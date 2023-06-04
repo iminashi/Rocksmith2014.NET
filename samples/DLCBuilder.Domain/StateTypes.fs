@@ -148,6 +148,7 @@ type ConfigEdit =
     | SetWwiseConsolePath of string
     | SetFontGeneratorPath of string
     | SetAutoVolume of bool
+    | SetAutoAudioConversion of bool
     | SetShowAdvanced of bool
     | SetRemoveDDOnImport of bool
     | SetCreateEOFProjectOnImport of bool
