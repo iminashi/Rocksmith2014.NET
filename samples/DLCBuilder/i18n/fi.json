@@ -319,6 +319,8 @@
   "CustomAudioFile": "Eri äänitiedosto",
   "AutoSaveProject": "Projektin automaattitallennus",
   "CalculateVolumesAutomatically": "Laske äänenvoimakkuudet automaattisesti",
+  "ConvertAudioInTheBackground": "Muunna äänitiedostoja taustalla",
+  "ConvertAudioInTheBackgroundHelp": "Aloittaa äänitiedoston muunnoksen wem-muotoon, kun tiedosto lisätään projektiin.\n\nKun asetus on pois päältä, muunnos tehdään paketin rakentamisen aikana.",
   "CalculateVolumes": "Laske äänenvoimakkuudet",
   "BaseToneNaming": "Automaatinen perus-soundiavain",
   "BaseToneNamingHelp": "Voit päättää miten soundiavain nimetään, jos lisätty sovitustiedosto ei sisällä perus-soundiavainta.",

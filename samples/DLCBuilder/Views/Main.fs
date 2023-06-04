@@ -355,6 +355,10 @@ let private statusMessageContents dispatch = function
                     translate $"VolumeCalculation{target}"
                 | FileDownload { LocString = s } ->
                     translate s
+                | WemConversion files ->
+                    let header = translate "WemConversion"
+                    let filesStr = files |> Array.map System.IO.Path.GetFileName |> String.concat "\n"
+                    $"{header}\n{filesStr}"
                 | other ->
                     other |> string |> translate)
         ] |> generalize

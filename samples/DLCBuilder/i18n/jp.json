@@ -319,6 +319,8 @@
   "CustomAudioFile": "カスタムオーディオ",
   "AutoSaveProject": "プロジェクトを自動的に保存",
   "CalculateVolumesAutomatically": "自動的にボリューム値を計算",
+  "ConvertAudioInTheBackground": "オーディオファイル変換を自動的に開始",
+  "ConvertAudioInTheBackgroundHelp": "プロジェクトにオーディオファイルが追加されると、自動的にWEMフォーマットに変換を開始します。\n\nオフにすると、変換はビルド中に行われます。",
   "CalculateVolumes": "ボリューム値を計算する",
   "BaseToneNaming": "自動的ベーストーンキー",
   "BaseToneNamingHelp": "アレンジファイルにベーストーンキーがない場青、自動的に作られるキーのフォーマットが決められます。",

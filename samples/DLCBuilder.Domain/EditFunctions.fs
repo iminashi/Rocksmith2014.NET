@@ -98,18 +98,20 @@ let editInstrumental state edit index inst =
             { inst with PersistentID = id }, Cmd.none
 
         | SetCustomAudioPath (Some path) ->
-            let cmd =
-                if state.Config.AutoVolume && not <| String.endsWith ".wem" path then
-                    Cmd.ofMsg <| CalculateVolume(CustomAudio(path, inst.PersistentID))
-                else
-                    Cmd.none
+            let notWemFile = not <| String.endsWith ".wem" path
+            let cmds =
+                [
+                    if notWemFile then StateUtils.getOptionalWemConversionCmd state path
+                    if state.Config.AutoVolume && notWemFile then
+                        Cmd.ofMsg <| CalculateVolume(CustomAudio(path, inst.PersistentID))
+                ]
 
             let customAudio =
                 inst.CustomAudio
                 |> Option.map (fun audio -> { audio with Path = path })
                 |> Option.orElseWith (fun () -> Some { Path = path; Volume = state.Project.AudioFile.Volume })
 
-            { inst with CustomAudio = customAudio }, cmd
+            { inst with CustomAudio = customAudio }, Cmd.batch cmds
 
         | SetCustomAudioPath None ->
             { inst with CustomAudio = None }, Cmd.none

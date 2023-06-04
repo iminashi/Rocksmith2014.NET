@@ -104,11 +104,15 @@ let addDescriptors (tone: Tone) =
 
 /// Converts the project's audio and preview audio files to wem.
 let convertAudio cliPath project =
-    [| project.AudioFile.Path
-       project.AudioPreviewFile.Path |]
-    |> Array.map (Wwise.convertToWem cliPath)
-    |> Async.Parallel
-    |> Async.Ignore
+    async {
+        let files = [| project.AudioFile.Path; project.AudioPreviewFile.Path |]
+        do! files
+            |> Array.map (Wwise.convertToWem cliPath)
+            |> Async.Parallel
+            |> Async.Ignore
+
+        return files
+    }
 
 /// Removes the item at the index from the array and shifts the subsequent items towards index zero by one.
 let removeAndShift (index: int) array =

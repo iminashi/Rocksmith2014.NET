@@ -363,7 +363,7 @@ let view state dispatch (inst: Instrumental) =
                     // Convert to wem
                     iconButton Media.Icons.update [
                         DockPanel.dock Dock.Right
-                        Button.isEnabled (not <| state.RunningTasks.Contains(WemConversion))
+                        Button.isEnabled (not (state.RunningTasks |> Set.exists (function WemConversion _ -> true | _ -> false)))
                         Button.isVisible (
                             match inst.CustomAudio with
                             | Some audio when not <| String.endsWith ".wem" audio.Path ->

@@ -74,7 +74,7 @@ type VolumeTarget =
 
 type LongTask =
     | BuildPackage
-    | WemConversion
+    | WemConversion of filesBeingConverted: string array
     | PsarcImport
     | PsarcUnpack
     | WemToOggConversion
@@ -309,7 +309,7 @@ type Msg =
     | ShowInstrumentalXmlDetailsViewer
     | Build of BuildType
     | BuildComplete of BuildCompleteType
-    | WemConversionComplete of unit
+    | WemConversionComplete of filesConverted: string array
     | CheckArrangement of arrangement: Arrangement
     | CheckArrangements
     | TaskProgressChanged of task: LongTask * progress: float

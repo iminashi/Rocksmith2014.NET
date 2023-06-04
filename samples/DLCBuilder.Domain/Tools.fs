@@ -121,11 +121,15 @@ let update msg state =
                     files
                     |> Array.map (Wwise.convertToWem state.Config.WwiseConsolePath)
 
-                do! Async.Parallel(tasks, 4) |> Async.Ignore
+                do! Async.Parallel(tasks, min 4 Environment.ProcessorCount) |> Async.Ignore
+
+                return files
             }
 
-        StateUtils.addTask WemConversion state,
-        Cmd.OfAsync.either task () WemConversionComplete (fun ex -> TaskFailed(ex, WemConversion))
+        let longTask = WemConversion files
+
+        StateUtils.addTask longTask state,
+        Cmd.OfAsync.either task () WemConversionComplete (fun ex -> TaskFailed(ex, longTask))
 
     | UnpackPSARC (paths, targetRootDirectory) ->
         let totalFiles = float paths.Length

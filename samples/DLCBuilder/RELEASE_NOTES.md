@@ -4,6 +4,7 @@
 - Added a new tool "profile cleaner" to the tools menu.
 - A cancel button is now shown when in quick edit "mode".
 - Added possibility to launch the custom font generator from the UI.
+- Added an option to start audio conversion in the background automatically when an audio file is added to the project.
 - Added an option for the naming of the automatically-created base tone key.
 - Added an option to compare phrase level counts to the previous build version for test builds also.
 - Phrase level file is now created also when a PSARC is imported.

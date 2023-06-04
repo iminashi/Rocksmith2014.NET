@@ -20,7 +20,7 @@ let testConversion testFile =
         let wemPath = Path.ChangeExtension(testFile, "wem")
         if File.Exists(wemPath) then File.Delete(wemPath)
 
-        do! Wwise.convertToWem actualCliPath testFile
+        let! _ = Wwise.convertToWem actualCliPath testFile
         let info = FileInfo(wemPath)
 
         Expect.isTrue info.Exists "Wem file was created"

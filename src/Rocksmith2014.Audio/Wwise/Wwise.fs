@@ -144,4 +144,6 @@ let convertToWem (cliPath: string option) (sourcePath: string) =
             copyWemFile destPath templateDir
         finally
             Directory.Delete(templateDir, recursive = true)
+
+        return [| sourcePath |]
     }

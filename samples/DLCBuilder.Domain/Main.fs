@@ -314,9 +314,12 @@ let update (msg: Msg) (state: State) =
             else
                 project.AudioPreviewFile.Path
 
+        let notWemFile = not <| String.endsWith ".wem" audioPath
+
         let cmds =
             [
-                if config.AutoVolume && not <| String.endsWith ".wem" audioPath then
+                if notWemFile then StateUtils.getOptionalWemConversionCmd state audioPath
+                if config.AutoVolume && notWemFile then
                     let previewChanged = project.AudioPreviewFile.Path <> previewPath
                     if previewChanged then
                         Cmd.ofMsg CalculateVolumes
@@ -333,35 +336,41 @@ let update (msg: Msg) (state: State) =
         { state with Project = updatedProject }, Cmd.batch cmds
 
     | SetPreviewAudioFile previewPath ->
-        let cmd =
-            if config.AutoVolume && not <| String.endsWith ".wem" previewPath then
-                Cmd.ofMsg (CalculateVolume PreviewAudio)
-            else
-                Cmd.none
+        let notWemFile = not <| String.endsWith ".wem" previewPath
+
+        let cmds =
+            [
+                if notWemFile then StateUtils.getOptionalWemConversionCmd state previewPath
+                if config.AutoVolume && notWemFile then
+                    Cmd.ofMsg (CalculateVolume PreviewAudio)
+            ]
 
         let updatedProject =
             { project with AudioPreviewFile = { project.AudioPreviewFile with Path = previewPath } }
 
-        { state with Project = updatedProject }, cmd
+        { state with Project = updatedProject }, Cmd.batch cmds
 
     | ConvertToWem ->
         if DLCProject.audioFilesExist project then
-            addTask WemConversion state,
+            let task = WemConversion [| project.AudioFile.Path; project.AudioPreviewFile.Path |]
+            addTask task state,
             Cmd.OfAsync.either
                 (Utils.convertAudio config.WwiseConsolePath) project
                 WemConversionComplete
-                (fun ex -> TaskFailed(ex, WemConversion))
+                (fun ex -> TaskFailed(ex, task))
         else
             state, Cmd.none
 
     | ConvertToWemCustom ->
         match getSelectedArrangement state with
         | Some (Instrumental { CustomAudio = Some audio }) ->
-            addTask WemConversion state,
+            let task = WemConversion [| audio.Path |]
+
+            addTask task state,
             Cmd.OfAsync.either
                 (Wwise.convertToWem config.WwiseConsolePath) audio.Path
                 WemConversionComplete
-                (fun ex -> TaskFailed(ex, WemConversion))
+                (fun ex -> TaskFailed(ex, task))
         | _ ->
             state, Cmd.none
 
@@ -934,8 +943,8 @@ let update (msg: Msg) (state: State) =
 
         removeTask BuildPackage state, cmd
 
-    | WemConversionComplete _ ->
-        removeTask WemConversion state,
+    | WemConversionComplete files ->
+        removeTask (WemConversion files) state,
         Cmd.ofMsg (AddStatusMessage(translate "WemConversionComplete"))
 
     | CheckArrangement arrangement ->

@@ -100,11 +100,17 @@ let private generalConfig state dispatch =
         ]
 
         // Convert Audio in the Background
-        CheckBox.create [
-            CheckBox.content (translate "ConvertAudioInTheBackground")
-            CheckBox.isChecked state.Config.AutoAudioConversion
-            CheckBox.onChecked (fun _ -> true |> SetAutoAudioConversion |> EditConfig |> dispatch)
-            CheckBox.onUnchecked (fun _ -> false |> SetAutoAudioConversion |> EditConfig |> dispatch)
+        hStack [
+            CheckBox.create [
+                CheckBox.content (translate "ConvertAudioInTheBackground")
+                CheckBox.isChecked state.Config.AutoAudioConversion
+                CheckBox.onChecked (fun _ -> true |> SetAutoAudioConversion |> EditConfig |> dispatch)
+                CheckBox.onUnchecked (fun _ -> false |> SetAutoAudioConversion |> EditConfig |> dispatch)
+            ]
+
+            HelpButton.create [
+                HelpButton.helpText (translate "ConvertAudioInTheBackgroundHelp")
+            ]
         ]
 
         // Load Previously Opened Project Automatically
@@ -182,7 +188,7 @@ let private pathsConfig state dispatch focusedSetting =
                 ]
 
                 FixedTextBox.create [
-                    TextBox.margin (0., 4.)
+                    FixedTextBox.margin (0., 4.)
                     FixedTextBox.validation (fun path ->
                         if String.IsNullOrEmpty(path) then
                             true
@@ -208,9 +214,9 @@ let private pathsConfig state dispatch focusedSetting =
                     Button.onClick (fun _ -> Dialog.TestFolder |> ShowDialog |> dispatch)
                 ]
                 FixedTextBox.create [
-                    TextBox.margin (0., 4.)
+                    FixedTextBox.margin (0., 4.)
                     FixedTextBox.text state.Config.TestFolderPath
-                    TextBox.watermark (translate "TestFolderPlaceholder")
+                    FixedTextBox.watermark (translate "TestFolderPlaceholder")
                     FixedTextBox.onTextChanged (SetTestFolderPath >> EditConfig >> dispatch)
                     FixedTextBox.autoFocus (Option.contains FocusedSetting.TestFolder focusedSetting)
                 ]
@@ -228,6 +234,7 @@ let private pathsConfig state dispatch focusedSetting =
                     Button.onClick (fun _ -> Dialog.DlcFolder |> ShowDialog |> dispatch)
                 ]
                 FixedTextBox.create [
+                    FixedTextBox.margin (0., 4.)
                     FixedTextBox.text state.Config.DlcFolderPath
                     FixedTextBox.onTextChanged (SetDlcFolderPath >> EditConfig >> dispatch)
                     FixedTextBox.autoFocus (Option.contains FocusedSetting.DLCFolder focusedSetting)
@@ -246,11 +253,11 @@ let private pathsConfig state dispatch focusedSetting =
                     Button.onClick (fun _ -> Dialog.WwiseConsole |> ShowDialog |> dispatch)
                 ]
                 FixedTextBox.create [
-                    TextBox.margin (0., 4.)
-                    TextBox.watermark (translate "WwiseConsolePathPlaceholder")
+                    FixedTextBox.margin (0., 4.)
+                    FixedTextBox.watermark (translate "WwiseConsolePathPlaceholder")
                     FixedTextBox.text (Option.toObj state.Config.WwiseConsolePath)
                     FixedTextBox.onTextChanged (SetWwiseConsolePath >> EditConfig >> dispatch)
-                    TextBox.onLostFocus (fun e ->
+                    FixedTextBox.onLostFocus (fun e ->
                         let t = e.Source :?> TextBox
                         if Directory.Exists(t.Text) then
                             tryFindWwiseExecutable t.Text
@@ -271,7 +278,7 @@ let private pathsConfig state dispatch focusedSetting =
                     Button.onClick (fun _ -> Dialog.FontGeneratorPath |> ShowDialog |> dispatch)
                 ]
                 FixedTextBox.create [
-                    TextBox.margin (0., 4.)
+                    FixedTextBox.margin (0., 4.)
                     FixedTextBox.text (Option.toObj state.Config.FontGeneratorPath)
                     FixedTextBox.onTextChanged (SetFontGeneratorPath >> EditConfig >> dispatch)
                 ]
@@ -572,7 +579,7 @@ let private tabHeader (icon: Geometry) locKey =
 let view state dispatch focusedSetting =
     DockPanel.create [
         DockPanel.width 600.
-        DockPanel.height 480.
+        DockPanel.height 490.
         DockPanel.children [
             // Close button
             Button.create [

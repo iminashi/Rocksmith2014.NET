@@ -80,9 +80,11 @@ let messageTests =
             Expect.isFalse (newState.RunningTasks.Contains BuildPackage) "Build task was removed"
 
         testCase "ConversionComplete removes conversion task" <| fun _ ->
-            let newState, _ = Main.update (WemConversionComplete ()) { initialState with RunningTasks = Set([ WemConversion ]) }
+            let convertedFiles =  [| "audio.ogg" |]
+            let convTask = WemConversion convertedFiles
+            let newState, _ = Main.update (WemConversionComplete convertedFiles) { initialState with RunningTasks = Set.singleton convTask }
 
-            Expect.isFalse (newState.RunningTasks.Contains WemConversion) "Conversion task was removed"
+            Expect.isFalse (newState.RunningTasks.Contains convTask) "Conversion task was removed"
 
         testCase "SetRecentFiles sets recent files" <| fun _ ->
             let newState, _ = Main.update (SetRecentFiles [ "recent_file" ]) initialState

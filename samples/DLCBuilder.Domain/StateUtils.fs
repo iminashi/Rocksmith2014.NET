@@ -27,8 +27,13 @@ let addTones (state: State) (tones: Tone list) =
 /// Returns true if a build or a wem conversion is not in progress.
 let notBuilding state =
     state.RunningTasks
-    |> Set.intersect (set [ BuildPackage; WemConversion ])
-    |> Set.isEmpty
+    |> Set.exists (function
+        | BuildPackage
+        | WemConversion _ ->
+            true
+        | _ ->
+            false)
+    |> not
 
 /// Returns true if the project can be built.
 let canBuild state =
@@ -53,7 +58,7 @@ let taskHasProgress = function
     | ArrangementCheckOne
     | AutomaticPreviewCreation
     | VolumeCalculation _
-    | WemConversion
+    | WemConversion _
     | WemToOggConversion ->
         false
 
@@ -477,3 +482,21 @@ let tryGetNonWemAudioFile wemPath =
             Some oggPath
         | _ ->
             None
+
+let getOptionalWemConversionCmd state audioPath =
+    if state.Config.AutoAudioConversion then
+        let wemFileExists = Path.ChangeExtension(audioPath, ".wem") |> File.Exists
+        let conversionAlreadyInProgress =
+            state.RunningTasks
+            |> Set.exists (function
+                | WemConversion files ->
+                    files |> Array.contains audioPath
+                | _ ->
+                    false)
+
+        if not wemFileExists && not conversionAlreadyInProgress then
+            Cmd.ofMsg (ConvertAudioToWem [| audioPath |] |> ToolsMsg)
+        else
+            Cmd.none
+    else
+        Cmd.none
