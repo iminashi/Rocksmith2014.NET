@@ -1,16 +1,17 @@
 ## 2.0.0 (Released 2023-06-xx)
 
 - Updated to .NET 7.
+- Added a new tool "profile cleaner" to the tools menu.
 - A cancel button is now shown when in quick edit "mode".
 - Added possibility to launch the custom font generator from the UI.
-- Added an option for the naming of the base tone key created automatically.
-- Added an option to compare phrase level counts to previous version for test builds.
+- Added an option for the naming of the automatically-created base tone key.
+- Added an option to compare phrase level counts to the previous build version for test builds also.
+- Phrase level file is now created also when a PSARC is imported.
 - Added a new validation check for hammer-ons/pull-offs that are on the same fret as the previous note on the same string.
 - Added a new validation check for a finger changing during a slide.
 - Added a new validation check for position shift into a pull-off.
 - Fixed false positive in validation for anchor position in relation to chord fingering with chords that use the thumb.
 - A better error message is shown when loading an "EXT" vocals file fails.
-- Phrase level file is now created also when a PSARC is imported.
 - Master ID and persistent ID can now be manually edited also for vocals arrangements when "show advanced features" is enabled.
 - Minor UI improvements.
 - Minor optimizations to package generation.
