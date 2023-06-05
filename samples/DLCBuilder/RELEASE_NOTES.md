@@ -20,6 +20,10 @@
 - Updated the UI framework to new minor version.
 - Internal changes related to PSARC encryption and asynchronous code.
 
+## 1.6.2 (Released 2023-05-01)
+
+- Fixed a bug that caused fret numbers of a chord to be in wrong order in the EOF file.
+
 ## 1.6.1 (Released 2023-04-11)
 
 - Fixed a bug in writing the ogg path to the EOF file.

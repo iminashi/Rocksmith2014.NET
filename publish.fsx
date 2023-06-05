@@ -38,7 +38,10 @@ let msBuildParams trim =
             "PublishTrimmed", "true"
             "TrimMode", "link" ]
 
-    { MSBuild.CliArguments.Create() with Properties = properties }
+    { MSBuild.CliArguments.Create() with
+        Properties = properties
+        // https://github.com/fsprojects/FAKE/issues/2744
+        DisableInternalBinLog = true }
 
 let release =
     Path.Combine(dlcBuilderDir, "RELEASE_NOTES.md")

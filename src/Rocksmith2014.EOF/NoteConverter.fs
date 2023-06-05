@@ -1,6 +1,7 @@
 module Rocksmith2014.EOF.NoteConverter
 
 open Rocksmith2014.XML
+open Rocksmith2014.XML.Extensions
 open System
 open EOFTypes
 open FlagBuilder
@@ -138,8 +139,13 @@ let createNoteGroups (inst: InstrumentalArrangement) =
 
         let notes =
             level.Notes.ToArray()
-            |> Array.groupBy (fun x -> x.Time)
-            |> Array.map (fun (t, group) -> { Chord = None; Notes = group; Time = uint t; Difficulty = byte diff })
+            |> Array.groupBy (fun n -> n.Time)
+            |> Array.map (fun (time, group) ->
+                { Chord = None
+                  // Ensure that notes are sorted from lowest string to highest
+                  Notes = group |> Array.sortBy (fun n -> n.String)
+                  Time = uint time
+                  Difficulty = byte diff })
 
         let chords =
             level.Chords.ToArray()
@@ -147,7 +153,7 @@ let createNoteGroups (inst: InstrumentalArrangement) =
                 let template = inst.ChordTemplates[int c.ChordId]
                 let notes =
                     if c.HasChordNotes then
-                        c.ChordNotes.ToArray()
+                        c.ChordNotes.ToArray() |> Array.sortBy (fun n -> n.String)
                     else
                         notesFromTemplate c template
 
@@ -226,7 +232,7 @@ let convertNotes (inst: InstrumentalArrangement) =
 
             // Find possible chord template for handshape at note time
             let handshapeTemplate =
-                inst.Levels[int diff].HandShapes.Find(fun hs -> hs.StartTime = int time)
+                inst.Levels[int diff].HandShapes.FindByTime(int time)
                 |> Option.ofObj
                 |> Option.map (fun hs -> inst.ChordTemplates.[int hs.ChordId])
 
