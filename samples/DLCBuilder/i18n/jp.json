@@ -510,5 +510,7 @@
   "ProfileCleanerInfo": "DLCフォルダに存在しないアレンジの情報がプロフィールファイルから削除されます。\n\n既存のプロフィールは自動的にバックアップされます。",
   "ReadingIDs": "IDを読み込み中…",
   "CleaningProfile": "プロフィール掃除中...",
-  "CleaningCompleted": "掃除完了。削除された情報"
+  "CleaningCompleted": "掃除完了。削除された情報",
+  "Unused": "未使用",
+  "ToneIsUnused": "このトーンを使用するアレンジがありません。"
 }

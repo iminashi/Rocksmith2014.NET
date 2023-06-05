@@ -510,5 +510,7 @@
   "ProfileCleanerInfo": "Records for arrangements not found in the DLC directory will be removed from the profile file.\n\nA backup of the profile will be created automatically.",
   "ReadingIDs": "Reading IDs...",
   "CleaningProfile": "Cleaning profile...",
-  "CleaningCompleted": "Cleaning completed. Records removed:"
+  "CleaningCompleted": "Cleaning completed. Records removed:",
+  "Unused": "Unused",
+  "ToneIsUnused": "This tone is not used in any arrangement."
 }

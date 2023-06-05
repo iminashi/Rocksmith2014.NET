@@ -18,8 +18,20 @@ open DLCBuilder.ArrangementNameUtils
 
 /// Returns a template for a tone.
 let tone state dispatch index (t: Tone) =
+    let noArrangementUsesTone () =
+        state.Project.Arrangements
+        |> List.exists (Arrangement.getTones >> List.contains t.Key)
+        |> not
+
+    let isKeyless = String.IsNullOrEmpty(t.Key)
+    let isUnused = isKeyless || noArrangementUsesTone ()
+
     let title =
-        if String.IsNullOrEmpty t.Key || t.Key = t.Name then
+        if isUnused then
+            let nameStr = if String.IsNullOrEmpty(t.Name) then String.Empty else $"{t.Name} "
+
+            sprintf "%s(%s)" nameStr (translate "Unused")
+        elif t.Key = t.Name then
             t.Name
         else
             $"{t.Key} ({t.Name})"
@@ -28,19 +40,25 @@ let tone state dispatch index (t: Tone) =
         String.Join(" ", Array.map (ToneDescriptor.uiNameToName >> translate) t.ToneDescriptors)
 
     StackPanel.create [
-        StackPanel.classes [ "list-item"; if state.SelectedToneIndex = index then "selected" ]
+        StackPanel.classes [
+            "list-item"
+            if state.SelectedToneIndex = index then "selected"
+        ]
         StackPanel.onPointerPressed ((fun e ->
             if e.Route = RoutingStrategies.Bubble then
                 index |> SetSelectedToneIndex |> dispatch),
             SubPatchOptions.OnChangeOf index)
         StackPanel.onDoubleTapped (fun _ -> ShowToneEditor |> dispatch)
         StackPanel.contextMenu (Menus.Context.tone state dispatch)
+        if isUnused then
+            ToolTip.tip (translate "ToneIsUnused")
         StackPanel.children [
             // Title
             TextBlock.create [
                 TextBlock.margin (6., 4., 6., 2.)
                 TextBlock.fontSize 16.
                 TextBlock.text title
+                if isUnused then TextBlock.foreground "#afafaf"
             ]
             // Description
             TextBlock.create [

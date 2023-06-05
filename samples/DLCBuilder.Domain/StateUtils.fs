@@ -497,3 +497,11 @@ let getOptionalWemConversionCmd state audioPath =
             Cmd.none
     else
         Cmd.none
+
+
+let updateToneKey (config: Configuration) (newKey: string) (tone: Tone) =
+    // When the name field is hidden, keep the name in sync with the key
+    if not config.ShowAdvanced then
+        { tone with Key = newKey; Name = newKey }
+    else
+        { tone with Key = newKey }

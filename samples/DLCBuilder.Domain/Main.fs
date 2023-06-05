@@ -825,8 +825,25 @@ let update (msg: Msg) (state: State) =
 
     | EditTone edit ->
         match state.SelectedToneIndex with
-        | -1 -> state, Cmd.none
-        | index -> editTone state edit index
+        | -1 ->
+            state, Cmd.none
+        | index ->
+            let initialUpdatedState =
+                match edit with
+                | SetKey toneKey ->
+                    // Remove binding from any existing tone to prevent duplicate keys
+                    let tones =
+                        state.Project.Tones
+                        |> List.map (fun tone ->
+                            if tone.Key = toneKey then
+                                StateUtils.updateToneKey config String.Empty tone
+                            else
+                                tone)
+                    { state with Project = { project with Tones = tones } }
+                | _ ->
+                    state
+
+            editTone initialUpdatedState edit index
 
     | EditProject edit ->
         let newState =
