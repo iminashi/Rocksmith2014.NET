@@ -7,6 +7,7 @@ open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open DLCBuilder
+open System
 open System.IO
 
 let private errorMessage dispatch locString focusedSetting =
@@ -74,14 +75,61 @@ let private removedStatsRow row text (stat: int) =
         ] |> generalize
     ]
 
+let private configuration isEnabled dispatch state =
+    Grid.create [
+        DockPanel.dock Dock.Bottom
+        Grid.horizontalAlignment HorizontalAlignment.Center
+        Grid.isEnabled isEnabled
+        Grid.rowDefinitions "*,*"
+        Grid.columnDefinitions "*,*,*"
+        Grid.children [
+            CheckBox.create [
+                Grid.column 1
+                CheckBox.horizontalAlignment HorizontalAlignment.Center
+                CheckBox.content (translate "DryRun")
+                CheckBox.isChecked state.ProfileCleanerState.IsDryRun
+                CheckBox.onChecked (fun _ -> true |> SetProfileCleanerDryRun |> ToolsMsg |> dispatch)
+                CheckBox.onUnchecked (fun _ -> false |> SetProfileCleanerDryRun |> ToolsMsg |> dispatch)
+            ]
+
+            HelpButton.create [
+                Grid.column 2
+                HelpButton.helpText (translate "DryRunHelp")
+            ]
+
+            TextBlock.create [
+                Grid.row 1
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text (translate "Parallelism")
+            ]
+
+            FixedNumericUpDown.create [
+                Grid.row 1
+                Grid.column 1
+                FixedNumericUpDown.width 120.
+                FixedNumericUpDown.minimum 1.
+                FixedNumericUpDown.maximum (float Environment.ProcessorCount)
+                FixedNumericUpDown.formatString "F0"
+                FixedNumericUpDown.value (float state.Config.ProfileCleanerIdParsingParallelism)
+                FixedNumericUpDown.onValueChanged (int >> SetProfileCleanerParallelism >> EditConfig >> dispatch)
+            ]
+
+            HelpButton.create [
+                Grid.row 1
+                Grid.column 2
+                HelpButton.helpText (translate "ProfileCleanerParallelismHelp")
+            ]
+        ]
+    ]
+
 let view dispatch (state: State) =
     let isRunning =
-        match state.ProfileCleanerState with
-        | ProfileCleanerState.Idle
-        | ProfileCleanerState.Completed _ ->
+        match state.ProfileCleanerState.CurrentStep with
+        | ProfileCleanerStep.Idle
+        | ProfileCleanerStep.Completed _ ->
             false
-        | ProfileCleanerState.ReadingIds _
-         | ProfileCleanerState.CleaningProfile ->
+        | ProfileCleanerStep.ReadingIds _
+         | ProfileCleanerStep.CleaningProfile ->
             true
 
     let profileFileExists () =
@@ -132,8 +180,10 @@ let view dispatch (state: State) =
                 ]
             ]
 
-            match state.ProfileCleanerState with
-            | ProfileCleanerState.Idle ->
+            configuration (not isRunning) dispatch state
+
+            match state.ProfileCleanerState.CurrentStep with
+            | ProfileCleanerStep.Idle ->
                 vStack [
                     TextBlock.create [
                         TextBlock.text (translate "ProfileCleanerInfo")
@@ -145,11 +195,11 @@ let view dispatch (state: State) =
                     elif not <| dlcFolderExists () then
                         errorMessage dispatch "DLCDirectoryPathIsNotCorrectlySet" FocusedSetting.DLCFolder
                 ]
-            | ProfileCleanerState.ReadingIds progress ->
+            | ProfileCleanerStep.ReadingIds progress ->
                 cleaningInProgressView "ReadingIDs" (ValueSome progress)
-            | ProfileCleanerState.CleaningProfile ->
+            | ProfileCleanerStep.CleaningProfile ->
                 cleaningInProgressView "CleaningProfile" ValueNone
-            | ProfileCleanerState.Completed result ->
+            | ProfileCleanerStep.Completed (wasDryRun, result) ->
                 Grid.create [
                     Grid.columnDefinitions "auto,8,*"
                     Grid.rowDefinitions "*,*,*,*,*"
@@ -158,7 +208,7 @@ let view dispatch (state: State) =
                         TextBlock.create [
                             Grid.columnSpan 3
                             TextBlock.margin (0., 4.)
-                            TextBlock.text (translate "CleaningCompleted")
+                            TextBlock.text (translate (if wasDryRun then "DryRunCompleted" else "CleaningCompleted"))
                         ]
 
                         yield! removedStatsRow 1 "Stats:" result.Stats

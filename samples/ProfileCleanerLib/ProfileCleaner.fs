@@ -51,7 +51,7 @@ let private readIDs (path: string) =
     }
 
 /// Reads IDs and keys from psarcs in the given directory and its subdirectories.
-let private gatherDLCData (reportProgress: IdReadingProgress -> unit) (directory: string) =
+let private gatherDLCData (reportProgress: IdReadingProgress -> unit) (maxDegreeOfParallelism: int) (directory: string) =
     async {
         let! results =
             let files =
@@ -67,7 +67,7 @@ let private gatherDLCData (reportProgress: IdReadingProgress -> unit) (directory
 
                     return! readIDs path |> Async.AwaitTask
                 })
-            |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = min 6 Environment.ProcessorCount)
+            |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism)
 
         let ids, keys =
             results
@@ -78,10 +78,10 @@ let private gatherDLCData (reportProgress: IdReadingProgress -> unit) (directory
     }
 
 /// Returns IDs and keys collected from PSARCs from the given directory together with on-disc IDs and keys.
-let gatherIdAndKeyData (reportProgress: IdReadingProgress -> unit) (dlcDirectory: string) =
+let gatherIdAndKeyData (reportProgress: IdReadingProgress -> unit) (maxDegreeOfParallelism: int) (dlcDirectory: string) =
     async {
         let onDisc = readOnDiscIdsAndKeys()
-        let! dlcIds, dlcKeys = gatherDLCData reportProgress dlcDirectory
+        let! dlcIds, dlcKeys = gatherDLCData reportProgress maxDegreeOfParallelism dlcDirectory
 
         return
             { Ids = Set.union onDisc.OnDiscIds (Set.ofList dlcIds)

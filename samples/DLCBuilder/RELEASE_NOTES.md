@@ -14,7 +14,7 @@
 - Fixed false positive in validation for anchor position in relation to chord fingering with chords that use the thumb.
 - A better error message is shown when loading an "EXT" vocals file fails.
 - Master ID and persistent ID can now be manually edited also for vocals arrangements when "show advanced features" is enabled.
-- Duplicate tone keys will be prevented when changing tone key in the UI.
+- Duplicate tone keys will be prevented when changing the tone key in the UI.
 - Minor UI improvements.
 - Minor optimizations to package generation.
 - Updated the UI framework to new minor version.

@@ -46,7 +46,8 @@ type Configuration =
       WwiseConsolePath: string option
       FontGeneratorPath: string option
       CustomAppId: AppId option
-      BaseToneNamingScheme: BaseToneNamingScheme }
+      BaseToneNamingScheme: BaseToneNamingScheme
+      ProfileCleanerIdParsingParallelism: int }
 
     static member Default =
         { ReleasePlatforms = Set([ PC; Mac ])
@@ -75,7 +76,8 @@ type Configuration =
           WwiseConsolePath = None
           FontGeneratorPath = None
           CustomAppId = None
-          BaseToneNamingScheme = BaseToneNamingScheme.Default }
+          BaseToneNamingScheme = BaseToneNamingScheme.Default
+          ProfileCleanerIdParsingParallelism = min 4 Environment.ProcessorCount }
 
 module Configuration =
     type Dto() =
@@ -107,6 +109,7 @@ module Configuration =
         member val FontGeneratorPath: string = String.Empty with get, set
         member val CustomAppId: string = String.Empty with get, set
         member val BaseToneNaming: int = 1 with get, set
+        member val ProfileCleanerIdParsingParallelism: int = Configuration.Default.ProfileCleanerIdParsingParallelism with get, set
 
     let appDataFolder =
         let dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
@@ -174,7 +177,8 @@ module Configuration =
           WwiseConsolePath = Option.ofString dto.WwiseConsolePath
           FontGeneratorPath = Option.ofString dto.FontGeneratorPath
           CustomAppId = AppId.ofString dto.CustomAppId
-          BaseToneNamingScheme = baseToneNaming }
+          BaseToneNamingScheme = baseToneNaming
+          ProfileCleanerIdParsingParallelism = dto.ProfileCleanerIdParsingParallelism }
 
     /// Converts a configuration into a configuration DTO.
     let private toDto (config: Configuration) =
@@ -226,7 +230,8 @@ module Configuration =
             WwiseConsolePath = Option.toObj config.WwiseConsolePath,
             FontGeneratorPath = Option.toObj config.FontGeneratorPath,
             CustomAppId = customAppId,
-            BaseToneNaming = baseToneNaming
+            BaseToneNaming = baseToneNaming,
+            ProfileCleanerIdParsingParallelism = config.ProfileCleanerIdParsingParallelism
         )
 
     /// Loads a configuration from the file defined in configFilePath.

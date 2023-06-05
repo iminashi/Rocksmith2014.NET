@@ -40,8 +40,9 @@ let main argv =
             printfn "Reading IDs..."
 
             let progressReporter = printProgress dlcDirectory isVerbose
+            let maxDegreeOfParallelism = min 4 Environment.ProcessorCount
 
-            let! data = ProfileCleaner.gatherIdAndKeyData progressReporter dlcDirectory
+            let! data = ProfileCleaner.gatherIdAndKeyData progressReporter maxDegreeOfParallelism dlcDirectory
             let filterIds, filterKeys = ProfileCleaner.getFilteringFunctions data
 
             printfn ""

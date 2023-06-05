@@ -207,7 +207,7 @@
   "Mandolin": "Mandolin",
   "Piano": "Piano",
   "Ukulele": "Ukulele",
-  "ToneDescriptorToolTip": "Descriptions marked with * are strings from the game's localization file not related to tone descriptions.\nUse at your own risk.",
+  "ToneDescriptorToolTip": "Descriptions marked with * are strings from the game's localization file that are not related to tone descriptions.",
   "InvalidDLCKey": "The DLC key must be at least {0} characters long.",
   "TitleEmpty": "The song title cannot be empty.",
   "ArtistNameEmpty": "The artist name cannot be empty.",
@@ -511,6 +511,11 @@
   "ReadingIDs": "Reading IDs...",
   "CleaningProfile": "Cleaning profile...",
   "CleaningCompleted": "Cleaning completed. Records removed:",
+  "DryRunCompleted": "Number of records that would be removed:",
+  "DryRun": "Dry Run",
+  "DryRunHelp": "No actual modification is made to the profile file. Only the number of records that would have been removed is displayed.",
+  "Parallelism": "Parallelism",
+  "ProfileCleanerParallelismHelp": "Defines the number of PSARC files from which IDs are read in parallel.",
   "Unused": "Unused",
   "ToneIsUnused": "This tone is not used in any arrangement."
 }

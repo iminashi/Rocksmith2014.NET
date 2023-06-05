@@ -196,7 +196,8 @@ let update (msg: Msg) (state: State) =
     | CloseOverlay method ->
         let cmd =
             match state.Overlay with
-            | ConfigEditor _ ->
+            | ConfigEditor _
+            | ProfileCleaner _ ->
                 Cmd.OfTask.attempt Configuration.save config ErrorOccurred
             | ToneCollection c ->
                 ToneCollection.CollectionState.disposeCollection c.ActiveCollection

@@ -207,7 +207,7 @@
   "Mandolin": "マンドリン",
   "Piano": "ピアノ",
   "Ukulele": "ウクレレ",
-  "ToneDescriptorToolTip": "星がついているデスクリプションはゲームのローカライズファイルに含まれている、トーンとは無関係の文字列。\n使用は自己責任。",
+  "ToneDescriptorToolTip": "星がついているデスクリプションはゲームのローカライズファイルに含まれている、トーンとは無関係の文字列。",
   "InvalidDLCKey": "DLCキーの長さは{0}文字以上である必要があります。",
   "TitleEmpty": "曲名を入力してください。",
   "ArtistNameEmpty": "アーティスト名を入力してください。",
@@ -510,7 +510,12 @@
   "ProfileCleanerInfo": "DLCフォルダに存在しないアレンジの情報がプロフィールファイルから削除されます。\n\n既存のプロフィールは自動的にバックアップされます。",
   "ReadingIDs": "IDを読み込み中…",
   "CleaningProfile": "プロフィール掃除中...",
-  "CleaningCompleted": "掃除完了。削除された情報",
+  "CleaningCompleted": "掃除完了。削除された記録",
+  "DryRunCompleted": "削除される記録",
+  "DryRun": "予行練習",
+  "DryRunHelp": "プロフィールファイルは実際に変更されず、削除される記録の数だけが表示されます。",
+  "Parallelism": "平行度",
+  "ProfileCleanerParallelismHelp": "同時に読み込まれるPSARCファイルの数。",
   "Unused": "未使用",
-  "ToneIsUnused": "このトーンを使用するアレンジがありません。"
+  "ToneIsUnused": "このトーンを使用するアレンジが存在しません。"
 }

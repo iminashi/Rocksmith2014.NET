@@ -207,7 +207,7 @@
   "Mandolin": "Mandolin",
   "Piano": "Piano",
   "Ukulele": "Ukulele",
-  "ToneDescriptorToolTip": "Tähdellä merkityt kuvaukset ovat merkkijonoja pelin lokalisaatiotiedostosta, jotka eivät liity soundeihin.\nKäyttö omalla vastuulla.",
+  "ToneDescriptorToolTip": "Tähdellä merkityt kuvaukset ovat merkkijonoja pelin lokalisaatiotiedostosta, jotka eivät liity soundeihin.",
   "InvalidDLCKey": "DLC avaimen täytyy olla vähintään {0} merkkiä pitkä.",
   "TitleEmpty": "Kappaleen nimi ei voi olla tyhjä.",
   "ArtistNameEmpty": "Artistin nimi ei voi olla tyhjä.",
@@ -511,6 +511,11 @@
   "ReadingIDs": "Luetaan ID:t...",
   "CleaningProfile": "Siivotaan profiilia...",
   "CleaningCompleted": "Siivous valmis. Poistetut tiedot:",
+  "DryRunCompleted": "Tiedot, jotka poistettaisiin:",
+  "DryRun": "Kuivaharjoitus",
+  "DryRunHelp": "Profiilitiedostoon ei tehdä muutoksia. Ainoastaan poistettujen tietojen lukumäärä näytetään.",
+  "Parallelism": "Rinnakkaisuus",
+  "ProfileCleanerParallelismHelp": "Määrittää kuinka monesta PSARC-tiedostosta luetaan ID:t samanaikaisesti.",
   "Unused": "Ei käytössä",
   "ToneIsUnused": "Soundi ei ole käytössä missään sovituksessa."
 }

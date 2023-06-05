@@ -61,26 +61,29 @@ module ToneInjector =
         }
 
 module ProfileCleanerTool =
-    let readIdData dlcDirectory =
+    let readIdData maxDegreeOfParallelism dlcDirectory =
         async {
             let progressReporter =
                 let mutable processedFiles = 0
+                let reportFrequence = max 4 maxDegreeOfParallelism
+
                 fun (p: ProfileCleaner.IdReadingProgress) ->
                     let num = Interlocked.Increment(&processedFiles)
-                    // Only trigger the event for every sixth report to keep the UI responsive
-                    if num % 6 = 0 then
-                        (ProgressReporters.ProfileCleaner :> IProgress<float>).Report(100.0 * float num / float p.TotalFiles)
+                    // Do not trigger the event every time to keep the UI responsive
+                    if num % reportFrequence = 0 then
+                        (ProgressReporters.ProfileCleaner :> IProgress<float>).Report(100.0 * float processedFiles / float p.TotalFiles)
 
-            return! ProfileCleaner.gatherIdAndKeyData progressReporter dlcDirectory
+            return! ProfileCleaner.gatherIdAndKeyData progressReporter maxDegreeOfParallelism dlcDirectory
         }
 
-    let cleanProfile data profilePath =
+    let cleanProfile isDryRun data profilePath =
         async {
             let filterIds, filterKeys = ProfileCleaner.getFilteringFunctions data
 
-            //ProfileCleaner.backupProfile profilePath
+            if not isDryRun then
+                ProfileCleaner.backupProfile profilePath
 
-            let! profile, _profileId = Profile.readAsJToken profilePath |> Async.AwaitTask
+            let! profile, profileId = Profile.readAsJToken profilePath |> Async.AwaitTask
 
             let pnRecs = filterIds profile["Playnexts"].["Songs"]
             let songRecs = filterIds profile["Songs"]
@@ -93,7 +96,9 @@ module ProfileCleanerTool =
             profile["FavoritesListRoot"]["FavoritesList"] :?> JArray
             |> filterKeys
 
-            //do! Profile.saveJToken profilePath profileId profile |> Async.AwaitTask
+            if not isDryRun then
+                do! Profile.saveJToken profilePath profileId profile |> Async.AwaitTask
+
             let result =
                 { PlayNext = pnRecs
                   Songs = songRecs
@@ -187,26 +192,42 @@ let update msg state =
         state, cmd
 
     | StartProfileCleaner ->
-        match state.ProfileCleanerState with
-        | ProfileCleanerState.Idle
-        | ProfileCleanerState.Completed _ when File.Exists(state.Config.ProfilePath) && Directory.Exists(state.Config.DlcFolderPath) ->
-            { state with ProfileCleanerState = ProfileCleanerState.ReadingIds 0.0 },
-            Cmd.OfAsync.either ProfileCleanerTool.readIdData state.Config.DlcFolderPath (IdDataReadingCompleted >> ToolsMsg) ErrorOccurred
+        let pc = state.ProfileCleanerState
+        match pc.CurrentStep with
+        | ProfileCleanerStep.Idle
+        | ProfileCleanerStep.Completed _ when File.Exists(state.Config.ProfilePath) && Directory.Exists(state.Config.DlcFolderPath) ->
+            let task config =
+                ProfileCleanerTool.readIdData config.ProfileCleanerIdParsingParallelism config.DlcFolderPath
+
+            { state with
+                ProfileCleanerState =
+                    { pc with CurrentStep = ProfileCleanerStep.ReadingIds 0.0 }
+            },
+            Cmd.OfAsync.either task state.Config (IdDataReadingCompleted >> ToolsMsg) ErrorOccurred
         | _ ->
             state, Cmd.none
 
     | ProfileCleanerProgressChanged progress ->
-        match state.ProfileCleanerState with
-        | ProfileCleanerState.ReadingIds _ ->
-            { state with ProfileCleanerState = ProfileCleanerState.ReadingIds progress }, Cmd.none
+        let pc = state.ProfileCleanerState
+        match pc.CurrentStep with
+        | ProfileCleanerStep.ReadingIds _ ->
+            let newState = { pc with CurrentStep = ProfileCleanerStep.ReadingIds progress }
+            { state with ProfileCleanerState = newState }, Cmd.none
         | _ ->
             state, Cmd.none
 
     | IdDataReadingCompleted data ->
-        let task () = ProfileCleanerTool.cleanProfile data state.Config.ProfilePath
+        let task () = ProfileCleanerTool.cleanProfile state.ProfileCleanerState.IsDryRun data state.Config.ProfilePath
+        let newState = { state.ProfileCleanerState with CurrentStep = ProfileCleanerStep.CleaningProfile }
 
-        { state with ProfileCleanerState = ProfileCleanerState.CleaningProfile },
+        { state with ProfileCleanerState = newState },
         Cmd.OfAsync.either task () (ProfileCleaned >> ToolsMsg) ErrorOccurred
 
     | ProfileCleaned result ->
-        { state with ProfileCleanerState = ProfileCleanerState.Completed result }, Cmd.none
+        // IsDryRun cannot be modified once the cleaner is started
+        let newCurrentStep = ProfileCleanerStep.Completed (state.ProfileCleanerState.IsDryRun, result)
+
+        { state with ProfileCleanerState = { state.ProfileCleanerState with CurrentStep = newCurrentStep } }, Cmd.none
+
+    | SetProfileCleanerDryRun isDryRun ->
+        { state with ProfileCleanerState = { state.ProfileCleanerState with IsDryRun = isDryRun } }, Cmd.none

@@ -28,11 +28,19 @@ type ProfileCleanerRecordsRemoved =
       Stats: int }
 
 [<RequireQualifiedAccess>]
-type ProfileCleanerState =
+type ProfileCleanerStep =
     | Idle
     | ReadingIds of progress: float
     | CleaningProfile
-    | Completed of result: ProfileCleanerRecordsRemoved
+    | Completed of wasDryRun: bool * result: ProfileCleanerRecordsRemoved
+
+type ProfileCleanerState =
+    { CurrentStep: ProfileCleanerStep
+      IsDryRun: bool }
+
+    static member Default =
+        { CurrentStep = ProfileCleanerStep.Idle
+          IsDryRun = false }
 
 type OverlayContents =
     | NoOverlay
@@ -167,6 +175,7 @@ type ConfigEdit =
     | SetBaseToneNaming of BaseToneNamingScheme
     | AddReleasePlatform of Platform
     | RemoveReleasePlatform of Platform
+    | SetProfileCleanerParallelism of int
 
 [<RequireQualifiedAccess>]
 type ArrPropOp =
@@ -203,6 +212,7 @@ type ToolsMsg =
     | ProfileCleanerProgressChanged of progress: float
     | IdDataReadingCompleted of data: ProfileCleaner.IdData
     | ProfileCleaned of result: ProfileCleanerRecordsRemoved
+    | SetProfileCleanerDryRun of bool
 
 [<RequireQualifiedAccess>]
 type Dialog =

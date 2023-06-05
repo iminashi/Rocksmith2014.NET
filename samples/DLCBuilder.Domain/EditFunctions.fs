@@ -219,6 +219,9 @@ let editConfig edit config =
     | SetBaseToneNaming scheme ->
         { config with BaseToneNamingScheme = scheme }
 
+    | SetProfileCleanerParallelism value ->
+        { config with ProfileCleanerIdParsingParallelism = value }
+
 let editProject edit project =
     match edit with
     | SetDLCKey key ->
