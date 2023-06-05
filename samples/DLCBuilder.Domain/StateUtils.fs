@@ -184,11 +184,8 @@ let addArrangements fileNames state =
                 arrs, error :: errors)
 
     let metadata =
-        if state.Project.ArtistName = SortableString.Empty then
-            results
-            |> Array.tryPick (function Ok (_, md) -> md | Error _ -> None)
-        else
-            None
+        results
+        |> Array.tryPick (function Ok (_, md) -> md | Error _ -> None)
 
     let newState =
         let project =

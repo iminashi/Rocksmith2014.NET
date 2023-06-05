@@ -144,15 +144,33 @@ let addDefaultTonesIfNeeded (project: DLCProject) =
     { project with Tones = neededTones @ project.Tones }
 
 /// Adds metadata to the project if the metadata option is Some.
-let addMetadata (md: MetaData option) charterName project =
+let addMetadata (md: MetaData option) (charterName: string) (project: DLCProject) =
     match md with
     | Some md ->
         { project with
-            DLCKey = DLCKey.create charterName md.ArtistName md.Title
-            ArtistName = SortableString.Create(md.ArtistName) // Ignore the sort value from the XML
-            Title = SortableString.Create(md.Title, md.TitleSort)
-            AlbumName = SortableString.Create(md.AlbumName, md.AlbumNameSort)
-            Year = md.AlbumYear }
+            DLCKey =
+                if String.IsNullOrWhiteSpace(project.DLCKey) then
+                    DLCKey.create charterName md.ArtistName md.Title
+                else
+                    project.DLCKey
+            ArtistName =
+                if project.ArtistName = SortableString.Empty then
+                    // Ignore the sort value from the XML
+                    SortableString.Create(md.ArtistName)
+                else
+                    project.ArtistName
+            Title =
+                if project.Title = SortableString.Empty then
+                    SortableString.Create(md.Title, md.TitleSort)
+                else
+                    project.Title
+            AlbumName =
+                if project.AlbumName = SortableString.Empty then
+                    SortableString.Create(md.AlbumName, md.AlbumNameSort)
+                else
+                    project.AlbumName
+            Year =
+                if md.AlbumYear > 0 then md.AlbumYear else project.Year }
     | None ->
         project
 
