@@ -498,10 +498,18 @@ let getOptionalWemConversionCmd state audioPath =
     else
         Cmd.none
 
-
 let updateToneKey (config: Configuration) (newKey: string) (tone: Tone) =
     // When the name field is hidden, keep the name in sync with the key
     if not config.ShowAdvanced then
         { tone with Key = newKey; Name = newKey }
     else
         { tone with Key = newKey }
+
+let checkAllArrangements state continuation =
+    let task () =
+        async {
+            return Utils.checkArrangements state.Project ProgressReporters.ArrangementCheck
+        }
+
+    addTask ArrangementCheckAll state,
+    Cmd.OfAsync.either task () continuation (fun ex -> TaskFailed(ex, ArrangementCheckAll))

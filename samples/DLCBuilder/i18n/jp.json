@@ -142,7 +142,7 @@
   "Yes": "はい",
   "No": "いいえ",
   "SelectTonesToImport": "インポートするトーンを選択してください",
-  "Platforms": "プラットフォーム:",
+  "Platforms": "プラットフォーム",
   "CharterName": "クリエイター名",
   "Paths": "パス",
   "ProfilePath": "プロフィールファイル",
@@ -517,5 +517,8 @@
   "Parallelism": "平行度",
   "ProfileCleanerParallelismHelp": "同時に読み込まれるPSARCファイルの数。",
   "Unused": "未使用",
-  "ToneIsUnused": "このトーンを使用するアレンジが存在しません。"
+  "ToneIsUnused": "このトーンを使用するアレンジが存在しません。",
+  "ValidateBeforeBuild": "アレンジを検証",
+  "ValidateBeforeBuildHelp": "ビルド前にアレンジを検証します。もし問題点が発見されるとビルドが失敗します。",
+  "ValidationFailedForReleaseBuild": "アレンジには問題点が発見されました。これらを直すか、無視された問題点に入れてください。"
 }

@@ -517,5 +517,8 @@
   "Parallelism": "Parallelism",
   "ProfileCleanerParallelismHelp": "Defines the number of PSARC files from which IDs are read in parallel.",
   "Unused": "Unused",
-  "ToneIsUnused": "This tone is not used in any arrangement."
+  "ToneIsUnused": "This tone is not used in any arrangement.",
+  "ValidateBeforeBuild": "Validate arrangements",
+  "ValidateBeforeBuildHelp": "The arrangements will be validated before build and the build cannot proceed until all issues are fixed.",
+  "ValidationFailedForReleaseBuild": "Issues were found that should be fixed or set as ignored."
 }

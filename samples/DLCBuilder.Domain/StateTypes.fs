@@ -328,6 +328,7 @@ type Msg =
     | RemoveStatusMessage of id: Guid
     | CheckOneCompleted of string * Issue list
     | CheckAllCompleted of issues: Map<string, Issue list>
+    | CheckCompletedForReleaseBuild of issues: Map<string, Issue list>
     | PsarcUnpacked
     | WemToOggConversionCompleted
     | ConvertToWem

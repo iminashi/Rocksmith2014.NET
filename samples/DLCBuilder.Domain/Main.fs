@@ -837,7 +837,7 @@ let update (msg: Msg) (state: State) =
                         state.Project.Tones
                         |> List.map (fun tone ->
                             if tone.Key = toneKey then
-                                StateUtils.updateToneKey config String.Empty tone
+                                updateToneKey config String.Empty tone
                             else
                                 tone)
                     { state with Project = { project with Tones = tones } }
@@ -934,7 +934,30 @@ let update (msg: Msg) (state: State) =
             showOverlay state (ConfigEditor (Some FocusedSetting.TestFolder)), Cmd.none
 
     | Build Release ->
-        buildPackage (ReleasePackageBuilder.build state.OpenProjectFile) state
+        if config.ValidateBeforeReleaseBuild then
+            checkAllArrangements state CheckCompletedForReleaseBuild
+        else
+            buildPackage (ReleasePackageBuilder.build state.OpenProjectFile) state
+
+    | CheckCompletedForReleaseBuild issues ->
+        let nonIgnoredIssueExists =
+            let allIssues =
+                issues
+                |> Map.values
+                |> List.concat
+                |> List.map (fun i -> issueCode i.Type)
+                |> Set.ofList
+
+            allIssues - project.IgnoredIssues
+            |> Set.isEmpty
+            |> not
+
+        let updatedState = { removeTask ArrangementCheckAll state with ArrangementIssues = issues }
+
+        if nonIgnoredIssueExists then
+            { updatedState with Overlay = OverlayContents.ErrorMessage(translate "ValidationFailedForReleaseBuild", None) }, Cmd.none
+        else
+            buildPackage (ReleasePackageBuilder.build updatedState.OpenProjectFile) updatedState
 
     | Build (ReplacePsarc info) ->
         buildPackage (ReleasePackageBuilder.buildReplacePsarc info) state
@@ -985,13 +1008,7 @@ let update (msg: Msg) (state: State) =
 
     | CheckArrangements ->
         if canRunValidation state then
-            let task () =
-                async {
-                    return Utils.checkArrangements project ProgressReporters.ArrangementCheck
-                }
-
-            addTask ArrangementCheckAll state,
-            Cmd.OfAsync.either task () CheckAllCompleted (fun ex -> TaskFailed(ex, ArrangementCheckAll))
+            checkAllArrangements state CheckAllCompleted
         else
             state, Cmd.none
 
