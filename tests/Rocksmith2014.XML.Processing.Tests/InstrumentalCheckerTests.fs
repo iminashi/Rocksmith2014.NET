@@ -369,6 +369,17 @@ let noteTests =
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type PositionShiftIntoPullOff "Correct issue type"
+
+        testCase "Position shift into open string pull-off is ignored" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Fret = 3y, Time = 1300, SlideUnpitchTo = 1y)
+                                          Note(Fret = 0y, Time = 1800, IsPullOff = true) })
+            let anchors = ResizeArray(seq { Anchor(3y, 1300); Anchor(1y, 1800)})
+            let level = Level(Notes = notes, Anchors = anchors)
+            let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
+
+            let results = checkNotes arr level
+
+            Expect.hasLength results 0 "No issues should be created"
     ]
 
 [<Tests>]

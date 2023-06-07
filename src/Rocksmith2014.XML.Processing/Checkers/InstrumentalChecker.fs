@@ -54,7 +54,7 @@ let private isInsideNoguitarSection noGuitarSections (time: int) =
     |> Array.exists (fun x -> time >= x.StartTime && time < x.EndTime)
 
 let private isLinkedToChord (level: Level) (note: Note) =
-    level.Chords.Exists(fun c -> 
+    level.Chords.Exists(fun c ->
         c.Time = note.Time + note.Sustain
         && c.HasChordNotes
         && c.ChordNotes.Exists(fun cn -> cn.String = note.String))
@@ -79,7 +79,7 @@ let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
         // Check if the next note is at the end of the sustain for this note
         | Some nextNote when nextNote.Time - (note.Time + note.Sustain) > 1 ->
             Some(issue IncorrectLinkNext note.Time)
-            
+
         // Check if the frets match
         | Some nextNote when note.Fret <> nextNote.Fret ->
             let slideTo =
@@ -87,7 +87,7 @@ let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
                     note.SlideUnpitchTo
                 else
                     note.SlideTo
-            
+
             if slideTo = nextNote.Fret then
                 None
             elif slideTo <> -1y then
@@ -195,8 +195,8 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
             // Check for position shift into pull-off
             match anchorAtNoteOpt with
             | Some activeAnchor ->
-                let previousAnchor = findActiveAnchor level (time - 10) 
-                if previousAnchor <> activeAnchor && note.IsPullOff then
+                let previousAnchor = findActiveAnchor level (time - 10)
+                if previousAnchor <> activeAnchor && note.IsPullOff && note.Fret > 0y then
                     issue PositionShiftIntoPullOff time
             | None ->
                 ()
@@ -275,8 +275,8 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
                 // Check for position shift into pull-off
                 match anchorAtChordOpt with
                 | Some activeAnchor ->
-                    let previousAnchor = findActiveAnchor level (time - 10) 
-                    if previousAnchor <> activeAnchor && chordNotes.Exists(fun note -> note.IsPullOff) then
+                    let previousAnchor = findActiveAnchor level (time - 10)
+                    if previousAnchor <> activeAnchor && chordNotes.Exists(fun note -> note.IsPullOff && note.Fret > 0y) then
                         issue PositionShiftIntoPullOff time
                 | None ->
                     ()
@@ -351,7 +351,7 @@ let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
 /// Looks for anchors that are very close to a note but not exactly on a note.
 let private findCloseAnchors (level: Level) =
     let pickTimeAndDistance noteTime (anchor: Anchor) =
-        let distance = anchor.Time - noteTime 
+        let distance = anchor.Time - noteTime
         if distance <> 0 && abs distance <= 5 then
             Some(anchor.Time, distance)
         else
