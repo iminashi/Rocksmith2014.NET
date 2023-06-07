@@ -38,6 +38,7 @@ type Configuration =
       AutoSave: bool
       AutoAudioConversion: bool
       ComparePhraseLevelsOnTestBuild: bool
+      ValidateBeforeReleaseBuild: bool
       ConvertAudio: AudioConversionType option
       OpenFolderAfterReleaseBuild: bool
       LoadPreviousOpenedProject: bool
@@ -68,6 +69,7 @@ type Configuration =
           AutoSave = false
           AutoAudioConversion = true
           ComparePhraseLevelsOnTestBuild = false
+          ValidateBeforeReleaseBuild = false
           ConvertAudio = None
           OpenFolderAfterReleaseBuild = true
           LoadPreviousOpenedProject = false
@@ -99,7 +101,8 @@ module Configuration =
         member val AutoVolume: bool = Configuration.Default.AutoVolume with get, set
         member val AutoSave: bool = Configuration.Default.AutoSave with get, set
         member val AutoAudioConversion: bool = Configuration.Default.AutoAudioConversion with get, set
-        member val ComparePhraseLevelsOnTestBuild: bool = false with get, set
+        member val ComparePhraseLevelsOnTestBuild: bool = Configuration.Default.ComparePhraseLevelsOnTestBuild with get, set
+        member val ValidateBeforeReleaseBuild: bool = Configuration.Default.ValidateBeforeReleaseBuild with get, set
         member val ConvertAudio: int = 0 with get, set
         member val OpenFolderAfterReleaseBuild: bool = Configuration.Default.OpenFolderAfterReleaseBuild with get, set
         member val LoadPreviousOpenedProject: bool = Configuration.Default.LoadPreviousOpenedProject with get, set
@@ -169,6 +172,7 @@ module Configuration =
           AutoSave = dto.AutoSave
           AutoAudioConversion = dto.AutoAudioConversion
           ComparePhraseLevelsOnTestBuild = dto.ComparePhraseLevelsOnTestBuild
+          ValidateBeforeReleaseBuild = dto.ValidateBeforeReleaseBuild
           ConvertAudio = convertAudio
           OpenFolderAfterReleaseBuild = dto.OpenFolderAfterReleaseBuild
           LoadPreviousOpenedProject = dto.LoadPreviousOpenedProject
@@ -222,6 +226,7 @@ module Configuration =
             AutoSave = config.AutoSave,
             AutoAudioConversion = config.AutoAudioConversion,
             ComparePhraseLevelsOnTestBuild = config.ComparePhraseLevelsOnTestBuild,
+            ValidateBeforeReleaseBuild = config.ValidateBeforeReleaseBuild,
             ConvertAudio = convertAudio,
             OpenFolderAfterReleaseBuild = config.OpenFolderAfterReleaseBuild,
             LoadPreviousOpenedProject = config.LoadPreviousOpenedProject,
