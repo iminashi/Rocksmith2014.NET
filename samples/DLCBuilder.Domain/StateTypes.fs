@@ -170,6 +170,7 @@ type ConfigEdit =
     | SetCustomAppId of AppId option
     | SetConvertAudio of AudioConversionType option
     | SetOpenFolderAfterReleaseBuild of bool
+    | SetValidateBeforeReleaseBuild of bool
     | SetLoadPreviousProject of bool
     | SetAutoSave of bool
     | SetBaseToneNaming of BaseToneNamingScheme

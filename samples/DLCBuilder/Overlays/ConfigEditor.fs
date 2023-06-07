@@ -474,13 +474,39 @@ let private buildConfig state dispatch =
                     ]
                 ]
 
-                // Open Containing Folder
-                CheckBox.create [
-                    CheckBox.verticalAlignment VerticalAlignment.Center
-                    CheckBox.content (translate "OpenContainingFolderAfterBuild")
-                    CheckBox.isChecked state.Config.OpenFolderAfterReleaseBuild
-                    CheckBox.onChecked (fun _ -> true |> SetOpenFolderAfterReleaseBuild |> EditConfig |> dispatch)
-                    CheckBox.onUnchecked (fun _ -> false |> SetOpenFolderAfterReleaseBuild |> EditConfig |> dispatch)
+                Grid.create [
+                    Grid.columnDefinitions "*,*"
+                    Grid.children [
+                        // Open Containing Folder
+                        CheckBox.create [
+                            CheckBox.verticalAlignment VerticalAlignment.Center
+                            CheckBox.horizontalAlignment HorizontalAlignment.Left
+                            CheckBox.content (translate "OpenContainingFolderAfterBuild")
+                            CheckBox.isChecked state.Config.OpenFolderAfterReleaseBuild
+                            CheckBox.onChecked (fun _ -> true |> SetOpenFolderAfterReleaseBuild |> EditConfig |> dispatch)
+                            CheckBox.onUnchecked (fun _ -> false |> SetOpenFolderAfterReleaseBuild |> EditConfig |> dispatch)
+                        ]
+
+                        // Validate Before Build
+                        StackPanel.create [
+                            Grid.column 1
+                            StackPanel.orientation Orientation.Horizontal
+                            StackPanel.horizontalAlignment HorizontalAlignment.Right
+                            StackPanel.children [
+                                CheckBox.create [
+                                    CheckBox.verticalAlignment VerticalAlignment.Center
+                                    CheckBox.content (translate "ValidateBeforeBuild")
+                                    CheckBox.isChecked state.Config.ValidateBeforeReleaseBuild
+                                    CheckBox.onChecked (fun _ -> true |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
+                                    CheckBox.onUnchecked (fun _ -> false |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
+                                ]
+
+                                HelpButton.create [
+                                    HelpButton.helpText (translate "ValidateBeforeBuildHelp")
+                                ]
+                            ]
+                        ]
+                    ]
                 ]
             ]
         ]

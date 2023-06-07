@@ -201,6 +201,9 @@ let editConfig edit config =
     | SetOpenFolderAfterReleaseBuild openFolder ->
         { config with OpenFolderAfterReleaseBuild = openFolder }
 
+    | SetValidateBeforeReleaseBuild validate ->
+        { config with ValidateBeforeReleaseBuild = validate }
+
     | SetLoadPreviousProject load ->
         { config with LoadPreviousOpenedProject = load }
 
