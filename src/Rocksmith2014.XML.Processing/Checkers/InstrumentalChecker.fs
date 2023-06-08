@@ -350,25 +350,49 @@ let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
 
 /// Looks for anchors that are very close to a note but not exactly on a note.
 let private findCloseAnchors (level: Level) =
-    let pickTimeAndDistance noteTime (anchor: Anchor) =
+    let pickTimeAndDistance (anchor: Anchor) (noteTime: int) =
         let distance = anchor.Time - noteTime
         if distance <> 0 && abs distance <= 5 then
             Some(anchor.Time, distance)
         else
             None
 
-    let anchorsNearNotes =
+    let noteAndChordTimes =
         level.Notes
-        |> Seq.choose (fun note ->
-            Seq.tryPick (pickTimeAndDistance note.Time) level.Anchors)
+        |> Seq.map (fun n -> n.Time)
+        |> Seq.append (level.Chords |> Seq.map (fun c -> c.Time))
+        |> Seq.sort
+        |> Seq.distinct
+        |> Array.ofSeq
 
-    let anchorsNearChords =
-        level.Chords
-        |> Seq.choose (fun chord ->
-            Seq.tryPick (pickTimeAndDistance chord.Time) level.Anchors)
+    let anchorsNearNoteOrChord =
+        level.Anchors
+        |> Seq.choose (fun anchor ->
+            match Array.BinarySearch(noteAndChordTimes, anchor.Time) with
+            | index when index < 0 ->
+                noteAndChordTimes
+                |> Array.tryPick (pickTimeAndDistance anchor)
+            | _ ->
+                None)
 
-    anchorsNearNotes
-    |> Seq.append anchorsNearChords
+    let slideEndTimes =
+        let chordSlides =
+            level.Chords
+            |> Seq.choose (fun chord ->
+                if chord.HasChordNotes then
+                    chord.ChordNotes
+                    |> ResizeArray.tryFind (fun n -> n.IsSlide)
+                    |> Option.map (fun n -> n.Time + n.Sustain)
+                else
+                    None)
+
+        level.Notes
+        |> Seq.choose (fun note -> if note.IsSlide then Some (note.Time + note.Sustain) else None)
+        |> Seq.append chordSlides
+        |> Set.ofSeq
+
+    anchorsNearNoteOrChord
+    |> Seq.filter (fun (time, _) -> not <| slideEndTimes.Contains time)
     |> Seq.map (fun (anchorTime, distance) ->
         issue (AnchorNotOnNote distance) anchorTime)
 

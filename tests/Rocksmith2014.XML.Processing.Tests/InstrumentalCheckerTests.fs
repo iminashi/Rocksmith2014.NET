@@ -171,7 +171,7 @@ let noteTests =
 
             let results = checkNotes testArr level
 
-            Expect.hasLength results 0 "No issues created"
+            Expect.isEmpty results "An issue was found in check results"
 
         testCase "Detects note with missing bend values" <| fun _ ->
             let bendValues = ResizeArray(seq { BendValue() })
@@ -273,7 +273,7 @@ let noteTests =
 
             let results = checkNotes testArr level
 
-            Expect.hasLength results 0 "No issues created"
+            Expect.isEmpty results "An issue was found in check results"
 
         testCase "Detects phrase on linknext note's sustain" <| fun _ ->
             let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300, IsLinkNext = true, Sustain = 500)
@@ -308,7 +308,7 @@ let noteTests =
 
             let results = checkNotes arr level
 
-            Expect.hasLength results 0 "No issues created"
+            Expect.isEmpty results "An issue was found in check results"
 
         testCase "Detects hammer-on into same fret" <| fun _ ->
             let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300)
@@ -333,7 +333,7 @@ let noteTests =
 
             let results = checkNotes arr level
 
-            Expect.hasLength results 0 "No issues created"
+            Expect.isEmpty results "An issue was found in check results"
 
         testCase "Detects pull-off into same fret" <| fun _ ->
             let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300)
@@ -501,7 +501,7 @@ let chordTests =
 
             let results = checkChords testArr level
 
-            Expect.hasLength results 0 "No issues created"
+            Expect.isEmpty results "An issue was found in check results"
 
         testCase "Detects missing bend value on chord note" <| fun _ ->
             let bendValues = ResizeArray(seq { BendValue() })
@@ -637,7 +637,7 @@ let handshapeTests =
 
             let results = checkHandshapes testArr level
 
-            Expect.hasLength results 0 "No issues created"
+            Expect.isEmpty results "An issue was found in check results"
     ]
 
 [<Tests>]
@@ -650,7 +650,7 @@ let anchorTests =
 
             let results = checkAnchors testArr level
 
-            Expect.hasLength results 0 "No issues created"
+            Expect.isEmpty results "An issue was found in check results"
 
         testCase "Detects anchor before note" <| fun _ ->
             let anchors = ResizeArray(seq { Anchor(1y, 99) })
@@ -689,7 +689,25 @@ let anchorTests =
 
             let results = checkAnchors testArr level
 
-            Expect.isEmpty results "No issues created"
+            Expect.isEmpty results "An issue was found in check results"
+
+        testCase "No false positive for anchor on note that is very close to another note" <| fun _ ->
+            let anchors = ResizeArray(seq { Anchor(1y, 100) })
+            let notes = ResizeArray(seq { Note(Time = 100, Fret = 1y); Note(Time = 103, Fret = 3y) })
+            let level = Level(Notes = notes, Anchors = anchors)
+
+            let results = checkAnchors testArr level
+
+            Expect.isEmpty results "An issue was found in check results"
+
+        testCase "No false positive for anchor at end of slide that is very close to another note" <| fun _ ->
+            let anchors = ResizeArray(seq { Anchor(1y, 100); Anchor(3y, 300) })
+            let notes = ResizeArray(seq { Note(Time = 100, Sustain = 200, Fret = 1y, SlideTo = 3y); Note(Time = 303, Fret = 3y) })
+            let level = Level(Notes = notes, Anchors = anchors)
+
+            let results = checkAnchors testArr level
+
+            Expect.isEmpty results "An issue was found in check results"
 
         testCase "Detects anchor inside handshape at section boundary" <| fun _ ->
             let anchors = ResizeArray(seq { Anchor(1y, 8000) })
@@ -708,7 +726,7 @@ let anchorTests =
 
             let results = checkAnchors testArr level
 
-            Expect.isEmpty results "No issues created"
+            Expect.isEmpty results "An issue was found in check results"
 
         testCase "Detects anchor near the end of an unpitched slide" <| fun _ ->
             let anchors = ResizeArray(seq { Anchor(1y, 500) })
@@ -727,7 +745,7 @@ let anchorTests =
 
             let results = checkAnchors testArr level
 
-            Expect.isEmpty results "No issues created"
+            Expect.isEmpty results "An issue was found in check results"
     ]
 
 [<Tests>]
