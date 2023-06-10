@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PlatformTarget>x64</PlatformTarget>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <WarnOn>1182;3390;$(WarnOn)</WarnOn>
