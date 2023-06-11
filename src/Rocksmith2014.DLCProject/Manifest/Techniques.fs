@@ -232,7 +232,7 @@ let getTechniques (sng: SNG) (note: Note) =
             // 42: Chord tremolo (double stop slide in technique database)
             if isChordTremolo sng note then 42
 
-            // 43: Chord HOPO (chord slide in technique database) 
+            // 43: Chord HOPO (chord slide in technique database)
             if isChordHammerOn sng note then 43
 
             // 44: Double stop slide (chord tremolo in technique database)

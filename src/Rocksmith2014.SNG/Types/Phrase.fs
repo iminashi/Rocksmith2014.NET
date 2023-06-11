@@ -29,7 +29,7 @@ type Phrase =
 
         { Solo = reader.ReadInt8()
           Disparity = reader.ReadInt8()
-          Ignore = reader.ReadInt8() 
+          Ignore = reader.ReadInt8()
           MaxDifficulty = (readPadding(); reader.ReadInt32())
           IterationCount = reader.ReadInt32()
           Name = readZeroTerminatedUTF8String 32 reader }

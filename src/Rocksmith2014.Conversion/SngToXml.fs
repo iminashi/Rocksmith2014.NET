@@ -131,7 +131,7 @@ let convertNoteMask (sngMask: NoteMask) =
 /// Converts an SNG Note into an XML Note.
 let convertNote (sngNote: Note) =
     if not <| isNote sngNote then invalidOp "Cannot convert a chord into a note."
-    
+
     let mask =
         convertNoteMask sngNote.Mask
         ||| if sngNote.PickDirection > 0y then XML.NoteMask.PickDirection else XML.NoteMask.None
@@ -210,13 +210,13 @@ let private createChordNotes (sng: SNG) (chord: Note) =
                 cn.BendValues <- convertBendData32 chordNotes.BendData[i])
 
             xmlNotes.Add(cn)
-            
+
     xmlNotes
 
 /// Converts an SNG Note into an XML Chord.
 let convertChord (sng: SNG) (sngNote: Note) =
     if isNote sngNote then invalidOp "Cannot convert a note into a chord."
-    
+
     XML.Chord(
         Mask = convertChordMask sngNote.Mask,
         Time = secToMs sngNote.Time,

@@ -85,7 +85,7 @@ let writeVocalsTrack (vocalsData: ImportedVocals option) =
         for v in vocals do yield! writeVocal v
 
         // Number of section types
-        1us 
+        1us
         // Lyrics section
         5us
 

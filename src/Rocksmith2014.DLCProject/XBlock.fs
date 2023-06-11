@@ -55,7 +55,7 @@ let create (platform: Platform) (project: DLCProject) =
                 None
             | arr ->
                 let fileName = partition arr |> snd
-                let lyricArt = 
+                let lyricArt =
                     match arr with
                     | Vocals { CustomFont = Some _; Japanese = j } ->
                         $"urn:image:dds:{Utils.getCustomFontName j dlcName}"

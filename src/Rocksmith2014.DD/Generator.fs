@@ -104,7 +104,7 @@ let generateForArrangement (config: GeneratorConfig) (arr: InstrumentalArrangeme
 
     // Combine the data in the levels
     let combinedLevels =
-        Seq.init maxDiff (fun diff -> 
+        Seq.init maxDiff (fun diff ->
             let level = Level(sbyte diff)
 
             levelDataForPhrases

@@ -114,7 +114,7 @@ let private importVocals (xmlFile: string) (arr: XmlNode) =
                     Some(Path.ChangeExtension(Path.GetFileNameWithoutExtension glyphDefs.InnerText, "dds"))))
 
     { XML = xmlFile
-      Japanese = isJapanese 
+      Japanese = isJapanese
       CustomFont = customFont
       MasterID = int (itemText arr "MasterId")
       PersistentID = Guid.Parse(itemText arr "Id") }

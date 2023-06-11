@@ -5,7 +5,7 @@ open System.IO
 open System.Text
 
 type Writer = BinaryWriter -> unit
- 
+
 let toFile path (f: Writer) = using (new BinaryWriter(File.Create(path))) f
 
 let toStream s (f: Writer) = using (new BinaryWriter(s)) f
@@ -14,7 +14,7 @@ let writeString (b: BinaryWriter) (str: string) =
     let bytes = Encoding.ASCII.GetBytes(str)
     b.Write(bytes.Length |> int16)
     b.Write(bytes)
- 
+
 type BinaryWriterBuilder () =
     member inline _.Yield (str: string) =
         fun (b: BinaryWriter) -> writeString b str
@@ -86,5 +86,5 @@ type BinaryWriterBuilder () =
 
     member _.While (p: unit -> bool, f: Writer) =
         fun (b: BinaryWriter) -> while p () do f b
- 
+
 let binaryWriter = new BinaryWriterBuilder ()

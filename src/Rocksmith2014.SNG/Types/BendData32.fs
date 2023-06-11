@@ -22,8 +22,8 @@ type BendData32 =
         member this.Equals other =
             (this.UsedCount = 0 && other.UsedCount = 0)
             ||
-            (this.UsedCount = other.UsedCount && 
-             ReadOnlySpan(this.BendValues, 0, this.UsedCount).SequenceEqual(ReadOnlySpan(other.BendValues, 0, other.UsedCount)))
+            (this.UsedCount = other.UsedCount
+             && ReadOnlySpan(this.BendValues, 0, this.UsedCount).SequenceEqual(ReadOnlySpan(other.BendValues, 0, other.UsedCount)))
 
     override this.Equals other =
         match other with

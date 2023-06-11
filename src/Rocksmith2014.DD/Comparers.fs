@@ -13,7 +13,7 @@ let sameBendValues (bends1: ResizeArray<BendValue>) (bends2: ResizeArray<BendVal
     | both ->
         both ||> Seq.forall2 (fun b1 b2 -> b1.Step = b2.Step)
 
-let sameNote (n1: Note) (n2: Note) = 
+let sameNote (n1: Note) (n2: Note) =
     n1.Fret = n2.Fret
     && n1.String = n2.String
     && n1.Mask = n2.Mask

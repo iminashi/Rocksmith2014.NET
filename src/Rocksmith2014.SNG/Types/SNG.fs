@@ -157,7 +157,7 @@ module SNG =
             return SNG.Read(reader)
         }
 
-    /// Reads an encrypted SNG file. 
+    /// Reads an encrypted SNG file.
     let readPackedFile fileName platform =
         async {
             use file = File.OpenRead(fileName)

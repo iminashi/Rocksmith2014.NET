@@ -120,7 +120,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
                 let! totalLength =
                     backgroundTask {
-                        if Utils.usePlain entry then 
+                        if Utils.usePlain entry then
                             return addPlainData blockSize deflatedData zLengths entry.Data
                         else
                             let! length = Compression.blockZip blockSize deflatedData zLengths entry.Data
@@ -137,7 +137,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     let updateToc (protoEntries: (Entry * int64) array) (blockTable: uint32 array) zType encrypt =
         use tocData = MemoryStreamPool.Default.GetStream()
         let tocWriter = BigEndianBinaryWriter(tocData) :> IBinaryWriter
-        
+
         // Update and write the table of contents
         toc.Clear()
         let mutable offset = uint64 header.ToCLength
@@ -201,7 +201,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     member _.Manifest = manifest
 
     /// Gets the table of contents.
-    member _.TOC = toc.AsReadOnly() 
+    member _.TOC = toc.AsReadOnly()
 
     /// Inflates the given entry into the output stream.
     member _.InflateEntry(entry: Entry, output: Stream) = inflateEntry entry output

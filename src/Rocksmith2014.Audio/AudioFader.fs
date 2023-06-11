@@ -12,7 +12,7 @@ type AudioFader(source: ISampleProvider, fadeInLength: int<ms>, fadeOutLength: i
     let fadeOutStartSample = ((int64 audioLength - int64 fadeOutLength) * int64 source.WaveFormat.SampleRate * int64 source.WaveFormat.Channels) / 1000L
 
     interface ISampleProvider with
-        member _.Read(buffer: float32 array, offset: int, count: int) = 
+        member _.Read(buffer: float32 array, offset: int, count: int) =
             let sourceSamplesRead = source.Read(buffer, offset, count)
             totalSamplesRead <- totalSamplesRead + int64 sourceSamplesRead
 

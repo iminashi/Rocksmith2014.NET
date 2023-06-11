@@ -1,4 +1,4 @@
-﻿namespace Rocksmith2014.SNG
+namespace Rocksmith2014.SNG
 
 open System
 
@@ -54,7 +54,7 @@ type NoteMask =
 
 module Masks =
     /// Mask bits that need to be considered when converting a note to XML.
-    let NoteTechniques = 
+    let NoteTechniques =
         NoteMask.Accent ||| NoteMask.HammerOn ||| NoteMask.Harmonic ||| NoteMask.Ignore ||| NoteMask.Mute
         ||| NoteMask.PalmMute ||| NoteMask.Parent ||| NoteMask.PinchHarmonic ||| NoteMask.Pluck
         ||| NoteMask.PullOff ||| NoteMask.RightHand ||| NoteMask.Slap ||| NoteMask.Tremolo
