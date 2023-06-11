@@ -45,8 +45,6 @@ Source: "libHarfBuzzSharp.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "libSkiaSharp.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Magick.Native-Q8-x64.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "MLModel.zip"; DestDir: "{app}"; Flags: ignoreversion
-Source: "onDiscIDs.txt"; DestDir: "{app}"; Flags: ignoreversion
-Source: "onDiscKeys.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "SQLite.Interop.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "ReadMe.html"; DestDir: "{app}"; Flags: ignoreversion isreadme
 Source: "Tools\*"; DestDir: "{app}\Tools"; Flags: ignoreversion recursesubdirs createallsubdirs
