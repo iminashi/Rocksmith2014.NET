@@ -5,7 +5,7 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Controls
 open Avalonia.Layout
 
-let create title (generalProps: IAttr<StackPanel> list) (textBoxProps: IAttr<FixedTextBox> list) = 
+let create title (generalProps: IAttr<StackPanel> list) (textBoxProps: IAttr<FixedTextBox> list) =
     StackPanel.create [
         yield! generalProps
 

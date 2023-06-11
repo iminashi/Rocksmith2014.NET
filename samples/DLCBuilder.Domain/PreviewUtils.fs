@@ -9,7 +9,7 @@ open System.IO
 /// Returns a path to the project's audio in wave or vorbis format.
 let getOggOrWavAudio (project: DLCProject) =
     let projectAudio = project.AudioFile.Path
-    
+
     match projectAudio with
     | HasExtension (".wav" | ".ogg") ->
         projectAudio
@@ -36,7 +36,7 @@ let createAutoPreviewFile project =
             |> function
                 | Some arr ->
                     let inst = InstrumentalArrangement.Load(arr.XML)
-                    
+
                     inst.Sections
                     |> ResizeArray.tryFind (fun x -> x.Name |> String.startsWith "chorus")
                     |> Option.map (fun x -> float x.Time)

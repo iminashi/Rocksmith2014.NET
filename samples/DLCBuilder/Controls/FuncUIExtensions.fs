@@ -13,7 +13,7 @@ open Avalonia.Media
 type PathIcon with
     static member data<'t>(value: Geometry) : IAttr<'t> =
         AttrBuilder<'t>.CreateProperty<Geometry>(PathIcon.DataProperty, value, ValueNone)
-        
+
 module PathIcon =
     let create (attrs: IAttr<PathIcon> list) : IView<PathIcon> =
         ViewBuilder.Create<PathIcon>(attrs)

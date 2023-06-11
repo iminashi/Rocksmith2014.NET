@@ -117,4 +117,4 @@ let getFilteringFunctions (data: IdData) =
     filterIds, filterKeys
 
 let backupProfile (profilePath: string) =
-    File.Copy(profilePath, $"%s{profilePath}.backup", overwrite = true)
+    File.Copy(profilePath, $"{profilePath}.backup", overwrite = true)

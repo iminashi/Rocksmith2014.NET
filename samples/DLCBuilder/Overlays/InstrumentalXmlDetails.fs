@@ -30,7 +30,7 @@ let view state dispatch (fileName: string) (xml: InstrumentalArrangement) =
 
     let checkBox col row (flag: ArrPropFlags) (text: string) =
         let isChecked = (flags &&& flag) = flag
-    
+
         CheckBox.create [
             Grid.column col
             Grid.row row

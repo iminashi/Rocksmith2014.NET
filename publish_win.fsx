@@ -17,7 +17,7 @@ let createInstaller buildDir =
     |> String.replace "%VERSION%" release.NugetVersion
     |> File.writeString false scriptPath
 
-    InnoSetup.build (fun p -> 
+    InnoSetup.build (fun p ->
         { p with
             ToolPath = @"C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
             OutputFolder = installerDir

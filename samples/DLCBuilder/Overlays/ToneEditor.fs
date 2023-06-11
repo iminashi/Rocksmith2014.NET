@@ -27,7 +27,7 @@ let private enablePedalSelector gearList = function
 
 let private getValidMoves (array: 'a option array) index =
     let exists = array[index].IsSome
-    let up = exists && index > 0 
+    let up = exists && index > 0
     let down = exists && index < 3 && array[index + 1].IsSome
     up, down
 
