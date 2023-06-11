@@ -36,7 +36,7 @@ module Dictionary =
 [<RequireQualifiedAccess>]
 module Option =
     /// Creates an option from a string, where a null or whitespace string equals None.
-    let ofString s =
+    let inline ofString s =
         if String.IsNullOrWhiteSpace(s) then
             None
         else

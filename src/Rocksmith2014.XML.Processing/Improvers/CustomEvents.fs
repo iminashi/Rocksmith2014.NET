@@ -20,7 +20,7 @@ let improve (arrangement: InstrumentalArrangement) =
 
         // Supports only arrangements with no DD levels
         arrangement.Levels[0].Anchors
-        |> Seq.tryFind (fun a -> a.Time >= event.Time)
+        |> ResizeArray.tryFind (fun a -> a.Time >= event.Time)
         |> Option.iter (fun anchor ->
             anchor.Width <- 3y
             match fret with

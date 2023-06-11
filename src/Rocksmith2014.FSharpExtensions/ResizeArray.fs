@@ -10,7 +10,7 @@ let init (size: int) f =
     a
 
 /// Returns the element if the index is within the ResizeArray.
-let inline tryItem index (a: ResizeArray<_>) =
+let inline tryItem (index: int) (a: ResizeArray<_>) =
     if index >= 0 && index < a.Count then
         Some a[index]
     else
@@ -44,7 +44,7 @@ let inline filter (predicate: 'a -> bool) (a: ResizeArray<'a>) : ResizeArray<'a>
     a.FindAll(Predicate<_>(predicate))
 
 /// Executes the action for each of the elements in the ResizeArray.
-let iter action (a: ResizeArray<_>) =
+let inline iter ([<InlineIfLambda>] action: 'a -> unit) (a: ResizeArray<'a>) =
     for i = 0 to a.Count - 1 do
         action a[i]
 
