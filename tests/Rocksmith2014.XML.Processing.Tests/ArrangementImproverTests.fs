@@ -498,6 +498,30 @@ let basicFixTests =
 
             Expect.equal phrases.[0].Name "TEST" "First phrase name was changed"
             Expect.equal phrases.[1].Name "TEST_2" "Second phrase name was changed"
+
+        testCase "Ignore is added to 23rd and 24th fret notes" <| fun _ ->
+            let notes = ra [ Note(Time = 1000, Fret = 5y); Note(Time = 1200, Fret = 23y); Note(Time = 1300, Fret = 24y) ]
+            let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes) ])
+
+            BasicFixes.addIgnoreToHighFretNotes arr
+
+            Expect.isFalse notes.[0].IsIgnore "First note is not ignored"
+            Expect.isTrue notes.[1].IsIgnore "Second note is ignored"
+            Expect.isTrue notes.[2].IsIgnore "Third note is ignored"
+
+        testCase "Ignore is added to chord with 23rd and 24th fret notes" <| fun _ ->
+            let noFingers = [| -1y; -1y; -1y; -1y; -1y; -1y |]
+            let templates = ra [
+                ChordTemplate("", "", noFingers, [| -1y; 0y; 23y; -1y; -1y; -1y; |])
+                ChordTemplate("", "", noFingers, [| -1y; -1y; -1y; -1y; 22y; 24y; |])
+            ]
+            let chords = ra [ Chord(Time = 1000, ChordId = 0s); Chord(Time = 1200, ChordId = 1s) ]
+            let arr = InstrumentalArrangement(Levels = ra [ Level(Chords = chords) ], ChordTemplates = templates)
+
+            BasicFixes.addIgnoreToHighFretNotes arr
+
+            Expect.isTrue chords.[0].IsIgnore "First chord is ignored"
+            Expect.isTrue chords.[1].IsIgnore "Second chord is ignored"
     ]
 
 [<Tests>]
