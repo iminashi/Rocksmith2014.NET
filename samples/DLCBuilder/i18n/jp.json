@@ -251,8 +251,6 @@
   "UnpitchedSlideWithLinkNextHelp": "グリッサンドノートにはLinkNextがあると、ロックスミス2014リマスターではマスターレベルの計算が不正確になります。",
   "DoubleHarmonic": "ハーモニックスとピッキングハーモニクスのノート",
   "DoubleHarmonicHelp": "両方のアトリビュートがあるノートは通常間違いである。",
-  "MissingIgnore": "23/24フレットのノートにはIgnoreアトリビュートがない",
-  "MissingIgnoreHelp": "23か24フレットのノートにはIgnoreアトリビュートがないと、ロックスミス2014リマスターではマスターレベルの計算が不正確になります。",
   "SeventhFretHarmonicWithSustain": "7フレット目のハーモニックスにはサステインがある",
   "SeventhFretHarmonicWithSustainHelp": "7フレット目のハーモニックスノートにはサステインがあると正しく検知されません。サステインを外すかノートにIgnoreアトリビュートを追加してください。",
   "MissingBendValue": "ノートのチョーキング値が欠けている",

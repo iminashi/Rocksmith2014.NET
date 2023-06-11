@@ -149,10 +149,6 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
             if note.IsHarmonic && note.IsPinchHarmonic then
                 issue DoubleHarmonic time
 
-            // Check 23rd and 24th fret notes without ignore attribute
-            if note.Fret >= 23y && not note.IsIgnore then
-                issue MissingIgnore time
-
             // Check 7th fret harmonic notes with sustain (and without ignore)
             if not note.IsIgnore && note.Fret = 7y && note.IsHarmonic && note.Sustain > 0 then
                 issue SeventhFretHarmonicWithSustain time
@@ -256,10 +252,6 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
                 // Check for notes with both harmonic and pinch harmonic attributes
                 if chordNotes.Exists(fun cn -> cn.IsHarmonic && cn.IsPinchHarmonic) then
                     issue DoubleHarmonic time
-
-                // Check 23rd and 24th fret chords without ignore attribute
-                if chordNotes.TrueForAll(fun cn -> cn.Fret >= 23y) && not chord.IsIgnore then
-                    issue MissingIgnore time
 
                 // Check for missing bend values
                 if chordNotes.Exists(fun cn -> cn.IsBend && cn.BendValues.FindIndex(fun bv -> bv.Step <> 0.0f) = -1) then

@@ -144,18 +144,6 @@ let noteTests =
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type DoubleHarmonic "Correct issue type"
 
-        testCase "Detects notes beyond 23rd fret without ignore status" <| fun _ ->
-            let notes = ResizeArray(seq { Note(Fret = 23y)
-                                          Note(Fret = 24y)
-                                          Note(Fret = 23y, IsIgnore = true)
-                                          Note(Fret = 24y, IsIgnore = true) })
-            let level = Level(Notes = notes)
-
-            let results = checkNotes testArr level
-
-            Expect.hasLength results 2 "Two issues created"
-            Expect.equal results.Head.Type MissingIgnore "Correct issue type"
-
         testCase "Detects harmonic note on 7th fret with sustain" <| fun _ ->
             let notes = ResizeArray(seq { Note(Fret = 7y, IsHarmonic = true, Sustain = 200); Note(Fret = 7y, IsHarmonic = true) })
             let level = Level(Notes = notes)
@@ -405,16 +393,6 @@ let chordTests =
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type DoubleHarmonic "Correct issue type"
-
-        testCase "Detects chord beyond 23rd fret without ignore" <| fun _ ->
-            let cn = ResizeArray(seq { Note(Fret = 23y); Note(Fret = 24y) })
-            let chords = ResizeArray(seq { Chord(ChordNotes = cn) })
-            let level = Level(Chords = chords)
-
-            let results = checkChords testArr level
-
-            Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type MissingIgnore "Correct issue type"
 
         testCase "Detects harmonic chord note on 7th fret with sustain" <| fun _ ->
             let cn = ResizeArray(seq { Note(Fret = 7y, Sustain = 200, IsHarmonic = true) })

@@ -38,7 +38,6 @@ let private isImportant = function
     | IncorrectLinkNext
     | UnpitchedSlideWithLinkNext
     | PhraseChangeOnLinkNextNote
-    | MissingIgnore
     | MissingBendValue
     | MissingLinkNextChordNotes
     | AnchorInsideHandShape

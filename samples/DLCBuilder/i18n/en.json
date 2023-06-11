@@ -251,8 +251,6 @@
   "UnpitchedSlideWithLinkNextHelp": "Using LinkNext on an unpitched slide causes mastery issues in Rocksmith 2014 Remastered.",
   "DoubleHarmonic": "Note set as both harmonic and pinch harmonic",
   "DoubleHarmonicHelp": "A note has both the harmonic and pinch harmonic attributes. Usually this is an error.",
-  "MissingIgnore": "Note on 23rd/24th fret without ignore attribute",
-  "MissingIgnoreHelp": "Notes on the 23rd/24th fret without the ignore attribute cause mastery issues in Rocksmith 2014 Remastered.",
   "SeventhFretHarmonicWithSustain": "7th fret harmonic note with sustain",
   "SeventhFretHarmonicWithSustainHelp": "A 7th fret harmonic note that has sustain is not detected correctly by the game. Remove the sustain or set the note as ignored.",
   "MissingBendValue": "Note missing a bend value",

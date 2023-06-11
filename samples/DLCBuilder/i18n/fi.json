@@ -251,8 +251,6 @@
   "UnpitchedSlideWithLinkNextHelp": "LinkNext nuotti, jolla on \"liuku pois sävelestä\"-ominaisuus aiheuttaa vääriä mastery arvoja Rocksmith 2014:n Remastered versiossa.",
   "DoubleHarmonic": "Nuotilla sekä harmonic että pinch harmonic -ominaisuudet",
   "DoubleHarmonicHelp": "Molemmat harmonic-ominaisuudet nuotilla ovat yleensä virhe.",
-  "MissingIgnore": "Nuotti 23:lla/24:llä nauhalla ilman \"ignore\" ominaisuutta",
-  "MissingIgnoreHelp": "Tällaiset nuotit aiheuttavat vääriä mastery arvoja Rocksmith 2014:n Remastered versiossa.",
   "SeventhFretHarmonicWithSustain": "Seitsemännen nauhan huiluääninuotti, jolla on sustainia",
   "SeventhFretHarmonicWithSustainHelp": "Peli ei havaitse kunnolla seitsemännen nauhan huiluääninuotteja, joilla on sustainia. Poista nuotin sustain tai anna sille \"ignore\"-ominaisuus.",
   "MissingBendValue": "Nuotilta puuttuu venytysarvo",

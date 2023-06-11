@@ -13,7 +13,6 @@ type IssueType =
     | UnpitchedSlideWithLinkNext
     | PhraseChangeOnLinkNextNote
     | DoubleHarmonic
-    | MissingIgnore
     | SeventhFretHarmonicWithSustain
     | MissingBendValue
     | ToneChangeOnNote
@@ -55,7 +54,7 @@ let issueCode = function
     | UnpitchedSlideWithLinkNext -> "I09"
     | PhraseChangeOnLinkNextNote -> "I10"
     | DoubleHarmonic -> "I11"
-    | MissingIgnore -> "I12"
+    //| MissingIgnore -> "I12"
     | SeventhFretHarmonicWithSustain -> "I13"
     | MissingBendValue -> "I14"
     | ToneChangeOnNote -> "I15"
