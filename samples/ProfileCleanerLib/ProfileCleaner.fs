@@ -54,8 +54,12 @@ let private readIDs (path: string) =
 let private gatherDLCData (reportProgress: IdReadingProgress -> unit) (maxDegreeOfParallelism: int) (directory: string) =
     async {
         let! results =
+            let searchPattern =
+                let platform = if OperatingSystem.IsMacOS() || OperatingSystem.IsMacCatalyst() then "m" else "p"
+                $"*_{platform}.psarc"
+
             let files =
-                Directory.GetFiles(directory, "*.psarc", SearchOption.AllDirectories)
+                Directory.GetFiles(directory, searchPattern, SearchOption.AllDirectories)
                 |> Array.filter (fun path -> not (Path.GetFileNameWithoutExtension(path).Contains("rs1compatibility")))
 
             files

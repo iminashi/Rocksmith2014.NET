@@ -65,7 +65,7 @@ module ProfileCleanerTool =
         async {
             let progressReporter =
                 let mutable processedFiles = 0
-                let reportFrequence = max 4 maxDegreeOfParallelism
+                let reportFrequence = 10
 
                 fun (p: ProfileCleaner.IdReadingProgress) ->
                     let num = Interlocked.Increment(&processedFiles)
