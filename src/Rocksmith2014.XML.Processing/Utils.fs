@@ -102,3 +102,12 @@ let findActiveAnchor (level: Level) (time: int) =
             search (index + 1)
 
     search 0
+
+let tryFindNextNoteOnSameString (notes: ResizeArray<Note>) (currentIndex: int) (note: Note) =
+    let nextIndex =
+        if currentIndex = -1 then
+            notes.FindIndex(fun n -> n.Time > note.Time && n.String = note.String)
+        else
+            notes.FindIndex(currentIndex + 1, fun n -> n.String = note.String)
+
+    if nextIndex = -1 then None else Some notes[nextIndex]

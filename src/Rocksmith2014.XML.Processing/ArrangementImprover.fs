@@ -25,6 +25,7 @@ let adjustHandShapes = HandShapeAdjuster.improve
 let applyAll arrangement =
     BasicFixes.validatePhraseNames arrangement
     BasicFixes.addIgnoreToHighFretNotes arrangement
+    BasicFixes.fixLinkNexts arrangement
     movePhrases arrangement
     eofFixes arrangement
     addCrowdEvents arrangement
@@ -37,5 +38,6 @@ let applyAll arrangement =
 let applyMinimum arrangement =
     BasicFixes.validatePhraseNames arrangement
     BasicFixes.addIgnoreToHighFretNotes arrangement
+    BasicFixes.fixLinkNexts arrangement
     EOFFixes.fixChordNotes arrangement
     EOFFixes.fixPhraseStartAnchors arrangement

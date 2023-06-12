@@ -59,20 +59,11 @@ let private isLinkedToChord (level: Level) (note: Note) =
         && c.HasChordNotes
         && c.ChordNotes.Exists(fun cn -> cn.String = note.String))
 
-let private findNextNote (notes: ResizeArray<Note>) currentIndex (note: Note) =
-    let nextIndex =
-        if currentIndex = -1 then
-            notes.FindIndex(fun n -> n.Time > note.Time && n.String = note.String)
-        else
-            notes.FindIndex(currentIndex + 1, fun n -> n.String = note.String)
-
-    if nextIndex = -1 then None else Some notes[nextIndex]
-
 let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
     if isLinkedToChord level note then
         Some(issue NoteLinkedToChord note.Time)
     else
-        match findNextNote level.Notes currentIndex note with
+        match Utils.tryFindNextNoteOnSameString level.Notes currentIndex note with
         | None ->
             Some(issue LinkNextMissingTargetNote note.Time)
 

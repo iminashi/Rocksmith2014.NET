@@ -522,6 +522,72 @@ let basicFixTests =
 
             Expect.isTrue chords.[0].IsIgnore "First chord is ignored"
             Expect.isTrue chords.[1].IsIgnore "Second chord is ignored"
+
+        testCase "Incorrect linknext is removed (next note on same string not found)" <| fun _ ->
+            let notes = ra [ Note(Time = 1000, Fret = 5y, IsLinkNext = true); Note(Time = 1500, String = 4y, Fret = 5y) ]
+            let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes) ])
+
+            BasicFixes.fixLinkNexts arr
+
+            Expect.isFalse notes.[0].IsLinkNext "Linknext was removed"
+
+        testCase "Incorrect linknext is removed (next note too far)" <| fun _ ->
+            let notes = ra [ Note(Time = 1000, Fret = 5y, IsLinkNext = true); Note(Time = 2000, Fret = 5y) ]
+            let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes) ])
+
+            BasicFixes.fixLinkNexts arr
+
+            Expect.isFalse notes.[0].IsLinkNext "Linknext was removed"
+
+        testCase "Incorrect linknext fret is corrected" <| fun _ ->
+            let notes = ra [
+                Note(Time = 1000, Fret = 5y, Sustain = 500, IsLinkNext = true)
+                Note(Time = 1500, Fret = 6y)
+            ]
+            let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes) ])
+
+            BasicFixes.fixLinkNexts arr
+
+            Expect.isTrue notes.[0].IsLinkNext "Linknext was not removed"
+            Expect.equal notes.[1].Fret 5y "Fret was corrected"
+
+        testCase "Incorrect linknext fret is corrected (Slide)" <| fun _ ->
+            let notes = ra [
+                Note(Time = 1000, Fret = 5y, Sustain = 500, IsLinkNext = true, SlideTo = 9y)
+                Note(Time = 1500, Fret = 10y)
+            ]
+            let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes) ])
+
+            BasicFixes.fixLinkNexts arr
+
+            Expect.isTrue notes.[0].IsLinkNext "Linknext was not removed"
+            Expect.equal notes.[1].Fret 9y "Fret was corrected"
+
+        testCase "Incorrect linknext fret is corrected (Unpitched slide)" <| fun _ ->
+            let notes = ra [
+                Note(Time = 1000, Fret = 5y, Sustain = 500, IsLinkNext = true, SlideUnpitchTo = 9y);
+                Note(Time = 1500, Fret = 10y)
+            ]
+            let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes) ])
+
+            BasicFixes.fixLinkNexts arr
+
+            Expect.isTrue notes.[0].IsLinkNext "Linknext was not removed"
+            Expect.equal notes.[1].Fret 9y "Fret was corrected"
+
+        testCase "Incorrect linknext fret is corrected (Bend)" <| fun _ ->
+            let bv = ra [ BendValue(450, 2.0f) ]
+            let notes = ra [
+                Note(Time = 1000, Fret = 5y, Sustain = 500, IsLinkNext = true, BendValues = bv)
+                Note(Time = 1500, Fret = 10y)
+            ]
+            let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes) ])
+
+            BasicFixes.fixLinkNexts arr
+
+            Expect.isTrue notes.[1].IsBend "Second note has bend"
+            Expect.equal notes.[1].BendValues[0].Step 2.0f "Bend value step is correct"
+            Expect.equal notes.[1].BendValues[0].Time 1500 "Bend value time is correct"
     ]
 
 [<Tests>]

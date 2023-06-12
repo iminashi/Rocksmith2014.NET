@@ -28,3 +28,37 @@ let addIgnoreToHighFretNotes (arrangement: InstrumentalArrangement) =
                     c.IsIgnore <- true)
         )
     )
+
+/// Fixes various link next errors for notes.
+let fixLinkNexts (arrangement: InstrumentalArrangement) =
+    arrangement.Levels
+    |> ResizeArray.iter (fun level ->
+        let notes = level.Notes
+        for i = 0 to notes.Count - 1 do
+            let note = notes[i]
+            if note.IsLinkNext then
+                match Utils.tryFindNextNoteOnSameString notes i note with
+                | None ->
+                    note.IsLinkNext <- false
+                | Some nextNote when nextNote.Time - (note.Time + note.Sustain) > 50 ->
+                    note.IsLinkNext <- false
+                | Some nextNote ->
+                    let correctFret =
+                        if note.SlideTo > 0y then
+                            note.SlideTo
+                        elif note.SlideUnpitchTo > 0y then
+                            note.SlideUnpitchTo
+                        else
+                            note.Fret
+
+                    nextNote.Fret <- correctFret
+
+                    if note.IsBend then
+                        let thisNoteLastBendValue =
+                            note.BendValues[note.BendValues.Count - 1].Step
+
+                        if thisNoteLastBendValue > 0.0f then
+                            if not nextNote.IsBend then
+                                nextNote.BendValues <- ResizeArray.singleton (BendValue(nextNote.Time, thisNoteLastBendValue))
+                            elif nextNote.BendValues[0].Time <> nextNote.Time then
+                                nextNote.BendValues.Insert(0, BendValue(nextNote.Time, thisNoteLastBendValue)))
