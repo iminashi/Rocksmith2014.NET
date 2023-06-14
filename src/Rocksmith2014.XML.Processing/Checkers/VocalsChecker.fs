@@ -11,7 +11,7 @@ let [<Literal>] private MaxLengthExcludingNullTerminator = 47
 
 let private findInvalidCharLyric (vocals: ResizeArray<Vocal>) =
     vocals
-    |> Seq.tryPick (fun vocal ->
+    |> ResizeArray.tryPick (fun vocal ->
         vocal.Lyric
         |> Seq.tryFindIndex (LyricsCharset.Contains >> not)
         |> Option.map (fun i -> vocal, vocal.Lyric[i]))

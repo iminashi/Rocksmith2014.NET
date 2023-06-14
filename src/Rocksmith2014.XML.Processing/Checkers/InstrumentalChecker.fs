@@ -116,6 +116,18 @@ let private isPhraseChangeOnSustain (arr: InstrumentalArrangement) (note: Note) 
         && pi.Time <= note.Time + note.Sustain
         && (not <| String.startsWith "mover" arr.Phrases[pi.PhraseId].Name))
 
+let private tryFindOverlappingBendValue (bendValues: ResizeArray<BendValue>) =
+    let rec finder index =
+        match bendValues |> ResizeArray.tryItem (index + 1) with
+        | Some nextBv ->
+            if bendValues[index].Time = nextBv.Time then
+                Some (issue OverlappingBendValues nextBv.Time)
+            else
+                finder (index + 1)
+        | None ->
+            None
+    finder 0
+
 /// Checks the notes in the level for issues.
 let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
     let ngSections = getNoguitarSections arrangement
@@ -144,9 +156,15 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
             if not note.IsIgnore && note.Fret = 7y && note.IsHarmonic && note.Sustain > 0 then
                 issue SeventhFretHarmonicWithSustain time
 
-            // Check for missing bend values
-            if note.IsBend && note.BendValues.FindIndex(fun bv -> bv.Step <> 0.0f) = -1 then
-                issue MissingBendValue time
+            // Check bend values
+            if note.IsBend then
+                // Check for missing bend values
+                if note.BendValues.FindIndex(fun bv -> bv.Step <> 0.0f) = -1 then
+                    issue MissingBendValue time
+
+                yield!
+                    tryFindOverlappingBendValue note.BendValues
+                    |> Option.toList
 
             // Check tone change placement
             if isOnToneChange arrangement time then
@@ -247,6 +265,11 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
                 // Check for missing bend values
                 if chordNotes.Exists(fun cn -> cn.IsBend && cn.BendValues.FindIndex(fun bv -> bv.Step <> 0.0f) = -1) then
                     issue MissingBendValue time
+
+                yield!
+                    chordNotes
+                    |> ResizeArray.tryPick (fun cn -> if cn.IsBend then tryFindOverlappingBendValue cn.BendValues else None)
+                    |> Option.toList
 
                 // EOF does not set LinkNext on chords correctly, so check all chords regardless of LinkNext status
                 yield!

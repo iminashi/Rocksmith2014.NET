@@ -368,6 +368,18 @@ let noteTests =
             let results = checkNotes arr level
 
             Expect.hasLength results 0 "No issues should be created"
+
+        testCase "Overlapping bend values are detected" <| fun _ ->
+            let notes = ResizeArray(seq {
+                Note(Fret = 3y, BendValues = ResizeArray([ BendValue(500, 1.0f); BendValue(500, 1.0f) ]))
+            })
+            let level = Level(Notes = notes)
+            let arr = InstrumentalArrangement(Levels = ResizeArray([ level ]))
+
+            let results = checkNotes arr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type OverlappingBendValues "Correct issue type"
     ]
 
 [<Tests>]
@@ -585,7 +597,7 @@ let chordTests =
                     Chord(ChordId = 0s, Time = 1000, ChordNotes = cn1)
                     Chord(ChordId = 0s, Time = 1500, ChordNotes = cn2)
                 })
-            let anchors = ResizeArray(seq { Anchor(12y, 1000); Anchor(10y, 1500)})
+            let anchors = ResizeArray(seq { Anchor(12y, 1000); Anchor(10y, 1500) })
             let level = Level(Chords = chords, Anchors = anchors)
             let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
 
@@ -593,6 +605,24 @@ let chordTests =
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type PositionShiftIntoPullOff "Correct issue type"
+
+        testCase "Overlapping bend values are detected for chords" <| fun _ ->
+            let cn1 =
+                ResizeArray(seq {
+                    Note(String = 4y, Fret = 12y)
+                    Note(String = 5y, Fret = 12y, BendValues = ResizeArray([ BendValue(200, 2.0f); BendValue(200, 1.0f) ]))
+                })
+            let chords =
+                ResizeArray(seq {
+                    Chord(ChordId = 0s, Time = 1000, ChordNotes = cn1)
+                })
+            let level = Level(Chords = chords)
+            let arr = InstrumentalArrangement(Levels = ResizeArray([ level ]))
+
+            let results = checkChords arr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type OverlappingBendValues "Correct issue type"
     ]
 
 [<Tests>]
