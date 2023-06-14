@@ -576,7 +576,7 @@ let basicFixTests =
             Expect.equal notes.[1].Fret 9y "Fret was corrected"
 
         testCase "Incorrect linknext fret is corrected (Bend)" <| fun _ ->
-            let bv = ra [ BendValue(450, 2.0f) ]
+            let bv = ra [ BendValue(1200, 2.0f) ]
             let notes = ra [
                 Note(Time = 1000, Fret = 5y, Sustain = 500, IsLinkNext = true, BendValues = bv)
                 Note(Time = 1500, Fret = 10y)
@@ -588,6 +588,22 @@ let basicFixTests =
             Expect.isTrue notes.[1].IsBend "Second note has bend"
             Expect.equal notes.[1].BendValues[0].Step 2.0f "Bend value step is correct"
             Expect.equal notes.[1].BendValues[0].Time 1500 "Bend value time is correct"
+
+        testCase "Overlapping bend values are removed" <| fun _ ->
+            let bv1 = ra [ BendValue(1200, 2.0f); BendValue(1200, 1.0f) ]
+            let bv2 = ra [ BendValue(2100, 2.0f); BendValue(2100, 2.0f) ]
+            let notes = ra [
+                Note(Time = 1000, Fret = 5y, Sustain = 500, IsLinkNext = true, BendValues = bv1)
+            ]
+            let chords = ra [
+                Chord(Time = 2000, ChordNotes = ra [ Note(Time = 2000, Sustain = 500, BendValues = bv2) ])
+            ]
+            let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes, Chords = chords) ])
+
+            BasicFixes.removeOverlappingBendValues arr
+
+            Expect.hasLength notes[0].BendValues 1 "Bend value was removed from note"
+            Expect.hasLength chords[0].ChordNotes[0].BendValues 1 "Bend value was removed from chord note"
     ]
 
 [<Tests>]

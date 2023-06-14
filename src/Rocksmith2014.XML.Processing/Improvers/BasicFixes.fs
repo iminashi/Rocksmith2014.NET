@@ -62,3 +62,24 @@ let fixLinkNexts (arrangement: InstrumentalArrangement) =
                                 nextNote.BendValues <- ResizeArray.singleton (BendValue(nextNote.Time, thisNoteLastBendValue))
                             elif nextNote.BendValues[0].Time <> nextNote.Time then
                                 nextNote.BendValues.Insert(0, BendValue(nextNote.Time, thisNoteLastBendValue)))
+
+/// Removes overlapping bend values from notes and chord notes.
+let removeOverlappingBendValues (arrangement: InstrumentalArrangement) =
+    let filterBendValues (note: Note) =
+        if note.IsBend then
+            note.BendValues <-
+                note.BendValues
+                |> Seq.distinctBy (fun bv -> bv.Time)
+                |> ResizeArray
+
+    arrangement.Levels
+    |> ResizeArray.iter (fun level ->
+        level.Notes
+        |> ResizeArray.iter filterBendValues
+
+        level.Chords
+        |> ResizeArray.iter (fun c ->
+            if c.HasChordNotes then
+                c.ChordNotes
+                |> ResizeArray.iter filterBendValues)
+    )
