@@ -39,6 +39,17 @@ let tryFind (predicate: 'a -> bool) (a: ResizeArray<'a>) =
                 seek (index + 1)
     seek 0
 
+/// Returns the first element for which the function returns Some(x).
+let tryPick (chooser: 'a -> 'b option) (a: ResizeArray<'a>) =
+    let rec seek index =
+        if index = a.Count then
+            None
+        else
+            match chooser a[index] with
+            | None -> seek (index + 1)
+            | x -> x
+    seek 0
+
 /// Returns a new ResizeArray containing only the elements for which the predicate returns true.
 let inline filter (predicate: 'a -> bool) (a: ResizeArray<'a>) : ResizeArray<'a> =
     a.FindAll(Predicate<_>(predicate))
