@@ -255,6 +255,8 @@
   "SeventhFretHarmonicWithSustainHelp": "Peli ei havaitse kunnolla seitsemännen nauhan huiluääninuotteja, joilla on sustainia. Poista nuotin sustain tai anna sille \"ignore\"-ominaisuus.",
   "MissingBendValue": "Nuotilta puuttuu venytysarvo",
   "MissingBendValueHelp": "Nuotilla on venytysominaisuus, mutta sillä ei ole yhtään venytysarvoa, jotka eivät ole nolla.",
+  "OverlappingBendValues": "Monta samanaikaista venytysarvoa",
+  "OverlappingBendValuesHelp": "Samalle ajanhetkelle on määritelty useita venytysarvoa. Tämä voi kaataa pelin.\n\nJotkin venytysarvoista poistetaan automaattisesti rakentamisen aikana.",
   "ToneChangeOnNote": "Soundimuutos tapahtuu nuotin kohdalla",
   "ToneChangeOnNoteHelp": "Yleensä on parempi asettaa soundimuutos vähän ennen nuottia kuin juuri sen kohdalle.",
   "MissingLinkNextChordNotes": "LinkNext sointu ilman LinkNext nuotteja",

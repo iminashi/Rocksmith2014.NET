@@ -255,6 +255,8 @@
   "SeventhFretHarmonicWithSustainHelp": "7フレット目のハーモニックスノートにはサステインがあると正しく検知されません。サステインを外すかノートにIgnoreアトリビュートを追加してください。",
   "MissingBendValue": "ノートのチョーキング値が欠けている",
   "MissingBendValueHelp": "チョーキングノートには０以上のチョーキング値がひとつもありません。",
+  "OverlappingBendValues": "同時に多数のチョーキング値がある",
+  "OverlappingBendValuesHelp": "同じ瞬間に多数のチョーキング値があります。これによってゲームがクラッシュするかもしれません。\n\n重複するチョーキング値がビルド中に自動的に削除されます。",
   "ToneChangeOnNote": "ノートと同時のトーンチェンジ",
   "ToneChangeOnNoteHelp": "普段はトーンチェンジをノートのちょっと前に置くといいでしょう。",
   "MissingLinkNextChordNotes": "LinkNextコードにはLinkNextノートがいない",

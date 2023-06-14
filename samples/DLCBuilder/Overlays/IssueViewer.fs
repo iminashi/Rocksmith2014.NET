@@ -45,7 +45,8 @@ let private isImportant = function
     | FirstPhraseNotEmpty
     | LyricTooLong _
     | MutedStringInNonMutedChord
-    | InvalidShowlights -> true
+    | InvalidShowlights
+    | OverlappingBendValues -> true
     | _ -> false
 
 let private viewForIssue dispatch issueType times canIgnore =

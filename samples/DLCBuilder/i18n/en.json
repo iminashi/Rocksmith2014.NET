@@ -255,6 +255,8 @@
   "SeventhFretHarmonicWithSustainHelp": "A 7th fret harmonic note that has sustain is not detected correctly by the game. Remove the sustain or set the note as ignored.",
   "MissingBendValue": "Note missing a bend value",
   "MissingBendValueHelp": "A note was set as a bend, but did not have any non-zero bend values.",
+  "OverlappingBendValues": "Multiple bend values at the same time",
+  "OverlappingBendValuesHelp": "Multiple bend values are defined at the same time. This can crash the game.\n\nSome bend values will be removed automatically during build.",
   "ToneChangeOnNote": "Tone change occurs on a note",
   "ToneChangeOnNoteHelp": "Generally it is good practice to place the tone change slightly before a note than exactly on it.",
   "MissingLinkNextChordNotes": "LinkNext chord without LinkNext chord notes",
