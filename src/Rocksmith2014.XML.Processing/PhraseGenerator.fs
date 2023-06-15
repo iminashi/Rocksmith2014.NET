@@ -4,6 +4,9 @@ open Rocksmith2014.XML
 open Rocksmith2014.XML.Extensions
 open Utils
 
+/// Minimum distance required between phrases in milliseconds.
+let [<Literal>] MinimumPhraseSeparation = 2000
+
 [<AutoOpen>]
 module private Helpers =
     type Inst = InstrumentalArrangement
@@ -213,8 +216,12 @@ module private Helpers =
                         nextPhraseTime <- None
                         t
 
-                // Don't create duplicate phrases
-                if time <> arr.Sections[arr.Sections.Count - 1].Time then
+                let prevPhraseTime = arr.Sections[arr.Sections.Count - 1].Time
+                let canCreatePhrase =
+                    // Don't create duplicate or really small phrases
+                    time - prevPhraseTime > MinimumPhraseSeparation
+
+                if canCreatePhrase then
                     let nextContentTime = findNextContent level time
 
                     let sectionType =
