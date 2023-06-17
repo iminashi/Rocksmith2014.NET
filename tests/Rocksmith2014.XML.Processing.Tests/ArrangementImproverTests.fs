@@ -503,11 +503,23 @@ let basicFixTests =
             let notes = ra [ Note(Time = 1000, Fret = 5y); Note(Time = 1200, Fret = 23y); Note(Time = 1300, Fret = 24y) ]
             let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes) ])
 
-            BasicFixes.addIgnoreToHighFretNotes arr
+            BasicFixes.addIgnores arr
 
             Expect.isFalse notes.[0].IsIgnore "First note is not ignored"
             Expect.isTrue notes.[1].IsIgnore "Second note is ignored"
             Expect.isTrue notes.[2].IsIgnore "Third note is ignored"
+
+        testCase "Ignore is added to 7th fret harmonic with sustain" <| fun _ ->
+            let notes = ra [
+                Note(Time = 1000, Fret = 7y, Sustain = 500, IsHarmonic = true)
+                Note(Time = 2000, Fret = 7y, Sustain = 0, IsHarmonic = true)
+            ]
+            let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes) ])
+
+            BasicFixes.addIgnores arr
+
+            Expect.isTrue notes.[0].IsIgnore "First note is ignored"
+            Expect.isFalse notes.[1].IsIgnore "Second note is not ignored"
 
         testCase "Ignore is added to chord with 23rd and 24th fret notes" <| fun _ ->
             let noFingers = [| -1y; -1y; -1y; -1y; -1y; -1y |]
@@ -518,10 +530,26 @@ let basicFixTests =
             let chords = ra [ Chord(Time = 1000, ChordId = 0s); Chord(Time = 1200, ChordId = 1s) ]
             let arr = InstrumentalArrangement(Levels = ra [ Level(Chords = chords) ], ChordTemplates = templates)
 
-            BasicFixes.addIgnoreToHighFretNotes arr
+            BasicFixes.addIgnores arr
 
             Expect.isTrue chords.[0].IsIgnore "First chord is ignored"
             Expect.isTrue chords.[1].IsIgnore "Second chord is ignored"
+
+        testCase "Ignore is added to chord with 7th fret harmonic with sustain" <| fun _ ->
+            let noFingers = [| -1y; -1y; -1y; -1y; -1y; -1y |]
+            let templates = ra [
+                ChordTemplate("", "", noFingers, [| -1y; 7y; 7y; -1y; -1y; -1y; |])
+            ]
+            let cn = ra [
+                Note(Time = 1000, Sustain = 500, Fret = 7y, String = 1y, IsHarmonic = true)
+                Note(Time = 1000, Sustain = 500, Fret = 7y, String = 2y, IsHarmonic = true)
+            ]
+            let chords = ra [ Chord(Time = 1000, ChordId = 0s, ChordNotes = cn) ]
+            let arr = InstrumentalArrangement(Levels = ra [ Level(Chords = chords) ], ChordTemplates = templates)
+
+            BasicFixes.addIgnores arr
+
+            Expect.isTrue chords.[0].IsIgnore "Chord is ignored"
 
         testCase "Incorrect linknext is removed (next note on same string not found)" <| fun _ ->
             let notes = ra [ Note(Time = 1000, Fret = 5y, IsLinkNext = true); Note(Time = 1500, String = 4y, Fret = 5y) ]

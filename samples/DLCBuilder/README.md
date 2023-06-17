@@ -51,7 +51,7 @@ Will be used when "Apply Improvements" is enabled.
 
 These fixes will be done even if "Apply Improvements" is disabled.
 
-- Ignore is added to 23rd and 24th fret notes
+- Ignore is added to 23rd and 24th fret notes, and 7th fret harmonic notes that have sustain
 - Overlapping bend values are removed
 - Sustains and linknext issues in chord notes
 - Anchors are created or moved to the start of each phrase

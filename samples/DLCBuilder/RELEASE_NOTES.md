@@ -13,7 +13,7 @@
 - Added a new validation check for a finger changing during a slide.
 - Added a new validation check for position shift into a pull-off.
 - Added a new validation check and automatic fix for overlapping bend values.
-- Added automatic fixing of missing ignore status for 23rd and 24th fret notes.
+- Added automatic fixing of missing ignore status for 23rd and 24th fret notes, and 7th fret harmonic notes with sustain.
 - Added automatic fixing of linknext fret and bend mismatches.
 - Fixed false positive in validation for anchor position in relation to chord fingering with chords that use the thumb.
 - Fixed some rare false positives for the "anchor not exactly on note" validation.

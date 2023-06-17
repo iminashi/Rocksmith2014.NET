@@ -13,14 +13,22 @@ let validatePhraseNames (arrangement: InstrumentalArrangement) =
         phrase.Name <- Regex.Replace(phrase.Name, "[^a-zA-Z0-9 _#]", ""))
 
 /// Adds ignore to 23rd and 24th fret notes and chords that contain such frets.
-let addIgnoreToHighFretNotes (arrangement: InstrumentalArrangement) =
+/// Also adds ignore to 7th fret harmonics with sustains.
+let addIgnores (arrangement: InstrumentalArrangement) =
+    let ignoreHarmonic (n: Note) =
+        n.Fret = 7y && n.Sustain > 0 && n.IsHarmonic
+
     arrangement.Levels
     |> ResizeArray.iter (fun level ->
         level.Notes
-        |> ResizeArray.iter (fun n -> if n.Fret >= 23y then n.IsIgnore <- true)
+        |> ResizeArray.iter (fun n ->
+            if n.Fret >= 23y || ignoreHarmonic n then n.IsIgnore <- true)
 
         level.Chords
         |> ResizeArray.iter (fun c ->
+            if c.HasChordNotes && c.ChordNotes.Exists(ignoreHarmonic) then
+                c.IsIgnore <- true
+
             arrangement.ChordTemplates
             |> ResizeArray.tryItem (int c.ChordId)
             |> Option.iter (fun template ->
