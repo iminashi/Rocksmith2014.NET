@@ -27,6 +27,7 @@ let applyAll arrangement =
     BasicFixes.addIgnores arrangement
     BasicFixes.fixLinkNexts arrangement
     BasicFixes.removeOverlappingBendValues arrangement
+    BasicFixes.removeMutedNotesFromChords arrangement
     movePhrases arrangement
     eofFixes arrangement
     addCrowdEvents arrangement
@@ -40,5 +41,6 @@ let applyMinimum arrangement =
     BasicFixes.validatePhraseNames arrangement
     BasicFixes.addIgnores arrangement
     BasicFixes.removeOverlappingBendValues arrangement
+    BasicFixes.removeMutedNotesFromChords arrangement
     EOFFixes.fixChordNotes arrangement
     EOFFixes.fixPhraseStartAnchors arrangement

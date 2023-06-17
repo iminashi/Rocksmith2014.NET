@@ -268,7 +268,7 @@
   "BarreOverOpenStrings": "Barree yli avoimien kielien",
   "BarreOverOpenStringsHelp": "Kahden kielen, jotka käyttävät samaa sormea, välissä on avoimia kieliä.",
   "MutedStringInNonMutedChord": "Vaimennettu kieli ei-vaimennetussa soinnussa",
-  "MutedStringInNonMutedChordHelp": "Soinnuissa, jotka eivät ole kokonaan vaimennettuja, ei pidä käyttää vaimennettuja kieliä (jotta peli havaitsee soinnun, vaimennetun kielen sävel pitää sisältyä sointuun).",
+  "MutedStringInNonMutedChordHelp": "Soinnuissa, jotka eivät ole kokonaan vaimennettuja, ei pidä käyttää vaimennettuja kieliä. Jotta peli havaitsee soinnun, vaimennetun kielen sävel pitää myös soittaa.\n\nVaimennetut kielet poistetaan soinnusta automaattisesti.",
   "FingeringAnchorMismatch": "Handshapen sormitus ei vastaa ankkuriarvoa",
   "FingeringAnchorMismatchHelp": "Ankkuri (FHP) on samalla nauhalla, kuin soinnun alin nuotti, joka ei käytä ensimmäistä sormea. Usein tämä on virhe.",
   "AnchorNotOnNote": "Ankkuri ei ole nuotin kohdalla. Etäisyys lähimpään nuottiin: {0} ms",

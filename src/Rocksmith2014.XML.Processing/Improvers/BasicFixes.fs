@@ -2,6 +2,7 @@ module Rocksmith2014.XML.Processing.BasicFixes
 
 open Rocksmith2014.XML
 open System.Text.RegularExpressions
+open System.Collections.Generic
 
 /// Filters the characters in the arrangement's phrase names.
 ///
@@ -90,4 +91,34 @@ let removeOverlappingBendValues (arrangement: InstrumentalArrangement) =
             if c.HasChordNotes then
                 c.ChordNotes
                 |> ResizeArray.iter filterBendValues)
+    )
+
+// Removes fret-hand-muted notes from chords that also contain normal notes.
+let removeMutedNotesFromChords (arrangement: InstrumentalArrangement) =
+    let fixedChordTemplates = HashSet<int16>()
+
+    arrangement.Levels
+    |> ResizeArray.iter (fun level ->
+        level.Chords
+        |> ResizeArray.iter (fun chord ->
+            if fixedChordTemplates.Contains(chord.ChordId) |> not && chord.HasChordNotes && not chord.IsFretHandMute then
+                let mutedNotes =
+                    chord.ChordNotes.FindAll(fun n -> n.IsFretHandMute)
+
+                // Remove the mutes unless all notes are muted
+                if mutedNotes.Count > 0 && mutedNotes.Count <> chord.ChordNotes.Count then
+                    chord.ChordNotes.RemoveAll(fun n -> n.IsFretHandMute) |> ignore
+
+                    // Fix chord template
+                    arrangement.ChordTemplates
+                    |> ResizeArray.tryItem (int chord.ChordId)
+                    |> Option.iter (fun template ->
+                        mutedNotes.ForEach(fun n ->
+                            let i = int n.String
+                            template.Frets[i] <- -1y
+                            template.Fingers[i] <- -1y)
+                    )
+
+                    fixedChordTemplates.Add(chord.ChordId) |> ignore
+        )
     )

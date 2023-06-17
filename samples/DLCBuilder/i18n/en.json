@@ -268,7 +268,7 @@
   "BarreOverOpenStrings": "Barre over open strings",
   "BarreOverOpenStringsHelp": "There are open strings between strings that use the same finger.",
   "MutedStringInNonMutedChord": "Muted string in non-muted chord",
-  "MutedStringInNonMutedChordHelp": "Muted notes should not be included in chords that are not fully muted (the pitch of the muted note needs to be included in the chord for the game to detect it).",
+  "MutedStringInNonMutedChordHelp": "Muted notes should not be included in chords that are not fully muted. The pitch of the muted note needs to be played for the game to properly detect the chord.\n\nThe muted strings will be removed automatically.",
   "FingeringAnchorMismatch": "Handshape fingering does not match anchor position",
   "FingeringAnchorMismatchHelp": "An anchor (FHP) was on the same fret as the lowest note of a chord that does not use the first finger. Sometimes this can be intended.",
   "AnchorNotOnNote": "Anchor not on a note. Distance to closest note: {0} ms",

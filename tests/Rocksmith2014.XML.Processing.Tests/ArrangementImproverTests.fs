@@ -632,6 +632,36 @@ let basicFixTests =
 
             Expect.hasLength notes[0].BendValues 1 "Bend value was removed from note"
             Expect.hasLength chords[0].ChordNotes[0].BendValues 1 "Bend value was removed from chord note"
+
+        testCase "Muted strings are removed from non-muted chords" <| fun _ ->
+            let templates = ra [
+                ChordTemplate("", "", [| 1y; 3y; 4y; -1y; -1y; -1y |], [| 1y; 3y; 3y; -1y; -1y; -1y; |])
+                ChordTemplate("", "", [| -1y; -1y; -1y; -1y; -1y; -1y |], [| 0y; 0y; 0y; -1y; -1y; -1y; |])
+            ]
+            let cn1 = ra [
+                Note(Time = 1000, String = 0y, Fret = 1y)
+                Note(Time = 1000, String = 1y, Fret = 3y, IsFretHandMute = true)
+                Note(Time = 1000, String = 2y, Fret = 3y)
+            ]
+            let cn2 = ra [
+                Note(Time = 1200, String = 0y, Fret = 0y, IsFretHandMute = true)
+                Note(Time = 1200, String = 1y, Fret = 0y, IsFretHandMute = true)
+                Note(Time = 1200, String = 2y, Fret = 0y, IsFretHandMute = true)
+            ]
+            let chords = ra [
+                Chord(Time = 1000, ChordId = 0s, ChordNotes = cn1)
+                // Chord with all muted notes, but not marked as muted
+                Chord(Time = 1200, ChordId = 1s, ChordNotes = cn2) ]
+            let arr = InstrumentalArrangement(Levels = ra [ Level(Chords = chords) ], ChordTemplates = templates)
+
+            BasicFixes.removeMutedNotesFromChords arr
+
+            Expect.hasLength chords.[0].ChordNotes 2 "Chord note was removed from first chord"
+            Expect.isFalse (chords.[0].ChordNotes.Exists(fun n -> n.IsFretHandMute)) "Fret-hand mute was removed"
+            Expect.hasLength chords.[1].ChordNotes 3 "Chord notes were not removed from second chord"
+            Expect.equal templates[0].Fingers[1] -1y "Fingering was removed from first chord template"
+            Expect.equal templates[0].Frets[1] -1y "String was removed from first chord template"
+            Expect.sequenceContainsOrder templates[1].Frets [| 0y; 0y; 0y; -1y; -1y; -1y; |] "Second chord template was not modified"
     ]
 
 [<Tests>]
