@@ -33,7 +33,7 @@ The package for the current platform will be built into the folder specified in 
 
 Will build the package(s) (both Mac and PC by default) into the project folder. DD levels will be generated if the XML files do not already have them and the App ID is hard-coded to Cherub Rock.
 
-## Arrangement Improving Features from DDC Improver
+## Arrangement Improving Features
 
 Will be used when "Apply Improvements" is enabled.
 
@@ -45,14 +45,16 @@ Will be used when "Apply Improvements" is enabled.
 - Add crowd events (one initial crowd tempo event + intro and outro applauses) unless the arrangement already has them
 - Allow moving of phrases/sections off-beat with a special phrase name "mover"
 - Custom events "w3" (width 3 anchor), "removebeats", "so" (slide-out handshape)
+- Linknext fret number and bend mismatches are fixed
 
-### Features not (Currently) Ported
+### Automatic Fixes that Are Always Applied
 
-- Moving of phrases with special "moveto" phrase name ("mover" is more convenient to use and should not fail in case the sync is adjusted)
-- "FIXOPEN" special chord name (rarely needed, the implementation was not very good)
-- "OF" (one fret) special chord name (rarely needed, can also be created manually in most cases)
-- Removing of "anchor placeholder" notes
-- Creation of tone change events (pointless)
+These fixes will be done even if "Apply Improvements" is disabled.
+
+- Ignore is added to 23rd and 24th fret notes
+- Overlapping bend values are removed
+- Sustains and linknext issues in chord notes
+- Anchors are created or moved to the start of each phrase
 
 ## Using the Phrase Mover
 
@@ -91,15 +93,15 @@ You can also specify a fret number in this format: "w3-22". This allows you to c
 
 ### removebeats
 
-Removes the beats starting from the beat that is placed on until the end.
+Removes the beats starting from the beat that the event is placed on until the end.
 
 ## PSARC Quick Edit Import
 
 The feature is meant for making quick changes to a PSARC without preserving the extracted files.
-The files inside the PSARC are extracted into a temporary folder and will be deleted when editing is finished or another project is loaded.
+The files inside the PSARC are extracted into a temporary folder and will be deleted when editing is finished, cancelled, another project is loaded or the program is closed.
 Building the package will replace the original PSARC file.
 
-Since the process includes conversion of the arrangements into XML, there may be some differences in them compared to the original when building the package again, even if you do not edit them, especially for very old or poorly made customs.
+Since the process includes conversion of the arrangements into XML, there may be some differences in them compared to the original when building the package again, especially for very old or poorly made customs.
 If you want to stay as close as possible to the original arrangements, disable the options "Remove DD Levels" in PSARC import and "Apply Improvements" in the build options.
 
 ## Using the Japanese Lyrics Creator Tool
@@ -112,6 +114,16 @@ The tool can be started when there is a vocals arrangement in the project.
 4. Repeat this until all the lyrics are matched.
 
 If a syllable in the original lyrics is not matched with a Japanese word, the original syllable will be used. For example, if the lyrics contain some Japanese at the beginning and the rest of them are in English, there is no need to match the English part.
+
+## Profile Cleaner Tool
+
+This tool is meant for removing obsolete/unnecessary records from the profile file. Such records can accumulate if you use the test build feature a lot or when you delete a CDLC that you have played.
+
+The tool scans the directory entered in the configuration for IDs of arrangements that should be preserved. This means that all official and custom DLC for which you want to preserve the records should be found in that directory or its subdirectories.
+
+The IDs of on-disc and RS1 import songs are already included within the program.
+
+An automatic backup file with a ".backup" extension is created in the same folder project file when the tool is run. You should always confirm that the profile can still be loaded after using the tool.
 
 ## Differences to the [Toolkit](https://www.rscustom.net/)
 
@@ -134,6 +146,7 @@ Reading the available tones from a profile file, opening the tone editor and rem
 - Tone collection for storing tones or adding an official tone into a project
 - Tool for creating a Japanese vocals arrangement by matching the lyrics to a romaji arrangement
 - Injection of tones into a profile file
+- Profile cleaner tool
 - Support for using custom fonts for both the regular lyrics and the Japanese lyrics at the same time
 
 ### Features of the Toolkit Not Available in DLC Builder
