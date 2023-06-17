@@ -39,7 +39,6 @@ let applyAll arrangement =
 let applyMinimum arrangement =
     BasicFixes.validatePhraseNames arrangement
     BasicFixes.addIgnoreToHighFretNotes arrangement
-    BasicFixes.fixLinkNexts arrangement
     BasicFixes.removeOverlappingBendValues arrangement
     EOFFixes.fixChordNotes arrangement
     EOFFixes.fixPhraseStartAnchors arrangement
