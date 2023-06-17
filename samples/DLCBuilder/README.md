@@ -52,9 +52,10 @@ Will be used when "Apply Improvements" is enabled.
 These fixes will be done even if "Apply Improvements" is disabled.
 
 - Ignore is added to 23rd and 24th fret notes, and 7th fret harmonic notes that have sustain
-- Overlapping bend values are removed
-- Sustains and linknext issues in chord notes
+- Fret-hand-muted strings are removed from non-muted chords
 - Anchors are created or moved to the start of each phrase
+- Overlapping bend values are removed
+- Sustain and linknext issues in chord notes will be fixed
 
 ## Using the Phrase Mover
 
@@ -123,7 +124,7 @@ The tool scans the directory entered in the configuration for IDs of arrangement
 
 The IDs of on-disc and RS1 import songs are already included within the program.
 
-An automatic backup file with a ".backup" extension is created in the same folder project file when the tool is run. You should always confirm that the profile can still be loaded after using the tool.
+An automatic backup file with a ".backup" extension is created in the same folder as the project file when the tool is run. You should always confirm that the profile can still be loaded after using the tool.
 
 ## Differences to the [Toolkit](https://www.rscustom.net/)
 

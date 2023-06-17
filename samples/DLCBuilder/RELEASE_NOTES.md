@@ -14,7 +14,8 @@
 - Added a new validation check for position shift into a pull-off.
 - Added a new validation check and automatic fix for overlapping bend values.
 - Added a new automatic fix for adding ignore status to 23rd and 24th fret notes, and to 7th fret harmonic notes with sustain.
-- Added automatic fixing of linknext fret and bend mismatches.
+- Added a new automatic fix for removing fret-hand-muted strings from non-muted chords.
+- Added automatic fixing of linknext fret and bend mismatches (when "Apply Improvements" is enabled).
 - Fixed false positive in validation for anchor position in relation to chord fingering with chords that use the thumb.
 - Fixed some rare false positives for the "anchor not exactly on note" validation.
 - The phrase generator will no longer create extremely short phrases.
