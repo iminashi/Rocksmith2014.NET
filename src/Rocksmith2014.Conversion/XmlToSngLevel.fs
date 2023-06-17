@@ -30,14 +30,16 @@ let convertLevel (accuData: AccuData) (piTimes: int array) (xmlArr: XML.Instrume
         |> mapiToArray (convertAnchor notes noteTimes xmlLevel xmlArr)
 
     let averageNotes =
-        let piNotes =
+        let phraseIterationNotes =
             accuData.NotesInPhraseIterationsAll[difficulty]
-            |> Array.indexed
 
         Array.init xmlArr.Phrases.Count (fun phraseId ->
-            piNotes
-            |> Array.filter (fun v -> xmlArr.PhraseIterations[fst v].PhraseId = phraseId)
-            |> Array.map (snd >> float32)
+            phraseIterationNotes
+            |> Array.choosei (fun piIndex numNotes ->
+                if xmlArr.PhraseIterations[piIndex].PhraseId = phraseId then
+                    Some (float32 numNotes)
+                else
+                    None)
             |> Array.tryAverage)
 
     { Difficulty = difficulty
