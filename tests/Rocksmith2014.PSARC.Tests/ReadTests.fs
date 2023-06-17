@@ -16,14 +16,14 @@ let readTests =
             use file = File.OpenRead("test_p.psarc")
             use psarc = PSARC.Read(file)
             Expect.equal psarc.Manifest.[0] "gfxassets/album_art/album_testtest_64.dds" "First file name is correct"
-        
+
         testTask "Can extract all files from PSARC" {
             use file = File.OpenRead("test_p.psarc")
             use psarc = PSARC.Read(file)
             let tempPath = getTempPath "extractTest"
-            
+
             do! psarc.ExtractFiles(tempPath)
-        
+
             let fileCount = Directory.EnumerateFiles(tempPath, "*.*", SearchOption.AllDirectories) |> Seq.length
             Expect.equal fileCount psarc.TOC.Count "All files were extracted"
             Directory.Delete(tempPath, true)

@@ -49,4 +49,4 @@ let handShapeChooserTests =
 
             Expect.hasLength reqResult 0 "No template request was returned"
             Expect.hasLength hsResult 1 "One hand shape was returned"
-    ] 
+    ]

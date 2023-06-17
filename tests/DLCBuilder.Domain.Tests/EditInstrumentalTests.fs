@@ -24,7 +24,7 @@ let tests =
         testCase "EditInstrumental does nothing when no arrangement selected" <| fun _ ->
             let newState, _ = Main.update (EditInstrumental (SetRouteMask RouteMask.Rhythm)) initialState
 
-            Expect.equal newState initialState "State was not changed"            
+            Expect.equal newState initialState "State was not changed"
 
         testCase "SetRouteMask, SetPriority, SetBassPicked, SetScrollSpeed" <| fun _ ->
             let messages =
@@ -38,7 +38,7 @@ let tests =
                 messages
                 |> List.fold (fun (state, _) message -> Main.update message state) (state, Cmd.none)
             let newArr = newState.Project.Arrangements |> List.head
-            
+
             match newArr with
             | Instrumental inst ->
                 Expect.equal inst.RouteMask RouteMask.Bass "Route mask is correct"
@@ -60,7 +60,7 @@ let tests =
                 messages
                 |> List.fold (fun (state, _) message -> Main.update message state) (state, Cmd.none)
             let newArr = newState.Project.Arrangements |> List.head
-            
+
             match newArr with
             | Instrumental inst ->
                 Expect.equal inst.Name ArrangementName.Bass "Arrangement name is correct"
@@ -83,7 +83,7 @@ let tests =
                 messages
                 |> List.fold (fun (state, _) message -> Main.update message state) (state, Cmd.none)
             let newArr = newState.Project.Arrangements |> List.head
-            
+
             match newArr with
             | Instrumental inst ->
                 Expect.equal inst.MasterID 55555 "Master ID is correct"
@@ -100,7 +100,7 @@ let tests =
                 messages
                 |> List.fold (fun (state, _) message -> Main.update message state) (state, Cmd.none)
             let newArr = newState.Project.Arrangements |> List.head
-            
+
             match newArr with
             | Instrumental { CustomAudio = Some customAudio } ->
                 Expect.equal customAudio.Path "custom_audio" "Custom audio path is correct"
@@ -114,7 +114,7 @@ let tests =
                 messages
                 |> List.fold (fun (state, _) message -> Main.update message state) (state, Cmd.none)
             let newArr = newState.Project.Arrangements |> List.head
-            
+
             match newArr with
             | Instrumental inst ->
                 Expect.equal inst.Tuning.[0] 1s "Tuning of first string was changed"
@@ -125,7 +125,7 @@ let tests =
         testCase "ChangeTuningAll Down" <| fun _ ->
             let newState, _ = Main.update (ChangeTuningAll Down |> EditInstrumental) state
             let newArr = newState.Project.Arrangements |> List.head
-            
+
             match newArr with
             | Instrumental inst ->
                 Expect.all inst.Tuning (fun x -> x = -1s) "Tuning of all strings was lowered"
@@ -135,7 +135,7 @@ let tests =
         testCase "ChangeTuningAll Up" <| fun _ ->
             let newState, _ = Main.update (ChangeTuningAll Up |> EditInstrumental) state
             let newArr = newState.Project.Arrangements |> List.head
-            
+
             match newArr with
             | Instrumental inst ->
                 Expect.all inst.Tuning (fun x -> x = 1s) "Tuning of all strings was raised"

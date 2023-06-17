@@ -35,7 +35,7 @@ let ddGeneratorTests =
         testCase "Creates difficulty levels" <| fun _ ->
             let notes = ResizeArray(seq { Note(Time = 5000) })
             let level = Level(0y, Notes = notes)
-        
+
             let arr =
                 arrangement [ level ] []
                 |> Generator.generateForArrangement config

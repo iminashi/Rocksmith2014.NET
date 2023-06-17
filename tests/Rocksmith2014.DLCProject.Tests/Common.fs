@@ -44,7 +44,7 @@ let testTone =
             Category = None
             Skin = None
             SkinIndex = None }
-    
+
         { Amp = pedal
           Cabinet = pedal
           Racks = Array.empty

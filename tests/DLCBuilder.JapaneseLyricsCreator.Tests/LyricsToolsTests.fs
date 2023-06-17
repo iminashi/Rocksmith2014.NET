@@ -25,14 +25,14 @@ let tests =
             let input = "にゃあ(ニャー)"
 
             let result = LyricsTools.hyphenate input
-            
+
             Expect.equal result [ "にゃ-"; "あ-"; "(ニャー)" ] "String was hyphenated correctly"
 
         testCase "Japanese quotation marks are hyphenated correctly" <| fun _ ->
             let input = "猫：「吾輩は」"
 
             let result = LyricsTools.hyphenate input
-            
+
             Expect.equal result [ "猫：-"; "「吾-"; "輩-"; "は」" ] "String was hyphenated correctly"
 
         testCase "Single combination is applied correctly" <| fun _ ->

@@ -48,39 +48,39 @@ let bigEndianSlowStream =
             use stream = new SlowStream()
             let reader = BigEndianBinaryReader(stream) :> IBinaryReader
             let expected = seq { 0uy; 1uy; 2uy; 3uy; 4uy }
-        
+
             let array = reader.ReadBytes(5)
-        
+
             Expect.sequenceContainsOrder array expected "Sequence of 5 bytes is correct"
         }
-        
+
         test "Can read signed 16-bit integer" {
             use stream = new SlowStream()
             let reader = BigEndianBinaryReader(stream) :> IBinaryReader
             let expected = BitConverter.ToInt16([| 1uy; 0uy |], 0)
-        
+
             let read = reader.ReadInt16()
-        
+
             Expect.equal read expected "Signed 16-bit integer read correctly"
         }
-        
+
         test "Can read unsigned 24-bit integer" {
             use stream = new SlowStream()
             let reader = BigEndianBinaryReader(stream) :> IBinaryReader
             let expected = BitConverter.ToUInt32([| 2uy; 1uy; 0uy; 0uy |], 0)
-        
+
             let read = reader.ReadUInt24()
-        
+
             Expect.equal read expected "Unsigned 24-bit integer read correctly"
         }
-        
+
         test "Can read unsigned 64-bit integer" {
             use stream = new SlowStream()
             let reader = BigEndianBinaryReader(stream) :> IBinaryReader
             let expected = BitConverter.ToUInt64([| 7uy; 6uy; 5uy; 4uy; 3uy; 2uy; 1uy; 0uy |], 0)
-        
+
             let read = reader.ReadUInt64()
-        
+
             Expect.equal read expected "Unsigned 64-bit integer read correctly"
         }
     ]
@@ -92,39 +92,39 @@ let littleEndianSlowStream =
             use stream = new SlowStream()
             let reader = LittleEndianBinaryReader(stream) :> IBinaryReader
             let expected = seq { 0uy; 1uy; 2uy; 3uy; 4uy }
-        
+
             let array = reader.ReadBytes(5)
-        
+
             Expect.sequenceContainsOrder array expected "Sequence of 5 bytes is correct"
         }
-        
+
         test "Can read signed 16-bit integer" {
             use stream = new SlowStream()
             let reader = LittleEndianBinaryReader(stream) :> IBinaryReader
             let expected = BitConverter.ToInt16([| 0uy; 1uy |], 0)
-        
+
             let read = reader.ReadInt16()
-        
+
             Expect.equal read expected "Signed 16-bit integer read correctly"
         }
-        
+
         test "Can read unsigned 24-bit integer" {
             use stream = new SlowStream()
             let reader = LittleEndianBinaryReader(stream) :> IBinaryReader
             let expected = BitConverter.ToUInt32([| 0uy; 1uy; 2uy; 0uy |], 0)
-        
+
             let read = reader.ReadUInt24()
-        
+
             Expect.equal read expected "Unsigned 24-bit integer read correctly"
         }
-        
+
         test "Can read unsigned 64-bit integer" {
             use stream = new SlowStream()
             let reader = LittleEndianBinaryReader(stream) :> IBinaryReader
             let expected = BitConverter.ToUInt64([| 0uy; 1uy; 2uy; 3uy; 4uy; 5uy; 6uy; 7uy |], 0)
-        
+
             let read = reader.ReadUInt64()
-        
+
             Expect.equal read expected "Unsigned 64-bit integer read correctly"
         }
     ]

@@ -62,7 +62,7 @@ type Generators() =
 
         createChord <!> genMask <*> genSByteArr <*> genSByteArr <*> genNotes <*> genName
         |> Arb.fromGen
-    
+
     static member SymbolsTexture() =
         let genFont = genString 128
         let genSize = Gen.choose(256, 2048)

@@ -44,7 +44,7 @@ let tests =
             Expect.equal index 0 "Updated index is correct after two remove"
 
             let updated, index = Utils.removeSelected updated 0
-            
+
             Expect.equal updated [ ] "Updated list is correct after three removes"
             Expect.equal index -1 "Updated index is correct three two remove"
     ]

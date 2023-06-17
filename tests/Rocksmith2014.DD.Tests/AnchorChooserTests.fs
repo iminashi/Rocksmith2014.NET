@@ -23,4 +23,4 @@ let anchorChooserTests =
             let result = AnchorChooser.choose entities anchors 1050 2000
 
             Expect.hasLength result 1 "One anchor was returned"
-    ] 
+    ]

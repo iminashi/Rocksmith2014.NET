@@ -33,14 +33,14 @@ let roundTripTests =
         testProp "Phrase" <| testEqual Phrase.Read
         testProp "Chord" <| testEqual Chord.Read
         testProp "Bend Value" <| testEqual BendValue.Read
-        
+
         testCase "Bend Data 32" <| fun _ ->
             let bd =
               { BendValues = Array.init 32 (fun i -> BendValue.Create(66.66f + float32 i, 1.f / float32 i))
                 UsedCount = 32 }
-            
+
             testEqual BendData32.Read bd
-        
+
         testCase "Chord Note" <| fun _ ->
             let cn =
               { Mask = Array.init 6 (uint32 >> LanguagePrimitives.EnumOfValue)
@@ -48,51 +48,51 @@ let roundTripTests =
                 SlideTo = Array.init 6 sbyte
                 SlideUnpitchTo = Array.init 6 sbyte
                 Vibrato = Array.init 6 int16 }
-            
+
             testEqual ChordNotes.Read cn
-        
+
         testProp "Vocal" <| testEqual Vocal.Read
         testProp "Symbols Header" <| testEqual SymbolsHeader.Read
         testProp "Symbols Texture" <| testEqual SymbolsTexture.Read
         testProp "Symbols Rectangle" <| testEqual Rect.Read
-        
+
         testCase "Symbol Definition" <| fun _ ->
             let def =
               { Symbol = "金"
                 Outer = { YMin = 1.888f; XMin = 1.015f; YMax = 1.99f; XMax = 1.1f }
                 Inner = { YMin = 0.888f; XMin = 0.015f; YMax = 0.99f; XMax = 0.1f } }
-            
+
             testEqual SymbolDefinition.Read def
-        
+
         testCase "Phrase Iteration" <| fun _ ->
             let pi =
               { PhraseId = 42
                 StartTime = 10.111f
                 EndTime = 20.222f
                 Difficulty = Array.init 3 id }
-            
+
             testEqual PhraseIteration.Read pi
-        
+
         testProp "Phrase Extra Info" <| testEqual PhraseExtraInfo.Read
-        
+
         testCase "New Linked Difficulty" <| fun _ ->
             let info =
               { LevelBreak = 16
                 NLDPhrases = Array.init 4 id }
-            
+
             testEqual NewLinkedDifficulty.Read info
-        
+
         testCase "Action" <| fun _ ->
             let action =
               { Time = 70.0f
                 ActionName = "NOT USED IN RS2014 <_<" }
-            
+
             testEqual Action.Read action
-        
+
         testProp "Event" <| testEqual Event.Read
         testProp "Tone" <| testEqual Tone.Read
         testProp "DNA" <| testEqual DNA.Read
-        
+
         testCase "Section" <| fun _ ->
             let section =
               { Name = "tapping"
@@ -102,9 +102,9 @@ let roundTripTests =
                 StartPhraseIterationId = 5
                 EndPhraseIterationId = 6
                 StringMask = Array.init 36 sbyte }
-            
+
             testEqual Section.Read section
-        
+
         testCase "Anchor" <| fun _ ->
             let a =
               { StartTime = 10.0f
@@ -114,12 +114,12 @@ let roundTripTests =
                 FretId = 12y
                 Width = 4
                 PhraseIterationId = 7 }
-            
+
             testEqual Anchor.Read a
-        
+
         testProp "Anchor Extension" <| testEqual AnchorExtension.Read
         testProp "Fingerprint" <| testEqual FingerPrint.Read
-          
+
         testCase "Note" <| fun _ ->
             let n =
               { Mask = NoteMask.FretHandMute ||| NoteMask.UnpitchedSlide
@@ -149,9 +149,9 @@ let roundTripTests =
                 Sustain = 44.0f
                 MaxBend = 1.0f
                 BendData = Array.init 2 (fun i -> { Time = 66.66f; Step = 1.f / float32 i }) }
-            
+
             testEqual Note.Read n
-        
+
         testCase "Metadata" <| fun _ ->
             let md =
               { MaxScore = 100000.0
@@ -167,6 +167,6 @@ let roundTripTests =
                 Tuning = Array.init 6 int16
                 FirstNoteTime = 15.0f
                 MaxDifficulty = 22 }
-            
+
             testEqual MetaData.Read md
     ]
