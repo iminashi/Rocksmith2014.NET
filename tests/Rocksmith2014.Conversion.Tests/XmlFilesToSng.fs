@@ -11,42 +11,42 @@ let xmlToSngConversionTests =
     testList "XML Files → SNG" [
         testCase "Vocals (Default Font)" <| fun _ ->
             let xml = Vocals.Load("vocals.xml")
-            
+
             let sng = ConvertVocals.xmlToSng DefaultFont xml
-        
+
             Expect.equal sng.Vocals.Length xml.Count "Vocal count is same"
             Expect.equal sng.SymbolDefinitions.Length 192 "Symbol definition count is correct"
-        
+
         testCase "Vocals (Custom Font)" <| fun _ ->
             let xml = Vocals.Load("vocals.xml")
             let customFont = GlyphDefinitions.Load("vocals.glyphs.xml")
-        
+
             let sng = ConvertVocals.xmlToSng (CustomFont (customFont, "nothing")) xml
-        
+
             Expect.equal sng.Vocals.Length xml.Count "Vocal count is same"
             Expect.equal sng.SymbolDefinitions.Length customFont.Glyphs.Count "Symbol definition count is correct"
             Expect.equal sng.SymbolsTextures.[0].Width customFont.TextureWidth "Texture width is correct"
             Expect.equal sng.SymbolsTextures.[0].Height customFont.TextureHeight "Texture height is correct"
-        
+
         testAsync "Japanese Vocals (Custom Font)" {
             let xml = Vocals.Load("jvocals.xml")
             let customFont = GlyphDefinitions.Load("jvocals.glyphs.xml")
             do! ConvertVocals.xmlToSng (CustomFont (customFont, "nothing")) xml
                 |> SNG.savePackedFile "jvocals_test.sng" PC
-        
+
             let! sng = SNG.readPackedFile "jvocals_test.sng" PC
-        
+
             Expect.equal sng.Vocals.Length xml.Count "Vocal count is same"
             Expect.equal sng.Vocals.[0].Lyric "夏-" "Vocal #1 is correct"
             Expect.equal sng.Vocals.[9].Lyric "跡+" "Vocal #9 is correct"
             Expect.equal sng.SymbolDefinitions.Length customFont.Glyphs.Count "Symbol definition count is correct"
             Expect.equal sng.SymbolDefinitions.[1].Symbol "が" "Symbol #1 is correct" }
-        
+
         testCase "Instrumental" <| fun _ ->
             let xml = InstrumentalArrangement.Load("instrumental.xml")
-            
+
             let sng = ConvertInstrumental.xmlToSng xml
-        
+
             Expect.equal sng.Beats.Length xml.Ebeats.Count "Beat count is same"
             Expect.equal sng.Phrases.Length xml.Phrases.Count "Phrase count is same"
             Expect.equal sng.Chords.Length xml.ChordTemplates.Count "Chord template count is same"

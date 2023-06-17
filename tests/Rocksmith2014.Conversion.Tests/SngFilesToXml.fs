@@ -16,9 +16,9 @@ let sngToXmlConversionTests =
     testList "SNG Files → XML" [
         testAsync "Vocals" {
             let! sng = SNG.readPackedFile "vocals.sng" PC
-            
+
             let xml = ConvertVocals.sngToXml sng
-            
+
             Expect.equal xml.Count sng.Vocals.Length "Vocals count is same"
             for i = 0 to xml.Count - 1 do
                 Expect.equal xml.[i].Lyric sng.Vocals.[i].Lyric (sprintf "Lyric #%i is same" i)
@@ -26,22 +26,22 @@ let sngToXmlConversionTests =
                 Expect.equal xml.[i].Time (sng.Vocals.[i].Time |> convertTime) (sprintf "Time #%i is same" i)
                 Expect.equal xml.[i].Length (sng.Vocals.[i].Length |> convertTime) (sprintf "Length #%i is same" i)
         }
-        
+
         testAsync "Extract Glyphs" {
             let! sng = SNG.readPackedFile "vocals.sng" PC
-        
+
             let xml = ConvertVocals.extractGlyphData sng
-        
+
             Expect.equal xml.Glyphs.Count sng.SymbolDefinitions.Length "Same glyph count"
             Expect.equal xml.TextureWidth sng.SymbolsTextures.[0].Width "Same texture width"
             Expect.equal xml.TextureHeight sng.SymbolsTextures.[0].Height "Same texture height"
         }
-        
+
         testAsync "Instrumental" {
             let! sng = SNG.readPackedFile "instrumental.sng" PC
-        
+
             let xml = ConvertInstrumental.sngToXml None sng
-        
+
             Expect.equal xml.MetaData.Part sng.MetaData.Part "Same part"
             Expect.equal xml.MetaData.Capo 0y "Capo fret -1 in SNG is 0 in XML"
             Expect.equal xml.MetaData.LastConversionDateTime sng.MetaData.LastConversionDateTime "Same last conversion date"
