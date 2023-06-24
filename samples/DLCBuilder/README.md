@@ -57,6 +57,36 @@ These fixes will be done even if "Apply Improvements" is disabled.
 - Overlapping bend values are removed
 - Sustain and linknext issues in chord notes will be fixed
 
+## Arrangement Validation Issue Examples
+
+### LinkNext fret mismatch for slide
+
+A note is linked to another note, but the fret number where the slide ends does not match the fret of the next note.
+
+![Slide to 10th fret, but linked note is 9th fret](./img/issue_linknext_slide.png)
+
+### LinkNext bend mismatch
+
+A note is linked to another note, but the bend strength the note ends with does not match the bend strength of the other note.
+
+![Bent note linked to vibrato note](./img/issue_linknext_bend.png)
+
+In the above screenshot, the second note should have a bend tech note on top of the note.
+
+### Note missing a bend value
+
+A note was set as bend in EOF, but did not have any non-zero bend tech notes.
+
+![Tech note issue in EOF](./img/issue_bendvalues.png)
+
+### Handshape fingering does not match anchor position
+
+The anchor (fret hand position / FHP in EOF) fret may be incorrect when taking into account the fingering of the chord. This check is done on chords that do not use the first finger.
+
+![Incorrect anchor position with double stops](./img/issue_chord_anchor.png)
+
+In the above screenshot, the first anchor should be on the 3rd fret if the double stop is played with the third finger (or 3rd and 4th finger).
+
 ## Using the Phrase Mover
 
 Phrases can be moved off beat by giving the phrase a special name: "mover#".
@@ -65,7 +95,7 @@ This will move the phrase right by # notes, where the number must be 1 or more. 
 
 Chords and split chords count as one. If the phrase is located on the same timecode as a note/chord (sustain of a previous note does not count), it counts as one.
 
-![Screenshot of phrase moving](https://i.imgur.com/xM1zF6g.png)
+![Moving a phrase to a chord that is not on a beat](./img/mover3.png)
 
 In the above case, the phrase and section will be moved to start at the G power chord.
 
@@ -77,7 +107,7 @@ You can place events in EOF by selecting a beat and pressing Shift+P. Enter the 
 
 ### so (Slide-out Handshape)
 
-![Screenshot of custom event](https://i.imgur.com/IPhlU42.png)
+![Slide-out custom event in EOF](./img/customevent_so.png)
 
 When placed on a chord that has an unpitched slide out, an empty handshape near the end of the slide will be generated.
 This will cause the fingers in the handshape to slide down or up with the slide. It is a minor effect that is sometimes used in oDLC.

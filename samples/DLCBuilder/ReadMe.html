@@ -194,12 +194,35 @@
 <li>Overlapping bend values are removed</li>
 <li>Sustain and linknext issues in chord notes will be fixed</li>
 </ul>
+<h2 id="arrangement-validation-issue-examples">Arrangement Validation Issue Examples</h2>
+<h3 id="linknext-fret-mismatch-for-slide">LinkNext fret mismatch for slide</h3>
+<p>A note is linked to another note, but the fret number where the slide ends does not match the fret of the next note.</p>
+<figure>
+<img src="./img/issue_linknext_slide.png" alt="Slide to 10th fret, but linked note is 9th fret" /><figcaption aria-hidden="true">Slide to 10th fret, but linked note is 9th fret</figcaption>
+</figure>
+<h3 id="linknext-bend-mismatch">LinkNext bend mismatch</h3>
+<p>A note is linked to another note, but the bend strength the note ends with does not match the bend strength of the other note.</p>
+<figure>
+<img src="./img/issue_linknext_bend.png" alt="Bent note linked to vibrato note" /><figcaption aria-hidden="true">Bent note linked to vibrato note</figcaption>
+</figure>
+<p>In the above screenshot, the second note should have a bend tech note on top of the note.</p>
+<h3 id="note-missing-a-bend-value">Note missing a bend value</h3>
+<p>A note was set as bend in EOF, but did not have any non-zero bend tech notes.</p>
+<figure>
+<img src="./img/issue_bendvalues.png" alt="Tech note issue in EOF" /><figcaption aria-hidden="true">Tech note issue in EOF</figcaption>
+</figure>
+<h3 id="handshape-fingering-does-not-match-anchor-position">Handshape fingering does not match anchor position</h3>
+<p>The anchor (fret hand position / FHP in EOF) fret may be incorrect when taking into account the fingering of the chord. This check is done on chords that do not use the first finger.</p>
+<figure>
+<img src="./img/issue_chord_anchor.png" alt="Incorrect anchor position with double stops" /><figcaption aria-hidden="true">Incorrect anchor position with double stops</figcaption>
+</figure>
+<p>In the above screenshot, the first anchor should be on the 3rd fret if the double stop is played with the third finger (or 3rd and 4th finger).</p>
 <h2 id="using-the-phrase-mover">Using the Phrase Mover</h2>
 <p>Phrases can be moved off beat by giving the phrase a special name: “mover#”.</p>
 <p>This will move the phrase right by # notes, where the number must be 1 or more. 1 will move the phrase to the next note/chord.</p>
 <p>Chords and split chords count as one. If the phrase is located on the same timecode as a note/chord (sustain of a previous note does not count), it counts as one.</p>
 <figure>
-<img src="https://i.imgur.com/xM1zF6g.png" alt="Screenshot of phrase moving" /><figcaption aria-hidden="true">Screenshot of phrase moving</figcaption>
+<img src="./img/mover3.png" alt="Moving a phrase to a chord that is not on a beat" /><figcaption aria-hidden="true">Moving a phrase to a chord that is not on a beat</figcaption>
 </figure>
 <p>In the above case, the phrase and section will be moved to start at the G power chord.</p>
 <p>If an anchor (FHP) is set at the start of the phrase, it will be moved to the new position. The anchor at the old position is deleted if there is no note at that position.</p>
@@ -207,7 +230,7 @@
 <p>You can place events in EOF by selecting a beat and pressing Shift+P. Enter the event text and check “Rocksmith event marker”.</p>
 <h3 id="so-slide-out-handshape">so (Slide-out Handshape)</h3>
 <figure>
-<img src="https://i.imgur.com/IPhlU42.png" alt="Screenshot of custom event" /><figcaption aria-hidden="true">Screenshot of custom event</figcaption>
+<img src="./img/customevent_so.png" alt="Slide-out custom event in EOF" /><figcaption aria-hidden="true">Slide-out custom event in EOF</figcaption>
 </figure>
 <p>When placed on a chord that has an unpitched slide out, an empty handshape near the end of the slide will be generated. This will cause the fingers in the handshape to slide down or up with the slide. It is a minor effect that is sometimes used in oDLC.</p>
 <p>If the chord is on a beat you can simply use the event “so” on that beat. If the chord is not on a beat, you must place the event on a beat left of the target chord/notes and add a number to the event name (for example “so1”). This number specifies how many notes right of the target is from the event. It works the same as the number in “moveR” phrases.</p>

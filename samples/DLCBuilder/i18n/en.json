@@ -250,7 +250,7 @@
   "UnpitchedSlideWithLinkNext": "Unpitched slide note with LinkNext attribute",
   "UnpitchedSlideWithLinkNextHelp": "Using LinkNext on an unpitched slide causes mastery issues in Rocksmith 2014 Remastered.",
   "DoubleHarmonic": "Note set as both harmonic and pinch harmonic",
-  "DoubleHarmonicHelp": "A note has both the harmonic and pinch harmonic attributes. Usually this is an error.",
+  "DoubleHarmonicHelp": "A note has both the harmonic and pinch harmonic attributes.",
   "SeventhFretHarmonicWithSustain": "7th fret harmonic note with sustain",
   "SeventhFretHarmonicWithSustainHelp": "A 7th fret harmonic note that has sustain is not detected correctly by the game. The sustain should be removed or the note set as ignored.\n\nIgnore status will be automatically added to the note.",
   "MissingBendValue": "Note missing a bend value",

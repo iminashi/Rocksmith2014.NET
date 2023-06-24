@@ -48,6 +48,7 @@ Source: "MLModel.zip"; DestDir: "{app}"; Flags: ignoreversion
 Source: "SQLite.Interop.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "ReadMe.html"; DestDir: "{app}"; Flags: ignoreversion isreadme
 Source: "Tools\*"; DestDir: "{app}\Tools"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "img\*"; DestDir: "{app}\img"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]
