@@ -68,8 +68,10 @@ let fixLinkNexts (arrangement: InstrumentalArrangement) =
 
                         if thisNoteLastBendValue > 0.0f then
                             if not nextNote.IsBend then
+                                nextNote.MaxBend <- thisNoteLastBendValue
                                 nextNote.BendValues <- ResizeArray.singleton (BendValue(nextNote.Time, thisNoteLastBendValue))
                             elif nextNote.BendValues[0].Time <> nextNote.Time then
+                                if nextNote.MaxBend < thisNoteLastBendValue then nextNote.MaxBend <- thisNoteLastBendValue
                                 nextNote.BendValues.Insert(0, BendValue(nextNote.Time, thisNoteLastBendValue)))
 
 /// Removes overlapping bend values from notes and chord notes.

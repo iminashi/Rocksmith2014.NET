@@ -614,6 +614,7 @@ let basicFixTests =
             BasicFixes.fixLinkNexts arr
 
             Expect.isTrue notes.[1].IsBend "Second note has bend"
+            Expect.equal notes.[1].MaxBend 2.0f "Max bend is correct"
             Expect.equal notes.[1].BendValues[0].Step 2.0f "Bend value step is correct"
             Expect.equal notes.[1].BendValues[0].Time 1500 "Bend value time is correct"
 
