@@ -1,4 +1,4 @@
-## 2.0.0 (Released 2023-06-xx)
+## 2.0.0 (Released 2023-06-26)
 
 - Updated to .NET 7.
 - Added a new tool "profile cleaner" to the tools menu.
@@ -25,6 +25,7 @@
 - Minor UI improvements.
 - Minor optimizations to package generation.
 - Updated the UI framework to new minor version.
+- Added example screenshots of some of the validation issues to the readme.
 - Internal changes related to PSARC encryption and asynchronous code.
 
 ## 1.6.2 (Released 2023-05-01)
