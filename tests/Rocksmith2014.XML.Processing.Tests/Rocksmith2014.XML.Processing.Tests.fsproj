@@ -11,8 +11,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="InstrumentalChecker\TestArrangement.fs" />
+    <Compile Include="InstrumentalChecker\NoteTests.fs" />
+    <Compile Include="InstrumentalChecker\ChordTests.fs" />
     <Compile Include="UtilsTests.fs" />
-    <Compile Include="InstrumentalCheckerTests.fs" />
+    <Compile Include="InstrumentalChecker\MiscTests.fs" />
     <Compile Include="VocalsCheckerTests.fs" />
     <Compile Include="ShowLightsCheckerTests.fs" />
     <Compile Include="ArrangementImproverTests.fs" />
