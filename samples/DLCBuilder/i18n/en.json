@@ -253,6 +253,8 @@
   "DoubleHarmonicHelp": "A note has both the harmonic and pinch harmonic attributes.",
   "SeventhFretHarmonicWithSustain": "7th fret harmonic note with sustain",
   "SeventhFretHarmonicWithSustainHelp": "A 7th fret harmonic note that has sustain is not detected correctly by the game. The sustain should be removed or the note set as ignored.\n\nIgnore status will be automatically added to the note.",
+  "NaturalHarmonicWithBend": "Natural harmonic with bend",
+  "NaturalHarmonicWithBendHelp": "The harmonic on the note should probably be a pinch harmonic.",
   "MissingBendValue": "Note missing a bend value",
   "MissingBendValueHelp": "A note was set as a bend, but did not have any non-zero bend values.",
   "OverlappingBendValues": "Multiple bend values at the same time",

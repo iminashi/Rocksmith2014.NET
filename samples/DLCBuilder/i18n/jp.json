@@ -253,6 +253,8 @@
   "DoubleHarmonicHelp": "両方のアトリビュートがあるノートは通常間違いである。",
   "SeventhFretHarmonicWithSustain": "7フレット目のハーモニックスにはサステインがある",
   "SeventhFretHarmonicWithSustainHelp": "7フレット目のハーモニックスノートにはサステインがあると正しく検知されません。サステインを外すかノートにIgnoreアトリビュートを追加してください。\n\nIgnoreアトリビュートが自動的に追加されます。",
+  "NaturalHarmonicWithBend": "ハーモニックスにチョーキング",
+  "NaturalHarmonicWithBendHelp": "このノートのハーモニックスはたぶんピッキングハーモニクスの間違いである。",
   "MissingBendValue": "ノートのチョーキング値が欠けている",
   "MissingBendValueHelp": "チョーキングノートには０以上のチョーキング値がひとつもありません。",
   "OverlappingBendValues": "同時に多数のチョーキング値がある",

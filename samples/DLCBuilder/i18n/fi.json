@@ -253,6 +253,8 @@
   "DoubleHarmonicHelp": "Molemmat harmonic-ominaisuudet nuotilla ovat yleensä virhe.",
   "SeventhFretHarmonicWithSustain": "Seitsemännen nauhan huiluääninuotti, jolla on sustainia",
   "SeventhFretHarmonicWithSustainHelp": "Peli ei havaitse kunnolla seitsemännen nauhan huiluääninuotteja, joilla on sustainia. Poista nuotin sustain tai anna sille \"ignore\"-ominaisuus.\n\nIgnore-ominaisuus lisätään nuotille automaattisesti.",
+  "NaturalHarmonicWithBend": "Huiluääni taivutuksella",
+  "NaturalHarmonicWithBendHelp": "Luonnollisen huiluäänen, jolla on taivutus pitäisi todennäköisesti olla keinotekoinen huiluääni (pinch harmonic).",
   "MissingBendValue": "Nuotilta puuttuu venytysarvo",
   "MissingBendValueHelp": "Nuotilla on venytysominaisuus, mutta sillä ei ole yhtään venytysarvoa, jotka eivät ole nolla.",
   "OverlappingBendValues": "Monta samanaikaista venytysarvoa",
