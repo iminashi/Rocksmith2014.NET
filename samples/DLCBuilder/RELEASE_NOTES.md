@@ -1,3 +1,8 @@
+## 2.1.0 (Released 2023-07-xx)
+
+- Added a new validation check for natural harmonic notes with bend.
+- Added a new validation check for B and high-E strings in bass arrangements.
+
 ## 2.0.0 (Released 2023-06-26)
 
 - Updated to .NET 7.
