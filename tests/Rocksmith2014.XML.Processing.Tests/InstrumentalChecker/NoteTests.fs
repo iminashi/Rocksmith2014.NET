@@ -264,4 +264,16 @@ let noteTests =
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type OverlappingBendValues "Correct issue type"
+
+        testCase "Natural harmonic with bend is detected" <| fun _ ->
+            let notes = ResizeArray(seq {
+                Note(Fret = 12y, IsHarmonic = true, Sustain = 1000, MaxBend = 2.0f, BendValues = ResizeArray([ BendValue(500, 2.0f) ]))
+            })
+            let level = Level(Notes = notes)
+            let arr = InstrumentalArrangement(Levels = ResizeArray([ level ]))
+
+            let results = checkNotes arr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type NaturalHarmonicWithBend "Correct issue type"
     ]

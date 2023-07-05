@@ -14,6 +14,7 @@ type IssueType =
     | PhraseChangeOnLinkNextNote
     | DoubleHarmonic
     | SeventhFretHarmonicWithSustain
+    | NaturalHarmonicWithBend
     | MissingBendValue
     | OverlappingBendValues
     | ToneChangeOnNote
@@ -78,6 +79,7 @@ let issueCode = function
     | FingerChangeDuringSlide -> "I32"
     | PositionShiftIntoPullOff -> "I33"
     | OverlappingBendValues -> "I34"
+    | NaturalHarmonicWithBend -> "I35"
     | LyricWithInvalidChar _ -> "V01"
     | LyricTooLong _ -> "V02"
     | LyricsHaveNoLineBreaks -> "V03"

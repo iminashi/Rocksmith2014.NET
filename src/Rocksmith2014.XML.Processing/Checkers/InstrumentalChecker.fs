@@ -158,6 +158,10 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
 
             // Check bend values
             if note.IsBend then
+                // Check for natural harmonic with bend
+                if note.IsHarmonic then
+                    issue NaturalHarmonicWithBend time
+
                 // Check for missing bend values
                 if note.BendValues.FindIndex(fun bv -> bv.Step <> 0.0f) = -1 then
                     issue MissingBendValue time
