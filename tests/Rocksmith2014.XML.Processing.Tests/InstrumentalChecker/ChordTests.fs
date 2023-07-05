@@ -247,4 +247,24 @@ let chordTests =
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type OverlappingBendValues "Correct issue type"
+
+        testCase "Invalid strings on bass arrangement are detected for chords" <| fun _ ->
+            let cn1 =
+                ResizeArray(seq {
+                    Note(String = 3y, Fret = 12y)
+                    Note(String = 4y, Fret = 12y)
+                    Note(String = 5y, Fret = 12y)
+                })
+            let chords =
+                ResizeArray(seq {
+                    Chord(ChordId = 0s, Time = 1000, ChordNotes = cn1)
+                })
+            let level = Level(Chords = chords)
+            let arr = InstrumentalArrangement(Levels = ResizeArray([ level ]))
+            arr.MetaData.ArrangementProperties.PathBass <- true
+
+            let results = checkChords arr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type InvalidBassArrangementString "Correct issue type"
     ]

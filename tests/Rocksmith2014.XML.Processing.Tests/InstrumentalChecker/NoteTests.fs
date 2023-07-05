@@ -276,4 +276,18 @@ let noteTests =
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type NaturalHarmonicWithBend "Correct issue type"
+
+        testCase "Invalid strings on bass arrangement are detected" <| fun _ ->
+            let notes = ResizeArray(seq {
+                Note(String = 4y, Time = 1000)
+                Note(String = 5y, Time = 2000)
+            })
+            let level = Level(Notes = notes)
+            let arr = InstrumentalArrangement(Levels = ResizeArray([ level ]))
+            arr.MetaData.ArrangementProperties.PathBass <- true
+
+            let results = checkNotes arr level
+
+            Expect.hasLength results 2 "Two issues created"
+            Expect.all results (fun x -> x.Type = InvalidBassArrangementString) "Correct issue types"
     ]

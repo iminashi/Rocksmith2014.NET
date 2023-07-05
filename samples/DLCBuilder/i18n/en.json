@@ -229,6 +229,8 @@
   "AppID": "App ID",
   "Custom": "Custom",
   "Issues": "Issues",
+  "InvalidBassArrangementString": "Invalid strings used",
+  "InvalidBassArrangementStringHelp": "The arrangment uses strings that will not be displayed correctly for bass arrangements.\n\nBass arrangements with more than 4 strings should be created as guitar arrangments.",
   "NoteInsideNoguitarSection": "Note inside a noguitar section",
   "NoteInsideNoguitarSectionHelp": "There is a note or a chord inside a section named \"noguitar\".",
   "ApplauseEventWithoutEnd": "An applause event is missing the event that ends it",

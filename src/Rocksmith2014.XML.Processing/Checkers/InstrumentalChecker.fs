@@ -209,6 +209,10 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
                     issue PositionShiftIntoPullOff time
             | None ->
                 ()
+
+            // Check for invalid strings on bass arrangement
+            if arrangement.MetaData.ArrangementProperties.PathBass && note.String >= 4y then
+                issue InvalidBassArrangementString time
     ]
 
 let private chordHasStrangeFingering (chordTemplates: ResizeArray<ChordTemplate>) (chord: Chord) =
@@ -290,6 +294,10 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
                         issue PositionShiftIntoPullOff time
                 | None ->
                     ()
+
+                // Check for invalid strings on bass arrangement
+                if arrangement.MetaData.ArrangementProperties.PathBass && chordNotes.Exists(fun note -> note.String >= 4y) then
+                    issue InvalidBassArrangementString time
 
             // Check for chords that have LinkNext, but no LinkNext chord notes
             if chord.IsLinkNext && (not chord.HasChordNotes || chord.ChordNotes.TrueForAll(fun cn -> not cn.IsLinkNext)) then

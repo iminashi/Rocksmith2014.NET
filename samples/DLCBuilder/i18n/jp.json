@@ -229,6 +229,8 @@
   "AppID": "App ID",
   "Custom": "カスタム",
   "Issues": "問題点",
+  "InvalidBassArrangementString": "アレンジにふさわしくない弦",
+  "InvalidBassArrangementStringHelp": "ベースアレンジには正しく表示されない弦が使われています。\n\n五弦以上のベースアレンジはギターアレンジとして作るべきです。",
   "NoteInsideNoguitarSection": "NOGUITARセクション内ノート",
   "NoteInsideNoguitarSectionHelp": "NOGUITARというセクションなのに、中にはノートもしくはコードがあります。",
   "ApplauseEventWithoutEnd": "拍手イベントの後に拍手終了イベントがない",

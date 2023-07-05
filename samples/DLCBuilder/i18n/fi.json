@@ -229,6 +229,8 @@
   "AppID": "App ID",
   "Custom": "Mukautettu",
   "Issues": "Ongelmat",
+  "InvalidBassArrangementString": "Sovitukseen kelpaamaton kieli",
+  "InvalidBassArrangementStringHelp": "Sovitus käyttää kieliä, jotka eivät toimi oikein bassosovituksissa.\n\nBassosovitukset, joissa on enemmän kuin 4 kieltä pitää luoda kitarasovituksina.",
   "NoteInsideNoguitarSection": "Nuotti \"noguitar\"-osan sisällä",
   "NoteInsideNoguitarSectionHelp": "Osan, jonka nimi on \"noguitar\" sisällä ei pitäisi olla nuotteja.",
   "ApplauseEventWithoutEnd": "Aploditapahtumalta puuttuu loppu",

@@ -35,6 +35,7 @@ type IssueType =
     | HopoIntoSameNote
     | FingerChangeDuringSlide
     | PositionShiftIntoPullOff
+    | InvalidBassArrangementString
     | LyricWithInvalidChar of invalidChar: char
     | LyricTooLong of lyric: string
     | LyricsHaveNoLineBreaks
@@ -80,6 +81,7 @@ let issueCode = function
     | PositionShiftIntoPullOff -> "I33"
     | OverlappingBendValues -> "I34"
     | NaturalHarmonicWithBend -> "I35"
+    | InvalidBassArrangementString -> "I36"
     | LyricWithInvalidChar _ -> "V01"
     | LyricTooLong _ -> "V02"
     | LyricsHaveNoLineBreaks -> "V03"
