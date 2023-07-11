@@ -370,7 +370,7 @@ type State =
       OpenProjectFile: string option
       CurrentPlatform: Platform
       StatusMessages: StatusMessage list
-      RunningTasks: LongTask Set
+      RunningTasks: Set<LongTask>
       ArrangementIssues: Map<string, Issue list>
       AvailableUpdate: UpdateInformation option
       ToneGearRepository: ToneGear.Repository option

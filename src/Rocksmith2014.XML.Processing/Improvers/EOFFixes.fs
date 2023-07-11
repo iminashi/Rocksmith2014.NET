@@ -59,9 +59,11 @@ let fixChordSlideHandshapes (arrangement: InstrumentalArrangement) =
 
 /// Ensures that there is an anchor at the start of each phrase.
 let fixPhraseStartAnchors (arrangement: InstrumentalArrangement) =
-    // If there are DD levels, assume that the anchors are correct
-    if arrangement.Levels.Count = 1 then
-        let anchors = arrangement.Levels[0].Anchors
+    let copyAnchor (anchors: ResizeArray<Anchor>) (time: int) (activeAnchor: Anchor) =
+        anchors.InsertByTime(Anchor(activeAnchor.Fret, time, activeAnchor.Width))
+
+    for level in arrangement.Levels do
+        let anchors = level.Anchors
 
         // Skip the COUNT and END phrases
         for i = 1 to arrangement.PhraseIterations.Count - 2 do
@@ -70,13 +72,19 @@ let fixPhraseStartAnchors (arrangement: InstrumentalArrangement) =
 
             if notNull activeAnchor && activeAnchor.Time <> piTime then
                 // If an active anchor exists, copy it to the start of the phrase
-                anchors.InsertByTime(Anchor(activeAnchor.Fret, piTime, activeAnchor.Width))
+                copyAnchor anchors piTime activeAnchor
             elif isNull activeAnchor then
                 // Otherwise try to find the next anchor
-                let nextAnchor = anchors.Find(fun a -> a.Time > piTime)
-
-                if notNull nextAnchor then
-                    nextAnchor.Time <- piTime
+                match anchors.Find(fun a -> a.Time > piTime) with
+                | null ->
+                    ()
+                | nextAnchor ->
+                    // Create a copy of the anchor if it is at the start of the next phrase, otherwise move it
+                    let isAtPhraseStart = arrangement.PhraseIterations.Exists(fun pi -> pi.Time = nextAnchor.Time)
+                    if isAtPhraseStart then
+                        copyAnchor anchors piTime nextAnchor
+                    else
+                        nextAnchor.Time <- piTime
 
 /// Applies all the fixes.
 let fixAll arrangement =
