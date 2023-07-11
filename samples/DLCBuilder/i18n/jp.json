@@ -345,6 +345,8 @@
   "ConvertMultipleToWemToolTip": "メインとプレビューオーディオをWwise WEMフォーマットに変換する",
   "RemoveDDLevels": "DDレベルを除去する",
   "CreateEOFProject": "EOFプロジェクトファイルを作成",
+  "PSARCDragDropHeader": "PSARCドラッグ&ドロップ",
+  "QuickEditOnPSARCDrop": "クイックエディットを使用",
   "All": "すべて",
   "Remove": "削除",
   "RemoveMenuItem": "削除",

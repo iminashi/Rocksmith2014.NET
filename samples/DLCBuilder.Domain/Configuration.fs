@@ -42,6 +42,7 @@ type Configuration =
       ConvertAudio: AudioConversionType option
       OpenFolderAfterReleaseBuild: bool
       LoadPreviousOpenedProject: bool
+      QuickEditOnPsarcDragAndDrop: bool
       PreviousOpenedProject: string
       Locale: Locale
       WwiseConsolePath: string option
@@ -72,6 +73,7 @@ type Configuration =
           ValidateBeforeReleaseBuild = false
           ConvertAudio = None
           OpenFolderAfterReleaseBuild = true
+          QuickEditOnPsarcDragAndDrop = false
           LoadPreviousOpenedProject = false
           PreviousOpenedProject = String.Empty
           Locale = Locale.Default
@@ -106,6 +108,7 @@ module Configuration =
         member val ConvertAudio: int = 0 with get, set
         member val OpenFolderAfterReleaseBuild: bool = Configuration.Default.OpenFolderAfterReleaseBuild with get, set
         member val LoadPreviousOpenedProject: bool = Configuration.Default.LoadPreviousOpenedProject with get, set
+        member val QuickEditOnPsarcDragAndDrop: bool = Configuration.Default.QuickEditOnPsarcDragAndDrop with get, set
         member val PreviousOpenedProject: string = String.Empty with get, set
         member val Locale: string = Locale.Default.ShortName with get, set
         member val WwiseConsolePath: string = String.Empty with get, set
@@ -176,6 +179,7 @@ module Configuration =
           ConvertAudio = convertAudio
           OpenFolderAfterReleaseBuild = dto.OpenFolderAfterReleaseBuild
           LoadPreviousOpenedProject = dto.LoadPreviousOpenedProject
+          QuickEditOnPsarcDragAndDrop = dto.QuickEditOnPsarcDragAndDrop
           PreviousOpenedProject = dto.PreviousOpenedProject
           Locale = t.LocaleFromShortName dto.Locale
           WwiseConsolePath = Option.ofString dto.WwiseConsolePath
@@ -230,6 +234,7 @@ module Configuration =
             ConvertAudio = convertAudio,
             OpenFolderAfterReleaseBuild = config.OpenFolderAfterReleaseBuild,
             LoadPreviousOpenedProject = config.LoadPreviousOpenedProject,
+            QuickEditOnPsarcDragAndDrop = config.QuickEditOnPsarcDragAndDrop,
             PreviousOpenedProject = config.PreviousOpenedProject,
             SaveDebugFiles = config.SaveDebugFiles,
             WwiseConsolePath = Option.toObj config.WwiseConsolePath,

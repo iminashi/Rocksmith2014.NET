@@ -295,7 +295,7 @@ let private importConfig state dispatch =
         |> translate
 
     vStack [
-        // Header
+        // PSARC Import
         headerWithLine "PSARCImportHeader" false
 
         StackPanel.create [
@@ -334,6 +334,18 @@ let private importConfig state dispatch =
                     CheckBox.onUnchecked (fun _ -> false |> SetCreateEOFProjectOnImport |> EditConfig |> dispatch)
                 ]
             ]
+        ]
+
+        // PSARC Drag & Drop
+        headerWithLine "PSARCDragDropHeader" false
+
+        // Use Quick Edit
+        CheckBox.create [
+            CheckBox.margin (8., 4.)
+            CheckBox.content (translate "QuickEditOnPSARCDrop")
+            CheckBox.isChecked state.Config.QuickEditOnPsarcDragAndDrop
+            CheckBox.onChecked (fun _ -> true |> SetQuickEditOnPsarcDragAndDrop |> EditConfig |> dispatch)
+            CheckBox.onUnchecked (fun _ -> false |> SetQuickEditOnPsarcDragAndDrop |> EditConfig |> dispatch)
         ]
     ]
 

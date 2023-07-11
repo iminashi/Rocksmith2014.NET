@@ -808,7 +808,7 @@ let update (msg: Msg) (state: State) =
             SelectedToneIndex = -1 }, cmds
 
     | LoadMultipleFiles paths ->
-        state, Cmd.batch (handleFilesDrop paths)
+        state, Cmd.batch (handleFilesDrop config paths)
 
     | EditInstrumental edit ->
         match getSelectedArrangement state with

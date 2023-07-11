@@ -345,6 +345,8 @@
   "ConvertMultipleToWemToolTip": "Convert the audio and preview audio files into Wwise wem format.",
   "RemoveDDLevels": "Remove DD levels",
   "CreateEOFProject": "Create EOF project",
+  "PSARCDragDropHeader": "PSARC Drag & Drop",
+  "QuickEditOnPSARCDrop": "Use Quick Edit",
   "All": "All",
   "Remove": "Remove",
   "RemoveMenuItem": "Remo_ve",

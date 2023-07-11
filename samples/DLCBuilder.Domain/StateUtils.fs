@@ -268,7 +268,7 @@ let showOverlay state overlay =
 
     { state with Overlay = overlay }
 
-let handleFilesDrop paths =
+let handleFilesDrop config paths =
     let arrangements, other =
         paths
         |> Seq.toArray
@@ -283,7 +283,10 @@ let handleFilesDrop paths =
             | HasExtension ".rs2dlc" ->
                 Some(OpenProject path)
             | HasExtension ".psarc" ->
-                Some(path |> Dialog.PsarcImportTargetFolder |> ShowDialog)
+                if config.QuickEditOnPsarcDragAndDrop then
+                    Some(ImportPsarcQuick path)
+                else
+                    Some(path |> Dialog.PsarcImportTargetFolder |> ShowDialog)
             | HasExtension (".png" | ".jpg" | ".dds") ->
                 Some(path |> SetAlbumArt |> EditProject)
             | HasExtension (".wav" | ".ogg" | ".wem") ->

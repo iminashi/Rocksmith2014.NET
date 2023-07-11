@@ -159,6 +159,9 @@ let editConfig edit config =
     | SetCreateEOFProjectOnImport createEofProject ->
         { config with CreateEOFProjectOnImport = createEofProject }
 
+    | SetQuickEditOnPsarcDragAndDrop useQuickEdit ->
+        { config with QuickEditOnPsarcDragAndDrop = useQuickEdit }
+
     | SetGenerateDD generateDD ->
         { config with GenerateDD = generateDD }
 

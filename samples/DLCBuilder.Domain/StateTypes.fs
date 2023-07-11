@@ -160,6 +160,7 @@ type ConfigEdit =
     | SetShowAdvanced of bool
     | SetRemoveDDOnImport of bool
     | SetCreateEOFProjectOnImport of bool
+    | SetQuickEditOnPsarcDragAndDrop of bool
     | SetGenerateDD of bool
     | SetComparePhraseLevelsOnTestBuild of bool
     | SetDDPhraseSearchEnabled of bool
