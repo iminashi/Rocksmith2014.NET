@@ -1,7 +1,9 @@
 ## 2.1.0 (Released 2023-07-xx)
 
+- Added an option to use quick edit when a PSARC file is dropped into the window.
 - Added a new validation check for natural harmonic notes with bend.
 - Added a new validation check for B and high-E strings in bass arrangements.
+- Improved the automatic fix that ensures an anchor is at the start of all phrases.
 
 ## 2.0.0 (Released 2023-06-26)
 
