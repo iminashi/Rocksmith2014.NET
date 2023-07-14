@@ -62,7 +62,7 @@ type Attributes() =
 
     member val LastConversionDateTime: string = null with get, set
 
-    // Always zero
+    // Always zero (there are some cases where this is an empty string in rs1compatibilitydlc)
     member val LeaderboardChallengeRating: int = 0
 
     member val ManifestUrn: string = "" with get, set
