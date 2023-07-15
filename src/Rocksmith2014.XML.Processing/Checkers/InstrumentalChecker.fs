@@ -493,13 +493,16 @@ let checkPhrases (arr: InstrumentalArrangement) =
         let firstNoteTime = Utils.getFirstNoteTime arr
 
         let incorrectMover1Phrases =
-            arr.PhraseIterations
-            |> Seq.choose (fun pi ->
-                let level = arr.Levels[0]
-                if isMover1Phrase arr.Phrases[pi.PhraseId] && noteOrChordExistsAtTime level pi.Time then
-                    Some (issue IncorrectMover1Phrase pi.Time)
-                else
-                    None)
+            if arr.Levels.Count = 0 then
+                Seq.empty
+            else
+                arr.PhraseIterations
+                |> Seq.choose (fun pi ->
+                    let level = arr.Levels[0]
+                    if isMover1Phrase arr.Phrases[pi.PhraseId] && noteOrChordExistsAtTime level pi.Time then
+                        Some (issue IncorrectMover1Phrase pi.Time)
+                    else
+                        None)
 
         [
             // Check for notes inside the first phrase
