@@ -3,6 +3,7 @@ module Rocksmith2014.XML.Processing.InstrumentalChecker
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Extensions
 open System
+open System.Collections.Generic
 open System.Runtime.CompilerServices
 open System.Text.RegularExpressions
 open Utils
@@ -138,6 +139,7 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
             let time = note.Time
             let prevNoteOnSameStringOpt, differentStringNotesBetweenPrevNoteOnSameString =
                 findPreviousNoteOnSameString level.Notes i
+            // TODO: find previous chord that uses same string
             let anchorAtNoteOpt = level.Anchors.FindByTime(time) |> Option.ofObj
 
             // Check for notes with LinkNext and unpitched slide
@@ -475,10 +477,29 @@ let checkAnchors (arrangement: InstrumentalArrangement) (level: Level) =
     |> Seq.append (findUnpitchedSlideAnchors isMoverPhraseTime level)
     |> Seq.toList
 
+let private getComparer<'a when 'a :> IHasTimeCode> () =
+    { new Comparer<'a>() with member _.Compare(x, y) = compare x.Time y.Time }
+
+let private noteOrChordExistsAtTime (level: Level) (time: int) =
+    level.Notes.BinarySearch(Note(Time = time), getComparer()) >= 0
+    || level.Chords.BinarySearch(Chord(Time = time), getComparer()) >= 0
+
+let private isMover1Phrase (phrase: Phrase) =
+    phrase.Name.Equals("mover1", StringComparison.OrdinalIgnoreCase)
+
 /// Checks the phrases in the arrangement for issues.
 let checkPhrases (arr: InstrumentalArrangement) =
     if arr.PhraseIterations.Count >= 2 then
         let firstNoteTime = Utils.getFirstNoteTime arr
+
+        let incorrectMover1Phrases =
+            arr.PhraseIterations
+            |> Seq.choose (fun pi ->
+                let level = arr.Levels[0]
+                if isMover1Phrase arr.Phrases[pi.PhraseId] && noteOrChordExistsAtTime level pi.Time then
+                    Some (issue IncorrectMover1Phrase pi.Time)
+                else
+                    None)
 
         [
             // Check for notes inside the first phrase
@@ -495,6 +516,9 @@ let checkPhrases (arr: InstrumentalArrangement) =
             // Check for more than 100 phrases
             if arr.PhraseIterations.Count > 100 then
                 issue MoreThan100Phrases 0
+
+            // Check phrases that are moved
+            yield! incorrectMover1Phrases
         ]
     else
         List.empty

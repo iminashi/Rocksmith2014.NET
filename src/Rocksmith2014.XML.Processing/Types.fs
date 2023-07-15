@@ -32,6 +32,7 @@ type IssueType =
     | FirstPhraseNotEmpty
     | NoEndPhrase
     | MoreThan100Phrases
+    | IncorrectMover1Phrase
     | HopoIntoSameNote
     | FingerChangeDuringSlide
     | PositionShiftIntoPullOff
@@ -82,6 +83,7 @@ let issueCode = function
     | OverlappingBendValues -> "I34"
     | NaturalHarmonicWithBend -> "I35"
     | InvalidBassArrangementString -> "I36"
+    | IncorrectMover1Phrase -> "I37"
     | LyricWithInvalidChar _ -> "V01"
     | LyricTooLong _ -> "V02"
     | LyricsHaveNoLineBreaks -> "V03"
