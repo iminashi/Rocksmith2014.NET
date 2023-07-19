@@ -593,7 +593,7 @@ let basicFixTests =
 
         testCase "Incorrect linknext fret is corrected (Unpitched slide)" <| fun _ ->
             let notes = ra [
-                Note(Time = 1000, Fret = 5y, Sustain = 500, IsLinkNext = true, SlideUnpitchTo = 9y);
+                Note(Time = 1000, Fret = 5y, Sustain = 500, IsLinkNext = true, SlideUnpitchTo = 9y)
                 Note(Time = 1500, Fret = 10y)
             ]
             let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes) ])
@@ -663,6 +663,51 @@ let basicFixTests =
             Expect.equal templates[0].Fingers[1] -1y "Fingering was removed from first chord template"
             Expect.equal templates[0].Frets[1] -1y "String was removed from first chord template"
             Expect.sequenceContainsOrder templates[1].Frets [| 0y; 0y; 0y; -1y; -1y; -1y; |] "Second chord template was not modified"
+
+        testCase "Redundant anchors are removed" <| fun _ ->
+            let anchors = ra [
+                Anchor(1y, 1000, 4y)
+                Anchor(1y, 2000, 4y)
+
+                Anchor(5y, 3000, 4y)
+                Anchor(5y, 4000, 6y)
+            ]
+            let arr = InstrumentalArrangement(Levels = ra [ Level(Anchors = anchors) ])
+
+            BasicFixes.removeRedundantAnchors arr
+
+            let expectedResult =
+                [
+                    Anchor(1y, 1000, 4y)
+                    Anchor(5y, 3000, 4y)
+                    Anchor(5y, 4000, 6y)
+                ]
+
+            Expect.hasLength arr.Levels[0].Anchors 3 "One anchor was removed"
+            Expect.sequenceContainsOrder arr.Levels[0].Anchors expectedResult "Anchors are correct"
+
+        testCase "Identical anchor at phrase time is not removed" <| fun _ ->
+            let anchors = ra [
+                Anchor(1y, 1000, 4y)
+                Anchor(1y, 2000, 4y)
+                Anchor(1y, 3000, 4y)
+                Anchor(1y, 4000, 4y)
+
+                Anchor(1y, 5000, 5y)
+            ]
+            let arr = InstrumentalArrangement(Levels = ra [ Level(Anchors = anchors) ])
+            arr.PhraseIterations <- ra [ PhraseIteration(1000, 0); PhraseIteration(4000, 0) ]
+
+            BasicFixes.removeRedundantAnchors arr
+
+            let expectedResult =
+                [
+                    Anchor(1y, 1000, 4y)
+                    Anchor(1y, 4000, 4y)
+                    Anchor(1y, 5000, 5y)
+                ]
+
+            Expect.sequenceContainsOrder arr.Levels[0].Anchors expectedResult "Anchors are correct"
     ]
 
 [<Tests>]

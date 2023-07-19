@@ -124,3 +124,27 @@ let removeMutedNotesFromChords (arrangement: InstrumentalArrangement) =
                     fixedChordTemplates.Add(chord.ChordId) |> ignore
         )
     )
+
+/// Removes anchors that are identical to the previous one.
+let removeRedundantAnchors (arrangement: InstrumentalArrangement) =
+    let phraseTimes =
+        arrangement.PhraseIterations
+        |> Seq.map (fun pi -> pi.Time)
+        |> Set.ofSeq
+
+    arrangement.Levels
+    |> ResizeArray.iter (fun level ->
+        let anchors = level.Anchors
+        if anchors.Count > 0 then
+            let result = ResizeArray<Anchor>(anchors.Count)
+            result.Add(anchors[0])
+
+            for i = 1 to anchors.Count - 1 do
+                let previousAnchor = anchors[i - 1]
+                let currentAnchor = anchors[i]
+                let isIdenticalAnchor =
+                    previousAnchor.Fret = currentAnchor.Fret && previousAnchor.Width = currentAnchor.Width
+                if not isIdenticalAnchor || phraseTimes.Contains currentAnchor.Time then
+                    result.Add(currentAnchor)
+
+            level.Anchors <- result)

@@ -30,6 +30,8 @@ let applyAll arrangement =
     BasicFixes.removeMutedNotesFromChords arrangement
     movePhrases arrangement
     eofFixes arrangement
+    // Should be done after fixing the anchors at phrase start
+    BasicFixes.removeRedundantAnchors arrangement
     addCrowdEvents arrangement
     processChordNames arrangement
     processCustomEvents arrangement
