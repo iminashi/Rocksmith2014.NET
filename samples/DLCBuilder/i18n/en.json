@@ -290,7 +290,7 @@
   "InvalidShowlights": "The show lights need to contain at least one fog note and one beam note",
   "InvalidShowlightsHelp": "This show lights file can crash the game when the song is selected.",
   "AnchorInsideHandShape": "Anchor is placed inside a handshape",
-  "AnchorInsideHandShapeHelp": "An anchor (FHP) placed inside a handshape will cut off the handshape at that point.",
+  "AnchorInsideHandShapeHelp": "An anchor (FHP) placed inside a handshape may cut off the handshape at that point or in rare cases cause the game to crash.",
   "AnchorInsideHandShapeAtPhraseBoundary": "Phrase boundary breaks handshape",
   "AnchorInsideHandShapeAtPhraseBoundaryHelp": "If repeating chords cross a phrase/section boundary, in EOF, the first chord in the new phrase should be set as \"crazy\".",
   "AnchorCloseToUnpitchedSlide": "Anchor very close to the end of an unpitched slide",
