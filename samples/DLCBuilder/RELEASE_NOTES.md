@@ -4,9 +4,10 @@
 - Added a new validation check for natural harmonic notes with bend.
 - Added a new validation check for B and high-E strings in bass arrangements.
 - Added a new validation check for incorrect use of the phrase mover.
-- Added a new validation check notes whose fret is over 24.
-- Added a new autmatic fix for removing redundant anchor positions.
+- Added a new validation check for notes whose fret is over 24.
+- Added a new automatic fix for removing redundant anchor positions.
 - Improved the automatic fix that ensures an anchor is at the start of all phrases.
+- Fixed issues for the HOPO into same fret validation for HOPOs following a chord.
 
 ## 2.0.0 (Released 2023-06-26)
 
