@@ -123,16 +123,18 @@ let editConfigTests =
             Expect.equal newState.Config.OpenFolderAfterReleaseBuild openFolder "Open folder after release is correct"
             Expect.equal newState.Config.LoadPreviousOpenedProject loadProject "Load previous opened project is correct"
 
-        testCase "SetDDLevelCountGeneration, SetAutoSave, SetAutoAudioConversion, SetQuickEditOnPsarcDragAndDrop" <| fun _ ->
+        testCase "SetDDLevelCountGeneration, SetAutoSave, SetAutoAudioConversion, SetQuickEditOnPsarcDragAndDrop, SetForcePhraseCreation" <| fun _ ->
             let autoSave = not initialState.Config.AutoSave
             let autoConversion = not initialState.Config.AutoAudioConversion
             let useQuickEdit = not initialState.Config.QuickEditOnPsarcDragAndDrop
+            let forcePhraseCreation = not initialState.Config.ForcePhraseCreation
             let messages =
                 [
                     SetDDLevelCountGeneration LevelCountGeneration.MLModel
                     SetAutoSave autoSave
                     SetAutoAudioConversion autoConversion
                     SetQuickEditOnPsarcDragAndDrop useQuickEdit
+                    SetForcePhraseCreation forcePhraseCreation
                 ]
                 |> List.map EditConfig
 
@@ -144,4 +146,5 @@ let editConfigTests =
             Expect.equal newState.Config.AutoSave autoSave "Auto-save is correct"
             Expect.equal newState.Config.AutoAudioConversion autoConversion "Auto audio conversion is correct"
             Expect.equal newState.Config.QuickEditOnPsarcDragAndDrop useQuickEdit "Quick edit option is correct"
+            Expect.equal newState.Config.ForcePhraseCreation forcePhraseCreation "Force phrase creation is correct"
     ]

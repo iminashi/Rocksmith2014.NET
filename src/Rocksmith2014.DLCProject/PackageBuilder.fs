@@ -39,6 +39,7 @@ type BuildConfig =
       Author: string
       AppId: AppId
       GenerateDD: bool
+      ForcePhraseCreation: bool
       DDConfig: GeneratorConfig
       ApplyImprovements: bool
       SaveDebugFiles: bool
@@ -230,7 +231,7 @@ let private build (buildData: BuildData) progress targetPath project platform = 
 
     progress () }
 
-let private setupInstrumental part (inst: Instrumental) config =
+let private setupInstrumental (part: int) (inst: Instrumental) (config: BuildConfig) =
     let xml = InstrumentalArrangement.Load(inst.XML)
 
     xml.MetaData.Part <- int16 part
@@ -241,16 +242,20 @@ let private setupInstrumental part (inst: Instrumental) config =
     // Copy the tuning in case it was edited
     Array.Copy(inst.Tuning, xml.MetaData.Tuning.Strings, 6)
 
+    // Fix "high density"
     if xml.Version < 8uy then xml.FixHighDensity()
 
-    if xml.PhraseIterations.Count <= 3 && xml.Sections.Count <= 3 then
+    // Generate phrases automatically
+    if config.ForcePhraseCreation || (xml.PhraseIterations.Count <= 3 && xml.Sections.Count <= 3) then
         PhraseGenerator.generate xml
 
+    // Apply improvements
     if config.ApplyImprovements then
         ArrangementImprover.applyAll xml
     else
         ArrangementImprover.applyMinimum xml
 
+    // Generate DD
     if xml.Levels.Count = 1 && config.GenerateDD then
         try
             Generator.generateForArrangement config.DDConfig xml |> ignore

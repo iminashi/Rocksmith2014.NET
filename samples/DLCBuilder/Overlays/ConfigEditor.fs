@@ -439,18 +439,36 @@ let private buildConfig state dispatch =
         // Common Options
         headerWithLine "Common" false
 
-        hStack [
-            // Apply Improvements
-            CheckBox.create [
-                CheckBox.verticalAlignment VerticalAlignment.Center
-                CheckBox.margin (8., 2., 4., 2.)
-                CheckBox.content (translate "ApplyImprovements")
-                CheckBox.isChecked state.Config.ApplyImprovements
-                CheckBox.onChecked (fun _ -> true |> SetApplyImprovements |> EditConfig |> dispatch)
-                CheckBox.onUnchecked (fun _ -> false |> SetApplyImprovements |> EditConfig |> dispatch)
-            ]
-            HelpButton.create [
-                HelpButton.helpText (translate "ApplyImprovementsHelp")
+        StackPanel.create [
+            StackPanel.margin (8., 2.)
+            StackPanel.children [
+                // Apply Improvements
+                hStack [
+                    CheckBox.create [
+                        CheckBox.verticalAlignment VerticalAlignment.Center
+                        CheckBox.content (translate "ApplyImprovements")
+                        CheckBox.isChecked state.Config.ApplyImprovements
+                        CheckBox.onChecked (fun _ -> true |> SetApplyImprovements |> EditConfig |> dispatch)
+                        CheckBox.onUnchecked (fun _ -> false |> SetApplyImprovements |> EditConfig |> dispatch)
+                    ]
+                    HelpButton.create [
+                        HelpButton.helpText (translate "ApplyImprovementsHelp")
+                    ]
+                ]
+
+                // Force Automatic Phrase Creation
+                hStack [
+                    CheckBox.create [
+                        CheckBox.verticalAlignment VerticalAlignment.Center
+                        CheckBox.content (translate "ForceAutomaticPhraseCreation")
+                        CheckBox.isChecked state.Config.ForcePhraseCreation
+                        CheckBox.onChecked (fun _ -> true |> SetForcePhraseCreation |> EditConfig |> dispatch)
+                        CheckBox.onUnchecked (fun _ -> false |> SetForcePhraseCreation |> EditConfig |> dispatch)
+                    ]
+                    HelpButton.create [
+                        HelpButton.helpText (translate "ForceAutomaticPhraseCreationHelp")
+                    ]
+                ]
             ]
         ]
 
@@ -561,39 +579,56 @@ let private buildConfig state dispatch =
                     ]
                 ]
 
-                // Compare Phrase Levels
-                hStack [
-                    CheckBox.create [
-                        CheckBox.content (translate "ComparePhraseLevelsOnTestBuild")
-                        CheckBox.isChecked state.Config.ComparePhraseLevelsOnTestBuild
-                        CheckBox.onChecked (fun _ -> true |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> false |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
-                    ]
-                    HelpButton.create [
-                        HelpButton.helpText (translate "ComparePhraseLevelsOnTestBuildHelp")
-                    ]
-                ]
+                Grid.create [
+                    Grid.columnDefinitions "*,*"
+                    Grid.rowDefinitions "*,*,*"
+                    Grid.children [
+                        // Compare Phrase Levels
+                        StackPanel.create [
+                            Grid.columnSpan 2
+                            StackPanel.orientation Orientation.Horizontal
+                            StackPanel.children [
+                                CheckBox.create [
+                                    CheckBox.content (translate "ComparePhraseLevelsOnTestBuild")
+                                    CheckBox.isChecked state.Config.ComparePhraseLevelsOnTestBuild
+                                    CheckBox.onChecked (fun _ -> true |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
+                                    CheckBox.onUnchecked (fun _ -> false |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
+                                ]
+                                HelpButton.create [
+                                    HelpButton.helpText (translate "ComparePhraseLevelsOnTestBuildHelp")
+                                ]
+                            ]
+                        ]
 
-                // Generate DD
-                CheckBox.create [
-                    CheckBox.verticalAlignment VerticalAlignment.Center
-                    CheckBox.content (translate "GenerateDDLevels")
-                    CheckBox.isChecked state.Config.GenerateDD
-                    CheckBox.onChecked (fun _ -> true |> SetGenerateDD |> EditConfig |> dispatch)
-                    CheckBox.onUnchecked (fun _ -> false |> SetGenerateDD |> EditConfig |> dispatch)
-                ]
+                        // Generate DD
+                        CheckBox.create [
+                            Grid.row 1
+                            CheckBox.verticalAlignment VerticalAlignment.Center
+                            CheckBox.content (translate "GenerateDDLevels")
+                            CheckBox.isChecked state.Config.GenerateDD
+                            CheckBox.onChecked (fun _ -> true |> SetGenerateDD |> EditConfig |> dispatch)
+                            CheckBox.onUnchecked (fun _ -> false |> SetGenerateDD |> EditConfig |> dispatch)
+                        ]
 
-                // Save Debug Files
-                hStack [
-                    CheckBox.create [
-                        CheckBox.verticalAlignment VerticalAlignment.Center
-                        CheckBox.content (translate "SaveDebugFiles")
-                        CheckBox.isChecked state.Config.SaveDebugFiles
-                        CheckBox.onChecked (fun _ -> true |> SetSaveDebugFiles |> EditConfig |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> false |> SetSaveDebugFiles |> EditConfig |> dispatch)
-                    ]
-                    HelpButton.create [
-                        HelpButton.helpText (translate "SaveDebugFilesHelp")
+                        // Save Debug Files
+                        StackPanel.create [
+                            Grid.column 1
+                            Grid.row 1
+                            StackPanel.orientation Orientation.Horizontal
+                            StackPanel.horizontalAlignment HorizontalAlignment.Right
+                            StackPanel.children [
+                                CheckBox.create [
+                                    CheckBox.verticalAlignment VerticalAlignment.Center
+                                    CheckBox.content (translate "SaveDebugFiles")
+                                    CheckBox.isChecked state.Config.SaveDebugFiles
+                                    CheckBox.onChecked (fun _ -> true |> SetSaveDebugFiles |> EditConfig |> dispatch)
+                                    CheckBox.onUnchecked (fun _ -> false |> SetSaveDebugFiles |> EditConfig |> dispatch)
+                                ]
+                                HelpButton.create [
+                                    HelpButton.helpText (translate "SaveDebugFilesHelp")
+                                ]
+                            ]
+                        ]
                     ]
                 ]
             ]

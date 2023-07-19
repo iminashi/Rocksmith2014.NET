@@ -17,6 +17,7 @@ let buildConfig =
       Author = "Author"
       AppId = AppId 123456UL
       GenerateDD = true
+      ForcePhraseCreation = false
       DDConfig = { PhraseSearchThreshold = Some 80; LevelCountGeneration = LevelCountGeneration.Simple }
       ApplyImprovements = true
       SaveDebugFiles = false

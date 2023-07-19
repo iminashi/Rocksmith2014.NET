@@ -38,6 +38,7 @@ let create buildType config directoryForPhraseLevels project platforms =
       Author = project.Author |> Option.defaultValue config.CharterName
       AppId = appId
       GenerateDD = not disableDDGeneration
+      ForcePhraseCreation = config.ForcePhraseCreation
       DDConfig =
         { PhraseSearchThreshold = phraseSearchThreshold
           LevelCountGeneration = config.DDLevelCountGeneration }

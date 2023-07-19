@@ -5,7 +5,10 @@ open Rocksmith2014.XML.Extensions
 open Utils
 
 /// Minimum distance required between phrases in milliseconds.
-let [<Literal>] MinimumPhraseSeparation = 2000
+let [<Literal>] private MinimumPhraseSeparation = 2000
+
+let [<Literal>] private FirstPhraseName = "COUNT"
+let [<Literal>] private EndPhraseName = "END"
 
 [<AutoOpen>]
 module private Helpers =
@@ -47,7 +50,7 @@ module private Helpers =
     let getEndPhraseTime (arr: Inst) =
         let oldEndPhrase =
             arr.Phrases
-            |> Seq.tryFindIndex (fun x -> String.equalsIgnoreCase "END" x.Name)
+            |> Seq.tryFindIndex (fun x -> String.equalsIgnoreCase EndPhraseName x.Name)
             |> Option.bind (fun index ->
                 arr.PhraseIterations
                 |> ResizeArray.tryFind (fun x -> x.PhraseId = index))
@@ -128,7 +131,7 @@ module private Helpers =
 
     let addEndPhrase endPhraseTime (arr: Inst) =
         arr.PhraseIterations.Add(PhraseIteration(endPhraseTime, arr.Phrases.Count))
-        arr.Phrases.Add(Phrase("END", 0uy, PhraseMask.None))
+        arr.Phrases.Add(Phrase(EndPhraseName, 0uy, PhraseMask.None))
         addSection NoGuitar endPhraseTime arr
 
     let erasePhrasesAndSections (arr: Inst) =
@@ -137,7 +140,7 @@ module private Helpers =
         arr.Sections.Clear()
 
     let addFirstPhrase firstPhraseResult (arr: Inst) =
-        arr.Phrases.Add(Phrase("COUNT", 0uy, PhraseMask.None))
+        arr.Phrases.Add(Phrase(FirstPhraseName, 0uy, PhraseMask.None))
 
         match firstPhraseResult with
         | CreateAtTime time ->

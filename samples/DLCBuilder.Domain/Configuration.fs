@@ -27,6 +27,7 @@ type Configuration =
       CharterName: string
       ShowAdvanced: bool
       GenerateDD: bool
+      ForcePhraseCreation : bool
       DDPhraseSearchEnabled: bool
       DDPhraseSearchThreshold: int
       DDLevelCountGeneration: LevelCountGeneration
@@ -59,6 +60,7 @@ type Configuration =
           CharterName = String.Empty
           ShowAdvanced = false
           GenerateDD = true
+          ForcePhraseCreation = false
           DDPhraseSearchEnabled = true
           DDPhraseSearchThreshold = 80
           DDLevelCountGeneration = LevelCountGeneration.Simple
@@ -93,6 +95,7 @@ module Configuration =
         member val CharterName: string = Configuration.Default.CharterName with get, set
         member val ShowAdvanced: bool = Configuration.Default.ShowAdvanced with get, set
         member val GenerateDD: bool = Configuration.Default.GenerateDD with get, set
+        member val ForcePhraseCreation: bool = Configuration.Default.ForcePhraseCreation with get, set
         member val DDPhraseSearchEnabled: bool = Configuration.Default.DDPhraseSearchEnabled with get, set
         member val DDPhraseSearchThreshold: int = Configuration.Default.DDPhraseSearchThreshold with get, set
         member val DDLevelCountGeneration: int = 0 with get, set
@@ -164,6 +167,7 @@ module Configuration =
           CharterName = dto.CharterName
           ShowAdvanced = dto.ShowAdvanced
           GenerateDD = dto.GenerateDD
+          ForcePhraseCreation = dto.ForcePhraseCreation
           DDPhraseSearchEnabled = dto.DDPhraseSearchEnabled
           DDPhraseSearchThreshold = threshold
           DDLevelCountGeneration = levelCountGeneration
@@ -220,6 +224,7 @@ module Configuration =
             ShowAdvanced = config.ShowAdvanced,
             Locale = config.Locale.ShortName,
             GenerateDD = config.GenerateDD,
+            ForcePhraseCreation = config.ForcePhraseCreation,
             DDPhraseSearchEnabled = config.DDPhraseSearchEnabled,
             DDPhraseSearchThreshold = config.DDPhraseSearchThreshold,
             DDLevelCountGeneration = levelCountGeneration,

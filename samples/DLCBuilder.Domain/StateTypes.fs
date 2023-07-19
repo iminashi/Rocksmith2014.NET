@@ -167,6 +167,7 @@ type ConfigEdit =
     | SetDDPhraseSearchThreshold of int
     | SetDDLevelCountGeneration of LevelCountGeneration
     | SetApplyImprovements of bool
+    | SetForcePhraseCreation of bool
     | SetSaveDebugFiles of bool
     | SetCustomAppId of AppId option
     | SetConvertAudio of AudioConversionType option

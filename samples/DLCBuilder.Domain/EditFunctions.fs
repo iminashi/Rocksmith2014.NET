@@ -180,6 +180,9 @@ let editConfig edit config =
     | SetApplyImprovements improve ->
         { config with ApplyImprovements = improve }
 
+    | SetForcePhraseCreation opt ->
+        { config with ForcePhraseCreation = opt }
+
     | SetSaveDebugFiles debug ->
         { config with SaveDebugFiles = debug }
 
