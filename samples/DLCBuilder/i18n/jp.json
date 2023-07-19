@@ -233,6 +233,8 @@
   "InvalidBassArrangementStringHelp": "ベースアレンジには正しく表示されない弦が使われています。\n\n五弦以上のベースアレンジはギターアレンジとして作るべきです。",
   "NoteInsideNoguitarSection": "NOGUITARセクション内ノート",
   "NoteInsideNoguitarSectionHelp": "NOGUITARというセクションなのに、中にはノートもしくはコードがあります。",
+  "IncorrectMover1Phrase": "正しくないMOVERフレーズ",
+  "IncorrectMover1PhraseHelp": "フレーズと同時のノートが存在します。この場合、フレーズ名終わりの数字は２以上である必要があります。",
   "ApplauseEventWithoutEnd": "拍手イベントの後に拍手終了イベントがない",
   "ApplauseEventWithoutEndHelp": "E3とD3拍手イベントを終わらせるにはE13イベントが必要。",
   "EventBetweenIntroApplause": "拍手イベントの間には予期しないイベント({0})がある",

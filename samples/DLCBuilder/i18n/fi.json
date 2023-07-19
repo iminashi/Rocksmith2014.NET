@@ -233,6 +233,8 @@
   "InvalidBassArrangementStringHelp": "Sovitus käyttää kieliä, jotka eivät toimi oikein bassosovituksissa.\n\nBassosovitukset, joissa on enemmän kuin 4 kieltä pitää luoda kitarasovituksina.",
   "NoteInsideNoguitarSection": "Nuotti \"noguitar\"-osan sisällä",
   "NoteInsideNoguitarSectionHelp": "Osan, jonka nimi on \"noguitar\" sisällä ei pitäisi olla nuotteja.",
+  "IncorrectMover1Phrase": "Virheellinen \"mover\" fraasi",
+  "IncorrectMover1PhraseHelp": "Phraasin kohdalla on nuotti. Fraasin nimen lopussa olevan numeron täytyy tässä tapauksessa olla vähintään 2.",
   "ApplauseEventWithoutEnd": "Aploditapahtumalta puuttuu loppu",
   "ApplauseEventWithoutEndHelp": "E3 ja D3 aploditapahtumia pitää seurata tapahtuma E13, joka päättää ne.",
   "EventBetweenIntroApplause": "Odottamaton tapahtuma ({0}) introaploditapahtumien välissä",

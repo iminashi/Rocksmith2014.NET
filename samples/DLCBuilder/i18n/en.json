@@ -233,6 +233,8 @@
   "InvalidBassArrangementStringHelp": "The arrangment uses strings that will not be displayed correctly for bass arrangements.\n\nBass arrangements with more than 4 strings should be created as guitar arrangments.",
   "NoteInsideNoguitarSection": "Note inside a noguitar section",
   "NoteInsideNoguitarSectionHelp": "There is a note or a chord inside a section named \"noguitar\".",
+  "IncorrectMover1Phrase": "Incorrect phrase mover usage",
+  "IncorrectMover1PhraseHelp": "The mover phrase occurs on a note. The number at the end of the phrase name should at least 2 in this case.",
   "ApplauseEventWithoutEnd": "An applause event is missing the event that ends it",
   "ApplauseEventWithoutEndHelp": "The E3 and D3 applause events need to be followed by the event E13 that ends them.",
   "EventBetweenIntroApplause": "Unexpected event ({0}) between intro applause events",
