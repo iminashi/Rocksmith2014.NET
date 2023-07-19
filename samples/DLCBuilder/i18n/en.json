@@ -328,7 +328,7 @@
   "AutoSaveProject": "Save project file automatically",
   "CalculateVolumesAutomatically": "Calculate volumes automatically",
   "ConvertAudioInTheBackground": "Convert audio in the background",
-  "ConvertAudioInTheBackgroundHelp": "Start converting the audio into wem format when the file is added to the project.\n\nWhen disabled, the conversion is done during the build.",
+  "ConvertAudioInTheBackgroundHelp": "Starts converting the audio into wem format when an audio file is added to the project.\n\nWhen disabled, the conversion is done during the build.",
   "CalculateVolumes": "Calculate Volumes",
   "BaseToneNaming": "Automatic Base Tone Key",
   "BaseToneNamingHelp": "Determines the format of the base tone key created when an arrangement file does not include one.",
