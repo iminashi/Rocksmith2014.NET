@@ -229,6 +229,8 @@
   "AppID": "App ID",
   "Custom": "Custom",
   "Issues": "Issues",
+  "FretNumberMoreThan24": "Fret number over 24",
+  "FretNumberMoreThan24Help": "Notes whose fret number is more than 24 will not be displayed correctly by the game.",
   "InvalidBassArrangementString": "Invalid strings used",
   "InvalidBassArrangementStringHelp": "The arrangment uses strings that will not be displayed correctly for bass arrangements.\n\nBass arrangements with more than 4 strings should be created as guitar arrangments.",
   "NoteInsideNoguitarSection": "Note inside a noguitar section",

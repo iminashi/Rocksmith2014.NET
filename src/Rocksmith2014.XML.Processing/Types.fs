@@ -37,6 +37,7 @@ type IssueType =
     | FingerChangeDuringSlide
     | PositionShiftIntoPullOff
     | InvalidBassArrangementString
+    | FretNumberMoreThan24
     | LyricWithInvalidChar of invalidChar: char
     | LyricTooLong of lyric: string
     | LyricsHaveNoLineBreaks
@@ -84,6 +85,7 @@ let issueCode = function
     | NaturalHarmonicWithBend -> "I35"
     | InvalidBassArrangementString -> "I36"
     | IncorrectMover1Phrase -> "I37"
+    | FretNumberMoreThan24 -> "I38"
     | LyricWithInvalidChar _ -> "V01"
     | LyricTooLong _ -> "V02"
     | LyricsHaveNoLineBreaks -> "V03"

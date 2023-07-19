@@ -215,6 +215,10 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
             // Check for invalid strings on bass arrangement
             if arrangement.MetaData.ArrangementProperties.PathBass && note.String >= 4y then
                 issue InvalidBassArrangementString time
+
+            // Check for fret number over 24
+            if note.Fret > 24y then
+                issue FretNumberMoreThan24 time
     ]
 
 let private chordHasStrangeFingering (chordTemplates: ResizeArray<ChordTemplate>) (chord: Chord) =

@@ -229,6 +229,8 @@
   "AppID": "App ID",
   "Custom": "Mukautettu",
   "Issues": "Ongelmat",
+  "FretNumberMoreThan24": "Nauhanumero yli 24",
+  "FretNumberMoreThan24Help": "Nuotit, joiden nauhanumero on yli 24 eivät toimi oikein pelissä.",
   "InvalidBassArrangementString": "Sovitukseen kelpaamaton kieli",
   "InvalidBassArrangementStringHelp": "Sovitus käyttää kieliä, jotka eivät toimi oikein bassosovituksissa.\n\nBassosovitukset, joissa on enemmän kuin 4 kieltä pitää luoda kitarasovituksina.",
   "NoteInsideNoguitarSection": "Nuotti \"noguitar\"-osan sisällä",

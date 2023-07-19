@@ -229,6 +229,8 @@
   "AppID": "App ID",
   "Custom": "カスタム",
   "Issues": "問題点",
+  "FretNumberMoreThan24": "24より上のフレット",
+  "FretNumberMoreThan24Help": "24を越えるフレットのノートはゲーム内で正しく表示されません。",
   "InvalidBassArrangementString": "アレンジにふさわしくない弦",
   "InvalidBassArrangementStringHelp": "ベースアレンジには正しく表示されない弦が使われています。\n\n五弦以上のベースアレンジはギターアレンジとして作るべきです。",
   "NoteInsideNoguitarSection": "NOGUITARセクション内ノート",

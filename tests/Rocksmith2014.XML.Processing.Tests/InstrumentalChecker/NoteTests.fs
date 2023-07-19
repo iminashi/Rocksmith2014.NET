@@ -290,4 +290,18 @@ let noteTests =
 
             Expect.hasLength results 2 "Two issues created"
             Expect.all results (fun x -> x.Type = InvalidBassArrangementString) "Correct issue types"
+
+        testCase "Fret numbers over 24 are detected" <| fun _ ->
+            let notes = ResizeArray(seq {
+                Note(Fret = 24y, Time = 1000)
+                Note(Fret = 25y, Time = 2000)
+            })
+            let level = Level(Notes = notes)
+            let arr = InstrumentalArrangement(Levels = ResizeArray.singleton level)
+
+            let results = checkNotes arr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results[0].Type FretNumberMoreThan24 "Correct issue type"
+            Expect.equal results[0].TimeCode 2000 "Correct issue time"
     ]
