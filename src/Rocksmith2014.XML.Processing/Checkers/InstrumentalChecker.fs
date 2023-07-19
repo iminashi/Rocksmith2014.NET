@@ -139,7 +139,7 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
             let time = note.Time
             let prevNoteOnSameStringOpt, differentStringNotesBetweenPrevNoteOnSameString =
                 findPreviousNoteOnSameString level.Notes i
-            // TODO: find previous chord that uses same string
+
             let anchorAtNoteOpt = level.Anchors.FindByTime(time) |> Option.ofObj
 
             // Check for notes with LinkNext and unpitched slide
@@ -187,10 +187,20 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
             // Check for HOPO on same fret as previous note
             // Don't create an issue if there are notes on a different string between this note and the previous note on the same string
             // Should prevent false positives for "hammer-ons from nowhere"
-            if not differentStringNotesBetweenPrevNoteOnSameString
-               && prevNoteOnSameStringOpt |> Option.exists (fun pn -> pn.Fret = note.Fret && note.IsHopo)
-            then
-                issue HopoIntoSameNote time
+            if note.IsHopo && not differentStringNotesBetweenPrevNoteOnSameString then
+                let prevChordUsingSameStringOpt =
+                    findPreviousChordUsingSameString arrangement.ChordTemplates level.Chords note.String time
+
+                match prevNoteOnSameStringOpt, prevChordUsingSameStringOpt with
+                | None, Some (_, fret) when fret = note.Fret ->
+                    issue HopoIntoSameNote time
+                | Some n, Some (c, fret) when c.Time > n.Time ->
+                    if fret = note.Fret then
+                        issue HopoIntoSameNote time
+                | Some n, _ when n.Fret = note.Fret ->
+                    issue HopoIntoSameNote time
+                | _ ->
+                    ()
 
             // Check for finger change during slide
             match anchorAtNoteOpt, prevNoteOnSameStringOpt with

@@ -92,6 +92,19 @@ let findPreviousNoteOnSameString (notes: ResizeArray<Note>) (startIndex: int) =
 
     search (startIndex - 1) false
 
+// Returns the possible chord and the fret used for the given string.
+let findPreviousChordUsingSameString
+        (templates: ResizeArray<ChordTemplate>) (chords: ResizeArray<Chord>) (stringNum: sbyte) (time: int) =
+    chords
+    |> Seq.tryFindBack (fun chord ->
+        if chord.Time >= time then
+            false
+        else
+            templates
+            |> ResizeArray.tryItem (int chord.ChordId)
+            |> Option.exists (fun template -> template.Frets[int stringNum] > -1y))
+    |> Option.map (fun c -> c, templates[int c.ChordId].Frets[int stringNum])
+
 let findActiveAnchor (level: Level) (time: int) =
     let anchors = level.Anchors
     let rec search index =

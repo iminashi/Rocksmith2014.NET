@@ -218,6 +218,30 @@ let noteTests =
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type HopoIntoSameNote "Correct issue type"
 
+        testCase "Detects pull-off into same fret from chord" <| fun _ ->
+            let notes = ResizeArray([ Note(Fret = 1y, Time = 2000, IsPullOff = true) ])
+            let chords = ResizeArray([ Chord(Time = 1000, ChordId = 0s) ])
+            let templates = ResizeArray([ ChordTemplate("", "", Array.replicate 6 1y, Array.replicate 6 1y)])
+            let level = Level(Notes = notes, Chords = chords)
+            let arr = InstrumentalArrangement(ChordTemplates = templates, Phrases = phrases, Levels = ResizeArray([ level ]))
+
+            let results = checkNotes arr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type HopoIntoSameNote "Correct issue type"
+
+        testCase "No false positive for pull-off into same fret for pull-off from chord" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300)
+                                          Note(Fret = 1y, Time = 3000, IsPullOff = true) })
+            let chords = ResizeArray([ Chord(Time = 2000, ChordId = 0s) ])
+            let templates = ResizeArray([ ChordTemplate("", "", Array.replicate 6 3y, Array.replicate 6 3y)])
+            let level = Level(Notes = notes, Chords = chords)
+            let arr = InstrumentalArrangement(ChordTemplates = templates, Phrases = phrases, Levels = ResizeArray([ level ]))
+
+            let results = checkNotes arr level
+
+            Expect.hasLength results 0 "No issues created"
+
         testCase "Detects finger change during slide" <| fun _ ->
             let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300, IsLinkNext = true, SlideTo = 5y, Sustain = 500)
                                           Note(Fret = 5y, Time = 1800) })
