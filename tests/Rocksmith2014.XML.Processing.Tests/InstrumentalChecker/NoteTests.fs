@@ -245,7 +245,18 @@ let noteTests =
         testCase "Detects finger change during slide" <| fun _ ->
             let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300, IsLinkNext = true, SlideTo = 5y, Sustain = 500)
                                           Note(Fret = 5y, Time = 1800) })
-            let anchors = ResizeArray(seq { Anchor(1y, 1300); Anchor(3y, 1800)})
+            let anchors = ResizeArray(seq { Anchor(1y, 1300); Anchor(3y, 1800) })
+            let level = Level(Notes = notes, Anchors = anchors)
+            let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
+
+            let results = checkNotes arr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type FingerChangeDuringSlide "Correct issue type"
+
+        testCase "Detects finger change during slide (no linknext)" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Fret = 3y, Time = 1300, SlideTo = 5y, Sustain = 500) })
+            let anchors = ResizeArray(seq { Anchor(3y, 1000); Anchor(4y, 1800) })
             let level = Level(Notes = notes, Anchors = anchors)
             let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
 
@@ -257,7 +268,7 @@ let noteTests =
         testCase "Detects position shift into pull-off" <| fun _ ->
             let notes = ResizeArray(seq { Note(Fret = 10y, Time = 1300)
                                           Note(Fret = 5y, Time = 1800, IsPullOff = true) })
-            let anchors = ResizeArray(seq { Anchor(10y, 1300); Anchor(5y, 1800)})
+            let anchors = ResizeArray(seq { Anchor(10y, 1300); Anchor(5y, 1800) })
             let level = Level(Notes = notes, Anchors = anchors)
             let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
 

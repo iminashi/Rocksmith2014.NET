@@ -239,9 +239,11 @@ module private Helpers =
                                 Riff
 
                     // Check if a new anchor needs to be created
-                    let activeAnchor = findActiveAnchor level time
-                    if activeAnchor.Time <> time then
+                    match tryFindActiveAnchor level time with
+                    | Some activeAnchor when activeAnchor.Time <> time ->
                         level.Anchors.InsertByTime(Anchor(activeAnchor.Fret, time, activeAnchor.Width))
+                    | _ ->
+                        ()
 
                     addPhrase time arr
                     addSection sectionType time arr

@@ -105,16 +105,18 @@ let findPreviousChordUsingSameString
             |> Option.exists (fun template -> template.Frets[int stringNum] > -1y))
     |> Option.map (fun c -> c, templates[int c.ChordId].Frets[int stringNum])
 
-let findActiveAnchor (level: Level) (time: int) =
+let tryFindActiveAnchor (level: Level) (time: int) =
     let anchors = level.Anchors
-    let rec search index =
-        if index >= anchors.Count || anchors[index].Time > time then
-            // Edge case: no anchors in level?
-            anchors[max 0 (index - 1)]
-        else
-            search (index + 1)
+    if anchors.Count = 0 then
+        None
+    else
+        let rec search index =
+            if index >= anchors.Count || anchors[index].Time > time then
+                Some (anchors[max 0 (index - 1)])
+            else
+                search (index + 1)
 
-    search 0
+        search 0
 
 let tryFindNextNoteOnSameString (notes: ResizeArray<Note>) (currentIndex: int) (note: Note) =
     let nextIndex =

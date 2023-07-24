@@ -203,22 +203,32 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
                     ()
 
             // Check for finger change during slide
-            match anchorAtNoteOpt, prevNoteOnSameStringOpt with
-            | Some thisAnchor, Some prevNote when prevNote.IsLinkNext && prevNote.IsSlide ->
-                let previousActiveAnchor = findActiveAnchor level prevNote.Time
-                let prevFinger = prevNote.Fret - previousActiveAnchor.Fret
-                let thisFinger = note.Fret - thisAnchor.Fret
-                if prevFinger <> thisFinger then
-                    issue FingerChangeDuringSlide time
-            | _ ->
-                ()
+            if note.IsSlide then
+                // TODO: Add few millisecond error margin?
+                match level.Anchors.FindByTime(note.Time + note.Sustain) with
+                | null ->
+                    ()
+                | slideToAnchor ->
+                    match tryFindActiveAnchor level time with
+                    | Some activeAnchor ->
+                        let slideEnd = note.SlideTo
+                        let startFinger = note.Fret - activeAnchor.Fret
+                        let endFinger = slideEnd - slideToAnchor.Fret
+
+                        if startFinger <> endFinger then
+                            issue FingerChangeDuringSlide time
+                    | None ->
+                        ()
 
             // Check for position shift into pull-off
             match anchorAtNoteOpt with
             | Some activeAnchor ->
-                let previousAnchor = findActiveAnchor level (time - 10)
-                if previousAnchor <> activeAnchor && note.IsPullOff && note.Fret > 0y then
-                    issue PositionShiftIntoPullOff time
+                match tryFindActiveAnchor level (time - 10) with
+                | Some previousAnchor ->
+                    if previousAnchor <> activeAnchor && note.IsPullOff && note.Fret > 0y then
+                        issue PositionShiftIntoPullOff time
+                | None ->
+                    ()
             | None ->
                 ()
 
@@ -305,9 +315,12 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
                 // Check for position shift into pull-off
                 match anchorAtChordOpt with
                 | Some activeAnchor ->
-                    let previousAnchor = findActiveAnchor level (time - 10)
-                    if previousAnchor <> activeAnchor && chordNotes.Exists(fun note -> note.IsPullOff && note.Fret > 0y) then
-                        issue PositionShiftIntoPullOff time
+                    match tryFindActiveAnchor level (time - 10) with
+                    | Some previousAnchor ->
+                        if previousAnchor <> activeAnchor && chordNotes.Exists(fun note -> note.IsPullOff && note.Fret > 0y) then
+                            issue PositionShiftIntoPullOff time
+                    | None ->
+                        ()
                 | None ->
                     ()
 

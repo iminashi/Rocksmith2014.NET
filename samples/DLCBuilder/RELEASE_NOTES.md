@@ -6,6 +6,7 @@
 - Added a new validation check for incorrect use of the phrase mover.
 - Added a new validation check for notes whose fret is over 24.
 - Added a new automatic fix for removing redundant anchor positions.
+- Improved the validation check for finger changing during slide.
 - Improved the automatic fix that ensures an anchor is at the start of all phrases.
 - Fixed issues for the HOPO into same fret validation for HOPOs following a chord.
 
