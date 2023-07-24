@@ -358,18 +358,24 @@ let convertNotes (inst: InstrumentalArrangement) =
                     if not n.IsBend then
                         Array.empty
                     else
+                        let endPosition = time + uint maxSus
+
                         n.BendValues.ToArray()
                         // Don't import 0 strength bends at note start time
                         |> Array.filter (fun bv -> not (bv.Time = n.Time && bv.Step = 0.0f))
                         |> Array.map (fun bv ->
+                            // In some very old buggy CDLC there can be bend values in chords
+                            // whose time stamp is way before the chord itself
+                            let position = max (uint bv.Time) time
+
                             { EOFNote.Empty with
                                 Difficulty = diff
                                 BitFlag = getBitFlag (sbyte n.String)
-                                Position = uint bv.Time
+                                Position = position
                                 Flags = EOFNoteFlag.RS_NOTATION ||| EOFNoteFlag.BEND
                                 BendStrength = ValueSome (convertBendValue bv.Step)
                                 ActualNotePosition = time
-                                EndPosition = time + uint maxSus
+                                EndPosition = endPosition
                             }
                         )
                 )

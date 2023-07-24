@@ -86,7 +86,7 @@ let combineTechNotes (techNotes: EOFNote array) =
 let getTechNoteData (techNotes: EOFNote array) =
     if techNotes.Length > 0 then
         use m = new MemoryStream()
-        binaryWriter { techNotes } |> toStream(m)
+        binaryWriter { techNotes } |> toStream m
         m.ToArray()
     else
         Array.empty

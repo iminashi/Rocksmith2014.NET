@@ -5,12 +5,13 @@
 - Added a new validation check for use of B and high-E strings in bass arrangements.
 - Added a new validation check for incorrect use of the phrase mover.
 - Added a new validation check for notes whose fret is over 24.
-- Added a new validation check for notes that come after the song end.
+- Added a new validation check for notes that come after the song ends.
 - Added a new automatic fix for removing redundant anchor positions.
 - Improved the validation check for finger changing during slide.
 - Improved the automatic fix that ensures an anchor is at the start of all phrases.
 - Fixed issues for the HOPO into same fret validation for HOPOs following a chord.
-- Duplicate tone keys are prevented when importing a tone with a key that is already in use.
+- Duplicate tone keys are prevented when importing a tone with a key that is already used in the project.
+- Fixed an issue where a corrupt EOF project would be created for some very old, buggy CDLC.
 
 ## 2.0.0 (Released 2023-06-26)
 
