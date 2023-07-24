@@ -1111,8 +1111,7 @@ let update (msg: Msg) (state: State) =
             | ToneCollection.Nothing ->
                 newState, Cmd.none
             | ToneCollection.AddToneToProject tone ->
-                { newState with Project = { project with Tones = tone :: project.Tones } },
-                Cmd.ofMsg (AddStatusMessage(translate "ToneAddedToProject"))
+                addTones newState [ tone ], Cmd.ofMsg (AddStatusMessage(translate "ToneAddedToProject"))
             | ToneCollection.ShowToneAddedToCollectionMessage ->
                 newState, Cmd.ofMsg (AddStatusMessage(translate "ToneAddedToCollection"))
             | ToneCollection.BeginDownloadingTonesDatabase ->
