@@ -6,6 +6,9 @@ open Rocksmith2014.XML.Processing.Types
 open Rocksmith2014.XML.Processing.InstrumentalChecker
 open TestArrangement
 
+let private withSongLength (arr: InstrumentalArrangement) =
+    arr |> apply (fun a -> a.MetaData.SongLength <- 500_000)
+
 [<Tests>]
 let noteTests =
     testList "Arrangement Checker (Notes)" [
@@ -158,7 +161,9 @@ let noteTests =
                       Phrase("bad", 0uy, PhraseMask.None) ]
                  )
             let iterations = ResizeArray(seq {  PhraseIteration(0, 0); PhraseIteration(1000, 1); PhraseIteration(1500, 2) })
-            let arr = InstrumentalArrangement(Phrases = phrases, PhraseIterations = iterations, Levels = ResizeArray([ level ]))
+            let arr =
+                InstrumentalArrangement(Phrases = phrases, PhraseIterations = iterations, Levels = ResizeArray([ level ]))
+                |> withSongLength
 
             let results = checkNotes arr level
 
@@ -176,7 +181,9 @@ let noteTests =
                       Phrase("mover1", 0uy, PhraseMask.None) ]
                  )
             let iterations = ResizeArray(seq {  PhraseIteration(0, 0); PhraseIteration(1000, 1); PhraseIteration(1500, 2) })
-            let arr = InstrumentalArrangement(Phrases = phrases, PhraseIterations = iterations, Levels = ResizeArray([ level ]))
+            let arr =
+                InstrumentalArrangement(Phrases = phrases, PhraseIterations = iterations, Levels = ResizeArray([ level ]))
+                |> withSongLength
 
             let results = checkNotes arr level
 
@@ -186,9 +193,8 @@ let noteTests =
             let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300)
                                           Note(Fret = 1y, Time = 1800, IsHammerOn = true) })
             let level = Level(Notes = notes)
-            let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
 
-            let results = checkNotes arr level
+            let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type HopoIntoSameNote "Correct issue type"
@@ -201,9 +207,8 @@ let noteTests =
                 Note(Fret = 3y, String = 3y, Time = 1300, IsPullOff = true)
                 Note(Fret = 5y, String = 2y, Time = 1400, IsHammerOn = true) })
             let level = Level(Notes = notes)
-            let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
 
-            let results = checkNotes arr level
+            let results = checkNotes testArr level
 
             Expect.isEmpty results "An issue was found in check results"
 
@@ -211,9 +216,8 @@ let noteTests =
             let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300)
                                           Note(Fret = 1y, Time = 1800, IsPullOff = true) })
             let level = Level(Notes = notes)
-            let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
 
-            let results = checkNotes arr level
+            let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type HopoIntoSameNote "Correct issue type"
@@ -223,7 +227,9 @@ let noteTests =
             let chords = ResizeArray([ Chord(Time = 1000, ChordId = 0s) ])
             let templates = ResizeArray([ ChordTemplate("", "", Array.replicate 6 1y, Array.replicate 6 1y)])
             let level = Level(Notes = notes, Chords = chords)
-            let arr = InstrumentalArrangement(ChordTemplates = templates, Phrases = phrases, Levels = ResizeArray([ level ]))
+            let arr =
+                InstrumentalArrangement(ChordTemplates = templates, Phrases = phrases, Levels = ResizeArray([ level ]))
+                |> withSongLength
 
             let results = checkNotes arr level
 
@@ -236,7 +242,9 @@ let noteTests =
             let chords = ResizeArray([ Chord(Time = 2000, ChordId = 0s) ])
             let templates = ResizeArray([ ChordTemplate("", "", Array.replicate 6 3y, Array.replicate 6 3y)])
             let level = Level(Notes = notes, Chords = chords)
-            let arr = InstrumentalArrangement(ChordTemplates = templates, Phrases = phrases, Levels = ResizeArray([ level ]))
+            let arr =
+                InstrumentalArrangement(ChordTemplates = templates, Phrases = phrases, Levels = ResizeArray([ level ]))
+                |> withSongLength
 
             let results = checkNotes arr level
 
@@ -247,9 +255,8 @@ let noteTests =
                                           Note(Fret = 5y, Time = 1800) })
             let anchors = ResizeArray(seq { Anchor(1y, 1300); Anchor(3y, 1800) })
             let level = Level(Notes = notes, Anchors = anchors)
-            let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
 
-            let results = checkNotes arr level
+            let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type FingerChangeDuringSlide "Correct issue type"
@@ -258,9 +265,8 @@ let noteTests =
             let notes = ResizeArray(seq { Note(Fret = 3y, Time = 1300, SlideTo = 5y, Sustain = 500) })
             let anchors = ResizeArray(seq { Anchor(3y, 1000); Anchor(4y, 1800) })
             let level = Level(Notes = notes, Anchors = anchors)
-            let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
 
-            let results = checkNotes arr level
+            let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type FingerChangeDuringSlide "Correct issue type"
@@ -270,9 +276,8 @@ let noteTests =
                                           Note(Fret = 5y, Time = 1800, IsPullOff = true) })
             let anchors = ResizeArray(seq { Anchor(10y, 1300); Anchor(5y, 1800) })
             let level = Level(Notes = notes, Anchors = anchors)
-            let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
 
-            let results = checkNotes arr level
+            let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type PositionShiftIntoPullOff "Correct issue type"
@@ -282,9 +287,8 @@ let noteTests =
                                           Note(Fret = 0y, Time = 1800, IsPullOff = true) })
             let anchors = ResizeArray(seq { Anchor(3y, 1300); Anchor(1y, 1800)})
             let level = Level(Notes = notes, Anchors = anchors)
-            let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
 
-            let results = checkNotes arr level
+            let results = checkNotes testArr level
 
             Expect.hasLength results 0 "No issues should be created"
 
@@ -293,9 +297,8 @@ let noteTests =
                 Note(Fret = 3y, BendValues = ResizeArray([ BendValue(500, 1.0f); BendValue(500, 1.0f) ]))
             })
             let level = Level(Notes = notes)
-            let arr = InstrumentalArrangement(Levels = ResizeArray([ level ]))
 
-            let results = checkNotes arr level
+            let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type OverlappingBendValues "Correct issue type"
@@ -305,9 +308,8 @@ let noteTests =
                 Note(Fret = 12y, IsHarmonic = true, Sustain = 1000, MaxBend = 2.0f, BendValues = ResizeArray([ BendValue(500, 2.0f) ]))
             })
             let level = Level(Notes = notes)
-            let arr = InstrumentalArrangement(Levels = ResizeArray([ level ]))
 
-            let results = checkNotes arr level
+            let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type NaturalHarmonicWithBend "Correct issue type"
@@ -318,7 +320,7 @@ let noteTests =
                 Note(String = 5y, Time = 2000)
             })
             let level = Level(Notes = notes)
-            let arr = InstrumentalArrangement(Levels = ResizeArray([ level ]))
+            let arr = InstrumentalArrangement(Levels = ResizeArray([ level ])) |> withSongLength
             arr.MetaData.ArrangementProperties.PathBass <- true
 
             let results = checkNotes arr level
@@ -332,11 +334,25 @@ let noteTests =
                 Note(Fret = 25y, Time = 2000)
             })
             let level = Level(Notes = notes)
-            let arr = InstrumentalArrangement(Levels = ResizeArray.singleton level)
 
-            let results = checkNotes arr level
+            let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results[0].Type FretNumberMoreThan24 "Correct issue type"
             Expect.equal results[0].TimeCode 2000 "Correct issue time"
+
+        testCase "Detects note after END phrase" <| fun _ ->
+            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 50_000) })
+            let level = Level(Notes = notes)
+            let phrases = ResizeArray(seq { Phrase("COUNT", 0uy, PhraseMask.None); Phrase("END", 0uy, PhraseMask.None) })
+            let phraseIterations = ResizeArray(seq { PhraseIteration(1000, 0); PhraseIteration(45_000, 1) })
+            let arr =
+                InstrumentalArrangement(Levels = ResizeArray.singleton level, Phrases = phrases, PhraseIterations = phraseIterations)
+                |> withSongLength
+
+            let results = checkNotes arr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results[0].Type NoteAfterSongEnd "Correct issue type"
+            Expect.equal results[0].TimeCode 50_000 "Correct issue time"
     ]

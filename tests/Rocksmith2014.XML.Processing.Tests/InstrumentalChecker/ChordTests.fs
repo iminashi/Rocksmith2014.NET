@@ -6,6 +6,9 @@ open Rocksmith2014.XML.Processing
 open Rocksmith2014.XML.Processing.InstrumentalChecker
 open TestArrangement
 
+let private withSongLength (arr: InstrumentalArrangement) =
+    arr |> apply (fun a -> a.MetaData.SongLength <- 500_000)
+
 [<Tests>]
 let chordTests =
     testList "Arrangement Checker (Chords)" [
@@ -223,7 +226,7 @@ let chordTests =
                 })
             let anchors = ResizeArray(seq { Anchor(12y, 1000); Anchor(10y, 1500) })
             let level = Level(Chords = chords, Anchors = anchors)
-            let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ]))
+            let arr = InstrumentalArrangement(Phrases = phrases, Levels = ResizeArray([ level ])) |> withSongLength
 
             let results = checkChords arr level
 
@@ -241,9 +244,8 @@ let chordTests =
                     Chord(ChordId = 0s, Time = 1000, ChordNotes = cn1)
                 })
             let level = Level(Chords = chords)
-            let arr = InstrumentalArrangement(Levels = ResizeArray([ level ]))
 
-            let results = checkChords arr level
+            let results = checkChords testArr level
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type OverlappingBendValues "Correct issue type"
@@ -260,11 +262,26 @@ let chordTests =
                     Chord(ChordId = 0s, Time = 1000, ChordNotes = cn1)
                 })
             let level = Level(Chords = chords)
-            let arr = InstrumentalArrangement(Levels = ResizeArray([ level ]))
+            let arr = InstrumentalArrangement(Levels = ResizeArray([ level ])) |> withSongLength
             arr.MetaData.ArrangementProperties.PathBass <- true
 
             let results = checkChords arr level
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type InvalidBassArrangementString "Correct issue type"
+
+        testCase "Detects chord after END phrase" <| fun _ ->
+            let chords = ResizeArray(seq { Chord(Time = 50_000) })
+            let level = Level(Chords = chords)
+            let phrases = ResizeArray(seq { Phrase("Default", 0uy, PhraseMask.None); Phrase("end", 0uy, PhraseMask.None) })
+            let phraseIterations = ResizeArray(seq { PhraseIteration(1000, 0); PhraseIteration(45_000, 1) })
+            let arr =
+                InstrumentalArrangement(Levels = ResizeArray.singleton level, Phrases = phrases, PhraseIterations = phraseIterations)
+                |> withSongLength
+
+            let results = checkChords arr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results[0].Type NoteAfterSongEnd "Correct issue type"
+            Expect.equal results[0].TimeCode 50_000 "Correct issue time"
     ]

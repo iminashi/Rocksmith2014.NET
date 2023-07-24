@@ -309,6 +309,8 @@
   "PositionShiftIntoPullOffHelp": "The anchor position (FHP) changes at a note/chord with pull-off.",
   "PhraseChangeOnLinkNextNote": "Phrase changes on LinkNext note's sustain",
   "PhraseChangeOnLinkNextNoteHelp": "This can cause a note on the same string later in the song to turn invisible when the arrangement has DD levels.",
+  "NoteAfterSongEnd": "Note after song end",
+  "NoteAfterSongEndHelp": "A note or chord exist after the END phrase or the end of the audio.",
   "General": "General",
   "Build": "Build",
   "ImportHeader": "Import",

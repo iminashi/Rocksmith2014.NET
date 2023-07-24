@@ -35,20 +35,29 @@ let checkCrowdEventPlacement (arrangement: InstrumentalArrangement) =
         |> Seq.toList
 
 let private getNoguitarSections (arrangement: InstrumentalArrangement) =
-    [| let sections = arrangement.Sections
+    [|
+        let sections = arrangement.Sections
 
-       for i in 1 .. sections.Count do
-           let section = sections[i - 1]
+        for i in 1 .. sections.Count do
+            let section = sections[i - 1]
 
-           let endTime =
-               if i = sections.Count then
-                   arrangement.MetaData.SongLength
-               else
-                   sections[i].Time
+            let endTime =
+                if i = sections.Count then
+                    arrangement.MetaData.SongLength
+                else
+                    sections[i].Time
 
-           if String.startsWith "noguitar" section.Name then
-               { StartTime = section.Time
-                 EndTime = endTime } |]
+            if String.startsWith "noguitar" section.Name then
+                { StartTime = section.Time
+                  EndTime = endTime }
+    |]
+
+let private getEndTime (arrangement: InstrumentalArrangement) =
+    arrangement.PhraseIterations
+    |> ResizeArray.tryLast
+    |> Option.filter (fun pi -> arrangement.Phrases[pi.PhraseId].Name |> String.equalsIgnoreCase "END")
+    |> Option.map (fun pi -> pi.Time)
+    |> Option.defaultValue arrangement.MetaData.SongLength
 
 let private isInsideNoguitarSection noGuitarSections (time: int) =
     noGuitarSections
@@ -132,6 +141,7 @@ let private tryFindOverlappingBendValue (bendValues: ResizeArray<BendValue>) =
 /// Checks the notes in the level for issues.
 let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
     let ngSections = getNoguitarSections arrangement
+    let endTime = getEndTime arrangement
 
     [
         for i = 0 to level.Notes.Count - 1 do
@@ -239,6 +249,10 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
             // Check for fret number over 24
             if note.Fret > 24y then
                 issue FretNumberMoreThan24 time
+
+            // Check if note comes after END phrase
+            if time >= endTime then
+                issue NoteAfterSongEnd time
     ]
 
 let private chordHasStrangeFingering (chordTemplates: ResizeArray<ChordTemplate>) (chord: Chord) =
@@ -275,6 +289,7 @@ let private chordHasMutedString (chord: Chord) =
 /// Checks the chords in the level for issues.
 let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
     let ngSections = getNoguitarSections arrangement
+    let endTime = getEndTime arrangement
 
     [
         for chord in level.Chords do
@@ -356,6 +371,10 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
             // Check for chords inside noguitar sections
             if isInsideNoguitarSection ngSections time then
                 issue NoteInsideNoguitarSection time
+
+            // Check if note comes after END phrase
+            if time >= endTime then
+                issue NoteAfterSongEnd time
     ]
 
 /// Checks the handshapes in the level for issues.
@@ -553,7 +572,7 @@ let checkPhrases (arr: InstrumentalArrangement) =
     else
         List.empty
 
-let private getInstrumentalChecks arr =
+let private getInstrumentalChecks (arr: InstrumentalArrangement) =
     [| checkNotes arr
        checkChords arr
        checkHandshapes arr

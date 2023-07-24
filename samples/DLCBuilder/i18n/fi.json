@@ -309,6 +309,8 @@
   "PositionShiftIntoPullOffHelp": "Ankkuri (FHP) vaihtuu nuotin tai soinnun kohdalla, jolle on määritelty nauhanyhtäisy.",
   "PhraseChangeOnLinkNextNote": "Fraasi vaihtuu LinkNext nuotin sustainin kohdalla",
   "PhraseChangeOnLinkNextNoteHelp": "Tämä voi muuttaa kappaleessa myöhemmin tulevan nuotin samalla kielellä näkymättömäksi, kun sovituksella on DD tasoja.",
+  "NoteAfterSongEnd": "Nuotti lopun jälkeen",
+  "NoteAfterSongEndHelp": "Nuotti tai sointu tulee END fraasin tai äänitiedoston lopun jälkeen.",
   "General": "Yleinen",
   "Build": "Rakennus",
   "ImportHeader": "Tuonti",
