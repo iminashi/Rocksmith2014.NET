@@ -222,11 +222,28 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
                     match tryFindActiveAnchor level time with
                     | Some activeAnchor ->
                         let slideEnd = note.SlideTo
-                        let startFinger = note.Fret - activeAnchor.Fret
-                        let endFinger = slideEnd - slideToAnchor.Fret
 
-                        if startFinger <> endFinger then
-                            issue FingerChangeDuringSlide time
+                        // If the anchor width changes, the actual finger used cannot be determined
+                        // In this case the issue will not be created to avoid false positives
+                        let fingerCannotBeDetermined =
+                            slideToAnchor.Width <> activeAnchor.Width
+                            && slideToAnchor.Width > 4y && slideEnd <> slideToAnchor.Fret + slideToAnchor.Width
+
+                        if not fingerCannotBeDetermined then
+                            // Convert the fret number to a finger number between 1 and 4, accounting for anchor width
+                            let accountForAnchorWidth (anchor: Anchor) (fret: sbyte) =
+                                1y + fret - (anchor.Width - 4y)
+                                |> fun finger -> Math.Clamp(finger, 1y, 4y)
+
+                            let startFinger =
+                                note.Fret - activeAnchor.Fret
+                                |> accountForAnchorWidth activeAnchor
+                            let endFinger =
+                                slideEnd - slideToAnchor.Fret
+                                |> accountForAnchorWidth slideToAnchor
+
+                            if startFinger <> endFinger then
+                                issue FingerChangeDuringSlide time
                     | None ->
                         ()
 
