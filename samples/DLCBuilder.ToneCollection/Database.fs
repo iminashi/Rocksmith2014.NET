@@ -22,11 +22,12 @@ let CreateToneDbSql =
        Description VARCHAR(100) NOT NULL,
        Definition VARCHAR(8000) NOT NULL)"
 
-let private executeNonQuery connection sql =
+let private executeNonQuery (connection: SQLiteConnection) (sql: string) =
     using (new SQLiteCommand(sql, connection)) (fun x -> x.ExecuteNonQuery() |> ignore)
 
-let private executeQuery (connection: SQLiteConnection) data sql =
-    connection.Execute(sql, data) |> ignore
+let private executeQuery (connection: SQLiteConnection) (data: 'TData) (sql: string) =
+    connection.Execute(sql, data)
+    |> ignore
 
 let private createConnection (connectionString: string) =
     new SQLiteConnection(connectionString)
@@ -141,18 +142,18 @@ let private createUserTonesApi dbPath =
 
         member _.UpdateData(data: DbToneData) =
             $"UPDATE tones
-              SET artist = @artist,
-                  artistsort = @artistSort,
-                  title = @title,
-                  titlesort = @titleSort,
-                  name = @name,
-                  basstone = @basstone
+              SET artist = @Artist,
+                  artistsort = @ArtistSort,
+                  title = @Title,
+                  titlesort = @TitleSort,
+                  name = @Name,
+                  basstone = @BassTone
               WHERE id = {data.Id}"
             |> executeQuery connection data
 
         member _.AddTone(data: DbToneData) =
             "INSERT INTO tones(artist, artistSort, title, titleSort, name, basstone, description, definition)
-             VALUES (@artist, @artistSort, @title, @titleSort, @name, @basstone, @description, @definition)"
+             VALUES (@Artist, @ArtistSort, @Title, @TitleSort, @Name, @BassTone, @Description, @Definition)"
             |> executeQuery connection data
 
         member _.DeleteToneById(id: int64) =

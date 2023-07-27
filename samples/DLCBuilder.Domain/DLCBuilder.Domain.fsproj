@@ -22,7 +22,7 @@
     <PackageReference Update="FSharp.Core" Version="7.0.300" />
     <PackageReference Include="Elmish" Version="3.1.0" />
     <PackageReference Include="FSharp.Control.Reactive" Version="5.0.5" />
-    <PackageReference Include="Octokit" Version="5.0.4" />
+    <PackageReference Include="Octokit" Version="7.0.1" />
   </ItemGroup>
 
   <ItemGroup>
