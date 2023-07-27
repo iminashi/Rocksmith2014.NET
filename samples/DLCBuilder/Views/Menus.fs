@@ -17,13 +17,100 @@ let private keyModifierCtrl =
 
 let private separator = MenuItem.create [ MenuItem.header "-" ]
 
+let buildOptions state dispatch =
+    Menu.create [
+        Grid.column 3
+        Menu.fontSize 16.
+        //Menu.margin (0., 0., 4., 0.)
+        Menu.viewItems [
+            MenuItem.create [
+                MenuItem.header (
+                    PathIcon.create [
+                        PathIcon.data Media.Icons.ellipsis
+                    ]
+                )
+
+                MenuItem.viewItems [
+                    MenuItem.create [
+                        MenuItem.header (
+                            CheckBox.create [
+                                CheckBox.content (translate "ApplyImprovements")
+                                CheckBox.isChecked state.Config.ApplyImprovements
+                                CheckBox.onChecked (fun _ -> true |> SetApplyImprovements |> EditConfig |> dispatch)
+                                CheckBox.onUnchecked (fun _ -> false |> SetApplyImprovements |> EditConfig |> dispatch)
+                            ]
+                        )
+                    ]
+
+                    MenuItem.create [
+                        MenuItem.header (
+                            CheckBox.create [
+                                CheckBox.content (translate "ForceAutomaticPhraseCreation")
+                                CheckBox.isChecked state.Config.ForcePhraseCreation
+                                CheckBox.onChecked (fun _ -> true |> SetForcePhraseCreation |> EditConfig |> dispatch)
+                                CheckBox.onUnchecked (fun _ -> false |> SetForcePhraseCreation |> EditConfig |> dispatch)
+                            ]
+                        )
+                    ]
+
+                    separator
+
+                    MenuItem.create [
+                        MenuItem.header (
+                            CheckBox.create [
+                                CheckBox.content (translate "ValidateBeforeBuild")
+                                CheckBox.isChecked state.Config.ValidateBeforeReleaseBuild
+                                CheckBox.onChecked (fun _ -> true |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
+                                CheckBox.onUnchecked (fun _ -> false |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
+                            ]
+                        )
+                    ]
+
+                    separator
+
+                    MenuItem.create [
+                        MenuItem.header (
+                            CheckBox.create [
+                                CheckBox.content (translate "ComparePhraseLevelsOnTestBuild")
+                                CheckBox.isChecked state.Config.ComparePhraseLevelsOnTestBuild
+                                CheckBox.onChecked (fun _ -> true |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
+                                CheckBox.onUnchecked (fun _ -> false |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
+                            ]
+                        )
+                    ]
+
+                    MenuItem.create [
+                        MenuItem.header (
+                            CheckBox.create [
+                                CheckBox.content (translate "GenerateDDLevels")
+                                CheckBox.isChecked state.Config.GenerateDD
+                                CheckBox.onChecked (fun _ -> true |> SetGenerateDD |> EditConfig |> dispatch)
+                                CheckBox.onUnchecked (fun _ -> false |> SetGenerateDD |> EditConfig |> dispatch)
+                            ]
+                        )
+                    ]
+
+                    MenuItem.create [
+                        MenuItem.header (
+                            CheckBox.create [
+                                CheckBox.content (translate "SaveDebugFiles")
+                                CheckBox.isChecked state.Config.SaveDebugFiles
+                                CheckBox.onChecked (fun _ -> true |> SetSaveDebugFiles |> EditConfig |> dispatch)
+                                CheckBox.onUnchecked (fun _ -> false |> SetSaveDebugFiles |> EditConfig |> dispatch)
+                            ]
+                        )
+                    ]
+                ]
+            ]
+        ]
+    ]
+
 let audio notCalculatingVolume state dispatch =
     let noBuildInProgress = StateUtils.notBuilding state
     let audioPath = state.Project.AudioFile.Path
 
     Menu.create [
         Menu.fontSize 16.
-        Menu.margin (0., 0., 4., 0.)
         Menu.isVisible (String.notEmpty audioPath)
         Menu.viewItems [
             MenuItem.create [

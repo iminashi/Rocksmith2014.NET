@@ -23,7 +23,7 @@ let private buildControls state dispatch =
     Grid.create [
         Grid.verticalAlignment VerticalAlignment.Center
         Grid.horizontalAlignment HorizontalAlignment.Center
-        Grid.columnDefinitions "*,*"
+        Grid.columnDefinitions "auto,auto,*"
         Grid.children [
             match state.QuickEditData with
             | Some data ->
@@ -68,6 +68,9 @@ let private buildControls state dispatch =
                     Button.isEnabled canBuild
                     Button.onClick (fun _ -> dispatch <| Build Release)
                 ]
+
+            // Build options quick access menu
+            Menus.buildOptions state dispatch
         ]
     ]
 
