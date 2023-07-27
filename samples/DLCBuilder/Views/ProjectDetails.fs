@@ -47,6 +47,9 @@ let private buildControls state dispatch =
                     Button.isEnabled canBuild
                     Button.onClick (fun _ -> dispatch NewProject)
                 ]
+
+                // Build options quick access menu
+                Menus.buildOptions true state dispatch
             | None ->
                 // Build test
                 Button.create [
@@ -69,8 +72,8 @@ let private buildControls state dispatch =
                     Button.onClick (fun _ -> dispatch <| Build Release)
                 ]
 
-            // Build options quick access menu
-            Menus.buildOptions state dispatch
+                // Build options quick access menu
+                Menus.buildOptions false state dispatch
         ]
     ]
 

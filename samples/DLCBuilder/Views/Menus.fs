@@ -39,7 +39,7 @@ let private headerWithLine (locString: string) =
         ]
     ]
 
-let buildOptions state dispatch =
+let buildOptions isQuickEdit state dispatch =
     Menu.create [
         Grid.column 3
         Menu.fontSize 16.
@@ -80,59 +80,60 @@ let buildOptions state dispatch =
                         )
                     ]
 
-                    MenuItem.create [
-                        MenuItem.header (headerWithLine "Release")
-                        MenuItem.isHitTestVisible false
-                    ]
+                    if not isQuickEdit then
+                        MenuItem.create [
+                            MenuItem.header (headerWithLine "Release")
+                            MenuItem.isHitTestVisible false
+                        ]
 
-                    MenuItem.create [
-                        MenuItem.header (
-                            CheckBox.create [
-                                CheckBox.content (translate "ValidateBeforeBuild")
-                                CheckBox.isChecked state.Config.ValidateBeforeReleaseBuild
-                                CheckBox.onChecked (fun _ -> true |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
-                                CheckBox.onUnchecked (fun _ -> false |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
-                            ]
-                        )
-                    ]
+                        MenuItem.create [
+                            MenuItem.header (
+                                CheckBox.create [
+                                    CheckBox.content (translate "ValidateBeforeBuild")
+                                    CheckBox.isChecked state.Config.ValidateBeforeReleaseBuild
+                                    CheckBox.onChecked (fun _ -> true |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
+                                    CheckBox.onUnchecked (fun _ -> false |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
+                                ]
+                            )
+                        ]
 
-                    MenuItem.create [
-                        MenuItem.header (headerWithLine "Test")
-                        MenuItem.isHitTestVisible false
-                    ]
+                        MenuItem.create [
+                            MenuItem.header (headerWithLine "Test")
+                            MenuItem.isHitTestVisible false
+                        ]
 
-                    MenuItem.create [
-                        MenuItem.header (
-                            CheckBox.create [
-                                CheckBox.content (translate "ComparePhraseLevelsOnTestBuild")
-                                CheckBox.isChecked state.Config.ComparePhraseLevelsOnTestBuild
-                                CheckBox.onChecked (fun _ -> true |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
-                                CheckBox.onUnchecked (fun _ -> false |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
-                            ]
-                        )
-                    ]
+                        MenuItem.create [
+                            MenuItem.header (
+                                CheckBox.create [
+                                    CheckBox.content (translate "ComparePhraseLevelsOnTestBuild")
+                                    CheckBox.isChecked state.Config.ComparePhraseLevelsOnTestBuild
+                                    CheckBox.onChecked (fun _ -> true |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
+                                    CheckBox.onUnchecked (fun _ -> false |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
+                                ]
+                            )
+                        ]
 
-                    MenuItem.create [
-                        MenuItem.header (
-                            CheckBox.create [
-                                CheckBox.content (translate "GenerateDDLevels")
-                                CheckBox.isChecked state.Config.GenerateDD
-                                CheckBox.onChecked (fun _ -> true |> SetGenerateDD |> EditConfig |> dispatch)
-                                CheckBox.onUnchecked (fun _ -> false |> SetGenerateDD |> EditConfig |> dispatch)
-                            ]
-                        )
-                    ]
+                        MenuItem.create [
+                            MenuItem.header (
+                                CheckBox.create [
+                                    CheckBox.content (translate "GenerateDDLevels")
+                                    CheckBox.isChecked state.Config.GenerateDD
+                                    CheckBox.onChecked (fun _ -> true |> SetGenerateDD |> EditConfig |> dispatch)
+                                    CheckBox.onUnchecked (fun _ -> false |> SetGenerateDD |> EditConfig |> dispatch)
+                                ]
+                            )
+                        ]
 
-                    MenuItem.create [
-                        MenuItem.header (
-                            CheckBox.create [
-                                CheckBox.content (translate "SaveDebugFiles")
-                                CheckBox.isChecked state.Config.SaveDebugFiles
-                                CheckBox.onChecked (fun _ -> true |> SetSaveDebugFiles |> EditConfig |> dispatch)
-                                CheckBox.onUnchecked (fun _ -> false |> SetSaveDebugFiles |> EditConfig |> dispatch)
-                            ]
-                        )
-                    ]
+                        MenuItem.create [
+                            MenuItem.header (
+                                CheckBox.create [
+                                    CheckBox.content (translate "SaveDebugFiles")
+                                    CheckBox.isChecked state.Config.SaveDebugFiles
+                                    CheckBox.onChecked (fun _ -> true |> SetSaveDebugFiles |> EditConfig |> dispatch)
+                                    CheckBox.onUnchecked (fun _ -> false |> SetSaveDebugFiles |> EditConfig |> dispatch)
+                                ]
+                            )
+                        ]
                 ]
             ]
         ]
