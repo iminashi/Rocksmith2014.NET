@@ -1,8 +1,10 @@
-## 2.x.x (Released 2023-07-xx)
+## 2.2.0 (Released 2023-07-27)
 
 - Added an ellipsis menu next to the build buttons for quick access to some of the build options.
-- Added a new validation check for notes that have vibrato, tremolo or slide, but have no sustain.
+- Added a new validation check for notes that have vibrato, tremolo or slide, but have no (less than 5ms) sustain.
 - Fixed possible false positives for the "finger changes during slide check" when the anchor zone is wider than 4.
+- For bass arrrangements where low tuning fix is applied, recognized tuning names will be displayed instead of "custom tuning".
+- Updated some of the libaries the program depends on.
 
 ## 2.1.0 (Released 2023-07-24)
 

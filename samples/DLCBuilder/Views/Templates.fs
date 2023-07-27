@@ -86,7 +86,13 @@ let arrangementName : IDataTemplate =
 let private getExtraText = function
     | Instrumental inst ->
         let tuning =
-            let tuningType, notes = Utils.getTuningName inst.Tuning
+            let actualTuning =
+                if inst.TuningPitch = 220.0 && inst.RouteMask = RouteMask.Bass then
+                    inst.Tuning |> Array.map (fun x -> x - 12s)
+                else
+                    inst.Tuning
+
+            let tuningType, notes = Utils.getTuningName actualTuning
             match tuningType with
             | "DADGAD" ->
                 tuningType
