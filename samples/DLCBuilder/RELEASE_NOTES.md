@@ -1,3 +1,8 @@
+## 2.x.x (Released 2023-07-xx)
+
+- Added an ellipsis menu next to the build buttons for quick access to some of the build options.
+- Fixed possible false positives for the "finger changes during slide check" when the anchor zone is wider than 4.
+
 ## 2.1.0 (Released 2023-07-24)
 
 - Added an option to use quick edit when a PSARC file is dropped into the window.
