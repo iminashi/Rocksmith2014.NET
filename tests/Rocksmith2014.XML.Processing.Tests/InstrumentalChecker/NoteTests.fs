@@ -386,10 +386,10 @@ let noteTests =
 
         testCase "Detects notes with techniques that require sustain" <| fun _ ->
             let notes = ResizeArray(seq {
-                Note(Fret = 1y, Time = 1_000, SlideTo = 2y)
-                Note(Fret = 2y, Time = 2_000, Vibrato = 80uy)
-                Note(Fret = 3y, Time = 3_000, IsTremolo = true)
-                Note(Fret = 4y, Time = 4_000, SlideUnpitchTo = 7y)
+                Note(Fret = 1y, Time = 1_000, SlideTo = 2y, Sustain = 0)
+                Note(Fret = 2y, Time = 2_000, Vibrato = 80uy, Sustain = 1)
+                Note(Fret = 3y, Time = 3_000, IsTremolo = true, Sustain = 2)
+                Note(Fret = 4y, Time = 4_000, SlideUnpitchTo = 7y, Sustain = 3)
             })
             let level = Level(Notes = notes)
 

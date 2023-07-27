@@ -312,7 +312,7 @@
   "NoteAfterSongEnd": "Note after song end",
   "NoteAfterSongEndHelp": "A note or chord exist after the END phrase or the end of the audio.",
   "TechniqueNoteWithoutSustain": "Sustainless note with technique",
-  "TechniqueNoteWithoutSustainHelp": "A note has a technique that requires sustain (vibrato, tremolo or slide), but does not have any sustain.",
+  "TechniqueNoteWithoutSustainHelp": "A note has a technique that requires sustain (vibrato, tremolo or slide), but the note has less than 5ms of sustain.",
   "General": "General",
   "Build": "Build",
   "ImportHeader": "Import",

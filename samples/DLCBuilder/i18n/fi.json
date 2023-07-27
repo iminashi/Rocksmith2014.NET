@@ -312,7 +312,7 @@
   "NoteAfterSongEnd": "Nuotti lopun jälkeen",
   "NoteAfterSongEndHelp": "Nuotti tai sointu tulee END fraasin tai äänitiedoston lopun jälkeen.",
   "TechniqueNoteWithoutSustain": "Sustainiton tekniikkanuotti",
-  "TechniqueNoteWithoutSustainHelp": "Nuotin tekniikka (vibrato, tremolo tai liuku) vaatii sustainia, mutta nuotilla ei ole sitä yhtään.",
+  "TechniqueNoteWithoutSustainHelp": "Nuotin tekniikka (vibrato, tremolo tai liuku) vaatii sustainia, mutta nuotilla on alle 5ms sustainia.",
   "General": "Yleinen",
   "Build": "Rakennus",
   "ImportHeader": "Tuonti",

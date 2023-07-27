@@ -272,7 +272,7 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
                 issue NoteAfterSongEnd time
 
             // Check if technique requires sustain
-            if note.Sustain = 0 && (note.IsTremolo || note.IsVibrato || note.IsSlide || note.IsUnpitchedSlide) then
+            if note.Sustain < 5 && (note.IsTremolo || note.IsVibrato || note.IsSlide || note.IsUnpitchedSlide) then
                 issue TechniqueNoteWithoutSustain time
     ]
 
@@ -337,7 +337,7 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
                     issue MissingBendValue time
 
                 // Check if technique requires sustain
-                if chordNotes.Exists(fun cn -> cn.Sustain = 0 && (cn.IsTremolo || cn.IsVibrato || cn.IsSlide || cn.IsUnpitchedSlide)) then
+                if chordNotes.Exists(fun cn -> cn.Sustain < 5 && (cn.IsTremolo || cn.IsVibrato || cn.IsSlide || cn.IsUnpitchedSlide)) then
                     issue TechniqueNoteWithoutSustain time
 
                 yield!
