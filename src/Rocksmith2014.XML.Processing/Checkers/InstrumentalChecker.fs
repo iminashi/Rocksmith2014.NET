@@ -270,6 +270,10 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
             // Check if note comes after END phrase
             if time >= endTime then
                 issue NoteAfterSongEnd time
+
+            // Check if technique requires sustain
+            if note.Sustain = 0 && (note.IsTremolo || note.IsVibrato || note.IsSlide || note.IsUnpitchedSlide) then
+                issue TechniqueNoteWithoutSustain time
     ]
 
 let private chordHasStrangeFingering (chordTemplates: ResizeArray<ChordTemplate>) (chord: Chord) =
@@ -331,6 +335,10 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
                 // Check for missing bend values
                 if chordNotes.Exists(fun cn -> cn.IsBend && cn.BendValues.FindIndex(fun bv -> bv.Step <> 0.0f) = -1) then
                     issue MissingBendValue time
+
+                // Check if technique requires sustain
+                if chordNotes.Exists(fun cn -> cn.Sustain = 0 && (cn.IsTremolo || cn.IsVibrato || cn.IsSlide || cn.IsUnpitchedSlide)) then
+                    issue TechniqueNoteWithoutSustain time
 
                 yield!
                     chordNotes

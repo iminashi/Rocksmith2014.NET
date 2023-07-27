@@ -284,4 +284,22 @@ let chordTests =
             Expect.hasLength results 1 "One issue created"
             Expect.equal results[0].Type NoteAfterSongEnd "Correct issue type"
             Expect.equal results[0].TimeCode 50_000 "Correct issue time"
+
+        testCase "Detects chords with techniques that require sustain" <| fun _ ->
+            let cn1 = ResizeArray(seq { Note(Fret = 1y, Time = 1_000, SlideTo = 2y) })
+            let cn2 = ResizeArray(seq { Note(Fret = 1y, Time = 2_000, Vibrato = 80uy) })
+            let cn3 = ResizeArray(seq { Note(Fret = 1y, Time = 3_000, IsTremolo = true) })
+            let cn4 = ResizeArray(seq { Note(Fret = 1y, Time = 4_000, SlideUnpitchTo = 7y) })
+            let chords = ResizeArray(seq {
+                Chord(Time = 1_000, ChordNotes = cn1)
+                Chord(Time = 2_000, ChordNotes = cn2)
+                Chord(Time = 3_000, ChordNotes = cn3)
+                Chord(Time = 4_000, ChordNotes = cn4)
+            })
+            let level = Level(Chords = chords)
+
+            let results = checkChords testArr level
+
+            Expect.hasLength results 4 "Four issue created"
+            Expect.all results (fun issue -> issue.Type = TechniqueNoteWithoutSustain) "Correct issue types"
     ]

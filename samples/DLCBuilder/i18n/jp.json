@@ -311,6 +311,8 @@
   "PhraseChangeOnLinkNextNoteHelp": "アレンジにDDレベルがあると、このノートの後にくる同じ弦のノートが消えることがあります。",
   "NoteAfterSongEnd": "曲の終了の後のノート",
   "NoteAfterSongEndHelp": "ENDフレーズ、またはオーディオ終了後のノートかコードが存在します。",
+  "TechniqueNoteWithoutSustain": "サステインのないテクニカルノート",
+  "TechniqueNoteWithoutSustainHelp": "ノートにはサステインが必要なテクニック（ビブラート、トレモロかスライド）がある、しかしノートにはサステインがありません。",
   "General": "一般",
   "Build": "ビルド",
   "ImportHeader": "インポート",

@@ -39,6 +39,7 @@ type IssueType =
     | InvalidBassArrangementString
     | FretNumberMoreThan24
     | NoteAfterSongEnd
+    | TechniqueNoteWithoutSustain
     | LyricWithInvalidChar of invalidChar: char
     | LyricTooLong of lyric: string
     | LyricsHaveNoLineBreaks
@@ -88,6 +89,7 @@ let issueCode = function
     | IncorrectMover1Phrase -> "I37"
     | FretNumberMoreThan24 -> "I38"
     | NoteAfterSongEnd -> "I39"
+    | TechniqueNoteWithoutSustain -> "I40"
     | LyricWithInvalidChar _ -> "V01"
     | LyricTooLong _ -> "V02"
     | LyricsHaveNoLineBreaks -> "V03"

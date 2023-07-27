@@ -13,8 +13,10 @@ let private withSongLength (arr: InstrumentalArrangement) =
 let noteTests =
     testList "Arrangement Checker (Notes)" [
         testCase "Detects unpitched slide note with linknext" <| fun _ ->
-            let notes = ResizeArray(seq { Note(IsLinkNext = true, SlideUnpitchTo = 12y, Sustain = 100)
-                                          Note(Fret = 12y, Time = 100)})
+            let notes = ResizeArray(seq {
+                Note(IsLinkNext = true, SlideUnpitchTo = 12y, Sustain = 100)
+                Note(Fret = 12y, Time = 100)
+            })
             let level = Level(Notes = notes)
 
             let results = checkNotes testArr level
@@ -86,8 +88,10 @@ let noteTests =
             Expect.equal results.Head.Type NoteInsideNoguitarSection "Correct issue type"
 
         testCase "Detects linknext fret mismatch" <| fun _ ->
-            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100)
-                                          Note(Fret = 5y, Time = 1100) })
+            let notes = ResizeArray(seq {
+                Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100)
+                Note(Fret = 5y, Time = 1100)
+            })
             let level = Level(Notes = notes)
 
             let results = checkNotes testArr level
@@ -107,8 +111,10 @@ let noteTests =
             Expect.equal results.Head.Type NoteLinkedToChord "Correct issue type"
 
         testCase "Detects linknext slide fret mismatch" <| fun _ ->
-            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100, SlideTo = 4y)
-                                          Note(Fret = 5y, Time = 1100) })
+            let notes = ResizeArray(seq {
+                Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100, SlideTo = 4y)
+                Note(Fret = 5y, Time = 1100)
+            })
             let level = Level(Notes = notes)
 
             let results = checkNotes testArr level
@@ -118,8 +124,10 @@ let noteTests =
 
         testCase "Detects linknext bend value mismatch (1/2)" <| fun _ ->
             let bv1 = ResizeArray(seq { BendValue(1050, 1f) })
-            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100, BendValues = bv1)
-                                          Note(Fret = 1y, Time = 1100) })
+            let notes = ResizeArray(seq {
+                Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100, BendValues = bv1)
+                Note(Fret = 1y, Time = 1100)
+            })
             let level = Level(Notes = notes)
 
             let results = checkNotes testArr level
@@ -130,8 +138,10 @@ let noteTests =
         testCase "Detects linknext bend value mismatch (2/2)" <| fun _ ->
             let bv1 = ResizeArray(seq { BendValue(1050, 1f) })
             let bv2 = ResizeArray(seq { BendValue(1100, 2f) })
-            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100, BendValues = bv1)
-                                          Note(Fret = 1y, Time = 1100, BendValues = bv2) })
+            let notes = ResizeArray(seq {
+                Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100, BendValues = bv1)
+                Note(Fret = 1y, Time = 1100, BendValues = bv2)
+            })
             let level = Level(Notes = notes)
 
             let results = checkNotes testArr level
@@ -142,8 +152,10 @@ let noteTests =
         testCase "Does not produce false positive when no bend value at note time" <| fun _ ->
             let bv1 = ResizeArray(seq { BendValue(1000, 1f); BendValue(1050, 0f) })
             let bv2 = ResizeArray(seq { BendValue(1150, 1f) })
-            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100, BendValues = bv1)
-                                          Note(Fret = 1y, Time = 1100, Sustain = 100, BendValues = bv2) })
+            let notes = ResizeArray(seq {
+                Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100, BendValues = bv1)
+                Note(Fret = 1y, Time = 1100, Sustain = 100, BendValues = bv2)
+            })
             let level = Level(Notes = notes)
 
             let results = checkNotes testArr level
@@ -151,8 +163,10 @@ let noteTests =
             Expect.isEmpty results "An issue was found in check results"
 
         testCase "Detects phrase on linknext note's sustain" <| fun _ ->
-            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300, IsLinkNext = true, Sustain = 500)
-                                          Note(Fret = 1y, Time = 1800, Sustain = 100) })
+            let notes = ResizeArray(seq {
+                Note(Fret = 1y, Time = 1300, IsLinkNext = true, Sustain = 500)
+                Note(Fret = 1y, Time = 1800, Sustain = 100)
+            })
             let level = Level(Notes = notes)
             let phrases =
                 ResizeArray(
@@ -171,8 +185,10 @@ let noteTests =
             Expect.equal results.Head.Type PhraseChangeOnLinkNextNote "Correct issue type"
 
         testCase "Mover phrase on linknext note's sustain is ignored" <| fun _ ->
-            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300, IsLinkNext = true, Sustain = 500)
-                                          Note(Fret = 1y, Time = 1800, Sustain = 100) })
+            let notes = ResizeArray(seq {
+                Note(Fret = 1y, Time = 1300, IsLinkNext = true, Sustain = 500)
+                Note(Fret = 1y, Time = 1800, Sustain = 100)
+            })
             let level = Level(Notes = notes)
             let phrases =
                 ResizeArray(
@@ -190,8 +206,10 @@ let noteTests =
             Expect.isEmpty results "An issue was found in check results"
 
         testCase "Detects hammer-on into same fret" <| fun _ ->
-            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300)
-                                          Note(Fret = 1y, Time = 1800, IsHammerOn = true) })
+            let notes = ResizeArray(seq {
+                Note(Fret = 1y, Time = 1300)
+                Note(Fret = 1y, Time = 1800, IsHammerOn = true)
+            })
             let level = Level(Notes = notes)
 
             let results = checkNotes testArr level
@@ -213,8 +231,10 @@ let noteTests =
             Expect.isEmpty results "An issue was found in check results"
 
         testCase "Detects pull-off into same fret" <| fun _ ->
-            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300)
-                                          Note(Fret = 1y, Time = 1800, IsPullOff = true) })
+            let notes = ResizeArray(seq {
+                Note(Fret = 1y, Time = 1300)
+                Note(Fret = 1y, Time = 1800, IsPullOff = true)
+            })
             let level = Level(Notes = notes)
 
             let results = checkNotes testArr level
@@ -237,8 +257,10 @@ let noteTests =
             Expect.equal results.Head.Type HopoIntoSameNote "Correct issue type"
 
         testCase "No false positive for pull-off into same fret for pull-off from chord" <| fun _ ->
-            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300)
-                                          Note(Fret = 1y, Time = 3000, IsPullOff = true) })
+            let notes = ResizeArray(seq {
+                Note(Fret = 1y, Time = 1300)
+                Note(Fret = 1y, Time = 3000, IsPullOff = true)
+            })
             let chords = ResizeArray([ Chord(Time = 2000, ChordId = 0s) ])
             let templates = ResizeArray([ ChordTemplate("", "", Array.replicate 6 3y, Array.replicate 6 3y)])
             let level = Level(Notes = notes, Chords = chords)
@@ -251,8 +273,10 @@ let noteTests =
             Expect.hasLength results 0 "No issues created"
 
         testCase "Detects finger change during slide" <| fun _ ->
-            let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1300, IsLinkNext = true, SlideTo = 5y, Sustain = 500)
-                                          Note(Fret = 5y, Time = 1800) })
+            let notes = ResizeArray(seq {
+                Note(Fret = 1y, Time = 1300, IsLinkNext = true, SlideTo = 5y, Sustain = 500)
+                Note(Fret = 5y, Time = 1800)
+            })
             let anchors = ResizeArray(seq { Anchor(1y, 1300); Anchor(3y, 1800) })
             let level = Level(Notes = notes, Anchors = anchors)
 
@@ -272,8 +296,10 @@ let noteTests =
             Expect.equal results.Head.Type FingerChangeDuringSlide "Correct issue type"
 
         testCase "Detects position shift into pull-off" <| fun _ ->
-            let notes = ResizeArray(seq { Note(Fret = 10y, Time = 1300)
-                                          Note(Fret = 5y, Time = 1800, IsPullOff = true) })
+            let notes = ResizeArray(seq {
+                Note(Fret = 10y, Time = 1300)
+                Note(Fret = 5y, Time = 1800, IsPullOff = true)
+            })
             let anchors = ResizeArray(seq { Anchor(10y, 1300); Anchor(5y, 1800) })
             let level = Level(Notes = notes, Anchors = anchors)
 
@@ -283,8 +309,10 @@ let noteTests =
             Expect.equal results.Head.Type PositionShiftIntoPullOff "Correct issue type"
 
         testCase "Position shift into open string pull-off is ignored" <| fun _ ->
-            let notes = ResizeArray(seq { Note(Fret = 3y, Time = 1300, SlideUnpitchTo = 1y)
-                                          Note(Fret = 0y, Time = 1800, IsPullOff = true) })
+            let notes = ResizeArray(seq {
+                Note(Fret = 3y, Time = 1300, SlideUnpitchTo = 1y, Sustain = 300)
+                Note(Fret = 0y, Time = 1800, IsPullOff = true)
+            })
             let anchors = ResizeArray(seq { Anchor(3y, 1300); Anchor(1y, 1800)})
             let level = Level(Notes = notes, Anchors = anchors)
 
@@ -355,4 +383,18 @@ let noteTests =
             Expect.hasLength results 1 "One issue created"
             Expect.equal results[0].Type NoteAfterSongEnd "Correct issue type"
             Expect.equal results[0].TimeCode 50_000 "Correct issue time"
+
+        testCase "Detects notes with techniques that require sustain" <| fun _ ->
+            let notes = ResizeArray(seq {
+                Note(Fret = 1y, Time = 1_000, SlideTo = 2y)
+                Note(Fret = 2y, Time = 2_000, Vibrato = 80uy)
+                Note(Fret = 3y, Time = 3_000, IsTremolo = true)
+                Note(Fret = 4y, Time = 4_000, SlideUnpitchTo = 7y)
+            })
+            let level = Level(Notes = notes)
+
+            let results = checkNotes testArr level
+
+            Expect.hasLength results 4 "Four issue created"
+            Expect.all results (fun issue -> issue.Type = TechniqueNoteWithoutSustain) "Correct issue types"
     ]
