@@ -3,10 +3,13 @@ module DLCBuilder.Views.Menus
 open Avalonia
 open Avalonia.Controls
 open Avalonia.Controls.ApplicationLifetimes
+open Avalonia.Controls.Shapes
 open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
 open Avalonia.FuncUI.Types
 open Avalonia.Input
+open Avalonia.Layout
+open Avalonia.Media
 open System
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
@@ -16,6 +19,25 @@ let private keyModifierCtrl =
     PlatformSpecific.Value(mac=KeyModifiers.Meta, windows=KeyModifiers.Control, linux=KeyModifiers.Control)
 
 let private separator = MenuItem.create [ MenuItem.header "-" ]
+
+let private headerWithLine (locString: string) =
+    DockPanel.create [
+        DockPanel.children [
+            TextBlock.create [
+                DockPanel.dock Dock.Left
+                TextBlock.fontSize 14.
+                TextBlock.verticalAlignment VerticalAlignment.Center
+                TextBlock.text (translate locString)
+                TextBlock.foreground Brushes.LightGray
+            ]
+
+            Rectangle.create [
+                Rectangle.height 1.
+                Rectangle.fill Brushes.Gray
+                Rectangle.margin (8., 0.)
+            ]
+        ]
+    ]
 
 let buildOptions state dispatch =
     Menu.create [
@@ -31,6 +53,11 @@ let buildOptions state dispatch =
                 )
 
                 MenuItem.viewItems [
+                    MenuItem.create [
+                        MenuItem.header (headerWithLine "Common")
+                        MenuItem.isHitTestVisible false
+                    ]
+
                     MenuItem.create [
                         MenuItem.header (
                             CheckBox.create [
@@ -53,7 +80,10 @@ let buildOptions state dispatch =
                         )
                     ]
 
-                    separator
+                    MenuItem.create [
+                        MenuItem.header (headerWithLine "Release")
+                        MenuItem.isHitTestVisible false
+                    ]
 
                     MenuItem.create [
                         MenuItem.header (
@@ -66,7 +96,10 @@ let buildOptions state dispatch =
                         )
                     ]
 
-                    separator
+                    MenuItem.create [
+                        MenuItem.header (headerWithLine "Test")
+                        MenuItem.isHitTestVisible false
+                    ]
 
                     MenuItem.create [
                         MenuItem.header (
