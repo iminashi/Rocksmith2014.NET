@@ -636,20 +636,35 @@ let update (msg: Msg) (state: State) =
     | ProgramClosing ->
         let task =
             backgroundTask {
-                if config.AutoSave && project <> state.SavedProject then
-                    match state.OpenProjectFile with
-                    | Some path ->
-                        do! DLCProject.save path project
-                    | None ->
-                        ()
-
                 deleteTemporaryFilesForQuickEdit state
-
                 do! RecentFilesList.save state.RecentFiles
             }
 
         state.FontGenerationWatcher |> Option.iter (fun f -> f.Dispose())
         task.Wait()
+
+        let exit () =
+            state.ExitHandler.Exit()
+            state, Cmd.none
+
+        match state.OpenProjectFile with
+        | Some path when project <> state.SavedProject ->
+            if config.AutoSave then
+                (DLCProject.save path project).Wait()
+                exit ()
+            else
+                showOverlay state ExitConfirmationMessage, Cmd.none
+        | _ ->
+            exit ()
+
+    | ExitConfirmed saveProject ->
+        match state.OpenProjectFile with
+        | Some path when saveProject ->
+            (DLCProject.save path project).Wait()
+        | _ ->
+            ()
+
+        state.ExitHandler.Exit()
         state, Cmd.none
 
     | SetAvailableUpdate (Error _) ->

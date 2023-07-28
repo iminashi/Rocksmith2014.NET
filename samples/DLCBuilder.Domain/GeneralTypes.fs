@@ -24,6 +24,9 @@ type IStringLocalizer =
     abstract member ChangeLocale : Locale -> unit
     abstract member LocaleFromShortName : string -> Locale
 
+type IExitHandler =
+    abstract member Exit : unit -> unit
+
 type AudioConversionType =
     | ToWav
     | ToOgg

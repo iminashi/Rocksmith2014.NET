@@ -277,7 +277,7 @@ let file state dispatch =
                 | PC ->
                     MenuItem.inputGesture (KeyGesture(Key.F4, KeyModifiers.Alt))
                 MenuItem.onClick (fun _ ->
-                    (Application.Current.ApplicationLifetime :?> IClassicDesktopStyleApplicationLifetime).Shutdown 0)
+                    (Application.Current.ApplicationLifetime :?> IClassicDesktopStyleApplicationLifetime).Shutdown(0))
             ]
         ]
     ]

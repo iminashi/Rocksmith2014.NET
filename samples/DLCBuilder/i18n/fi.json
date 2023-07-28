@@ -536,5 +536,7 @@
   "ToneIsUnused": "Soundi ei ole käytössä missään sovituksessa.",
   "ValidateBeforeBuild": "Tarkista sovitukset",
   "ValidateBeforeBuildHelp": "Sovitukset tarkistetaan ennen paketin rakennusta, ja jos ongelmia löytyy, rakentaminen epäonnistuu.",
-  "ValidationFailedForReleaseBuild": "Sovituksista löydettiin ongelmia, jotka pitää korjata tai asettaa ohitetuiksi."
+  "ValidationFailedForReleaseBuild": "Sovituksista löydettiin ongelmia, jotka pitää korjata tai asettaa ohitetuiksi.",
+  "ExitConfirmation": "Vahvista lopetus",
+  "ExitConfirmationMessage": "Sinulla on tallentamattomia muutoksia.\n\nTallennetaanko projekti ennen lopetusta?"
 }

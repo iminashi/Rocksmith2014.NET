@@ -87,6 +87,7 @@
     <Compile Include="Overlays\ConfigEditor.fs" />
     <Compile Include="Overlays\DeleteConfirmation.fs" />
     <Compile Include="Overlays\ErrorMessage.fs" />
+    <Compile Include="Overlays\ExitConfirmation.fs" />
     <Compile Include="Overlays\ImportTonesSelector.fs" />
     <Compile Include="Overlays\IssueViewer.fs" />
     <Compile Include="Overlays\JapaneseLyricsCreatorOverlay.fs" />

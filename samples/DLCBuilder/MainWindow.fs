@@ -42,6 +42,10 @@ type WindowStatus =
         with _ ->
             ()
 
+type private WindowClosingState =
+    | ClosingMayRequireConfirmation
+    | ClosingAllowed
+
 type MainWindow(commandLineArgs: string array) as this =
     inherit HostWindow()
 
@@ -58,6 +62,19 @@ type MainWindow(commandLineArgs: string array) as this =
 
     let mutable windowPosition = this.Position
     let mutable windowSize = Size(this.Width, this.Height)
+    let mutable windowClosingState = ClosingMayRequireConfirmation
+
+    let saveWindowState () =
+        { X = windowPosition.X
+          Y = windowPosition.Y
+          Width = windowSize.Width
+          Height = windowSize.Height
+          State =
+            if this.WindowState = WindowState.Maximized then
+                WindowState.Maximized
+            else
+                WindowState.Normal }
+        |> WindowStatus.Save
 
     do
         this
@@ -118,19 +135,14 @@ type MainWindow(commandLineArgs: string array) as this =
 
         let programClosingSub _ =
             fun dispatch ->
-                this.Closing.Add(fun _ ->
-                    { X = windowPosition.X
-                      Y = windowPosition.Y
-                      Width = windowSize.Width
-                      Height = windowSize.Height
-                      State =
-                        if this.WindowState = WindowState.Maximized then
-                            WindowState.Maximized
-                        else
-                            WindowState.Normal }
-                    |> WindowStatus.Save
-
-                    dispatch ProgramClosing)
+                this.Closing.Add(fun args ->
+                    match windowClosingState with
+                    | ClosingMayRequireConfirmation ->
+                        args.Cancel <- true
+                        dispatch ProgramClosing
+                    | ClosingAllowed ->
+                        args.Cancel <- false
+                        saveWindowState ())
             |> Cmd.ofSub
 
         let autoSaveSub _ =
@@ -218,8 +230,14 @@ type MainWindow(commandLineArgs: string array) as this =
                 (OfficialDataBasePath <| Path.Combine(appDataTones, "official.db"))
                 (UserDataBasePath <| Path.Combine(appDataTones, "user.db"))
 
+        let exitHandler =
+            { new IExitHandler with
+                member _.Exit () =
+                    windowClosingState <- ClosingAllowed
+                    this.Close() }
+
         let init' =
-            InitState.init (Localization.toInterface ()) (AvaloniaBitmapLoader.createInterface ()) databaseConnector
+            InitState.init (Localization.toInterface ()) (AvaloniaBitmapLoader.createInterface ()) databaseConnector exitHandler
 
         FocusHelper.init this
 

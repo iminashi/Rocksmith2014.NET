@@ -536,5 +536,7 @@
   "ToneIsUnused": "This tone is not used in any arrangement.",
   "ValidateBeforeBuild": "Validate arrangements",
   "ValidateBeforeBuildHelp": "The arrangements will be validated before build and the build cannot proceed until all issues are fixed.",
-  "ValidationFailedForReleaseBuild": "Issues were found that should be fixed or set as ignored."
+  "ValidationFailedForReleaseBuild": "Issues were found that should be fixed or set as ignored.",
+  "ExitConfirmation": "Exit Confirmation",
+  "ExitConfirmationMessage": "You have unsaved changes.\n\nSave the project before exiting?"
 }

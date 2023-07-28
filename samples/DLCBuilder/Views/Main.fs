@@ -282,6 +282,8 @@ let private overlay state dispatch =
     match state.Overlay with
     | NoOverlay ->
         failwith "This can not happen."
+    | ExitConfirmationMessage ->
+        ExitConfirmation.view dispatch
     | IdRegenerationConfirmation (arrangements, reply) ->
         IdRegenerationConfirmation.view state dispatch reply.Reply arrangements
     | ErrorMessage (msg, info) ->

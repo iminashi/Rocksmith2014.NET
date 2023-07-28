@@ -45,6 +45,7 @@ type ProfileCleanerState =
 type OverlayContents =
     | NoOverlay
     | AbnormalExitMessage
+    | ExitConfirmationMessage
     | AboutMessage
     | ConfigEditor of focus: FocusedSetting option
     | DeleteConfirmation of files: string list
@@ -355,6 +356,7 @@ type Msg =
     | SetAudioLength of audioLength: TimeSpan option
     | StartFontGenerator
     | FontGenerated of arrangementId: Guid * glyphsXmlPath: string
+    | ExitConfirmed of saveProject: bool
 
 type State =
     { Project: DLCProject
@@ -385,4 +387,5 @@ type State =
       AlbumArtLoadTime: DateTime option
       Localizer: IStringLocalizer
       AlbumArtLoader: IBitmapLoader
-      DatabaseConnector: ToneCollection.IDatabaseConnector }
+      DatabaseConnector: ToneCollection.IDatabaseConnector
+      ExitHandler: IExitHandler }

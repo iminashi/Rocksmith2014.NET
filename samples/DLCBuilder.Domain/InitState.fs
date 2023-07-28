@@ -10,7 +10,7 @@ open System.IO
 let private createExitCheckFile () =
     using (File.Create(Configuration.exitCheckFilePath)) ignore
 
-let init localizer albumArtLoader databaseConnector args =
+let init localizer albumArtLoader databaseConnector exitHandler args =
     let commands =
         let wasAbnormalExit =
             File.Exists(Configuration.exitCheckFilePath)
@@ -66,4 +66,5 @@ let init localizer albumArtLoader databaseConnector args =
       ProfileCleanerState = ProfileCleanerState.Default
       Localizer = localizer
       AlbumArtLoader = albumArtLoader
-      DatabaseConnector = databaseConnector }, commands
+      DatabaseConnector = databaseConnector
+      ExitHandler = exitHandler }, commands
