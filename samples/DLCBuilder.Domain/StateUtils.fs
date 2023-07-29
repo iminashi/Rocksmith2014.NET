@@ -525,3 +525,15 @@ let checkAllArrangements state continuation =
 
     addTask ArrangementCheckAll state,
     Cmd.OfAsync.either task () continuation (fun ex -> TaskFailed(ex, ArrangementCheckAll))
+
+/// Closes the program.
+let exit state =
+    try
+        deleteTemporaryFilesForQuickEdit state
+        state.FontGenerationWatcher |> Option.iter (fun f -> f.Dispose())
+        (RecentFilesList.save state.RecentFiles).Wait()
+    with _ ->
+        ()
+
+    state.ExitHandler.Exit()
+    state, Cmd.none

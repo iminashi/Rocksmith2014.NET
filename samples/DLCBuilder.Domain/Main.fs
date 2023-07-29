@@ -634,28 +634,15 @@ let update (msg: Msg) (state: State) =
         { state with RecentFiles = recent }, Cmd.none
 
     | ProgramClosing ->
-        let task =
-            backgroundTask {
-                deleteTemporaryFilesForQuickEdit state
-                do! RecentFilesList.save state.RecentFiles
-            }
-
-        state.FontGenerationWatcher |> Option.iter (fun f -> f.Dispose())
-        task.Wait()
-
-        let exit () =
-            state.ExitHandler.Exit()
-            state, Cmd.none
-
         match state.OpenProjectFile with
         | Some path when project <> state.SavedProject ->
             if config.AutoSave then
                 (DLCProject.save path project).Wait()
-                exit ()
+                exit state
             else
                 showOverlay state ExitConfirmationMessage, Cmd.none
         | _ ->
-            exit ()
+            exit state
 
     | ExitConfirmed saveProject ->
         match state.OpenProjectFile with
@@ -664,8 +651,7 @@ let update (msg: Msg) (state: State) =
         | _ ->
             ()
 
-        state.ExitHandler.Exit()
-        state, Cmd.none
+        exit state
 
     | SetAvailableUpdate (Error _) ->
         // Don't show an error message if the update check fails when starting the program
