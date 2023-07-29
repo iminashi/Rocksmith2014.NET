@@ -92,6 +92,14 @@ let findPreviousNoteOnSameString (notes: ResizeArray<Note>) (startIndex: int) =
 
     search (startIndex - 1) false
 
+let getFretOrSlideEndFret (n: Note) =
+    if n.IsSlide then
+        n.SlideTo
+    elif n.IsUnpitchedSlide then
+        n.SlideUnpitchTo
+    else
+        n.Fret
+
 // Returns the possible chord and the fret used for the given string.
 let findPreviousChordUsingSameString
         (templates: ResizeArray<ChordTemplate>) (chords: ResizeArray<Chord>) (stringNum: sbyte) (time: int) =
@@ -103,7 +111,18 @@ let findPreviousChordUsingSameString
             templates
             |> ResizeArray.tryItem (int chord.ChordId)
             |> Option.exists (fun template -> template.Frets[int stringNum] > -1y))
-    |> Option.map (fun c -> c, templates[int c.ChordId].Frets[int stringNum])
+    |> Option.map (fun chord ->
+        let fret =
+            chord.ChordNotes
+            |> Option.ofObj
+            |> Option.bind (ResizeArray.tryPick (fun cn ->
+                if cn.String = stringNum then
+                    Some (getFretOrSlideEndFret cn)
+                else
+                    None))
+            |> Option.defaultWith (fun () -> templates[int chord.ChordId].Frets[int stringNum])
+
+        chord, fret)
 
 let tryFindActiveAnchor (level: Level) (time: int) =
     let anchors = level.Anchors

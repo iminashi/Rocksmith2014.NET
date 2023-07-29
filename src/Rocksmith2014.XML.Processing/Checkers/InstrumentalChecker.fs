@@ -204,11 +204,15 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
                 match prevNoteOnSameStringOpt, prevChordUsingSameStringOpt with
                 | None, Some (_, fret) when fret = note.Fret ->
                     issue HopoIntoSameNote time
-                | Some n, Some (c, fret) when c.Time > n.Time ->
+                | Some prevNote, Some (prevChord, fret) when prevChord.Time > prevNote.Time ->
                     if fret = note.Fret then
                         issue HopoIntoSameNote time
-                | Some n, _ when n.Fret = note.Fret ->
-                    issue HopoIntoSameNote time
+                | Some prevNote, _ ->
+                    // If the previous note was a slide, use the fret where the slide ends
+                    let fret = getFretOrSlideEndFret prevNote
+
+                    if fret = note.Fret then
+                        issue HopoIntoSameNote time
                 | _ ->
                     ()
 

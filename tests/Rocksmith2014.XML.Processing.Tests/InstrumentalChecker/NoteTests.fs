@@ -256,13 +256,41 @@ let noteTests =
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type HopoIntoSameNote "Correct issue type"
 
-        testCase "No false positive for pull-off into same fret for pull-off from chord" <| fun _ ->
+        testCase "No false positive for HOPO into same fret for pull-off from chord" <| fun _ ->
             let notes = ResizeArray(seq {
                 Note(Fret = 1y, Time = 1300)
                 Note(Fret = 1y, Time = 3000, IsPullOff = true)
             })
             let chords = ResizeArray([ Chord(Time = 2000, ChordId = 0s) ])
             let templates = ResizeArray([ ChordTemplate("", "", Array.replicate 6 3y, Array.replicate 6 3y)])
+            let level = Level(Notes = notes, Chords = chords)
+            let arr =
+                InstrumentalArrangement(ChordTemplates = templates, Phrases = phrases, Levels = ResizeArray([ level ]))
+                |> withSongLength
+
+            let results = checkNotes arr level
+
+            Expect.hasLength results 0 "No issues created"
+
+        testCase "No false positive for HOPO into same fret for pull-off after slide" <| fun _ ->
+            let notes = ResizeArray(seq {
+                Note(Fret = 3y, Time = 1300, SlideTo = 5y, Sustain = 300)
+                Note(Fret = 3y, Time = 2000, IsPullOff = true)
+            })
+            let anchors = ResizeArray(seq { Anchor(1y, 1300); Anchor(3y, 1800) })
+            let level = Level(Notes = notes, Anchors = anchors)
+
+            let results = checkNotes testArr level
+
+            Expect.hasLength results 0 "No issues should be created"
+
+        testCase "No false positive for HOPO into same fret for pull-off after chord slide" <| fun _ ->
+            let notes = ResizeArray(seq {
+                Note(Fret = 3y, Time = 3000, IsPullOff = true)
+            })
+            let cn = ResizeArray([ Note(Fret = 3y, SlideTo = 5y); Note(String = 1y, Fret = 3y, SlideTo = 5y) ])
+            let chords = ResizeArray([ Chord(Time = 2000, ChordId = 0s, ChordNotes = cn) ])
+            let templates = ResizeArray([ ChordTemplate("", "", [| 3y; 3y; -1y; -1y; -1y; -1y |], [| 3y; 3y; -1y; -1y; -1y; -1y |]) ])
             let level = Level(Notes = notes, Chords = chords)
             let arr =
                 InstrumentalArrangement(ChordTemplates = templates, Phrases = phrases, Levels = ResizeArray([ level ]))
@@ -313,12 +341,25 @@ let noteTests =
                 Note(Fret = 3y, Time = 1300, SlideUnpitchTo = 1y, Sustain = 300)
                 Note(Fret = 0y, Time = 1800, IsPullOff = true)
             })
-            let anchors = ResizeArray(seq { Anchor(3y, 1300); Anchor(1y, 1800)})
+            let anchors = ResizeArray(seq { Anchor(3y, 1300); Anchor(1y, 1800) })
             let level = Level(Notes = notes, Anchors = anchors)
 
             let results = checkNotes testArr level
 
             Expect.hasLength results 0 "No issues should be created"
+
+        testCase "Detects position shift into pull-off after slide" <| fun _ ->
+            let notes = ResizeArray(seq {
+                Note(Fret = 3y, Time = 1300, SlideTo = 5y, Sustain = 300)
+                Note(Fret = 3y, Time = 2000, IsPullOff = true)
+            })
+            let anchors = ResizeArray(seq { Anchor(3y, 1300); Anchor(5y, 1800); Anchor(3y, 2000) })
+            let level = Level(Notes = notes, Anchors = anchors)
+
+            let results = checkNotes testArr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type PositionShiftIntoPullOff "Correct issue type"
 
         testCase "Overlapping bend values are detected" <| fun _ ->
             let notes = ResizeArray(seq {
