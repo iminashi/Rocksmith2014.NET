@@ -157,7 +157,7 @@ module Arrangement =
 
     /// Loads an arrangement from a file.
     /// Function `createBaseToneName` is used for an instrumental arrangement if the file does not define a base tone.
-    let fromFile (createBaseToneName: MetaData -> string) (path: string) =
+    let fromFile (createBaseToneName: MetaData -> RouteMask -> string) (path: string) =
         try
             let rootName =
                 using (XmlReader.Create(path))
@@ -169,16 +169,6 @@ module Arrangement =
                 let arrProp = metadata.ArrangementProperties
                 let toneInfo = InstrumentalArrangement.ReadToneNames(path)
 
-                let baseTone =
-                     toneInfo.BaseToneName
-                     |> Option.ofString
-                     |> Option.defaultWith (fun () -> createBaseToneName metadata)
-
-                let tones =
-                    toneInfo.Names
-                    |> Array.choose Option.ofString
-                    |> Array.toList
-
                 let routeMask =
                     if arrProp.PathBass then
                         RouteMask.Bass
@@ -186,6 +176,16 @@ module Arrangement =
                         RouteMask.Rhythm
                     else
                         RouteMask.Lead
+
+                let baseTone =
+                     toneInfo.BaseToneName
+                     |> Option.ofString
+                     |> Option.defaultWith (fun () -> createBaseToneName metadata routeMask)
+
+                let tones =
+                    toneInfo.Names
+                    |> Array.choose Option.ofString
+                    |> Array.toList
 
                 let name =
                     match ArrangementName.TryParse(metadata.Arrangement) with

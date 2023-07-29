@@ -133,8 +133,8 @@ let createToneKeyFromTitleAndArrangmentName title arrangementName =
 
 /// Adds the arrangements from the given filenames into the project in the state.
 let addArrangements fileNames state =
-    let getBaseToneName (metadata: Rocksmith2014.XML.MetaData) =
-        let arrName = metadata.Arrangement.ToLowerInvariant()
+    let getBaseToneName (metadata: Rocksmith2014.XML.MetaData) (routeMask: RouteMask) =
+        let arrName = routeMask.ToString().ToLowerInvariant()
         let getDefault () = $"{arrName}_base"
 
         match state.Config.BaseToneNamingScheme with
