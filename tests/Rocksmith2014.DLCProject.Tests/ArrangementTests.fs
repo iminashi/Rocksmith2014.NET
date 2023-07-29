@@ -4,7 +4,7 @@ open Expecto
 open Rocksmith2014.DLCProject
 open System
 
-let private createBaseToneName _ = "base_tone"
+let private createBaseToneName _ _ = "base_tone"
 
 [<Tests>]
 let tests =

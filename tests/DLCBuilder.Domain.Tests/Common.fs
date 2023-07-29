@@ -25,6 +25,9 @@ let toneDatabaseStub =
                 member _.AddTone _ = ()
                 member _.UpdateData _ = () } }
 
+let exitHandlerStub =
+    { new IExitHandler with member _.Exit() = () }
+
 let stringLocalizerStub =
     { new IStringLocalizer with
         member _.Translate(_) = String.Empty
@@ -60,7 +63,8 @@ let initialState =
       ProfileCleanerState = ProfileCleanerState.Default
       Localizer = stringLocalizerStub
       AlbumArtLoader = albumArtLoaderStub
-      DatabaseConnector = toneDatabaseStub }
+      DatabaseConnector = toneDatabaseStub
+      ExitHandler = exitHandlerStub }
 
 let testTone =
     let gear =
