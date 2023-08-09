@@ -173,10 +173,10 @@ let update (msg: Msg) (state: State) =
         { state with SelectedImportTones = tones }, Cmd.none
 
     | ImportSelectedTones ->
-        addTones state state.SelectedImportTones, Cmd.none
+        addTones true state state.SelectedImportTones, Cmd.none
 
     | ImportTones tones ->
-        addTones state tones, Cmd.none
+        addTones true state tones, Cmd.none
 
     | ExportSelectedTone ->
         let cmd =
@@ -1111,7 +1111,7 @@ let update (msg: Msg) (state: State) =
             | ToneCollection.Nothing ->
                 newState, Cmd.none
             | ToneCollection.AddToneToProject tone ->
-                addTones newState [ tone ], Cmd.ofMsg (AddStatusMessage(translate "ToneAddedToProject"))
+                addTones false newState [ tone ], Cmd.ofMsg (AddStatusMessage(translate "ToneAddedToProject"))
             | ToneCollection.ShowToneAddedToCollectionMessage ->
                 newState, Cmd.ofMsg (AddStatusMessage(translate "ToneAddedToCollection"))
             | ToneCollection.BeginDownloadingTonesDatabase ->

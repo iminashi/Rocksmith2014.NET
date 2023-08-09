@@ -24,7 +24,7 @@ let updateToneKey (config: Configuration) (newKey: string) (tone: Tone) =
         { tone with Key = newKey }
 
 /// Adds the given tones into the project.
-let addTones (state: State) (tones: Tone list) =
+let addTones (closeOverlay: bool) (state: State) (tones: Tone list) =
     let tones = List.map Utils.addDescriptors tones
     let keysOfAddedTones = tones |> List.map (fun t -> t.Key) |> Set.ofList
     // Prevent duplicate tone keys
@@ -38,7 +38,7 @@ let addTones (state: State) (tones: Tone list) =
 
     { state with
         Project = { state.Project with Tones = tones @ updatedProjectTones }
-        Overlay = NoOverlay }
+        Overlay = if closeOverlay then NoOverlay else state.Overlay }
 
 /// Returns true if a build or a wem conversion is not in progress.
 let notBuilding state =
