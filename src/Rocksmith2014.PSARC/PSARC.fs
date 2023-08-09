@@ -8,6 +8,7 @@ open System.Buffers
 open System.IO
 open System.Text
 open System.Threading
+open System.Threading.Tasks
 
 type EditMode = InMemory | TempFiles
 
@@ -19,6 +20,7 @@ type EditOptions =
     static member Default = { Mode = InMemory; EncryptTOC = true }
 
 type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, blockSizeTable: uint32 array) =
+    let mutable isDisposed = false
     let mutable blockSizeTable = blockSizeTable
     let inflateSemphore = new SemaphoreSlim(1, 1)
 
@@ -346,6 +348,18 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
     // IDisposable implementation.
     interface IDisposable with
         member _.Dispose() =
-            source.Dispose()
-            inflateSemphore.Dispose()
-            ArrayPool.Shared.Return(buffer)
+            if not isDisposed then
+                isDisposed <- true
+                source.Dispose()
+                inflateSemphore.Dispose()
+                ArrayPool.Shared.Return(buffer)
+
+    interface IAsyncDisposable with
+        member _.DisposeAsync() =
+            if not isDisposed then
+                isDisposed <- true
+                inflateSemphore.Dispose()
+                ArrayPool.Shared.Return(buffer)
+                source.DisposeAsync()
+            else
+                ValueTask.CompletedTask
