@@ -6,6 +6,7 @@ open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open System
+open ToneCollection
 
 let albumArtLoaderStub =
     { new IBitmapLoader with
@@ -100,3 +101,12 @@ let testVocals =
       CustomFont = None
       MasterID = 54321
       PersistentID = Guid.NewGuid() }
+
+let dummyDbTone: DbTone =
+    { Id = 1L
+      Artist = ""
+      Title = ""
+      Name = ""
+      BassTone = false
+      Description = ""
+      TotalRows = 1L }

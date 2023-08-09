@@ -355,4 +355,36 @@ let messageTests =
                 Expect.equal inst.RouteMask RouteMask.Lead "Arrangement has correct route mask"
             | _ ->
                 failwith "Wrong arrangement type"
+
+        testCase "Tone collection is not closed when a tone is added to the project" <| fun _ ->
+            let toneApi =
+                { new IOfficialTonesApi with
+                    member _.Dispose() = ()
+                    member _.GetToneById(id: int64) =
+                        match id with
+                        | 1L -> Some testTone
+                        | _ -> failwith "Unexpected tone id"
+                    member _.GetToneDataById(_) = failwith "GetToneDataById should not be called"
+                    member _.GetTones(_) = failwith "GetTones should not be called" }
+
+            let toneCollectionState =
+                { ActiveCollection = ActiveCollection.Official (Some toneApi)
+                  Connector = toneDatabaseStub
+                  Tones = Array.empty
+                  SelectedTone = Some dummyDbTone
+                  QueryOptions = { Search = None; PageNumber = 1 }
+                  EditingUserTone = None
+                  TotalPages = 1 }
+
+            let state = { initialState with Overlay = ToneCollection toneCollectionState }
+            let newState, _ = Main.update (ToneCollectionMsg AddSelectedToneFromCollection) state
+
+            Expect.hasLength newState.Project.Tones 1 "One tone was added"
+            match newState.Overlay with
+            | OverlayContents.NoOverlay ->
+                failwith "Overlay should not be closed"
+            | OverlayContents.ToneCollection _ ->
+                ()
+            | _ ->
+                failwith "Wrong overlay type"
     ]
