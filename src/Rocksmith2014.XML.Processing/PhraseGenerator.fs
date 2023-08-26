@@ -28,26 +28,26 @@ module private Helpers =
     let tryMax f (ra: ResizeArray<_>) =
         match ra.Count with
         | 0 -> None
-        | _ -> ra |> Seq.map f |> Seq.max |> Some
+        | _ -> ra |> ResizeArray.findMaxBy f |> Some
 
-    let findContentEnd (arr: Inst) =
+    let findContentEnd (level: Level) =
         let note =
-            arr.Levels[0].Notes
+            level.Notes
             |> tryMax (fun x -> x.Time + x.Sustain)
 
         let chord =
-            arr.Levels[0].Chords
+            level.Chords
             |> tryMax (fun x ->
                 x.Time + if x.HasChordNotes then x.ChordNotes[0].Sustain else 0)
 
         let hs =
-            arr.Levels[0].HandShapes
+            level.HandShapes
             |> ResizeArray.tryLast
             |> Option.map (fun x -> x.EndTime)
 
         maxOfThree 0 note chord hs
 
-    let getEndPhraseTime (arr: Inst) =
+    let getEndPhraseTime (level: Level) (arr: Inst) =
         let oldEndPhrase =
             arr.Phrases
             |> Seq.tryFindIndex (fun x -> String.equalsIgnoreCase EndPhraseName x.Name)
@@ -55,7 +55,7 @@ module private Helpers =
                 arr.PhraseIterations
                 |> ResizeArray.tryFind (fun x -> x.PhraseId = index))
 
-        let noMoreContentTime = findContentEnd arr
+        let noMoreContentTime = findContentEnd level
         let endPhraseTime =
             match oldEndPhrase with
             | Some oldEnd ->
@@ -79,7 +79,7 @@ module private Helpers =
                     // If a beat is not found, create the phrase 100ms after content end time
                     min (endPhraseTime + 100) (arr.MetaData.SongLength - 100)
 
-    let findNextContent (level: Level) time =
+    let findNextContent (level: Level) (time: int) =
         let tryFindNext (ra: ResizeArray<#IHasTimeCode>) =
             ra
             |> ResizeArray.tryFind (fun x -> x.Time >= time)
@@ -91,9 +91,8 @@ module private Helpers =
 
         Option.minOfMany [ noteTime; chordTime; handShapeTime ]
 
-    let getContentStartTime (arr: Inst) =
-        findFirstLevelWithContent arr
-        |> Option.bind (fun level -> findNextContent level 0)
+    let getContentStartTime (level: Level) =
+        findNextContent level 0
 
     let getFirstPhraseTime contentStartTime (arr: Inst) =
         let firstBeatTime = arr.Ebeats[0].Time
@@ -249,10 +248,17 @@ module private Helpers =
                     addSection sectionType time arr
         )
 
+/// Generates sections and phrases for the arrangement, replacing any existing phrases.
 let generate (arr: Inst) =
-    match getContentStartTime arr with
+    let level =
+        if arr.Levels.Count = 1 then
+            arr.Levels[0]
+        else
+            arr.GenerateTranscriptionTrack().Result
+
+    match getContentStartTime level with
     | Some contentStartTime ->
-        let endPhraseTime = getEndPhraseTime arr
+        let endPhraseTime = getEndPhraseTime level arr
         let firstPhraseResult = getFirstPhraseTime contentStartTime arr
 
         erasePhrasesAndSections arr
