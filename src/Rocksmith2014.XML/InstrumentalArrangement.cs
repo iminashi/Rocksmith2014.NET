@@ -276,7 +276,11 @@ namespace Rocksmith2014.XML
             }
         }
 
-        private async Task<Level> GenerateTranscriptionTrack()
+        /// <summary>
+        /// Generates a transcription track for the arrangement, combining the maximum difficulty levels of all phrases.
+        /// </summary>
+        /// <returns>A Level with all the notes and chords in the arrangement.</returns>
+        public async Task<Level> GenerateTranscriptionTrack()
         {
             var notes = new List<Note>();
             var chords = new List<Chord>();
