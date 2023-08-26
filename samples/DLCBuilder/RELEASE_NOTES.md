@@ -1,3 +1,9 @@
+## 2.3.0 (Released 2023-09-xx)
+
+- Added an exit confirmation if the project has unsaved changes.
+- Fixed a possible false positive with the HOPO into same fret validation after a slide.
+- Fixed an issue in the base tone automatic naming.
+
 ## 2.2.2 (Released 2023-08-09)
 
 - Fixed an issue where adding a tone to the project would close the tone collection.
