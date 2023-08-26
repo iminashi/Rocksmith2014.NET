@@ -479,13 +479,14 @@ let createProjectFilename project =
     |> Option.defaultValue "new_project"
     |> sprintf "%s.rs2dlc"
 
-let private deleteTempFiles { TempDirectory = dir } =
+let deleteDirectoryRecursively path =
     try
-        Directory.Delete(dir, recursive = true)
+        Directory.Delete(path, recursive = true)
     with _ -> ()
 
 let deleteTemporaryFilesForQuickEdit state =
-    state.QuickEditData |> Option.iter deleteTempFiles
+    state.QuickEditData
+    |> Option.iter (fun d -> deleteDirectoryRecursively d.TempDirectory)
 
 /// Returns path to wav or ogg audio file if one exists.
 let tryGetNonWemAudioFile wemPath =

@@ -216,21 +216,24 @@ let update (msg: Msg) (state: State) =
             { state with Overlay = NoOverlay }, cmd
 
     | ImportPsarcQuick psarcPath ->
-        let task () =
+        let task =
             task {
                 let targetFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())
-                let! r = importPsarc config targetFolder psarcPath
-                let data =
-                    { PsarcPath = psarcPath
-                      TempDirectory = targetFolder
-                      AppId = r.AppId
-                      BuildToolVersion = r.BuildToolVersion }
+                try
+                    let! r = importPsarc config targetFolder psarcPath
+                    let data =
+                        { PsarcPath = psarcPath
+                          TempDirectory = targetFolder
+                          AppId = r.AppId
+                          BuildToolVersion = r.BuildToolVersion }
 
-                return r.GeneratedProject, Quick data
+                    return PsarcImported(r.GeneratedProject, Quick data)
+                with ex ->
+                    deleteDirectoryRecursively targetFolder
+                    return TaskFailed(ex, PsarcImport)
             }
 
-        addTask PsarcImport state,
-        Cmd.OfTask.either task () PsarcImported (fun ex -> TaskFailed(ex, PsarcImport))
+        addTask PsarcImport state, Cmd.OfTask.result task
 
     | ImportPsarc (psarcPath, targetFolder) ->
         let task () =
