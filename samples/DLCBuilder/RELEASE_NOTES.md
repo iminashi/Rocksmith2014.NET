@@ -1,3 +1,11 @@
+## 2.2.2 (Released 2023-08-09)
+
+- Fixed an issue where adding a tone to the project would close the tone collection.
+
+## 2.2.1 (Released 2023-08-03)
+
+- Downgraded the SQLite library version to fix an error message shown when first accessing the tone collection.
+
 ## 2.2.0 (Released 2023-07-27)
 
 - Added an ellipsis menu next to the build buttons for quick access to some of the build options.

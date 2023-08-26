@@ -31,8 +31,8 @@
 
     <ItemGroup>
       <PackageReference Include="Dapper" Version="2.0.143" />
-      <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
-      <PackageReference Update="FSharp.Core" Version="7.0.300" />
+      <PackageReference Include="System.Data.SQLite.Core" Version="1.0.117" />
+      <PackageReference Update="FSharp.Core" Version="7.0.400" />
     </ItemGroup>
 
 </Project>
