@@ -108,12 +108,12 @@ let buildPitchShifted (openProject: string option) config project =
         return BuildCompleteType.PitchShifted
     }
 
-let buildReplacePsarc info config project =
+let buildReplacePsarc quickEditData config project =
     async {
-        let platform = Platform.fromPackageFileName info.PsarcPath
-        let buildConfig = BuildConfig.create (ReplacePsarc info) config None project [ platform ]
+        let platform = Platform.fromPackageFileName quickEditData.PsarcPath
+        let buildConfig = BuildConfig.create (ReplacePsarc quickEditData) config None project [ platform ]
 
-        do! PackageBuilder.buildPackages (PackageBuilder.WithPlatformAndExtension info.PsarcPath) buildConfig project
+        do! PackageBuilder.buildPackages (PackageBuilder.WithPlatformAndExtension quickEditData.PsarcPath) buildConfig project
 
         return BuildCompleteType.ReplacePsarc
     }

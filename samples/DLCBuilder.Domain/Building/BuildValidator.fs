@@ -16,6 +16,15 @@ let private toneIsUsedInArrangement project toneKey =
 let private validators =
     [
         fun project ->
+            if project.Arrangements.IsEmpty then Error NoArrangements else Ok()
+
+        fun project ->
+            if String.IsNullOrEmpty(project.AudioFile.Path) then Error MainAudioFileNotSet else Ok()
+
+        fun project ->
+            if File.Exists(project.AudioFile.Path) then Ok() else Error MainAudioFileNotFound
+
+        fun project ->
             if project.DLCKey.Length < DLCKey.MinimumLength then Error InvalidDLCKey else Ok()
 
         fun project ->
@@ -26,9 +35,6 @@ let private validators =
 
         fun project ->
             if File.Exists(project.AlbumArtFile) then Ok() else Error AlbumArtNotFound
-
-        fun project ->
-            if File.Exists(project.AudioPreviewFile.Path) then Ok() else Error PreviewNotFound
 
         fun project ->
             let isError =

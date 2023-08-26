@@ -18,7 +18,7 @@ let private coverArtPlaceholder =
     new Bitmap(assets.Open(Uri("avares://DLCBuilder/Assets/coverart_placeholder.png")))
 
 let private buildControls state dispatch =
-    let canBuild = StateUtils.canBuild state
+    let canBuild = StateUtils.canStartBuild state
 
     Grid.create [
         Grid.verticalAlignment VerticalAlignment.Center

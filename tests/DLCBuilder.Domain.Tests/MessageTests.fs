@@ -66,12 +66,13 @@ let messageTests =
             | _ ->
                 failwith "Wrong overlay type"
 
-        testCase "Build Release does nothing with empty project" <| fun _ ->
-            Expect.isFalse (StateUtils.canBuild initialState) "Empty project cannot be built"
+        testCase "Build Release does nothing when build is already in progress" <| fun _ ->
+            let state = { initialState with RunningTasks = Set.singleton BuildPackage }
+            Expect.isFalse (StateUtils.canStartBuild state) "Build cannot be started"
 
-            let newState, cmd = Main.update (Build Release) initialState
+            let newState, cmd = Main.update (Build Release) state
 
-            Expect.equal newState initialState "State was not changed"
+            Expect.equal newState state "State was not changed"
             Expect.isTrue cmd.IsEmpty "No command was returned"
 
         testCase "BuildComplete removes build task" <| fun _ ->

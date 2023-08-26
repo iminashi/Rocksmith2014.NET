@@ -17,7 +17,7 @@ let vocals =
 let toneKey1 = "Tone_1"
 
 let instrumental =
-    { Instrumental.Empty with 
+    { Instrumental.Empty with
           XML = "instrumental.xml"
           BaseTone = "Base_Tone"
           Tones = [ toneKey1; "Tone_2"; "Tone_3"; "Tone_4" ]
@@ -40,7 +40,7 @@ let validProject =
       AudioPreviewStartTime = None
       PitchShift = None
       IgnoredIssues = Set.empty
-      Arrangements = List.empty
+      Arrangements = [ Instrumental instrumental ]
       Tones = List.empty
       Author = None }
 
@@ -58,6 +58,18 @@ let tests =
             let result = BuildValidator.validate validProject
 
             Expect.isOk result "Validation passed"
+
+        testCase "Detects project without any arrangements" <| fun _ ->
+            let project = { validProject with Arrangements = List.empty }
+
+            BuildValidator.validate project
+            |> expectError NoArrangements
+
+        testCase "Detects project without main audio file" <| fun _ ->
+            let project = { validProject with AudioFile = AudioFile.Empty }
+
+            BuildValidator.validate project
+            |> expectError MainAudioFileNotSet
 
         testCase "Detects invalid DLC key" <| fun _ ->
             let project = { validProject with DLCKey = "a" }
@@ -77,11 +89,11 @@ let tests =
             BuildValidator.validate project
             |> expectError AlbumArtNotFound
 
-        testCase "Detects missing preview audio file" <| fun _ ->
-            let project = { validProject with AudioPreviewFile = { validProject.AudioPreviewFile with Path = "na" } }
+        testCase "Detects missing main audio file" <| fun _ ->
+            let project = { validProject with AudioFile = { validProject.AudioFile with Path = "na" } }
 
             BuildValidator.validate project
-            |> expectError PreviewNotFound
+            |> expectError MainAudioFileNotFound
 
         testCase "Detects missing base tone key" <| fun _ ->
             let invalidInstrumental = { instrumental with BaseTone = "" }

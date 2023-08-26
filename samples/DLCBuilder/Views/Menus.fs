@@ -283,7 +283,7 @@ let file state dispatch =
     ]
 
 let build state dispatch =
-    let canBuild = StateUtils.canBuild state
+    let canBuild = StateUtils.canStartBuild state
 
     // Build
     MenuItem.create [

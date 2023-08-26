@@ -29,23 +29,30 @@ let private exceptionToErrorMessage (ex: exn) =
     ErrorMessage(message, Some(Utils.createExceptionInfoString ex))
 
 let private buildPackage build state =
-    match BuildValidator.validate state.Project with
-    | Error error ->
-        let msg =
-            match error with
-            | InvalidDLCKey ->
-                state.Localizer.TranslateFormat(string error, [| DLCKey.MinimumLength |])
-            | MultipleTonesSameKey key ->
-                state.Localizer.TranslateFormat("MultipleTonesSameKey", [| key |])
-            | other ->
-                state.Localizer.Translate(string other)
+    let task = build state.Config
 
-        { state with Overlay = ErrorMessage(msg, None) }, Cmd.none
-    | Ok () ->
-        let task = build state.Config
+    addTask BuildPackage state,
+    Cmd.OfAsync.either task state.Project BuildComplete (fun ex -> TaskFailed(ex, BuildPackage))
 
-        addTask BuildPackage state,
-        Cmd.OfAsync.either task state.Project BuildComplete (fun ex -> TaskFailed(ex, BuildPackage))
+let private buildValidatedProject state buildType =
+    let config = state.Config
+
+    match buildType with
+    | Test ->
+        if String.notEmpty config.TestFolderPath then
+            let projectDir = state.OpenProjectFile |> Option.map Path.GetDirectoryName
+            buildPackage (TestPackageBuilder.build state.CurrentPlatform projectDir) state
+        else
+            showOverlay state (ConfigEditor (Some FocusedSetting.TestFolder)), Cmd.none
+    | Release ->
+        if config.ValidateBeforeReleaseBuild then
+            checkAllArrangements state CheckCompletedForReleaseBuild
+        else
+            buildPackage (ReleasePackageBuilder.build state.OpenProjectFile) state
+    | ReplacePsarc quickEditData ->
+        buildPackage (ReleasePackageBuilder.buildReplacePsarc quickEditData) state
+    | PitchShifted ->
+        buildPackage (ReleasePackageBuilder.buildPitchShifted state.OpenProjectFile) state
 
 let update (msg: Msg) (state: State) =
     let { Project = project; Config = config } = state
@@ -904,16 +911,34 @@ let update (msg: Msg) (state: State) =
     | ApplyLowTuningFix ->
         applyLowTuningFix state, Cmd.none
 
-    | Build _ when not <| canBuild state ->
+    | Build _ when not <| canStartBuild state ->
         state, Cmd.none
 
-    | Build _ when not <| File.Exists(project.AudioPreviewFile.Path) ->
-        addTask AutomaticPreviewCreation state,
-        Cmd.OfAsync.either
-            PreviewUtils.createAutoPreviewFile
-            project
-            (fun path -> AutoPreviewCreated(path, msg))
-            ErrorOccurred
+    | Build buildType ->
+        match BuildValidator.validate state.Project with
+        | Error error ->
+            let msg =
+                match error with
+                | InvalidDLCKey ->
+                    state.Localizer.TranslateFormat(string error, [| DLCKey.MinimumLength |])
+                | MultipleTonesSameKey key ->
+                    state.Localizer.TranslateFormat("MultipleTonesSameKey", [| key |])
+                | other ->
+                    state.Localizer.Translate(string other)
+
+            { state with Overlay = ErrorMessage(msg, None) }, Cmd.none
+        | Ok () ->
+            if not <| File.Exists(project.AudioPreviewFile.Path) then
+                // Validation will be done again after the preview audio creation
+                // There is a possibility that the project could be modified during that time
+                addTask AutomaticPreviewCreation state,
+                Cmd.OfAsync.either
+                    PreviewUtils.createAutoPreviewFile
+                    project
+                    (fun path -> AutoPreviewCreated(path, msg))
+                    ErrorOccurred
+            else
+                buildValidatedProject state buildType
 
     | AutoPreviewCreated (previewPath, continuation) ->
         let cmds =
@@ -926,22 +951,6 @@ let update (msg: Msg) (state: State) =
         let newState = { state with Project = { project with AudioPreviewFile = preview } }
 
         removeTask AutomaticPreviewCreation newState, cmds
-
-    | Build PitchShifted ->
-        buildPackage (ReleasePackageBuilder.buildPitchShifted state.OpenProjectFile) state
-
-    | Build Test ->
-        if String.notEmpty config.TestFolderPath then
-            let projectDir = state.OpenProjectFile |> Option.map Path.GetDirectoryName
-            buildPackage (TestPackageBuilder.build state.CurrentPlatform projectDir) state
-        else
-            showOverlay state (ConfigEditor (Some FocusedSetting.TestFolder)), Cmd.none
-
-    | Build Release ->
-        if config.ValidateBeforeReleaseBuild then
-            checkAllArrangements state CheckCompletedForReleaseBuild
-        else
-            buildPackage (ReleasePackageBuilder.build state.OpenProjectFile) state
 
     | CheckCompletedForReleaseBuild issues ->
         let nonIgnoredIssueExists =
@@ -962,9 +971,6 @@ let update (msg: Msg) (state: State) =
             { updatedState with Overlay = OverlayContents.ErrorMessage(translate "ValidationFailedForReleaseBuild", None) }, Cmd.none
         else
             buildPackage (ReleasePackageBuilder.build updatedState.OpenProjectFile) updatedState
-
-    | Build (ReplacePsarc info) ->
-        buildPackage (ReleasePackageBuilder.buildReplacePsarc info) state
 
     | BuildComplete completed ->
         let message =

@@ -51,12 +51,10 @@ let notBuilding state =
             false)
     |> not
 
-/// Returns true if the project can be built.
-let canBuild state =
+/// Returns true if the the build can be started.
+let canStartBuild state =
     notBuilding state
     && not (state.RunningTasks.Contains(PsarcImport) || state.RunningTasks.Contains(AutomaticPreviewCreation))
-    && state.Project.Arrangements.Length > 0
-    && String.notEmpty state.Project.AudioFile.Path
 
 /// Returns true if the arrangement validation may be executed.
 let canRunValidation state =

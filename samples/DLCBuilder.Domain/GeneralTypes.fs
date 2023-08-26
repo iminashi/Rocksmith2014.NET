@@ -93,11 +93,13 @@ type ArrangementAddingError =
     | MaxVocals
 
 type BuildValidationError =
+    | NoArrangements
+    | MainAudioFileNotSet
+    | MainAudioFileNotFound
     | InvalidDLCKey
     | TitleEmpty
     | ArtistNameEmpty
     | AlbumArtNotFound
-    | PreviewNotFound
     | MultipleTonesSameKey of conflictingKey: string
     | ConflictingVocals
     | MissingBaseToneKey
