@@ -231,7 +231,8 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
                         // In this case the issue will not be created to avoid false positives
                         let fingerCannotBeDetermined =
                             slideToAnchor.Width <> activeAnchor.Width
-                            && slideToAnchor.Width > 4y && slideEnd <> slideToAnchor.Fret + slideToAnchor.Width
+                            && slideToAnchor.Width > 4y
+                            && slideEnd <> slideToAnchor.Fret + slideToAnchor.Width
 
                         if not fingerCannotBeDetermined then
                             // Convert the fret number to a finger number between 1 and 4, accounting for anchor width
@@ -246,7 +247,11 @@ let checkNotes (arrangement: InstrumentalArrangement) (level: Level) =
                                 slideEnd - slideToAnchor.Fret
                                 |> accountForAnchorWidth slideToAnchor
 
-                            if startFinger <> endFinger then
+                            // Used finger may not be determined if the slide is from a low fret
+                            let isSlideFromLowPosition =
+                                activeAnchor.Fret = 1y && activeAnchor.Fret - endFinger < 0y
+
+                            if not isSlideFromLowPosition && startFinger <> endFinger then
                                 issue FingerChangeDuringSlide time
                     | None ->
                         ()

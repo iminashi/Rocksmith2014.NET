@@ -1,8 +1,9 @@
 ## 2.3.0 (Released 2023-09-xx)
 
 - Added an exit confirmation if the project has unsaved changes.
-- Improved the phrase generator for arrangements with existing DD levels.
-- Fixed a possible false positive with the HOPO into same fret validation after a slide.
+- Improved the phrase generator when used on arrangements that have existing DD levels.
+- Fixed possible false positives for the "HOPO into same fret" validation after a slide.
+- Fixed possible false positives for the "finger changes during slide" validation for slides from a low position.
 - Fixed an issue in the base tone automatic naming.
 
 ## 2.2.2 (Released 2023-08-09)

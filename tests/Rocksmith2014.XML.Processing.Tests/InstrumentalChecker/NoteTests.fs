@@ -302,10 +302,10 @@ let noteTests =
 
         testCase "Detects finger change during slide" <| fun _ ->
             let notes = ResizeArray(seq {
-                Note(Fret = 1y, Time = 1300, IsLinkNext = true, SlideTo = 5y, Sustain = 500)
+                Note(Fret = 3y, Time = 1300, IsLinkNext = true, SlideTo = 5y, Sustain = 500)
                 Note(Fret = 5y, Time = 1800)
             })
-            let anchors = ResizeArray(seq { Anchor(1y, 1300); Anchor(3y, 1800) })
+            let anchors = ResizeArray(seq { Anchor(1y, 1300); Anchor(5y, 1800) })
             let level = Level(Notes = notes, Anchors = anchors)
 
             let results = checkNotes testArr level
@@ -322,6 +322,28 @@ let noteTests =
 
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type FingerChangeDuringSlide "Correct issue type"
+
+        testCase "Ignores slide from low position where finger cannot be determined from anchor" <| fun _ ->
+            let notes = ResizeArray(seq {
+                Note(Fret = 1y, Time = 1000, SlideTo = 9y, Sustain = 500)
+                Note(Fret = 2y, Time = 3000, SlideTo = 9y, Sustain = 500)
+                Note(Fret = 2y, Time = 4000, SlideTo = 9y, Sustain = 500)
+            })
+            let anchors = ResizeArray(seq {
+                // OK: Slide from first fret to 9th fret with the second finger
+                Anchor(1y, 1000); Anchor(8y, 1800)
+                // OK: Slide from second fret to 9th fret with the third finger
+                Anchor(1y, 3000); Anchor(7y, 3500)
+                // NOT OK: Slide from second fret to 9th fret, finger changes
+                Anchor(2y, 4000); Anchor(7y, 4500)
+            })
+            let level = Level(Notes = notes, Anchors = anchors)
+
+            let results = checkNotes testArr level
+
+            Expect.hasLength results 1 "One issue created"
+            Expect.equal results.Head.Type FingerChangeDuringSlide "Correct issue type"
+            Expect.equal results.Head.TimeCode 4000 "Correct issue time"
 
         testCase "Detects position shift into pull-off" <| fun _ ->
             let notes = ResizeArray(seq {
