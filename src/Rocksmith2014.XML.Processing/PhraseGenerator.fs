@@ -7,6 +7,8 @@ open Utils
 /// Minimum distance required between phrases in milliseconds.
 let [<Literal>] private MinimumPhraseSeparation = 2000
 
+let [<Literal>] private MinimumNoGuitarPhraseLength = 2500
+
 let [<Literal>] private FirstPhraseName = "COUNT"
 let [<Literal>] private EndPhraseName = "END"
 
@@ -154,43 +156,83 @@ module private Helpers =
         else
             endTime
 
-    let findGoodPhraseTime (level: Level) initialTime =
-        let outsideNoteSustainTime =
-            level.Notes
-            |> ResizeArray.tryFind (fun x -> x.Time < initialTime && x.Time + x.Sustain > initialTime)
-            |> Option.map (fun x -> closestToInitial initialTime x.Time (x.Time + x.Sustain))
+    let findGoodPhraseTime (chordTemplates: ResizeArray<ChordTemplate>) (level: Level) (initialTime: int) =
+        let inline getNoteEndTime (note: Note) =
+            if note.Sustain > 0 then
+                Some (note.Time + note.Sustain)
+            else
+                // Add 100ms if the note has no sustain to prevent infinite loop
+                Some (note.Time + 100)
 
-        let outsideNoteLinkNextTime =
-            let time =
-                outsideNoteSustainTime
-                |> Option.defaultValue initialTime
+        let rec finder earlier time =
+            let insideNoteSustain =
+                level.Notes
+                |> ResizeArray.tryFind (fun x -> x.Time < time && x.Time + x.Sustain > time)
 
-            level.Notes
-            |> ResizeArray.tryFind (fun x -> x.IsLinkNext && x.Time + x.Sustain = time)
-            |> Option.map (fun x -> x.Time)
+            match insideNoteSustain with
+            | Some note ->
+                // Time was inside a note's sustain, continue search from new position
+                let newTime = if earlier then note.Time else note.Time + note.Sustain
+                finder earlier newTime
+            | None ->
+                let noteIndexAtCurrentTime = level.Notes.FindIndexByTime(time)
 
-        let outsideHandShapeTime =
-            level.HandShapes
-            |> ResizeArray.tryFind (fun x -> x.StartTime < initialTime && x.EndTime > initialTime)
-            |> Option.map (fun x -> closestToInitial initialTime x.StartTime x.EndTime)
+                let breaksLinkNext =
+                    if noteIndexAtCurrentTime < 0 then
+                        None
+                    else
+                        let note = level.Notes[noteIndexAtCurrentTime]
 
-        let outsideChordLinkNextTime =
-            let time =
-                outsideHandShapeTime
-                |> Option.defaultValue initialTime
+                        let linkNextNoteTime =
+                            match findPreviousNoteOnSameString level.Notes noteIndexAtCurrentTime with
+                            | Some note, _ when note.IsLinkNext ->
+                                Some (if earlier then note.Time else note.Time + note.Sustain)
+                            | _ ->
+                                None
 
-            level.Chords
-            |> ResizeArray.tryFind (fun x ->
-                x.IsLinkNext
-                && x.HasChordNotes
-                && x.ChordNotes.Exists(fun n -> n.Time + n.Sustain = time))
-            |> Option.map (fun x -> x.Time)
+                        match linkNextNoteTime with
+                        | Some _ when not earlier ->
+                            // Use the end time of the linknext target note when searching for a later time
+                            getNoteEndTime note
+                        | Some _ ->
+                            linkNextNoteTime
+                        | None ->
+                            // Try to find a chord with linknext chord note on the same string as note at current time
+                            let linkNextChordTime =
+                                match findPreviousChordUsingSameString chordTemplates level.Chords note.String note.Time with
+                                | Some (c, _) when c.HasChordNotes && c.ChordNotes.Exists(fun cn -> cn.String = note.String && cn.IsLinkNext) ->
+                                    Some c.Time
+                                | _ ->
+                                    None
 
-        outsideNoteLinkNextTime
-        |> Option.orElse outsideNoteSustainTime
-        |> Option.orElse outsideChordLinkNextTime
-        |> Option.orElse outsideHandShapeTime
-        |> Option.defaultValue initialTime
+                            match linkNextChordTime with
+                            | Some _ when not earlier ->
+                                // Use the linknext target note end time when searching for a later time
+                                getNoteEndTime note
+                            | _ ->
+                                linkNextChordTime
+
+                match breaksLinkNext with
+                | Some newTime ->
+                    // Time was on a note head and the previous note on the same string had linknext, continue search
+                    finder earlier newTime
+                | None ->
+                    let breaksHandShape =
+                        level.HandShapes
+                        |> ResizeArray.tryFind (fun x -> x.StartTime < time && x.EndTime > time)
+
+                    match breaksHandShape with
+                    | Some hs ->
+                        // Time was inside a handshape, continue search
+                        let newTime = if earlier then hs.Time else hs.EndTime
+                        finder earlier newTime
+                    | None ->
+                        time
+
+        let earlierTime = finder true initialTime
+        let laterTime = finder false initialTime
+
+        earlierTime, laterTime
 
     let createPhrasesAndSections contentStartTime endPhraseTime (arr: Inst) =
         let mutable measureCounter = 0
@@ -210,18 +252,25 @@ module private Helpers =
 
             if measureCounter >= 9 || nextPhraseTime |> Option.exists (fun x -> beat.Time >= x) then
                 measureCounter <- 1
-                let time =
+                let prevPhraseTime = arr.Sections[arr.Sections.Count - 1].Time
+
+                let canCreatePhrase, time =
                     match nextPhraseTime with
                     | None ->
-                        findGoodPhraseTime level beat.Time
-                    | Some t ->
-                        nextPhraseTime <- None
-                        t
+                        let earlierTime, laterTime = findGoodPhraseTime arr.ChordTemplates level beat.Time
+                        let closestToInitialTime = closestToInitial beat.Time earlierTime laterTime
 
-                let prevPhraseTime = arr.Sections[arr.Sections.Count - 1].Time
-                let canCreatePhrase =
-                    // Don't create duplicate or really small phrases
-                    time - prevPhraseTime > MinimumPhraseSeparation
+                        // Don't create duplicate or really small phrases
+                        if closestToInitialTime - prevPhraseTime > MinimumPhraseSeparation then
+                            true, closestToInitialTime
+                        elif laterTime - prevPhraseTime > MinimumPhraseSeparation then
+                            true, laterTime
+                        else
+                            false, laterTime
+                    | Some t ->
+                        // Next phrase time after noguitar phrase has been determined
+                        nextPhraseTime <- None
+                        true, t
 
                 if canCreatePhrase then
                     let nextContentTime = findNextContent level time
@@ -231,7 +280,7 @@ module private Helpers =
                         | None ->
                             NoGuitar
                         | Some nextContentTime ->
-                            if nextContentTime - time >= 2500 then
+                            if nextContentTime - time >= MinimumNoGuitarPhraseLength then
                                 nextPhraseTime <- Some nextContentTime
                                 NoGuitar
                             else
