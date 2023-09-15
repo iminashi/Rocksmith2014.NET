@@ -531,6 +531,7 @@ let exit state =
         deleteTemporaryFilesForQuickEdit state
         state.FontGenerationWatcher |> Option.iter (fun f -> f.Dispose())
         (RecentFilesList.save state.RecentFiles).Wait()
+        (Configuration.save state.Config).Wait()
     with _ ->
         ()
 

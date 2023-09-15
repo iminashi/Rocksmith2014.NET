@@ -5,6 +5,7 @@
 - Fixed possible false positives for the "HOPO into same fret" validation after a slide.
 - Fixed possible false positives for the "finger changes during slide" validation for slides from a low position.
 - Fixed an issue in the base tone automatic naming.
+- Fixed an issue with the configuration not being saved when changed from the quick access build options.
 
 ## 2.2.2 (Released 2023-08-09)
 
