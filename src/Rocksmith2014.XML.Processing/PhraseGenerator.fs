@@ -164,73 +164,78 @@ module private Helpers =
                 // Add 100ms if the note has no sustain to prevent infinite loop
                 Some (note.Time + 100)
 
-        let rec finder earlier time =
-            let insideNoteSustain =
-                level.Notes
-                |> ResizeArray.tryFind (fun x -> x.Time < time && x.Time + x.Sustain > time)
+        let rec finder loopCount earlier time =
+            let loopCount = loopCount + 1
+            if loopCount > 20 then
+                // Safeguard for infinite loop
+                time
+            else
+                let insideNoteSustain =
+                    level.Notes
+                    |> ResizeArray.tryFind (fun x -> x.Time < time && x.Time + x.Sustain > time)
 
-            match insideNoteSustain with
-            | Some note ->
-                // Time was inside a note's sustain, continue search from new position
-                let newTime = if earlier then note.Time else note.Time + note.Sustain
-                finder earlier newTime
-            | None ->
-                let noteIndexAtCurrentTime = level.Notes.FindIndexByTime(time)
+                match insideNoteSustain with
+                | Some note ->
+                    // Time was inside a note's sustain, continue search from new position
+                    let newTime = if earlier then note.Time else note.Time + note.Sustain
+                    finder loopCount earlier newTime
+                | None ->
+                    let noteIndexAtCurrentTime = level.Notes.FindIndexByTime(time)
 
-                let breaksLinkNext =
-                    if noteIndexAtCurrentTime < 0 then
-                        None
-                    else
-                        let note = level.Notes[noteIndexAtCurrentTime]
+                    let breaksLinkNext =
+                        if noteIndexAtCurrentTime < 0 then
+                            None
+                        else
+                            let note = level.Notes[noteIndexAtCurrentTime]
 
-                        let linkNextNoteTime =
-                            match findPreviousNoteOnSameString level.Notes noteIndexAtCurrentTime with
-                            | Some note, _ when note.IsLinkNext ->
-                                Some (if earlier then note.Time else note.Time + note.Sustain)
-                            | _ ->
-                                None
-
-                        match linkNextNoteTime with
-                        | Some _ when not earlier ->
-                            // Use the end time of the linknext target note when searching for a later time
-                            getNoteEndTime note
-                        | Some _ ->
-                            linkNextNoteTime
-                        | None ->
-                            // Try to find a chord with linknext chord note on the same string as note at current time
-                            let linkNextChordTime =
-                                match findPreviousChordUsingSameString chordTemplates level.Chords note.String note.Time with
-                                | Some (c, _) when c.HasChordNotes && c.ChordNotes.Exists(fun cn -> cn.String = note.String && cn.IsLinkNext) ->
-                                    Some c.Time
+                            let linkNextNoteTime =
+                                match findPreviousNoteOnSameString level.Notes noteIndexAtCurrentTime with
+                                | Some note, _ when note.IsLinkNext ->
+                                    Some (if earlier then note.Time else note.Time + note.Sustain)
                                 | _ ->
                                     None
 
-                            match linkNextChordTime with
+                            match linkNextNoteTime with
                             | Some _ when not earlier ->
-                                // Use the linknext target note end time when searching for a later time
+                                // Use the end time of the linknext target note when searching for a later time
                                 getNoteEndTime note
-                            | _ ->
-                                linkNextChordTime
+                            | Some _ ->
+                                linkNextNoteTime
+                            | None ->
+                                // Try to find a chord with linknext chord note on the same string as note at current time
+                                let linkNextChordTime =
+                                    match findPreviousChordUsingSameString chordTemplates level.Chords note.String note.Time with
+                                    | Some (c, _) when c.HasChordNotes && c.ChordNotes.Exists(fun cn -> cn.String = note.String && cn.IsLinkNext) ->
+                                        Some c.Time
+                                    | _ ->
+                                        None
 
-                match breaksLinkNext with
-                | Some newTime ->
-                    // Time was on a note head and the previous note on the same string had linknext, continue search
-                    finder earlier newTime
-                | None ->
-                    let breaksHandShape =
-                        level.HandShapes
-                        |> ResizeArray.tryFind (fun x -> x.StartTime < time && x.EndTime > time)
+                                match linkNextChordTime with
+                                | Some _ when not earlier ->
+                                    // Use the linknext target note end time when searching for a later time
+                                    getNoteEndTime note
+                                | _ ->
+                                    linkNextChordTime
 
-                    match breaksHandShape with
-                    | Some hs ->
-                        // Time was inside a handshape, continue search
-                        let newTime = if earlier then hs.Time else hs.EndTime
-                        finder earlier newTime
+                    match breaksLinkNext with
+                    | Some newTime ->
+                        // Time was on a note head and the previous note on the same string had linknext, continue search
+                        finder loopCount earlier newTime
                     | None ->
-                        time
+                        let breaksHandShape =
+                            level.HandShapes
+                            |> ResizeArray.tryFind (fun x -> x.StartTime < time && x.EndTime > time)
 
-        let earlierTime = finder true initialTime
-        let laterTime = finder false initialTime
+                        match breaksHandShape with
+                        | Some hs ->
+                            // Time was inside a handshape, continue search
+                            let newTime = if earlier then hs.Time else hs.EndTime
+                            finder loopCount earlier newTime
+                        | None ->
+                            time
+
+        let earlierTime = finder 0 true initialTime
+        let laterTime = finder 0 false initialTime
 
         earlierTime, laterTime
 
