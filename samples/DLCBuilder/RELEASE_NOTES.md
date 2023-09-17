@@ -1,8 +1,8 @@
-## 2.3.0 (Released 2023-09-xx)
+## 2.3.0 (Released 2023-09-17)
 
 - Added an exit confirmation if the project has unsaved changes.
 - Improved the phrase generator when used on arrangements that have existing DD levels.
-- Fixed a bug where the phrase generator would place a phrase in a place that cause linknext issues.
+- Fixed a bug where the phrase generator would place a phrase badly and cause linknext issues.
 - Fixed possible false positives for the "HOPO into same fret" validation after a slide.
 - Fixed possible false positives for the "finger changes during slide" validation for slides from a low position.
 - Fixed an issue in the base tone automatic naming.
