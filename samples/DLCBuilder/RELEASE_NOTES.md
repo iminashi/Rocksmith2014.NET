@@ -1,3 +1,7 @@
+## 2.x.x (Released 2023-10-xx)
+
+- Fixed an issue where adding an arrangement would overwrite the album year in the project with the year from the XML metadata.
+
 ## 2.3.0 (Released 2023-09-17)
 
 - Added an exit confirmation if the project has unsaved changes.
