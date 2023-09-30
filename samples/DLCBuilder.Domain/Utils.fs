@@ -143,36 +143,40 @@ let addDefaultTonesIfNeeded (project: DLCProject) =
 
     { project with Tones = neededTones @ project.Tones }
 
-/// Adds metadata to the project if the metadata option is Some.
-let addMetadata (md: MetaData option) (charterName: string) (project: DLCProject) =
-    match md with
-    | Some md ->
-        { project with
-            DLCKey =
-                if String.IsNullOrWhiteSpace(project.DLCKey) then
-                    DLCKey.create charterName md.ArtistName md.Title
-                else
-                    project.DLCKey
-            ArtistName =
-                if project.ArtistName = SortableString.Empty then
-                    // Ignore the sort value from the XML
-                    SortableString.Create(md.ArtistName)
-                else
-                    project.ArtistName
-            Title =
-                if project.Title = SortableString.Empty then
-                    SortableString.Create(md.Title, md.TitleSort)
-                else
-                    project.Title
-            AlbumName =
-                if project.AlbumName = SortableString.Empty then
-                    SortableString.Create(md.AlbumName, md.AlbumNameSort)
-                else
-                    project.AlbumName
-            Year =
-                if md.AlbumYear > 0 then md.AlbumYear else project.Year }
-    | None ->
-        project
+/// Adds metadata to the project for missing metadata fields.
+let addMetadata (md: MetaData) (charterName: string) (project: DLCProject) =
+    let artistNameNotSet = project.ArtistName.IsEmpty
+    let titleNotSet = project.Title.IsEmpty
+    let shouldUpdateYear =
+        md.AlbumYear > 0
+        && artistNameNotSet
+        && titleNotSet
+        && project.Year = DLCProject.Empty.Year
+
+    { project with
+        DLCKey =
+            if String.IsNullOrWhiteSpace(project.DLCKey) then
+                DLCKey.create charterName md.ArtistName md.Title
+            else
+                project.DLCKey
+        ArtistName =
+            if artistNameNotSet then
+                // Ignore the sort value from the XML
+                SortableString.Create(md.ArtistName)
+            else
+                project.ArtistName
+        Title =
+            if titleNotSet then
+                SortableString.Create(md.Title, md.TitleSort)
+            else
+                project.Title
+        AlbumName =
+            if project.AlbumName.IsEmpty then
+                SortableString.Create(md.AlbumName, md.AlbumNameSort)
+            else
+                project.AlbumName
+        Year =
+            if shouldUpdateYear then md.AlbumYear else project.Year }
 
 /// Starts the given path or URL using the operating system shell.
 let openWithShell pathOrUrl =

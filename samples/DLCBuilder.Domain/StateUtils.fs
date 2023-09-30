@@ -203,7 +203,8 @@ let addArrangements fileNames state =
 
     let newState =
         let project =
-            Utils.addMetadata metadata state.Config.CharterName state.Project
+            (state.Project, metadata)
+            ||> Option.fold (fun project md -> Utils.addMetadata md state.Config.CharterName project)
 
         { state with Project = { project with Arrangements = List.sortBy Arrangement.sorter arrangements } }
 
