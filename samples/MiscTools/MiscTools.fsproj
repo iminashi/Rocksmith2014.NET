@@ -24,10 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia.Desktop" Version="0.10.21" />
-    <PackageReference Include="JaggerJo.Avalonia.FuncUI" Version="0.5.3" />
-    <PackageReference Include="JaggerJo.Avalonia.FuncUI.DSL" Version="0.5.3" />
-    <PackageReference Include="JaggerJo.Avalonia.FuncUI.Elmish" Version="0.5.3" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.0.4" />
+    <PackageReference Include="Avalonia.FuncUI" Version="1.0.1" />
+    <PackageReference Include="Avalonia.FuncUI.Elmish" Version="1.0.1" />
+    <PackageReference Include="Avalonia.Themes.Simple" Version="11.0.4" />
   </ItemGroup>
 
   <ItemGroup>
