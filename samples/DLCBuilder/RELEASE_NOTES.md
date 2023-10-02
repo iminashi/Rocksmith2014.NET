@@ -1,5 +1,6 @@
 ## 2.x.x (Released 2023-10-xx)
 
+- Updated the UI framework to new major version (Avalonia 11).
 - Fixed an issue where adding an arrangement would overwrite the album year in the project with the year from the XML metadata.
 
 ## 2.3.0 (Released 2023-09-17)
