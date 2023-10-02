@@ -270,10 +270,10 @@ let editProject edit project =
         { project with Year = year }
 
     | SetAudioVolume volume ->
-        { project with AudioFile = { project.AudioFile with Volume = volume } }
+        { project with AudioFile = { project.AudioFile with Volume = float volume } }
 
     | SetPreviewVolume volume ->
-        { project with AudioPreviewFile = { project.AudioPreviewFile with Volume = volume } }
+        { project with AudioPreviewFile = { project.AudioPreviewFile with Volume = float volume } }
 
     | SetPreviewStartTime timeComponent ->
         let currentTime = project.AudioPreviewStartTime |> Option.defaultValue (TimeSpan())

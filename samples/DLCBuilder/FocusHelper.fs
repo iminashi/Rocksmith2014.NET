@@ -4,6 +4,8 @@ open System.Collections.Generic
 open Avalonia.Controls
 open Avalonia.Input
 
+// TODO: Still needed?
+
 let mutable private window: Window option = None
 
 let private previouslyFocused = Stack<IInputElement>()
@@ -11,18 +13,23 @@ let private previouslyFocused = Stack<IInputElement>()
 let init w = window <- Some w
 
 let private focusWindow () =
-    window |> Option.iter (fun w -> w.Focus())
+    window |> Option.iter (fun w -> w.Focus() |> ignore)
 
 let storeFocusedElement () =
-    if notNull FocusManager.Instance.Current then
-        previouslyFocused.Push(FocusManager.Instance.Current)
+    match window |> Option.map (fun w -> TopLevel.GetTopLevel(w).FocusManager) with
+    | Some fm ->
+        let focusedElemnent = fm.GetFocusedElement()
+        if notNull focusedElemnent then
+            previouslyFocused.Push(focusedElemnent)
+    | None ->
+        ()
 
     // Blur the focus from the element
     focusWindow ()
 
 let restoreFocus () =
     if previouslyFocused.Count > 0 then
-        previouslyFocused.Pop().Focus()
+        previouslyFocused.Pop().Focus() |> ignore
     else
         focusWindow ()
 
@@ -34,6 +41,6 @@ let restoreRootFocus () =
         element <- previouslyFocused.Pop()
 
     if notNull element then
-        element.Focus()
+        element.Focus() |> ignore
     else
         focusWindow ()

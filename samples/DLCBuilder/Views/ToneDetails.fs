@@ -151,12 +151,12 @@ let view state dispatch (tone: Tone) =
                         NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                         NumericUpDown.verticalAlignment VerticalAlignment.Center
                         NumericUpDown.width 140.
-                        NumericUpDown.minimum 0.1
-                        NumericUpDown.maximum 36.
-                        NumericUpDown.increment 0.1
+                        NumericUpDown.minimum 0.1m
+                        NumericUpDown.maximum 36.0m
+                        NumericUpDown.increment 0.1m
                         NumericUpDown.formatString "F1"
-                        FixedNumericUpDown.value (-tone.Volume)
-                        FixedNumericUpDown.onValueChanged (SetVolume >> EditTone >> dispatch)
+                        FixedNumericUpDown.value (decimal -tone.Volume)
+                        FixedNumericUpDown.onValueChanged (float >> SetVolume >> EditTone >> dispatch)
                     ]
 
                     Grid.create [

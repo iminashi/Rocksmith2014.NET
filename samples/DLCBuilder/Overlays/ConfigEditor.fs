@@ -387,10 +387,10 @@ let private ddConfig state dispatch =
                 FixedNumericUpDown.create [
                     NumericUpDown.margin (6., 2.)
                     NumericUpDown.width 140.
-                    NumericUpDown.minimum 0.
-                    NumericUpDown.maximum 100.
+                    NumericUpDown.minimum 0.0m
+                    NumericUpDown.maximum 100.0m
                     NumericUpDown.formatString "F0"
-                    FixedNumericUpDown.value (float state.Config.DDPhraseSearchThreshold)
+                    FixedNumericUpDown.value (decimal state.Config.DDPhraseSearchThreshold)
                     FixedNumericUpDown.onValueChanged (int >> SetDDPhraseSearchThreshold >> EditConfig >> dispatch)
                 ]
                 TextBlock.create [

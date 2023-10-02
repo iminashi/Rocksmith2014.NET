@@ -5,7 +5,6 @@ open Avalonia
 open Avalonia.Controls
 open Avalonia.FuncUI.Builder
 open Avalonia.FuncUI.Types
-open Avalonia.Styling
 open System
 open System.Reactive.Linq
 
@@ -17,7 +16,7 @@ type FixedAutoCompleteBox() =
     let mutable changeCallback: string -> unit = ignore
     let mutable validationCallback: string -> bool = fun _ -> true
 
-    interface IStyleable with member _.StyleKey = typeof<AutoCompleteBox>
+    override _.StyleKeyOverride = typeof<AutoCompleteBox>
 
     member val NoNotify = false with get, set
 

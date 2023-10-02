@@ -47,11 +47,12 @@ let view state dispatch reply (arrangements: Arrangement list) =
                 TextBlock.margin 10.0
             ]
 
-            ItemsRepeater.create [
-                ItemsRepeater.dataItems arrangements
-                ItemsRepeater.horizontalAlignment HorizontalAlignment.Center
-                ItemsRepeater.width 300.
-                ItemsRepeater.itemTemplate (arrangement state)
+            // TODO: Used to be ItemsRepeater
+            ItemsControl.create [
+                ItemsControl.dataItems arrangements
+                ItemsControl.horizontalAlignment HorizontalAlignment.Center
+                ItemsControl.width 300.
+                ItemsControl.itemTemplate (arrangement state)
             ]
 
             Expander.create [

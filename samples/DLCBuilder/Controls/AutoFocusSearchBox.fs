@@ -36,7 +36,7 @@ type AutoFocusSearchBox() =
         deleteButton.Tapped.Add (fun _ ->
             deleteButton.IsVisible <- false
             textBox.Clear()
-            textBox.Focus())
+            textBox.Focus() |> ignore)
 
         let panel = Panel()
         panel.Children.AddRange [ textBox; deleteButton ]

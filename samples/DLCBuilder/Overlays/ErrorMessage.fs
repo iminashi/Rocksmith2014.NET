@@ -51,9 +51,13 @@ let view dispatch msg info =
                                 Button.horizontalAlignment HorizontalAlignment.Right
                                 Button.content (translate "CopyInformation")
                                 Button.padding (15., 5.)
-                                Button.onClick (fun _ ->
-                                    Application.Current.Clipboard.SetTextAsync(moreInfo)
-                                    |> ignore
+                                Button.onClick (fun e ->
+                                    match e.Source with
+                                    | :? Visual as v ->
+                                        TopLevel.GetTopLevel(v).Clipboard.SetTextAsync(moreInfo)
+                                        |> ignore
+                                    | _ ->
+                                        ()
                                 )
                             ]
                         ]

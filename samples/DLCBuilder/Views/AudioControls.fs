@@ -20,7 +20,7 @@ let private panel state dispatch =
 
     Panel.create [
         Panel.children [
-            ViewBox.create [
+            Viewbox.create [
                 Viewbox.width 80.
                 Viewbox.height 80.
                 Viewbox.margin 12.
@@ -74,7 +74,7 @@ let private panel state dispatch =
                                     TextBlock.onTapped (fun e ->
                                         match e.Source with
                                         | :? TextBlock as t ->
-                                            Application.Current.Clipboard.SetTextAsync(t.Text)
+                                            TopLevel.GetTopLevel(t).Clipboard.SetTextAsync(t.Text)
                                             |> ignore
                                         | _ ->
                                             ())
@@ -92,12 +92,12 @@ let private panel state dispatch =
                             FixedNumericUpDown.create [
                                 NumericUpDown.minWidth 130.
                                 NumericUpDown.margin (2.0, 2.0, 2.0, 2.0)
-                                NumericUpDown.minimum -45.
-                                NumericUpDown.maximum 45.
-                                NumericUpDown.increment 0.5
+                                NumericUpDown.minimum -45.0m
+                                NumericUpDown.maximum 45.0m
+                                NumericUpDown.increment 0.5m
                                 NumericUpDown.formatString "+0.0;-0.0;0.0"
                                 NumericUpDown.isEnabled (not <| state.RunningTasks.Contains(VolumeCalculation MainAudio))
-                                FixedNumericUpDown.value state.Project.AudioFile.Volume
+                                FixedNumericUpDown.value (decimal state.Project.AudioFile.Volume)
                                 FixedNumericUpDown.onValueChanged (SetAudioVolume >> EditProject >> dispatch)
                                 ToolTip.tip (translate "AudioVolumeToolTip")
                             ]
@@ -137,12 +137,12 @@ let private panel state dispatch =
                                 NumericUpDown.minWidth 130.
                                 NumericUpDown.margin (2.0, 2.0, 2.0, 2.0)
                                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
-                                NumericUpDown.minimum -45.
-                                NumericUpDown.maximum 45.
-                                NumericUpDown.increment 0.5
+                                NumericUpDown.minimum -45.0m
+                                NumericUpDown.maximum 45.0m
+                                NumericUpDown.increment 0.5m
                                 NumericUpDown.formatString "+0.0;-0.0;0.0"
                                 NumericUpDown.isEnabled (not <| state.RunningTasks.Contains(VolumeCalculation PreviewAudio))
-                                FixedNumericUpDown.value state.Project.AudioPreviewFile.Volume
+                                FixedNumericUpDown.value (decimal state.Project.AudioPreviewFile.Volume)
                                 FixedNumericUpDown.onValueChanged (SetPreviewVolume >> EditProject >> dispatch)
                                 ToolTip.tip (translate "PreviewAudioVolumeToolTip")
                             ]

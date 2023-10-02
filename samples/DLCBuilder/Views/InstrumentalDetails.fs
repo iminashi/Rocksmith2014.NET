@@ -209,12 +209,12 @@ let view state dispatch (inst: Instrumental) =
                     FixedNumericUpDown.create [
                         NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                         NumericUpDown.width 160.
-                        NumericUpDown.minimum 0.0
-                        NumericUpDown.maximum 50000.0
-                        NumericUpDown.increment 1.0
+                        NumericUpDown.minimum 0.0m
+                        NumericUpDown.maximum 50000.0m
+                        NumericUpDown.increment 1.0m
                         NumericUpDown.formatString "F2"
-                        FixedNumericUpDown.value inst.TuningPitch
-                        FixedNumericUpDown.onValueChanged (SetTuningPitch >> EditInstrumental >> dispatch)
+                        FixedNumericUpDown.value (decimal inst.TuningPitch)
+                        FixedNumericUpDown.onValueChanged (float >> SetTuningPitch >> EditInstrumental >> dispatch)
                     ]
                     TextBlock.create [
                         TextBlock.verticalAlignment VerticalAlignment.Center
@@ -276,12 +276,12 @@ let view state dispatch (inst: Instrumental) =
                 ToolTip.tip (translate "ScrollSpeedToolTip")
                 NumericUpDown.isVisible state.Config.ShowAdvanced
                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
-                NumericUpDown.increment 0.1
-                NumericUpDown.maximum 5.0
-                NumericUpDown.minimum 0.5
+                NumericUpDown.increment 0.1m
+                NumericUpDown.maximum 5.0m
+                NumericUpDown.minimum 0.5m
                 NumericUpDown.formatString "F1"
-                FixedNumericUpDown.value inst.ScrollSpeed
-                FixedNumericUpDown.onValueChanged (SetScrollSpeed >> EditInstrumental >> dispatch)
+                FixedNumericUpDown.value (decimal inst.ScrollSpeed)
+                FixedNumericUpDown.onValueChanged (float >> SetScrollSpeed >> EditInstrumental >> dispatch)
             ]
 
             // Master ID
@@ -403,15 +403,16 @@ let view state dispatch (inst: Instrumental) =
                             true)
                     NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                     NumericUpDown.minWidth 130.
-                    NumericUpDown.minimum -45.
-                    NumericUpDown.maximum 45.
-                    NumericUpDown.increment 0.5
+                    NumericUpDown.minimum -45.0m
+                    NumericUpDown.maximum 45.0m
+                    NumericUpDown.increment 0.5m
                     NumericUpDown.formatString "+0.0;-0.0;0.0"
                     FixedNumericUpDown.value (
                         inst.CustomAudio
                         |> Option.map (fun x -> x.Volume)
-                        |> Option.defaultValue state.Project.AudioFile.Volume)
-                    FixedNumericUpDown.onValueChanged (SetCustomAudioVolume >> EditInstrumental >> dispatch)
+                        |> Option.defaultValue state.Project.AudioFile.Volume
+                        |> decimal)
+                    FixedNumericUpDown.onValueChanged (float >> SetCustomAudioVolume >> EditInstrumental >> dispatch)
                     ToolTip.tip (translate "AudioVolumeToolTip")
                 ]
         ]

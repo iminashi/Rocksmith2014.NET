@@ -107,10 +107,10 @@ let private configuration isEnabled dispatch state =
                 Grid.row 1
                 Grid.column 1
                 FixedNumericUpDown.width 120.
-                FixedNumericUpDown.minimum 1.
-                FixedNumericUpDown.maximum (float Environment.ProcessorCount)
+                FixedNumericUpDown.minimum 1.0m
+                FixedNumericUpDown.maximum (decimal Environment.ProcessorCount)
                 FixedNumericUpDown.formatString "F0"
-                FixedNumericUpDown.value (float state.Config.ProfileCleanerIdParsingParallelism)
+                FixedNumericUpDown.value (decimal state.Config.ProfileCleanerIdParsingParallelism)
                 FixedNumericUpDown.onValueChanged (int >> SetProfileCleanerParallelism >> EditConfig >> dispatch)
             ]
 

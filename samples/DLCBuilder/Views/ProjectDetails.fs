@@ -14,8 +14,7 @@ open DLCBuilder
 open Media
 
 let private coverArtPlaceholder =
-    let assets = AvaloniaLocator.Current.GetService<IAssetLoader>()
-    new Bitmap(assets.Open(Uri("avares://DLCBuilder/Assets/coverart_placeholder.png")))
+    new Bitmap(AssetLoader.Open(Uri("avares://DLCBuilder/Assets/coverart_placeholder.png")))
 
 let private buildControls state dispatch =
     let canBuild = StateUtils.canStartBuild state

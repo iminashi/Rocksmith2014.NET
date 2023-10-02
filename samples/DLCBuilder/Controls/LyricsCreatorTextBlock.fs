@@ -4,10 +4,10 @@ namespace DLCBuilder
 open Avalonia
 open Avalonia.Controls
 open Avalonia.FuncUI.Builder
+open Avalonia.FuncUI.DSL
 open Avalonia.FuncUI.Types
 open Avalonia.Input
 open Avalonia.Interactivity
-open Avalonia.Styling
 open JapaneseLyricsCreator
 
 [<Sealed>]
@@ -36,7 +36,7 @@ type LyricsCreatorTextBlock() =
         base.OnGotFocus(e)
         this.BringIntoView()
 
-    interface IStyleable with member _.StyleKey = typeof<TextBlock>
+    override _.StyleKeyOverride = typeof<TextBlock>
 
     static member onClick(fn: CombinationLocation -> unit) =
         let getter (c: LyricsCreatorTextBlock) = c.Dispatch

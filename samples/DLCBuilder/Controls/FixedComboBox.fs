@@ -5,7 +5,6 @@ open Avalonia
 open Avalonia.Controls
 open Avalonia.FuncUI.Builder
 open Avalonia.FuncUI.Types
-open Avalonia.Styling
 open System
 open System.Reactive.Linq
 open System.Collections
@@ -15,7 +14,7 @@ type FixedComboBox() =
     let mutable sub: IDisposable = null
     let mutable changeCallback: obj -> unit = ignore
 
-    interface IStyleable with member _.StyleKey = typeof<ComboBox>
+    override _.StyleKeyOverride = typeof<ComboBox>
 
     member val NoNotify = false with get, set
 
@@ -60,7 +59,7 @@ type FixedComboBox() =
         let getter: 't -> IEnumerable = fun c -> c.Items
         let setter: 't * IEnumerable -> unit = fun (c, v) ->
             let wasSelected = c.SelectedItem
-            c.Items <- v
+            c.ItemsSource <- v
             if notNull wasSelected && items |> Seq.cast<obj> |> Seq.contains wasSelected then
                 c.NoNotify <- true
                 c.SelectedItem <- wasSelected

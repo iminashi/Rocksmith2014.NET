@@ -5,7 +5,6 @@ open Avalonia
 open Avalonia.Controls
 open Avalonia.FuncUI.Builder
 open Avalonia.FuncUI.Types
-open Avalonia.Styling
 open System
 open System.Reactive.Linq
 open DLCBuilder.ToneGear
@@ -30,7 +29,7 @@ type ToneKnobSlider() =
 
     do base.IsSnapToTickEnabled <- true
 
-    interface IStyleable with member _.StyleKey = typeof<Slider>
+    override _.StyleKeyOverride = typeof<Slider>
 
     member val NoNotify = false with get, set
 

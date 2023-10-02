@@ -4,8 +4,8 @@ namespace DLCBuilder
 open Avalonia.Controls
 open Avalonia.Controls.Selection
 open Avalonia.FuncUI.Builder
+open Avalonia.FuncUI.DSL
 open Avalonia.FuncUI.Types
-open Avalonia.Styling
 open Rocksmith2014.Common.Manifest
 
 [<Sealed>]
@@ -17,7 +17,7 @@ type ToneImportListBox() =
 
     do base.Selection <- selectedTones
 
-    interface IStyleable with member _.StyleKey = typeof<ListBox>
+    override _.StyleKeyOverride = typeof<ListBox>
 
     member _.OnSelectedItemsChangedCallback
         with get(): Tone list -> unit = selectionChangedCallback
