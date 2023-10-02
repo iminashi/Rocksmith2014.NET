@@ -131,10 +131,17 @@ type MainWindow(commandLineArgs: string array) as this =
             base.Position <- PixelPoint(max 0 status.X, max 0 status.Y)
             base.WindowState <- status.State
 
-        let hotKeysSub _initialModel = Cmd.ofSub (HotKeys.handleEvent >> this.KeyDown.Add)
+        let nopDisposable = { new IDisposable with member _.Dispose() = () }
+
+        let hotKeysSub _initialModel =
+            let handleHotKey dispatch =
+                HotKeys.handleEvent dispatch |> this.KeyDown.Add
+                nopDisposable
+
+            [ [ "hotkeys" ], handleHotKey ]
 
         let programClosingSub _ =
-            fun dispatch ->
+            let closing dispatch =
                 this.Closing.Add(fun args ->
                     match windowClosingState with
                     | ClosingMayRequireConfirmation ->
@@ -143,17 +150,21 @@ type MainWindow(commandLineArgs: string array) as this =
                     | ClosingAllowed ->
                         args.Cancel <- false
                         saveWindowState ())
-            |> Cmd.ofSub
+                nopDisposable
+
+            [ [ "closing" ], closing ]
 
         let autoSaveSub _ =
-            fun dispatch ->
+            let autoSave dispatch =
                 autoSaveSubject
                     .Throttle(TimeSpan.FromSeconds(1.))
                     .Add(fun () -> dispatch AutoSaveProject)
-            |> Cmd.ofSub
+                nopDisposable
+
+            [ [ "autosave" ], autoSave ]
 
         let progressReportingSub _ =
-            fun dispatch ->
+            let progressReport dispatch =
                 let dispatchProgress task progress = TaskProgressChanged(task, progress) |> dispatch
                 ProgressReporters.ArrangementCheck.ProgressChanged.Add(dispatchProgress ArrangementCheckAll)
                 ProgressReporters.PsarcImport.ProgressChanged.Add(dispatchProgress PsarcImport)
@@ -161,18 +172,24 @@ type MainWindow(commandLineArgs: string array) as this =
                 ProgressReporters.PackageBuild.ProgressChanged.Add(dispatchProgress BuildPackage)
                 ProgressReporters.DownloadFile.ProgressChanged.Add(fun (id, progress) -> dispatchProgress (FileDownload id) progress)
                 ProgressReporters.ProfileCleaner.ProgressChanged.Add(ProfileCleanerProgressChanged >> ToolsMsg >> dispatch)
-            |> Cmd.ofSub
+                nopDisposable
+
+            [ [ "reportprogress" ], progressReport ]
 
         let idRegenerationConfirmationSub _ =
-            fun dispatch ->
+            let confirmation dispatch =
                 IdRegenerationHelper.RequestConfirmation.Add(ConfirmIdRegeneration >> dispatch)
                 IdRegenerationHelper.NewIdsGenerated.Add(SetNewArrangementIds >> dispatch)
-            |> Cmd.ofSub
+                nopDisposable
+
+            [ [ "idregenerationconfirm" ], confirmation ]
 
         let fontGeneratedSub _ =
-            fun dispatch ->
+            let fontGenerated dispatch =
                 FontGeneratorHelper.FontGenerated.Add(FontGenerated >> dispatch)
-            |> Cmd.ofSub
+                nopDisposable
+
+            [ [ "fontgenerated" ], fontGenerated ]
 
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
         //this.VisualRoot.VisualRoot.Renderer.DrawDirtyRects <- true
@@ -250,6 +267,6 @@ type MainWindow(commandLineArgs: string array) as this =
         |> Program.withSubscription programClosingSub
         |> Program.withSubscription fontGeneratedSub
         #if DEBUG
-        |> Program.withTrace (fun msg _state -> Diagnostics.Debug.WriteLine(msg))
+        |> Program.withTrace (fun msg _state _subs -> Diagnostics.Debug.WriteLine(msg))
         #endif
-        |> Program.runWith commandLineArgs
+        |> Program.runWithAvaloniaSyncDispatch commandLineArgs
