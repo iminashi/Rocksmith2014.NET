@@ -3,6 +3,7 @@ namespace DLCBuilder
 open Avalonia
 open Avalonia.Controls.ApplicationLifetimes
 open Avalonia.FuncUI
+open Avalonia.Styling
 open Avalonia.Themes.Fluent
 open System
 open System.IO
@@ -11,7 +12,8 @@ type App() =
     inherit Application()
 
     override this.Initialize() =
-        this.Styles.Add(FluentTheme(baseUri = null, Mode = FluentThemeMode.Dark))
+        this.Styles.Add(FluentTheme())
+        this.RequestedThemeVariant <- ThemeVariant.Dark
         this.Styles.Load("avares://DLCBuilder/Styles.xaml")
         this.Name <- "Rocksmith 2014 DLC Builder"
 
