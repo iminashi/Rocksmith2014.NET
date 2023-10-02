@@ -1,10 +1,12 @@
 module DLCBuilder.Dialogs
 
 open Avalonia.Controls
+open Avalonia.Platform.Storage
 open Avalonia.Threading
 open Elmish
 open Rocksmith2014.DLCProject
 open System
+open System.Collections.Generic
 open System.IO
 
 [<RequireQualifiedAccess>]
@@ -24,43 +26,46 @@ type FileFilter =
     | WwiseConsoleApplication
     | Executable
 
-let private createFilters name (extensions: string seq) =
-    ResizeArray.singleton (FileDialogFilter(Extensions = ResizeArray(extensions), Name = name))
+let private createFilters (name: string) (extensions: string list) =
+    // TODO
+    let mimeType = "application/octet-stream"
+    FilePickerFileType(name, Patterns = extensions, MimeTypes = [| mimeType |])
+    |> Array.singleton
 
 let private wwiseConsoleExtension =
-    PlatformSpecific.Value(mac = "sh", windows = "exe", linux = "exe")
+    PlatformSpecific.Value(mac = "*.sh", windows = "*.exe", linux = "*.exe")
 
 let private createFileFilters filter =
     let extensions =
         match filter with
         | FileFilter.WavOgg ->
-            [ "wav"; "ogg" ]
+            [ "*.wav"; "*.ogg" ]
         | FileFilter.Audio ->
-            [ "wav"; "ogg"; "wem" ]
+            [ "*.wav"; "*.ogg"; "*.wem" ]
         | FileFilter.Wem ->
-            [ "wem" ]
+            [ "*.wem" ]
         | FileFilter.XML ->
-            [ "xml" ]
+            [ "*.xml" ]
         | FileFilter.Image ->
-            [ "png"; "jpg"; "dds" ]
+            [ "*.png"; "*.jpg"; "*.dds" ]
         | FileFilter.DDS ->
-            [ "dds" ]
+            [ "*.dds" ]
         | FileFilter.Profile ->
-            [ ]
+            [ "*.*" ]
         | FileFilter.Project ->
-            [ "rs2dlc" ]
+            [ "*.rs2dlc" ]
         | FileFilter.PSARC ->
-            [ "psarc" ]
+            [ "*.psarc" ]
         | FileFilter.ToolkitTemplate ->
-            [ "dlc.xml" ]
+            [ "*.dlc.xml" ]
         | FileFilter.ToneImport ->
-            [ "tone2014.xml"; "tone2014.json"; "psarc" ]
+            [ "*.tone2014.xml"; "*.tone2014.json"; "*.psarc" ]
         | FileFilter.ToneExport ->
-            [ "tone2014.xml"; "tone2014.json" ]
+            [ "*.tone2014.xml"; "*.tone2014.json" ]
         | FileFilter.WwiseConsoleApplication ->
             [ wwiseConsoleExtension ]
         | FileFilter.Executable ->
-            [ "exe" ] // TODO: Windows-only
+            [ "*.exe" ] // TODO: Windows-only
 
     let name =
         match filter with
@@ -72,59 +77,98 @@ let private createFileFilters filter =
 
     createFilters name extensions
 
-/// Shows an open folder dialog.
-let private openFolderDialog window title directory msg =
+let private getInitialDirectoryString (window: Window) (pathOpt: string option) =
     task {
-        let! result =
-            Dispatcher.UIThread.InvokeAsync<string>(fun () ->
-                OpenFolderDialog(Title = title, Directory = Option.toObj directory)
-                    .ShowAsync(window))
+        match pathOpt with
+        | Some path ->
+            return! window.StorageProvider.TryGetFolderFromPathAsync(path)
+        | None ->
+            return null
+    }
 
-        return Option.ofString result |> Option.map msg
+/// Shows an open folder dialog.
+let private openFolderDialog (window: Window) (title: string) (directory: string option) msg =
+    task {
+        let! initialDirectory = getInitialDirectoryString window directory
+
+        let! result =
+            Dispatcher.UIThread.InvokeAsync<IReadOnlyList<_>>(fun () ->
+                let options = FolderPickerOpenOptions(
+                    Title = title,
+                    SuggestedStartLocation = initialDirectory,
+                    AllowMultiple = false
+                )
+
+                window.StorageProvider.OpenFolderPickerAsync(options)
+            )
+
+        if result.Count = 1 then
+            return Some (msg (result[0].TryGetLocalPath()))
+        else
+            return None
     }
 
 /// Shows a save file dialog.
-let private saveFileDialog window title filter initialFileName directory msg =
+let private saveFileDialog (window: Window) (title: string) (filter: FileFilter) (initialFileName: string option) (directory: string option) msg =
     task {
-        let! result =
-            Dispatcher.UIThread.InvokeAsync<string>(fun () ->
-                SaveFileDialog(
-                    Title = title,
-                    Filters = createFileFilters filter,
-                    InitialFileName = Option.toObj initialFileName,
-                    Directory = Option.toObj directory
-                )
-                    .ShowAsync(window))
+        let! initialDirectory = getInitialDirectoryString window directory
 
-        return Option.ofString result |> Option.map msg
+        let! result =
+            Dispatcher.UIThread.InvokeAsync<IStorageFile>(fun () ->
+                let options = FilePickerSaveOptions(
+                    Title = title,
+                    FileTypeChoices = createFileFilters filter,
+                    SuggestedFileName = Option.toObj initialFileName,
+                    SuggestedStartLocation = initialDirectory
+                )
+
+                window.StorageProvider.SaveFilePickerAsync(options)
+            )
+
+        return Option.ofObj result |> Option.map (fun x -> x.TryGetLocalPath() |> msg)
     }
 
-let private createOpenFileDialog t f d m =
-    OpenFileDialog(Title = t, Filters = createFileFilters f, Directory = Option.toObj d, AllowMultiple = m)
+let private createOpenFileDialogOptions win title filter dir multi =
+    task {
+        let! initialDirectory = getInitialDirectoryString win dir
+        return FilePickerOpenOptions(
+            Title = title,
+            FileTypeFilter = createFileFilters filter,
+            SuggestedStartLocation = initialDirectory,
+            AllowMultiple = multi)
+    }
 
 /// Shows an open file dialog for selecting a single file.
-let private openFileDialog window title filter directory msg =
+let private openFileDialog (window: Window) (title: string) (filter: FileFilter) (directory: string option) msg =
     task {
-        let! result =
-            Dispatcher.UIThread.InvokeAsync<string[]>(fun () ->
-                (createOpenFileDialog title filter directory false).ShowAsync(window))
+        let! options = createOpenFileDialogOptions window title filter directory false
 
-        return
-            Option.ofObj result
-            |> Option.bind Array.tryExactlyOne
-            |> Option.map msg
+        let! result =
+            Dispatcher.UIThread.InvokeAsync<IReadOnlyList<_>>(fun () -> window.StorageProvider.OpenFilePickerAsync(options))
+
+        if result.Count = 1 then
+            return Some (msg (result[0].TryGetLocalPath()))
+        else
+            return None
     }
 
 /// Shows an open file dialog that allows selecting multiple files.
-let private openMultiFileDialog window title filters directory msg =
+let private openMultiFileDialog (window: Window) (title: string) (filter: FileFilter) (directory: string option) msg =
     task {
-        let! result =
-            Dispatcher.UIThread.InvokeAsync<string[]>(fun () ->
-                (createOpenFileDialog title filters directory true).ShowAsync(window))
+        let! options = createOpenFileDialogOptions window title filter directory true
 
-        return
-            Option.ofArray result
-            |> Option.map msg
+        let! result =
+            Dispatcher.UIThread.InvokeAsync<IReadOnlyList<_>>(fun () -> window.StorageProvider.OpenFilePickerAsync(options))
+
+        if result.Count = 0 then
+            return None
+        else
+            return
+                result
+                |> Seq.map (fun x -> x.TryGetLocalPath())
+                |> Seq.toArray
+                |> msg
+                |> Some
     }
 
 let private translateTitle dialogType =
