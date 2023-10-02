@@ -223,24 +223,25 @@ let update (msg: Msg) (state: State) =
             { state with Overlay = NoOverlay }, cmd
 
     | ImportPsarcQuick psarcPath ->
-        let task =
-            task {
-                let targetFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())
-                try
-                    let! r = importPsarc config targetFolder psarcPath
-                    let data =
-                        { PsarcPath = psarcPath
-                          TempDirectory = targetFolder
-                          AppId = r.AppId
-                          BuildToolVersion = r.BuildToolVersion }
+        let targetFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())
 
-                    return PsarcImported(r.GeneratedProject, Quick data)
-                with ex ->
-                    deleteDirectoryRecursively targetFolder
-                    return TaskFailed(ex, PsarcImport)
+        let task () =
+            task {
+                let! r = importPsarc config targetFolder psarcPath
+                let data =
+                    { PsarcPath = psarcPath
+                      TempDirectory = targetFolder
+                      AppId = r.AppId
+                      BuildToolVersion = r.BuildToolVersion }
+
+                return r.GeneratedProject, Quick data
             }
 
-        addTask PsarcImport state, Cmd.OfTask.result task
+        let ofError ex =
+            deleteDirectoryRecursively targetFolder
+            TaskFailed(ex, PsarcImport)
+
+        addTask PsarcImport state, Cmd.OfTask.either task () PsarcImported ofError
 
     | ImportPsarc (psarcPath, targetFolder) ->
         let task () =
@@ -1037,7 +1038,7 @@ let update (msg: Msg) (state: State) =
         let id = Guid.NewGuid()
         let messages = MessageString(id,  message) :: state.StatusMessages
 
-        { state with StatusMessages = messages }, Cmd.OfAsync.result (removeStatusMessage id)
+        { state with StatusMessages = messages }, Cmd.OfAsync.perform removeStatusMessage id RemoveStatusMessage
 
     | RemoveStatusMessage removeId ->
         let messages =
