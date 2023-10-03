@@ -5,8 +5,6 @@ open Avalonia
 open Avalonia.Controls
 open Avalonia.FuncUI.Builder
 open Avalonia.FuncUI.Types
-open Avalonia.Input
-open Avalonia.Input.Platform
 open System
 open System.Reactive.Linq
 
@@ -54,26 +52,6 @@ type FixedTextBox() =
                     .Skip(1)
                     .Where(fun _ -> not this.NoNotify)
                     .Subscribe(changeCallback)
-
-    // TODO
-
-    // Workaround for the inability to validate text that is pasted into the textbox
-    // https://github.com/AvaloniaUI/Avalonia/issues/2611
-    //override this.OnKeyDown(e) =
-    //    let keymap = AvaloniaLocator.Current.GetService<PlatformHotkeyConfiguration>()
-    //    let matchGesture (gestures: ResizeArray<KeyGesture>) = gestures.Exists(fun g -> g.Matches e)
-
-    //    if matchGesture keymap.Paste then
-    //        async {
-    //            let! text =
-    //                (AvaloniaLocator.Current.GetService(typeof<IClipboard>) :?> IClipboard).GetTextAsync()
-    //                |> Async.AwaitTask
-    //            if notNull text then
-    //                this.RaiseEvent(TextInputEventArgs(RoutedEvent = InputElement.TextInputEvent, Text = text, Source = this))
-    //        } |> Async.StartImmediate
-    //        e.Handled <- true
-    //    else
-    //        base.OnKeyDown(e)
 
     override _.OnDetachedFromLogicalTree(e) =
         if notNull textChangedSub then textChangedSub.Dispose()

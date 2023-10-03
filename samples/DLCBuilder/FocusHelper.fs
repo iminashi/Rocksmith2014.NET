@@ -4,8 +4,6 @@ open System.Collections.Generic
 open Avalonia.Controls
 open Avalonia.Input
 
-// TODO: Still needed?
-
 let mutable private window: Window option = None
 
 let private previouslyFocused = Stack<IInputElement>()
