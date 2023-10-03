@@ -44,13 +44,12 @@ let view dispatch msg info =
             | None ->
                 ()
             | Some moreInfo ->
-                vStack [
-                    Panel.create [
-                        Panel.children [
-                            Button.create [
-                                Button.horizontalAlignment HorizontalAlignment.Right
-                                Button.content (translate "CopyInformation")
-                                Button.padding (15., 5.)
+                Expander.create [
+                    Expander.header (
+                        hStack [
+                            locText "AdditionalInformation" []
+                            iconButton Media.Icons.copy [
+                                ToolTip.tip (translate "CopyInformation")
                                 Button.onClick (fun e ->
                                     match e.Source with
                                     | :? Visual as v ->
@@ -61,22 +60,19 @@ let view dispatch msg info =
                                 )
                             ]
                         ]
-                    ]
-                    Expander.create [
-                        Expander.header (translate "AdditionalInformation")
-                        Expander.horizontalAlignment HorizontalAlignment.Stretch
-                        Expander.maxHeight 400.
-                        Expander.maxWidth 600.
-                        Expander.background "#181818"
-                        Expander.content (
-                            TextBox.create [
-                                TextBox.horizontalScrollBarVisibility ScrollBarVisibility.Auto
-                                TextBox.verticalScrollBarVisibility ScrollBarVisibility.Auto
-                                TextBox.text moreInfo
-                                TextBox.isReadOnly true
-                            ]
-                        )
-                    ]
+                    )
+                    Expander.horizontalAlignment HorizontalAlignment.Stretch
+                    Expander.maxHeight 400.
+                    Expander.maxWidth 600.
+                    Expander.background "#181818"
+                    Expander.content (
+                        TextBox.create [
+                            TextBox.horizontalScrollBarVisibility ScrollBarVisibility.Auto
+                            TextBox.verticalScrollBarVisibility ScrollBarVisibility.Auto
+                            TextBox.text moreInfo
+                            TextBox.isReadOnly true
+                        ]
+                    )
                 ]
 
             // OK button
