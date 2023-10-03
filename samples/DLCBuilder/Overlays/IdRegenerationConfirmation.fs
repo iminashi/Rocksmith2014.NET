@@ -47,7 +47,6 @@ let view state dispatch reply (arrangements: Arrangement list) =
                 TextBlock.margin 10.0
             ]
 
-            // TODO: Used to be ItemsRepeater
             ItemsControl.create [
                 ItemsControl.dataItems arrangements
                 ItemsControl.horizontalAlignment HorizontalAlignment.Center
@@ -57,6 +56,7 @@ let view state dispatch reply (arrangements: Arrangement list) =
 
             Expander.create [
                 Expander.header (translate "AdditionalInformation")
+                Expander.width 500.
                 Expander.content (
                     TextBlock.create [
                         TextBlock.text (translate "ArrangementIDRegenerationExplanation")
