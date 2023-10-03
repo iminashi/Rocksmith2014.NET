@@ -1,6 +1,7 @@
 module Rocksmith2014.DLCProject.StringValidator
 
 open System.Globalization
+open System
 open System.Text
 open System.Text.RegularExpressions
 
@@ -53,7 +54,10 @@ let tryGetOfficialArtistNameSortValue (value: string) =
 
 /// Validates a DLC key: only alphanumeric characters allowed.
 let dlcKey (input: string) =
-    Regex.Replace(input, "[^0-9a-zA-Z]", "")
+    if isNull input then
+        String.Empty
+    else
+        Regex.Replace(input, "[^0-9a-zA-Z]", "")
 
 /// Validates a DLC project field (artist, title, album):
 /// only characters included in the fonts the game uses are allowed.
@@ -62,7 +66,10 @@ let field (input: string) =
 
 /// Validates a DLC project sort field: must start with an alphanumeric character.
 let sortField (input: string) =
-    Regex.Replace(input, "^[^0-9a-zA-Z]*", "")
+    if isNull input then
+        String.Empty
+    else
+        Regex.Replace(input, "^[^0-9a-zA-Z]*", "")
 
 /// Removes English articles (a, an, the) from the beginning of the input string.
 let removeArticles (input: string) =
