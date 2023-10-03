@@ -5,15 +5,30 @@ open Avalonia
 open Avalonia.Controls
 open Avalonia.FuncUI.Builder
 open Avalonia.FuncUI.Types
+open Avalonia.Input
 open System
 open System.Reactive.Linq
 
-type FixedTextBox() =
+type FixedTextBox() as this =
     inherit TextBox()
+
     let mutable textChangedSub: IDisposable = null
     let mutable validationSub: IDisposable = null
     let mutable changeCallback: string -> unit = ignore
     let mutable validationCallback: string -> bool = fun _ -> true
+
+    do
+        // Raise a TextInput event on paste from clipboard in order to filter out possible invalid characters in the event handler
+        this.PastingFromClipboard.Add(fun e ->
+            async {
+                let! text =
+                    TopLevel.GetTopLevel(this).Clipboard.GetTextAsync()
+                    |> Async.AwaitTask
+                if notNull text then
+                    this.RaiseEvent(TextInputEventArgs(RoutedEvent = InputElement.TextInputEvent, Text = text, Source = this))
+            } |> Async.StartImmediate
+            e.Handled <- true
+        )
 
     override _.StyleKeyOverride = typeof<TextBox>
 

@@ -88,12 +88,6 @@ let private projectInfo state dispatch =
                 FixedTextBox.text state.Project.DLCKey
                 TextBox.onTextInput (fun e -> e.Text <- StringValidator.dlcKey e.Text)
                 FixedTextBox.onTextChanged (StringValidator.dlcKey >> SetDLCKey >> EditProject >> dispatch)
-                // Invalid characters will be displayed in the textbox if entered via paste
-                // Update the displayed text when focus is lost
-                TextBox.onLostFocus (fun e ->
-                  let txtBox = e.Source :?> TextBox
-                  let validValue = StringValidator.dlcKey txtBox.Text
-                  txtBox.Text <- validValue)
                 ToolTip.tip (translate "DLCKeyToolTip")
             ]
 
