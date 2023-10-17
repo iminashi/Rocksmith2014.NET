@@ -67,7 +67,7 @@ type ToneCollectionState =
     { ActiveCollection: ActiveCollection
       Connector: IDatabaseConnector
       Tones: DbTone array
-      SelectedTone: DbTone option
+      SelectedToneIndex: int
       QueryOptions: QueryOptions
       EditingUserTone: DbToneData option
       TotalPages: int }
@@ -90,7 +90,7 @@ type Msg =
     | DeleteSelectedUserTone
     | SearchCollection of searchString: string option
     | ChangePage of direction: PageDirection
-    | SelectedToneChanged of selectedTone: DbTone option
+    | SelectedToneIndexChanged of selectedIndex: int
     | AddOfficialToneToUserCollection
     | ShowUserToneEditor
     | HideUserToneEditor

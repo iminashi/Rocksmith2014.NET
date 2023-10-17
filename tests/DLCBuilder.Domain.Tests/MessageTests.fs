@@ -371,8 +371,8 @@ let messageTests =
             let toneCollectionState =
                 { ActiveCollection = ActiveCollection.Official (Some toneApi)
                   Connector = toneDatabaseStub
-                  Tones = Array.empty
-                  SelectedTone = Some dummyDbTone
+                  Tones = [| dummyDbTone |]
+                  SelectedToneIndex = 0
                   QueryOptions = { Search = None; PageNumber = 1 }
                   EditingUserTone = None
                   TotalPages = 1 }

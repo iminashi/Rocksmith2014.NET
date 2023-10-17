@@ -6,6 +6,7 @@ open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
 open Avalonia.FuncUI.Types
 open Avalonia.Input
+open Avalonia.Interactivity
 open Avalonia.Layout
 open Avalonia.Media
 open DLCBuilder
@@ -21,97 +22,99 @@ let private translateDescription (description: string) =
     |> Array.map translate
     |> String.concat " "
 
-let private toneTemplate dispatch isOfficial =
-    DataTemplateView<DbTone>.create (fun dbTone ->
-        let brush =
-            if dbTone.BassTone then
-                Brushes.bass
-            elif Regex.IsMatch(dbTone.Name, "lead|solo", RegexOptions.IgnoreCase) then
-                Brushes.lead
-            else
-                Brushes.rhythm
+let private toneTemplate dispatch (selectedIndex: int) (isOfficial: bool) (index: int) (dbTone: DbTone) =
+    let brush =
+        if dbTone.BassTone then
+            Brushes.bass
+        elif Regex.IsMatch(dbTone.Name, "lead|solo", RegexOptions.IgnoreCase) then
+            Brushes.lead
+        else
+            Brushes.rhythm
 
-        StackPanel.create [
-            StackPanel.contextMenu (
-                ContextMenu.create [
-                    ContextMenu.viewItems [
-                        if isOfficial then
-                            MenuItem.create [
-                                MenuItem.header (translate "AddToProjectMenuItem")
-                                MenuItem.onClick (fun _ -> AddSelectedToneFromCollection |> dispatch)
-                                MenuItem.inputGesture (KeyGesture(Key.Enter))
-                            ]
-
-                            MenuItem.create [ MenuItem.header "-" ]
-
-                            MenuItem.create [
-                                MenuItem.header (translate "AddToUserCollectionMenuItem")
-                                MenuItem.onClick (fun _ -> AddOfficialToneToUserCollection |> dispatch)
-                            ]
-                        else
-                            MenuItem.create [
-                                MenuItem.header (translate "AddToProjectMenuItem")
-                                MenuItem.onClick (fun _ -> AddSelectedToneFromCollection |> dispatch)
-                                MenuItem.inputGesture (KeyGesture(Key.Enter))
-                            ]
-
-                            MenuItem.create [
-                                MenuItem.header (translate "EditMenuItem")
-                                MenuItem.onClick (fun _ ->
-                                    FocusHelper.storeFocusedElement ()
-                                    ShowUserToneEditor |> dispatch)
-                                MenuItem.inputGesture (KeyGesture(Key.E))
-                            ]
-
-                            MenuItem.create [ MenuItem.header "-" ]
-
-                            MenuItem.create [
-                                MenuItem.header (translate "RemoveMenuItem")
-                                MenuItem.onClick (fun _ -> DeleteSelectedUserTone |> dispatch)
-                                MenuItem.inputGesture (KeyGesture(Key.Delete))
-                            ]
-                    ]
-                ])
-            StackPanel.background Brushes.Transparent
-            StackPanel.width 470.
-            StackPanel.orientation Orientation.Horizontal
-            StackPanel.onDoubleTapped (fun _ -> AddSelectedToneFromCollection |> dispatch)
-            StackPanel.children [
-                PathIcon.create [
-                    PathIcon.width 25.
-                    PathIcon.height 25.
-                    PathIcon.foreground brush
-                    PathIcon.data Icons.guitar
-                ]
-
-                StackPanel.create [
-                    StackPanel.margin 4.
-                    StackPanel.children [
-                        TextBlock.create [
-                            TextBlock.text (
-                                [ dbTone.Artist; dbTone.Title ]
-                                |> List.filter String.notEmpty
-                                |> String.concat " - ")
+    StackPanel.create [
+        StackPanel.classes [ "list-item"; if selectedIndex = index then "selected" ]
+        StackPanel.onPointerPressed ((fun e ->
+            if e.Route = RoutingStrategies.Bubble then
+                index |> SelectedToneIndexChanged |> dispatch),
+            SubPatchOptions.OnChangeOf index)
+        StackPanel.contextMenu (
+            ContextMenu.create [
+                ContextMenu.viewItems [
+                    if isOfficial then
+                        MenuItem.create [
+                            MenuItem.header (translate "AddToProjectMenuItem")
+                            MenuItem.onClick (fun _ -> AddSelectedToneFromCollection |> dispatch)
+                            MenuItem.inputGesture (KeyGesture(Key.Enter))
                         ]
-                        TextBlock.create [ TextBlock.text dbTone.Name ]
-                        TextBlock.create [ TextBlock.text (translateDescription dbTone.Description) ]
+
+                        MenuItem.create [ MenuItem.header "-" ]
+
+                        MenuItem.create [
+                            MenuItem.header (translate "AddToUserCollectionMenuItem")
+                            MenuItem.onClick (fun _ -> AddOfficialToneToUserCollection |> dispatch)
+                        ]
+                    else
+                        MenuItem.create [
+                            MenuItem.header (translate "AddToProjectMenuItem")
+                            MenuItem.onClick (fun _ -> AddSelectedToneFromCollection |> dispatch)
+                            MenuItem.inputGesture (KeyGesture(Key.Enter))
+                        ]
+
+                        MenuItem.create [
+                            MenuItem.header (translate "EditMenuItem")
+                            MenuItem.onClick (fun _ ->
+                                FocusHelper.storeFocusedElement ()
+                                ShowUserToneEditor |> dispatch)
+                            MenuItem.inputGesture (KeyGesture(Key.E))
+                        ]
+
+                        MenuItem.create [ MenuItem.header "-" ]
+
+                        MenuItem.create [
+                            MenuItem.header (translate "RemoveMenuItem")
+                            MenuItem.onClick (fun _ -> DeleteSelectedUserTone |> dispatch)
+                            MenuItem.inputGesture (KeyGesture(Key.Delete))
+                        ]
+                ]
+            ])
+        StackPanel.margin 4.
+        StackPanel.orientation Orientation.Horizontal
+        StackPanel.onDoubleTapped (fun _ -> AddSelectedToneFromCollection |> dispatch)
+        StackPanel.children [
+            PathIcon.create [
+                PathIcon.width 25.
+                PathIcon.height 25.
+                PathIcon.foreground brush
+                PathIcon.data Icons.guitar
+            ]
+
+            StackPanel.create [
+                StackPanel.margin (5.0, 10.0)
+                StackPanel.children [
+                    TextBlock.create [
+                        TextBlock.text (
+                            [ dbTone.Artist; dbTone.Title ]
+                            |> List.filter String.notEmpty
+                            |> String.concat " - ")
                     ]
+                    TextBlock.create [ TextBlock.text dbTone.Name ]
+                    TextBlock.create [ TextBlock.text (translateDescription dbTone.Description) ]
                 ]
             ]
-        ])
+        ]
+    ] |> generalize
 
 let tonesList dispatch collectionState isOfficial =
-    ListBox.create [
-        ListBox.height 410.
-        ListBox.width 500.
-        ListBox.dataItems collectionState.Tones
-        ListBox.itemTemplate (toneTemplate dispatch isOfficial)
-        ListBox.onSelectedItemChanged (function
-            | :? DbTone as tone ->
-                tone |> Some |> SelectedToneChanged |> dispatch
-            | _ ->
-                None |> SelectedToneChanged |> dispatch)
-        ListBox.onKeyDown (fun arg ->
+    ListBoxEx.create [
+        ListBoxEx.background "#222"
+        ListBoxEx.onSelectedIndexChanged (SelectedToneIndexChanged >> dispatch)
+        ListBoxEx.selectedIndex collectionState.SelectedToneIndex
+        ListBoxEx.children (
+            collectionState.Tones
+            |> Array.mapi (toneTemplate dispatch collectionState.SelectedToneIndex isOfficial)
+            |> Array.toList
+        )
+        ListBoxEx.onKeyDown (fun arg ->
             arg.Handled <- true
             match arg.Key with
             | Key.Left ->
@@ -147,8 +150,8 @@ let private paginationControls dispatch (collectionState: ToneCollectionState) =
                 RepeatButton.content (
                     PathIcon.create [
                         PathIcon.data Icons.chevronLeft
-                        PathIcon.width 16.
-                        PathIcon.height 16.
+                        PathIcon.width 18.
+                        PathIcon.height 18.
                     ])
                 RepeatButton.onClick (fun _ -> ChangePage Left |> dispatch)
                 RepeatButton.isEnabled isEnabled
@@ -176,8 +179,8 @@ let private paginationControls dispatch (collectionState: ToneCollectionState) =
                 RepeatButton.content (
                     PathIcon.create [
                         PathIcon.data Icons.chevronRight
-                        PathIcon.width 16.
-                        PathIcon.height 16.
+                        PathIcon.width 18.
+                        PathIcon.height 18.
                     ])
                 RepeatButton.onClick (fun _ -> ChangePage Right |> dispatch)
                 RepeatButton.isEnabled isEnabled
@@ -433,7 +436,6 @@ let view state dispatch collectionState =
             hStack [
                 TabControl.create [
                     TabControl.width 520.
-                    TabControl.height 550.
                     TabControl.isEnabled collectionState.EditingUserTone.IsNone
                     TabControl.viewItems [
                         // Official tab

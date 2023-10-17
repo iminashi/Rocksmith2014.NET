@@ -8,6 +8,10 @@ let private getTotalPages tones =
     |> Option.map (fun x -> ceil (float x.TotalRows / 5.) |> int)
     |> Option.defaultValue 0
 
+let tryGetSelectedTone (state: ToneCollectionState) =
+    state.Tones
+    |> Array.tryItem state.SelectedToneIndex
+
 let init (connector: IDatabaseConnector) (tab: ActiveTab) =
     let collection = createCollection connector tab
     let queryOptions = { Search = None; PageNumber = 1 }
@@ -16,7 +20,7 @@ let init (connector: IDatabaseConnector) (tab: ActiveTab) =
     { ActiveCollection = collection
       Connector = connector
       Tones = tones
-      SelectedTone = None
+      SelectedToneIndex = -1
       QueryOptions = queryOptions
       EditingUserTone = None
       TotalPages = getTotalPages tones }
@@ -76,7 +80,7 @@ let changeCollection tab collectionState =
             ActiveCollection = collection
             Tones = tones
             QueryOptions = queryOptions
-            SelectedTone = None
+            SelectedToneIndex = -1
             TotalPages = getTotalPages tones }
 
 let deleteUserTone id collectionState =
@@ -93,15 +97,15 @@ let deleteUserTone id collectionState =
 
 let addSelectedToneToUserCollection collectionState =
     match collectionState with
-    | { SelectedTone = Some selected
-        ActiveCollection = ActiveCollection.Official (Some api) } ->
-        api.GetToneDataById(selected.Id)
+    | { ActiveCollection = ActiveCollection.Official (Some api) } ->
+        tryGetSelectedTone collectionState
+        |> Option.bind (fun selected -> api.GetToneDataById(selected.Id))
         |> Option.iter (addToneDataToUserCollection collectionState.Connector)
     | _ ->
         ()
 
 let getSelectedToneDefinition collectionState =
-    collectionState.SelectedTone
+    tryGetSelectedTone collectionState
     |> Option.bind (fun tone ->
         match collectionState.ActiveCollection with
         | ActiveCollection.Official (Some api) ->
