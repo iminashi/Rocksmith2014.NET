@@ -209,10 +209,12 @@ let arrangement state dispatch index arr =
                             ]
 
                             // Extra Information
+                            let extraText = getExtraText arr
                             TextBlock.create [
                                 TextBlock.foreground "#afafaf"
                                 TextBlock.fontSize 14.
-                                TextBlock.text (getExtraText arr)
+                                TextBlock.text extraText
+                                TextBlock.isVisible (String.notEmpty extraText)
                             ]
                         ]
                     ]

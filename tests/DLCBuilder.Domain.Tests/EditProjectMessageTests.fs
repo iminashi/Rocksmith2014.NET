@@ -74,10 +74,10 @@ let editProjectTests =
 
         testCase "SetAudioVolume, SetPreviewVolume, SetPreviewStartTime" <| fun _ ->
             let messages =
-                [ SetAudioVolume 9.
-                  SetPreviewVolume -9.
-                  SetPreviewStartTime (Seconds 50.)
-                  SetPreviewStartTime (Minutes 2.)]
+                [ SetAudioVolume 9.0m
+                  SetPreviewVolume -9.0m
+                  SetPreviewStartTime (Seconds 50.0m)
+                  SetPreviewStartTime (Minutes 2.0m)]
                 |> List.map EditProject
 
             let newState, _ =

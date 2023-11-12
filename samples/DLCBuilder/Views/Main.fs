@@ -435,7 +435,7 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
         DragDrop.allowDrop noOverlayIsOpen
         DragDrop.onDragEnter (fun e ->
             e.DragEffects <-
-                if e.Data.Contains(DataFormats.FileNames) then
+                if e.Data.Contains(DataFormats.Files) then
                     DragDropEffects.Copy
                 else
                     DragDropEffects.None)
@@ -443,7 +443,8 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
         DragDrop.onDrop (fun e ->
             e.Handled <- true
 
-            e.Data.GetFileNames()
+            e.Data.GetFiles()
+            |> Seq.map (fun x -> x.Path.LocalPath)
             |> LoadMultipleFiles
             |> dispatch)
 
@@ -457,7 +458,7 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                         Rectangle.horizontalAlignment HorizontalAlignment.Stretch
                         Rectangle.verticalAlignment VerticalAlignment.Stretch
                         if customTitleBar.IsSome then
-                            Rectangle.onPointerPressed window.PlatformImpl.BeginMoveDrag
+                            Rectangle.onPointerPressed window.BeginMoveDrag
                             Rectangle.onDoubleTapped (fun _ -> maximizeOrRestore window)
                     ]
 

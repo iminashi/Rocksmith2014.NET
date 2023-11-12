@@ -155,7 +155,6 @@ let private gearSlots repository state dispatch (gearList: Gear) =
 
 let private gearSelector dispatch repository gearData gearSlot =
     FixedComboBox.create [
-        ComboBox.virtualizationMode ItemVirtualizationMode.Simple
         ComboBox.itemTemplate gearTemplate
         FixedComboBox.dataItems (
             match gearSlot with

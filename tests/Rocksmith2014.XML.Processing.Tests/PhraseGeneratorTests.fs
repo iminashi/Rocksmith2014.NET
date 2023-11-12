@@ -15,6 +15,14 @@ let createBaseArrangement () =
 [<Tests>]
 let tests =
     testList "Phrase/Section Generator Tests" [
+        testCase "Nothing is generated for arrangement without any levels" <| fun _ ->
+            let arr = InstrumentalArrangement()
+
+            PhraseGenerator.generate arr
+
+            Expect.isEmpty arr.Phrases "Phrases were not created"
+            Expect.isEmpty arr.Sections "Sections were not created"
+
         testCase "Creates phrases and sections when one note" <| fun _ ->
             let arr = createBaseArrangement()
             arr.Levels.[0].Notes.Add(Note(Time = 2_000))

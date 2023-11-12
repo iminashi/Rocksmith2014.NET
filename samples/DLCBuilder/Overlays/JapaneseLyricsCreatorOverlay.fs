@@ -15,13 +15,15 @@ let private wrap ch =
         WrapPanel.children ch
     ]
 
-let rec private findParent<'a when 'a :> IControl and 'a : null> (control: IControl) =
+let rec private findParent<'a when 'a :> Control and 'a : null> (control: Control) =
     if isNull control.Parent then
         null
     elif control.Parent :? 'a then
         control.Parent :?> 'a
+    elif control.Parent :? Control then
+        findParent (control.Parent :?> Control)
     else
-        findParent control.Parent
+        null
 
 let view _state dispatch (creatorState: LyricsCreatorState) =
     let dispatch' = LyricsCreatorMsg >> dispatch
@@ -67,7 +69,7 @@ let view _state dispatch (creatorState: LyricsCreatorState) =
                     ScrollViewer.width 480.
                     ScrollViewer.height 600.
                     ScrollViewer.onKeyDown (fun e ->
-                        let scrollViewer = findParent<ScrollViewer>(e.Source :?> IControl)
+                        let scrollViewer = findParent<ScrollViewer>(e.Source :?> Control)
                         e.Handled <- true
                         match e.Key with
                         | Key.Down ->

@@ -119,7 +119,7 @@ let updateRecentFilesAndConfig projectFile state =
 let removeStatusMessage (id: Guid) =
     async {
         do! Async.Sleep 4000
-        return RemoveStatusMessage id
+        return id
     }
 
 let createToneKeyFromTitleAndArrangmentName title arrangementName =

@@ -50,15 +50,15 @@ let update (state: ToneCollectionState) msg =
         else
             changePage page state, Effect.Nothing
 
-    | SelectedToneChanged selectedTone ->
-        { state with SelectedTone = selectedTone }, Effect.Nothing
+    | SelectedToneIndexChanged index ->
+        { state with SelectedToneIndex = index }, Effect.Nothing
 
     | ShowUserToneEditor ->
         let data =
             match state with
-            | { ActiveCollection = ActiveCollection.User api
-                SelectedTone = Some { Id = id } }->
-                api.GetToneDataById id
+            | { ActiveCollection = ActiveCollection.User api } ->
+                tryGetSelectedTone state
+                |> Option.bind (fun selected -> api.GetToneDataById(selected.Id))
             | _ ->
                 None
 
@@ -93,7 +93,7 @@ let update (state: ToneCollectionState) msg =
     | AddSelectedToneFromCollection ->
         let effect =
             option {
-                let! selectedTone = state.SelectedTone
+                let! selectedTone = tryGetSelectedTone state
                 let! tone = Database.getToneFromCollection state.ActiveCollection selectedTone.Id
 
                 // Needed if the user has changed the tone name in the collection
@@ -109,7 +109,7 @@ let update (state: ToneCollectionState) msg =
         state, effect
 
     | DeleteSelectedUserTone ->
-        match state.SelectedTone with
+        match tryGetSelectedTone state with
         | Some selectedTone ->
             deleteUserTone selectedTone.Id state, Effect.Nothing
         | None ->

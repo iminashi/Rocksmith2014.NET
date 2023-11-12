@@ -46,7 +46,7 @@ let view state dispatch (data: PreviewAudioCreationData) =
                     // Minutes
                     FixedNumericUpDown.create [
                         NumericUpDown.width 60.
-                        NumericUpDown.minimum 0.
+                        NumericUpDown.minimum 0.0m
                         NumericUpDown.maximum data.MaxPreviewStart.Minutes
                         NumericUpDown.formatString "0"
                         NumericUpDown.showButtonSpinner false
@@ -59,8 +59,8 @@ let view state dispatch (data: PreviewAudioCreationData) =
                     // Seconds
                     FixedNumericUpDown.create [
                         NumericUpDown.width 60.
-                        NumericUpDown.minimum 0.
-                        NumericUpDown.maximum (float maxSecs)
+                        NumericUpDown.minimum 0.0m
+                        NumericUpDown.maximum (decimal maxSecs)
                         NumericUpDown.formatString "00"
                         NumericUpDown.showButtonSpinner false
                         FixedNumericUpDown.value previewStart.Seconds
@@ -72,8 +72,8 @@ let view state dispatch (data: PreviewAudioCreationData) =
                     // Milliseconds
                     FixedNumericUpDown.create [
                         NumericUpDown.width 80.
-                        NumericUpDown.minimum 0.
-                        NumericUpDown.maximum (float maxMs)
+                        NumericUpDown.minimum 0.0m
+                        NumericUpDown.maximum (decimal maxMs)
                         NumericUpDown.formatString "000"
                         NumericUpDown.showButtonSpinner false
                         FixedNumericUpDown.value previewStart.Milliseconds

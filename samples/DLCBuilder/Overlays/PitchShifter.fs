@@ -26,11 +26,11 @@ let view dispatch state =
                         TextBlock.verticalAlignment VerticalAlignment.Center
                     ]
                     FixedNumericUpDown.create [
-                        NumericUpDown.minimum -24.
-                        NumericUpDown.maximum 24.
-                        NumericUpDown.increment 1.
+                        NumericUpDown.minimum -24.0m
+                        NumericUpDown.maximum 24.0m
+                        NumericUpDown.increment 1.0m
                         NumericUpDown.formatString "+0;-0;0"
-                        FixedNumericUpDown.value (state.Project.PitchShift |> Option.defaultValue 0s |> float)
+                        FixedNumericUpDown.value (state.Project.PitchShift |> Option.defaultValue 0s |> decimal)
                         FixedNumericUpDown.onValueChanged (int16 >> SetPitchShift >> EditProject >> dispatch)
                     ]
                 ]

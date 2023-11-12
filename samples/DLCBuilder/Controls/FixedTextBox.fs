@@ -6,19 +6,31 @@ open Avalonia.Controls
 open Avalonia.FuncUI.Builder
 open Avalonia.FuncUI.Types
 open Avalonia.Input
-open Avalonia.Input.Platform
-open Avalonia.Styling
 open System
 open System.Reactive.Linq
 
-type FixedTextBox() =
+type FixedTextBox() as this =
     inherit TextBox()
+
     let mutable textChangedSub: IDisposable = null
     let mutable validationSub: IDisposable = null
     let mutable changeCallback: string -> unit = ignore
     let mutable validationCallback: string -> bool = fun _ -> true
 
-    interface IStyleable with member _.StyleKey = typeof<TextBox>
+    do
+        // Raise a TextInput event on paste from clipboard in order to filter out possible invalid characters in the event handler
+        this.PastingFromClipboard.Add(fun e ->
+            async {
+                let! text =
+                    TopLevel.GetTopLevel(this).Clipboard.GetTextAsync()
+                    |> Async.AwaitTask
+                if notNull text then
+                    this.RaiseEvent(TextInputEventArgs(RoutedEvent = InputElement.TextInputEvent, Text = text, Source = this))
+            } |> Async.StartImmediate
+            e.Handled <- true
+        )
+
+    override _.StyleKeyOverride = typeof<TextBox>
 
     member val NoNotify = false with get, set
 
@@ -56,24 +68,6 @@ type FixedTextBox() =
                     .Where(fun _ -> not this.NoNotify)
                     .Subscribe(changeCallback)
 
-    // Workaround for the inability to validate text that is pasted into the textbox
-    // https://github.com/AvaloniaUI/Avalonia/issues/2611
-    override this.OnKeyDown(e) =
-        let keymap = AvaloniaLocator.Current.GetService<PlatformHotkeyConfiguration>()
-        let matchGesture (gestures: ResizeArray<KeyGesture>) = gestures.Exists(fun g -> g.Matches e)
-
-        if matchGesture keymap.Paste then
-            async {
-                let! text =
-                    (AvaloniaLocator.Current.GetService(typeof<IClipboard>) :?> IClipboard).GetTextAsync()
-                    |> Async.AwaitTask
-                if notNull text then
-                    this.RaiseEvent(TextInputEventArgs(RoutedEvent = InputElement.TextInputEvent, Text = text, Source = this))
-            } |> Async.StartImmediate
-            e.Handled <- true
-        else
-            base.OnKeyDown(e)
-
     override _.OnDetachedFromLogicalTree(e) =
         if notNull textChangedSub then textChangedSub.Dispose()
         if notNull validationSub then validationSub.Dispose()
@@ -82,7 +76,7 @@ type FixedTextBox() =
 
     override this.OnAttachedToVisualTree(e) =
         if this.AutoFocus then
-            this.Focus()
+            this.Focus() |> ignore
             match this.Text with
             | null ->
                 ()

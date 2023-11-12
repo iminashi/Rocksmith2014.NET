@@ -5,7 +5,6 @@ open Avalonia
 open Avalonia.Controls
 open Avalonia.FuncUI.Builder
 open Avalonia.FuncUI.Types
-open Avalonia.Styling
 open System
 open System.Reactive.Linq
 
@@ -14,7 +13,7 @@ type FixedSlider() =
     let mutable sub: IDisposable = null
     let mutable changeCallback: double -> unit = ignore
 
-    interface IStyleable with member _.StyleKey = typeof<Slider>
+    override _.StyleKeyOverride = typeof<Slider>
 
     member val NoNotify = false with get, set
 

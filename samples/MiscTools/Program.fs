@@ -6,6 +6,8 @@ open Avalonia.Controls.ApplicationLifetimes
 open Avalonia.FuncUI
 open Avalonia.FuncUI.Elmish
 open Avalonia.FuncUI.Hosts
+open Avalonia.Themes.Simple
+open Avalonia.Styling
 
 type MainWindow() as this =
     inherit HostWindow()
@@ -17,14 +19,14 @@ type MainWindow() as this =
 
         Elmish.Program.mkProgram Tools.init Tools.update Tools.view
         |> Program.withHost this
-        |> Program.run
+        |> Program.runWithAvaloniaSyncDispatch ()
 
 type App() =
     inherit Application()
 
     override this.Initialize() =
-        this.Styles.Load("avares://Avalonia.Themes.Default/DefaultTheme.xaml")
-        this.Styles.Load("avares://Avalonia.Themes.Default/Accents/BaseDark.xaml")
+        this.Styles.Add(SimpleTheme())
+        this.RequestedThemeVariant <- ThemeVariant.Dark
 
     override this.OnFrameworkInitializationCompleted() =
         match this.ApplicationLifetime with

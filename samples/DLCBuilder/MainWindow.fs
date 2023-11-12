@@ -9,6 +9,7 @@ open Elmish
 open Microsoft.Extensions.FileProviders
 open System
 open System.IO
+open System.Reactive.Disposables
 open System.Reactive.Linq
 open System.Reactive.Subjects
 open System.Reflection
@@ -131,11 +132,12 @@ type MainWindow(commandLineArgs: string array) as this =
             base.Position <- PixelPoint(max 0 status.X, max 0 status.Y)
             base.WindowState <- status.State
 
-        let hotKeysSub _initialModel = Cmd.ofSub (HotKeys.handleEvent >> this.KeyDown.Add)
+        let subscriptions _model =
+            let handleHotKey dispatch =
+                HotKeys.handleEvent dispatch |> this.KeyDown.Subscribe
 
-        let programClosingSub _ =
-            fun dispatch ->
-                this.Closing.Add(fun args ->
+            let programClosing dispatch =
+                this.Closing.Subscribe(fun args ->
                     match windowClosingState with
                     | ClosingMayRequireConfirmation ->
                         args.Cancel <- true
@@ -143,36 +145,42 @@ type MainWindow(commandLineArgs: string array) as this =
                     | ClosingAllowed ->
                         args.Cancel <- false
                         saveWindowState ())
-            |> Cmd.ofSub
 
-        let autoSaveSub _ =
-            fun dispatch ->
+            let autoSave dispatch =
                 autoSaveSubject
                     .Throttle(TimeSpan.FromSeconds(1.))
-                    .Add(fun () -> dispatch AutoSaveProject)
-            |> Cmd.ofSub
+                    .Subscribe(fun () -> dispatch AutoSaveProject)
 
-        let progressReportingSub _ =
-            fun dispatch ->
+            let progressReport dispatch : IDisposable =
                 let dispatchProgress task progress = TaskProgressChanged(task, progress) |> dispatch
-                ProgressReporters.ArrangementCheck.ProgressChanged.Add(dispatchProgress ArrangementCheckAll)
-                ProgressReporters.PsarcImport.ProgressChanged.Add(dispatchProgress PsarcImport)
-                ProgressReporters.PsarcUnpack.ProgressChanged.Add(dispatchProgress PsarcUnpack)
-                ProgressReporters.PackageBuild.ProgressChanged.Add(dispatchProgress BuildPackage)
-                ProgressReporters.DownloadFile.ProgressChanged.Add(fun (id, progress) -> dispatchProgress (FileDownload id) progress)
-                ProgressReporters.ProfileCleaner.ProgressChanged.Add(ProfileCleanerProgressChanged >> ToolsMsg >> dispatch)
-            |> Cmd.ofSub
+                let disposables = [
+                    ProgressReporters.ArrangementCheck.ProgressChanged.Subscribe(dispatchProgress ArrangementCheckAll)
+                    ProgressReporters.PsarcImport.ProgressChanged.Subscribe(dispatchProgress PsarcImport)
+                    ProgressReporters.PsarcUnpack.ProgressChanged.Subscribe(dispatchProgress PsarcUnpack)
+                    ProgressReporters.PackageBuild.ProgressChanged.Subscribe(dispatchProgress BuildPackage)
+                    ProgressReporters.DownloadFile.ProgressChanged.Subscribe(fun (id, progress) -> dispatchProgress (FileDownload id) progress)
+                    ProgressReporters.ProfileCleaner.ProgressChanged.Subscribe(ProfileCleanerProgressChanged >> ToolsMsg >> dispatch)
+                ]
+                new CompositeDisposable(disposables)
 
-        let idRegenerationConfirmationSub _ =
-            fun dispatch ->
-                IdRegenerationHelper.RequestConfirmation.Add(ConfirmIdRegeneration >> dispatch)
-                IdRegenerationHelper.NewIdsGenerated.Add(SetNewArrangementIds >> dispatch)
-            |> Cmd.ofSub
+            let idRegenerationConfirmation dispatch : IDisposable =
+                let disposables = [
+                    IdRegenerationHelper.RequestConfirmation.Subscribe(ConfirmIdRegeneration >> dispatch)
+                    IdRegenerationHelper.NewIdsGenerated.Subscribe(SetNewArrangementIds >> dispatch)
+                ]
+                new CompositeDisposable(disposables)
 
-        let fontGeneratedSub _ =
-            fun dispatch ->
-                FontGeneratorHelper.FontGenerated.Add(FontGenerated >> dispatch)
-            |> Cmd.ofSub
+            let fontGenerated dispatch =
+                FontGeneratorHelper.FontGenerated.Subscribe(FontGenerated >> dispatch)
+
+            [
+                [ "hotkeys" ], handleHotKey
+                [ "programclosing" ], programClosing
+                [ "autosave" ], autoSave
+                [ "progressreport" ], progressReport
+                [ "idregenerationconfirmation" ], idRegenerationConfirmation
+                [ "fontgenerated" ], fontGenerated
+            ]
 
         //this.VisualRoot.VisualRoot.Renderer.DrawFps <- true
         //this.VisualRoot.VisualRoot.Renderer.DrawDirtyRects <- true
@@ -243,13 +251,8 @@ type MainWindow(commandLineArgs: string array) as this =
 
         Program.mkProgram init' update' view'
         |> Program.withHost this
-        |> Program.withSubscription hotKeysSub
-        |> Program.withSubscription progressReportingSub
-        |> Program.withSubscription autoSaveSub
-        |> Program.withSubscription idRegenerationConfirmationSub
-        |> Program.withSubscription programClosingSub
-        |> Program.withSubscription fontGeneratedSub
+        |> Program.withSubscription subscriptions
         #if DEBUG
-        |> Program.withTrace (fun msg _state -> Diagnostics.Debug.WriteLine(msg))
+        |> Program.withTrace (fun msg _state _subs -> Diagnostics.Debug.WriteLine(msg))
         #endif
-        |> Program.runWith commandLineArgs
+        |> Program.runWithAvaloniaSyncDispatch commandLineArgs

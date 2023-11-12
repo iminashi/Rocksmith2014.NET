@@ -4,6 +4,7 @@ namespace DLCBuilder
 open Avalonia
 open Avalonia.Controls
 open Avalonia.FuncUI.Builder
+open Avalonia.FuncUI.DSL
 open Avalonia.FuncUI.Types
 open Avalonia.Media
 

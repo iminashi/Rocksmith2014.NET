@@ -5,6 +5,7 @@ open Avalonia.Controls
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Media
+open Avalonia.Platform.Storage
 open Avalonia.Threading
 open Elmish
 open Rocksmith2014.Audio
@@ -45,54 +46,67 @@ let project =
 let private window =
     lazy (Application.Current.ApplicationLifetime :?> ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime).MainWindow
 
-let createFilters (extensions: string seq) name =
-    let filter = FileDialogFilter(Extensions = ResizeArray(extensions), Name = name)
-    ResizeArray(seq { filter })
+let createFilters (extensions: string array) (mimeType: string) (name: string) =
+    FilePickerFileType(name, Patterns = extensions, MimeTypes = [| mimeType |])
+    |> Array.singleton
 
-let sngFilters = createFilters (seq { "sng" }) "SNG Files"
-let xmlFilters = createFilters (seq { "xml" }) "XML Files"
-let psarcFilters = createFilters (seq { "psarc" }) "PSARC Files"
-let wemFilters = createFilters (seq { "wem" }) "Wwise Audio Files"
-let bnkFilters = createFilters (seq { "bnk" }) "Sound Bank Files"
+let sngFiles = createFilters [| "*.sng" |] "application/octet-stream" "SNG Files"
+let xmlFiles = createFilters [| "*.xml" |] "application/xml" "XML Files"
+let psarcFiles = createFilters [| "*.psarc" |] "application/octet-stream" "PSARC Files"
+let wemFiles = createFilters [| "*.wem" |] "application/octet-stream" "Wwise Audio Files"
+let bnkFiles = createFilters [| "*.bnk" |] "application/octet-stream" "Sound Bank Files"
+let allFiles = createFilters [| "*.*" |] "application/octet-stream" "All Files"
 
 let openFileDialogSingle title filters dispatch =
-    Dispatcher.UIThread.InvokeAsync(fun () ->
-        OpenFileDialog(Title = title, AllowMultiple = false, Filters = filters)
-           .ShowAsync(window.Force())
-           .ContinueWith(fun (t: Task<string[]>) ->
-               match t.Result with
-               | [| file |] -> dispatch file
-               | _ -> ())
+    Dispatcher.UIThread.InvokeAsync<unit>(fun () ->
+        task {
+            let options = FilePickerOpenOptions(
+                FileTypeFilter = filters,
+                Title = title,
+                AllowMultiple = false
+            )
+            let! r = window.Value.StorageProvider.OpenFilePickerAsync(options)
+
+            if r.Count = 1 then dispatch (r[0].TryGetLocalPath())
+        }
     ) |> ignore
 
 let openFileDialogMulti title filters dispatch =
-    Dispatcher.UIThread.InvokeAsync(fun () ->
-        OpenFileDialog(Title = title, AllowMultiple = true, Filters = filters)
-           .ShowAsync(window.Force())
-           .ContinueWith(fun (t: Task<string[]>) ->
-               match t.Result with
-               | null | [||] -> ()
-               | files -> dispatch files)
+    Dispatcher.UIThread.InvokeAsync<unit>(fun () ->
+        task {
+            let options = FilePickerOpenOptions(
+                FileTypeFilter = filters,
+                Title = title,
+                AllowMultiple = true
+            )
+            let! r = window.Value.StorageProvider.OpenFilePickerAsync(options)
+
+            if r.Count > 0 then
+                r
+                |> Seq.map (fun x -> x.TryGetLocalPath())
+                |> Seq.toArray
+                |> dispatch
+        }
     ) |> ignore
 
 let openFolderDialog title dispatch =
-    Dispatcher.UIThread.InvokeAsync(fun () ->
-        OpenFolderDialog(Title = title)
-           .ShowAsync(window.Force())
-           .ContinueWith(fun (t: Task<string>) ->
-               match t.Result with
-               | null -> ()
-               | file -> dispatch file)
+    Dispatcher.UIThread.InvokeAsync<unit>(fun () ->
+        task {
+            let! r =
+                FolderPickerOpenOptions(Title = title, AllowMultiple = false)
+                |> window.Value.StorageProvider.OpenFolderPickerAsync
+            if r.Count = 1 then dispatch (r[0].TryGetLocalPath())
+        }
     ) |> ignore
 
-let ofdSng = openFileDialogSingle "Select File" sngFilters
-let ofdXml = openFileDialogSingle "Select File" xmlFilters
-let ofdPsarc = openFileDialogSingle "Select File" psarcFilters
-let ofdPsarcs = openFileDialogMulti "Select Files" psarcFilters
-let ofdWem = openFileDialogSingle "Select File" wemFilters
-let ofdBnk = openFileDialogSingle "Select File" bnkFilters
-let ofdAll = openFileDialogSingle "Select File" null
-let ofdMultiXml = openFileDialogMulti "Select Files" xmlFilters
+let ofdSng = openFileDialogSingle "Select File" sngFiles
+let ofdXml = openFileDialogSingle "Select File" xmlFiles
+let ofdPsarc = openFileDialogSingle "Select File" psarcFiles
+let ofdPsarcs = openFileDialogMulti "Select Files" psarcFiles
+let ofdWem = openFileDialogSingle "Select File" wemFiles
+let ofdBnk = openFileDialogSingle "Select File" bnkFiles
+let ofdAll = openFileDialogSingle "Select File" allFiles
+let ofdMultiXml = openFileDialogMulti "Select Files" xmlFiles
 let ofod = openFolderDialog "Select Folder"
 
 type State =

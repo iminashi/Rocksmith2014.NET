@@ -108,9 +108,9 @@ type BuildCompleteType =
     | ReplacePsarc
 
 type TimeComponent =
-    | Minutes of float
-    | Seconds of float
-    | Milliseconds of float
+    | Minutes of decimal
+    | Seconds of decimal
+    | Milliseconds of decimal
 
 type ProjectEdit =
     | SetDLCKey of string
@@ -125,8 +125,8 @@ type ProjectEdit =
     | SetAlbumName of string
     | SetAlbumNameSort of string
     | SetYear of int
-    | SetAudioVolume of float
-    | SetPreviewVolume of float
+    | SetAudioVolume of decimal
+    | SetPreviewVolume of decimal
     | SetPreviewStartTime of TimeComponent
     | SetPitchShift of int16
     | SetAuthor of string
