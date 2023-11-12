@@ -262,7 +262,6 @@ let private pathsConfig state dispatch focusedSetting =
                         if Directory.Exists(t.Text) then
                             tryFindWwiseExecutable t.Text
                             |> Option.iter (SetWwiseConsolePath >> EditConfig >> dispatch))
-                    ToolTip.tip (translate "WwiseConsolePathToolTip")
                 ]
             ]
         ]
