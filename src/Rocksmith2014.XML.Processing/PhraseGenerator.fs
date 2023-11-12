@@ -239,10 +239,9 @@ module private Helpers =
 
         earlierTime, laterTime
 
-    let createPhrasesAndSections contentStartTime endPhraseTime (arr: Inst) =
+    let createPhrasesAndSections (level: Level) (contentStartTime: int) (endPhraseTime: int) (arr: Inst) =
         let mutable measureCounter = 0
         let mutable nextPhraseTime: int option = None
-        let level = arr.Levels[0]
 
         // Add first phrase/section at content start time
         addPhrase contentStartTime arr
@@ -317,7 +316,7 @@ let generate (arr: Inst) =
 
         erasePhrasesAndSections arr
         addFirstPhrase firstPhraseResult arr
-        createPhrasesAndSections contentStartTime endPhraseTime arr
+        createPhrasesAndSections level contentStartTime endPhraseTime arr
         addEndPhrase endPhraseTime arr
     | None ->
         // Edge case: there are no notes, chords or handshapes in the arrangement
