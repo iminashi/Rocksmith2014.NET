@@ -28,7 +28,6 @@ type IssueType =
     | AnchorInsideHandShape
     | AnchorInsideHandShapeAtPhraseBoundary
     | AnchorCloseToUnpitchedSlide
-    | AnchorNotOnNote of distance: int
     | FirstPhraseNotEmpty
     | NoEndPhrase
     | MoreThan100Phrases
@@ -73,7 +72,7 @@ let issueCode = function
     | AnchorInsideHandShape -> "I21"
     | AnchorInsideHandShapeAtPhraseBoundary -> "I22"
     | AnchorCloseToUnpitchedSlide -> "I23"
-    | AnchorNotOnNote _ -> "I24"
+    //| AnchorNotOnNote _ -> "I24"
     | FirstPhraseNotEmpty -> "I25"
     | NoEndPhrase -> "I26"
     | PossiblyWrongChordFingering -> "I27"

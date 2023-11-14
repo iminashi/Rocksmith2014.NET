@@ -37,6 +37,7 @@ let applyAll arrangement =
     processCustomEvents arrangement
     removeExtraBeats arrangement
     adjustHandShapes arrangement
+    AnchorMover.improve arrangement
 
 /// Applies the basic needed improvements to the arrangement.
 let applyMinimum arrangement =

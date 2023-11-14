@@ -281,8 +281,6 @@
   "MutedStringInNonMutedChordHelp": "Muted notes should not be included in chords that are not fully muted. The pitch of the muted note needs to be played for the game to properly detect the chord.\n\nThe muted strings will be removed automatically.",
   "FingeringAnchorMismatch": "Handshape fingering does not match anchor position",
   "FingeringAnchorMismatchHelp": "An anchor (FHP) was on the same fret as the lowest note of a chord that does not use the first finger. Sometimes this can be intended.",
-  "AnchorNotOnNote": "Anchor not on a note. Distance to closest note: {0} ms",
-  "AnchorNotOnNoteHelp": "Anchors (FHPs) should be placed exactly on notes to avoid issues.",
   "LyricWithInvalidChar": "The lyrics contain a character ({0}) not in the default font",
   "LyricWithInvalidCharHelp": "A custom font is needed for the character to be displayed in-game.",
   "LyricTooLong": "The following lyric is too long:\n\"{0}\"",

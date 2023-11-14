@@ -91,35 +91,6 @@ let handshapeTests =
 [<Tests>]
 let anchorTests =
     testList "Arrangement Checker (Anchors)" [
-        testCase "Ignores anchor exactly on note" <| fun _ ->
-            let anchors = ResizeArray(seq { Anchor(1y, 100) })
-            let notes = ResizeArray(seq { Note(Time = 100, Fret = 1y) })
-            let level = Level(Notes = notes, Anchors = anchors)
-
-            let results = checkAnchors testArr level
-
-            Expect.isEmpty results "An issue was found in check results"
-
-        testCase "Detects anchor before note" <| fun _ ->
-            let anchors = ResizeArray(seq { Anchor(1y, 99) })
-            let notes = ResizeArray(seq { Note(Time = 100, Fret = 1y) })
-            let level = Level(Notes = notes, Anchors = anchors)
-
-            let results = checkAnchors testArr level
-
-            Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type (AnchorNotOnNote -1) "Correct issue type"
-
-        testCase "Detects anchor after chord" <| fun _ ->
-            let anchors = ResizeArray(seq { Anchor(1y, 102) })
-            let chords = ResizeArray(seq { Chord(Time = 100) })
-            let level = Level(Chords = chords, Anchors = anchors)
-
-            let results = checkAnchors testArr level
-
-            Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type (AnchorNotOnNote 2) "Correct issue type"
-
         testCase "Detects anchor inside handshape" <| fun _ ->
             let anchors = ResizeArray(seq { Anchor(1y, 200) })
             let handShapes = ResizeArray(seq { HandShape(StartTime = 100, EndTime = 400) })
@@ -134,24 +105,6 @@ let anchorTests =
             let anchors = ResizeArray(seq { Anchor(1y, 100) })
             let handShapes = ResizeArray(seq { HandShape(StartTime = 100, EndTime = 400) })
             let level = Level(HandShapes = handShapes, Anchors = anchors)
-
-            let results = checkAnchors testArr level
-
-            Expect.isEmpty results "An issue was found in check results"
-
-        testCase "No false positive for anchor on note that is very close to another note" <| fun _ ->
-            let anchors = ResizeArray(seq { Anchor(1y, 100) })
-            let notes = ResizeArray(seq { Note(Time = 100, Fret = 1y); Note(Time = 103, Fret = 3y) })
-            let level = Level(Notes = notes, Anchors = anchors)
-
-            let results = checkAnchors testArr level
-
-            Expect.isEmpty results "An issue was found in check results"
-
-        testCase "No false positive for anchor at end of slide that is very close to another note" <| fun _ ->
-            let anchors = ResizeArray(seq { Anchor(1y, 100); Anchor(3y, 300) })
-            let notes = ResizeArray(seq { Note(Time = 100, Sustain = 200, Fret = 1y, SlideTo = 3y); Note(Time = 303, Fret = 3y) })
-            let level = Level(Notes = notes, Anchors = anchors)
 
             let results = checkAnchors testArr level
 

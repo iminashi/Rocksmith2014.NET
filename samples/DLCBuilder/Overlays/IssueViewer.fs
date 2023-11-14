@@ -16,9 +16,6 @@ let private getIssueHeaderAndHelp issueType =
     | EventBetweenIntroApplause eventCode ->
         translatef "EventBetweenIntroApplause" [| eventCode |],
         translate "EventBetweenIntroApplauseHelp"
-    | AnchorNotOnNote distance ->
-        translatef "AnchorNotOnNote" [| distance |],
-        translate "AnchorNotOnNoteHelp"
     | LyricWithInvalidChar invalidChar ->
         translatef "LyricWithInvalidChar" [| invalidChar |],
         translate "LyricWithInvalidCharHelp"

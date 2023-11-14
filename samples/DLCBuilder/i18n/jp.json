@@ -281,8 +281,6 @@
   "MutedStringInNonMutedChordHelp": "全弦がミュートでないコードにミュート弦が含まれると、コードが認識されるためにはミュートされた弦の音程も弾く必要があります。\n\nミュートされた弦が自動的に削除されます。",
   "FingeringAnchorMismatch": "アンカーポジションとコードの運指が不一致",
   "FingeringAnchorMismatchHelp": "アンカー(FHP)が一つ目の指を使わないコードの一番低いフレットと同じ。意図的である場合はこの問題点を無視していい。",
-  "AnchorNotOnNote": "アンカーがノートから外れている。一番近いノートとの距離: {0} ms",
-  "AnchorNotOnNoteHelp": "アンカー(FHP)をノートぴったりにしておきましょう。",
   "LyricWithInvalidChar": "歌詞にはデフォルトフォントには含まれていない文字がある ({0})",
   "LyricWithInvalidCharHelp": "ゲーム内でこの文字を表示されるにはカスタムフォントが必要である。",
   "LyricTooLong": "次の歌詞が長すぎる:\n\"{0}\"",

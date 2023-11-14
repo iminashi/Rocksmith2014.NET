@@ -27,6 +27,7 @@
     <Compile Include="Improvers\PhraseMover.fs" />
     <Compile Include="Improvers\CustomEvents.fs" />
     <Compile Include="Improvers\HandShapeAdjuster.fs" />
+    <Compile Include="Improvers\AnchorMover.fs" />
     <Compile Include="Checkers\InstrumentalChecker.fs" />
     <Compile Include="Checkers\VocalsChecker.fs" />
     <Compile Include="Checkers\ShowLightsChecker.fs" />

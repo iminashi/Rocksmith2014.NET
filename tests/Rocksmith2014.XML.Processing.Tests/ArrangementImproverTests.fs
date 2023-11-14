@@ -710,6 +710,69 @@ let basicFixTests =
             Expect.sequenceContainsOrder arr.Levels[0].Anchors expectedResult "Anchors are correct"
     ]
 
+let anchorMoverTests =
+    testList "Arrangement Improver (Anchor mover)" [
+        testCase "Anchor before note is moved" <| fun _ ->
+            let anchors = ResizeArray(seq { Anchor(1y, 99) })
+            let notes = ResizeArray(seq { Note(Time = 100, Fret = 1y) })
+            let level = Level(Notes = notes, Anchors = anchors)
+            let arr = InstrumentalArrangement(Levels = ra [ level ])
+
+            AnchorMover.improve arr
+
+            Expect.equal level.Anchors[0].Time 100 "Anchor was moved by 1ms"
+
+        testCase "Anchor after note by 5ms is moved" <| fun _ ->
+            let anchors = ResizeArray(seq { Anchor(1y, 105) })
+            let notes = ResizeArray(seq { Note(Time = 100, Fret = 1y) })
+            let level = Level(Notes = notes, Anchors = anchors)
+            let arr = InstrumentalArrangement(Levels = ra [ level ])
+
+            AnchorMover.improve arr
+
+            Expect.equal level.Anchors[0].Time 100 "Anchor was moved"
+
+        testCase "Anchor after note by 6ms is not moved" <| fun _ ->
+            let anchors = ResizeArray(seq { Anchor(1y, 106) })
+            let notes = ResizeArray(seq { Note(Time = 100, Fret = 1y) })
+            let level = Level(Notes = notes, Anchors = anchors)
+            let arr = InstrumentalArrangement(Levels = ra [ level ])
+
+            AnchorMover.improve arr
+
+            Expect.equal level.Anchors[0].Time 106 "Anchor was not moved"
+
+        testCase "Anchor after chord is moved" <| fun _ ->
+            let anchors = ResizeArray(seq { Anchor(1y, 102) })
+            let chords = ResizeArray(seq { Chord(Time = 100) })
+            let level = Level(Chords = chords, Anchors = anchors)
+            let arr = InstrumentalArrangement(Levels = ra [ level ])
+
+            AnchorMover.improve arr
+
+            Expect.equal level.Anchors[0].Time 100 "Anchor was moved by 2ms"
+
+        testCase "Anchor on note that is very close to another note is not moved" <| fun _ ->
+            let anchors = ResizeArray(seq { Anchor(1y, 100) })
+            let notes = ResizeArray(seq { Note(Time = 100, Fret = 1y); Note(Time = 103, Fret = 3y) })
+            let level = Level(Notes = notes, Anchors = anchors)
+            let arr = InstrumentalArrangement(Levels = ra [ level ])
+
+            AnchorMover.improve arr
+
+            Expect.equal level.Anchors[0].Time 100 "Anchor was not moved"
+
+        testCase "Anchor at the end of a slide that is very close to another note is not moved" <| fun _ ->
+            let anchors = ResizeArray(seq { Anchor(1y, 100); Anchor(3y, 300) })
+            let notes = ResizeArray(seq { Note(Time = 100, Sustain = 200, Fret = 1y, SlideTo = 3y); Note(Time = 303, Fret = 3y) })
+            let level = Level(Notes = notes, Anchors = anchors)
+            let arr = InstrumentalArrangement(Levels = ra [ level ])
+
+            AnchorMover.improve arr
+
+            Expect.equal level.Anchors[1].Time 300 "Anchor was not moved"
+    ]
+
 [<Tests>]
 let applyAllTests =
     testList "Arrangement Improver (Apply All Fixes)" [
