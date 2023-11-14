@@ -271,8 +271,6 @@
   "ToneChangeOnNoteHelp": "普段はトーンチェンジをノートのちょっと前に置くといいでしょう。",
   "MissingLinkNextChordNotes": "LinkNextコードにはLinkNextノートがいない",
   "MissingLinkNextChordNotesHelp": "コード自体にはLinkNextはありますが、コードのノートにはLinkNextが存在しません。このようなコードがアレンジにあるとゲームがクラッシュするかもしれません。",
-  "ChordAtEndOfHandShape": "Handshape終了時のコード",
-  "ChordAtEndOfHandShapeHelp": "Handshape終了時ぴったりのコードが多少みにくい。Handshapeの長さを調整しましょう。",
   "PossiblyWrongChordFingering": "コードに妙な運指が使われている",
   "PossiblyWrongChordFingeringHelp": "運指には通常のコードには見られない指の交差が要求されている。",
   "BarreOverOpenStrings": "バレの中に開放弦",

@@ -145,3 +145,16 @@ let tryFindNextNoteOnSameString (notes: ResizeArray<Note>) (currentIndex: int) (
             notes.FindIndex(currentIndex + 1, fun n -> n.String = note.String)
 
     if nextIndex = -1 then None else Some notes[nextIndex]
+
+/// Returns the time of the next note, chord or handshape that is closest to the given time.
+let tryFindNextContentTime (level: Level) (time: int) : int option =
+    let tryFindNext (ra: ResizeArray<#IHasTimeCode>) =
+        ra
+        |> ResizeArray.tryFind (fun x -> x.Time >= time)
+        |> Option.map (fun x -> x.Time)
+
+    let noteTime = tryFindNext level.Notes
+    let chordTime = tryFindNext level.Chords
+    let handShapeTime = tryFindNext level.HandShapes
+
+    Option.minOfMany [ noteTime; chordTime; handShapeTime ]

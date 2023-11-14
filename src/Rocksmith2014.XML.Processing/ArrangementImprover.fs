@@ -18,9 +18,6 @@ let movePhrases = PhraseMover.improve
 /// Processes custom events.
 let processCustomEvents = CustomEvents.improve
 
-/// Shortens the lengths of a handshapes that are too close to the next one.
-let adjustHandShapes = HandShapeAdjuster.improve
-
 /// Applies all the improvements to the arrangement.
 let applyAll arrangement =
     BasicFixes.validatePhraseNames arrangement
@@ -36,7 +33,8 @@ let applyAll arrangement =
     processChordNames arrangement
     processCustomEvents arrangement
     removeExtraBeats arrangement
-    adjustHandShapes arrangement
+    HandShapeAdjuster.lengthenHandshapes arrangement
+    HandShapeAdjuster.shortenHandshapes arrangement
     AnchorMover.improve arrangement
 
 /// Applies the basic needed improvements to the arrangement.

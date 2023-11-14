@@ -81,20 +81,8 @@ module private Helpers =
                     // If a beat is not found, create the phrase 100ms after content end time
                     min (endPhraseTime + 100) (arr.MetaData.SongLength - 100)
 
-    let findNextContent (level: Level) (time: int) =
-        let tryFindNext (ra: ResizeArray<#IHasTimeCode>) =
-            ra
-            |> ResizeArray.tryFind (fun x -> x.Time >= time)
-            |> Option.map (fun x -> x.Time)
-
-        let noteTime = tryFindNext level.Notes
-        let chordTime = tryFindNext level.Chords
-        let handShapeTime = tryFindNext level.HandShapes
-
-        Option.minOfMany [ noteTime; chordTime; handShapeTime ]
-
     let getContentStartTime (level: Level) =
-        findNextContent level 0
+        tryFindNextContentTime level 0
 
     let getFirstPhraseTime contentStartTime (arr: Inst) =
         let firstBeatTime = arr.Ebeats[0].Time
@@ -277,7 +265,7 @@ module private Helpers =
                         true, t
 
                 if canCreatePhrase then
-                    let nextContentTime = findNextContent level time
+                    let nextContentTime = tryFindNextContentTime level time
 
                     let sectionType =
                         match nextContentTime with

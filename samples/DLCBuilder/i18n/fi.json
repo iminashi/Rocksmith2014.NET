@@ -271,8 +271,6 @@
   "ToneChangeOnNoteHelp": "Yleensä on parempi asettaa soundimuutos vähän ennen nuottia kuin juuri sen kohdalle.",
   "MissingLinkNextChordNotes": "LinkNext sointu ilman LinkNext nuotteja",
   "MissingLinkNextChordNotesHelp": "Soinnulla itsellään on LinkNext-ominaisuus, mutta siinä ei ole yhtään nuottia, jolla on tämä ominaisuus. Tälläinen sointu saattaa kaataa pelin.",
-  "ChordAtEndOfHandShape": "Sointu handshapen lopussa",
-  "ChordAtEndOfHandShapeHelp": "Sointu, joka on samassa kohdassa, jossa handshape loppuu, näyttää rumalta. Lisää handshapen pituutta.",
   "PossiblyWrongChordFingering": "Mahdollisesti virheellinen sormitus",
   "PossiblyWrongChordFingeringHelp": "Soinnun sormitus vaatii sormia risteämään tavalla jota ei käytetä yleisissä soinnuissa.",
   "BarreOverOpenStrings": "Barree yli avoimien kielien",

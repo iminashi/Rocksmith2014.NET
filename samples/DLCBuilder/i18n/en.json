@@ -271,8 +271,6 @@
   "ToneChangeOnNoteHelp": "Generally it is good practice to place the tone change slightly before a note than exactly on it.",
   "MissingLinkNextChordNotes": "LinkNext chord without LinkNext chord notes",
   "MissingLinkNextChordNotesHelp": "A chord itself has the LinkNext attribute set, but it does not contain any chord notes that have the attribute. Such a chord can cause the game to crash.",
-  "ChordAtEndOfHandShape": "Chord at the end of a handshape",
-  "ChordAtEndOfHandShapeHelp": "A chord exactly at the end of a handshape looks ugly. Increase the length of the handshape.",
   "PossiblyWrongChordFingering": "Chord fingering appears to be wrong",
   "PossiblyWrongChordFingeringHelp": "The chord fingering requires the fingers to cross in a way not used in common chords.",
   "BarreOverOpenStrings": "Barre over open strings",

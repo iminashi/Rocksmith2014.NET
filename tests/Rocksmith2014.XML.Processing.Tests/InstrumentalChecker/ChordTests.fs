@@ -53,16 +53,6 @@ let chordTests =
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.Type ToneChangeOnNote "Correct issue type"
 
-        testCase "Detects chord at the end of handshape" <| fun _ ->
-            let hs = ResizeArray(seq { HandShape(1s, 6500, 7000) })
-            let chords = ResizeArray(seq { Chord(ChordId = 1s, Time = 7000) })
-            let level = Level(Chords = chords, HandShapes = hs)
-
-            let results = checkChords testArr level
-
-            Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type ChordAtEndOfHandShape "Correct issue type"
-
         testCase "Detects chord inside noguitar section" <| fun _ ->
             let chords = ResizeArray(seq { Chord(Time = 6100) })
             let level = Level(Chords = chords)

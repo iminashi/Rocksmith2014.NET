@@ -385,14 +385,6 @@ let checkChords (arrangement: InstrumentalArrangement) (level: Level) =
             if isOnToneChange arrangement time then
                 issue ToneChangeOnNote time
 
-            // Check chords at the end of handshape (no "handshape sustain")
-            let handShape =
-                level.HandShapes.Find(fun hs ->
-                    hs.ChordId = chord.ChordId && time >= hs.StartTime && time <= hs.EndTime)
-
-            if notNull handShape && handShape.EndTime - time <= 5 then
-                issue ChordAtEndOfHandShape time
-
             // Check the fingering of the chord and invalid muted strings
             if chord.HasChordNotes && not chord.IsHighDensity then
                 if chordHasStrangeFingering arrangement.ChordTemplates chord then

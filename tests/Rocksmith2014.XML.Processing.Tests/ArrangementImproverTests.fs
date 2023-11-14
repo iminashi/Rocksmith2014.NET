@@ -449,7 +449,7 @@ let handShapeAdjusterTests =
                     Levels = ra [ Level(Chords = chords, HandShapes = ra [ hs1; hs2 ]) ]
                 )
 
-            HandShapeAdjuster.improve arr
+            HandShapeAdjuster.shortenHandshapes arr
 
             Expect.isTrue (hs1.EndTime < 2000) "Handshape was shortened"
             Expect.isTrue (hs1.StartTime < hs1.EndTime) "Handshape end comes after the start"
@@ -465,7 +465,7 @@ let handShapeAdjusterTests =
                     Levels = ra [ Level(Chords = chords, HandShapes = ra [ hs1; hs2 ]) ]
                 )
 
-            HandShapeAdjuster.improve arr
+            HandShapeAdjuster.shortenHandshapes arr
 
             Expect.isTrue (hs1.EndTime < 2000) "Handshape was shortened"
             Expect.isTrue (hs1.StartTime < hs1.EndTime) "Handshape end comes after the start"
@@ -480,9 +480,38 @@ let handShapeAdjusterTests =
                     Levels = ra [ Level(HandShapes = ra [ hs1; hs2 ]) ]
                 )
 
-            HandShapeAdjuster.improve arr
+            HandShapeAdjuster.shortenHandshapes arr
 
             Expect.isTrue (hs1.EndTime < 2600) "Handshape was shortened"
+
+        testCase "Lengthens handshape when chord is at end of handshape" <| fun _ ->
+            let beats = ra [ Ebeat(500, -1s); Ebeat(1000, -1s); Ebeat(1500, -1s); Ebeat(2500, -1s) ]
+            let chords = ra [ Chord(Time = 1000); Chord(Time = 2000) ]
+            let hs1 = HandShape(0s, 1000, 2000)
+            let arr =
+                InstrumentalArrangement(
+                    Ebeats = beats,
+                    Levels = ra [ Level(Chords = chords, HandShapes = ra [ hs1 ]) ]
+                )
+
+            HandShapeAdjuster.lengthenHandshapes arr
+
+            Expect.equal hs1.EndTime 2250 "Handshape was lengthened by time of 16th note"
+
+        testCase "Lengthens handshape when chord is at end of handshape and next note is very close" <| fun _ ->
+            let beats = ra [ Ebeat(500, -1s); Ebeat(1000, -1s); Ebeat(1500, -1s); Ebeat(2500, -1s) ]
+            let chords = ra [ Chord(Time = 1000); Chord(Time = 2000) ]
+            let notes = ra [ Note(Time = 2050) ]
+            let hs1 = HandShape(0s, 1000, 2000)
+            let arr =
+                InstrumentalArrangement(
+                    Ebeats = beats,
+                    Levels = ra [ Level(Chords = chords, Notes = notes, HandShapes = ra [ hs1 ]) ]
+                )
+
+            HandShapeAdjuster.lengthenHandshapes arr
+
+            Expect.equal hs1.EndTime 2025 "Handshape was lengthened"
     ]
 
 [<Tests>]

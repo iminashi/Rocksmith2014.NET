@@ -20,7 +20,6 @@ type IssueType =
     | ToneChangeOnNote
     | NoteInsideNoguitarSection
     | MissingLinkNextChordNotes
-    | ChordAtEndOfHandShape
     | FingeringAnchorMismatch
     | PossiblyWrongChordFingering
     | BarreOverOpenStrings
@@ -67,7 +66,7 @@ let issueCode = function
     | NoteInsideNoguitarSection -> "I16"
     //| VaryingChordNoteSustains -> "I17"
     | MissingLinkNextChordNotes -> "I18"
-    | ChordAtEndOfHandShape -> "I19"
+    //| ChordAtEndOfHandShape -> "I19"
     | FingeringAnchorMismatch -> "I20"
     | AnchorInsideHandShape -> "I21"
     | AnchorInsideHandShapeAtPhraseBoundary -> "I22"
