@@ -173,7 +173,6 @@ let view state dispatch (arrangement: Arrangement) =
             ScrollViewer.create [
                 ScrollViewer.maxHeight 500.
                 ScrollViewer.maxWidth 700.
-                ScrollViewer.padding 8.
                 ScrollViewer.content (
                     vStack [
                         match issues with
@@ -191,21 +190,21 @@ let view state dispatch (arrangement: Arrangement) =
                                     TextBlock.horizontalAlignment HorizontalAlignment.Center
                                     TextBlock.verticalAlignment VerticalAlignment.Center
                                 ]
+                            else
+                                // Important
+                                if not issues.Important.IsEmpty then
+                                    issueListHeader "ImportantIssues"
+                                    yield! issues.Important
 
-                            // Important
-                            if not issues.Important.IsEmpty then
-                                issueListHeader "ImportantIssues"
-                                vStack issues.Important
+                                // Minor
+                                if not issues.Minor.IsEmpty then
+                                    issueListHeader "MinorIssues"
+                                    yield! issues.Minor
 
-                            // Minor
-                            if not issues.Minor.IsEmpty then
-                                issueListHeader "MinorIssues"
-                                vStack issues.Minor
-
-                            // Ignored
-                            if not issues.Ignored.IsEmpty then
-                                issueListHeader "IgnoredIssues"
-                                vStack issues.Ignored
+                                // Ignored
+                                if not issues.Ignored.IsEmpty then
+                                    issueListHeader "IgnoredIssues"
+                                    yield! issues.Ignored
                     ]
                 )
             ]
