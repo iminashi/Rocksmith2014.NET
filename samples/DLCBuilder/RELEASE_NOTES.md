@@ -1,3 +1,8 @@
+## 2.5.0 (Released 2023-11-xx)
+
+- Removed the "anchor not exactly on a note" and "chord at the end of handshape" validation issues. They will be fixed automatically when "apply improvements" is enabled.
+- Fixed an issue where the times for the last issue in the issue viewer would not be displayed.
+
 ## 2.4.0 (Released 2023-11-12)
 
 - Updated the UI framework to new major version (Avalonia 11).
