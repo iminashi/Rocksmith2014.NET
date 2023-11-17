@@ -27,16 +27,19 @@ let private findBeats (beats: ResizeArray<Ebeat>) (time: int) =
 
 /// Lengthens handshapes that end with a chord.
 let lengthenHandshapes (arrangement: InstrumentalArrangement) =
-    for level in arrangement.Levels do
-        for hs in level.HandShapes do
-            // Try to find a chord that is within 5ms from the handshape end time
-            let chord =
-                level.Chords.Find(fun chord ->
+    let rec adjustHandShapes (level: Level) (chordIndex: int) (hsIndex: int) =
+        if hsIndex < level.HandShapes.Count && chordIndex < level.Chords.Count then
+            let hs = level.HandShapes[hsIndex]
+
+            // Try to find a chord that is within 10ms from the handshape end time
+            let nearChordIndex =
+                level.Chords.FindIndex(chordIndex, fun chord ->
                     hs.ChordId = chord.ChordId
                     && (chord.Time >= hs.StartTime && chord.Time <= hs.EndTime)
                     && hs.EndTime - chord.Time <= 10)
 
-            if notNull chord then
+            if nearChordIndex >= 0 then
+                let chord = level.Chords[nearChordIndex]
                 let time = chord.Time
                 let beat1, beat2 = findBeats arrangement.Ebeats time
                 let note16th = (beat2.Time - beat1.Time) / 4
@@ -53,6 +56,12 @@ let lengthenHandshapes (arrangement: InstrumentalArrangement) =
                         hs.EndTime + (nextTime - hs.EndTime) / 2
                     | _ ->
                         newEndTime
+                adjustHandShapes level nearChordIndex (hsIndex + 1)
+            else
+                adjustHandShapes level chordIndex (hsIndex + 1)
+
+    for level in arrangement.Levels do
+        adjustHandShapes level 0 0
 
 /// Shortens the lengths of handshapes that are too close to the next one.
 let shortenHandshapes (arrangement: InstrumentalArrangement) =
