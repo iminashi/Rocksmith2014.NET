@@ -27,38 +27,48 @@ let private findBeats (beats: ResizeArray<Ebeat>) (time: int) =
 
 /// Lengthens handshapes that end with a chord.
 let lengthenHandshapes (arrangement: InstrumentalArrangement) =
+    let rec findIndexOfLastChordMaybeInsideHandshape (index: int) (chords: ResizeArray<Chord>) (hs: HandShape) =
+        if index >= chords.Count then
+            // Reached the last chord in the arrangement (assume that it is within a handshape)
+            index - 1
+        else
+            if chords[index].Time > hs.EndTime then
+                // Handshape end passed, return the index of the previous chord
+                index - 1
+            else
+                // Not inside the handshape yet or within the handshape, keep searching
+                findIndexOfLastChordMaybeInsideHandshape (index + 1) chords hs
+
     let rec adjustHandShapes (level: Level) (chordIndex: int) (hsIndex: int) =
         if hsIndex < level.HandShapes.Count && chordIndex < level.Chords.Count then
             let hs = level.HandShapes[hsIndex]
+            let lastChordIndex = findIndexOfLastChordMaybeInsideHandshape chordIndex level.Chords hs
 
-            // Try to find a chord that is within 10ms from the handshape end time
-            let nearChordIndex =
-                level.Chords.FindIndex(chordIndex, fun chord ->
-                    hs.ChordId = chord.ChordId
-                    && (chord.Time >= hs.StartTime && chord.Time <= hs.EndTime)
-                    && hs.EndTime - chord.Time <= 10)
-
-            if nearChordIndex >= 0 then
-                let chord = level.Chords[nearChordIndex]
+            if lastChordIndex >= 0 then
+                let chord = level.Chords[lastChordIndex]
                 let time = chord.Time
-                let beat1, beat2 = findBeats arrangement.Ebeats time
-                let note16th = (beat2.Time - beat1.Time) / 4
 
-                // Add 1ms to skip this chord
-                let nextTimeOpt = tryFindNextContentTime level (time + 1)
-                let newEndTime = hs.EndTime + note16th
+                // Lengthen the handshape if the chord is within 10ms from the handshape end time
+                // Check that chord actually is within the handshape,
+                // since the search logic currently does not consider handshapes with notes only
+                if time >= hs.StartTime && time <= hs.EndTime && hs.EndTime - time <= 10 then
+                    let beat1, beat2 = findBeats arrangement.Ebeats time
+                    let note16th = (beat2.Time - beat1.Time) / 4
 
-                hs.EndTime <-
-                    match nextTimeOpt with
-                    | Some nextTime when newEndTime >= nextTime ->
-                        // If the new end time overlaps with the next note, chord or handshape,
-                        // extend the handshape by half the distance to that note/chord/hs
-                        hs.EndTime + (nextTime - hs.EndTime) / 2
-                    | _ ->
-                        newEndTime
-                adjustHandShapes level nearChordIndex (hsIndex + 1)
-            else
-                adjustHandShapes level chordIndex (hsIndex + 1)
+                    // Add 1ms to skip this chord
+                    let nextTimeOpt = tryFindNextContentTime level (time + 1)
+                    let newEndTime = hs.EndTime + note16th
+
+                    hs.EndTime <-
+                        match nextTimeOpt with
+                        | Some nextTime when newEndTime >= nextTime ->
+                            // If the new end time overlaps with the next note, chord or handshape,
+                            // extend the handshape by half the distance to that note/chord/hs
+                            hs.EndTime + (nextTime - hs.EndTime) / 2
+                        | _ ->
+                            newEndTime
+
+                adjustHandShapes level lastChordIndex (hsIndex + 1)
 
     for level in arrangement.Levels do
         adjustHandShapes level 0 0
