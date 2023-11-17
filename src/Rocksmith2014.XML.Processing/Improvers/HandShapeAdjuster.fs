@@ -31,7 +31,10 @@ let lengthenHandshapes (arrangement: InstrumentalArrangement) =
         for hs in level.HandShapes do
             // Try to find a chord that is within 5ms from the handshape end time
             let chord =
-                level.Chords.Find(fun chord -> hs.ChordId = chord.ChordId && hs.EndTime - chord.Time <= 5)
+                level.Chords.Find(fun chord ->
+                    hs.ChordId = chord.ChordId
+                    && (chord.Time >= hs.StartTime && chord.Time <= hs.EndTime)
+                    && hs.EndTime - chord.Time <= 10)
 
             if notNull chord then
                 let time = chord.Time
