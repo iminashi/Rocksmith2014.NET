@@ -512,6 +512,38 @@ let handShapeAdjusterTests =
             HandShapeAdjuster.lengthenHandshapes arr
 
             Expect.equal hs1.EndTime 2025 "Handshape was lengthened"
+
+        testCase "Test handshape handshape lengthening with two handshapes (lengthen both)" <| fun _ ->
+            let beats = ra [ for i in 1..20 -> Ebeat(i * 500, -1s)  ]
+            let chords = ra [ Chord(Time = 1000); Chord(Time = 2090); Chord(Time = 3000); Chord(Time = 3500) ]
+            let hs1 = HandShape(0s, 1000, 2100)
+            let hs2 = HandShape(0s, 3000, 3500)
+            let arr =
+                InstrumentalArrangement(
+                    Ebeats = beats,
+                    Levels = ra [ Level(Chords = chords, HandShapes = ra [ hs1; hs2 ]) ]
+                )
+
+            HandShapeAdjuster.lengthenHandshapes arr
+
+            Expect.equal hs1.EndTime 2225 "1st handshape was lengthened"
+            Expect.equal hs2.EndTime 3625 "2nd handshape was lengthened"
+
+        testCase "Test handshape handshape lengthening with two handshapes (lengthen second)" <| fun _ ->
+            let beats = ra [ for i in 1..20 -> Ebeat(i * 500, -1s)  ]
+            let chords = ra [ Chord(Time = 1000); Chord(Time = 2000); Chord(Time = 2150); Chord(Time = 2500) ]
+            let hs1 = HandShape(0s, 1000, 2100)
+            let hs2 = HandShape(0s, 2150, 2500)
+            let arr =
+                InstrumentalArrangement(
+                    Ebeats = beats,
+                    Levels = ra [ Level(Chords = chords, HandShapes = ra [ hs1; hs2 ]) ]
+                )
+
+            HandShapeAdjuster.lengthenHandshapes arr
+
+            Expect.equal hs1.EndTime 2100 "1st handshape was not lengthened"
+            Expect.equal hs2.EndTime 2625 "2nd handshape was lengthened"
     ]
 
 [<Tests>]
