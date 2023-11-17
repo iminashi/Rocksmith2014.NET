@@ -135,7 +135,7 @@ module DLCProject =
                              CustomFont = Option.map abs v.CustomFont }
                     |> Vocals
                 | Showlights s ->
-                    Showlights { s with XML = abs s.XML })
+                    Showlights { XML = abs s.XML })
 
         { project with
             Arrangements = arrangements
@@ -169,7 +169,7 @@ module DLCProject =
                              CustomFont = Option.map rel v.CustomFont }
                     |> Vocals
                 | Showlights s ->
-                    Showlights { s with XML = rel s.XML })
+                    Showlights { XML = rel s.XML })
 
         { project with
             Arrangements = arrangements
