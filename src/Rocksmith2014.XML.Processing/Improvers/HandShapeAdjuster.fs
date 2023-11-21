@@ -55,9 +55,22 @@ let lengthenHandshapes (arrangement: InstrumentalArrangement) =
                     let beat1, beat2 = findBeats arrangement.Ebeats time
                     let note16th = (beat2.Time - beat1.Time) / 4
 
+                    let nextAnchorTimeOpt =
+                        level.Anchors.Find(fun a -> a.Time > time)
+                        |> Option.ofObj
+                        |> Option.map (fun a -> a.Time)
+
+                    let nextPhraseTimeOpt =
+                        arrangement.PhraseIterations.Find(fun p -> p.Time > time)
+                        |> Option.ofObj
+                        |> Option.map (fun p -> p.Time)
+
                     // Add 1ms to skip this chord
-                    let nextTimeOpt = tryFindNextContentTime level (time + 1)
+                    let nextContentTimeOpt = tryFindNextContentTime level (time + 1)
                     let newEndTime = hs.EndTime + note16th
+
+                    let nextTimeOpt =
+                        Option.minOfMany [ nextAnchorTimeOpt; nextPhraseTimeOpt; nextContentTimeOpt ]
 
                     hs.EndTime <-
                         match nextTimeOpt with

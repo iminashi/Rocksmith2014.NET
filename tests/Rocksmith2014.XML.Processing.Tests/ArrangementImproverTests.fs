@@ -513,6 +513,21 @@ let handShapeAdjusterTests =
 
             Expect.equal hs1.EndTime 2025 "Handshape was lengthened"
 
+        testCase "Lengthens handshape when chord is at end of handshape and next anchor is very close" <| fun _ ->
+            let beats = ra [ Ebeat(500, -1s); Ebeat(1000, -1s); Ebeat(1500, -1s); Ebeat(2500, -1s) ]
+            let chords = ra [ Chord(Time = 1000); Chord(Time = 2000) ]
+            let anchors = ra [ Anchor(4y, 2100) ]
+            let hs1 = HandShape(0s, 1000, 2000)
+            let arr =
+                InstrumentalArrangement(
+                    Ebeats = beats,
+                    Levels = ra [ Level(Chords = chords, Anchors = anchors, HandShapes = ra [ hs1 ]) ]
+                )
+
+            HandShapeAdjuster.lengthenHandshapes arr
+
+            Expect.equal hs1.EndTime 2050 "Handshape was lengthened"
+
         testCase "Test handshape handshape lengthening with two handshapes (lengthen both)" <| fun _ ->
             let beats = ra [ for i in 1..20 -> Ebeat(i * 500, -1s)  ]
             let chords = ra [ Chord(Time = 1000); Chord(Time = 2090); Chord(Time = 3000); Chord(Time = 3500) ]
