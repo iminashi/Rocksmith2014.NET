@@ -1,7 +1,9 @@
 module DLCBuilder.TestPackageBuilder
 
+open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
 open System.Diagnostics
+open System
 open System.IO
 open System.Text.RegularExpressions
 
@@ -10,8 +12,27 @@ let createPackageName project =
     project.DLCKey.ToLowerInvariant()
 
 /// Generates new IDs for all the arrangements.
-let generateAllIds arrangements =
-    List.map Arrangement.generateIds arrangements
+let generateAllIds (arrangements: Arrangement list) =
+    // Sort the new IDs to keep multiple alternative arrangements for the same path in the same order
+    let guidsArray =
+        Array.init arrangements.Length (fun _ -> Guid.NewGuid())
+        |> Array.sort
+
+    arrangements
+    |> List.mapi (fun i arr ->
+        match arr with
+        | Instrumental inst ->
+            { inst with
+                MasterID = RandomGenerator.next ()
+                PersistentID = guidsArray[i] }
+            |> Instrumental
+        | Vocals vocals ->
+            { vocals with
+                MasterID = RandomGenerator.next ()
+                PersistentID = guidsArray[i] }
+            |> Vocals
+        | Showlights _ as sl ->
+            sl)
 
 /// Returns a list of paths to the test builds for the project.
 let getTestBuildFiles config project =

@@ -287,5 +287,5 @@ module Arrangement =
                 MasterID = RandomGenerator.next ()
                 PersistentID = Guid.NewGuid() }
             |> Vocals
-        | other ->
-            other
+        | Showlights _ as sl ->
+            sl
