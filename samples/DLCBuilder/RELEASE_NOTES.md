@@ -1,7 +1,8 @@
-## 2.5.0 (Released 2023-11-xx)
+## 2.5.0 (Released 2023-12-03)
 
 - Removed the "anchor not exactly on a note" and "chord at the end of handshape" validation issues. They will be fixed automatically when "apply improvements" is enabled.
 - Fixed an issue where the times for the last issue in the issue viewer would not be displayed.
+- The persistent IDs will be applied in sorted order when "Generate new IDs for all arrangements" is used.
 
 ## 2.4.0 (Released 2023-11-12)
 
