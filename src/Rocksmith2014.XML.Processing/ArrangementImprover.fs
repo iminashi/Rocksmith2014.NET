@@ -25,6 +25,8 @@ let applyAll arrangement =
     BasicFixes.fixLinkNexts arrangement
     BasicFixes.removeOverlappingBendValues arrangement
     BasicFixes.removeMutedNotesFromChords arrangement
+    // Do before phrase start anchors are fixed
+    AnchorMover.improve arrangement
     movePhrases arrangement
     eofFixes arrangement
     // Should be done after fixing the anchors at phrase start
@@ -35,7 +37,6 @@ let applyAll arrangement =
     removeExtraBeats arrangement
     HandShapeAdjuster.lengthenHandshapes arrangement
     HandShapeAdjuster.shortenHandshapes arrangement
-    AnchorMover.improve arrangement
 
 /// Applies the basic needed improvements to the arrangement.
 let applyMinimum arrangement =

@@ -1,3 +1,7 @@
+## 2.5.1 (Released 2023-12-03)
+
+- Fixed a possible issue with anchors in arrangements where the notes in EOF are not snapped to grid.
+
 ## 2.5.0 (Released 2023-12-03)
 
 - Removed the "anchor not exactly on a note" and "chord at the end of handshape" validation issues. They will be fixed automatically when "apply improvements" is enabled.
