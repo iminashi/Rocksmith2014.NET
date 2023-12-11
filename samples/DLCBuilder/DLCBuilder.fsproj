@@ -114,10 +114,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia.Desktop" Version="11.0.5" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.0.6" />
     <PackageReference Include="Avalonia.FuncUI" Version="1.1.0" />
     <PackageReference Include="Avalonia.FuncUI.Elmish" Version="1.1.0" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.5" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.6" />
     <PackageReference Include="Pfim" Version="0.11.2" />
   </ItemGroup>
 
