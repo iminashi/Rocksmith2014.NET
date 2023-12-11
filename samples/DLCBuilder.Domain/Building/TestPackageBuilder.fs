@@ -57,24 +57,27 @@ let private getNewestVersionNumber existingPackages =
         | [] -> existingPackages.Length
         | list -> List.max list
 
-let updateProject versionString project =
-    let arrangements = generateAllIds project.Arrangements
+let updateProject versionStringOpt project =
+    ({ project with Version = "test" }, versionStringOpt)
+    ||> Option.fold (fun project versionString ->
+        let arrangements = generateAllIds project.Arrangements
 
-    let titleValue = $"{project.Title.Value} %s{versionString}"
-    let titleSortValue =
-        project.Title.SortValue
-        |> Option.ofString
-        |> Option.map (fun sort -> sprintf "%s %s" sort versionString)
-        |> Option.defaultWith (fun () ->
-            StringValidator.convertToSortField (StringValidator.FieldType.Title titleValue))
+        let titleValue = $"{project.Title.Value} %s{versionString}"
+        let titleSortValue =
+            project.Title.SortValue
+            |> Option.ofString
+            |> Option.map (fun sort -> sprintf "%s %s" sort versionString)
+            |> Option.defaultWith (fun () ->
+                StringValidator.convertToSortField (StringValidator.FieldType.Title titleValue))
 
-    { project with
-        DLCKey = $"{project.DLCKey}{versionString}"
-        Title = SortableString.Create(titleValue, titleSortValue)
-        JapaneseTitle =
-            project.JapaneseTitle
-            |> Option.map (fun title -> $"{title} {versionString}")
-        Arrangements = arrangements }
+        { project with
+            DLCKey = $"{project.DLCKey}{versionString}"
+            Title = SortableString.Create(titleValue, titleSortValue)
+            JapaneseTitle =
+                project.JapaneseTitle
+                |> Option.map (fun title -> $"{title} {versionString}")
+            Arrangements = arrangements }
+    )
 
 /// Returns an async computation for building a package for testing.
 let build platform projectDir config project =
@@ -102,11 +105,11 @@ let build platform projectDir config project =
                 // Delete any previous versions
                 List.iter File.Delete existingPackages
 
-                project, packageFileName, BuildCompleteType.Test
+                updateProject None project, packageFileName, BuildCompleteType.Test
             | true ->
                 let versionString = $"v{latestVersion + 1}"
 
-                updateProject versionString project,
+                updateProject (Some versionString) project,
                 $"{packageFileName}_{versionString}",
                 BuildCompleteType.TestNewVersion versionString
 
