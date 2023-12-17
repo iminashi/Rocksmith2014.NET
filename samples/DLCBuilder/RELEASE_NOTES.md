@@ -1,3 +1,8 @@
+## 2.5.2 (Released 2023-12-17)
+
+- The version in the package metadata will be set to "test" for test builds.
+- Updated the UI framework to the latest version.
+
 ## 2.5.1 (Released 2023-12-03)
 
 - Fixed a possible issue with anchors in arrangements where the notes in EOF are not snapped to grid.
