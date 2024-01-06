@@ -47,7 +47,7 @@ let private createFileFilters filter =
         | FileFilter.XML ->
             [ "*.xml" ]
         | FileFilter.Image ->
-            [ "*.png"; "*.jpg"; "*.dds" ]
+            [ "*.png"; "*.jpg"; "*.jpeg"; "*.dds" ]
         | FileFilter.DDS ->
             [ "*.dds" ]
         | FileFilter.Profile ->
