@@ -433,7 +433,7 @@ let update (msg: Msg) (state: State) =
                 let arrangements =
                     project.Arrangements
                     |> List.map (function
-                        | Instrumental inst when inst.PersistentId = arrId ->
+                        | Instrumental inst when inst.Id = arrId ->
                             let audio =
                                 inst.CustomAudio
                                 |> Option.map (fun a -> { a with Volume = volume })

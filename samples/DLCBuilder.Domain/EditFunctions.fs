@@ -103,7 +103,7 @@ let editInstrumental state edit index inst =
                 [
                     if notWemFile then StateUtils.getOptionalWemConversionCmd state path
                     if state.Config.AutoVolume && notWemFile then
-                        Cmd.ofMsg <| CalculateVolume(CustomAudio(path, inst.PersistentId))
+                        Cmd.ofMsg <| CalculateVolume(CustomAudio(path, inst.Id))
                 ]
 
             let customAudio =

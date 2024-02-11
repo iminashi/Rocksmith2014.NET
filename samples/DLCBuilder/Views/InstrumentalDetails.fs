@@ -397,7 +397,7 @@ let view state dispatch (inst: Instrumental) =
                     Grid.row 12
                     NumericUpDown.isEnabled (
                         match inst.CustomAudio with
-                        | Some audio when state.RunningTasks.Contains(VolumeCalculation(CustomAudio(audio.Path, inst.PersistentId))) ->
+                        | Some audio when state.RunningTasks.Contains(VolumeCalculation(CustomAudio(audio.Path, inst.Id))) ->
                             false
                         | _ ->
                             true)
