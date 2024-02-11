@@ -8,7 +8,7 @@ open System
 open System.IO
 
 let vocals =
-    { Id = Guid.Empty
+    { Id = ArrangementId.New
       XmlPath = ""
       Japanese = false
       CustomFont = None

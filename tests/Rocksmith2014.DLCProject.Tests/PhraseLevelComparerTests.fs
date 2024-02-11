@@ -16,10 +16,9 @@ let private testPhrase =
       Name = p1 }
 
 let private arrangement = Instrumental testLead
-let private arrId = testLead.PersistentId
 
 let private storedLevels =
-    readOnlyDict [ arrId, readOnlyDict [ p1, 5; p2, 2 ] ]
+    readOnlyDict [ testLead.PersistentId, readOnlyDict [ p1, 5; p2, 2 ] ]
 
 [<Tests>]
 let tests =
@@ -30,7 +29,7 @@ let tests =
             let ids = PhraseLevelComparer.compareLevels storedLevels [ arrangement, sng ]
 
             Expect.hasLength ids 1 "One ID was returned"
-            Expect.equal ids.[0] arrId "Correct ID was returned"
+            Expect.equal ids.[0] testLead.Id "Correct ID was returned"
         }
 
         test "Does not return ID of phrase with more levels than stored" {

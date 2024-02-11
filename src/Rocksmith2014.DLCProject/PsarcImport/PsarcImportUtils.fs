@@ -67,7 +67,7 @@ let importVocals targetDirectory targetFile (attributes: Attributes) sng isJapan
             glyphs.Save(Path.Combine(targetDirectory, $"{filename}.glyphs.xml"))
             Some(Path.Combine(targetDirectory, $"{filename}.dds"))
 
-    { Id = Guid.NewGuid()
+    { Id = ArrangementId.New
       XmlPath = targetFile
       Japanese = isJapanese
       CustomFont = customFont
@@ -102,7 +102,7 @@ let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile
             audioFiles
             |> Array.tryFind (fun audio -> String.contains targetFilename audio.Path)
 
-    { Id = Guid.NewGuid()
+    { Id = ArrangementId.New
       XmlPath = targetFile
       Name = ArrangementName.Parse(attributes.ArrangementName)
       Priority =

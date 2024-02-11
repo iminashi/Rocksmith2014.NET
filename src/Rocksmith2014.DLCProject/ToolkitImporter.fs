@@ -75,7 +75,7 @@ let private importInstrumental (xmlFile: string) (arr: XmlNode) =
         [ 'A'..'D' ]
         |> List.choose (sprintf "Tone%c" >> itemText arr >> Option.ofString)
 
-    { Id = Guid.NewGuid()
+    { Id = ArrangementId.New
       XmlPath = xmlFile
       Name = name
       RouteMask = RouteMask.Parse(itemText arr "RouteMask")
@@ -114,7 +114,7 @@ let private importVocals (xmlFile: string) (arr: XmlNode) =
                     // Converts "path\to\x.glyphs.xml" to "x.dds"
                     Some(Path.ChangeExtension(Path.GetFileNameWithoutExtension glyphDefs.InnerText, "dds"))))
 
-    { Id = Guid.NewGuid()
+    { Id = ArrangementId.New
       XmlPath = xmlFile
       Japanese = isJapanese
       CustomFont = customFont
@@ -135,7 +135,7 @@ let private importArrangement (arr: XmlNode) =
     | "Vocal" ->
         importVocals xml arr
     | "ShowLight" ->
-        Showlights { Id = Guid.NewGuid(); XmlPath = xml }
+        Showlights { Id = ArrangementId.New; XmlPath = xml }
     | unknown ->
         failwith $"Unknown arrangement type: {unknown}"
 

@@ -22,7 +22,7 @@ let testLeadCapo =
           MasterId = 12345 }
 
 let testVocals =
-    { Id = Guid.Empty
+    { Id = ArrangementId.New
       XmlPath = "vocals.xml"
       Japanese = false
       CustomFont = None
@@ -30,7 +30,7 @@ let testVocals =
       PersistentId = Guid.NewGuid() }
 
 let testJVocals =
-    { Id = Guid.Empty
+    { Id = ArrangementId.New
       XmlPath = "jvocals.xml"
       Japanese = true
       CustomFont = Some "font.dds"

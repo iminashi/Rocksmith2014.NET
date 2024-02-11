@@ -4,8 +4,8 @@ open Rocksmith2014.DLCProject
 open System
 open System.Threading.Tasks
 
-let private requestConfirmationEvent = Event<Guid list * AsyncReply>()
-let private idsGeneratedEvent = Event<Map<Guid, Arrangement>>()
+let private requestConfirmationEvent = Event<ArrangementId list * AsyncReply>()
+let private idsGeneratedEvent = Event<Map<ArrangementId, Arrangement>>()
 
 let RequestConfirmation = requestConfirmationEvent.Publish
 let NewIdsGenerated = idsGeneratedEvent.Publish

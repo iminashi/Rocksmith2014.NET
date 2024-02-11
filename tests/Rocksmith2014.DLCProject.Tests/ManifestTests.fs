@@ -11,7 +11,7 @@ let manifestTests =
     testList "Manifest Tests" [
         testCase "Can be converted to JSON" <| fun _ ->
             let arr =
-                { Id = Guid.Empty
+                { Id = ArrangementId.New
                   XmlPath = "lyrics.xml"
                   Japanese = false
                   CustomFont = None
@@ -27,7 +27,7 @@ let manifestTests =
 
         testCase "Can be read from JSON" <| fun _ ->
             let attr =
-                 { Id = Guid.Empty
+                 { Id = ArrangementId.New
                    XmlPath = "lyrics.xml"
                    Japanese = false
                    CustomFont = None

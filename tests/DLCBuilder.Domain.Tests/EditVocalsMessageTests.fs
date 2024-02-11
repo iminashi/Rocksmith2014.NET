@@ -7,7 +7,7 @@ open Rocksmith2014.DLCProject
 open System
 
 let vocals =
-    { Id = Guid.Empty
+    { Id = ArrangementId.New
       XmlPath = ""
       Japanese = false
       CustomFont = None

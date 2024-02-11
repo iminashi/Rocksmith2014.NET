@@ -55,7 +55,7 @@ let compareLevels (stored: ProjectLevels) (arrangements: (Arrangement * SNG) lis
                 let! storedLevels = Dictionary.tryGetValue inst.PersistentId stored
 
                 if harderStoredLevelExists sng.Phrases storedLevels then
-                    return inst.PersistentId
+                    return inst.Id
             }
         | _ ->
             None)

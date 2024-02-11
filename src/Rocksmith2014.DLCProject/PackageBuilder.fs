@@ -26,8 +26,8 @@ type private BuildData =
 
 type IdResetConfig =
     { ProjectDirectory: string
-      ConfirmIdRegeneration: Guid list -> Async<bool>
-      PostNewIds: Map<Guid, Arrangement> -> unit }
+      ConfirmIdRegeneration: ArrangementId list -> Async<bool>
+      PostNewIds: Map<ArrangementId, Arrangement> -> unit }
 
 type TargetPathType =
     | WithoutPlatformOrExtension of string
@@ -288,7 +288,7 @@ let private addShowLights sngs project =
     if not <| File.Exists(xmlFile) then
         ShowLightGenerator.generateFile xmlFile sngs
 
-    let showlights = Showlights { Id = Guid.NewGuid(); XmlPath = xmlFile }
+    let showlights = Showlights { Id = ArrangementId.New; XmlPath = xmlFile }
     let arrangments = showlights :: project.Arrangements
 
     { project with Arrangements = arrangments }
@@ -314,8 +314,8 @@ let private checkArrangementIdRegeneration sngs project config =
                     let replacements =
                         project.Arrangements
                         |> List.choose (function
-                            | Instrumental inst as arr when idsToReplace |> List.contains inst.PersistentId ->
-                                Some(inst.PersistentId, Arrangement.generateIds arr)
+                            | Instrumental inst as arr when idsToReplace |> List.contains inst.Id ->
+                                Some(inst.Id, Arrangement.generateIds arr)
                             | _ ->
                                 None)
                         |> Map.ofList
@@ -329,7 +329,7 @@ let private applyReplacements replacements project sngs =
     let update = function
         | Instrumental inst as arr ->
             replacements
-            |> Map.tryFind inst.PersistentId
+            |> Map.tryFind inst.Id
             |> Option.defaultValue arr
         | other ->
             other

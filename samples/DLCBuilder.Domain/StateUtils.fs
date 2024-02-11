@@ -234,7 +234,7 @@ let addJapaneseVocals (xmlPath: string) state =
     else
         let defaultId = Guid.NewGuid()
         let japaneseVocals =
-            { Id = defaultId
+            { Id = ArrangementId defaultId
               XmlPath = xmlPath
               Japanese = true
               CustomFont = None

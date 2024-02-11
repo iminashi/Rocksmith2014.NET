@@ -121,7 +121,7 @@ let update (msg: Msg) (state: State) =
         let arrangements =
             project.Arrangements
             |> List.filter (function
-                | Instrumental inst when ids |> List.contains inst.PersistentId ->
+                | Instrumental inst when ids |> List.contains inst.Id ->
                     true
                 | _ ->
                     false)
@@ -134,7 +134,7 @@ let update (msg: Msg) (state: State) =
             |> List.map (function
                 | Instrumental inst as arr ->
                     replacementMap
-                    |> Map.tryFind inst.PersistentId
+                    |> Map.tryFind inst.Id
                     |> Option.map (fun replacement ->
                         // Only get the IDs in case the user has edited the arrangement in the project
                         { inst with MasterId = Arrangement.getMasterId replacement

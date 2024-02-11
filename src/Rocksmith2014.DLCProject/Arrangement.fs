@@ -26,9 +26,16 @@ type ArrangementPriority =
     | Alternative = 1
     | Bonus = 2
 
+[<Struct>]
+type ArrangementId =
+    | ArrangementId of Guid
+
+    static member Value (ArrangementId id) = id
+    static member New = ArrangementId(Guid.NewGuid())
+
 type Instrumental =
     {
-        Id: Guid
+        Id: ArrangementId
         XmlPath: string
         Name: ArrangementName
         RouteMask: RouteMask
@@ -51,7 +58,7 @@ type Instrumental =
     static member Empty =
         let defaultId = Guid.NewGuid()
         {
-            Id = defaultId
+            Id = ArrangementId defaultId
             XmlPath = String.Empty
             Name = ArrangementName.Lead
             RouteMask = RouteMask.Lead
@@ -70,7 +77,7 @@ type Instrumental =
 
 type Vocals =
     {
-        Id: Guid
+        Id: ArrangementId
         XmlPath: string
         Japanese: bool
         CustomFont: string option
@@ -80,7 +87,7 @@ type Vocals =
 
 type Showlights =
     {
-        Id: Guid
+        Id: ArrangementId
         XmlPath: string
     }
 
@@ -220,7 +227,7 @@ module Arrangement =
                 let defaultId = Guid.NewGuid()
 
                 let arr =
-                    { Id = defaultId
+                    { Id = ArrangementId defaultId
                       XmlPath = path
                       Name = name
                       Priority =
@@ -263,7 +270,7 @@ module Arrangement =
                 let defaultId = Guid.NewGuid()
 
                 let arr =
-                    { Id = defaultId
+                    { Id = ArrangementId defaultId
                       XmlPath = path
                       Japanese = isJapanese
                       CustomFont = customFont
@@ -274,7 +281,7 @@ module Arrangement =
                 Ok(arr, None)
 
             | "showlights" ->
-                let arr = Arrangement.Showlights { Id = Guid.NewGuid(); XmlPath = path }
+                let arr = Arrangement.Showlights { Id = ArrangementId.New; XmlPath = path }
                 Ok(arr, None)
 
             | _ ->

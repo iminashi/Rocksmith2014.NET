@@ -144,7 +144,7 @@ let import progress (psarcPath: string) (targetDirectory: string) =
         let arrangements =
             arrangementsWithSng
             |> List.map snd
-            |> List.add (Showlights { Id = Guid.NewGuid(); XmlPath = showLightsPath }, ImportedData.ShowLights)
+            |> List.add (Showlights { Id = ArrangementId.New; XmlPath = showLightsPath }, ImportedData.ShowLights)
             |> List.sortBy (fst >> Arrangement.sorter)
 
         // Save phrase levels

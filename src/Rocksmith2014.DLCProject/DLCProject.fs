@@ -84,13 +84,13 @@ module DLCProject =
         match arr with
         | Showlights sl ->
             ShowlightsDto(
-                ID = sl.Id,
+                ID = ArrangementId.Value sl.Id,
                 XML = sl.XmlPath
             )
             |> ArrangementDto.Showlights
         | Vocals v ->
             VocalsDto(
-                ID = v.Id,
+                ID = ArrangementId.Value v.Id,
                 XML = v.XmlPath,
                 Japanese = v.Japanese,
                 CustomFont = Option.toObj v.CustomFont,
@@ -100,7 +100,7 @@ module DLCProject =
             |> ArrangementDto.Vocals
         | Instrumental i ->
             InstrumentalDto(
-                ID = i.Id,
+                ID = ArrangementId.Value i.Id,
                 XML = i.XmlPath,
                 Name = i.Name,
                 RouteMask = i.RouteMask,
@@ -121,10 +121,10 @@ module DLCProject =
     let arrangementFromDto (arr: ArrangementDto) =
         match arr with
         | ArrangementDto.Showlights sl ->
-            Showlights { Id = sl.ID; XmlPath = sl.XML }
+            Showlights { Id = ArrangementId sl.ID; XmlPath = sl.XML }
         | ArrangementDto.Vocals v ->
             {
-                Id = v.ID
+                Id = ArrangementId v.ID
                 XmlPath = v.XML
                 Japanese = v.Japanese
                 CustomFont = Option.ofObj v.CustomFont
@@ -134,7 +134,7 @@ module DLCProject =
             |> Vocals
         | ArrangementDto.Instrumental i ->
             {
-                Id = i.ID
+                Id = ArrangementId i.ID
                 XmlPath = i.XML
                 Name = i.Name
                 RouteMask = i.RouteMask

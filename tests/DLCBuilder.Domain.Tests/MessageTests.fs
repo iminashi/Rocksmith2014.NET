@@ -149,10 +149,10 @@ let messageTests =
             Expect.hasLength newState.Project.Tones 2 "Two tones were added to the project"
 
         testCase "ConfirmIdRegeneration shows overlay" <| fun _ ->
-            let lead2 = { testLead with PersistentId = Guid.NewGuid() }
+            let lead2 = { testLead with Id = ArrangementId.New }
             let project = { initialState.Project with Arrangements = [ Instrumental testLead; Instrumental lead2 ] }
             let state = { initialState with Project = project }
-            let ids = [ testLead.PersistentId ]
+            let ids = [ testLead.Id ]
             let reply = AsyncReply(ignore)
 
             let newState, _ = Main.update (ConfirmIdRegeneration(ids, reply)) state
@@ -166,16 +166,17 @@ let messageTests =
                 failwith "Wrong overlay type"
 
         testCase "SetNewArrangementIds updates arrangement IDs" <| fun _ ->
-            let replacement = { testLead with PersistentId = Guid.NewGuid(); ScrollSpeed = 1.8 }
+            let replacement = { testLead with PersistentId = Guid.NewGuid(); MasterId = 872518; ScrollSpeed = 1.8 }
             let project = { initialState.Project with Arrangements = [ Instrumental testLead; Vocals testVocals ] }
             let state = { initialState with Project = project }
-            let idMap = Map.ofList [ testLead.PersistentId, Instrumental replacement ]
+            let idMap = Map.ofList [ testLead.Id, Instrumental replacement ]
 
             let newState, _ = Main.update (SetNewArrangementIds(idMap)) state
 
             match newState.Project.Arrangements.[0] with
             | Instrumental inst ->
-                Expect.equal inst.PersistentId replacement.PersistentId "ID was updated"
+                Expect.equal inst.PersistentId replacement.PersistentId "Persistent ID was updated"
+                Expect.equal inst.MasterId replacement.MasterId "Master ID was updated"
                 Expect.notEqual inst.ScrollSpeed replacement.ScrollSpeed "Scroll speed was not changed"
             | _ ->
                 failwith "Wrong arrangement type"
@@ -228,17 +229,17 @@ let messageTests =
             Expect.isNonEmpty cmd "Auto volume command was returned"
 
         testCase "CalculateVolume adds long running task" <| fun _ ->
-            let guid = Guid.NewGuid()
+            let arrId = ArrangementId.New
 
             let newState, cmd =
                 [ CalculateVolume MainAudio
                   CalculateVolume PreviewAudio
-                  CalculateVolume (CustomAudio("custom.ogg", guid)) ]
+                  CalculateVolume (CustomAudio("custom.ogg", arrId)) ]
                 |> foldMessages initialState
 
             Expect.contains newState.RunningTasks (VolumeCalculation MainAudio) "Correct task was added"
             Expect.contains newState.RunningTasks (VolumeCalculation PreviewAudio) "Correct task was added"
-            Expect.contains newState.RunningTasks (VolumeCalculation(CustomAudio("custom.ogg", guid))) "Correct task was added"
+            Expect.contains newState.RunningTasks (VolumeCalculation(CustomAudio("custom.ogg", arrId))) "Correct task was added"
             Expect.isNonEmpty cmd "Async command was returned"
 
         testCase "VolumeCalculated sets volume" <| fun _ ->

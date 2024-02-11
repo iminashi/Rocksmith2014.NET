@@ -100,7 +100,7 @@ let testLead =
           MasterId = 12345 }
 
 let testVocals =
-    { Id = Guid.Empty
+    { Id = ArrangementId.New
       XmlPath = "vocals.xml"
       Japanese = false
       CustomFont = None

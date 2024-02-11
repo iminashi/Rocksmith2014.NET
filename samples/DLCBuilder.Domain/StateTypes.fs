@@ -79,7 +79,7 @@ type PreviewAudioCreation =
 type VolumeTarget =
     | MainAudio
     | PreviewAudio
-    | CustomAudio of audioPath: string * arrId: Guid
+    | CustomAudio of audioPath: string * arrId: ArrangementId
 
 type LongTask =
     | BuildPackage
@@ -252,8 +252,8 @@ type Msg =
     | OpenWithShell of path: string
     | IgnoreIssueForProject of issueCode: string
     | EnableIssueForProject of issueCode: string
-    | ConfirmIdRegeneration of arrIds: Guid list * reply: AsyncReply
-    | SetNewArrangementIds of Map<Guid, Arrangement>
+    | ConfirmIdRegeneration of arrIds: ArrangementId list * reply: AsyncReply
+    | SetNewArrangementIds of Map<ArrangementId, Arrangement>
     | ImportPsarcQuick of psarcFile: string
     | ImportPsarc of psarcFile: string * targetFolder: string
     | PsarcImported of project: DLCProject * importType: PsarcImportType
