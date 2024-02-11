@@ -353,9 +353,9 @@ let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Inst
         |> Option.defaultWith (fun () -> StringValidator.convertToSortField (c ss.Value))
 
     attr.AlbumName <- project.AlbumName.Value
-    attr.AlbumNameSort <- getSortValue StringValidator.FieldType.AlbumName project.AlbumName 
+    attr.AlbumNameSort <- getSortValue StringValidator.FieldType.AlbumName project.AlbumName
     attr.ArtistName <- project.ArtistName.Value
-    attr.ArtistNameSort <- getSortValue StringValidator.FieldType.ArtistName project.ArtistName 
+    attr.ArtistNameSort <- getSortValue StringValidator.FieldType.ArtistName project.ArtistName
     if xmlMetaData.Capo > 0y then attr.CapoFret <- Nullable(float xmlMetaData.Capo)
     attr.CentOffset <- Utils.tuningPitchToCents instrumental.TuningPitch
     attr.DNA_Chords <- dnas.Chords
@@ -372,7 +372,7 @@ let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Inst
     attr.SongDifficulty <- diffs.Hard
     attr.SongLength <- sng.MetaData.SongLength
     attr.SongName <- project.Title.Value
-    attr.SongNameSort <- getSortValue StringValidator.FieldType.Title project.Title 
+    attr.SongNameSort <- getSortValue StringValidator.FieldType.Title project.Title
     attr.SongYear <- project.Year
     attr.Tuning <- Tuning.FromArray(instrumental.Tuning) |> Some
 
@@ -450,7 +450,7 @@ let private create isHeader (project: DLCProject) (conversion: AttributesConvers
     | FromInstrumental (inst, sng) ->
         let arr = Instrumental inst
         let part, name = partition arr
-        let xmlMetaData = XML.MetaData.Read(inst.XML)
+        let xmlMetaData = XML.MetaData.Read(inst.XmlPath)
 
         let attr =
             initBase name dlcKey project arr

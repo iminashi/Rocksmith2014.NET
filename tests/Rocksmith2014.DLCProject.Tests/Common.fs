@@ -7,33 +7,35 @@ open Rocksmith2014.DLCProject
 
 let testLead =
     { Instrumental.Empty with
-          XML = "instrumental.xml"
+          XmlPath = "instrumental.xml"
           BaseTone = "Base_Tone"
           Tones = [ "Tone_1"; "Tone_2"; "Tone_3"; "Tone_4" ]
-          MasterID = 12345 }
+          MasterId = 12345 }
 
 let testLeadCapo =
     { Instrumental.Empty with
-          XML = "instrumental_capo.xml"
+          XmlPath = "instrumental_capo.xml"
           TuningPitch = 452.89
           Tuning = [| -1s;-2s;-3s;-4s;-5s;-6s |]
           BaseTone = "Base_Tone"
           Tones = [ "Tone_1"; "Tone_2"; "Tone_3" ]
-          MasterID = 12345 }
+          MasterId = 12345 }
 
 let testVocals =
-    { XML = "vocals.xml"
+    { Id = Guid.Empty
+      XmlPath = "vocals.xml"
       Japanese = false
       CustomFont = None
-      MasterID = 54321
-      PersistentID = Guid.NewGuid() }
+      MasterId = 54321
+      PersistentId = Guid.NewGuid() }
 
 let testJVocals =
-    { XML = "jvocals.xml"
+    { Id = Guid.Empty
+      XmlPath = "jvocals.xml"
       Japanese = true
       CustomFont = Some "font.dds"
-      MasterID = 123456
-      PersistentID = Guid.NewGuid() }
+      MasterId = 123456
+      PersistentId = Guid.NewGuid() }
 
 let testTone =
     let testGear =

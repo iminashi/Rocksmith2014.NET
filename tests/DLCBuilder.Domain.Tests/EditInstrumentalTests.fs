@@ -9,10 +9,10 @@ open System
 
 let lead =
     { Instrumental.Empty with
-          XML = "instrumental.xml"
+          XmlPath = "instrumental.xml"
           BaseTone = "Base_Tone"
           Tones = [ "Tone_1"; "Tone_2"; "Tone_3"; "Tone_4" ]
-          MasterID = 12345 }
+          MasterId = 12345 }
     |> Instrumental
 
 let project = { initialState.Project with Arrangements = [ lead ] }
@@ -86,8 +86,8 @@ let tests =
 
             match newArr with
             | Instrumental inst ->
-                Expect.equal inst.MasterID 55555 "Master ID is correct"
-                Expect.equal inst.PersistentID id "Persistent ID is correct"
+                Expect.equal inst.MasterId 55555 "Master ID is correct"
+                Expect.equal inst.PersistentId id "Persistent ID is correct"
                 Expect.equal inst.CustomAudio.Value.Path "custom/audio" "Custom audio path is correct"
                 Expect.equal inst.CustomAudio.Value.Volume -10. "Custom audio volume is correct"
             | _ ->

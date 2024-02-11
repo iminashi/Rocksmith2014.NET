@@ -286,7 +286,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
 
         | CreateManifest file ->
             let arrangement =
-                { Instrumental.Empty with XML = file }
+                { Instrumental.Empty with XmlPath = file }
 
             let project = { project with Arrangements = [ Instrumental arrangement ] }
 

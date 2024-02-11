@@ -29,10 +29,10 @@ let testProject project path =
     |> List.iter (function
         | Instrumental ({ RouteMask = RouteMask.Bass } as bass) ->
             Expect.isTrue bass.BassPicked "Bass is picked"
-            Expect.equal bass.PersistentID (Guid.Parse("5a1eca1a5a234bf29df3eb61adf20746")) "Bass persistent ID is correct"
+            Expect.equal bass.PersistentId (Guid.Parse("5a1eca1a5a234bf29df3eb61adf20746")) "Bass persistent ID is correct"
         | Instrumental ({ RouteMask = RouteMask.Lead } as lead) ->
             Expect.equal lead.BaseTone "guitar" "Lead base tone is correct"
-            Expect.equal lead.MasterID 1670570628 "Lead master ID is correct"
+            Expect.equal lead.MasterId 1670570628 "Lead master ID is correct"
         | Vocals ({ Japanese = true } as jvocals) ->
             Expect.stringEnds jvocals.CustomFont.Value "lyrics.dds" "J-Vocals has custom font"
         | _ ->

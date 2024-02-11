@@ -92,10 +92,10 @@ let editInstrumental state edit index inst =
             { inst with ScrollSpeed = speed }, Cmd.none
 
         | SetMasterId id ->
-            { inst with MasterID = id }, Cmd.none
+            { inst with MasterId = id }, Cmd.none
 
         | SetPersistentId id ->
-            { inst with PersistentID = id }, Cmd.none
+            { inst with PersistentId = id }, Cmd.none
 
         | SetCustomAudioPath (Some path) ->
             let notWemFile = not <| String.endsWith ".wem" path
@@ -103,7 +103,7 @@ let editInstrumental state edit index inst =
                 [
                     if notWemFile then StateUtils.getOptionalWemConversionCmd state path
                     if state.Config.AutoVolume && notWemFile then
-                        Cmd.ofMsg <| CalculateVolume(CustomAudio(path, inst.PersistentID))
+                        Cmd.ofMsg <| CalculateVolume(CustomAudio(path, inst.PersistentId))
                 ]
 
             let customAudio =
@@ -439,9 +439,9 @@ let editVocals state edit index (vocals: Vocals) =
         | SetCustomFont font ->
             { vocals with CustomFont = font }
         | SetVocalsMasterId mid ->
-            { vocals with MasterID = mid }
+            { vocals with MasterId = mid }
         | SetVocalsPersistentId pid ->
-            { vocals with PersistentID = pid }
+            { vocals with PersistentId = pid }
 
     updateArrangement index (Vocals updated) state, Cmd.none
 

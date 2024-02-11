@@ -232,12 +232,14 @@ let addJapaneseVocals (xmlPath: string) state =
     if not shouldInclude then
         state, Cmd.none
     else
+        let defaultId = Guid.NewGuid()
         let japaneseVocals =
-            { XML = xmlPath
+            { Id = defaultId
+              XmlPath = xmlPath
               Japanese = true
               CustomFont = None
-              PersistentID = Guid.NewGuid()
-              MasterID = RandomGenerator.next () }
+              PersistentId = defaultId
+              MasterId = RandomGenerator.next () }
             |> Vocals
 
         let updatedProject =
@@ -357,14 +359,14 @@ let private createEofTrackList (arrangements: (Arrangement * ImportedData) list)
     let vocals =
         arrangements
         |> List.tryPick (function
-            | Vocals { XML = xml; Japanese = false }, ImportedData.Vocals v ->
+            | Vocals { XmlPath = xml; Japanese = false }, ImportedData.Vocals v ->
                 Some { Vocals = v :> seq<_>; CustomName = getCustomName xml }
             | _ ->
                 None)
 
     let getInstrumental filter input =
         match input with
-        | Instrumental { XML = xml; Name = name }, ImportedData.Instrumental data ->
+        | Instrumental { XmlPath = xml; Name = name }, ImportedData.Instrumental data ->
             if filter name then
                 Some { Data = data ; CustomName = getCustomName xml }
             else

@@ -3,9 +3,10 @@ module AggregateGraphTests
 open Expecto
 open Rocksmith2014.Common
 open Rocksmith2014.DLCProject
+open System
 open System.IO
 
-let private sl = { XML = "showlights.xml" }
+let private sl = { Id = Guid.Empty; XmlPath = "showlights.xml" }
 
 let private project = { testProject with Arrangements = [ Vocals testJVocals; Showlights sl; Instrumental testLead ] }
 

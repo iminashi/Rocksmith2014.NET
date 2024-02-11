@@ -23,13 +23,13 @@ let generateAllIds (arrangements: Arrangement list) =
         match arr with
         | Instrumental inst ->
             { inst with
-                MasterID = RandomGenerator.next ()
-                PersistentID = guidsArray[i] }
+                MasterId = RandomGenerator.next ()
+                PersistentId = guidsArray[i] }
             |> Instrumental
         | Vocals vocals ->
             { vocals with
-                MasterID = RandomGenerator.next ()
-                PersistentID = guidsArray[i] }
+                MasterId = RandomGenerator.next ()
+                PersistentId = guidsArray[i] }
             |> Vocals
         | Showlights _ as sl ->
             sl)

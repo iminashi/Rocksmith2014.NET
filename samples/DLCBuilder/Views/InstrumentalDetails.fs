@@ -296,7 +296,7 @@ let view state dispatch (inst: Instrumental) =
                 Grid.row 9
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
-                FixedTextBox.text (string inst.MasterID)
+                FixedTextBox.text (string inst.MasterId)
                 FixedTextBox.validationErrorMessage (translate "EnterNumberLargerThanZero")
                 FixedTextBox.validation Utils.isNumberGreaterThanZero
                 TextBox.onLostFocus (fun arg ->
@@ -321,7 +321,7 @@ let view state dispatch (inst: Instrumental) =
                 Grid.row 10
                 TextBox.isVisible state.Config.ShowAdvanced
                 TextBox.horizontalAlignment HorizontalAlignment.Stretch
-                FixedTextBox.text (inst.PersistentID.ToString("N"))
+                FixedTextBox.text (inst.PersistentId.ToString("N"))
                 FixedTextBox.validationErrorMessage (translate "EnterAValidGUID")
                 FixedTextBox.validation (Guid.TryParse >> fst)
                 TextBox.onLostFocus (fun arg ->
@@ -397,7 +397,7 @@ let view state dispatch (inst: Instrumental) =
                     Grid.row 12
                     NumericUpDown.isEnabled (
                         match inst.CustomAudio with
-                        | Some audio when state.RunningTasks.Contains(VolumeCalculation(CustomAudio(audio.Path, inst.PersistentID))) ->
+                        | Some audio when state.RunningTasks.Contains(VolumeCalculation(CustomAudio(audio.Path, inst.PersistentId))) ->
                             false
                         | _ ->
                             true)

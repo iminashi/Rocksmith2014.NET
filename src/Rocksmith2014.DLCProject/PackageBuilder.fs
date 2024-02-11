@@ -123,7 +123,7 @@ let private build (buildData: BuildData) progress targetPath project platform = 
     progress ()
 
     use showlightsEntry =
-        let slFile = (List.pick Arrangement.pickShowlights project.Arrangements).XML
+        let slFile = (List.pick Arrangement.pickShowlights project.Arrangements).XmlPath
         entry $"songs/arr/{key}_showlights.xml" (readFile slFile)
 
     use fontEntries =
@@ -232,7 +232,7 @@ let private build (buildData: BuildData) progress targetPath project platform = 
     progress () }
 
 let private setupInstrumental (part: int) (inst: Instrumental) (config: BuildConfig) =
-    let xml = InstrumentalArrangement.Load(inst.XML)
+    let xml = InstrumentalArrangement.Load(inst.XmlPath)
 
     xml.MetaData.Part <- int16 part
 
@@ -263,7 +263,7 @@ let private setupInstrumental (part: int) (inst: Instrumental) (config: BuildCon
             raise <| Exception($"Error generating DD:\n{Utils.distinctExceptionMessages e}", e)
 
     if config.SaveDebugFiles then
-        xml.Save(Path.ChangeExtension(inst.XML, "debug.xml"))
+        xml.Save(Path.ChangeExtension(inst.XmlPath, "debug.xml"))
 
     xml
 
@@ -288,7 +288,8 @@ let private addShowLights sngs project =
     if not <| File.Exists(xmlFile) then
         ShowLightGenerator.generateFile xmlFile sngs
 
-    let arrangments = (Showlights { XML = xmlFile }) :: project.Arrangements
+    let showlights = Showlights { Id = Guid.NewGuid(); XmlPath = xmlFile }
+    let arrangments = showlights :: project.Arrangements
 
     { project with Arrangements = arrangments }
 
@@ -313,8 +314,8 @@ let private checkArrangementIdRegeneration sngs project config =
                     let replacements =
                         project.Arrangements
                         |> List.choose (function
-                            | Instrumental inst as arr when idsToReplace |> List.contains inst.PersistentID ->
-                                Some(inst.PersistentID, Arrangement.generateIds arr)
+                            | Instrumental inst as arr when idsToReplace |> List.contains inst.PersistentId ->
+                                Some(inst.PersistentId, Arrangement.generateIds arr)
                             | _ ->
                                 None)
                         |> Map.ofList
@@ -328,7 +329,7 @@ let private applyReplacements replacements project sngs =
     let update = function
         | Instrumental inst as arr ->
             replacements
-            |> Map.tryFind inst.PersistentID
+            |> Map.tryFind inst.PersistentId
             |> Option.defaultValue arr
         | other ->
             other
@@ -394,7 +395,7 @@ let buildPackages (targetPath: TargetPathType) (config: BuildConfig) (project: D
                     let dlcKey = project.DLCKey.ToLowerInvariant()
 
                     let sng =
-                        Vocals.Load(v.XML)
+                        Vocals.Load(v.XmlPath)
                         |> ConvertVocals.xmlToSng (getFontOption dlcKey v.Japanese v.CustomFont)
 
                     Some(arr, sng)

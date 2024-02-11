@@ -22,8 +22,8 @@ let tests =
                 Expect.equal inst.Priority ArrangementPriority.Main "Priority is correct"
                 Expect.equal inst.BaseTone "Tone_1" "Base tone key is correct"
                 Expect.equal inst.TuningPitch 440. "Tuning pitch is correct"
-                Expect.equal inst.XML "instrumental.xml" "XML filename is correct"
-                Expect.notEqual inst.PersistentID Guid.Empty "Persistent ID is not an empty GUID"
+                Expect.equal inst.XmlPath "instrumental.xml" "XML path is correct"
+                Expect.notEqual inst.PersistentId Guid.Empty "Persistent ID is not an empty GUID"
             | _ ->
                 failwith "Wrong arrangement type"
         }
@@ -38,8 +38,8 @@ let tests =
             match arr with
             | Vocals v ->
                 Expect.isTrue v.Japanese "Japanese vocals were detected from filename"
-                Expect.equal v.XML "jvocals.xml" "XML filename is correct"
-                Expect.notEqual v.PersistentID Guid.Empty "Persistent ID is not an empty GUID"
+                Expect.equal v.XmlPath "jvocals.xml" "XML path is correct"
+                Expect.notEqual v.PersistentId Guid.Empty "Persistent ID is not an empty GUID"
             | _ ->
                 failwith "Wrong arrangement type"
         }
@@ -65,7 +65,7 @@ let tests =
 
             match arr with
             | Showlights sl ->
-                Expect.equal sl.XML "showlights.xml" "XML filename is correct"
+                Expect.equal sl.XmlPath "showlights.xml" "XML path is correct"
             | _ ->
                 failwith "Wrong arrangement type"
         }

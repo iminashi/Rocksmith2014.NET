@@ -75,7 +75,8 @@ let private importInstrumental (xmlFile: string) (arr: XmlNode) =
         [ 'A'..'D' ]
         |> List.choose (sprintf "Tone%c" >> itemText arr >> Option.ofString)
 
-    { XML = xmlFile
+    { Id = Guid.NewGuid()
+      XmlPath = xmlFile
       Name = name
       RouteMask = RouteMask.Parse(itemText arr "RouteMask")
       Priority = priority
@@ -85,8 +86,8 @@ let private importInstrumental (xmlFile: string) (arr: XmlNode) =
       TuningPitch = float (itemText arr "TuningPitch")
       BaseTone = itemText arr "ToneBase"
       Tones = tones
-      MasterID = int (itemText arr "MasterId")
-      PersistentID = Guid.Parse(itemText arr "Id")
+      MasterId = int (itemText arr "MasterId")
+      PersistentId = Guid.Parse(itemText arr "Id")
       CustomAudio = None
       ArrangementProperties = None }
     |> Instrumental
@@ -113,11 +114,12 @@ let private importVocals (xmlFile: string) (arr: XmlNode) =
                     // Converts "path\to\x.glyphs.xml" to "x.dds"
                     Some(Path.ChangeExtension(Path.GetFileNameWithoutExtension glyphDefs.InnerText, "dds"))))
 
-    { XML = xmlFile
+    { Id = Guid.NewGuid()
+      XmlPath = xmlFile
       Japanese = isJapanese
       CustomFont = customFont
-      MasterID = int (itemText arr "MasterId")
-      PersistentID = Guid.Parse(itemText arr "Id") }
+      MasterId = int (itemText arr "MasterId")
+      PersistentId = Guid.Parse(itemText arr "Id") }
     |> Vocals
 
 /// Imports an arrangement from the Toolkit template.
@@ -133,7 +135,7 @@ let private importArrangement (arr: XmlNode) =
     | "Vocal" ->
         importVocals xml arr
     | "ShowLight" ->
-        Showlights { XML = xml }
+        Showlights { Id = Guid.NewGuid(); XmlPath = xml }
     | unknown ->
         failwith $"Unknown arrangement type: {unknown}"
 

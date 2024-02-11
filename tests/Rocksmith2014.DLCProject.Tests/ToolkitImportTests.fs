@@ -27,8 +27,8 @@ let tests =
 
             match project.Arrangements.Head with
             | Instrumental inst ->
-                Expect.equal inst.XML (toPath "PART REAL_GUITAR_RS2.xml") "XML file path is correct"
-                Expect.equal inst.PersistentID (Guid.Parse("5f5d33c8-e88e-485c-8ca8-d4aed6e80a31")) "Persistent ID is correct"
+                Expect.equal inst.XmlPath (toPath "PART REAL_GUITAR_RS2.xml") "XML file path is correct"
+                Expect.equal inst.PersistentId (Guid.Parse("5f5d33c8-e88e-485c-8ca8-d4aed6e80a31")) "Persistent ID is correct"
                 Expect.equal inst.ScrollSpeed 1.0 "Scroll speed is correct"
                 Expect.equal inst.BaseTone "Default" "Base tone is correct"
             | _ ->
@@ -51,8 +51,8 @@ let tests =
 
             match project.Arrangements.[0] with
             | Instrumental inst ->
-                Expect.equal inst.XML (toPath "Arr_Lead_RS2.xml") "XML file path is correct"
-                Expect.equal inst.PersistentID (Guid.Parse("6a7916c7-6f39-4362-a45e-29025952d0a8")) "Persistent ID is correct"
+                Expect.equal inst.XmlPath (toPath "Arr_Lead_RS2.xml") "XML file path is correct"
+                Expect.equal inst.PersistentId (Guid.Parse("6a7916c7-6f39-4362-a45e-29025952d0a8")) "Persistent ID is correct"
                 Expect.equal inst.Priority ArrangementPriority.Main "First arrangement is main lead"
                 Expect.equal inst.Name ArrangementName.Lead "First arrangement is main lead"
                 Expect.equal inst.ScrollSpeed 1.3 "Scroll speed is correct"
@@ -62,7 +62,7 @@ let tests =
 
             match project.Arrangements.[1] with
             | Instrumental inst ->
-                Expect.equal inst.XML (toPath "Arr_BonusLead_RS2.xml") "XML file path is correct"
+                Expect.equal inst.XmlPath (toPath "Arr_BonusLead_RS2.xml") "XML file path is correct"
                 Expect.equal inst.Priority ArrangementPriority.Alternative "Second arrangement is alternative lead"
                 Expect.equal inst.Name ArrangementName.Lead "Second arrangement is alternative lead"
                 Expect.equal inst.TuningPitch 450. "Tuning pitch is correct"
@@ -71,7 +71,7 @@ let tests =
 
             match project.Arrangements.[3] with
             | Instrumental inst ->
-                Expect.equal inst.XML (toPath "Arr_Bass_RS2.xml") "XML file path is correct"
+                Expect.equal inst.XmlPath (toPath "Arr_Bass_RS2.xml") "XML file path is correct"
                 Expect.equal inst.Priority ArrangementPriority.Main "Fourth arrangement is main bass"
                 Expect.equal inst.Name ArrangementName.Bass "Fourth arrangement is main bass"
             | _ ->
@@ -79,7 +79,7 @@ let tests =
 
             match project.Arrangements.[4] with
             | Vocals voc ->
-                Expect.equal voc.XML (toPath "PART JVOCALS_RS2.xml") "XML file path is correct"
+                Expect.equal voc.XmlPath (toPath "PART JVOCALS_RS2.xml") "XML file path is correct"
                 Expect.isTrue voc.Japanese "Fifth arrangement is Japanese vocals"
                 Expect.equal voc.CustomFont.Value (toPath "lyrics.dds") "Custom font is correct"
             | _ ->

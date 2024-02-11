@@ -7,11 +7,12 @@ open Rocksmith2014.DLCProject
 open System
 
 let vocals =
-    { XML = ""
+    { Id = Guid.Empty
+      XmlPath = ""
       Japanese = false
       CustomFont = None
-      MasterID = 0
-      PersistentID = Guid() }
+      MasterId = 0
+      PersistentId = Guid() }
     |> Vocals
 
 let project = { initialState.Project with Arrangements = [ vocals ] }
@@ -59,8 +60,8 @@ let editVocalsTests =
             Expect.equal newState.SelectedArrangementIndex 0 "Vocals arrangement is selected"
             match newArr with
             | Vocals vocals ->
-                Expect.equal vocals.MasterID 5051 "MasterID is correct"
-                Expect.equal vocals.PersistentID newPersistentId "Persistent ID is correct"
+                Expect.equal vocals.MasterId 5051 "MasterID is correct"
+                Expect.equal vocals.PersistentId newPersistentId "Persistent ID is correct"
             | _ ->
                 failwith "fail"
     ]

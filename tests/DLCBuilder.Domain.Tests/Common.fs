@@ -94,17 +94,18 @@ let testTone =
 
 let testLead =
     { Instrumental.Empty with
-          XML = "instrumental.xml"
+          XmlPath = "instrumental.xml"
           BaseTone = "Base_Tone"
           Tones = [ "Tone_1"; "Tone_2"; "Tone_3"; "Tone_4" ]
-          MasterID = 12345 }
+          MasterId = 12345 }
 
 let testVocals =
-    { XML = "vocals.xml"
+    { Id = Guid.Empty
+      XmlPath = "vocals.xml"
       Japanese = false
       CustomFont = None
-      MasterID = 54321
-      PersistentID = Guid.NewGuid() }
+      MasterId = 54321
+      PersistentId = Guid.NewGuid() }
 
 let dummyDbTone: DbTone =
     { Id = 1L

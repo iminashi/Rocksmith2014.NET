@@ -50,7 +50,7 @@ let private getStringNoteName (useFlats: bool) (stringIndex: int) (stringTuning:
     else
         n
 
-/// Returns the type of the given tuning and its root note(s).
+/// Returns a name for the given tuning.
 let getTuningName (tuning: int16 array) : TuningName =
     let first = tuning[0]
 

@@ -67,13 +67,13 @@ let previewPathFromMainAudio (audioPath: string) =
 let checkArrangement arrangement =
     match arrangement with
     | Instrumental inst ->
-        InstrumentalArrangement.Load(inst.XML)
+        InstrumentalArrangement.Load(inst.XmlPath)
         |> ArrangementChecker.checkInstrumental
-    | Vocals { CustomFont = font; XML = xml } ->
+    | Vocals { CustomFont = font; XmlPath = xml } ->
         Vocals.Load(xml)
         |> ArrangementChecker.checkVocals font.IsSome
     | Showlights sl ->
-        ShowLights.Load(sl.XML)
+        ShowLights.Load(sl.XmlPath)
         |> ArrangementChecker.checkShowlights
         |> Option.toList
 

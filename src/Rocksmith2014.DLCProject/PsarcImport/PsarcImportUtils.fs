@@ -67,11 +67,12 @@ let importVocals targetDirectory targetFile (attributes: Attributes) sng isJapan
             glyphs.Save(Path.Combine(targetDirectory, $"{filename}.glyphs.xml"))
             Some(Path.Combine(targetDirectory, $"{filename}.dds"))
 
-    { XML = targetFile
+    { Id = Guid.NewGuid()
+      XmlPath = targetFile
       Japanese = isJapanese
       CustomFont = customFont
-      MasterID = attributes.MasterID_RDV
-      PersistentID = Guid.Parse(attributes.PersistentID) }
+      MasterId = attributes.MasterID_RDV
+      PersistentId = Guid.Parse(attributes.PersistentID) }
     |> Arrangement.Vocals,
     ImportedData.Vocals vocals
 
@@ -101,7 +102,8 @@ let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile
             audioFiles
             |> Array.tryFind (fun audio -> String.contains targetFilename audio.Path)
 
-    { XML = targetFile
+    { Id = Guid.NewGuid()
+      XmlPath = targetFile
       Name = ArrangementName.Parse(attributes.ArrangementName)
       Priority =
         if arrProps.represent = 1uy then
@@ -123,8 +125,8 @@ let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile
       BaseTone = attributes.Tone_Base
       Tones = tones
       BassPicked = arrProps.bassPick = 1uy
-      MasterID = attributes.MasterID_RDV
-      PersistentID = Guid.Parse(attributes.PersistentID)
+      MasterId = attributes.MasterID_RDV
+      PersistentId = Guid.Parse(attributes.PersistentID)
       CustomAudio = customAudio
       ArrangementProperties = None }
     |> Arrangement.Instrumental,
@@ -153,7 +155,7 @@ let parseToolkitMetadata attr map defaultValue text =
 /// Parses a value (starting with "Package") from Toolkit.version text.
 let parseToolkitPackageMetadata attr = parseToolkitMetadata $"Package {attr}"
 
-/// Prefixes the version string with "Toolkit" if it starts with a four part version number. 
+/// Prefixes the version string with "Toolkit" if it starts with a four part version number.
 let prefixWithToolkit (versionOpt: string option) =
     versionOpt
     |> Option.map (fun version ->

@@ -45,6 +45,113 @@ type DLCProject =
           Tones = [] }
 
 module DLCProject =
+    type InstrumentalDto() =
+        member val ID: Guid = Guid.NewGuid() with get, set
+        member val XML: string = String.Empty with get, set
+        member val Name: ArrangementName = ArrangementName.Lead with get, set
+        member val RouteMask: RouteMask = RouteMask.None with get, set
+        member val Priority: ArrangementPriority = ArrangementPriority.Main with get, set
+        member val ScrollSpeed: float = 1.3 with get, set
+        member val BassPicked: bool = false with get, set
+        member val Tuning: int16 array = Array.empty with get, set
+        member val TuningPitch: float = 440.0 with get, set
+        member val BaseTone: string = String.Empty with get, set
+        member val Tones: string array = Array.empty with get, set
+        member val CustomAudio: AudioFile option = None with get, set
+        member val ArrangementProperties: ArrangementPropertiesOverride.ArrPropFlags option = None with get, set
+        member val MasterID: int = 0 with get, set
+        member val PersistentID: Guid = Guid.Empty with get, set
+
+    type VocalsDto() =
+        member val ID: Guid = Guid.NewGuid() with get, set
+        member val XML: string = String.Empty with get, set
+        member val Japanese: bool = false with get, set
+        member val CustomFont: string = null with get, set
+        member val MasterID: int = 0 with get, set
+        member val PersistentID: Guid = Guid.Empty with get, set
+
+    type ShowlightsDto() =
+        member val ID: Guid = Guid.NewGuid() with get, set
+        member val XML: string = String.Empty with get, set
+
+    [<RequireQualifiedAccess>]
+    type ArrangementDto =
+        | Instrumental of InstrumentalDto
+        | Vocals of VocalsDto
+        | Showlights of ShowlightsDto
+
+    let private arrangementToDto (arr: Arrangement) =
+        match arr with
+        | Showlights sl ->
+            ShowlightsDto(
+                ID = sl.Id,
+                XML = sl.XmlPath
+            )
+            |> ArrangementDto.Showlights
+        | Vocals v ->
+            VocalsDto(
+                ID = v.Id,
+                XML = v.XmlPath,
+                Japanese = v.Japanese,
+                CustomFont = Option.toObj v.CustomFont,
+                MasterID = v.MasterId,
+                PersistentID = v.PersistentId
+            )
+            |> ArrangementDto.Vocals
+        | Instrumental i ->
+            InstrumentalDto(
+                ID = i.Id,
+                XML = i.XmlPath,
+                Name = i.Name,
+                RouteMask = i.RouteMask,
+                Priority = i.Priority,
+                ScrollSpeed = i.ScrollSpeed,
+                BassPicked = i.BassPicked,
+                Tuning = i.Tuning,
+                TuningPitch = i.TuningPitch,
+                BaseTone = i.BaseTone,
+                Tones = Array.ofList i.Tones,
+                CustomAudio = i.CustomAudio,
+                ArrangementProperties = i.ArrangementProperties,
+                MasterID = i.MasterId,
+                PersistentID = i.PersistentId
+            )
+            |> ArrangementDto.Instrumental
+
+    let arrangementFromDto (arr: ArrangementDto) =
+        match arr with
+        | ArrangementDto.Showlights sl ->
+            Showlights { Id = sl.ID; XmlPath = sl.XML }
+        | ArrangementDto.Vocals v ->
+            {
+                Id = v.ID
+                XmlPath = v.XML
+                Japanese = v.Japanese
+                CustomFont = Option.ofObj v.CustomFont
+                MasterId = v.MasterID
+                PersistentId = v.PersistentID
+            }
+            |> Vocals
+        | ArrangementDto.Instrumental i ->
+            {
+                Id = i.ID
+                XmlPath = i.XML
+                Name = i.Name
+                RouteMask = i.RouteMask
+                Priority = i.Priority
+                ScrollSpeed = i.ScrollSpeed
+                BassPicked = i.BassPicked
+                Tuning = i.Tuning
+                TuningPitch = i.TuningPitch
+                BaseTone = i.BaseTone
+                Tones = Array.toList i.Tones
+                CustomAudio = i.CustomAudio
+                ArrangementProperties = i.ArrangementProperties
+                MasterId = i.MasterID
+                PersistentId = i.PersistentID
+            }
+            |> Instrumental
+
     type Dto() =
         member val Version: string = String.Empty with get, set
         member val Author: string = String.Empty with get, set
@@ -61,7 +168,7 @@ module DLCProject =
         member val AudioPreviewStartTime = Nullable<float>() with get, set
         member val PitchShift = Nullable<int16>() with get, set
         member val IgnoredIssues: string array = Array.empty with get, set
-        member val Arrangements: Arrangement array = Array.empty with get, set
+        member val Arrangements: ArrangementDto array = Array.empty with get, set
         member val Tones: ToneDto array = Array.empty with get, set
 
     let private toDto (project: DLCProject) =
@@ -74,6 +181,11 @@ module DLCProject =
             project.AudioPreviewStartTime
             |> Option.map (fun x -> float x.TotalSeconds)
             |> Option.toNullable
+
+        let arrangements =
+            project.Arrangements
+            |> List.map arrangementToDto
+            |> Array.ofList
 
         Dto(
             Version = project.Version,
@@ -91,7 +203,7 @@ module DLCProject =
             AudioPreviewStartTime = previewStart,
             PitchShift = Option.toNullable project.PitchShift,
             IgnoredIssues = Set.toArray project.IgnoredIssues,
-            Arrangements = Array.ofList project.Arrangements,
+            Arrangements = arrangements,
             Tones = tones
         )
 
@@ -111,7 +223,7 @@ module DLCProject =
           AudioPreviewStartTime = dto.AudioPreviewStartTime |> Option.ofNullable |> Option.map TimeSpan.FromSeconds
           PitchShift = Option.ofNullable dto.PitchShift
           IgnoredIssues = dto.IgnoredIssues |> Set.ofArray
-          Arrangements = dto.Arrangements |> List.ofArray
+          Arrangements = dto.Arrangements |> List.ofArray |> List.map arrangementFromDto
           Tones = dto.Tones |> List.ofArray |> List.map Tone.fromDto }
 
     let private toAbsolutePath (baseDir: string) (fileName: string) =
@@ -127,15 +239,17 @@ module DLCProject =
             project.Arrangements
             |> List.map (function
                 | Instrumental i ->
-                    { i with XML = abs i.XML
-                             CustomAudio = Option.map (fun x -> { x with Path = abs x.Path }) i.CustomAudio }
+                    { i with
+                        XmlPath = abs i.XmlPath
+                        CustomAudio = Option.map (fun x -> { x with Path = abs x.Path }) i.CustomAudio }
                     |> Instrumental
                 | Vocals v ->
-                    { v with XML = abs v.XML
-                             CustomFont = Option.map abs v.CustomFont }
+                    { v with
+                        XmlPath = abs v.XmlPath
+                        CustomFont = Option.map abs v.CustomFont }
                     |> Vocals
                 | Showlights s ->
-                    Showlights { XML = abs s.XML })
+                    Showlights { s with XmlPath = abs s.XmlPath })
 
         { project with
             Arrangements = arrangements
@@ -161,15 +275,17 @@ module DLCProject =
             project.Arrangements
             |> List.map (function
                 | Instrumental i ->
-                    { i with XML = rel i.XML
-                             CustomAudio = Option.map (fun x -> { x with Path = rel x.Path }) i.CustomAudio }
+                    { i with
+                        XmlPath = rel i.XmlPath
+                        CustomAudio = Option.map (fun x -> { x with Path = rel x.Path }) i.CustomAudio }
                     |> Instrumental
                 | Vocals v ->
-                    { v with XML = rel v.XML
-                             CustomFont = Option.map rel v.CustomFont }
+                    { v with
+                        XmlPath = rel v.XmlPath
+                        CustomFont = Option.map rel v.CustomFont }
                     |> Vocals
                 | Showlights s ->
-                    Showlights { XML = rel s.XML })
+                    Showlights { s with XmlPath = rel s.XmlPath })
 
         { project with
             Arrangements = arrangements
@@ -206,7 +322,7 @@ module DLCProject =
         let arrs =
             project.Arrangements
             |> List.map (function
-                | Instrumental inst when File.Exists(inst.XML) ->
+                | Instrumental inst when File.Exists(inst.XmlPath) ->
                     Arrangement.updateToneInfo inst false
                     |> Instrumental
                 | other ->

@@ -16,7 +16,7 @@ let private testPhrase =
       Name = p1 }
 
 let private arrangement = Instrumental testLead
-let private arrId = testLead.PersistentID
+let private arrId = testLead.PersistentId
 
 let private storedLevels =
     readOnlyDict [ arrId, readOnlyDict [ p1, 5; p2, 2 ] ]

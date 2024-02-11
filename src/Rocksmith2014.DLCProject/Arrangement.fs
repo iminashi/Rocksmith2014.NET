@@ -27,48 +27,62 @@ type ArrangementPriority =
     | Bonus = 2
 
 type Instrumental =
-    { XML: string
-      Name: ArrangementName
-      RouteMask: RouteMask
-      Priority: ArrangementPriority
-      ScrollSpeed: float
-      BassPicked: bool
-      Tuning: int16 array
-      TuningPitch: float
-      BaseTone: string
-      Tones: string list
-      CustomAudio: AudioFile option
-      ArrangementProperties: ArrPropFlags option
-      MasterID: int
-      PersistentID: Guid }
+    {
+        Id: Guid
+        XmlPath: string
+        Name: ArrangementName
+        RouteMask: RouteMask
+        Priority: ArrangementPriority
+        ScrollSpeed: float
+        BassPicked: bool
+        Tuning: int16 array
+        TuningPitch: float
+        BaseTone: string
+        Tones: string list
+        CustomAudio: AudioFile option
+        ArrangementProperties: ArrPropFlags option
+        MasterId: int
+        PersistentId: Guid
+    }
 
     member this.AllTones =
         this.BaseTone :: this.Tones
 
     static member Empty =
-        { XML = String.Empty
-          Name = ArrangementName.Lead
-          RouteMask = RouteMask.Lead
-          Priority = ArrangementPriority.Main
-          ScrollSpeed = 1.3
-          BassPicked = false
-          Tuning = Array.replicate 6 0s
-          TuningPitch = 440.
-          BaseTone = String.Empty
-          Tones = List.empty
-          CustomAudio = None
-          ArrangementProperties = None
-          MasterID = 0
-          PersistentID = Guid.NewGuid() }
+        let defaultId = Guid.NewGuid()
+        {
+            Id = defaultId
+            XmlPath = String.Empty
+            Name = ArrangementName.Lead
+            RouteMask = RouteMask.Lead
+            Priority = ArrangementPriority.Main
+            ScrollSpeed = 1.3
+            BassPicked = false
+            Tuning = Array.replicate 6 0s
+            TuningPitch = 440.
+            BaseTone = String.Empty
+            Tones = List.empty
+            CustomAudio = None
+            ArrangementProperties = None
+            MasterId = 0
+            PersistentId = defaultId
+        }
 
 type Vocals =
-    { XML: string
-      Japanese: bool
-      CustomFont: string option
-      MasterID: int
-      PersistentID: Guid }
+    {
+        Id: Guid
+        XmlPath: string
+        Japanese: bool
+        CustomFont: string option
+        MasterId: int
+        PersistentId: Guid
+    }
 
-type Showlights = { XML: string }
+type Showlights =
+    {
+        Id: Guid
+        XmlPath: string
+    }
 
 type Arrangement =
     | Instrumental of Instrumental
@@ -83,18 +97,24 @@ type ArrangementLoadError =
 module Arrangement =
     /// Returns the master ID of an arrangement.
     let getMasterId = function
-        | Vocals v -> v.MasterID
-        | Instrumental i -> i.MasterID
+        | Vocals v -> v.MasterId
+        | Instrumental i -> i.MasterId
         | Showlights _ -> failwith "No"
 
     /// Returns the persistent ID of an arrangement.
     let getPersistentId = function
-        | Vocals v -> v.PersistentID
-        | Instrumental i -> i.PersistentID
+        | Vocals v -> v.PersistentId
+        | Instrumental i -> i.PersistentId
         | Showlights _ -> failwith "No"
 
+    /// Returns the unique indentifier of an arrangement.
+    let getId = function
+        | Vocals v -> v.Id
+        | Instrumental i -> i.Id
+        | Showlights s -> s.Id
+
     /// Returns the name of an arrangement.
-    let getName (arr: Arrangement) isGeneric =
+    let getName (arr: Arrangement) (isGeneric: bool) =
         match arr with
         | Vocals { Japanese = true } when not isGeneric ->
             "JVocals"
@@ -129,11 +149,11 @@ module Arrangement =
 
         name, prefix
 
-    /// Returns the XML file of an arrangement.
+    /// Returns the path of the XML file for an arrangement.
     let getFile = function
-        | Vocals v -> v.XML
-        | Instrumental i -> i.XML
-        | Showlights s -> s.XML
+        | Vocals v -> v.XmlPath
+        | Instrumental i -> i.XmlPath
+        | Showlights s -> s.XmlPath
 
     let getTones = function
         | Instrumental i -> i.AllTones
@@ -197,8 +217,11 @@ module Arrangement =
                         | RouteMask.Rhythm -> ArrangementName.Rhythm
                         | _ -> ArrangementName.Lead
 
+                let defaultId = Guid.NewGuid()
+
                 let arr =
-                    { XML = path
+                    { Id = defaultId
+                      XmlPath = path
                       Name = name
                       Priority =
                         if arrProp.Represent then
@@ -214,8 +237,8 @@ module Arrangement =
                       BaseTone = baseTone
                       Tones = tones
                       BassPicked = arrProp.BassPick
-                      MasterID = RandomGenerator.next ()
-                      PersistentID = Guid.NewGuid()
+                      MasterId = RandomGenerator.next ()
+                      PersistentId = defaultId
                       CustomAudio = None
                       ArrangementProperties = None }
                     |> Arrangement.Instrumental
@@ -237,18 +260,21 @@ module Arrangement =
                     else
                         None
 
+                let defaultId = Guid.NewGuid()
+
                 let arr =
-                    { XML = path
+                    { Id = defaultId
+                      XmlPath = path
                       Japanese = isJapanese
                       CustomFont = customFont
-                      MasterID = RandomGenerator.next ()
-                      PersistentID = Guid.NewGuid() }
+                      MasterId = RandomGenerator.next ()
+                      PersistentId = defaultId }
                     |> Arrangement.Vocals
 
                 Ok(arr, None)
 
             | "showlights" ->
-                let arr = Arrangement.Showlights { XML = path }
+                let arr = Arrangement.Showlights { Id = Guid.NewGuid(); XmlPath = path }
                 Ok(arr, None)
 
             | _ ->
@@ -261,7 +287,7 @@ module Arrangement =
 
     /// Reads the tone info from the arrangement's XML file.
     let updateToneInfo (inst: Instrumental) updateBaseTone =
-        let toneInfo = InstrumentalArrangement.ReadToneNames(inst.XML)
+        let toneInfo = InstrumentalArrangement.ReadToneNames(inst.XmlPath)
 
         let tones =
             toneInfo.Names
@@ -279,13 +305,13 @@ module Arrangement =
     let generateIds = function
         | Instrumental inst ->
             { inst with
-                MasterID = RandomGenerator.next ()
-                PersistentID = Guid.NewGuid() }
+                MasterId = RandomGenerator.next ()
+                PersistentId = Guid.NewGuid() }
             |> Instrumental
         | Vocals vocals ->
             { vocals with
-                MasterID = RandomGenerator.next ()
-                PersistentID = Guid.NewGuid() }
+                MasterId = RandomGenerator.next ()
+                PersistentId = Guid.NewGuid() }
             |> Vocals
         | Showlights _ as sl ->
             sl

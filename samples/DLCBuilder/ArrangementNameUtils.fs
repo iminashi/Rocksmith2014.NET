@@ -21,7 +21,7 @@ let private getArrangementNumber arr project =
         if group.Length > 1 then
             let index =
                 group
-                |> List.findIndex (fun x -> x.PersistentID = inst.PersistentID)
+                |> List.findIndex (fun x -> x.PersistentId = inst.PersistentId)
 
             sprintf " %i" (1 + index)
         else

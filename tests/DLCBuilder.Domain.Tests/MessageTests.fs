@@ -149,10 +149,10 @@ let messageTests =
             Expect.hasLength newState.Project.Tones 2 "Two tones were added to the project"
 
         testCase "ConfirmIdRegeneration shows overlay" <| fun _ ->
-            let lead2 = { testLead with PersistentID = Guid.NewGuid() }
+            let lead2 = { testLead with PersistentId = Guid.NewGuid() }
             let project = { initialState.Project with Arrangements = [ Instrumental testLead; Instrumental lead2 ] }
             let state = { initialState with Project = project }
-            let ids = [ testLead.PersistentID ]
+            let ids = [ testLead.PersistentId ]
             let reply = AsyncReply(ignore)
 
             let newState, _ = Main.update (ConfirmIdRegeneration(ids, reply)) state
@@ -166,16 +166,16 @@ let messageTests =
                 failwith "Wrong overlay type"
 
         testCase "SetNewArrangementIds updates arrangement IDs" <| fun _ ->
-            let replacement = { testLead with PersistentID = Guid.NewGuid(); ScrollSpeed = 1.8 }
+            let replacement = { testLead with PersistentId = Guid.NewGuid(); ScrollSpeed = 1.8 }
             let project = { initialState.Project with Arrangements = [ Instrumental testLead; Vocals testVocals ] }
             let state = { initialState with Project = project }
-            let idMap = Map.ofList [ testLead.PersistentID, Instrumental replacement ]
+            let idMap = Map.ofList [ testLead.PersistentId, Instrumental replacement ]
 
             let newState, _ = Main.update (SetNewArrangementIds(idMap)) state
 
             match newState.Project.Arrangements.[0] with
             | Instrumental inst ->
-                Expect.equal inst.PersistentID replacement.PersistentID "ID was updated"
+                Expect.equal inst.PersistentId replacement.PersistentId "ID was updated"
                 Expect.notEqual inst.ScrollSpeed replacement.ScrollSpeed "Scroll speed was not changed"
             | _ ->
                 failwith "Wrong arrangement type"
@@ -283,8 +283,8 @@ let messageTests =
         testCase "GenerateNewIds changes IDs of selected arrangement" <| fun _ ->
             let project = { initialState.Project with Arrangements = [ Instrumental testLead; Vocals testVocals ] }
             let state = { initialState with Project = project; SelectedArrangementIndex = 0 }
-            let oldPersistentId = testLead.PersistentID
-            let oldMasterId = testLead.MasterID
+            let oldPersistentId = testLead.PersistentId
+            let oldMasterId = testLead.MasterId
 
             let newState, _ = Main.update GenerateNewIds state
 
@@ -292,7 +292,7 @@ let messageTests =
             Expect.notEqual (Arrangement.getMasterId newState.Project.Arrangements.[0]) oldMasterId "Master ID was changed"
 
         testCase "GenerateAllIds changes all arrangement IDs" <| fun _ ->
-            let testLead2 = { testLead with PersistentID = Guid.NewGuid() }
+            let testLead2 = { testLead with PersistentId = Guid.NewGuid() }
             let project = { initialState.Project with Arrangements = [ Instrumental testLead; Instrumental testLead2; Vocals testVocals ] }
             let oldPersistentIds = project.Arrangements |> List.map Arrangement.getPersistentId |> Set.ofList
             let oldMasterIds = project.Arrangements |> List.map Arrangement.getMasterId |> Set.ofList

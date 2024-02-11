@@ -36,7 +36,7 @@ let private createLevelDictionary (arrangements: (Arrangement * SNG) list) : Pro
             |> Array.map (fun x -> x.Name, x.MaxDifficulty)
             |> readOnlyDict
 
-        inst.PersistentID, phraseLevels)
+        inst.PersistentId, phraseLevels)
     |> readOnlyDict
 
 let private harderStoredLevelExists phrases storedLevels =
@@ -52,10 +52,10 @@ let compareLevels (stored: ProjectLevels) (arrangements: (Arrangement * SNG) lis
     |> List.choose (function
         | Instrumental inst, sng ->
             option {
-                let! storedLevels = Dictionary.tryGetValue inst.PersistentID stored
+                let! storedLevels = Dictionary.tryGetValue inst.PersistentId stored
 
                 if harderStoredLevelExists sng.Phrases storedLevels then
-                    return inst.PersistentID
+                    return inst.PersistentId
             }
         | _ ->
             None)

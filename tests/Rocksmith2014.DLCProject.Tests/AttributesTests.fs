@@ -44,7 +44,7 @@ let testProps : (ArrPropFlags * (ArrangementProperties -> byte)) list  =
 let attributeTests =
     testList "Attribute Tests" [
         testCase "Partition is set correctly" <| fun _ ->
-            let lead2 = { testLead with MasterID = 12346; PersistentID = Guid.NewGuid() }
+            let lead2 = { testLead with MasterId = 12346; PersistentId = Guid.NewGuid() }
             let project = { testProject with Arrangements = [ Instrumental testLead; Instrumental lead2 ] }
 
             let attr1 = createAttributes project (FromInstrumental(testLead, testSng))
@@ -171,7 +171,7 @@ let attributeTests =
             Expect.isTrue attr.Shipping "Shipping is true"
 
         testCase "Various attributes are set correctly (Instrumental)" <| fun _ ->
-            let expectedId = testLead.PersistentID.ToString("N").ToUpperInvariant()
+            let expectedId = testLead.PersistentId.ToString("N").ToUpperInvariant()
 
             let attr = createAttributes testProject (FromInstrumental(testLead, testSng))
 

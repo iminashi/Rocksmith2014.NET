@@ -11,11 +11,12 @@ let manifestTests =
     testList "Manifest Tests" [
         testCase "Can be converted to JSON" <| fun _ ->
             let arr =
-                { XML = "lyrics.xml"
+                { Id = Guid.Empty
+                  XmlPath = "lyrics.xml"
                   Japanese = false
                   CustomFont = None
-                  MasterID = 123456
-                  PersistentID = Guid.NewGuid() }
+                  MasterId = 123456
+                  PersistentId = Guid.NewGuid() }
 
             let attr = createAttributes testProject (FromVocals arr)
             let jsonString =
@@ -26,11 +27,12 @@ let manifestTests =
 
         testCase "Can be read from JSON" <| fun _ ->
             let attr =
-                 { XML = "lyrics.xml"
+                 { Id = Guid.Empty
+                   XmlPath = "lyrics.xml"
                    Japanese = false
                    CustomFont = None
-                   MasterID = 123456
-                   PersistentID = Guid.NewGuid() }
+                   MasterId = 123456
+                   PersistentId = Guid.NewGuid() }
                 |> FromVocals
                 |> createAttributes testProject
 

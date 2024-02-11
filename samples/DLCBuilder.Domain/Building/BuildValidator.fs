@@ -48,8 +48,8 @@ let private validators =
             let allIds =
                 project.Arrangements
                 |> List.choose (function
-                    | Instrumental i -> Some i.PersistentID
-                    | Vocals v -> Some v.PersistentID
+                    | Instrumental i -> Some i.PersistentId
+                    | Vocals v -> Some v.PersistentId
                     | _ -> None)
 
             let distinctIds = List.distinct allIds

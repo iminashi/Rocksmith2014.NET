@@ -35,7 +35,7 @@ let createAutoPreviewFile project =
             |> List.tryPick Arrangement.pickInstrumental
             |> function
                 | Some arr ->
-                    let inst = InstrumentalArrangement.Load(arr.XML)
+                    let inst = InstrumentalArrangement.Load(arr.XmlPath)
 
                     inst.Sections
                     |> ResizeArray.tryFind (fun x -> x.Name |> String.startsWith "chorus")

@@ -40,7 +40,7 @@ let view state dispatch (vocals: Vocals) =
                          Grid.column 1
                          TextBox.isVisible state.Config.ShowAdvanced
                          TextBox.horizontalAlignment HorizontalAlignment.Stretch
-                         FixedTextBox.text (string vocals.MasterID)
+                         FixedTextBox.text (string vocals.MasterId)
                          FixedTextBox.validationErrorMessage (translate "EnterNumberLargerThanZero")
                          FixedTextBox.validation Utils.isNumberGreaterThanZero
                          TextBox.onLostFocus (fun arg ->
@@ -65,7 +65,7 @@ let view state dispatch (vocals: Vocals) =
                          Grid.column 1
                          TextBox.isVisible state.Config.ShowAdvanced
                          TextBox.horizontalAlignment HorizontalAlignment.Stretch
-                         FixedTextBox.text (vocals.PersistentID.ToString("N"))
+                         FixedTextBox.text (vocals.PersistentId.ToString("N"))
                          FixedTextBox.validationErrorMessage (translate "EnterAValidGUID")
                          FixedTextBox.validation (Guid.TryParse >> fst)
                          TextBox.onLostFocus (fun arg ->

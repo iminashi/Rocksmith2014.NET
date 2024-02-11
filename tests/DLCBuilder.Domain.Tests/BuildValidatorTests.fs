@@ -8,20 +8,21 @@ open System
 open System.IO
 
 let vocals =
-    { XML = ""
+    { Id = Guid.Empty
+      XmlPath = ""
       Japanese = false
       CustomFont = None
-      MasterID = 1
-      PersistentID = Guid.NewGuid() }
+      MasterId = 1
+      PersistentId = Guid.NewGuid() }
 
 let toneKey1 = "Tone_1"
 
 let instrumental =
     { Instrumental.Empty with
-          XML = "instrumental.xml"
+          XmlPath = "instrumental.xml"
           BaseTone = "Base_Tone"
           Tones = [ toneKey1; "Tone_2"; "Tone_3"; "Tone_4" ]
-          MasterID = 12345 }
+          MasterId = 12345 }
 
 let existingFile = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.*") |> Seq.head
 
@@ -111,7 +112,7 @@ let tests =
         testCase "Detects same key on multiple tones" <| fun _ ->
             let project =
                 let tone = { testTone with Key = toneKey1 }
-                let instrumental2 = { instrumental with PersistentID = Guid.NewGuid(); MasterID = Random.Shared.Next() }
+                let instrumental2 = { instrumental with PersistentId = Guid.NewGuid(); MasterId = Random.Shared.Next() }
                 { validProject with
                     Arrangements = [ Instrumental instrumental; Instrumental instrumental2 ]
                     Tones = [ tone; tone ] }
@@ -120,7 +121,7 @@ let tests =
             |> expectError (MultipleTonesSameKey toneKey1)
 
         testCase "Detects conflicting vocals arrangements" <| fun _ ->
-            let vocals2 = { vocals with PersistentID = Guid.NewGuid() }
+            let vocals2 = { vocals with PersistentId = Guid.NewGuid() }
             let project = { validProject with Arrangements = [ Vocals vocals; Vocals vocals2 ] }
 
             BuildValidator.validate project

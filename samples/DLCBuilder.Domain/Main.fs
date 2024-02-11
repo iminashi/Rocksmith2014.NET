@@ -108,7 +108,7 @@ let update (msg: Msg) (state: State) =
             |> List.tryFind (fun x -> not x.Japanese)
             |> Option.map (fun vocals ->
                 let initialState =
-                    vocals.XML
+                    vocals.XmlPath
                     |> XML.Vocals.Load
                     |> JapaneseLyricsCreator.LyricsCreatorState.init
 
@@ -121,7 +121,7 @@ let update (msg: Msg) (state: State) =
         let arrangements =
             project.Arrangements
             |> List.filter (function
-                | Instrumental inst when ids |> List.contains inst.PersistentID ->
+                | Instrumental inst when ids |> List.contains inst.PersistentId ->
                     true
                 | _ ->
                     false)
@@ -134,11 +134,11 @@ let update (msg: Msg) (state: State) =
             |> List.map (function
                 | Instrumental inst as arr ->
                     replacementMap
-                    |> Map.tryFind inst.PersistentID
+                    |> Map.tryFind inst.PersistentId
                     |> Option.map (fun replacement ->
                         // Only get the IDs in case the user has edited the arrangement in the project
-                        { inst with MasterID = Arrangement.getMasterId replacement
-                                    PersistentID = Arrangement.getPersistentId replacement }
+                        { inst with MasterId = Arrangement.getMasterId replacement
+                                    PersistentId = Arrangement.getPersistentId replacement }
                         |> Instrumental)
                     |> Option.defaultValue arr
                 | other ->
@@ -433,7 +433,7 @@ let update (msg: Msg) (state: State) =
                 let arrangements =
                     project.Arrangements
                     |> List.map (function
-                        | Instrumental inst when inst.PersistentID = arrId ->
+                        | Instrumental inst when inst.PersistentId = arrId ->
                             let audio =
                                 inst.CustomAudio
                                 |> Option.map (fun a -> { a with Volume = volume })
@@ -609,7 +609,7 @@ let update (msg: Msg) (state: State) =
         match getSelectedArrangement state with
         | Some (Vocals v) ->
             let lyrics =
-                XML.Vocals.Load(v.XML)
+                XML.Vocals.Load(v.XmlPath)
                 |> Utils.createLyricsString
             let overlay = LyricsViewer(lyrics, v.Japanese)
             showOverlay state overlay, Cmd.none
@@ -619,8 +619,8 @@ let update (msg: Msg) (state: State) =
     | ShowInstrumentalXmlDetailsViewer ->
         match getSelectedArrangement state with
         | Some (Instrumental inst) ->
-            let xml = XML.InstrumentalArrangement.Load(inst.XML)
-            let overlay = InstrumentalXmlDetailsViewer(xml, Path.GetFileName(inst.XML))
+            let xml = XML.InstrumentalArrangement.Load(inst.XmlPath)
+            let overlay = InstrumentalXmlDetailsViewer(xml, Path.GetFileName(inst.XmlPath))
             showOverlay state overlay, Cmd.none
         | _ ->
             state, Cmd.none
@@ -1165,7 +1165,7 @@ let update (msg: Msg) (state: State) =
 
     | StartFontGenerator ->
         match getSelectedArrangement state, state.Config.FontGeneratorPath with
-        | Some (Vocals { XML = xml; PersistentID = id }), Some generatorPath ->
+        | Some (Vocals { XmlPath = xml; PersistentId = id }), Some generatorPath ->
             // Dispose any previous watcher
             state.FontGenerationWatcher |> Option.iter (fun f -> f.Dispose())
 
@@ -1188,7 +1188,7 @@ let update (msg: Msg) (state: State) =
         let arrangements =
             project.Arrangements
             |> List.map (function
-                | Vocals v when v.PersistentID = arrId ->
+                | Vocals v when v.PersistentId = arrId ->
                     let fontPath =
                         // Change path/file.glyphs.xml to path/file.dds
                         let fontFile = Path.ChangeExtension(Path.GetFileNameWithoutExtension(glyphsXmlPath), "dds")
