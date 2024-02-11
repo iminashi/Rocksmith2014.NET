@@ -92,14 +92,12 @@ let private getExtraText = function
                 else
                     inst.Tuning
 
-            let tuningType, notes = Utils.getTuningName actualTuning
-            match tuningType with
-            | "DADGAD" ->
-                tuningType
-            | _ when notes.Length > 0 ->
-                translatef tuningType notes
-            | _ ->
-                translate tuningType
+            let tuningName = Utils.getTuningName actualTuning
+            match tuningName with
+            | Utils.CustomTuning(tuning) ->
+                tuning
+            | Utils.TranslatableTuning(tuning, notes) ->
+                translatef tuning notes
 
         if inst.TuningPitch <> 440.0 then
             $"{tuning} (A{inst.TuningPitch})"

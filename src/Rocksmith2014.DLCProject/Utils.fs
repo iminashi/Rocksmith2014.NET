@@ -12,10 +12,10 @@ let centsToTuningPitch (cents: float) =
     Math.Round(440. * Math.Pow(Math.Pow(2., 1. / 1200.), cents), 2)
 
 let private roots = [| "E"; "F"; "F#"; "G"; "Ab"; "A"; "Bb"; "B"; "C"; "C#"; "D"; "Eb" |]
+let private standardTuningOffsets = [| 0; 5; 10; 3; 7; 0 |]
 
 let private isDoubleDropTuning first (strings: int16 array) =
-    first > -12s && first < -1s
-    && first = strings[1] - 2s && first = strings[5]
+    first = strings[1] - 2s && first = strings[5]
     && strings.AsSpan(1, 4).AllSame(strings[1])
 
 let private (|Standard|Drop|DoubleDrop|Other|) (strings: int16 array) =
@@ -25,7 +25,7 @@ let private (|Standard|Drop|DoubleDrop|Other|) (strings: int16 array) =
     if first > -11s && first < 3s && strings.AsSpan().AllSame(first) then
         Standard
     // Drop tunings
-    elif first > -12s && first = strings[1] - 2s && strings.AsSpan(1).AllSame(strings[1]) then
+    elif first = strings[1] - 2s && strings.AsSpan(1).AllSame(strings[1]) then
         Drop
     // Double drop tunings
     elif isDoubleDropTuning first strings then
@@ -34,32 +34,50 @@ let private (|Standard|Drop|DoubleDrop|Other|) (strings: int16 array) =
     else
         Other
 
+type TuningName =
+    | TranslatableTuning of string * obj array
+    | CustomTuning of string
+
+let private getStringNoteName (useFlats: bool) (stringIndex: int) (stringTuning: int16) =
+    let m = (int stringTuning + standardTuningOffsets[stringIndex]) % 12
+    let i = if m < 0 then roots.Length + m else m
+    let n = roots[i]
+    if useFlats then
+         match n with
+         | "F#" -> "Gb"
+         | "C#" -> "Db"
+         | _ -> n
+    else
+        n
+
 /// Returns the type of the given tuning and its root note(s).
-let getTuningName (tuning: int16 array) : string * obj array =
+let getTuningName (tuning: int16 array) : TuningName =
     let first = tuning[0]
 
     match tuning with
     | Standard ->
-        let i = int (first + 12s) % 12
-        "Standard", [| roots[i] |]
+        let n = getStringNoteName false 0 first
+        TranslatableTuning("Standard", [| n |])
     | Drop ->
-        let i = int (first + 12s) % 12
-        let j = int (tuning[1] + 12s) % 12
-        let root = if first < -2s then roots[j] + " " else String.Empty
-        let drop = if roots[i] = "C#" then "Db" else roots[i]
-        "Drop", [| root; drop |]
+        let n1 = getStringNoteName true 0 first
+        // Low E string index (0) is used to get the note name for the low string in standard tuning
+        let n2 = getStringNoteName true 0 tuning[1]
+        let root = if first < -2s then n2 + " " else String.Empty
+        TranslatableTuning("Drop", [| root; n1 |])
     | DoubleDrop ->
-        let i = int (first + 12s) % 12
-        let drop = if roots[i] = "C#" then "Db" else roots[i]
-        "Double Drop", [| drop |]
+        let n = getStringNoteName true 0 first
+        TranslatableTuning("Double Drop", [| n |])
     | Other ->
         match tuning with
-        | [| -2s;  0s; 0s; -1s; -2s; -2s |] -> "Open", [| "D" |]
-        | [|  0s;  0s; 2s;  2s;  2s;  0s |] -> "Open", [| "A" |]
-        | [| -2s; -2s; 0s;  0s;  0s; -2s |] -> "Open", [| "G" |]
-        | [|  0s;  2s; 2s;  1s;  0s;  0s |] -> "Open", [| "E" |]
-        | [| -2s;  0s; 0s;  0s; -2s; -2s |] -> "DADGAD", Array.empty
-        | _ -> "Custom Tuning", Array.empty
+        | [| -2s;  0s; 0s; -1s; -2s; -2s |] -> TranslatableTuning("Open", [| "D" |])
+        | [|  0s;  0s; 2s;  2s;  2s;  0s |] -> TranslatableTuning("Open", [| "A" |])
+        | [| -2s; -2s; 0s;  0s;  0s; -2s |] -> TranslatableTuning("Open", [| "G" |])
+        | [|  0s;  2s; 2s;  1s;  0s;  0s |] -> TranslatableTuning("Open", [| "E" |])
+        | _ ->
+            tuning
+            |> Array.mapi (getStringNoteName true)
+            |> String.Concat
+            |> CustomTuning
 
 /// If the exception is an aggregate exception, returns the distinct inner exception messages concatenated.
 let distinctExceptionMessages (e: exn) =

@@ -64,6 +64,7 @@
     <Compile Include="DLCProjectTests.fs" />
     <Compile Include="ToolkitImportTests.fs" />
     <Compile Include="PhraseLevelComparerTests.fs" />
+    <Compile Include="UtilsTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
