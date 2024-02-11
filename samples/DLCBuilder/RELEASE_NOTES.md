@@ -1,3 +1,8 @@
+## 2.x.x (Released 2024-02-xx)
+
+- Added ".jpeg" extension to the accepted image files.
+- Replaced "Custom Tuning" with note names of each string.
+
 ## 2.5.2 (Released 2023-12-17)
 
 - The version in the package metadata will be set to "test" for test builds.
