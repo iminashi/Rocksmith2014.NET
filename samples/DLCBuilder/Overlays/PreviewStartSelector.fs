@@ -52,6 +52,7 @@ let view state dispatch (data: PreviewAudioCreationData) =
                         NumericUpDown.showButtonSpinner false
                         FixedNumericUpDown.value previewStart.Minutes
                         FixedNumericUpDown.onValueChanged (Minutes >> SetPreviewStartTime >> EditProject >> dispatch)
+                        ToolTip.tip (translate "Minutes")
                     ]
 
                     TextBlock.create [ TextBlock.text "m"; TextBlock.verticalAlignment VerticalAlignment.Center ]
@@ -65,6 +66,7 @@ let view state dispatch (data: PreviewAudioCreationData) =
                         NumericUpDown.showButtonSpinner false
                         FixedNumericUpDown.value previewStart.Seconds
                         FixedNumericUpDown.onValueChanged (Seconds >> SetPreviewStartTime >> EditProject >> dispatch)
+                        ToolTip.tip (translate "Seconds")
                     ]
 
                     TextBlock.create [ TextBlock.text "."; TextBlock.verticalAlignment VerticalAlignment.Center ]
@@ -78,6 +80,7 @@ let view state dispatch (data: PreviewAudioCreationData) =
                         NumericUpDown.showButtonSpinner false
                         FixedNumericUpDown.value previewStart.Milliseconds
                         FixedNumericUpDown.onValueChanged (Milliseconds >> SetPreviewStartTime >> EditProject >> dispatch)
+                        ToolTip.tip (translate "Milliseconds")
                     ]
 
                     TextBlock.create [ TextBlock.text "s"; TextBlock.verticalAlignment VerticalAlignment.Center ]

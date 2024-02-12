@@ -536,5 +536,8 @@
   "ValidateBeforeBuildHelp": "ビルド前にアレンジを検証します。もし問題点が発見されるとビルドが失敗します。",
   "ValidationFailedForReleaseBuild": "アレンジには問題点が発見されました。これらを直すか、無視された問題点に入れてください。",
   "ExitConfirmation": "プログラム終了確認",
-  "ExitConfirmationMessage": "プロジェクトが変更されています。\n\n終了前にプロジェクトを保存しますか?"
+  "ExitConfirmationMessage": "プロジェクトが変更されています。\n\n終了前にプロジェクトを保存しますか?",
+  "Minutes": "分",
+  "Seconds": "秒",
+  "Milliseconds": "ミリ秒"
 }

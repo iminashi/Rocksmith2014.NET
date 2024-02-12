@@ -536,5 +536,8 @@
   "ValidateBeforeBuildHelp": "Sovitukset tarkistetaan ennen paketin rakennusta, ja jos ongelmia löytyy, rakentaminen epäonnistuu.",
   "ValidationFailedForReleaseBuild": "Sovituksista löydettiin ongelmia, jotka pitää korjata tai asettaa ohitetuiksi.",
   "ExitConfirmation": "Vahvista lopetus",
-  "ExitConfirmationMessage": "Sinulla on tallentamattomia muutoksia.\n\nTallennetaanko projekti ennen lopetusta?"
+  "ExitConfirmationMessage": "Sinulla on tallentamattomia muutoksia.\n\nTallennetaanko projekti ennen lopetusta?",
+  "Minutes": "Minuutit",
+  "Seconds": "Sekunnit",
+  "Milliseconds": "Millisekunnit"
 }
