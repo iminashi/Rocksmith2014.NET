@@ -436,6 +436,7 @@ let view state dispatch collectionState =
             hStack [
                 TabControl.create [
                     TabControl.width 520.
+                    TabControl.minHeight 560.
                     TabControl.isEnabled collectionState.EditingUserTone.IsNone
                     TabControl.viewItems [
                         // Official tab
