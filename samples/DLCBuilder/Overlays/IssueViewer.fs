@@ -123,7 +123,7 @@ let private issueListHeader locString =
 let view state dispatch (arrangement: Arrangement) =
     let issues =
         state.ArrangementIssues
-        |> Map.tryFind (Arrangement.getFile arrangement)
+        |> Map.tryFind (Arrangement.getId arrangement)
         |> Option.map (fun issues ->
             // Divide the issues into ignored and active
             let ignored, active =

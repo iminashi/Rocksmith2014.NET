@@ -85,7 +85,7 @@ let checkArrangements (project: DLCProject) (progress: IProgress<float>) =
     |> List.mapi (fun i arr ->
         let result = checkArrangement arr
         progress.Report(float (i + 1) / length * 100.)
-        Arrangement.getFile arr, result)
+        Arrangement.getId arr, result)
     |> Map.ofList
 
 /// Adds descriptors to tones that have none.

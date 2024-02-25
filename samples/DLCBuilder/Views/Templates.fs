@@ -129,10 +129,9 @@ let arrangement state dispatch index arr =
         | Showlights _ ->
             Icons.spotlight, Brushes.showlights
 
-    let xmlFile = Arrangement.getFile arr
     let noIssues =
         state.ArrangementIssues
-        |> Map.tryFind xmlFile
+        |> Map.tryFind (Arrangement.getId arr)
         |> Option.map (List.forall (fun x -> state.Project.IgnoredIssues.Contains(issueCode x.Type)))
 
     let missingTones =

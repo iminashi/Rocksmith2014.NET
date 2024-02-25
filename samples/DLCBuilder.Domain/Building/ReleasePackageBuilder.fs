@@ -6,7 +6,7 @@ open Rocksmith2014.Common.Manifest
 open Rocksmith2014.Common
 
 /// Returns the target directory for the project.
-let getTargetDirectory (projectPath: string option) project =
+let getTargetDirectory (projectPath: string option) (project: DLCProject) =
     projectPath
     |> Option.defaultValue (Arrangement.getFile project.Arrangements.Head)
     |> Path.GetDirectoryName
@@ -27,7 +27,7 @@ let private getArtistAndTitle project =
     artist, title
 
 /// Returns an async task for building packages for release.
-let build (openProject: string option) config project =
+let build (openProject: string option) (config: Configuration) (project: DLCProject) =
     async {
         let project = Utils.addDefaultTonesIfNeeded project
         let releaseDir = getTargetDirectory openProject project
@@ -70,7 +70,7 @@ let private addPitchPedal index shift gearList =
 
     { gearList with PrePedals = prePedals }
 
-let private pitchShiftTones shift (tones: Tone list) =
+let private pitchShiftTones (shift: int16) (tones: Tone list) =
     tones
     |> List.map (fun tone ->
         tone.GearList.PrePedals
@@ -91,7 +91,7 @@ let private processArrangements shift arrangements =
             other)
     |> TestPackageBuilder.generateAllIds
 
-let buildPitchShifted (openProject: string option) config project =
+let buildPitchShifted (openProject: string option) (config: Configuration) (project: DLCProject) =
     async {
         let shift = project.PitchShift |> Option.defaultValue 0s
         let title = { project.Title with SortValue = $"{project.Title.SortValue} Pitch" }

@@ -121,7 +121,7 @@ let private arrangementDetails state dispatch =
                                 ]
 
                                 // Validation Icon
-                                match state.ArrangementIssues.TryGetValue(xmlFile) with
+                                match state.ArrangementIssues.TryGetValue(Arrangement.getId arr) with
                                 | true, issues ->
                                     validationIcon state dispatch issues
                                 | false, _ ->

@@ -1001,17 +1001,17 @@ let update (msg: Msg) (state: State) =
     | CheckArrangement arrangement ->
         let task () =
             async {
-                let path = Arrangement.getFile arrangement
-                return path, Utils.checkArrangement arrangement
+                let arrId = Arrangement.getId arrangement
+                return arrId, Utils.checkArrangement arrangement
             }
 
         addTask ArrangementCheckOne state,
         Cmd.OfAsync.either task () CheckOneCompleted (fun ex -> TaskFailed(ex, ArrangementCheckOne))
 
-    | CheckOneCompleted (xmlFile, issues) ->
+    | CheckOneCompleted (arrId, issues) ->
         let issueMap =
             state.ArrangementIssues
-            |> Map.add xmlFile issues
+            |> Map.add arrId issues
 
         { removeTask ArrangementCheckOne state with ArrangementIssues = issueMap },
         Cmd.ofMsg (AddStatusMessage(translate "ValidationComplete"))
@@ -1052,7 +1052,7 @@ let update (msg: Msg) (state: State) =
     | ShowIssueViewer ->
         match getSelectedArrangement state with
         | Some arr ->
-            match state.ArrangementIssues.TryGetValue(Arrangement.getFile arr) with
+            match state.ArrangementIssues.TryGetValue(Arrangement.getId arr) with
             | true, issues when not issues.IsEmpty ->
                 { state with Overlay = IssueViewer arr }, Cmd.none
             | _ ->

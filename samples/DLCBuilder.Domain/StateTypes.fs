@@ -329,9 +329,9 @@ type Msg =
     | TaskProgressChanged of task: LongTask * progress: float
     | AddStatusMessage of message: string
     | RemoveStatusMessage of id: Guid
-    | CheckOneCompleted of string * Issue list
-    | CheckAllCompleted of issues: Map<string, Issue list>
-    | CheckCompletedForReleaseBuild of issues: Map<string, Issue list>
+    | CheckOneCompleted of ArrangementId * Issue list
+    | CheckAllCompleted of issues: Map<ArrangementId, Issue list>
+    | CheckCompletedForReleaseBuild of issues: Map<ArrangementId, Issue list>
     | PsarcUnpacked
     | WemToOggConversionCompleted
     | ConvertToWem
@@ -375,7 +375,7 @@ type State =
       CurrentPlatform: Platform
       StatusMessages: StatusMessage list
       RunningTasks: Set<LongTask>
-      ArrangementIssues: Map<string, Issue list>
+      ArrangementIssues: Map<ArrangementId, Issue list>
       AvailableUpdate: UpdateInformation option
       ToneGearRepository: ToneGear.Repository option
       QuickEditData: PsarcQuickEditData option
