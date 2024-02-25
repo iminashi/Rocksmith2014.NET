@@ -1,7 +1,6 @@
 module DLCBuilder.StateUtils
 
 open Elmish
-open Rocksmith2014.Audio
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject

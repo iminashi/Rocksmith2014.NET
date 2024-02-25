@@ -2,7 +2,6 @@ module DLCBuilder.OnlineUpdate
 
 open Octokit
 open System
-open System.Diagnostics
 
 [<RequireQualifiedAccess>]
 type AvailableUpdate =
