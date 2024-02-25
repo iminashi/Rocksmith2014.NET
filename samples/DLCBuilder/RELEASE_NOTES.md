@@ -1,7 +1,9 @@
-## 2.x.x (Released 2024-02-xx)
+## 2.5.3 (Released 2024-02-25)
 
+- Replaced "Custom Tuning" with the note names of each string.
 - Added ".jpeg" extension to the accepted image files.
-- Replaced "Custom Tuning" with note names of each string.
+- Fixed an issue where the calculated volume for a custom audio file would not get set in rare cases.
+- Minor UI fixes.
 
 ## 2.5.2 (Released 2023-12-17)
 
