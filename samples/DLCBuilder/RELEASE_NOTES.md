@@ -1,6 +1,9 @@
 ## 3.0.0 (Released 2024-03-xx)
 
 - Updated to .NET 8.
+- Added support for reading FLAC files.
+- Added support for Wwise 2023.
+- Fixed the loading of the Wwise template on Linux.
 - Updated the UI framework to the latest version.
 
 ## 2.5.3 (Released 2024-02-25)
