@@ -42,6 +42,8 @@ type IssueType =
     | LyricTooLong of lyric: string
     | LyricsHaveNoLineBreaks
     | InvalidShowlights
+    | LowBassTuningWithoutWorkaround
+    | IncorrectLowBassTuningForTuningPitch
 
 type Issue =
     { Type: IssueType
@@ -88,6 +90,8 @@ let issueCode = function
     | FretNumberMoreThan24 -> "I38"
     | NoteAfterSongEnd -> "I39"
     | TechniqueNoteWithoutSustain -> "I40"
+    | LowBassTuningWithoutWorkaround -> "I41"
+    | IncorrectLowBassTuningForTuningPitch -> "I42"
     | LyricWithInvalidChar _ -> "V01"
     | LyricTooLong _ -> "V02"
     | LyricsHaveNoLineBreaks -> "V03"

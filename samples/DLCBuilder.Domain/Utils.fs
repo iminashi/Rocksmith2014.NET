@@ -63,12 +63,24 @@ let previewPathFromMainAudio (audioPath: string) =
     let ext = Path.GetExtension(audioPath)
     Path.Combine(dir, $"{fn}_preview{ext}")
 
+let checkBassTuning (inst: Instrumental) =
+    [
+        if inst.TuningPitch > 230.0 && inst.Tuning |> Array.exists (fun t -> t < -4s) then
+            { Type = LowBassTuningWithoutWorkaround
+              TimeCode = 0 }
+
+        if inst.TuningPitch <= 220.0 && inst.Tuning |> Array.exists (fun t -> t < 0s) then
+            { Type = IncorrectLowBassTuningForTuningPitch
+              TimeCode = 0 }
+    ]
+
 /// Checks an arrangement for issues.
 let checkArrangement arrangement =
     match arrangement with
     | Instrumental inst ->
         InstrumentalArrangement.Load(inst.XmlPath)
         |> ArrangementChecker.checkInstrumental
+        |> fun issues -> if inst.RouteMask = RouteMask.Bass then checkBassTuning inst @ issues else issues
     | Vocals { CustomFont = font; XmlPath = xml } ->
         Vocals.Load(xml)
         |> ArrangementChecker.checkVocals font.IsSome

@@ -2,8 +2,9 @@
 
 - Updated to .NET 8.
 - Added support for reading FLAC files.
-- Four strings are used for the bass tuning when "Show advanced features" is disabled.
-- The tuning for the nonexistent strings is set to match the fourth string when adding a bass arrangement.
+- Four strings are displayed for the bass tuning when "Show advanced features" is disabled.
+- When adding a bass arrangement, the tuning for the nonexistent strings is set to match the fourth string.
+- Added validation for low bass tuning issues.
 - Added support for Wwise 2023.
 - Fixed the loading of the Wwise template on Linux.
 - Updated the UI framework to the latest version.

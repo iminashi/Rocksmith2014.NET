@@ -44,7 +44,8 @@ let private isImportant = function
     | MutedStringInNonMutedChord
     | InvalidShowlights
     | OverlappingBendValues
-    | InvalidBassArrangementString -> true
+    | InvalidBassArrangementString
+    | LowBassTuningWithoutWorkaround -> true
     | _ -> false
 
 let private viewForIssue dispatch issueType times canIgnore =
