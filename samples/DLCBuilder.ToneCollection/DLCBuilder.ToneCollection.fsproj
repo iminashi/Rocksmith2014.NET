@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <Platforms>x64</Platforms>
         <WarnOn>1182;3390;$(WarnOn)</WarnOn>
@@ -32,7 +32,7 @@
     <ItemGroup>
       <PackageReference Include="Dapper" Version="2.0.143" />
       <PackageReference Include="System.Data.SQLite.Core" Version="1.0.117" />
-      <PackageReference Update="FSharp.Core" Version="7.0.400" />
+      <PackageReference Update="FSharp.Core" Version="8.0.200" />
     </ItemGroup>
 
 </Project>
