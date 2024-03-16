@@ -68,7 +68,18 @@ let editInstrumental state edit index inst =
             { inst with BassPicked = picked }, Cmd.none
 
         | SetTuning (index, newTuning) ->
-            { inst with Tuning = inst.Tuning |> Array.updateAt index newTuning }, Cmd.none
+            let updateNonBassString =
+                not state.Config.ShowAdvanced && inst.RouteMask = RouteMask.Bass
+
+            let newTuning =
+                if updateNonBassString && index = 3 then
+                    // Update 5th and 6th string to match the 4th string
+                    inst.Tuning
+                    |> Array.mapi (fun i currentTuning -> if i >= index then newTuning else currentTuning)
+                else
+                    inst.Tuning |> Array.updateAt index newTuning
+
+            { inst with Tuning = newTuning }, Cmd.none
 
         | ChangeTuning (index, direction) ->
             let change = match direction with Up -> 1s | Down -> -1s

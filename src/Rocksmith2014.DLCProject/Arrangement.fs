@@ -226,6 +226,15 @@ module Arrangement =
 
                 let defaultId = Guid.NewGuid()
 
+                let tuning =
+                    if routeMask = RouteMask.Bass then
+                        // Update bass tuning for the nonexistent strings (EOF does not set the tuning correctly for drop tunings)
+                        let fourthString = metadata.Tuning.Strings[3]
+                        metadata.Tuning.Strings
+                        |> Array.mapi (fun i t -> if i > 3 then fourthString else t)
+                    else
+                        metadata.Tuning.Strings
+
                 let arr =
                     { Id = ArrangementId defaultId
                       XmlPath = path
@@ -237,7 +246,7 @@ module Arrangement =
                             ArrangementPriority.Bonus
                         else
                             ArrangementPriority.Alternative
-                      Tuning = metadata.Tuning.Strings
+                      Tuning = tuning
                       TuningPitch = Utils.centsToTuningPitch (float metadata.CentOffset)
                       RouteMask = routeMask
                       ScrollSpeed = 1.3

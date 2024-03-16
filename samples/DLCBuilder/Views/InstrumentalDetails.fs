@@ -27,7 +27,7 @@ let private enablePriorityChange arrangements priority inst =
                    false)
     )
 
-let private tuningTextBox dispatch (tuning: int16 array) stringIndex =
+let private tuningTextBox dispatch (tuning: int16 array) (stringIndex: int) =
     FixedTextBox.create [
         TextBox.margin (2., 0.)
         TextBox.minWidth 40.
@@ -73,6 +73,12 @@ let private tuningChangeRepeatButton dispatch direction =
     ]
 
 let view state dispatch (inst: Instrumental) =
+    let nStrings =
+        if inst.RouteMask = RouteMask.Bass && not state.Config.ShowAdvanced then
+            4
+        else
+            6
+
     Grid.create [
         Grid.margin 6.
         Grid.columnDefinitions "auto,*"
@@ -180,9 +186,9 @@ let view state dispatch (inst: Instrumental) =
                 StackPanel.children [
                     UniformGrid.create [
                         UniformGrid.margin (2.0, 0.0)
-                        UniformGrid.columns 6
+                        UniformGrid.columns nStrings
                         UniformGrid.horizontalAlignment HorizontalAlignment.Left
-                        UniformGrid.children (List.init 6 (tuningTextBox dispatch inst.Tuning))
+                        UniformGrid.children (List.init nStrings (tuningTextBox dispatch inst.Tuning))
                     ]
 
                     Grid.create [

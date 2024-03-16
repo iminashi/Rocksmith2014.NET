@@ -83,7 +83,8 @@ let toneDescriptor : IDataTemplate =
 let arrangementName : IDataTemplate =
     DataTemplateView<ArrangementName>.create (fun name -> locText $"{name}Arr" [])
 
-let private getExtraText = function
+let private getExtraText arr =
+    match arr with
     | Instrumental inst ->
         let tuning =
             let actualTuning =
