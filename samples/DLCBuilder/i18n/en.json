@@ -226,7 +226,7 @@
   "ReloadToneKeysMenuItem": "_Reload Tone Keys",
   "ReloadToneKeysToolTip": "Reads the tone keys from the arrangement's XML file.",
   "WwiseConsolePath": "Wwise Console Application (2019 or newer)",
-  "WwiseConsolePathHelp": "The path to the Wwise 2019/2021/2022 console executable.\n\nRequired for converting audio files into the specific format used by the game.\n\nIf left empty, DLC Builder will attempt to find the executable automatically.",
+  "WwiseConsolePathHelp": "The path to the Wwise 2019/2021/2022/2023 console executable.\n\nRequired for converting audio files into the specific format used by the game.\n\nIf left empty, DLC Builder will attempt to find the executable automatically.",
   "WwiseConsolePathPlaceholder": "Leave empty for automatic detection.",
   "AppID": "App ID",
   "Custom": "Custom",

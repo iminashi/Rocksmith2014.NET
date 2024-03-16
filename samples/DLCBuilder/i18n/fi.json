@@ -226,7 +226,7 @@
   "ReloadToneKeysMenuItem": "_Lue uudelleen soundiavaimet",
   "ReloadToneKeysToolTip": "Lukee soundien avaimet sovituksen XML-tiedostosta.",
   "WwiseConsolePath": "Wwise konsolisovellus (2019 tai uudempi)",
-  "WwiseConsolePathHelp": "Polku Wwise 2019/2021/2022:n konsolisovelluksen ajotiedostoon.\n\nVaaditaan äänitiedostojen muuttamiseen pelin vaatimaan muotoon.\n\nYritetään löytää automaattisesti, jos kentän jättää tyhjäksi.",
+  "WwiseConsolePathHelp": "Polku Wwise 2019/2021/2022/2023:n konsolisovelluksen ajotiedostoon.\n\nVaaditaan äänitiedostojen muuttamiseen pelin vaatimaan muotoon.\n\nYritetään löytää automaattisesti, jos kentän jättää tyhjäksi.",
   "WwiseConsolePathPlaceholder": "Etsitään automaattisesti, jos tyhjä.",
   "AppID": "App ID",
   "Custom": "Mukautettu",

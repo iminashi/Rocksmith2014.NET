@@ -226,7 +226,7 @@
   "ReloadToneKeysMenuItem": "トーンキーをリロード",
   "ReloadToneKeysToolTip": "トーンキーをアレンジのXMLファイルから読み込みます。",
   "WwiseConsolePath": "Wwiseコンソールアプリケーション(2019もしくはもっと新しい)",
-  "WwiseConsolePathHelp": "Wwise 2019/2021/2022コンソールアプリケーションのパス。\n\nオーディオファイルをゲームが使うフォーマットに変換するために必要。\n\n空にしておく場合、自動的発見を試みる。",
+  "WwiseConsolePathHelp": "Wwise 2019/2021/2022/2023コンソールアプリケーションのパス。\n\nオーディオファイルをゲームが使うフォーマットに変換するために必要。\n\n空にしておく場合、自動的発見を試みる。",
   "WwiseConsolePathPlaceholder": "空にしておくと自動的に発見する",
   "AppID": "App ID",
   "Custom": "カスタム",

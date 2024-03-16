@@ -14,27 +14,27 @@ let private tryFindWwiseInstallation rootDir =
     if Directory.Exists(audiokineticDirectory) then
         audiokineticDirectory
         |> Directory.EnumerateDirectories
-        |> Seq.tryFind (fun fn -> Regex.IsMatch(fn, "20(19|21|22)"))
+        |> Seq.tryFind (fun fn -> Regex.IsMatch(fn, "20(19|21|22|23)"))
     else
         None
 
 let findWindows () =
     let wwiseRoot =
         match tryEnv "WWISEROOT" with
-        | Some (Contains "2019" | Contains "2021" | Contains "2022" as path) when Directory.Exists(path) ->
+        | Some (Contains "2019" | Contains "2021" | Contains "2022" | Contains "2023" as path) when Directory.Exists(path) ->
             path
         | _ ->
             // Try the default installation directory in program files
             tryFindWwiseInstallation (Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86))
             |> Option.orElseWith (fun () -> tryFindWwiseInstallation (Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)))
-            |> Option.defaultWith (fun () -> failwith @"Could not locate Wwise 2019, 2021 or 2022 installation from WWISEROOT environment variable or path Program Files\Audiokinetic.")
+            |> Option.defaultWith (fun () -> failwith @"Could not locate Wwise 2019/2021/2022/2023 installation from WWISEROOT environment variable or path Program Files\Audiokinetic.")
 
     Path.Combine(wwiseRoot, "Authoring", "x64", "Release", "bin", "WwiseConsole.exe")
 
 let findMac () =
     let wwiseAppPath =
         tryFindWwiseInstallation "/Applications"
-        |> Option.defaultWith (fun () -> failwith "Could not find Wwise 2019, 2021 or 2022 installation in /Applications/Audiokinetic/")
+        |> Option.defaultWith (fun () -> failwith "Could not find Wwise 2019/2021/2022/2023 installation in /Applications/Audiokinetic/")
 
     Path.Combine(wwiseAppPath, "Wwise.app", "Contents", "Tools", "WwiseConsole.sh")
 
@@ -47,6 +47,6 @@ let findLinux () =
 
     let wwiseRoot =
         tryFindWwiseInstallation defaultWineProgramFiles
-        |> Option.defaultWith (fun () -> failwith "Could not find Wwise 2019, 2021 or 2022 installation in ~/.wine/drive_c/Program Files (x86)/Audiokinetic/")
+        |> Option.defaultWith (fun () -> failwith "Could not find Wwise 2019/2021/2022/2023 installation in ~/.wine/drive_c/Program Files (x86)/Audiokinetic/")
 
     Path.Combine(wwiseRoot, "Authoring", "x64", "Release", "bin", "WwiseConsole.exe")
