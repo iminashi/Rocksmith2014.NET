@@ -28,4 +28,13 @@ let previewTests =
             let length = Utils.getLength previewFileName
 
             Expect.equal length expectedLength "Length of preview audio is correct"
+
+        testCase "Preview audio file can be created from FLAC file" <| fun _ ->
+            let previewFileName = "flactest_preview.wav"
+            if File.Exists(previewFileName) then File.Delete(previewFileName)
+
+            Preview.create TestFiles.FlacFile previewFileName previewStart
+            let length = Utils.getLength previewFileName
+
+            Expect.equal length expectedLength "Length of preview audio is correct"
     ]

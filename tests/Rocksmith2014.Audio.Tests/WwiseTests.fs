@@ -33,6 +33,7 @@ let wwiseTests =
         if actualCliPath.IsSome then
             testAsync "Wave file can be converted" { do! testConversion TestFiles.WaveFile }
             testAsync "Vorbis file can be converted" { do! testConversion TestFiles.VorbisFile }
+            testAsync "FLAC file can be converted" { do! testConversion TestFiles.FlacFile }
     ]
 
 [<Tests>]

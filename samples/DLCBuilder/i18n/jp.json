@@ -158,7 +158,7 @@
   "Language": "言語",
   "ExecutableFiles": "実行ファイル",
   "AudioFiles": "オーディオファイル",
-  "WavOggFiles": "オーディオファイル",
+  "WavOggFlacFiles": "オーディオファイル",
   "WemFiles": "Wwiseオーディオファイル",
   "XMLFiles": "ロックスミスアレンジ",
   "ImageFiles": "イメージ",

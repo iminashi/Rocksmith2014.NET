@@ -1,5 +1,6 @@
 module Rocksmith2014.Audio.Conversion
 
+open NAudio.Flac
 open NAudio.Vorbis
 open NAudio.Wave
 open System
@@ -11,9 +12,14 @@ let private ww2ogg = Path.Combine(toolsDir, "ww2ogg")
 let private revorb = Path.Combine(toolsDir, "revorb")
 
 /// Converts a vorbis file into a wave file.
-let oggToWav sourcePath targetPath =
+let oggToWav (sourcePath: string) (targetPath: string) =
     use ogg = new VorbisWaveReader(sourcePath)
     WaveFileWriter.CreateWaveFile16(targetPath, ogg)
+
+/// Converts a FLAC file into a wave file.
+let flacToWav (sourcePath: string) (targetPath: string) =
+    use flac = new FlacReader(sourcePath)
+    WaveFileWriter.CreateWaveFile16(targetPath, flac.ToSampleProvider())
 
 let private createArgs path extraArgs =
     let pathArg = $"\"%s{path}\""

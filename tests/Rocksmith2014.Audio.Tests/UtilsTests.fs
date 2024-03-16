@@ -1,4 +1,4 @@
-﻿module UtilsTests
+module UtilsTests
 
 open Expecto
 open Rocksmith2014.Audio
@@ -21,6 +21,14 @@ let utilsTests =
             let length = length.TotalMilliseconds
 
             Expect.equal length expectedLength "Vorbis file length is correct"
+
+        testCase "Length of FLAC file can be read" <| fun _ ->
+            let expectedLength = 42_479.5918
+
+            let length = Utils.getLength TestFiles.FlacFile
+            let length = length.TotalMilliseconds
+
+            Expect.equal length expectedLength "FLAC file length is correct"
 
         testCase "Preview audio path can be created from main file path" <| fun _ ->
             let path = "C:\path\to\file.ext"

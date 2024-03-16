@@ -35,7 +35,7 @@ let private getTempDirectory () =
     Directory.CreateDirectory(dir).FullName
 
 /// Extracts the Wwise template into the target directory.
-let private extractTemplate targetDir (version: WwiseVersion) =
+let private extractTemplate (targetDir: string) (version: WwiseVersion) =
     let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
     let templateFile = version.ToString().ToLowerInvariant()
     use templateZip = embeddedProvider.GetFileInfo($"Wwise/{templateFile}.zip").CreateReadStream()
@@ -52,6 +52,8 @@ let private loadTemplate sourcePath version =
         File.Copy(sourcePath, targetPath, overwrite=true)
     | EndsWith ".ogg" ->
         Conversion.oggToWav sourcePath targetPath
+    | EndsWith ".flac" ->
+        Conversion.flacToWav sourcePath targetPath
     | _ ->
         failwith "Could not detect audio file type from extension."
 

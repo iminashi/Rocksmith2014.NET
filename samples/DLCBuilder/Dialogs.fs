@@ -19,7 +19,7 @@ type FileFilter =
     | Project
     | PSARC
     | Wem
-    | WavOgg
+    | WavOggFlac
     | ToolkitTemplate
     | ToneImport
     | ToneExport
@@ -38,10 +38,10 @@ let private wwiseConsoleExtension =
 let private createFileFilters filter =
     let extensions =
         match filter with
-        | FileFilter.WavOgg ->
-            [ "*.wav"; "*.ogg" ]
+        | FileFilter.WavOggFlac ->
+            [ "*.wav"; "*.ogg"; "*.flac" ]
         | FileFilter.Audio ->
-            [ "*.wav"; "*.ogg"; "*.wem" ]
+            [ "*.wav"; "*.ogg"; "*.wem"; "*.flac" ]
         | FileFilter.Wem ->
             [ "*.wem" ]
         | FileFilter.XML ->
@@ -261,7 +261,7 @@ let showDialog window dialogType state =
             openMultiFileDialog title FileFilter.Wem None (ConvertWemToOgg >> ToolsMsg)
 
         | Dialog.AudioFileConversion ->
-            openMultiFileDialog title FileFilter.WavOgg None (ConvertAudioToWem >> ToolsMsg)
+            openMultiFileDialog title FileFilter.WavOggFlac None (ConvertAudioToWem >> ToolsMsg)
 
         | Dialog.RemoveDD ->
             openMultiFileDialog title FileFilter.XML None (RemoveDD >> ToolsMsg)

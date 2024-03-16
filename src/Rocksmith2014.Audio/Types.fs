@@ -4,6 +4,7 @@ module Rocksmith2014.Audio.Types
 open NAudio.Wave
 open NAudio.Vorbis
 open System
+open NAudio.Flac
 
 [<Measure>]
 type ms
@@ -14,6 +15,9 @@ type AudioReader(stream: WaveStream, provider: ISampleProvider) =
 
     new(input: VorbisWaveReader) =
         new AudioReader(input :> WaveStream, input :> ISampleProvider)
+
+    new(input: FlacReader) =
+        new AudioReader(input :> WaveStream, input.ToSampleProvider())
 
     member _.Stream = stream
     member _.SampleProvider = provider
@@ -28,8 +32,10 @@ type AudioReader(stream: WaveStream, provider: ISampleProvider) =
             new AudioReader(new WaveFileReader(fileName))
         | HasExtension ".ogg" ->
             new AudioReader(new VorbisWaveReader(fileName))
+        | HasExtension ".flac" ->
+            new AudioReader(new FlacReader(fileName))
         | _ ->
-            raise <| NotSupportedException "Only vorbis and wave files are supported."
+            raise <| NotSupportedException "Only vorbis, wave and FLAC files are supported."
 
     interface IDisposable with
         member _.Dispose() = stream.Dispose()

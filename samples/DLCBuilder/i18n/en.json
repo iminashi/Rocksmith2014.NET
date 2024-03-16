@@ -158,7 +158,7 @@
   "Language": "Language",
   "ExecutableFiles": "Executables",
   "AudioFiles": "Audio Files",
-  "WavOggFiles": "Audio Files",
+  "WavOggFlacFiles": "Audio Files",
   "WemFiles": "Wwise Audio Files",
   "XMLFiles": "Rocksmith Arrangement Files",
   "ImageFiles": "Image Files",

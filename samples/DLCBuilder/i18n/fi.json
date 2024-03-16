@@ -158,7 +158,7 @@
   "Language": "Kieli",
   "ExecutableFiles": "Ajotiedostot",
   "AudioFiles": "Äänitiedostot",
-  "WavOggFiles": "Äänitiedostot",
+  "WavOggFlacFiles": "Äänitiedostot",
   "WemFiles": "Wwise äänitiedostot",
   "XMLFiles": "Rocksmith sovitukset",
   "ImageFiles": "Kuvatiedostot",
