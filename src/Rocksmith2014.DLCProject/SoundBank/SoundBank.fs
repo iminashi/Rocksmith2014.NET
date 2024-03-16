@@ -280,7 +280,7 @@ let private hierarchy bankId soundId fileId name volume isPreview platform =
     memory
 
 /// Writes the chunk name, length and data into the writer.
-let private writeChunk (output: Stream) (writer: IBinaryWriter) name (data: Stream) =
+let private writeChunk (output: Stream) (writer: IBinaryWriter) (name: byte array) (data: Stream) =
     writer.WriteBytes name
     copyData output writer data
 
@@ -291,7 +291,7 @@ let generate name (audioStream: Stream) (output: Stream) volume (platform: Platf
     let soundID = RandomGenerator.next ()
 
     let writer = BinaryWriters.getWriter output platform
-    let write = writeChunk output writer
+    let write n d = writeChunk output writer n d
 
     let audioReader = BinaryReaders.getReader audioStream platform
     let isPreview = String.endsWith "_Preview" name

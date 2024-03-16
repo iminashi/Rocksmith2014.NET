@@ -42,7 +42,7 @@ let blockZip blockSize (deflatedData: ResizeArray<Stream>) (zLengths: ResizeArra
             let buffer = Array.zeroCreate<byte> size
             let! bytesRead = input.ReadAsync(buffer)
             let plainStream = new MemoryStream(buffer)
-            let zipStream = MemoryStreamPool.Default.GetStream("", size)
+            let zipStream = MemoryStreamPool.Default.GetStream("", size) :> MemoryStream
 
             let data, length =
                 zip size plainStream zipStream
