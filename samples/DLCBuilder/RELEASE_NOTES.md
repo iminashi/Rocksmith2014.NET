@@ -1,3 +1,8 @@
+## 3.0.0 (Released 2024-03-xx)
+
+- Updated to .NET 8.
+- Updated the UI framework to the latest version.
+
 ## 2.5.3 (Released 2024-02-25)
 
 - Replaced "Custom Tuning" with the note names of each string.
