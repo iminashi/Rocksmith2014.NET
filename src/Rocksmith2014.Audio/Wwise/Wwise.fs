@@ -96,9 +96,12 @@ let private getWwiseVersion executablePath =
         | Contains "2022" -> Wwise2022
         | _ -> Wwise2021
 
-let private createArgs templateDir =
-    Path.Combine(templateDir, "Template.wproj")
-    |> sprintf """generate-soundbank "%s" --platform "Windows" --language "English(US)" --no-decode --quiet"""
+let private createArgs isLinux templateDir =
+    let templatePath =
+        Path.Combine(templateDir, "Template.wproj")
+        |> fun path -> if isLinux then $"z:{path}" else path
+
+    $"""generate-soundbank "{templatePath}" --platform "Windows" --language "English(US)" --no-decode --quiet"""
 
 /// Converts the source audio file into a wem file.
 let convertToWem (cliPath: string option) (sourcePath: string) =
@@ -121,10 +124,11 @@ let convertToWem (cliPath: string option) (sourcePath: string) =
 
         try
             let startInfo =
-                let args = createArgs templateDir
+                let isLinux = OperatingSystem.IsLinux()
+                let args = createArgs isLinux templateDir
 
                 let fileName, arguments =
-                    if OperatingSystem.IsLinux() then
+                    if isLinux then
                         "wine", $"\"{cliPath}\" {args}"
                     else
                         cliPath, args

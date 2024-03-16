@@ -18,7 +18,7 @@ During the installation, check only "Authoring" in Packages and leave all Deploy
 
 On Windows the program will try to find the Wwise installation automatically using the WWISEROOT environment variable, which can be set from the Wwise Launcher, or from the default installation path in Program Files. You can also manually set the Wwise console executable path in the configuration.
 
-On Linux, Wine is used to run the Wwise console executable.
+On Linux, Wine is used to run the Wwise console executable. The Wwise conversion has been tested to work with Wwise 2022 files copied from a Windows installation.
 
 ## Test Build vs Release Build
 
