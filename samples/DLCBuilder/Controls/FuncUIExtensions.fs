@@ -7,15 +7,6 @@ open Avalonia.FuncUI.DSL
 open Avalonia.FuncUI.Types
 open Avalonia.FuncUI.Builder
 open Avalonia.Input
-open Avalonia.Media
-
-type PathIcon with
-    static member data<'t>(value: Geometry) : IAttr<'t> =
-        AttrBuilder<'t>.CreateProperty<Geometry>(PathIcon.DataProperty, value, ValueNone)
-
-module PathIcon =
-    let create (attrs: IAttr<PathIcon> list) : IView<PathIcon> =
-        ViewBuilder.Create<PathIcon>(attrs)
 
 module Panel =
     let create (attrs: IAttr<Panel> list) : IView<Panel> =
