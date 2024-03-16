@@ -537,11 +537,11 @@ let checkPhrases (arr: InstrumentalArrangement) =
 
             // Check for missing END phrase
             if not <| arr.Phrases.Exists(fun p -> String.equalsIgnoreCase "END" p.Name) then
-                issue NoEndPhrase 0
+                GeneralIssue NoEndPhrase
 
             // Check for more than 100 phrases
             if arr.PhraseIterations.Count > 100 then
-                issue MoreThan100Phrases 0
+                GeneralIssue MoreThan100Phrases
 
             // Check phrases that are moved
             yield! incorrectMover1Phrases
@@ -576,4 +576,7 @@ let runAllChecks (arr: InstrumentalArrangement) =
     allChecks
     |> List.collect (fun check -> check arr)
     |> List.distinct
-    |> List.sortBy (fun issue -> issue.TimeCode)
+    |> List.sortBy (fun issue ->
+        match issue with
+        | GeneralIssue _ -> 0
+        | IssueWithTimeCode (_, time) -> time)

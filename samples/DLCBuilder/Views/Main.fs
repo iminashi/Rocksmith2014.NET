@@ -25,10 +25,10 @@ let private arrangementList state dispatch =
             |> List.mapi (Templates.arrangement state dispatch))
     ]
 
-let private validationIcon state dispatch issues =
+let private validationIcon state dispatch (issues: Issue list) =
     let noActiveIssues =
         issues
-        |> List.forall (fun x -> state.Project.IgnoredIssues.Contains(issueCode x.Type))
+        |> List.forall (fun x -> state.Project.IgnoredIssues.Contains(issueCode x.IssueType))
 
     let hasOnlyIgnoredIssues = noActiveIssues && not issues.IsEmpty
 

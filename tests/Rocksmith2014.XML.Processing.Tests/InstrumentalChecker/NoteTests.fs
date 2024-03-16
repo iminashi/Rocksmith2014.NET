@@ -22,7 +22,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type UnpitchedSlideWithLinkNext "Correct issue type"
+            Expect.equal results.Head.IssueType UnpitchedSlideWithLinkNext "Correct issue type"
 
         testCase "Detects note with both harmonic and pinch harmonic" <| fun _ ->
             let notes = ResizeArray(seq { Note(IsPinchHarmonic = true, IsHarmonic = true) })
@@ -31,7 +31,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type DoubleHarmonic "Correct issue type"
+            Expect.equal results.Head.IssueType DoubleHarmonic "Correct issue type"
 
         testCase "Detects harmonic note on 7th fret with sustain" <| fun _ ->
             let notes = ResizeArray(seq { Note(Fret = 7y, IsHarmonic = true, Sustain = 200); Note(Fret = 7y, IsHarmonic = true) })
@@ -40,7 +40,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type SeventhFretHarmonicWithSustain "Correct issue type"
+            Expect.equal results.Head.IssueType SeventhFretHarmonicWithSustain "Correct issue type"
 
         testCase "Ignores harmonic note on 7th fret with sustain when ignore set" <| fun _ ->
             let notes = ResizeArray(seq { Note(Fret = 7y, IsHarmonic = true, Sustain = 200, IsIgnore = true) })
@@ -58,7 +58,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type MissingBendValue "Correct issue type"
+            Expect.equal results.Head.IssueType MissingBendValue "Correct issue type"
 
         testCase "Detects tone change that occurs on a note" <| fun _ ->
             let notes = ResizeArray(seq { Note(Time = 5555) })
@@ -67,7 +67,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type ToneChangeOnNote "Correct issue type"
+            Expect.equal results.Head.IssueType ToneChangeOnNote "Correct issue type"
 
         testCase "Detects note inside noguitar section" <| fun _ ->
             let notes = ResizeArray(seq { Note(Time = 6000) })
@@ -76,7 +76,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type NoteInsideNoguitarSection "Correct issue type"
+            Expect.equal results.Head.IssueType NoteInsideNoguitarSection "Correct issue type"
 
         testCase "Detects note inside last noguitar section" <| fun _ ->
             let notes = ResizeArray(seq { Note(Time = 9000) })
@@ -85,7 +85,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type NoteInsideNoguitarSection "Correct issue type"
+            Expect.equal results.Head.IssueType NoteInsideNoguitarSection "Correct issue type"
 
         testCase "Detects linknext fret mismatch" <| fun _ ->
             let notes = ResizeArray(seq {
@@ -97,7 +97,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type LinkNextFretMismatch "Correct issue type"
+            Expect.equal results.Head.IssueType LinkNextFretMismatch "Correct issue type"
 
         testCase "Detects note linked to a chord" <| fun _ ->
             let notes = ResizeArray(seq { Note(Fret = 1y, Time = 1000, IsLinkNext = true, Sustain = 100) })
@@ -108,7 +108,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type NoteLinkedToChord "Correct issue type"
+            Expect.equal results.Head.IssueType NoteLinkedToChord "Correct issue type"
 
         testCase "Detects linknext slide fret mismatch" <| fun _ ->
             let notes = ResizeArray(seq {
@@ -120,7 +120,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type LinkNextSlideMismatch "Correct issue type"
+            Expect.equal results.Head.IssueType LinkNextSlideMismatch "Correct issue type"
 
         testCase "Detects linknext bend value mismatch (1/2)" <| fun _ ->
             let bv1 = ResizeArray(seq { BendValue(1050, 1f) })
@@ -133,7 +133,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type LinkNextBendMismatch "Correct issue type"
+            Expect.equal results.Head.IssueType LinkNextBendMismatch "Correct issue type"
 
         testCase "Detects linknext bend value mismatch (2/2)" <| fun _ ->
             let bv1 = ResizeArray(seq { BendValue(1050, 1f) })
@@ -147,7 +147,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type LinkNextBendMismatch "Correct issue type"
+            Expect.equal results.Head.IssueType LinkNextBendMismatch "Correct issue type"
 
         testCase "Does not produce false positive when no bend value at note time" <| fun _ ->
             let bv1 = ResizeArray(seq { BendValue(1000, 1f); BendValue(1050, 0f) })
@@ -182,7 +182,7 @@ let noteTests =
             let results = checkNotes arr level
 
             Expect.hasLength results 1 "One issue was created"
-            Expect.equal results.Head.Type PhraseChangeOnLinkNextNote "Correct issue type"
+            Expect.equal results.Head.IssueType PhraseChangeOnLinkNextNote "Correct issue type"
 
         testCase "Mover phrase on linknext note's sustain is ignored" <| fun _ ->
             let notes = ResizeArray(seq {
@@ -215,7 +215,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type HopoIntoSameNote "Correct issue type"
+            Expect.equal results.Head.IssueType HopoIntoSameNote "Correct issue type"
 
         testCase "No false positive for hammer-on from nowhere" <| fun _ ->
             let notes = ResizeArray(seq {
@@ -240,7 +240,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type HopoIntoSameNote "Correct issue type"
+            Expect.equal results.Head.IssueType HopoIntoSameNote "Correct issue type"
 
         testCase "Detects pull-off into same fret from chord" <| fun _ ->
             let notes = ResizeArray([ Note(Fret = 1y, Time = 2000, IsPullOff = true) ])
@@ -254,7 +254,7 @@ let noteTests =
             let results = checkNotes arr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type HopoIntoSameNote "Correct issue type"
+            Expect.equal results.Head.IssueType HopoIntoSameNote "Correct issue type"
 
         testCase "No false positive for HOPO into same fret for pull-off from chord" <| fun _ ->
             let notes = ResizeArray(seq {
@@ -311,7 +311,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type FingerChangeDuringSlide "Correct issue type"
+            Expect.equal results.Head.IssueType FingerChangeDuringSlide "Correct issue type"
 
         testCase "Detects finger change during slide (no linknext)" <| fun _ ->
             let notes = ResizeArray(seq { Note(Fret = 3y, Time = 1300, SlideTo = 5y, Sustain = 500) })
@@ -321,7 +321,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type FingerChangeDuringSlide "Correct issue type"
+            Expect.equal results.Head.IssueType FingerChangeDuringSlide "Correct issue type"
 
         testCase "Ignores slide from low position where finger cannot be determined from anchor" <| fun _ ->
             let notes = ResizeArray(seq {
@@ -342,8 +342,8 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type FingerChangeDuringSlide "Correct issue type"
-            Expect.equal results.Head.TimeCode 4000 "Correct issue time"
+            Expect.equal results.Head.IssueType FingerChangeDuringSlide "Correct issue type"
+            Expect.equal results.Head.TimeCode (Some 4000) "Correct issue time"
 
         testCase "Detects position shift into pull-off" <| fun _ ->
             let notes = ResizeArray(seq {
@@ -356,7 +356,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type PositionShiftIntoPullOff "Correct issue type"
+            Expect.equal results.Head.IssueType PositionShiftIntoPullOff "Correct issue type"
 
         testCase "Position shift into open string pull-off is ignored" <| fun _ ->
             let notes = ResizeArray(seq {
@@ -381,7 +381,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type PositionShiftIntoPullOff "Correct issue type"
+            Expect.equal results.Head.IssueType PositionShiftIntoPullOff "Correct issue type"
 
         testCase "Overlapping bend values are detected" <| fun _ ->
             let notes = ResizeArray(seq {
@@ -392,7 +392,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type OverlappingBendValues "Correct issue type"
+            Expect.equal results.Head.IssueType OverlappingBendValues "Correct issue type"
 
         testCase "Natural harmonic with bend is detected" <| fun _ ->
             let notes = ResizeArray(seq {
@@ -403,7 +403,7 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type NaturalHarmonicWithBend "Correct issue type"
+            Expect.equal results.Head.IssueType NaturalHarmonicWithBend "Correct issue type"
 
         testCase "Invalid strings on bass arrangement are detected" <| fun _ ->
             let notes = ResizeArray(seq {
@@ -417,7 +417,7 @@ let noteTests =
             let results = checkNotes arr level
 
             Expect.hasLength results 2 "Two issues created"
-            Expect.all results (fun x -> x.Type = InvalidBassArrangementString) "Correct issue types"
+            Expect.all results (fun x -> x.IssueType = InvalidBassArrangementString) "Correct issue types"
 
         testCase "Fret numbers over 24 are detected" <| fun _ ->
             let notes = ResizeArray(seq {
@@ -429,8 +429,8 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results[0].Type FretNumberMoreThan24 "Correct issue type"
-            Expect.equal results[0].TimeCode 2000 "Correct issue time"
+            Expect.equal results[0].IssueType FretNumberMoreThan24 "Correct issue type"
+            Expect.equal results[0].TimeCode (Some 2000) "Correct issue time"
 
         testCase "Detects note after END phrase" <| fun _ ->
             let notes = ResizeArray(seq { Note(Fret = 1y, Time = 50_000) })
@@ -444,8 +444,8 @@ let noteTests =
             let results = checkNotes arr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results[0].Type NoteAfterSongEnd "Correct issue type"
-            Expect.equal results[0].TimeCode 50_000 "Correct issue time"
+            Expect.equal results[0].IssueType NoteAfterSongEnd "Correct issue type"
+            Expect.equal results[0].TimeCode (Some 50_000) "Correct issue time"
 
         testCase "Detects notes with techniques that require sustain" <| fun _ ->
             let notes = ResizeArray(seq {
@@ -459,5 +459,5 @@ let noteTests =
             let results = checkNotes testArr level
 
             Expect.hasLength results 4 "Four issue created"
-            Expect.all results (fun issue -> issue.Type = TechniqueNoteWithoutSustain) "Correct issue types"
+            Expect.all results (fun issue -> issue.IssueType = TechniqueNoteWithoutSustain) "Correct issue types"
     ]

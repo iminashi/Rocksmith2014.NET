@@ -401,7 +401,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
             let status =
                 InstrumentalArrangement.Load(file)
                 |> ArrangementChecker.checkInstrumental
-                |> List.map (fun issue -> $"[{Utils.timeToString issue.TimeCode}] {issue.Type}")
+                |> List.map (fun issue -> $"[{Option.map Utils.timeToString issue.TimeCode}] {issue.IssueType}")
                 |> function
                     | [] -> "No issues found."
                     | messages -> String.Join("\n", messages)

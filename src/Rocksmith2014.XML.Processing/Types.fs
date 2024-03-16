@@ -46,8 +46,18 @@ type IssueType =
     | IncorrectLowBassTuningForTuningPitch
 
 type Issue =
-    { Type: IssueType
-      TimeCode: int }
+    | GeneralIssue of issue: IssueType
+    | IssueWithTimeCode of issue: IssueType * time: int
+
+    member this.IssueType =
+        match this with
+        | GeneralIssue t -> t
+        | IssueWithTimeCode (t, _) -> t
+
+    member this.TimeCode =
+        match this with
+        | GeneralIssue _ -> None
+        | IssueWithTimeCode (_, time) -> Some time
 
 let issueCode = function
     | ApplauseEventWithoutEnd -> "I01"

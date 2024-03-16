@@ -17,7 +17,7 @@ let eventTests =
             let results = checkCrowdEventPlacement xml
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type ApplauseEventWithoutEnd "Correct issue type"
+            Expect.equal results.Head.IssueType ApplauseEventWithoutEnd "Correct issue type"
 
         testCase "Detects unexpected crowd speed event" <| fun _ ->
             let xml = InstrumentalArrangement()
@@ -28,7 +28,7 @@ let eventTests =
             let results = checkCrowdEventPlacement xml
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type (EventBetweenIntroApplause "e2") "Correct issue type"
+            Expect.equal results.Head.IssueType (EventBetweenIntroApplause "e2") "Correct issue type"
 
         testCase "Detects unexpected intro applause event" <| fun _ ->
             let xml = InstrumentalArrangement()
@@ -39,7 +39,7 @@ let eventTests =
             let results = checkCrowdEventPlacement xml
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type (EventBetweenIntroApplause "E3") "Correct issue type"
+            Expect.equal results.Head.IssueType (EventBetweenIntroApplause "E3") "Correct issue type"
 
         testCase "Detects unexpected outro applause event" <| fun _ ->
             let xml = InstrumentalArrangement()
@@ -50,7 +50,7 @@ let eventTests =
             let results = checkCrowdEventPlacement xml
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type (EventBetweenIntroApplause "D3") "Correct issue type"
+            Expect.equal results.Head.IssueType (EventBetweenIntroApplause "D3") "Correct issue type"
 
         testCase "Detects multiple unexpected events" <| fun _ ->
             let xml = InstrumentalArrangement()
@@ -76,7 +76,7 @@ let handshapeTests =
             let results = checkHandshapes testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type FingeringAnchorMismatch "Correct issue type"
+            Expect.equal results.Head.IssueType FingeringAnchorMismatch "Correct issue type"
 
         testCase "Logic ignores fingering using thumb" <| fun _ ->
             let hs = ResizeArray(seq { HandShape(6s, 1000, 1500) })
@@ -99,7 +99,7 @@ let anchorTests =
             let results = checkAnchors testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type AnchorInsideHandShape "Correct issue type"
+            Expect.equal results.Head.IssueType AnchorInsideHandShape "Correct issue type"
 
         testCase "No false positive for anchor at the start of handshape" <| fun _ ->
             let anchors = ResizeArray(seq { Anchor(1y, 100) })
@@ -118,7 +118,7 @@ let anchorTests =
             let results = checkAnchors testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type AnchorInsideHandShapeAtPhraseBoundary "Correct issue type"
+            Expect.equal results.Head.IssueType AnchorInsideHandShapeAtPhraseBoundary "Correct issue type"
 
         testCase "Ignores anchors on phrases that will be moved (handshape check)" <| fun _ ->
             let anchors = ResizeArray(seq { Anchor(1y, 6500) })
@@ -137,7 +137,7 @@ let anchorTests =
             let results = checkAnchors testArr level
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type AnchorCloseToUnpitchedSlide "Correct issue type"
+            Expect.equal results.Head.IssueType AnchorCloseToUnpitchedSlide "Correct issue type"
 
         testCase "Ignores anchors on phrases that will be moved (unpitched slide check)" <| fun _ ->
             let anchors = ResizeArray(seq { Anchor(1y, 6500) })
@@ -163,7 +163,7 @@ let phraseTests =
             let results = checkPhrases phraseTestArr
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type FirstPhraseNotEmpty "Correct issue type"
+            Expect.equal results.Head.IssueType FirstPhraseNotEmpty "Correct issue type"
 
         testCase "Detects missing END phrase" <| fun _ ->
             let phrases = ResizeArray(seq { Phrase("COUNT", 0uy, PhraseMask.None); Phrase("riff", 0uy, PhraseMask.None) })
@@ -175,7 +175,7 @@ let phraseTests =
             let results = checkPhrases noEndTestArr
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type NoEndPhrase "Correct issue type"
+            Expect.equal results.Head.IssueType NoEndPhrase "Correct issue type"
 
         testCase "Detects more than 100 phrases" <| fun _ ->
             let phrases =
@@ -198,7 +198,7 @@ let phraseTests =
             let results = checkPhrases noEndTestArr
 
             Expect.hasLength results 1 "One issue created"
-            Expect.equal results.Head.Type MoreThan100Phrases "Correct issue type"
+            Expect.equal results.Head.IssueType MoreThan100Phrases "Correct issue type"
     ]
 
 [<Tests>]

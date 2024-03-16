@@ -39,7 +39,7 @@ let check hasCustomFont (vocals: ResizeArray<Vocal>) =
       yield! findLongLyrics vocals
 
       if hasNoLineBreaks vocals then
-        yield issue LyricsHaveNoLineBreaks 0
+        yield GeneralIssue LyricsHaveNoLineBreaks
 
       // Check for characters not included in the default font
       if not hasCustomFont then

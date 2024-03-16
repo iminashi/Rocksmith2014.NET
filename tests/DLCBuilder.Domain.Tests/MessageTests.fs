@@ -326,7 +326,7 @@ let messageTests =
         testCase "ShowIssueViewer opens overlay when arrangement has issues" <| fun _ ->
             let lead = Instrumental testLead
             let project = { initialState.Project with Arrangements = [ lead; Vocals testVocals ] }
-            let issues = Map.ofList [ Arrangement.getId lead, [ { Type = ApplauseEventWithoutEnd; TimeCode = 0 } ] ]
+            let issues = Map.ofList [ Arrangement.getId lead, [ GeneralIssue ApplauseEventWithoutEnd ] ]
             let state = { initialState with Project = project; SelectedArrangementIndex = 0; ArrangementIssues = issues }
 
             let newState, _ = Main.update ShowIssueViewer state

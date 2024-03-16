@@ -11,4 +11,4 @@ let check (showLights: ResizeArray<ShowLight>) =
     if isValid then
         None
     else
-        Some(Utils.issue InvalidShowlights 0)
+        Some(GeneralIssue InvalidShowlights)

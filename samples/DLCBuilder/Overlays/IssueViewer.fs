@@ -83,27 +83,35 @@ let private viewForIssue dispatch issueType times canIgnore =
                 ]
             ]
 
-            // Issue Times
-            WrapPanel.create [
-                WrapPanel.maxWidth 600.
-                WrapPanel.children times
-            ]
+            if not <| List.isEmpty times then
+                // Issue Times
+                WrapPanel.create [
+                    WrapPanel.maxWidth 600.
+                    WrapPanel.children times
+                ]
         ]
     ] |> generalize
 
-let private toIssueView dispatch canIgnore issues =
+let private toIssueView dispatch (canIgnore: bool) (issues: Issue list) =
     issues
-    |> List.groupBy (fun issue -> issue.Type)
+    |> List.groupBy (fun issue -> issue.IssueType)
     |> List.map (fun (issueType, issues) ->
         let issueTimes =
             issues
-            |> List.map (fun issue ->
-                TextBlock.create [
-                    TextBlock.margin (10., 2.)
-                    TextBlock.fontSize 16.
-                    TextBlock.fontFamily Media.Fonts.monospace
-                    TextBlock.text (timeToString issue.TimeCode)
-                ] |> generalize)
+            |> List.choose (fun issue ->
+                match issue with
+                | GeneralIssue _ ->
+                    None
+                | IssueWithTimeCode (_, time) ->
+                    TextBlock.create [
+                        TextBlock.margin (10., 2.)
+                        TextBlock.fontSize 16.
+                        TextBlock.fontFamily Media.Fonts.monospace
+                        TextBlock.text (timeToString time)
+                    ]
+                    |> generalize
+                    |> Some
+            )
 
         viewForIssue dispatch issueType issueTimes canIgnore)
 
@@ -130,12 +138,12 @@ let view state dispatch (arrangement: Arrangement) =
             let ignored, active =
                 issues
                 |> List.partition (fun issue ->
-                    state.Project.IgnoredIssues.Contains(issueCode issue.Type))
+                    state.Project.IgnoredIssues.Contains(issueCode issue.IssueType))
 
             // Divide the active ones into important and minor issues
             let important, minor =
                 active
-                |> List.partition (fun x -> isImportant x.Type)
+                |> List.partition (fun x -> isImportant x.IssueType)
 
             {| Important = toIssueView dispatch true important
                Minor = toIssueView dispatch true minor

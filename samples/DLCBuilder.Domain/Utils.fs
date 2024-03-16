@@ -66,12 +66,10 @@ let previewPathFromMainAudio (audioPath: string) =
 let checkBassTuning (inst: Instrumental) =
     [
         if inst.TuningPitch > 230.0 && inst.Tuning |> Array.exists (fun t -> t < -4s) then
-            { Type = LowBassTuningWithoutWorkaround
-              TimeCode = 0 }
+            GeneralIssue LowBassTuningWithoutWorkaround
 
         if inst.TuningPitch <= 220.0 && inst.Tuning |> Array.exists (fun t -> t < 0s) then
-            { Type = IncorrectLowBassTuningForTuningPitch
-              TimeCode = 0 }
+            GeneralIssue IncorrectLowBassTuningForTuningPitch
     ]
 
 /// Checks an arrangement for issues.

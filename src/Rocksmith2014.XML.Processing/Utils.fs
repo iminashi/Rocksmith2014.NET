@@ -2,7 +2,7 @@ module Rocksmith2014.XML.Processing.Utils
 
 open Rocksmith2014.XML
 
-let internal issue type' time = { Type = type'; TimeCode = time }
+let internal issue type' time = IssueWithTimeCode(type', time)
 
 [<RequireQualifiedAccess>]
 module Option =

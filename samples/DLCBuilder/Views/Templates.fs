@@ -133,7 +133,7 @@ let arrangement state dispatch index arr =
     let noIssues =
         state.ArrangementIssues
         |> Map.tryFind (Arrangement.getId arr)
-        |> Option.map (List.forall (fun x -> state.Project.IgnoredIssues.Contains(issueCode x.Type)))
+        |> Option.map (List.forall (fun x -> state.Project.IgnoredIssues.Contains(issueCode x.IssueType)))
 
     let missingTones =
         match arr with

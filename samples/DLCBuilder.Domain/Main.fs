@@ -958,7 +958,7 @@ let update (msg: Msg) (state: State) =
                 issues
                 |> Map.values
                 |> List.concat
-                |> List.map (fun i -> issueCode i.Type)
+                |> List.map (fun i -> issueCode i.IssueType)
                 |> Set.ofList
 
             allIssues - project.IgnoredIssues
