@@ -548,7 +548,7 @@ let update (msg: Msg) (state: State) =
     | CreatePreviewAudio InitialSetup ->
         let task () =
             async {
-                let sourceFile = PreviewUtils.getOggOrWavAudio project
+                let sourceFile = PreviewUtils.getNonWemAudio project
                 let audioLength = Utils.getLength sourceFile
 
                 return

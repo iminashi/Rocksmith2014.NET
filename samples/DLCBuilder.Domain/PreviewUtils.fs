@@ -6,18 +6,21 @@ open Rocksmith2014.XML
 open System
 open System.IO
 
-/// Returns a path to the project's audio in wave or vorbis format.
-let getOggOrWavAudio (project: DLCProject) =
+/// Returns a path to the project's audio in a usable format.
+let getNonWemAudio (project: DLCProject) =
     let projectAudio = project.AudioFile.Path
 
     match projectAudio with
-    | HasExtension (".wav" | ".ogg") ->
+    | HasExtension (".wav" | ".ogg" | ".flac") ->
         projectAudio
     | _ ->
+        let flacFile = Path.ChangeExtension(projectAudio, "flac")
         let wavFile = Path.ChangeExtension(projectAudio, "wav")
         let oggFile = Path.ChangeExtension(projectAudio, "ogg")
         if File.Exists(wavFile) then
             wavFile
+        elif File.Exists(flacFile) then
+            flacFile
         elif File.Exists(oggFile) then
             oggFile
         else
@@ -27,7 +30,7 @@ let getOggOrWavAudio (project: DLCProject) =
 /// Creates a preview audio file for the project.
 let createAutoPreviewFile project =
     async {
-        let audioPath = getOggOrWavAudio project
+        let audioPath = getNonWemAudio project
         let targetPath = Utils.createPreviewAudioPath audioPath
 
         let previewStart =
