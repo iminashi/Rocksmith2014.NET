@@ -5,6 +5,7 @@
 - Four strings are displayed for the bass tuning when "Show advanced features" is disabled.
 - When adding a bass arrangement, the tuning for the nonexistent strings is set to match the tuning offset of the fourth string.
 - Added validation for low bass tuning issues.
+- Scroll speed and custom audio file are now displayed by default.
 - Added support for Wwise 2023.
 - Fixed the loading of the Wwise template on Linux.
 - Updated the UI framework to the latest version.
