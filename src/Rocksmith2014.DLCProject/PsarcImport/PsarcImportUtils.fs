@@ -77,9 +77,9 @@ let importVocals targetDirectory targetFile (attributes: Attributes) sng isJapan
     ImportedData.Vocals vocals
 
 /// Imports an instrumental SNG into an instrumental arrangement.
-let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile (attributes: Attributes) sng =
+let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) (targetPath: string) (attributes: Attributes) (sng: Rocksmith2014.SNG.SNG) =
     let xml = ConvertInstrumental.sngToXml (Some attributes) sng
-    xml.Save(targetFile)
+    xml.Save(targetPath)
 
     let arrProps = Option.get attributes.ArrangementProperties
 
@@ -103,7 +103,7 @@ let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) targetFile
             |> Array.tryFind (fun audio -> String.contains targetFilename audio.Path)
 
     { Id = ArrangementId.New
-      XmlPath = targetFile
+      XmlPath = targetPath
       Name = ArrangementName.Parse(attributes.ArrangementName)
       Priority =
         if arrProps.represent = 1uy then

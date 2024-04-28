@@ -112,7 +112,7 @@ let private importVocals (xmlFile: string) (arr: XmlNode) =
                     None
                 else
                     // Converts "path\to\x.glyphs.xml" to "x.dds"
-                    Some(Path.ChangeExtension(Path.GetFileNameWithoutExtension glyphDefs.InnerText, "dds"))))
+                    Some(Path.ChangeExtension(Path.GetFileNameWithoutExtension(glyphDefs.InnerText), "dds"))))
 
     { Id = ArrangementId.New
       XmlPath = xmlFile
