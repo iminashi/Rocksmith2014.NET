@@ -272,7 +272,6 @@ let view state dispatch (inst: Instrumental) =
             // Scroll speed
             locText "ScrollSpeed" [
                 Grid.row 8
-                TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
@@ -280,7 +279,6 @@ let view state dispatch (inst: Instrumental) =
                 Grid.column 1
                 Grid.row 8
                 ToolTip.tip (translate "ScrollSpeedToolTip")
-                NumericUpDown.isVisible state.Config.ShowAdvanced
                 NumericUpDown.horizontalAlignment HorizontalAlignment.Left
                 NumericUpDown.increment 0.1m
                 NumericUpDown.maximum 5.0m
@@ -343,14 +341,12 @@ let view state dispatch (inst: Instrumental) =
             // Custom audio file
             locText "CustomAudioFile" [
                 Grid.row 11
-                TextBlock.isVisible state.Config.ShowAdvanced
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.horizontalAlignment HorizontalAlignment.Center
             ]
             DockPanel.create [
                 Grid.column 1
                 Grid.row 11
-                DockPanel.isVisible state.Config.ShowAdvanced
                 DockPanel.children [
                     // Select audio file
                     iconButton Media.Icons.folderOpen [
@@ -392,7 +388,7 @@ let view state dispatch (inst: Instrumental) =
             ]
 
             // Custom audio volume
-            if state.Config.ShowAdvanced && inst.CustomAudio.IsSome then
+            if inst.CustomAudio.IsSome then
                 locText "Volume" [
                     Grid.row 12
                     TextBlock.verticalAlignment VerticalAlignment.Center
