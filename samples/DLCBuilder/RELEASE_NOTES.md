@@ -1,4 +1,4 @@
-## 3.0.0 (Released 2024-xx-xx)
+## 3.0.0 (Released 2024-05-04)
 
 - Updated to .NET 8.
 - Added support for reading FLAC files.
