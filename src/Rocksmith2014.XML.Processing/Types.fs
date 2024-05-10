@@ -38,7 +38,7 @@ type IssueType =
     | FretNumberMoreThan24
     | NoteAfterSongEnd
     | TechniqueNoteWithoutSustain
-    | LyricWithInvalidChar of invalidChar: char
+    | LyricWithInvalidChar of invalidChar: char * customFontUsed: bool
     | LyricTooLong of lyric: string
     | LyricsHaveNoLineBreaks
     | InvalidShowlights

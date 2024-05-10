@@ -80,8 +80,17 @@ let checkArrangement arrangement =
         |> ArrangementChecker.checkInstrumental
         |> fun issues -> if inst.RouteMask = RouteMask.Bass then checkBassTuning inst @ issues else issues
     | Vocals { CustomFont = font; XmlPath = xml } ->
+        let customFont =
+            font
+            |> Option.bind (fun fontPath ->
+                let glyphsPath = Path.ChangeExtension(fontPath, ".glyphs.xml")
+                if File.Exists(glyphsPath) then
+                    GlyphDefinitions.Load(glyphsPath) |> Some
+                else
+                    None)
+
         Vocals.Load(xml)
-        |> ArrangementChecker.checkVocals font.IsSome
+        |> ArrangementChecker.checkVocals customFont
     | Showlights sl ->
         ShowLights.Load(sl.XmlPath)
         |> ArrangementChecker.checkShowlights

@@ -1,6 +1,7 @@
 module Rocksmith2014.XML.Processing.VocalsChecker
 
 open Rocksmith2014.XML
+open System
 open System.Text
 open Utils
 
@@ -9,14 +10,27 @@ let [<Literal>] LyricsCharset =
 
 let [<Literal>] private MaxLengthExcludingNullTerminator = 47
 
-let private findInvalidCharLyric (vocals: ResizeArray<Vocal>) =
+let private findInvalidCharLyric (customCharSet: string option) (vocals: ResizeArray<Vocal>) =
+    let charSet =
+        customCharSet
+        |> Option.defaultValue LyricsCharset
+
     vocals
     |> ResizeArray.tryPick (fun vocal ->
-        vocal.Lyric
-        |> Seq.tryFindIndex (LyricsCharset.Contains >> not)
-        |> Option.map (fun i -> vocal, vocal.Lyric[i]))
+        let actualLyric =
+            let l = vocal.Lyric
+            if l.EndsWith('-') || l.EndsWith('+') then
+                l.AsSpan(0, l.Length - 1)
+            else
+                l.AsSpan()
+
+        let index = actualLyric.IndexOfAnyExcept(charSet.AsSpan())
+        if index < 0 then
+            None
+        else
+            Some (vocal, actualLyric[index]))
     |> Option.map (fun (invalidVocal, invalidChar) ->
-        issue (LyricWithInvalidChar invalidChar) invalidVocal.Time)
+        issue (LyricWithInvalidChar(invalidChar, customCharSet.IsSome)) invalidVocal.Time)
 
 let private isTooLong (vocal: Vocal) =
     Encoding.UTF8.GetByteCount(vocal.Lyric) > MaxLengthExcludingNullTerminator
@@ -34,13 +48,21 @@ let private hasNoLineBreaks (vocals: ResizeArray<Vocal>) =
     |> not
 
 /// Checks the vocals for issues.
-let check hasCustomFont (vocals: ResizeArray<Vocal>) =
-    [ // Check for too long lyrics
-      yield! findLongLyrics vocals
+let check (customFont: GlyphDefinitions option) (vocals: ResizeArray<Vocal>) =
+    let customCharSet =
+        customFont
+        |> Option.map (fun defs ->
+            defs.Glyphs
+            |> Seq.map (fun g -> g.Symbol)
+            |> String.Concat)
 
-      if hasNoLineBreaks vocals then
-        yield GeneralIssue LyricsHaveNoLineBreaks
+    [
+        // Check for too long lyrics
+        yield! findLongLyrics vocals
 
-      // Check for characters not included in the default font
-      if not hasCustomFont then
-         yield! findInvalidCharLyric vocals |> Option.toList ]
+        if hasNoLineBreaks vocals then
+            yield GeneralIssue LyricsHaveNoLineBreaks
+
+        // Check for characters not included in the font (default or custom)
+        yield! findInvalidCharLyric customCharSet vocals |> Option.toList
+    ]

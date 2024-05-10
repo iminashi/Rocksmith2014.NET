@@ -281,6 +281,8 @@
   "FingeringAnchorMismatchHelp": "Ankkuri (FHP) on samalla nauhalla, kuin soinnun alin nuotti, joka ei käytä ensimmäistä sormea. Usein tämä on virhe.",
   "LyricWithInvalidChar": "Sanoitus sisältää merkin ({0}), jota ei ole oletusfontissa",
   "LyricWithInvalidCharHelp": "Tarvitaan mukautettu fontti, jotta tämä merkki näkyy pelissä.",
+  "LyricWithInvalidCharCustomFont": "Sanoitus sisältää merkin ({0}), jota ei ole mukautetussa fontissa",
+  "LyricWithInvalidCharCustomFontHelp": "Mukautettu fontti pitää luoda uudestaan, jotta tämä merkki näkyy pelissä.",
   "LyricTooLong": "Seuraava sanoituksen osa on liian pitkä:\n\"{0}\"",
   "LyricTooLongHelp": "Suurin sallittu pituus sanoituksen osalle on 47 tavua UTF-8 koodattuna. Tätä pidemmät osat lyhennetään automaatisesti.",
   "LyricsHaveNoLineBreaks": "Sanoituksessa ei ole rivinvaihtoja",
