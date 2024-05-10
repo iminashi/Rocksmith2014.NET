@@ -41,11 +41,14 @@ let private findLongLyrics (vocals: ResizeArray<Vocal>) =
     |> Seq.map (fun vocal -> issue (LyricTooLong vocal.Lyric) vocal.Time)
 
 let private hasNoLineBreaks (vocals: ResizeArray<Vocal>) =
-    vocals
-    // EOF may include a line break for the last vocal
-    |> Seq.take (vocals.Count - 1)
-    |> Seq.exists (fun vocal -> vocal.Lyric.EndsWith('+'))
-    |> not
+    if vocals.Count = 0 then
+        false
+    else
+        vocals
+        // EOF may include a line break for the last vocal
+        |> Seq.take (vocals.Count - 1)
+        |> Seq.exists (fun vocal -> vocal.Lyric.EndsWith('+'))
+        |> not
 
 /// Checks the vocals for issues.
 let check (customFont: GlyphDefinitions option) (vocals: ResizeArray<Vocal>) =

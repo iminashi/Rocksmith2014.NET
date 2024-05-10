@@ -7,6 +7,13 @@ open Rocksmith2014.XML.Processing
 [<Tests>]
 let vocalsTests =
     testList "Arrangement Checker (Vocals)" [
+        testCase "No issues are returned for empty vocals" <| fun _ ->
+            let vocals = ResizeArray()
+
+            let result = VocalsChecker.check None vocals
+
+            Expect.isEmpty result "Checking completed without issues"
+
         testCase "Detects character not in default font" <| fun _ ->
             let vocals = ResizeArray(seq { Vocal(0, 50, "Test+"); Vocal(100, 50, "Nope:あ") })
 
