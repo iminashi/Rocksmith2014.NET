@@ -1,3 +1,7 @@
+## 3.1.0 (Released 2024-xx-xx)
+
+- Added validation that all characters used in the lyrics are found in a custom font.
+
 ## 3.0.0 (Released 2024-05-04)
 
 - Updated to .NET 8.
