@@ -76,9 +76,25 @@ let messageTests =
             Expect.isTrue cmd.IsEmpty "No command was returned"
 
         testCase "BuildComplete removes build task" <| fun _ ->
-            let newState, _ = Main.update (BuildComplete BuildCompleteType.Test) { initialState with RunningTasks = Set([ BuildPackage ]) }
+            let newState, _ = Main.update (BuildComplete (BuildCompleteType.Test, Map.empty)) { initialState with RunningTasks = Set([ BuildPackage ]) }
 
             Expect.isFalse (newState.RunningTasks.Contains BuildPackage) "Build task was removed"
+
+        testCase "BuildComplete updates arrangement tone keys" <| fun _ ->
+            let arrId = ArrangementId.New
+            let lead = { testLead with Id = arrId; Tones = [] }
+            let project = { initialState.Project with Arrangements = [ Instrumental lead ] }
+            let state = { initialState with Project = project; RunningTasks = Set([ BuildPackage ]) }
+            let toneKeysMap = Map [ arrId, [ "Tone_NEW"; "Tone_NEW_2" ] ]
+
+            let newState, _ = Main.update (BuildComplete (BuildCompleteType.Test, toneKeysMap)) state
+
+            let baseTone, toneKeys =
+                match newState.Project.Arrangements with
+                | [ Instrumental inst ] -> inst.BaseTone, inst.Tones
+                | _ -> failwith "Expected one instrumental arrangement"
+            Expect.equal toneKeys [ "Tone_NEW"; "Tone_NEW_2" ] "Tone keys were updated"
+            Expect.equal baseTone lead.BaseTone "Base tone key was not changed"
 
         testCase "ConversionComplete removes conversion task" <| fun _ ->
             let convertedFiles =  [| "audio.ogg" |]

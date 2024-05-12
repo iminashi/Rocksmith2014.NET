@@ -322,7 +322,7 @@ type Msg =
     | ShowLyricsViewer
     | ShowInstrumentalXmlDetailsViewer
     | Build of BuildType
-    | BuildComplete of BuildCompleteType
+    | BuildComplete of buildType: BuildCompleteType * toneKeysMap: Map<ArrangementId, string list>
     | WemConversionComplete of filesConverted: string array
     | CheckArrangement of arrangement: Arrangement
     | CheckArrangements

@@ -302,7 +302,7 @@ module Arrangement =
             Error(FailedWithException(path, ex))
 
     /// Reads the tone info from the arrangement's XML file.
-    let updateToneInfo (inst: Instrumental) updateBaseTone =
+    let updateToneInfo (updateBaseTone: bool) (inst: Instrumental) =
         let toneInfo = InstrumentalArrangement.ReadToneNames(inst.XmlPath)
 
         let tones =

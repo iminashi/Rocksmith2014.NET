@@ -323,7 +323,7 @@ module DLCProject =
             project.Arrangements
             |> List.map (function
                 | Instrumental inst when File.Exists(inst.XmlPath) ->
-                    Arrangement.updateToneInfo inst false
+                    Arrangement.updateToneInfo false inst
                     |> Instrumental
                 | other ->
                     other)

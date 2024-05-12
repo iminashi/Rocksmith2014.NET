@@ -44,9 +44,9 @@ let build (openProject: string option) (config: Configuration) (project: DLCProj
         let buildConfig =
             BuildConfig.create Release config (Some releaseDir) project (Set.toList config.ReleasePlatforms)
 
-        do! PackageBuilder.buildPackages path buildConfig project
+        let! toneKeysMap = PackageBuilder.buildPackages path buildConfig project
 
-        return (BuildCompleteType.Release releaseDir)
+        return (BuildCompleteType.Release releaseDir, toneKeysMap)
     }
 
 let private addPitchPedal index shift gearList =
@@ -103,9 +103,9 @@ let buildPitchShifted (openProject: string option) (config: Configuration) (proj
                 Arrangements = processArrangements shift project.Arrangements
                 Tones = pitchShiftTones shift project.Tones }
 
-        let! _ = build openProject config pitchProject
+        let! _, toneKeysMap = build openProject config pitchProject
 
-        return BuildCompleteType.PitchShifted
+        return BuildCompleteType.PitchShifted, toneKeysMap
     }
 
 let buildReplacePsarc quickEditData config project =
@@ -113,7 +113,7 @@ let buildReplacePsarc quickEditData config project =
         let platform = Platform.fromPackageFileName quickEditData.PsarcPath
         let buildConfig = BuildConfig.create (ReplacePsarc quickEditData) config None project [ platform ]
 
-        do! PackageBuilder.buildPackages (PackageBuilder.WithPlatformAndExtension quickEditData.PsarcPath) buildConfig project
+        let! _ = PackageBuilder.buildPackages (PackageBuilder.WithPlatformAndExtension quickEditData.PsarcPath) buildConfig project
 
-        return BuildCompleteType.ReplacePsarc
+        return (BuildCompleteType.ReplacePsarc, Map.empty)
     }

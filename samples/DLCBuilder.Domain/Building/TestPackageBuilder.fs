@@ -120,6 +120,6 @@ let build platform projectDir config project =
         let projectDir = projectDir |> Option.filter (fun _ -> config.ComparePhraseLevelsOnTestBuild)
         let buildConfig = BuildConfig.create Test config projectDir project [ platform ]
 
-        do! PackageBuilder.buildPackages path buildConfig project
-        return buildType
+        let! toneKeysMap = PackageBuilder.buildPackages path buildConfig project
+        return buildType, toneKeysMap
     }

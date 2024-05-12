@@ -353,85 +353,106 @@ let private createProgressReporter maximum =
             float current / float maximum * 100.)
 
 /// Builds packages for the given platforms.
-let buildPackages (targetPath: TargetPathType) (config: BuildConfig) (project: DLCProject) = async {
-    match targetPath with
-    | WithPlatformAndExtension _ when config.Platforms.Length > 1 ->
-        failwith "Build config is for multiple platforms, but path given specifies platform!"
-    | _ ->
-        ()
+let buildPackages (targetPath: TargetPathType) (config: BuildConfig) (project: DLCProject) =
+    async {
+        match targetPath with
+        | WithPlatformAndExtension _ when config.Platforms.Length > 1 ->
+            failwith "Build config is for multiple platforms, but path given specifies platform!"
+        | _ ->
+            ()
 
-    let! audioConversionTask =
-        config.AudioConversionTask
-        |> Async.StartChild
+        let! audioConversionTask =
+            config.AudioConversionTask
+            |> Async.StartChild
 
-    use coverArtFiles =
-        DDS.createCoverArtImages project.AlbumArtFile
-        |> toDisposableList
+        use coverArtFiles =
+            DDS.createCoverArtImages project.AlbumArtFile
+            |> toDisposableList
 
-    let partition = Partitioner.create project
+        let partition = Partitioner.create project
 
-    let progress =
-        match config.ProgressReporter with
-        | Some progress ->
-            let maximumProgress = 3 * config.Platforms.Length + 1
-            createProgressReporter maximumProgress >> progress.Report
-        | None ->
-            ignore
+        let progress =
+            match config.ProgressReporter with
+            | Some progress ->
+                let maximumProgress = 3 * config.Platforms.Length + 1
+                createProgressReporter maximumProgress >> progress.Report
+            | None ->
+                ignore
 
-    let sngs =
-        project.Arrangements
-        |> List.choose (fun arr ->
-            try
-                match arr with
-                | Instrumental inst ->
-                    let part = partition arr |> fst
+        let sngsWithTones =
+            project.Arrangements
+            |> List.choose (fun arr ->
+                try
+                    match arr with
+                    | Instrumental inst ->
+                        let part = partition arr |> fst
+                        let arrangement = setupInstrumental part inst config
+                        let sng = ConvertInstrumental.xmlToSng arrangement
 
-                    let sng =
-                        setupInstrumental part inst config
-                        |> ConvertInstrumental.xmlToSng
+                        Some(arr, sng, Some arrangement.Tones.Names)
+                    | Vocals v ->
+                        let dlcKey = project.DLCKey.ToLowerInvariant()
 
-                    Some(arr, sng)
-                | Vocals v ->
-                    let dlcKey = project.DLCKey.ToLowerInvariant()
+                        let sng =
+                            Vocals.Load(v.XmlPath)
+                            |> ConvertVocals.xmlToSng (getFontOption dlcKey v.Japanese v.CustomFont)
 
-                    let sng =
-                        Vocals.Load(v.XmlPath)
-                        |> ConvertVocals.xmlToSng (getFontOption dlcKey v.Japanese v.CustomFont)
+                        Some(arr, sng, None)
+                    | Showlights _ ->
+                        None
+                with e ->
+                    let failedFile = Arrangement.getFile arr |> Path.GetFileName
+                    raise <| Exception($"Converting file {failedFile} failed.\n\n{Utils.distinctExceptionMessages e}", e))
 
-                    Some(arr, sng)
-                | Showlights _ ->
-                    None
-            with e ->
-                let failedFile = Arrangement.getFile arr |> Path.GetFileName
-                raise <| Exception($"Converting file {failedFile} failed.\n\n{Utils.distinctExceptionMessages e}", e))
+        let sngs =
+            sngsWithTones
+            |> List.map (fun (arr, sng, _) -> arr, sng)
 
-    // Check if the arrangement IDs should be regenerated
-    let! replacements = checkArrangementIdRegeneration sngs project config
-    let project, sngs =
-        if replacements.IsEmpty then
-            project, sngs
-        else
-            applyReplacements replacements project sngs
+        let toneKeysMap =
+            sngsWithTones
+            |> List.choose (fun (arr, _, tonesOpt) ->
+                tonesOpt
+                |> Option.bind (fun tones ->
+                    tones
+                    |> Array.choose Option.ofString
+                    |> Array.toList
+                    |> function
+                        | [] ->
+                            None
+                        | toneKeysList ->
+                            Some (Arrangement.getId arr, toneKeysList)))
+            |> Map.ofList
 
-    progress ()
+        // Check if the arrangement IDs should be regenerated
+        let! replacements = checkArrangementIdRegeneration sngs project config
+        let project, sngs =
+            if replacements.IsEmpty then
+                project, sngs
+            else
+                applyReplacements replacements project sngs
 
-    // Check if a showlights arrangement is included
-    let project =
-        if project.Arrangements |> List.exists (Arrangement.pickShowlights >> Option.isSome) then
-            project
-        else
-            addShowLights sngs project
+        progress ()
 
-    let data =
-        { SNGs = sngs
-          CoverArtFiles = coverArtFiles
-          BuilderVersion = config.BuilderVersion
-          Author = config.Author
-          AppId = config.AppId
-          AudioConversionTask = audioConversionTask }
+        // Check if a showlights arrangement is included
+        let project =
+            if project.Arrangements |> List.exists (Arrangement.pickShowlights >> Option.isSome) then
+                project
+            else
+                addShowLights sngs project
 
-    do!
-        config.Platforms
-        |> List.map (build data progress targetPath project)
-        |> Async.Parallel
-        |> Async.Ignore }
+        let data =
+            { SNGs = sngs
+              CoverArtFiles = coverArtFiles
+              BuilderVersion = config.BuilderVersion
+              Author = config.Author
+              AppId = config.AppId
+              AudioConversionTask = audioConversionTask }
+
+        do!
+            config.Platforms
+            |> List.map (build data progress targetPath project)
+            |> Async.Parallel
+            |> Async.Ignore
+
+        return toneKeysMap
+    }

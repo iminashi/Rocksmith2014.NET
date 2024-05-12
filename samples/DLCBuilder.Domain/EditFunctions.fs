@@ -97,7 +97,7 @@ let editInstrumental state edit index inst =
             { inst with BaseTone = tone }, Cmd.none
 
         | UpdateToneInfo ->
-            Arrangement.updateToneInfo inst true, Cmd.none
+            Arrangement.updateToneInfo true inst, Cmd.none
 
         | SetScrollSpeed speed ->
             { inst with ScrollSpeed = speed }, Cmd.none

@@ -66,7 +66,7 @@ let tests =
             Directory.CreateDirectory(buildDir) |> ignore
 
             let! project = DLCProject.load projectPath
-            do! buildPackages (WithoutPlatformOrExtension psarcPath) buildConfig project |> Async.StartAsTask
+            let! _toneKeysMap = buildPackages (WithoutPlatformOrExtension psarcPath) buildConfig project |> Async.StartAsTask
 
             Expect.isTrue (File.Exists(psarcPathWin)) "PC package was built"
             Expect.isTrue (File.Exists(psarcPathMac)) "Mac package was built"

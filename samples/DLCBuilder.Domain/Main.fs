@@ -972,7 +972,7 @@ let update (msg: Msg) (state: State) =
         else
             buildPackage (ReleasePackageBuilder.build updatedState.OpenProjectFile) updatedState
 
-    | BuildComplete completed ->
+    | BuildComplete (completed, toneKeysMap) ->
         let message =
             match completed with
             | BuildCompleteType.TestNewVersion version ->
@@ -992,7 +992,23 @@ let update (msg: Msg) (state: State) =
                 Cmd.ofMsg (AddStatusMessage message)
             ]
 
-        removeTask BuildPackage state, cmd
+        let arrangementsWithUpdatedToneKeys =
+            state.Project.Arrangements
+            |> List.map (fun arr ->
+                match arr with
+                | Instrumental inst ->
+                    match toneKeysMap.TryFind inst.Id with
+                    | Some toneKeys ->
+                        Instrumental { inst with Tones = toneKeys }
+                    | None ->
+                        arr
+                | Vocals _
+                | Showlights _ ->
+                    arr)
+
+        let updatedState = { state with Project.Arrangements = arrangementsWithUpdatedToneKeys }
+
+        removeTask BuildPackage updatedState, cmd
 
     | WemConversionComplete files ->
         removeTask (WemConversion files) state,
