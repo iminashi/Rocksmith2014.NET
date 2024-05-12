@@ -1,6 +1,7 @@
 ## 3.1.0 (Released 2024-xx-xx)
 
 - Added validation that all characters used in the lyrics are found in a custom font.
+- The tone keys lists for arrangements are now updated when the project is built.
 
 ## 3.0.0 (Released 2024-05-04)
 
