@@ -317,7 +317,7 @@ module Tone =
     /// Imports a tone from a JSON stream.
     let fromJsonStream (stream: Stream) =
         backgroundTask {
-            let options = FSharpJsonOptions.Create(ignoreNull = JsonIgnoreCondition.WhenWritingNull)
+            let options = FSharpJsonOptions.Create(ignoreNull = true)
             let! dto = JsonSerializer.DeserializeAsync<ToneDto>(stream, options)
             return fromDto dto
         }
@@ -333,7 +333,7 @@ module Tone =
     let exportJson (path: string) (tone: Tone) =
         backgroundTask {
             use file = File.Create(path)
-            let options = FSharpJsonOptions.Create(indent = true, ignoreNull = JsonIgnoreCondition.WhenWritingNull)
+            let options = FSharpJsonOptions.Create(indent = true, ignoreNull = true)
             do! JsonSerializer.SerializeAsync(file, toDto tone, options)
         }
 

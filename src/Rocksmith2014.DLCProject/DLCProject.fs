@@ -302,7 +302,7 @@ module DLCProject =
     let save (path: string) (project: DLCProject) =
         backgroundTask {
             use file = File.Create(path)
-            let options = FSharpJsonOptions.Create(indent = true, ignoreNull = JsonIgnoreCondition.WhenWritingNull)
+            let options = FSharpJsonOptions.Create(indent = true, ignoreNull = true)
             let dto =
                 toRelativePaths (Path.GetDirectoryName(path)) project
                 |> toDto
@@ -312,7 +312,7 @@ module DLCProject =
     /// Loads a project from a file with the given filename.
     let load (path: string) =
         backgroundTask {
-            let options = FSharpJsonOptions.Create(indent = true, ignoreNull = JsonIgnoreCondition.WhenWritingNull)
+            let options = FSharpJsonOptions.Create(indent = true, ignoreNull = true)
             use file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan ||| FileOptions.Asynchronous)
             let! project = JsonSerializer.DeserializeAsync<Dto>(file, options)
             return toAbsolutePaths (Path.GetDirectoryName(path)) (fromDto project)

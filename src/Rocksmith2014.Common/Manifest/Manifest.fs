@@ -4,7 +4,6 @@ open System
 open System.IO
 open System.Text.Json
 open System.Text.Encodings.Web
-open System.Text.Json.Serialization
 open Rocksmith2014.Common
 
 type Manifest =
@@ -41,7 +40,7 @@ module Manifest =
         |> fun (_, container) -> container.Attributes
 
     let private options () =
-        FSharpJsonOptions.Create(indent = true, ignoreNull = JsonIgnoreCondition.WhenWritingNull)
+        FSharpJsonOptions.Create(indent = true, ignoreNull = true)
         |> apply (fun o -> o.Encoder <- JavaScriptEncoder.UnsafeRelaxedJsonEscaping)
 
     /// Serializes the manifest into a JSON string.
