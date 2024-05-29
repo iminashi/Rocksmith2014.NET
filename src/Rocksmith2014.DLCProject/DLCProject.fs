@@ -5,6 +5,7 @@ open Rocksmith2014.Common.Manifest
 open System
 open System.IO
 open System.Text.Json
+open System.Text.Json.Serialization
 
 type DLCProject =
     { Version: string
@@ -301,7 +302,7 @@ module DLCProject =
     let save (path: string) (project: DLCProject) =
         backgroundTask {
             use file = File.Create(path)
-            let options = FSharpJsonOptions.Create(indent = true, ignoreNull = true)
+            let options = FSharpJsonOptions.Create(indent = true, ignoreNull = JsonIgnoreCondition.WhenWritingNull)
             let dto =
                 toRelativePaths (Path.GetDirectoryName(path)) project
                 |> toDto
@@ -311,7 +312,7 @@ module DLCProject =
     /// Loads a project from a file with the given filename.
     let load (path: string) =
         backgroundTask {
-            let options = FSharpJsonOptions.Create(indent = true, ignoreNull = true)
+            let options = FSharpJsonOptions.Create(indent = true, ignoreNull = JsonIgnoreCondition.WhenWritingNull)
             use file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan ||| FileOptions.Asynchronous)
             let! project = JsonSerializer.DeserializeAsync<Dto>(file, options)
             return toAbsolutePaths (Path.GetDirectoryName(path)) (fromDto project)

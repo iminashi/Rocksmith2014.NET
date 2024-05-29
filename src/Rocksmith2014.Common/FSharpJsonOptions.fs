@@ -7,6 +7,6 @@ type FSharpJsonOptions() =
     static member Create(?indent, ?ignoreNull) =
         JsonSerializerOptions(
             WriteIndented = defaultArg indent false,
-            IgnoreNullValues = defaultArg ignoreNull false
+            DefaultIgnoreCondition = defaultArg ignoreNull JsonIgnoreCondition.Never
         )
         |> apply (fun options -> options.Converters.Add(JsonFSharpConverter()))
