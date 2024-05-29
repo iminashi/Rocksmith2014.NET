@@ -5,7 +5,6 @@ open Rocksmith2014.Common.Manifest
 open System
 open System.IO
 open System.Text.Json
-open System.Text.Json.Serialization
 
 type DLCProject =
     { Version: string
