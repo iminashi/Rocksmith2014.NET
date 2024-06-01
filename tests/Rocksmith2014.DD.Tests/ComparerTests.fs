@@ -4,7 +4,6 @@ open Expecto
 open Rocksmith2014.XML
 open Rocksmith2014.DD.Comparers
 
-
 [<Tests>]
 let maxSimilarityFastTests =
     testList "getMaxSimilarityFast Tests" [
@@ -314,7 +313,7 @@ let comparerTests =
 
         // [ 4   1 8 8 8 ]
         // [ 5 0 1 8 8 8 ]
-        testCase "Correct when starting note is different and different note in between" <| fun _ ->
+        testCase "Correct when starting note is different and one different note in between" <| fun _ ->
             let notes1 = [ Note(Time = 0, String = 0y, Fret = 4y)
                            Note(Time = 1, String = 0y, Fret = 1y)
                            Note(Time = 2, String = 0y, Fret = 8y)
@@ -333,7 +332,7 @@ let comparerTests =
 
         // [ 5             1 2 3 ]
         // [ 5 0 0 0 0 0 0 1 2 3 ]
-        testCase "Correct when starting 6 different notes in between" <| fun _ ->
+        testCase "Correct when 6 different notes in between" <| fun _ ->
             let notes1 = [ Note(Time = 0, String = 0y, Fret = 5y)
                            Note(Time = 1, String = 0y, Fret = 1y)
                            Note(Time = 2, String = 0y, Fret = 2y)
