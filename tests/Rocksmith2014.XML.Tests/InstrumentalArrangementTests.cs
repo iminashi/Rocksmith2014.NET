@@ -13,7 +13,7 @@ namespace Rocksmith2014.XML.Tests
         {
             var arr = InstrumentalArrangement.Load("instrumental.xml");
 
-            await arr.RemoveDD().ConfigureAwait(false);
+            await arr.RemoveDD();
 
             arr.Levels.Should().HaveCount(1);
         }
