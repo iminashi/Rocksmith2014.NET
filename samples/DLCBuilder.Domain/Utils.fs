@@ -119,7 +119,7 @@ let addDescriptors (tone: Tone) =
     { tone with
         ToneDescriptors = descs
         SortOrder = None
-        NameSeparator = " - " }
+        NameSeparator = Tone.DefaultNameSeparator }
 
 /// Converts the project's audio and preview audio files to wem.
 let convertAudio cliPath project =

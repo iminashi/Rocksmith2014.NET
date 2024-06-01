@@ -53,6 +53,8 @@ type Tone =
 
         sprintf "%s%s%s" this.Name key description
 
+    static member DefaultNameSeparator = " - "
+
 [<AllowNullLiteral; Sealed>]
 type PedalDto() =
     member val Type: string = null with get, set
@@ -84,7 +86,7 @@ type GearDto() =
 type ToneDto() =
     member val GearList: GearDto = null with get, set
     member val ToneDescriptors: string array = Array.empty with get, set
-    member val NameSeparator: string = " - " with get, set
+    member val NameSeparator: string = Tone.DefaultNameSeparator with get, set
     member val IsCustom: Nullable<bool> = Nullable() with get, set
     member val Volume: string = null with get, set
     member val MacVolume: string = null with get, set
@@ -185,21 +187,22 @@ module Tone =
                 fun name -> xmlNode.Item(name)
 
         let nodeText name = (node name).InnerText
+        let nodeTextOptional name =
+            match node name with
+            | null -> None
+            | node -> node.InnerText |> Option.ofString
 
-        let macVol = node "MacVolume"
-
-        { Tone.GearList = getGearList ns (node "GearList")
-          ToneDescriptors = getDescriptors (node "ToneDescriptors")
-          NameSeparator = nodeText "NameSeparator"
-          Volume = nodeText "Volume" |> volumeFromString
-          MacVolume =
-            macVol
-            |> Option.ofObj
-            |> Option.map (fun x -> volumeFromString x.InnerText)
-          Key = nodeText "Key"
-          Name = nodeText "Name"
-          // Sort order is not needed
-          SortOrder = None }
+        {
+            Tone.GearList = getGearList ns (node "GearList")
+            ToneDescriptors = getDescriptors (node "ToneDescriptors")
+            NameSeparator = nodeTextOptional "NameSeparator" |> Option.defaultValue Tone.DefaultNameSeparator
+            Volume = nodeText "Volume" |> volumeFromString
+            MacVolume = nodeTextOptional "MacVolume" |> Option.map volumeFromString
+            Key = nodeText "Key"
+            Name = nodeText "Name"
+            // Sort order is not needed
+            SortOrder = None
+        }
 
     /// Imports a tone from a Tone2014 XML file.
     let fromXmlFile (fileName: string) =
