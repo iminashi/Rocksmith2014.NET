@@ -51,7 +51,7 @@ let import progress (psarcPath: string) (targetDirectory: string) =
             |> List.map (fun file ->
                 async {
                     use! stream = psarc.GetEntryStream(file) |> Async.AwaitTask
-                    let! manifest =( Manifest.fromJsonStream stream).AsTask() |> Async.AwaitTask
+                    let! manifest = (Manifest.fromJsonStream stream).AsTask() |> Async.AwaitTask
                     return file, Manifest.getSingletonAttributes manifest
                 })
             |> Async.Sequential
@@ -157,7 +157,7 @@ let import progress (psarcPath: string) (targetDirectory: string) =
             |> Array.choose (fun (_, attr) -> Option.ofObj attr.Tones)
             |> Array.concat
             // Filter out null values and tones without amps
-            |> Array.filter (fun x -> notNull (box x) && notNull x.GearList.Amp)
+            |> Array.filter (fun x -> notNull x && notNull x.GearList.Amp)
             |> Array.distinctBy (fun x -> x.Key)
             |> Array.toList
             |> List.map toneFromDto

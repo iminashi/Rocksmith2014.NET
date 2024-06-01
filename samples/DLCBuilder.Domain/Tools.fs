@@ -23,9 +23,12 @@ module ToneInjector =
             tones
             |> Array.truncate 50
             |> Array.mapi (fun i tone ->
-                { Tone.toDto tone with
-                    SortOrder = Nullable(float32 (i + 1))
-                    IsCustom = Nullable(true) })
+                Tone.toDto tone
+                |> apply (fun dto ->
+                    dto.SortOrder <- Nullable(float32 (i + 1))
+                    dto.IsCustom <- Nullable(true)
+                )
+            )
 
         JArray.FromObject(dtos, JsonSerializer(NullValueHandling = NullValueHandling.Ignore))
 

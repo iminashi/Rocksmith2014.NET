@@ -77,11 +77,10 @@ let getUniqueTones (psarc: PSARC) =
                             | descs ->
                                 String.Join("|", Array.map ToneDescriptor.uiNameToName descs)
 
-                        let definition =
-                            JsonSerializer.Serialize(
-                                { dto with SortOrder = Nullable(); MacVolume = null },
-                                FSharpJsonOptions.Create(ignoreNull = true)
-                             )
+                        dto.SortOrder <- Nullable()
+                        dto.MacVolume <- null
+
+                        let definition = JsonSerializer.Serialize(dto, FSharpJsonOptions.Create(ignoreNull = true))
 
                         { Name = dto.Name |> String.truncate 100
                           Key = dto.Key

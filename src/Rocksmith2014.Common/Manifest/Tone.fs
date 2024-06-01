@@ -63,34 +63,34 @@ type PedalDto() =
     member val Skin: string = null with get, set
     member val SkinIndex: Nullable<float32> = Nullable() with get, set
 
-[<CLIMutable>]
-type GearDto =
-    { Rack1: PedalDto
-      Rack2: PedalDto
-      Rack3: PedalDto
-      Rack4: PedalDto
-      Amp: PedalDto
-      Cabinet: PedalDto
-      PrePedal1: PedalDto
-      PrePedal2: PedalDto
-      PrePedal3: PedalDto
-      PrePedal4: PedalDto
-      PostPedal1: PedalDto
-      PostPedal2: PedalDto
-      PostPedal3: PedalDto
-      PostPedal4: PedalDto }
+[<AllowNullLiteral; Sealed>]
+type GearDto() =
+    member val Rack1: PedalDto = null with get, set
+    member val Rack2: PedalDto = null with get, set
+    member val Rack3: PedalDto = null with get, set
+    member val Rack4: PedalDto = null with get, set
+    member val Amp: PedalDto = null with get, set
+    member val Cabinet: PedalDto = null with get, set
+    member val PrePedal1: PedalDto = null with get, set
+    member val PrePedal2: PedalDto = null with get, set
+    member val PrePedal3: PedalDto = null with get, set
+    member val PrePedal4: PedalDto = null with get, set
+    member val PostPedal1: PedalDto = null with get, set
+    member val PostPedal2: PedalDto = null with get, set
+    member val PostPedal3: PedalDto = null with get, set
+    member val PostPedal4: PedalDto = null with get, set
 
-[<CLIMutable>]
-type ToneDto =
-    { GearList: GearDto
-      ToneDescriptors: string array
-      NameSeparator: string
-      IsCustom: Nullable<bool>
-      Volume: string
-      MacVolume: string
-      Key: string
-      Name: string
-      SortOrder: Nullable<float32> }
+[<AllowNullLiteral; Sealed>]
+type ToneDto() =
+    member val GearList: GearDto = null with get, set
+    member val ToneDescriptors: string array = Array.empty with get, set
+    member val NameSeparator: string = " - " with get, set
+    member val IsCustom: Nullable<bool> = Nullable() with get, set
+    member val Volume: string = null with get, set
+    member val MacVolume: string = null with get, set
+    member val Key: string = null with get, set
+    member val Name: string = null with get, set
+    member val SortOrder: Nullable<float32> = Nullable() with get, set
 
 module Tone =
     [<Literal>]
@@ -236,7 +236,7 @@ module Tone =
           Skin = None
           SkinIndex = None }
 
-    let fromDto dto : Tone =
+    let fromDto (dto: ToneDto) : Tone =
         let gear =
             let fromDtoArray = Array.map (Option.ofObj >> Option.map pedalFromDto)
 
@@ -280,30 +280,36 @@ module Tone =
             |> Option.toObj
 
         let gear =
-            { Amp = toPedalDto tone.GearList.Amp
-              Cabinet = toPedalDto tone.GearList.Cabinet
-              PrePedal1 = tone.GearList.PrePedals |> tryGetPedal 0
-              PrePedal2 = tone.GearList.PrePedals |> tryGetPedal 1
-              PrePedal3 = tone.GearList.PrePedals |> tryGetPedal 2
-              PrePedal4 = tone.GearList.PrePedals |> tryGetPedal 3
-              PostPedal1 = tone.GearList.PostPedals |> tryGetPedal 0
-              PostPedal2 = tone.GearList.PostPedals |> tryGetPedal 1
-              PostPedal3 = tone.GearList.PostPedals |> tryGetPedal 2
-              PostPedal4 = tone.GearList.PostPedals |> tryGetPedal 3
-              Rack1 = tone.GearList.Racks |> tryGetPedal 0
-              Rack2 = tone.GearList.Racks |> tryGetPedal 1
-              Rack3 = tone.GearList.Racks |> tryGetPedal 2
-              Rack4 = tone.GearList.Racks |> tryGetPedal 3 }
+            GearDto(
+                Amp = toPedalDto tone.GearList.Amp,
+                Cabinet = toPedalDto tone.GearList.Cabinet,
+                PrePedal1 = tryGetPedal 0 tone.GearList.PrePedals,
+                PrePedal2 = tryGetPedal 1 tone.GearList.PrePedals,
+                PrePedal3 = tryGetPedal 2 tone.GearList.PrePedals,
+                PrePedal4 = tryGetPedal 3 tone.GearList.PrePedals,
+                PostPedal1 = tryGetPedal 0 tone.GearList.PostPedals,
+                PostPedal2 = tryGetPedal 1 tone.GearList.PostPedals,
+                PostPedal3 = tryGetPedal 2 tone.GearList.PostPedals,
+                PostPedal4 = tryGetPedal 3 tone.GearList.PostPedals,
+                Rack1 = tryGetPedal 0 tone.GearList.Racks,
+                Rack2 = tryGetPedal 1 tone.GearList.Racks,
+                Rack3 = tryGetPedal 2 tone.GearList.Racks,
+                Rack4 = tryGetPedal 3 tone.GearList.Racks
+            )
 
-        { GearList = gear
-          ToneDescriptors = tone.ToneDescriptors
-          NameSeparator = tone.NameSeparator
-          IsCustom = Nullable(true)
-          Volume = volumeToString tone.Volume
-          MacVolume = tone.MacVolume |> Option.map volumeToString |> Option.toObj
-          Key = tone.Key
-          Name = tone.Name
-          SortOrder = Option.toNullable tone.SortOrder }
+        let macVolume = tone.MacVolume |> Option.map volumeToString |> Option.toObj
+
+        ToneDto(
+            GearList = gear,
+            ToneDescriptors = tone.ToneDescriptors,
+            NameSeparator = tone.NameSeparator,
+            IsCustom = Nullable(true),
+            Volume = volumeToString tone.Volume,
+            MacVolume = macVolume,
+            Key = tone.Key,
+            Name = tone.Name,
+            SortOrder = Option.toNullable tone.SortOrder
+        )
 
     /// Returns the number of effects used in the gear list.
     let getEffectCount (gearList: Gear) =
