@@ -257,8 +257,7 @@ module Configuration =
             else
                 try
                     use file = File.OpenRead(configFilePath)
-                    let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
-                    let! dto = JsonSerializer.DeserializeAsync<Dto>(file, options)
+                    let! dto = JsonSerializer.DeserializeAsync<Dto>(file)
                     return fromDto t dto
                 with _ ->
                     return Configuration.Default
@@ -268,6 +267,6 @@ module Configuration =
     let save (config: Configuration) =
         backgroundTask {
             use file = File.Create(configFilePath)
-            let options = JsonSerializerOptions(WriteIndented = true, IgnoreNullValues = true)
+            let options = FSharpJsonOptions.Create(indent = true, ignoreNull = true)
             do! JsonSerializer.SerializeAsync(file, toDto config, options)
         }
