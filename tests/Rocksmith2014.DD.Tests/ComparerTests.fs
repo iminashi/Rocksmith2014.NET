@@ -35,7 +35,7 @@ let maxSimilarityFastTests =
 
 [<Tests>]
 let comparerTests =
-    testList "Same Element Count Tests" [
+    testList "Same Item Count Tests" [
         testCase "Count is zero for different notes" <| fun _ ->
             let notes1 = [ Note(Time = 25, String = 0y, Fret = 1y)
                            Note(Time = 50, String = 0y, Fret = 5y)
@@ -44,7 +44,7 @@ let comparerTests =
                            Note(Time = 175, String = 0y, Fret = 4y)
                            Note(Time = 200, String = 1y, Fret = 8y) ]
 
-            let sameCount = getSameElementCount sameNote notes1 notes2
+            let sameCount = getSameItemCount sameNote notes1 notes2
 
             Expect.equal sameCount 0 "Count is correct"
 
@@ -56,7 +56,7 @@ let comparerTests =
                            Note(Time = 175, String = 0y, Fret = 13y)
                            Note(Time = 200, String = 1y, Fret = 12y) ]
 
-            let sameCount = getSameElementCount sameNote notes1 notes2
+            let sameCount = getSameItemCount sameNote notes1 notes2
 
             Expect.equal sameCount notes1.Length "Count is correct"
 
@@ -66,7 +66,7 @@ let comparerTests =
             let chords2 = [ Chord(Time = 500, ChordId = 50s)
                             Chord(Time = 625, ChordId = 25s, Mask = ChordMask.FretHandMute) ]
 
-            let sameCount = getSameElementCount sameChord chords1 chords2
+            let sameCount = getSameItemCount sameChord chords1 chords2
 
             Expect.equal sameCount chords1.Length "Count is correct"
 
@@ -79,7 +79,7 @@ let comparerTests =
                            Note(Time = 175, String = 0y, Fret = 13y)
                            Note(Time = 200, String = 1y, Fret = 12y) ]
 
-            let sameCount = getSameElementCount sameNote notes1 notes2
+            let sameCount = getSameItemCount sameNote notes1 notes2
 
             Expect.equal sameCount 3 "Count is correct"
 
@@ -92,7 +92,7 @@ let comparerTests =
                            Note(Time = 175, String = 0y, Fret = 13y)
                            Note(Time = 200, String = 1y, Fret = 12y) ]
 
-            let sameCount = getSameElementCount sameNote notes1 notes2
+            let sameCount = getSameItemCount sameNote notes1 notes2
 
             Expect.equal sameCount 3 "Count is correct"
 
@@ -105,7 +105,7 @@ let comparerTests =
                            Note(Time = 175, String = 0y, Fret = 13y)
                            Note(Time = 200, String = 1y, Fret = 12y) ]
 
-            let sameCount = getSameElementCount sameNote notes1 notes2
+            let sameCount = getSameItemCount sameNote notes1 notes2
 
             Expect.equal sameCount 3 "Count is correct"
 
@@ -118,7 +118,7 @@ let comparerTests =
                            Note(Time = 175, String = 0y, Fret = 13y)
                            Note(Time = 200, String = 1y, Fret = 12y) ]
 
-            let sameCount = getSameElementCount sameNote notes1 notes2
+            let sameCount = getSameItemCount sameNote notes1 notes2
 
             Expect.equal sameCount 3 "Count is correct"
 
@@ -132,7 +132,7 @@ let comparerTests =
                            Note(Time = 175, String = 0y, Fret = 13y)
                            Note(Time = 200, String = 1y, Fret = 12y) ]
 
-            let sameCount = getSameElementCount sameNote notes1 notes2
+            let sameCount = getSameItemCount sameNote notes1 notes2
 
             Expect.equal sameCount 3 "Count is correct"
 
@@ -146,7 +146,7 @@ let comparerTests =
                            Note(Time = 155, String = 1y, Fret = 13y)
                            Note(Time = 200, String = 1y, Fret = 12y) ]
 
-            let sameCount = getSameElementCount sameNote notes1 notes2
+            let sameCount = getSameItemCount sameNote notes1 notes2
 
             Expect.equal sameCount 3 "Count is correct"
 
@@ -160,7 +160,7 @@ let comparerTests =
                            Note(Time = 175, String = 0y, Fret = 13y)
                            Note(Time = 200, String = 1y, Fret = 12y) ]
 
-            let sameCount = getSameElementCount sameNote notes1 notes2
+            let sameCount = getSameItemCount sameNote notes1 notes2
 
             Expect.equal sameCount 3 "Count is correct"
 
@@ -174,7 +174,7 @@ let comparerTests =
                            Note(Time = 175, String = 0y, Fret = 13y)
                            Note(Time = 200, String = 1y, Fret = 12y) ]
 
-            let sameCount = getSameElementCount sameNote notes1 notes2
+            let sameCount = getSameItemCount sameNote notes1 notes2
 
             Expect.equal sameCount 3 "Count is correct"
 
@@ -190,7 +190,7 @@ let comparerTests =
                            Note(Time = 175, String = 0y, Fret = 5y)
                            Note(Time = 200, String = 0y, Fret = 4y) ]
 
-            let sameCount = getSameElementCount sameNote notes1 notes2
+            let sameCount = getSameItemCount sameNote notes1 notes2
 
             Expect.equal sameCount 4 "Count is correct"
 
@@ -206,7 +206,7 @@ let comparerTests =
                            Note(Time = 175, String = 0y, Fret = 5y)
                            Note(Time = 200, String = 0y, Fret = 4y) ]
 
-            let sameCount = getSameElementCount sameNote notes1 notes2
+            let sameCount = getSameItemCount sameNote notes1 notes2
 
             Expect.equal sameCount 4 "Count is correct"
 
@@ -308,7 +308,7 @@ let comparerTests =
                   Note(Time = 238936, Fret = 5y, String = 5y); Note(Time = 239077, Fret = 7y, String = 5y)
                   Note(Time = 239217, Fret = 5y, String = 5y); Note(Time = 239357, Fret = 7y, String = 4y)]
 
-            getSameElementCount sameNote notes1 notes2 |> ignore
+            getSameItemCount sameNote notes1 notes2 |> ignore
 
             Expect.isTrue true "An eternity has not passed by"
 
@@ -327,7 +327,7 @@ let comparerTests =
                            Note(Time = 200, String = 0y, Fret = 8y)
                            Note(Time = 225, String = 0y, Fret = 8y) ]
 
-            let sameCount = getSameElementCount sameNote notes1 notes2
+            let sameCount = getSameItemCount sameNote notes1 notes2
 
             Expect.equal sameCount 4 "Count is correct"
 
@@ -349,7 +349,53 @@ let comparerTests =
                            Note(Time = 210, String = 0y, Fret = 2y)
                            Note(Time = 220, String = 0y, Fret = 3y) ]
 
-            let sameCount = getSameElementCount sameNote notes1 notes2
+            let sameCount = getSameItemCount sameNote notes1 notes2
 
             Expect.equal sameCount 4 "Count is correct"
+
+        // [   1 2 3 1 2 3 0 ]
+        // [ 0 1 2 3 1 2 3   ]
+        testCase "Correct when different starting and ending note 1/2" <| fun _ ->
+            let notes1 = [ Note(Time = 0, String = 0y, Fret = 1y)
+                           Note(Time = 1, String = 0y, Fret = 2y)
+                           Note(Time = 2, String = 0y, Fret = 3y)
+                           Note(Time = 3, String = 0y, Fret = 1y)
+                           Note(Time = 4, String = 0y, Fret = 2y)
+                           Note(Time = 5, String = 0y, Fret = 3y)
+                           Note(Time = 6, String = 0y, Fret = 0y) ]
+
+            let notes2 = [ Note(Time = 0, String = 0y, Fret = 0y)
+                           Note(Time = 1, String = 0y, Fret = 1y)
+                           Note(Time = 2, String = 0y, Fret = 2y)
+                           Note(Time = 3, String = 0y, Fret = 3y)
+                           Note(Time = 4, String = 0y, Fret = 1y)
+                           Note(Time = 5, String = 0y, Fret = 2y)
+                           Note(Time = 6, String = 0y, Fret = 3y) ]
+
+            let sameCount = getSameItemCount sameNote notes1 notes2
+
+            Expect.equal sameCount 6 "Count is correct"
+
+        // [ 0 1 2 3 1 2 3   ]
+        // [   1 2 3 1 2 3 0 ]
+        testCase "Correct when different starting and ending note 2/2" <| fun _ ->
+            let notes1 = [ Note(Time = 0, String = 0y, Fret = 0y)
+                           Note(Time = 1, String = 0y, Fret = 1y)
+                           Note(Time = 2, String = 0y, Fret = 2y)
+                           Note(Time = 3, String = 0y, Fret = 3y)
+                           Note(Time = 4, String = 0y, Fret = 1y)
+                           Note(Time = 5, String = 0y, Fret = 2y)
+                           Note(Time = 6, String = 0y, Fret = 3y) ]
+
+            let notes2 = [ Note(Time = 0, String = 0y, Fret = 1y)
+                           Note(Time = 1, String = 0y, Fret = 2y)
+                           Note(Time = 2, String = 0y, Fret = 3y)
+                           Note(Time = 3, String = 0y, Fret = 1y)
+                           Note(Time = 4, String = 0y, Fret = 2y)
+                           Note(Time = 5, String = 0y, Fret = 3y)
+                           Note(Time = 6, String = 0y, Fret = 0y) ]
+
+            let sameCount = getSameItemCount sameNote notes1 notes2
+
+            Expect.equal sameCount 6 "Count is correct"
     ]

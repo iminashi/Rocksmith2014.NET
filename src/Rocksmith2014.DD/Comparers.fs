@@ -52,27 +52,58 @@ let sameChords (chords1: Chord list) (chords2: Chord list) =
         (chords1, chords2)
         ||> List.forall2 sameChord
 
-/// Calculates the number of same elements in the lists, when the order of the elements matters.
-let getSameElementCount eq elems1 elems2 =
+let private skipWhileNot eq elem list =
+    let rec doSkip remaining =
+        match remaining with
+        | [] ->
+            ValueNone
+        | head :: tail when not <| eq head elem ->
+            doSkip tail
+        | _ :: tail ->
+            ValueSome tail
+
+    doSkip list
+
+/// Calculates the number of same items in two lists, when the order of the items matters.
+let getSameItemCount (equal: 'a -> 'a -> bool) (input1: 'a list) (input2: 'a list) =
     let rec getCount count len1 len2 list1 list2 =
         match list1, list2 with
-        | head1 :: tail1, head2 :: tail2 when eq head1 head2 ->
+        | head1 :: tail1, head2 :: tail2 when equal head1 head2 ->
+            // First items match, continue count
             getCount (count + 1) (len1 - 1) (len2 - 1) tail1 tail2
-        | _ :: tail1, _ :: tail2 ->
+        | head1 :: tail1, head2 :: tail2 ->
+            // Skip items until the list lengths are the same
             if len1 > len2 then
                 getCount count (len1 - 1) len2 tail1 list2
             elif len1 < len2 then
                 getCount count len1 (len2 - 1) list1 tail2
             else
-                getCount count (len1 - 1) (len2 - 1) tail1 tail2
+                // Same lengths, skip items until the next match for both lists
+                let newTail1 = skipWhileNot equal head2 tail1
+                let newTail2 = skipWhileNot equal head1 tail2
+
+                match newTail1, newTail2 with
+                | ValueNone, _
+                | _, ValueNone ->
+                    // Skip both
+                    getCount count (len1 - 1) (len2 - 1) tail1 tail2
+                | ValueSome newTail1, ValueSome newTail2 ->
+                    // Select the new lists to use based on which skipped the least items
+                    let newLen1 = List.length newTail1
+                    let newLen2 = List.length newTail2
+
+                    if newLen1 >= newLen2 then
+                        getCount (count + 1) newLen1 (len2 - 1) newTail1 tail2
+                    else
+                        getCount (count + 1) (len1 - 1) newLen2 tail1 newTail2
         | _ ->
             count
 
     // Precalculate since getting the list length is O(N)
-    let l1 = List.length elems1
-    let l2 = List.length elems2
+    let l1 = List.length input1
+    let l2 = List.length input2
 
-    getCount 0 l1 l2 elems1 elems2
+    getCount 0 l1 l2 input1 input2
 
 /// Calculates the similarity in percents between the two lists.
 let getSimilarityPercent eq l1 l2 =
@@ -82,7 +113,7 @@ let getSimilarityPercent eq l1 l2 =
     | [], _ | _, [] ->
         0.
     | _ ->
-        let sameCount = getSameElementCount eq l1 l2 |> float
+        let sameCount = getSameItemCount eq l1 l2 |> float
         let maxCount = max l1.Length l2.Length |> float
         100. * sameCount / maxCount
 
