@@ -72,7 +72,9 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfAsync.either task () SetAudioLength ErrorOccurred
 
     | SetAudioLength length ->
-        { state with AudioLength = length }, Cmd.none
+        { state with
+            Project = { state.Project with AudioFileLength = length }
+            AudioLength = length }, Cmd.none
 
     | SetEditedPsarcAppId appId ->
         let quickEditData =

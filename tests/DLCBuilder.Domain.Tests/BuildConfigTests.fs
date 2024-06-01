@@ -27,6 +27,7 @@ let project =
       Year = DateTime.Now.Year
       AlbumArtFile = ""
       AudioFile = AudioFile.Empty
+      AudioFileLength = None
       AudioPreviewFile = AudioFile.Empty
       AudioPreviewStartTime = None
       PitchShift = None

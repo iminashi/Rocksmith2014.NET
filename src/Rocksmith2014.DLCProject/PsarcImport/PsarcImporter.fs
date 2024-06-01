@@ -200,6 +200,7 @@ let import progress (psarcPath: string) (targetDirectory: string) =
               Year = metaData.SongYear |> Option.ofNullable |> Option.defaultValue 0
               AlbumArtFile = toTargetPath "cover.dds"
               AudioFile = mainAudio
+              AudioFileLength = None
               AudioPreviewFile = previewAudio
               AudioPreviewStartTime = None
               PitchShift = None

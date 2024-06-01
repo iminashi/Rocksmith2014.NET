@@ -218,6 +218,7 @@ let import (templatePath: string) =
       AudioFile =
         { Path = audioPath
           Volume = float (itemText docEl "Volume") }
+      AudioFileLength = None
       AudioPreviewFile =
         { Path = previewPath
           Volume = float (itemText docEl "PreviewVolume") }

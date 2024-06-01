@@ -22,7 +22,6 @@ open Rocksmith2014.XML
 open Rocksmith2014.XML.Processing
 open System
 open System.IO
-open System.Threading.Tasks
 
 let project =
     { Version = "1.0"
@@ -35,6 +34,7 @@ let project =
       Year = 1999
       AlbumArtFile = "cover.dds"
       AudioFile = { Path = "audio.wem"; Volume = 12. }
+      AudioFileLength = None
       AudioPreviewFile = { Path = "preview.wem"; Volume = 12. }
       AudioPreviewStartTime = None
       PitchShift = None

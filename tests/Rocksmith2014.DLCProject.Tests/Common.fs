@@ -73,6 +73,7 @@ let testProject =
       Year = 2020
       AlbumArtFile = "cover.dds"
       AudioFile = { Path = "audio.ogg"; Volume = 1. }
+      AudioFileLength = None
       AudioPreviewFile = { Path = "audio_preview.wav"; Volume = 1. }
       AudioPreviewStartTime = None
       PitchShift = None

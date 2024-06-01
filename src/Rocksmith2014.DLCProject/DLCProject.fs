@@ -18,6 +18,7 @@ type DLCProject =
       Year: int
       AlbumArtFile: string
       AudioFile: AudioFile
+      AudioFileLength: TimeSpan option
       AudioPreviewFile: AudioFile
       AudioPreviewStartTime: TimeSpan option
       PitchShift: int16 option
@@ -37,6 +38,7 @@ type DLCProject =
           Year = DateTime.Now.Year
           AlbumArtFile = String.Empty
           AudioFile = AudioFile.Empty
+          AudioFileLength = None
           AudioPreviewFile = AudioFile.Empty
           AudioPreviewStartTime = None
           PitchShift = None
@@ -164,23 +166,30 @@ module DLCProject =
         member val Year: int = DateTime.Now.Year with get, set
         member val AlbumArtFile: string = String.Empty with get, set
         member val AudioFile: AudioFile = AudioFile.Empty with get, set
-        member val AudioPreviewFile = AudioFile.Empty with get, set
-        member val AudioPreviewStartTime = Nullable<float>() with get, set
-        member val PitchShift = Nullable<int16>() with get, set
+        member val AudioFileLength: Nullable<float> = Nullable<float>() with get, set
+        member val AudioPreviewFile: AudioFile = AudioFile.Empty with get, set
+        member val AudioPreviewStartTime: Nullable<float> = Nullable<float>() with get, set
+        member val PitchShift: Nullable<int16> = Nullable<int16>() with get, set
         member val IgnoredIssues: string array = Array.empty with get, set
         member val Arrangements: ArrangementDto array = Array.empty with get, set
         member val Tones: ToneDto array = Array.empty with get, set
 
     let private toDto (project: DLCProject) =
+        let optionalTimeSpanToSeconds (ts: TimeSpan option) =
+            ts
+            |> Option.map _.TotalSeconds
+            |> Option.toNullable
+
         let tones =
             project.Tones
             |> List.map Tone.toDto
             |> Array.ofList
 
         let previewStart =
-            project.AudioPreviewStartTime
-            |> Option.map (fun x -> float x.TotalSeconds)
-            |> Option.toNullable
+            optionalTimeSpanToSeconds project.AudioPreviewStartTime
+
+        let audioLength =
+            optionalTimeSpanToSeconds project.AudioFileLength
 
         let arrangements =
             project.Arrangements
@@ -199,6 +208,7 @@ module DLCProject =
             Year = project.Year,
             AlbumArtFile = project.AlbumArtFile,
             AudioFile = project.AudioFile,
+            AudioFileLength = audioLength,
             AudioPreviewFile = project.AudioPreviewFile,
             AudioPreviewStartTime = previewStart,
             PitchShift = Option.toNullable project.PitchShift,
@@ -208,6 +218,8 @@ module DLCProject =
         )
 
     let private fromDto (dto: Dto) =
+        let getOptionalTimeSpan = Option.ofNullable >> Option.map TimeSpan.FromSeconds
+
         { Version = dto.Version
           Author = Option.ofString dto.Author
           DLCKey = dto.DLCKey
@@ -219,8 +231,9 @@ module DLCProject =
           Year = dto.Year
           AlbumArtFile = dto.AlbumArtFile
           AudioFile = dto.AudioFile
+          AudioFileLength = getOptionalTimeSpan dto.AudioFileLength
           AudioPreviewFile = dto.AudioPreviewFile
-          AudioPreviewStartTime = dto.AudioPreviewStartTime |> Option.ofNullable |> Option.map TimeSpan.FromSeconds
+          AudioPreviewStartTime = getOptionalTimeSpan dto.AudioPreviewStartTime
           PitchShift = Option.ofNullable dto.PitchShift
           IgnoredIssues = dto.IgnoredIssues |> Set.ofArray
           Arrangements = dto.Arrangements |> List.ofArray |> List.map arrangementFromDto

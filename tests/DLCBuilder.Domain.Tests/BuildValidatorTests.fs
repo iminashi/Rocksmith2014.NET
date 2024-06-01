@@ -37,6 +37,7 @@ let validProject =
       Year = DateTime.Now.Year
       AlbumArtFile = existingFile
       AudioFile = { AudioFile.Empty with Path = existingFile }
+      AudioFileLength = None
       AudioPreviewFile = { AudioFile.Empty with Path = existingFile }
       AudioPreviewStartTime = None
       PitchShift = None
