@@ -52,42 +52,27 @@ let sameChords (chords1: Chord list) (chords2: Chord list) =
         (chords1, chords2)
         ||> List.forall2 sameChord
 
-let [<Literal>] private MaxSkips = 5
-
-let private skipWhileNot eq elem list =
-    let rec doSkip depth remaining =
-        match remaining with
-        | [] ->
-            []
-        | _ when depth = MaxSkips ->
-            []
-        | head :: tail when not <| eq head elem ->
-            doSkip (depth + 1) tail
-        | _ ->
-            remaining
-
-    doSkip 0 list
-
 /// Calculates the number of same elements in the lists, when the order of the elements matters.
 let getSameElementCount eq elems1 elems2 =
-    let rec getCount count list1 list2 =
+    let rec getCount count len1 len2 list1 list2 =
         match list1, list2 with
         | head1 :: tail1, head2 :: tail2 when eq head1 head2 ->
-            getCount (count + 1) tail1 tail2
-        | _ :: l :: tail1, _ :: r :: tail2 when eq l r ->
-            getCount (count + 1) tail1 tail2
-        | head1 :: tail1, head2 :: tail2 ->
-            let tail1' = skipWhileNot eq head2 tail1
-            let count1 = getCount count tail1' list2
-
-            let tail2' = skipWhileNot eq head1 tail2
-            let count2 = getCount count list1 tail2'
-
-            max count1 count2
+            getCount (count + 1) (len1 - 1) (len2 - 1) tail1 tail2
+        | _ :: tail1, _ :: tail2 ->
+            if len1 > len2 then
+                getCount count (len1 - 1) len2 tail1 list2
+            elif len1 < len2 then
+                getCount count len1 (len2 - 1) list1 tail2
+            else
+                getCount count (len1 - 1) (len2 - 1) tail1 tail2
         | _ ->
             count
 
-    getCount 0 elems1 elems2
+    // Precalculate since getting the list length is O(N)
+    let l1 = List.length elems1
+    let l2 = List.length elems2
+
+    getCount 0 l1 l2 elems1 elems2
 
 /// Calculates the similarity in percents between the two lists.
 let getSimilarityPercent eq l1 l2 =

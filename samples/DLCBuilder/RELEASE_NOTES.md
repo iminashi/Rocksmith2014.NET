@@ -2,6 +2,8 @@
 
 - Added validation that all characters used in the lyrics are found in a custom font.
 - The tone keys lists for arrangements are now updated when the project is built.
+- Fixed an issue where the DD generation would in rare cases get stuck when calulating phrase similarities.
+- Fixed an issue where PSARC import would fail in rare cases.
 
 ## 3.0.0 (Released 2024-05-04)
 

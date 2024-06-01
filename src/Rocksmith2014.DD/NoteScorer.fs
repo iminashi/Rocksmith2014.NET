@@ -105,7 +105,7 @@ let getScore (phraseData: PhraseData) (time: NoteTime) (entity: XmlEntity) : Not
           // The note comes after the last beat in the phrase
           10 * getSubdivision b1.Time phraseEndTime time
 
-let createScoreMap (scores: (NoteTime * NoteScore) array) totalNotes =
+let createScoreMap (scores: (NoteTime * NoteScore) array) (totalNotes: int) =
     scores
     |> Array.groupBy snd
     |> Seq.map (fun (group, elems) -> group, elems.Length)
