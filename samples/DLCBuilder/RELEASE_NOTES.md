@@ -1,3 +1,7 @@
+## 3.1.1 (Released 2024-06-02)
+
+- Improvement to the similar phrase search algorithm.
+
 ## 3.1.0 (Released 2024-06-01)
 
 - Added validation that all characters used in the lyrics are found in a custom font.
