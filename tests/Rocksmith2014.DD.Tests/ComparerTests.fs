@@ -39,6 +39,7 @@ let comparerTests =
             let notes1 = [ Note(Time = 25, String = 0y, Fret = 1y)
                            Note(Time = 50, String = 0y, Fret = 5y)
                            Note(Time = 75, String = 1y, Fret = 9y) ]
+
             let notes2 = [ Note(Time = 125, String = 0y, Fret = 2y)
                            Note(Time = 175, String = 0y, Fret = 4y)
                            Note(Time = 200, String = 1y, Fret = 8y) ]
@@ -51,6 +52,7 @@ let comparerTests =
             let notes1 = [ Note(Time = 25, String = 0y, Fret = 14y)
                            Note(Time = 50, String = 0y, Fret = 13y)
                            Note(Time = 75, String = 1y, Fret = 12y) ]
+
             let notes2 = [ Note(Time = 125, String = 0y, Fret = 14y)
                            Note(Time = 175, String = 0y, Fret = 13y)
                            Note(Time = 200, String = 1y, Fret = 12y) ]
@@ -62,6 +64,7 @@ let comparerTests =
         testCase "Correct for same chords" <| fun _ ->
             let chords1 = [ Chord(Time = 125, ChordId = 50s)
                             Chord(Time = 225, ChordId = 25s, Mask = ChordMask.FretHandMute) ]
+
             let chords2 = [ Chord(Time = 500, ChordId = 50s)
                             Chord(Time = 625, ChordId = 25s, Mask = ChordMask.FretHandMute) ]
 
@@ -69,11 +72,14 @@ let comparerTests =
 
             Expect.equal sameCount chords1.Length "Count is correct"
 
+        // [ 0 14 13 12 ]
+        // [   14 13 12 ]
         testCase "Correct when extra note at the beginning 1/2" <| fun _ ->
             let notes1 = [ Note(Time = 15, String = 0y, Fret = 0y)
                            Note(Time = 25, String = 0y, Fret = 14y)
                            Note(Time = 50, String = 0y, Fret = 13y)
                            Note(Time = 75, String = 1y, Fret = 12y) ]
+
             let notes2 = [ Note(Time = 125, String = 0y, Fret = 14y)
                            Note(Time = 175, String = 0y, Fret = 13y)
                            Note(Time = 200, String = 1y, Fret = 12y) ]
@@ -82,10 +88,13 @@ let comparerTests =
 
             Expect.equal sameCount 3 "Count is correct"
 
+        // [   14 13 12 ]
+        // [ 0 14 13 12 ]
         testCase "Correct when extra note at the beginning 2/2" <| fun _ ->
             let notes1 = [ Note(Time = 25, String = 0y, Fret = 14y)
                            Note(Time = 50, String = 0y, Fret = 13y)
                            Note(Time = 75, String = 1y, Fret = 12y) ]
+
             let notes2 = [ Note(Time = 115, String = 0y, Fret = 0y)
                            Note(Time = 125, String = 0y, Fret = 14y)
                            Note(Time = 175, String = 0y, Fret = 13y)
@@ -95,11 +104,14 @@ let comparerTests =
 
             Expect.equal sameCount 3 "Count is correct"
 
+        // [ 14 13 15 12 ]
+        // [ 14 13    12 ]
         testCase "Correct when extra note in between 1/2" <| fun _ ->
             let notes1 = [ Note(Time = 25, String = 0y, Fret = 14y)
                            Note(Time = 50, String = 0y, Fret = 13y)
-                           Note(Time = 55, String = 1y, Fret = 13y)
+                           Note(Time = 55, String = 1y, Fret = 15y)
                            Note(Time = 75, String = 1y, Fret = 12y) ]
+
             let notes2 = [ Note(Time = 125, String = 0y, Fret = 14y)
                            Note(Time = 175, String = 0y, Fret = 13y)
                            Note(Time = 200, String = 1y, Fret = 12y) ]
@@ -108,12 +120,15 @@ let comparerTests =
 
             Expect.equal sameCount 3 "Count is correct"
 
+        // [ 14    13 12 ]
+        // [ 14 15 13 12 ]
         testCase "Correct when extra note in between 2/2" <| fun _ ->
             let notes1 = [ Note(Time = 25, String = 0y, Fret = 14y)
                            Note(Time = 50, String = 0y, Fret = 13y)
                            Note(Time = 75, String = 1y, Fret = 12y) ]
+
             let notes2 = [ Note(Time = 125, String = 0y, Fret = 14y)
-                           Note(Time = 155, String = 1y, Fret = 13y)
+                           Note(Time = 155, String = 1y, Fret = 15y)
                            Note(Time = 175, String = 0y, Fret = 13y)
                            Note(Time = 200, String = 1y, Fret = 12y) ]
 
@@ -121,13 +136,16 @@ let comparerTests =
 
             Expect.equal sameCount 3 "Count is correct"
 
+        // [ 14       13 12 ]
+        // [ 14 15 15 13 12 ]
         testCase "Correct when two extra notes in between (one after the other)" <| fun _ ->
             let notes1 = [ Note(Time = 25, String = 0y, Fret = 14y)
                            Note(Time = 50, String = 0y, Fret = 13y)
                            Note(Time = 75, String = 1y, Fret = 12y) ]
+
             let notes2 = [ Note(Time = 125, String = 0y, Fret = 14y)
-                           Note(Time = 155, String = 1y, Fret = 13y)
-                           Note(Time = 165, String = 1y, Fret = 13y)
+                           Note(Time = 155, String = 1y, Fret = 15y)
+                           Note(Time = 165, String = 1y, Fret = 15y)
                            Note(Time = 175, String = 0y, Fret = 13y)
                            Note(Time = 200, String = 1y, Fret = 12y) ]
 
@@ -135,12 +153,15 @@ let comparerTests =
 
             Expect.equal sameCount 3 "Count is correct"
 
+        // [ 14 22 13 22 12 ]
+        // [ 14    13    12 ]
         testCase "Correct when two extra notes in between (here and there)" <| fun _ ->
             let notes1 = [ Note(Time = 25, String = 0y, Fret = 14y)
                            Note(Time = 25, String = 5y, Fret = 22y)
                            Note(Time = 50, String = 1y, Fret = 13y)
                            Note(Time = 25, String = 5y, Fret = 22y)
                            Note(Time = 75, String = 1y, Fret = 12y) ]
+
             let notes2 = [ Note(Time = 125, String = 0y, Fret = 14y)
                            Note(Time = 155, String = 1y, Fret = 13y)
                            Note(Time = 200, String = 1y, Fret = 12y) ]
@@ -149,12 +170,15 @@ let comparerTests =
 
             Expect.equal sameCount 3 "Count is correct"
 
+        // [ 0 0 14 13 12 ]
+        // [     14 13 12 ]
         testCase "Correct when two extra notes at the beginning" <| fun _ ->
             let notes1 = [ Note(Time = 0, String = 0y, Fret = 0y)
                            Note(Time = 10, String = 0y, Fret = 0y)
                            Note(Time = 25, String = 0y, Fret = 14y)
                            Note(Time = 50, String = 0y, Fret = 13y)
                            Note(Time = 75, String = 1y, Fret = 12y) ]
+
             let notes2 = [ Note(Time = 125, String = 0y, Fret = 14y)
                            Note(Time = 175, String = 0y, Fret = 13y)
                            Note(Time = 200, String = 1y, Fret = 12y) ]
@@ -163,11 +187,14 @@ let comparerTests =
 
             Expect.equal sameCount 3 "Count is correct"
 
+        // [ 10 14 13 12 ]
+        // [ 12 14 13 12 ]
         testCase "Correct when starting note is different 1/3" <| fun _ ->
             let notes1 = [ Note(Time = 0, String = 0y, Fret = 10y)
                            Note(Time = 5, String = 0y, Fret = 14y)
                            Note(Time = 50, String = 0y, Fret = 13y)
                            Note(Time = 75, String = 1y, Fret = 12y) ]
+
             let notes2 = [ Note(Time = 100, String = 1y, Fret = 12y)
                            Note(Time = 125, String = 0y, Fret = 14y)
                            Note(Time = 175, String = 0y, Fret = 13y)
@@ -177,12 +204,15 @@ let comparerTests =
 
             Expect.equal sameCount 3 "Count is correct"
 
+        // [ 7 5 4 5 4 ]
+        // [ 5 5 4 5 4 ]
         testCase "Correct when starting note is different 2/3" <| fun _ ->
             let notes1 = [ Note(Time = 0, String = 1y, Fret = 7y)
                            Note(Time = 1, String = 0y, Fret = 5y)
                            Note(Time = 2, String = 0y, Fret = 4y)
                            Note(Time = 50, String = 0y, Fret = 5y)
                            Note(Time = 75, String = 0y, Fret = 4y) ]
+
             let notes2 = [ Note(Time = 100, String = 0y, Fret = 5y)
                            Note(Time = 100, String = 0y, Fret = 5y)
                            Note(Time = 125, String = 0y, Fret = 4y)
@@ -193,12 +223,15 @@ let comparerTests =
 
             Expect.equal sameCount 4 "Count is correct"
 
+        // [ 5 5 4 5 4 ]
+        // [ 7 5 4 5 4 ]
         testCase "Correct when starting note is different 3/3" <| fun _ ->
             let notes1 = [ Note(Time = 0, String = 0y, Fret = 5y)
                            Note(Time = 1, String = 0y, Fret = 5y)
                            Note(Time = 2, String = 0y, Fret = 4y)
                            Note(Time = 50, String = 0y, Fret = 5y)
                            Note(Time = 75, String = 0y, Fret = 4y) ]
+
             let notes2 = [ Note(Time = 100, String = 1y, Fret = 7y)
                            Note(Time = 100, String = 0y, Fret = 5y)
                            Note(Time = 125, String = 0y, Fret = 4y)
@@ -319,6 +352,7 @@ let comparerTests =
                            Note(Time = 2, String = 0y, Fret = 8y)
                            Note(Time = 50, String = 0y, Fret = 8y)
                            Note(Time = 75, String = 0y, Fret = 8y) ]
+
             let notes2 = [ Note(Time = 100, String = 0y, Fret = 5y)
                            Note(Time = 100, String = 0y, Fret = 0y)
                            Note(Time = 125, String = 0y, Fret = 1y)
@@ -337,6 +371,7 @@ let comparerTests =
                            Note(Time = 1, String = 0y, Fret = 1y)
                            Note(Time = 2, String = 0y, Fret = 2y)
                            Note(Time = 50, String = 0y, Fret = 3y) ]
+
             let notes2 = [ Note(Time = 50, String = 0y, Fret = 5y)
                            Note(Time = 100, String = 0y, Fret = 0y)
                            Note(Time = 110, String = 0y, Fret = 0y)
@@ -397,4 +432,104 @@ let comparerTests =
             let sameCount = getSameItemCount sameNote notes1 notes2
 
             Expect.equal sameCount 6 "Count is correct"
+
+        // [ 0 1 2 3 1 2 3 9 ]
+        // [ 9 1 2 3 1 2 3 0 ]
+        testCase "Correct when different starting and ending note (Same number of notes)" <| fun _ ->
+            let notes1 = [ Note(Time = 0, String = 0y, Fret = 0y)
+                           Note(Time = 1, String = 0y, Fret = 1y)
+                           Note(Time = 2, String = 0y, Fret = 2y)
+                           Note(Time = 3, String = 0y, Fret = 3y)
+                           Note(Time = 4, String = 0y, Fret = 1y)
+                           Note(Time = 5, String = 0y, Fret = 2y)
+                           Note(Time = 6, String = 0y, Fret = 3y)
+                           Note(Time = 7, String = 0y, Fret = 9y) ]
+
+            let notes2 = [ Note(Time = 0, String = 0y, Fret = 9y)
+                           Note(Time = 1, String = 0y, Fret = 1y)
+                           Note(Time = 2, String = 0y, Fret = 2y)
+                           Note(Time = 3, String = 0y, Fret = 3y)
+                           Note(Time = 4, String = 0y, Fret = 1y)
+                           Note(Time = 5, String = 0y, Fret = 2y)
+                           Note(Time = 6, String = 0y, Fret = 3y)
+                           Note(Time = 7, String = 0y, Fret = 0y) ]
+
+            let sameCount = getSameItemCount sameNote notes1 notes2
+
+            Expect.equal sameCount 6 "Count is correct"
+
+        // [ 0 8 1 2 3 1 2 3 9 ]
+        // [ 9 7 1 2 3 1 2 3 0 ]
+        testCase "Correct when different starting notes and ending note (Same number of notes)" <| fun _ ->
+            let notes1 = [ Note(Time = 0, String = 0y, Fret = 0y)
+                           Note(Time = 1, String = 0y, Fret = 8y)
+                           Note(Time = 2, String = 0y, Fret = 1y)
+                           Note(Time = 3, String = 0y, Fret = 2y)
+                           Note(Time = 4, String = 0y, Fret = 3y)
+                           Note(Time = 5, String = 0y, Fret = 1y)
+                           Note(Time = 6, String = 0y, Fret = 2y)
+                           Note(Time = 7, String = 0y, Fret = 3y)
+                           Note(Time = 8, String = 0y, Fret = 9y) ]
+
+            let notes2 = [ Note(Time = 0, String = 0y, Fret = 9y)
+                           Note(Time = 1, String = 0y, Fret = 7y)
+                           Note(Time = 2, String = 0y, Fret = 1y)
+                           Note(Time = 3, String = 0y, Fret = 2y)
+                           Note(Time = 4, String = 0y, Fret = 3y)
+                           Note(Time = 5, String = 0y, Fret = 1y)
+                           Note(Time = 6, String = 0y, Fret = 2y)
+                           Note(Time = 7, String = 0y, Fret = 3y)
+                           Note(Time = 8, String = 0y, Fret = 0y) ]
+
+            let sameCount = getSameItemCount sameNote notes1 notes2
+
+            Expect.equal sameCount 6 "Count is correct"
+
+        // [ 0     1 2 3 1 2 3 9 ]
+        // [ 9 5 5 1 2 3 1 2 3 0 ]
+        testCase "Correct when different starting and ending notes, with different notes in between" <| fun _ ->
+            let notes1 = [ Note(Time = 0, String = 0y, Fret = 0y)
+                           Note(Time = 1, String = 0y, Fret = 1y)
+                           Note(Time = 2, String = 0y, Fret = 2y)
+                           Note(Time = 3, String = 0y, Fret = 3y)
+                           Note(Time = 4, String = 0y, Fret = 1y)
+                           Note(Time = 5, String = 0y, Fret = 2y)
+                           Note(Time = 6, String = 0y, Fret = 3y)
+                           Note(Time = 7, String = 0y, Fret = 9y) ]
+
+            let notes2 = [ Note(Time = 0, String = 0y, Fret = 9y)
+                           Note(Time = 1, String = 0y, Fret = 5y)
+                           Note(Time = 2, String = 0y, Fret = 5y)
+                           Note(Time = 3, String = 0y, Fret = 1y)
+                           Note(Time = 4, String = 0y, Fret = 2y)
+                           Note(Time = 5, String = 0y, Fret = 3y)
+                           Note(Time = 6, String = 0y, Fret = 1y)
+                           Note(Time = 7, String = 0y, Fret = 2y)
+                           Note(Time = 8, String = 0y, Fret = 3y)
+                           Note(Time = 9, String = 0y, Fret = 0y) ]
+
+            let sameCount = getSameItemCount sameNote notes1 notes2
+
+            Expect.equal sameCount 6 "Count is correct"
+
+        // [ 5 4 4 4 5 5 ]
+        // [ 4 5 5 5 4 4 ]
+        testCase "Correct with interleaved same notes" <| fun _ ->
+            let notes1 = [ Note(Time = 0, String = 0y, Fret = 5y)
+                           Note(Time = 1, String = 0y, Fret = 4y)
+                           Note(Time = 2, String = 0y, Fret = 4y)
+                           Note(Time = 3, String = 0y, Fret = 4y)
+                           Note(Time = 4, String = 0y, Fret = 5y)
+                           Note(Time = 5, String = 0y, Fret = 5y) ]
+
+            let notes2 = [ Note(Time = 0, String = 0y, Fret = 4y)
+                           Note(Time = 1, String = 0y, Fret = 5y)
+                           Note(Time = 2, String = 0y, Fret = 5y)
+                           Note(Time = 3, String = 0y, Fret = 5y)
+                           Note(Time = 4, String = 0y, Fret = 4y)
+                           Note(Time = 5, String = 0y, Fret = 4y) ]
+
+            let sameCount = getSameItemCount sameNote notes1 notes2
+
+            Expect.equal sameCount 3 "Count is correct"
     ]

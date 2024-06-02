@@ -52,17 +52,26 @@ let sameChords (chords1: Chord list) (chords2: Chord list) =
         (chords1, chords2)
         ||> List.forall2 sameChord
 
-let private skipWhileNot eq elem list =
-    let rec doSkip remaining =
-        match remaining with
-        | [] ->
+let private findNextMatch equal skipped1 skipped2 list1 list2 =
+    let rec search skipped1 skipped2 remaining1 remaining2 =
+        match remaining1, remaining2 with
+        | [], _
+        | _, [] ->
             ValueNone
-        | head :: tail when not <| eq head elem ->
-            doSkip tail
-        | _ :: tail ->
-            ValueSome tail
+        | head1 :: tail1, head2 :: tail2 when equal head1 head2 ->
+            ValueSome (tail1, tail2)
+        | head1 :: tail1, head2 :: tail2 ->
+            match List.tryFindIndex (equal head2) skipped1 with
+            | Some i ->
+                ValueSome (List.skip i list1, tail2)
+            | None ->
+                match List.tryFindIndex (equal head1) skipped2 with
+                | Some j ->
+                    ValueSome (tail1, List.skip j list2)
+                | None ->
+                    search (head1 :: skipped1) (head2 :: skipped2) tail1 tail2
 
-    doSkip list
+    search skipped1 skipped2 list1 list2
 
 /// Calculates the number of same items in two lists, when the order of the items matters.
 let getSameItemCount (equal: 'a -> 'a -> bool) (input1: 'a list) (input2: 'a list) =
@@ -78,24 +87,15 @@ let getSameItemCount (equal: 'a -> 'a -> bool) (input1: 'a list) (input2: 'a lis
             elif len1 < len2 then
                 getCount count len1 (len2 - 1) list1 tail2
             else
-                // Same lengths, skip items until the next match for both lists
-                let newTail1 = skipWhileNot equal head2 tail1
-                let newTail2 = skipWhileNot equal head1 tail2
-
-                match newTail1, newTail2 with
-                | ValueNone, _
-                | _, ValueNone ->
-                    // Skip both
-                    getCount count (len1 - 1) (len2 - 1) tail1 tail2
-                | ValueSome newTail1, ValueSome newTail2 ->
-                    // Select the new lists to use based on which skipped the least items
+                // Same lengths, find the next matching items, taking into account skipped items
+                match findNextMatch equal [head1] [head2] tail1 tail2 with
+                | ValueNone ->
+                    count
+                | ValueSome (newTail1, newTail2) ->
                     let newLen1 = List.length newTail1
                     let newLen2 = List.length newTail2
 
-                    if newLen1 >= newLen2 then
-                        getCount (count + 1) newLen1 (len2 - 1) newTail1 tail2
-                    else
-                        getCount (count + 1) (len1 - 1) newLen2 tail1 newTail2
+                    getCount (count + 1) newLen1 newLen2 newTail1 newTail2
         | _ ->
             count
 
