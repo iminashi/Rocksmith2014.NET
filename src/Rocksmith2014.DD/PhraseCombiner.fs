@@ -132,8 +132,15 @@ let combineSamePhrases (config: GeneratorConfig)
 
             if maxDiff > 0uy then
                 // Create hero levels
-                let easy = byte <| round (float maxDiff / 4.)
-                let medium = byte <| round (float maxDiff / 2.)
+                let easy, medium =
+                    if maxDiff = 1uy then
+                        // If there are only two levels, use the same difficulty,
+                        // otherwise score attack will crash on easy/medium
+                        maxDiff, maxDiff
+                    else
+                        float maxDiff / 4.0 |> round |> byte,
+                        float maxDiff / 2.0 |> round |> byte
+
                 pi.HeroLevels <- HeroLevels(easy, medium, maxDiff)
 
             pi)
