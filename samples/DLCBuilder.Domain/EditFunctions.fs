@@ -174,10 +174,10 @@ let editConfig edit config =
         { config with QuickEditOnPsarcDragAndDrop = useQuickEdit }
 
     | SetGenerateDD generateDD ->
-        { config with GenerateDD = generateDD }
+        { config with GenerateDD = generateDD |> ValueOption.defaultValue (not config.GenerateDD) }
 
     | SetComparePhraseLevelsOnTestBuild compareLevels ->
-        { config with ComparePhraseLevelsOnTestBuild = compareLevels }
+        { config with ComparePhraseLevelsOnTestBuild = compareLevels |> ValueOption.defaultValue (not config.ComparePhraseLevelsOnTestBuild) }
 
     | SetDDPhraseSearchEnabled phraseSearch ->
         { config with DDPhraseSearchEnabled = phraseSearch }
@@ -189,13 +189,13 @@ let editConfig edit config =
         { config with DDLevelCountGeneration = lcg }
 
     | SetApplyImprovements improve ->
-        { config with ApplyImprovements = improve }
+        { config with ApplyImprovements = improve |> ValueOption.defaultValue (not config.ApplyImprovements) }
 
     | SetForcePhraseCreation opt ->
-        { config with ForcePhraseCreation = opt }
+        { config with ForcePhraseCreation = opt |> ValueOption.defaultValue (not config.ForcePhraseCreation) }
 
     | SetSaveDebugFiles debug ->
-        { config with SaveDebugFiles = debug }
+        { config with SaveDebugFiles = debug |> ValueOption.defaultValue (not config.SaveDebugFiles) }
 
     | SetCustomAppId appId ->
         { config with CustomAppId = appId }
@@ -219,7 +219,7 @@ let editConfig edit config =
         { config with OpenFolderAfterReleaseBuild = openFolder }
 
     | SetValidateBeforeReleaseBuild validate ->
-        { config with ValidateBeforeReleaseBuild = validate }
+        { config with ValidateBeforeReleaseBuild = validate |> ValueOption.defaultValue (not config.ValidateBeforeReleaseBuild) }
 
     | SetLoadPreviousProject load ->
         { config with LoadPreviousOpenedProject = load }

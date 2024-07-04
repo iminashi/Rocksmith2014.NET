@@ -447,8 +447,8 @@ let private buildConfig state dispatch =
                         CheckBox.verticalAlignment VerticalAlignment.Center
                         CheckBox.content (translate "ApplyImprovements")
                         CheckBox.isChecked state.Config.ApplyImprovements
-                        CheckBox.onChecked (fun _ -> true |> SetApplyImprovements |> EditConfig |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> false |> SetApplyImprovements |> EditConfig |> dispatch)
+                        CheckBox.onChecked (fun _ -> true |> ValueSome |> SetApplyImprovements |> EditConfig |> dispatch)
+                        CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetApplyImprovements |> EditConfig |> dispatch)
                     ]
                     HelpButton.create [
                         HelpButton.helpText (translate "ApplyImprovementsHelp")
@@ -461,8 +461,8 @@ let private buildConfig state dispatch =
                         CheckBox.verticalAlignment VerticalAlignment.Center
                         CheckBox.content (translate "ForceAutomaticPhraseCreation")
                         CheckBox.isChecked state.Config.ForcePhraseCreation
-                        CheckBox.onChecked (fun _ -> true |> SetForcePhraseCreation |> EditConfig |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> false |> SetForcePhraseCreation |> EditConfig |> dispatch)
+                        CheckBox.onChecked (fun _ -> true |> ValueSome |> SetForcePhraseCreation |> EditConfig |> dispatch)
+                        CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetForcePhraseCreation |> EditConfig |> dispatch)
                     ]
                     HelpButton.create [
                         HelpButton.helpText (translate "ForceAutomaticPhraseCreationHelp")
@@ -526,8 +526,8 @@ let private buildConfig state dispatch =
                                     CheckBox.verticalAlignment VerticalAlignment.Center
                                     CheckBox.content (translate "ValidateBeforeBuild")
                                     CheckBox.isChecked state.Config.ValidateBeforeReleaseBuild
-                                    CheckBox.onChecked (fun _ -> true |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
-                                    CheckBox.onUnchecked (fun _ -> false |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
+                                    CheckBox.onChecked (fun _ -> true |> ValueSome |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
+                                    CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
                                 ]
 
                                 HelpButton.create [
@@ -590,8 +590,8 @@ let private buildConfig state dispatch =
                                 CheckBox.create [
                                     CheckBox.content (translate "ComparePhraseLevelsOnTestBuild")
                                     CheckBox.isChecked state.Config.ComparePhraseLevelsOnTestBuild
-                                    CheckBox.onChecked (fun _ -> true |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
-                                    CheckBox.onUnchecked (fun _ -> false |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
+                                    CheckBox.onChecked (fun _ -> true |> ValueSome |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
+                                    CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
                                 ]
                                 HelpButton.create [
                                     HelpButton.helpText (translate "ComparePhraseLevelsOnTestBuildHelp")
@@ -605,8 +605,8 @@ let private buildConfig state dispatch =
                             CheckBox.verticalAlignment VerticalAlignment.Center
                             CheckBox.content (translate "GenerateDDLevels")
                             CheckBox.isChecked state.Config.GenerateDD
-                            CheckBox.onChecked (fun _ -> true |> SetGenerateDD |> EditConfig |> dispatch)
-                            CheckBox.onUnchecked (fun _ -> false |> SetGenerateDD |> EditConfig |> dispatch)
+                            CheckBox.onChecked (fun _ -> true |> ValueSome |> SetGenerateDD |> EditConfig |> dispatch)
+                            CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetGenerateDD |> EditConfig |> dispatch)
                         ]
 
                         // Save Debug Files
@@ -620,8 +620,8 @@ let private buildConfig state dispatch =
                                     CheckBox.verticalAlignment VerticalAlignment.Center
                                     CheckBox.content (translate "SaveDebugFiles")
                                     CheckBox.isChecked state.Config.SaveDebugFiles
-                                    CheckBox.onChecked (fun _ -> true |> SetSaveDebugFiles |> EditConfig |> dispatch)
-                                    CheckBox.onUnchecked (fun _ -> false |> SetSaveDebugFiles |> EditConfig |> dispatch)
+                                    CheckBox.onChecked (fun _ -> true |> ValueSome |> SetSaveDebugFiles |> EditConfig |> dispatch)
+                                    CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetSaveDebugFiles |> EditConfig |> dispatch)
                                 ]
                                 HelpButton.create [
                                     HelpButton.helpText (translate "SaveDebugFilesHelp")

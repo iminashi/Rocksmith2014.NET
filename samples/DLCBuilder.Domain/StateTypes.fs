@@ -162,18 +162,19 @@ type ConfigEdit =
     | SetRemoveDDOnImport of bool
     | SetCreateEOFProjectOnImport of bool
     | SetQuickEditOnPsarcDragAndDrop of bool
-    | SetGenerateDD of bool
-    | SetComparePhraseLevelsOnTestBuild of bool
     | SetDDPhraseSearchEnabled of bool
     | SetDDPhraseSearchThreshold of int
     | SetDDLevelCountGeneration of LevelCountGeneration
-    | SetApplyImprovements of bool
-    | SetForcePhraseCreation of bool
-    | SetSaveDebugFiles of bool
+    // If the ValueOption parameter is none, the option will be toggled between on/off
+    | SetApplyImprovements of bool voption
+    | SetForcePhraseCreation of bool voption
+    | SetSaveDebugFiles of bool voption
+    | SetValidateBeforeReleaseBuild of bool voption
+    | SetComparePhraseLevelsOnTestBuild of bool voption
+    | SetGenerateDD of bool voption
     | SetCustomAppId of AppId option
     | SetConvertAudio of AudioConversionType option
     | SetOpenFolderAfterReleaseBuild of bool
-    | SetValidateBeforeReleaseBuild of bool
     | SetLoadPreviousProject of bool
     | SetAutoSave of bool
     | SetBaseToneNaming of BaseToneNamingScheme

@@ -34,10 +34,10 @@ let editConfigTests =
             let phraseSearch = not initialState.Config.DDPhraseSearchEnabled
             let applyImprovements = not initialState.Config.ApplyImprovements
             let messages =
-                [ SetGenerateDD generateDD
+                [ SetGenerateDD (ValueSome generateDD)
                   SetDDPhraseSearchEnabled phraseSearch
                   SetDDPhraseSearchThreshold 50
-                  SetApplyImprovements applyImprovements ]
+                  SetApplyImprovements ValueNone ]
                 |> List.map EditConfig
 
             let newState, _ =
@@ -53,7 +53,7 @@ let editConfigTests =
             let saveDebug = not initialState.Config.SaveDebugFiles
             let testAppId = AppId 43210UL
             let messages =
-                [ SetSaveDebugFiles saveDebug
+                [ SetSaveDebugFiles (ValueSome saveDebug)
                   SetCustomAppId(Some testAppId)
                   SetConvertAudio(Some ToWav) ]
                 |> List.map EditConfig
@@ -134,7 +134,7 @@ let editConfigTests =
                     SetAutoSave autoSave
                     SetAutoAudioConversion autoConversion
                     SetQuickEditOnPsarcDragAndDrop useQuickEdit
-                    SetForcePhraseCreation forcePhraseCreation
+                    SetForcePhraseCreation ValueNone
                 ]
                 |> List.map EditConfig
 

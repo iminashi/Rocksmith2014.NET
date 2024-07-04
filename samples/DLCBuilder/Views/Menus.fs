@@ -39,11 +39,36 @@ let private headerWithLine (locString: string) =
         ]
     ]
 
+let private menuHeader (header: string) =
+    MenuItem.create [
+        MenuItem.header (headerWithLine header)
+        MenuItem.isHitTestVisible false
+    ]
+
+let private menuCheckBox (text: string) (value: bool) (toggleOption: bool voption -> unit) =
+    MenuItem.create [
+        // Prevent the menu from closing when clicking an item
+        MenuItem.onPointerReleased (fun e -> e.Handled <- true)
+        MenuItem.onTapped (fun _ -> toggleOption ValueNone)
+        MenuItem.onKeyDown (fun e ->
+            if e.Key = Key.Enter then
+                toggleOption ValueNone
+                e.Handled <- true
+        )
+        MenuItem.header (
+            CheckBox.create [
+                CheckBox.content (translate text)
+                CheckBox.isChecked value
+                CheckBox.isHitTestVisible false
+                CheckBox.focusable false
+            ]
+        )
+    ]
+
 let buildOptions isQuickEdit state dispatch =
     Menu.create [
         Grid.column 3
         Menu.fontSize 16.
-        //Menu.margin (0., 0., 4., 0.)
         Menu.viewItems [
             MenuItem.create [
                 MenuItem.header (
@@ -53,87 +78,24 @@ let buildOptions isQuickEdit state dispatch =
                 )
 
                 MenuItem.viewItems [
-                    MenuItem.create [
-                        MenuItem.header (headerWithLine "Common")
-                        MenuItem.isHitTestVisible false
-                    ]
+                    menuHeader "Common"
 
-                    MenuItem.create [
-                        MenuItem.header (
-                            CheckBox.create [
-                                CheckBox.content (translate "ApplyImprovements")
-                                CheckBox.isChecked state.Config.ApplyImprovements
-                                CheckBox.onChecked (fun _ -> true |> SetApplyImprovements |> EditConfig |> dispatch)
-                                CheckBox.onUnchecked (fun _ -> false |> SetApplyImprovements |> EditConfig |> dispatch)
-                            ]
-                        )
-                    ]
+                    menuCheckBox "ApplyImprovements" state.Config.ApplyImprovements (SetApplyImprovements >> EditConfig >> dispatch)
 
-                    MenuItem.create [
-                        MenuItem.header (
-                            CheckBox.create [
-                                CheckBox.content (translate "ForceAutomaticPhraseCreation")
-                                CheckBox.isChecked state.Config.ForcePhraseCreation
-                                CheckBox.onChecked (fun _ -> true |> SetForcePhraseCreation |> EditConfig |> dispatch)
-                                CheckBox.onUnchecked (fun _ -> false |> SetForcePhraseCreation |> EditConfig |> dispatch)
-                            ]
-                        )
-                    ]
+                    menuCheckBox "ForceAutomaticPhraseCreation" state.Config.ForcePhraseCreation (SetForcePhraseCreation >> EditConfig >> dispatch)
 
                     if not isQuickEdit then
-                        MenuItem.create [
-                            MenuItem.header (headerWithLine "Release")
-                            MenuItem.isHitTestVisible false
-                        ]
+                        menuHeader "Release"
 
-                        MenuItem.create [
-                            MenuItem.header (
-                                CheckBox.create [
-                                    CheckBox.content (translate "ValidateBeforeBuild")
-                                    CheckBox.isChecked state.Config.ValidateBeforeReleaseBuild
-                                    CheckBox.onChecked (fun _ -> true |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
-                                    CheckBox.onUnchecked (fun _ -> false |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
-                                ]
-                            )
-                        ]
+                        menuCheckBox "ValidateBeforeBuild" state.Config.ValidateBeforeReleaseBuild (SetValidateBeforeReleaseBuild >> EditConfig >> dispatch)
 
-                        MenuItem.create [
-                            MenuItem.header (headerWithLine "Test")
-                            MenuItem.isHitTestVisible false
-                        ]
+                        menuHeader "Test"
 
-                        MenuItem.create [
-                            MenuItem.header (
-                                CheckBox.create [
-                                    CheckBox.content (translate "ComparePhraseLevelsOnTestBuild")
-                                    CheckBox.isChecked state.Config.ComparePhraseLevelsOnTestBuild
-                                    CheckBox.onChecked (fun _ -> true |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
-                                    CheckBox.onUnchecked (fun _ -> false |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
-                                ]
-                            )
-                        ]
+                        menuCheckBox "ComparePhraseLevelsOnTestBuild" state.Config.ComparePhraseLevelsOnTestBuild (SetComparePhraseLevelsOnTestBuild >> EditConfig >> dispatch)
 
-                        MenuItem.create [
-                            MenuItem.header (
-                                CheckBox.create [
-                                    CheckBox.content (translate "GenerateDDLevels")
-                                    CheckBox.isChecked state.Config.GenerateDD
-                                    CheckBox.onChecked (fun _ -> true |> SetGenerateDD |> EditConfig |> dispatch)
-                                    CheckBox.onUnchecked (fun _ -> false |> SetGenerateDD |> EditConfig |> dispatch)
-                                ]
-                            )
-                        ]
+                        menuCheckBox "GenerateDDLevels" state.Config.GenerateDD (SetGenerateDD >> EditConfig >> dispatch)
 
-                        MenuItem.create [
-                            MenuItem.header (
-                                CheckBox.create [
-                                    CheckBox.content (translate "SaveDebugFiles")
-                                    CheckBox.isChecked state.Config.SaveDebugFiles
-                                    CheckBox.onChecked (fun _ -> true |> SetSaveDebugFiles |> EditConfig |> dispatch)
-                                    CheckBox.onUnchecked (fun _ -> false |> SetSaveDebugFiles |> EditConfig |> dispatch)
-                                ]
-                            )
-                        ]
+                        menuCheckBox "SaveDebugFiles" state.Config.SaveDebugFiles (SetSaveDebugFiles >> EditConfig >> dispatch)
                 ]
             ]
         ]
