@@ -1,3 +1,10 @@
+## 3.1.2 (Released 2024-07-04)
+
+- Fixed an issue that would cause the game to crash in the score attack mode when only two difficulty levels were created for a phrase.
+- Fixed an issue where clicking an item in the build options quick access menu would close the menu instead of toggling the option.
+- Minor improvement to the autosaving.
+- Updated the UI framework to the latest version.
+
 ## 3.1.1 (Released 2024-06-02)
 
 - Improvement to the similar phrase search algorithm.
