@@ -3,48 +3,49 @@ module internal Rocksmith2014.DD.LevelCounter
 open Rocksmith2014.DD.Model
 open System
 
+let [<Literal>] MinimumNumberOfLevelsToGenerate = 2
+let [<Literal>] MaximumPossibleLevels = 30
+
 let private lockObj = obj ()
 
 let predictLevelCount (path: int) (p: DataExtractor.PhraseData) =
     // Add input data
     let input =
         ModelInput(
-            Path = (path |> float32),
-            LengthMs = (p.LengthMs |> float32),
-            LengthBeats = (p.LengthBeats |> float32),
-            Tempo = (p.TempoEstimate |> float32),
-            Notes = (p.NoteCount |> float32),
-            RepeatedNotes = (p.RepeatedNotes |> float32),
-            Chords = (p.RepeatedChords |> float32),
-            TechCount = (p.TechCount |> float32),
-            PalmMutes = (p.PalmMuteCount |> float32),
-            Bends = (p.BendCount |> float32),
-            Harmonics = (p.HarmonicCount |> float32),
-            Pharmonics = (p.PinchHarmonicCount |> float32),
-            Taps = (p.TapCount |> float32),
-            Tremolos = (p.TremoloCount |> float32),
-            Vibratos = (p.VibratoCount |> float32),
-            Slides = (p.SlideCount |> float32),
-            UnpSlides = (p.UnpitchedSlideCount |> float32),
-            Anchors = (p.AnchorCount |> float32),
-            MaxChordStrings = (p.MaxChordStrings |> float32),
-            Solo = (if p.SoloPhrase then "1" else "0")
+            Path = float32 path,
+            LengthMs = float32 p.LengthMs,
+            LengthBeats = float32 p.LengthBeats,
+            Tempo = float32 p.TempoEstimate,
+            Notes = float32 p.NoteCount,
+            RepeatedNotes = float32 p.RepeatedNotes,
+            Chords = float32 p.RepeatedChords,
+            TechCount = float32 p.TechCount,
+            PalmMutes = float32 p.PalmMuteCount,
+            Bends = float32 p.BendCount,
+            Harmonics = float32 p.HarmonicCount,
+            Pharmonics = float32 p.PinchHarmonicCount,
+            Taps = float32 p.TapCount,
+            Tremolos = float32 p.TremoloCount,
+            Vibratos = float32 p.VibratoCount,
+            Slides = float32 p.SlideCount,
+            UnpSlides = float32 p.UnpitchedSlideCount,
+            Anchors = float32 p.AnchorCount,
+            MaxChordStrings = float32 p.MaxChordStrings,
+            Solo = if p.SoloPhrase then "1" else "0"
         )
 
     // Load model and predict the output
     let result = lock lockObj (fun _ -> ConsumeModel.Predict(input))
 
     let levels = round result.Score |> int
-    Math.Clamp(levels, 2, 30)
+    Math.Clamp(levels, MinimumNumberOfLevelsToGenerate, MaximumPossibleLevels)
 
 let private getRepeatedNotePercent (phraseData: DataExtractor.PhraseData) =
     let repeated = float (phraseData.RepeatedNotes + phraseData.RepeatedChords)
     let total = float (phraseData.NoteCount + phraseData.ChordCount)
     repeated / total
 
-let getSimpleLevelCount
-        (phraseData: DataExtractor.PhraseData)
-        (scoreMap: ScoreMap) =
+let getSimpleLevelCount (phraseData: DataExtractor.PhraseData) (scoreMap: ScoreMap) =
     let baseCount = scoreMap.Count
 
     // Try to prevent inflated level count for phrases that are mostly repeated notes
@@ -54,5 +55,5 @@ let getSimpleLevelCount
         else
             baseCount
 
-    let minLevels = max 2 phraseData.MaxChordStrings
-    Math.Clamp(levelCount, minLevels, 30)
+    let minLevels = max MinimumNumberOfLevelsToGenerate phraseData.MaxChordStrings
+    Math.Clamp(levelCount, minLevels, MaximumPossibleLevels)
