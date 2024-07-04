@@ -54,7 +54,15 @@ type MainWindow(commandLineArgs: string array) as this =
 
     let shouldAutoSave newState oldState msg =
         match msg with
-        | ProjectLoaded _ ->
+        // No need to save a project that was just loaded
+        | ProjectLoaded _
+        // Project will be saved anyway if autosave is enabled
+        | ProgramClosing
+        | AutoSaveProject
+        | SaveProjectAs
+        | ProjectSaveOrSaveAs
+        | SaveProject _
+        | ProjectSaved _ ->
             false
         | _ ->
             newState.Config.AutoSave
