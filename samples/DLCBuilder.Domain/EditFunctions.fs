@@ -321,7 +321,13 @@ let editTone state edit index =
             { tone with Volume = -volume }
 
         | AddDescriptor ->
-            { tone with ToneDescriptors = tone.ToneDescriptors |> Array.append [| ToneDescriptor.all[0].UIName |] }
+            let newToneDescriptor =
+                tone.ToneDescriptors
+                |> Array.tryHead
+                |> Option.defaultValue ToneDescriptor.all[0].UIName
+
+            { tone with
+                ToneDescriptors = Array.insertAt 0 newToneDescriptor tone.ToneDescriptors }
 
         | RemoveDescriptor ->
             { tone with ToneDescriptors = tone.ToneDescriptors[1..] }
