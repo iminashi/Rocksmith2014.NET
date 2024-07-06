@@ -13,6 +13,8 @@ open System
 open System.IO
 open System.Text.RegularExpressions
 open DLCBuilder
+open Avalonia.Controls.Templates
+open DLCBuilder.Media
 
 let private tryFindWwiseExecutable basePath =
     let ext = PlatformSpecific.Value(mac = "sh", windows = "exe", linux = "exe")
@@ -471,75 +473,6 @@ let private buildConfig state dispatch =
             ]
         ]
 
-        // Release Build Options
-        headerWithLine "Release" false
-
-        StackPanel.create [
-            StackPanel.margin (8., 2.)
-            StackPanel.children [
-                hStack [
-                    // Release Platforms
-                    locText "Platforms" [
-                        TextBlock.margin (0., 0., 10., 0.)
-                        TextBlock.verticalAlignment VerticalAlignment.Center
-                    ]
-                    CheckBox.create [
-                        CheckBox.margin 2.
-                        CheckBox.minWidth 0.
-                        CheckBox.content "PC"
-                        CheckBox.isEnabled (state.Config.ReleasePlatforms |> Set.contains Mac)
-                        CheckBox.isChecked (state.Config.ReleasePlatforms |> Set.contains PC)
-                        CheckBox.onChecked (fun _ -> PC |> AddReleasePlatform |> EditConfig |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> PC |> RemoveReleasePlatform |> EditConfig |> dispatch)
-                    ]
-                    CheckBox.create [
-                        CheckBox.margin 2.
-                        CheckBox.minWidth 0.
-                        CheckBox.content "Mac"
-                        CheckBox.isEnabled (state.Config.ReleasePlatforms |> Set.contains PC)
-                        CheckBox.isChecked (state.Config.ReleasePlatforms |> Set.contains Mac)
-                        CheckBox.onChecked (fun _ -> Mac |> AddReleasePlatform |> EditConfig |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> Mac |> RemoveReleasePlatform |> EditConfig |> dispatch)
-                    ]
-                ]
-
-                Grid.create [
-                    Grid.columnDefinitions "*,*"
-                    Grid.children [
-                        // Open Containing Folder
-                        CheckBox.create [
-                            CheckBox.verticalAlignment VerticalAlignment.Center
-                            CheckBox.horizontalAlignment HorizontalAlignment.Left
-                            CheckBox.content (translate "OpenContainingFolderAfterBuild")
-                            CheckBox.isChecked state.Config.OpenFolderAfterReleaseBuild
-                            CheckBox.onChecked (fun _ -> true |> SetOpenFolderAfterReleaseBuild |> EditConfig |> dispatch)
-                            CheckBox.onUnchecked (fun _ -> false |> SetOpenFolderAfterReleaseBuild |> EditConfig |> dispatch)
-                        ]
-
-                        // Validate Before Build
-                        StackPanel.create [
-                            Grid.column 1
-                            StackPanel.orientation Orientation.Horizontal
-                            StackPanel.horizontalAlignment HorizontalAlignment.Right
-                            StackPanel.children [
-                                CheckBox.create [
-                                    CheckBox.verticalAlignment VerticalAlignment.Center
-                                    CheckBox.content (translate "ValidateBeforeBuild")
-                                    CheckBox.isChecked state.Config.ValidateBeforeReleaseBuild
-                                    CheckBox.onChecked (fun _ -> true |> ValueSome |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
-                                    CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
-                                ]
-
-                                HelpButton.create [
-                                    HelpButton.helpText (translate "ValidateBeforeBuildHelp")
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ]
-        ]
-
         // Test Build Options
         headerWithLine "Test" false
 
@@ -634,6 +567,163 @@ let private buildConfig state dispatch =
         ]
     ]
 
+let private subFolderTypeOptionTemplate : IDataTemplate =
+    DataTemplateView<Option<SubFolderType>>.create (fun opt ->
+        match opt with
+        | None ->
+            locText "Disabled" []
+        | Some subFolderType ->
+            locText (string subFolderType) [])
+
+let private releaseBuildConfig state dispatch =
+    vStack [
+        StackPanel.create [
+            StackPanel.margin (8., 2.)
+            StackPanel.children [
+                hStack [
+                    // Release Platforms
+                    locText "Platforms" [
+                        TextBlock.margin (0., 0., 10., 0.)
+                        TextBlock.verticalAlignment VerticalAlignment.Center
+                    ]
+                    CheckBox.create [
+                        CheckBox.margin 2.
+                        CheckBox.minWidth 0.
+                        CheckBox.content "PC"
+                        CheckBox.isEnabled (state.Config.ReleasePlatforms |> Set.contains Mac)
+                        CheckBox.isChecked (state.Config.ReleasePlatforms |> Set.contains PC)
+                        CheckBox.onChecked (fun _ -> PC |> AddReleasePlatform |> EditConfig |> dispatch)
+                        CheckBox.onUnchecked (fun _ -> PC |> RemoveReleasePlatform |> EditConfig |> dispatch)
+                    ]
+                    CheckBox.create [
+                        CheckBox.margin 2.
+                        CheckBox.minWidth 0.
+                        CheckBox.content "Mac"
+                        CheckBox.isEnabled (state.Config.ReleasePlatforms |> Set.contains PC)
+                        CheckBox.isChecked (state.Config.ReleasePlatforms |> Set.contains Mac)
+                        CheckBox.onChecked (fun _ -> Mac |> AddReleasePlatform |> EditConfig |> dispatch)
+                        CheckBox.onUnchecked (fun _ -> Mac |> RemoveReleasePlatform |> EditConfig |> dispatch)
+                    ]
+                ]
+
+                // Open Containing Folder
+                CheckBox.create [
+                    CheckBox.verticalAlignment VerticalAlignment.Center
+                    CheckBox.content (translate "OpenContainingFolderAfterBuild")
+                    CheckBox.isChecked state.Config.OpenFolderAfterReleaseBuild
+                    CheckBox.onChecked (fun _ -> true |> SetOpenFolderAfterReleaseBuild |> EditConfig |> dispatch)
+                    CheckBox.onUnchecked (fun _ -> false |> SetOpenFolderAfterReleaseBuild |> EditConfig |> dispatch)
+                ]
+
+                // Validate Before Build
+                StackPanel.create [
+                    StackPanel.orientation Orientation.Horizontal
+                    StackPanel.children [
+                        CheckBox.create [
+                            CheckBox.verticalAlignment VerticalAlignment.Center
+                            CheckBox.content (translate "ValidateBeforeBuild")
+                            CheckBox.isChecked state.Config.ValidateBeforeReleaseBuild
+                            CheckBox.onChecked (fun _ -> true |> ValueSome |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
+                            CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
+                        ]
+
+                        HelpButton.create [
+                            HelpButton.helpText (translate "ValidateBeforeBuildHelp")
+                        ]
+                    ]
+                ]
+            ]
+        ]
+
+        headerWithLine "Copy Tasks" false
+
+        let postBuildCopyTaskTemplate (pbct: PostBuildCopyTask) =
+            let targetPath =
+                match pbct.CreateSubFolder with
+                | None ->
+                    pbct.TargetPath
+                | Some ArtistName ->
+                    Path.Combine(pbct.TargetPath, "{ArtistName}")
+                | Some ArtistNameAndTitle ->
+                    Path.Combine(pbct.TargetPath, "{ArtistName} - {Title}")
+
+            hStack [
+                TextBlock.create [
+                    TextBlock.text targetPath
+                ]
+
+                iconButton Icons.x [
+                ]
+            ] |> generalize
+
+        ListBoxEx.create [
+            ListBoxEx.children (state.Config.PostReleaseBuildTasks |> Array.map postBuildCopyTaskTemplate |> Array.toList)
+        ]
+
+        headerWithLine "New Copy Tasks" false
+
+        vStack [
+            hStack [
+                CheckBox.create [
+                    CheckBox.content "OpenFolder"
+                    CheckBox.isChecked state.NewPostBuildTask.OpenFolder
+                    CheckBox.onChecked (fun _ -> true |> SetOpenFolder |> EditPostBuildTask |> dispatch)
+                    CheckBox.onUnchecked (fun _ -> false |> SetOpenFolder |> EditPostBuildTask |> dispatch)
+                ]
+
+                CheckBox.create [
+                    CheckBox.content "OnlyCurrentPlatform"
+                    CheckBox.isChecked state.NewPostBuildTask.OnlyCurrentPlatform
+                    CheckBox.onChecked (fun _ -> true |> SetOnlyCurrentPlatform |> EditPostBuildTask |> dispatch)
+                    CheckBox.onUnchecked (fun _ -> false |> SetOnlyCurrentPlatform |> EditPostBuildTask |> dispatch)
+                ]
+            ]
+
+            DockPanel.create [
+                DockPanel.children [
+                    locText "Target Path" [
+                        DockPanel.dock Dock.Left
+                        TextBlock.margin 4.
+                        TextBlock.verticalAlignment VerticalAlignment.Center
+                    ]
+
+                    FixedTextBox.create [
+                        FixedTextBox.margin (0., 4.)
+                        FixedTextBox.watermark (translate "Target Path")
+                        FixedTextBox.text state.NewPostBuildTask.TargetPath
+                        FixedTextBox.onTextChanged (SetTargetPath >> EditPostBuildTask >> dispatch)
+                    ]
+                ]
+            ]
+
+            DockPanel.create [
+                DockPanel.children [
+                    locText "Create Subfolder" [
+                        DockPanel.dock Dock.Left
+                        TextBlock.margin 4.
+                        TextBlock.verticalAlignment VerticalAlignment.Center
+                    ]
+
+                    FixedComboBox.create [
+                        FixedComboBox.dataItems [ None; Some ArtistName; Some ArtistNameAndTitle ]
+                        FixedComboBox.itemTemplate subFolderTypeOptionTemplate
+                        FixedComboBox.onSelectedItemChanged (function
+                        | :? Option<SubFolderType> as subFolderOpt ->
+                            subFolderOpt |> SetCreateSubFolder |> EditPostBuildTask |> dispatch
+                        | _ ->
+                            ())
+                    ]
+                ]
+            ]
+        ]
+
+        Button.create [
+            Button.content (translate "Add")
+            Button.isEnabled (String.notEmpty state.NewPostBuildTask.TargetPath)
+            Button.onClick (fun _ -> dispatch AddNewPostBuildTask)
+        ]
+    ]
+
 let private tabHeader (icon: Geometry) locKey =
     vStack [
         Path.create [
@@ -680,6 +770,11 @@ let view state dispatch focusedSetting =
                         TabItem.horizontalAlignment HorizontalAlignment.Center
                         TabItem.header (tabHeader Media.Icons.package "Build")
                         TabItem.content (buildConfig state dispatch)
+                    ]
+                    TabItem.create [
+                        TabItem.horizontalAlignment HorizontalAlignment.Center
+                        TabItem.header (tabHeader Media.Icons.package "Release")
+                        TabItem.content (releaseBuildConfig state dispatch)
                     ]
                     TabItem.create [
                         TabItem.horizontalAlignment HorizontalAlignment.Center

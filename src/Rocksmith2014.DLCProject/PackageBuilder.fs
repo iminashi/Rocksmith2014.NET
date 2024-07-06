@@ -229,7 +229,10 @@ let private build (buildData: BuildData) progress targetPath project platform = 
         yield toolkitEntry
         yield appIdEntry ]) |> Async.AwaitTask
 
-    progress () }
+    progress ()
+
+    // Return path of the created package
+    return path }
 
 let private setupInstrumental (part: int) (inst: Instrumental) (config: BuildConfig) =
     let xml = InstrumentalArrangement.Load(inst.XmlPath)
@@ -353,7 +356,8 @@ let private createProgressReporter maximum =
             float current / float maximum * 100.)
 
 /// Builds packages for the given platforms.
-let buildPackages (targetPath: TargetPathType) (config: BuildConfig) (project: DLCProject) =
+/// Returns the paths to the created packages and the tone keys for each arrangement.
+let buildPackages (targetPath: TargetPathType) (config: BuildConfig) (project: DLCProject) : Async<string array * Map<ArrangementId, string list>> =
     async {
         match targetPath with
         | WithPlatformAndExtension _ when config.Platforms.Length > 1 ->
@@ -448,11 +452,10 @@ let buildPackages (targetPath: TargetPathType) (config: BuildConfig) (project: D
               AppId = config.AppId
               AudioConversionTask = audioConversionTask }
 
-        do!
+        let! packagePaths =
             config.Platforms
             |> List.map (build data progress targetPath project)
             |> Async.Parallel
-            |> Async.Ignore
 
-        return toneKeysMap
+        return packagePaths, toneKeysMap
     }

@@ -24,7 +24,7 @@ let private getArtistAndTitle project =
         |> Option.defaultWith (fun () ->
             StringValidator.convertToSortField (StringValidator.FieldType.Title project.Title.Value))
 
-    artist, title
+    {| Artist = artist; Title = title |}
 
 /// Returns an async task for building packages for release.
 let build (openProject: string option) (config: Configuration) (project: DLCProject) =
@@ -33,8 +33,8 @@ let build (openProject: string option) (config: Configuration) (project: DLCProj
         let releaseDir = getTargetDirectory openProject project
 
         let fileNameWithoutExtension =
-            let artist, title = getArtistAndTitle project
-            sprintf "%s_%s_v%s" artist title (project.Version.Replace('.', '_'))
+            let data = getArtistAndTitle project
+            sprintf "%s_%s_v%s" data.Artist data.Title (project.Version.Replace('.', '_'))
             |> StringValidator.fileName
 
         let path =
@@ -44,9 +44,9 @@ let build (openProject: string option) (config: Configuration) (project: DLCProj
         let buildConfig =
             BuildConfig.create Release config (Some releaseDir) project (Set.toList config.ReleasePlatforms)
 
-        let! toneKeysMap = PackageBuilder.buildPackages path buildConfig project
+        let! packagePaths, toneKeysMap = PackageBuilder.buildPackages path buildConfig project
 
-        return (BuildCompleteType.Release releaseDir, toneKeysMap)
+        return BuildCompleteType.Release packagePaths, toneKeysMap
     }
 
 let private addPitchPedal index shift gearList =
@@ -115,5 +115,33 @@ let buildReplacePsarc quickEditData config project =
 
         let! _ = PackageBuilder.buildPackages (PackageBuilder.WithPlatformAndExtension quickEditData.PsarcPath) buildConfig project
 
-        return (BuildCompleteType.ReplacePsarc, Map.empty)
+        return BuildCompleteType.ReplacePsarc, Map.empty
     }
+
+let executePostBuildTasks (config: Configuration) (currentPlatform: Platform) (project: DLCProject) (packagePaths: string array) =
+    for copyTask in config.PostReleaseBuildTasks do
+        let baseTargetPath = copyTask.TargetPath
+        let targetDirectory =
+            match copyTask.CreateSubFolder with
+            | None ->
+                baseTargetPath
+            | Some subFolderType ->
+                let data = getArtistAndTitle project
+
+                let subFolder =
+                    match subFolderType with
+                    | ArtistName -> data.Artist
+                    | ArtistNameAndTitle -> $"{data.Artist} - {data.Title}"
+
+                Directory.CreateDirectory(Path.Combine(baseTargetPath, subFolder)).FullName
+
+        for path in packagePaths do
+            let packagePlatform = Platform.fromPackageFileName path
+            let shouldCopy =
+                not copyTask.OnlyCurrentPlatform || packagePlatform = currentPlatform
+
+            if shouldCopy then
+                let targetPath = Path.Combine(targetDirectory, Path.GetFileName(path))
+                File.Copy(path, targetPath, overwrite = true)
+                if copyTask.OpenFolder then
+                    Utils.openWithShell targetDirectory

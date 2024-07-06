@@ -62,6 +62,7 @@ let initialState =
       AudioLength = None
       FontGenerationWatcher = None
       ProfileCleanerState = ProfileCleanerState.Default
+      NewPostBuildTask = PostBuildCopyTask.Empty
       Localizer = stringLocalizerStub
       AlbumArtLoader = albumArtLoaderStub
       DatabaseConnector = toneDatabaseStub

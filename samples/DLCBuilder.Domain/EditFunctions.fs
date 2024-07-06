@@ -462,3 +462,13 @@ let editVocals state edit index (vocals: Vocals) =
 
     updateArrangement index (Vocals updated) state, Cmd.none
 
+let editPostBuildTask (edit: PostBuildTaskEdit) (postBuildTask: PostBuildCopyTask) =
+    match edit with
+    | SetOnlyCurrentPlatform b ->
+        { postBuildTask with OnlyCurrentPlatform = b }
+    | SetOpenFolder b ->
+        { postBuildTask with OpenFolder = b }
+    | SetTargetPath path ->
+        { postBuildTask with TargetPath = path }
+    | SetCreateSubFolder sub ->
+        { postBuildTask with CreateSubFolder = sub }

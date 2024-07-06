@@ -103,7 +103,7 @@ type StatusMessage =
 type BuildCompleteType =
     | Test
     | TestNewVersion of version: string
-    | Release of targetDirectory: string
+    | Release of packagePaths: string array
     | PitchShifted
     | ReplacePsarc
 
@@ -181,6 +181,12 @@ type ConfigEdit =
     | AddReleasePlatform of Platform
     | RemoveReleasePlatform of Platform
     | SetProfileCleanerParallelism of int
+
+type PostBuildTaskEdit =
+    | SetOpenFolder of bool
+    | SetOnlyCurrentPlatform of bool
+    | SetCreateSubFolder of SubFolderType option
+    | SetTargetPath of string
 
 [<RequireQualifiedAccess>]
 type ArrPropOp =
@@ -312,6 +318,8 @@ type Msg =
     | EditTone of ToneEdit
     | EditProject of ProjectEdit
     | EditConfig of ConfigEdit
+    | EditPostBuildTask of PostBuildTaskEdit
+    | AddNewPostBuildTask
     | CloseOverlay of closeMethod: OverlayCloseMethod
     | ExportSelectedTone
     | ExportTone of tone: Tone * targetPath: string
@@ -384,6 +392,7 @@ type State =
       AudioLength: TimeSpan option
       FontGenerationWatcher: FileSystemWatcher option
       ProfileCleanerState: ProfileCleanerState
+      NewPostBuildTask: PostBuildCopyTask
       /// For forcing a view update if the user loads the same album art file, but the file has been modified.
       AlbumArtLoadTime: DateTime option
       Localizer: IStringLocalizer

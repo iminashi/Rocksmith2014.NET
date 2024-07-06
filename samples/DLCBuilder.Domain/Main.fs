@@ -872,6 +872,17 @@ let update (msg: Msg) (state: State) =
     | EditConfig edit ->
         { state with Config = editConfig edit config }, Cmd.none
 
+    | EditPostBuildTask edit ->
+        { state with NewPostBuildTask = editPostBuildTask edit state.NewPostBuildTask }, Cmd.none
+
+    | AddNewPostBuildTask ->
+        let newConfig =
+            { state.Config with
+                PostReleaseBuildTasks = Array.append state.Config.PostReleaseBuildTasks [| state.NewPostBuildTask |]
+            }
+
+        { state with Config = newConfig; NewPostBuildTask = PostBuildCopyTask.Empty }, Cmd.none
+
     | DeleteTestBuilds ->
         match TestPackageBuilder.getTestBuildFiles config project with
         | [] ->
@@ -985,8 +996,17 @@ let update (msg: Msg) (state: State) =
         let cmd =
             Cmd.batch [
                 match completed with
-                | BuildCompleteType.Release targetDirectory when config.OpenFolderAfterReleaseBuild ->
-                    Cmd.ofMsg (OpenWithShell targetDirectory)
+                | BuildCompleteType.Release packagePaths ->
+                    let postBuildTask paths =
+                        backgroundTask {
+                            ReleasePackageBuilder.executePostBuildTasks config state.CurrentPlatform project paths
+                        }
+
+                    Cmd.OfTask.attempt postBuildTask packagePaths ErrorOccurred
+
+                    if config.OpenFolderAfterReleaseBuild then
+                        let targetDirectory = Path.GetDirectoryName(packagePaths[0])
+                        Cmd.ofMsg (OpenWithShell targetDirectory)
                 | BuildCompleteType.ReplacePsarc ->
                     Cmd.ofMsg NewProject
                 | _ ->

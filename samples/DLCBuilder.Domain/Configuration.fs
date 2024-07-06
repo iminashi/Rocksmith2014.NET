@@ -19,6 +19,31 @@ type BaseToneNamingScheme =
         | BaseToneNamingScheme.TitleAndArrangement ->
             "TitleAndArrangementBaseToneNamingScheme"
 
+type SubFolderType =
+    | ArtistName
+    | ArtistNameAndTitle
+
+    override this.ToString() =
+        match this with
+        | ArtistName -> "ArtistName"
+        | ArtistNameAndTitle -> "ArtistNameAndTitle"
+
+type PostBuildCopyTask =
+    {
+        CreateSubFolder: SubFolderType option
+        TargetPath: string
+        OpenFolder: bool
+        OnlyCurrentPlatform: bool
+    }
+
+    static member Empty =
+        {
+            CreateSubFolder = None
+            TargetPath = String.Empty
+            OpenFolder = false
+            OnlyCurrentPlatform = false
+        }
+
 type Configuration =
     { ReleasePlatforms: Platform Set
       ProfilePath: string
@@ -27,7 +52,7 @@ type Configuration =
       CharterName: string
       ShowAdvanced: bool
       GenerateDD: bool
-      ForcePhraseCreation : bool
+      ForcePhraseCreation: bool
       DDPhraseSearchEnabled: bool
       DDPhraseSearchThreshold: int
       DDLevelCountGeneration: LevelCountGeneration
@@ -50,7 +75,8 @@ type Configuration =
       FontGeneratorPath: string option
       CustomAppId: AppId option
       BaseToneNamingScheme: BaseToneNamingScheme
-      ProfileCleanerIdParsingParallelism: int }
+      ProfileCleanerIdParsingParallelism: int
+      PostReleaseBuildTasks: PostBuildCopyTask array }
 
     static member Default =
         { ReleasePlatforms = Set([ PC; Mac ])
@@ -83,9 +109,55 @@ type Configuration =
           FontGeneratorPath = None
           CustomAppId = None
           BaseToneNamingScheme = BaseToneNamingScheme.Default
-          ProfileCleanerIdParsingParallelism = min 4 Environment.ProcessorCount }
+          ProfileCleanerIdParsingParallelism = min 4 Environment.ProcessorCount
+          PostReleaseBuildTasks = Array.empty }
 
 module Configuration =
+    type SubFolderTypeDto =
+        | Disabled = 0
+        | ArtistName = 1
+        | ArtistNameAndTitle = 2
+
+    type PostBuildCopyTaskDto() =
+        member val CreateSubFolder: SubFolderTypeDto = SubFolderTypeDto.Disabled with get, set
+        member val TargetPath: string = String.Empty with get, set
+        member val OpenFolder: bool = false with get, set
+        member val OnlyCurrentPlatform: bool = false with get, set
+
+        static member toCopyTask(dto: PostBuildCopyTaskDto) : PostBuildCopyTask =
+            let createSubFolder =
+                match dto.CreateSubFolder with
+                | SubFolderTypeDto.ArtistName ->
+                    Some ArtistName
+                | SubFolderTypeDto.ArtistNameAndTitle ->
+                    Some ArtistNameAndTitle
+                | _ ->
+                    None
+
+            {
+                CreateSubFolder = createSubFolder
+                TargetPath = dto.TargetPath |> Option.ofString |> Option.defaultValue String.Empty
+                OpenFolder = dto.OpenFolder
+                OnlyCurrentPlatform = dto.OnlyCurrentPlatform
+            }
+
+        static member ofCopyTask(copyTask: PostBuildCopyTask) : PostBuildCopyTaskDto =
+            let createSubFolder =
+                match copyTask.CreateSubFolder with
+                | Some ArtistName ->
+                    SubFolderTypeDto.ArtistName
+                | Some ArtistNameAndTitle ->
+                    SubFolderTypeDto.ArtistNameAndTitle
+                | None ->
+                    SubFolderTypeDto.Disabled
+
+            PostBuildCopyTaskDto(
+                CreateSubFolder = createSubFolder,
+                TargetPath = copyTask.TargetPath,
+                OpenFolder = copyTask.OpenFolder,
+                OnlyCurrentPlatform = copyTask.OnlyCurrentPlatform
+            )
+
     type Dto() =
         member val ReleasePC: bool = true with get, set
         member val ReleaseMac: bool = true with get, set
@@ -119,6 +191,7 @@ module Configuration =
         member val CustomAppId: string = String.Empty with get, set
         member val BaseToneNaming: int = 1 with get, set
         member val ProfileCleanerIdParsingParallelism: int = Configuration.Default.ProfileCleanerIdParsingParallelism with get, set
+        member val PostReleaseBuildTasks: PostBuildCopyTaskDto array = Array.empty with get, set
 
     let appDataFolder =
         let dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rs2-dlcbuilder")
@@ -190,7 +263,8 @@ module Configuration =
           FontGeneratorPath = Option.ofString dto.FontGeneratorPath
           CustomAppId = AppId.ofString dto.CustomAppId
           BaseToneNamingScheme = baseToneNaming
-          ProfileCleanerIdParsingParallelism = dto.ProfileCleanerIdParsingParallelism }
+          ProfileCleanerIdParsingParallelism = dto.ProfileCleanerIdParsingParallelism
+          PostReleaseBuildTasks = Array.map PostBuildCopyTaskDto.toCopyTask dto.PostReleaseBuildTasks }
 
     /// Converts a configuration into a configuration DTO.
     let private toDto (config: Configuration) =
@@ -246,7 +320,8 @@ module Configuration =
             FontGeneratorPath = Option.toObj config.FontGeneratorPath,
             CustomAppId = customAppId,
             BaseToneNaming = baseToneNaming,
-            ProfileCleanerIdParsingParallelism = config.ProfileCleanerIdParsingParallelism
+            ProfileCleanerIdParsingParallelism = config.ProfileCleanerIdParsingParallelism,
+            PostReleaseBuildTasks = Array.map PostBuildCopyTaskDto.ofCopyTask config.PostReleaseBuildTasks
         )
 
     /// Loads a configuration from the file defined in configFilePath.
