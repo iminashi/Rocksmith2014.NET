@@ -64,7 +64,7 @@ let editToneTests =
             let newTone = newState.Project.Tones |> List.head
 
             Expect.hasLength newTone.ToneDescriptors 3 "Tone has three descriptors"
-            Expect.equal newTone.ToneDescriptors.[0] "$[35721]ACOUSTIC" "First tone descriptor is the default one (acoustic)"
+            Expect.equal newTone.ToneDescriptors.[0] newTone.ToneDescriptors.[1] "First tone descriptor is the same as the previous first one"
 
         testCase "RemoveDescriptor removes a descriptor" <| fun _ ->
             let newState, _ = Main.update (EditTone RemoveDescriptor) state
