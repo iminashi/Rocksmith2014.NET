@@ -18,7 +18,7 @@ open System.Text
 
 type private BuildData =
     { SNGs: (Arrangement * SNG) list
-      CoverArtFiles: DisposableList<DDS.TempDDSFile>
+      CoverArtFiles: DisposableList<DDS.DDSFile>
       BuilderVersion: string
       Author: string
       AppId: AppId
@@ -169,7 +169,7 @@ let private build (buildData: BuildData) progress targetPath project platform = 
     use gfxEntries =
         buildData.CoverArtFiles.Items
         |> List.map (fun dds ->
-            entry $"gfxassets/album_art/album_{key}_{dds.Size}.dds" (readFile dds.FileName))
+            entry $"gfxassets/album_art/album_{key}_{dds.Size}.dds" (readFile dds.Path))
         |> toDisposableList
 
     use toolkitEntry =

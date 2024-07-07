@@ -17,12 +17,12 @@ type Resize =
     | Resize of width: int * height: int
     | NoResize
 
-type TempDDSFile =
-    { Size: int
-      FileName: string }
+type DDSFile(size: int, path: string, deleteOnDispose: bool) =
+    member _.Size = size
+    member _.Path = path
 
     interface IDisposable with
-        member this.Dispose() = File.Delete(this.FileName)
+        member this.Dispose() = if deleteOnDispose then File.Delete(path)
 
 type DDSOptions =
     { Compression: Compression
@@ -39,19 +39,29 @@ let convertToDDS (sourceFile: string) (output: Stream) (options: DDSOptions) =
     | NoResize ->
         ()
     | Resize (width, height) ->
-        image.Resize(MagickGeometry(width, height, IgnoreAspectRatio = true))
+        let geometry = MagickGeometry(width, height, IgnoreAspectRatio = true)
+        image.Resize(geometry)
 
     image.Write(output)
 
+let private targetSizes = [| 64; 128; 256 |]
+
 /// Creates three cover art images from the source file and returns the filenames of the temporary files.
 let createCoverArtImages (sourceFile: string) =
-    [| 64; 128; 256 |]
+    targetSizes
     |> Array.Parallel.map (fun size ->
-        let fileName = Path.GetTempFileName()
-        use tempFile = File.Create(fileName)
-        let options = { Compression = DXT1; Resize = Resize(size, size) }
+        // Try to use an existing file if one exists
+        let ddsFile = $"{Path.GetFileNameWithoutExtension(sourceFile)}{size}.dds"
+        let ddsPath = Path.Combine(Path.GetDirectoryName(sourceFile), ddsFile)
 
-        convertToDDS sourceFile tempFile options
+        if File.Exists(ddsPath) then
+            new DDSFile(size, ddsPath, deleteOnDispose = false)
+        else
+            let fileName = Path.GetTempFileName()
+            use tempFile = File.Create(fileName)
+            let options = { Compression = DXT1; Resize = Resize(size, size) }
 
-        { Size = size; FileName = fileName })
+            convertToDDS sourceFile tempFile options
+
+            new DDSFile(size, fileName, deleteOnDispose = true))
     |> List.ofArray
