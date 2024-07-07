@@ -4,7 +4,14 @@ open ImageMagick
 open System.IO
 open System
 
-type Compression = DXT1 | DXT5
+type Compression =
+    | DXT1
+    | DXT5
+
+    override this.ToString() =
+        match this with
+        | DXT1 -> "dxt1"
+        | DXT5 -> "dxt5"
 
 type Resize =
     | Resize of width: int * height: int
@@ -25,7 +32,7 @@ type DDSOptions =
 let convertToDDS (sourceFile: string) (output: Stream) (options: DDSOptions) =
     use image = new MagickImage(sourceFile, Format = MagickFormat.Dds)
 
-    image.Settings.SetDefine(MagickFormat.Dds, "compression", options.Compression.ToString().ToLowerInvariant())
+    image.Settings.SetDefine(MagickFormat.Dds, "compression", string options.Compression)
     image.Settings.SetDefine(MagickFormat.Dds, "mipmaps", "0")
 
     match options.Resize with
