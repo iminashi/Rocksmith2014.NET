@@ -467,10 +467,10 @@ let editVocals (state: State) (edit: VocalsEdit) (index: int) (vocals: Vocals) =
 
 let editPostBuildTask (edit: PostBuildTaskEdit) (postBuildTask: PostBuildCopyTask) =
     match edit with
-    | SetOnlyCurrentPlatform b ->
-        { postBuildTask with OnlyCurrentPlatform = b }
-    | SetOpenFolder b ->
-        { postBuildTask with OpenFolder = b }
+    | SetAllPlatforms value ->
+        { postBuildTask with AllPlatforms = value }
+    | SetOpenFolder value ->
+        { postBuildTask with OpenFolder = value }
     | SetTargetPath path ->
         { postBuildTask with TargetPath = path }
     | SetCreateSubFolder sub ->

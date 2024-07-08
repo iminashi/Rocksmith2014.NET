@@ -32,6 +32,7 @@
   "SaveJapaneseLyricsDialogTitle": "Save Lyrics As",
   "FontGeneratorPathDialogTitle": "Select Font Generator Executable",
   "ToneInjectDialogTitle": "Select Tones to Inject into Profile",
+  "PostBuildCopyTargetDialogTitle": "Select Target Directory",
   "CouldNotFindTonesError": "Could not find any tones.",
   "Arrangements": "Arrangements",
   "SelectArrangementPrompt": "Select an arrangement to edit its details",
@@ -385,7 +386,7 @@
   "Drop": "{0}Drop {1}",
   "Double Drop": "Double Drop {0}",
   "Custom Tuning": "Custom Tuning",
-  "Open": "Open {0}",
+  "OpenTuning": "Open {0}",
   "ComboArr": "Combo",
   "LeadArr": "Lead",
   "RhythmArr": "Rhythm",
@@ -548,5 +549,11 @@
   "Seconds": "Seconds",
   "Milliseconds": "Milliseconds",
   "CopyTasks": "Copy Tasks",
-  "CopyTasksHelp": "You can create tasks for copying the packages to a specific folder after build."
+  "CopyTasksHelp": "You can create tasks for copying the packages to a specific folder after the build.",
+  "DoNotCreate": "No subfolder",
+  "UseOnlyExistingSubfolder": "Use existing subfolder",
+  "ArtistNameAndTitle": "Artist Name - Title",
+  "AllPlatforms": "All platforms",
+  "OpenFolder": "Open folder",
+  "Add...": "Add..."
 }

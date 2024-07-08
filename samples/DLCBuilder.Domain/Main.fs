@@ -884,9 +884,9 @@ let update (msg: Msg) (state: State) =
         { state with Config.PostReleaseBuildTasks = newTasks }, Cmd.none
 
     | AddNewPostBuildTask path ->
-        let newTask = { PostBuildCopyTask.Empty with TargetPath = path }
+        let newTask = PostBuildCopyTask.create path
         let newConfig =
-            { state.Config with PostReleaseBuildTasks = Array.append state.Config.PostReleaseBuildTasks [| newTask |] }
+            { state.Config with PostReleaseBuildTasks = Array.insertAt 0 newTask state.Config.PostReleaseBuildTasks }
 
         { state with Config = newConfig }, Cmd.none
 

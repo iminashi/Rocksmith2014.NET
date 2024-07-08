@@ -32,6 +32,7 @@
   "SaveJapaneseLyricsDialogTitle": "Tallenna lyriikat nimellä",
   "FontGeneratorPathDialogTitle": "Valitse fonttigeneraattorin ajotiedosto",
   "ToneInjectDialogTitle": "Valitse profiiliin ladattavat soundit",
+  "PostBuildCopyTargetDialogTitle": "Valitse kohdehakemisto",
   "CouldNotFindTonesError": "Ei löytynyt yhtään soundia.",
   "Arrangements": "Sovitukset",
   "SelectArrangementPrompt": "Valitse sovitus muokataksesi sen yksityiskohtia",
@@ -385,7 +386,7 @@
   "Drop": "{0}Pudotettu {1}",
   "Double Drop": "Kaks. pudotettu {0}",
   "Custom Tuning": "Mukautettu viritys",
-  "Open": "Avoin {0}",
+  "OpenTuning": "Avoin {0}",
   "ComboArr": "Yhdistelmä",
   "LeadArr": "Lead",
   "RhythmArr": "Rytmi",
@@ -548,5 +549,11 @@
   "Seconds": "Sekunnit",
   "Milliseconds": "Millisekunnit",
   "CopyTasks": "Kopiotehtävät",
-  "CopyTasksHelp": "Voit luoda tehtäviä, jotka kopiovat paketit tiettyyn kansioon julkaisubuildin jälkeen."
+  "CopyTasksHelp": "Voit luoda tehtäviä, jotka kopiovat paketit tiettyyn kansioon julkaisubuildin jälkeen.",
+  "DoNotCreate": "Ei alikansiota",
+  "UseOnlyExistingSubfolder": "Olemassaoleva alikansio",
+  "ArtistNameAndTitle": "Artistinimi - Kappale",
+  "AllPlatforms": "Kaikki alustat",
+  "OpenFolder": "Avaa kansio",
+  "Add...": "Lisää..."
 }

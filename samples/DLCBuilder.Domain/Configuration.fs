@@ -37,15 +37,15 @@ type PostBuildCopyTask =
         CreateSubfolder: SubfolderType
         TargetPath: string
         OpenFolder: bool
-        OnlyCurrentPlatform: bool
+        AllPlatforms: bool
     }
 
-    static member Empty =
+    static member create (path: string) =
         {
             CreateSubfolder = DoNotCreate
-            TargetPath = String.Empty
+            TargetPath = path
             OpenFolder = false
-            OnlyCurrentPlatform = false
+            AllPlatforms = true
         }
 
 type Configuration =
@@ -129,7 +129,7 @@ module Configuration =
         member val CreateSubfolder: SubfolderTypeDto = SubfolderTypeDto.Disabled with get, set
         member val TargetPath: string = String.Empty with get, set
         member val OpenFolder: bool = false with get, set
-        member val OnlyCurrentPlatform: bool = false with get, set
+        member val AllPlatforms: bool = true with get, set
 
         static member toCopyTask(dto: PostBuildCopyTaskDto) : PostBuildCopyTask =
             let createSubfolder =
@@ -147,7 +147,7 @@ module Configuration =
                 CreateSubfolder = createSubfolder
                 TargetPath = dto.TargetPath |> Option.ofString |> Option.defaultValue String.Empty
                 OpenFolder = dto.OpenFolder
-                OnlyCurrentPlatform = dto.OnlyCurrentPlatform
+                AllPlatforms = dto.AllPlatforms
             }
 
         static member ofCopyTask(copyTask: PostBuildCopyTask) : PostBuildCopyTaskDto =
@@ -166,7 +166,7 @@ module Configuration =
                 CreateSubfolder = createSubfolder,
                 TargetPath = copyTask.TargetPath,
                 OpenFolder = copyTask.OpenFolder,
-                OnlyCurrentPlatform = copyTask.OnlyCurrentPlatform
+                AllPlatforms = copyTask.AllPlatforms
             )
 
     type Dto() =

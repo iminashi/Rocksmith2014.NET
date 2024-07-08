@@ -32,6 +32,7 @@
   "SaveJapaneseLyricsDialogTitle": "名前を付けて歌詞を保存",
   "FontGeneratorPathDialogTitle": "フォントジェネレーターの実行ファイルを選択してください",
   "ToneInjectDialogTitle": "プロフィールに読み込むトーンを選択してください",
+  "PostBuildCopyTargetDialogTitle": "コピー先のフォルダを選択してください",
   "CouldNotFindTonesError": "トーンを見つかる事ができませんでした",
   "Arrangements": "アレンジ",
   "SelectArrangementPrompt": "アレンジを選択すると詳細が表示されます",
@@ -385,7 +386,7 @@
   "Drop": "{0}ドロップ{1}",
   "Double Drop": "ダブルドロップ{0}",
   "Custom Tuning": "カスタムチューニング",
-  "Open": "オープン{0}",
+  "OpenTuning": "オープン{0}",
   "ComboArr": "コンボ",
   "LeadArr": "リード",
   "RhythmArr": "リズム",
@@ -548,5 +549,11 @@
   "Seconds": "秒",
   "Milliseconds": "ミリ秒",
   "CopyTasks": "コピータスク",
-  "CopyTasksHelp": "リリースビルド後にパッケージを特定のフォルダにコピーするタスクを作ることができます。"
+  "CopyTasksHelp": "リリースビルド後にパッケージを特定のフォルダにコピーするタスクを作ることができます。",
+  "DoNotCreate": "サブフォルダ無し",
+  "UseOnlyExistingSubfolder": "既存のサブフォルダ",
+  "ArtistNameAndTitle": "アーティスト名 - 曲名",
+  "AllPlatforms": "全プラットフォーム",
+  "OpenFolder": "フォルダーを開く",
+  "Add...": "追加..."
 }

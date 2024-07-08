@@ -185,7 +185,7 @@ type ConfigEdit =
 
 type PostBuildTaskEdit =
     | SetOpenFolder of bool
-    | SetOnlyCurrentPlatform of bool
+    | SetAllPlatforms of bool
     | SetCreateSubFolder of SubfolderType
     | SetTargetPath of path: string
 

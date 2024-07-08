@@ -69,10 +69,10 @@ let getTuningName (tuning: int16 array) : TuningName =
         TranslatableTuning("Double Drop", [| n |])
     | Other ->
         match tuning with
-        | [| -2s;  0s; 0s; -1s; -2s; -2s |] -> TranslatableTuning("Open", [| "D" |])
-        | [|  0s;  0s; 2s;  2s;  2s;  0s |] -> TranslatableTuning("Open", [| "A" |])
-        | [| -2s; -2s; 0s;  0s;  0s; -2s |] -> TranslatableTuning("Open", [| "G" |])
-        | [|  0s;  2s; 2s;  1s;  0s;  0s |] -> TranslatableTuning("Open", [| "E" |])
+        | [| -2s;  0s; 0s; -1s; -2s; -2s |] -> TranslatableTuning("OpenTuning", [| "D" |])
+        | [|  0s;  0s; 2s;  2s;  2s;  0s |] -> TranslatableTuning("OpenTuning", [| "A" |])
+        | [| -2s; -2s; 0s;  0s;  0s; -2s |] -> TranslatableTuning("OpenTuning", [| "G" |])
+        | [|  0s;  2s; 2s;  1s;  0s;  0s |] -> TranslatableTuning("OpenTuning", [| "E" |])
         | _ ->
             tuning
             |> Array.mapi (getStringNoteName true)

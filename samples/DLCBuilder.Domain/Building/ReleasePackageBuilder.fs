@@ -150,8 +150,7 @@ let executePostBuildTasks (config: Configuration) (currentPlatform: Platform) (p
 
         for path in packagePaths do
             let packagePlatform = Platform.fromPackageFileName path
-            let shouldCopy =
-                not copyTask.OnlyCurrentPlatform || packagePlatform = currentPlatform
+            let shouldCopy = copyTask.AllPlatforms || packagePlatform = currentPlatform
 
             if shouldCopy then
                 let targetPath = Path.Combine(targetDirectory, Path.GetFileName(path))
