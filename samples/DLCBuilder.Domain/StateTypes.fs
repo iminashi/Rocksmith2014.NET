@@ -187,7 +187,7 @@ type PostBuildTaskEdit =
     | SetOpenFolder of bool
     | SetOnlyCurrentPlatform of bool
     | SetCreateSubFolder of SubfolderType
-    | SetTargetPath of string
+    | SetTargetPath of path: string
 
 [<RequireQualifiedAccess>]
 type ArrPropOp =
@@ -233,7 +233,7 @@ type FolderTarget =
     | PsarcImportTarget of psarcPath: string
     | PsarcUnpackTarget of psarcPaths: string array
     | PsarcPackDirectory
-    | PostBuildCopyTarget
+    | PostBuildCopyTarget of indexOpt: int voption
 
 [<RequireQualifiedAccess>]
 type Dialog =
@@ -324,8 +324,9 @@ type Msg =
     | EditTone of ToneEdit
     | EditProject of ProjectEdit
     | EditConfig of ConfigEdit
-    | EditPostBuildTask of PostBuildTaskEdit
-    | AddNewPostBuildTask
+    | EditPostBuildTask of index: int * edit: PostBuildTaskEdit
+    | AddNewPostBuildTask of path: string
+    | RemovePostBuildTask of index: int
     | CloseOverlay of closeMethod: OverlayCloseMethod
     | ExportSelectedTone
     | ExportTone of tone: Tone * targetPath: string
@@ -398,7 +399,6 @@ type State =
       AudioLength: TimeSpan option
       FontGenerationWatcher: FileSystemWatcher option
       ProfileCleanerState: ProfileCleanerState
-      NewPostBuildTask: PostBuildCopyTask
       /// For forcing a view update if the user loads the same album art file, but the file has been modified.
       AlbumArtLoadTime: DateTime option
       Localizer: IStringLocalizer

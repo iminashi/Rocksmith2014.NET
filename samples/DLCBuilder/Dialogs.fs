@@ -182,7 +182,7 @@ let private translateTitle dialogType =
                 | FolderTarget.Dlc -> "DlcFolder"
                 | FolderTarget.TestBuilds -> "TestFolder"
                 | FolderTarget.PsarcPackDirectory -> "PsarcPackDirectory"
-                | FolderTarget.PostBuildCopyTarget -> "PostBuildCopyTarget"
+                | FolderTarget.PostBuildCopyTarget _ -> "PostBuildCopyTarget"
             | Dialog.AudioFile _ -> "AudioFile"
             | Dialog.ExportTone _ -> "ExportTone"
             | Dialog.PsarcPackTargetFile _ -> "PsarcPackTargetFile"
@@ -233,9 +233,22 @@ let showDialog window dialogType state =
                 let initialDir = state.Config.DlcFolderPath |> Option.ofString
                 openFolderDialog title initialDir (SetDlcFolderPath >> EditConfig)
 
-            | FolderTarget.PostBuildCopyTarget ->
-                let initialDir = state.NewPostBuildTask.TargetPath |> Option.ofString
-                openFolderDialog title initialDir (SetTargetPath >> EditPostBuildTask)
+            | FolderTarget.PostBuildCopyTarget indexOpt ->
+                let initialDir =
+                    match indexOpt with
+                    | ValueSome i ->
+                        state.Config.PostReleaseBuildTasks
+                        |> Array.tryItem i
+                        |> Option.map _.TargetPath
+                    | ValueNone ->
+                        None
+
+                openFolderDialog title initialDir (fun path ->
+                    match indexOpt with
+                    | ValueNone ->
+                        AddNewPostBuildTask path
+                    | ValueSome index ->
+                        EditPostBuildTask(index, SetTargetPath path))
 
         | Dialog.SaveJapaneseLyrics ->
             let msg = JapaneseLyricsCreator.SaveLyricsToFile >> LyricsCreatorMsg

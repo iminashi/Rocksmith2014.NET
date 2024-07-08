@@ -626,101 +626,57 @@ let private releaseBuildConfig state dispatch =
             ]
         ]
 
-        headerWithLine "Copy Tasks" false
+        headerWithLine "CopyTasks" true
 
-        let postBuildCopyTaskTemplate (pbct: PostBuildCopyTask) =
+        let postBuildCopyTaskTemplate (index: int) (pbct: PostBuildCopyTask) =
             let targetPath =
                 let path = pbct.TargetPath
                 match pbct.CreateSubfolder with
                 | DoNotCreate ->
                     path
                 | UseOnlyExistingSubfolder ->
-                    Path.Combine(path, "{ExistingArtistSubfolder}")
+                    Path.Combine(path, "{ExistingSubfolder}")
                 | ArtistName ->
                     Path.Combine(path, "{ArtistName}")
                 | ArtistNameAndTitle ->
                     Path.Combine(path, "{ArtistName} - {Title}")
 
             hStack [
-                TextBlock.create [
-                    TextBlock.text targetPath
+                iconButton Icons.x [
+                    Button.onClick (fun _ -> RemovePostBuildTask index |> dispatch)
                 ]
 
-                iconButton Icons.x [
+                iconButton Media.Icons.folderOpen [
+                    Button.onClick (fun _ -> ValueSome index |> FolderTarget.PostBuildCopyTarget |> Dialog.FolderTarget |> ShowDialog |> dispatch)
+                ]
+
+                CheckBox.create [
+                    CheckBox.isChecked pbct.OpenFolder
+                ]
+                CheckBox.create [
+                    CheckBox.isChecked pbct.OnlyCurrentPlatform
+                ]
+
+                TextBlock.create [
+                    TextBlock.verticalAlignment VerticalAlignment.Center
+                    TextBlock.text targetPath
                 ]
             ] |> generalize
 
         ListBoxEx.create [
-            ListBoxEx.children (state.Config.PostReleaseBuildTasks |> Array.map postBuildCopyTaskTemplate |> Array.toList)
-        ]
-
-        headerWithLine "New Copy Tasks" false
-
-        vStack [
-            hStack [
-                CheckBox.create [
-                    CheckBox.content "OpenFolder"
-                    CheckBox.isChecked state.NewPostBuildTask.OpenFolder
-                    CheckBox.onChecked (fun _ -> true |> SetOpenFolder |> EditPostBuildTask |> dispatch)
-                    CheckBox.onUnchecked (fun _ -> false |> SetOpenFolder |> EditPostBuildTask |> dispatch)
-                ]
-
-                CheckBox.create [
-                    CheckBox.content "OnlyCurrentPlatform"
-                    CheckBox.isChecked state.NewPostBuildTask.OnlyCurrentPlatform
-                    CheckBox.onChecked (fun _ -> true |> SetOnlyCurrentPlatform |> EditPostBuildTask |> dispatch)
-                    CheckBox.onUnchecked (fun _ -> false |> SetOnlyCurrentPlatform |> EditPostBuildTask |> dispatch)
-                ]
-            ]
-
-            DockPanel.create [
-                DockPanel.children [
-                    locText "Target Path" [
-                        DockPanel.dock Dock.Left
-                        TextBlock.margin 4.
-                        TextBlock.verticalAlignment VerticalAlignment.Center
-                    ]
-
-                    iconButton Media.Icons.folderOpen [
-                        DockPanel.dock Dock.Right
-                        Button.onClick (fun _ -> FolderTarget.PostBuildCopyTarget |> Dialog.FolderTarget |> ShowDialog |> dispatch)
-                    ]
-
-                    FixedTextBox.create [
-                        FixedTextBox.margin (0., 4.)
-                        FixedTextBox.watermark (translate "Target Path")
-                        FixedTextBox.text state.NewPostBuildTask.TargetPath
-                        FixedTextBox.onTextChanged (SetTargetPath >> EditPostBuildTask >> dispatch)
-                    ]
-                ]
-            ]
-
-            DockPanel.create [
-                DockPanel.children [
-                    locText "Create Subfolder" [
-                        DockPanel.dock Dock.Left
-                        TextBlock.margin 4.
-                        TextBlock.verticalAlignment VerticalAlignment.Center
-                    ]
-
-                    FixedComboBox.create [
-                        FixedComboBox.dataItems [ DoNotCreate; UseOnlyExistingSubfolder; ArtistName; ArtistNameAndTitle ]
-                        FixedComboBox.itemTemplate subfolderTypeOptionTemplate
-                        FixedComboBox.selectedItem state.NewPostBuildTask.CreateSubfolder
-                        FixedComboBox.onSelectedItemChanged (function
-                            | :? SubfolderType as subfolderOption ->
-                                subfolderOption |> SetCreateSubFolder |> EditPostBuildTask |> dispatch
-                            | _ ->
-                                ())
-                    ]
-                ]
-            ]
+            ListBoxEx.children (state.Config.PostReleaseBuildTasks |> Array.mapi postBuildCopyTaskTemplate |> Array.toList)
         ]
 
         Button.create [
-            Button.content (translate "Add")
-            Button.isEnabled (String.notEmpty state.NewPostBuildTask.TargetPath)
-            Button.onClick (fun _ -> dispatch AddNewPostBuildTask)
+            Button.content (
+                hStack [
+                    PathIcon.create [
+                        PathIcon.data Icons.plus
+                    ]
+                    locText "Add..." [ TextBlock.margin (8., 0., 0., 0.) ]
+                ])
+            Button.classes [ "borderless-btn" ]
+            Button.onClick (fun _ -> ValueNone |> FolderTarget.PostBuildCopyTarget |> Dialog.FolderTarget |> ShowDialog |> dispatch)
         ]
     ]
 

@@ -64,7 +64,6 @@ let init localizer albumArtLoader databaseConnector exitHandler args =
       AudioLength = None
       FontGenerationWatcher = None
       ProfileCleanerState = ProfileCleanerState.Default
-      NewPostBuildTask = PostBuildCopyTask.Empty
       Localizer = localizer
       AlbumArtLoader = albumArtLoader
       DatabaseConnector = databaseConnector

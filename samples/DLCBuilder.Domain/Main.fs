@@ -872,16 +872,27 @@ let update (msg: Msg) (state: State) =
     | EditConfig edit ->
         { state with Config = editConfig edit config }, Cmd.none
 
-    | EditPostBuildTask edit ->
-        { state with NewPostBuildTask = editPostBuildTask edit state.NewPostBuildTask }, Cmd.none
+    | EditPostBuildTask(index, edit) ->
+        let newTasks =
+            config.PostReleaseBuildTasks
+            |> Array.mapi (fun i t ->
+                if i = index then
+                    editPostBuildTask edit t
+                else
+                    t)
 
-    | AddNewPostBuildTask ->
+        { state with Config.PostReleaseBuildTasks = newTasks }, Cmd.none
+
+    | AddNewPostBuildTask path ->
+        let newTask = { PostBuildCopyTask.Empty with TargetPath = path }
         let newConfig =
-            { state.Config with
-                PostReleaseBuildTasks = Array.append state.Config.PostReleaseBuildTasks [| state.NewPostBuildTask |]
-            }
+            { state.Config with PostReleaseBuildTasks = Array.append state.Config.PostReleaseBuildTasks [| newTask |] }
 
-        { state with Config = newConfig; NewPostBuildTask = PostBuildCopyTask.Empty }, Cmd.none
+        { state with Config = newConfig }, Cmd.none
+
+    | RemovePostBuildTask index ->
+        let newConfig = { config with PostReleaseBuildTasks = Array.removeAt index config.PostReleaseBuildTasks }
+        { state with Config = newConfig }, Cmd.none
 
     | DeleteTestBuilds confirmDeletionOfMultipleFiles ->
         match TestPackageBuilder.getTestBuildFiles config project with

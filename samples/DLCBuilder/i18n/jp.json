@@ -546,5 +546,7 @@
   "ExitConfirmationMessage": "プロジェクトが変更されています。\n\n終了前にプロジェクトを保存しますか?",
   "Minutes": "分",
   "Seconds": "秒",
-  "Milliseconds": "ミリ秒"
+  "Milliseconds": "ミリ秒",
+  "CopyTasks": "コピータスク",
+  "CopyTasksHelp": "リリースビルド後にパッケージを特定のフォルダにコピーするタスクを作ることができます。"
 }

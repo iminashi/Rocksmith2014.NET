@@ -546,5 +546,7 @@
   "ExitConfirmationMessage": "Sinulla on tallentamattomia muutoksia.\n\nTallennetaanko projekti ennen lopetusta?",
   "Minutes": "Minuutit",
   "Seconds": "Sekunnit",
-  "Milliseconds": "Millisekunnit"
+  "Milliseconds": "Millisekunnit",
+  "CopyTasks": "Kopiotehtävät",
+  "CopyTasksHelp": "Voit luoda tehtäviä, jotka kopiovat paketit tiettyyn kansioon julkaisubuildin jälkeen."
 }

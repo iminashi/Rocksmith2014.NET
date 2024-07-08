@@ -546,5 +546,7 @@
   "ExitConfirmationMessage": "You have unsaved changes.\n\nSave the project before exiting?",
   "Minutes": "Minutes",
   "Seconds": "Seconds",
-  "Milliseconds": "Milliseconds"
+  "Milliseconds": "Milliseconds",
+  "CopyTasks": "Copy Tasks",
+  "CopyTasksHelp": "You can create tasks for copying the packages to a specific folder after build."
 }
