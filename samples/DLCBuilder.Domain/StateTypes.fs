@@ -184,8 +184,8 @@ type ConfigEdit =
     | SetProfileCleanerParallelism of int
 
 type PostBuildTaskEdit =
-    | SetOpenFolder of bool
-    | SetAllPlatforms of bool
+    | SetOpenFolder of bool voption
+    | SetAllPlatforms of bool voption
     | SetCreateSubFolder of SubfolderType
     | SetTargetPath of path: string
 

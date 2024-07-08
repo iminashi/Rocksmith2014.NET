@@ -550,10 +550,15 @@
   "Milliseconds": "Millisekunnit",
   "CopyTasks": "Kopiotehtävät",
   "CopyTasksHelp": "Voit luoda tehtäviä, jotka kopiovat paketit tiettyyn kansioon julkaisubuildin jälkeen.",
+  "CreateSubFolder": "Luo alikansio",
   "DoNotCreate": "Ei alikansiota",
   "UseOnlyExistingSubfolder": "Olemassaoleva alikansio",
+  "UseOnlyExistingSubfolderToolTip": "Alikansiota ei luoda, mutta jo olemassaolevaa alikansiota (\"ArtistiNimi\" or \"ArtistiNimi - Kappale\") käytetään.",
   "ArtistNameAndTitle": "Artistinimi - Kappale",
   "AllPlatforms": "Kaikki alustat",
+  "AllPlatformsToolTip": "Kopiodaanko kaikkien alustojen tiedostot vai vain nykyisen alustan tiedosto.",
   "OpenFolder": "Avaa kansio",
-  "Add...": "Lisää..."
+  "OpenFolderToolTip": "Avataanko kansio tiedostojen kopioimisen jälkeen.",
+  "Add...": "Lisää...",
+  "ChangeTarget...": "Vaihda kohdekansio..."
 }

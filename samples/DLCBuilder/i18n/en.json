@@ -550,10 +550,15 @@
   "Milliseconds": "Milliseconds",
   "CopyTasks": "Copy Tasks",
   "CopyTasksHelp": "You can create tasks for copying the packages to a specific folder after the build.",
-  "DoNotCreate": "No subfolder",
+  "CreateSubFolder": "Create subfolder",
+  "DoNotCreate": "Disabled",
   "UseOnlyExistingSubfolder": "Use existing subfolder",
+  "UseOnlyExistingSubfolderToolTip": "A new subfolder will not be created, but an already existing one (\"Artist Name\" or \"Artist Name - Title\") will be used.",
   "ArtistNameAndTitle": "Artist Name - Title",
   "AllPlatforms": "All platforms",
+  "AllPlatformsToolTip": "When disabled, only the file for the current platform will be copied.",
   "OpenFolder": "Open folder",
-  "Add...": "Add..."
+  "OpenFolderToolTip": "When enabled, the folder will be opened after the files have been copied.",
+  "Add...": "Add...",
+  "ChangeTarget...": "Change target folder..."
 }

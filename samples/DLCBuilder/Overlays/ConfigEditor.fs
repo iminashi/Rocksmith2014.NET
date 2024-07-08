@@ -13,7 +13,6 @@ open System
 open System.IO
 open System.Text.RegularExpressions
 open DLCBuilder
-open Avalonia.Controls.Templates
 open DLCBuilder.Media
 
 let private tryFindWwiseExecutable basePath =
@@ -553,9 +552,6 @@ let private buildConfig state dispatch =
         ]
     ]
 
-let private subfolderTypeOptionTemplate : IDataTemplate =
-    DataTemplateView<SubfolderType>.create (fun subfolderType -> locText (string subfolderType) [])
-
 let private postBuildCopyTaskTemplate dispatch (index: int) (pbct: PostBuildCopyTask) =
     let targetPath =
         let path = pbct.TargetPath
@@ -571,63 +567,11 @@ let private postBuildCopyTaskTemplate dispatch (index: int) (pbct: PostBuildCopy
     Grid.create [
         Grid.margin (0., 4.)
         Grid.columnDefinitions "auto,*"
-        Grid.rowDefinitions "*,*"
         Grid.children [
-            StackPanel.create [
-                Grid.rowSpan 2
-                StackPanel.orientation Orientation.Horizontal
-                StackPanel.children [
-                    iconButton Icons.x [
-                        Button.onClick (fun _ -> RemovePostBuildTask index |> dispatch)
-                    ]
-
-                    iconButton Media.Icons.folderOpen [
-                        Button.onClick (fun _ ->
-                            FolderTarget.PostBuildCopyTarget(ValueSome index)
-                            |> Dialog.FolderTarget
-                            |> ShowDialog
-                            |> dispatch)
-                    ]
-                ]
-            ]
-            StackPanel.create [
-                Grid.column 1
-                StackPanel.orientation Orientation.Horizontal
-                StackPanel.children [
-                    CheckBox.create [
-                        CheckBox.margin (4., 0.)
-                        CheckBox.isChecked pbct.OpenFolder
-                        CheckBox.content (translate "OpenFolder")
-                        CheckBox.onChecked (fun _ -> EditPostBuildTask(index, SetOpenFolder true) |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> EditPostBuildTask(index, SetOpenFolder false) |> dispatch)
-                    ]
-
-                    CheckBox.create [
-                        CheckBox.margin (4., 0.)
-                        CheckBox.isChecked pbct.AllPlatforms
-                        CheckBox.content (translate "AllPlatforms")
-                        CheckBox.onChecked (fun _ -> EditPostBuildTask(index, SetAllPlatforms true) |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> EditPostBuildTask(index, SetAllPlatforms false) |> dispatch)
-                    ]
-
-                    FixedComboBox.create [
-                        FixedComboBox.margin (4., 0.)
-                        FixedComboBox.dataItems [ DoNotCreate; UseOnlyExistingSubfolder; ArtistName; ArtistNameAndTitle ]
-                        FixedComboBox.itemTemplate subfolderTypeOptionTemplate
-                        FixedComboBox.selectedItem pbct.CreateSubfolder
-                        FixedComboBox.onSelectedItemChanged (function
-                            | :? SubfolderType as subfolderOption ->
-                                let edit = SetCreateSubFolder subfolderOption
-                                EditPostBuildTask(index, edit) |> dispatch
-                            | _ ->
-                                ())
-                    ]
-                ]
-            ]
+            Menus.copyTaskMenu dispatch index pbct
 
             TextBlock.create [
                 Grid.column 1
-                Grid.row 1
                 TextBlock.verticalAlignment VerticalAlignment.Center
                 TextBlock.text targetPath
             ]
@@ -704,11 +648,13 @@ let private releaseBuildConfig state dispatch =
             ]
         ]
 
+        // Copy Tasks
         headerWithLine "CopyTasks" true
 
         DockPanel.create [
-            DockPanel.maxHeight 250.
+            DockPanel.maxHeight 200.
             DockPanel.children [
+                // Add new copy task
                 Button.create [
                     DockPanel.dock Dock.Top
                     Button.horizontalAlignment HorizontalAlignment.Stretch
@@ -729,6 +675,7 @@ let private releaseBuildConfig state dispatch =
                         |> dispatch)
                 ]
 
+                // Copy task list
                 ListBoxEx.create [
                     ListBoxEx.children (
                         state.Config.PostReleaseBuildTasks

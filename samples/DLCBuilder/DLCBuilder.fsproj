@@ -80,6 +80,7 @@
     <Compile Include="Controls\HelpButton.fs" />
     <Compile Include="Controls\TitleBarButtons.fs" />
     <Compile Include="Controls\TitledTextBox.fs" />
+    <Compile Include="Menus.fs" />
     <Compile Include="Overlays\AdditionalMetaDataEditor.fs" />
     <Compile Include="Overlays\AbnormalExitMessage.fs" />
     <Compile Include="Overlays\IdRegenerationConfirmation.fs" />
@@ -99,7 +100,6 @@
     <Compile Include="Overlays\InstrumentalXmlDetails.fs" />
     <Compile Include="Overlays\ProfileCleanerOverlay.fs" />
     <Compile Include="Overlays\UpdateInfoMessage.fs" />
-    <Compile Include="Views\Menus.fs" />
     <Compile Include="Views\Templates.fs" />
     <Compile Include="Views\AudioControls.fs" />
     <Compile Include="Views\ProjectDetails.fs" />

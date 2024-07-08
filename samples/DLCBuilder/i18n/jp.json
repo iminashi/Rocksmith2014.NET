@@ -550,10 +550,15 @@
   "Milliseconds": "ミリ秒",
   "CopyTasks": "コピータスク",
   "CopyTasksHelp": "リリースビルド後にパッケージを特定のフォルダにコピーするタスクを作ることができます。",
+  "CreateSubFolder": "サブフォルダ作成",
   "DoNotCreate": "サブフォルダ無し",
   "UseOnlyExistingSubfolder": "既存のサブフォルダ",
+  "UseOnlyExistingSubfolderToolTip": "新しいサブフォルダが作成されませんが、既存のサブフォルダ（\"Artist Name\"もしくは\"Artist Name - Title\"）が存在する場合、それが使用されます。",
   "ArtistNameAndTitle": "アーティスト名 - 曲名",
   "AllPlatforms": "全プラットフォーム",
+  "AllPlatformsToolTip": "オフにすると、今のプラットフォームのファイルだけがコピーされます。",
   "OpenFolder": "フォルダーを開く",
-  "Add...": "追加..."
+  "OpenFolderToolTip": "オンにすると、コピー後にフォルダが開かれます。",
+  "Add...": "追加...",
+  "ChangeTarget...": "コピー先を変更..."
 }

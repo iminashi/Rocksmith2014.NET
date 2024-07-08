@@ -45,7 +45,7 @@ let private menuHeader (header: string) =
         MenuItem.isHitTestVisible false
     ]
 
-let private menuCheckBox (text: string) (value: bool) (toggleOption: bool voption -> unit) =
+let private menuCheckBox (text: string) (hasToolTip: bool) (value: bool) (toggleOption: bool voption -> unit) =
     MenuItem.create [
         // Prevent the menu from closing when clicking an item
         MenuItem.onPointerReleased (fun e -> e.Handled <- true)
@@ -63,6 +63,80 @@ let private menuCheckBox (text: string) (value: bool) (toggleOption: bool voptio
                 CheckBox.focusable false
             ]
         )
+        if hasToolTip then
+            ToolTip.tip (translate $"{text}ToolTip")
+    ]
+
+let private menuRadioButton (text: string) (hasToolTip: bool) (isChecked: bool) (setChecked: unit -> unit) =
+    MenuItem.create [
+        // Prevent the menu from closing when clicking an item
+        MenuItem.onPointerReleased (fun e -> e.Handled <- true)
+        MenuItem.onTapped (fun _ -> setChecked ())
+        MenuItem.onKeyDown (fun e ->
+            if e.Key = Key.Enter then
+                setChecked ()
+                e.Handled <- true
+        )
+        MenuItem.header (
+            RadioButton.create [
+                RadioButton.content (translate text)
+                RadioButton.isChecked isChecked
+                RadioButton.isHitTestVisible false
+                RadioButton.focusable false
+            ]
+        )
+        if hasToolTip then
+            ToolTip.tip (translate $"{text}ToolTip")
+    ]
+
+let copyTaskMenu dispatch (index: int) (task: PostBuildCopyTask) =
+    Menu.create [
+        Menu.viewItems [
+            MenuItem.create [
+                MenuItem.header (
+                    PathIcon.create [
+                        PathIcon.data Media.Icons.ellipsis
+                    ]
+                )
+
+                MenuItem.viewItems [
+                    MenuItem.create [
+                        MenuItem.header (translate "ChangeTarget...")
+                        MenuItem.onClick (fun _ ->
+                            FolderTarget.PostBuildCopyTarget(ValueSome index)
+                            |> Dialog.FolderTarget
+                            |> ShowDialog
+                            |> dispatch
+                        )
+                    ]
+
+                    MenuItem.create [
+                        MenuItem.header (translate "CreateSubFolder")
+                        MenuItem.viewItems (
+                            [ DoNotCreate; UseOnlyExistingSubfolder; ArtistName; ArtistNameAndTitle ]
+                            |> List.map (fun subfolderType ->
+                                menuRadioButton
+                                    (string subfolderType)
+                                    (subfolderType = UseOnlyExistingSubfolder)
+                                    (task.CreateSubfolder = subfolderType)
+                                    (fun () -> EditPostBuildTask(index, SetCreateSubFolder subfolderType) |> dispatch)
+                            )
+                        )
+                    ]
+
+                    menuCheckBox "OpenFolder" true task.OpenFolder (fun x -> EditPostBuildTask(index, SetOpenFolder x) |> dispatch)
+
+                    menuCheckBox "AllPlatforms" true task.AllPlatforms (fun x -> EditPostBuildTask(index, SetAllPlatforms x) |> dispatch)
+
+                    separator
+
+                    MenuItem.create [
+                        MenuItem.header (translate "Remove")
+                        MenuItem.onClick (fun _ -> RemovePostBuildTask index |> dispatch)
+                    ]
+                ]
+            ]
+        ]
     ]
 
 let buildOptions isQuickEdit state dispatch =
@@ -80,24 +154,24 @@ let buildOptions isQuickEdit state dispatch =
                 MenuItem.viewItems [
                     menuHeader "Common"
 
-                    menuCheckBox "ApplyImprovements" state.Config.ApplyImprovements (SetApplyImprovements >> EditConfig >> dispatch)
+                    menuCheckBox "ApplyImprovements" false state.Config.ApplyImprovements (SetApplyImprovements >> EditConfig >> dispatch)
 
-                    menuCheckBox "ForceAutomaticPhraseCreation" state.Config.ForcePhraseCreation (SetForcePhraseCreation >> EditConfig >> dispatch)
+                    menuCheckBox "ForceAutomaticPhraseCreation" false state.Config.ForcePhraseCreation (SetForcePhraseCreation >> EditConfig >> dispatch)
 
                     if not isQuickEdit then
                         menuHeader "Release"
 
-                        menuCheckBox "ValidateBeforeBuild" state.Config.ValidateBeforeReleaseBuild (SetValidateBeforeReleaseBuild >> EditConfig >> dispatch)
+                        menuCheckBox "ValidateBeforeBuild" false state.Config.ValidateBeforeReleaseBuild (SetValidateBeforeReleaseBuild >> EditConfig >> dispatch)
 
-                        menuCheckBox "DeleteTestBuildsOnRelease" state.Config.DeleteTestBuildsOnRelease (SetDeleteTestBuildsOnRelease >> EditConfig >> dispatch)
+                        menuCheckBox "DeleteTestBuildsOnRelease" false state.Config.DeleteTestBuildsOnRelease (SetDeleteTestBuildsOnRelease >> EditConfig >> dispatch)
 
                         menuHeader "Test"
 
-                        menuCheckBox "ComparePhraseLevelsOnTestBuild" state.Config.ComparePhraseLevelsOnTestBuild (SetComparePhraseLevelsOnTestBuild >> EditConfig >> dispatch)
+                        menuCheckBox "ComparePhraseLevelsOnTestBuild" false state.Config.ComparePhraseLevelsOnTestBuild (SetComparePhraseLevelsOnTestBuild >> EditConfig >> dispatch)
 
-                        menuCheckBox "GenerateDDLevels" state.Config.GenerateDD (SetGenerateDD >> EditConfig >> dispatch)
+                        menuCheckBox "GenerateDDLevels" false state.Config.GenerateDD (SetGenerateDD >> EditConfig >> dispatch)
 
-                        menuCheckBox "SaveDebugFiles" state.Config.SaveDebugFiles (SetSaveDebugFiles >> EditConfig >> dispatch)
+                        menuCheckBox "SaveDebugFiles" false state.Config.SaveDebugFiles (SetSaveDebugFiles >> EditConfig >> dispatch)
                 ]
             ]
         ]
