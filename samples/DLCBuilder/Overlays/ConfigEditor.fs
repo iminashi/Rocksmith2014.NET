@@ -508,55 +508,45 @@ let private buildConfig state dispatch =
                     ]
                 ]
 
-                Grid.create [
-                    Grid.columnDefinitions "*,*"
-                    Grid.rowDefinitions "*,*,*"
-                    Grid.children [
-                        // Compare Phrase Levels
-                        StackPanel.create [
-                            Grid.columnSpan 2
-                            StackPanel.orientation Orientation.Horizontal
-                            StackPanel.children [
-                                CheckBox.create [
-                                    CheckBox.content (translate "ComparePhraseLevelsOnTestBuild")
-                                    CheckBox.isChecked state.Config.ComparePhraseLevelsOnTestBuild
-                                    CheckBox.onChecked (fun _ -> true |> ValueSome |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
-                                    CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
-                                ]
-                                HelpButton.create [
-                                    HelpButton.helpText (translate "ComparePhraseLevelsOnTestBuildHelp")
-                                ]
-                            ]
-                        ]
 
-                        // Generate DD
+                // Compare Phrase Levels
+                StackPanel.create [
+                    StackPanel.orientation Orientation.Horizontal
+                    StackPanel.children [
                         CheckBox.create [
-                            Grid.row 1
-                            CheckBox.verticalAlignment VerticalAlignment.Center
-                            CheckBox.content (translate "GenerateDDLevels")
-                            CheckBox.isChecked state.Config.GenerateDD
-                            CheckBox.onChecked (fun _ -> true |> ValueSome |> SetGenerateDD |> EditConfig |> dispatch)
-                            CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetGenerateDD |> EditConfig |> dispatch)
+                            CheckBox.content (translate "ComparePhraseLevelsOnTestBuild")
+                            CheckBox.isChecked state.Config.ComparePhraseLevelsOnTestBuild
+                            CheckBox.onChecked (fun _ -> true |> ValueSome |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
+                            CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
                         ]
+                        HelpButton.create [
+                            HelpButton.helpText (translate "ComparePhraseLevelsOnTestBuildHelp")
+                        ]
+                    ]
+                ]
 
-                        // Save Debug Files
-                        StackPanel.create [
-                            Grid.column 1
-                            Grid.row 1
-                            StackPanel.orientation Orientation.Horizontal
-                            StackPanel.horizontalAlignment HorizontalAlignment.Right
-                            StackPanel.children [
-                                CheckBox.create [
-                                    CheckBox.verticalAlignment VerticalAlignment.Center
-                                    CheckBox.content (translate "SaveDebugFiles")
-                                    CheckBox.isChecked state.Config.SaveDebugFiles
-                                    CheckBox.onChecked (fun _ -> true |> ValueSome |> SetSaveDebugFiles |> EditConfig |> dispatch)
-                                    CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetSaveDebugFiles |> EditConfig |> dispatch)
-                                ]
-                                HelpButton.create [
-                                    HelpButton.helpText (translate "SaveDebugFilesHelp")
-                                ]
-                            ]
+                // Generate DD
+                CheckBox.create [
+                    CheckBox.verticalAlignment VerticalAlignment.Center
+                    CheckBox.content (translate "GenerateDDLevels")
+                    CheckBox.isChecked state.Config.GenerateDD
+                    CheckBox.onChecked (fun _ -> true |> ValueSome |> SetGenerateDD |> EditConfig |> dispatch)
+                    CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetGenerateDD |> EditConfig |> dispatch)
+                ]
+
+                // Save Debug Files
+                StackPanel.create [
+                    StackPanel.orientation Orientation.Horizontal
+                    StackPanel.children [
+                        CheckBox.create [
+                            CheckBox.verticalAlignment VerticalAlignment.Center
+                            CheckBox.content (translate "SaveDebugFiles")
+                            CheckBox.isChecked state.Config.SaveDebugFiles
+                            CheckBox.onChecked (fun _ -> true |> ValueSome |> SetSaveDebugFiles |> EditConfig |> dispatch)
+                            CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetSaveDebugFiles |> EditConfig |> dispatch)
+                        ]
+                        HelpButton.create [
+                            HelpButton.helpText (translate "SaveDebugFilesHelp")
                         ]
                     ]
                 ]
@@ -774,7 +764,7 @@ let view state dispatch focusedSetting =
                     ]
                     TabItem.create [
                         TabItem.horizontalAlignment HorizontalAlignment.Center
-                        TabItem.header (tabHeader Media.Icons.package "Release")
+                        TabItem.header (tabHeader Media.Icons.uploadCircle "Release")
                         TabItem.content (releaseBuildConfig state dispatch)
                     ]
                     TabItem.create [
