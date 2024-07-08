@@ -567,13 +567,8 @@ let private buildConfig state dispatch =
         ]
     ]
 
-let private subFolderTypeOptionTemplate : IDataTemplate =
-    DataTemplateView<Option<SubFolderType>>.create (fun opt ->
-        match opt with
-        | None ->
-            locText "Disabled" []
-        | Some subFolderType ->
-            locText (string subFolderType) [])
+let private subfolderTypeOptionTemplate : IDataTemplate =
+    DataTemplateView<SubfolderType>.create (fun subfolderType -> locText (string subfolderType) [])
 
 let private releaseBuildConfig state dispatch =
     vStack [
@@ -639,13 +634,16 @@ let private releaseBuildConfig state dispatch =
 
         let postBuildCopyTaskTemplate (pbct: PostBuildCopyTask) =
             let targetPath =
-                match pbct.CreateSubFolder with
-                | None ->
-                    pbct.TargetPath
-                | Some ArtistName ->
-                    Path.Combine(pbct.TargetPath, "{ArtistName}")
-                | Some ArtistNameAndTitle ->
-                    Path.Combine(pbct.TargetPath, "{ArtistName} - {Title}")
+                let path = pbct.TargetPath
+                match pbct.CreateSubfolder with
+                | DoNotCreate ->
+                    path
+                | UseOnlyExistingSubfolder ->
+                    Path.Combine(path, "{ExistingArtistSubfolder}")
+                | ArtistName ->
+                    Path.Combine(path, "{ArtistName}")
+                | ArtistNameAndTitle ->
+                    Path.Combine(path, "{ArtistName} - {Title}")
 
             hStack [
                 TextBlock.create [
@@ -705,13 +703,14 @@ let private releaseBuildConfig state dispatch =
                     ]
 
                     FixedComboBox.create [
-                        FixedComboBox.dataItems [ None; Some ArtistName; Some ArtistNameAndTitle ]
-                        FixedComboBox.itemTemplate subFolderTypeOptionTemplate
+                        FixedComboBox.dataItems [ DoNotCreate; UseOnlyExistingSubfolder; ArtistName; ArtistNameAndTitle ]
+                        FixedComboBox.itemTemplate subfolderTypeOptionTemplate
+                        FixedComboBox.selectedItem state.NewPostBuildTask.CreateSubfolder
                         FixedComboBox.onSelectedItemChanged (function
-                        | :? Option<SubFolderType> as subFolderOpt ->
-                            subFolderOpt |> SetCreateSubFolder |> EditPostBuildTask |> dispatch
-                        | _ ->
-                            ())
+                            | :? SubfolderType as subfolderOption ->
+                                subfolderOption |> SetCreateSubFolder |> EditPostBuildTask |> dispatch
+                            | _ ->
+                                ())
                     ]
                 ]
             ]

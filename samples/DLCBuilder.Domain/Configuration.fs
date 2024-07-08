@@ -19,18 +19,22 @@ type BaseToneNamingScheme =
         | BaseToneNamingScheme.TitleAndArrangement ->
             "TitleAndArrangementBaseToneNamingScheme"
 
-type SubFolderType =
+type SubfolderType =
+    | DoNotCreate
+    | UseOnlyExistingSubfolder
     | ArtistName
     | ArtistNameAndTitle
 
     override this.ToString() =
         match this with
+        | DoNotCreate -> "DoNotCreate"
+        | UseOnlyExistingSubfolder -> "UseOnlyExistingSubfolder"
         | ArtistName -> "ArtistName"
         | ArtistNameAndTitle -> "ArtistNameAndTitle"
 
 type PostBuildCopyTask =
     {
-        CreateSubFolder: SubFolderType option
+        CreateSubfolder: SubfolderType
         TargetPath: string
         OpenFolder: bool
         OnlyCurrentPlatform: bool
@@ -38,7 +42,7 @@ type PostBuildCopyTask =
 
     static member Empty =
         {
-            CreateSubFolder = None
+            CreateSubfolder = DoNotCreate
             TargetPath = String.Empty
             OpenFolder = false
             OnlyCurrentPlatform = false
@@ -113,46 +117,51 @@ type Configuration =
           PostReleaseBuildTasks = Array.empty }
 
 module Configuration =
-    type SubFolderTypeDto =
+    type SubfolderTypeDto =
         | Disabled = 0
         | ArtistName = 1
         | ArtistNameAndTitle = 2
+        | UseExisting = 3
 
     type PostBuildCopyTaskDto() =
-        member val CreateSubFolder: SubFolderTypeDto = SubFolderTypeDto.Disabled with get, set
+        member val CreateSubfolder: SubfolderTypeDto = SubfolderTypeDto.Disabled with get, set
         member val TargetPath: string = String.Empty with get, set
         member val OpenFolder: bool = false with get, set
         member val OnlyCurrentPlatform: bool = false with get, set
 
         static member toCopyTask(dto: PostBuildCopyTaskDto) : PostBuildCopyTask =
-            let createSubFolder =
-                match dto.CreateSubFolder with
-                | SubFolderTypeDto.ArtistName ->
-                    Some ArtistName
-                | SubFolderTypeDto.ArtistNameAndTitle ->
-                    Some ArtistNameAndTitle
+            let createSubfolder =
+                match dto.CreateSubfolder with
+                | SubfolderTypeDto.ArtistName ->
+                    ArtistName
+                | SubfolderTypeDto.ArtistNameAndTitle ->
+                    ArtistNameAndTitle
+                | SubfolderTypeDto.UseExisting ->
+                    UseOnlyExistingSubfolder
                 | _ ->
-                    None
+                    DoNotCreate
 
             {
-                CreateSubFolder = createSubFolder
+                CreateSubfolder = createSubfolder
                 TargetPath = dto.TargetPath |> Option.ofString |> Option.defaultValue String.Empty
                 OpenFolder = dto.OpenFolder
                 OnlyCurrentPlatform = dto.OnlyCurrentPlatform
             }
 
         static member ofCopyTask(copyTask: PostBuildCopyTask) : PostBuildCopyTaskDto =
-            let createSubFolder =
-                match copyTask.CreateSubFolder with
-                | Some ArtistName ->
-                    SubFolderTypeDto.ArtistName
-                | Some ArtistNameAndTitle ->
-                    SubFolderTypeDto.ArtistNameAndTitle
-                | None ->
-                    SubFolderTypeDto.Disabled
+            let createSubfolder =
+                match copyTask.CreateSubfolder with
+                | DoNotCreate ->
+                    SubfolderTypeDto.Disabled
+                | UseOnlyExistingSubfolder ->
+                    SubfolderTypeDto.UseExisting
+                | ArtistName ->
+                    SubfolderTypeDto.ArtistName
+                | ArtistNameAndTitle ->
+                    SubfolderTypeDto.ArtistNameAndTitle
 
             PostBuildCopyTaskDto(
-                CreateSubFolder = createSubFolder,
+                CreateSubfolder = createSubfolder,
                 TargetPath = copyTask.TargetPath,
                 OpenFolder = copyTask.OpenFolder,
                 OnlyCurrentPlatform = copyTask.OnlyCurrentPlatform

@@ -471,4 +471,4 @@ let editPostBuildTask (edit: PostBuildTaskEdit) (postBuildTask: PostBuildCopyTas
     | SetTargetPath path ->
         { postBuildTask with TargetPath = path }
     | SetCreateSubFolder sub ->
-        { postBuildTask with CreateSubFolder = sub }
+        { postBuildTask with CreateSubfolder = sub }

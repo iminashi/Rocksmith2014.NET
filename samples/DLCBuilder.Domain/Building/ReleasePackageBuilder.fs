@@ -122,18 +122,31 @@ let executePostBuildTasks (config: Configuration) (currentPlatform: Platform) (p
     for copyTask in config.PostReleaseBuildTasks do
         let baseTargetPath = copyTask.TargetPath
         let targetDirectory =
-            match copyTask.CreateSubFolder with
-            | None ->
+            let data = getArtistAndTitle project
+
+            match copyTask.CreateSubfolder with
+            | DoNotCreate ->
                 baseTargetPath
-            | Some subFolderType ->
-                let data = getArtistAndTitle project
+            | ArtistName ->
+                let subfolder = StringValidator.fileName data.Artist
+                Directory.CreateDirectory(Path.Combine(baseTargetPath, subfolder)).FullName
+            | ArtistNameAndTitle ->
+                let subfolder = StringValidator.fileName $"{data.Artist} - {data.Title}"
+                Directory.CreateDirectory(Path.Combine(baseTargetPath, subfolder)).FullName
+            | UseOnlyExistingSubfolder ->
+                let artistTitleSubfolder = StringValidator.fileName $"{data.Artist} - {data.Title}"
+                let artistTitlePath = Path.Combine(baseTargetPath, artistTitleSubfolder)
 
-                let subFolder =
-                    match subFolderType with
-                    | ArtistName -> data.Artist
-                    | ArtistNameAndTitle -> $"{data.Artist} - {data.Title}"
+                if Directory.Exists(artistTitlePath) then
+                    artistTitlePath
+                else
+                    let artistSubfolder = StringValidator.fileName data.Artist
+                    let artistPath = Path.Combine(baseTargetPath, artistSubfolder)
 
-                Directory.CreateDirectory(Path.Combine(baseTargetPath, subFolder)).FullName
+                    if Directory.Exists(artistPath) then
+                        artistTitlePath
+                    else
+                        baseTargetPath
 
         for path in packagePaths do
             let packagePlatform = Platform.fromPackageFileName path
