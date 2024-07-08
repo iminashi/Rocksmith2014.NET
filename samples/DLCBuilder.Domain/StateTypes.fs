@@ -226,22 +226,26 @@ type ToolsMsg =
     | SetProfileCleanerDryRun of bool
 
 [<RequireQualifiedAccess>]
+type FolderTarget =
+    | Dlc
+    | TestBuilds
+    | PsarcImportTarget of psarcPath: string
+    | PsarcUnpackTarget of psarcPaths: string array
+    | PsarcPackDirectory
+    | PostBuildCopyTarget
+
+[<RequireQualifiedAccess>]
 type Dialog =
     | OpenProject
     | SaveProjectAs
     | ToolkitImport
     | PsarcImportQuick
     | PsarcImport
-    | PsarcImportTargetFolder of psarcPath: string
     | PsarcUnpack
-    | PsarcUnpackTargetFolder of psarcPaths: string array
-    | PsarcPackDirectory
     | PsarcPackTargetFile of directory: string
     | WemFiles
     | AudioFileConversion
     | RemoveDD
-    | TestFolder
-    | DlcFolder
     | ProfileFile
     | AddArrangements
     | ToneImport
@@ -254,6 +258,7 @@ type Dialog =
     | CustomFont
     | ExportTone of tone: Tone
     | SaveJapaneseLyrics
+    | FolderTarget of FolderTarget
 
 type Msg =
     | OpenWithShell of path: string

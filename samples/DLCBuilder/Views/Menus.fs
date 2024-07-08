@@ -291,7 +291,7 @@ let tools state dispatch =
             // Pack Directory into PSARC
             MenuItem.create [
                 MenuItem.header (translate "PackDirectoryIntoPSARCMenuItem")
-                MenuItem.onClick (fun _ -> Dialog.PsarcPackDirectory |> ShowDialog |> dispatch)
+                MenuItem.onClick (fun _ -> FolderTarget.PsarcPackDirectory |> Dialog.FolderTarget |> ShowDialog |> dispatch)
             ]
 
             separator

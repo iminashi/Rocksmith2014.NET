@@ -302,7 +302,7 @@ let handleFilesDrop config paths =
                 if config.QuickEditOnPsarcDragAndDrop then
                     Some(ImportPsarcQuick path)
                 else
-                    Some(path |> Dialog.PsarcImportTargetFolder |> ShowDialog)
+                    Some(path |> FolderTarget.PsarcImportTarget |> Dialog.FolderTarget |> ShowDialog)
             | HasExtension (".png" | ".jpg" | ".dds") ->
                 Some(path |> SetAlbumArt |> EditProject)
             | HasExtension (".wav" | ".ogg" | ".wem") ->

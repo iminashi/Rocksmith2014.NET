@@ -173,13 +173,22 @@ let private openMultiFileDialog (window: Window) (title: string) (filter: FileFi
 
 let private translateTitle dialogType =
     let locString =
-        match dialogType with
-        | Dialog.PsarcImportTargetFolder _ -> "PsarcImportTargetFolderDialogTitle"
-        | Dialog.PsarcUnpackTargetFolder _ -> "PsarcUnpackTargetFolderDialogTitle"
-        | Dialog.AudioFile _ -> "AudioFileDialogTitle"
-        | Dialog.ExportTone _ -> "ExportToneDialogTitle"
-        | Dialog.PsarcPackTargetFile _ -> "PsarcPackTargetFileDialogTitle"
-        | other -> $"{other}DialogTitle"
+        let baseString =
+            match dialogType with
+            | Dialog.FolderTarget folderTarget ->
+                match folderTarget with
+                | FolderTarget.PsarcImportTarget _ -> "PsarcImportTargetFolder"
+                | FolderTarget.PsarcUnpackTarget _ -> "PsarcUnpackTargetFolder"
+                | FolderTarget.Dlc -> "DlcFolder"
+                | FolderTarget.TestBuilds -> "TestFolder"
+                | FolderTarget.PsarcPackDirectory -> "PsarcPackDirectory"
+                | FolderTarget.PostBuildCopyTarget -> "PostBuildCopyTarget"
+            | Dialog.AudioFile _ -> "AudioFile"
+            | Dialog.ExportTone _ -> "ExportTone"
+            | Dialog.PsarcPackTargetFile _ -> "PsarcPackTargetFile"
+            | other -> string other
+
+        $"{baseString}DialogTitle"
 
     translate locString
 
@@ -199,6 +208,35 @@ let showDialog window dialogType state =
 
     let dialog =
         match dialogType with
+        | Dialog.FolderTarget folderTarget ->
+            match folderTarget with
+            | FolderTarget.PsarcImportTarget psarcPath ->
+                let initialDir = Path.GetDirectoryName(psarcPath) |> Some
+                openFolderDialog title initialDir (fun folder -> ImportPsarc(psarcPath, folder))
+
+            | FolderTarget.PsarcUnpackTarget psarcPaths ->
+                let initialDir =
+                    psarcPaths
+                    |> Array.tryHead
+                    |> Option.map Path.GetDirectoryName
+
+                openFolderDialog title initialDir (fun folder -> UnpackPSARC(psarcPaths, folder) |> ToolsMsg)
+
+            | FolderTarget.PsarcPackDirectory ->
+                openFolderDialog title None (Dialog.PsarcPackTargetFile >> ShowDialog)
+
+            | FolderTarget.TestBuilds ->
+                let initialDir = state.Config.TestFolderPath |> Option.ofString
+                openFolderDialog title initialDir (SetTestFolderPath >> EditConfig)
+
+            | FolderTarget.Dlc ->
+                let initialDir = state.Config.DlcFolderPath |> Option.ofString
+                openFolderDialog title initialDir (SetDlcFolderPath >> EditConfig)
+
+            | FolderTarget.PostBuildCopyTarget ->
+                let initialDir = state.NewPostBuildTask.TargetPath |> Option.ofString
+                openFolderDialog title initialDir (SetTargetPath >> EditPostBuildTask)
+
         | Dialog.SaveJapaneseLyrics ->
             let msg = JapaneseLyricsCreator.SaveLyricsToFile >> LyricsCreatorMsg
             saveFileDialog title FileFilter.XML (Some "PART JVOCALS_RS2.xml") projectDirectory msg
@@ -222,28 +260,13 @@ let showDialog window dialogType state =
             if state.RunningTasks.Contains(PsarcImport) then
                 task { return None }
             else
-                ofd FileFilter.PSARC (Dialog.PsarcImportTargetFolder >> ShowDialog)
-
-        | Dialog.PsarcImportTargetFolder psarcPath ->
-            let initialDir = Path.GetDirectoryName(psarcPath) |> Some
-            openFolderDialog title initialDir (fun folder -> ImportPsarc(psarcPath, folder))
+                ofd FileFilter.PSARC (FolderTarget.PsarcImportTarget >> Dialog.FolderTarget >> ShowDialog)
 
         | Dialog.PsarcUnpack ->
             if state.RunningTasks.Contains(PsarcUnpack) then
                 task { return None }
             else
-                openMultiFileDialog title FileFilter.PSARC None (Dialog.PsarcUnpackTargetFolder >> ShowDialog)
-
-        | Dialog.PsarcUnpackTargetFolder psarcPaths ->
-            let initialDir =
-                psarcPaths
-                |> Array.tryHead
-                |> Option.map Path.GetDirectoryName
-
-            openFolderDialog title initialDir (fun folder -> UnpackPSARC(psarcPaths, folder) |> ToolsMsg)
-
-        | Dialog.PsarcPackDirectory ->
-            openFolderDialog title None (Dialog.PsarcPackTargetFile >> ShowDialog)
+                openMultiFileDialog title FileFilter.PSARC None (FolderTarget.PsarcUnpackTarget >> Dialog.FolderTarget >> ShowDialog)
 
         | Dialog.PsarcPackTargetFile directory ->
             let initialFileName =
@@ -265,14 +288,6 @@ let showDialog window dialogType state =
 
         | Dialog.RemoveDD ->
             openMultiFileDialog title FileFilter.XML None (RemoveDD >> ToolsMsg)
-
-        | Dialog.TestFolder ->
-            let initialDir = state.Config.TestFolderPath |> Option.ofString
-            openFolderDialog title initialDir (SetTestFolderPath >> EditConfig)
-
-        | Dialog.DlcFolder ->
-            let initialDir = state.Config.DlcFolderPath |> Option.ofString
-            openFolderDialog title initialDir (SetDlcFolderPath >> EditConfig)
 
         | Dialog.ProfileFile ->
             let initialDir =

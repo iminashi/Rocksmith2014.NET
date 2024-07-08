@@ -182,10 +182,9 @@ let private pathsConfig state dispatch focusedSetting =
 
         DockPanel.create [
             DockPanel.children [
-                Button.create [
+                iconButton Media.Icons.folderOpen [
                     DockPanel.dock Dock.Right
                     Button.margin (0., 4.)
-                    Button.content "..."
                     Button.onClick (fun _ -> Dialog.ProfileFile |> ShowDialog |> dispatch)
                 ]
 
@@ -209,11 +208,10 @@ let private pathsConfig state dispatch focusedSetting =
 
         DockPanel.create [
             DockPanel.children [
-                Button.create [
+                iconButton Media.Icons.folderOpen [
                     DockPanel.dock Dock.Right
                     Button.margin (0., 4.)
-                    Button.content "..."
-                    Button.onClick (fun _ -> Dialog.TestFolder |> ShowDialog |> dispatch)
+                    Button.onClick (fun _ -> FolderTarget.TestBuilds |> Dialog.FolderTarget |> ShowDialog |> dispatch)
                 ]
                 FixedTextBox.create [
                     FixedTextBox.margin (0., 4.)
@@ -229,11 +227,10 @@ let private pathsConfig state dispatch focusedSetting =
 
         DockPanel.create [
             DockPanel.children [
-                Button.create [
+                iconButton Media.Icons.folderOpen [
                     DockPanel.dock Dock.Right
                     Button.margin (0., 4.)
-                    Button.content "..."
-                    Button.onClick (fun _ -> Dialog.DlcFolder |> ShowDialog |> dispatch)
+                    Button.onClick (fun _ -> FolderTarget.Dlc |> Dialog.FolderTarget |> ShowDialog |> dispatch)
                 ]
                 FixedTextBox.create [
                     FixedTextBox.margin (0., 4.)
@@ -248,12 +245,12 @@ let private pathsConfig state dispatch focusedSetting =
 
         DockPanel.create [
             DockPanel.children [
-                Button.create [
+                iconButton Media.Icons.folderOpen [
                     DockPanel.dock Dock.Right
                     Button.margin (0., 4.)
-                    Button.content "..."
                     Button.onClick (fun _ -> Dialog.WwiseConsole |> ShowDialog |> dispatch)
                 ]
+
                 FixedTextBox.create [
                     FixedTextBox.margin (0., 4.)
                     FixedTextBox.watermark (translate "WwiseConsolePathPlaceholder")
@@ -272,12 +269,12 @@ let private pathsConfig state dispatch focusedSetting =
 
         DockPanel.create [
             DockPanel.children [
-                Button.create [
+                iconButton Media.Icons.folderOpen [
                     DockPanel.dock Dock.Right
                     Button.margin (0., 4.)
-                    Button.content "..."
                     Button.onClick (fun _ -> Dialog.FontGeneratorPath |> ShowDialog |> dispatch)
                 ]
+
                 FixedTextBox.create [
                     FixedTextBox.margin (0., 4.)
                     FixedTextBox.text (Option.toObj state.Config.FontGeneratorPath)
@@ -683,6 +680,11 @@ let private releaseBuildConfig state dispatch =
                         DockPanel.dock Dock.Left
                         TextBlock.margin 4.
                         TextBlock.verticalAlignment VerticalAlignment.Center
+                    ]
+
+                    iconButton Media.Icons.folderOpen [
+                        DockPanel.dock Dock.Right
+                        Button.onClick (fun _ -> FolderTarget.PostBuildCopyTarget |> Dialog.FolderTarget |> ShowDialog |> dispatch)
                     ]
 
                     FixedTextBox.create [
