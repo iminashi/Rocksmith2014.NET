@@ -538,6 +538,7 @@
   "ProfileCleanerParallelismHelp": "Määrittää kuinka monesta PSARC-tiedostosta luetaan ID:t samanaikaisesti.",
   "Unused": "Ei käytössä",
   "ToneIsUnused": "Soundi ei ole käytössä missään sovituksessa.",
+  "DeleteTestBuildsOnRelease": "Poista testibuildit",
   "ValidateBeforeBuild": "Tarkista sovitukset",
   "ValidateBeforeBuildHelp": "Sovitukset tarkistetaan ennen paketin rakennusta, ja jos ongelmia löytyy, rakentaminen epäonnistuu.",
   "ValidationFailedForReleaseBuild": "Sovituksista löydettiin ongelmia, jotka pitää korjata tai asettaa ohitetuiksi.",

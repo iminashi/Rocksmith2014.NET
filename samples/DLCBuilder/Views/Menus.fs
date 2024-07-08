@@ -89,6 +89,8 @@ let buildOptions isQuickEdit state dispatch =
 
                         menuCheckBox "ValidateBeforeBuild" state.Config.ValidateBeforeReleaseBuild (SetValidateBeforeReleaseBuild >> EditConfig >> dispatch)
 
+                        menuCheckBox "DeleteTestBuildsOnRelease" state.Config.DeleteTestBuildsOnRelease (SetDeleteTestBuildsOnRelease >> EditConfig >> dispatch)
+
                         menuHeader "Test"
 
                         menuCheckBox "ComparePhraseLevelsOnTestBuild" state.Config.ComparePhraseLevelsOnTestBuild (SetComparePhraseLevelsOnTestBuild >> EditConfig >> dispatch)
@@ -627,7 +629,7 @@ let project state dispatch =
             MenuItem.create [
                 MenuItem.header (translate "DeleteTestBuildsMenuItem")
                 MenuItem.isEnabled (String.notEmpty state.Config.TestFolderPath && String.notEmpty state.Project.DLCKey)
-                MenuItem.onClick (fun _ -> dispatch DeleteTestBuilds)
+                MenuItem.onClick (fun _ -> dispatch (DeleteTestBuilds(confirmDeletionOfMultipleFiles = true)))
                 ToolTip.tip (translate "DeleteTestBuildsToolTip")
             ]
         ]

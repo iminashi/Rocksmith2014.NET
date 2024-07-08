@@ -883,14 +883,17 @@ let update (msg: Msg) (state: State) =
 
         { state with Config = newConfig; NewPostBuildTask = PostBuildCopyTask.Empty }, Cmd.none
 
-    | DeleteTestBuilds ->
+    | DeleteTestBuilds confirmDeletionOfMultipleFiles ->
         match TestPackageBuilder.getTestBuildFiles config project with
         | [] ->
             state, Cmd.ofMsg <| AddStatusMessage(translate "NoTestBuildsFound")
         | [ _ ] as one ->
             state, Cmd.ofMsg <| DeleteConfirmed one
         | many ->
-            { state with Overlay = DeleteConfirmation many }, Cmd.none
+            if confirmDeletionOfMultipleFiles then
+                { state with Overlay = DeleteConfirmation many }, Cmd.none
+            else
+                state, Cmd.ofMsg <| DeleteConfirmed many
 
     | DeleteConfirmed files ->
         let cmd =
@@ -1007,6 +1010,9 @@ let update (msg: Msg) (state: State) =
                     if config.OpenFolderAfterReleaseBuild then
                         let targetDirectory = Path.GetDirectoryName(packagePaths[0])
                         Cmd.ofMsg (OpenWithShell targetDirectory)
+
+                    if config.DeleteTestBuildsOnRelease then
+                        Cmd.ofMsg (DeleteTestBuilds(confirmDeletionOfMultipleFiles = false))
                 | BuildCompleteType.ReplacePsarc ->
                     Cmd.ofMsg NewProject
                 | _ ->

@@ -221,6 +221,9 @@ let editConfig edit config =
     | SetValidateBeforeReleaseBuild validate ->
         { config with ValidateBeforeReleaseBuild = validate |> ValueOption.defaultValue (not config.ValidateBeforeReleaseBuild) }
 
+    | SetDeleteTestBuildsOnRelease value ->
+        { config with DeleteTestBuildsOnRelease = value |> ValueOption.defaultValue (not config.DeleteTestBuildsOnRelease) }
+
     | SetLoadPreviousProject load ->
         { config with LoadPreviousOpenedProject = load }
 
@@ -448,7 +451,7 @@ let editTone state edit index =
     else
         updateTone index updatedTone state, Cmd.none
 
-let editVocals state edit index (vocals: Vocals) =
+let editVocals (state: State) (edit: VocalsEdit) (index: int) (vocals: Vocals) =
     let updated =
         match edit with
         | SetIsJapanese japanese ->

@@ -108,11 +108,15 @@ let editConfigTests =
             Expect.equal newState.Config.WwiseConsolePath (Some "WwiseConsole") "Wwise console path is correct"
             Expect.equal newState.Config.ProfilePath "profile_prfldb" "Profile path is correct"
 
-        testCase "SetOpenFolderAfterReleaseBuild, SetLoadPreviousProject" <| fun _ ->
+        testCase "SetOpenFolderAfterReleaseBuild, SetLoadPreviousProject, SetValidateBeforeReleaseBuild, SetDeleteTestBuildsOnRelease" <| fun _ ->
             let openFolder = not initialState.Config.OpenFolderAfterReleaseBuild
             let loadProject = not initialState.Config.LoadPreviousOpenedProject
+            let validateBeforeRelease = not initialState.Config.ValidateBeforeReleaseBuild
+            let deleteTestBuildsOnRelease = not initialState.Config.DeleteTestBuildsOnRelease
             let messages =
                 [ SetOpenFolderAfterReleaseBuild openFolder
+                  SetValidateBeforeReleaseBuild ValueNone
+                  SetDeleteTestBuildsOnRelease ValueNone
                   SetLoadPreviousProject loadProject ]
                 |> List.map EditConfig
 
@@ -122,6 +126,8 @@ let editConfigTests =
 
             Expect.equal newState.Config.OpenFolderAfterReleaseBuild openFolder "Open folder after release is correct"
             Expect.equal newState.Config.LoadPreviousOpenedProject loadProject "Load previous opened project is correct"
+            Expect.equal newState.Config.ValidateBeforeReleaseBuild validateBeforeRelease "Validate before release is correct"
+            Expect.equal newState.Config.DeleteTestBuildsOnRelease deleteTestBuildsOnRelease "Delete test builds is correct"
 
         testCase "SetDDLevelCountGeneration, SetAutoSave, SetAutoAudioConversion, SetQuickEditOnPsarcDragAndDrop, SetForcePhraseCreation" <| fun _ ->
             let autoSave = not initialState.Config.AutoSave

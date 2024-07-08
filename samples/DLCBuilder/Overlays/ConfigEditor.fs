@@ -508,7 +508,6 @@ let private buildConfig state dispatch =
                     ]
                 ]
 
-
                 // Compare Phrase Levels
                 StackPanel.create [
                     StackPanel.orientation Orientation.Horizontal
@@ -614,6 +613,16 @@ let private releaseBuildConfig state dispatch =
                         ]
                     ]
                 ]
+
+                // Delete Test Builds
+                CheckBox.create [
+                    CheckBox.verticalAlignment VerticalAlignment.Center
+                    CheckBox.content (translate "DeleteTestBuildsOnRelease")
+                    CheckBox.isChecked state.Config.DeleteTestBuildsOnRelease
+                    CheckBox.onChecked (fun _ -> true |> ValueSome |> SetDeleteTestBuildsOnRelease |> EditConfig |> dispatch)
+                    CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetDeleteTestBuildsOnRelease |> EditConfig |> dispatch)
+                ]
+
             ]
         ]
 

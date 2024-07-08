@@ -171,6 +171,7 @@ type ConfigEdit =
     | SetSaveDebugFiles of bool voption
     | SetValidateBeforeReleaseBuild of bool voption
     | SetComparePhraseLevelsOnTestBuild of bool voption
+    | SetDeleteTestBuildsOnRelease of bool voption
     | SetGenerateDD of bool voption
     | SetCustomAppId of AppId option
     | SetConvertAudio of AudioConversionType option
@@ -301,7 +302,7 @@ type Msg =
     | DismissUpdateMessage
     | ShowUpdateInformation
     | DownloadUpdate
-    | DeleteTestBuilds
+    | DeleteTestBuilds of confirmDeletionOfMultipleFiles: bool
     | DeleteConfirmed of files: string list
     | DeleteSelectedArrangement
     | DeleteSelectedTone

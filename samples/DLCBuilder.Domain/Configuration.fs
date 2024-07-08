@@ -69,6 +69,7 @@ type Configuration =
       AutoAudioConversion: bool
       ComparePhraseLevelsOnTestBuild: bool
       ValidateBeforeReleaseBuild: bool
+      DeleteTestBuildsOnRelease: bool
       ConvertAudio: AudioConversionType option
       OpenFolderAfterReleaseBuild: bool
       LoadPreviousOpenedProject: bool
@@ -103,6 +104,7 @@ type Configuration =
           AutoAudioConversion = false
           ComparePhraseLevelsOnTestBuild = false
           ValidateBeforeReleaseBuild = true
+          DeleteTestBuildsOnRelease = false
           ConvertAudio = None
           OpenFolderAfterReleaseBuild = true
           QuickEditOnPsarcDragAndDrop = false
@@ -189,6 +191,7 @@ module Configuration =
         member val AutoAudioConversion: bool = Configuration.Default.AutoAudioConversion with get, set
         member val ComparePhraseLevelsOnTestBuild: bool = Configuration.Default.ComparePhraseLevelsOnTestBuild with get, set
         member val ValidateBeforeReleaseBuild: bool = Configuration.Default.ValidateBeforeReleaseBuild with get, set
+        member val DeleteTestBuildsOnRelease: bool = Configuration.Default.DeleteTestBuildsOnRelease with get, set
         member val ConvertAudio: int = 0 with get, set
         member val OpenFolderAfterReleaseBuild: bool = Configuration.Default.OpenFolderAfterReleaseBuild with get, set
         member val LoadPreviousOpenedProject: bool = Configuration.Default.LoadPreviousOpenedProject with get, set
@@ -262,6 +265,7 @@ module Configuration =
           AutoAudioConversion = dto.AutoAudioConversion
           ComparePhraseLevelsOnTestBuild = dto.ComparePhraseLevelsOnTestBuild
           ValidateBeforeReleaseBuild = dto.ValidateBeforeReleaseBuild
+          DeleteTestBuildsOnRelease = dto.DeleteTestBuildsOnRelease
           ConvertAudio = convertAudio
           OpenFolderAfterReleaseBuild = dto.OpenFolderAfterReleaseBuild
           LoadPreviousOpenedProject = dto.LoadPreviousOpenedProject
@@ -319,6 +323,7 @@ module Configuration =
             AutoAudioConversion = config.AutoAudioConversion,
             ComparePhraseLevelsOnTestBuild = config.ComparePhraseLevelsOnTestBuild,
             ValidateBeforeReleaseBuild = config.ValidateBeforeReleaseBuild,
+            DeleteTestBuildsOnRelease = config.DeleteTestBuildsOnRelease,
             ConvertAudio = convertAudio,
             OpenFolderAfterReleaseBuild = config.OpenFolderAfterReleaseBuild,
             LoadPreviousOpenedProject = config.LoadPreviousOpenedProject,
