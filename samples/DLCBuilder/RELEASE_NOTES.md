@@ -1,3 +1,11 @@
+## 3.2.0 (Released 2024-07-xx)
+
+- Added the option to define targets where the packages will be copied after release build.
+- Added an option to automatically delete test builds after a release build.
+- It is now possible to provide existing DDS files for the cover image. See the section "Providing DDS Files Manually" in the Readme for details.
+- Minor UI/UX improvements.
+- Updated some dependencies to the latest versions.
+
 ## 3.1.2 (Released 2024-07-04)
 
 - Fixed an issue that would cause the game to crash in the score attack mode when only two difficulty levels were created for a phrase.

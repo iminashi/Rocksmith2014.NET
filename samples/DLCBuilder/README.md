@@ -1,5 +1,3 @@
-# Rocksmith 2014 DLC Builder
-
 ## System Requirements
 
 A 64-bit OS:
@@ -10,7 +8,7 @@ A 64-bit OS:
 
 ## Wwise
 
-Converting audio files to wem requires Wwise 2019, 2021 or 2022 to be installed.
+Converting audio files to wem requires Wwise 2019, 2021, 2022 or 2023 to be installed.
 
 During the installation, check only "Authoring" in Packages and leave all Deployment Platforms and Plug-ins unchecked (unless you need them for something else).
 
@@ -26,12 +24,20 @@ On Linux, Wine is used to run the Wwise console executable. The Wwise conversion
 
 The package for the current platform will be built into the folder specified in the configuration (creating a subfolder in the RS DLC folder is recommended). Generation of DD levels may be disabled and the App ID can be changed to a custom one.
 
-- If RS is running, new packages will be created that have a different DLC key and arrangement IDs, with a version number in the song title. This allows you to load a new test version into the game by triggering the DLC enumeration.
+- If RS is running, new packages will be created that have a different DLC key and arrangement IDs, with a version number in the song title. This allows you to load a new test version into the game by triggering the DLC enumeration (visit the in-game shop or via mods).
 - If RS is not running, any previous test builds for the project will be replaced with a single package.
 
 ### Release Build
 
 Will build the package(s) (both Mac and PC by default) into the project folder. DD levels will be generated if the XML files do not already have them and the App ID is hard-coded to Cherub Rock.
+
+It is also possible in the options to define any number of target folders where the packages will be copied to after the build succeeds.
+
+## Providing DDS Files Manually
+
+It is possible to provide existing DDS files for the cover image (e.g. by creating them in GIMP).
+
+For example, if the cover image file is set to cover.png, the program will search for the files cover64.dds, cover128.dds and cover256.dds, and will use any file that exists instead of doing the resizing and conversion automatically. The image sizes should be 64x64, 128x128 and 256x256.
 
 ## Arrangement Improving Features
 
@@ -71,7 +77,7 @@ A note is linked to another note, but the bend strength the note ends with does 
 
 ![Bent note linked to vibrato note](./img/issue_linknext_bend.png)
 
-In the above screenshot, the second note should have a bend tech note on top of the note.
+In the above screenshot, the second note should have a bend tech note on top of the note, or there should be a bend down.
 
 ### Note missing a bend value
 
@@ -89,7 +95,7 @@ In the above screenshot, the first anchor should be on the 3rd fret if the doubl
 
 ## Using the Phrase Mover
 
-Phrases can be moved off beat by giving the phrase a special name: "mover#".
+Phrases can be moved off beat by giving the phrase a special name: "mover#". This feature exists to bypass a limitation in EOF.
 
 This will move the phrase right by # notes, where the number must be 1 or more. 1 will move the phrase to the next note/chord.
 
@@ -150,7 +156,7 @@ If a syllable in the original lyrics is not matched with a Japanese word, the or
 
 This tool is meant for removing obsolete/unnecessary records from the profile file. Such records can accumulate if you use the test build feature a lot or when you delete a CDLC that you have played.
 
-The tool scans the directory entered in the configuration for IDs of arrangements that should be preserved. This means that all official and custom DLC for which you want to preserve the records should be found in that directory or its subdirectories.
+The tool scans the DLC directory entered in the configuration for IDs of arrangements that should be preserved. This means that all official and custom DLC for which you want to preserve the records should be found in that directory or its subdirectories.
 
 The IDs of on-disc and RS1 import songs are already included within the program.
 
