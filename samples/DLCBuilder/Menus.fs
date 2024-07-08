@@ -113,7 +113,7 @@ let copyTaskMenu dispatch (index: int) (task: PostBuildCopyTask) =
                     MenuItem.create [
                         MenuItem.header (translate "CreateSubFolder")
                         MenuItem.viewItems (
-                            [ DoNotCreate; UseOnlyExistingSubfolder; ArtistName; ArtistNameAndTitle ]
+                            [ DoNotCreate; UseOnlyExistingSubfolder; CreateSubFolder ArtistName; CreateSubFolder ArtistNameAndTitle ]
                             |> List.map (fun subfolderType ->
                                 menuRadioButton
                                     (string subfolderType)

@@ -559,9 +559,9 @@ let private postBuildCopyTaskTemplate dispatch (index: int) (pbct: PostBuildCopy
         | DoNotCreate
         | UseOnlyExistingSubfolder ->
             path
-        | ArtistName ->
+        | CreateSubFolder ArtistName ->
             Path.Combine(path, "{ArtistName}")
-        | ArtistNameAndTitle ->
+        | CreateSubFolder ArtistNameAndTitle ->
             Path.Combine(path, "{ArtistName} - {Title}")
 
     Grid.create [

@@ -22,7 +22,7 @@ type DDSFile(size: int, path: string, deleteOnDispose: bool) =
     member _.Path = path
 
     interface IDisposable with
-        member this.Dispose() = if deleteOnDispose then File.Delete(path)
+        member _.Dispose() = if deleteOnDispose then File.Delete(path)
 
 type DDSOptions =
     { Compression: Compression

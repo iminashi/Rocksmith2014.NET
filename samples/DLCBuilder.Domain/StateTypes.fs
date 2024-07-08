@@ -186,7 +186,7 @@ type ConfigEdit =
 type PostBuildTaskEdit =
     | SetOpenFolder of bool voption
     | SetAllPlatforms of bool voption
-    | SetCreateSubFolder of SubfolderType
+    | SetCreateSubFolder of SubfolderCreation
     | SetTargetPath of path: string
 
 [<RequireQualifiedAccess>]

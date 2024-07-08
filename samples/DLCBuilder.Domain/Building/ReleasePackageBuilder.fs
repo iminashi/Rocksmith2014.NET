@@ -127,26 +127,20 @@ let executePostBuildTasks (config: Configuration) (currentPlatform: Platform) (p
             match copyTask.CreateSubfolder with
             | DoNotCreate ->
                 baseTargetPath
-            | ArtistName ->
-                let subfolder = StringValidator.fileName data.Artist
-                Directory.CreateDirectory(Path.Combine(baseTargetPath, subfolder)).FullName
-            | ArtistNameAndTitle ->
-                let subfolder = StringValidator.fileName $"{data.Artist} - {data.Title}"
+            | CreateSubFolder subfolderNaming ->
+                let subfolder = subfolderNaming.FormatToString(data.Artist, data.Title)
                 Directory.CreateDirectory(Path.Combine(baseTargetPath, subfolder)).FullName
             | UseOnlyExistingSubfolder ->
-                let artistTitleSubfolder = StringValidator.fileName $"{data.Artist} - {data.Title}"
-                let artistTitlePath = Path.Combine(baseTargetPath, artistTitleSubfolder)
+                [ ArtistNameAndTitle; ArtistName ]
+                |> List.tryPick (fun subfolderNaming ->
+                    let subfolder = subfolderNaming.FormatToString(data.Artist, data.Title)
+                    let path = Path.Combine(baseTargetPath, subfolder)
 
-                if Directory.Exists(artistTitlePath) then
-                    artistTitlePath
-                else
-                    let artistSubfolder = StringValidator.fileName data.Artist
-                    let artistPath = Path.Combine(baseTargetPath, artistSubfolder)
-
-                    if Directory.Exists(artistPath) then
-                        artistTitlePath
+                    if Directory.Exists(path) then
+                        Some path
                     else
-                        baseTargetPath
+                        None)
+                |> Option.defaultValue baseTargetPath
 
         for path in packagePaths do
             let packagePlatform = Platform.fromPackageFileName path
