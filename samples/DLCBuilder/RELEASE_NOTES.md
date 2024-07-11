@@ -1,7 +1,7 @@
-## 3.2.0 (Released 2024-07-xx)
+## 3.2.0 (Released 2024-07-11)
 
 - Added the option to define targets where the packages will be copied after release build.
-- Added an option to automatically delete test builds after a release build.
+- Added an option to automatically delete test builds when creating a release build.
 - It is now possible to provide existing DDS files for the cover image. See the section "Providing DDS Files Manually" in the Readme for details.
 - Minor UI/UX improvements.
 - Updated some dependencies to the latest versions.
