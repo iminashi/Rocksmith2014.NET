@@ -39,6 +39,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "av_libglesv2.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "FastTreeNative.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "LdaNative.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "libHarfBuzzSharp.dll"; DestDir: "{app}"; Flags: ignoreversion
