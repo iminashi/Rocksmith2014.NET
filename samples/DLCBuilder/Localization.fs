@@ -10,7 +10,8 @@ module Locales =
     let All =
         [ Locale.Default
           { Name = "Suomi"; ShortName = "fi" }
-          { Name = "日本語"; ShortName = "jp" } ]
+          { Name = "日本語"; ShortName = "jp" }
+          { Name = "简体中文"; ShortName = "zh-CN" } ]
 
     let fromShortName shortName =
         All
