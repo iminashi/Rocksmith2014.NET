@@ -1,3 +1,8 @@
+## 3.3.0 (Released 2024-09-xx)
+
+- Added Simplified Chinese translation.
+- Updated the UI framework to the latest version.
+
 ## 3.2.0 (Released 2024-07-11)
 
 - Added the option to define targets where the packages will be copied after release build.
