@@ -15,7 +15,7 @@ let private wrap ch =
         WrapPanel.children ch
     ]
 
-let rec private findParent<'a when 'a :> Control and 'a : null> (control: Control) =
+let rec private findParent<'a when 'a :> StyledElement and 'a : null> (control: Control) =
     if isNull control.Parent then
         null
     elif control.Parent :? 'a then
