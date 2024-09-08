@@ -458,7 +458,9 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                         Rectangle.horizontalAlignment HorizontalAlignment.Stretch
                         Rectangle.verticalAlignment VerticalAlignment.Stretch
                         if customTitleBar.IsSome then
-                            Rectangle.onPointerPressed window.BeginMoveDrag
+                            Rectangle.onPointerPressed (fun e ->
+                                e.Handled <- true
+                                window.BeginMoveDrag(e))
                             Rectangle.onDoubleTapped (fun _ -> maximizeOrRestore window)
                     ]
 
@@ -518,7 +520,9 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                                 TextBlock.horizontalAlignment HorizontalAlignment.Center
                                 if customTitleBar.IsSome then
                                     TextBlock.text title
-                                    TextBlock.onPointerPressed window.BeginMoveDrag
+                                    TextBlock.onPointerPressed (fun e ->
+                                        e.Handled <- true
+                                        window.BeginMoveDrag(e))
                                     TextBlock.onDoubleTapped (fun _ -> maximizeOrRestore window)
                                     if String.notEmpty titleToolTip then
                                         ToolTip.tip titleToolTip
