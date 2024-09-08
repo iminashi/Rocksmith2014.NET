@@ -503,7 +503,7 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                                 DockPanel.dock Dock.Right
                                 Button.classes [ "borderless-btn" ]
                                 Button.isEnabled noOverlayIsOpen
-                                KeyboardNavigation.isTabStop false
+                                Button.isTabStop false
                                 Button.onClick (fun _ -> None |> ConfigEditor |> ShowOverlay |> dispatch)
                                 Button.content (
                                     PathIcon.create [
