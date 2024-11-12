@@ -147,7 +147,7 @@ The tool can be started when there is a vocals arrangement in the project.
 
 1. Paste/enter the Japanese lyrics into the text box and they will be automatically hyphenated.
 2. The matching works line by line, so you may need to edit the Japanese lyrics so that the lines match the lines of the romaji lyrics.
-3. Click on the romaji syllables or the Japanese kanji/kana to combine them with the next one when necessary.
+3. Click on the romaji syllables or the Japanese kanji/kana to combine them with the next one when necessary. Japanese words can also be split by right clicking them (or with the S key when using the keyboard).
 4. Repeat this until all the lyrics are matched.
 
 If a syllable in the original lyrics is not matched with a Japanese word, the original syllable will be used. For example, if the lyrics contain some Japanese at the beginning and the rest of them are in English, there is no need to match the English part.
