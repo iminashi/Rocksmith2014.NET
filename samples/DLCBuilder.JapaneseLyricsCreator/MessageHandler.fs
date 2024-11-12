@@ -2,7 +2,7 @@ module JapaneseLyricsCreator.MessageHandler
 
 open Rocksmith2014.XML
 
-let private isWithinBounds array index1 index2 =
+let private isWithinBoundsForCombination array index1 index2 =
     array
     |> Array.tryItem index1
     |> Option.exists (fun subArray -> index2 < Array.length subArray - 1)
@@ -42,6 +42,22 @@ let private createVocals matchedLines =
         )))
     |> ResizeArray
 
+let private addFusionOrSplit state f location =
+    let modifications = f location :: state.ModificationsForJapanese
+
+    let japaneseLines =
+        LyricsTools.createJapaneseLines state.MatchedLines modifications state.JapaneseLyrics
+
+    let matchedLines =
+        updateMatchedLines state.MatchedLines japaneseLines
+
+    LyricsCreatorState.addUndo state
+
+    { state with
+        ModificationsForJapanese = modifications
+        JapaneseLines = japaneseLines
+        MatchedLines = matchedLines }, Effect.Nothing
+
 let update state msg =
     match msg with
     | SaveLyricsToFile targetPath ->
@@ -51,7 +67,7 @@ let update state msg =
 
     | SetJapaneseLyrics jLyrics ->
         let japaneseLines =
-            LyricsTools.createJapaneseLines state.MatchedLines state.CombinedJapanese jLyrics
+            LyricsTools.createJapaneseLines state.MatchedLines state.ModificationsForJapanese jLyrics
 
         let matchedLines =
             updateMatchedLines state.MatchedLines japaneseLines
@@ -63,25 +79,16 @@ let update state msg =
                      JapaneseLines = japaneseLines }, Effect.Nothing
 
     | CombineJapaneseWithNext location ->
-        if not <| isWithinBounds state.JapaneseLines location.LineNumber location.Index then
+        if not <| isWithinBoundsForCombination state.JapaneseLines location.LineNumber location.Index then
             state, Effect.Nothing
         else
-            let combinedJp = location :: state.CombinedJapanese
+            addFusionOrSplit state Fusion location
 
-            let japaneseLines =
-                LyricsTools.createJapaneseLines state.MatchedLines combinedJp state.JapaneseLyrics
-
-            let matchedLines =
-                updateMatchedLines state.MatchedLines japaneseLines
-
-            LyricsCreatorState.addUndo state
-
-            { state with CombinedJapanese = combinedJp
-                         JapaneseLines = japaneseLines
-                         MatchedLines = matchedLines }, Effect.Nothing
+    | SplitJapanese location ->
+        addFusionOrSplit state Split location
 
     | CombineSyllableWithNext { Index = index; LineNumber = lineNumber } ->
-        if not <| isWithinBounds state.MatchedLines lineNumber index then
+        if not <| isWithinBoundsForCombination state.MatchedLines lineNumber index then
             state, Effect.Nothing
         else
             let newLines =

@@ -100,6 +100,7 @@ let view _state dispatch (creatorState: LyricsCreatorState) =
                                                 TextBlock.cursor Media.Cursors.hand
                                                 LyricsCreatorTextBlock.location (lineNumber, wordNumber)
                                                 LyricsCreatorTextBlock.onClick (CombineJapaneseWithNext >> dispatch')
+                                                LyricsCreatorTextBlock.onRightClick (SplitJapanese >> dispatch')
                                             ]
 
                                             Rectangle.create [

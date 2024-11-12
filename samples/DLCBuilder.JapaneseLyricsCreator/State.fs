@@ -4,7 +4,7 @@ open System
 
 type LyricsCreatorState =
     { MatchedLines: MatchedSyllable array array
-      CombinedJapanese: CombinationLocation list
+      ModificationsForJapanese: FusionOrSplit list
       JapaneseLyrics: string
       JapaneseLines: string array array
       UndoStates: LimitedStack<LyricsCreatorState> }
@@ -28,5 +28,5 @@ module LyricsCreatorState =
         { MatchedLines = matchedLines
           JapaneseLines = Array.empty
           JapaneseLyrics = String.Empty
-          CombinedJapanese = List.empty
+          ModificationsForJapanese = List.empty
           UndoStates = LimitedStack(10) }

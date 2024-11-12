@@ -19,3 +19,9 @@ let choosei (f: int -> 'a -> 'b option) (array: 'a array) : 'b array =
     let cl = OptimizedClosures.FSharpFunc<_, _, _>.Adapt(f)
     let mutable i = -1
     Array.choose (fun x -> i <- i + 1; cl.Invoke(i, x)) array
+
+/// Array.collect with the element index passed to the function.
+let collecti (f: int -> 'a -> 'b array) (array: 'a array) : 'b array =
+    let cl = OptimizedClosures.FSharpFunc<_, _, _>.Adapt(f)
+    let mutable i = -1
+    Array.collect (fun x -> i <- i + 1; cl.Invoke(i, x)) array

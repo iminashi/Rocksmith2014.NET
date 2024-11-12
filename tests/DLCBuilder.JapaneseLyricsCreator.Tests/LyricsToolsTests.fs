@@ -35,19 +35,31 @@ let tests =
 
             Expect.equal result [ "猫：-"; "「吾-"; "輩-"; "は」" ] "String was hyphenated correctly"
 
+        testCase "Single split is applied correctly" <| fun _ ->
+            let modifications = [ Split { LineNumber = 0; Index = 2 } ]
+            let lines = [| [| "こ-"; "け-"; "こっ-"; "こ-"; "う" |] |]
+
+            let result = LyricsTools.applyModifications modifications lines
+
+            Expect.equal result [| [| "こ-"; "け-"; "こ-"; "っ-"; "こ-"; "う" |] |] "Correct characters were split"
+
         testCase "Single combination is applied correctly" <| fun _ ->
-            let replacements = [ { LineNumber = 0; Index = 2 } ]
+            let modifications = [ Fusion { LineNumber = 0; Index = 2 } ]
             let lines = [| [| "test"; "of"; "com-"; "bi-"; "na-"; "tion" |] |]
 
-            let result = LyricsTools.applyCombinations replacements lines
+            let result = LyricsTools.applyModifications modifications lines
 
             Expect.equal result [| [| "test"; "of"; "combi-"; "na-"; "tion" |] |] "Correct syllable was combined"
 
         testCase "Multiple combinations are applied correctly" <| fun _ ->
-            let replacements = [ { LineNumber = 0; Index = 2 }; { LineNumber = 0; Index = 3 }; { LineNumber = 0; Index = 4 } ]
+            let modifications = [
+                Fusion { LineNumber = 0; Index = 2 }
+                Fusion { LineNumber = 0; Index = 3 }
+                Fusion{ LineNumber = 0; Index = 4 }
+            ]
             let lines = [| [| "test"; "of"; "com-"; "bi-"; "na-"; "tion" |] |]
 
-            let result = LyricsTools.applyCombinations replacements lines
+            let result = LyricsTools.applyModifications modifications lines
 
             Expect.equal result [| [| "test"; "of"; "combination" |] |] "Correct syllables were combined"
 

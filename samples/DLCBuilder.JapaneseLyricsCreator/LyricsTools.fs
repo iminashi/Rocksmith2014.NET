@@ -29,8 +29,8 @@ let private revCharListToString = List.rev >> Array.ofList >> String
 
 /// Hyphenates a string of Japanese into a list of kanji/kana.
 let hyphenate (str: string) =
-    let rec getSyllables (results: string list) current list =
-        match list with
+    let rec getSyllables (results: string list) (current: char list) (characters: char list) =
+        match characters with
         | a :: rest when isSpace a ->
             let res = current |> revCharListToString
 
@@ -136,36 +136,44 @@ let matchNonJapaneseHyphenation (matchedLines: MatchedSyllable array array) (jap
             | _ ->
                Array.singleton word))
 
-/// Applies the given combinations to the lines of Japanese kanji/kana.
-let applyCombinations (combinations: CombinationLocation list) (japaneseLines: string array array) =
+/// Applies the given modifications to the lines of Japanese kanji/kana.
+let applyModifications (modifications: FusionOrSplit list) (japaneseLines: string array array) =
     japaneseLines
     |> Array.mapi (fun lineNumber line ->
-        match combinations |> List.filter (fun x -> x.LineNumber = lineNumber) with
+        match modifications |> List.filter (fun m -> m.LineNumber = lineNumber) with
         | [] ->
             line
-        | rep ->
-            let repIndexes =
-                rep
-                |> List.map (fun x -> x.Index)
-                // Apply the replacements in reverse order (i.e. oldest to newest)
-                |> List.rev
+        | modificationsForLine ->
+            // Apply the modifications in reverse order (i.e. oldest to newest)
+            let mods = List.rev modificationsForLine
 
-            (line, repIndexes)
-            ||> List.fold (fun acc replacementIndex ->
+            (line, mods)
+            ||> List.fold (fun acc modification ->
                 acc
-                |> Array.choosei (fun i word ->
-                    if i = replacementIndex && i + 1 < acc.Length then
-                        Some <| String.Concat(withoutTrailingDash word, acc[i + 1].AsSpan())
-                    elif replacementIndex + 1 = i then
-                        None
-                    else
-                        Some word)))
+                |> Array.collecti (fun i word ->
+                    match modification with
+                    | Fusion { Index = modIndex } ->
+                        if i = modIndex && i + 1 < acc.Length then
+                            [| String.Concat(withoutTrailingDash word, acc[i + 1].AsSpan()) |]
+                        elif modIndex + 1 = i then
+                            // Remove the word that was combined to the previous
+                            Array.empty
+                        else
+                            [| word |]
+                    | Split { Index = modIndex } ->
+                        if i = modIndex && (withoutTrailingDash word).Length > 1 then
+                            [| String.Concat(word.Substring(0, 1), "-"); word.Substring(1) |]
+                        else
+                            [| word |]
+                )
+            )
+    )
 
-let createJapaneseLines matchedLines combinations japaneseText =
+let createJapaneseLines matchedLines modifications japaneseText =
     japaneseText
     |> hyphenateToSyllableLines
     |> matchNonJapaneseHyphenation matchedLines
-    |> applyCombinations combinations
+    |> applyModifications modifications
 
 let combineVocals (v1: Vocal) (v2: Vocal) =
     let lyric =
