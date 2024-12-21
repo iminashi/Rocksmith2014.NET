@@ -15,6 +15,9 @@ type ProfileHeader =
       ID: uint64
       UncompressedLength: uint32 }
 
+// Disable warning "This byte array literal contains 14 non-ASCII characters. All characters should be < 128y."
+#nowarn FS1253
+
 let private profileKey =
     "\x72\x8B\x36\x9E\x24\xED\x01\x34\x76\x85\x11\x02\x18\x12\xAF\xC0\xA3\xC2\x5D\x02\x06\x5F\x16\x6B\x4B\xCC\x58\xCD\x26\x44\xF2\x9E"B
 
