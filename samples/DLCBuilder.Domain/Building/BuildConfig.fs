@@ -34,7 +34,7 @@ let create buildType config directoryForPhraseLevels project platforms =
         buildType = Test && not config.GenerateDD
 
     { Platforms = platforms
-      BuilderVersion = $"DLC Builder {AppVersion.versionString}"
+      BuilderVersion = AppVersion.programNameWithVersion
       Author = project.Author |> Option.defaultValue config.CharterName
       AppId = appId
       GenerateDD = not disableDDGeneration

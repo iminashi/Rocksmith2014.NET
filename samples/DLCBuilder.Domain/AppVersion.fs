@@ -8,3 +8,6 @@ let current =
 
 /// A three part version string prefixed with "v".
 let versionString = $"v{current.ToString(3)}"
+
+/// "DLC Builder vX.X.X"
+let programNameWithVersion = $"DLC Builder {versionString}"

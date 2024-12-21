@@ -63,21 +63,21 @@ let view dispatch state =
                         ()
 
                     // Build Tool Version
-                    match state.ImportedBuildToolVersion with
-                    | Some version ->
-                        locText "BuildToolVersion" [
-                            Grid.row 2
-                            TextBlock.verticalAlignment VerticalAlignment.Center
-                        ]
+                    let version =
+                        state.ImportedBuildToolVersion
+                        |> Option.defaultValue AppVersion.programNameWithVersion
 
-                        FixedTextBox.create [
-                            Grid.row 2
-                            Grid.column 1
-                            FixedTextBox.text version
-                            FixedTextBox.isReadOnly true
-                        ]
-                    | None ->
-                        ()
+                    locText "BuildToolVersion" [
+                        Grid.row 2
+                        TextBlock.verticalAlignment VerticalAlignment.Center
+                    ]
+
+                    FixedTextBox.create [
+                        Grid.row 2
+                        Grid.column 1
+                        FixedTextBox.text version
+                        FixedTextBox.isReadOnly true
+                    ]
                 ]
             ]
         ]
