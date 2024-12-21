@@ -13,10 +13,10 @@
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
-  
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.ML" Version="1.7.0" />
-    <PackageReference Include="Microsoft.ML.FastTree" Version="1.7.0" />
+    <PackageReference Include="Microsoft.ML" Version="4.0.0" />
+    <PackageReference Include="Microsoft.ML.FastTree" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup>
