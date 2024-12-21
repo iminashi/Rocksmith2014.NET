@@ -6,7 +6,7 @@ open System.Security.Cryptography
 open System.Text
 
 // Disable warning "This byte array literal contains 14 non-ASCII characters. All characters should be < 128y."
-#nowarn FS1253
+#nowarn "FS1253"
 
 let private psarcKey =
     "\xC5\x3D\xB2\x38\x70\xA1\xA2\xF7\x1C\xAE\x64\x06\x1F\xDD\x0E\x11\x57\x30\x9D\xC8\x52\x04\xD4\xC5\xBF\xDF\x25\x09\x0D\xF2\x57\x2C"B

@@ -7,7 +7,7 @@ open System.Runtime.Intrinsics.X86
 open System.Security.Cryptography
 
 // Disable warning "This byte array literal contains 14 non-ASCII characters. All characters should be < 128y."
-#nowarn FS1253
+#nowarn "FS1253"
 
 let private sngKeyPC =
     "\xCB\x64\x8D\xF3\xD1\x2A\x16\xBF\x71\x70\x14\x14\xE6\x96\x19\xEC\x17\x1C\xCA\x5D\x2A\x14\x2E\x3E\x59\xDE\x7A\xDD\xA1\x8A\x3A\x30"B
