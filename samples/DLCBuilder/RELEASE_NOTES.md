@@ -2,6 +2,7 @@
 
 - Right click can now be used in the Japanese lyrics tool to split Japanese words.
 - Added Simplified Chinese translation.
+- "Tool version" is now always displayed in the additional metadata.
 - Updated the UI framework to the latest version.
 
 ## 3.2.0 (Released 2024-07-11)
