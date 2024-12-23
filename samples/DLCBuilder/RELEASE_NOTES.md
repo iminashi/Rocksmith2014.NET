@@ -1,4 +1,4 @@
-## 3.3.0 (Released 2024-11-xx)
+## 3.3.0 (Released 2024-12-23)
 
 - Right click can now be used in the Japanese lyrics tool to split Japanese words.
 - Added Simplified Chinese translation.
