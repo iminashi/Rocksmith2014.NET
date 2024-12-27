@@ -57,6 +57,7 @@
     <EmbeddedResource Include="Assets\icon.ico" />
     <EmbeddedResource Include="i18n\zh-CN.json" />
     <EmbeddedResource Include="i18n\en.json" />
+    <EmbeddedResource Include="i18n\es.json" />
     <EmbeddedResource Include="i18n\fi.json" />
     <EmbeddedResource Include="i18n\jp.json" />
     <AvaloniaResource Include="Styles.xaml" />
