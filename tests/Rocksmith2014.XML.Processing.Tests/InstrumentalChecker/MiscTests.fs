@@ -78,9 +78,9 @@ let handshapeTests =
             Expect.hasLength results 1 "One issue created"
             Expect.equal results.Head.IssueType FingeringAnchorMismatch "Correct issue type"
 
-        testCase "Logic ignores fingering using thumb" <| fun _ ->
-            let hs = ResizeArray(seq { HandShape(6s, 1000, 1500) })
-            let anchors = ResizeArray(seq { Anchor(5y, 1000) })
+        testCase "Logic that checks if fingering does not match anchor position ignores fingerings using thumb" <| fun _ ->
+            let hs = ResizeArray(seq { HandShape(6s, 1000, 1500); HandShape(7s, 2000, 2500) })
+            let anchors = ResizeArray(seq { Anchor(5y, 1000); Anchor(1y, 2000) })
             let level = Level(HandShapes = hs, Anchors = anchors)
 
             let results = checkHandshapes testArr level

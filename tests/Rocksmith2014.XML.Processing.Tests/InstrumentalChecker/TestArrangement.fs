@@ -47,6 +47,10 @@ let chordTemplates =
         // | | o o o |
         // T | o o o |
         ChordTemplate("THUMB2", "", fingers = [| 0y; -1y; -1y; -1y; -1y; -1y |], frets = [| 5y; -1y; 0y; 0y; 0y; -1y |])
+        // Chord using thumb
+        // T | | | | |
+        // | 3 4 2 | |
+        ChordTemplate("THUMB3", "", fingers = [| 0y; 3y; 4y; 2y; -1y; -1y |], frets = [| 1y; 3y; 3y; 2y; -1y; -1y |])
     })
 
 let testArr =

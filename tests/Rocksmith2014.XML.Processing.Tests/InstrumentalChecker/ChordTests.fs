@@ -158,6 +158,19 @@ let chordTests =
             Expect.hasLength results 2 "Two issues created"
             Expect.all results (fun x -> x.IssueType = PossiblyWrongChordFingering) "Correct issue types"
 
+        testCase "Weird fingering check ignores chord that uses thumb" <| fun _ ->
+            // Dummy chord notes
+            let cn = ResizeArray(seq { Note(String = 1y, Time = 1000, Sustain = 100) })
+            let chords =
+                ResizeArray(seq {
+                    Chord(ChordId = 7s, ChordNotes = cn)
+                })
+            let level = Level(Chords = chords)
+
+            let results = checkChords testArr level
+
+            Expect.isEmpty results "An issue was found in check results"
+
         testCase "Detects chords with barre over open strings" <| fun _ ->
             // Dummy chord notes
             let cn = ResizeArray(seq { Note(String = 1y, Time = 1000, Sustain = 100) })
