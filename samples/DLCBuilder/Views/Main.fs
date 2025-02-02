@@ -30,50 +30,51 @@ let private validationIcon state dispatch (issues: Issue list) =
         issues
         |> List.forall (fun x -> state.Project.IgnoredIssues.Contains(issueCode x.IssueType))
 
-    let hasOnlyIgnoredIssues = noActiveIssues && not issues.IsEmpty
+    let hasIssues = not issues.IsEmpty
+    let hasOnlyIgnoredIssues = noActiveIssues && hasIssues
 
-    StackPanel.create [
-        StackPanel.margin (12., 0.)
-        StackPanel.horizontalAlignment HorizontalAlignment.Left
-        StackPanel.orientation Orientation.Horizontal
-        StackPanel.background Brushes.Transparent
-        if not issues.IsEmpty then
-            StackPanel.onTapped (fun _ -> dispatch ShowIssueViewer)
-            StackPanel.onKeyDown (fun args ->
-                if args.Key = Key.Space then
-                    args.Handled <- true
-                    dispatch ShowIssueViewer)
-            StackPanel.cursor Cursors.hand
-            StackPanel.focusable true
-        if hasOnlyIgnoredIssues then
-            ToolTip.tip (translate "ArrangementHasIgnoredIssues")
-        StackPanel.children [
-            Path.create [
-                Path.fill (if noActiveIssues then Brushes.Green else Brushes.Red)
-                Path.data (if noActiveIssues then Icons.check else Icons.x)
-                Path.verticalAlignment VerticalAlignment.Center
-                Path.margin (0., 0., 6., 0.)
-            ]
-
-            Panel.create [
-                Panel.children [
-                    TextBlock.create [
-                        TextBlock.text <| translate (if noActiveIssues then "OK" else "Issues")
-                        TextBlock.verticalAlignment VerticalAlignment.Center
+    Button.create [
+        Button.margin (12., 0.)
+        Button.padding (14., 4.)
+        Button.horizontalAlignment HorizontalAlignment.Left
+        if hasIssues then
+            Button.onClick (fun _ -> dispatch ShowIssueViewer)
+        else
+            Button.isEnabled false
+        Button.content (
+            StackPanel.create [
+                StackPanel.orientation Orientation.Horizontal
+                if hasOnlyIgnoredIssues then
+                    ToolTip.tip (translate "ArrangementHasIgnoredIssues")
+                StackPanel.children [
+                    Path.create [
+                        Path.fill (if noActiveIssues then Brushes.Green else Brushes.Red)
+                        Path.data (if noActiveIssues then Icons.check else Icons.x)
+                        Path.verticalAlignment VerticalAlignment.Center
+                        Path.margin (0., 0., 6., 0.)
                     ]
 
-                    if hasOnlyIgnoredIssues then
-                        Ellipse.create [
-                            Ellipse.width 8.
-                            Ellipse.height 8.
-                            Ellipse.horizontalAlignment HorizontalAlignment.Right
-                            Ellipse.verticalAlignment VerticalAlignment.Top
-                            Ellipse.margin (0., 3., -5., 0.)
-                            Ellipse.fill Brushes.Orange
+                    Panel.create [
+                        Panel.children [
+                            TextBlock.create [
+                                TextBlock.text <| translate (if noActiveIssues then "OK" else "Issues")
+                                TextBlock.verticalAlignment VerticalAlignment.Center
+                            ]
+
+                            if hasOnlyIgnoredIssues then
+                                Ellipse.create [
+                                    Ellipse.width 8.
+                                    Ellipse.height 8.
+                                    Ellipse.horizontalAlignment HorizontalAlignment.Right
+                                    Ellipse.verticalAlignment VerticalAlignment.Top
+                                    Ellipse.margin (0., 3., -5., 0.)
+                                    Ellipse.fill Brushes.Orange
+                                ]
                         ]
+                    ]
                 ]
             ]
-        ]
+        )
     ]
 
 let private arrangementDetails state dispatch =
