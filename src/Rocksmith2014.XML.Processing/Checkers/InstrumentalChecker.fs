@@ -291,11 +291,20 @@ let private chordHasStrangeFingering (chordTemplates: ResizeArray<ChordTemplate>
         let fingersSorted = chordTemplate.Fingers |> Array.sort
         // Ignore thumb
         let! lowestFinger = fingersSorted |> Array.tryFind (fun f -> f > 0y)
+        let fretsFiltered =
+            chordTemplate.Frets
+            |> Array.choosei (fun i fret ->
+                let isThumb =
+                    chordTemplate.Fingers
+                    |> Array.tryItem i
+                    |> Option.contains 0y
+                if isThumb || fret <= 0y then None else Some fret)
+
         let fingerIndex = Array.IndexOf(chordTemplate.Fingers, lowestFinger)
         let lowestFingerFret = chordTemplate.Frets[fingerIndex]
         return
-            chordTemplate.Frets
-            |> Array.exists (fun fret -> fret > 0y && fret < lowestFingerFret)
+            fretsFiltered
+            |> Array.exists (fun fret -> fret < lowestFingerFret)
     }
     |> Option.contains true
 
@@ -430,7 +439,12 @@ let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
             let chordTemplate = chordTemplates[int handShape.ChordId]
 
             // Check only handshapes that do not use the 1st finger or the thumb
-            if not (chordTemplate.Fingers |> Array.exists (fun f -> f = 0y || f = 1y)) && notNull activeAnchor then
+            let firstFingerOrThumbNotUsed =
+                chordTemplate.Fingers
+                |> Array.exists (fun f -> f = 0y || f = 1y)
+                |> not
+
+            if firstFingerOrThumbNotUsed && notNull activeAnchor then
                 let chordNotOk =
                     (chordTemplate.Frets, chordTemplate.Fingers)
                     ||> Array.exists2 (fun fret finger -> fret = activeAnchor.Fret && finger <> -1y)
