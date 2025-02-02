@@ -146,8 +146,15 @@ let convertToWem (cliPath: string option) (sourcePath: string) =
             wwiseCli.Start() |> ignore
             do! wwiseCli.WaitForExitAsync() |> Async.AwaitTask
 
-            let output = wwiseCli.StandardOutput.ReadToEnd()
-            if output.Length > 0 then failwith output
+            let standardOutput = wwiseCli.StandardOutput.ReadToEnd()
+            let exitCode = wwiseCli.ExitCode
+            if exitCode <> 0 then
+                let output =
+                    if standardOutput.Length = 0 then
+                        "No console output."
+                    else
+                        $"Output:\n{standardOutput}"
+                failwith $"WWise conversion failed with exit code {exitCode}. {output}"
 
             copyWemFile destPath templateDir
         finally
