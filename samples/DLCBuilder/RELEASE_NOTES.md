@@ -1,3 +1,10 @@
+## 3.4.0 (Released 2025-02-02)
+
+- Fixed an issue where a fingering using the thumb was not ignored in the chord fingering validation.
+- The exit code is now used to detect if the Wwise conversion failed instead of the console output.
+- Added Spanish translation.
+- Minor UI improvements.
+
 ## 3.3.0 (Released 2024-12-23)
 
 - Right click can now be used in the Japanese lyrics tool to split Japanese words.
