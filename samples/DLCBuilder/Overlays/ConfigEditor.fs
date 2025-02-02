@@ -703,7 +703,7 @@ let private tabHeader (icon: Geometry) locKey =
 
 let view state dispatch focusedSetting =
     DockPanel.create [
-        DockPanel.width 600.
+        DockPanel.width 660.
         DockPanel.height 490.
         DockPanel.children [
             // Close button
