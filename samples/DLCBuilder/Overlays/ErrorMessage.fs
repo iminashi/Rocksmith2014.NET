@@ -10,7 +10,39 @@ open Avalonia.Layout
 open Avalonia.Media
 open DLCBuilder
 
-let view dispatch msg info =
+let private moreInformation moreInfo =
+    Expander.create [
+        Expander.header (
+            hStack [
+                locText "AdditionalInformation" []
+                iconButton Media.Icons.copy [
+                    ToolTip.tip (translate "CopyInformation")
+                    Button.onClick (fun e ->
+                        match e.Source with
+                        | :? Visual as v ->
+                            TopLevel.GetTopLevel(v).Clipboard.SetTextAsync(moreInfo)
+                            |> ignore
+                        | _ ->
+                            ()
+                    )
+                ]
+            ]
+        )
+        Expander.horizontalAlignment HorizontalAlignment.Stretch
+        Expander.maxHeight 400.
+        Expander.maxWidth 600.
+        Expander.background "#181818"
+        Expander.content (
+            TextBox.create [
+                TextBox.horizontalScrollBarVisibility ScrollBarVisibility.Auto
+                TextBox.verticalScrollBarVisibility ScrollBarVisibility.Auto
+                TextBox.text moreInfo
+                TextBox.isReadOnly true
+            ]
+        )
+    ]
+
+let view dispatch data =
     StackPanel.create [
         StackPanel.spacing 8.
         StackPanel.maxWidth 750.
@@ -32,48 +64,31 @@ let view dispatch msg info =
                 ]
             ]
 
-            // Message
-            TextBlock.create [
-                TextBlock.fontSize 16.
-                TextBlock.text msg
-                TextBlock.margin 10.0
-                TextBlock.textWrapping TextWrapping.Wrap
-            ]
+            ScrollViewer.create [
+                ScrollViewer.maxHeight 540.
+                ScrollViewer.content (
+                    StackPanel.create [
+                        StackPanel.margin (5., 2.)
+                        StackPanel.children [
+                            for msg, info in data do
+                                // Message
+                                TextBlock.create [
+                                    TextBlock.fontSize 16.
+                                    TextBlock.text msg
+                                    TextBlock.margin 10.0
+                                    TextBlock.textWrapping TextWrapping.Wrap
+                                ]
 
-            match info with
-            | None ->
-                ()
-            | Some moreInfo ->
-                Expander.create [
-                    Expander.header (
-                        hStack [
-                            locText "AdditionalInformation" []
-                            iconButton Media.Icons.copy [
-                                ToolTip.tip (translate "CopyInformation")
-                                Button.onClick (fun e ->
-                                    match e.Source with
-                                    | :? Visual as v ->
-                                        TopLevel.GetTopLevel(v).Clipboard.SetTextAsync(moreInfo)
-                                        |> ignore
-                                    | _ ->
-                                        ()
-                                )
-                            ]
+                                match info with
+                                | None ->
+                                    ()
+                                | Some moreInfo ->
+                                    moreInformation moreInfo
                         ]
-                    )
-                    Expander.horizontalAlignment HorizontalAlignment.Stretch
-                    Expander.maxHeight 400.
-                    Expander.maxWidth 600.
-                    Expander.background "#181818"
-                    Expander.content (
-                        TextBox.create [
-                            TextBox.horizontalScrollBarVisibility ScrollBarVisibility.Auto
-                            TextBox.verticalScrollBarVisibility ScrollBarVisibility.Auto
-                            TextBox.text moreInfo
-                            TextBox.isReadOnly true
-                        ]
-                    )
-                ]
+                    ]
+                )
+
+            ]
 
             // OK button
             Button.create [

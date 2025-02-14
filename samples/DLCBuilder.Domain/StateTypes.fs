@@ -50,6 +50,7 @@ type OverlayContents =
     | ConfigEditor of focus: FocusedSetting option
     | DeleteConfirmation of files: string list
     | ErrorMessage of message: string * moreInfo: string option
+    | MultipleErrors of messagesWithOptionalInfo: (string * string option) list
     | IdRegenerationConfirmation of arrangements: Arrangement list * reply: AsyncReply
     | ImportToneSelector of tones: Tone array
     | IssueViewer of arrangement: Arrangement

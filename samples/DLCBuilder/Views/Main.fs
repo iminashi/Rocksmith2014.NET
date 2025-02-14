@@ -288,7 +288,9 @@ let private overlay state dispatch =
     | IdRegenerationConfirmation (arrangements, reply) ->
         IdRegenerationConfirmation.view state dispatch reply.Reply arrangements
     | ErrorMessage (msg, info) ->
-        ErrorMessage.view dispatch msg info
+        ErrorMessage.view dispatch [ msg, info ]
+    | MultipleErrors data ->
+        ErrorMessage.view dispatch data
     | SelectPreviewStart data ->
         PreviewStartSelector.view state dispatch data
     | ImportToneSelector tones ->
@@ -302,7 +304,7 @@ let private overlay state dispatch =
     | ToneEditor ->
         match state.SelectedToneIndex with
         | -1 ->
-            ErrorMessage.view dispatch "No tone selected. This should not happen." None
+            ErrorMessage.view dispatch [ "No tone selected. This should not happen.", None ]
         | index ->
             ToneEditor.view state dispatch state.Project.Tones[index]
     | ToneCollection collectionState ->

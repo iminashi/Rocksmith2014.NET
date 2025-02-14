@@ -9,6 +9,9 @@ open Rocksmith2014.EOF
 open System
 open System.IO
 
+let createErrorMessage (message: string) (ex: exn) : Msg =
+    ErrorOccurred (exn(message, ex))
+
 let getSelectedArrangement state =
     List.tryItem state.SelectedArrangementIndex state.Project.Arrangements
 
@@ -108,7 +111,7 @@ let updateRecentFilesAndConfig projectFile state =
 
     let cmd =
         if state.Config.PreviousOpenedProject <> projectFile then
-            Cmd.OfTask.attempt Configuration.save newConfig ErrorOccurred
+            Cmd.OfTask.attempt Configuration.save newConfig (createErrorMessage "Saving configuration failed.")
         else
             Cmd.none
 
@@ -282,7 +285,17 @@ let showOverlay state overlay =
     | _ ->
         ()
 
-    { state with Overlay = overlay }
+    // Combine new error with the currently displayed one
+    let newOverlay =
+        match state.Overlay, overlay with
+        | ErrorMessage (initError, initMoreInfo), ErrorMessage (newError, newMoreInfo) ->
+            MultipleErrors [ initError, initMoreInfo; newError, newMoreInfo ]
+        | MultipleErrors data, ErrorMessage (newError, newMoreInfo) ->
+            MultipleErrors ((newError, newMoreInfo) :: data)
+        | _ ->
+            overlay
+
+    { state with Overlay = newOverlay }
 
 let handleFilesDrop config paths =
     let arrangements, other =
