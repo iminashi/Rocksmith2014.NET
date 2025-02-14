@@ -779,14 +779,20 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfTask.either DLCProject.load fileName (fun p -> ProjectLoaded(p, FromFile fileName)) ErrorOccurred
 
     | ProjectLoaded (project, loadOrigin) ->
-        let project =
+        let project, toneReloadError =
             if loadOrigin.ShouldReloadTonesFromArrangementFiles then
-                DLCProject.updateToneInfo project
+                try
+                    DLCProject.updateToneInfo project, Cmd.none
+                with e ->
+                    let errorCmd =
+                        createErrorMessage "Updating tone information from XML failed." e
+                        |> Cmd.ofMsg
+                    project, errorCmd
             else
-                project
+                project, Cmd.none
 
         let projectPath = loadOrigin.ProjectPath
-        let recent, newConfig, cmd =
+        let recent, newConfig, configUpdateError =
             // Quick edit PSARC projects are not added to recent files
             match projectPath with
             | Some projectPath ->
@@ -803,7 +809,7 @@ let update (msg: Msg) (state: State) =
         deleteTemporaryFilesForQuickEdit state
         state.FontGenerationWatcher |> Option.iter (fun f -> f.Dispose())
 
-        let cmds = Cmd.batch [ Cmd.ofMsg ReadAudioLength; cmd ]
+        let cmds = Cmd.batch [ Cmd.ofMsg ReadAudioLength; configUpdateError; toneReloadError ]
 
         { state with
             Project = project
