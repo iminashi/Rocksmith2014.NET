@@ -13,13 +13,21 @@ open Rocksmith2014.XML.Processing
 
 let createExceptionInfoString (ex: exn) =
     let exnInfo (e: exn) =
-        $"{e.GetType().Name}: {e.Message}\n{e.StackTrace}"
+        let stackTrace =
+            match e.StackTrace with
+            | null
+            | "" ->
+                String.Empty
+            | stackTrace ->
+                $"\n{stackTrace}"
+
+        $"{e.GetType().Name}: {e.Message}{stackTrace}"
 
     match ex.InnerException with
     | null ->
         exnInfo ex
     | innerEx ->
-        $"{exnInfo ex}\n\nInner exception:\n{exnInfo innerEx}"
+        $"{exnInfo ex}\nInner exception:\n{exnInfo innerEx}"
 
 /// Imports tones from a PSARC file.
 let importTonesFromPSARC (psarcPath: string) =
