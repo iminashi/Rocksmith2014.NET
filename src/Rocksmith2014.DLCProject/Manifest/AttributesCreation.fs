@@ -352,6 +352,8 @@ let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Inst
         |> Option.ofString
         |> Option.defaultWith (fun () -> StringValidator.convertToSortField (c ss.Value))
 
+    let noteCountsHard = Math.Max(1.0, float sng.NoteCounts.Hard)
+
     attr.AlbumName <- project.AlbumName.Value
     attr.AlbumNameSort <- getSortValue StringValidator.FieldType.AlbumName project.AlbumName
     attr.ArtistName <- project.ArtistName.Value
@@ -361,8 +363,8 @@ let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Inst
     attr.DNA_Chords <- dnas.Chords
     attr.DNA_Riffs <- dnas.Riffs
     attr.DNA_Solo <- dnas.Solo
-    attr.EasyMastery <- Math.Round(float sng.NoteCounts.Easy / float sng.NoteCounts.Hard, 9)
-    attr.MediumMastery <- Math.Round(float sng.NoteCounts.Medium / float sng.NoteCounts.Hard, 9)
+    attr.EasyMastery <- Math.Round(float sng.NoteCounts.Easy / noteCountsHard, 9)
+    attr.MediumMastery <- Math.Round(float sng.NoteCounts.Medium / noteCountsHard, 9)
     attr.NotesEasy <- float32 sng.NoteCounts.Easy
     attr.NotesHard <- float32 sng.NoteCounts.Hard
     attr.NotesMedium <- float32 sng.NoteCounts.Medium
@@ -407,7 +409,7 @@ let private initSongComplete (partition: int)
     attr.PhraseIterations <- convertPhraseIterations sng
     attr.Phrases <- convertPhrases sng
     attr.Score_MaxNotes <- float32 sng.NoteCounts.Hard
-    attr.Score_PNV <- 100_000.f / float32 sng.NoteCounts.Hard
+    attr.Score_PNV <- 100_000.f / Math.Max(1.0f, float32 sng.NoteCounts.Hard)
     attr.Sections <- convertSections sng
     attr.SongAverageTempo <- if xmlMetaData.AverageTempo <= 0.f then 120.f else xmlMetaData.AverageTempo
     attr.SongOffset <- -sng.MetaData.StartTime

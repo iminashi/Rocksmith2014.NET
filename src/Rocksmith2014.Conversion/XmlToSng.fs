@@ -259,7 +259,7 @@ let createMetaData (accuData: AccuData) firstNoteTime (xml: XML.InstrumentalArra
     { MaxScore = maxScore
       MaxNotesAndChords = float accuData.NoteCounts.Hard
       MaxNotesAndChordsReal = float (accuData.NoteCounts.Hard - accuData.NoteCounts.Ignored)
-      PointsPerNote = maxScore / float accuData.NoteCounts.Hard
+      PointsPerNote = maxScore / Math.Max(1.0, float accuData.NoteCounts.Hard)
       FirstBeatLength = msToSec (xml.Ebeats[1].Time - xml.Ebeats[0].Time)
       StartTime = msToSec xml.StartBeat
       CapoFretId = if xml.MetaData.Capo <= 0y then -1y else xml.MetaData.Capo
