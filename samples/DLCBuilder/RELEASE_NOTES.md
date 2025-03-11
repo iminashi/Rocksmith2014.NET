@@ -1,3 +1,9 @@
+## 3.5.0 (Released 2025-xx-xx)
+
+- Using an arrangement without any notes or chords no longer causes an error.
+- Improvements to error handling.
+- Updated the UI framework to the latest version.
+
 ## 3.4.0 (Released 2025-02-02)
 
 - Fixed an issue where a fingering using the thumb was not ignored in the chord fingering validation.
