@@ -496,6 +496,15 @@ let update (msg: Msg) (state: State) =
         { state with Project = { project with Arrangements = arrangements }
                      SelectedArrangementIndex = index }, Cmd.none
 
+    | OpenSelectedArrangementXmlFile ->
+        let openFileCmd =
+            project.Arrangements
+            |> List.tryItem state.SelectedArrangementIndex
+            |> Option.map (Arrangement.getFile >> OpenWithShell >> Cmd.ofMsg)
+            |> Option.defaultValue Cmd.none
+
+        state, openFileCmd
+
     | DeleteSelectedTone ->
         let tones, index = Utils.removeSelected project.Tones state.SelectedToneIndex
 

@@ -123,6 +123,7 @@
   "GenerateNewArrIDsMenuItem": "新しいIDをジェネレート",
   "GenerateNewArrIDsToolTip": "このアレンジに新しいIDをジェネレートします。\n\nこのアレンジのゲーム内のデータがリセットされます。",
   "ApplyLowTuningFixMenuItem": "低いチューニング用の修正を適用",
+  "OpenXmlFileMenuItem": "XMLファイルを開く",
   "Japanese": "日本語",
   "JapaneseLyricsToolTip": "チェックすると、この歌詞はゲームの言語が日本語の時に表示されます。",
   "CustomFont": "カスタムフォント",

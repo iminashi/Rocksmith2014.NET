@@ -306,6 +306,7 @@ type Msg =
     | DeleteTestBuilds of confirmDeletionOfMultipleFiles: bool
     | DeleteConfirmed of files: string list
     | DeleteSelectedArrangement
+    | OpenSelectedArrangementXmlFile
     | DeleteSelectedTone
     | AddNewTone
     | DuplicateTone

@@ -123,6 +123,7 @@
   "GenerateNewArrIDsMenuItem": "Generoi _uudet ID:t",
   "GenerateNewArrIDsToolTip": "Luo uudet identifikaatiotiedot tälle sovitukselle.\n\nSovituksen tilastot pelissä resetoituvat.",
   "ApplyLowTuningFixMenuItem": "Käytä _matalan virityksen korjausta",
+  "OpenXmlFileMenuItem": "Avaa _XML tiedosto",
   "Japanese": "Japaninkielinen",
   "JapaneseLyricsToolTip": "Nämä lyriikat näytetään, kun pelin kieleksi on asetettu japani.",
   "CustomFont": "Mukautettu fontti",

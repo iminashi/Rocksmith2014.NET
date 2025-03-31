@@ -588,6 +588,11 @@ module Context =
 
                 separator
 
+                MenuItem.create [
+                    MenuItem.header (translate "OpenXmlFileMenuItem")
+                    MenuItem.onClick (fun _ -> dispatch OpenSelectedArrangementXmlFile)
+                ]
+
                 // Remove
                 MenuItem.create [
                     MenuItem.header (translate "RemoveMenuItem")

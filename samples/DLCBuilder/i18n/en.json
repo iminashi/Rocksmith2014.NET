@@ -123,6 +123,7 @@
   "GenerateNewArrIDsMenuItem": "Generate _New IDs",
   "GenerateNewArrIDsToolTip": "Generates new identification data for this arrangement.\n\nThe in-game stats for the arrangement will be reset.",
   "ApplyLowTuningFixMenuItem": "Apply _Low Tuning Fix",
+  "OpenXmlFileMenuItem": "Open _XML file",
   "Japanese": "Japanese",
   "JapaneseLyricsToolTip": "When checked, these lyrics will be displayed when the game's language is set to Japanese.",
   "CustomFont": "Custom Font",
