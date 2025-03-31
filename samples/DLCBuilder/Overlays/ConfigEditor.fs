@@ -645,6 +645,21 @@ let private releaseBuildConfig state dispatch =
                     CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetDeleteTestBuildsOnRelease |> EditConfig |> dispatch)
                 ]
 
+                // Filename Addition
+                DockPanel.create [
+                    DockPanel.children [
+                        locText "ReleaseFilenameAddition" [
+                            DockPanel.dock Dock.Left
+                            TextBlock.verticalAlignment VerticalAlignment.Center
+                        ]
+
+                        FixedTextBox.create [
+                            TextBox.margin (4., 4.)
+                            FixedTextBox.text (state.Config.ReleaseFilenameAddition |> Option.defaultValue "")
+                            FixedTextBox.onTextChanged (SetReleaseFilenameAddition >> EditConfig >> dispatch)
+                        ]
+                    ]
+                ]
             ]
         ]
 
@@ -652,7 +667,7 @@ let private releaseBuildConfig state dispatch =
         headerWithLine "CopyTasks" true
 
         DockPanel.create [
-            DockPanel.maxHeight 200.
+            DockPanel.maxHeight 180.
             DockPanel.children [
                 // Add new copy task
                 Button.create [

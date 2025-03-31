@@ -2,7 +2,8 @@
 
 - Using an arrangement without any notes or chords no longer causes an error.
 - Improvements to error handling.
-- Added an option to open the XML file from the arrangement context menu.
+- Added an option to add a configurable addition to the release package filename.
+- Added a menu item to open the XML file to the arrangement context menu.
 - Updated the UI framework to the latest version.
 
 ## 3.4.0 (Released 2025-02-02)

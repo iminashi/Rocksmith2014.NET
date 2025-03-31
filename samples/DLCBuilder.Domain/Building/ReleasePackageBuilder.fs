@@ -34,7 +34,12 @@ let build (openProject: string option) (config: Configuration) (project: DLCProj
 
         let fileNameWithoutExtension =
             let data = getArtistAndTitle project
-            sprintf "%s_%s_v%s" data.Artist data.Title (project.Version.Replace('.', '_'))
+            let addition =
+                config.ReleaseFilenameAddition
+                |> Option.map (sprintf "%s_")
+                |> Option.defaultValue ""
+
+            sprintf "%s_%s_%sv%s" data.Artist data.Title addition (project.Version.Replace('.', '_'))
             |> StringValidator.fileName
 
         let path =
