@@ -155,8 +155,8 @@ let editConfig edit config =
     | SetCharterName name ->
         { config with CharterName = name }
 
-    | SetReleaseFilenameAddition addition ->
-        { config with ReleaseFilenameAddition = Option.ofString addition }
+    | SetReleaseFilenameSupplement addition ->
+        { config with ReleaseFilenameSupplement = Option.ofString addition }
 
     | SetAutoVolume autoVolume ->
         { config with AutoVolume = autoVolume }

@@ -62,7 +62,7 @@ type Configuration =
       TestFolderPath: string
       DlcFolderPath: string
       CharterName: string
-      ReleaseFilenameAddition: string option
+      ReleaseFilenameSupplement: string option
       ShowAdvanced: bool
       GenerateDD: bool
       ForcePhraseCreation: bool
@@ -98,7 +98,7 @@ type Configuration =
           TestFolderPath = String.Empty
           DlcFolderPath = String.Empty
           CharterName = String.Empty
-          ReleaseFilenameAddition = None
+          ReleaseFilenameSupplement = None
           ShowAdvanced = false
           GenerateDD = true
           ForcePhraseCreation = false
@@ -186,7 +186,7 @@ module Configuration =
         member val TestFolderPath: string = Configuration.Default.TestFolderPath with get, set
         member val DlcFolderPath: string = Configuration.Default.DlcFolderPath with get, set
         member val CharterName: string = Configuration.Default.CharterName with get, set
-        member val ReleaseFilenameAddition: string = String.Empty with get, set
+        member val ReleaseFilenameSupplement: string = String.Empty with get, set
         member val ShowAdvanced: bool = Configuration.Default.ShowAdvanced with get, set
         member val GenerateDD: bool = Configuration.Default.GenerateDD with get, set
         member val ForcePhraseCreation: bool = Configuration.Default.ForcePhraseCreation with get, set
@@ -261,7 +261,7 @@ module Configuration =
           TestFolderPath = dto.TestFolderPath
           DlcFolderPath = dto.DlcFolderPath
           CharterName = dto.CharterName
-          ReleaseFilenameAddition = Option.ofString dto.ReleaseFilenameAddition
+          ReleaseFilenameSupplement = Option.ofString dto.ReleaseFilenameSupplement
           ShowAdvanced = dto.ShowAdvanced
           GenerateDD = dto.GenerateDD
           ForcePhraseCreation = dto.ForcePhraseCreation
@@ -320,7 +320,7 @@ module Configuration =
             TestFolderPath = config.TestFolderPath,
             DlcFolderPath = config.DlcFolderPath,
             CharterName = config.CharterName,
-            ReleaseFilenameAddition = Option.toObj config.ReleaseFilenameAddition,
+            ReleaseFilenameSupplement = Option.toObj config.ReleaseFilenameSupplement,
             ShowAdvanced = config.ShowAdvanced,
             Locale = config.Locale.ShortName,
             GenerateDD = config.GenerateDD,

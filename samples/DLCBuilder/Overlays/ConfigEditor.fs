@@ -648,15 +648,20 @@ let private releaseBuildConfig state dispatch =
                 // Filename Addition
                 DockPanel.create [
                     DockPanel.children [
-                        locText "ReleaseFilenameAddition" [
+                        locText "ReleaseFilenameSupplement" [
                             DockPanel.dock Dock.Left
                             TextBlock.verticalAlignment VerticalAlignment.Center
                         ]
 
+                        HelpButton.create [
+                            DockPanel.dock Dock.Right
+                            HelpButton.helpText (translate "ReleaseFilenameSupplementHelp")
+                        ]
+
                         FixedTextBox.create [
                             TextBox.margin (4., 4.)
-                            FixedTextBox.text (state.Config.ReleaseFilenameAddition |> Option.defaultValue "")
-                            FixedTextBox.onTextChanged (SetReleaseFilenameAddition >> EditConfig >> dispatch)
+                            FixedTextBox.text (state.Config.ReleaseFilenameSupplement |> Option.defaultValue "")
+                            FixedTextBox.onTextChanged (SetReleaseFilenameSupplement >> EditConfig >> dispatch)
                         ]
                     ]
                 ]

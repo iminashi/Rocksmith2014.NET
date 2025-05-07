@@ -2,7 +2,7 @@
 
 - Using an arrangement without any notes or chords no longer causes an error.
 - Improvements to error handling.
-- Added an option to add a configurable addition to the release package filename.
+- Added an option to add extra word(s) to the end of the release package filename.
 - Added a menu item to open the XML file to the arrangement context menu.
 - Updated the UI framework to the latest version.
 

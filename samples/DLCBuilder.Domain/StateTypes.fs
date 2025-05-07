@@ -152,7 +152,7 @@ type VocalsEdit =
 
 type ConfigEdit =
     | SetCharterName of string
-    | SetReleaseFilenameAddition of string
+    | SetReleaseFilenameSupplement of string
     | SetProfilePath of string
     | SetTestFolderPath of string
     | SetDlcFolderPath of string

@@ -34,12 +34,12 @@ let build (openProject: string option) (config: Configuration) (project: DLCProj
 
         let fileNameWithoutExtension =
             let data = getArtistAndTitle project
-            let addition =
-                config.ReleaseFilenameAddition
+            let supplement =
+                config.ReleaseFilenameSupplement
                 |> Option.map (sprintf "%s_")
                 |> Option.defaultValue ""
 
-            sprintf "%s_%s_%sv%s" data.Artist data.Title addition (project.Version.Replace('.', '_'))
+            sprintf "%s_%s_%sv%s" data.Artist data.Title supplement (project.Version.Replace('.', '_'))
             |> StringValidator.fileName
 
         let path =
