@@ -645,7 +645,7 @@ let private releaseBuildConfig state dispatch =
                     CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetDeleteTestBuildsOnRelease |> EditConfig |> dispatch)
                 ]
 
-                // Filename Addition
+                // Filename Supplement
                 DockPanel.create [
                     DockPanel.children [
                         locText "ReleaseFilenameSupplement" [

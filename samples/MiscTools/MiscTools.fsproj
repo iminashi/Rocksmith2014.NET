@@ -24,10 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia.Desktop" Version="11.2.6" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.0" />
     <PackageReference Include="Avalonia.FuncUI" Version="1.5.1" />
     <PackageReference Include="Avalonia.FuncUI.Elmish" Version="1.5.1" />
-    <PackageReference Include="Avalonia.Themes.Simple" Version="11.2.6" />
+    <PackageReference Include="Avalonia.Themes.Simple" Version="11.3.0" />
   </ItemGroup>
 
   <ItemGroup>
