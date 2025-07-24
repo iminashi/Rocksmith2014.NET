@@ -14,10 +14,10 @@ type Compression =
         | DXT5 -> "dxt5"
 
 type Resize =
-    | Resize of width: int * height: int
+    | Resize of width: uint * height: uint
     | NoResize
 
-type DDSFile(size: int, path: string, deleteOnDispose: bool) =
+type DDSFile(size: uint, path: string, deleteOnDispose: bool) =
     member _.Size = size
     member _.Path = path
 
@@ -44,7 +44,7 @@ let convertToDDS (sourceFile: string) (output: Stream) (options: DDSOptions) =
 
     image.Write(output)
 
-let private targetSizes = [| 64; 128; 256 |]
+let private targetSizes = [| 64u; 128u; 256u |]
 
 /// Creates three cover art images from the source file and returns the filenames of the temporary files.
 let createCoverArtImages (sourceFile: string) =

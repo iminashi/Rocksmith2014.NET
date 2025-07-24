@@ -360,7 +360,7 @@ let update (msg: Msg) (state: State) : State * Cmd<Msg> =
         | ConvertToDDS file ->
             let targetPath = Path.ChangeExtension(file, "dds")
             use target = File.Create(targetPath)
-            let options = { Resize = Resize(256,256); Compression = DXT1 }
+            let options = { Resize = Resize(256u, 256u); Compression = DXT1 }
             convertToDDS file target options
 
             state, Cmd.none
