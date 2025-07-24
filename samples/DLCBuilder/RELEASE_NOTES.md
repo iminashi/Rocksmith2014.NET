@@ -3,7 +3,7 @@
 - Using an arrangement without any notes or chords no longer causes an error.
 - Improvements to error handling.
 - Added an option to add extra word(s) to the end of the release package filename.
-- Added a bew menu item into the arrangement context menu for opening the XML file.
+- Added a new menu item into the arrangement context menu for opening the XML file.
 - Updated the UI framework to the latest version.
 
 ## 3.4.0 (Released 2025-02-02)
