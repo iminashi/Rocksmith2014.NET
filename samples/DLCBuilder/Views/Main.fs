@@ -435,21 +435,25 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
 
     DockPanel.create [
         DockPanel.background "#040404"
-        DragDrop.allowDrop noOverlayIsOpen
-        DragDrop.onDragEnter (fun e ->
+        DockPanel.allowDrop noOverlayIsOpen
+        DockPanel.onDragEnter (fun e ->
             e.DragEffects <-
-                if e.Data.Contains(DataFormats.Files) then
+                if e.DataTransfer.Contains(DataFormat.File) then
                     DragDropEffects.Copy
                 else
                     DragDropEffects.None)
 
-        DragDrop.onDrop (fun e ->
+        DockPanel.onDrop (fun e ->
             e.Handled <- true
 
-            e.Data.GetFiles()
-            |> Seq.map (fun x -> x.Path.LocalPath)
-            |> LoadMultipleFiles
-            |> dispatch)
+            match e.DataTransfer.TryGetFiles() with
+            | null ->
+                ()
+            | files ->
+                files
+                |> Seq.map (fun x -> x.Path.LocalPath)
+                |> LoadMultipleFiles
+                |> dispatch)
 
         DockPanel.children [
             // Custom title bar

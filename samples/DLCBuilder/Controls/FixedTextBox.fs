@@ -6,6 +6,7 @@ open Avalonia.Controls
 open Avalonia.FuncUI.Builder
 open Avalonia.FuncUI.Types
 open Avalonia.Input
+open Avalonia.Input.Platform
 open System
 open System.Reactive.Linq
 
@@ -22,7 +23,7 @@ type FixedTextBox() as this =
         this.PastingFromClipboard.Add(fun e ->
             async {
                 let! text =
-                    TopLevel.GetTopLevel(this).Clipboard.GetTextAsync()
+                    ClipboardExtensions.TryGetTextAsync(TopLevel.GetTopLevel(this).Clipboard)
                     |> Async.AwaitTask
                 if notNull text then
                     this.RaiseEvent(TextInputEventArgs(RoutedEvent = InputElement.TextInputEvent, Text = text, Source = this))
