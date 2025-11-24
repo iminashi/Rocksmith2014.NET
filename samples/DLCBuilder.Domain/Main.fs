@@ -1234,7 +1234,7 @@ let update (msg: Msg) (state: State) =
 
     | StartFontGenerator ->
         match getSelectedArrangement state, state.Config.FontGeneratorPath with
-        | Some (Vocals { XmlPath = xml; PersistentId = id }), Some generatorPath ->
+        | Some (Vocals { XmlPath = xml; Id = arrangementId }), Some generatorPath ->
             // Dispose any previous watcher
             state.FontGenerationWatcher |> Option.iter (fun f -> f.Dispose())
 
@@ -1245,7 +1245,7 @@ let update (msg: Msg) (state: State) =
                 fsWatcher.NotifyFilter <- NotifyFilters.FileName ||| NotifyFilters.DirectoryName
                 fsWatcher.Created
                 |> Observable.take 1
-                |> Observable.add (fun fsArgs -> FontGeneratorHelper.fontGenerated(id, fsArgs.FullPath))
+                |> Observable.add (fun fsArgs -> FontGeneratorHelper.fontGenerated(arrangementId, fsArgs.FullPath))
 
                 fsWatcher
 
@@ -1257,7 +1257,7 @@ let update (msg: Msg) (state: State) =
         let arrangements =
             project.Arrangements
             |> List.map (function
-                | Vocals v when v.PersistentId = arrId ->
+                | Vocals v when v.Id = arrId ->
                     let fontPath =
                         // Change path/file.glyphs.xml to path/file.dds
                         let fontFile = Path.ChangeExtension(Path.GetFileNameWithoutExtension(glyphsXmlPath), "dds")

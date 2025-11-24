@@ -374,7 +374,7 @@ type Msg =
     | ReadAudioLength
     | SetAudioLength of audioLength: TimeSpan option
     | StartFontGenerator
-    | FontGenerated of arrangementId: Guid * glyphsXmlPath: string
+    | FontGenerated of arrangementId: ArrangementId * glyphsXmlPath: string
     | ExitConfirmed of saveProject: bool
 
 type State =
