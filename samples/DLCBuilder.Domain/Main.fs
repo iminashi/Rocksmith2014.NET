@@ -42,7 +42,7 @@ let private buildValidatedProject state buildType =
             let projectDir = state.OpenProjectFile |> Option.map Path.GetDirectoryName
             buildPackage (TestPackageBuilder.build state.CurrentPlatform projectDir) state
         else
-            showOverlay state (ConfigEditor (Some FocusedSetting.TestFolder)), Cmd.none
+            showModal state (ConfigEditor (Some FocusedSetting.TestFolder)), Cmd.none
     | Release ->
         if config.ValidateBeforeReleaseBuild then
             checkAllArrangements state CheckCompletedForReleaseBuild
@@ -113,7 +113,7 @@ let update (msg: Msg) (state: State) =
                     |> XML.Vocals.Load
                     |> JapaneseLyricsCreator.LyricsCreatorState.init
 
-                { state with Overlay = JapaneseLyricsCreator initialState })
+                { state with Modal = JapaneseLyricsCreator initialState })
             |> Option.defaultValue state
 
         newState, Cmd.none
@@ -127,7 +127,7 @@ let update (msg: Msg) (state: State) =
                 | _ ->
                     false)
 
-        { state with Overlay = IdRegenerationConfirmation(arrangements, reply) }, Cmd.none
+        { state with Modal = IdRegenerationConfirmation(arrangements, reply) }, Cmd.none
 
     | SetNewArrangementIds replacementMap ->
         let arrangements =
@@ -157,7 +157,7 @@ let update (msg: Msg) (state: State) =
 
     | ShowToneEditor ->
         match getSelectedTone state with
-        | Some _ -> showOverlay state ToneEditor, Cmd.none
+        | Some _ -> showModal state ToneEditor, Cmd.none
         | None -> state, Cmd.none
 
     | NewProject ->
@@ -201,9 +201,9 @@ let update (msg: Msg) (state: State) =
 
         state, Cmd.OfTask.attempt task tone ErrorOccurred
 
-    | CloseOverlay method ->
+    | CloseModal method ->
         let cmd =
-            match state.Overlay with
+            match state.Modal with
             | ConfigEditor _
             | ProfileCleaner ->
                 Cmd.OfTask.attempt Configuration.save config ErrorOccurred
@@ -213,15 +213,15 @@ let update (msg: Msg) (state: State) =
             | _ ->
                 Cmd.none
 
-        match state.Overlay with
-        | IdRegenerationConfirmation _ when method <> OverlayCloseMethod.OverlayButton ->
-            // The confirmation needs to be answered with the buttons in the overlay
+        match state.Modal with
+        | IdRegenerationConfirmation _ when method <> ModalCloseMethod.UIButton ->
+            // The confirmation needs to be answered with the buttons in the modal
             state, cmd
-        | JapaneseLyricsCreator _ when method = OverlayCloseMethod.ClickedOutside ->
-            // Disabled to prevent accidentally closing the overlay with a click outside
+        | JapaneseLyricsCreator _ when method = ModalCloseMethod.ClickedOutside ->
+            // Disabled to prevent accidentally closing the modal with a click outside
             state, cmd
         | _ ->
-            { state with Overlay = NoOverlay }, cmd
+            { state with Modal = NoModal }, cmd
 
     | ImportPsarcQuick psarcPath ->
         let targetFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())
@@ -297,28 +297,28 @@ let update (msg: Msg) (state: State) =
 
     | ImportProfileTones ->
         if String.IsNullOrWhiteSpace(config.ProfilePath) then
-            showOverlay state (ConfigEditor (Some FocusedSetting.ProfilePath)), Cmd.none
+            showModal state (ConfigEditor (Some FocusedSetting.ProfilePath)), Cmd.none
         else
             match Profile.importTones config.ProfilePath with
             | Ok toneArray ->
                 state, Cmd.ofMsg (ShowImportToneSelector toneArray)
             | Error Profile.ToneImportError.NoTonesInProfile ->
-                { state with Overlay = ErrorMessage(translate "NoTonesInProfile", None) }, Cmd.none
+                { state with Modal = ErrorMessage(translate "NoTonesInProfile", None) }, Cmd.none
             | Error (Profile.ToneImportError.Exception ex) ->
                 match ex with
                 | :? ProfileMagicCheckFailure ->
-                    { state with Overlay = ErrorMessage(translate "NotARocksmithProfileFile", None) }, Cmd.none
+                    { state with Modal = ErrorMessage(translate "NotARocksmithProfileFile", None) }, Cmd.none
                 | ex ->
-                    { state with Overlay = ErrorMessage(ex.Message, Option.ofString ex.StackTrace) }, Cmd.none
+                    { state with Modal = ErrorMessage(ex.Message, Option.ofString ex.StackTrace) }, Cmd.none
 
     | ShowImportToneSelector tones ->
         match tones with
         | [||] ->
-            { state with Overlay = ErrorMessage(translate "CouldNotFindTonesError", None) }, Cmd.none
+            { state with Modal = ErrorMessage(translate "CouldNotFindTonesError", None) }, Cmd.none
         | [| one |] ->
             state, Cmd.ofMsg (ImportTones [ one ])
         | _ ->
-            { state with SelectedImportTones = []; Overlay = ImportToneSelector tones }, Cmd.none
+            { state with SelectedImportTones = []; Modal = ImportToneSelector tones }, Cmd.none
 
     | SetAudioFile audioPath ->
         let previewPath =
@@ -543,11 +543,11 @@ let update (msg: Msg) (state: State) =
             SelectedToneIndex = index }, Cmd.none
 
     | ShowToneCollection ->
-        let overlay =
+        let modal =
             ToneCollection.CollectionState.init state.DatabaseConnector ToneCollection.ActiveTab.Official
             |> ToneCollection
 
-        showOverlay state overlay, Cmd.none
+        showModal state modal, Cmd.none
 
     | MoveArrangement dir ->
         let arrangements, index = Utils.moveSelected dir state.SelectedArrangementIndex project.Arrangements
@@ -570,7 +570,7 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfAsync.either task () (SetupStartTime >> CreatePreviewAudio) ErrorOccurred
 
     | CreatePreviewAudio (SetupStartTime data) ->
-        showOverlay state (SelectPreviewStart data), Cmd.none
+        showModal state (SelectPreviewStart data), Cmd.none
 
     | CreatePreviewAudio (CreateFile data) ->
         let task () =
@@ -583,7 +583,7 @@ let update (msg: Msg) (state: State) =
                 return targetPath
             }
 
-        { state with Overlay = NoOverlay },
+        { state with Modal = NoModal },
         Cmd.OfAsync.either task () (FileCreated >> CreatePreviewAudio) ErrorOccurred
 
     | CreatePreviewAudio (FileCreated previewPath) ->
@@ -594,17 +594,18 @@ let update (msg: Msg) (state: State) =
             | false -> Cmd.none
 
         // Delete the old converted file if one exists
-        let overlay =
+        let modal =
             let wemPreview = Path.ChangeExtension(previewPath, "wem")
             try
                 File.tryMap File.Delete wemPreview |> ignore
-                NoOverlay
+                NoModal
             with ex ->
                 let msg = translatef "PreviewDeleteError" [| Path.GetFileName(wemPreview); ex.Message |]
                 ErrorMessage(msg, ex.StackTrace |> Option.ofString)
 
-        { state with Project = { project with AudioPreviewFile = previewFile }
-                     Overlay = overlay }, cmd
+        { state with
+            Project = { project with AudioPreviewFile = previewFile }
+            Modal = modal }, cmd
 
     | ShowSortFields shown ->
         { state with ShowSortFields = shown }, Cmd.none
@@ -612,8 +613,8 @@ let update (msg: Msg) (state: State) =
     | ShowJapaneseFields shown ->
         { state with ShowJapaneseFields = shown }, Cmd.none
 
-    | ShowOverlay overlay ->
-        showOverlay state overlay, Cmd.none
+    | ShowModal modal ->
+        showModal state modal, Cmd.none
 
     | ShowLyricsViewer ->
         match getSelectedArrangement state with
@@ -621,8 +622,8 @@ let update (msg: Msg) (state: State) =
             let lyrics =
                 XML.Vocals.Load(v.XmlPath)
                 |> Utils.createLyricsString
-            let overlay = LyricsViewer(lyrics, v.Japanese)
-            showOverlay state overlay, Cmd.none
+
+            showModal state (LyricsViewer(lyrics, v.Japanese)), Cmd.none
         | _ ->
             state, Cmd.none
 
@@ -630,8 +631,8 @@ let update (msg: Msg) (state: State) =
         match getSelectedArrangement state with
         | Some (Instrumental inst) ->
             let xml = XML.InstrumentalArrangement.Load(inst.XmlPath)
-            let overlay = InstrumentalXmlDetailsViewer(xml, Path.GetFileName(inst.XmlPath))
-            showOverlay state overlay, Cmd.none
+            let modal = InstrumentalXmlDetailsViewer(xml, Path.GetFileName(inst.XmlPath))
+            showModal state modal, Cmd.none
         | _ ->
             state, Cmd.none
 
@@ -643,7 +644,7 @@ let update (msg: Msg) (state: State) =
                 if newConfig.LoadPreviousOpenedProject then
                     Cmd.ofMsg (OpenProject newConfig.PreviousOpenedProject)
                 elif wasAbnormalExit then
-                    Cmd.ofMsg (ShowOverlay AbnormalExitMessage)
+                    Cmd.ofMsg (ShowModal AbnormalExitMessage)
                 else
                     Cmd.none
             else
@@ -661,7 +662,7 @@ let update (msg: Msg) (state: State) =
                 (DLCProject.save path project).Wait()
                 exit state
             else
-                showOverlay state ExitConfirmationMessage, Cmd.none
+                showModal state ExitConfirmationMessage, Cmd.none
         | _ ->
             exit state
 
@@ -706,7 +707,7 @@ let update (msg: Msg) (state: State) =
         let newState =
             match state.AvailableUpdate with
             | Some update ->
-                { state with Overlay = UpdateInformationDialog update }
+                { state with Modal = UpdateInformationDialog update }
             | None ->
                 state
         newState, Cmd.none
@@ -715,7 +716,7 @@ let update (msg: Msg) (state: State) =
         state, Cmd.OfTask.either OnlineUpdate.checkForUpdates () UpdateCheckCompleted ErrorOccurred
 
     | UpdateCheckCompleted (Error msg) ->
-        let cmd = Cmd.ofMsg (ShowOverlay(ErrorMessage(msg, None)))
+        let cmd = Cmd.ofMsg (ShowModal(ErrorMessage(msg, None)))
         { state with AvailableUpdate = None }, cmd
 
     | UpdateCheckCompleted (Ok update) ->
@@ -738,7 +739,7 @@ let update (msg: Msg) (state: State) =
                     (fun () -> UpdateDownloaded targetPath)
                     (fun ex -> TaskFailed(ex, download))
 
-            addTask download { state with Overlay = NoOverlay }, cmd
+            addTask download { state with Modal = NoModal }, cmd
         | None ->
             state, Cmd.none
 
@@ -782,7 +783,7 @@ let update (msg: Msg) (state: State) =
         | None -> state, Cmd.none
 
     | OpenPreviousProjectConfirmed ->
-        { state with Overlay = NoOverlay }, Cmd.ofMsg (OpenProject config.PreviousOpenedProject)
+        { state with Modal = NoModal }, Cmd.ofMsg (OpenProject config.PreviousOpenedProject)
 
     | OpenProject fileName ->
         state, Cmd.OfTask.either DLCProject.load fileName (fun p -> ProjectLoaded(p, FromFile fileName)) ErrorOccurred
@@ -917,7 +918,7 @@ let update (msg: Msg) (state: State) =
             state, Cmd.ofMsg <| DeleteConfirmed one
         | many ->
             if confirmDeletionOfMultipleFiles then
-                { state with Overlay = DeleteConfirmation many }, Cmd.none
+                { state with Modal = DeleteConfirmation many }, Cmd.none
             else
                 state, Cmd.ofMsg <| DeleteConfirmed many
 
@@ -931,7 +932,7 @@ let update (msg: Msg) (state: State) =
             with e ->
                 Cmd.ofMsg <| ErrorOccurred e
 
-        { state with Overlay = NoOverlay }, cmd
+        { state with Modal = NoModal }, cmd
 
     | GenerateNewIds ->
         let arrangements =
@@ -968,7 +969,7 @@ let update (msg: Msg) (state: State) =
                 | other ->
                     state.Localizer.Translate(string other)
 
-            { state with Overlay = ErrorMessage(msg, None) }, Cmd.none
+            { state with Modal = ErrorMessage(msg, None) }, Cmd.none
         | Ok () ->
             if not <| File.Exists(project.AudioPreviewFile.Path) then
                 // Validation will be done again after the preview audio creation
@@ -1010,7 +1011,7 @@ let update (msg: Msg) (state: State) =
         let updatedState = { removeTask ArrangementCheckAll state with ArrangementIssues = issues }
 
         if nonIgnoredIssueExists then
-            { updatedState with Overlay = OverlayContents.ErrorMessage(translate "ValidationFailedForReleaseBuild", None) }, Cmd.none
+            { updatedState with Modal = ErrorMessage(translate "ValidationFailedForReleaseBuild", None) }, Cmd.none
         else
             buildPackage (ReleasePackageBuilder.build updatedState.OpenProjectFile) updatedState
 
@@ -1124,7 +1125,7 @@ let update (msg: Msg) (state: State) =
         | Some arr ->
             match state.ArrangementIssues.TryGetValue(Arrangement.getId arr) with
             | true, issues when not issues.IsEmpty ->
-                { state with Overlay = IssueViewer arr }, Cmd.none
+                { state with Modal = IssueViewer arr }, Cmd.none
             | _ ->
                 state, Cmd.none
         | None ->
@@ -1139,7 +1140,7 @@ let update (msg: Msg) (state: State) =
         state, cmd
 
     | ErrorOccurred e ->
-        showOverlay state (exceptionToErrorMessage e), Cmd.none
+        showModal state (exceptionToErrorMessage e), Cmd.none
 
     | TaskProgressChanged (progressedTask, progress) ->
         let messages =
@@ -1153,7 +1154,7 @@ let update (msg: Msg) (state: State) =
         { state with StatusMessages = messages }, Cmd.none
 
     | TaskFailed (e, failedTask) ->
-        { removeTask failedTask state with Overlay = exceptionToErrorMessage e }, Cmd.none
+        { removeTask failedTask state with Modal = exceptionToErrorMessage e }, Cmd.none
 
     | ChangeLocale newLocale ->
         if config.Locale <> newLocale then
@@ -1171,21 +1172,21 @@ let update (msg: Msg) (state: State) =
     | OfficialTonesDatabaseDownloaded downloadTask ->
         let newState =
             match state with
-            | { Overlay = ToneCollection ({ ActiveCollection = ToneCollection.ActiveCollection.Official(None) } as s) } ->
+            | { Modal = ToneCollection ({ ActiveCollection = ToneCollection.ActiveCollection.Official(None) } as s) } ->
                 let newCollectionState =
                     ToneCollection.CollectionState.init s.Connector ToneCollection.ActiveTab.Official
 
-                { state with Overlay = ToneCollection newCollectionState }
+                { state with Modal = ToneCollection newCollectionState }
             | _ ->
                 state
 
         removeTask downloadTask newState, Cmd.none
 
     | ToneCollectionMsg msg ->
-        match state.Overlay with
+        match state.Modal with
         | ToneCollection collectionState ->
             let newCollectionState, effect = ToneCollection.MessageHandler.update collectionState msg
-            let newState = { state with Overlay = ToneCollection newCollectionState }
+            let newState = { state with Modal = ToneCollection newCollectionState }
 
             match effect with
             | ToneCollection.Nothing ->
@@ -1209,12 +1210,12 @@ let update (msg: Msg) (state: State) =
             state, Cmd.none
 
     | LyricsCreatorMsg msg ->
-        match state.Overlay with
+        match state.Modal with
         | JapaneseLyricsCreator lyricsState ->
             let newEditorState, effect =
                 JapaneseLyricsCreator.MessageHandler.update lyricsState msg
 
-            let newState = { state with Overlay = JapaneseLyricsCreator newEditorState }
+            let newState = { state with Modal = JapaneseLyricsCreator newEditorState }
 
             match effect with
             | JapaneseLyricsCreator.Nothing ->
@@ -1225,11 +1226,11 @@ let update (msg: Msg) (state: State) =
             state, Cmd.none
 
     | HotKeyMsg msg ->
-        match state.Overlay, msg with
-        | NoOverlay, _ | _, CloseOverlay _ ->
+        match state.Modal, msg with
+        | NoModal, _ | _, CloseModal _ ->
             state, Cmd.ofMsg msg
         | _ ->
-            // Ignore the message when an overlay is open
+            // Ignore the message when a modal is open
             state, Cmd.none
 
     | StartFontGenerator ->

@@ -26,7 +26,7 @@ let updateToneKey (config: Configuration) (newKey: string) (tone: Tone) =
         { tone with Key = newKey }
 
 /// Adds the given tones into the project.
-let addTones (closeOverlay: bool) (state: State) (tones: Tone list) =
+let addTones (closeModal: bool) (state: State) (tones: Tone list) =
     let tones = List.map Utils.addDescriptors tones
     let keysOfAddedTones = tones |> List.map (fun t -> t.Key) |> Set.ofList
     // Prevent duplicate tone keys
@@ -40,7 +40,7 @@ let addTones (closeOverlay: bool) (state: State) (tones: Tone list) =
 
     { state with
         Project = { state.Project with Tones = tones @ updatedProjectTones }
-        Overlay = if closeOverlay then NoOverlay else state.Overlay }
+        Modal = if closeModal then NoModal else state.Modal }
 
 /// Returns true if a build or a wem conversion is not in progress.
 let notBuilding state =
@@ -215,7 +215,7 @@ let addArrangements fileNames state =
     else
         let errorMessage = errors |> String.concat "\n\n"
 
-        { newState with Overlay = ErrorMessage(errorMessage, None) }
+        { newState with Modal = ErrorMessage(errorMessage, None) }
 
 /// Adds the Japanese vocals to the project if it does not have them already.
 let addJapaneseVocals (xmlPath: string) state =
@@ -271,13 +271,13 @@ let applyLowTuningFix state =
 
     { state with Project = { state.Project with Arrangements = arrangements } }
 
-let showOverlay state overlay =
-    match state.Overlay with
+let showModal state modal =
+    match state.Modal with
     | IdRegenerationConfirmation (_, reply) ->
         // Might end up here in rare cases
         reply.Reply(false)
     | ToneCollection cs ->
-        match overlay with
+        match modal with
         | ToneCollection _ ->
             ()
         | _ ->
@@ -286,16 +286,16 @@ let showOverlay state overlay =
         ()
 
     // Combine new error with the currently displayed one
-    let newOverlay =
-        match state.Overlay, overlay with
+    let newModal =
+        match state.Modal, modal with
         | ErrorMessage (initError, initMoreInfo), ErrorMessage (newError, newMoreInfo) ->
             MultipleErrors [ initError, initMoreInfo; newError, newMoreInfo ]
         | MultipleErrors data, ErrorMessage (newError, newMoreInfo) ->
             MultipleErrors ((newError, newMoreInfo) :: data)
         | _ ->
-            overlay
+            modal
 
-    { state with Overlay = newOverlay }
+    { state with Modal = newModal }
 
 let handleFilesDrop config paths =
     let arrangements, other =

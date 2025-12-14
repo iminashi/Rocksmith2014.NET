@@ -39,14 +39,14 @@ let tests =
         testCase "ShowImportToneSelector opens tone selector for multiple tones" <| fun _ ->
             let newState, _ = Main.update (ShowImportToneSelector [| testTone; testTone |]) initialState
 
-            Expect.equal newState.Overlay (ImportToneSelector [| testTone; testTone |]) "Overlay was opened with two tones"
+            Expect.equal newState.Modal (ImportToneSelector [| testTone; testTone |]) "Modal was opened with two tones"
 
         testCase "ShowImportToneSelector shows error message for empty array" <| fun _ ->
             let newState, _ = Main.update (ShowImportToneSelector Array.empty) initialState
 
-            match newState.Overlay with
+            match newState.Modal with
             | ErrorMessage (_, info) ->
-                Expect.isNone info "Error message overlay was opened"
+                Expect.isNone info "Error message modal was opened"
             | _ ->
-                failwith "Overlay was not set to error message"
+                failwith "Modal was not set to error message"
     ]

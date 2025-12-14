@@ -109,7 +109,7 @@ let view state dispatch (data: PreviewAudioCreationData) =
                         Button.fontSize 16.
                         Button.padding (50., 10.)
                         Button.content (translate "Cancel")
-                        Button.onClick (fun _ -> dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
+                        Button.onClick (fun _ -> dispatch (CloseModal ModalCloseMethod.UIButton))
                     ]
                 ]
             ]

@@ -1,4 +1,4 @@
-module DLCBuilder.Views.DeleteConfirmation
+module DLCBuilder.AbnormalExitMessage
 
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
@@ -7,9 +7,8 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Media
 open DLCBuilder
-open System.IO
 
-let view dispatch (files: string list) =
+let view dispatch =
     StackPanel.create [
         StackPanel.spacing 8.
         StackPanel.children [
@@ -23,27 +22,16 @@ let view dispatch (files: string list) =
                         Path.verticalAlignment VerticalAlignment.Center
                         Path.margin (0., 0., 10., 0.)
                     ]
-                    locText "ConfirmDelete" [
+                    locText "ProgramDidNotCloseProperly" [
                         TextBlock.fontSize 18.
                     ]
                 ]
             ]
 
             // Confirmation message
-            TextBlock.create [
+            locText "LoadPreviouslyOpenedProject" [
                 TextBlock.fontSize 16.
-                TextBlock.text (translatef "DeleteConfirmation" [| files.Length |])
                 TextBlock.margin 10.0
-            ]
-
-            // List of files to be deleted
-            ScrollViewer.create [
-                ScrollViewer.maxHeight 250.
-                ScrollViewer.content (
-                    ItemsControl.create [
-                        ItemsControl.dataItems (files |> List.map Path.GetFileName)
-                    ]
-                )
             ]
 
             StackPanel.create [
@@ -56,9 +44,7 @@ let view dispatch (files: string list) =
                         Button.fontSize 18.
                         Button.padding (80., 10.)
                         Button.content (translate "Yes")
-                        Button.onClick ((fun _ ->
-                            files |> DeleteConfirmed |> dispatch),
-                            SubPatchOptions.Always)
+                        Button.onClick (fun _ -> dispatch OpenPreviousProjectConfirmed)
                     ]
 
                     // No button
@@ -66,7 +52,7 @@ let view dispatch (files: string list) =
                         Button.fontSize 18.
                         Button.padding (80., 10.)
                         Button.content (translate "No")
-                        Button.onClick (fun _ -> dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
+                        Button.onClick (fun _ -> dispatch (CloseModal ModalCloseMethod.UIButton))
                     ]
                 ]
             ]

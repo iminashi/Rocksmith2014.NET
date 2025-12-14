@@ -254,7 +254,7 @@ let file state dispatch =
             MenuItem.create [
                 MenuItem.header (translate "ConfigurationMenuItem")
                 MenuItem.inputGesture (KeyGesture(Key.G, keyModifierCtrl))
-                MenuItem.onClick (fun _ -> ShowOverlay (ConfigEditor None) |> dispatch)
+                MenuItem.onClick (fun _ -> ShowModal (ConfigEditor None) |> dispatch)
             ]
 
             separator
@@ -347,7 +347,7 @@ let build state dispatch =
             MenuItem.create [
                 MenuItem.header (translate "PitchShiftedMenuItem")
                 MenuItem.isEnabled canBuild
-                MenuItem.onClick (fun _ -> ShowOverlay PitchShifter |> dispatch)
+                MenuItem.onClick (fun _ -> ShowModal PitchShifter |> dispatch)
             ]
         ]
     ]
@@ -405,7 +405,7 @@ let tools state dispatch =
             // Profile Cleaner
             MenuItem.create [
                 MenuItem.header (translate "ProfileCleanerMenuItem")
-                MenuItem.onClick (fun _ -> ShowOverlay ProfileCleaner |> dispatch)
+                MenuItem.onClick (fun _ -> ShowModal ProfileCleaner |> dispatch)
             ]
         ]
     ]
@@ -463,7 +463,7 @@ let help dispatch =
             // About
             MenuItem.create [
                 MenuItem.header (translate "AboutMenuItem")
-                MenuItem.onClick (fun _ -> ShowOverlay AboutMessage |> dispatch)
+                MenuItem.onClick (fun _ -> ShowModal AboutMessage |> dispatch)
             ]
         ]
     ]

@@ -1,4 +1,4 @@
-module DLCBuilder.JapaneseLyricsCreatorOverlay
+module DLCBuilder.JapaneseLyricsCreatorModal
 
 open Avalonia
 open Avalonia.Controls
@@ -53,7 +53,7 @@ let view _state dispatch (creatorState: LyricsCreatorState) =
                     Button.horizontalAlignment HorizontalAlignment.Right
                     Button.verticalAlignment VerticalAlignment.Top
                     Button.padding (15., 5.)
-                    Button.onClick (fun _ -> dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
+                    Button.onClick (fun _ -> dispatch (CloseModal ModalCloseMethod.UIButton))
                 ]
             ]
         ]

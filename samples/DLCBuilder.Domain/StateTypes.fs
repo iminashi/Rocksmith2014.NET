@@ -42,8 +42,8 @@ type ProfileCleanerState =
         { CurrentStep = ProfileCleanerStep.Idle
           IsDryRun = false }
 
-type OverlayContents =
-    | NoOverlay
+type ModalContents =
+    | NoModal
     | AbnormalExitMessage
     | ExitConfirmationMessage
     | AboutMessage
@@ -66,8 +66,8 @@ type OverlayContents =
     | ProfileCleaner
 
 [<RequireQualifiedAccess>]
-type OverlayCloseMethod =
-    | OverlayButton
+type ModalCloseMethod =
+    | UIButton
     | EscapeKey
     | ClickedOutside
 
@@ -330,11 +330,11 @@ type Msg =
     | EditPostBuildTask of index: int * edit: PostBuildTaskEdit
     | AddNewPostBuildTask of path: string
     | RemovePostBuildTask of index: int
-    | CloseOverlay of closeMethod: OverlayCloseMethod
+    | CloseModal of closeMethod: ModalCloseMethod
     | ExportSelectedTone
     | ExportTone of tone: Tone * targetPath: string
     | OpenPreviousProjectConfirmed
-    | ShowOverlay of OverlayContents
+    | ShowModal of ModalContents
     | ShowToneEditor
     | ShowIssueViewer
     | ShowImportToneSelector of tones: Tone array
@@ -389,7 +389,7 @@ type State =
       SelectedGearSlot: ToneGear.GearSlot
       ShowSortFields: bool
       ShowJapaneseFields: bool
-      Overlay: OverlayContents
+      Modal: ModalContents
       OpenProjectFile: string option
       CurrentPlatform: Platform
       StatusMessages: StatusMessage list

@@ -207,11 +207,11 @@ type MainWindow(commandLineArgs: string array) as this =
 
                 if shouldAutoSave newState state msg then autoSaveSubject.OnNext()
 
-                // Workaround for focus issues when opening / closing overlays
+                // Workaround for focus issues when opening / closing modals
                 match state, newState with
-                | { Overlay = NoOverlay }, { Overlay = overlay } when overlay <> NoOverlay ->
+                | { Modal = NoModal }, { Modal = modal } when modal <> NoModal ->
                     FocusHelper.storeFocusedElement ()
-                | { Overlay = overlay }, { Overlay = NoOverlay } when overlay <> NoOverlay ->
+                | { Modal = modal }, { Modal = NoModal } when modal <> NoModal ->
                     FocusHelper.restoreRootFocus ()
                 | _ ->
                     ()
@@ -219,7 +219,7 @@ type MainWindow(commandLineArgs: string array) as this =
                 newState, cmd
             with ex ->
                 // Close the DB connection in case of an unexpected error
-                match state.Overlay with
+                match state.Modal with
                 | ToneCollection cs ->
                     CollectionState.disposeCollection cs.ActiveCollection
                 | _ ->
@@ -235,7 +235,7 @@ type MainWindow(commandLineArgs: string array) as this =
                     { state with
                         StatusMessages = List.empty
                         RunningTasks = Set.empty
-                        Overlay = ErrorMessage(errorMessage, Some exnInfo) }
+                        Modal = ErrorMessage(errorMessage, Some exnInfo) }
 
                 newState, Cmd.none
 

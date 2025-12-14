@@ -83,7 +83,7 @@ let view (update: UpdateInformation) dispatch =
                                 dispatch DownloadUpdate
                             else
                                 dispatch (OpenWithShell "https://github.com/iminashi/Rocksmith2014.NET/releases")
-                                dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
+                                dispatch (CloseModal ModalCloseMethod.UIButton))
                     ]
 
                     // Close button
@@ -91,7 +91,7 @@ let view (update: UpdateInformation) dispatch =
                         Button.fontSize 18.
                         Button.padding (80., 10.)
                         Button.content (translate "Close")
-                        Button.onClick (fun _ -> dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
+                        Button.onClick (fun _ -> dispatch (CloseModal ModalCloseMethod.UIButton))
                     ]
                 ]
             ]

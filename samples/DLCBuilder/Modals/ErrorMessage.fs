@@ -96,7 +96,7 @@ let view dispatch data =
                 Button.padding (80., 10.)
                 Button.horizontalAlignment HorizontalAlignment.Center
                 Button.content (translate "OK")
-                Button.onClick (fun _ -> dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
+                Button.onClick (fun _ -> dispatch (CloseModal ModalCloseMethod.UIButton))
             ]
         ]
     ] |> generalize

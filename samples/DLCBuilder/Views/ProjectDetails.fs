@@ -164,7 +164,7 @@ let private projectInfo state dispatch =
                 Grid.row 2
                 Button.verticalAlignment VerticalAlignment.Bottom
                 Button.horizontalAlignment HorizontalAlignment.Center
-                Button.onClick (fun _ -> dispatch (ShowOverlay AdditionalMetaDataEditor))
+                Button.onClick (fun _ -> dispatch (ShowModal AdditionalMetaDataEditor))
                 Button.classes [ "borderless-btn" ]
                 Button.padding (10., 8.)
                 Button.content (

@@ -53,7 +53,7 @@ module Brushes =
 
 [<RequireQualifiedAccess>]
 module BoxShadow =
-    let overlay = BoxShadow.Parse("2 2 10 1 #99000000")
+    let modal = BoxShadow.Parse("2 2 10 1 #99000000")
 
 [<RequireQualifiedAccess>]
 module Cursors =

@@ -1,4 +1,4 @@
-module DLCBuilder.Views.ToneCollectionOverlay
+module DLCBuilder.Views.ToneCollectionModal
 
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
@@ -492,11 +492,11 @@ let view state dispatch collectionState =
                 Border.horizontalAlignment HorizontalAlignment.Right
                 Border.verticalAlignment VerticalAlignment.Top
                 Border.focusable true
-                Border.onTapped (fun _ -> dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
+                Border.onTapped (fun _ -> dispatch (CloseModal ModalCloseMethod.UIButton))
                 Border.onKeyUp (fun args ->
                     if args.Key = Key.Space then
                         args.Handled <- true
-                        dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
+                        dispatch (CloseModal ModalCloseMethod.UIButton))
                 Border.child (
                     Path.create [
                         Path.data Icons.x

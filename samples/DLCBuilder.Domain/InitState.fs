@@ -50,7 +50,7 @@ let init localizer albumArtLoader databaseConnector exitHandler args =
       ManuallyEditingKnobKey = None
       ShowSortFields = false
       ShowJapaneseFields = false
-      Overlay = NoOverlay
+      Modal = NoModal
       RunningTasks = Set.empty
       StatusMessages = List.empty
       CurrentPlatform = PlatformSpecific.Value(mac = Mac, windows = PC, linux = PC)

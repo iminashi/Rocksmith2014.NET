@@ -733,7 +733,7 @@ let view state dispatch focusedSetting =
                 Button.padding (50., 10.)
                 Button.horizontalAlignment HorizontalAlignment.Center
                 Button.content (translate "Close")
-                Button.onClick (fun _ -> (CloseOverlay OverlayCloseMethod.OverlayButton) |> dispatch)
+                Button.onClick (fun _ -> (CloseModal ModalCloseMethod.UIButton) |> dispatch)
             ]
 
             TabControl.create [

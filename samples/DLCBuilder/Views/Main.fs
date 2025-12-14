@@ -279,9 +279,9 @@ let private tonesPanel state dispatch =
         ]
     ]
 
-let private overlay state dispatch =
-    match state.Overlay with
-    | NoOverlay ->
+let private modal state dispatch =
+    match state.Modal with
+    | NoModal ->
         failwith "This can not happen."
     | ExitConfirmationMessage ->
         ExitConfirmation.view dispatch
@@ -300,7 +300,7 @@ let private overlay state dispatch =
     | IssueViewer arrangement ->
         IssueViewer.view state dispatch arrangement
     | JapaneseLyricsCreator editorState ->
-        JapaneseLyricsCreatorOverlay.view state dispatch editorState
+        JapaneseLyricsCreatorModal.view state dispatch editorState
     | ToneEditor ->
         match state.SelectedToneIndex with
         | -1 ->
@@ -308,7 +308,7 @@ let private overlay state dispatch =
         | index ->
             ToneEditor.view state dispatch state.Project.Tones[index]
     | ToneCollection collectionState ->
-        ToneCollectionOverlay.view state dispatch collectionState
+        ToneCollectionModal.view state dispatch collectionState
     | DeleteConfirmation files ->
         DeleteConfirmation.view dispatch files
     | PitchShifter ->
@@ -326,7 +326,7 @@ let private overlay state dispatch =
     | InstrumentalXmlDetailsViewer (xml, fileName) ->
         InstrumentalXmlDetails.view state dispatch fileName xml
     | ProfileCleaner ->
-        ProfileCleanerOverlay.view dispatch state
+        ProfileCleanerModal.view dispatch state
 
 let private statusMessageContents dispatch = function
     | TaskWithProgress (task, progress) ->
@@ -431,11 +431,11 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
     if customTitleBar.IsNone then
         window.Title <- title
 
-    let noOverlayIsOpen = (state.Overlay = NoOverlay)
+    let noModalIsOpen = (state.Modal = NoModal)
 
     DockPanel.create [
         DockPanel.background "#040404"
-        DockPanel.allowDrop noOverlayIsOpen
+        DockPanel.allowDrop noModalIsOpen
         DockPanel.onDragEnter (fun e ->
             e.DragEffects <-
                 if e.DataTransfer.Contains(DataFormat.File) then
@@ -477,11 +477,11 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                             Menu.create [
                                 DockPanel.dock Dock.Left
                                 KeyboardNavigation.tabNavigation (
-                                    if noOverlayIsOpen then
+                                    if noModalIsOpen then
                                         KeyboardNavigationMode.Continue
                                     else
                                         KeyboardNavigationMode.None)
-                                Menu.isEnabled noOverlayIsOpen
+                                Menu.isEnabled noModalIsOpen
                                 Menu.horizontalAlignment HorizontalAlignment.Left
                                 Menu.background Brushes.Transparent
                                 Menu.viewItems [
@@ -511,9 +511,9 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                             Button.create [
                                 DockPanel.dock Dock.Right
                                 Button.classes [ "borderless-btn" ]
-                                Button.isEnabled noOverlayIsOpen
+                                Button.isEnabled noModalIsOpen
                                 Button.isTabStop false
-                                Button.onClick (fun _ -> None |> ConfigEditor |> ShowOverlay |> dispatch)
+                                Button.onClick (fun _ -> None |> ConfigEditor |> ShowModal |> dispatch)
                                 Button.content (
                                     PathIcon.create [
                                         PathIcon.data Icons.cog
@@ -544,9 +544,9 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                     Grid.create [
                         Grid.columnDefinitions "*,1.8*"
                         Grid.rowDefinitions "3.4*,2.6*"
-                        // Prevent tab navigation when an overlay is open
+                        // Prevent tab navigation when a modal is open
                         KeyboardNavigation.tabNavigation (
-                            if noOverlayIsOpen then
+                            if noModalIsOpen then
                                 KeyboardNavigationMode.Continue
                             else
                                 KeyboardNavigationMode.None)
@@ -575,8 +575,8 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                         ]
                     ]
 
-                    match state.Overlay with
-                    | NoOverlay ->
+                    match state.Modal with
+                    | NoModal ->
                         ()
                     | _ ->
                         Panel.create [
@@ -584,16 +584,16 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                             Panel.children [
                                 Rectangle.create [
                                     Rectangle.fill "#99000000"
-                                    Rectangle.onTapped (fun _ -> (CloseOverlay OverlayCloseMethod.ClickedOutside) |> dispatch)
+                                    Rectangle.onTapped (fun _ -> (CloseModal ModalCloseMethod.ClickedOutside) |> dispatch)
                                 ]
                                 Border.create [
                                     Border.padding (20., 10.)
                                     Border.cornerRadius 6.0
-                                    Border.boxShadow BoxShadow.overlay
+                                    Border.boxShadow BoxShadow.modal
                                     Border.horizontalAlignment HorizontalAlignment.Center
                                     Border.verticalAlignment VerticalAlignment.Center
                                     Border.background "#343434"
-                                    Border.child (overlay state dispatch)
+                                    Border.child (modal state dispatch)
                                 ]
                             ]
                         ]

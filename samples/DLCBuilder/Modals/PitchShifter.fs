@@ -48,7 +48,7 @@ let view dispatch state =
                         Button.content (translate "Create")
                         Button.isEnabled (state.Project.PitchShift |> Option.exists ((<>) 0s))
                         Button.onClick (fun _ ->
-                            dispatch (CloseOverlay OverlayCloseMethod.OverlayButton)
+                            dispatch (CloseModal ModalCloseMethod.UIButton)
                             dispatch (Build PitchShifted))
                     ]
 
@@ -57,7 +57,7 @@ let view dispatch state =
                         Button.fontSize 18.
                         Button.padding (80., 10.)
                         Button.content (translate "Cancel")
-                        Button.onClick (fun _ -> dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
+                        Button.onClick (fun _ -> dispatch (CloseModal ModalCloseMethod.UIButton))
                     ]
                 ]
             ]

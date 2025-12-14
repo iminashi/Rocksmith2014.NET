@@ -36,7 +36,7 @@ let handleEvent dispatch (event: KeyEventArgs) =
         dispatch NewProject
 
     | Ctrl, Key.G ->
-        dispatch (ShowOverlay(ConfigEditor None))
+        dispatch (ShowModal(ConfigEditor None))
 
     | Ctrl, Key.J ->
         dispatch ShowJapaneseLyricsCreator
@@ -67,7 +67,7 @@ let handleEvent dispatch (event: KeyEventArgs) =
         dispatch (ShowDialog Dialog.AddArrangements)
 
     | None, Key.Escape ->
-        dispatch (CloseOverlay OverlayCloseMethod.EscapeKey)
+        dispatch (CloseModal ModalCloseMethod.EscapeKey)
 
     | _ ->
         ()

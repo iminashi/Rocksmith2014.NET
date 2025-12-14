@@ -23,21 +23,21 @@ let foldMessages state messages =
 [<Tests>]
 let messageTests =
     testList "Message Tests" [
-        testCase "CloseOverlay closes overlay" <| fun _ ->
-            let state = { initialState with Overlay = PitchShifter }
+        testCase "CloseModal closes modal window" <| fun _ ->
+            let state = { initialState with Modal = PitchShifter }
 
-            let newState, _ = Main.update (CloseOverlay OverlayCloseMethod.EscapeKey) state
+            let newState, _ = Main.update (CloseModal ModalCloseMethod.EscapeKey) state
 
-            Expect.equal newState.Overlay NoOverlay "Overlay was closed"
+            Expect.equal newState.Modal NoModal "Modal window was closed"
 
-        testCase "IdRegenerationConfirmation overlay can only be closed with the buttons in it" <| fun _ ->
+        testCase "IdRegenerationConfirmation modal can only be closed with the buttons in it" <| fun _ ->
             let reply = AsyncReply(ignore)
-            let state = { initialState with Overlay = IdRegenerationConfirmation(List.empty, reply) }
+            let state = { initialState with Modal = IdRegenerationConfirmation(List.empty, reply) }
 
-            let newState, _ = Main.update (CloseOverlay OverlayCloseMethod.EscapeKey) state
-            let newState, _ = Main.update (CloseOverlay OverlayCloseMethod.ClickedOutside) newState
+            let newState, _ = Main.update (CloseModal ModalCloseMethod.EscapeKey) state
+            let newState, _ = Main.update (CloseModal ModalCloseMethod.ClickedOutside) newState
 
-            Expect.notEqual newState.Overlay NoOverlay "Overlay was not closed"
+            Expect.notEqual newState.Modal NoModal "Modal window was not closed"
 
         testCase "ChangeLocale changes locale" <| fun _ ->
             let locale = { Name = "Foo"; ShortName = "f" }
@@ -60,11 +60,11 @@ let messageTests =
 
             let newState, _ = Main.update (ErrorOccurred(ex)) initialState
 
-            match newState.Overlay with
+            match newState.Modal with
             | ErrorMessage (msg, _) ->
-                Expect.equal msg ex.Message "Overlay is ErrorMessage"
+                Expect.equal msg ex.Message "Modal is ErrorMessage"
             | _ ->
-                failwith "Wrong overlay type"
+                failwith "Wrong modal type"
 
         testCase "Build Release does nothing when build is already in progress" <| fun _ ->
             let state = { initialState with RunningTasks = Set.singleton BuildPackage }
@@ -108,10 +108,10 @@ let messageTests =
 
             Expect.equal newState.RecentFiles [ "recent_file" ] "Recent file list was changed"
 
-        testCase "ShowOverlay ConfigEditor shows configuration editor" <| fun _ ->
-            let newState, _ = Main.update (ShowOverlay(ConfigEditor (Some FocusedSetting.ProfilePath))) initialState
+        testCase "ShowModal ConfigEditor shows configuration editor" <| fun _ ->
+            let newState, _ = Main.update (ShowModal(ConfigEditor (Some FocusedSetting.ProfilePath))) initialState
 
-            Expect.equal newState.Overlay (ConfigEditor (Some FocusedSetting.ProfilePath)) "Overlay is set to configuration editor"
+            Expect.equal newState.Modal (ConfigEditor (Some FocusedSetting.ProfilePath)) "Modal is set to configuration editor"
 
         testCase "NewProject invalidates bitmap cache" <| fun _ ->
             let mutable wasInvalidated = false
@@ -164,7 +164,7 @@ let messageTests =
             Expect.equal newState.SelectedImportTones selectedTones "Selected tones are correct"
             Expect.hasLength newState.Project.Tones 2 "Two tones were added to the project"
 
-        testCase "ConfirmIdRegeneration shows overlay" <| fun _ ->
+        testCase "ConfirmIdRegeneration shows modal window" <| fun _ ->
             let lead2 = { testLead with Id = ArrangementId.New }
             let project = { initialState.Project with Arrangements = [ Instrumental testLead; Instrumental lead2 ] }
             let state = { initialState with Project = project }
@@ -173,13 +173,13 @@ let messageTests =
 
             let newState, _ = Main.update (ConfirmIdRegeneration(ids, reply)) state
 
-            match newState.Overlay with
-            | IdRegenerationConfirmation(arrangements, overlayReply) ->
-                Expect.hasLength arrangements 1 "Overlay has one arrangement"
+            match newState.Modal with
+            | IdRegenerationConfirmation(arrangements, modalReply) ->
+                Expect.hasLength arrangements 1 "Modal has one arrangement"
                 Expect.equal arrangements.[0] (Instrumental testLead) "Correct arrangement was selected"
-                Expect.equal overlayReply reply "Reply is correct"
+                Expect.equal modalReply reply "Reply is correct"
             | _ ->
-                failwith "Wrong overlay type"
+                failwith "Wrong modal type"
 
         testCase "SetNewArrangementIds updates arrangement IDs" <| fun _ ->
             let replacement = { testLead with PersistentId = Guid.NewGuid(); MasterId = 872518; ScrollSpeed = 1.8 }
@@ -211,7 +211,7 @@ let messageTests =
 
             Expect.equal newState initialState "State was not changed"
 
-        testCase "CloseOverlay disposes tone collection" <| fun _ ->
+        testCase "CloseModal disposes tone collection" <| fun _ ->
             let mutable disposed = false
             let dataBase =
                 { new IDatabaseConnector with
@@ -226,9 +226,9 @@ let messageTests =
                             member _.AddTone _ = ()
                             member _.UpdateData _ = () } }
             let collection = CollectionState.init dataBase ActiveTab.User
-            let state = { initialState with Overlay = ToneCollection collection }
+            let state = { initialState with Modal = ToneCollection collection }
 
-            ignore <| Main.update (CloseOverlay OverlayCloseMethod.OverlayButton) state
+            ignore <| Main.update (CloseModal ModalCloseMethod.UIButton) state
 
             Expect.isTrue disposed "Collection was disposed"
 
@@ -284,12 +284,12 @@ let messageTests =
             Expect.equal newState.AvailableUpdate (Some testUpdate) "Update was set"
             Expect.hasLength newState.StatusMessages 1 "A status message was added"
 
-        testCase "ShowUpdateInformation opens overlay" <| fun _ ->
+        testCase "ShowUpdateInformation opens modal window" <| fun _ ->
             let state = { initialState with AvailableUpdate = Some testUpdate }
 
             let newState, _ = Main.update ShowUpdateInformation state
 
-            Expect.equal newState.Overlay (UpdateInformationDialog testUpdate) "Overlay was opened"
+            Expect.equal newState.Modal (UpdateInformationDialog testUpdate) "Modal was opened"
 
         testCase "ProjectSaved updates recent files and configuration" <| fun _ ->
             let newState, _ = Main.update (ProjectSaved "target.file") initialState
@@ -339,7 +339,7 @@ let messageTests =
             | _ ->
                 failwith "Wrong arrangement type"
 
-        testCase "ShowIssueViewer opens overlay when arrangement has issues" <| fun _ ->
+        testCase "ShowIssueViewer opens modal window when arrangement has issues" <| fun _ ->
             let lead = Instrumental testLead
             let project = { initialState.Project with Arrangements = [ lead; Vocals testVocals ] }
             let issues = Map.ofList [ Arrangement.getId lead, [ GeneralIssue ApplauseEventWithoutEnd ] ]
@@ -347,7 +347,7 @@ let messageTests =
 
             let newState, _ = Main.update ShowIssueViewer state
 
-            Expect.equal newState.Overlay (IssueViewer lead) "Issue viewer overlay was opened"
+            Expect.equal newState.Modal (IssueViewer lead) "Issue viewer modal was opened"
 
         testCase "RemoveStatusMessage removes correct status message" <| fun _ ->
             let id = Guid.NewGuid()
@@ -394,15 +394,15 @@ let messageTests =
                   EditingUserTone = None
                   TotalPages = 1 }
 
-            let state = { initialState with Overlay = ToneCollection toneCollectionState }
+            let state = { initialState with Modal = ToneCollection toneCollectionState }
             let newState, _ = Main.update (ToneCollectionMsg AddSelectedToneFromCollection) state
 
             Expect.hasLength newState.Project.Tones 1 "One tone was added"
-            match newState.Overlay with
-            | OverlayContents.NoOverlay ->
-                failwith "Overlay should not be closed"
-            | OverlayContents.ToneCollection _ ->
+            match newState.Modal with
+            | ModalContents.NoModal ->
+                failwith "Modal should not be closed"
+            | ModalContents.ToneCollection _ ->
                 ()
             | _ ->
-                failwith "Wrong overlay type"
+                failwith "Wrong modal type"
     ]

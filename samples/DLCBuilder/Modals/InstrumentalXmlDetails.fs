@@ -187,7 +187,7 @@ let view state dispatch (fileName: string) (xml: InstrumentalArrangement) =
                 Button.padding (50., 10.)
                 Button.horizontalAlignment HorizontalAlignment.Center
                 Button.content (translate "Close")
-                Button.onClick (fun _ -> dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
+                Button.onClick (fun _ -> dispatch (CloseModal ModalCloseMethod.UIButton))
                 Button.isDefault true
             ]
         ]

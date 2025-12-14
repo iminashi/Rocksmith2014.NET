@@ -1,4 +1,4 @@
-module DLCBuilder.Views.ProfileCleanerOverlay
+module DLCBuilder.Views.ProfileCleanerModal
 
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
@@ -35,7 +35,7 @@ let private errorMessage dispatch locString focusedSetting =
             Button.horizontalAlignment HorizontalAlignment.Center
             Button.padding (25., 5.)
             Button.content (translate "OpenConfiguration")
-            Button.onClick (fun _ -> ShowOverlay (ConfigEditor (Some focusedSetting)) |> dispatch)
+            Button.onClick (fun _ -> ShowModal (ConfigEditor (Some focusedSetting)) |> dispatch)
         ]
     ]
 
@@ -174,7 +174,7 @@ let view dispatch (state: State) =
                         Button.margin 2.
                         Button.horizontalAlignment HorizontalAlignment.Center
                         Button.content (translate "Close")
-                        Button.onClick (fun _ -> (CloseOverlay OverlayCloseMethod.OverlayButton) |> dispatch)
+                        Button.onClick (fun _ -> (CloseModal ModalCloseMethod.UIButton) |> dispatch)
                         Button.isDefault true
                     ]
                 ]

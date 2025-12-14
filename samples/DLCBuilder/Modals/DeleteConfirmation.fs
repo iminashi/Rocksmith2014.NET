@@ -1,4 +1,4 @@
-module DLCBuilder.Views.IdRegenerationConfirmation
+module DLCBuilder.Views.DeleteConfirmation
 
 open Avalonia.Controls
 open Avalonia.Controls.Shapes
@@ -7,20 +7,9 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open Avalonia.Media
 open DLCBuilder
-open Rocksmith2014.DLCProject
-open System
+open System.IO
 
-let private arrangement state =
-    DataTemplateView<Arrangement>.create (fun arrangement ->
-        let name = ArrangementNameUtils.translateName state.Project ArrangementNameUtils.NameOnly arrangement
-        let file = IO.Path.GetFileName(Arrangement.getFile arrangement)
-
-        TextBlock.create [
-            TextBlock.text $"{name} ({file})"
-            TextBlock.fontSize 16.
-        ])
-
-let view state dispatch reply (arrangements: Arrangement list) =
+let view dispatch (files: string list) =
     StackPanel.create [
         StackPanel.spacing 8.
         StackPanel.children [
@@ -34,7 +23,7 @@ let view state dispatch reply (arrangements: Arrangement list) =
                         Path.verticalAlignment VerticalAlignment.Center
                         Path.margin (0., 0., 10., 0.)
                     ]
-                    locText "RegenerateArrangementIds" [
+                    locText "ConfirmDelete" [
                         TextBlock.fontSize 18.
                     ]
                 ]
@@ -43,25 +32,16 @@ let view state dispatch reply (arrangements: Arrangement list) =
             // Confirmation message
             TextBlock.create [
                 TextBlock.fontSize 16.
-                TextBlock.text (translate "FollowingIDsShouldBeRegenerated")
+                TextBlock.text (translatef "DeleteConfirmation" [| files.Length |])
                 TextBlock.margin 10.0
             ]
 
-            ItemsControl.create [
-                ItemsControl.dataItems arrangements
-                ItemsControl.horizontalAlignment HorizontalAlignment.Center
-                ItemsControl.width 300.
-                ItemsControl.itemTemplate (arrangement state)
-            ]
-
-            Expander.create [
-                Expander.header (translate "AdditionalInformation")
-                Expander.width 500.
-                Expander.content (
-                    TextBlock.create [
-                        TextBlock.text (translate "ArrangementIDRegenerationExplanation")
-                        TextBlock.maxWidth 500.
-                        TextBlock.textWrapping TextWrapping.Wrap
+            // List of files to be deleted
+            ScrollViewer.create [
+                ScrollViewer.maxHeight 250.
+                ScrollViewer.content (
+                    ItemsControl.create [
+                        ItemsControl.dataItems (files |> List.map Path.GetFileName)
                     ]
                 )
             ]
@@ -76,9 +56,9 @@ let view state dispatch reply (arrangements: Arrangement list) =
                         Button.fontSize 18.
                         Button.padding (80., 10.)
                         Button.content (translate "Yes")
-                        Button.onClick (fun _ ->
-                            reply true
-                            dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
+                        Button.onClick ((fun _ ->
+                            files |> DeleteConfirmed |> dispatch),
+                            SubPatchOptions.Always)
                     ]
 
                     // No button
@@ -86,9 +66,7 @@ let view state dispatch reply (arrangements: Arrangement list) =
                         Button.fontSize 18.
                         Button.padding (80., 10.)
                         Button.content (translate "No")
-                        Button.onClick (fun _ ->
-                            reply false
-                            dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
+                        Button.onClick (fun _ -> dispatch (CloseModal ModalCloseMethod.UIButton))
                     ]
                 ]
             ]

@@ -54,7 +54,7 @@ let view state dispatch (tones: Tone array) =
                         Button.fontSize 16.
                         Button.padding (30., 10.)
                         Button.content (translate "Cancel")
-                        Button.onClick (fun _ -> dispatch (CloseOverlay OverlayCloseMethod.OverlayButton))
+                        Button.onClick (fun _ -> dispatch (CloseModal ModalCloseMethod.UIButton))
                     ]
                 ]
             ]
