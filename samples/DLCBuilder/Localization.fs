@@ -46,7 +46,7 @@ module Localization =
         |> Option.defaultWith (fun () -> $"!!{key}!!")
 
     /// Returns the localized formatted string for the given key.
-    let translatef key args = String.Format(translate key, args)
+    let translatef (key: string) (args: obj array) = String.Format(translate key, args)
 
     let toInterface () =
         { new IStringLocalizer with

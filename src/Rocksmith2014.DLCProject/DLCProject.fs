@@ -218,7 +218,8 @@ module DLCProject =
         )
 
     let private fromDto (dto: Dto) =
-        let getOptionalTimeSpan = Option.ofNullable >> Option.map TimeSpan.FromSeconds
+        let getOptionalTimeSpan : Nullable<float> -> TimeSpan option =
+            Option.ofNullable >> Option.map TimeSpan.FromSeconds
 
         { Version = dto.Version
           Author = Option.ofString dto.Author

@@ -68,7 +68,7 @@ let view state dispatch (fileName: string) (xml: InstrumentalArrangement) =
                                 TextBlock.text (translatef "AverageTempo" [| xml.MetaData.AverageTempo |])
                             ]
 
-                            let startBeatStr = TimeSpan.FromMilliseconds(xml.StartBeat).ToString("mm\:ss\.fff")
+                            let startBeatStr = TimeSpan.FromMilliseconds(float xml.StartBeat).ToString("mm\:ss\.fff")
 
                             TextBlock.create [
                                 TextBlock.text (translatef "FirstBeatTime" [| startBeatStr |])
