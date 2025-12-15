@@ -1,9 +1,9 @@
 [<AutoOpen>]
 module Rocksmith2014.Audio.Types
 
+open System
 open NAudio.Wave
 open NAudio.Vorbis
-open System
 open NAudio.Flac
 
 [<Measure>]

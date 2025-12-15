@@ -48,7 +48,11 @@ let private validateWw2oggOutput (exitCode, output) =
         failwith $"ww2ogg process failed with output:\n%s{output}"
 
 let private validateRevorbOutput (exitCode, output) =
-    if exitCode <> 0 then
+    if exitCode = 134 && OperatingSystem.IsMacOS() then
+        // 134 = SIGABRT signal
+        // Workaround for https://github.com/iminashi/Rocksmith2014.NET/issues/34
+        ()
+    elif exitCode <> 0 then
         let message =
             if String.notEmpty output then
                 $"output:\n{output}"
