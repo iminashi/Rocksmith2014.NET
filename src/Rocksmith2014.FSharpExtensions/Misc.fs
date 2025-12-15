@@ -17,7 +17,7 @@ module Async =
 [<RequireQualifiedAccess>]
 module File =
     /// Calls the map function if the file with the given path exists.
-    let tryMap f path =
+    let tryMap (f: string -> 'a) (path: string) =
         if File.Exists(path) then
             Some(f path)
         else
@@ -26,7 +26,7 @@ module File =
 [<RequireQualifiedAccess>]
 module Dictionary =
     /// Maps the result of IReadOnlyDictionary.TryGetValue into an option.
-    let tryGetValue key (dict: IReadOnlyDictionary<_, _>) =
+    let tryGetValue (key: 'a) (dict: IReadOnlyDictionary<_, _>) =
         match dict.TryGetValue(key) with
         | true, value ->
             Some value
@@ -36,14 +36,14 @@ module Dictionary =
 [<RequireQualifiedAccess>]
 module Option =
     /// Creates an option from a string, where a null or whitespace string equals None.
-    let inline ofString s =
-        if String.IsNullOrWhiteSpace(s) then
+    let inline ofString (str: string) =
+        if String.IsNullOrWhiteSpace(str) then
             None
         else
-            Some s
+            Some str
 
     /// Creates an option from an array, where null or an empty array equals None.
-    let ofArray array =
+    let ofArray (array: 'a array) =
         match array with
         | null | [||] ->
             None

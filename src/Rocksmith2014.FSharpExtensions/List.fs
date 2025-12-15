@@ -22,16 +22,16 @@ let rec update (oldItem: 'a) (newItem: 'a) (list: 'a list) =
         h :: (update oldItem newItem tail)
 
 /// Tries to find the lowest element in the list, returns None for an empty list.
-let inline tryMin list =
+let inline tryMin (list: 'a list) =
     match list with
     | [] -> None
     | _ -> Some(List.min list)
 
 /// Tries to find the greatest element in the list, returns None for an empty list.
-let inline tryMax list =
+let inline tryMax (list: 'a list) =
     match list with
     | [] -> None
     | _ -> Some(List.max list)
 
 /// Adds a new item to the start of the list.
-let inline add newHead list = newHead :: list
+let inline add (newHead: 'a) (list: 'a list) = newHead :: list

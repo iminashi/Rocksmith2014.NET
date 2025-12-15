@@ -4,9 +4,9 @@ module ResizeArray
 open System
 
 /// Initializes a new ResizeArray with the given initial capacity.
-let init (size: int) f =
+let init (size: int) (initializer: int -> 'a) =
     let a = ResizeArray(size)
-    for i = 0 to size - 1 do a.Add(f i)
+    for i = 0 to size - 1 do a.Add(initializer i)
     a
 
 /// Returns the element if the index is within the ResizeArray.
