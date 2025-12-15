@@ -1,10 +1,6 @@
 ## System Requirements
 
-A 64-bit OS:
-
-- Windows 10 or greater with [.NET 8 runtime](https://dotnet.microsoft.com/download) installed
-- macOS 10.15 or greater
-- Linux: a distro that can run GUI applications created with [Avalonia](https://github.com/AvaloniaUI/Avalonia)
+See [.NET 10 Supported OS versions](https://github.com/dotnet/core/blob/main/release-notes/10.0/supported-os.md). Older OSes may or may not work.
 
 ## Wwise
 
