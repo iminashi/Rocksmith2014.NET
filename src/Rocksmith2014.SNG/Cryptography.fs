@@ -1,10 +1,10 @@
 module Rocksmith2014.SNG.Cryptography
 
-open Rocksmith2014.Common
 open System
 open System.IO
 open System.Runtime.Intrinsics.X86
 open System.Security.Cryptography
+open Rocksmith2014.Common
 
 // Disable warning "This byte array literal contains 14 non-ASCII characters. All characters should be < 128y."
 #nowarn "FS1253"

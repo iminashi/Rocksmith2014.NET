@@ -4,7 +4,7 @@ open System
 open System.Text
 open Rocksmith2014.Common
 
-let readZeroTerminatedUTF8String length (reader: IBinaryReader) =
+let readZeroTerminatedUTF8String (length: int) (reader: IBinaryReader) : string =
     let arr = reader.ReadBytes length
     match Array.IndexOf(arr, 0uy) with
     | 0 ->
@@ -14,7 +14,7 @@ let readZeroTerminatedUTF8String length (reader: IBinaryReader) =
     | stringEnd ->
         Encoding.UTF8.GetString(arr, 0, stringEnd)
 
-let writeZeroTerminatedUTF8String length (str: string) (writer: IBinaryWriter) =
+let writeZeroTerminatedUTF8String (length: int) (str: string) (writer: IBinaryWriter) : unit =
     let arr = Array.zeroCreate length
     let utf8Bytes = Encoding.UTF8.GetBytes(str)
     // Always leave space for the null terminator
@@ -24,11 +24,11 @@ let writeZeroTerminatedUTF8String length (str: string) (writer: IBinaryWriter) =
     writer.WriteBytes(arr)
 
 /// Reads an array that is preceded by its length from the IBinaryReader using the given read function.
-let readArray (reader: IBinaryReader) read =
+let readArray (reader: IBinaryReader) (read: IBinaryReader -> 'a) : 'a array =
     let length = reader.ReadInt32()
     Array.init length (fun _ -> read reader)
 
 /// Writes an array of elements into the IBinaryWriter preceded by its length.
-let writeArray<'a when 'a :> IBinaryWritable> (writer: IBinaryWriter) (arr: 'a array) =
+let writeArray<'a when 'a :> IBinaryWritable> (writer: IBinaryWriter) (arr: 'a array) : unit =
     writer.WriteInt32(arr.Length)
     arr |> Array.iter (fun e -> e.Write writer)
