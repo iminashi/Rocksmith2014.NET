@@ -1,9 +1,9 @@
 module Rocksmith2014.XML.Processing.CustomEvents
 
-open Rocksmith2014.XML
-open Rocksmith2014.XML.Extensions
 open System
 open System.Globalization
+open Rocksmith2014.XML
+open Rocksmith2014.XML.Extensions
 
 /// Processes custom events.
 let improve (arrangement: InstrumentalArrangement) =

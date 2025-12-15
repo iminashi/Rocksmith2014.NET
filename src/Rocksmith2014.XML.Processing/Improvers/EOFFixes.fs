@@ -1,8 +1,8 @@
 module Rocksmith2014.XML.Processing.EOFFixes
 
+open System.Text.RegularExpressions
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Extensions
-open System.Text.RegularExpressions
 
 /// Adds linknext to chords that have linknext chord notes, but are missing the attribute.
 /// Fixes the sustain to be same for all chord notes.
@@ -87,7 +87,7 @@ let fixPhraseStartAnchors (arrangement: InstrumentalArrangement) =
                         nextAnchor.Time <- piTime
 
 /// Applies all the fixes.
-let fixAll arrangement =
+let fixAll (arrangement: InstrumentalArrangement) =
     fixCrowdEvents arrangement
     fixChordNotes arrangement
     removeInvalidChordNoteLinkNexts arrangement

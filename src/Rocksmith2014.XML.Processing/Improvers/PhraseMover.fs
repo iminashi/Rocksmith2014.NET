@@ -1,11 +1,11 @@
 module Rocksmith2014.XML.Processing.PhraseMover
 
-open Rocksmith2014.XML
-open Rocksmith2014.XML.Extensions
 open System
 open System.Globalization
+open Rocksmith2014.XML
+open Rocksmith2014.XML.Extensions
 
-let private getMoveBy phraseTime (phraseToMove: Phrase) =
+let private getMoveBy (phraseTime: int) (phraseToMove: Phrase) =
     let number = phraseToMove.Name.AsSpan("mover".Length)
 
     match Int32.TryParse(number, NumberStyles.Integer, NumberFormatInfo.InvariantInfo) with

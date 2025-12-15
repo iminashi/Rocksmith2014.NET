@@ -1,9 +1,9 @@
 module Rocksmith2014.XML.Processing.ChordNameProcessor
 
-open Rocksmith2014.XML
 open System
+open Rocksmith2014.XML
 
-let private emptyOrElse name orElse =
+let private emptyOrElse (name: string) (orElse: string -> string) =
     if String.IsNullOrWhiteSpace(name) then
         String.Empty
     else

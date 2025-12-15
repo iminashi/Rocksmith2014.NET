@@ -1,8 +1,8 @@
 module Rocksmith2014.XML.Processing.CrowdEventAdder
 
+open System.Text.RegularExpressions
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Extensions
-open System.Text.RegularExpressions
 
 let [<Literal>] private IntroCrowdReactionDelay = 600 // 0.6 s
 let [<Literal>] private IntroApplauseLength = 2_500 // 2.5 s
@@ -17,7 +17,7 @@ module private Events =
     let [<Literal>] CrowdSpeedMedium = "e1"
     let [<Literal>] CrowdSpeedFast = "e2"
 
-let private crowdSpeedFromTempo averageTempo =
+let private crowdSpeedFromTempo (averageTempo: float32) =
     if averageTempo < 90f then
         Events.CrowdSpeedSlow
     elif averageTempo < 170f then

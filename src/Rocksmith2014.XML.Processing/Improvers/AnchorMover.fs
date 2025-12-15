@@ -1,7 +1,7 @@
 module Rocksmith2014.XML.Processing.AnchorMover
 
-open Rocksmith2014.XML
 open System
+open Rocksmith2014.XML
 
 let private pickTimeAndDistance (anchor: Anchor) (noteTime: int) =
     let distance = anchor.Time - noteTime

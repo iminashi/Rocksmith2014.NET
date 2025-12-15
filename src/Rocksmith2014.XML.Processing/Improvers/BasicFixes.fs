@@ -1,8 +1,8 @@
 module Rocksmith2014.XML.Processing.BasicFixes
 
-open Rocksmith2014.XML
-open System.Text.RegularExpressions
 open System.Collections.Generic
+open System.Text.RegularExpressions
+open Rocksmith2014.XML
 
 /// Filters the characters in the arrangement's phrase names.
 ///

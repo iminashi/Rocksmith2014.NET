@@ -2,9 +2,9 @@ module Rocksmith2014.XML.Processing.HandShapeAdjuster
 
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Extensions
-open Utils
+open Rocksmith2014.XML.Processing.Utils
 
-let private isChordSlideAt (level: Level) time  =
+let private isChordSlideAt (level: Level) (time: int)  =
     match level.Chords.FindByTime(time) with
     | null ->
         false

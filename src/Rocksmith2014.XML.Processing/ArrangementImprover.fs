@@ -1,5 +1,7 @@
 module Rocksmith2014.XML.Processing.ArrangementImprover
 
+open Rocksmith2014.XML
+
 /// Adds crowd events to the arrangement if it does not have them.
 let addCrowdEvents = CrowdEventAdder.improve
 
@@ -19,7 +21,7 @@ let movePhrases = PhraseMover.improve
 let processCustomEvents = CustomEvents.improve
 
 /// Applies all the improvements to the arrangement.
-let applyAll arrangement =
+let applyAll (arrangement: InstrumentalArrangement) =
     BasicFixes.validatePhraseNames arrangement
     BasicFixes.addIgnores arrangement
     BasicFixes.fixLinkNexts arrangement
@@ -39,7 +41,7 @@ let applyAll arrangement =
     HandShapeAdjuster.shortenHandshapes arrangement
 
 /// Applies the basic needed improvements to the arrangement.
-let applyMinimum arrangement =
+let applyMinimum (arrangement: InstrumentalArrangement) =
     BasicFixes.validatePhraseNames arrangement
     BasicFixes.addIgnores arrangement
     BasicFixes.removeOverlappingBendValues arrangement

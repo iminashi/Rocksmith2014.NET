@@ -2,7 +2,7 @@ module Rocksmith2014.XML.Processing.PhraseGenerator
 
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Extensions
-open Utils
+open Rocksmith2014.XML.Processing.Utils
 
 /// Minimum distance required between phrases in milliseconds.
 let [<Literal>] private MinimumPhraseSeparation = 2000
@@ -84,7 +84,7 @@ module private Helpers =
     let getContentStartTime (level: Level) =
         tryFindNextContentTime level 0
 
-    let getFirstPhraseTime contentStartTime (arr: Inst) =
+    let getFirstPhraseTime (contentStartTime: int) (arr: Inst) =
         let firstBeatTime = arr.Ebeats[0].Time
 
         if firstBeatTime = contentStartTime then
@@ -118,7 +118,7 @@ module private Helpers =
                 arr.Sections.Add(Section("noguitar", time, ngSectionNumber))
                 ngSectionNumber <- ngSectionNumber + 1s
 
-    let addEndPhrase endPhraseTime (arr: Inst) =
+    let addEndPhrase (endPhraseTime: int) (arr: Inst) =
         arr.PhraseIterations.Add(PhraseIteration(endPhraseTime, arr.Phrases.Count))
         arr.Phrases.Add(Phrase(EndPhraseName, 0uy, PhraseMask.None))
         addSection NoGuitar endPhraseTime arr
@@ -128,7 +128,7 @@ module private Helpers =
         arr.PhraseIterations.Clear()
         arr.Sections.Clear()
 
-    let addFirstPhrase firstPhraseResult (arr: Inst) =
+    let addFirstPhrase (firstPhraseResult: FirstPhraseResult) (arr: Inst) =
         arr.Phrases.Add(Phrase(FirstPhraseName, 0uy, PhraseMask.None))
 
         match firstPhraseResult with
@@ -138,7 +138,7 @@ module private Helpers =
             arr.Ebeats.Insert(0, newBeat)
             arr.PhraseIterations.Add(PhraseIteration(newBeat.Time, 0))
 
-    let closestToInitial initial startTime endTime =
+    let closestToInitial (initial: int) (startTime: int) (endTime: int) =
         if initial - startTime < endTime - initial then
             startTime
         else

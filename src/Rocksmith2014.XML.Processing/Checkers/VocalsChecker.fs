@@ -1,9 +1,9 @@
 module Rocksmith2014.XML.Processing.VocalsChecker
 
-open Rocksmith2014.XML
 open System
 open System.Text
-open Utils
+open Rocksmith2014.XML
+open Rocksmith2014.XML.Processing.Utils
 
 let [<Literal>] LyricsCharset =
     """ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_abcdefghijklmnopqrstuvwxyz{|}~¡¢¥¦§¨ª«°²³´•¸¹º»¼½¾¿ÀÁÂÄÅÆÇÈÉÊËÌÎÏÑÒÓÔÖØÙÚÛÜÞßàáâäåæçèéêëìíîïñòóôöøùúûüŒœŠšž„…€™␀★➨"""

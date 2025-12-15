@@ -6,13 +6,13 @@ let internal issue type' time = IssueWithTimeCode(type', time)
 
 [<RequireQualifiedAccess>]
 module Option =
-    let minOfMany options =
+    let minOfMany (options: 'a option list) =
         options
         |> List.collect Option.toList
         |> List.tryMin
 
 /// Converts a time in milliseconds into a string.
-let timeToString time =
+let timeToString (time: int) =
     let minutes = time / 1000 / 60
     let seconds = (time / 1000) - (minutes * 60)
 
@@ -21,7 +21,7 @@ let timeToString time =
 
     $"{minutes:D2}:{seconds:D2}.{milliSeconds:D3}"
 
-let private getTimes<'a when 'a :> IHasTimeCode> startTime count (items: 'a seq) =
+let private getTimes<'a when 'a :> IHasTimeCode> (startTime: int) (count: int) (items: 'a seq) =
     items
     |> Seq.filter (fun x -> x.Time >= startTime)
     |> Seq.map (fun x -> x.Time)

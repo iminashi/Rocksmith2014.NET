@@ -1,12 +1,12 @@
 module Rocksmith2014.XML.Processing.InstrumentalChecker
 
-open Rocksmith2014.XML
-open Rocksmith2014.XML.Extensions
 open System
 open System.Collections.Generic
 open System.Runtime.CompilerServices
 open System.Text.RegularExpressions
-open Utils
+open Rocksmith2014.XML
+open Rocksmith2014.XML.Extensions
+open Rocksmith2014.XML.Processing.Utils
 
 [<IsReadOnly; Struct>]
 type private NgSection = { StartTime: int; EndTime: int }
@@ -59,7 +59,7 @@ let private getEndTime (arrangement: InstrumentalArrangement) =
     |> Option.map (fun pi -> pi.Time)
     |> Option.defaultValue arrangement.MetaData.SongLength
 
-let private isInsideNoguitarSection noGuitarSections (time: int) =
+let private isInsideNoguitarSection (noGuitarSections: NgSection array) (time: int) =
     noGuitarSections
     |> Array.exists (fun x -> time >= x.StartTime && time < x.EndTime)
 
@@ -116,7 +116,7 @@ let private checkLinkNext (level: Level) (currentIndex: int) (note: Note) =
         | _ ->
             None
 
-let private isOnToneChange (arr: InstrumentalArrangement) time =
+let private isOnToneChange (arr: InstrumentalArrangement) (time: int) =
     notNull arr.Tones.Changes
     && arr.Tones.Changes.Exists(fun t -> t.Time = time)
 
@@ -455,7 +455,7 @@ let checkHandshapes (arrangement: InstrumentalArrangement) (level: Level) =
     ]
 
 /// Looks for anchors that will break a handshape.
-let private findAnchorsInsideHandShapes isMoverPhraseTime phraseTimes (level: Level) =
+let private findAnchorsInsideHandShapes (isMoverPhraseTime: int -> bool) (phraseTimes: Set<int>) (level: Level) =
     level.Anchors
     |> Seq.filter (fun anchor ->
         level.HandShapes.Exists(fun hs -> anchor.Time > hs.StartTime && anchor.Time < hs.EndTime)
@@ -467,7 +467,7 @@ let private findAnchorsInsideHandShapes isMoverPhraseTime phraseTimes (level: Le
             issue AnchorInsideHandShape anchor.Time)
 
 /// Looks for anchors very close to the end of unpitched slide notes.
-let private findUnpitchedSlideAnchors isMoverPhraseTime (level: Level) =
+let private findUnpitchedSlideAnchors (isMoverPhraseTime: int -> bool) (level: Level) =
     let slideEnds =
         level.Notes
         |> Seq.filter (fun n -> n.IsUnpitchedSlide)
@@ -569,7 +569,7 @@ let private getInstrumentalChecks (arr: InstrumentalArrangement) =
        checkHandshapes arr
        checkAnchors arr |]
 
-let private parallelizeInstrumentalCheck arr =
+let private parallelizeInstrumentalCheck (arr: InstrumentalArrangement) =
     let checks = getInstrumentalChecks arr
     if arr.Levels.Count = 1 then
         let level = arr.Levels[0]

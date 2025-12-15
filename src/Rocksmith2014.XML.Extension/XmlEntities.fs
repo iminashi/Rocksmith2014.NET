@@ -7,7 +7,7 @@ type XmlEntity =
     | XmlNote of XmlNote: Note
     | XmlChord of XmlChord: Chord
 
-let inline getTimeCode entity =
+let inline getTimeCode (entity: XmlEntity) =
     match entity with
     | XmlNote xn -> xn.Time
     | XmlChord xc -> xc.Time
