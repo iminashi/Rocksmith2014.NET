@@ -44,7 +44,7 @@ let private harderStoredLevelExists phrases storedLevels =
     |> Array.exists (fun phrase ->
         storedLevels
         |> Dictionary.tryGetValue phrase.Name
-        |> Option.exists (fun storedMaxDiff -> storedMaxDiff > phrase.MaxDifficulty))
+        |> ValueOption.exists (fun storedMaxDiff -> storedMaxDiff > phrase.MaxDifficulty))
 
 /// Compares the level counts of the arrangements to the stored level counts.
 let compareLevels (stored: ProjectLevels) (arrangements: (Arrangement * SNG) list) =
@@ -52,7 +52,9 @@ let compareLevels (stored: ProjectLevels) (arrangements: (Arrangement * SNG) lis
     |> List.choose (function
         | Instrumental inst, sng ->
             option {
-                let! storedLevels = Dictionary.tryGetValue inst.PersistentId stored
+                let! storedLevels =
+                    Dictionary.tryGetValue inst.PersistentId stored
+                    |> Option.ofValueOption
 
                 if harderStoredLevelExists sng.Phrases storedLevels then
                     return inst.Id

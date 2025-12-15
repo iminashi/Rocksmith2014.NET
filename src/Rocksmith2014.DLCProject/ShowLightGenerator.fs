@@ -67,7 +67,7 @@ let private getFogNoteForSection () =
         let note =
             sectionFogNotes
             |> Dictionary.tryGetValue sectionName
-            |> Option.defaultWith (fun () ->
+            |> ValueOption.defaultWith (fun () ->
                 let prevNote =
                     match List.tryHead current with
                     | Some x -> x.Note

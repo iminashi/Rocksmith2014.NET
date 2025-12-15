@@ -42,8 +42,8 @@ module Localization =
     /// Returns the localized string for the given key.
     let translate key =
         Dictionary.tryGetValue key localeDictionary
-        |> Option.orElseWith (fun () -> Dictionary.tryGetValue key defaultDictionary)
-        |> Option.defaultWith (fun () -> $"!!{key}!!")
+        |> ValueOption.orElseWith (fun () -> Dictionary.tryGetValue key defaultDictionary)
+        |> ValueOption.defaultWith (fun () -> $"!!{key}!!")
 
     /// Returns the localized formatted string for the given key.
     let translatef (key: string) (args: obj array) = String.Format(translate key, args)

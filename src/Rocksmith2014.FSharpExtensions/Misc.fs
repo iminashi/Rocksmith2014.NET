@@ -25,13 +25,13 @@ module File =
 
 [<RequireQualifiedAccess>]
 module Dictionary =
-    /// Maps the result of IReadOnlyDictionary.TryGetValue into an option.
-    let tryGetValue (key: 'a) (dict: IReadOnlyDictionary<_, _>) =
+    /// Maps the result of IReadOnlyDictionary.TryGetValue into a value option.
+    let inline tryGetValue (key: 'a) (dict: IReadOnlyDictionary<'a, 'b>) : 'b voption =
         match dict.TryGetValue(key) with
         | true, value ->
-            Some value
+            ValueSome value
         | false, _ ->
-            None
+            ValueNone
 
 [<RequireQualifiedAccess>]
 module Option =
