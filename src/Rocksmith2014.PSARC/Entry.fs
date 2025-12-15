@@ -12,20 +12,22 @@ type NamedEntry =
         member this.Dispose() = this.Data.Dispose()
 
 type Entry =
-    { /// MD5 hash of the name of the entry in the manifest.
-      NameDigest: byte array
+    {
+        /// MD5 hash of the name of the entry in the manifest.
+        NameDigest: byte array
 
-      /// The starting z-block index for the entry.
-      ZIndexBegin: uint32
+        /// The starting z-block index for the entry.
+        ZIndexBegin: uint32
 
-      /// The length of the plain data for the entry in bytes.
-      Length: uint64
+        /// The length of the plain data for the entry in bytes.
+        Length: uint64
 
-      /// The offset in bytes from the start of the PSARC file for the entry.
-      Offset: uint64
+        /// The offset in bytes from the start of the PSARC file for the entry.
+        Offset: uint64
 
-      /// The ID number for the entry.
-      ID: int32 }
+        /// The ID number for the entry.
+        ID: int32
+    }
 
     /// Writes this entry into the writer.
     member this.Write(writer: IBinaryWriter) =
@@ -35,7 +37,7 @@ type Entry =
         writer.WriteUInt40 this.Offset
 
     /// Reads an entry from the reader.
-    static member Read (reader: IBinaryReader) index =
+    static member Read (reader: IBinaryReader) (index: int32) =
         { ID = index
           NameDigest = reader.ReadBytes(16)
           ZIndexBegin = reader.ReadUInt32()
@@ -43,10 +45,10 @@ type Entry =
           Offset = reader.ReadUInt40() }
 
     /// Creates a "proto-entry" (no offset or ID) from the given named entry.
-    static member CreateProto (nEntry: NamedEntry) zBegin =
-        { NameDigest = Cryptography.md5Hash nEntry.Name
+    static member CreateProto (namedEntry: NamedEntry) (zBegin: uint32) =
+        { NameDigest = Cryptography.md5Hash namedEntry.Name
           ZIndexBegin = zBegin
-          Length = uint64 nEntry.Data.Length
+          Length = uint64 namedEntry.Data.Length
           // Will be set later:
           Offset = 0UL
           ID = 0 }

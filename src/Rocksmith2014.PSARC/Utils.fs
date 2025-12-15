@@ -1,7 +1,7 @@
 module Rocksmith2014.PSARC.Utils
 
-open System.IO
 open System
+open System.IO
 open Rocksmith2014.Common
 
 let inline internal getZType (header: Header) =
@@ -48,9 +48,9 @@ let getTempFileStream () =
     :> Stream
 
 /// Returns a file stream for reading a file to be added into a PSARC.
-let getFileStreamForRead (fileName: string) =
+let getFileStreamForRead (path: string) =
     new FileStream(
-        fileName,
+        path,
         FileMode.Open,
         FileAccess.Read,
         FileShare.Read,
@@ -59,9 +59,9 @@ let getFileStreamForRead (fileName: string) =
     )
 
 /// Returns a file stream for opening an existing PSARC file.
-let openFileStreamForPSARC (fileName: string) =
+let openFileStreamForPSARC (path: string) =
     new FileStream(
-        fileName,
+        path,
         FileMode.Open,
         FileAccess.ReadWrite,
         FileShare.None,
@@ -70,9 +70,9 @@ let openFileStreamForPSARC (fileName: string) =
     )
 
 /// Returns a file stream for creating a new PSARC file.
-let createFileStreamForPSARC (fileName: string) =
+let createFileStreamForPSARC (path: string) =
     new FileStream(
-        fileName,
+        path,
         FileMode.Create,
         FileAccess.ReadWrite,
         FileShare.None,
@@ -88,7 +88,7 @@ let fixDirSeparator (path: string) =
         path.Replace('/', '\\')
 
 /// Finds all files in the given path and its subdirectories.
-let getAllFiles path =
+let getAllFiles (path: string) =
     Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories)
 
 /// Returns true if the array starts with the zlib header (best compression).

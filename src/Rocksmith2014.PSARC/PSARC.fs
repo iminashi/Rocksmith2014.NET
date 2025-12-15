@@ -1,14 +1,14 @@
 namespace Rocksmith2014.PSARC
 
-open Rocksmith2014.Common
-open Rocksmith2014.Common.BinaryReaders
-open Rocksmith2014.Common.BinaryWriters
 open System
 open System.Buffers
 open System.IO
 open System.Text
 open System.Threading
 open System.Threading.Tasks
+open Rocksmith2014.Common
+open Rocksmith2014.Common.BinaryReaders
+open Rocksmith2014.Common.BinaryWriters
 
 type EditMode = InMemory | TempFiles
 
@@ -92,7 +92,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     let getName (entry: Entry) = manifest[entry.ID - 1]
 
-    let addPlainData blockSize (deflatedData: ResizeArray<Stream>) (zLengths: ResizeArray<uint32>) (data: Stream) =
+    let addPlainData (blockSize: int) (deflatedData: ResizeArray<Stream>) (zLengths: ResizeArray<uint32>) (data: Stream) =
         deflatedData.Add(data)
 
         if data.Length <= int64 blockSize then
@@ -136,7 +136,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         }
 
     /// Updates the table of contents with the given proto-entries and block size table.
-    let updateToc (protoEntries: (Entry * int64) array) (blockTable: uint32 array) zType encrypt =
+    let updateToc (protoEntries: (Entry * int64) array) (blockTable: uint32 array) (zType: int) (encrypt: bool) =
         use tocData = MemoryStreamPool.Default.GetStream()
         let tocWriter = BigEndianBinaryWriter(tocData) :> IBinaryWriter
 
@@ -174,7 +174,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         else
             tocData.CopyTo(source)
 
-    let createNamedEntries mode =
+    let createNamedEntries (mode: EditMode) =
         async {
             let getTargetStream =
                 match mode with
@@ -294,10 +294,10 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         }
 
     /// Creates a new empty PSARC using the given stream.
-    static member CreateEmpty(stream) = new PSARC(stream, Header(), ResizeArray(), Array.empty)
+    static member CreateEmpty(stream: Stream) = new PSARC(stream, Header(), ResizeArray(), Array.empty)
 
     /// Creates a new PSARC into the given stream with the given contents.
-    static member Create(stream, encrypt, content) =
+    static member Create(stream: Stream, encrypt: bool, content: NamedEntry list) =
         backgroundTask {
             let options = { Mode = InMemory; EncryptTOC = encrypt }
             use psarc = PSARC.CreateEmpty(stream)
@@ -305,14 +305,14 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
         }
 
     /// Creates a new PSARC file with the given contents.
-    static member Create(fileName, encrypt, content) =
+    static member Create(path: string, encrypt: bool, content: NamedEntry list) =
         backgroundTask {
-            use file = Utils.createFileStreamForPSARC fileName
+            use file = Utils.createFileStreamForPSARC path
             do! PSARC.Create(file, encrypt, content)
         }
 
     /// Packs all the files in the directory and subdirectories into a PSARC file with the given filename.
-    static member PackDirectory(path, targetFile: string, encrypt) =
+    static member PackDirectory(path: string, targetFile: string, encrypt: bool) =
         backgroundTask {
             do! PSARC.Create(targetFile, encrypt, [
                 for file in Utils.getAllFiles path do
