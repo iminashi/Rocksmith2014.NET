@@ -1,3 +1,9 @@
+## x.x.x (Released 20xx-xx-xx)
+
+- Updated to .NET 10.
+- Added a workaround for revorb failing on macOS.
+- Updated the UI framework and various dependencies to the latest versions.
+
 ## 3.5.0 (Released 2025-07-24)
 
 - Using an arrangement without any notes or chords no longer causes an error.
