@@ -2,9 +2,9 @@ module Rocksmith2014.Audio.Utils
 
 open System.IO
 
-/// Returns the total length of the audio file with the given name.
-let getLength (fileName: string) =
-    using (AudioReader.Create fileName) (fun audio -> audio.Stream.TotalTime)
+/// Returns the total length of the audio file at the given path.
+let getLength (path: string) =
+    using (AudioReader.Create path) (fun audio -> audio.Stream.TotalTime)
 
 /// Creates a path for the preview audio file from the given path.
 ///

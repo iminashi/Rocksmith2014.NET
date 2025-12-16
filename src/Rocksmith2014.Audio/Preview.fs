@@ -1,7 +1,7 @@
 module Rocksmith2014.Audio.Preview
 
-open NAudio.Wave
 open System
+open NAudio.Wave
 
 let [<Literal>] private FadeIn = 2500<ms>
 let [<Literal>] private FadeOut = 3000<ms>

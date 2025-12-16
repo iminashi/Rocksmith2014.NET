@@ -1,11 +1,11 @@
 module Rocksmith2014.Audio.Conversion
 
-open NAudio.Flac
-open NAudio.Vorbis
-open NAudio.Wave
 open System
 open System.Diagnostics
 open System.IO
+open NAudio.Flac
+open NAudio.Vorbis
+open NAudio.Wave
 
 let private toolsDir = Path.Combine(AppContext.BaseDirectory, "Tools")
 let private ww2ogg = Path.Combine(toolsDir, "ww2ogg")
@@ -69,12 +69,12 @@ let private wemToOggImpl sourcePath targetPath =
     |> validateRevorbOutput
 
 /// Converts a wem file into a vorbis file.
-let wemToOgg wemFile =
+let wemToOgg (wemFile: string) =
     let oggFile = Path.ChangeExtension(wemFile, "ogg")
     wemToOggImpl wemFile oggFile
 
 /// Converts a wem file into a wave file.
-let wemToWav wemFile =
+let wemToWav (wemFile: string) =
     wemToOgg wemFile
 
     let oggFile = Path.ChangeExtension(wemFile, "ogg")
@@ -83,7 +83,7 @@ let wemToWav wemFile =
     File.Delete(oggFile)
 
 /// Does an operation with a wem file converted into a vorbis file temporarily.
-let withTempOggFile f wemPath =
+let withTempOggFile (f: string -> 'a) (wemPath: string) =
     let tempOggPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.ogg")
     wemToOggImpl wemPath tempOggPath
     let res = f tempOggPath

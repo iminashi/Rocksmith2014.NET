@@ -26,14 +26,14 @@ type AudioReader(stream: WaveStream, provider: ISampleProvider) =
     member _.Length = stream.Length
 
     /// Returns an audio reader for the given filename.
-    static member Create(fileName) =
-        match fileName with
+    static member Create(path: string) =
+        match path with
         | HasExtension ".wav" ->
-            new AudioReader(new WaveFileReader(fileName))
+            new AudioReader(new WaveFileReader(path))
         | HasExtension ".ogg" ->
-            new AudioReader(new VorbisWaveReader(fileName))
+            new AudioReader(new VorbisWaveReader(path))
         | HasExtension ".flac" ->
-            new AudioReader(new FlacReader(fileName))
+            new AudioReader(new FlacReader(path))
         | _ ->
             raise <| NotSupportedException "Only vorbis, wave and FLAC files are supported."
 

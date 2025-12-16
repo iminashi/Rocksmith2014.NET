@@ -29,8 +29,8 @@ let private calculateLoudness (sampleProvider: ISampleProvider) =
         ArrayPool.Shared.Return(buffer)
 
 /// Calculates a volume value using BS.1770 integrated loudness with -16 as reference value.
-let calculate (fileName: string) =
-    use audio = AudioReader.Create(fileName)
+let calculate (path: string) =
+    use audio = AudioReader.Create(path)
     let loudness = calculateLoudness audio.SampleProvider
 
     if Double.IsInfinity(loudness) then
