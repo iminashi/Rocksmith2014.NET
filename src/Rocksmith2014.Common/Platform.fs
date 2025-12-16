@@ -10,7 +10,7 @@ module Platform =
         | PackageSuffix
 
     /// Returns a platform-specific string for the given path type.
-    let getPathPart platform path =
+    let getPathPart (platform: Platform) (path: Path) =
         match platform, path with
         | PC, Path.Audio -> "windows"
         | PC, Path.SNG   -> "generic"

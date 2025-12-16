@@ -205,9 +205,9 @@ module Tone =
         }
 
     /// Imports a tone from a Tone2014 XML file.
-    let fromXmlFile (fileName: string) =
+    let fromXmlFile (path: string) =
         let doc = XmlDocument()
-        doc.Load(fileName)
+        doc.Load(path)
         let xel = doc.DocumentElement
 
         if xel.Name <> "Tone2014" then
@@ -264,7 +264,7 @@ module Tone =
           Name = dto.Name
           SortOrder = Option.ofNullable dto.SortOrder }
 
-    let toPedalDto (pedal: Pedal) =
+    let toPedalDto (pedal: Pedal) : PedalDto =
         PedalDto(
             PedalKey = pedal.Key,
             Type = pedal.Type,
@@ -332,9 +332,9 @@ module Tone =
         }
 
     /// Imports a tone from a JSON file.
-    let fromJsonFile (fileName: string) =
+    let fromJsonFile (path: string) =
         backgroundTask {
-            use file = File.OpenRead(fileName)
+            use file = File.OpenRead(path)
             return! fromJsonStream file
         }
 

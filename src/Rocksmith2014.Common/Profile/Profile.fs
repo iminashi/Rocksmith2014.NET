@@ -1,14 +1,14 @@
 module Rocksmith2014.Common.Profile
 
+open System.IO
+open System.Security.Cryptography
+open System.Text
 open Newtonsoft.Json
 open Newtonsoft.Json.Linq
 open Rocksmith2014.Common
 open Rocksmith2014.Common.BinaryReaders
+open Rocksmith2014.Common.BinaryWriters
 open Rocksmith2014.Common.Manifest
-open System.IO
-open System.Security.Cryptography
-open System.Text
-open BinaryWriters
 
 type ProfileHeader =
     { Version: uint32
@@ -92,7 +92,7 @@ let write (targetFile: string) (profileId: uint64) (jsonData: Stream) =
     }
 
 /// Reads a profile from the given path and returns the profile JToken and ID.
-let readAsJToken path =
+let readAsJToken (path: string) =
     backgroundTask {
         use profileFile = File.OpenRead(path)
         use mem = MemoryStreamPool.Default.GetStream()
@@ -106,7 +106,7 @@ let readAsJToken path =
     }
 
 /// Saves the profile data into the target path.
-let saveJToken targetPath id (json: JToken) =
+let saveJToken (targetPath: string) (id: uint64) (json: JToken) =
     backgroundTask {
         use jsonData = MemoryStreamPool.Default.GetStream()
         use streamWriter = new StreamWriter(jsonData, NewLine = "\n")

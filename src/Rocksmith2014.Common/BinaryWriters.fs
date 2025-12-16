@@ -1,4 +1,4 @@
-﻿module Rocksmith2014.Common.BinaryWriters
+module Rocksmith2014.Common.BinaryWriters
 
 open System
 open System.IO
@@ -128,6 +128,6 @@ type BigEndianBinaryWriter(stream: Stream) =
         member _.WriteBytes(value) = stream.Write(ReadOnlySpan(value))
 
 /// Returns a binary writer that matches the given platform.
-let getWriter stream platform =
+let getWriter (stream: Stream) (platform: Platform) =
     match platform with
     | PC | Mac -> LittleEndianBinaryWriter(stream) :> IBinaryWriter

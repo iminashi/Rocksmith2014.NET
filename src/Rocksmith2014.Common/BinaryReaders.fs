@@ -69,12 +69,12 @@ type LittleEndianBinaryReader(stream: Stream) =
             (this :> IBinaryReader).ReadSpan(Span<byte>(buffer, length))
             BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64LittleEndian(ReadOnlySpan(buffer, length)))
 
-        member this.ReadBytes(count) =
+        member this.ReadBytes(count: int) =
             let buffer = Array.zeroCreate<byte> count
             (this :> IBinaryReader).ReadSpan(buffer.AsSpan())
             buffer
 
-        member _.ReadSpan(span) =
+        member _.ReadSpan(span: Span<byte>) =
             let mutable bytesRead = stream.Read(span)
             let mutable totalRead = bytesRead
             while totalRead < span.Length && bytesRead <> 0 do
@@ -143,12 +143,12 @@ type BigEndianBinaryReader(stream: Stream) =
             (this :> IBinaryReader).ReadSpan(Span<byte>(buffer, length))
             BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64BigEndian(ReadOnlySpan(buffer, length)))
 
-        member this.ReadBytes(count) =
+        member this.ReadBytes(count: int) =
             let buffer = Array.zeroCreate<byte> count
             (this :> IBinaryReader).ReadSpan(buffer.AsSpan())
             buffer
 
-        member _.ReadSpan(span) =
+        member _.ReadSpan(span: Span<byte>) =
             let mutable bytesRead = stream.Read(span)
             let mutable totalRead = bytesRead
             while totalRead < span.Length && bytesRead <> 0 do
@@ -156,6 +156,6 @@ type BigEndianBinaryReader(stream: Stream) =
                 totalRead <- totalRead + bytesRead
 
 /// Returns a binary reader that matches the given platform.
-let getReader stream platform =
+let getReader (stream: Stream) (platform: Platform) =
     match platform with
     | PC | Mac -> LittleEndianBinaryReader(stream) :> IBinaryReader

@@ -13,7 +13,7 @@ type Manifest =
       InsertRoot: string }
 
 module Manifest =
-    let private createInternal (attrs: Attributes list) modelName iterationVersion insertRoot =
+    let private createInternal (attrs: Attributes list) (modelName: string option) (iterationVersion: int option) (insertRoot: string) =
         let entries =
             attrs
             |> List.map (fun a -> a.PersistentID, { Attributes = a })
