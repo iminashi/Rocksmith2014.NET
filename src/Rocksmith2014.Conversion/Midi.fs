@@ -6,7 +6,7 @@ open Rocksmith2014.XML
 let private standardTuningMidiNotes = [| 40; 45; 50; 55; 59; 64 |]
 
 /// Creates a MIDI note from the given properties.
-let toMidiNote string fret (tuning: int16 array) capo isBass =
+let toMidiNote (string: int) (fret: sbyte) (tuning: int16 array) (capo: sbyte) (isBass: bool) =
     let fret =
         if capo > 0y && fret = 0y then
             int capo

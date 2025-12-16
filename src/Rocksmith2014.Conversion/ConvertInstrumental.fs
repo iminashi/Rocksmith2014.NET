@@ -1,11 +1,11 @@
 module Rocksmith2014.Conversion.ConvertInstrumental
 
+open System
 open Rocksmith2014.Common
 open Rocksmith2014.Conversion
 open Rocksmith2014.Conversion.Utils
 open Rocksmith2014.SNG
 open Rocksmith2014.XML
-open System
 
 let private convertArrProps (arrProps: Manifest.ArrangementProperties) =
     let btb b = b = 1uy
@@ -207,7 +207,7 @@ let xmlToSng (arr: InstrumentalArrangement) =
       NoteCounts = accuData.NoteCounts.AsImmutable() }
 
 /// Converts an SNG instrumental arrangement into an XML file.
-let sngFileToXml sngFile targetFile platform =
+let sngFileToXml (sngFile: string) (targetFile: string) (platform: Platform) =
     async {
         let! sng = SNG.readPackedFile sngFile platform
         let xml = sngToXml None sng
@@ -215,7 +215,7 @@ let sngFileToXml sngFile targetFile platform =
     }
 
 /// Converts an XML instrumental arrangement into an SNG file.
-let xmlFileToSng xmlFile targetFile platform =
+let xmlFileToSng (xmlFile: string) (targetFile: string) (platform: Platform) =
     async {
         let sng = InstrumentalArrangement.Load(xmlFile) |> xmlToSng
         do! SNG.savePackedFile targetFile platform sng

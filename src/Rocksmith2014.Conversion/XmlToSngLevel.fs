@@ -2,10 +2,10 @@ module Rocksmith2014.Conversion.XmlToSngLevel
 
 open Rocksmith2014
 open Rocksmith2014.Conversion.XmlToSng
+open Rocksmith2014.Conversion.XmlToSngNote
 open Rocksmith2014.Conversion.Utils
 open Rocksmith2014.SNG
 open Rocksmith2014.XML.Extension
-open XmlToSngNote
 
 /// Converts an XML level into an SNG level.
 let convertLevel (accuData: AccuData) (piTimes: int array) (xmlArr: XML.InstrumentalArrangement) (xmlLevel: XML.Level) =

@@ -1,12 +1,13 @@
 namespace Rocksmith2014.Conversion
 
+open System.Reflection
+open System.Text
 open Microsoft.Extensions.FileProviders
+open Rocksmith2014.Common
 open Rocksmith2014.Common.BinaryReaders
 open Rocksmith2014.Conversion
 open Rocksmith2014.SNG
 open Rocksmith2014.XML
-open System.Reflection
-open System.Text
 
 type FontOption =
     | DefaultFont
@@ -50,7 +51,7 @@ module ConvertVocals =
         )
 
     /// Converts a list of XML vocals into SNG.
-    let xmlToSng font (xml: ResizeArray<Vocal>) =
+    let xmlToSng (font: FontOption) (xml: ResizeArray<Vocal>) =
         let vocals = xml |> Utils.mapToArray XmlToSng.convertVocal
 
         let headers, textures, symbols =
@@ -73,7 +74,7 @@ module ConvertVocals =
             SymbolDefinitions = symbols }
 
     /// Converts a vocals SNG file into an XML file.
-    let sngFileToXml sngFile targetFile platform =
+    let sngFileToXml (sngFile: string) (targetFile: string) (platform: Platform) =
         async {
             let! sng = SNG.readPackedFile sngFile platform
             let vocals = sngToXml sng
@@ -81,7 +82,7 @@ module ConvertVocals =
         }
 
     /// Converts a vocals XML file into an SNG file.
-    let xmlFileToSng xmlFile targetFile customFont platform =
+    let xmlFileToSng (xmlFile: string) (targetFile: string) (customFont: string option) (platform: Platform) =
         let glyphs =
             match customFont with
             | Some fileName ->

@@ -58,7 +58,7 @@ let convertSymbolDefinition (xmlGlyphDef: XML.GlyphDefinition) =
             YMax = xmlGlyphDef.InnerYMax } }
 
 /// Converts an XML Phrase into an SNG Phrase.
-let convertPhrase (xml: XML.InstrumentalArrangement) phraseId (xmlPhrase: XML.Phrase) =
+let convertPhrase (xml: XML.InstrumentalArrangement) (phraseId: int) (xmlPhrase: XML.Phrase) =
     let piLinks =
         xml.PhraseIterations
         |> Seq.filter (fun pi -> pi.PhraseId = phraseId)
@@ -101,7 +101,7 @@ let convertBendValue (xmlBv: XML.BendValue) =
       Step = xmlBv.Step }
 
 /// Converts an XML PhraseIteration into an SNG PhraseIteration.
-let convertPhraseIteration (piTimes: int array) index (xmlPi: XML.PhraseIteration) =
+let convertPhraseIteration (piTimes: int array) (index: int) (xmlPi: XML.PhraseIteration) =
     { PhraseId = xmlPi.PhraseId
       StartTime = msToSec xmlPi.Time
       EndTime = msToSec piTimes[index + 1]
@@ -126,7 +126,7 @@ let convertTone (xmlTone: XML.ToneChange) =
       ToneId = int xmlTone.Id }
 
 /// Converts an XML Section into an SNG Section.
-let convertSection (stringMasks: int8[][]) (xml: XML.InstrumentalArrangement) index (xmlSection: XML.Section) =
+let convertSection (stringMasks: int8[][]) (xml: XML.InstrumentalArrangement) (index: int) (xmlSection: XML.Section) =
     let endTime =
         if index = xml.Sections.Count - 1 then
             xml.MetaData.SongLength
@@ -252,7 +252,7 @@ let createDNAs (xml: XML.InstrumentalArrangement) =
     |> Seq.toArray
 
 /// Creates an SNG MetaData from the XML arrangement.
-let createMetaData (accuData: AccuData) firstNoteTime (xml: XML.InstrumentalArrangement) =
+let createMetaData (accuData: AccuData) (firstNoteTime: float32) (xml: XML.InstrumentalArrangement) =
     let conversionDate = DateTime.Now.ToString("MM-d-yy HH:mm", CultureInfo.InvariantCulture)
     let maxScore = 100_000.
 

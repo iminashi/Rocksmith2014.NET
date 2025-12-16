@@ -1,9 +1,9 @@
 namespace Rocksmith2014.Conversion
 
-open Rocksmith2014
-open Rocksmith2014.SNG
 open System.Collections.Generic
 open System.Threading
+open Rocksmith2014
+open Rocksmith2014.SNG
 
 /// The note count for each hero level and the number of ignored notes in the hard level.
 type NoteCountsMutable() =
@@ -12,7 +12,7 @@ type NoteCountsMutable() =
     [<DefaultValue>] val mutable Hard: int
     [<DefaultValue>] val mutable Ignored: int
 
-    member this.AsImmutable() =
+    member this.AsImmutable() : NoteCounts =
         { Easy = this.Easy
           Medium = this.Medium
           Hard = this.Hard

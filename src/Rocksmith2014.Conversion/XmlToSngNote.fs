@@ -52,7 +52,7 @@ let private createMaskForChordNote (note: XML.Note) =
         ||| if note.IsSlap          then NoteMask.Slap          else NoteMask.None
 
 /// Creates an SNG note mask for a single note.
-let private createMaskForNote parentNote isArpeggio (note: XML.Note) =
+let private createMaskForNote (parentNote: int16) (isArpeggio: bool) (note: XML.Note) =
     // Apply flags from properties not in the XML note mask
     let baseMask =
         NoteMask.Single
@@ -262,15 +262,24 @@ let convertNote (noteTimes: int array)
 
                 updateStringMask accuData sectionId difficulty strIndex
 
-                {| String = note.String; Fret = note.Fret; Mask = mask; Parent = parentNote
-                   BendValues = bendValues; SlideTo = note.SlideTo; UnpSlide = note.SlideUnpitchTo; LeftHand = note.LeftHand
-                   Vibrato = int16 note.Vibrato; Sustain = msToSec note.Sustain; MaxBend = note.MaxBend
+                {| String = note.String
+                   Fret = note.Fret
+                   Mask = mask
+                   Parent = parentNote
+                   BendValues = bendValues
+                   SlideTo = note.SlideTo
+                   UnpSlide = note.SlideUnpitchTo
+                   LeftHand = note.LeftHand
+                   Vibrato = int16 note.Vibrato
+                   Sustain = msToSec note.Sustain
+                   MaxBend = note.MaxBend
                    PickDirection = if (note.Mask &&& XML.NoteMask.PickDirection) <> XML.NoteMask.None then 1y else 0y
                    Tap = if note.Tap > 0y then note.Tap else -1y
                    Slap = if note.IsSlap then 1y else -1y
                    Pluck = if note.IsPluck then 1y else -1y
                    // Values not applicable to notes
-                   ChordId = -1; ChordNoteId = -1; |}
+                   ChordId = -1
+                   ChordNoteId = -1 |}
 
             // XML Chords
             | XmlChord chord ->
@@ -287,11 +296,24 @@ let convertNote (noteTimes: int array)
 
                 let mask = createMaskForChord template sustain chordNoteId isArpeggio chord
 
-                {| Mask = mask; ChordId = int chord.ChordId; ChordNoteId = chordNoteId; Sustain = sustain
+                {| Mask = mask
+                   ChordId = int chord.ChordId
+                   ChordNoteId = chordNoteId
+                   Sustain = sustain
                    // Other values are not applicable to chords
-                   String = -1y; Fret = -1y; Parent = -1s; BendValues = [||]; SlideTo = -1y; UnpSlide = -1y
-                   LeftHand = -1y; Tap = -1y; PickDirection = -1y; Slap = -1y; Pluck = -1y
-                   Vibrato = 0s; MaxBend = 0.f |}
+                   String = -1y
+                   Fret = -1y
+                   Parent = -1s
+                   BendValues = Array.empty
+                   SlideTo = -1y
+                   UnpSlide = -1y
+                   LeftHand = -1y
+                   Tap = -1y
+                   PickDirection = -1y
+                   Slap = -1y
+                   Pluck = -1y
+                   Vibrato = 0s
+                   MaxBend = 0.f |}
 
         // The initial note which will be used for calculating the hash
         let initialNote =

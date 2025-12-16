@@ -1,8 +1,8 @@
 module Rocksmith2014.Conversion.Utils
 
 open System
-open Rocksmith2014.SNG
 open Rocksmith2014
+open Rocksmith2014.SNG
 
 /// Converts a floating point number (seconds) into an integer (milliseconds).
 let secToMs (sec: float32) = Math.Round(float sec * 1000.0) |> int
@@ -26,26 +26,26 @@ let isDoubleStop (template: XML.ChordTemplate) =
     notes = 2
 
 /// Maps an array into a ResizeArray using the given map function.
-let mapToResizeArray map (array: 'a array) =
+let mapToResizeArray (map: 'a -> 'b) (array: 'a array) : ResizeArray<'b> =
     let ra = ResizeArray(array.Length)
     for i = 0 to array.Length - 1 do
         ra.Add(map array[i])
     ra
 
 /// Maps a ResizeArray into an array using the given map function.
-let mapToArray map (resizeArray: ResizeArray<_>) =
+let mapToArray (map: 'a -> 'b) (resizeArray: ResizeArray<'a>) : 'b array =
     Array.init resizeArray.Count (fun i -> map resizeArray[i])
 
 /// Maps a ResizeArray into an array using the given map function, specifying a maximum size.
-let mapToArrayMaxSize maxSize map (resizeArray: ResizeArray<_>) =
+let mapToArrayMaxSize (maxSize: int) (map: 'a -> 'b) (resizeArray: ResizeArray<'a>) : 'b array =
     Array.init (min resizeArray.Count maxSize) (fun i -> map resizeArray[i])
 
 /// Maps a ResizeArray into an array using the given map function, with index.
-let mapiToArray map (resizeArray: ResizeArray<_>) =
+let mapiToArray (map: int -> 'a -> 'b) (resizeArray: ResizeArray<'a>) : 'b array =
     Array.init resizeArray.Count (fun i -> map i resizeArray[i])
 
 /// Finds the index of the phrase iteration that contains the given time code.
-let findPiId inclusive (time: int) (iterations: ResizeArray<XML.PhraseIteration>) =
+let findPiId (inclusive: bool) (time: int) (iterations: ResizeArray<XML.PhraseIteration>) =
     let mutable id = iterations.Count - 1
     while id > 0 && not ((inclusive && iterations[id].Time = time) || iterations[id].Time < time) do
         id <- id - 1
@@ -57,14 +57,14 @@ let findBeatPhraseIterationId time iterations = findPiId false time iterations
 let findPhraseIterationId time iterations = findPiId true time iterations
 
 /// Finds the ID of the section that contains the given time code.
-let findSectionId time (sections: ResizeArray<XML.Section>) =
+let findSectionId (time: int) (sections: ResizeArray<XML.Section>) =
     let mutable id = sections.Count - 1
     while id > 0 && sections[id].Time > time do
         id <- id - 1
     id
 
 /// Finds the ID of the anchor for the note at the given time code.
-let findAnchor time (anchors: ResizeArray<XML.Anchor>) =
+let findAnchor (time: int) (anchors: ResizeArray<XML.Anchor>) =
     let rec find index =
         if index < 0 then
             failwithf "No anchor found for note at time %.3f." (msToSec time)
@@ -75,7 +75,7 @@ let findAnchor time (anchors: ResizeArray<XML.Anchor>) =
     find (anchors.Count - 1)
 
 /// Finds the ID (if any) of the fingerprint for a note at the given time code.
-let findFingerPrintId time (fingerPrints: FingerPrint array) =
+let findFingerPrintId (time: float32) (fingerPrints: FingerPrint array) =
     let rec find index =
         if index = fingerPrints.Length || fingerPrints[index].StartTime > time then
             -1
@@ -86,7 +86,7 @@ let findFingerPrintId time (fingerPrints: FingerPrint array) =
     find 0
 
 /// Finds the index of the first note that is equal or greater than the given time.
-let private findIndex startIndex time (noteTimes: int array) =
+let private findIndex (startIndex: int) (time: int) (noteTimes: int array) =
     let rec find index =
         if index = noteTimes.Length then
             -1
@@ -97,7 +97,7 @@ let private findIndex startIndex time (noteTimes: int array) =
     find startIndex
 
 /// Finds the indexes of the first and last notes in the given time range.
-let findFirstAndLastTime (noteTimes: int array) startTime endTime =
+let findFirstAndLastTime (noteTimes: int array) (startTime: int) (endTime: int) =
     let startIndex =
         if noteTimes.Length = 0 then
             0

@@ -1,9 +1,9 @@
 module Rocksmith2014.Conversion.SngToXml
 
 open Rocksmith2014
-open Rocksmith2014.SNG
-open Rocksmith2014.Conversion.Utils
 open Rocksmith2014.Common
+open Rocksmith2014.Conversion.Utils
+open Rocksmith2014.SNG
 
 /// Converts an SNG Beat into an XML Ebeat.
 let convertBeat (sngBeat: Beat) =
