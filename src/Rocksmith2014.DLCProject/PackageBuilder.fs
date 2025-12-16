@@ -1,5 +1,10 @@
 module Rocksmith2014.DLCProject.PackageBuilder
 
+open System
+open System.IO
+open System.Reflection
+open System.Text
+open Microsoft.Extensions.FileProviders
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.Common.Platform
@@ -10,11 +15,6 @@ open Rocksmith2014.PSARC
 open Rocksmith2014.SNG
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Processing
-open Microsoft.Extensions.FileProviders
-open System
-open System.IO
-open System.Reflection
-open System.Text
 
 type private BuildData =
     { SNGs: (Arrangement * SNG) list
@@ -47,12 +47,12 @@ type BuildConfig =
       IdResetConfig: IdResetConfig option
       ProgressReporter: IProgress<float> option }
 
-let private getResource (provider: EmbeddedFileProvider) name =
+let private getResource (provider: EmbeddedFileProvider) (name: string) =
     provider.GetFileInfo(name).CreateReadStream()
 
 let private toDisposableList items = new DisposableList<_>(items)
 
-let private build (buildData: BuildData) progress targetPath project platform = async {
+let private build (buildData: BuildData) (progress: unit -> unit) (targetPath: TargetPathType) (project: DLCProject) (platform: Platform) = async {
     let readFile = Utils.getFileStreamForRead
     let partition = Partitioner.create project
     let entry name data = { Name = name; Data = data }
@@ -270,7 +270,7 @@ let private setupInstrumental (part: int) (inst: Instrumental) (config: BuildCon
 
     xml
 
-let private getFontOption (dlcKey: string) isJapanese =
+let private getFontOption (dlcKey: string) (isJapanese: bool) =
     Option.map (fun fontFile ->
         let glyphs =
             Path.ChangeExtension(fontFile, ".glyphs.xml")

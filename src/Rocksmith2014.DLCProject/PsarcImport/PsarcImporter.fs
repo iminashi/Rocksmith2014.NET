@@ -1,13 +1,13 @@
 module Rocksmith2014.DLCProject.PsarcImporter
 
+open System
+open System.IO
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.PSARC
 open Rocksmith2014.SNG
-open System
-open System.IO
-open PsarcImportUtils
-open PsarcImportTypes
+open Rocksmith2014.DLCProject.PsarcImportUtils
+open Rocksmith2014.DLCProject.PsarcImportTypes
 
 /// Imports a PSARC from the given path into a DLCProject with the project created in the target directory.
 let import progress (psarcPath: string) (targetDirectory: string) =

@@ -14,7 +14,7 @@ let centsToTuningPitch (cents: float) =
 let private roots = [| "E"; "F"; "F#"; "G"; "Ab"; "A"; "Bb"; "B"; "C"; "C#"; "D"; "Eb" |]
 let private standardTuningOffsets = [| 0; 5; 10; 3; 7; 0 |]
 
-let private isDoubleDropTuning first (strings: int16 array) =
+let private isDoubleDropTuning (first: int16) (strings: int16 array) =
     first = strings[1] - 2s && first = strings[5]
     && strings.AsSpan(1, 4).AllSame(strings[1])
 
@@ -91,6 +91,6 @@ let distinctExceptionMessages (e: exn) =
         e.Message
 
 /// Returns the filename for a custom font.
-let getCustomFontName isJapanese dlcName =
+let getCustomFontName (isJapanese: bool) (dlcName: string) =
     let separator = if isJapanese then "" else "v_"
     $"lyrics_{separator}{dlcName}"

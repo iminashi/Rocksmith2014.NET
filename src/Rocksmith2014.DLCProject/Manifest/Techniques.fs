@@ -4,7 +4,7 @@ open Rocksmith2014.SNG
 
 let [<Literal>] private ChordNotesDoubleStop = NoteMask.DoubleStop ||| NoteMask.ChordNotes
 
-let inline hasFlag (n: Note) flag = (n.Mask &&& flag) = flag
+let inline hasFlag (n: Note) (flag: NoteMask) = (n.Mask &&& flag) = flag
 
 let isPowerChord sng note =
     hasFlag note NoteMask.DoubleStop
@@ -29,7 +29,7 @@ let isDropDPower sng note =
 let isChord (note: Note) =
     note.Mask &&& (NoteMask.Chord ||| NoteMask.Sustain ||| NoteMask.DoubleStop) = NoteMask.Chord
 
-let isBarre sng (note: Note) =
+let isBarre (sng: SNG) (note: Note) =
     note.Mask &&& (NoteMask.Chord ||| NoteMask.DoubleStop) = NoteMask.Chord
     &&
     sng.Chords[note.ChordId].Fingers

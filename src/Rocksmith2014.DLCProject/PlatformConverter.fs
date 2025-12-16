@@ -1,10 +1,10 @@
 module Rocksmith2014.DLCProject.PlatformConverter
 
+open System.IO
+open System.Text
 open Rocksmith2014.PSARC
 open Rocksmith2014.Common
 open Rocksmith2014.SNG
-open System.IO
-open System.Text
 
 /// Replaces PC specific paths and tags with Mac versions.
 let private convertGraph (data: Stream) =
@@ -20,7 +20,7 @@ let private convertGraph (data: Stream) =
     let newData = MemoryStreamPool.Default.GetStream()
     use writer = new StreamWriter(newData, leaveOpen = true)
 
-    writer.Write newText
+    writer.Write(newText)
     newData
 
 /// Changes the encoding of an SNG from PC to Mac platform.

@@ -1,10 +1,10 @@
 namespace Rocksmith2014.DLCProject
 
-open Rocksmith2014.Common
-open Rocksmith2014.Common.Manifest
 open System
 open System.IO
 open System.Text.Json
+open Rocksmith2014.Common
+open Rocksmith2014.Common.Manifest
 
 type DLCProject =
     { Version: string

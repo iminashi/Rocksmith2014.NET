@@ -1,7 +1,7 @@
 module Rocksmith2014.DLCProject.SoundBankUtils
 
-open Rocksmith2014.Common
 open System.IO
+open Rocksmith2014.Common
 
 /// Calculates a Fowler–Noll–Vo hash for a string.
 let fnvHash (str: string) =
@@ -9,12 +9,12 @@ let fnvHash (str: string) =
     ||> Array.fold (fun hash ch -> (hash * 16777619u) ^^^ (uint32 ch))
 
 /// Seeks to the beginning of the stream and returns a binary reader for the platform.
-let initReader (stream: Stream) platform =
+let initReader (stream: Stream) (platform: Platform) =
     stream.Position <- 0L
     BinaryReaders.getReader stream platform
 
 /// Seeks the stream from the current position by the given offset.
-let seek (stream: Stream) offset =
+let seek (stream: Stream) (offset: int64) =
     stream.Seek(offset, SeekOrigin.Current) |> ignore
 
 /// Skips a section that is preceded by its length in a BNK file.
@@ -23,7 +23,7 @@ let skipSection (stream: Stream) (reader: IBinaryReader) =
     seek stream (int64 length)
 
 /// Seeks to the section that has the given name and returns its length.
-let rec seekToSection (stream: Stream) (reader: IBinaryReader) name =
+let rec seekToSection (stream: Stream) (reader: IBinaryReader) (name: byte array) =
     if stream.Position >= stream.Length then
         Error $"Could not find {name} section."
     else
@@ -37,7 +37,7 @@ let rec seekToSection (stream: Stream) (reader: IBinaryReader) name =
             Ok <| reader.ReadUInt32()
 
 /// Seeks to the hierarchy object that has the given ID.
-let seekToObject (stream: Stream) (reader: IBinaryReader) typeId =
+let seekToObject (stream: Stream) (reader: IBinaryReader) (typeId: int8) =
     let objCount = reader.ReadUInt32()
 
     let rec doSeek objIndex =

@@ -1,10 +1,10 @@
 module Rocksmith2014.DLCProject.PhraseLevelComparer
 
-open Rocksmith2014.SNG
 open System
 open System.Collections.Generic
 open System.IO
 open System.Text.Json
+open Rocksmith2014.SNG
 
 type PhraseName = string
 
@@ -21,7 +21,7 @@ let private tryGetStoredLevels directory =
     with _ ->
         None
 
-let private savePhraseLevels directory (phraseLevels: ProjectLevels) =
+let private savePhraseLevels (directory: string) (phraseLevels: ProjectLevels) =
     use file = File.Create(Path.Combine(directory, PhraseLevelFile))
     JsonSerializer.Serialize(file, phraseLevels)
 
@@ -63,12 +63,12 @@ let compareLevels (stored: ProjectLevels) (arrangements: (Arrangement * SNG) lis
             None)
 
 /// Returns a list of persistent IDs of the arrangements whose IDs should be regenerated.
-let compareToExisting directory (arrangements: (Arrangement * SNG) list) =
+let compareToExisting (directory: string) (arrangements: (Arrangement * SNG) list) =
     tryGetStoredLevels directory
     |> Option.map (fun stored -> compareLevels stored arrangements)
     |> Option.defaultValue List.empty
 
 /// Saves the arrangement levels to a file in the given directory.
-let saveLevels directory (arrangements: (Arrangement * SNG) list) =
+let saveLevels (directory: string) (arrangements: (Arrangement * SNG) list) =
     createLevelDictionary arrangements
     |> savePhraseLevels directory

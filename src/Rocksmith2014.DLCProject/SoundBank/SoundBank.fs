@@ -4,7 +4,7 @@ open System
 open System.IO
 open System.Text
 open Rocksmith2014.Common
-open SoundBankUtils
+open Rocksmith2014.DLCProject.SoundBankUtils
 
 module private HierarchyID =
     let [<Literal>] Sound = 2y
@@ -250,13 +250,13 @@ let private hierarchyEvent id name platform =
 
     memory
 
-let private copyData output (writer: IBinaryWriter) (data: Stream) =
+let private copyData (output: Stream) (writer: IBinaryWriter) (data: Stream) =
     writer.WriteInt32(int32 data.Length)
     data.Position <- 0L
     data.CopyTo output
     data.Dispose()
 
-let private writeHierarchy output (writer: IBinaryWriter) id (hierarchy: Stream) =
+let private writeHierarchy (output: Stream) (writer: IBinaryWriter) (id: int8) (hierarchy: Stream) =
     writer.WriteInt8 id
     copyData output writer hierarchy
 
@@ -285,7 +285,7 @@ let private writeChunk (output: Stream) (writer: IBinaryWriter) (name: byte arra
     copyData output writer data
 
 /// Generates a sound bank for the audio stream into the output stream.
-let generate name (audioStream: Stream) (output: Stream) volume (platform: Platform) =
+let generate name (audioStream: Stream) (output: Stream) (volume: float32) (platform: Platform) =
     let soundbankID = RandomGenerator.next () |> uint32
     let fileID = abs <| hash name
     let soundID = RandomGenerator.next ()
@@ -309,7 +309,7 @@ let generate name (audioStream: Stream) (output: Stream) volume (platform: Platf
     string fileID
 
 /// Reads the file ID value from the sound bank in the stream.
-let readFileId (stream: Stream) platform =
+let readFileId (stream: Stream) (platform: Platform) =
     result {
         let reader = initReader stream platform
 
@@ -320,7 +320,7 @@ let readFileId (stream: Stream) platform =
     }
 
 /// Reads the volume value from the sound bank in the stream.
-let readVolume (stream: Stream) platform =
+let readVolume (stream: Stream) (platform: Platform) =
     result {
         let reader = initReader stream platform
 

@@ -1,19 +1,19 @@
 module Rocksmith2014.DLCProject.PsarcImportUtils
 
+open System
+open System.IO
+open System.Text.RegularExpressions
 open Rocksmith2014.Common
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.Conversion
 open Rocksmith2014.PSARC
 open Rocksmith2014.XML
-open System
-open System.IO
-open System.Text.RegularExpressions
-open PsarcImportTypes
+open Rocksmith2014.DLCProject.PsarcImportTypes
 
 let [<Literal>] private DefaultFontPath = @"assets\ui\lyrics\lyrics.dds"
 
 /// Reads the volume and file ID from the PSARC for the sound bank with the given name.
-let getVolumeAndFileId (psarc: PSARC) platform bankName =
+let getVolumeAndFileId (psarc: PSARC) (platform: Platform) (bankName: string) =
     backgroundTask {
         use! stream = psarc.GetEntryStream(bankName)
 
@@ -53,7 +53,7 @@ let getFontFilename (path: string) =
     fn.Substring(0, fn.LastIndexOf('_'))
 
 /// Imports a vocals SNG into a vocals arrangement.
-let importVocals targetDirectory targetFile (attributes: Attributes) sng isJapanese =
+let importVocals (targetDirectory: string) (targetFile: string) (attributes: Attributes) (sng: Rocksmith2014.SNG.SNG) (isJapanese: bool) =
     let vocals = ConvertVocals.sngToXml sng
     Vocals.Save(targetFile, vocals)
 
@@ -133,7 +133,7 @@ let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) (targetPat
     ImportedData.Instrumental xml
 
 /// Converts a tone from a DTO, ensuring that the imported tone has descriptors.
-let toneFromDto dto =
+let toneFromDto (dto: ToneDto) =
     let tone = Tone.fromDto dto
 
     if tone.ToneDescriptors.Length = 0 then
@@ -164,7 +164,7 @@ let prefixWithToolkit (versionOpt: string option) =
         else
             version)
 
-let private getFileContents (psarc: PSARC) pathInPsarc =
+let private getFileContents (psarc: PSARC) (pathInPsarc: string) =
     backgroundTask {
         use! stream = psarc.GetEntryStream(pathInPsarc)
         return using (new StreamReader(stream)) (fun reader -> reader.ReadToEnd())

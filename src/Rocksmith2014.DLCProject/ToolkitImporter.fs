@@ -1,11 +1,11 @@
 module Rocksmith2014.DLCProject.ToolkitImporter
 
-open Rocksmith2014.Common
-open Rocksmith2014.Common.Manifest
-open Rocksmith2014.DLCProject
 open System
 open System.IO
 open System.Xml
+open Rocksmith2014.Common
+open Rocksmith2014.Common.Manifest
+open Rocksmith2014.DLCProject
 
 let [<Literal>] AggregateGraphNs =
     "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.AggregateGraph"
@@ -13,7 +13,7 @@ let [<Literal>] AggregateGraphNs =
 let [<Literal>] ToneNs =
     "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.Manifest2014.Tone"
 
-let private optionalString (node: XmlNode) name =
+let private optionalString (node: XmlNode) (name: string) =
     node.Item name
     |> Option.ofObj
     |> Option.bind (fun x -> Option.ofString x.InnerText)

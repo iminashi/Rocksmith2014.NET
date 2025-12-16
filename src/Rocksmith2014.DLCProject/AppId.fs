@@ -1,7 +1,7 @@
 module Rocksmith2014.DLCProject.AppId
 
-open Rocksmith2014.Common
 open System.Globalization
+open Rocksmith2014.Common
 
 let [<Literal>] private CherubRockValue = 248750UL
 

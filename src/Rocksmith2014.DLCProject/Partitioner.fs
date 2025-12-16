@@ -1,7 +1,7 @@
 module Rocksmith2014.DLCProject.Partitioner
 
-open Rocksmith2014.DLCProject
 open System
+open Rocksmith2014.DLCProject
 
 /// Returns a partitioner function for the arrangements in the project.
 let create (project: DLCProject) =

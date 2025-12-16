@@ -1,11 +1,11 @@
 module Rocksmith2014.DLCProject.Manifest.AttributesCreation
 
+open System
+open System.Collections.Generic
 open Rocksmith2014
 open Rocksmith2014.Common.Manifest
 open Rocksmith2014.DLCProject
 open Rocksmith2014.SNG
-open System
-open System.Collections.Generic
 
 (* There are two "iteration versions" of the attributes, version 2 and 3.
 
@@ -25,7 +25,7 @@ let private getJapaneseVocal = function
     | _ -> Nullable()
 
 /// Calculates the sum of all ranges of DNAId -> DNA None (or the end of the song).
-let private getDNATime (sng: SNG) dnaId =
+let private getDNATime (sng: SNG) (dnaId: int32) =
     let rec getTotal i time =
         // Find the index of a DNA with the given ID
         match Array.FindIndex(sng.DNAs, i, (fun x -> x.DnaId = dnaId)) with
@@ -304,7 +304,7 @@ let private createTechniqueMap (sng: SNG) =
     techniques
 
 /// Initializes attributes that are common to all arrangements (manifest headers).
-let private initBase name dlcKey (project: DLCProject) (arrangement: Arrangement) =
+let private initBase (name: string) (dlcKey: string) (project: DLCProject) (arrangement: Arrangement) =
     let attr = Attributes()
 
     attr.AlbumArt <- $"urn:image:dds:album_%s{dlcKey}"
@@ -321,7 +321,7 @@ let private initBase name dlcKey (project: DLCProject) (arrangement: Arrangement
     attr
 
 /// Initializes attributes that are common to all arrangements (non-headers).
-let private initAttributesCommon name dlcKey levels (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
+let private initAttributesCommon (name: string) (dlcKey: string) (levels: int) (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
     attr.ArrangementSort <- 0 // Always zero
     attr.BlockAsset <- $"urn:emergent-world:{dlcKey}"
     attr.DynamicVisualDensity <- createDynamicVisualDensity levels arrangement
@@ -344,7 +344,7 @@ let private initAttributesCommon name dlcKey levels (project: DLCProject) (arran
     attr
 
 /// Initializes attributes that are common to instrumental arrangement headers and non-headers.
-let private initSongCommon xmlMetaData (project: DLCProject) (instrumental: Instrumental) (sng: SNG) (attr: Attributes) =
+let private initSongCommon (xmlMetaData: XML.MetaData) (project: DLCProject) (instrumental: Instrumental) (sng: SNG) (attr: Attributes) =
     let diffs = calculateDifficulties xmlMetaData sng
     let dnas = calculateDNAs sng
     let getSortValue (c: string -> StringValidator.FieldType) (ss: SortableString) =

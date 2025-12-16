@@ -1,7 +1,7 @@
 module Rocksmith2014.DLCProject.ArrangementPropertiesOverride
 
-open Rocksmith2014.XML
 open System
+open Rocksmith2014.XML
 open FlagBuilder
 
 [<Flags>]

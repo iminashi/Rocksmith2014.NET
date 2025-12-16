@@ -1,11 +1,11 @@
 module Rocksmith2014.DLCProject.AggregateGraph
 
-open Rocksmith2014.Common
-open Rocksmith2014.DLCProject
 open System
 open System.IO
 open System.Text
 open System.Text.RegularExpressions
+open Rocksmith2014.Common
+open Rocksmith2014.DLCProject
 
 type Graph = { Items: GraphItem list }
 

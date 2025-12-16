@@ -1,12 +1,12 @@
 module Rocksmith2014.DLCProject.ShowLightGenerator
 
+open System
+open System.Collections.Generic
+open System.Runtime.CompilerServices
 open Rocksmith2014.XML
 open Rocksmith2014.SNG
 open Rocksmith2014.Common
 open Rocksmith2014.Conversion
-open System.Collections.Generic
-open System.Runtime.CompilerServices
-open System
 
 [<IsReadOnly; Struct>]
 type private MidiNote = { Time: float32; Note: int }
@@ -129,7 +129,7 @@ let generateLaserNotes (sng: SNG) =
     [ lasersOn; lasersOff ]
 
 /// Ensures that the show lights contain at least one beam and one fog note.
-let private validateShowLights songLength (slList: ShowLight list) =
+let private validateShowLights (songLength: float32) (slList: ShowLight list) =
     slList
     @ [ if not <| List.exists isBeam slList then
             ShowLight(0, ShowLight.BeamMin)

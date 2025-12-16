@@ -1,8 +1,8 @@
 module Rocksmith2014.DLCProject.DDS
 
-open ImageMagick
-open System.IO
 open System
+open System.IO
+open ImageMagick
 
 type Compression =
     | DXT1
