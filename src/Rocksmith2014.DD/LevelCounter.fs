@@ -1,7 +1,7 @@
 module internal Rocksmith2014.DD.LevelCounter
 
-open Rocksmith2014.DD.Model
 open System
+open Rocksmith2014.DD.Model
 
 let [<Literal>] MinimumNumberOfLevelsToGenerate = 2
 let [<Literal>] MaximumPossibleLevels = 30

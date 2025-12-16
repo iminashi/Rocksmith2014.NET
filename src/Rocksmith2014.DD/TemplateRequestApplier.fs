@@ -1,7 +1,7 @@
 module internal Rocksmith2014.DD.TemplateRequestApplier
 
-open Rocksmith2014.XML
 open System.Collections.Generic
+open Rocksmith2014.XML
 
 [<Struct>]
 type private NewData = { Fingers: sbyte array; Frets: sbyte array }
@@ -9,7 +9,7 @@ type private NewData = { Fingers: sbyte array; Frets: sbyte array }
 let private globalTemplatesLock = obj ()
 
 /// Returns new finger and fret arrays for the chord template with the given number of notes removed.
-let private removeNotes notesToRemove fromHighest (template: ChordTemplate) =
+let private removeNotes (notesToRemove: int) (fromHighest: bool) (template: ChordTemplate) =
     let fingers = Array.copy template.Fingers
     let frets = Array.copy template.Frets
     let startIndex, change = if fromHighest then 0, 1 else frets.Length - 1, -1

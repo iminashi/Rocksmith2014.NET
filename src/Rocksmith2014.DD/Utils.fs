@@ -1,10 +1,10 @@
 [<AutoOpen>]
 module internal Rocksmith2014.DD.Utils
 
-open Rocksmith2014.XML
 open System
+open Rocksmith2014.XML
 
-let getRange<'T when 'T :> IHasTimeCode> startTime endTime (s: ResizeArray<'T>) =
+let getRange<'T when 'T :> IHasTimeCode> (startTime: int) (endTime: int) (s: ResizeArray<'T>) =
     s.FindAll(fun e -> e.Time >= startTime && e.Time < endTime)
     |> List.ofSeq
 
@@ -12,7 +12,7 @@ let getNoteCount (template: ChordTemplate) =
     template.Frets
     |> Array.sumBy (fun fret -> Convert.ToInt32(fret >= 0y))
 
-let getAllowedChordNotes (diffPercent: float) maxChordNotesInPhrase =
+let getAllowedChordNotes (diffPercent: float) (maxChordNotesInPhrase: int) =
     if maxChordNotesInPhrase = 0 then
         0
     else
@@ -25,7 +25,7 @@ let shouldStartFromHighestNote (totalNotes: int) (template: ChordTemplate) =
     (totalNotes = 3 && fr[5] > -1y && fr[4] > -1y && fr[3] > -1y)
     || (totalNotes = 2 && fr[5] > -1y && fr[4] > -1y)
 
-let createTemplateRequest (originalId: int16) (noteCount: int) (totalNotes: int) (template: ChordTemplate) target =
+let createTemplateRequest (originalId: int16) (noteCount: int) (totalNotes: int) (template: ChordTemplate) (target: RequestTarget) =
     let startFromHighestNote = shouldStartFromHighestNote totalNotes template
 
     { OriginalId = originalId

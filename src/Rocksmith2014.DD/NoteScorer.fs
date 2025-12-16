@@ -1,9 +1,9 @@
 module internal Rocksmith2014.DD.NoteScorer
 
+open System
 open Rocksmith2014.DD.DataExtractor
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Extension
-open System
 
 let private round (value: float) =
     Math.Round(value, MidpointRounding.AwayFromZero)
@@ -18,7 +18,7 @@ let private getSubdivision startTime endTime time =
 
     int <| round div
 
-let private getSubdivisionInsideMeasure phraseEndTime (beats: Ebeat list) (time: int) =
+let private getSubdivisionInsideMeasure (phraseEndTime: int) (beats: Ebeat list) (time: int) =
     let measure =
         beats
         |> List.tryFindBack (fun b -> b.Time < time && b.Measure <> -1s)
@@ -105,7 +105,7 @@ let getScore (phraseData: PhraseData) (time: NoteTime) (entity: XmlEntity) : Not
           // The note comes after the last beat in the phrase
           10 * getSubdivision b1.Time phraseEndTime time
 
-let createScoreMap (scores: (NoteTime * NoteScore) array) (totalNotes: int) =
+let createScoreMap (scores: (NoteTime * NoteScore) array) (totalNotes: int) : ScoreMap =
     scores
     |> Array.groupBy snd
     |> Seq.map (fun (group, elems) -> group, elems.Length)

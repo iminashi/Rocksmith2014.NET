@@ -1,9 +1,9 @@
 module Rocksmith2014.DD.DataExtractor
 
-open Rocksmith2014.XML
 open System
-open System.Text
 open System.IO
+open System.Text
+open Rocksmith2014.XML
 
 type PhraseData =
     { Name: string

@@ -1,8 +1,8 @@
 [<AutoOpen>]
 module Rocksmith2014.DD.Types
 
-open Rocksmith2014.XML
 open System.Collections.Generic
+open Rocksmith2014.XML
 
 type RequestTarget =
     | ChordTarget of chordTarget: Chord

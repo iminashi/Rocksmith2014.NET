@@ -6,7 +6,7 @@ open Rocksmith2014.XML.Extension
 // Assume that notes up to 3ms before the anchor were meant to be on the anchor
 let [<Literal>] private ErrorMargin = 3
 
-let private shouldInclude (entities: XmlEntity array) startTime endTime =
+let private shouldInclude (entities: XmlEntity array) (startTime: int) (endTime: int) =
     entities
     |> Array.exists (fun e ->
         let time = getTimeCode e
@@ -16,7 +16,7 @@ let private shouldInclude (entities: XmlEntity array) startTime endTime =
         time + sustain + ErrorMargin >= startTime && time + sustain < endTime)
 
 /// Chooses the necessary anchors for a difficulty level.
-let choose (entities: XmlEntity array) (anchors: Anchor list) phraseStartTime phraseEndTime =
+let choose (entities: XmlEntity array) (anchors: Anchor list) (phraseStartTime: int) (phraseEndTime: int) =
     let rec add result (anchors: Anchor list) =
         match anchors with
         | [] ->

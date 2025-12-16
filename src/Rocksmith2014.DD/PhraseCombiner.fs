@@ -1,10 +1,10 @@
 module internal Rocksmith2014.DD.PhraseCombiner
 
-open Rocksmith2014.XML
 open System
 open System.Collections.Generic
-open DataExtractor
-open Comparers
+open Rocksmith2014.XML
+open Rocksmith2014.DD.Comparers
+open Rocksmith2014.DD.DataExtractor
 
 type private CombinationData =
     { MainId: int
@@ -24,7 +24,7 @@ let private calculateSimilarity fn fc (phrase1: PhraseData) (phrase2: PhraseData
     (noteSimilarity * notesTotal + chordSimilarity * chordsTotal) / (notesTotal + chordsTotal)
     |> (round >> int)
 
-let private getSimilarity threshold (phrase1: PhraseData) (phrase2: PhraseData) =
+let private getSimilarity (threshold: int) (phrase1: PhraseData) (phrase2: PhraseData) =
     if isEmpty phrase1 && isEmpty phrase2 then
         100
     else
@@ -42,7 +42,7 @@ let private getSimilarity threshold (phrase1: PhraseData) (phrase2: PhraseData) 
         else
             calculateSimilarity (getSimilarityPercent sameNote) (getSimilarityPercent sameChord) phrase1 phrase2
 
-let private findSamePhrases threshold (levelCounts: int array) (iterationData: PhraseData array) =
+let private findSamePhrases (threshold: int) (levelCounts: int array) (iterationData: PhraseData array) =
     // Ignore the first and last phrases (COUNT, END)
     let lastId = iterationData.Length - 1
     let matchedPhrases = HashSet<int>([| 0; lastId |])

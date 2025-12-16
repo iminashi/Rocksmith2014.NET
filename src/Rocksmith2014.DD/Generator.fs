@@ -127,7 +127,7 @@ let generateForArrangement (config: GeneratorConfig) (arr: InstrumentalArrangeme
     arr
 
 /// Generates DD levels for an arrangement loaded from a file and saves it into the target file.
-let generateForFile config sourcePath targetPath =
+let generateForFile (config: GeneratorConfig) (sourcePath: string) (targetPath: string) =
     let arr =
         InstrumentalArrangement.Load(sourcePath)
         |> generateForArrangement config

@@ -1,10 +1,10 @@
 module internal Rocksmith2014.DD.EntityChooser
 
-open Rocksmith2014.XML
-open Rocksmith2014.XML.Extension
 open System
 open System.Collections
 open System.Collections.Generic
+open Rocksmith2014.XML
+open Rocksmith2014.XML.Extension
 
 // Array index = string number
 type private PendingLinkNexts = Note array
@@ -96,7 +96,7 @@ let private removePreviousLinkNext (pendingLinkNexts: PendingLinkNexts) = functi
                 lnNote.Sustain <- 0
             lnNote.IsLinkNext <- false
 
-let private findEntityWithString (entities: XmlEntity seq) string =
+let private findEntityWithString (entities: XmlEntity seq) (string: sbyte) =
     entities
     |> Seq.tryFind (function
         | XmlNote n ->
