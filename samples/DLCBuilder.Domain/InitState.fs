@@ -29,14 +29,22 @@ let init localizer albumArtLoader databaseConnector exitHandler args =
                     ErrorOccurred)
             |> Option.toList
 
+        let importPsarc =
+            args
+            |> Array.tryFind (String.endsWith ".psarc")
+            |> Option.map (fun path ->
+                Cmd.ofMsg (path |> FolderTarget.PsarcImportTarget |> Dialog.FolderTarget |> ShowDialog))
+            |> Option.toList
+
         Cmd.batch [
-            Cmd.OfTask.perform Configuration.load localizer (fun config -> SetConfiguration(config, loadProject.IsEmpty, wasAbnormalExit))
+            Cmd.OfTask.perform Configuration.load localizer (fun config -> SetConfiguration(config, loadProject.IsEmpty && importPsarc.IsEmpty, wasAbnormalExit))
             Cmd.OfTask.perform RecentFilesList.load () SetRecentFiles
 #if !DEBUG
             Cmd.OfTask.perform OnlineUpdate.checkForUpdates () SetAvailableUpdate
 #endif
             Cmd.OfTask.perform ToneGear.loadRepository () SetToneRepository
             yield! loadProject
+            yield! importPsarc
         ]
 
     { Project = DLCProject.Empty
