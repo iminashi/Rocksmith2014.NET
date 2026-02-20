@@ -91,6 +91,8 @@ type Attributes() =
 
     member val PreviewBankPath: string = null with get, set
 
+    member val PreviewVolume: Nullable<float32> = Nullable() with get, set
+
     // Always zero
     member val RelativeDifficulty: Nullable<int> = Nullable() with get, set
 
@@ -137,6 +139,8 @@ type Attributes() =
     member val SongOffset: Nullable<float32> = Nullable() with get, set
 
     member val SongPartition: Nullable<int> = Nullable() with get, set
+
+    member val SongVolume: Nullable<float32> = Nullable() with get, set
 
     member val SongXml: string = null with get, set
 
