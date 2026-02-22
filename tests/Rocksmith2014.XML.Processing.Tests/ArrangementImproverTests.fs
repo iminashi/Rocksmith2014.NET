@@ -872,3 +872,103 @@ let applyAllTests =
             Expect.hasLength anchors 1 "No new anchors were created"
             Expect.equal anchors.[0].Time 1200 "Anchor is at correct position"
     ]
+
+[<Tests>]
+let unnecessaryNoteRemoverTests =
+    testList "Arrangement Improver (Note Remover)" [
+        testCase "Removes notes without sustain after a linknext note" <| fun _ ->
+            let anchors = ra [ Anchor(1y, 100) ]
+            let notes = ra [
+                Note(Time = 100, Fret = 1y, Sustain = 100, IsLinkNext = true)
+                Note(Time = 150, Fret = 3y, String = 1y)
+                Note(Time = 200, Fret = 1y, Sustain = 0)
+            ]
+            let level = Level(Notes = notes, Anchors = anchors)
+            let arr = InstrumentalArrangement(Levels = ra [ level ])
+
+            ArrangementImprover.removeUnnecessaryNotes arr
+
+            Expect.hasLength arr.Levels[0].Notes 2 "One note was removed"
+            Expect.equal arr.Levels[0].Notes[0].Time 100 "First note was not removed"
+            Expect.isFalse arr.Levels[0].Notes[0].IsLinkNext "Linknext was removed from first note"
+            Expect.equal arr.Levels[0].Notes[1].Time 150 "Unrelated note was not removed"
+
+        testCase "Does not remove note with sustain after a linknext note" <| fun _ ->
+            let anchors = ra [ Anchor(1y, 100) ]
+            let notes = ra [
+                Note(Time = 100, Fret = 1y, Sustain = 100, IsLinkNext = true)
+                Note(Time = 200, Fret = 1y, Sustain = 5)
+            ]
+            let level = Level(Notes = notes, Anchors = anchors)
+            let arr = InstrumentalArrangement(Levels = ra [ level ])
+
+            ArrangementImprover.removeUnnecessaryNotes arr
+
+            Expect.hasLength arr.Levels[0].Notes 2 "No notes were removed"
+            Expect.isTrue arr.Levels[0].Notes[0].IsLinkNext "Linknext was not removed from first note"
+
+        testCase "Removes note without sustain after a chord" <| fun _ ->
+            let anchors = ra [ Anchor(1y, 100) ]
+            let cn = ra [
+                Note(Time = 100, String = 2y, Fret = 1y, Sustain = 100, IsLinkNext = true)
+                Note(Time = 100, String = 3y, Fret = 3y, Sustain = 100, IsLinkNext = true)
+            ]
+            let chords = ra [
+                Chord(Time = 100, ChordId = 0s, IsLinkNext = true, ChordNotes = cn)
+            ]
+            let notes = ra [
+                Note(Time = 200, Fret = 1y, String = 2y, Sustain = 0)
+                Note(Time = 200, Fret = 3y, String = 3y, Sustain = 100)
+            ]
+            let level = Level(Notes = notes, Chords = chords, Anchors = anchors)
+            let arr = InstrumentalArrangement(Levels = ra [ level ])
+
+            ArrangementImprover.removeUnnecessaryNotes arr
+
+            Expect.hasLength arr.Levels[0].Notes 1 "One note was removed"
+            Expect.equal arr.Levels[0].Notes[0].String 3y "Note with sustain was not removed"
+            Expect.isTrue arr.Levels[0].Chords[0].IsLinkNext "Linknext was not removed from chord"
+
+        testCase "Removes note without sustain after a chord slide" <| fun _ ->
+            let anchors = ra [ Anchor(1y, 100); Anchor(3y, 200) ]
+            let cn = ra [
+                Note(Time = 100, String = 2y, Fret = 1y, Sustain = 100, SlideTo = 3y, IsLinkNext = true)
+                Note(Time = 100, String = 3y, Fret = 3y, Sustain = 100, SlideTo = 5y, IsLinkNext = true)
+            ]
+            let chords = ra [
+                Chord(Time = 100, ChordId = 0s, IsLinkNext = true, ChordNotes = cn)
+            ]
+            let notes = ra [
+                Note(Time = 200, Fret = 3y, String = 2y, Sustain = 100)
+                Note(Time = 200, Fret = 5y, String = 3y, Sustain = 0)
+            ]
+            let level = Level(Notes = notes, Chords = chords, Anchors = anchors)
+            let arr = InstrumentalArrangement(Levels = ra [ level ])
+
+            ArrangementImprover.removeUnnecessaryNotes arr
+
+            Expect.hasLength arr.Levels[0].Notes 1 "One note was removed"
+            Expect.equal arr.Levels[0].Notes[0].Fret 3y "Note with sustain was not removed"
+            Expect.isTrue arr.Levels[0].Chords[0].IsLinkNext "Linknext was not removed from chord"
+
+        testCase "Removes all notes without sustain after a chord slide" <| fun _ ->
+            let anchors = ra [ Anchor(1y, 100); Anchor(3y, 200) ]
+            let cn = ra [
+                Note(Time = 100, String = 2y, Fret = 1y, Sustain = 100, SlideTo = 3y, IsLinkNext = true)
+                Note(Time = 100, String = 3y, Fret = 3y, Sustain = 100, SlideTo = 5y, IsLinkNext = true)
+            ]
+            let chords = ra [
+                Chord(Time = 100, ChordId = 0s, IsLinkNext = true, ChordNotes = cn)
+            ]
+            let notes = ra [
+                Note(Time = 200, Fret = 3y, String = 2y, Sustain = 0)
+                Note(Time = 200, Fret = 5y, String = 3y, Sustain = 0)
+            ]
+            let level = Level(Notes = notes, Chords = chords, Anchors = anchors)
+            let arr = InstrumentalArrangement(Levels = ra [ level ])
+
+            ArrangementImprover.removeUnnecessaryNotes arr
+
+            Expect.hasLength arr.Levels[0].Notes 0 "All notes without sustain were removed"
+            Expect.isFalse arr.Levels[0].Chords[0].IsLinkNext "Linknext was removed from the chord"
+    ]

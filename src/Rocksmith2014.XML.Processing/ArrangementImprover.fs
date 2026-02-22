@@ -11,6 +11,9 @@ let processChordNames = ChordNameProcessor.improve
 /// Removes beats that come after the audio has ended.
 let removeExtraBeats = ExtraBeatRemover.improve
 
+/// Removes notes that come after LinkNext, but have no sustain.
+let removeUnnecessaryNotes = UnncessaryNoteRemover.improve
+
 /// Applies various minor fixes.
 let eofFixes = EOFFixes.fixAll
 
@@ -31,6 +34,7 @@ let applyAll (arrangement: InstrumentalArrangement) =
     AnchorMover.improve arrangement
     movePhrases arrangement
     eofFixes arrangement
+    removeUnnecessaryNotes arrangement
     // Should be done after fixing the anchors at phrase start
     BasicFixes.removeRedundantAnchors arrangement
     addCrowdEvents arrangement

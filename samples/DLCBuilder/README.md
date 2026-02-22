@@ -48,6 +48,7 @@ Will be used when "Apply Improvements" is enabled.
 - Allow moving of phrases/sections off-beat with a special phrase name "mover"
 - Custom events "w3" (width 3 anchor), "removebeats", "so" (slide-out handshape)
 - Linknext fret number and bend mismatches are fixed
+- Unnecessary notes (notes with zero sustain) following a linknext are removed
 
 ### Automatic Fixes that Are Always Applied
 
