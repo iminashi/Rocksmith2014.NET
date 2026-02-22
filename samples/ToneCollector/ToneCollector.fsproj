@@ -19,17 +19,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.143" />
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.117" />
+    <PackageReference Include="Dapper" />
+    <PackageReference Include="FSharp.Core" />
+    <PackageReference Include="System.Data.SQLite.Core" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Rocksmith2014.Common\Rocksmith2014.Common.fsproj" />
     <ProjectReference Include="..\..\src\Rocksmith2014.PSARC\Rocksmith2014.PSARC.fsproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="10.0.103" />
-  </ItemGroup>
-
 </Project>

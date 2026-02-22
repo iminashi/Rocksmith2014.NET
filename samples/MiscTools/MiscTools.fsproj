@@ -24,10 +24,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia.Desktop" Version="11.3.12" />
-    <PackageReference Include="Avalonia.FuncUI" Version="1.5.2" />
-    <PackageReference Include="Avalonia.FuncUI.Elmish" Version="1.5.2" />
-    <PackageReference Include="Avalonia.Themes.Simple" Version="11.3.12" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.FuncUI" />
+    <PackageReference Include="Avalonia.FuncUI.Elmish" />
+    <PackageReference Include="Avalonia.Themes.Simple" />
+    <PackageReference Include="FSharp.Core" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,9 +41,4 @@
     <ProjectReference Include="..\..\src\Rocksmith2014.EOF\Rocksmith2014.EOF.fsproj" />
     <ProjectReference Include="..\..\src\Rocksmith2014.XML.Processing\Rocksmith2014.XML.Processing.fsproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="10.0.103" />
-  </ItemGroup>
-
 </Project>

@@ -63,19 +63,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BunLabs.NAudio.Flac" Version="2.0.1" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.3" />
-    <PackageReference Include="NAudio.Core" Version="2.2.1" />
-    <PackageReference Include="NAudio.Vorbis" Version="1.5.0" />
-    <PackageReference Include="NVorbis" Version="0.10.5" />
-    <PackageReference Include="SimpleSIMD" Version="4.6.0" />
+    <PackageReference Include="FSharp.Core" />
+    <PackageReference Include="BunLabs.NAudio.Flac" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" />
+    <PackageReference Include="NAudio.Core" />
+    <PackageReference Include="NAudio.Vorbis" />
+    <PackageReference Include="NVorbis" />
+    <PackageReference Include="SimpleSIMD" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Rocksmith2014.Common\Rocksmith2014.Common.fsproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="10.0.103" />
   </ItemGroup>
 </Project>

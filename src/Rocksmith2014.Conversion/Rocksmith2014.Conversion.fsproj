@@ -31,7 +31,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.3" />
+    <PackageReference Include="FSharp.Core" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,10 +40,6 @@
     <ProjectReference Include="..\Rocksmith2014.SNG\Rocksmith2014.SNG.fsproj" />
     <ProjectReference Include="..\Rocksmith2014.XML.Extension\Rocksmith2014.XML.Extension.fsproj" />
     <ProjectReference Include="..\Rocksmith2014.XML\Rocksmith2014.XML.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="10.0.103" />
   </ItemGroup>
 
   <ItemGroup>
