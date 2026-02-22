@@ -26,7 +26,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.15.5" />
     <ProjectReference Include="..\..\src\Rocksmith2014.FSharpExtensions\Rocksmith2014.FSharpExtensions.fsproj" />
-    <PackageReference Update="FSharp.Core" Version="10.0.101" />
+    <PackageReference Update="FSharp.Core" Version="10.0.103" />
   </ItemGroup>
 
 </Project>
