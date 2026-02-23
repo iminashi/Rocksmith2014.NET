@@ -14,7 +14,8 @@
     <Compile Include="TestHelpers.fs" />
     <Compile Include="ArrangementImprover\ChordRenamingTests.fs" />
     <Compile Include="ArrangementImprover\BasicFixTests.fs" />
-    <Compile Include="arrangementimprover\EOFFixTests.fs" />
+    <Compile Include="ArrangementImprover\EOFFixTests.fs" />
+    <Compile Include="ArrangementImprover\HandshapeAdjusterTests.fs" />
     <Compile Include="ArrangementImprover\ArrangementImproverTests.fs" />
     <Compile Include="InstrumentalChecker\TestArrangement.fs" />
     <Compile Include="InstrumentalChecker\NoteTests.fs" />
