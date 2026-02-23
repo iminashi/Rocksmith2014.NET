@@ -25,6 +25,7 @@
     <Compile Include="improvers\DoubleStopNameRemover.fs" />
     <Compile Include="Improvers\ExtraBeatRemover.fs" />
     <Compile Include="Improvers\UnnecessaryNoteRemover.fs" />
+    <Compile Include="Improvers\HarmonicFixer.fs" />
     <Compile Include="Improvers\EOFFixes.fs" />
     <Compile Include="Improvers\PhraseMover.fs" />
     <Compile Include="Improvers\CustomEvents.fs" />

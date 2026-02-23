@@ -349,3 +349,21 @@ let unnecessaryNoteRemoverTests =
             Expect.hasLength arr.Levels[0].Notes 0 "All notes without sustain were removed"
             Expect.isFalse arr.Levels[0].Chords[0].IsLinkNext "Linknext was removed from the chord"
     ]
+
+[<Tests>]
+let harmonicFixerTests =
+    testList "Arrangement Improver (Harmonic Fixer)" [
+        testCase "Removes harmonic mask from notes" <| fun _ ->
+            let notes = ![
+                Note(Time = 200, Fret = 4y, IsHarmonic = true, IsPinchHarmonic = true)
+                Note(Time = 200, Fret = 6y, IsHarmonic = true)
+            ]
+            let level = Level(Notes = notes)
+            let arr = InstrumentalArrangement(Levels = ![ level ])
+
+            HarmonicFixer.improve arr
+
+            Expect.isFalse arr.Levels[0].Notes[0].IsHarmonic "Harmonic mask was removed from first note"
+            Expect.isTrue arr.Levels[0].Notes[0].IsPinchHarmonic "Pinch harmonic mask was not removed from first note"
+            Expect.isTrue arr.Levels[0].Notes[1].IsHarmonic "Harmonic mask was not removed from second note"
+    ]
