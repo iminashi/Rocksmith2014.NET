@@ -4,15 +4,13 @@ open Expecto
 open Rocksmith2014.XML
 open Rocksmith2014.XML.Processing
 
-let ra (x: 'a list) = ResizeArray(x)
-
 [<Tests>]
 let crowdEventTests =
     testList "Arrangement Improver (Crowd Events)" [
         testCase "Creates crowd events" <| fun _ ->
-            let notes = ra [ Note(Time = 10000) ]
+            let notes = ![ Note(Time = 10000) ]
             let level = Level(Notes = notes)
-            let arr = InstrumentalArrangement(Levels = ra [ level ])
+            let arr = InstrumentalArrangement(Levels = ![ level ])
             arr.MetaData.SongLength <- 120_000
 
             ArrangementImprover.addCrowdEvents arr
@@ -20,10 +18,10 @@ let crowdEventTests =
             Expect.isNonEmpty arr.Events "Events were created"
 
         testCase "No events are created when already present" <| fun _ ->
-            let notes = ra [ Note(Time = 10000) ]
+            let notes = ![ Note(Time = 10000) ]
             let level = Level(Notes = notes)
-            let events = ra [ Event("e1", 1000); Event("E3", 10000); Event("D3", 20000) ]
-            let arr = InstrumentalArrangement(Events = events, Levels = ra [ level ])
+            let events = ![ Event("e1", 1000); Event("E3", 10000); Event("D3", 20000) ]
+            let arr = InstrumentalArrangement(Events = events, Levels = ![ level ])
             arr.MetaData.SongLength <- 120_000
 
             ArrangementImprover.addCrowdEvents arr
@@ -35,7 +33,7 @@ let crowdEventTests =
 let beatRemoverTests =
     testList "Arrangement Improver (Beat Remover)" [
         testCase "Removes beats" <| fun _ ->
-            let beats = ra [ Ebeat(5000, 1s); Ebeat(6000, 1s); Ebeat(7000, 1s); Ebeat(8000, 1s) ]
+            let beats = ![ Ebeat(5000, 1s); Ebeat(6000, 1s); Ebeat(7000, 1s); Ebeat(8000, 1s) ]
             let arr = InstrumentalArrangement(Ebeats = beats)
             arr.MetaData.SongLength <- 6000
 
@@ -44,7 +42,7 @@ let beatRemoverTests =
             Expect.hasLength arr.Ebeats 2 "Two beats were removed"
 
         testCase "Moves the beat after the end close to it to the end" <| fun _ ->
-            let beats = ra [ Ebeat(5000, 1s); Ebeat(6000, 1s); Ebeat(7000, 1s); Ebeat(8000, 1s) ]
+            let beats = ![ Ebeat(5000, 1s); Ebeat(6000, 1s); Ebeat(7000, 1s); Ebeat(8000, 1s) ]
             let arr = InstrumentalArrangement(Ebeats = beats)
             arr.MetaData.SongLength <- 6900
 
@@ -54,7 +52,7 @@ let beatRemoverTests =
             Expect.equal arr.Ebeats.[2].Time 6900 "Last beat was moved to the correct time"
 
         testCase "Moves the beat before the end close to it to the end" <| fun _ ->
-            let beats = ra [ Ebeat(5000, 1s); Ebeat(6000, 1s); Ebeat(7000, 1s); Ebeat(8000, 1s) ]
+            let beats = ![ Ebeat(5000, 1s); Ebeat(6000, 1s); Ebeat(7000, 1s); Ebeat(8000, 1s) ]
             let arr = InstrumentalArrangement(Ebeats = beats)
             arr.MetaData.SongLength <- 6100
 
@@ -68,8 +66,8 @@ let beatRemoverTests =
 let eofFixTests =
     testList "Arrangement Improver (EOF Fixes)" [
         testCase "Adds LinkNext to chords missing the attribute" <| fun _ ->
-            let chord = Chord(ChordNotes = ra [ Note(IsLinkNext = true) ])
-            let levels = ra [ Level(Chords = ra [ chord ]) ]
+            let chord = Chord(ChordNotes = ![ Note(IsLinkNext = true) ])
+            let levels = ![ Level(Chords = ![ chord ]) ]
             let arr = InstrumentalArrangement(Levels = levels)
 
             EOFFixes.fixChordNotes arr
@@ -78,8 +76,8 @@ let eofFixTests =
 
         testCase "Fixes varying sustain of chord notes" <| fun _ ->
             let correctSustain = 500
-            let chord = Chord(ChordNotes = ra [ Note(Sustain = 0); Note(String = 1y, Sustain = correctSustain); Note(String = 2y, Sustain = 85) ])
-            let levels = ra [ Level(Chords = ra [ chord ]) ]
+            let chord = Chord(ChordNotes = ![ Note(Sustain = 0); Note(String = 1y, Sustain = correctSustain); Note(String = 2y, Sustain = 85) ])
+            let levels = ![ Level(Chords = ![ chord ]) ]
             let arr = InstrumentalArrangement(Levels = levels)
 
             EOFFixes.fixChordNotes arr
@@ -87,9 +85,9 @@ let eofFixTests =
             Expect.all levels[0].Chords (fun c -> c.ChordNotes |> Seq.forall (fun cn -> cn.Sustain = correctSustain)) "Sustain was changed"
 
         testCase "Removes incorrect chord note linknexts" <| fun _ ->
-            let cn = ra [ Note(IsLinkNext = true) ]
-            let chords = ra [ Chord(ChordNotes = cn, IsLinkNext = true) ]
-            let levels = ra [ Level(Chords = chords) ]
+            let cn = ![ Note(IsLinkNext = true) ]
+            let chords = ![ Chord(ChordNotes = cn, IsLinkNext = true) ]
+            let levels = ![ Level(Chords = chords) ]
             let arr = InstrumentalArrangement(Levels = levels)
 
             EOFFixes.removeInvalidChordNoteLinkNexts arr
@@ -97,12 +95,13 @@ let eofFixTests =
             Expect.isFalse cn.[0].IsLinkNext "LinkNext was removed from chord note"
 
         testCase "Chord note linknext is not removed when there is 1ms gap" <| fun _ ->
-            let cn =
-                ra [ Note(String = 0y, Sustain = 499, IsLinkNext = true)
-                     Note(String = 1y, Sustain = 499, IsLinkNext = true) ]
-            let chords = ra [ Chord(ChordNotes = cn, IsLinkNext = true) ]
-            let notes = ra [ Note(String = 0y, Time = 500) ]
-            let levels = ra [ Level(Chords = chords, Notes = notes) ]
+            let cn = ![
+                Note(String = 0y, Sustain = 499, IsLinkNext = true)
+                Note(String = 1y, Sustain = 499, IsLinkNext = true)
+            ]
+            let chords = ![ Chord(ChordNotes = cn, IsLinkNext = true) ]
+            let notes = ![ Note(String = 0y, Time = 500) ]
+            let levels = ![ Level(Chords = chords, Notes = notes) ]
             let arr = InstrumentalArrangement(Levels = levels)
 
             EOFFixes.removeInvalidChordNoteLinkNexts arr
@@ -111,7 +110,7 @@ let eofFixTests =
             Expect.isFalse cn.[1].IsLinkNext "Second chord note does not have LinkNext"
 
         testCase "Fixes incorrect crowd events" <| fun _ ->
-            let events = ra [ Event("E0", 100); Event("E1", 200); Event("E2", 300) ]
+            let events = ![ Event("E0", 100); Event("E1", 200); Event("E2", 300) ]
             let arr = InstrumentalArrangement(Events = events)
 
             EOFFixes.fixCrowdEvents arr
@@ -122,7 +121,7 @@ let eofFixTests =
             Expect.exists arr.Events (fun e -> e.Code = "e2") "E2 -> e2"
 
         testCase "Does not change correct crowd events" <| fun _ ->
-            let events = ra [ Event("E3", 100); Event("E13", 200); Event("D3", 300); Event("E13", 400); ]
+            let events = ![ Event("E3", 100); Event("E13", 200); Event("D3", 300); Event("E13", 400); ]
             let arr = InstrumentalArrangement(Events = events)
 
             EOFFixes.fixCrowdEvents arr
@@ -134,10 +133,10 @@ let eofFixTests =
             Expect.equal arr.Events.[3].Code "E13" "Event #4 code unchanged"
 
         testCase "Fixes incorrect handshape lengths" <| fun _ ->
-            let cn = ra [ Note(IsLinkNext = true, SlideTo = 5y, Sustain = 1000) ]
+            let cn = ![ Note(IsLinkNext = true, SlideTo = 5y, Sustain = 1000) ]
             let chord = Chord(ChordNotes = cn, IsLinkNext = true)
             let hs = HandShape(0s, 0, 1500)
-            let levels = ra [ Level(Chords = ra [ chord ], HandShapes = ra [ hs ]) ]
+            let levels = ![ Level(Chords = ![ chord ], HandShapes = ![ hs ]) ]
             let arr = InstrumentalArrangement(Levels = levels)
 
             EOFFixes.fixChordSlideHandshapes arr
@@ -146,9 +145,9 @@ let eofFixTests =
 
         testCase "Moves anchor to the beginning of phrase" <| fun _ ->
             let anchor = Anchor(5y, 700)
-            let anchors = ra [ anchor ]
-            let levels = ra [ Level(Anchors = anchors) ]
-            let phraseIterations = ra [ PhraseIteration(100, 0); PhraseIteration(650, 0); PhraseIteration(1000, 1) ]
+            let anchors = ![ anchor ]
+            let levels = ![ Level(Anchors = anchors) ]
+            let phraseIterations = ![ PhraseIteration(100, 0); PhraseIteration(650, 0); PhraseIteration(1000, 1) ]
             let arr = InstrumentalArrangement(Levels = levels, PhraseIterations = phraseIterations)
 
             EOFFixes.fixPhraseStartAnchors arr
@@ -158,13 +157,14 @@ let eofFixTests =
 
         testCase "Copies active anchor to the beginning of phrase" <| fun _ ->
             let anchor = Anchor(5y, 400, 7y)
-            let anchors = ra [ anchor ]
-            let levels = ra [ Level(Anchors = anchors) ]
-            let phraseIterations =
-                ra [ PhraseIteration(100, 0)
-                     PhraseIteration(400, 0)
-                     PhraseIteration(650, 0)
-                     PhraseIteration(1000, 1) ]
+            let anchors = ![ anchor ]
+            let levels = ![ Level(Anchors = anchors) ]
+            let phraseIterations = ![
+                PhraseIteration(100, 0)
+                PhraseIteration(400, 0)
+                PhraseIteration(650, 0)
+                PhraseIteration(1000, 1)
+            ]
             let arr = InstrumentalArrangement(Levels = levels, PhraseIterations = phraseIterations)
 
             EOFFixes.fixPhraseStartAnchors arr
@@ -181,12 +181,12 @@ let phraseMoverTests =
     testList "Arrangement Improver (Phrase Mover)" [
         testCase "Can move phrase to next note" <| fun _ ->
             let iter = PhraseIteration(1000, 0)
-            let notes = ra [ Note(Time = 1200) ]
+            let notes = ![ Note(Time = 1200) ]
             let arr =
                 InstrumentalArrangement(
-                    Phrases = ra [ Phrase("mover1", 0uy, PhraseMask.None) ],
-                    PhraseIterations = ra [ iter ],
-                    Levels = ra [ Level(Notes = notes) ]
+                    Phrases = ![ Phrase("mover1", 0uy, PhraseMask.None) ],
+                    PhraseIterations = ![ iter ],
+                    Levels = ![ Level(Notes = notes) ]
                 )
 
             PhraseMover.improve arr
@@ -195,13 +195,13 @@ let phraseMoverTests =
 
         testCase "Can move phrase to chord" <| fun _ ->
             let iter = PhraseIteration(1000, 0)
-            let notes = ra [ Note(Time = 1200) ]
-            let chords = ra [ Chord(Time = 1600) ]
+            let notes = ![ Note(Time = 1200) ]
+            let chords = ![ Chord(Time = 1600) ]
             let arr =
                 InstrumentalArrangement(
-                    Phrases = ra [ Phrase("mover2", 0uy, PhraseMask.None) ],
-                    PhraseIterations = ra [ iter ],
-                    Levels = ra [ Level(Notes = notes, Chords = chords) ]
+                    Phrases = ![ Phrase("mover2", 0uy, PhraseMask.None) ],
+                    PhraseIterations = ![ iter ],
+                    Levels = ![ Level(Notes = notes, Chords = chords) ]
                 )
 
             PhraseMover.improve arr
@@ -210,12 +210,12 @@ let phraseMoverTests =
 
         testCase "Can move phrase beyond multiple notes at the same time code" <| fun _ ->
             let iter = PhraseIteration(1000, 0)
-            let notes = ra [ Note(Time = 1200); Note(String = 1y, Time = 1200); Note(String = 2y, Time = 1200); Note(Time = 2500) ]
+            let notes = ![ Note(Time = 1200); Note(String = 1y, Time = 1200); Note(String = 2y, Time = 1200); Note(Time = 2500) ]
             let arr =
                 InstrumentalArrangement(
-                    Phrases = ra [ Phrase("mover2", 0uy, PhraseMask.None) ],
-                    PhraseIterations = ra [ iter ],
-                    Levels = ra [ Level(Notes = notes) ]
+                    Phrases = ![ Phrase("mover2", 0uy, PhraseMask.None) ],
+                    PhraseIterations = ![ iter ],
+                    Levels = ![ Level(Notes = notes) ]
                 )
 
             PhraseMover.improve arr
@@ -224,12 +224,12 @@ let phraseMoverTests =
 
         testCase "Can move a phrase on the same time code as a note" <| fun _ ->
             let iter = PhraseIteration(1000, 0)
-            let notes = ra [ Note(Time = 1000); Note(Time = 7500) ]
+            let notes = ![ Note(Time = 1000); Note(Time = 7500) ]
             let arr =
                 InstrumentalArrangement(
-                    Phrases = ra [ Phrase("mover2", 0uy, PhraseMask.None) ],
-                    PhraseIterations = ra [ iter ],
-                    Levels = ra [ Level(Notes = notes) ]
+                    Phrases = ![ Phrase("mover2", 0uy, PhraseMask.None) ],
+                    PhraseIterations = ![ iter ],
+                    Levels = ![ Level(Notes = notes) ]
                 )
 
             PhraseMover.improve arr
@@ -239,13 +239,13 @@ let phraseMoverTests =
         testCase "Section is also moved" <| fun _ ->
             let iter = PhraseIteration(1000, 0)
             let section = Section("", 1000, 1s)
-            let notes = ra [ Note(Time = 7500) ]
+            let notes = ![ Note(Time = 7500) ]
             let arr =
                 InstrumentalArrangement(
-                    Phrases = ra [ Phrase("mover1", 0uy, PhraseMask.None) ],
-                    PhraseIterations = ra [ iter ],
-                    Sections = ra [ section ],
-                    Levels = ra [ Level(Notes = notes) ]
+                    Phrases = ![ Phrase("mover1", 0uy, PhraseMask.None) ],
+                    PhraseIterations = ![ iter ],
+                    Sections = ![ section ],
+                    Levels = ![ Level(Notes = notes) ]
                 )
 
             PhraseMover.improve arr
@@ -253,13 +253,13 @@ let phraseMoverTests =
             Expect.equal section.Time 7500 "Section was moved to correct time"
 
         testCase "Anchor is also moved" <| fun _ ->
-            let notes = ra [ Note(Time = 7500) ]
-            let anchors = ra [ Anchor(Time = 1000) ]
+            let notes = ![ Note(Time = 7500) ]
+            let anchors = ![ Anchor(Time = 1000) ]
             let arr =
                 InstrumentalArrangement(
-                    Phrases = ra [ Phrase("mover1", 0uy, PhraseMask.None) ],
-                    PhraseIterations = ra [ PhraseIteration(1000, 0) ],
-                    Levels = ra [ Level(Notes = notes, Anchors = anchors) ]
+                    Phrases = ![ Phrase("mover1", 0uy, PhraseMask.None) ],
+                    PhraseIterations = ![ PhraseIteration(1000, 0) ],
+                    Levels = ![ Level(Notes = notes, Anchors = anchors) ]
                 )
 
             PhraseMover.improve arr
@@ -270,8 +270,8 @@ let phraseMoverTests =
         testCase "Throws an exception when no integer given" <| fun _ ->
             let arr =
                 InstrumentalArrangement(
-                    Phrases = ra [ Phrase("mover", 0uy, PhraseMask.None) ],
-                    PhraseIterations = ra [ PhraseIteration(1000, 0) ]
+                    Phrases = ![ Phrase("mover", 0uy, PhraseMask.None) ],
+                    PhraseIterations = ![ PhraseIteration(1000, 0) ]
                 )
 
             Expect.throwsC
@@ -286,8 +286,8 @@ let customEventTests =
             let anchor = Anchor(1y, 100)
             let arr =
                 InstrumentalArrangement(
-                    Events = ra [ Event("w3", 100) ],
-                    Levels = ra [ Level(Anchors = ra [ anchor ]) ]
+                    Events = ![ Event("w3", 100) ],
+                    Levels = ![ Level(Anchors = ![ anchor ]) ]
                 )
 
             CustomEvents.improve arr
@@ -298,8 +298,8 @@ let customEventTests =
             let anchor = Anchor(21y, 180)
             let arr =
                 InstrumentalArrangement(
-                    Events = ra [ Event("w3-22", 100) ],
-                    Levels = ra [ Level(Anchors = ra [ anchor ]) ]
+                    Events = ![ Event("w3-22", 100) ],
+                    Levels = ![ Level(Anchors = ![ anchor ]) ]
                 )
 
             CustomEvents.improve arr
@@ -308,10 +308,10 @@ let customEventTests =
             Expect.equal anchor.Fret 22y "Anchor has correct fret"
 
         testCase "Remove beats event" <| fun _ ->
-            let beats = ra [ Ebeat(100, -1s); Ebeat(200, -1s); Ebeat(300, -1s); Ebeat(400, -1s); Ebeat(500, -1s); ]
+            let beats = ![ Ebeat(100, -1s); Ebeat(200, -1s); Ebeat(300, -1s); Ebeat(400, -1s); Ebeat(500, -1s); ]
             let arr =
                 InstrumentalArrangement(
-                    Events = ra [ Event("removebeats", 400) ],
+                    Events = ![ Event("removebeats", 400) ],
                     Ebeats = beats
                 )
 
@@ -320,19 +320,20 @@ let customEventTests =
             Expect.hasLength arr.Ebeats 3 "Two beats were removed"
 
         testCase "Slide-out event works for normal chord" <| fun _ ->
-            let templates = ra [ ChordTemplate("", "", [| 1y; 3y; -1y; -1y; -1y; -1y; |], [| 1y; 3y; -1y; -1y; -1y; -1y; |]) ]
-            let cn =
-                ra [ Note(String = 0y, Fret = 1y, Sustain = 1000, SlideUnpitchTo = 7y)
-                     Note(String = 1y, Fret = 3y, Sustain = 1000, SlideUnpitchTo = 9y) ]
-            let chords = ra [ Chord(ChordNotes = cn) ]
+            let templates = ![ ChordTemplate("", "", [| 1y; 3y; -1y; -1y; -1y; -1y; |], [| 1y; 3y; -1y; -1y; -1y; -1y; |]) ]
+            let cn = ![
+                Note(String = 0y, Fret = 1y, Sustain = 1000, SlideUnpitchTo = 7y)
+                Note(String = 1y, Fret = 3y, Sustain = 1000, SlideUnpitchTo = 9y)
+            ]
+            let chords = ![ Chord(ChordNotes = cn) ]
             let hs = HandShape(0s, 0, 1000)
             let arr =
                 InstrumentalArrangement(
-                    Phrases = ra [ Phrase("", 0uy, PhraseMask.None) ],
-                    PhraseIterations = ra [ PhraseIteration(0, 0) ],
+                    Phrases = ![ Phrase("", 0uy, PhraseMask.None) ],
+                    PhraseIterations = ![ PhraseIteration(0, 0) ],
                     ChordTemplates = templates,
-                    Events = ra [ Event("so", 0) ],
-                    Levels = ra [ Level(Chords = chords, HandShapes = ra [ hs ]) ]
+                    Events = ![ Event("so", 0) ],
+                    Levels = ![ Level(Chords = chords, HandShapes = ![ hs ]) ]
                 )
 
             CustomEvents.improve arr
@@ -347,22 +348,24 @@ let customEventTests =
             Expect.isTrue (hs.EndTime < 1000) "First handshape was shortened"
 
         testCase "Slide-out event works for link-next chord" <| fun _ ->
-            let templates = ra [ ChordTemplate("", "", [| -1y; -1y; 2y; 2y; -1y; -1y; |], [| -1y; -1y; 5y; 5y; -1y; -1y; |]) ]
-            let cn =
-                ra [ Note(String = 2y, Fret = 5y, Sustain = 1000, IsLinkNext = true)
-                     Note(String = 3y, Fret = 5y, Sustain = 1000, IsLinkNext = true) ]
-            let chords = ra [ Chord(ChordNotes = cn, IsLinkNext = true) ]
-            let notes =
-                ra [ Note(Time = 1000, String = 2y, Fret = 5y, Sustain = 500, SlideUnpitchTo = 12y)
-                     Note(Time = 1000, String = 3y, Fret = 5y, Sustain = 500, SlideUnpitchTo = 12y) ]
+            let templates = ![ ChordTemplate("", "", [| -1y; -1y; 2y; 2y; -1y; -1y; |], [| -1y; -1y; 5y; 5y; -1y; -1y; |]) ]
+            let cn = ![
+                Note(String = 2y, Fret = 5y, Sustain = 1000, IsLinkNext = true)
+                Note(String = 3y, Fret = 5y, Sustain = 1000, IsLinkNext = true)
+            ]
+            let chords = ![ Chord(ChordNotes = cn, IsLinkNext = true) ]
+            let notes = ![
+                Note(Time = 1000, String = 2y, Fret = 5y, Sustain = 500, SlideUnpitchTo = 12y)
+                Note(Time = 1000, String = 3y, Fret = 5y, Sustain = 500, SlideUnpitchTo = 12y)
+            ]
             let hs = HandShape(0s, 0, 1500) // Includes sustain of slide-out notes
             let arr =
                 InstrumentalArrangement(
-                    Phrases = ra [ Phrase("", 0uy, PhraseMask.None) ],
-                    PhraseIterations = ra [ PhraseIteration(0, 0) ],
+                    Phrases = ![ Phrase("", 0uy, PhraseMask.None) ],
+                    PhraseIterations = ![ PhraseIteration(0, 0) ],
                     ChordTemplates = templates,
-                    Events = ra [ Event("so", 1000) ],
-                    Levels = ra [ Level(Notes = notes, Chords = chords, HandShapes = ra [ hs ]) ]
+                    Events = ![ Event("so", 1000) ],
+                    Levels = ![ Level(Notes = notes, Chords = chords, HandShapes = ![ hs ]) ]
                 )
 
             CustomEvents.improve arr
@@ -381,14 +384,14 @@ let customEventTests =
 let handShapeAdjusterTests =
     testList "Arrangement Improver (Hand Shape Adjuster)" [
         testCase "Shortens handshape length" <| fun _ ->
-            let beats = ra [ Ebeat(500, -1s); Ebeat(1000, -1s); Ebeat(1500, -1s); Ebeat(2500, -1s) ]
-            let chords = ra [ Chord(Time = 1000); Chord(ChordId = 1s, Time = 2000) ]
+            let beats = ![ Ebeat(500, -1s); Ebeat(1000, -1s); Ebeat(1500, -1s); Ebeat(2500, -1s) ]
+            let chords = ![ Chord(Time = 1000); Chord(ChordId = 1s, Time = 2000) ]
             let hs1 = HandShape(0s, 1000, 2000)
             let hs2 = HandShape(1s, 2000, 3000)
             let arr =
                 InstrumentalArrangement(
                     Ebeats = beats,
-                    Levels = ra [ Level(Chords = chords, HandShapes = ra [ hs1; hs2 ]) ]
+                    Levels = ![ Level(Chords = chords, HandShapes = ![ hs1; hs2 ]) ]
                 )
 
             HandShapeAdjuster.shortenHandshapes arr
@@ -397,14 +400,14 @@ let handShapeAdjusterTests =
             Expect.isTrue (hs1.StartTime < hs1.EndTime) "Handshape end comes after the start"
 
         testCase "Shortens length of a really short handshape" <| fun _ ->
-            let beats = ra [ Ebeat(500, -1s); Ebeat(1000, -1s); Ebeat(1500, -1s); Ebeat(2500, -1s) ]
-            let chords = ra [ Chord(Time = 1950); Chord(ChordId = 1s, Time = 2000) ]
+            let beats = ![ Ebeat(500, -1s); Ebeat(1000, -1s); Ebeat(1500, -1s); Ebeat(2500, -1s) ]
+            let chords = ![ Chord(Time = 1950); Chord(ChordId = 1s, Time = 2000) ]
             let hs1 = HandShape(0s, 1950, 2000)
             let hs2 = HandShape(1s, 2000, 3000)
             let arr =
                 InstrumentalArrangement(
                     Ebeats = beats,
-                    Levels = ra [ Level(Chords = chords, HandShapes = ra [ hs1; hs2 ]) ]
+                    Levels = ![ Level(Chords = chords, HandShapes = ![ hs1; hs2 ]) ]
                 )
 
             HandShapeAdjuster.shortenHandshapes arr
@@ -413,13 +416,13 @@ let handShapeAdjusterTests =
             Expect.isTrue (hs1.StartTime < hs1.EndTime) "Handshape end comes after the start"
 
         testCase "Does not fail on handshapes that exceed the last beat" <| fun _ ->
-            let beats = ra [ Ebeat(500, -1s); Ebeat(1000, -1s); Ebeat(1500, -1s); Ebeat(2500, -1s) ]
+            let beats = ![ Ebeat(500, -1s); Ebeat(1000, -1s); Ebeat(1500, -1s); Ebeat(2500, -1s) ]
             let hs1 = HandShape(0s, 2500, 2600)
             let hs2 = HandShape(0s, 2600, 2800)
             let arr =
                 InstrumentalArrangement(
                     Ebeats = beats,
-                    Levels = ra [ Level(HandShapes = ra [ hs1; hs2 ]) ]
+                    Levels = ![ Level(HandShapes = ![ hs1; hs2 ]) ]
                 )
 
             HandShapeAdjuster.shortenHandshapes arr
@@ -427,13 +430,13 @@ let handShapeAdjusterTests =
             Expect.isTrue (hs1.EndTime < 2600) "Handshape was shortened"
 
         testCase "Lengthens handshape when chord is at end of handshape" <| fun _ ->
-            let beats = ra [ Ebeat(500, -1s); Ebeat(1000, -1s); Ebeat(1500, -1s); Ebeat(2500, -1s) ]
-            let chords = ra [ Chord(Time = 1000); Chord(Time = 2000) ]
+            let beats = ![ Ebeat(500, -1s); Ebeat(1000, -1s); Ebeat(1500, -1s); Ebeat(2500, -1s) ]
+            let chords = ![ Chord(Time = 1000); Chord(Time = 2000) ]
             let hs1 = HandShape(0s, 1000, 2000)
             let arr =
                 InstrumentalArrangement(
                     Ebeats = beats,
-                    Levels = ra [ Level(Chords = chords, HandShapes = ra [ hs1 ]) ]
+                    Levels = ![ Level(Chords = chords, HandShapes = ![ hs1 ]) ]
                 )
 
             HandShapeAdjuster.lengthenHandshapes arr
@@ -441,14 +444,14 @@ let handShapeAdjusterTests =
             Expect.equal hs1.EndTime 2250 "Handshape was lengthened by time of 16th note"
 
         testCase "Lengthens handshape when chord is at end of handshape and next note is very close" <| fun _ ->
-            let beats = ra [ Ebeat(500, -1s); Ebeat(1000, -1s); Ebeat(1500, -1s); Ebeat(2500, -1s) ]
-            let chords = ra [ Chord(Time = 1000); Chord(Time = 2000) ]
-            let notes = ra [ Note(Time = 2050) ]
+            let beats = ![ Ebeat(500, -1s); Ebeat(1000, -1s); Ebeat(1500, -1s); Ebeat(2500, -1s) ]
+            let chords = ![ Chord(Time = 1000); Chord(Time = 2000) ]
+            let notes = ![ Note(Time = 2050) ]
             let hs1 = HandShape(0s, 1000, 2000)
             let arr =
                 InstrumentalArrangement(
                     Ebeats = beats,
-                    Levels = ra [ Level(Chords = chords, Notes = notes, HandShapes = ra [ hs1 ]) ]
+                    Levels = ![ Level(Chords = chords, Notes = notes, HandShapes = ![ hs1 ]) ]
                 )
 
             HandShapeAdjuster.lengthenHandshapes arr
@@ -456,14 +459,14 @@ let handShapeAdjusterTests =
             Expect.equal hs1.EndTime 2025 "Handshape was lengthened"
 
         testCase "Lengthens handshape when chord is at end of handshape and next anchor is very close" <| fun _ ->
-            let beats = ra [ Ebeat(500, -1s); Ebeat(1000, -1s); Ebeat(1500, -1s); Ebeat(2500, -1s) ]
-            let chords = ra [ Chord(Time = 1000); Chord(Time = 2000) ]
-            let anchors = ra [ Anchor(4y, 2100) ]
+            let beats = ![ Ebeat(500, -1s); Ebeat(1000, -1s); Ebeat(1500, -1s); Ebeat(2500, -1s) ]
+            let chords = ![ Chord(Time = 1000); Chord(Time = 2000) ]
+            let anchors = ![ Anchor(4y, 2100) ]
             let hs1 = HandShape(0s, 1000, 2000)
             let arr =
                 InstrumentalArrangement(
                     Ebeats = beats,
-                    Levels = ra [ Level(Chords = chords, Anchors = anchors, HandShapes = ra [ hs1 ]) ]
+                    Levels = ![ Level(Chords = chords, Anchors = anchors, HandShapes = ![ hs1 ]) ]
                 )
 
             HandShapeAdjuster.lengthenHandshapes arr
@@ -471,14 +474,14 @@ let handShapeAdjusterTests =
             Expect.equal hs1.EndTime 2050 "Handshape was lengthened"
 
         testCase "Test handshape handshape lengthening with two handshapes (lengthen both)" <| fun _ ->
-            let beats = ra [ for i in 1..20 -> Ebeat(i * 500, -1s)  ]
-            let chords = ra [ Chord(Time = 1000); Chord(Time = 2090); Chord(Time = 3000); Chord(Time = 3500) ]
+            let beats = ![ for i in 1..20 -> Ebeat(i * 500, -1s) ]
+            let chords = ![ Chord(Time = 1000); Chord(Time = 2090); Chord(Time = 3000); Chord(Time = 3500) ]
             let hs1 = HandShape(0s, 1000, 2100)
             let hs2 = HandShape(0s, 3000, 3500)
             let arr =
                 InstrumentalArrangement(
                     Ebeats = beats,
-                    Levels = ra [ Level(Chords = chords, HandShapes = ra [ hs1; hs2 ]) ]
+                    Levels = ![ Level(Chords = chords, HandShapes = ![ hs1; hs2 ]) ]
                 )
 
             HandShapeAdjuster.lengthenHandshapes arr
@@ -487,14 +490,14 @@ let handShapeAdjusterTests =
             Expect.equal hs2.EndTime 3625 "2nd handshape was lengthened"
 
         testCase "Test handshape handshape lengthening with two handshapes (lengthen second)" <| fun _ ->
-            let beats = ra [ for i in 1..20 -> Ebeat(i * 500, -1s)  ]
-            let chords = ra [ Chord(Time = 1000); Chord(Time = 2000); Chord(Time = 2150); Chord(Time = 2500) ]
+            let beats = ![ for i in 1..20 -> Ebeat(i * 500, -1s) ]
+            let chords = ![ Chord(Time = 1000); Chord(Time = 2000); Chord(Time = 2150); Chord(Time = 2500) ]
             let hs1 = HandShape(0s, 1000, 2100)
             let hs2 = HandShape(0s, 2150, 2500)
             let arr =
                 InstrumentalArrangement(
                     Ebeats = beats,
-                    Levels = ra [ Level(Chords = chords, HandShapes = ra [ hs1; hs2 ]) ]
+                    Levels = ![ Level(Chords = chords, HandShapes = ![ hs1; hs2 ]) ]
                 )
 
             HandShapeAdjuster.lengthenHandshapes arr
@@ -503,288 +506,63 @@ let handShapeAdjusterTests =
             Expect.equal hs2.EndTime 2625 "2nd handshape was lengthened"
     ]
 
-[<Tests>]
-let basicFixTests =
-    testList "Arrangement Improver (Basic Fixes)" [
-        testCase "Filters characters in phrase names" <| fun _ ->
-            let phrases =
-                ra [ Phrase("\"TEST\"", 0uy, PhraseMask.None)
-                     Phrase("'TEST'_(2)", 0uy, PhraseMask.None) ]
-            let arr = InstrumentalArrangement(Phrases = phrases)
-
-            BasicFixes.validatePhraseNames arr
-
-            Expect.equal phrases.[0].Name "TEST" "First phrase name was changed"
-            Expect.equal phrases.[1].Name "TEST_2" "Second phrase name was changed"
-
-        testCase "Ignore is added to 23rd and 24th fret notes" <| fun _ ->
-            let notes = ra [ Note(Time = 1000, Fret = 5y); Note(Time = 1200, Fret = 23y); Note(Time = 1300, Fret = 24y) ]
-            let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes) ])
-
-            BasicFixes.addIgnores arr
-
-            Expect.isFalse notes.[0].IsIgnore "First note is not ignored"
-            Expect.isTrue notes.[1].IsIgnore "Second note is ignored"
-            Expect.isTrue notes.[2].IsIgnore "Third note is ignored"
-
-        testCase "Ignore is added to 7th fret harmonic with sustain" <| fun _ ->
-            let notes = ra [
-                Note(Time = 1000, Fret = 7y, Sustain = 500, IsHarmonic = true)
-                Note(Time = 2000, Fret = 7y, Sustain = 0, IsHarmonic = true)
-            ]
-            let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes) ])
-
-            BasicFixes.addIgnores arr
-
-            Expect.isTrue notes.[0].IsIgnore "First note is ignored"
-            Expect.isFalse notes.[1].IsIgnore "Second note is not ignored"
-
-        testCase "Ignore is added to chord with 23rd and 24th fret notes" <| fun _ ->
-            let noFingers = [| -1y; -1y; -1y; -1y; -1y; -1y |]
-            let templates = ra [
-                ChordTemplate("", "", noFingers, [| -1y; 0y; 23y; -1y; -1y; -1y; |])
-                ChordTemplate("", "", noFingers, [| -1y; -1y; -1y; -1y; 22y; 24y; |])
-            ]
-            let chords = ra [ Chord(Time = 1000, ChordId = 0s); Chord(Time = 1200, ChordId = 1s) ]
-            let arr = InstrumentalArrangement(Levels = ra [ Level(Chords = chords) ], ChordTemplates = templates)
-
-            BasicFixes.addIgnores arr
-
-            Expect.isTrue chords.[0].IsIgnore "First chord is ignored"
-            Expect.isTrue chords.[1].IsIgnore "Second chord is ignored"
-
-        testCase "Ignore is added to chord with 7th fret harmonic with sustain" <| fun _ ->
-            let noFingers = [| -1y; -1y; -1y; -1y; -1y; -1y |]
-            let templates = ra [
-                ChordTemplate("", "", noFingers, [| -1y; 7y; 7y; -1y; -1y; -1y; |])
-            ]
-            let cn = ra [
-                Note(Time = 1000, Sustain = 500, Fret = 7y, String = 1y, IsHarmonic = true)
-                Note(Time = 1000, Sustain = 500, Fret = 7y, String = 2y, IsHarmonic = true)
-            ]
-            let chords = ra [ Chord(Time = 1000, ChordId = 0s, ChordNotes = cn) ]
-            let arr = InstrumentalArrangement(Levels = ra [ Level(Chords = chords) ], ChordTemplates = templates)
-
-            BasicFixes.addIgnores arr
-
-            Expect.isTrue chords.[0].IsIgnore "Chord is ignored"
-
-        testCase "Incorrect linknext is removed (next note on same string not found)" <| fun _ ->
-            let notes = ra [ Note(Time = 1000, Fret = 5y, IsLinkNext = true); Note(Time = 1500, String = 4y, Fret = 5y) ]
-            let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes) ])
-
-            BasicFixes.fixLinkNexts arr
-
-            Expect.isFalse notes.[0].IsLinkNext "Linknext was removed"
-
-        testCase "Incorrect linknext is removed (next note too far)" <| fun _ ->
-            let notes = ra [ Note(Time = 1000, Fret = 5y, IsLinkNext = true); Note(Time = 2000, Fret = 5y) ]
-            let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes) ])
-
-            BasicFixes.fixLinkNexts arr
-
-            Expect.isFalse notes.[0].IsLinkNext "Linknext was removed"
-
-        testCase "Incorrect linknext fret is corrected" <| fun _ ->
-            let notes = ra [
-                Note(Time = 1000, Fret = 5y, Sustain = 500, IsLinkNext = true)
-                Note(Time = 1500, Fret = 6y)
-            ]
-            let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes) ])
-
-            BasicFixes.fixLinkNexts arr
-
-            Expect.isTrue notes.[0].IsLinkNext "Linknext was not removed"
-            Expect.equal notes.[1].Fret 5y "Fret was corrected"
-
-        testCase "Incorrect linknext fret is corrected (Slide)" <| fun _ ->
-            let notes = ra [
-                Note(Time = 1000, Fret = 5y, Sustain = 500, IsLinkNext = true, SlideTo = 9y)
-                Note(Time = 1500, Fret = 10y)
-            ]
-            let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes) ])
-
-            BasicFixes.fixLinkNexts arr
-
-            Expect.isTrue notes.[0].IsLinkNext "Linknext was not removed"
-            Expect.equal notes.[1].Fret 9y "Fret was corrected"
-
-        testCase "Incorrect linknext fret is corrected (Unpitched slide)" <| fun _ ->
-            let notes = ra [
-                Note(Time = 1000, Fret = 5y, Sustain = 500, IsLinkNext = true, SlideUnpitchTo = 9y)
-                Note(Time = 1500, Fret = 10y)
-            ]
-            let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes) ])
-
-            BasicFixes.fixLinkNexts arr
-
-            Expect.isTrue notes.[0].IsLinkNext "Linknext was not removed"
-            Expect.equal notes.[1].Fret 9y "Fret was corrected"
-
-        testCase "Incorrect linknext fret is corrected (Bend)" <| fun _ ->
-            let bv = ra [ BendValue(1200, 2.0f) ]
-            let notes = ra [
-                Note(Time = 1000, Fret = 5y, Sustain = 500, IsLinkNext = true, BendValues = bv)
-                Note(Time = 1500, Fret = 10y)
-            ]
-            let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes) ])
-
-            BasicFixes.fixLinkNexts arr
-
-            Expect.isTrue notes.[1].IsBend "Second note has bend"
-            Expect.equal notes.[1].MaxBend 2.0f "Max bend is correct"
-            Expect.equal notes.[1].BendValues[0].Step 2.0f "Bend value step is correct"
-            Expect.equal notes.[1].BendValues[0].Time 1500 "Bend value time is correct"
-
-        testCase "Overlapping bend values are removed" <| fun _ ->
-            let bv1 = ra [ BendValue(1200, 2.0f); BendValue(1200, 1.0f) ]
-            let bv2 = ra [ BendValue(2100, 2.0f); BendValue(2100, 2.0f) ]
-            let notes = ra [
-                Note(Time = 1000, Fret = 5y, Sustain = 500, IsLinkNext = true, BendValues = bv1)
-            ]
-            let chords = ra [
-                Chord(Time = 2000, ChordNotes = ra [ Note(Time = 2000, Sustain = 500, BendValues = bv2) ])
-            ]
-            let arr = InstrumentalArrangement(Levels = ra [ Level(Notes = notes, Chords = chords) ])
-
-            BasicFixes.removeOverlappingBendValues arr
-
-            Expect.hasLength notes[0].BendValues 1 "Bend value was removed from note"
-            Expect.hasLength chords[0].ChordNotes[0].BendValues 1 "Bend value was removed from chord note"
-
-        testCase "Muted strings are removed from non-muted chords" <| fun _ ->
-            let templates = ra [
-                ChordTemplate("", "", [| 1y; 3y; 4y; -1y; -1y; -1y |], [| 1y; 3y; 3y; -1y; -1y; -1y; |])
-                ChordTemplate("", "", [| -1y; -1y; -1y; -1y; -1y; -1y |], [| 0y; 0y; 0y; -1y; -1y; -1y; |])
-            ]
-            let cn1 = ra [
-                Note(Time = 1000, String = 0y, Fret = 1y)
-                Note(Time = 1000, String = 1y, Fret = 3y, IsFretHandMute = true)
-                Note(Time = 1000, String = 2y, Fret = 3y)
-            ]
-            let cn2 = ra [
-                Note(Time = 1200, String = 0y, Fret = 0y, IsFretHandMute = true)
-                Note(Time = 1200, String = 1y, Fret = 0y, IsFretHandMute = true)
-                Note(Time = 1200, String = 2y, Fret = 0y, IsFretHandMute = true)
-            ]
-            let chords = ra [
-                Chord(Time = 1000, ChordId = 0s, ChordNotes = cn1)
-                // Chord with all muted notes, but not marked as muted
-                Chord(Time = 1200, ChordId = 1s, ChordNotes = cn2) ]
-            let arr = InstrumentalArrangement(Levels = ra [ Level(Chords = chords) ], ChordTemplates = templates)
-
-            BasicFixes.removeMutedNotesFromChords arr
-
-            Expect.hasLength chords.[0].ChordNotes 2 "Chord note was removed from first chord"
-            Expect.isFalse (chords.[0].ChordNotes.Exists(fun n -> n.IsFretHandMute)) "Fret-hand mute was removed"
-            Expect.hasLength chords.[1].ChordNotes 3 "Chord notes were not removed from second chord"
-            Expect.equal templates[0].Fingers[1] -1y "Fingering was removed from first chord template"
-            Expect.equal templates[0].Frets[1] -1y "String was removed from first chord template"
-            Expect.sequenceContainsOrder templates[1].Frets [| 0y; 0y; 0y; -1y; -1y; -1y; |] "Second chord template was not modified"
-
-        testCase "Redundant anchors are removed" <| fun _ ->
-            let anchors = ra [
-                Anchor(1y, 1000, 4y)
-                Anchor(1y, 2000, 4y)
-
-                Anchor(5y, 3000, 4y)
-                Anchor(5y, 4000, 6y)
-            ]
-            let arr = InstrumentalArrangement(Levels = ra [ Level(Anchors = anchors) ])
-
-            BasicFixes.removeRedundantAnchors arr
-
-            let expectedResult =
-                [
-                    Anchor(1y, 1000, 4y)
-                    Anchor(5y, 3000, 4y)
-                    Anchor(5y, 4000, 6y)
-                ]
-
-            Expect.hasLength arr.Levels[0].Anchors 3 "One anchor was removed"
-            Expect.sequenceContainsOrder arr.Levels[0].Anchors expectedResult "Anchors are correct"
-
-        testCase "Identical anchor at phrase time is not removed" <| fun _ ->
-            let anchors = ra [
-                Anchor(1y, 1000, 4y)
-                Anchor(1y, 2000, 4y)
-                Anchor(1y, 3000, 4y)
-                Anchor(1y, 4000, 4y)
-
-                Anchor(1y, 5000, 5y)
-            ]
-            let arr = InstrumentalArrangement(Levels = ra [ Level(Anchors = anchors) ])
-            arr.PhraseIterations <- ra [ PhraseIteration(1000, 0); PhraseIteration(4000, 0) ]
-
-            BasicFixes.removeRedundantAnchors arr
-
-            let expectedResult =
-                [
-                    Anchor(1y, 1000, 4y)
-                    Anchor(1y, 4000, 4y)
-                    Anchor(1y, 5000, 5y)
-                ]
-
-            Expect.sequenceContainsOrder arr.Levels[0].Anchors expectedResult "Anchors are correct"
-    ]
-
 let anchorMoverTests =
     testList "Arrangement Improver (Anchor mover)" [
         testCase "Anchor before note is moved" <| fun _ ->
-            let anchors = ResizeArray(seq { Anchor(1y, 99) })
-            let notes = ResizeArray(seq { Note(Time = 100, Fret = 1y) })
+            let anchors = ![ Anchor(1y, 99) ]
+            let notes = ![ Note(Time = 100, Fret = 1y) ]
             let level = Level(Notes = notes, Anchors = anchors)
-            let arr = InstrumentalArrangement(Levels = ra [ level ])
+            let arr = InstrumentalArrangement(Levels = ![ level ])
 
             AnchorMover.improve arr
 
             Expect.equal level.Anchors[0].Time 100 "Anchor was moved by 1ms"
 
         testCase "Anchor after note by 5ms is moved" <| fun _ ->
-            let anchors = ResizeArray(seq { Anchor(1y, 105) })
-            let notes = ResizeArray(seq { Note(Time = 100, Fret = 1y) })
+            let anchors = ![ Anchor(1y, 105) ]
+            let notes = ![ Note(Time = 100, Fret = 1y) ]
             let level = Level(Notes = notes, Anchors = anchors)
-            let arr = InstrumentalArrangement(Levels = ra [ level ])
+            let arr = InstrumentalArrangement(Levels = ![ level ])
 
             AnchorMover.improve arr
 
             Expect.equal level.Anchors[0].Time 100 "Anchor was moved"
 
         testCase "Anchor after note by 6ms is not moved" <| fun _ ->
-            let anchors = ResizeArray(seq { Anchor(1y, 106) })
-            let notes = ResizeArray(seq { Note(Time = 100, Fret = 1y) })
+            let anchors = ![ Anchor(1y, 106) ]
+            let notes = ![ Note(Time = 100, Fret = 1y) ]
             let level = Level(Notes = notes, Anchors = anchors)
-            let arr = InstrumentalArrangement(Levels = ra [ level ])
+            let arr = InstrumentalArrangement(Levels = ![ level ])
 
             AnchorMover.improve arr
 
             Expect.equal level.Anchors[0].Time 106 "Anchor was not moved"
 
         testCase "Anchor after chord is moved" <| fun _ ->
-            let anchors = ResizeArray(seq { Anchor(1y, 102) })
-            let chords = ResizeArray(seq { Chord(Time = 100) })
+            let anchors = ![ Anchor(1y, 102) ]
+            let chords = ![ Chord(Time = 100) ]
             let level = Level(Chords = chords, Anchors = anchors)
-            let arr = InstrumentalArrangement(Levels = ra [ level ])
+            let arr = InstrumentalArrangement(Levels = ![ level ])
 
             AnchorMover.improve arr
 
             Expect.equal level.Anchors[0].Time 100 "Anchor was moved by 2ms"
 
         testCase "Anchor on note that is very close to another note is not moved" <| fun _ ->
-            let anchors = ResizeArray(seq { Anchor(1y, 100) })
-            let notes = ResizeArray(seq { Note(Time = 100, Fret = 1y); Note(Time = 103, Fret = 3y) })
+            let anchors = ![ Anchor(1y, 100) ]
+            let notes = ![ Note(Time = 100, Fret = 1y); Note(Time = 103, Fret = 3y) ]
             let level = Level(Notes = notes, Anchors = anchors)
-            let arr = InstrumentalArrangement(Levels = ra [ level ])
+            let arr = InstrumentalArrangement(Levels = ![ level ])
 
             AnchorMover.improve arr
 
             Expect.equal level.Anchors[0].Time 100 "Anchor was not moved"
 
         testCase "Anchor at the end of a slide that is very close to another note is not moved" <| fun _ ->
-            let anchors = ResizeArray(seq { Anchor(1y, 100); Anchor(3y, 300) })
-            let notes = ResizeArray(seq { Note(Time = 100, Sustain = 200, Fret = 1y, SlideTo = 3y); Note(Time = 303, Fret = 3y) })
+            let anchors = ![ Anchor(1y, 100); Anchor(3y, 300) ]
+            let notes = ![ Note(Time = 100, Sustain = 200, Fret = 1y, SlideTo = 3y); Note(Time = 303, Fret = 3y) ]
             let level = Level(Notes = notes, Anchors = anchors)
-            let arr = InstrumentalArrangement(Levels = ra [ level ])
+            let arr = InstrumentalArrangement(Levels = ![ level ])
 
             AnchorMover.improve arr
 
@@ -795,16 +573,16 @@ let anchorMoverTests =
 let applyAllTests =
     testList "Arrangement Improver (Apply All Fixes)" [
         testCase "Extra anchors are not created when moving phrases" <| fun _ ->
-            let beats = ra [ Ebeat(900, 0s); Ebeat(1000, -1s); Ebeat(1200, -1s) ]
-            let phrases = ra [ Phrase("mover2", 0uy, PhraseMask.None); Phrase("END", 0uy, PhraseMask.None) ]
-            let iterations = ra [ PhraseIteration(1000, 0); PhraseIteration(1900, 1) ]
-            let notes = ra [ Note(Time = 1000); Note(Time = 1200) ]
-            let anchors = ra [ Anchor(1y, 1200) ]
+            let beats = ![ Ebeat(900, 0s); Ebeat(1000, -1s); Ebeat(1200, -1s) ]
+            let phrases = ![ Phrase("mover2", 0uy, PhraseMask.None); Phrase("END", 0uy, PhraseMask.None) ]
+            let iterations = ![ PhraseIteration(1000, 0); PhraseIteration(1900, 1) ]
+            let notes = ![ Note(Time = 1000); Note(Time = 1200) ]
+            let anchors = ![ Anchor(1y, 1200) ]
             let arr =
                 InstrumentalArrangement(
                     Phrases = phrases,
                     PhraseIterations = iterations,
-                    Levels = ra [ Level(Notes = notes, Anchors = anchors) ],
+                    Levels = ![ Level(Notes = notes, Anchors = anchors) ],
                     Ebeats = beats
                 )
             arr.MetaData.SongLength <- 2000
@@ -819,14 +597,14 @@ let applyAllTests =
 let unnecessaryNoteRemoverTests =
     testList "Arrangement Improver (Note Remover)" [
         testCase "Removes notes without sustain after a linknext note" <| fun _ ->
-            let anchors = ra [ Anchor(1y, 100) ]
-            let notes = ra [
+            let anchors = ![ Anchor(1y, 100) ]
+            let notes = ![
                 Note(Time = 100, Fret = 1y, Sustain = 100, IsLinkNext = true)
                 Note(Time = 150, Fret = 3y, String = 1y)
                 Note(Time = 200, Fret = 1y, Sustain = 0)
             ]
             let level = Level(Notes = notes, Anchors = anchors)
-            let arr = InstrumentalArrangement(Levels = ra [ level ])
+            let arr = InstrumentalArrangement(Levels = ![ level ])
 
             ArrangementImprover.removeUnnecessaryNotes arr
 
@@ -836,13 +614,13 @@ let unnecessaryNoteRemoverTests =
             Expect.equal arr.Levels[0].Notes[1].Time 150 "Unrelated note was not removed"
 
         testCase "Does not remove note with sustain after a linknext note" <| fun _ ->
-            let anchors = ra [ Anchor(1y, 100) ]
-            let notes = ra [
+            let anchors = ![ Anchor(1y, 100) ]
+            let notes = ![
                 Note(Time = 100, Fret = 1y, Sustain = 100, IsLinkNext = true)
                 Note(Time = 200, Fret = 1y, Sustain = 5)
             ]
             let level = Level(Notes = notes, Anchors = anchors)
-            let arr = InstrumentalArrangement(Levels = ra [ level ])
+            let arr = InstrumentalArrangement(Levels = ![ level ])
 
             ArrangementImprover.removeUnnecessaryNotes arr
 
@@ -850,20 +628,20 @@ let unnecessaryNoteRemoverTests =
             Expect.isTrue arr.Levels[0].Notes[0].IsLinkNext "Linknext was not removed from first note"
 
         testCase "Removes note without sustain after a chord" <| fun _ ->
-            let anchors = ra [ Anchor(1y, 100) ]
-            let cn = ra [
+            let anchors = ![ Anchor(1y, 100) ]
+            let cn = ![
                 Note(Time = 100, String = 2y, Fret = 1y, Sustain = 100, IsLinkNext = true)
                 Note(Time = 100, String = 3y, Fret = 3y, Sustain = 100, IsLinkNext = true)
             ]
-            let chords = ra [
+            let chords = ![
                 Chord(Time = 100, ChordId = 0s, IsLinkNext = true, ChordNotes = cn)
             ]
-            let notes = ra [
+            let notes = ![
                 Note(Time = 200, Fret = 1y, String = 2y, Sustain = 0)
                 Note(Time = 200, Fret = 3y, String = 3y, Sustain = 100)
             ]
             let level = Level(Notes = notes, Chords = chords, Anchors = anchors)
-            let arr = InstrumentalArrangement(Levels = ra [ level ])
+            let arr = InstrumentalArrangement(Levels = ![ level ])
 
             ArrangementImprover.removeUnnecessaryNotes arr
 
@@ -872,20 +650,20 @@ let unnecessaryNoteRemoverTests =
             Expect.isTrue arr.Levels[0].Chords[0].IsLinkNext "Linknext was not removed from chord"
 
         testCase "Removes note without sustain after a chord slide" <| fun _ ->
-            let anchors = ra [ Anchor(1y, 100); Anchor(3y, 200) ]
-            let cn = ra [
+            let anchors = ![ Anchor(1y, 100); Anchor(3y, 200) ]
+            let cn = ![
                 Note(Time = 100, String = 2y, Fret = 1y, Sustain = 100, SlideTo = 3y, IsLinkNext = true)
                 Note(Time = 100, String = 3y, Fret = 3y, Sustain = 100, SlideTo = 5y, IsLinkNext = true)
             ]
-            let chords = ra [
+            let chords = ![
                 Chord(Time = 100, ChordId = 0s, IsLinkNext = true, ChordNotes = cn)
             ]
-            let notes = ra [
+            let notes = ![
                 Note(Time = 200, Fret = 3y, String = 2y, Sustain = 100)
                 Note(Time = 200, Fret = 5y, String = 3y, Sustain = 0)
             ]
             let level = Level(Notes = notes, Chords = chords, Anchors = anchors)
-            let arr = InstrumentalArrangement(Levels = ra [ level ])
+            let arr = InstrumentalArrangement(Levels = ![ level ])
 
             ArrangementImprover.removeUnnecessaryNotes arr
 
@@ -894,20 +672,20 @@ let unnecessaryNoteRemoverTests =
             Expect.isTrue arr.Levels[0].Chords[0].IsLinkNext "Linknext was not removed from chord"
 
         testCase "Removes all notes without sustain after a chord slide" <| fun _ ->
-            let anchors = ra [ Anchor(1y, 100); Anchor(3y, 200) ]
-            let cn = ra [
+            let anchors = ![ Anchor(1y, 100); Anchor(3y, 200) ]
+            let cn = ![
                 Note(Time = 100, String = 2y, Fret = 1y, Sustain = 100, SlideTo = 3y, IsLinkNext = true)
                 Note(Time = 100, String = 3y, Fret = 3y, Sustain = 100, SlideTo = 5y, IsLinkNext = true)
             ]
-            let chords = ra [
+            let chords = ![
                 Chord(Time = 100, ChordId = 0s, IsLinkNext = true, ChordNotes = cn)
             ]
-            let notes = ra [
+            let notes = ![
                 Note(Time = 200, Fret = 3y, String = 2y, Sustain = 0)
                 Note(Time = 200, Fret = 5y, String = 3y, Sustain = 0)
             ]
             let level = Level(Notes = notes, Chords = chords, Anchors = anchors)
-            let arr = InstrumentalArrangement(Levels = ra [ level ])
+            let arr = InstrumentalArrangement(Levels = ![ level ])
 
             ArrangementImprover.removeUnnecessaryNotes arr
 

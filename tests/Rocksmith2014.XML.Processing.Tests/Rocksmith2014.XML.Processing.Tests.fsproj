@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="TestHelpers.fs" />
     <Compile Include="InstrumentalChecker\TestArrangement.fs" />
     <Compile Include="InstrumentalChecker\NoteTests.fs" />
     <Compile Include="InstrumentalChecker\ChordTests.fs" />
@@ -19,6 +20,7 @@
     <Compile Include="VocalsCheckerTests.fs" />
     <Compile Include="ShowLightsCheckerTests.fs" />
     <Compile Include="ArrangementImproverTests.fs" />
+    <Compile Include="BasicFixTests.fs" />
     <Compile Include="ChordRenamingTests.fs" />
     <Compile Include="PhraseGeneratorTests.fs" />
     <Compile Include="Program.fs" />
