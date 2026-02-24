@@ -26,11 +26,12 @@ let private getArrangementNumber arr project =
             sprintf " %i" (1 + index)
         else
             String.Empty
-    | _ ->
+    | Vocals _
+    | Showlights _ ->
         String.Empty
 
 /// Returns the translated name for the arrangement.
-let translateName project info arr =
+let translateName (project: DLCProject) (info: ArrangementNameExtraInfo) (arr: Arrangement) : string =
     match arr with
     | Instrumental inst ->
         let baseName =
@@ -58,7 +59,8 @@ let translateName project info arr =
                     String.Empty
 
             $"{baseName}{extra}"
-    | _ ->
+    | Vocals _
+    | Showlights _ ->
         Arrangement.getNameAndPrefix arr
         |> fst
         |> translate

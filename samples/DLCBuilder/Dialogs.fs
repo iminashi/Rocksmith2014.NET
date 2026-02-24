@@ -153,7 +153,7 @@ let private openFileDialog (window: Window) (title: string) (filter: FileFilter)
     }
 
 /// Shows an open file dialog that allows selecting multiple files.
-let private openMultiFileDialog (window: Window) (title: string) (filter: FileFilter) (directory: string option) msg =
+let private openMultiFileDialog (window: Window) (title: string) (filter: FileFilter) (directory: string option) (msg: string array -> 'a) =
     task {
         let! options = createOpenFileDialogOptions window title filter directory true
 
@@ -193,7 +193,7 @@ let private translateTitle dialogType =
     translate locString
 
 /// Shows the given dialog type.
-let showDialog window dialogType state =
+let showDialog (window: Window) (dialogType: Dialog) (state: State) : Cmd<Msg> =
     let title = translateTitle dialogType
 
     let openMultiFileDialog = openMultiFileDialog window

@@ -10,8 +10,8 @@ open System.Runtime.InteropServices
 let mutable private cached: Bitmap option = None
 
 /// Converts a DDS bitmap into an Avalonia bitmap.
-let private avaloniaBitmapFromDDS (fileName: string) =
-    use image = Pfimage.FromFile(fileName)
+let private avaloniaBitmapFromDDS (path: string) : Bitmap =
+    use image = Pfimage.FromFile(path)
 
     let pxFormat, data, stride =
         match image.Format with
@@ -76,7 +76,7 @@ let private tryLoadBitmap path =
 /// Returns the cached bitmap if possible, None otherwise.
 let getBitmap () = cached
 
-let createInterface () =
+let createInterface () : IBitmapLoader =
     { new IBitmapLoader with
         member _.InvalidateCache() = invalidate ()
         member _.TryLoad(path) = tryLoadBitmap path }

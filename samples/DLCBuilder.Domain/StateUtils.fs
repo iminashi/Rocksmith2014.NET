@@ -218,7 +218,7 @@ let addArrangements fileNames state =
         { newState with Modal = ErrorMessage(errorMessage, None) }
 
 /// Adds the Japanese vocals to the project if it does not have them already.
-let addJapaneseVocals (xmlPath: string) state =
+let addJapaneseVocals (xmlPath: string) (state: State) =
     // Only add the Japanese vocals if they were saved to the project directory
     // And the project does not already include Japanese vocals
     let shouldInclude =

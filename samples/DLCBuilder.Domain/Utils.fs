@@ -81,7 +81,7 @@ let checkBassTuning (inst: Instrumental) =
     ]
 
 /// Checks an arrangement for issues.
-let checkArrangement arrangement =
+let checkArrangement (arrangement: Arrangement) =
     match arrangement with
     | Instrumental inst ->
         InstrumentalArrangement.Load(inst.XmlPath)
@@ -130,7 +130,7 @@ let addDescriptors (tone: Tone) =
         NameSeparator = Tone.DefaultNameSeparator }
 
 /// Converts the project's audio and preview audio files to wem.
-let convertAudio cliPath project =
+let convertAudio (cliPath: string option) (project: DLCProject) : Async<string array> =
     async {
         let files = [| project.AudioFile.Path; project.AudioPreviewFile.Path |]
         do! files
@@ -142,7 +142,7 @@ let convertAudio cliPath project =
     }
 
 /// Removes the item at the index from the array and shifts the subsequent items towards index zero by one.
-let removeAndShift (index: int) array =
+let removeAndShift (index: int) (array: 'a option array) =
     let arr = Array.copy array
     for i = index to arr.Length - 2 do
         arr[i] <- arr[i + 1]
@@ -206,7 +206,7 @@ let addMetadata (md: MetaData) (charterName: string) (project: DLCProject) =
             if shouldUpdateYear then md.AlbumYear else project.Year }
 
 /// Starts the given path or URL using the operating system shell.
-let openWithShell pathOrUrl =
+let openWithShell (pathOrUrl: string) =
     ProcessStartInfo(pathOrUrl, UseShellExecute = true)
     |> Process.Start
     |> ignore
@@ -230,7 +230,7 @@ let removeDD (instrumentals: (string * InstrumentalArrangement) list) =
     |> Async.Ignore
 
 /// Moves the item in the list with the given index up or down.
-let moveSelected dir selectedIndex (list: List<_>) =
+let moveSelected (dir: MoveDirection) (selectedIndex: int) (list: List<_>) =
     match selectedIndex with
     | -1 ->
         list, selectedIndex
@@ -245,7 +245,7 @@ let moveSelected dir selectedIndex (list: List<_>) =
             list, selectedIndex
 
 /// Converts the projects audio files to wav or ogg files.
-let convertProjectAudioFromWem conv project =
+let convertProjectAudioFromWem (conv: AudioConversionType) (project: DLCProject) =
     let convert =
         match conv with
         | ToOgg -> Conversion.wemToOgg

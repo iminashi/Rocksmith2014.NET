@@ -431,7 +431,7 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
     if customTitleBar.IsNone then
         window.Title <- title
 
-    let noModalIsOpen = (state.Modal = NoModal)
+    let noModalIsOpen = state.Modal.IsNoModal
 
     DockPanel.create [
         DockPanel.background "#040404"

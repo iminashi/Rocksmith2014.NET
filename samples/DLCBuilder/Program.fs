@@ -24,7 +24,7 @@ let setupCrashLogging () =
         File.WriteAllText(Configuration.crashLogPath, logMessage)
 
 [<EntryPoint; STAThread>]
-let main(args: string[]) =
+let main(args: string array) =
     setupCrashLogging ()
 
     AppBuilder

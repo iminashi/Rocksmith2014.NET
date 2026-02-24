@@ -23,7 +23,7 @@ type App() =
             // Delete the exit check file to indicate that the application exited normally
             desktopLifetime.Exit.Add <| fun _ ->
                 if File.Exists(Configuration.exitCheckFilePath) then
-                    File.Delete(Configuration.exitCheckFilePath)
+                    try File.Delete(Configuration.exitCheckFilePath) with _ -> ()
 
             desktopLifetime.MainWindow <- MainWindow(desktopLifetime.Args)
             base.OnFrameworkInitializationCompleted()

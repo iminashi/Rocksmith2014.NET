@@ -14,7 +14,7 @@ module Locales =
           { Name = "简体中文"; ShortName = "zh-CN" }
           { Name = "Español"; ShortName = "es" } ]
 
-    let fromShortName shortName =
+    let fromShortName (shortName: string) : Locale =
         All
         |> List.tryFind (fun loc -> loc.ShortName = shortName)
         |> Option.defaultValue Locale.Default
@@ -32,7 +32,7 @@ module Localization =
     let mutable private localeDictionary = defaultDictionary
 
     /// Changes the current locale.
-    let changeLocale locale =
+    let changeLocale (locale: Locale) =
         localeDictionary <-
             if locale = Locale.Default then
                 defaultDictionary
@@ -40,13 +40,14 @@ module Localization =
                 loadDictionary locale
 
     /// Returns the localized string for the given key.
-    let translate key =
+    let translate (key: string) : string =
         Dictionary.tryGetValue key localeDictionary
         |> ValueOption.orElseWith (fun () -> Dictionary.tryGetValue key defaultDictionary)
         |> ValueOption.defaultWith (fun () -> $"!!{key}!!")
 
     /// Returns the localized formatted string for the given key.
-    let translatef (key: string) (args: obj array) = String.Format(translate key, args)
+    let translatef (key: string) (args: obj array) : string =
+        String.Format(translate key, args)
 
     let toInterface () =
         { new IStringLocalizer with

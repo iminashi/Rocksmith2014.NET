@@ -28,7 +28,7 @@ let getNonWemAudio (project: DLCProject) =
             oggFile
 
 /// Creates a preview audio file for the project.
-let createAutoPreviewFile project =
+let createAutoPreviewFile (project: DLCProject) =
     async {
         let audioPath = getNonWemAudio project
         let targetPath = Utils.createPreviewAudioPath audioPath

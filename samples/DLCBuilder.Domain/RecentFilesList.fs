@@ -21,7 +21,7 @@ let save (recentList: string list) =
     }
 
 /// Updates the list with a new filename.
-let update newFile oldList =
+let update (newFile: string) (oldList: string list) =
     let updatedList =
         let list = List.remove newFile oldList
         newFile :: list |> List.truncate MaxFiles

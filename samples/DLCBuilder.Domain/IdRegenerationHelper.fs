@@ -10,7 +10,7 @@ let private idsGeneratedEvent = Event<Map<ArrangementId, Arrangement>>()
 let RequestConfirmation = requestConfirmationEvent.Publish
 let NewIdsGenerated = idsGeneratedEvent.Publish
 
-let getConfirmation ids =
+let getConfirmation (ids: ArrangementId list) : Async<bool> =
     async {
         let answer = TaskCompletionSource<bool>()
         let reply = AsyncReply(answer.SetResult)
@@ -20,4 +20,4 @@ let getConfirmation ids =
         return! answer.Task |> Async.AwaitTask
     }
 
-let postNewIds newIdMap = idsGeneratedEvent.Trigger(newIdMap)
+let postNewIds (newIdMap: Map<ArrangementId, Arrangement>) = idsGeneratedEvent.Trigger(newIdMap)

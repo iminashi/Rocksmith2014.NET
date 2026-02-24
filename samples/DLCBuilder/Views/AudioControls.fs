@@ -54,7 +54,7 @@ let private panel state dispatch =
                             match state.AudioLength with
                             | Some audioLength ->
                                 let lengthStr =
-                                    if audioLength.TotalHours >= 1 then
+                                    if audioLength.TotalHours >= 1.0 then
                                         "hh\:mm\:ss"
                                     else
                                         "mm\:ss"
