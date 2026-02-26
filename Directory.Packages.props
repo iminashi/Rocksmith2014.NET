@@ -9,30 +9,24 @@
     <PackageVersion Include="Avalonia.Themes.Simple" Version="11.3.12" />
     <PackageVersion Include="Avalonia.Themes.Fluent" Version="11.3.12" />
     <PackageVersion Include="Elmish" Version="5.0.2" />
-
     <PackageVersion Include="FSharp.Core" Version="10.0.103" />
     <PackageVersion Include="FSharp.Control.Reactive" Version="6.1.2" />
     <PackageVersion Include="FSharp.SystemTextJson" Version="1.4.36" />
-
     <PackageVersion Include="Dapper" Version="2.0.143" />
     <PackageVersion Include="System.Data.SQLite.Core" Version="1.0.117" />
-
     <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.3" />
     <PackageVersion Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
     <PackageVersion Include="Microsoft.ML" Version="4.0.0" />
     <PackageVersion Include="Microsoft.ML.FastTree" Version="4.0.0" />
-
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageVersion Include="Octokit" Version="14.0.0" />
     <PackageVersion Include="Pfim" Version="0.11.4" />
-    <PackageVersion Include="Magick.NET-Q8-x64" Version="14.10.2" />
-
+    <PackageVersion Include="Magick.NET-Q8-x64" Version="14.10.3" />
     <PackageVersion Include="BunLabs.NAudio.Flac" Version="2.0.1" />
     <PackageVersion Include="NAudio.Core" Version="2.2.1" />
     <PackageVersion Include="NAudio.Vorbis" Version="1.5.0" />
     <PackageVersion Include="NVorbis" Version="0.10.5" />
     <PackageVersion Include="SimpleSIMD" Version="4.6.0" />
-
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="Expecto" Version="10.2.3" />
     <PackageVersion Include="Expecto.FsCheck" Version="10.2.3" />
