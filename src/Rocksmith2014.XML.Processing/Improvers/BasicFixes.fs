@@ -80,7 +80,7 @@ let removeOverlappingBendValues (arrangement: InstrumentalArrangement) =
         if note.IsBend then
             note.BendValues <-
                 note.BendValues
-                |> Seq.distinctBy (fun bv -> bv.Time)
+                |> Seq.distinctBy _.Time
                 |> ResizeArray
 
     arrangement.Levels
@@ -129,7 +129,7 @@ let removeMutedNotesFromChords (arrangement: InstrumentalArrangement) =
 let removeRedundantAnchors (arrangement: InstrumentalArrangement) =
     let phraseTimes =
         arrangement.PhraseIterations
-        |> Seq.map (fun pi -> pi.Time)
+        |> Seq.map _.Time
         |> Set.ofSeq
 
     arrangement.Levels

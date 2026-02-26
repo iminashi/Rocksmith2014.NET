@@ -24,7 +24,7 @@ let timeToString (time: int) =
 let private getTimes<'a when 'a :> IHasTimeCode> (startTime: int) (count: int) (items: 'a seq) =
     items
     |> Seq.filter (fun x -> x.Time >= startTime)
-    |> Seq.map (fun x -> x.Time)
+    |> Seq.map _.Time
     // Notes on the same timecode (i.e. split chords) count as one
     |> Seq.distinct
     |> Seq.truncate count
@@ -68,12 +68,12 @@ let getFirstNoteTime (arrangement: InstrumentalArrangement) =
         let firstNote =
             firstPhraseLevel.Notes
             |> ResizeArray.tryHead
-            |> Option.map (fun n -> n.Time)
+            |> Option.map _.Time
 
         let firstChord =
             firstPhraseLevel.Chords
             |> ResizeArray.tryHead
-            |> Option.map (fun c -> c.Time)
+            |> Option.map _.Time
 
         getMinTime firstNote firstChord)
 
@@ -151,7 +151,7 @@ let tryFindNextContentTime (level: Level) (time: int) : int option =
     let tryFindNext (ra: ResizeArray<#IHasTimeCode>) =
         ra
         |> ResizeArray.tryFind (fun x -> x.Time >= time)
-        |> Option.map (fun x -> x.Time)
+        |> Option.map _.Time
 
     let noteTime = tryFindNext level.Notes
     let chordTime = tryFindNext level.Chords

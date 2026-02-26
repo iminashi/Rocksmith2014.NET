@@ -58,12 +58,12 @@ let lengthenHandshapes (arrangement: InstrumentalArrangement) =
                     let nextAnchorTimeOpt =
                         level.Anchors.Find(fun a -> a.Time > time)
                         |> Option.ofObj
-                        |> Option.map (fun a -> a.Time)
+                        |> Option.map _.Time
 
                     let nextPhraseTimeOpt =
                         arrangement.PhraseIterations.Find(fun p -> p.Time > time)
                         |> Option.ofObj
-                        |> Option.map (fun p -> p.Time)
+                        |> Option.map _.Time
 
                     // Add 1ms to skip this chord
                     let nextContentTimeOpt = tryFindNextContentTime level (time + 1)

@@ -9,7 +9,7 @@ open Rocksmith2014.XML.Processing
 let beats = ResizeArray.init 15 (fun i -> Ebeat((i + 1) * 1000, int16 i))
 
 let createBaseArrangement () =
-    let levels = ResizeArray(seq { Level() })
+    let levels = ![ Level() ]
     InstrumentalArrangement(Ebeats = beats, Levels = levels)
 
 [<Tests>]

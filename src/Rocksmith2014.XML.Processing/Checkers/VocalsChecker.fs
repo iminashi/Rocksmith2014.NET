@@ -56,7 +56,7 @@ let check (customFont: GlyphDefinitions option) (vocals: ResizeArray<Vocal>) =
         customFont
         |> Option.map (fun defs ->
             defs.Glyphs
-            |> Seq.map (fun g -> g.Symbol)
+            |> Seq.map _.Symbol
             |> String.Concat)
 
     [

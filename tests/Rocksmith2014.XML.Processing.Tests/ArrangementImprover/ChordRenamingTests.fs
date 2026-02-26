@@ -23,7 +23,7 @@ let chordNameTests =
         testCase "Fixes minor chord names" <| fun _ ->
             let c1 = templateNameOnly "Emin"
             let c2 = templateNameOnly "Amin7"
-            let chords = ResizeArray [ c1; c2 ]
+            let chords = ![ c1; c2 ]
             let arr = InstrumentalArrangement(ChordTemplates = chords)
 
             ArrangementImprover.processChordNames arr
@@ -34,7 +34,7 @@ let chordNameTests =
 
         testCase "Fixes -arp chord names" <| fun _ ->
             let c = templateNameOnly "E-arp"
-            let chords = ResizeArray [ c ]
+            let chords = ![ c ]
             let arr = InstrumentalArrangement(ChordTemplates = chords)
 
             ArrangementImprover.processChordNames arr
@@ -44,7 +44,7 @@ let chordNameTests =
 
         testCase "Fixes -nop chord names" <| fun _ ->
             let c = templateNameOnly "CMaj7-nop"
-            let chords = ResizeArray [ c ]
+            let chords = ![ c ]
             let arr = InstrumentalArrangement(ChordTemplates = chords)
 
             ArrangementImprover.processChordNames arr
@@ -54,7 +54,7 @@ let chordNameTests =
 
         testCase "Can convert chords to arpeggios" <| fun _ ->
             let c = templateNameOnly "CminCONV"
-            let chords = ResizeArray [ c ]
+            let chords = ![ c ]
             let arr = InstrumentalArrangement(ChordTemplates = chords)
 
             ArrangementImprover.processChordNames arr
@@ -64,7 +64,7 @@ let chordNameTests =
 
         testCase "Fixes empty chord names" <| fun _ ->
             let c = templateNameOnly " "
-            let chords = ResizeArray [ c ]
+            let chords = ![ c ]
             let arr = InstrumentalArrangement(ChordTemplates = chords)
 
             ArrangementImprover.processChordNames arr

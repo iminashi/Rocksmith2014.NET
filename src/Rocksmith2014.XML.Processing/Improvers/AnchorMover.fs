@@ -15,10 +15,10 @@ let improve (arrangement: InstrumentalArrangement) =
     for level in arrangement.Levels do
         let noteAndChordTimes =
             level.Notes
-            |> Seq.map (fun n -> n.Time)
-            |> Seq.append (level.Chords |> Seq.map (fun c -> c.Time))
-            |> Seq.sort
+            |> Seq.map _.Time
+            |> Seq.append (level.Chords |> Seq.map _.Time)
             |> Seq.distinct
+            |> Seq.sort
             |> Array.ofSeq
 
         let anchorsNearNoteOrChord =
@@ -37,7 +37,7 @@ let improve (arrangement: InstrumentalArrangement) =
                 |> Seq.choose (fun chord ->
                     if chord.HasChordNotes then
                         chord.ChordNotes
-                        |> ResizeArray.tryFind (fun n -> n.IsSlide)
+                        |> ResizeArray.tryFind _.IsSlide
                         |> Option.map (fun n -> n.Time + n.Sustain)
                     else
                         None)

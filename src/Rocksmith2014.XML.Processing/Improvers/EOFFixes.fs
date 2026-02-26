@@ -8,7 +8,7 @@ open Rocksmith2014.XML.Extensions
 /// Fixes the sustain to be same for all chord notes.
 let fixChordNotes (arrangement: InstrumentalArrangement) =
     arrangement.Levels
-    |> Seq.collect (fun l -> l.Chords)
+    |> Seq.collect _.Chords
     |> Seq.iter (fun chord ->
         if chord.HasChordNotes then
             let sustain = chord.ChordNotes |> ResizeArray.findMaxBy (fun cn -> cn.Sustain)

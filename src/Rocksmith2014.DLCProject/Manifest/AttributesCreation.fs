@@ -21,8 +21,10 @@ let inline private bti (b: bool) = Convert.ToInt32 b
 let inline private btb (b: bool) = Convert.ToByte b
 
 let private getJapaneseVocal = function
-    | Vocals v when v.Japanese -> Nullable(true)
-    | _ -> Nullable()
+    | Vocals v when v.Japanese ->
+        Nullable(true)
+    | _ ->
+        Nullable()
 
 /// Calculates the sum of all ranges of DNAId -> DNA None (or the end of the song).
 let private getDNATime (sng: SNG) (dnaId: int32) =
@@ -84,7 +86,7 @@ let private calculateDifficulties (metaData: XML.MetaData) (sng: SNG) =
         else
             techCoeff
 
-    let round9 v = Math.Round((v: float), 9)
+    let round9 (v: float) = Math.Round(v, 9)
     let songLength = float sng.MetaData.SongLength
     let notes = sng.NoteCounts
 
@@ -385,12 +387,14 @@ let private getToneName index tones =
     |> Option.defaultValue String.Empty
 
 /// Initializes attributes unique to instrumental arrangements (non-header).
-let private initSongComplete (partition: int)
-                             (xmlMetaData: XML.MetaData)
-                             (project: DLCProject)
-                             (instrumental: Instrumental)
-                             (sng: SNG)
-                             (attr: Attributes) =
+let private initSongComplete
+    (partition: int)
+    (xmlMetaData: XML.MetaData)
+    (project: DLCProject)
+    (instrumental: Instrumental)
+    (sng: SNG)
+    (attr: Attributes)
+    : Attributes =
     let tones =
         let toneKeysUsed =
             instrumental.BaseTone :: instrumental.Tones
@@ -431,7 +435,7 @@ type AttributesConversion =
     | FromInstrumental of inst: Instrumental * sng: SNG
 
 /// Creates attributes for an arrangement.
-let private create isHeader (project: DLCProject) (conversion: AttributesConversion) =
+let private create (isHeader: bool) (project: DLCProject) (conversion: AttributesConversion) =
     let dlcKey = project.DLCKey.ToLowerInvariant()
     let partition = Partitioner.create project
 

@@ -500,11 +500,11 @@ let checkAnchors (arrangement: InstrumentalArrangement) (level: Level) =
     let phraseTimes =
         let phraseTimes =
             arrangement.PhraseIterations
-            |> Seq.map (fun pi -> pi.Time)
+            |> Seq.map _.Time
 
         let sectionTimes =
             arrangement.Sections
-            |> Seq.map (fun s -> s.Time)
+            |> Seq.map _.Time
 
         phraseTimes
         |> Seq.append sectionTimes
