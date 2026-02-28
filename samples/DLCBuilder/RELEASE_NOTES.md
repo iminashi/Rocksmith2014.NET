@@ -2,6 +2,7 @@
 
 - Updated to .NET 10.
 - Added a workaround for revorb failing on macOS.
+- Fixed an issue that prevented the program from working properly on systems with Thai culture settings.
 - Added automatic removal of notes with zero sustain that follow a linknext note or chord (when "Apply Improvements" is enabled).
 - Updated the UI framework and various dependencies to the latest versions.
 
