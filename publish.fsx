@@ -51,8 +51,8 @@ let cleanPublishDirectory () =
     if Directory.Exists(publishDir) then
         Directory.Delete(publishDir, recursive=true)
 
-let createConfig appName platform trim (arg: DotNet.PublishOptions) =
-    let targetDir = publishDir </> $"{appName}-{platform}"
+let createConfig (appName: string) (platform: TargetPlatform) (trim: bool) (arg: DotNet.PublishOptions) =
+    let targetDir = publishDir </> $"%s{appName}-%O{platform}"
     let runtime =
         match platform with
         | Windows -> "win-x64"
@@ -76,15 +76,15 @@ let zip workingDir targetFile dirToZip =
     |> Proc.run
     |> ignore
 
-let publishBuilder platform =
+let publishBuilder (platform: TargetPlatform) =
     dlcBuilderDir </> "DLCBuilder.fsproj"
     |> DotNet.publish (createConfig "dlcbuilder" platform false)
 
     // Return the target directory
-    publishDir </> $"dlcbuilder-{platform}"
+    publishDir </> $"dlcbuilder-%O{platform}"
 
-let createZipArchive platform =
-    let targetFile = publishDir </> $"DLCBuilder-{platform}-{release.NugetVersion}.zip"
+let createZipArchive (platform: TargetPlatform) =
+    let targetFile = publishDir </> $"DLCBuilder-%O{platform}-%s{release.NugetVersion}.zip"
     let dirToZip =
         match platform with
         | Windows ->
@@ -97,7 +97,7 @@ let createZipArchive platform =
     if RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then
         let dirToZip = publishDir </> dirToZip
         let workingDir = dirToZip
-        !! $"{dirToZip}/**" |> Zip.zip workingDir targetFile
+        !! $"%s{dirToZip}/**" |> Zip.zip workingDir targetFile
     else
         // Using FAKE's zip loses the executable permissions
         zip publishDir targetFile dirToZip
@@ -109,12 +109,12 @@ let getGitHubToken () =
     | null -> failwith "github_token environment variable is not set."
     | s -> s
 
-let createGitHubRelease file =
+let createGitHubRelease (file: string) =
     let token = getGitHubToken ()
-    let tagName = $"v{release.NugetVersion}"
+    let tagName = $"v%s{release.NugetVersion}"
 
     let setParams (p: GitHub.CreateReleaseParams) =
-        { p with Name = $"DLC Builder {tagName}"
+        { p with Name = $"DLC Builder %s{tagName}"
                  Body = String.Join("\n", release.Notes)
                  Draft = true
                  Prerelease = release.SemVer.PreRelease <> None }
@@ -125,9 +125,9 @@ let createGitHubRelease file =
     |> GitHub.publishDraft
     |> Async.RunSynchronously
 
-let addFileToRelease file =
+let addFileToRelease (file: string) =
     let token = getGitHubToken ()
-    let tagName = $"v{release.NugetVersion}"
+    let tagName = $"v%s{release.NugetVersion}"
 
     GitHub.createClientWithToken token
     |> GitHub.getReleaseByTag gitOwner gitName tagName

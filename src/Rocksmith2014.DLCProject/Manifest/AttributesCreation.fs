@@ -153,7 +153,7 @@ let private getSectionUIName (name: string) =
     | "verse"      -> "$[34304] Verse [1]"
     | "tapping"    -> "$[34305] Tapping [1]"
     | "noguitar"   -> "$[6091] No Guitar [1]"
-    | name         -> failwith $"Unknown section name '{name}'."
+    | name         -> failwith $"Unknown section name '%s{name}'."
 
 /// Converts SNG sections into manifest sections.
 let private convertSections (sng: SNG) =
@@ -325,23 +325,23 @@ let private initBase (name: string) (dlcKey: string) (project: DLCProject) (arra
 /// Initializes attributes that are common to all arrangements (non-headers).
 let private initAttributesCommon (name: string) (dlcKey: string) (levels: int) (project: DLCProject) (arrangement: Arrangement) (attr: Attributes) =
     attr.ArrangementSort <- 0 // Always zero
-    attr.BlockAsset <- $"urn:emergent-world:{dlcKey}"
+    attr.BlockAsset <- $"urn:emergent-world:%s{dlcKey}"
     attr.DynamicVisualDensity <- createDynamicVisualDensity levels arrangement
-    attr.FullName <- $"{project.DLCKey}_{Arrangement.getName arrangement false}"
+    attr.FullName <- $"%s{project.DLCKey}_%s{Arrangement.getName arrangement false}"
     attr.MasterID_PS3 <- -1
     attr.MasterID_XBox360 <- -1
-    attr.PreviewBankPath <- $"song_{dlcKey}_preview.bnk"
+    attr.PreviewBankPath <- $"song_%s{dlcKey}_preview.bnk"
     attr.RelativeDifficulty <- 0 // Always zero
-    attr.ShowlightsXML <- $"urn:application:xml:{dlcKey}_showlights"
+    attr.ShowlightsXML <- $"urn:application:xml:%s{dlcKey}_showlights"
     attr.SongAsset <- $"urn:application:musicgame-song:%s{dlcKey}_%s{name}"
     match arrangement with
     | Instrumental { CustomAudio = Some _ } ->
-        attr.SongBank <- $"song_{dlcKey}_{name}.bnk"
-        attr.SongEvent <- $"Play_{project.DLCKey}_{name}"
+        attr.SongBank <- $"song_%s{dlcKey}_%s{name}.bnk"
+        attr.SongEvent <- $"Play_%s{project.DLCKey}_%s{name}"
     | _ ->
-        attr.SongBank <- $"song_{dlcKey}.bnk"
-        attr.SongEvent <- $"Play_{project.DLCKey}"
-    attr.SongXml <- $"urn:application:xml:{dlcKey}_{name}"
+        attr.SongBank <- $"song_%s{dlcKey}.bnk"
+        attr.SongEvent <- $"Play_%s{project.DLCKey}"
+    attr.SongXml <- $"urn:application:xml:%s{dlcKey}_%s{name}"
 
     attr
 

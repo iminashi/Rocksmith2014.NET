@@ -261,7 +261,7 @@ let private coverArt state dispatch =
         | Some path, Some _ ->
             let fileName = IO.Path.GetFileName(path)
             let help = translate "SelectCoverArtToolTip"
-            Brushes.Black, $"{fileName}\n\n{help}"
+            Brushes.Black, $"%s{fileName}\n\n%s{help}"
         | None, _ ->
             Brushes.Black, translate "SelectCoverArtToolTip"
 

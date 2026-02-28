@@ -137,7 +137,7 @@ let private importArrangement (arr: XmlNode) =
     | "ShowLight" ->
         Showlights { Id = ArrangementId.New; XmlPath = xml }
     | unknown ->
-        failwith $"Unknown arrangement type: {unknown}"
+        failwith $"Unknown arrangement type: %s{unknown}"
 
 /// Converts a Toolkit template from the given path into a DLCProject.
 let import (templatePath: string) =
@@ -162,7 +162,7 @@ let import (templatePath: string) =
             Path.GetFileNameWithoutExtension(audioPath)
 
         let previewFileName =
-            $"{audioFileName}_preview{Path.GetExtension audioPath}"
+            $"%s{audioFileName}_preview%s{Path.GetExtension audioPath}"
 
         let prevFile =
             Path.Combine(Path.GetDirectoryName(audioPath), previewFileName)

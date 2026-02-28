@@ -120,7 +120,7 @@ let toneName (input: string) = input.Replace("\"", "")
 let fileName (input: string) =
     // Filter out most non-alphanumeric characters
     let noDiacritics = removeDiacritics input
-    let filtered = Regex.Replace(noDiacritics, $"[^ 0-9a-zA-Z_-]", "")
+    let filtered = Regex.Replace(noDiacritics, "[^ 0-9a-zA-Z_-]", "")
 
     // Replace whitespace with one dash
     Regex.Replace(filtered, "\s+", "-")

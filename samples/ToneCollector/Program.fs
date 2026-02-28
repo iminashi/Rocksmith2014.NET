@@ -133,7 +133,7 @@ let main argv =
     if not <| File.Exists(databaseFilename) then
         createDataBase ()
 
-    let connectionString = $"Data Source={databaseFilename};"
+    let connectionString = $"Data Source=%s{databaseFilename};"
 
     use connection = new SQLiteConnection(connectionString)
     connection.Open()

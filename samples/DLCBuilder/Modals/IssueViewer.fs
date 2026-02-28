@@ -18,8 +18,8 @@ let private getIssueHeaderAndHelp issueType =
         translate "EventBetweenIntroApplauseHelp"
     | LyricWithInvalidChar (invalidChar, customFontUsed) ->
         let postfix = if customFontUsed then "CustomFont" else ""
-        translatef $"LyricWithInvalidChar{postfix}" [| invalidChar |],
-        translate $"LyricWithInvalidChar{postfix}Help"
+        translatef $"LyricWithInvalidChar%s{postfix}" [| invalidChar |],
+        translate $"LyricWithInvalidChar%s{postfix}Help"
     | LyricTooLong invalidLyric ->
         translatef "LyricTooLong" [| invalidLyric |],
         translate "LyricTooLongHelp"

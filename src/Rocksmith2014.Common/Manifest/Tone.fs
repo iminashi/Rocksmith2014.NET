@@ -43,13 +43,13 @@ type Tone =
             if isNull this.ToneDescriptors || this.ToneDescriptors.Length = 0 then
                 String.Empty
             else
-                $" ({ToneDescriptor.combineUINames this.ToneDescriptors})"
+                $" (%s{ToneDescriptor.combineUINames this.ToneDescriptors})"
 
         let key =
             if String.IsNullOrEmpty(this.Key) || this.Key = this.Name then
                 String.Empty
             else
-                $" [{this.Key}]"
+                $" [%s{this.Key}]"
 
         sprintf "%s%s%s" this.Name key description
 
@@ -152,9 +152,9 @@ module Tone =
         | Some amp, Some cabinet ->
             { Amp = amp
               Cabinet = cabinet
-              PrePedals = [| 1 .. 4 |] |> Array.map (fun i -> getPedal $"PrePedal{i}")
-              PostPedals = [| 1 .. 4 |] |> Array.map (fun i -> getPedal $"PostPedal{i}")
-              Racks = [| 1 .. 4 |] |> Array.map (fun i -> getPedal $"Rack{i}") }
+              PrePedals = [| 1 .. 4 |] |> Array.map (fun i -> getPedal $"PrePedal%i{i}")
+              PostPedals = [| 1 .. 4 |] |> Array.map (fun i -> getPedal $"PostPedal%i{i}")
+              Racks = [| 1 .. 4 |] |> Array.map (fun i -> getPedal $"Rack%i{i}") }
         | None, _ ->
             failwith "The tone is missing an amp."
         | _, None ->
@@ -374,9 +374,9 @@ module Tone =
                   // Sort order is not nullable
                   .Replace("""<SortOrder i:nil="true" />""", "<SortOrder>0.0</SortOrder>")
                   // Toolkit does not have MacVolume
-                  .Replace($"  <MacVolume i:nil=\"true\" />{nl}", "")
+                  .Replace($"  <MacVolume i:nil=\"true\" />%s{nl}", "")
                   // Tone key/name import does not seem to work otherwise
-                  .Replace($"<NameSeparator>{tone.NameSeparator}</NameSeparator>{nl}  <Name>{tone.Name}</Name>", $"<Name>{tone.Name}</Name>{nl}  <NameSeparator>{tone.NameSeparator}</NameSeparator>")
+                  .Replace($"<NameSeparator>%s{tone.NameSeparator}</NameSeparator>%s{nl}  <Name>%s{tone.Name}</Name>", $"<Name>%s{tone.Name}</Name>%s{nl}  <NameSeparator>%s{tone.NameSeparator}</NameSeparator>")
                   // Change the namespace
                   .Replace("http://schemas.datacontract.org/2004/07/Rocksmith2014.Common.Manifest", "http://schemas.datacontract.org/2004/07/RocksmithToolkitLib.DLCPackage.Manifest.Tone")
                |> writer.WriteAsync

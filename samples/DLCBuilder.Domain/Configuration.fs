@@ -26,7 +26,7 @@ type SubfolderNaming =
     member this.FormatToString(artist: string, title: string) =
         match this with
         | ArtistName -> artist
-        | ArtistNameAndTitle -> $"{artist} - {title}"
+        | ArtistNameAndTitle -> $"%s{artist} - %s{title}"
 
 type SubfolderCreation =
     | DoNotCreate

@@ -43,7 +43,7 @@ let private pruneChordNotes
     let notesToRemove = cn.Count - noteCount
 
     if notesToRemove < 0 then
-        failwith $"Chord at time {float cn[0].Time / 1000.} has less chord notes than its chord template."
+        failwith $"Chord at time %O{float cn[0].Time / 1000.} has less chord notes than its chord template."
 
     for i = cn.Count - notesToRemove to cn.Count - 1 do
         if cn[i].IsLinkNext then

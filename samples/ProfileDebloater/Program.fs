@@ -17,7 +17,7 @@ let printProgress (directory: string) (isVerbose: bool) =
             if isVerbose then
                 let progressStr = sprintf "%-5.1f%%" (100. * totalProgress)
                 let fn = Path.GetRelativePath(directory, p.CurrentFilePath)
-                printfn $"{progressStr} - {fn}"
+                printfn "%s - %s" progressStr fn
             else
                 let progressBar = String('=', (int (60. * totalProgress)))
                 printf "\r[%-60s]" progressBar)

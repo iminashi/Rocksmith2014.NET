@@ -62,7 +62,7 @@ let updateProject versionStringOpt project =
     ||> Option.fold (fun project versionString ->
         let arrangements = generateAllIds project.Arrangements
 
-        let titleValue = $"{project.Title.Value} %s{versionString}"
+        let titleValue = $"%s{project.Title.Value} %s{versionString}"
         let titleSortValue =
             project.Title.SortValue
             |> Option.ofString
@@ -71,11 +71,11 @@ let updateProject versionStringOpt project =
                 StringValidator.convertToSortField (StringValidator.FieldType.Title titleValue))
 
         { project with
-            DLCKey = $"{project.DLCKey}{versionString}"
+            DLCKey = $"%s{project.DLCKey}%s{versionString}"
             Title = SortableString.Create(titleValue, titleSortValue)
             JapaneseTitle =
                 project.JapaneseTitle
-                |> Option.map (fun title -> $"{title} {versionString}")
+                |> Option.map (fun japaneseTitle -> $"%s{japaneseTitle} %s{versionString}")
             Arrangements = arrangements }
     )
 
@@ -107,10 +107,10 @@ let build platform projectDir config project =
 
                 updateProject None project, packageFileName, BuildCompleteType.Test
             | true ->
-                let versionString = $"v{latestVersion + 1}"
+                let versionString = $"v%i{latestVersion + 1}"
 
                 updateProject (Some versionString) project,
-                $"{packageFileName}_{versionString}",
+                $"%s{packageFileName}_%s{versionString}",
                 BuildCompleteType.TestNewVersion versionString
 
         let path =

@@ -59,7 +59,7 @@ let private executeToneQuery (connection: SQLiteConnection) (searchString: strin
         (
             SELECT id, artist, artistsort, title, titlesort, name, basstone, description
             FROM tones
-            {whereClause}
+            %s{whereClause}
         ),
         Count_CTE
         AS
@@ -70,8 +70,8 @@ let private executeToneQuery (connection: SQLiteConnection) (searchString: strin
         FROM Data_CTE
         CROSS JOIN Count_CTE
         ORDER BY artistsort, titlesort, name
-        LIMIT {limit}
-        OFFSET {offset}
+        LIMIT %i{limit}
+        OFFSET %i{offset}
         """
 
     match searchString with
@@ -88,20 +88,20 @@ let private executeToneQuery (connection: SQLiteConnection) (searchString: strin
         connection.Query<DbTone>(sql)
 
 let private getToneById (connection: SQLiteConnection) (id: int64) =
-    $"SELECT definition FROM tones WHERE id = {id}"
+    $"SELECT definition FROM tones WHERE id = %i{id}"
     |> connection.Query<string>
     |> Seq.tryHead
     |> Option.map deserialize
 
 let private getToneDataById (connection: SQLiteConnection) (id: int64) =
-    $"SELECT id, artist, artistsort, title, titlesort, name, basstone, description, definition FROM tones WHERE id = {id}"
+    $"SELECT id, artist, artistsort, title, titlesort, name, basstone, description, definition FROM tones WHERE id = %i{id}"
     |> connection.Query<DbToneData>
     |> Seq.tryHead
 
 let private tryCreateOfficialTonesApi (OfficialDataBasePath dbPath) =
     dbPath
     |> File.tryMap (fun _ ->
-        let connection = createConnection $"Data Source={dbPath};Read Only=True"
+        let connection = createConnection $"Data Source=%s{dbPath};Read Only=True"
 
         { new IOfficialTonesApi with
             member _.Dispose() = connection.Dispose()
@@ -124,7 +124,7 @@ let private ensureUserTonesDbCreated (UserDataBasePath dbPath) connectionString 
 
 let private createUserTonesApi dbPath =
     let connectionString =
-        let (UserDataBasePath path) = dbPath in $"Data Source={path}"
+        let (UserDataBasePath path) = dbPath in $"Data Source=%s{path}"
 
     ensureUserTonesDbCreated dbPath connectionString
 
@@ -148,7 +148,7 @@ let private createUserTonesApi dbPath =
                   titlesort = @TitleSort,
                   name = @Name,
                   basstone = @BassTone
-              WHERE id = {data.Id}"
+              WHERE id = %i{data.Id}"
             |> executeQuery connection data
 
         member _.AddTone(data: DbToneData) =
@@ -157,7 +157,7 @@ let private createUserTonesApi dbPath =
             |> executeQuery connection data
 
         member _.DeleteToneById(id: int64) =
-            $"DELETE FROM tones WHERE id = {id}"
+            $"DELETE FROM tones WHERE id = %i{id}"
             |> executeNonQuery connection }
 
 let createConnector officialTonesDbPath userTonesDbPath =

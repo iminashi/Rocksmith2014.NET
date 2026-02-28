@@ -19,15 +19,15 @@ let createExceptionInfoString (ex: exn) =
             | "" ->
                 String.Empty
             | stackTrace ->
-                $"\n{stackTrace}"
+                $"\n%s{stackTrace}"
 
-        $"{e.GetType().Name}: {e.Message}{stackTrace}"
+        $"%s{e.GetType().Name}: %s{e.Message}%s{stackTrace}"
 
     match ex.InnerException with
     | null ->
         exnInfo ex
     | innerEx ->
-        $"{exnInfo ex}\nInner exception:\n{exnInfo innerEx}"
+        $"%s{exnInfo ex}\nInner exception:\n%s{exnInfo innerEx}"
 
 /// Imports tones from a PSARC file.
 let importTonesFromPSARC (psarcPath: string) =
@@ -69,7 +69,7 @@ let previewPathFromMainAudio (audioPath: string) =
     let dir = Path.GetDirectoryName(audioPath)
     let fn = Path.GetFileNameWithoutExtension(audioPath)
     let ext = Path.GetExtension(audioPath)
-    Path.Combine(dir, $"{fn}_preview{ext}")
+    Path.Combine(dir, $"%s{fn}_preview%s{ext}")
 
 let checkBassTuning (inst: Instrumental) =
     [

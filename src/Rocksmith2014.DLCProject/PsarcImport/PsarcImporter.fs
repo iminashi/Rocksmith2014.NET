@@ -62,7 +62,7 @@ let import progress (psarcPath: string) (targetDirectory: string) =
             |> List.map (fun psarcPath ->
                 async {
                     let targetFilename = getFontFilename psarcPath
-                    let targetPath = toTargetPath $"{targetFilename}.dds"
+                    let targetPath = toTargetPath $"%s{targetFilename}.dds"
                     do! psarc.InflateFile(psarcPath, targetPath) |> Async.AwaitTask
                 })
             |> Async.Sequential
@@ -90,11 +90,11 @@ let import progress (psarcPath: string) (targetDirectory: string) =
 
         let mainAudio =
             targetAudioFiles
-            |> Array.find (fun audio -> String.endsWith $"{dlcKey}.wem" audio.Path)
+            |> Array.find (fun audio -> String.endsWith $"%s{dlcKey}.wem" audio.Path)
 
         let previewAudio =
             targetAudioFiles
-            |> Array.find (fun audio -> String.endsWith $"{dlcKey}_preview.wem" audio.Path)
+            |> Array.find (fun audio -> String.endsWith $"%s{dlcKey}_preview.wem" audio.Path)
 
         // Extract audio files
         do! targetAudioFilesById
@@ -119,7 +119,7 @@ let import progress (psarcPath: string) (targetDirectory: string) =
                     let withoutPath = Path.GetFileName(file)
                     let withoutDlcKey = withoutPath.Substring(withoutPath.IndexOf('_'))
                     let withoutExtension = withoutDlcKey.Remove(withoutDlcKey.Length - 4)
-                    toTargetPath $"arr{withoutExtension}_RS2.xml"
+                    toTargetPath $"arr%s{withoutExtension}_RS2.xml"
 
                 let attributes =
                     fileAttributes

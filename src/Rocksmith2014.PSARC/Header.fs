@@ -61,7 +61,7 @@ type internal Header() =
         if magic <> "PSAR" then
             failwith "PSARC header magic check failed."
         elif compressionMethod <> "zlib" then
-            raise <| NotSupportedException($"Unsupported PSARC compression method: {compressionMethod}.")
+            raise <| NotSupportedException($"Unsupported PSARC compression method: %s{compressionMethod}.")
         else
             Header(
                 VersionMajor = versionMaj,

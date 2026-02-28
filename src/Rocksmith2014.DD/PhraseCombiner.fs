@@ -180,7 +180,7 @@ let combineSamePhrases (config: GeneratorConfig)
                         "NOGUITAR"
                     else
                         counter <- counter + 1
-                        $"p{counter}"
+                        $"p%i{counter}"
 
                 createdPhraseIds.Add(pi.PhraseId) |> ignore
 

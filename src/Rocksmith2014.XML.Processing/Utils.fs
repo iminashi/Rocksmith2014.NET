@@ -19,7 +19,7 @@ let timeToString (time: int) =
     let milliSeconds =
         time - (minutes * 60 * 1000) - (seconds * 1000)
 
-    $"{minutes:D2}:{seconds:D2}.{milliSeconds:D3}"
+    $"%02d{minutes}:%02d{seconds}.%03d{milliSeconds}"
 
 let private getTimes<'a when 'a :> IHasTimeCode> (startTime: int) (count: int) (items: 'a seq) =
     items

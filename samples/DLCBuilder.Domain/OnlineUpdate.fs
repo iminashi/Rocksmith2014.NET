@@ -24,7 +24,7 @@ let private tryGetLatestRelease () =
             let! release = github.Repository.Release.GetLatest("iminashi", "Rocksmith2014.NET")
             return Ok release
         with e ->
-            return Error $"Getting latest release failed with: {e.Message}"
+            return Error $"Getting latest release failed with: %s{e.Message}"
     }
 
 let private getAvailableUpdate (latestVersion: Version) =
@@ -74,5 +74,5 @@ let checkForUpdates () =
 
 /// Starts the installer process from the given path.
 let applyUpdate updatePath =
-    Utils.startProcess updatePath $"/SILENT /CLOSEAPPLICATIONS"
+    Utils.startProcess updatePath "/SILENT /CLOSEAPPLICATIONS"
     Environment.Exit(0)

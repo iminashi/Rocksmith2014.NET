@@ -167,7 +167,7 @@ let private paginationControls dispatch (collectionState: ToneCollectionState) =
                     if collectionState.TotalPages = 0 then
                         String.Empty
                     else
-                        $"{currentPage} / {collectionState.TotalPages}")
+                        $"%i{currentPage} / %i{collectionState.TotalPages}")
             ]
 
             // Next Page

@@ -84,7 +84,9 @@ let private pitchShiftTones (shift: int16) (tones: Tone list) =
             | Some freeIndex ->
                 { tone with GearList = addPitchPedal freeIndex shift tone.GearList }
             | None ->
-                failwith $"Could not add pitch shift pedal to tone {tone.Key}.\nThere needs to be at least one free pre-pedal slot.")
+                failwith $"Could not add pitch shift pedal to tone %s{tone.Key}.\n\
+                           There needs to be at least one free pre-pedal slot."
+    )
 
 let private processArrangements shift arrangements =
     arrangements
@@ -99,11 +101,11 @@ let private processArrangements shift arrangements =
 let buildPitchShifted (openProject: string option) (config: Configuration) (project: DLCProject) =
     async {
         let shift = project.PitchShift |> Option.defaultValue 0s
-        let title = { project.Title with SortValue = $"{project.Title.SortValue} Pitch" }
+        let title = { project.Title with SortValue = $"%s{project.Title.SortValue} Pitch" }
 
         let pitchProject =
             { project with
-                DLCKey = $"Pitch{project.DLCKey}"
+                DLCKey = $"Pitch%s{project.DLCKey}"
                 Title = title
                 Arrangements = processArrangements shift project.Arrangements
                 Tones = pitchShiftTones shift project.Tones }

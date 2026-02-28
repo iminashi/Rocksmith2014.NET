@@ -11,15 +11,24 @@ let setupCrashLogging () =
             match args.ExceptionObject with
             | :? Exception as e ->
                 let baseInfo =
-                    $"Unhandled exception ({DateTime.Now})\n{e.GetType().Name}\nMessage: {e.Message}\nSource: {e.Source}\nTarget Site: {e.TargetSite}\nStack Trace:\n{e.StackTrace}"
+                    $"Unhandled exception (%O{DateTime.Now})\n\
+                      %s{e.GetType().Name}\n\
+                      Message: %s{e.Message}\n\
+                      Source: %s{e.Source}\n\
+                      Target Site: %O{e.TargetSite}\n\
+                      Stack Trace:\n%s{e.StackTrace}"
 
                 if notNull e.InnerException then
                     let inner = e.InnerException
-                    $"{baseInfo}\n\nInner Exception:\nMessage:{inner.Message}\nSource: {inner.Source}\nTarget Site: {inner.TargetSite}\nStack Trace:\n{inner.StackTrace}"
+                    $"%s{baseInfo}\n\nInner Exception:\n\
+                      Message: %s{inner.Message}\n\
+                      Source: %s{inner.Source}\n\
+                      Target Site: %O{inner.TargetSite}\n\
+                      Stack Trace:\n%s{inner.StackTrace}"
                 else
                     baseInfo
             | unknown ->
-                $"Unknown exception object: {unknown}"
+                $"Unknown exception object: %A{unknown}"
 
         File.WriteAllText(Configuration.crashLogPath, logMessage)
 

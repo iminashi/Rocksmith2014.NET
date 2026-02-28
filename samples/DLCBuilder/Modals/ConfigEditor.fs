@@ -17,7 +17,7 @@ open DLCBuilder.Media
 
 let private tryFindWwiseExecutable basePath =
     let ext = PlatformSpecific.Value(mac = "sh", windows = "exe", linux = "exe")
-    Directory.EnumerateFiles(basePath, $"WwiseConsole.{ext}", SearchOption.AllDirectories)
+    Directory.EnumerateFiles(basePath, $"WwiseConsole.%s{ext}", SearchOption.AllDirectories)
     |> Seq.tryHead
 
 let private headerWithLine (locString: string) (includeHelpButton: bool) =
@@ -34,7 +34,7 @@ let private headerWithLine (locString: string) (includeHelpButton: bool) =
             if includeHelpButton then
                 HelpButton.create [
                     DockPanel.dock Dock.Left
-                    HelpButton.helpText (translate $"{locString}Help")
+                    HelpButton.helpText (translate $"%s{locString}Help")
                 ]
 
             Rectangle.create [
@@ -162,7 +162,7 @@ let private generalConfig state dispatch =
                                     TextBlock.margin 0.
                                 ]
                                 TextBlock.create [
-                                    TextBlock.text (translatef $"{option}Help" [| example |])
+                                    TextBlock.text (translatef $"%O{option}Help" [| example |])
                                     TextBlock.padding (5., 5.)
                                     TextBlock.textWrapping TextWrapping.Wrap
                                 ]
@@ -418,7 +418,7 @@ let private ddConfig state dispatch =
                                     TextBlock.padding (0., 4., 0., 0.)
                                     TextBlock.margin 0.
                                 ]
-                                locText $"{option}Help" [
+                                locText $"%O{option}Help" [
                                     TextBlock.padding (5., 5.)
                                     TextBlock.textWrapping TextWrapping.Wrap
                                 ]
@@ -483,7 +483,7 @@ let private buildConfig state dispatch =
                     ]
                     vStack [
                         RadioButton.create [
-                            RadioButton.content $"Cherub Rock ({AppId.toString AppId.CherubRock})"
+                            RadioButton.content $"Cherub Rock (%s{AppId.toString AppId.CherubRock})"
                             RadioButton.isChecked state.Config.CustomAppId.IsNone
                             RadioButton.onChecked (fun _ -> None |> SetCustomAppId |> EditConfig |> dispatch)
                         ]

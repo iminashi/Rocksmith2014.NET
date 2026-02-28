@@ -114,7 +114,7 @@ let private arrangementDetails state dispatch =
                                         TextBlock.create [
                                             TextBlock.fontSize 12.
                                             TextBlock.margin (8., 0.)
-                                            TextBlock.text $"{IO.Path.GetFileName(xmlFile)}"
+                                            TextBlock.text (IO.Path.GetFileName(xmlFile))
                                             TextBlock.foreground "#cccccc"
                                             TextBlock.verticalAlignment VerticalAlignment.Center
                                         ]
@@ -355,15 +355,17 @@ let private statusMessageContents dispatch = function
             TextBlock.text (
                 match task with
                 | VolumeCalculation (CustomAudio _) ->
-                    translate $"VolumeCalculationCustomAudio"
-                | VolumeCalculation target ->
-                    translate $"VolumeCalculation{target}"
+                    translate "VolumeCalculationCustomAudio"
+                | VolumeCalculation MainAudio ->
+                    translate "VolumeCalculationMainAudio"
+                | VolumeCalculation PreviewAudio ->
+                    translate "VolumeCalculationPreviewAudio"
                 | FileDownload { LocString = s } ->
                     translate s
                 | WemConversion files ->
                     let header = translate "WemConversion"
                     let filesStr = files |> Array.map System.IO.Path.GetFileName |> String.concat "\n"
-                    $"{header}\n{filesStr}"
+                    $"%s{header}\n%s{filesStr}"
                 | other ->
                     other |> string |> translate)
         ] |> generalize
@@ -424,7 +426,7 @@ let view (customTitleBar: TitleBarButtons option) (window: Window) (state: State
                 else
                     String.Empty
 
-            $"{dot}{state.Project.ArtistName.Value} - {state.Project.Title.Value}", project
+            $"%s{dot}%s{state.Project.ArtistName.Value} - %s{state.Project.Title.Value}", project
         | None ->
             "Rocksmith 2014 DLC Builder", String.Empty
 

@@ -40,21 +40,21 @@ module GraphItem =
 
     /// Creates a graph item.
     let normal name canonical extension tags =
-        let path = $"{canonical}/{name}.{extension}"
+        let path = $"%s{canonical}/%s{name}.%s{extension}"
         make name canonical tags path None
 
     /// Creates a graph item with an LLID when the relative and logical paths are identical.
     let llid name canonical extension tags =
-        let path = $"{canonical}/{name}.{extension}"
+        let path = $"%s{canonical}/%s{name}.%s{extension}"
         make name canonical tags path (Some path)
 
     /// Creates a graph item for an SNG file.
     let sng name platform =
         let canonical =
-            $"/songs/bin/{getPathPart platform Path.SNG}"
+            $"/songs/bin/%s{getPathPart platform Path.SNG}"
 
-        let rp = $"{canonical}/{name}.sng"
-        let lp = Some $"/songs/bin/{name}.sng"
+        let rp = $"%s{canonical}/%s{name}.sng"
+        let lp = Some $"/songs/bin/%s{name}.sng"
 
         make name canonical [ Tag.Application; Tag.MusicgameSong; if platform = Mac then Tag.MacOS ] rp lp
 
@@ -64,10 +64,10 @@ module GraphItem =
     /// Creates a graph item for a BNK file.
     let bnk name platform =
         let canonical =
-            $"/audio/{getPathPart platform Path.Audio}"
+            $"/audio/%s{getPathPart platform Path.Audio}"
 
-        let rp = $"{canonical}/{name}.bnk"
-        let lp = Some $"/audio/{name}.bnk"
+        let rp = $"%s{canonical}/%s{name}.bnk"
+        let lp = Some $"/audio/%s{name}.bnk"
 
         make name canonical [ Tag.Audio; Tag.WwiseSoundBank; getPlatformTag platform ] rp lp
 

@@ -55,14 +55,14 @@ let private validateRevorbOutput (exitCode, output) =
     elif exitCode <> 0 then
         let message =
             if String.notEmpty output then
-                $"output:\n{output}"
+                $"output:\n%s{output}"
             else
-                $"exit code: {exitCode}"
+                $"exit code: %i{exitCode}"
 
-        failwith $"revorb process failed with {message}"
+        failwith $"revorb process failed with %s{message}"
 
 let private wemToOggImpl sourcePath targetPath =
-    processFile ww2ogg sourcePath $"""-o "{targetPath}" --pcb packed_codebooks_aoTuV_603.bin"""
+    processFile ww2ogg sourcePath $"""-o "%s{targetPath}" --pcb packed_codebooks_aoTuV_603.bin"""
     |> validateWw2oggOutput
 
     processFile revorb targetPath ""
@@ -84,7 +84,7 @@ let wemToWav (wemFile: string) =
 
 /// Does an operation with a wem file converted into a vorbis file temporarily.
 let withTempOggFile (f: string -> 'a) (wemPath: string) =
-    let tempOggPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.ogg")
+    let tempOggPath = Path.Combine(Path.GetTempPath(), $"%O{Guid.NewGuid()}.ogg")
     wemToOggImpl wemPath tempOggPath
     let res = f tempOggPath
     File.Delete(tempOggPath)

@@ -58,33 +58,33 @@ let create (platform: Platform) (project: DLCProject) =
                 let lyricArt =
                     match arr with
                     | Vocals { CustomFont = Some _; Japanese = j } ->
-                        $"urn:image:dds:{Utils.getCustomFontName j dlcName}"
+                        $"urn:image:dds:%s{Utils.getCustomFontName j dlcName}"
                     | _ ->
                         String.Empty
 
                 let soundBank =
                     match arr with
                     | Instrumental { CustomAudio = Some _ } ->
-                        $"urn:audio:wwise-sound-bank:song_{dlcName}_{fileName}"
+                        $"urn:audio:wwise-sound-bank:song_%s{dlcName}_%s{fileName}"
                     | _ ->
-                        $"urn:audio:wwise-sound-bank:song_{dlcName}"
+                        $"urn:audio:wwise-sound-bank:song_%s{dlcName}"
 
                 let properties = [|
                     match platform with
-                    | PC | Mac -> prop "Header" $"urn:database:hsan-db:songs_dlc_{dlcName}"
-                    prop "Manifest" $"urn:database:json-db:{dlcName}_{fileName}"
-                    prop "SngAsset" $"urn:application:musicgame-song:{dlcName}_{fileName}"
-                    prop "AlbumArtSmall" $"urn:image:dds:album_{dlcName}_64"
-                    prop "AlbumArtMedium" $"urn:image:dds:album_{dlcName}_128"
-                    prop "AlbumArtLarge" $"urn:image:dds:album_{dlcName}_256"
+                    | PC | Mac -> prop "Header" $"urn:database:hsan-db:songs_dlc_%s{dlcName}"
+                    prop "Manifest" $"urn:database:json-db:%s{dlcName}_%s{fileName}"
+                    prop "SngAsset" $"urn:application:musicgame-song:%s{dlcName}_%s{fileName}"
+                    prop "AlbumArtSmall" $"urn:image:dds:album_%s{dlcName}_64"
+                    prop "AlbumArtMedium" $"urn:image:dds:album_%s{dlcName}_128"
+                    prop "AlbumArtLarge" $"urn:image:dds:album_%s{dlcName}_256"
                     prop "LyricArt" lyricArt
-                    prop "ShowLightsXMLAsset" $"urn:application:xml:{dlcName}_showlights"
+                    prop "ShowLightsXMLAsset" $"urn:application:xml:%s{dlcName}_showlights"
                     prop "SoundBank" soundBank
-                    prop "PreviewSoundBank" $"urn:audio:wwise-sound-bank:song_{dlcName}_preview" |]
+                    prop "PreviewSoundBank" $"urn:audio:wwise-sound-bank:song_%s{dlcName}_preview" |]
 
                 { Id = (Arrangement.getPersistentId arr).ToString("N")
                   ModelName = "RSEnumerable_Song"
-                  Name = $"{project.DLCKey}_{Arrangement.getName arr false}"
+                  Name = $"%s{project.DLCKey}_%s{Arrangement.getName arr false}"
                   Iterations = 0
                   Properties = properties }
                 |> Some)

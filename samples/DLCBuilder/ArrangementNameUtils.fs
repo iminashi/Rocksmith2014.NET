@@ -38,12 +38,12 @@ let translateName (project: DLCProject) (info: ArrangementNameExtraInfo) (arr: A
             let n, p = Arrangement.getNameAndPrefix arr
 
             if p.Length > 0 then
-                $"{translate p} {translate n}"
+                $"%s{translate p} %s{translate n}"
             else
                 translate n
 
         let arrNumber = getArrangementNumber arr project
-        let baseName = $"{baseName}{arrNumber}"
+        let baseName = $"%s{baseName}%s{arrNumber}"
 
         match info with
         | NameOnly ->
@@ -52,13 +52,13 @@ let translateName (project: DLCProject) (info: ArrangementNameExtraInfo) (arr: A
             let extra =
                 match inst with
                 | { Name = ArrangementName.Combo } ->
-                    let c = translate "ComboArr" in $" ({c})"
+                    let c = translate "ComboArr" in $" (%s{c})"
                 | { RouteMask = RouteMask.Bass; BassPicked = true } ->
-                    let p = translate "Picked" in $" ({p})"
+                    let p = translate "Picked" in $" (%s{p})"
                 | _ ->
                     String.Empty
 
-            $"{baseName}{extra}"
+            $"%s{baseName}%s{extra}"
     | Vocals _
     | Showlights _ ->
         Arrangement.getNameAndPrefix arr

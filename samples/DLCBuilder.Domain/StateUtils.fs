@@ -129,13 +129,13 @@ let createToneKeyFromTitleAndArrangmentName title arrangementName =
     |> StringValidator.fileName
     |> fun t ->
         let titleLower = t.Replace("-", "").ToLowerInvariant()
-        $"{titleLower}_{arrangementName}"
+        $"%s{titleLower}_%s{arrangementName}"
 
 /// Adds the arrangements from the given filenames into the project in the state.
 let addArrangements fileNames state =
     let getBaseToneName (metadata: Rocksmith2014.XML.MetaData) (routeMask: RouteMask) =
         let arrName = routeMask.ToString().ToLowerInvariant()
-        let getDefault () = $"{arrName}_base"
+        let getDefault () = $"%s{arrName}_base"
 
         match state.Config.BaseToneNamingScheme with
         | BaseToneNamingScheme.Default ->
@@ -488,7 +488,7 @@ let createProjectFilename project =
     let title = sortValueFromSortableString StringValidator.FieldType.Title project.Title
 
     (artist, title)
-    ||> Option.map2 (fun artist title -> StringValidator.fileName $"{artist}_{title}")
+    ||> Option.map2 (fun artist title -> StringValidator.fileName $"%s{artist}_%s{title}")
     |> Option.defaultValue "new_project"
     |> sprintf "%s.rs2dlc"
 

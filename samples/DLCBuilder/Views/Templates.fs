@@ -28,13 +28,13 @@ let tone state dispatch index (t: Tone) =
 
     let title =
         if isUnused then
-            let nameStr = if String.IsNullOrEmpty(t.Name) then String.Empty else $"{t.Name} "
+            let nameStr = if String.IsNullOrEmpty(t.Name) then String.Empty else $"%s{t.Name} "
 
             sprintf "%s(%s)" nameStr (translate "Unused")
         elif t.Key = t.Name then
             t.Name
         else
-            $"{t.Key} ({t.Name})"
+            $"%s{t.Key} (%s{t.Name})"
 
     let description =
         String.Join(" ", Array.map (ToneDescriptor.uiNameToName >> translate) t.ToneDescriptors)
@@ -75,13 +75,13 @@ let toneDescriptor : IDataTemplate =
     DataTemplateView<ToneDescriptor>.create (fun desc ->
         let text =
             let name = translate desc.Name
-            if desc.IsExtra then $"{name} *" else name
+            if desc.IsExtra then $"%s{name} *" else name
 
         TextBlock.create [ TextBlock.text text ])
 
 /// Template for an arrangement name.
 let arrangementName : IDataTemplate =
-    DataTemplateView<ArrangementName>.create (fun name -> locText $"{name}Arr" [])
+    DataTemplateView<ArrangementName>.create (fun name -> locText $"%O{name}Arr" [])
 
 let private getExtraText arr =
     match arr with
@@ -101,7 +101,7 @@ let private getExtraText arr =
                 translatef tuning notes
 
         if inst.TuningPitch <> 440.0 then
-            $"{tuning} (A{inst.TuningPitch})"
+            $"%s{tuning} (A%O{inst.TuningPitch})"
         else
             tuning
 

@@ -64,7 +64,7 @@ let private menuCheckBox (text: string) (hasToolTip: bool) (value: bool) (toggle
             ]
         )
         if hasToolTip then
-            ToolTip.tip (translate $"{text}ToolTip")
+            ToolTip.tip (translate $"%s{text}ToolTip")
     ]
 
 let private menuRadioButton (text: string) (hasToolTip: bool) (isChecked: bool) (setChecked: unit -> unit) =
@@ -86,7 +86,7 @@ let private menuRadioButton (text: string) (hasToolTip: bool) (isChecked: bool) 
             ]
         )
         if hasToolTip then
-            ToolTip.tip (translate $"{text}ToolTip")
+            ToolTip.tip (translate $"%s{text}ToolTip")
     ]
 
 let copyTaskMenu dispatch (index: int) (task: PostBuildCopyTask) =
@@ -294,7 +294,7 @@ let file state dispatch =
                     state.RecentFiles
                     |> List.mapi (fun i fileName ->
                         MenuItem.create [
-                            MenuItem.header $"_{i + 1} {IO.Path.GetFileName(fileName)}"
+                            MenuItem.header $"_%i{i + 1} %s{IO.Path.GetFileName(fileName)}"
                             ToolTip.tip fileName
                             MenuItem.onClick (
                                 (fun _ -> OpenProject fileName |> dispatch),

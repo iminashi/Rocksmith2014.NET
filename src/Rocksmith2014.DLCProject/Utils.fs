@@ -93,4 +93,4 @@ let distinctExceptionMessages (e: exn) =
 /// Returns the filename for a custom font.
 let getCustomFontName (isJapanese: bool) (dlcName: string) =
     let separator = if isJapanese then "" else "v_"
-    $"lyrics_{separator}{dlcName}"
+    $"lyrics_%s{separator}%s{dlcName}"

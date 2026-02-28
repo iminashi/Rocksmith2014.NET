@@ -24,7 +24,7 @@ let private createPrefix charterName =
 /// Creates a DLC key from the charter name, artist name and title.
 let create (charterName: string) (artist: string) (title: string) =
     let key =
-        $"{createPrefix charterName}{createPart artist}{createPart title}"
+        $"%s{createPrefix charterName}%s{createPart artist}%s{createPart title}"
 
     if key.Length < MinimumLength then
         key + randomChars (MinimumLength - key.Length)

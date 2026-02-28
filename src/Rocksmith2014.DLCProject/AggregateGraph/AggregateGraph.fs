@@ -22,29 +22,29 @@ let create (platform: Platform) (project: DLCProject) =
         yield GraphItem.normal dlcName CanonicalXBlock "xblock" [ Tag.EmergentWorld; Tag.XWorld ]
 
         for arrangement in project.Arrangements do
-            let name = $"{dlcName}_{partition arrangement |> snd}"
+            let name = $"%s{dlcName}_%s{partition arrangement |> snd}"
 
             match arrangement with
             | Showlights _ ->
                 yield GraphItem.llid name CanonicalXmlSong "xml" [ Tag.Application; Tag.XML ]
 
             | _ ->
-                let canonical = $"/manifests/songs_dlc_{dlcName}"
+                let canonical = $"/manifests/songs_dlc_%s{dlcName}"
                 yield GraphItem.normal name canonical "json" [ Tag.Database; Tag.JsonDB ]
                 yield GraphItem.sng name platform
 
                 // Custom audio file
                 match arrangement with
                 | Instrumental { CustomAudio = Some _ } ->
-                    yield GraphItem.bnk $"song_{name}" platform
+                    yield GraphItem.bnk $"song_%s{name}" platform
                 | _ -> ()
 
-        let name = $"songs_dlc_{dlcName}"
-        let canonical = $"/manifests/songs_dlc_{dlcName}"
+        let name = $"songs_dlc_%s{dlcName}"
+        let canonical = $"/manifests/songs_dlc_%s{dlcName}"
         yield GraphItem.normal name canonical "hsan" [ Tag.Database; Tag.HsanDB ]
 
         yield! [ 64; 128; 256 ]
-        |> List.map (fun size -> GraphItem.dds $"album_{dlcName}_{size}" CanonicalAlbumArt)
+        |> List.map (fun size -> GraphItem.dds $"album_%s{dlcName}_%i{size}" CanonicalAlbumArt)
 
         yield! project.Arrangements
         |> List.choose (function
@@ -54,11 +54,11 @@ let create (platform: Platform) (project: DLCProject) =
                 None)
         |> List.map (fun v ->
             let name = Utils.getCustomFontName v.Japanese dlcName
-            let canonical = $"/assets/ui/lyrics/{dlcName}"
+            let canonical = $"/assets/ui/lyrics/%s{dlcName}"
             GraphItem.dds name canonical)
 
-        yield GraphItem.bnk $"song_{dlcName}" platform
-        yield GraphItem.bnk $"song_{dlcName}_preview" platform ] }
+        yield GraphItem.bnk $"song_%s{dlcName}" platform
+        yield GraphItem.bnk $"song_%s{dlcName}_preview" platform ] }
 
 /// Serializes the aggregate graph into the output stream.
 let serialize (output: Stream) (graph: Graph) =

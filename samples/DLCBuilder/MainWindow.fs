@@ -226,7 +226,7 @@ type MainWindow(commandLineArgs: string array) as this =
                     ()
 
                 let errorMessage =
-                    $"Unhandled exception in the update function.\nMessage: {msg}\nException: {ex.Message}"
+                    $"Unhandled exception in the update function.\nMessage: %O{msg}\nException: %s{ex.Message}"
 
                 let exnInfo =
                     Utils.createExceptionInfoString ex

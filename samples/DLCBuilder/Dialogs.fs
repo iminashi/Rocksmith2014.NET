@@ -70,7 +70,7 @@ let private createFileFilters filter =
     let name =
         match filter with
         | FileFilter.WwiseConsoleApplication ->
-            $"WwiseConsole.{wwiseConsoleExtension}"
+            $"WwiseConsole.%s{wwiseConsoleExtension}"
         | other ->
             sprintf "%AFiles" other
             |> translate
@@ -188,7 +188,7 @@ let private translateTitle dialogType =
             | Dialog.PsarcPackTargetFile _ -> "PsarcPackTargetFile"
             | other -> string other
 
-        $"{baseString}DialogTitle"
+        $"%s{baseString}DialogTitle"
 
     translate locString
 
@@ -344,7 +344,7 @@ let showDialog (window: Window) (dialogType: Dialog) (state: State) : Cmd<Msg> =
             openFileDialog title FileFilter.DDS projectDirectory (Some >> SetCustomFont >> EditVocals)
 
         | Dialog.ExportTone tone ->
-            let initialFileName = Some $"{tone.Name}.tone2014.xml"
+            let initialFileName = Some $"%s{tone.Name}.tone2014.xml"
             saveFileDialog title FileFilter.ToneExport initialFileName None (fun path -> ExportTone(tone, path))
 
         | Dialog.SaveProjectAs ->

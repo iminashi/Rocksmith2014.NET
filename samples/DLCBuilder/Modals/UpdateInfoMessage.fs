@@ -47,7 +47,7 @@ let view (update: UpdateInformation) dispatch =
                 TextBlock.create [
                     let version = update.UpdateVersion.ToString(3)
                     let date = update.ReleaseDate.ToString("d")
-                    TextBlock.text $"v{version} ({date})"
+                    TextBlock.text $"v%s{version} (%s{date})"
                 ]
             ]
 

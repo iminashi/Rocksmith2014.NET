@@ -1239,7 +1239,7 @@ let update (msg: Msg) (state: State) =
             // Dispose any previous watcher
             state.FontGenerationWatcher |> Option.iter (fun f -> f.Dispose())
 
-            Utils.startProcess generatorPath $"\"{xml}\""
+            Utils.startProcess generatorPath $"\"%s{xml}\""
 
             let fontWatcher =
                 let fsWatcher = new System.IO.FileSystemWatcher(Path.GetDirectoryName(xml), "*.glyphs.xml", EnableRaisingEvents = true)

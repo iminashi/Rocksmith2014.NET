@@ -87,9 +87,9 @@ let private gearTemplate : IDataTemplate =
         match gear.Type with
         | "Amps" | "Cabinets" ->
             let prefix = if String.startsWith "bass" gear.Key then "(Bass) " else String.Empty
-            TextBlock.create [ TextBlock.text $"{prefix}{gear.Name}" ]
+            TextBlock.create [ TextBlock.text $"%s{prefix}%s{gear.Name}" ]
         | _ ->
-            TextBlock.create [ TextBlock.text $"{gear.Category}: {gear.Name}" ])
+            TextBlock.create [ TextBlock.text $"%s{gear.Category}: %s{gear.Name}" ])
 
 let private gearSlotHeader locName =
     TextBlock.create [
@@ -115,7 +115,7 @@ let private pedalSelectors dispatch repository selectedGearSlot gearList (locNam
 let private gearSlots repository state dispatch (gearList: Gear) =
     let ampName = repository.AmpsByKey[gearList.Amp.Key].Name
     let cabinetName =
-        let c = repository.CabinetsByKey[gearList.Cabinet.Key] in $"{c.Name} - {c.Category}"
+        let c = repository.CabinetsByKey[gearList.Cabinet.Key] in $"%s{c.Name} - %s{c.Category}"
 
     vStack [
         gearSlotHeader "Amp"
@@ -196,7 +196,7 @@ let private formatValue knob value =
         let index = Math.Clamp(int value, 0, enums.Length - 1)
         enums[index]
     | None ->
-        let unit = if knob.UnitType = "number" then String.Empty else $" {knob.UnitType}"
+        let unit = if knob.UnitType = "number" then String.Empty else $" %s{knob.UnitType}"
         let format = sprintf "{0:%s}%s" (getFormatString knob) unit
         // Use String.Format to get culture specific decimal separators
         String.Format(format, value)

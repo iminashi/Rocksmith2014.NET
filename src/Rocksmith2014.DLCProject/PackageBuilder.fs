@@ -61,7 +61,7 @@ let private build (buildData: BuildData) (progress: unit -> unit) (targetPath: T
 
     let getManifestName arr =
         let name = partition arr |> snd
-        $"manifests/songs_dlc_{key}/{key}_{name}.json"
+        $"manifests/songs_dlc_%s{key}/%s{key}_%s{name}.json"
 
     use! manifestEntries =
         let attributes arr conv =
@@ -100,7 +100,7 @@ let private build (buildData: BuildData) (progress: unit -> unit) (targetPath: T
                 |> Manifest.createHeader
                 |> Manifest.toJsonStream data
                 |> Async.AwaitTask
-            return entry $"manifests/songs_dlc_{key}/songs_dlc_{key}.hsan" data
+            return entry $"manifests/songs_dlc_%s{key}/songs_dlc_%s{key}.hsan" data
         }
 
     use! sngEntries =
@@ -113,7 +113,7 @@ let private build (buildData: BuildData) (progress: unit -> unit) (targetPath: T
                 let name =
                     let part = partition arr |> snd
                     let path = getPathPart platform Path.SNG
-                    $"songs/bin/{path}/{key}_{part}.sng"
+                    $"songs/bin/%s{path}/%s{key}_%s{part}.sng"
 
                 return entry name data
             })
@@ -124,7 +124,7 @@ let private build (buildData: BuildData) (progress: unit -> unit) (targetPath: T
 
     use showlightsEntry =
         let slFile = (List.pick Arrangement.pickShowlights project.Arrangements).XmlPath
-        entry $"songs/arr/{key}_showlights.xml" (readFile slFile)
+        entry $"songs/arr/%s{key}_showlights.xml" (readFile slFile)
 
     use fontEntries =
         project.Arrangements
@@ -135,7 +135,7 @@ let private build (buildData: BuildData) (progress: unit -> unit) (targetPath: T
                 None)
         |> List.map (fun (v, f) ->
             let name = Utils.getCustomFontName v.Japanese key
-            entry $"assets/ui/lyrics/{key}/{name}.dds" (readFile f))
+            entry $"assets/ui/lyrics/%s{key}/%s{name}.dds" (readFile f))
         |> toDisposableList
 
     use flatModelEntries =
@@ -153,7 +153,7 @@ let private build (buildData: BuildData) (progress: unit -> unit) (targetPath: T
         XBlock.create platform project
         |> XBlock.serialize data
 
-        entry $"gamexblocks/nsongs/{key}.xblock" data
+        entry $"gamexblocks/nsongs/%s{key}.xblock" data
 
     use appIdEntry =
         entry "appid.appid" (new MemoryStream(Encoding.ASCII.GetBytes(AppId.toString buildData.AppId)))
@@ -164,16 +164,22 @@ let private build (buildData: BuildData) (progress: unit -> unit) (targetPath: T
         AggregateGraph.create platform project
         |> AggregateGraph.serialize data
 
-        entry $"{key}_aggregategraph.nt" data
+        entry $"%s{key}_aggregategraph.nt" data
 
     use gfxEntries =
         buildData.CoverArtFiles.Items
         |> List.map (fun dds ->
-            entry $"gfxassets/album_art/album_{key}_{dds.Size}.dds" (readFile dds.Path))
+            entry $"gfxassets/album_art/album_%s{key}_%i{dds.Size}.dds" (readFile dds.Path))
         |> toDisposableList
 
     use toolkitEntry =
-        new MemoryStream(Encoding.UTF8.GetBytes($"Toolkit version: {buildData.BuilderVersion}\nPackage Author: {buildData.Author}\nPackage Version: {project.Version}\nPackage Comment: Remastered"))
+        let str =
+            $"Toolkit version: %s{buildData.BuilderVersion}\n\
+              Package Author: %s{buildData.Author}\n\
+              Package Version: %s{project.Version}\n\
+              Package Comment: Remastered"
+
+        new MemoryStream(Encoding.UTF8.GetBytes(str))
         |> entry "toolkit.version"
 
     progress ()
@@ -197,21 +203,21 @@ let private build (buildData: BuildData) (progress: unit -> unit) (targetPath: T
             let audioName = SoundBank.generate bankName audioData bankData (float32 audioFile.Volume) platform
             let path = getPathPart platform Path.Audio
 
-            [ entry $"audio/{path}/song_{bankName.ToLowerInvariant()}.bnk" bankData
-              entry $"audio/{path}/{audioName}.wem" audioData ]
+            [ entry $"audio/%s{path}/song_%s{bankName.ToLowerInvariant()}.bnk" bankData
+              entry $"audio/%s{path}/%s{audioName}.wem" audioData ]
 
         createEntries project.AudioFile project.DLCKey
-        |> List.append (createEntries project.AudioPreviewFile $"{project.DLCKey}_Preview")
+        |> List.append (createEntries project.AudioPreviewFile $"%s{project.DLCKey}_Preview")
         |> List.append (
             customAudio
-            |> List.collect (fun (name, audio) -> createEntries audio $"{project.DLCKey}_{name}")
+            |> List.collect (fun (name, audio) -> createEntries audio $"%s{project.DLCKey}_%s{name}")
         )
         |> toDisposableList
 
     let path =
         match targetPath with
         | WithoutPlatformOrExtension path ->
-            $"{path}{getPathPart platform Path.PackageSuffix}.psarc"
+            $"%s{path}%s{getPathPart platform Path.PackageSuffix}.psarc"
         | WithPlatformAndExtension path ->
             path
 
@@ -263,7 +269,7 @@ let private setupInstrumental (part: int) (inst: Instrumental) (config: BuildCon
         try
             Generator.generateForArrangement config.DDConfig xml |> ignore
         with e ->
-            raise <| Exception($"Error generating DD:\n{Utils.distinctExceptionMessages e}", e)
+            raise <| Exception($"Error generating DD:\n%s{Utils.distinctExceptionMessages e}", e)
 
     if config.SaveDebugFiles then
         xml.Save(Path.ChangeExtension(inst.XmlPath, "debug.xml"))
@@ -277,7 +283,7 @@ let private getFontOption (dlcKey: string) (isJapanese: bool) =
             |> GlyphDefinitions.Load
 
         let name = Utils.getCustomFontName isJapanese dlcKey
-        FontOption.CustomFont(glyphs, $"assets/ui/lyrics/{dlcKey}/{name}.dds"))
+        FontOption.CustomFont(glyphs, $"assets/ui/lyrics/%s{dlcKey}/%s{name}.dds"))
     >> Option.defaultValue FontOption.DefaultFont
 
 /// Inserts an automatically generated show lights arrangement into the project.
@@ -406,7 +412,7 @@ let buildPackages (targetPath: TargetPathType) (config: BuildConfig) (project: D
                         None
                 with e ->
                     let failedFile = Arrangement.getFile arr |> Path.GetFileName
-                    raise <| Exception($"Converting file {failedFile} failed.\n\n{Utils.distinctExceptionMessages e}", e))
+                    raise <| Exception($"Converting file %s{failedFile} failed.\n\n%s{Utils.distinctExceptionMessages e}", e))
 
         let sngs =
             sngsWithTones

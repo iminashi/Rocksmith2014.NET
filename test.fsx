@@ -18,13 +18,13 @@ let runTest (projectPath: string) =
         if projectPath.EndsWith("Audio.Tests.fsproj") ||
            projectPath.EndsWith("DLCProject.Tests.fsproj")
         then
-            $" --runtime {runtime}"
+            $" --runtime %s{runtime}"
         else
             String.Empty
 
     printfn "INFO: Executing tests for project %s" (IO.Path.GetFileName(projectPath))
 
-    let result = DotNet.exec id "test" $"\"{projectPath}\" -c Release{rid}"
+    let result = DotNet.exec id "test" $"\"%s{projectPath}\" -c Release%s{rid}"
     if result.ExitCode <> 0 then
         failwith "Test failed."
 

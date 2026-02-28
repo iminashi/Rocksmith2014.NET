@@ -42,8 +42,8 @@ let testFiles importPath =
     let exists fileName = File.Exists(Path.Combine(importPath, fileName))
     expectedArrangements
     |> List.iter (fun arr ->
-        let file = $"arr_{arr}_RS2.xml"
-        Expect.isTrue (exists file) $"Arrangement file {file} exists")
+        let file = $"arr_%s{arr}_RS2.xml"
+        Expect.isTrue (exists file) $"Arrangement file %s{file} exists")
 
     Expect.isTrue (exists "integrationtest.wem") "Main audio file exists"
     Expect.isTrue (exists "integrationtest_preview.wem") "Preview audio file exists"

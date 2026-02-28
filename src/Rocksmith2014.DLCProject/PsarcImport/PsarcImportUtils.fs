@@ -64,8 +64,8 @@ let importVocals (targetDirectory: string) (targetFile: string) (attributes: Att
         | fontPath ->
             let filename = getFontFilename fontPath
             let glyphs = ConvertVocals.extractGlyphData sng
-            glyphs.Save(Path.Combine(targetDirectory, $"{filename}.glyphs.xml"))
-            Some(Path.Combine(targetDirectory, $"{filename}.dds"))
+            glyphs.Save(Path.Combine(targetDirectory, $"%s{filename}.glyphs.xml"))
+            Some(Path.Combine(targetDirectory, $"%s{filename}.dds"))
 
     { Id = ArrangementId.New
       XmlPath = targetFile
@@ -95,7 +95,7 @@ let importInstrumental (audioFiles: AudioFile array) (dlcKey: string) (targetPat
         Math.Round(float attributes.DynamicVisualDensity[max], 1, MidpointRounding.AwayFromZero)
 
     let customAudio =
-        if attributes.SongBank = $"song_{dlcKey}.bnk" then
+        if attributes.SongBank = $"song_%s{dlcKey}.bnk" then
             None
         else
             let targetFilename = createTargetAudioFilename attributes.SongBank
@@ -146,21 +146,21 @@ let toneFromDto (dto: ToneDto) =
 
 /// Parses a value from Toolkit.version text.
 let parseToolkitMetadata attr map defaultValue text =
-    match Regex.Match(text, $"{attr}: ([^\r\n]+)\r?\n") with
+    match Regex.Match(text, $"%s{attr}: ([^\r\n]+)\r?\n") with
     | m when m.Success ->
         map m.Groups[1].Captures[0].Value
     | _ ->
         defaultValue
 
 /// Parses a value (starting with "Package") from Toolkit.version text.
-let parseToolkitPackageMetadata attr = parseToolkitMetadata $"Package {attr}"
+let parseToolkitPackageMetadata (attr: string) = parseToolkitMetadata $"Package %s{attr}"
 
 /// Prefixes the version string with "Toolkit" if it starts with a four part version number.
 let prefixWithToolkit (versionOpt: string option) =
     versionOpt
     |> Option.map (fun version ->
         if Regex.IsMatch(version, "\d+\.\d+\.\d+\.\d+") then
-            $"Toolkit {version}"
+            $"Toolkit %s{version}"
         else
             version)
 

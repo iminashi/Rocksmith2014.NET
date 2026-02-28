@@ -38,7 +38,7 @@ let private getTempDirectory () =
 let private extractTemplate (targetDir: string) (version: WwiseVersion) =
     let embeddedProvider = EmbeddedFileProvider(Assembly.GetExecutingAssembly())
     let templateFile = version.ToString().ToLowerInvariant()
-    use templateZip = embeddedProvider.GetFileInfo($"Wwise/{templateFile}.zip").CreateReadStream()
+    use templateZip = embeddedProvider.GetFileInfo($"Wwise/%s{templateFile}.zip").CreateReadStream()
     using (new ZipArchive(templateZip)) (fun zip -> zip.ExtractToDirectory(targetDir))
 
 /// Extracts the Wwise template and copies the audio files into the Originals/SFX directory.
@@ -89,7 +89,7 @@ let private getWwiseVersion executablePath =
         | 2021 -> Wwise2021
         | 2022 -> Wwise2022
         | 2023 -> Wwise2023
-        | _ -> failwith $"Unsupported Wwise version ({version.FileVersion}).\nMust be major version 2019/2021/2022/2023."
+        | _ -> failwith $"Unsupported Wwise version (%s{version.FileVersion}).\nMust be major version 2019/2021/2022/2023."
     else
         match executablePath with
         | Contains "2019" -> Wwise2019
@@ -101,9 +101,9 @@ let private getWwiseVersion executablePath =
 let private createArgs isLinux templateDir =
     let templatePath =
         Path.Combine(templateDir, "Template.wproj")
-        |> fun path -> if isLinux then $"z:{path}" else path
+        |> fun path -> if isLinux then $"z:%s{path}" else path
 
-    $"""generate-soundbank "{templatePath}" --platform "Windows" --language "English(US)" --no-decode --quiet"""
+    $"""generate-soundbank "%s{templatePath}" --platform "Windows" --language "English(US)" --no-decode --quiet"""
 
 /// Converts the source audio file into a wem file.
 let convertToWem (cliPath: string option) (sourcePath: string) =
@@ -114,7 +114,7 @@ let convertToWem (cliPath: string option) (sourcePath: string) =
             match cliPath with
             | Some (Contains "WwiseConsole" as path) ->
                 if not <| File.Exists(path) then
-                    failwith $"The file: \"{path}\" does not exist."
+                    failwith $"The file: \"%s{path}\" does not exist."
                 path
             | None ->
                 getCLIPath ()
@@ -131,7 +131,7 @@ let convertToWem (cliPath: string option) (sourcePath: string) =
 
                 let fileName, arguments =
                     if isLinux then
-                        "wine", $"\"{cliPath}\" {args}"
+                        "wine", $"\"%s{cliPath}\" %s{args}"
                     else
                         cliPath, args
 
@@ -153,8 +153,8 @@ let convertToWem (cliPath: string option) (sourcePath: string) =
                     if standardOutput.Length = 0 then
                         "No console output."
                     else
-                        $"Output:\n{standardOutput}"
-                failwith $"WWise conversion failed with exit code {exitCode}. {output}"
+                        $"Output:\n%s{standardOutput}"
+                failwith $"WWise conversion failed with exit code %i{exitCode}. %s{output}"
 
             copyWemFile destPath templateDir
         finally

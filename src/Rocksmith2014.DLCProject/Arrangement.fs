@@ -146,7 +146,7 @@ module Arrangement =
         let name =
             match arr with
             | Instrumental inst ->
-                $"{inst.RouteMask}Arr"
+                $"%O{inst.RouteMask}Arr"
             | Vocals { Japanese = true } ->
                 "Japanese Vocals"
             | Vocals _ ->

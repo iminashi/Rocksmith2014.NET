@@ -56,7 +56,7 @@ let private gatherDLCData (reportProgress: IdReadingProgress -> unit) (maxDegree
         let! results =
             let searchPattern =
                 let platform = if OperatingSystem.IsMacOS() || OperatingSystem.IsMacCatalyst() then "m" else "p"
-                $"*_{platform}.psarc"
+                $"*_%s{platform}.psarc"
 
             let files =
                 Directory.GetFiles(directory, searchPattern, SearchOption.AllDirectories)
@@ -117,4 +117,4 @@ let getFilteringFunctions (data: IdData) =
     filterIds, filterKeys
 
 let backupProfile (profilePath: string) =
-    File.Copy(profilePath, $"{profilePath}.backup", overwrite = true)
+    File.Copy(profilePath, $"%s{profilePath}.backup", overwrite = true)

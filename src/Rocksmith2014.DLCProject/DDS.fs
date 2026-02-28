@@ -51,7 +51,7 @@ let createCoverArtImages (sourceFile: string) =
     targetSizes
     |> Array.Parallel.map (fun size ->
         // Try to use an existing file if one exists
-        let ddsFile = $"{Path.GetFileNameWithoutExtension(sourceFile)}{size}.dds"
+        let ddsFile = $"%s{Path.GetFileNameWithoutExtension(sourceFile)}%i{size}.dds"
         let ddsPath = Path.Combine(Path.GetDirectoryName(sourceFile), ddsFile)
 
         if File.Exists(ddsPath) then

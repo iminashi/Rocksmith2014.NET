@@ -45,7 +45,7 @@ let fileSelector pathPart extension filename =
 
 let testCommonContents contents =
     let expect filename filetype =
-        Expect.contains contents filename $"PSARC contains {filetype} file"
+        Expect.contains contents filename $"PSARC contains %s{filetype} file"
 
     Expect.hasCountOf contents 3u (fileSelector "gfxassets/album_art" ".dds") "PSARC contains three album art files"
     Expect.hasCountOf contents 4u (fileSelector "manifests" ".json") "PSARC contains four JSON manifests"
@@ -136,7 +136,7 @@ let tests =
             | Error e -> failwith e
 
             match id with
-            | Ok id -> Expect.exists psarc.Manifest (String.contains (string id)) $"PSARC contains audio file with correct ID"
+            | Ok id -> Expect.exists psarc.Manifest (String.contains (string id)) "PSARC contains audio file with correct ID"
             | Error e -> failwith e
         }
 

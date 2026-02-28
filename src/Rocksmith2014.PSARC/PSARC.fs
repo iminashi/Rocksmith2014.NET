@@ -196,7 +196,7 @@ type PSARC internal (source: Stream, header: Header, toc: ResizeArray<Entry>, bl
 
     let tryFindEntry name =
         match List.tryFindIndex ((=) name) manifest with
-        | None -> raise <| FileNotFoundException($"PSARC did not contain file '{name}'", name)
+        | None -> raise <| FileNotFoundException($"PSARC did not contain file '%s{name}'", name)
         | Some i -> toc[i]
 
     /// Gets the manifest.

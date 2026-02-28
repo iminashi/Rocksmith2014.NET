@@ -7,7 +7,7 @@ let current =
     Assembly.GetExecutingAssembly().GetName().Version
 
 /// A three part version string prefixed with "v".
-let versionString = $"v{current.ToString(3)}"
+let versionString = $"v%s{current.ToString(3)}"
 
 /// "DLC Builder vX.X.X"
-let programNameWithVersion = $"DLC Builder {versionString}"
+let programNameWithVersion = $"DLC Builder %s{versionString}"

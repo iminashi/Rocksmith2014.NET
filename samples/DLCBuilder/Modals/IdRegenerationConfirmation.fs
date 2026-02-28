@@ -16,7 +16,7 @@ let private arrangement state =
         let file = IO.Path.GetFileName(Arrangement.getFile arrangement)
 
         TextBlock.create [
-            TextBlock.text $"{name} ({file})"
+            TextBlock.text $"%s{name} (%s{file})"
             TextBlock.fontSize 16.
         ])
 

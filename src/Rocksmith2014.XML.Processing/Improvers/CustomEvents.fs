@@ -67,14 +67,14 @@ let improve (arrangement: InstrumentalArrangement) =
         match slideTimeOpt with
         | None ->
             // TODO: Implement logging?
-            // $"Invalid slide-out event at {Utils.timeToString slideEvent.Time}"
+            // $"Invalid slide-out event at %s{Utils.timeToString slideEvent.Time}"
             ()
         | Some slideTime ->
             let noteIndex = level.Notes.FindIndexByTime(slideTime)
             let chordIndex = level.Chords.FindIndexByTime(slideTime)
 
             if noteIndex = -1 && chordIndex = -1 then
-                failwith $"Could not find the notes or chord for slide-out event at {Utils.timeToString slideEvent.Time}"
+                failwith $"Could not find the notes or chord for slide-out event at %s{Utils.timeToString slideEvent.Time}"
 
             let notes, originalChordTemplate =
                 if chordIndex = -1 then
@@ -93,7 +93,7 @@ let improve (arrangement: InstrumentalArrangement) =
                     // It is a normal chord with unpitched slide out
                     let chord = level.Chords[chordIndex]
                     if isNull chord.ChordNotes then
-                        failwith $"Chord missing chord notes for SlideOut event at {Utils.timeToString slideEvent.Time}"
+                        failwith $"Chord missing chord notes for SlideOut event at %s{Utils.timeToString slideEvent.Time}"
 
                     // The length of the handshape likely needs to be shortened
                     let chordHs = level.HandShapes.Find(fun hs -> hs.StartTime = chord.Time)
@@ -104,7 +104,7 @@ let improve (arrangement: InstrumentalArrangement) =
                     arrangement.ChordTemplates[int chord.ChordId]
 
             if notes.Length = 0 then
-                failwith $"Invalid SlideOut event at {Utils.timeToString slideEvent.Time}"
+                failwith $"Invalid SlideOut event at %s{Utils.timeToString slideEvent.Time}"
 
             // Create a new handshape at the slide end (add 1ms to include the sustain of the notes inside the handshape)
             let endTime = notes[0].Time + notes[0].Sustain + 1

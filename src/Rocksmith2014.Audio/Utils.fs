@@ -13,6 +13,6 @@ let createPreviewAudioPath (sourcePath: string) =
     let directory = Path.GetDirectoryName(sourcePath)
 
     let fileName =
-        $"{Path.GetFileNameWithoutExtension(sourcePath)}_preview.wav"
+        $"%s{Path.GetFileNameWithoutExtension(sourcePath)}_preview.wav"
 
     Path.Combine(directory, fileName)

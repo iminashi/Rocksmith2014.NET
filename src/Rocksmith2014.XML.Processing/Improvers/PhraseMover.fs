@@ -12,7 +12,7 @@ let private getMoveBy (phraseTime: int) (phraseToMove: Phrase) =
     | true, moveBy ->
         moveBy
     | false, _ ->
-        failwith $"Unable to parse value for 'moveR' phrase at {Utils.timeToString phraseTime}"
+        failwith $"Unable to parse value for 'moveR' phrase at %s{Utils.timeToString phraseTime}"
 
 /// Moves phrases that have a special name "mover" (move right).
 let improve (arrangement: InstrumentalArrangement) =
