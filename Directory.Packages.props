@@ -14,7 +14,7 @@
     <PackageVersion Include="FSharp.SystemTextJson" Version="1.4.36" />
     <PackageVersion Include="Dapper" Version="2.0.143" />
     <PackageVersion Include="System.Data.SQLite.Core" Version="1.0.117" />
-    <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.3" />
+    <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.5" />
     <PackageVersion Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
     <PackageVersion Include="Microsoft.ML" Version="4.0.0" />
     <PackageVersion Include="Microsoft.ML.FastTree" Version="4.0.0" />
