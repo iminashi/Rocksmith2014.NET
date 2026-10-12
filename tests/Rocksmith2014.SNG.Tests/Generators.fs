@@ -1,26 +1,27 @@
 module Rocksmith2014.SNG.Tests.Generators
 
-open FsCheck
-open Rocksmith2014.SNG
 open System
+open FsCheck
+open FsCheck.FSharp
+open Rocksmith2014.SNG
 
 /// Does not generate NaN or infinity floating point values.
 type Overrides() =
     static member Float32() =
-        Arb.Default.Float32()
+        ArbMap.defaults.ArbFor<float32>()
         |> Arb.filter (fun f -> not <| Single.IsNaN(f) && not <| Single.IsInfinity(f))
 
     static member Float() =
-        Arb.Default.Float()
+        ArbMap.defaults.ArbFor<float>()
         |> Arb.filter (fun f -> not <| Double.IsNaN(f) && not <| Double.IsInfinity(f))
 
 let private genTime = Overrides.Float32() |> Arb.toGen
-let private genSByte = Arb.Default.SByte() |> Arb.toGen
+let private genSByte = ArbMap.defaults.ArbFor<sbyte>() |> Arb.toGen
 let private genMidiNote = Gen.choose(0, 127)
 
 /// Generates non-empty strings that are shorter than the given maximum length.
 let private genString maxLength =
-    Arb.Default.NonEmptyString()
+    ArbMap.defaults.ArbFor<NonEmptyString>()
     |> Arb.filter (fun (NonEmptyString s) -> s.Length < maxLength)
     |> Arb.convert (fun ns -> ns.Get) NonEmptyString
     |> Arb.toGen
@@ -52,7 +53,7 @@ type Generators() =
     static member Chord() =
         let genName = genString 32
         let genMask =
-            Arb.Default.UInt32()
+            ArbMap.defaults.ArbFor<UInt32>()
             |> Arb.convert LanguagePrimitives.EnumOfValue LanguagePrimitives.EnumToValue
             |> Arb.toGen
         let genSByteArr = Gen.arrayOfLength 6 genSByte

@@ -1,17 +1,18 @@
 module Generators
 
+open System
 open Expecto
 open FsCheck
-open System
+open FsCheck.FSharp
 
 /// Does not generate NaN floating point values.
 type Overrides() =
     static member Float32() =
-        Arb.Default.Float32()
+        ArbMap.defaults.ArbFor<float32>()
         |> Arb.filter (Single.IsNaN >> not)
 
     static member Float() =
-        Arb.Default.Float()
+        ArbMap.defaults.ArbFor<float>()
         |> Arb.filter (Double.IsNaN >> not)
 
 module Custom =
@@ -22,13 +23,13 @@ module Custom =
         Arb.convert
             (fun (DoNotSize x) -> x &&& 0xFF_FFFFu |> UInt24)
             (fun (UInt24 x) -> x |> DoNotSize)
-            Arb.from
+            (ArbMap.defaults.ArbFor<DoNotSize<uint32>>())
 
     let UInt40Arb =
         Arb.convert
             (fun (DoNotSize x) -> x &&& 0xFF_FFFF_FFFFUL |> UInt40)
             (fun (UInt40 x) -> x |> DoNotSize)
-            Arb.from
+            (ArbMap.defaults.ArbFor<DoNotSize<uint64>>())
 
 let config =
     { FsCheckConfig.defaultConfig with
