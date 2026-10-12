@@ -20,8 +20,7 @@ let view state dispatch (vocals: Vocals) =
                 CheckBox.margin 8.
                 CheckBox.content (translate "Japanese")
                 CheckBox.isChecked vocals.Japanese
-                CheckBox.onChecked (fun _ -> true |> SetIsJapanese |> EditVocals |> dispatch)
-                CheckBox.onUnchecked (fun _ -> false |> SetIsJapanese |> EditVocals |> dispatch)
+                CheckBox.onIsCheckedChanged (SetIsJapanese >> EditVocals >> dispatch)
                 ToolTip.tip (translate "JapaneseLyricsToolTip")
             ]
 
@@ -103,7 +102,7 @@ let view state dispatch (vocals: Vocals) =
 
                     // Custom Font Filename
                     FixedTextBox.create [
-                        TextBox.watermark (translate "CustomFontPath")
+                        TextBox.placeHolderText (translate "CustomFontPath")
                         FixedTextBox.text (vocals.CustomFont |> Option.toObj)
                         FixedTextBox.validation (fun path ->
                             String.IsNullOrEmpty(path) || File.Exists(Path.ChangeExtension(path, "glyphs.xml")))

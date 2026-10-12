@@ -130,7 +130,7 @@ let view _state dispatch (creatorState: LyricsCreatorState) =
                 FixedTextBox.create [
                     TextBox.width 350.
                     TextBox.height 600.
-                    TextBox.watermark (translate "PasteJapaneseLyricsHere")
+                    TextBox.placeHolderText (translate "PasteJapaneseLyricsHere")
                     TextBox.acceptsReturn true
                     TextBox.verticalContentAlignment VerticalAlignment.Top
                     TextBox.fontFamily Media.Fonts.japanese

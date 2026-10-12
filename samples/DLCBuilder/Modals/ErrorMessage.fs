@@ -6,6 +6,7 @@ open Avalonia.Controls.Primitives
 open Avalonia.Controls.Shapes
 open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
+open Avalonia.Input.Platform
 open Avalonia.Layout
 open Avalonia.Media
 open DLCBuilder

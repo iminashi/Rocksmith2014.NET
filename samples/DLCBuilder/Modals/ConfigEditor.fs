@@ -96,8 +96,7 @@ let private generalConfig state dispatch =
         CheckBox.create [
             CheckBox.content (translate "CalculateVolumesAutomatically")
             CheckBox.isChecked state.Config.AutoVolume
-            CheckBox.onChecked (fun _ -> true |> SetAutoVolume |> EditConfig |> dispatch)
-            CheckBox.onUnchecked (fun _ -> false |> SetAutoVolume |> EditConfig |> dispatch)
+            CheckBox.onIsCheckedChanged (SetAutoVolume >> EditConfig >> dispatch)
         ]
 
         // Convert Audio in the Background
@@ -105,8 +104,7 @@ let private generalConfig state dispatch =
             CheckBox.create [
                 CheckBox.content (translate "ConvertAudioInTheBackground")
                 CheckBox.isChecked state.Config.AutoAudioConversion
-                CheckBox.onChecked (fun _ -> true |> SetAutoAudioConversion |> EditConfig |> dispatch)
-                CheckBox.onUnchecked (fun _ -> false |> SetAutoAudioConversion |> EditConfig |> dispatch)
+                CheckBox.onIsCheckedChanged (SetAutoAudioConversion >> EditConfig >> dispatch)
             ]
 
             HelpButton.create [
@@ -118,24 +116,21 @@ let private generalConfig state dispatch =
         CheckBox.create [
             CheckBox.content (translate "LoadPreviousProjectAutomatically")
             CheckBox.isChecked state.Config.LoadPreviousOpenedProject
-            CheckBox.onChecked (fun _ -> true |> SetLoadPreviousProject |> EditConfig |> dispatch)
-            CheckBox.onUnchecked (fun _ -> false |> SetLoadPreviousProject |> EditConfig |> dispatch)
+            CheckBox.onIsCheckedChanged (SetLoadPreviousProject >> EditConfig >> dispatch)
         ]
 
         // Auto Save
         CheckBox.create [
             CheckBox.content (translate "AutoSaveProject")
             CheckBox.isChecked state.Config.AutoSave
-            CheckBox.onChecked (fun _ -> true |> SetAutoSave |> EditConfig |> dispatch)
-            CheckBox.onUnchecked (fun _ -> false |> SetAutoSave |> EditConfig |> dispatch)
+            CheckBox.onIsCheckedChanged (SetAutoSave >> EditConfig >> dispatch)
         ]
 
         // Show Advanced Features
         CheckBox.create [
             CheckBox.content (translate "ShowAdvancedFeatures")
             CheckBox.isChecked state.Config.ShowAdvanced
-            CheckBox.onChecked (fun _ -> true |> SetShowAdvanced |> EditConfig |> dispatch)
-            CheckBox.onUnchecked (fun _ -> false |> SetShowAdvanced |> EditConfig |> dispatch)
+            CheckBox.onIsCheckedChanged (SetShowAdvanced >> EditConfig >> dispatch)
         ]
 
         headerWithLine "BaseToneNaming" true
@@ -197,7 +192,7 @@ let private pathsConfig state dispatch focusedSetting =
                     FixedTextBox.validationErrorMessage (translate "ProfileFilenameValidationError")
                     FixedTextBox.text state.Config.ProfilePath
                     FixedTextBox.onTextChanged (SetProfilePath >> EditConfig >> dispatch)
-                    FixedTextBox.watermark (translate "ProfilePathPlaceholder")
+                    FixedTextBox.placeHolderText (translate "ProfilePathPlaceholder")
                     FixedTextBox.autoFocus (Option.contains FocusedSetting.ProfilePath focusedSetting)
                 ]
             ]
@@ -215,7 +210,7 @@ let private pathsConfig state dispatch focusedSetting =
                 FixedTextBox.create [
                     FixedTextBox.margin (0., 4.)
                     FixedTextBox.text state.Config.TestFolderPath
-                    FixedTextBox.watermark (translate "TestFolderPlaceholder")
+                    FixedTextBox.placeHolderText (translate "TestFolderPlaceholder")
                     FixedTextBox.onTextChanged (SetTestFolderPath >> EditConfig >> dispatch)
                     FixedTextBox.autoFocus (Option.contains FocusedSetting.TestFolder focusedSetting)
                 ]
@@ -252,7 +247,7 @@ let private pathsConfig state dispatch focusedSetting =
 
                 FixedTextBox.create [
                     FixedTextBox.margin (0., 4.)
-                    FixedTextBox.watermark (translate "WwiseConsolePathPlaceholder")
+                    FixedTextBox.placeHolderText (translate "WwiseConsolePathPlaceholder")
                     FixedTextBox.text (Option.toObj state.Config.WwiseConsolePath)
                     FixedTextBox.onTextChanged (SetWwiseConsolePath >> EditConfig >> dispatch)
                     FixedTextBox.onLostFocus (fun e ->
@@ -319,16 +314,14 @@ let private importConfig state dispatch =
                 CheckBox.create [
                     CheckBox.content (translate "RemoveDDLevels")
                     CheckBox.isChecked state.Config.RemoveDDOnImport
-                    CheckBox.onChecked (fun _ -> true |> SetRemoveDDOnImport |> EditConfig |> dispatch)
-                    CheckBox.onUnchecked (fun _ -> false |> SetRemoveDDOnImport |> EditConfig |> dispatch)
+                    CheckBox.onIsCheckedChanged (SetRemoveDDOnImport >> EditConfig >> dispatch)
                 ]
 
                 // Create EOF Project
                 CheckBox.create [
                     CheckBox.content (translate "CreateEOFProject")
                     CheckBox.isChecked state.Config.CreateEOFProjectOnImport
-                    CheckBox.onChecked (fun _ -> true |> SetCreateEOFProjectOnImport |> EditConfig |> dispatch)
-                    CheckBox.onUnchecked (fun _ -> false |> SetCreateEOFProjectOnImport |> EditConfig |> dispatch)
+                    CheckBox.onIsCheckedChanged (SetCreateEOFProjectOnImport >> EditConfig >> dispatch)
                 ]
             ]
         ]
@@ -341,8 +334,7 @@ let private importConfig state dispatch =
             CheckBox.margin (8., 4.)
             CheckBox.content (translate "QuickEditOnPSARCDrop")
             CheckBox.isChecked state.Config.QuickEditOnPsarcDragAndDrop
-            CheckBox.onChecked (fun _ -> true |> SetQuickEditOnPsarcDragAndDrop |> EditConfig |> dispatch)
-            CheckBox.onUnchecked (fun _ -> false |> SetQuickEditOnPsarcDragAndDrop |> EditConfig |> dispatch)
+            CheckBox.onIsCheckedChanged (SetQuickEditOnPsarcDragAndDrop >> EditConfig >> dispatch)
         ]
     ]
 
@@ -358,8 +350,7 @@ let private ddConfig state dispatch =
                     CheckBox.verticalAlignment VerticalAlignment.Center
                     CheckBox.content (translate "FindSimilarPhrases")
                     CheckBox.isChecked state.Config.DDPhraseSearchEnabled
-                    CheckBox.onChecked (fun _ -> true |> SetDDPhraseSearchEnabled |> EditConfig |> dispatch)
-                    CheckBox.onUnchecked (fun _ -> false |> SetDDPhraseSearchEnabled |> EditConfig |> dispatch)
+                    CheckBox.onIsCheckedChanged (SetDDPhraseSearchEnabled >> EditConfig >> dispatch)
                 ]
 
                 Rectangle.create [
@@ -445,8 +436,7 @@ let private buildConfig state dispatch =
                         CheckBox.verticalAlignment VerticalAlignment.Center
                         CheckBox.content (translate "ApplyImprovements")
                         CheckBox.isChecked state.Config.ApplyImprovements
-                        CheckBox.onChecked (fun _ -> true |> ValueSome |> SetApplyImprovements |> EditConfig |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetApplyImprovements |> EditConfig |> dispatch)
+                        CheckBox.onIsCheckedChanged (ValueSome >> SetApplyImprovements >> EditConfig >> dispatch)
                     ]
                     HelpButton.create [
                         HelpButton.helpText (translate "ApplyImprovementsHelp")
@@ -459,8 +449,7 @@ let private buildConfig state dispatch =
                         CheckBox.verticalAlignment VerticalAlignment.Center
                         CheckBox.content (translate "ForceAutomaticPhraseCreation")
                         CheckBox.isChecked state.Config.ForcePhraseCreation
-                        CheckBox.onChecked (fun _ -> true |> ValueSome |> SetForcePhraseCreation |> EditConfig |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetForcePhraseCreation |> EditConfig |> dispatch)
+                        CheckBox.onIsCheckedChanged (ValueSome >> SetForcePhraseCreation >> EditConfig >> dispatch)
                     ]
                     HelpButton.create [
                         HelpButton.helpText (translate "ForceAutomaticPhraseCreationHelp")
@@ -514,8 +503,7 @@ let private buildConfig state dispatch =
                         CheckBox.create [
                             CheckBox.content (translate "ComparePhraseLevelsOnTestBuild")
                             CheckBox.isChecked state.Config.ComparePhraseLevelsOnTestBuild
-                            CheckBox.onChecked (fun _ -> true |> ValueSome |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
-                            CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetComparePhraseLevelsOnTestBuild |> EditConfig |> dispatch)
+                            CheckBox.onIsCheckedChanged (ValueSome >> SetComparePhraseLevelsOnTestBuild >> EditConfig >> dispatch)
                         ]
                         HelpButton.create [
                             HelpButton.helpText (translate "ComparePhraseLevelsOnTestBuildHelp")
@@ -528,8 +516,7 @@ let private buildConfig state dispatch =
                     CheckBox.verticalAlignment VerticalAlignment.Center
                     CheckBox.content (translate "GenerateDDLevels")
                     CheckBox.isChecked state.Config.GenerateDD
-                    CheckBox.onChecked (fun _ -> true |> ValueSome |> SetGenerateDD |> EditConfig |> dispatch)
-                    CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetGenerateDD |> EditConfig |> dispatch)
+                    CheckBox.onIsCheckedChanged (ValueSome >> SetGenerateDD >> EditConfig >> dispatch)
                 ]
 
                 // Save Debug Files
@@ -540,8 +527,7 @@ let private buildConfig state dispatch =
                             CheckBox.verticalAlignment VerticalAlignment.Center
                             CheckBox.content (translate "SaveDebugFiles")
                             CheckBox.isChecked state.Config.SaveDebugFiles
-                            CheckBox.onChecked (fun _ -> true |> ValueSome |> SetSaveDebugFiles |> EditConfig |> dispatch)
-                            CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetSaveDebugFiles |> EditConfig |> dispatch)
+                            CheckBox.onIsCheckedChanged (ValueSome >> SetSaveDebugFiles >> EditConfig >> dispatch)
                         ]
                         HelpButton.create [
                             HelpButton.helpText (translate "SaveDebugFilesHelp")
@@ -595,8 +581,11 @@ let private releaseBuildConfig state dispatch =
                         CheckBox.content "PC"
                         CheckBox.isEnabled (state.Config.ReleasePlatforms |> Set.contains Mac)
                         CheckBox.isChecked (state.Config.ReleasePlatforms |> Set.contains PC)
-                        CheckBox.onChecked (fun _ -> PC |> AddReleasePlatform |> EditConfig |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> PC |> RemoveReleasePlatform |> EditConfig |> dispatch)
+                        CheckBox.onIsCheckedChanged (fun isChecked ->
+                            if isChecked then
+                                PC |> AddReleasePlatform |> EditConfig |> dispatch
+                            else
+                                PC |> RemoveReleasePlatform |> EditConfig |> dispatch)
                     ]
                     CheckBox.create [
                         CheckBox.margin 2.
@@ -604,8 +593,11 @@ let private releaseBuildConfig state dispatch =
                         CheckBox.content "Mac"
                         CheckBox.isEnabled (state.Config.ReleasePlatforms |> Set.contains PC)
                         CheckBox.isChecked (state.Config.ReleasePlatforms |> Set.contains Mac)
-                        CheckBox.onChecked (fun _ -> Mac |> AddReleasePlatform |> EditConfig |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> Mac |> RemoveReleasePlatform |> EditConfig |> dispatch)
+                        CheckBox.onIsCheckedChanged (fun isChecked ->
+                            if isChecked then
+                                Mac |> AddReleasePlatform |> EditConfig |> dispatch
+                            else
+                                Mac |> RemoveReleasePlatform |> EditConfig |> dispatch)
                     ]
                 ]
 
@@ -614,8 +606,7 @@ let private releaseBuildConfig state dispatch =
                     CheckBox.verticalAlignment VerticalAlignment.Center
                     CheckBox.content (translate "OpenContainingFolderAfterBuild")
                     CheckBox.isChecked state.Config.OpenFolderAfterReleaseBuild
-                    CheckBox.onChecked (fun _ -> true |> SetOpenFolderAfterReleaseBuild |> EditConfig |> dispatch)
-                    CheckBox.onUnchecked (fun _ -> false |> SetOpenFolderAfterReleaseBuild |> EditConfig |> dispatch)
+                    CheckBox.onIsCheckedChanged (SetOpenFolderAfterReleaseBuild >> EditConfig >> dispatch)
                 ]
 
                 // Validate Before Build
@@ -626,8 +617,7 @@ let private releaseBuildConfig state dispatch =
                             CheckBox.verticalAlignment VerticalAlignment.Center
                             CheckBox.content (translate "ValidateBeforeBuild")
                             CheckBox.isChecked state.Config.ValidateBeforeReleaseBuild
-                            CheckBox.onChecked (fun _ -> true |> ValueSome |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
-                            CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetValidateBeforeReleaseBuild |> EditConfig |> dispatch)
+                            CheckBox.onIsCheckedChanged (ValueSome >> SetValidateBeforeReleaseBuild >> EditConfig >> dispatch)
                         ]
 
                         HelpButton.create [
@@ -641,8 +631,7 @@ let private releaseBuildConfig state dispatch =
                     CheckBox.verticalAlignment VerticalAlignment.Center
                     CheckBox.content (translate "DeleteTestBuildsOnRelease")
                     CheckBox.isChecked state.Config.DeleteTestBuildsOnRelease
-                    CheckBox.onChecked (fun _ -> true |> ValueSome |> SetDeleteTestBuildsOnRelease |> EditConfig |> dispatch)
-                    CheckBox.onUnchecked (fun _ -> false |> ValueSome |> SetDeleteTestBuildsOnRelease |> EditConfig |> dispatch)
+                    CheckBox.onIsCheckedChanged (ValueSome >> SetDeleteTestBuildsOnRelease >> EditConfig >> dispatch)
                 ]
 
                 // Filename Supplement

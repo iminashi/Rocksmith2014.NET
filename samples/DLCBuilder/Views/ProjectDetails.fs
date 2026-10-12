@@ -114,7 +114,7 @@ let private projectInfo state dispatch =
                   Grid.row 1
                   StackPanel.isVisible (state.ShowSortFields && not state.ShowJapaneseFields) ]
                 [ FixedTextBox.text state.Project.ArtistName.SortValue
-                  FixedTextBox.watermark (state.Project.ArtistName.Value |> StringValidator.FieldType.ArtistName |> StringValidator.convertToSortField)
+                  FixedTextBox.placeHolderText (state.Project.ArtistName.Value |> StringValidator.FieldType.ArtistName |> StringValidator.convertToSortField)
                   TextBox.onLostFocus (fun e ->
                     let txtBox = e.Source :?> TextBox
                     let validValue = StringValidator.sortField txtBox.Text
@@ -149,7 +149,7 @@ let private projectInfo state dispatch =
                   Grid.row 2
                   StackPanel.isVisible state.ShowSortFields ]
                 [ FixedTextBox.text state.Project.Title.SortValue
-                  FixedTextBox.watermark (state.Project.Title.Value |> StringValidator.FieldType.Title |> StringValidator.convertToSortField)
+                  FixedTextBox.placeHolderText (state.Project.Title.Value |> StringValidator.FieldType.Title |> StringValidator.convertToSortField)
                   TextBox.onLostFocus (fun e ->
                     let txtBox = e.Source :?> TextBox
                     let validValue = StringValidator.sortField txtBox.Text
@@ -201,7 +201,7 @@ let private projectInfo state dispatch =
                   Grid.row 3
                   StackPanel.isVisible state.ShowSortFields ]
                 [ FixedTextBox.text state.Project.AlbumName.SortValue
-                  FixedTextBox.watermark (state.Project.AlbumName.Value |> StringValidator.FieldType.AlbumName |> StringValidator.convertToSortField)
+                  FixedTextBox.placeHolderText (state.Project.AlbumName.Value |> StringValidator.FieldType.AlbumName |> StringValidator.convertToSortField)
                   TextBox.onLostFocus (fun e ->
                     let txtBox = e.Source :?> TextBox
                     let validValue = StringValidator.sortField txtBox.Text
@@ -235,8 +235,7 @@ let private projectInfo state dispatch =
                     CheckBox.create [
                         CheckBox.content (translate "ShowSortFields")
                         CheckBox.isChecked (state.ShowSortFields && not state.ShowJapaneseFields)
-                        CheckBox.onChecked (fun _ -> true |> ShowSortFields |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> false |> ShowSortFields |> dispatch)
+                        CheckBox.onIsCheckedChanged (ShowSortFields >> dispatch)
                     ]
 
                     // Show Japanese fields
@@ -244,8 +243,7 @@ let private projectInfo state dispatch =
                         CheckBox.margin (8., 0.,0., 0.)
                         CheckBox.content (translate "ShowJapaneseFields")
                         CheckBox.isChecked (state.ShowJapaneseFields && not state.ShowSortFields)
-                        CheckBox.onChecked (fun _ -> true |> ShowJapaneseFields |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> false |> ShowJapaneseFields |> dispatch)
+                        CheckBox.onIsCheckedChanged (ShowJapaneseFields >> dispatch)
                     ]
                 ]
             ]

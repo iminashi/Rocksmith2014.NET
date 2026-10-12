@@ -113,15 +113,8 @@ type MainWindow(commandLineArgs: string array) as this =
         let customTitleBar, minHeight =
             if OperatingSystem.IsWindowsVersionAtLeast(10) then
                 base.ExtendClientAreaToDecorationsHint <- true
-                base.ExtendClientAreaChromeHints <- ExtendClientAreaChromeHints.NoChrome
+                base.WindowDecorations <- WindowDecorations.BorderOnly
                 base.ExtendClientAreaTitleBarHeightHint <- -1.
-
-                this.GetObservable(Window.WindowStateProperty)
-                    .Add(fun state ->
-                        if state = WindowState.Maximized then
-                            this.Padding <- Thickness(8.)
-                        else
-                            this.Padding <- Thickness(0.))
 
                 Some(TitleBarButtons(this)), 640.0
             else

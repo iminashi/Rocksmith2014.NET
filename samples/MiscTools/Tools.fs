@@ -23,6 +23,16 @@ open Rocksmith2014.XML.Processing
 open System
 open System.IO
 
+type CheckBox with
+    static member onIsCheckedChanged((f: bool -> unit), ?sbo: SubPatchOptions) =
+        Primitives.ToggleButton.onIsCheckedChanged((fun args ->
+            match args.Source with
+            | :? CheckBox as cb ->
+                if cb.IsChecked.HasValue then
+                    f cb.IsChecked.Value
+            | _ -> ()),
+            ?subPatchOptions = sbo)
+
 let project =
     { Version = "1.0"
       DLCKey = "dummy"
@@ -501,15 +511,13 @@ let view (state: State) dispatch =
                     CheckBox.create [
                         CheckBox.content "Convert audio to ogg"
                         CheckBox.isChecked state.ConvertAudio
-                        CheckBox.onChecked (fun _ -> true |> SetConvertAudio |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> false |> SetConvertAudio |> dispatch)
+                        CheckBox.onIsCheckedChanged (SetConvertAudio >> dispatch)
                     ]
 
                     CheckBox.create [
                         CheckBox.content "Convert SNG to XML"
                         CheckBox.isChecked state.ConvertSNG
-                        CheckBox.onChecked (fun _ -> true |> SetConvertSNG |> dispatch)
-                        CheckBox.onUnchecked (fun _ -> false |> SetConvertSNG |> dispatch)
+                        CheckBox.onIsCheckedChanged (SetConvertSNG >> dispatch)
                     ]
 
                     Button.create [

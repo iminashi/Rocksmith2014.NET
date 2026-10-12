@@ -88,8 +88,7 @@ let private configuration isEnabled dispatch state =
                 CheckBox.horizontalAlignment HorizontalAlignment.Center
                 CheckBox.content (translate "DryRun")
                 CheckBox.isChecked state.ProfileCleanerState.IsDryRun
-                CheckBox.onChecked (fun _ -> true |> SetProfileCleanerDryRun |> ToolsMsg |> dispatch)
-                CheckBox.onUnchecked (fun _ -> false |> SetProfileCleanerDryRun |> ToolsMsg |> dispatch)
+                CheckBox.onIsCheckedChanged (SetProfileCleanerDryRun >> ToolsMsg >> dispatch)
             ]
 
             HelpButton.create [

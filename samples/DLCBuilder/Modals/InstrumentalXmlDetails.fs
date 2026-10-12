@@ -39,12 +39,14 @@ let view state dispatch (fileName: string) (xml: InstrumentalArrangement) =
             CheckBox.content text
             CheckBox.margin (2., 0.)
             if allowEditing then
-                CheckBox.onChecked (fun _ ->
-                    ArrPropOp.Enable flag
-                    |> ToggleArrangementProperty
-                    |> editInstrumental)
-                CheckBox.onUnchecked (fun _ ->
-                    ArrPropOp.Disable flag
+                CheckBox.onIsCheckedChanged (fun isChecked ->
+                    let value =
+                        if isChecked then
+                            ArrPropOp.Enable flag
+                        else
+                            ArrPropOp.Disable flag
+
+                    value
                     |> ToggleArrangementProperty
                     |> editInstrumental)
         ]
@@ -139,14 +141,10 @@ let view state dispatch (fileName: string) (xml: InstrumentalArrangement) =
                         CheckBox.verticalAlignment VerticalAlignment.Center
                         CheckBox.content (translate "Edit")
                         CheckBox.isChecked allowEditing
-                        CheckBox.onChecked ((fun _ ->
+                        CheckBox.onIsCheckedChanged ((fun _ ->
                             arrProps
                             |> ToggleArrangementPropertiesOverride
                             |> editInstrumental), SubPatchOptions.OnChangeOf arrProps)
-                        CheckBox.onUnchecked (fun _ ->
-                            arrProps
-                            |> ToggleArrangementPropertiesOverride
-                            |> editInstrumental)
                     ]
                 ]
             ]

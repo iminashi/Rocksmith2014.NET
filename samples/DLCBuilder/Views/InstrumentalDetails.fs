@@ -169,8 +169,7 @@ let view state dispatch (inst: Instrumental) =
                 CheckBox.margin (4.0, 0.0)
                 CheckBox.isVisible (inst.Name = ArrangementName.Bass)
                 CheckBox.isChecked inst.BassPicked
-                CheckBox.onChecked (fun _ -> true |> SetBassPicked |> EditInstrumental |> dispatch)
-                CheckBox.onUnchecked (fun _ -> false |> SetBassPicked |> EditInstrumental |> dispatch)
+                CheckBox.onIsCheckedChanged (SetBassPicked >> EditInstrumental >> dispatch)
             ]
 
             // Tuning strings

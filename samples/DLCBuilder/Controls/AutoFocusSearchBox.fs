@@ -16,7 +16,7 @@ type AutoFocusSearchBox() =
     inherit UserControl()
 
     let textBox =
-        FixedTextBox(Watermark = translate "Search", AutoFocus = true)
+        FixedTextBox(PlaceholderText = translate "Search", AutoFocus = true)
 
     let deleteButton =
         Border(

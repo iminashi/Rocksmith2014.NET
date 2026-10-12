@@ -39,7 +39,7 @@ let view dispatch state =
                     FixedTextBox.create [
                         Grid.column 1
                         FixedTextBox.text (state.Project.Author |> Option.toObj)
-                        FixedTextBox.watermark state.Config.CharterName
+                        FixedTextBox.placeHolderText state.Config.CharterName
                         FixedTextBox.onTextChanged (SetAuthor >> EditProject >> dispatch)
                         ToolTip.tip (translate "AdditionalMetadataAuthorToolTip")
                     ]
@@ -56,7 +56,7 @@ let view dispatch state =
                             Grid.row 1
                             Grid.column 1
                             FixedTextBox.text (data.AppId |> Option.map AppId.toString |> Option.toObj)
-                            FixedTextBox.watermark $"%s{AppId.toString AppId.CherubRock} (Cherub Rock)"
+                            FixedTextBox.placeHolderText $"%s{AppId.toString AppId.CherubRock} (Cherub Rock)"
                             FixedTextBox.onTextChanged (SetEditedPsarcAppId >> dispatch)
                         ]
                     | None ->

@@ -265,8 +265,7 @@ let private userToneEditor dispatch data =
                 Grid.row 6
                 CheckBox.content (translate "BassTone")
                 CheckBox.isChecked data.BassTone
-                CheckBox.onChecked (fun _ -> true |> UserToneEdit.SetIsBass |> EditUserToneData |> dispatch)
-                CheckBox.onUnchecked (fun _ -> false |> UserToneEdit.SetIsBass |> EditUserToneData |> dispatch)
+                CheckBox.onIsCheckedChanged (UserToneEdit.SetIsBass >> EditUserToneData >> dispatch)
             ]
 
             StackPanel.create [
