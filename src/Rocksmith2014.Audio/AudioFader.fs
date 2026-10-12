@@ -1,5 +1,6 @@
 namespace Rocksmith2014.Audio
 
+open System
 open NAudio.Wave
 
 type AudioFader(source: ISampleProvider, fadeInLength: int<ms>, fadeOutLength: int<ms>, audioLength: int64<ms>) =
@@ -12,8 +13,8 @@ type AudioFader(source: ISampleProvider, fadeInLength: int<ms>, fadeOutLength: i
     let fadeOutStartSample = ((int64 audioLength - int64 fadeOutLength) * int64 source.WaveFormat.SampleRate * int64 source.WaveFormat.Channels) / 1000L
 
     interface ISampleProvider with
-        member _.Read(buffer: float32 array, offset: int, count: int) =
-            let sourceSamplesRead = source.Read(buffer, offset, count)
+        member _.Read(buffer: Span<float32>) =
+            let sourceSamplesRead = source.Read buffer
             totalSamplesRead <- totalSamplesRead + int64 sourceSamplesRead
 
             if fadeInSamplePosition <= fadeInSampleCount then
@@ -21,7 +22,7 @@ type AudioFader(source: ISampleProvider, fadeInLength: int<ms>, fadeOutLength: i
                 while sample < sourceSamplesRead && fadeInSamplePosition <= fadeInSampleCount do
                     let multiplier = float32 fadeInSamplePosition / float32 fadeInSampleCount
                     for _ch = 1 to source.WaveFormat.Channels do
-                        buffer[offset + sample] <- buffer[offset + sample] * multiplier
+                        buffer[sample] <- buffer[sample] * multiplier
                         sample <- sample + 1
                     fadeInSamplePosition <- fadeInSamplePosition + 1
 
@@ -35,7 +36,7 @@ type AudioFader(source: ISampleProvider, fadeInLength: int<ms>, fadeOutLength: i
                 while sample < sourceSamplesRead do
                     let multiplier = 1.0f - (float32 fadeOutSamplePosition / float32 fadeOutSampleCount)
                     for _ch = 1 to source.WaveFormat.Channels do
-                        buffer[offset + sample] <- buffer[offset + sample] * multiplier
+                        buffer[sample] <- buffer[sample] * multiplier
                         sample <- sample + 1
                     fadeOutSamplePosition <- fadeOutSamplePosition + 1
 

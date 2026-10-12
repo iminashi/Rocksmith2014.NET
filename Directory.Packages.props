@@ -23,8 +23,8 @@
     <PackageVersion Include="Pfim" Version="0.11.4" />
     <PackageVersion Include="Magick.NET-Q8-x64" Version="15.0.0" />
     <PackageVersion Include="BunLabs.NAudio.Flac" Version="2.0.1" />
-    <PackageVersion Include="NAudio.Core" Version="2.2.1" />
-    <PackageVersion Include="NAudio.Vorbis" Version="1.5.0" />
+    <PackageVersion Include="NAudio.Core" Version="3.1.0" />
+    <PackageVersion Include="NAudio.Vorbis" Version="3.0.0" />
     <PackageVersion Include="NVorbis" Version="0.10.5" />
     <PackageVersion Include="SimpleSIMD" Version="4.6.0" />
     <PackageVersion Include="coverlet.collector" Version="10.1.0" />

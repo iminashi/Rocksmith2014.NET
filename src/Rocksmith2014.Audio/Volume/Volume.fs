@@ -12,7 +12,7 @@ let private calculateLoudness (sampleProvider: ISampleProvider) =
     let lufsMeter = LufsMeter(float sampleProvider.WaveFormat.SampleRate, channels)
 
     let rec loop () =
-        match sampleProvider.Read(buffer, 0, BufferSize) with
+        match sampleProvider.Read(buffer) with
         | 0 ->
             ()
         | samplesRead ->
