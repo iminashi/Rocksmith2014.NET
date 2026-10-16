@@ -8,9 +8,15 @@ namespace Rocksmith2014.XML
 {
     /// <summary>
     /// Represents a chord template.
+    /// <para>
+    /// Frets and fingers use storage indices: 0–5 are the stock strings, 6 is the low B.
+    /// </para>
     /// </summary>
     public sealed class ChordTemplate : IXmlSerializable
     {
+        private const string FingerPrefix = "finger";
+        private const string FretPrefix = "fret";
+
         /// <summary>
         /// Gets or sets the name of the chord.
         /// </summary>
@@ -34,39 +40,83 @@ namespace Rocksmith2014.XML
         public bool IsArpeggio { get; private set; }
 
         /// <summary>
-        /// The fingering of the chord template.
+        /// The fingering of the chord template, indexed by string. -1 means the string isnt used.
         /// </summary>
-        public readonly sbyte[] Fingers = { -1, -1, -1, -1, -1, -1 };
+        public sbyte[] Fingers { get; private set; }
 
         /// <summary>
-        /// The frets of the chord template.
+        /// The frets of the chord template, indexed by string. -1 means the string isnt used.
         /// </summary>
-        public readonly sbyte[] Frets = { -1, -1, -1, -1, -1, -1 };
+        public sbyte[] Frets { get; private set; }
 
         private string displayName = string.Empty;
 
         /// <summary>
-        /// Creates a new chord template.
+        /// Gets the number of strings of the template.
         /// </summary>
-        public ChordTemplate() { }
+        public int StringCount => Frets.Length;
 
         /// <summary>
-        /// Creates a new chord template with the given properties.
+        /// Creates a new six string chord template.
         /// </summary>
-        /// <param name="chordName">The name of the chord.</param>
-        /// <param name="displayName">The display name of the chord.</param>
-        /// <param name="fingers">The fingering of the chord.</param>
-        /// <param name="frets">The frets of the chord.</param>
-        public ChordTemplate(string chordName, string displayName, sbyte[] fingers, sbyte[] frets)
+        public ChordTemplate() : this(StringLayout.StockStringCount) { }
+
+        /// <summary>
+        /// Creates a new empty chord template for the given string count.
+        /// </summary>
+        /// <param name="stringCount">The number of strings (6 or 7).</param>
+        public ChordTemplate(int stringCount)
         {
-            Name = chordName;
-            DisplayName = displayName;
-            Array.Copy(frets, Frets, 6);
-            Array.Copy(fingers, Fingers, 6);
+            StringLayout.ValidateStringCount(stringCount);
+            Fingers = CreateUnused(stringCount);
+            Frets = CreateUnused(stringCount);
         }
 
         /// <summary>
-        /// Sets the fingering of the chord template.
+        /// Creates a new chord template with the given properties.
+        /// The string count is the length of the longer array, but at least six.
+        /// </summary>
+        /// <param name="chordName">The name of the chord.</param>
+        /// <param name="displayName">The display name of the chord.</param>
+        /// <param name="fingers">The fingering of the chord, indexed by string.</param>
+        /// <param name="frets">The frets of the chord, indexed by string.</param>
+        public ChordTemplate(string chordName, string displayName, sbyte[] fingers, sbyte[] frets)
+        {
+            if (fingers is null)
+                throw new ArgumentNullException(nameof(fingers));
+            if (frets is null)
+                throw new ArgumentNullException(nameof(frets));
+
+            var stringCount = Math.Max(StringLayout.StockStringCount, Math.Max(fingers.Length, frets.Length));
+            StringLayout.ValidateStringCount(stringCount);
+
+            Fingers = CreateUnused(stringCount);
+            Frets = CreateUnused(stringCount);
+            Array.Copy(fingers, Fingers, fingers.Length);
+            Array.Copy(frets, Frets, frets.Length);
+
+            Name = chordName;
+            DisplayName = displayName;
+        }
+
+        /// <summary>
+        /// Expands the template to the given string count. Added strings are unused (-1).
+        /// Does nothing if the template already has at least that many strings.
+        /// </summary>
+        /// <param name="stringCount">The target string count (6 or 7).</param>
+        public void EnsureStringCount(int stringCount)
+        {
+            StringLayout.ValidateStringCount(stringCount);
+
+            if (stringCount <= StringCount)
+                return;
+
+            Fingers = Resize(Fingers, stringCount);
+            Frets = Resize(Frets, stringCount);
+        }
+
+        /// <summary>
+        /// Sets the fingering of the stock six strings of the chord template.
         /// </summary>
         /// <param name="lowE">The low E string in standard tuning.</param>
         /// <param name="A">The A string in standard tuning.</param>
@@ -85,7 +135,7 @@ namespace Rocksmith2014.XML
         }
 
         /// <summary>
-        /// Sets the frets of the chord template.
+        /// Sets the frets of the stock six strings of the chord template.
         /// </summary>
         /// <param name="lowE">The low E string in standard tuning.</param>
         /// <param name="A">The A string in standard tuning.</param>
@@ -107,7 +157,7 @@ namespace Rocksmith2014.XML
         {
             string result = $"Name: \"{Name}\", Display Name: \"{DisplayName}\", ";
 
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < StringCount; i++)
             {
                 if (Frets[i] != -1)
                     result += $"Fret{i}={Frets[i]} ";
@@ -119,6 +169,60 @@ namespace Rocksmith2014.XML
             return result;
         }
 
+        private static sbyte[] CreateUnused(int count)
+        {
+            var array = new sbyte[count];
+            Array.Fill(array, (sbyte)-1);
+            return array;
+        }
+
+        private static sbyte[] Resize(sbyte[] source, int count)
+        {
+            var result = CreateUnused(count);
+            Array.Copy(source, result, source.Length);
+            return result;
+        }
+
+        private static bool TryGetStringIndex(string attributeName, string prefix, out int index)
+        {
+            index = -1;
+
+            if (attributeName.Length != prefix.Length + 1
+                || !attributeName.StartsWith(prefix, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            var digit = attributeName[attributeName.Length - 1];
+            if (digit < '0' || digit > '9')
+                return false;
+
+            index = digit - '0';
+            return true;
+        }
+
+        private void EnsureIndex(int index)
+        {
+            if (index >= StringLayout.MaxStringCount)
+            {
+                throw new NotSupportedException(
+                    $"Chord templates with more than {StringLayout.MaxStringCount} strings are not supported (found string index {index}).");
+            }
+
+            if (index >= StringCount)
+                EnsureStringCount(index + 1);
+        }
+
+        private static void WriteValue(XmlWriter writer, string prefix, int index, sbyte value, bool alwaysWrite)
+        {
+            var name = prefix + index.ToString(NumberFormatInfo.InvariantInfo);
+
+            if (value != -1)
+                writer.WriteAttributeString(name, value.ToString(NumberFormatInfo.InvariantInfo));
+            else if (alwaysWrite || !InstrumentalArrangement.UseAbridgedXml)
+                writer.WriteAttributeString(name, "-1");
+        }
+
         #region IXmlSerializable Implementation
 
         XmlSchema? IXmlSerializable.GetSchema() => null;
@@ -128,52 +232,25 @@ namespace Rocksmith2014.XML
             for (int i = 0; i < reader.AttributeCount; i++)
             {
                 reader.MoveToAttribute(i);
+                var name = reader.Name;
 
-                switch (reader.Name)
+                if (name == "chordName")
                 {
-                    case "chordName":
-                        Name = reader.Value;
-                        break;
-                    case "displayName":
-                        DisplayName = reader.Value;
-                        break;
-                    case "finger0":
-                        Fingers[0] = sbyte.Parse(reader.Value, NumberFormatInfo.InvariantInfo);
-                        break;
-                    case "finger1":
-                        Fingers[1] = sbyte.Parse(reader.Value, NumberFormatInfo.InvariantInfo);
-                        break;
-                    case "finger2":
-                        Fingers[2] = sbyte.Parse(reader.Value, NumberFormatInfo.InvariantInfo);
-                        break;
-                    case "finger3":
-                        Fingers[3] = sbyte.Parse(reader.Value, NumberFormatInfo.InvariantInfo);
-                        break;
-                    case "finger4":
-                        Fingers[4] = sbyte.Parse(reader.Value, NumberFormatInfo.InvariantInfo);
-                        break;
-                    case "finger5":
-                        Fingers[5] = sbyte.Parse(reader.Value, NumberFormatInfo.InvariantInfo);
-                        break;
-
-                    case "fret0":
-                        Frets[0] = sbyte.Parse(reader.Value, NumberFormatInfo.InvariantInfo);
-                        break;
-                    case "fret1":
-                        Frets[1] = sbyte.Parse(reader.Value, NumberFormatInfo.InvariantInfo);
-                        break;
-                    case "fret2":
-                        Frets[2] = sbyte.Parse(reader.Value, NumberFormatInfo.InvariantInfo);
-                        break;
-                    case "fret3":
-                        Frets[3] = sbyte.Parse(reader.Value, NumberFormatInfo.InvariantInfo);
-                        break;
-                    case "fret4":
-                        Frets[4] = sbyte.Parse(reader.Value, NumberFormatInfo.InvariantInfo);
-                        break;
-                    case "fret5":
-                        Frets[5] = sbyte.Parse(reader.Value, NumberFormatInfo.InvariantInfo);
-                        break;
+                    Name = reader.Value;
+                }
+                else if (name == "displayName")
+                {
+                    DisplayName = reader.Value;
+                }
+                else if (TryGetStringIndex(name, FingerPrefix, out int fingerIndex))
+                {
+                    EnsureIndex(fingerIndex);
+                    Fingers[fingerIndex] = sbyte.Parse(reader.Value, NumberFormatInfo.InvariantInfo);
+                }
+                else if (TryGetStringIndex(name, FretPrefix, out int fretIndex))
+                {
+                    EnsureIndex(fretIndex);
+                    Frets[fretIndex] = sbyte.Parse(reader.Value, NumberFormatInfo.InvariantInfo);
                 }
             }
 
@@ -187,65 +264,19 @@ namespace Rocksmith2014.XML
             writer.WriteAttributeString("chordName", Name);
             writer.WriteAttributeString("displayName", DisplayName);
 
-            if (Fingers[0] != -1)
-                writer.WriteAttributeString("finger0", Fingers[0].ToString(NumberFormatInfo.InvariantInfo));
-            else if (!InstrumentalArrangement.UseAbridgedXml)
-                writer.WriteAttributeString("finger0", "-1");
+            // Stock strings: same attribute order and abridging rules as before.
+            for (int i = 0; i < StringLayout.StockStringCount; i++)
+                WriteValue(writer, FingerPrefix, i, Fingers[i], alwaysWrite: false);
 
-            if (Fingers[1] != -1)
-                writer.WriteAttributeString("finger1", Fingers[1].ToString(NumberFormatInfo.InvariantInfo));
-            else if (!InstrumentalArrangement.UseAbridgedXml)
-                writer.WriteAttributeString("finger1", "-1");
+            for (int i = 0; i < StringLayout.StockStringCount; i++)
+                WriteValue(writer, FretPrefix, i, Frets[i], alwaysWrite: false);
 
-            if (Fingers[2] != -1)
-                writer.WriteAttributeString("finger2", Fingers[2].ToString(NumberFormatInfo.InvariantInfo));
-            else if (!InstrumentalArrangement.UseAbridgedXml)
-                writer.WriteAttributeString("finger2", "-1");
-
-            if (Fingers[3] != -1)
-                writer.WriteAttributeString("finger3", Fingers[3].ToString(NumberFormatInfo.InvariantInfo));
-            else if (!InstrumentalArrangement.UseAbridgedXml)
-                writer.WriteAttributeString("finger3", "-1");
-
-            if (Fingers[4] != -1)
-                writer.WriteAttributeString("finger4", Fingers[4].ToString(NumberFormatInfo.InvariantInfo));
-            else if (!InstrumentalArrangement.UseAbridgedXml)
-                writer.WriteAttributeString("finger4", "-1");
-
-            if (Fingers[5] != -1)
-                writer.WriteAttributeString("finger5", Fingers[5].ToString(NumberFormatInfo.InvariantInfo));
-            else if (!InstrumentalArrangement.UseAbridgedXml)
-                writer.WriteAttributeString("finger5", "-1");
-
-            if (Frets[0] != -1)
-                writer.WriteAttributeString("fret0", Frets[0].ToString(NumberFormatInfo.InvariantInfo));
-            else if (!InstrumentalArrangement.UseAbridgedXml)
-                writer.WriteAttributeString("fret0", "-1");
-
-            if (Frets[1] != -1)
-                writer.WriteAttributeString("fret1", Frets[1].ToString(NumberFormatInfo.InvariantInfo));
-            else if (!InstrumentalArrangement.UseAbridgedXml)
-                writer.WriteAttributeString("fret1", "-1");
-
-            if (Frets[2] != -1)
-                writer.WriteAttributeString("fret2", Frets[2].ToString(NumberFormatInfo.InvariantInfo));
-            else if (!InstrumentalArrangement.UseAbridgedXml)
-                writer.WriteAttributeString("fret2", "-1");
-
-            if (Frets[3] != -1)
-                writer.WriteAttributeString("fret3", Frets[3].ToString(NumberFormatInfo.InvariantInfo));
-            else if (!InstrumentalArrangement.UseAbridgedXml)
-                writer.WriteAttributeString("fret3", "-1");
-
-            if (Frets[4] != -1)
-                writer.WriteAttributeString("fret4", Frets[4].ToString(NumberFormatInfo.InvariantInfo));
-            else if (!InstrumentalArrangement.UseAbridgedXml)
-                writer.WriteAttributeString("fret4", "-1");
-
-            if (Frets[5] != -1)
-                writer.WriteAttributeString("fret5", Frets[5].ToString(NumberFormatInfo.InvariantInfo));
-            else if (!InstrumentalArrangement.UseAbridgedXml)
-                writer.WriteAttributeString("fret5", "-1");
+            // Extended strings are always written so that the string count survives abridged XML.
+            for (int i = StringLayout.StockStringCount; i < StringCount; i++)
+            {
+                WriteValue(writer, FingerPrefix, i, Fingers[i], alwaysWrite: true);
+                WriteValue(writer, FretPrefix, i, Frets[i], alwaysWrite: true);
+            }
         }
 
         #endregion

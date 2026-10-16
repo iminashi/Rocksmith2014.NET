@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -13,7 +14,7 @@ namespace Rocksmith2014.XML
         /// <summary>
         /// The tuning of each string, represented as an offset from E Standard.
         /// </summary>
-        public readonly short[] Strings = new short[6];
+        public short[] Strings { get; set; } = new short[6];
 
         /// <summary>
         /// Sets the tuning offset of the strings.
@@ -43,24 +44,30 @@ namespace Rocksmith2014.XML
 
         void IXmlSerializable.ReadXml(XmlReader reader)
         {
-            Strings[0] = short.Parse(reader.GetAttribute("string0"), NumberFormatInfo.InvariantInfo);
-            Strings[1] = short.Parse(reader.GetAttribute("string1"), NumberFormatInfo.InvariantInfo);
-            Strings[2] = short.Parse(reader.GetAttribute("string2"), NumberFormatInfo.InvariantInfo);
-            Strings[3] = short.Parse(reader.GetAttribute("string3"), NumberFormatInfo.InvariantInfo);
-            Strings[4] = short.Parse(reader.GetAttribute("string4"), NumberFormatInfo.InvariantInfo);
-            Strings[5] = short.Parse(reader.GetAttribute("string5"), NumberFormatInfo.InvariantInfo);
+            for (var i = 0; i < 6; i++)
+            {
+                var attribute = $"string{i}";
+                var value = reader.GetAttribute(attribute) ?? throw new XmlException($"Missing required tuning attribute '{attribute}'.");
+
+                Strings[i] = short.Parse(value, NumberFormatInfo.InvariantInfo);
+            }
+
+            var seventhString = reader.GetAttribute("string6");
+            if (seventhString is not null)
+            {
+                var strings = Strings;
+                Array.Resize(ref strings, 7);
+                Strings = strings;
+                Strings[6] = short.Parse(seventhString, NumberFormatInfo.InvariantInfo);
+            }
 
             reader.ReadStartElement();
         }
 
         void IXmlSerializable.WriteXml(XmlWriter writer)
         {
-            writer.WriteAttributeString("string0", Strings[0].ToString(NumberFormatInfo.InvariantInfo));
-            writer.WriteAttributeString("string1", Strings[1].ToString(NumberFormatInfo.InvariantInfo));
-            writer.WriteAttributeString("string2", Strings[2].ToString(NumberFormatInfo.InvariantInfo));
-            writer.WriteAttributeString("string3", Strings[3].ToString(NumberFormatInfo.InvariantInfo));
-            writer.WriteAttributeString("string4", Strings[4].ToString(NumberFormatInfo.InvariantInfo));
-            writer.WriteAttributeString("string5", Strings[5].ToString(NumberFormatInfo.InvariantInfo));
+            for (var i = 0; i < Strings.Length; i++)
+                writer.WriteAttributeString($"string{i}", Strings[i].ToString(NumberFormatInfo.InvariantInfo));
         }
 
         #endregion
