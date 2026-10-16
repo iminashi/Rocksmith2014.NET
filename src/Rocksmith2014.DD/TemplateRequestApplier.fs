@@ -9,23 +9,23 @@ type private NewData = { Fingers: sbyte array; Frets: sbyte array }
 let private globalTemplatesLock = obj ()
 
 /// Returns new finger and fret arrays for the chord template with the given number of notes removed.
-let private removeNotes (notesToRemove: int) (fromHighest: bool) (template: ChordTemplate) =
+/// Uses musical order because string 6 is below the stock strings.
+let private removeNotes (notesToRemove: int) (fromHighest: bool) (template: ChordTemplate) : NewData =
     let fingers = Array.copy template.Fingers
     let frets = Array.copy template.Frets
-    let startIndex, change = if fromHighest then 0, 1 else frets.Length - 1, -1
+    let lowToHigh = StringLayout.LowToHigh(template.StringCount)
+    let removalOrder = if fromHighest then lowToHigh else Array.rev lowToHigh
+    let mutable leftToRemove = notesToRemove
 
-    let rec loop i leftToRemove =
-        if leftToRemove = 0 || i < 0 || i > 5 then
-            assert (leftToRemove = 0)
-            { Fingers = fingers; Frets = frets }
-        elif frets[i] <> -1y then
-            fingers[i] <- -1y
-            frets[i] <- -1y
-            loop (i + change) (leftToRemove - 1)
-        else
-            loop (i + change) leftToRemove
+    for stringIndex in removalOrder do
+        if leftToRemove > 0 && frets[stringIndex] <> -1y then
+            fingers[stringIndex] <- -1y
+            frets[stringIndex] <- -1y
+            leftToRemove <- leftToRemove - 1
 
-    loop startIndex notesToRemove
+    assert (leftToRemove = 0)
+
+    { Fingers = fingers; Frets = frets }
 
 /// Returns the ID of an existing chord template if an identical one already exists, otherwise adds a new template to the global template list.
 let private getChordId (templates: ResizeArray<ChordTemplate>) (template: ChordTemplate) (newData: NewData) =
