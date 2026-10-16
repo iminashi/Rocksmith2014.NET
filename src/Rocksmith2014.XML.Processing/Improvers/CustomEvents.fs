@@ -112,12 +112,16 @@ let improve (arrangement: InstrumentalArrangement) =
             let chordId = int16 arrangement.ChordTemplates.Count
             level.HandShapes.InsertByTime(HandShape(chordId, startTime, endTime))
 
-            // Create a new chord template for the handshape
-            let soChordTemplate = ChordTemplate()
+            // Create a new chord template for the handshape (same string count as the original template)
+            let soChordTemplate = ChordTemplate(originalChordTemplate.StringCount)
             for note in notes do
                 let s = int note.String
+                if s >= soChordTemplate.StringCount then
+                    soChordTemplate.EnsureStringCount(s + 1)
+
                 soChordTemplate.Frets[s] <- note.SlideUnpitchTo
-                soChordTemplate.Fingers[s] <- originalChordTemplate.Fingers[s]
+                soChordTemplate.Fingers[s] <-
+                    if s < originalChordTemplate.StringCount then originalChordTemplate.Fingers[s] else -1y
 
             arrangement.ChordTemplates.Add(soChordTemplate)
 

@@ -110,7 +110,8 @@ let findPreviousChordUsingSameString
         else
             templates
             |> ResizeArray.tryItem (int chord.ChordId)
-            |> Option.exists (fun template -> template.Frets[int stringNum] > -1y))
+            |> Option.exists (fun template ->
+                stringNum >= 0y && int stringNum < template.StringCount && template.Frets[int stringNum] > -1y))
     |> Option.map (fun chord ->
         let fret =
             chord.ChordNotes
