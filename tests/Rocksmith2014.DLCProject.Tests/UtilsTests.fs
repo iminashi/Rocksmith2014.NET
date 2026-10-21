@@ -32,4 +32,13 @@ let utilsTests =
 
             Expect.equal name expected "Incorrect tuning name"
         }
+
+        test "Custom tuning name of a seven-string tuning starts from the low B string" {
+            let dropA = [| 0s; 0s; 0s; 0s; 0s; 0s; -2s |]
+
+            let name = Utils.getTuningName dropA
+            let expected = Utils.CustomTuning("AEADGBE")
+
+            Expect.equal name expected "Incorrect tuning name"
+        }
     ]
