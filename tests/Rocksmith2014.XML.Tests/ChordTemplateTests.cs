@@ -133,6 +133,37 @@ namespace Rocksmith2014.XML.Tests
         }
 
         [Fact]
+        public static void CharterSixStringFillerStaysSixStringThroughLoadAndSave()
+        {
+            // Charter writes string6..string8 as copies of string5 and declares strings="6".
+            var xml = File.ReadAllText("instrumental.xml").Replace(
+                "<tuning string0=\"0\" string1=\"0\" string2=\"0\" string3=\"0\" string4=\"0\" string5=\"0\" />",
+                "<tuning string0=\"0\" string1=\"0\" string2=\"0\" string3=\"0\" string4=\"0\" string5=\"0\" " +
+                "string6=\"0\" string7=\"0\" string8=\"0\" strings=\"6\" />");
+            xml.Should().Contain("string6=\"0\"", "the sample's tuning element was replaced");
+            var path = TempXmlPath();
+            File.WriteAllText(path, xml);
+
+            try
+            {
+                var loaded = InstrumentalArrangement.Load(path);
+
+                loaded.MetaData.Tuning.Strings.Should().HaveCount(6);
+                loaded.ChordTemplates.Should().OnlyContain(ct => ct.StringCount == 6);
+
+                loaded.Save(path, writeAbridgedXml: false);
+                var saved = File.ReadAllText(path);
+
+                saved.Should().NotContain("string6").And.NotContain("strings=");
+                saved.Should().NotContain("fret6").And.NotContain("finger6");
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
         public static void UnsupportedStringIndexIsRejected()
         {
             var path = TempXmlPath();

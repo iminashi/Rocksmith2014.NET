@@ -187,6 +187,16 @@ let xmlToSngConversionTests =
 
             Expect.equal sng.Mask SNG.ChordMask.Nop "Nop is set"
 
+        testCase "Chord Template (seven-string stays six wide in SNG)" <| fun _ ->
+            let ct = ChordTemplate(7)
+            ct.Frets[6] <- 3y
+            let testArr = createTestArr ()
+
+            let sng = XmlToSng.convertChord testArr ct
+
+            Expect.equal sng.Frets.Length 6 "SNG frets are six wide"
+            Expect.equal sng.Fingers.Length 6 "SNG fingers are six wide"
+
         testCase "Bend Value" <| fun _ ->
             let bv = BendValue(456465, 99.f)
 

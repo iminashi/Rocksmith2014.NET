@@ -52,11 +52,28 @@ namespace Rocksmith2014.XML
                 Strings[i] = short.Parse(value, NumberFormatInfo.InvariantInfo);
             }
 
+            // Charter write string6..string8 as copies of string5 on every
+            // arrangement, so the seventh string exists only when the count matches.
+            // Files without a count fall back to the presence of string6.
             var seventhString = reader.GetAttribute("string6");
-            if (seventhString is not null)
+            var declaredCount = reader.GetAttribute("strings");
+            var stringCount = declaredCount is null
+                ? (seventhString is null ? StringLayout.StockStringCount : StringLayout.MaxStringCount)
+                : int.Parse(declaredCount, NumberFormatInfo.InvariantInfo);
+
+            if (stringCount > StringLayout.MaxStringCount)
             {
+                throw new NotSupportedException(
+                    $"Tunings with more than {StringLayout.MaxStringCount} strings are not supported (found {stringCount}).");
+            }
+
+            if (stringCount == StringLayout.MaxStringCount)
+            {
+                if (seventhString is null)
+                    throw new XmlException("Missing required tuning attribute 'string6' for a seven-string arrangement.");
+
                 var strings = Strings;
-                Array.Resize(ref strings, 7);
+                Array.Resize(ref strings, StringLayout.MaxStringCount);
                 Strings = strings;
                 Strings[6] = short.Parse(seventhString, NumberFormatInfo.InvariantInfo);
             }
@@ -68,6 +85,10 @@ namespace Rocksmith2014.XML
         {
             for (var i = 0; i < Strings.Length; i++)
                 writer.WriteAttributeString($"string{i}", Strings[i].ToString(NumberFormatInfo.InvariantInfo));
+
+            // Only a seven-string declares its count, so six-string files stay unchanged.
+            if (Strings.Length == StringLayout.MaxStringCount)
+                writer.WriteAttributeString("strings", Strings.Length.ToString(NumberFormatInfo.InvariantInfo));
         }
 
         #endregion
