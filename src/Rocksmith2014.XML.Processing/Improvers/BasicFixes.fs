@@ -117,8 +117,9 @@ let removeMutedNotesFromChords (arrangement: InstrumentalArrangement) =
                     |> Option.iter (fun template ->
                         mutedNotes.ForEach(fun n ->
                             let i = int n.String
-                            template.Frets[i] <- -1y
-                            template.Fingers[i] <- -1y)
+                            if i >= 0 && i < template.StringCount then
+                                template.Frets[i] <- -1y
+                                template.Fingers[i] <- -1y)
                     )
 
                     fixedChordTemplates.Add(chord.ChordId) |> ignore

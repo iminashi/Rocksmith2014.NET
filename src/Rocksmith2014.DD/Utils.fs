@@ -12,6 +12,10 @@ let getNoteCount (template: ChordTemplate) =
     template.Frets
     |> Array.sumBy (fun fret -> Convert.ToInt32(fret >= 0y))
 
+/// Orders strings low to high; string 6 precedes string 0.
+let pitchRank (stringIndex: sbyte) =
+    StringLayout.MusicalRank(int stringIndex, StringLayout.MaxStringCount)
+
 let getAllowedChordNotes (diffPercent: float) (maxChordNotesInPhrase: int) =
     if maxChordNotesInPhrase = 0 then
         0
@@ -21,9 +25,10 @@ let getAllowedChordNotes (diffPercent: float) (maxChordNotesInPhrase: int) =
 
 /// For double and triple stops on the highest strings, start adding notes from the highest string.
 let shouldStartFromHighestNote (totalNotes: int) (template: ChordTemplate) =
-    let fr = template.Frets
-    (totalNotes = 3 && fr[5] > -1y && fr[4] > -1y && fr[3] > -1y)
-    || (totalNotes = 2 && fr[5] > -1y && fr[4] > -1y)
+    let fr = StringLayout.ToLowToHigh(template.Frets)
+    let length = fr.Length
+    (totalNotes = 3 && length >= 3 && fr[length - 1] > -1y && fr[length - 2] > -1y && fr[length - 3] > -1y)
+    || (totalNotes = 2 && length >= 2 && fr[length - 1] > -1y && fr[length - 2] > -1y)
 
 let createTemplateRequest (originalId: int16) (noteCount: int) (totalNotes: int) (template: ChordTemplate) (target: RequestTarget) =
     let startFromHighestNote = shouldStartFromHighestNote totalNotes template

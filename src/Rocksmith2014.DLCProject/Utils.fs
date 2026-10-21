@@ -2,6 +2,7 @@ module Rocksmith2014.DLCProject.Utils
 
 open System
 open FSharp.Extensions
+open Rocksmith2014.XML
 
 /// Converts a tuning pitch into cents.
 let tuningPitchToCents (pitch: float) =
@@ -12,7 +13,8 @@ let centsToTuningPitch (cents: float) =
     Math.Round(440. * Math.Pow(Math.Pow(2., 1. / 1200.), cents), 2)
 
 let private roots = [| "E"; "F"; "F#"; "G"; "Ab"; "A"; "Bb"; "B"; "C"; "C#"; "D"; "Eb" |]
-let private standardTuningOffsets = [| 0; 5; 10; 3; 7; 0 |]
+// Semitones above E of each open string (the seventh string is the low B)
+let private standardTuningOffsets = [| 0; 5; 10; 3; 7; 0; 7 |]
 
 let private isDoubleDropTuning (first: int16) (strings: int16 array) =
     first = strings[1] - 2s && first = strings[5]
@@ -74,8 +76,8 @@ let getTuningName (tuning: int16 array) : TuningName =
         | [| -2s; -2s; 0s;  0s;  0s; -2s |] -> TranslatableTuning("OpenTuning", [| "G" |])
         | [|  0s;  2s; 2s;  1s;  0s;  0s |] -> TranslatableTuning("OpenTuning", [| "E" |])
         | _ ->
-            tuning
-            |> Array.mapi (getStringNoteName true)
+            StringLayout.LowToHigh(tuning.Length)
+            |> Array.map (fun i -> getStringNoteName true i tuning[i])
             |> String.Concat
             |> CustomTuning
 

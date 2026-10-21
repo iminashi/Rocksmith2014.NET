@@ -90,8 +90,10 @@ let convertChord (xml: XML.InstrumentalArrangement) (xmlChord: XML.ChordTemplate
             ChordMask.None
 
     { Mask = mask
-      Frets = Array.copy xmlChord.Frets
-      Fingers = Array.copy xmlChord.Fingers
+      // The SNG chord record is fixed six-wide (Chord.Read reads 6); a seventh
+      // template column must not reach it.
+      Frets = Array.truncate 6 xmlChord.Frets
+      Fingers = Array.truncate 6 xmlChord.Fingers
       Notes = Midi.mapToMidiNotes xml.MetaData xmlChord.Frets
       Name = xmlChord.Name }
 

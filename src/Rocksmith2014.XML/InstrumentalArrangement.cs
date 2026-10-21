@@ -102,6 +102,22 @@ namespace Rocksmith2014.XML
         public List<Level> Levels { get; set; } = new List<Level>();
 
         /// <summary>
+        /// Expands every chord template to the string count of the tuning.
+        /// Missing columns are unused (-1).
+        /// Does nothing if the tuning has an unsupported string count.
+        /// </summary>
+        public void EnsureChordTemplateStringCounts()
+        {
+            var stringCount = MetaData.Tuning.Strings.Length;
+
+            if (!StringLayout.IsSupportedStringCount(stringCount))
+                return;
+
+            foreach (var template in ChordTemplates)
+                template.EnsureStringCount(stringCount);
+        }
+
+        /// <summary>
         /// Saves this Rocksmith 2014 arrangement into the given file.
         /// </summary>
         /// <param name="fileName">The target file name.</param>
@@ -539,6 +555,7 @@ namespace Rocksmith2014.XML
             }
 
             reader.ReadEndElement();
+            EnsureChordTemplateStringCounts();
         }
 
         void IXmlSerializable.WriteXml(XmlWriter writer)

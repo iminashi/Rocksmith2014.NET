@@ -45,11 +45,18 @@ let private pruneChordNotes
     if notesToRemove < 0 then
         failwith $"Chord at time %O{float cn[0].Time / 1000.} has less chord notes than its chord template."
 
-    for i = cn.Count - notesToRemove to cn.Count - 1 do
-        if cn[i].IsLinkNext then
-            removedLinkNexts.Set(int cn[i].String, true)
+    // Remove the notes on the highest pitched strings (the seventh string is the lowest)
+    let removed =
+        cn
+        |> Seq.sortByDescending (fun n -> pitchRank n.String)
+        |> Seq.truncate notesToRemove
+        |> Seq.toArray
 
-    cn.RemoveRange(cn.Count - notesToRemove, notesToRemove)
+    for n in removed do
+        if n.IsLinkNext then
+            removedLinkNexts.Set(int n.String, true)
+
+        cn.Remove(n) |> ignore
 
     for n in cn do
         pruneTechniques diffPercent removedLinkNexts n
@@ -140,13 +147,14 @@ let private isFirstChordInHs (entities: XmlEntity list) (handShapes: HandShape l
 let private chordNotesFromTemplate (template: ChordTemplate) (chord: Chord) =
     let cn = ResizeArray<Note>()
 
-    for i = 0 to 5 do
-        if template.Frets[i] <> -1y then
+    for i = 0 to template.StringCount - 1 do
+        let fret = template.Frets[i]
+        if fret <> -1y then
             cn.Add(
                 Note(
                     Time = chord.Time,
                     String = sbyte i,
-                    Fret = template.Frets[i],
+                    Fret = fret,
                     LeftHand = template.Fingers[i],
                     IsFretHandMute = chord.IsFretHandMute,
                     IsPalmMute = chord.IsPalmMute,
@@ -167,19 +175,33 @@ let private noteFromChord
 
     if chord.HasChordNotes then
         let cns = chord.ChordNotes
-        let noteIndex = if fromHighest then cns.Count - 1 else 0
-        // Create the note from a chord note
-        for i = 0 to cns.Count - 1 do
-            if i <> noteIndex && cns[i].IsLinkNext then
-                removedLinkNexts.Set(int cns[i].String, true)
+        let rank (n: Note) = pitchRank n.String
 
-        let note = Note(cns[noteIndex], LeftHand = -1y)
+        let selected =
+            if fromHighest then
+                cns |> Seq.maxBy rank
+            else
+                cns |> Seq.minBy rank
+
+        // Create the note from a chord note
+        for cn in cns do
+            if not (Object.ReferenceEquals(cn, selected)) && cn.IsLinkNext then
+                removedLinkNexts.Set(int cn.String, true)
+
+        let note = Note(selected, LeftHand = -1y)
         pruneTechniques diffPercent removedLinkNexts note
         note
     else
         // Create the note from the chord template
-        let find = if fromHighest then Array.findIndexBack else Array.findIndex
-        let string = template.Frets |> find ((<>) -1y)
+        let usedStrings =
+            StringLayout.LowToHigh(template.StringCount)
+            |> Array.filter (fun stringIndex -> template.Frets[stringIndex] <> -1y)
+
+        let string =
+            if fromHighest then
+                Array.last usedStrings
+            else
+                Array.head usedStrings
 
         Note(
             Time = chord.Time,
@@ -200,8 +222,8 @@ let choose (diffPercent: float)
            (maxChordNotes: int)
            (entities: XmlEntity array) =
     // Strings from which a linknext note has been removed
-    let removedLinkNexts = BitArray(6)
-    let pendingLinkNexts: PendingLinkNexts = Array.zeroCreate 6
+    let removedLinkNexts = BitArray(StringLayout.MaxStringCount)
+    let pendingLinkNexts: PendingLinkNexts = Array.zeroCreate StringLayout.MaxStringCount
     let currentNotesWithScore = Dictionary<NoteScore, int>()
 
     let incrementCount division =

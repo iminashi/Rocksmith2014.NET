@@ -55,6 +55,19 @@ let basicFixTests =
             Expect.isTrue chords.[0].IsIgnore "First chord is ignored"
             Expect.isTrue chords.[1].IsIgnore "Second chord is ignored"
 
+        testCase "Ignore is added to chord with 23rd fret on the seventh string" <| fun _ ->
+            let noFingers = Array.replicate 7 -1y
+            let templates = ![
+                ChordTemplate("", "", noFingers, [| 22y; -1y; -1y; -1y; -1y; -1y; 23y |])
+            ]
+            let chords = ![ Chord(Time = 1000, ChordId = 0s) ]
+            let arr = InstrumentalArrangement(Levels = ![ Level(Chords = chords) ], ChordTemplates = templates)
+            arr.MetaData.Tuning.Strings <- Array.zeroCreate 7
+
+            BasicFixes.addIgnores arr
+
+            Expect.isTrue chords.[0].IsIgnore "Chord is ignored"
+
         testCase "Ignore is added to chord with 7th fret harmonic with sustain" <| fun _ ->
             let noFingers = [| -1y; -1y; -1y; -1y; -1y; -1y |]
             let templates = ![
@@ -184,6 +197,25 @@ let basicFixTests =
             Expect.equal templates[0].Fingers[1] -1y "Fingering was removed from first chord template"
             Expect.equal templates[0].Frets[1] -1y "String was removed from first chord template"
             Expect.sequenceContainsOrder templates[1].Frets [| 0y; 0y; 0y; -1y; -1y; -1y; |] "Second chord template was not modified"
+
+        testCase "Muted seventh string is removed from non-muted chord and template" <| fun _ ->
+            let templates = ![
+                ChordTemplate("", "", [| 1y; -1y; -1y; -1y; -1y; -1y; 3y |], [| 1y; -1y; -1y; -1y; -1y; -1y; 3y |])
+            ]
+            let cn = ![
+                Note(Time = 1000, String = 0y, Fret = 1y)
+                Note(Time = 1000, String = 6y, Fret = 3y, IsFretHandMute = true)
+            ]
+            let chords = ![ Chord(Time = 1000, ChordId = 0s, ChordNotes = cn) ]
+            let arr = InstrumentalArrangement(Levels = ![ Level(Chords = chords) ], ChordTemplates = templates)
+            arr.MetaData.Tuning.Strings <- Array.zeroCreate 7
+
+            BasicFixes.removeMutedNotesFromChords arr
+
+            Expect.hasLength chords.[0].ChordNotes 1 "Muted seventh-string note was removed"
+            Expect.equal templates[0].Frets[6] -1y "Seventh string was removed from the template"
+            Expect.equal templates[0].Fingers[6] -1y "Seventh finger was removed from the template"
+            Expect.equal templates[0].Frets[0] 1y "Other strings are unchanged"
 
         testCase "Redundant anchors are removed" <| fun _ ->
             let anchors = ![

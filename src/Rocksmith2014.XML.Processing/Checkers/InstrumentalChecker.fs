@@ -312,13 +312,17 @@ let private chordHasBarreOverOpenStrings (chordTemplates: ResizeArray<ChordTempl
     chordTemplates
     |> ResizeArray.tryItem (int chord.ChordId)
     |> Option.exists (fun ct ->
+        // The barre span is determined in pitch order (the seventh string is the lowest)
+        let fingers = StringLayout.ToLowToHigh(ct.Fingers)
+        let frets = StringLayout.ToLowToHigh(ct.Frets)
+
         [ 0y..4y ]
         |> List.exists (fun finger ->
-            let low = Array.IndexOf(ct.Fingers, finger)
-            let high = Array.LastIndexOf(ct.Fingers, finger)
+            let low = Array.IndexOf(fingers, finger)
+            let high = Array.LastIndexOf(fingers, finger)
 
             low <> -1 && high > low &&
-            ct.Frets.AsSpan(low, high - low).Contains(0y)))
+            frets.AsSpan(low, high - low).Contains(0y)))
 
 let private chordHasMutedString (chord: Chord) =
     not chord.IsFretHandMute
