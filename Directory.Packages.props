@@ -21,7 +21,7 @@
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageVersion Include="Octokit" Version="14.0.0" />
     <PackageVersion Include="Pfim" Version="0.11.4" />
-    <PackageVersion Include="Magick.NET-Q8-x64" Version="15.0.0" />
+    <PackageVersion Include="Magick.NET-Q8-AnyCPU" Version="15.0.0" />
     <PackageVersion Include="BunLabs.NAudio.Flac" Version="2.0.1" />
     <PackageVersion Include="NAudio.Core" Version="3.1.0" />
     <PackageVersion Include="NAudio.Vorbis" Version="3.0.0" />
