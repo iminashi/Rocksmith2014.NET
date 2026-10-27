@@ -50,7 +50,7 @@
 
   <ItemGroup>
     <PackageReference Include="FSharp.SystemTextJson" />
-    <PackageReference Include="Magick.NET-Q8-x64" />
+    <PackageReference Include="Magick.NET-Q8-AnyCPU" />
     <PackageReference Include="FSharp.Core" />
   </ItemGroup>
 

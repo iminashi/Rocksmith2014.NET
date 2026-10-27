@@ -4,7 +4,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <WarnOn>1182;3390;$(WarnOn)</WarnOn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <Platforms>x64</Platforms>
+    <Platforms>x64;AnyCPU</Platforms>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
