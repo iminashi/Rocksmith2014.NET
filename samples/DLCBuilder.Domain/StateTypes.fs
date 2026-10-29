@@ -42,6 +42,12 @@ type ProfileCleanerState =
         { CurrentStep = ProfileCleanerStep.Idle
           IsDryRun = false }
 
+type PsarcBatchImportResult =
+    { TargetFolder: string
+      Imported: string list
+      Skipped: string list
+      Failed: (string * string) list }
+
 type ModalContents =
     | NoModal
     | AbnormalExitMessage
@@ -64,6 +70,7 @@ type ModalContents =
     | LyricsViewer of lyrics: string * isJapanese: bool
     | InstrumentalXmlDetailsViewer of xml: InstrumentalArrangement * fileName: string
     | ProfileCleaner
+    | PsarcBatchImportSummary of result: PsarcBatchImportResult
 
 [<RequireQualifiedAccess>]
 type ModalCloseMethod =
@@ -232,7 +239,7 @@ type ToolsMsg =
 type FolderTarget =
     | Dlc
     | TestBuilds
-    | PsarcImportTarget of psarcPath: string
+    | PsarcImportTarget of psarcPaths: string array
     | PsarcUnpackTarget of psarcPaths: string array
     | PsarcPackDirectory
     | PostBuildCopyTarget of indexOpt: int voption
@@ -271,6 +278,8 @@ type Msg =
     | SetNewArrangementIds of Map<ArrangementId, Arrangement>
     | ImportPsarcQuick of psarcFile: string
     | ImportPsarc of psarcFile: string * targetFolder: string
+    | ImportPsarcBatch of psarcFiles: string array * targetFolder: string
+    | PsarcBatchImported of result: PsarcBatchImportResult
     | PsarcImported of project: DLCProject * importType: PsarcImportType
     | ImportToolkitTemplate of fileName: string
     | ImportTonesFromFile of fileName: string

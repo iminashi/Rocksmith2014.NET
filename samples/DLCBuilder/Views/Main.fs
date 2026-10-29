@@ -291,6 +291,8 @@ let private modal state dispatch =
         ErrorMessage.view dispatch [ msg, info ]
     | MultipleErrors data ->
         ErrorMessage.view dispatch data
+    | PsarcBatchImportSummary result ->
+        PsarcBatchImportSummary.view dispatch result
     | SelectPreviewStart data ->
         PreviewStartSelector.view state dispatch data
     | ImportToneSelector tones ->

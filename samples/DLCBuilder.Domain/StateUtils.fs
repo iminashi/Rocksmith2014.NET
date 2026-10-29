@@ -305,6 +305,12 @@ let handleFilesDrop config paths =
             String.endsWith "xml" x
             && not (String.endsWith "tone2014.xml" x || String.endsWith "dlc.xml" x))
 
+    // PSARC files that are not quick edited are imported into one target folder
+    let psarcsToImport, other =
+        other
+        |> Array.partition (fun path ->
+            not config.QuickEditOnPsarcDragAndDrop && String.endsWith ".psarc" path)
+
     let otherCommands =
         other
         |> Array.choose (fun path ->
@@ -312,10 +318,7 @@ let handleFilesDrop config paths =
             | HasExtension ".rs2dlc" ->
                 Some(OpenProject path)
             | HasExtension ".psarc" ->
-                if config.QuickEditOnPsarcDragAndDrop then
-                    Some(ImportPsarcQuick path)
-                else
-                    Some(path |> FolderTarget.PsarcImportTarget |> Dialog.FolderTarget |> ShowDialog)
+                Some(ImportPsarcQuick path)
             | HasExtension (".png" | ".jpg" | ".dds") ->
                 Some(path |> SetAlbumArt |> EditProject)
             | HasExtension (".wav" | ".ogg" | ".wem") ->
@@ -332,13 +335,18 @@ let handleFilesDrop config paths =
     seq {
         if arrangements.Length > 0 then
             AddArrangements arrangements |> Cmd.ofMsg
+        if psarcsToImport.Length > 0 then
+            psarcsToImport |> FolderTarget.PsarcImportTarget |> Dialog.FolderTarget |> ShowDialog |> Cmd.ofMsg
         yield! otherCommands
     }
 
-let private createPsarcImportProgressReporter config =
+let reportPsarcImportProgress (progress: float) =
+    (ProgressReporters.PsarcImport :> IProgress<float>).Report(progress)
+
+let private createPsarcImportProgressReporter (report: float -> unit) config =
     let maxProgress =
         3.
-        + match config.ConvertAudio with None -> 0. | _ -> 1.
+        + (match config.ConvertAudio with None -> 0. | _ -> 1.)
         + Convert.ToDouble(config.RemoveDDOnImport)
         + Convert.ToDouble(config.CreateEOFProjectOnImport)
 
@@ -346,8 +354,7 @@ let private createPsarcImportProgressReporter config =
 
     fun () ->
         currentProgress <- currentProgress + 1.
-        currentProgress / maxProgress * 100.
-        |> (ProgressReporters.PsarcImport :> IProgress<float>).Report
+        currentProgress / maxProgress * 100. |> report
 
 let private importTrackSorter (arr: Arrangement, _) =
     match arr with
@@ -425,9 +432,10 @@ let private createEofTrackList (arrangements: (Arrangement * ImportedData) list)
       PartBonus = bonus
       PartVocals = vocals }
 
-let importPsarc (config: Configuration) (targetFolder: string) (psarcPath: string)  =
+/// Imports the PSARC into the target folder, reporting the progress (0-100) with the given function.
+let importPsarcWithProgress (report: float -> unit) (config: Configuration) (targetFolder: string) (psarcPath: string) =
     backgroundTask {
-        let progress = createPsarcImportProgressReporter config
+        let progress = createPsarcImportProgressReporter report config
 
         Directory.CreateDirectory(targetFolder) |> ignore
         let! r = PsarcImporter.import progress psarcPath targetFolder
@@ -471,6 +479,9 @@ let importPsarc (config: Configuration) (targetFolder: string) (psarcPath: strin
         return { r with GeneratedProject = project }
     }
 
+let importPsarc (config: Configuration) (targetFolder: string) (psarcPath: string) =
+    importPsarcWithProgress reportPsarcImportProgress config targetFolder psarcPath
+
 let createDownloadTask locString =
     let id = { Id = Guid.NewGuid(); LocString = locString }
     id, FileDownload id
@@ -496,6 +507,57 @@ let deleteDirectoryRecursively path =
     try
         Directory.Delete(path, recursive = true)
     with _ -> ()
+
+/// Returns the folder for the project imported from the PSARC: a folder named after the PSARC inside the target folder.
+let getPsarcImportProjectFolder (targetFolder: string) (psarcPath: string) =
+    Path.Combine(targetFolder, Path.GetFileNameWithoutExtension(psarcPath))
+
+/// Returns true if the folder contains a project file, i.e. a completed import.
+let private containsProjectFile (folder: string) =
+    Directory.Exists(folder)
+    && not (Directory.EnumerateFiles(folder, "*.rs2dlc") |> Seq.isEmpty)
+
+/// Imports the PSARC files one by one into their own project folders inside the target folder.
+/// A PSARC whose project folder already contains a project file is skipped.
+/// A failed import does not stop the batch.
+let importPsarcBatch
+        (importOne: (float -> unit) -> string -> string -> System.Threading.Tasks.Task)
+        (report: float -> unit)
+        (targetFolder: string)
+        (psarcPaths: string array) =
+    backgroundTask {
+        let total = float psarcPaths.Length
+        let imported = ResizeArray()
+        let skipped = ResizeArray()
+        let failed = ResizeArray()
+
+        for i in 0 .. psarcPaths.Length - 1 do
+            let psarcPath = psarcPaths[i]
+            let fileName = Path.GetFileName(psarcPath)
+            let projectFolder = getPsarcImportProjectFolder targetFolder psarcPath
+
+            if containsProjectFile projectFolder then
+                skipped.Add(fileName)
+            else
+                let folderExisted = Directory.Exists(projectFolder)
+                let reportFileProgress p = (float i + (min p 100.) / 100.) / total * 100. |> report
+
+                try
+                    do! importOne reportFileProgress projectFolder psarcPath
+                    imported.Add(fileName)
+                with ex ->
+                    // Do not leave a partially imported project behind
+                    if not folderExisted then deleteDirectoryRecursively projectFolder
+                    failed.Add(fileName, ex.GetBaseException().Message)
+
+            float (i + 1) / total * 100. |> report
+
+        return
+            { TargetFolder = targetFolder
+              Imported = List.ofSeq imported
+              Skipped = List.ofSeq skipped
+              Failed = List.ofSeq failed }
+    }
 
 let deleteTemporaryFilesForQuickEdit state =
     state.QuickEditData

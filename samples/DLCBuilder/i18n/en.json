@@ -563,5 +563,9 @@
   "OpenFolder": "Open folder",
   "OpenFolderToolTip": "When enabled, the folder will be opened after the files have been copied.",
   "Add...": "Add...",
-  "ChangeTarget...": "Change target folder..."
+  "ChangeTarget...": "Change target folder...",
+  "PsarcBatchImportFinished": "PSARC Import Finished",
+  "PsarcBatchImported": "Imported: {0}",
+  "PsarcBatchSkipped": "Skipped, project folder already exists: {0}",
+  "PsarcBatchFailed": "Failed: {0}"
 }
