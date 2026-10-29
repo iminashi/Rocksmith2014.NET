@@ -210,9 +210,16 @@ let showDialog (window: Window) (dialogType: Dialog) (state: State) : Cmd<Msg> =
         match dialogType with
         | Dialog.FolderTarget folderTarget ->
             match folderTarget with
-            | FolderTarget.PsarcImportTarget psarcPath ->
-                let initialDir = Path.GetDirectoryName(psarcPath) |> Some
-                openFolderDialog title initialDir (fun folder -> ImportPsarc(psarcPath, folder))
+            | FolderTarget.PsarcImportTarget psarcPaths ->
+                let initialDir =
+                    psarcPaths
+                    |> Array.tryHead
+                    |> Option.map Path.GetDirectoryName
+
+                openFolderDialog title initialDir (fun folder ->
+                    match psarcPaths with
+                    | [| psarcPath |] -> ImportPsarc(psarcPath, folder)
+                    | _ -> ImportPsarcBatch(psarcPaths, folder))
 
             | FolderTarget.PsarcUnpackTarget psarcPaths ->
                 let initialDir =
@@ -273,7 +280,7 @@ let showDialog (window: Window) (dialogType: Dialog) (state: State) : Cmd<Msg> =
             if state.RunningTasks.Contains(PsarcImport) then
                 task { return None }
             else
-                ofd FileFilter.PSARC (FolderTarget.PsarcImportTarget >> Dialog.FolderTarget >> ShowDialog)
+                openMultiFileDialog title FileFilter.PSARC None (FolderTarget.PsarcImportTarget >> Dialog.FolderTarget >> ShowDialog)
 
         | Dialog.PsarcUnpack ->
             if state.RunningTasks.Contains(PsarcUnpack) then

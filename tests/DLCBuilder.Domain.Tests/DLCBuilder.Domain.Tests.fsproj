@@ -26,6 +26,7 @@
     <Compile Include="BuildConfigTests.fs" />
     <Compile Include="BuildValidatorTests.fs" />
     <Compile Include="MiscTests.fs" />
+    <Compile Include="PsarcBatchImportTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

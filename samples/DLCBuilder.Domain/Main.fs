@@ -259,6 +259,21 @@ let update (msg: Msg) (state: State) =
         addTask PsarcImport state,
         Cmd.OfTask.either task () PsarcImported (fun ex -> TaskFailed(ex, PsarcImport))
 
+    | ImportPsarcBatch (psarcPaths, targetFolder) ->
+        let importOne report projectFolder psarcPath =
+            importPsarcWithProgress report config projectFolder psarcPath :> System.Threading.Tasks.Task
+
+        let task () =
+            importPsarcBatch importOne reportPsarcImportProgress targetFolder psarcPaths
+
+        addTask PsarcImport state,
+        Cmd.OfTask.either task () PsarcBatchImported (fun ex -> TaskFailed(ex, PsarcImport))
+
+    | PsarcBatchImported result ->
+        let state = removeTask PsarcImport state
+        showModal state (PsarcBatchImportSummary result),
+        Cmd.ofMsg (AddStatusMessage(translate "PsarcImportComplete"))
+
     | PsarcImported (project, importType) ->
         let cmd =
             Cmd.batch [

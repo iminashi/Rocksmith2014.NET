@@ -101,6 +101,7 @@
     <Compile Include="Modals\ToneEditor.fs" />
     <Compile Include="Modals\InstrumentalXmlDetails.fs" />
     <Compile Include="Modals\ProfileCleanerModal.fs" />
+    <Compile Include="Modals\PsarcBatchImportSummary.fs" />
     <Compile Include="Modals\UpdateInfoMessage.fs" />
     <Compile Include="Views\Templates.fs" />
     <Compile Include="Views\AudioControls.fs" />

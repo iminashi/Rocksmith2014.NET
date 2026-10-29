@@ -5,6 +5,7 @@
 - Fixed an issue that prevented the program from working properly on systems with Thai culture settings.
 - Added automatic removal of notes with zero sustain that follow a linknext note or chord (when "Apply Improvements" is enabled).
 - Updated the UI framework and various dependencies to the latest versions.
+- Multiple PSARC files can now be imported at once with "Import PSARC File...". Each file is imported into its own project folder, files that have already been imported are skipped, and a summary is shown at the end.
 
 ## 3.5.0 (Released 2025-07-24)
 
